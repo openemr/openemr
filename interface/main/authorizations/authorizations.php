@@ -206,7 +206,8 @@ if ($imauthorized && $see_auth > 1) {
         // Clicking the patient name will load both frames for that patient,
         // as demographics.php takes care of loading the bottom frame.
         echo "<a href='$rootDir/patient_file/summary/demographics.php?set_pid=" .
-        attr_url($ppid) . "' target='RTop' onclick='top.restoreSession()'>";
+        attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)) .
+        "' target='RTop' onclick='top.restoreSession()'>";
 
         echo "<span class='font-weight-bold'>" . text($name["fname"]) . " " .
         text($name["lname"]) . "</span></a><br />" .

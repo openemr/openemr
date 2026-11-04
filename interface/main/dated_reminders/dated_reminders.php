@@ -159,8 +159,8 @@ function openLogScreen(){
 
 function goPid(pid) {
   top.restoreSession();
-  <?php echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
-      "+ '?set_pid=' + pid;\n"; ?>
+  top.RTop.location = '../../patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(pid)
+    + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
 }
 
 </script>

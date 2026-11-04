@@ -73,7 +73,7 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
             if ($openAnotherChart) {
-                $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->openPid);
+                $this->client->request('GET', $this->dashboardUrl($this->openPid));
             }
             $this->openPaymentFromPortalActivity();
 
@@ -154,7 +154,7 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
         try {
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
-            $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->openPid);
+            $this->client->request('GET', $this->dashboardUrl($this->openPid));
             $this->openPaymentFromPortalActivity();
 
             // The record stops being a payment between opening the dialog and posting.

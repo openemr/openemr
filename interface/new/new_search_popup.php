@@ -272,7 +272,8 @@ $simpleSearch = $_GET['simple_search'] ?? null;
         ?>
         objID = eObj.id;
         var parts = objID.split("~");
-        opener.<?php echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
+        opener.<?php echo $target; ?>.location.href = '<?php echo $newPage; ?>' + encodeURIComponent(parts[0])
+            + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
         dlgclose();
         return true;
     }

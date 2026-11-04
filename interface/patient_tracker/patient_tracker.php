@@ -1011,10 +1011,12 @@ function myLocalJS(SessionInterface $session): void
             else {
                 top.restoreSession();
                 if (enc > 0) {
-                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
+                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc)
+                        + "&csrf_token_form=" + encodeURIComponent(top.csrf_token_js);
                 }
                 else {
-                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
+                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid)
+                        + "&csrf_token_form=" + encodeURIComponent(top.csrf_token_js);
                 }
             }
         }

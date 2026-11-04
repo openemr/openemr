@@ -454,6 +454,7 @@ if ($is_expired) {
         $encounterID = (int) $_POST['encounterID'];
         $_notes = $_notes . "&set_encounterid=" . attr_url($encounterID);
     }
+    $_notes = $_notes . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session));
     $_tabs[] = [
         'notes' => $_notes,
         'id' => "pat",

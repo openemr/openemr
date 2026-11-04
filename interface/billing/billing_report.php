@@ -380,7 +380,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             top.restoreSession();
             const params = new URLSearchParams({
                 set_encounterid: enc,
-                set_pid: newpid
+                set_pid: newpid,
+                csrf_token_form: top.csrf_token_js
             });
             top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?" + params;
         }

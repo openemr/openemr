@@ -59,7 +59,7 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
             $this->insertFixtureData();
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
-            $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->pid);
+            $this->client->request('GET', $this->dashboardUrl($this->pid));
 
             $this->assertEqualsCanonicalizing(
                 ['fee_sheet', 'misc_billing_options'],
@@ -95,7 +95,8 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
             // opening them from the dashboard does, so the main menu's
             // encounter items are enabled.
             $this->client->executeScript(
-                'navigateTab(webroot_url + "/interface/patient_file/summary/demographics.php?set_pid=" + arguments[0], "pat");',
+                'navigateTab(webroot_url + "/interface/patient_file/summary/demographics.php?set_pid=" + arguments[0]'
+                . ' + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), "pat");',
                 [$this->pid]
             );
             $this->client->wait(30)->until(
@@ -144,7 +145,7 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
 
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
-            $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->pid);
+            $this->client->request('GET', $this->dashboardUrl($this->pid));
 
             $this->openFormsList($this->lockedEncounter);
             $this->assertSame('edit', $this->formButtonState('misc_billing_options', $miscBilling), 'Misc Billing Options locked only by the encounter should stay editable');

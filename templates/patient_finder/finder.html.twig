@@ -125,7 +125,8 @@
     function ptLinkClick(e)
     {
         let pid = this.getAttribute('data-pid');
-        top.RTop.location = "{{ webroot }}/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(pid);
+        top.RTop.location = "{{ webroot }}/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(pid)
+            + "&csrf_token_form=" + encodeURIComponent({{ csrfTokenRaw()|js_escape }});
     }
 
     Array.from(elements).forEach(function(elem) {

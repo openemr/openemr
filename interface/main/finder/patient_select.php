@@ -555,7 +555,8 @@ var SelectPatient = function (eObj) {
         dlgclose("srchDone", parts[0]);
     <?php } else { ?>
         top.restoreSession();
-        document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + parts[0];
+        document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(parts[0])
+            + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     <?php } ?>
 
     return true;

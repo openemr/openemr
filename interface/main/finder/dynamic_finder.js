@@ -115,7 +115,8 @@
             } else {
                 top.restoreSession();
                 top.RTop.location = cfg.webroot
-                    + "/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
+                    + "/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid)
+                    + "&csrf_token_form=" + encodeURIComponent(cfg.csrfToken);
             }
         });
     });
