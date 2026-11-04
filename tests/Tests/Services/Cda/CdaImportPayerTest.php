@@ -54,6 +54,11 @@ class CdaImportPayerTest extends TestCase
         'subscriber_employer_country', 'subscriber_employer_city', 'copay', 'subscriber_sex',
     ];
 
+    private const DATA_ABSENT_REASON = [
+        'valueCode' => 'unknown',
+        'url' => 'http://hl7.org/fhir/StructureDefinition/data-absent-reason',
+    ];
+
     private CdaTemplateImportDispose $dispose;
     private CarecoordinationTable&MockObject $table;
     private int $lastCompanyBefore;
@@ -161,6 +166,50 @@ class CdaImportPayerTest extends TestCase
         }
         $this->assertSame('TRUE', $row['accept_assignment'], 'the column default');
         $this->assertSame('', $row['policy_type'], 'the column default');
+    }
+
+    public function testItsFhirCoverageNamesThePayerAndPeriodAndSaysWhatIsUnknown(): void
+    {
+        $this->dispose->InsertPayers([1 => $this->payer('20240115')], self::PID, $this->table, 0);
+        $uuid = UuidRegistry::uuidToString($this->storedPolicy()['uuid']);
+
+        $fhirCoverageService = new FhirCoverageService();
+        $fhirCoverageService->setLogger($this->createMock(LoggerInterface::class));
+        $read = $fhirCoverageService->getOne($uuid);
+        $this->assertTrue($read->isValid());
+        $data = $read->getData();
+        $this->assertIsArray($data);
+        $resource = $data[0] ?? null;
+        $this->assertInstanceOf(FHIRCoverage::class, $resource);
+        $coverage = json_decode((string) json_encode($resource), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($coverage);
+
+        $this->assertSame('active', $coverage['status'] ?? null);
+        $this->assertSame(['reference' => 'Patient/' . $this->patientUuid()], $coverage['beneficiary'] ?? null);
+        $this->assertSame([['reference' => 'Organization/' . $this->companyUuid()]], $coverage['payor'] ?? null);
+        $period = $coverage['period'] ?? null;
+        $this->assertIsArray($period);
+        $start = $period['start'] ?? null;
+        $this->assertIsString($start);
+        $this->assertStringStartsWith('2024-01-15T', $start);
+        $this->assertArrayNotHasKey('end', $period);
+        $this->assertArrayNotHasKey('subscriberId', $coverage, 'no subscriber id: the document has no member number');
+        $this->assertArrayNotHasKey('class', $coverage, 'no plan or group');
+        $this->assertArrayNotHasKey('dependent', $coverage);
+
+        // US Core Coverage: a member id or a subscriber id (us-core-15) and a relationship (1..1)
+        // are required; with none stored, each says it's unknown.
+        $this->assertSame(
+            [[
+                'extension' => [self::DATA_ABSENT_REASON],
+                'type' => ['coding' => [['system' => 'http://terminology.hl7.org/CodeSystem/v2-0203', 'code' => 'MB', 'display' => 'Member Number']]],
+            ]],
+            $coverage['identifier'] ?? null
+        );
+        $this->assertSame(
+            ['coding' => [['system' => 'http://terminology.hl7.org/CodeSystem/data-absent-reason', 'code' => 'unknown', 'display' => 'Unknown']]],
+            $coverage['relationship'] ?? null
+        );
     }
 
     #[DataProvider('enteredPolicies')]
