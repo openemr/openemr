@@ -595,7 +595,7 @@ class CdaTemplateParseTest extends TestCase
                 'value' => ['value' => '18.5', 'unit' => '[in_i]'],
             ],
         ]);
-        // By value: once #14924 converts units, a head circumference sent in inches comes back as a number.
+        // By value: a head circumference read through the unit conversion comes back as a number.
         $this->assertEquals('18.5', $this->getFieldRecord('vital_sign', 1)['head_circ'] ?? null);
     }
 
