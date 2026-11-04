@@ -150,7 +150,6 @@ return ['includes' => [
     __DIR__ . '/staticMethod.nameCase.php',
     __DIR__ . '/staticMethod.nonObject.php',
     __DIR__ . '/staticMethod.resultUnused.php',
-    __DIR__ . '/staticProperty.deprecated.php',
     __DIR__ . '/ternary.alwaysFalse.php',
     __DIR__ . '/ternary.alwaysTrue.php',
     __DIR__ . '/throws.notThrowable.php',

@@ -32,14 +32,12 @@ $globalsBag = OEGlobalsBag::getInstance();
 if ($session->has('pid') && ($session->has('patient_portal_onsite_two') || $session->get('register') === true)) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
-    GlobalConfig::$PORTAL = 1;
     if (!$session->has('portal_init')) {
         SessionUtil::setSession('portal_init', true);
     }
     require_once(__DIR__ . "/../../interface/globals.php");
 } else {
     SessionWrapperFactory::getInstance()->destroyPortalSession();
-    GlobalConfig::$PORTAL = 0;
     $ignoreAuth = false;
     $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../../interface/globals.php");
@@ -65,15 +63,4 @@ if ($session->has('pid') && ($session->has('patient_portal_onsite_two') || $sess
         header('Location: ' . $landingpage);
         exit;
     }
-}
-
-/**
- * the root url of the application with trailing slash, for example http://localhost/patient/
- * default is relative base address
- */
-GlobalConfig::$WEB_ROOT = $globalsBag->get('qualified_site_addr');
-if ($globalsBag->getBoolean('portal_onsite_two_basepath')) {
-    GlobalConfig::$ROOT_URL = GlobalConfig::$WEB_ROOT . '/portal/patient/';
-} else {
-    GlobalConfig::$ROOT_URL = $globalsBag->get('web_root') . '/portal/patient/';
 }

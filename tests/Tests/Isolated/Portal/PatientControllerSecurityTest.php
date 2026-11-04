@@ -39,7 +39,7 @@ use PHPUnit\Framework\TestCase;
 
 final class PatientControllerSecurityTest extends TestCase
 {
-    private const CONTROLLERS = __DIR__ . '/../../../../portal/patient/libs/Controller/';
+    private const CONTROLLERS = __DIR__ . '/../../../../src/Controllers/Portal/Patient/';
 
     /**
      * @return array<string, array{string, string, string}>

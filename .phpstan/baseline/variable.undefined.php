@@ -1717,11 +1717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/messaging/messages.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$attachment$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$this might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/templates/DefaultError404.tpl.php',

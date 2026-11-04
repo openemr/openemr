@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PortalPatientController.php
+ * A portal patient's profile changes: they are sent for staff review, not saved to the chart.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -10,16 +10,21 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
+namespace OpenEMR\Controllers\Portal\Patient;
+
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Portal\Routing\PortalPrincipal;
+use OpenEMR\Portal\Routing\RouteMatch;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PortalProfile\PortalProfileService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-/**
- * A portal patient's profile changes: they are sent for staff review, not saved to the chart.
- */
-class PortalPatientController extends AppBasePortalController
+final readonly class PortalPatientController
 {
     /** The fields a patient may change, sent for review with their note. */
     private const UPDATE_FIELDS = [
@@ -33,51 +38,42 @@ class PortalPatientController extends AppBasePortalController
         'allowPatientPortal', 'careTeam', 'county', 'note',
     ];
 
-    /**
-     * Override here for any controller-specific functionality
-     *
-     * @inheritdocs
-     */
-    protected function Init()
+    public function __construct(private PortalProfileService $profiles = new PortalProfileService())
     {
-        parent::Init();
     }
 
     /**
-     * API Method returns the patient's pending profile change, with camelCase keys, as JSON.
+     * The patient's pending profile change, with camelCase keys: GET api/portalpatient/{id}.
      */
-    public function Read()
+    public function Read(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
         try {
-            $record = self::profiles()->record(self::recordId($this->GetRouter()->GetUrlParam('id')))
-                ?? throw new Exception('Not found');
+            $record = $this->profiles->record(self::positiveId($route->param('id')))
+                ?? throw new \RuntimeException('Not found');
             PortalPatientAccessGuard::assertCanRead($record['pid']);
-            $pending = ReviewQueueFactory::portalWorkflows()->pendingProfileChange(self::recordId($record['pid']));
+            $pending = ReviewQueueFactory::portalWorkflows()->pendingProfileChange(self::positiveId($record['pid']));
             $changed = $pending->payload ?? [];
             $newv = [];
             foreach ($changed as $key => $val) {
                 $newv[lcfirst(ucwords((string) preg_replace_callback("/(\_(.))/", fn($match): string => strtoupper($match[2]), strtolower((string) $key))))] = $val;
             }
-            $this->RenderJSON($newv, $this->JSONPCallback());
+
+            return PortalJson::ok($newv);
         } catch (\Throwable $ex) {
-            $this->RenderExceptionJSON($ex);
+            return PortalJson::exception($ex);
         }
     }
 
     /**
-     * API Method sends the patient's profile changes for staff review and renders the
-     * changed record as JSON. The chart is not changed.
+     * Send the patient's profile changes for staff review: PUT api/portalpatient/{id}. Returns
+     * the changed record; the chart is not changed.
      */
-    public function Update()
+    public function Update(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
         try {
-            $json = json_decode(RequestUtil::GetBody());
-            if (!$json instanceof stdClass) {
-                throw new Exception('The request body does not contain valid JSON');
-            }
-
-            $record = self::profiles()->record(self::recordId($this->GetRouter()->GetUrlParam('id')))
-                ?? throw new Exception('Not found');
+            $json = PortalJson::body($request->getContent());
+            $record = $this->profiles->record(self::positiveId($route->param('id')))
+                ?? throw new \RuntimeException('Not found');
             PortalPatientAccessGuard::assertCanWrite($record['pid']);
 
             $fields = self::UPDATE_FIELDS;
@@ -89,44 +85,30 @@ class PortalPatientController extends AppBasePortalController
 
             $errors = PortalProfileService::validate($record);
             if ($errors !== []) {
-                $this->RenderErrorJSON('Please check the form for errors', $errors);
-                return;
+                return PortalJson::error('Please check the form for errors', $errors);
             }
-            self::SaveAudit($record);
-            $this->RenderJSON($record, $this->JSONPCallback());
+
+            $changes = PortalProfileService::columns($record);
+            $changes['note'] = $record['note'] ?? null;
+            ReviewQueueFactory::portalWorkflows()->submitProfileChange(
+                self::positiveId($record['pid']),
+                $changes,
+                SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession()),
+            );
+
+            return PortalJson::ok($record);
         } catch (\Throwable $ex) {
-            $this->RenderExceptionJSON($ex);
+            return PortalJson::exception($ex);
         }
     }
 
-    /**
-     * Submit the changed profile, keyed by chart column, for staff review.
-     *
-     * @param array<string, mixed> $record
-     */
-    public static function SaveAudit(array $record): void
-    {
-        $changes = PortalProfileService::columns($record);
-        $changes['note'] = $record['note'] ?? null;
-        ReviewQueueFactory::portalWorkflows()->submitProfileChange(
-            self::recordId($record['pid']),
-            $changes,
-            SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession()),
-        );
-    }
-
-    private static function recordId(mixed $id): int
+    private static function positiveId(mixed $id): int
     {
         $id = filter_var($id, FILTER_VALIDATE_INT);
         if (!is_int($id) || $id <= 0) {
-            throw new Exception('Not found');
+            throw new \RuntimeException('Not found');
         }
 
         return $id;
-    }
-
-    private static function profiles(): PortalProfileService
-    {
-        return new PortalProfileService();
     }
 }

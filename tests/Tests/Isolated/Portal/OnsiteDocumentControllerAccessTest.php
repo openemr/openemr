@@ -35,7 +35,7 @@ use PHPUnit\Framework\TestCase;
 
 final class OnsiteDocumentControllerAccessTest extends TestCase
 {
-    private const CONTROLLER = __DIR__ . '/../../../../portal/patient/libs/Controller/OnsiteDocumentController.php';
+    private const CONTROLLER = __DIR__ . '/../../../../src/Controllers/Portal/Patient/OnsiteDocumentController.php';
 
     /**
      * @return array<string, array{string, string}>
@@ -74,7 +74,7 @@ final class OnsiteDocumentControllerAccessTest extends TestCase
             'create' => ['Create', [['assertCanAddDocument', '$document[\'pid\']']]],
             'update' => ['Update', [
                 // before loading: the owner on file
-                ['assertCanWriteDocuments', 'self::documentOwner($pk)'],
+                ['assertCanWriteDocuments', '$this->documentOwner($pk)'],
                 // after loading, in case the document moved in between
                 ['assertCanWriteDocuments', '$owner'],
                 // the patient the document is saved under

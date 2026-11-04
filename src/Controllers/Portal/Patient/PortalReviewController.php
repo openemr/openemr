@@ -1,13 +1,8 @@
 <?php
 
 /**
- * The portal review screens over the review queue.
- *
- * Replaces the two Phreeze stacks that read and wrote onsite_portal_activity directly
- * (OnsiteActivityView for the staff review list, OnsitePortalActivity for the per-document
- * activity the document screen keeps). The URLs and the JSON the existing JavaScript reads are
- * unchanged; behind them, every change goes through PortalReviewWorkflows and so through the
- * review queue's checked transitions, history and audit log.
+ * Portal review requests: the staff review list (Portal > Review Audits) and the document
+ * screen's review activity, over the patient review queue.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -16,11 +11,17 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
+namespace OpenEMR\Controllers\Portal\Patient;
+
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Portal\Routing\PortalPrincipal;
+use OpenEMR\Portal\Routing\RouteMatch;
 use OpenEMR\Services\PatientReview\Legacy\LegacyActivityRow;
 use OpenEMR\Services\PatientReview\Legacy\ReviewListQuery;
 use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
@@ -29,53 +30,65 @@ use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewRequestMapper;
 use OpenEMR\Services\PatientReview\ReviewType;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class PortalReviewController extends AppBasePortalController
+final readonly class PortalReviewController
 {
-    private ?PortalReviewWorkflows $workflows = null;
+    private const PAGE_SIZE = 25;
+
+    public function __construct(private PortalPageRenderer $pages)
+    {
+    }
 
     /**
-     * Staff review list page (Portal > Review Audits).
+     * The staff review list page: GET onsiteactivityviews.
      */
-    public function ListView(): void
+    public function ListView(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
-        $this->assertStaffReviewer();
+        self::assertStaffReviewer();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (!$session->has('authUser')) {
-            header("refresh:5;url= ./provider");
-            echo 'Redirecting in about 5 secs. Session shared with Onsite Portal<br /> Shared session not allowed!.';
-            exit();
+            return new Response(
+                'Redirecting in about 5 secs. Session shared with Onsite Portal<br /> Shared session not allowed!.',
+                Response::HTTP_OK,
+                ['refresh' => '5;url= ./provider'],
+            );
         }
-        $this->Assign('cuser', $session->get('authUser'));
-        $this->Render('OnsiteActivityViewListView');
+
+        return new Response($this->pages->render('OnsiteActivityViewListView', ['cuser' => $session->get('authUser')]));
     }
 
     /**
      * The staff review list as JSON: GET api/onsiteactivityviews.
      */
-    public function Query(): void
+    public function Query(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
         try {
-            $this->assertStaffReviewer();
-            $activity = RequestUtil::Get('activity');
-            $page = RequestUtil::Get('page');
-            $orderBy = RequestUtil::Get('orderBy');
-            $filter = RequestUtil::Get('filter');
+            self::assertStaffReviewer();
+            $query = $request->query;
+            $activity = $query->getString('activity');
+            $page = $query->getString('page');
+            $orderBy = $query->getString('orderBy');
+            $filter = $query->getString('filter');
+            $status = $query->getString('status');
+            $orderDesc = $query->getString('orderDesc') !== '';
+            // Empty values pass through as empty strings, as RequestUtil gave them before.
             $output = (new ReviewListQuery(new ReviewRequestMapper()))->page(
-                ReviewListQuery::statusFromLegacy(is_string(RequestUtil::Get('status')) ? RequestUtil::Get('status') : null),
-                is_string($activity) ? ReviewType::tryFrom($activity) : null,
-                is_string($filter) ? $filter : null,
-                is_string($orderBy) ? $orderBy : null,
-                RequestUtil::Get('orderDesc') != '',
+                ReviewListQuery::statusFromLegacy($status),
+                ReviewType::tryFrom($activity),
+                $filter,
+                $orderBy,
+                $orderDesc,
                 is_numeric($page) ? intval($page) : 1,
-                $this->pageSize(),
+                self::PAGE_SIZE,
             );
             $output['orderBy'] = $orderBy;
-            $output['orderDesc'] = RequestUtil::Get('orderDesc') != '';
+            $output['orderDesc'] = $orderDesc;
 
-            $this->RenderJSON($output, $this->JSONPCallback());
+            return PortalJson::ok($output);
         } catch (\RuntimeException | \LogicException $ex) {
-            $this->RenderExceptionJSON($ex);
+            return PortalJson::exception($ex);
         }
     }
 
@@ -83,14 +96,15 @@ class PortalReviewController extends AppBasePortalController
      * One request: GET api/onsiteactivityview/{id} (staff) and GET api/onsiteportalactivity/{id}
      * (the document screen, patient or staff).
      */
-    public function Read(): void
+    public function Read(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
         try {
-            $request = $this->requestFromUrl();
-            PortalPatientAccessGuard::assertCanRead($request->pid);
-            $this->RenderJSON(LegacyActivityRow::fromRequest($request)->toModel(), $this->JSONPCallback());
+            $review = self::requestFromUrl($route);
+            PortalPatientAccessGuard::assertCanRead($review->pid);
+
+            return PortalJson::ok(LegacyActivityRow::fromRequest($review)->toModel());
         } catch (\RuntimeException | \LogicException $ex) {
-            $this->RenderExceptionJSON($ex);
+            return PortalJson::exception($ex);
         }
     }
 
@@ -98,24 +112,24 @@ class PortalReviewController extends AppBasePortalController
      * The document screen looks up a document's review activity:
      * GET api/onsiteportalactivities?patientId=&activity=document&doc=.
      */
-    public function DocumentQuery(): void
+    public function DocumentQuery(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
         try {
-            $pid = self::requirePositiveInt(RequestUtil::Get('patientId'), 'patient ID');
+            $pid = self::requirePositiveInt($request->query->getString('patientId'), 'patient ID');
             PortalPatientAccessGuard::assertCanRead($pid);
-            $documentId = filter_var(RequestUtil::Get('doc'), FILTER_VALIDATE_INT);
-            $latest = is_int($documentId) && $documentId > 0 ? $this->workflows()->latestDocument($pid, $documentId) : null;
+            $documentId = filter_var($request->query->getString('doc'), FILTER_VALIDATE_INT);
+            $latest = is_int($documentId) && $documentId > 0 ? self::workflows()->latestDocument($pid, $documentId) : null;
             $rows = $latest === null ? [] : [LegacyActivityRow::fromRequest($latest)->toModel()];
 
-            $this->RenderJSON([
+            return PortalJson::ok([
                 'rows' => $rows,
                 'totalResults' => count($rows),
                 'totalPages' => 1,
                 'pageSize' => count($rows),
                 'currentPage' => 1,
-            ], $this->JSONPCallback());
+            ]);
         } catch (\RuntimeException | \LogicException $ex) {
-            $this->RenderExceptionJSON($ex);
+            return PortalJson::exception($ex);
         }
     }
 
@@ -128,43 +142,37 @@ class PortalReviewController extends AppBasePortalController
      *   deleted  the patient deleted it before it was charted
      *   editing  the patient is still editing; nothing is in review
      */
-    public function DocumentChange(): void
+    public function DocumentChange(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
         try {
-            $json = json_decode((string) RequestUtil::GetBody(), true);
+            $json = json_decode($request->getContent(), true);
             if (!is_array($json)) {
-                throw new InvalidArgumentException('The request body does not contain valid JSON');
+                throw new \InvalidArgumentException('The request body does not contain valid JSON');
             }
             if (($json['activity'] ?? null) !== 'document') {
-                throw new InvalidArgumentException('Only document activity is recorded here');
+                throw new \InvalidArgumentException('Only document activity is recorded here');
             }
             $pid = self::requirePositiveInt($json['patientId'] ?? ($json['pid'] ?? null), 'patient ID');
             PortalPatientAccessGuard::assertCanWrite($pid);
             $documentId = self::requirePositiveInt($json['tableArgs'] ?? null, 'document ID');
             $actor = SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession());
-            $workflows = $this->workflows();
-
+            $workflows = self::workflows();
             $status = $json['status'] ?? null;
             // Only a submission creates a request, so only it needs the document checked. Closing
             // or deleting acts on a request that was checked when it was submitted (and a deleted
             // document's row is already gone).
             if ($status === 'waiting' && !self::documentBelongsTo($documentId, $pid)) {
-                throw new InvalidArgumentException('The document does not belong to this patient');
+                throw new \InvalidArgumentException('The document does not belong to this patient');
             }
-
+            $narrative = $json['narrative'] ?? null;
             $result = match ($status) {
-                'waiting' => $workflows->submitDocument(
-                    $pid,
-                    $documentId,
-                    is_string($json['narrative'] ?? null) ? $json['narrative'] : '',
-                    $actor,
-                ),
+                'waiting' => $workflows->submitDocument($pid, $documentId, is_string($narrative) ? $narrative : '', $actor),
                 'closed' => $workflows->completeDocument($pid, $documentId, $actor),
                 'deleted' => $workflows->cancelDocument(
                     $pid,
                     $documentId,
                     $actor,
-                    is_string($json['narrative'] ?? null) ? $json['narrative'] : 'Patient deleted un-charted template',
+                    is_string($narrative) ? $narrative : 'Patient deleted un-charted template',
                 ),
                 default => null,
             };
@@ -172,12 +180,9 @@ class PortalReviewController extends AppBasePortalController
 
             // Backbone keeps the id it is given; with none it posts again next time, which is
             // what a document with nothing in review needs.
-            $this->RenderJSON(
-                $result === null ? ['id' => null] + $json : LegacyActivityRow::fromRequest($result)->toModel(),
-                $this->JSONPCallback()
-            );
+            return PortalJson::ok($result === null ? ['id' => null] + $json : LegacyActivityRow::fromRequest($result)->toModel());
         } catch (\RuntimeException | \LogicException $ex) {
-            $this->RenderExceptionJSON($ex);
+            return PortalJson::exception($ex);
         }
     }
 
@@ -188,26 +193,19 @@ class PortalReviewController extends AppBasePortalController
         return is_numeric($owner) && intval($owner) === $pid;
     }
 
-    private function pageSize(): int
+    private static function workflows(): PortalReviewWorkflows
     {
-        $size = $this->GetDefaultPageSize();
-
-        return is_int($size) && $size > 0 ? $size : 25;
+        return ReviewQueueFactory::portalWorkflows();
     }
 
-    private function workflows(): PortalReviewWorkflows
+    private static function requestFromUrl(RouteMatch $route): ReviewRequest
     {
-        return $this->workflows ??= ReviewQueueFactory::portalWorkflows();
+        $id = self::requirePositiveInt($route->param('id'), 'review request ID');
+
+        return ReviewQueueFactory::create()->find($id) ?? throw new \RuntimeException('Not found');
     }
 
-    private function requestFromUrl(): ReviewRequest
-    {
-        $id = self::requirePositiveInt($this->GetRouter()->GetUrlParam('id'), 'review request ID');
-
-        return ReviewQueueFactory::create()->find($id) ?? throw new RuntimeException('Not found');
-    }
-
-    private function assertStaffReviewer(): void
+    private static function assertStaffReviewer(): void
     {
         if (!AclMain::aclCheckCore('patientportal', 'portal') || !AclMain::aclCheckCore('patients', 'demo')) {
             AccessDeniedHelper::deny('Unauthorized access to onsite activity review');
@@ -218,8 +216,9 @@ class PortalReviewController extends AppBasePortalController
     {
         $int = filter_var($value, FILTER_VALIDATE_INT);
         if (!is_int($int) || $int <= 0) {
-            throw new InvalidArgumentException('A valid ' . $what . ' is required');
+            throw new \InvalidArgumentException('A valid ' . $what . ' is required');
         }
+
         return $int;
     }
 }
