@@ -238,6 +238,15 @@ Before any code moves, the first commits add the tests every later commit is che
   `DataAdapter`, `ConnectionSetting`, the MySQLi driver and `DatabaseConfig`.
 - Remove the second database connection in `_machine_config.php`, the three `autoload.files`
   entries in `composer.json`, and `UnserializeAllowedClassesTest`'s use of `ConnectionSetting`.
+- In the same commit, cut the bootstrap's ties to the ORM so no commit leaves the portal calling a
+  deleted class:
+  - `index.php`: remove the `GlobalConfig::$CONNECTION_SETTING` check, and stop passing
+    `$gc->GetPhreezer()` to `Dispatcher::Dispatch`.
+  - `_global_config.php`: remove `GetPhreezer()` and `$CONNECTION_SETTING`.
+  - `Dispatcher` and `PortalController`: drop the Phreezer parameter and the `$this->Phreezer`
+    property.
+
+  Commit 5 then replaces the bootstrap itself.
 
 **Commit 5: new router and controllers**
 - Add `src/Portal/Routing/`: a route table where each route declares a typed access rule (an enum,
