@@ -390,7 +390,8 @@ class InsuranceService extends BaseService
      * no policy number, plan name or subscriber, so those columns keep their defaults (NULL)
      * rather than a value it doesn't state. insert() keeps the full rules for every other caller.
      *
-     * @param array<mixed> $data pid, type, provider, date (Y-m-d) and date_end (Y-m-d or null)
+     * @param array<mixed> $data pid, type, provider, date (Y-m-d) and date_end (Y-m-d or null; the key is
+     *                           required once there is a date, as in insert())
      */
     public function insertImported(array $data): ProcessingResult
     {

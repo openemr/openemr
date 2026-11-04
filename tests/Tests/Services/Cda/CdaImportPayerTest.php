@@ -212,41 +212,47 @@ class CdaImportPayerTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string, string> $entered the details entered on the policy
+     */
     #[DataProvider('enteredPolicies')]
-    public function testImportingAgainLeavesAPolicyEnteredInOpenEmr(?string $policyNumber, ?string $subscriber): void
+    public function testImportingAgainLeavesAPolicyEnteredInOpenEmr(array $entered): void
     {
         // A primary policy entered in OpenEMR before the document is imported.
+        $columns = array_keys($entered);
         QueryUtils::sqlInsert(
-            "INSERT INTO `insurance_data` (`uuid`, `pid`, `type`, `provider`, `plan_name`, `policy_number`, `date`, `date_end`, `subscriber_lname`,"
-            . " `subscriber_fname`, `subscriber_relationship`, `subscriber_DOB`, `subscriber_sex`)"
-            . " VALUES (?, ?, 'primary', 0, 'Staff Plan', ?, '2023-01-01', '2026-06-30', ?, ?, ?, ?, ?)",
-            [
-                UuidRegistry::getRegistryForTable('insurance_data')->createUuid(), self::PID, $policyNumber, $subscriber,
-                ...($subscriber === null ? [null, null, null, null] : ['Sam', 'spouse', '1958-02-02', 'Male']),
-            ]
+            "INSERT INTO `insurance_data` (`uuid`, `pid`, `type`, `provider`, `date`, `date_end`, `" . implode('`, `', $columns) . '`)'
+            . " VALUES (?, ?, 'primary', 0, '2023-01-01', '2026-06-30'" . str_repeat(', ?', count($columns)) . ')',
+            [UuidRegistry::getRegistryForTable('insurance_data')->createUuid(), self::PID, ...array_values($entered)]
         );
-        $entered = $this->storedPolicy();
+        $stored = $this->storedPolicy();
 
         $this->dispose->InsertPayers([1 => $this->payer('19850122163900', '20201231')], self::PID, $this->table, 0);
 
         $this->assertSame(
-            $entered,
+            $stored,
             $this->storedPolicy(),
-            "a document's payer doesn't replace a policy entered in OpenEMR: its payer, dates, number, plan and subscriber stay"
+            "a document's payer doesn't replace a policy entered in OpenEMR: its payer, dates and details stay"
         );
         $this->assertSame(0, $this->companiesMade(), 'no placeholder company for a policy not saved');
     }
 
     /**
-     * @return array<string, array{?string, ?string}>
-     * @codeCoverageIgnore
+     * @return array<string, array{array<string, string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function enteredPolicies(): array
     {
         return [
-            'a policy number and a subscriber' => ['STAFF-1', 'Payertest'],
-            'a policy number only' => ['STAFF-1', null],
-            'a subscriber only' => [null, 'Payertest'],
+            'a policy number and a subscriber' => [[
+                'policy_number' => 'STAFF-1', 'plan_name' => 'Staff Plan', 'subscriber_lname' => 'Payertest', 'subscriber_fname' => 'Sam',
+                'subscriber_relationship' => 'spouse', 'subscriber_DOB' => '1958-02-02', 'subscriber_sex' => 'Male',
+            ]],
+            'a policy number only' => [['policy_number' => 'STAFF-1']],
+            'a subscriber only' => [['subscriber_lname' => 'Payertest']],
+            'a group number only' => [['group_number' => 'GRP-7']],
+            'the relationship only' => [['subscriber_relationship' => 'self']],
         ];
     }
 
@@ -283,7 +289,8 @@ class CdaImportPayerTest extends TestCase
 
     /**
      * @return array<string, array{?string}>
-     * @codeCoverageIgnore
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function payerCodes(): array
     {
@@ -291,6 +298,8 @@ class CdaImportPayerTest extends TestCase
             'none' => [null],
             'a nullFlavor, which the import stages as blank' => [''],
             'not a code' => ['UNK'],
+            'a code with a trailing newline' => ["9999\n"],
+            'longer than the INT column holds' => ['99999999999'],
         ];
     }
 
@@ -308,7 +317,8 @@ class CdaImportPayerTest extends TestCase
 
     /**
      * @return array<string, array{string, ?string, int}>
-     * @codeCoverageIgnore
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function documentDates(): array
     {
@@ -323,6 +333,34 @@ class CdaImportPayerTest extends TestCase
             'not a date: no policy, no company' => ['unknown', null, 0],
             // eight digits, so the payer's company is made before the validator refuses the date
             'no such day: refused, no policy' => ['20240230', null, 1],
+        ];
+    }
+
+    #[DataProvider('documentEndDates')]
+    public function testThePolicyEndsOnTheDayTheDocumentGives(?string $highDate, ?string $stored, int $policies): void
+    {
+        $this->dispose->InsertPayers([1 => $this->payer('20240115', $highDate)], self::PID, $this->table, 0);
+
+        $this->assertCount($policies, $this->policies());
+        $this->assertSame($policies, $this->companiesMade(), 'a company only for a policy saved');
+        if ($policies === 1) {
+            $this->assertSame($stored, $this->storedPolicy()['date_end']);
+        }
+    }
+
+    /**
+     * @return array<string, array{?string, ?string, int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function documentEndDates(): array
+    {
+        return [
+            'a day' => ['20241231235959-0500', '2024-12-31', 1],
+            'none' => [null, null, 1],
+            'a nullFlavor, which the import stages as blank: none' => ['', null, 1],
+            'a month: no policy' => ['202412', null, 0],
+            'a year: no policy' => ['2024', null, 0],
         ];
     }
 
