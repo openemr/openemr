@@ -27,10 +27,11 @@
 require_once(__DIR__ . "/documents.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\DirectMessaging\PhiMailCheckException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
-use OpenEMR\Services\VersionService;
+use OpenEMR\Services\SoftwareVersion;
 
 /**
  * Connect to a phiMail Direct Messaging server
@@ -126,7 +127,7 @@ function phimail_connect(&$phimail_error)
     }
 
     if ($fp !== false) {
-        $ret = phimail_write_expect_OK($fp, "INFO VER OEMR " . (new VersionService())->getSoftwareVersion() . " 1.3.2 "
+        $ret = phimail_write_expect_OK($fp, "INFO VER OEMR " . SoftwareVersion::fromGlobals(OEGlobalsBag::getInstance()) . " 1.3.2 "
             . \PHP_VERSION . "\n");
         if ($ret !== true) {
             phimail_close($fp);
@@ -149,6 +150,8 @@ function phimail_connect(&$phimail_error)
 /**
  * Connect to a phiMail Direct Messaging server and check for any incoming status
  * messages related to previously transmitted messages or any new messages received.
+ *
+ * @throws PhiMailCheckException when the check fails, after writing its audit row
  */
 
 function phimail_check(): void
@@ -161,17 +164,22 @@ function phimail_check(): void
         $notifyUsername = 'admin'; //fallback
     }
 
+    // Record the failure in the audit log, then throw so the background
+    // service runner reports the run as an error.
+    $fail = static function (string $text): never {
+        phimail_logit(0, $text);
+        throw new PhiMailCheckException($text);
+    };
+
     $fp = phimail_connect($err);
     if ($fp === false) {
-        phimail_logit(0, xl('could not connect to server') . ' ' . $err);
-        return;
+        $fail(xl('could not connect to server') . ' ' . $err);
     }
 
     try {
         $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
         if ($ret !== true) {
-            phimail_logit(0, "authentication error " . $ret);
-            return;
+            $fail("authentication error " . $ret);
         }
 
         while (1) {
@@ -187,8 +195,7 @@ function phimail_check(): void
                 $sql = 'SELECT * from direct_message_log WHERE msg_id = ?';
                 $res = sqlStatementNoLog($sql, [$val[1]]);
                 if ($res === false) { //database problem
-                    phimail_logit(0, "database problem");
-                    return;
+                    $fail("database problem");
                 }
 
                 if (($msg = sqlFetchArray($res)) === false) {
@@ -196,11 +203,9 @@ function phimail_check(): void
                     phimail_logit(0, "NO MATCH: " . $ret);
                     $ret = phimail_write_expect_OK($fp, "OK\n");
                     if ($ret !== true) {
-                        phimail_logit(0, "M1 status acknowledgment failed: " . $ret);
-                        return;
-                    } else {
-                        continue;
+                        $fail("M1 status acknowledgment failed: " . $ret);
                     }
+                    continue;
                 }
 
                 //if we get here, $msg contains the matching outgoing message record
@@ -224,8 +229,7 @@ function phimail_check(): void
                 $sql = "UPDATE direct_message_log SET status=?, status_ts=NOW(), status_info=? WHERE msg_type='S' AND msg_id=?";
                 $res = sqlStatementNoLog($sql, [$status, $val[3], $val[1]]);
                 if ($res === false) { //database problem
-                    phimail_logit(0, "database problem updating: " . $val[1]);
-                    return;
+                    $fail("database problem updating: " . $val[1]);
                 }
 
                 if (!$success) {
@@ -253,8 +257,7 @@ function phimail_check(): void
                 //done with this status message
                 $ret = phimail_write_expect_OK($fp, "OK\n");
                 if ($ret !== true) {
-                    phimail_logit(0, "M2 status acknowledgment failed: " . $ret);
-                    return;
+                    $fail("M2 status acknowledgment failed: " . $ret);
                 }
             } elseif (str_starts_with($ret, "MAIL")) {
                 $val = explode(" ", trim($ret), 5); // MAIL recipient sender #attachments msg-id
@@ -266,8 +269,7 @@ function phimail_check(): void
                 //request main message
                 $ret2 = phimail_write_expect_OK($fp, "SHOW 0\n");
                 if ($ret2 !== true) {
-                    phimail_logit(0, "M3 SHOW 0 failed: " . $ret2);
-                    return;
+                    $fail("M3 SHOW 0 failed: " . $ret2);
                 }
 
                 //get message headers
@@ -275,8 +277,7 @@ function phimail_check(): void
                 while (true) {
                     $next_hdr = fgets($fp);
                     if ($next_hdr === false) {
-                        phimail_logit(0, "M4 read headers failed");
-                        return;
+                        $fail("M4 read headers failed");
                     }
                     if ($next_hdr == "\n") {
                         break;
@@ -292,14 +293,12 @@ function phimail_check(): void
                 $body_len = fgets($fp);
                 $body = phimail_read_blob($fp, $body_len);
                 if ($body === false) {
-                    phimail_logit(0, "M4 read body failed");
-                    return;
+                    $fail("M4 read body failed");
                 }
 
                 $att2 = fgets($fp);
                 if ($att2 != $att) { //safety for mismatch on attachments
-                    phimail_logit(0, "M5 attachment mismatch");
-                    return;
+                    $fail("M5 attachment mismatch");
                 }
 
                 //get attachment info
@@ -310,8 +309,7 @@ function phimail_check(): void
                             || ($attinfo[$attnum]['mime'] = fgets($fp)) === false
                             || ($attinfo[$attnum]['desc'] = fgets($fp)) === false
                         ) {
-                            phimail_logit(0, "M6 read attachment " . ($attnum + 1) . " metadata failed");
-                            return;
+                            $fail("M6 read attachment " . ($attnum + 1) . " metadata failed");
                         }
                     }
                 }
@@ -330,16 +328,14 @@ function phimail_check(): void
                         $name = uniqid("dm-message-") . phimail_extension($mime_type_main);
                         $doc_id = phimail_store($name, $mime_type_main, $body);
                         if (!$doc_id) {
-                            phimail_logit(0, "M7 store non-text body failed");
-                            return;
+                            $fail("M7 store non-text body failed");
                         }
 
                         $idnum = $doc_id['doc_id'];
                         $all_doc_ids[] = $idnum;
                         $url = $doc_id['url'];
                         if (!is_string($url)) {
-                            phimail_logit(0, "M7 store non-text body returned non-string url");
-                            return;
+                            $fail("M7 store non-text body returned non-string url");
                         }
                         $url = substr($url, strrpos($url, "/") + 1);
                         $att_detail = "\n" . xl("Document") . " $idnum (\"$url\"; $mime_type_main; " .
@@ -351,21 +347,18 @@ function phimail_check(): void
                 for ($attnum = 0; $attnum < $att; $attnum++) {
                     $ret2 = phimail_write_expect_OK($fp, "SHOW " . ($attnum + 1) . "\n");
                     if ($ret2 !== true) {
-                        phimail_logit(0, "M8 SHOW " . ($attnum + 1) . " failed: " . $ret2);
-                        return;
+                        $fail("M8 SHOW " . ($attnum + 1) . " failed: " . $ret2);
                     }
 
                     //we can ignore next two lines (repeat of name and mime-type)
                     if (($a1 = fgets($fp)) === false || ($a2 = fgets($fp)) === false) {
-                        phimail_logit(0, "M9 skip attachment " . ($attnum + 1) . " duplicate header lines failed");
-                        return;
+                        $fail("M9 skip attachment " . ($attnum + 1) . " duplicate header lines failed");
                     }
 
                     $att_len = fgets($fp); //length of file
                     $attdata = phimail_read_blob($fp, $att_len);
                     if ($attdata === false) {
-                        phimail_logit(0, "M10 read attachment " . ($attnum + 1) . " failed");
-                        return;
+                        $fail("M10 read attachment " . ($attnum + 1) . " failed");
                     }
 
                     $attinfo[$attnum]['file'] = $attdata;
@@ -382,8 +375,7 @@ function phimail_check(): void
                     } else {
                         $att_doc_id = phimail_store($req_name, $attmime, $attdata);
                         if (!$att_doc_id) {
-                            phimail_logit(0, "M11 store attachment " . ($attnum + 1) . " failed");
-                            return;
+                            $fail("M11 store attachment " . ($attnum + 1) . " failed");
                         }
 
                         $attinfo[$attnum]['doc_id'] = $att_doc_id;
@@ -463,12 +455,10 @@ function phimail_check(): void
                 }
 
                 if ($ret2 !== true) {
-                    phimail_logit(0, "M12 DONE failed: " . $ret2);
-                    return;
+                    $fail("M12 DONE failed: " . $ret2);
                 }
             } else { //unrecognized or FAIL response
-                phimail_logit(0, "M16 unexpected problem checking messages " . $ret);
-                return;
+                $fail("M16 unexpected problem checking messages " . $ret);
             }
         }
     } finally {
