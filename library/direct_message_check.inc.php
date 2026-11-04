@@ -156,6 +156,7 @@ function phimail_connect(&$phimail_error)
  * messages related to previously transmitted messages or any new messages received.
  *
  * @throws PhiMailCheckException when the check fails, after writing its audit row
+ * @throws DbalException when an audit row cannot be written on a path that is not already failing
  */
 
 function phimail_check(): void
@@ -171,7 +172,7 @@ function phimail_check(): void
     // Record the failure in the audit log, then throw so the background
     // service runner reports the run as an error.
     $fail = static function (string $text, ?\Throwable $previous = null): never {
-        phimail_logit(0, $text);
+        phimail_logit(0, $text, failing: true);
         throw new PhiMailCheckException($text, 0, $previous);
     };
 
@@ -516,16 +517,27 @@ function phimail_close($fp): void
     fclose($fp);
 }
 
-function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check"): void
+/**
+ * Write a phiMail audit row.
+ *
+ * @param bool $failing true when the caller is about to report a check
+ *     failure. A failed audit write is then logged instead of thrown, so it
+ *     cannot replace that failure. On every other path it propagates, so a
+ *     broken audit log fails the run.
+ *
+ * @throws DbalException when the audit row cannot be written and $failing is false
+ */
+function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check", bool $failing = false): void
 {
     if (!$success) {
         ServiceContainer::getLogger()->error("phimail_logit {event}: {text}", ['event' => $event, 'text' => $text, 'pid' => $pid]);
     }
-    // A failed audit write is logged here instead of thrown, so it cannot
-    // replace the failure being recorded or skip the caller's failure path.
     try {
         EventAuditLogger::getInstance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
     } catch (DbalException $auditError) {
+        if (!$failing) {
+            throw $auditError;
+        }
         ServiceContainer::getLogger()->error('phimail_logit could not write the audit row', ['event' => $event, 'exception' => $auditError]);
     }
 }
@@ -538,13 +550,13 @@ function phimail_read_blob($fp, $len): string|false
     // Reject a malformed length before creating the temp file
     $length = filter_var($len, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
     if ($length === false) {
-        phimail_logit(0, "M17 invalid blob length");
+        phimail_logit(0, "M17 invalid blob length", failing: true);
         return false;
     }
 
     $fpath = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
     if (!@file_exists($fpath)) {
-        phimail_logit(0, "M13 temp dir does not exist: " . $fpath);
+        phimail_logit(0, "M13 temp dir does not exist: " . $fpath, failing: true);
         return false;
     }
 
@@ -557,7 +569,7 @@ function phimail_read_blob($fp, $len): string|false
 
     $ff = @fopen($fn, "w");
     if (!$ff) {
-        phimail_logit(0, "M14 failed opening temp file: " . $fn);
+        phimail_logit(0, "M14 failed opening temp file: " . $fn, failing: true);
         return false;
     }
 
@@ -573,7 +585,7 @@ function phimail_read_blob($fp, $len): string|false
             @fclose($ff);
             @unlink($fn);
             phimail_logit(0, "M15 failure " . ($chunk === false ? "reading" : "writing")
-                . " blob chunk after " . ($length - $bytes_left) . " bytes");
+                . " blob chunk after " . ($length - $bytes_left) . " bytes", failing: true);
             return false;
         }
 
@@ -658,7 +670,7 @@ function phimail_store($name, $mime_type, $fn)
         }
     } catch (\Throwable $exception) {
         ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception, 'name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
-        phimail_logit(0, "problem storing attachment in OpenEMR");
+        phimail_logit(0, "problem storing attachment in OpenEMR", failing: true);
         $return = false;
     } finally {
         $phimail_direct_message_check_allowed_mimetype = null;

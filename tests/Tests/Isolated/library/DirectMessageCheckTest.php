@@ -233,6 +233,22 @@ final class DirectMessageCheckTest extends TestCase
         self::assertSame('closed', $this->serverResult($server));
     }
 
+    public function testFailedAuditWriteFailsAnOtherwiseSuccessfulCheck(): void
+    {
+        $server = $this->startServer(['OK', 'OK', 'NONE']);
+        $auditFailure = new ConnectionException('audit database is down');
+        $this->auditFailure = $auditFailure;
+
+        try {
+            phimail_check();
+            self::fail('phimail_check() hid a failed audit write.');
+        } catch (ConnectionException $e) {
+            self::assertSame($auditFailure, $e);
+        }
+
+        self::assertSame('closed', $this->serverResult($server));
+    }
+
     public function testNoMessagesCompletesNormally(): void
     {
         $server = $this->startServer(['OK', 'OK', 'NONE']);
