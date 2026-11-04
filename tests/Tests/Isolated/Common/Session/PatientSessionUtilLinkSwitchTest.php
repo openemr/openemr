@@ -106,22 +106,57 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testForgedSwitchEndsTheRequest(): void
+    public function testRequireCsrfAcceptsAnArrayTokenWhenReopeningTheCurrentChart(): void
     {
-        $process = new Process([PHP_BINARY, self::FIXTURE, '22']);
-        $process->run();
+        $request = Request::create('/demographics.php', 'GET', [
+            'set_pid' => (string) self::SESSION_PID,
+            'csrf_token_form' => ['not', 'a', 'string'],
+        ]);
 
-        $this->assertSame(0, $process->getExitCode(), $process->getErrorOutput());
-        $this->assertSame('Authentication Error', $process->getOutput());
+        PatientSessionUtil::requireCsrfForLinkSwitch($request, self::SESSION_PID);
+        $this->addToAssertionCount(1);
     }
 
-    public function testTokenBearingSwitchContinues(): void
+    /**
+     * @return array<string, array{list<string>, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function childProcessProvider(): array
     {
-        $process = new Process([PHP_BINARY, self::FIXTURE, '22', 'with-token']);
+        return [
+            'forged switch is refused and keeps the open chart' => [['22'], 'Authentication Error pid=11'],
+            'array token is refused like a missing one' => [['22', 'array-token'], 'Authentication Error pid=11'],
+            'token-bearing switch continues' => [['22', 'with-token'], 'allowed pid=22'],
+        ];
+    }
+
+    /**
+     * @param list<string> $arguments
+     */
+    #[DataProvider('childProcessProvider')]
+    public function testSwitchInAChildProcess(array $arguments, string $output): void
+    {
+        $process = new Process([PHP_BINARY, self::FIXTURE, ...$arguments]);
         $process->run();
 
         $this->assertSame(0, $process->getExitCode(), $process->getErrorOutput());
-        $this->assertSame('allowed', $process->getOutput());
+        $this->assertSame($output, $process->getOutput());
+    }
+
+    /**
+     * demographics.php needs the full bootstrap, so check its source: the
+     * guard must run before the setpid() that writes the session.
+     */
+    public function testDemographicsChecksTheTokenBeforeSwitching(): void
+    {
+        $source = file_get_contents(dirname(__DIR__, 5) . '/interface/patient_file/summary/demographics.php');
+        $this->assertIsString($source);
+        $guardAt = strpos($source, 'PatientSessionUtil::requireCsrfForLinkSwitch($request, $setPid, $setEncounterId);');
+        $switchAt = strpos($source, 'setpid($setPid);');
+        $this->assertNotFalse($guardAt);
+        $this->assertNotFalse($switchAt);
+        $this->assertLessThan($switchAt, $guardAt);
     }
 
     private function token(string $kind): mixed

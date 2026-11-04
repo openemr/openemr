@@ -37,9 +37,20 @@ CsrfUtils::setupCsrfKey($session);
 SessionWrapperFactory::getInstance()->setActiveSession($session);
 
 $query = ['set_pid' => $requestedPid];
-if (($argv[2] ?? '') === 'with-token') {
-    $query['csrf_token_form'] = CsrfUtils::collectCsrfToken($session);
-}
+$query['csrf_token_form'] = match ($argv[2] ?? '') {
+    'with-token' => CsrfUtils::collectCsrfToken($session),
+    'array-token' => [CsrfUtils::collectCsrfToken($session)],
+    default => null,
+};
+
+// Report the session patient after the guard, even when it exits, so the
+// test can see that a refused switch left the chart alone.
+register_shutdown_function(static function () use ($session): void {
+    $pid = $session->get('pid');
+    echo ' pid=' . (is_int($pid) ? $pid : 'none');
+});
 
 PatientSessionUtil::requireCsrfForLinkSwitch(Request::create('/demographics.php', 'GET', $query), $requestedPid);
+// Stand in for demographics.php's setpid() once the guard lets it through.
+$session->set('pid', $requestedPid);
 echo 'allowed';

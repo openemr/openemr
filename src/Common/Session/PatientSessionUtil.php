@@ -68,7 +68,10 @@ class PatientSessionUtil
      */
     public static function requireCsrfForLinkSwitch(Request $request, int $requestedPid, int $requestedEncounter = 0): void
     {
-        if (!self::mayLinkSwitchContext($requestedPid, $requestedEncounter, $request->query->get('csrf_token_form'))) {
+        // Read the raw value: InputBag::get() throws on an array, which
+        // would skip both the 403 and the no-token reopen of the current chart.
+        $token = $request->query->all()['csrf_token_form'] ?? null;
+        if (!self::mayLinkSwitchContext($requestedPid, $requestedEncounter, $token)) {
             CsrfUtils::csrfNotVerified();
         }
     }
