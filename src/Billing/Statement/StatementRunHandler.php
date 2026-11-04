@@ -57,12 +57,14 @@ final readonly class StatementRunHandler
             // Every checked patient was skipped: say so rather than hand back an empty file.
             return $skipped;
         }
+        // An email run's failures, "patient: reason" each; master's page dropped them for the print message.
+        $notEmailed = $result->emailFailures === [] ? '' : xl('Not emailed') . ': ' . implode('; ', $result->emailFailures) . '.';
         return match ($delivery) {
             StatementDelivery::Download => $this->download($message),
             StatementDelivery::Pdf => $this->downloadPdf($message, $result->onlyPatient),
             StatementDelivery::Portal => $message === '' ? xl('Sending Invoice to Patient Portal Completed') : $message,
-            // An email run is sent to the printer too, as it always has been.
-            StatementDelivery::Print, StatementDelivery::Email => $this->print($result->statementsWritten, $withoutUpdate, $test, $skipped),
+            // An email run is sent to the printer too, as it always has been; its email failures follow the print message.
+            StatementDelivery::Print, StatementDelivery::Email => $this->print($result->statementsWritten, $withoutUpdate, $test, $skipped, $notEmailed),
         };
     }
 
@@ -81,20 +83,28 @@ final readonly class StatementRunHandler
         return $message;
     }
 
-    private function print(int $written, bool $withoutUpdate, bool $test, string $skipped): string
+    /**
+     * @param string $emailFailures "Not emailed: ..." for an email run with failures, '' for none
+     */
+    private function print(int $written, bool $withoutUpdate, bool $test, string $skipped, string $emailFailures): string
     {
         if ($test) {
-            return xl('Printing skipped; see test output in') . ' ' . $this->batchFile;
+            return self::join(xl('Printing skipped; see test output in') . ' ' . $this->batchFile, $emailFailures, $skipped);
         }
         $error = $this->output->print($this->batchFile);
         if ($error !== null) {
             // The run already wrote the batch, and updated the invoices unless told not to.
             $message = xl('Printing failed') . ': ' . $error . ' ' . xl('The statements are in') . ' ' . $this->batchFile . '.'
                 . ($withoutUpdate ? '' : ' ' . xl('The invoices were updated.'));
-            return $skipped === '' ? $message : $message . ' ' . $skipped;
+            return self::join($message, $emailFailures, $skipped);
         }
         $message = xl('Now printing') . ' ' . $written . ' '
             . ($withoutUpdate ? xl('statements; invoices will not be updated.') : xl('statements and updating invoices.'));
-        return $skipped === '' ? $message : $message . ' ' . $skipped;
+        return self::join($message, $emailFailures, $skipped);
+    }
+
+    private static function join(string ...$parts): string
+    {
+        return implode(' ', array_filter($parts, static fn(string $part): bool => $part !== ''));
     }
 }

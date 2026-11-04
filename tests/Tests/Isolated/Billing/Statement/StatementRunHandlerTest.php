@@ -152,14 +152,40 @@ class StatementRunHandlerTest extends TestCase
         $this->assertSame([], $this->output->calls);
     }
 
-    public function testAnEmailRunIsPrintedTooAndItsFailuresAreReplacedByThePrintMessage(): void
+    public function testAnEmailRunIsPrintedTooAndItsFailuresFollowThePrintMessage(): void
     {
         $this->steps->emailFails = true;
 
+        $message = $this->handle([self::invoice(1, 11), self::invoice(2, 21)], StatementDelivery::Email);
+
+        $this->assertSame('Now printing 2 statements and updating invoices. Not emailed: Ann Patient1: Patient email address is invalid;'
+            . ' Ann Patient2: Patient email address is invalid.', $message);
+        $this->assertSame([['print', $this->batchFile]], $this->output->calls);
+    }
+
+    public function testAnEmailRunWithNoFailuresSaysOnlyThatItsPrinting(): void
+    {
         $message = $this->handle([self::invoice(1, 11)], StatementDelivery::Email);
 
         $this->assertSame('Now printing 1 statements and updating invoices.', $message);
-        $this->assertSame([['print', $this->batchFile]], $this->output->calls);
+    }
+
+    public function testAnEmailRunsFailuresAreKeptWhenThePrintFailsOrIsSkipped(): void
+    {
+        $this->steps->emailFails = true;
+        $this->steps->emptyFor = [2];
+        $this->output->printError = 'lpr exited with status 1';
+
+        $message = $this->handle([self::invoice(1, 11), self::invoice(2, 21)], StatementDelivery::Email, withoutUpdate: true);
+
+        $this->assertSame('Printing failed: lpr exited with status 1 The statements are in ' . $this->batchFile . '.'
+            . ' Not emailed: Ann Patient1: Patient email address is invalid.'
+            . ' No statement for Ann Patient2: the amount due does not meet the minimum amount to print set in Globals.', $message);
+
+        $message = $this->handle([self::invoice(1, 11)], StatementDelivery::Email, test: true);
+
+        $this->assertSame('Printing skipped; see test output in ' . $this->batchFile
+            . ' Not emailed: Ann Patient1: Patient email address is invalid.', $message);
     }
 
     public function testAPortalRun(): void
