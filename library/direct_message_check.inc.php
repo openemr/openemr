@@ -169,14 +169,9 @@ function phimail_check(): void
     }
 
     // Record the failure in the audit log, then throw so the background
-    // service runner reports the run as an error. A failed audit write is
-    // logged on its own so it cannot replace the original cause.
+    // service runner reports the run as an error.
     $fail = static function (string $text, ?\Throwable $previous = null): never {
-        try {
-            phimail_logit(0, $text);
-        } catch (DbalException $auditError) {
-            ServiceContainer::getLogger()->error('phimail_logit could not write the audit row', ['exception' => $auditError]);
-        }
+        phimail_logit(0, $text);
         throw new PhiMailCheckException($text, 0, $previous);
     };
 
@@ -526,7 +521,13 @@ function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check
     if (!$success) {
         ServiceContainer::getLogger()->error("phimail_logit {event}: {text}", ['event' => $event, 'text' => $text, 'pid' => $pid]);
     }
-    EventAuditLogger::getInstance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
+    // A failed audit write is logged here instead of thrown, so it cannot
+    // replace the failure being recorded or skip the caller's failure path.
+    try {
+        EventAuditLogger::getInstance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
+    } catch (DbalException $auditError) {
+        ServiceContainer::getLogger()->error('phimail_logit could not write the audit row', ['event' => $event, 'exception' => $auditError]);
+    }
 }
 
 /**

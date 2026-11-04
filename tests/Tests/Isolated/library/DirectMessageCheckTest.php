@@ -211,6 +211,28 @@ final class DirectMessageCheckTest extends TestCase
         self::assertCount(0, (new Finder())->in($this->tempDir)->files(), 'temp file created for a malformed length');
     }
 
+    public function testFailedAuditWriteInAHelperKeepsTheCheckFailure(): void
+    {
+        $show = <<<'REPLY'
+            OK
+            Subject: test
+
+            text/plain
+            bogus
+            REPLY;
+        $server = $this->startServer(['OK', 'OK', 'MAIL to@example.org from@example.org 0 msg-1', $show]);
+        $this->auditFailure = new ConnectionException('audit database is down');
+
+        try {
+            phimail_check();
+            self::fail('phimail_check() returned normally from a malformed body length.');
+        } catch (PhiMailCheckException $e) {
+            self::assertSame('M4 read body failed', $e->getMessage());
+        }
+
+        self::assertSame('closed', $this->serverResult($server));
+    }
+
     public function testNoMessagesCompletesNormally(): void
     {
         $server = $this->startServer(['OK', 'OK', 'NONE']);
