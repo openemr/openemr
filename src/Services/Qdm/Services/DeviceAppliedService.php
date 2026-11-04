@@ -12,7 +12,6 @@ namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\DeviceApplied;
-use OpenEMR\Services\Qdm\FormDirectory;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
@@ -29,7 +28,7 @@ class DeviceAppliedService extends AbstractQdmService implements QdmServiceInter
                 FROM procedure_order O
                     JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
                 WHERE O.procedure_order_type = 'device' AND O.activity != 0
-                AND " . self::countedFormRow('O.procedure_order_id', 'O.patient_id', FormDirectory::ProcedureOrder) . "
+                AND " . self::countedFormRow('O.procedure_order_id', 'O.patient_id', QdmForm::ProcedureOrder) . "
                 ";
 
         return $sql;

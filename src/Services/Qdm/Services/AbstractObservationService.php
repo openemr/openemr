@@ -16,7 +16,6 @@ use OpenEMR\Cqm\Qdm\BaseTypes\{
     DateTime,
     Interval
 };
-use OpenEMR\Services\Qdm\FormDirectory;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
@@ -66,7 +65,7 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
     public static function countedObservation(string $table): string
     {
         return "COALESCE($table.`activity`, 1) <> 0
-                AND " . self::countedFormRow("$table.`form_id`", "$table.`pid`", FormDirectory::Observation);
+                AND " . self::countedFormRow("$table.`form_id`", "$table.`pid`", QdmForm::Observation);
     }
 
     public function makeResult($record)

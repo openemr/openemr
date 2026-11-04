@@ -14,7 +14,6 @@ use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Services\CodeTypesService;
-use OpenEMR\Services\Qdm\FormDirectory;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
@@ -119,14 +118,14 @@ abstract class AbstractQdmService
      * forms row filing it is deleted: delete_form.php sets forms.deleted = 1, and for most forms
      * leaves the form's own rows in place. One kept forms row is enough, as when a C-CDA import has
      * filed the same vitals twice and one copy was deleted from the visit. A row no forms row files is
-     * kept, unless its form is always filed (FormDirectory::alwaysFiled()). The forms row has to be the
+     * kept, unless its form is always filed (QdmForm::alwaysFiled()). The forms row has to be the
      * row's patient's, since form ids can repeat across patients: the Observation form and the C-CDA
      * import pick theirs with an unlocked MAX() + 1.
      *
      * @param string $formId the column holding the row's form id, as the service's own SQL writes it (never a value)
      * @param string $pid    the column holding the row's patient, as the service's own SQL writes it (never a value)
      */
-    protected static function countedFormRow(string $formId, string $pid, FormDirectory $form): string
+    protected static function countedFormRow(string $formId, string $pid, QdmForm $form): string
     {
         $filings = "SELECT 1 FROM `forms`
                     WHERE `forms`.`form_id` = $formId AND `forms`.`pid` = $pid AND `forms`.`formdir` = '{$form->value}'";

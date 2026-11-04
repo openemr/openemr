@@ -16,7 +16,6 @@ use OpenEMR\Cqm\Qdm\BaseTypes\{
     Quantity
 };
 use OpenEMR\Cqm\Qdm\LaboratoryTestPerformed;
-use OpenEMR\Services\Qdm\FormDirectory;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
@@ -46,7 +45,7 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
                         AND OC.procedure_order_seq = REP.procedure_order_seq
                 WHERE O.procedure_order_type = 'laboratory_test' AND O.activity != 0
                 AND RES.result_status <> 'error' AND REP.report_status <> 'error'
-                AND " . self::countedFormRow('O.procedure_order_id', 'O.patient_id', FormDirectory::ProcedureOrder) . "
+                AND " . self::countedFormRow('O.procedure_order_id', 'O.patient_id', QdmForm::ProcedureOrder) . "
                 ";
 
         return $sql;

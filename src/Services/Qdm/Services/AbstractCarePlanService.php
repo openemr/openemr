@@ -11,7 +11,6 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
-use OpenEMR\Services\Qdm\FormDirectory;
 use OpenEMR\Services\Qdm\QdmRecord;
 
 /**
@@ -45,7 +44,7 @@ abstract class AbstractCarePlanService extends AbstractQdmService
         return "SELECT pid, `date`, date_end, code, codetext, description, care_plan_type, reason_code, reason_status
             FROM form_care_plan
             WHERE care_plan_type = '" . add_escape_custom($carePlanType) . "'
-            AND " . self::countedFormRow('form_care_plan.id', 'form_care_plan.pid', FormDirectory::CarePlan);
+            AND " . self::countedFormRow('form_care_plan.id', 'form_care_plan.pid', QdmForm::CarePlan);
     }
 
     /**

@@ -13,7 +13,6 @@ namespace OpenEMR\Services\Qdm\Services;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use OpenEMR\Cqm\Qdm\ProcedurePerformed;
-use OpenEMR\Services\Qdm\FormDirectory;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
@@ -43,7 +42,7 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
                     LEFT JOIN procedure_result RES ON REP.procedure_report_id = RES.procedure_report_id
                         AND RES.result_status <> 'error'
                 WHERE O.procedure_order_type = 'order' AND O.activity != 0
-                AND " . self::countedFormRow('O.procedure_order_id', 'O.patient_id', FormDirectory::ProcedureOrder) . "
+                AND " . self::countedFormRow('O.procedure_order_id', 'O.patient_id', QdmForm::ProcedureOrder) . "
                 ";
 
         return $sql;

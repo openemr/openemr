@@ -37,7 +37,6 @@ namespace OpenEMR\Services\Qdm\Services;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use OpenEMR\Cqm\Qdm\PhysicalExamPerformed;
-use OpenEMR\Services\Qdm\FormDirectory;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
@@ -89,7 +88,7 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
             $selects[] = "SELECT v.`pid`, v.`date`, 'LOINC:$loinc' AS `code`, $value AS `value`, '$unit' AS `unit`
                 FROM `form_vitals` AS v
                 WHERE $isNumber
-                AND " . self::countedFormRow('v.`id`', 'v.`pid`', FormDirectory::Vitals) . "
+                AND " . self::countedFormRow('v.`id`', 'v.`pid`', QdmForm::Vitals) . "
                 AND NOT EXISTS (
                     SELECT 1 FROM `form_observation` AS o
                     WHERE o.`pid` = v.`pid` AND o.`ob_type` = '" . AbstractObservationService::OB_TYPE_PHYSICAL_EXAM . "'
