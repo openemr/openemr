@@ -201,6 +201,7 @@ class LayoutCatalog
      */
     public function ensureParagraphField(string $formId): string
     {
+        $this->assertActiveLbfForm($formId);
         Identifiers::assertFieldId($formId);
         $exists = Values::assocRow($this->sql->querySingleRow(
             "SELECT field_id FROM layout_options WHERE form_id = ? AND field_id = 'stmt_paragraph'",
