@@ -4037,26 +4037,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Plugin\\\\Phimail\\:\\:phimail_close\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Plugin\\\\Phimail\\:\\:phimail_connect\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Plugin\\\\Phimail\\:\\:phimail_write\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Plugin\\\\Phimail\\:\\:phimail_write_expect_OK\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Module\\:\\:getConfig\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/Module.php',
