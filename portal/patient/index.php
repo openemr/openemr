@@ -9,6 +9,8 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Csrf\PortalApiCsrfGuard;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -33,6 +35,14 @@ $gc = GlobalConfig::GetInstance();
 $globalsBag = OEGlobalsBag::getInstance();
 
 try {
+    // Requests that can change data must carry the session's CSRF token (sent by scripts/model.js).
+    $request = CurrentRequest::get();
+    PortalApiCsrfGuard::assertValid(
+        $request->getRealMethod(),
+        $request->headers->get(PortalApiCsrfGuard::HEADER),
+        $session,
+    );
+
     if (!empty($session->get('register', null))) {
         // Need to bootstrap for registration
         $globalsBag->set('bootstrap_register', true);

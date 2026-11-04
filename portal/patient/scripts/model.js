@@ -12,6 +12,24 @@
 Backbone.emulateHTTP = false;
 Backbone.emulateJSON = false;
 
+/**
+ * Send the session's CSRF token on every request that can change data. The server
+ * (portal/patient/index.php) refuses POST, PUT and DELETE without it. The page header
+ * sets window.portalApiCsrfToken before this script loads.
+ */
+(function () {
+	var sync = Backbone.sync;
+	Backbone.sync = function (method, syncModel, options) {
+		options = options || {};
+		if (method !== 'read') {
+			options.headers = Object.assign({}, options.headers, {
+				'X-CSRF-Token': window.portalApiCsrfToken || ''
+			});
+		}
+		return sync.call(this, method, syncModel, options);
+	};
+}());
+
 var model = {};
 
 /**
