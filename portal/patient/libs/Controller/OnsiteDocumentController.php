@@ -11,6 +11,8 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 use OpenEMR\Services\Utils\TranslationService;
@@ -58,6 +60,7 @@ class OnsiteDocumentController extends AppBasePortalController
         if (!empty($bootstrapPid)) {
             $pid = (int)$bootstrapPid;
         }
+        PortalPatientAccessGuard::assertCanReadDocuments($pid);
 
         $user = $_GET['user'] ?? 0;
         $docid = $_GET['docid'] ?? '';
@@ -115,6 +118,12 @@ class OnsiteDocumentController extends AppBasePortalController
             if (!empty($bootstrapPid)) {
                 $pid = $bootstrapPid;
             }
+            // An empty pid would drop the filter and list every patient's documents.
+            $pid = filter_var($pid, FILTER_VALIDATE_INT);
+            if (!is_int($pid) || $pid <= 0) {
+                throw new InvalidArgumentException('A patient is required');
+            }
+            PortalPatientAccessGuard::assertCanReadDocuments($pid);
 
             $criteria->Pid_Equals = $pid;
             $recid = RequestUtil::Get('recid');
@@ -138,6 +147,8 @@ class OnsiteDocumentController extends AppBasePortalController
             // generic query filtering: request input may only drive equality
             // (_Equals) filters, never arbitrary criteria properties (CWE-915)
             $this->ApplyRequestEqualsFilters($criteria);
+            // Those filters include pid, so pin it back to the patient checked above.
+            $criteria->Pid_Equals = $pid;
 
             $output = new stdClass();
 
@@ -225,15 +236,10 @@ class OnsiteDocumentController extends AppBasePortalController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
-
-            // only allow patient to see themself
-
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            // only allow patient to delete themselves
-            if (!empty($bootstrapPid) && $bootstrapPid != $onsitedocument->Pid) {
-                $error = 'Unauthorized';
-                throw new Exception($error);
+            if (!$onsitedocument instanceof OnsiteDocument) {
+                throw new NotFoundException('Portal document not found');
             }
+            PortalPatientAccessGuard::assertCanReadDocuments($onsitedocument->Pid);
 
             $isLegacy = stripos((string) $onsitedocument->FullDocument, 'portal_version') === false;
             if (!empty($onsitedocument->TemplateData) && !$isLegacy) {
@@ -270,6 +276,7 @@ class OnsiteDocumentController extends AppBasePortalController
             // only allow patient to add to themselves
             $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             $onsitedocument->Pid = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid');
+            PortalPatientAccessGuard::assertCanAddDocument($onsitedocument->Pid);
 
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility');
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider');
@@ -332,6 +339,7 @@ class OnsiteDocumentController extends AppBasePortalController
                 throw new Exception('The request body does not contain valid JSON');
             }
             $pk = $this->GetRouter()->GetUrlParam('id');
+            PortalPatientAccessGuard::assertCanWriteDocuments(self::documentOwner($pk));
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
 
             $existing_template = $onsitedocument->FullDocument;
@@ -371,18 +379,11 @@ class OnsiteDocumentController extends AppBasePortalController
                 throw new Exception(xlt("Invalid save attempt"));
             }
 
-            // only allow patient to update themselves (part 1)
-
+            // A portal patient's document stays theirs. Staff may move it only to a patient
+            // whose documents they may also change.
             $bootstrapPid = $globalsBag->get('bootstrap_pid');
-            // only allow patient to delete themselves
-            if (!empty($bootstrapPid) && $bootstrapPid != $onsitedocument->Pid) {
-                $error = 'Unauthorized';
-                throw new Exception($error);
-            }
-            // only allow patient to update themselves (part 2)
-
-            // only allow patient to delete themselves
             $onsitedocument->Pid = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
+            PortalPatientAccessGuard::assertCanWriteDocuments($onsitedocument->Pid);
             // Set values from API interface.
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider', $onsitedocument->Provider);
@@ -426,13 +427,10 @@ class OnsiteDocumentController extends AppBasePortalController
             // TODO: if a soft delete is preferred, change this to update the deleted flag instead of hard-deleting
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
-
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            // only allow patient to delete themselves
-            if (!empty($bootstrapPid) && (int)$bootstrapPid !== (int)$onsitedocument->Pid) {
-                $error = 'Unauthorized';
-                throw new Exception($error);
+            if (!$onsitedocument instanceof OnsiteDocument) {
+                throw new NotFoundException('Portal document not found');
             }
+            PortalPatientAccessGuard::assertCanWriteDocuments($onsitedocument->Pid);
 
             $onsitedocument->Delete();
 
@@ -442,6 +440,21 @@ class OnsiteDocumentController extends AppBasePortalController
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
+    }
+
+    /**
+     * The pid that owns a portal document.
+     *
+     * @throws NotFoundException when no document has that id
+     */
+    private static function documentOwner(mixed $documentId): int
+    {
+        $owner = QueryUtils::fetchSingleValue('SELECT `pid` FROM `onsite_documents` WHERE `id` = ?', 'pid', [$documentId]);
+        if (!is_numeric($owner)) {
+            throw new NotFoundException('Portal document not found');
+        }
+
+        return intval($owner);
     }
 
     // TODO Eventually remove but I want to keep around for a bit as it's a pretty clever routine.
