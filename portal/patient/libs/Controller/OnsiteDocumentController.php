@@ -341,6 +341,9 @@ class OnsiteDocumentController extends AppBasePortalController
             $pk = $this->GetRouter()->GetUrlParam('id');
             PortalPatientAccessGuard::assertCanWriteDocuments(self::documentOwner($pk));
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
+            // Check the loaded document too, in case it moved to another patient after the lookup.
+            $owner = $onsitedocument->Pid;
+            PortalPatientAccessGuard::assertCanWriteDocuments($owner);
 
             $existing_template = $onsitedocument->FullDocument;
 
@@ -382,7 +385,7 @@ class OnsiteDocumentController extends AppBasePortalController
             // A portal patient's document stays theirs. Staff may move it only to a patient
             // whose documents they may also change.
             $bootstrapPid = $globalsBag->get('bootstrap_pid');
-            $onsitedocument->Pid = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
+            $onsitedocument->Pid = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid', $owner);
             PortalPatientAccessGuard::assertCanWriteDocuments($onsitedocument->Pid);
             // Set values from API interface.
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);

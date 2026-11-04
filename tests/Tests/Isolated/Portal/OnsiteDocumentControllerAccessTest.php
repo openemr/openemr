@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Portal;
 
 use PhpParser\Node;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\PropertyFetch;
@@ -28,6 +29,7 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
+use PhpParser\PrettyPrinter\Standard;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -58,14 +60,61 @@ final class OnsiteDocumentControllerAccessTest extends TestCase
         $this->assertContains($check, $this->guardCallsIn($this->method($method)));
     }
 
-    public function testUpdateChecksTheTargetPatientWhenADocumentMoves(): void
+    /**
+     * @return array<string, array{string, list<array{string, string}>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function guardArgumentsProvider(): array
     {
-        $calls = array_filter(
-            $this->guardCallsIn($this->method('Update')),
-            static fn(string $call): bool => $call === 'assertCanWriteDocuments',
+        return [
+            'documents page' => ['ListView', [['assertCanReadDocuments', '$pid']]],
+            'list' => ['Query', [['assertCanReadDocuments', '$pid']]],
+            'read' => ['Read', [['assertCanReadDocuments', '$onsitedocument->Pid']]],
+            'create' => ['Create', [['assertCanAddDocument', '$onsitedocument->Pid']]],
+            'update' => ['Update', [
+                // before loading: the owner on file
+                ['assertCanWriteDocuments', 'self::documentOwner($pk)'],
+                // after loading, in case the document moved in between
+                ['assertCanWriteDocuments', '$owner'],
+                // the patient the document is saved under
+                ['assertCanWriteDocuments', '$onsitedocument->Pid'],
+            ]],
+            'delete' => ['Delete', [['assertCanWriteDocuments', '$onsitedocument->Pid']]],
+        ];
+    }
+
+    /**
+     * @param list<array{string, string}> $expected guard method and patient expression, in order
+     */
+    #[DataProvider('guardArgumentsProvider')]
+    public function testGuardChecksTheDocumentsPatient(string $method, array $expected): void
+    {
+        $printer = new Standard();
+        $actual = [];
+        foreach ($this->guardStaticCalls($this->method($method)) as $call) {
+            $this->assertCount(1, $call->args, "{$method}() passes one patient to the guard");
+            $argument = $call->args[0];
+            $this->assertInstanceOf(Arg::class, $argument);
+            $this->assertInstanceOf(Identifier::class, $call->name);
+            $actual[] = [$call->name->toString(), $printer->prettyPrintExpr($argument->value)];
+        }
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testUpdateTakesTheOwnerFromTheLoadedDocument(): void
+    {
+        $owners = (new NodeFinder())->find(
+            $this->method('Update')->stmts ?? [],
+            static fn(Node $node): bool => $node instanceof Assign
+                && $node->var instanceof Variable
+                && $node->var->name === 'owner',
         );
 
-        $this->assertCount(2, $calls, 'Update checks the current patient and the patient it moves the document to');
+        $this->assertCount(1, $owners);
+        $this->assertInstanceOf(Assign::class, $owners[0]);
+        $this->assertSame('$onsitedocument->Pid', (new Standard())->prettyPrintExpr($owners[0]->expr));
     }
 
     public function testQueryPinsThePatientAfterTheRequestFilters(): void
@@ -121,13 +170,24 @@ final class OnsiteDocumentControllerAccessTest extends TestCase
     private function guardCallsIn(ClassMethod $method): array
     {
         $calls = [];
-        foreach ((new NodeFinder())->findInstanceOf($method->stmts ?? [], StaticCall::class) as $call) {
-            if (
-                $call->class instanceof Name
-                && $call->class->getLast() === 'PortalPatientAccessGuard'
-                && $call->name instanceof Identifier
-            ) {
+        foreach ($this->guardStaticCalls($method) as $call) {
+            if ($call->name instanceof Identifier) {
                 $calls[] = $call->name->toString();
+            }
+        }
+
+        return $calls;
+    }
+
+    /**
+     * @return list<StaticCall> the PortalPatientAccessGuard calls, in source order
+     */
+    private function guardStaticCalls(ClassMethod $method): array
+    {
+        $calls = [];
+        foreach ((new NodeFinder())->findInstanceOf($method->stmts ?? [], StaticCall::class) as $call) {
+            if ($call->class instanceof Name && $call->class->getLast() === 'PortalPatientAccessGuard') {
+                $calls[] = $call;
             }
         }
 
