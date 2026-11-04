@@ -13,7 +13,6 @@
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
-use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
@@ -424,29 +423,6 @@ class PatientController extends AppBasePortalController
                 'pid' => $p->Pid,
                 'exception' => $e,
             ]);
-        }
-    }
-
-    /**
-     * API Method deletes an existing Patient record and render response as JSON
-     */
-    public function Delete()
-    {
-        try {
-            $pk = $this->GetRouter()->GetUrlParam('id');
-            $patient = $this->Phreezer->Get('Patient', $pk);
-            if (!($patient instanceof Patient)) {
-                throw new Exception('Not found');
-            }
-            PortalSessionPidGuard::assertOwnedBySession(
-                $patient->Pid,
-                SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'),
-            );
-            $patient->Delete();
-            $output = new stdClass();
-            $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (\Throwable $ex) {
-            $this->RenderExceptionJSON($ex);
         }
     }
 }

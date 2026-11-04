@@ -1717,16 +1717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/messaging/messages.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$sn might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$x might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Undefined variable\\: \\$attachment$#',
     'count' => 4,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
@@ -1770,11 +1760,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$this might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/templates/_FormsHeader.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/templates/_Header.tpl.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$this might not be defined\\.$#',

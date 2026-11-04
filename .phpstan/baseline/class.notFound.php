@@ -107,21 +107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/user.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_enclose_value\\(\\) has invalid return type Processed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_rfile\\(\\) has invalid return type Data\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:auto\\(\\) has invalid return type delimiter\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method IDataDriver\\:\\:Open\\(\\) has invalid return type connection\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
@@ -200,16 +185,6 @@ $ignoreErrors[] = [
     'message' => '#^Method DataSet\\:\\:_getObject\\(\\) has invalid return type Preezable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$value of method MockRouter\\:\\:SetUri\\(\\) has invalid type unknown_type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$value of method MockRouter\\:\\:SetUrl\\(\\) has invalid type unknown_type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property Phreezable\\:\\:\\$NoCacheProperties has unknown class these as its type\\.$#',

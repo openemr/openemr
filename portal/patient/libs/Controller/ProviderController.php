@@ -54,22 +54,6 @@ class ProviderController extends AppBasePortalController
         $this->Render();
     }
 
-    /**
-     * Displayed when an invalid route is specified
-     */
-    public function Error404()
-    {
-        $this->Render();
-    }
-
-    /**
-     * Display a fatal error message
-     */
-    public function ErrorFatal()
-    {
-        $this->Render();
-    }
-
     public function ErrorApi404()
     {
         $this->RenderErrorJSON('An unknown API endpoint was requested.');

@@ -90,51 +90,18 @@ var pageAudit = {
 
 		if (pageAudit.onsitePortalActivity.id == null || pageAudit.onsitePortalActivity.id === '') {
 			// this is a new record, there is no need to contact the server
-			//pageAudit.renderModelView(false);
 		} else {
 			app.showProgress('modelLoader');
 			// fetch the model from the server so we are not updating stale data
 			pageAudit.onsitePortalActivity.fetch({
 				success: function() {
 					// data returned from the server.  render the model view
-					//pageAudit.renderModelView(true);
 				},
 				error: function(m, r) {
 				}
 			});
 		}
 
-	},
-
-	/**
-	 * Render the model template in the popup
-	 * @param bool show the delete button
-	 */
-	renderModelView: function(showDeleteButton)	{
-		pageAudit.modelView.render();
-
-		if (showDeleteButton) {
-			// attach click handlers to the delete buttons
-
-			$('#deleteOnsitePortalActivityButton').click(function(e) {
-				e.preventDefault();
-				$('#confirmDeleteOnsitePortalActivityContainer').show('fast');
-			});
-
-			$('#cancelDeleteOnsitePortalActivityButton').click(function(e) {
-				e.preventDefault();
-				$('#confirmDeleteOnsitePortalActivityContainer').hide('fast');
-			});
-
-			$('#confirmDeleteOnsitePortalActivityButton').click(function(e) {
-				e.preventDefault();
-				pageAudit.deleteModel();
-			});
-
-		} else {
-			// no point in initializing the click handlers if we don't show the button
-			$('#deleteOnsitePortalActivityButtonContainer').hide();
-		}
 	},
 
 	/**
@@ -188,34 +155,6 @@ var pageAudit = {
 				} catch (e2) {
 					if (console) console.log('error parsing server response: '+e2.message);
 				}
-			}
-		});
-	},
-
-	/**
-	 * delete the model that is currently displayed in the dialog
-	 */
-	deleteModel: function()	{
-		// reset any previous errors
-		$('#modelAlert').html('');
-
-		app.showProgress('modelLoader');
-
-		pageAudit.onsitePortalActivity.destroy({
-			wait: true,
-			success: function(){
-				$('#onsitePortalActivityDetailDialog').modal('hide');
-				setTimeout("app.appendAlert('The OnsitePortalActivity record was deleted','alert-success',3000,'collectionAlert')",500);
-				app.hideProgress('modelLoader');
-
-				if (model.reloadCollectionOnModelUpdate) {
-					// re-fetch and render the collection after the model has been updated
-					pageAudit.fetchOnsitePortalActivities(pageAudit.fetchParams,true);
-				}
-			},
-			error: function(model,response,scope) {
-				//app.appendAlert(app.getErrorMessage(response), 'alert-error',0,'modelAlert');
-				//app.hideProgress('modelLoader');
 			}
 		});
 	}

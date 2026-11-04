@@ -181,30 +181,6 @@ class PortalReviewController extends AppBasePortalController
         }
     }
 
-    /**
-     * DELETE api/onsiteportalactivity/{id}: cancels a document request still in review.
-     */
-    public function DocumentCancel(): void
-    {
-        try {
-            $request = $this->requestFromUrl();
-            PortalPatientAccessGuard::assertCanWrite($request->pid);
-            if ($request->type !== ReviewType::Document) {
-                throw new InvalidArgumentException('Not a document review request');
-            }
-            // Cancel this request, not whichever one is open for the document now.
-            if (!$request->status->isOpen()) {
-                throw new InvalidArgumentException('This review request is no longer open');
-            }
-            $actor = SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession());
-            ReviewQueueFactory::create()->cancel($request->id, $actor, 'Removed from review');
-
-            $this->RenderJSON(new stdClass(), $this->JSONPCallback());
-        } catch (\RuntimeException | \LogicException $ex) {
-            $this->RenderExceptionJSON($ex);
-        }
-    }
-
     private static function documentBelongsTo(int $documentId, int $pid): bool
     {
         $owner = QueryUtils::fetchSingleValue('SELECT `pid` FROM `onsite_documents` WHERE `id` = ?', 'pid', [$documentId]);
