@@ -382,11 +382,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Search/FhirSearchWhereClauseBuilder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function method_exists\\(\\) with \\*NEVER\\* and \'__toString\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchFieldComparableValue.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_callable\\(\\) with callable\\(\\)\\: mixed will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/TokenSearchField.php',
