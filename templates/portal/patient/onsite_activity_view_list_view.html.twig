@@ -13,15 +13,11 @@
 <script>var cuser={{ cuser|js_escape }};</script>
 <script>
     let csrfToken = {{ csrfTokenRaw()|js_url }};
-    $LAB.script("{{ web_root }}/portal/patient/scripts/app/onsiteactivityviews.js?v={{ v_js_includes }}").wait(function(){
-        $(function () {
-            actpage.init();
-        });
-        setTimeout(function(){
-            if (!actpage.isInitialized) {
-                actpage.init();
-            }
-        },1000);
+</script>
+<script src="{{ web_root }}/portal/patient/scripts/app/onsiteactivityviews.js?v={{ v_js_includes|attr_url }}"></script>
+<script>
+    $(function () {
+        actpage.init();
     });
 </script>
 
@@ -41,114 +37,45 @@
         </form>
     </div>
 </h3>
-    <!-- underscore template for the collection -->
-    <script type="text/template" id="onsiteActivityViewCollectionTemplate">
+    <!-- the review list; onsiteactivityviews.js adds a row per activity -->
+    <template id="onsiteActivityViewCollectionTemplate">
         <table class="collection table table-sm table-bordered table-hover">
         <thead>
             <tr>
-                <th id="header_Id">{{ 'Id'|xlt }}<% if (actpage.orderBy == 'Id') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Date">{{ 'Date'|xlt }}<% if (actpage.orderBy == 'Date') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_PatientId">{{ 'Patient Id'|xlt }}<% if (actpage.orderBy == 'PatientId') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Fname">{{ 'First{{Name}}'|xlt }}<% if (actpage.orderBy == 'Fname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Mname">{{ 'Middle{{Name}}'|xlt }}<% if (actpage.orderBy == 'Mname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Lname">{{ 'Last{{Name}}'|xlt }}<% if (actpage.orderBy == 'Lname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Narrative">{{ 'Narrative'|xlt }}<% if (actpage.orderBy == 'Narrative') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Activity">{{ 'Activity'|xlt }}<% if (actpage.orderBy == 'Activity') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_TableArgs">{{ 'Amount'|xlt }}<% if (actpage.orderBy == 'TableArgs') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_PendingAction">{{ 'Pending Action'|xlt }}<% if (actpage.orderBy == 'PendingAction') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Status">{{ 'Status'|xlt }}<% if (actpage.orderBy == 'Status') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_Id">{{ 'Id'|xlt }}</th>
+                <th id="header_Date">{{ 'Date'|xlt }}</th>
+                <th id="header_PatientId">{{ 'Patient Id'|xlt }}</th>
+                <th id="header_Fname">{{ 'First{{Name}}'|xlt }}</th>
+                <th id="header_Mname">{{ 'Middle{{Name}}'|xlt }}</th>
+                <th id="header_Lname">{{ 'Last{{Name}}'|xlt }}</th>
+                <th id="header_Narrative">{{ 'Narrative'|xlt }}</th>
+                <th id="header_Activity">{{ 'Activity'|xlt }}</th>
+                <th id="header_TableArgs">{{ 'Amount'|xlt }}</th>
+                <th id="header_PendingAction">{{ 'Pending Action'|xlt }}</th>
+                <th id="header_Status">{{ 'Status'|xlt }}</th>
                 <th>{{ 'Action'|xlt }}</th>
-
-                <!-- UNCOMMENT TO SHOW ADDITIONAL COLUMNS - Leave in place for future use
-                <th id="header_RequireAudit"><% if (actpage.orderBy == 'RequireAudit') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Id">Id<% if (actpage.orderBy == 'Id') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_ActionTaken">Action Taken<% if (actpage.orderBy == 'ActionTaken') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_TableAction">Table Action<% if (actpage.orderBy == 'TableAction') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_TableArgs">Table Args<% if (actpage.orderBy == 'TableArgs') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_ActionUser">Action User<% if (actpage.orderBy == 'ActionUser') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_ActionTakenTime">Action Taken Time<% if (actpage.orderBy == 'ActionTakenTime') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Checksum">Checksum<% if (actpage.orderBy == 'Checksum') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Title">Title<% if (actpage.orderBy == 'Title') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Dob">Dob<% if (actpage.orderBy == 'Dob') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Ss">Ss<% if (actpage.orderBy == 'Ss') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Street">Street<% if (actpage.orderBy == 'Street') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_PostalCode">Postal Code<% if (actpage.orderBy == 'PostalCode') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_City">City<% if (actpage.orderBy == 'City') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_State">State<% if (actpage.orderBy == 'State') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Referrerid">Referrerid<% if (actpage.orderBy == 'Referrerid') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Providerid">Providerid<% if (actpage.orderBy == 'Providerid') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_RefProviderid">Ref Providerid<% if (actpage.orderBy == 'RefProviderid') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Pubpid">Pubpid<% if (actpage.orderBy == 'Pubpid') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_CareTeam">Care Team<% if (actpage.orderBy == 'CareTeam') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Username">Username<% if (actpage.orderBy == 'Username') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Authorized">Authorized<% if (actpage.orderBy == 'Authorized') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Ufname">Ufname<% if (actpage.orderBy == 'Ufname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Umname">Umname<% if (actpage.orderBy == 'Umname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Ulname">Ulname<% if (actpage.orderBy == 'Ulname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Facility">Facility<% if (actpage.orderBy == 'Facility') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Active">Active<% if (actpage.orderBy == 'Active') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Utitle">Utitle<% if (actpage.orderBy == 'Utitle') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_PhysicianType">Physician Type<% if (actpage.orderBy == 'PhysicianType') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
--->
             </tr>
         </thead>
         <tbody>
-        <% items.each(function(item) { %>
-            <tr id="<%= _.escape(item.get('id')) %>">
-                <td><%= _.escape(item.get('id') || '') %></td>
-                <td><%if (item.get('date')) { %><%= moment(app.parseDate(item.get('date'))).format('MMM D, YYYY h:mm A') %><% } else { %>NULL<% } %></td>
-                <td><%= _.escape(item.get('patientId') || '') %></td>
-                <td><%= _.escape(item.get('fname') || '') %></td>
-                <td><%= _.escape(item.get('mname') || '') %></td>
-                <td><%= _.escape(item.get('lname') || '') %></td>
-                <td><%= _.escape(item.get('narrative') || '') %></td>
-                <td><%= _.escape(item.get('activity') || '') %></td>
-                <td><% if (item.get('activity') === 'profile') { %><%= _.escape('Demographic Profile Changes') %><% } else { try {
-                    var args = JSON.parse(item.get('tableArgs') || '{}');
-                    if (args.form_paytotal) { %>$<%= _.escape(args.form_paytotal) %><% } else { %><%= _.escape(item.get('tableArgs') || '') %><% }
-                    } catch (e) { %><%= _.escape(item.get('tableArgs') || '') %><% } } %>
-                </td>
-                <td><%= _.escape(item.get('pendingAction') || '') %></td>
-                <td><%= _.escape(item.get('status') || '') %></td>
-                <td><button class="delete-button btn btn-sm btn-link" data-update-id="<%= _.escape(item.get('id') || '') %>" data-delete-id="<%= _.escape(item.get('tableArgs') || '') %>"><i class="fa fa-trash text-danger"></i></button></td>
-<!-- UNCOMMENT TO SHOW ADDITIONAL COLUMNS - Leave in place for future use
-                <td><%= _.escape(item.get('id') || '') %></td>
-                <td><%= _.escape(item.get('actionTaken') || '') %></td>
-                <td><%= _.escape(item.get('tableAction') || '') %></td>
-                <td><%= _.escape(item.get('tableArgs') || '') %></td>
-                <td><%= _.escape(item.get('actionUser') || '') %></td>
-                <td><%if (item.get('actionTakenTime')) { %><%= moment(app.parseDate(item.get('actionTakenTime'))).format('MMM D, YYYY h:mm A') %><% } else { %>NULL<% } %></td>
-                <td><%= _.escape(item.get('checksum') || '') %></td>
-                <td><%= _.escape(item.get('title') || '') %></td>
-                <td><%if (item.get('dob')) { %><%= moment(app.parseDate(item.get('dob'))).format('MMM D, YYYY') %><% } else { %>NULL<% } %></td>
-                <td><%= _.escape(item.get('ss') || '') %></td>
-                <td><%= _.escape(item.get('street') || '') %></td>
-                <td><%= _.escape(item.get('postalCode') || '') %></td>
-                <td><%= _.escape(item.get('city') || '') %></td>
-                <td><%= _.escape(item.get('state') || '') %></td>
-                <td><%= _.escape(item.get('referrerid') || '') %></td>
-                <td><%= _.escape(item.get('providerid') || '') %></td>
-                <td><%= _.escape(item.get('refProviderid') || '') %></td>
-                <td><%= _.escape(item.get('pubpid') || '') %></td>
-                <td><%= _.escape(item.get('careTeam') || '') %></td>
-                <td><%= _.escape(item.get('username') || '') %></td>
-                <td><%= _.escape(item.get('authorized') || '') %></td>
-                <td><%= _.escape(item.get('ufname') || '') %></td>
-                <td><%= _.escape(item.get('umname') || '') %></td>
-                <td><%= _.escape(item.get('ulname') || '') %></td>
-                <td><%= _.escape(item.get('facility') || '') %></td>
-                <td><%= _.escape(item.get('active') || '') %></td>
-                <td><%= _.escape(item.get('utitle') || '') %></td>
-                <td><%= _.escape(item.get('physicianType') || '') %></td>
--->
-            </tr>
-        <% }); %>
         </tbody>
         </table>
-        <%=  view.getPaginationHtml(page) %>
-    </script>
-    <!-- underscore template for the model -->
-    <script type="text/template" id="onsiteActivityViewModelTemplate"></script>
+    </template>
+    <template id="onsiteActivityViewRowTemplate">
+        <tr>
+            <td data-field="id"></td>
+            <td data-field="date"></td>
+            <td data-field="patientId"></td>
+            <td data-field="fname"></td>
+            <td data-field="mname"></td>
+            <td data-field="lname"></td>
+            <td data-field="narrative"></td>
+            <td data-field="activity"></td>
+            <td data-field="amount"></td>
+            <td data-field="pendingAction"></td>
+            <td data-field="status"></td>
+            <td><button class="delete-button btn btn-sm btn-link"><i class="fa fa-trash text-danger"></i></button></td>
+        </tr>
+    </template>
     <div id="collectionAlert"></div>
     <div id="onsiteActivityViewCollectionContainer" class="collectionContainer"></div>
     <p id="returnButtonContainer" class="buttonContainer">

@@ -6,14 +6,11 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 const actpage = {
     onsiteActivityViews: new model.OnsiteActivityViewCollection(),
-    collectionView: null,
-    onsiteActivityView: null,
-    modelView: null,
     isInitialized: false,
     isInitializing: false,
     fetchParams: {filter: '', orderBy: 'patientId', orderDesc: 'DESC', page: 1, status: 'waiting', requireAudit: 1},
@@ -24,10 +21,6 @@ const actpage = {
         // ensure initialization only occurs once
         if (actpage.isInitialized || actpage.isInitializing) return;
         actpage.isInitializing = true;
-
-        if (!$.isReady && console) {
-            console.warn('page was initialized before dom is ready.  views may not render properly.');
-        }
 
         // make the return button clickable
         $("#returnHome").click(function (e) {
@@ -92,13 +85,6 @@ const actpage = {
             dlgopen('', '', 'modal-lg', '', '', '', params);
         }
 
-        // initialize the collection view
-        this.collectionView = new view.CollectionView({
-            el: $("#onsiteActivityViewCollectionContainer"),
-            templateEl: $("#onsiteActivityViewCollectionTemplate"),
-            collection: actpage.onsiteActivityViews
-        });
-
         // initialize the search filter
         $('#filter').change(function (obj) {
             actpage.fetchParams.filter = $('#filter').val();
@@ -106,8 +92,8 @@ const actpage = {
             actpage.fetchOnsiteActivityViews(actpage.fetchParams);
         });
 
-        // make the rows clickable ('rendered' is a custom event, not a standard backbone event)
-        this.collectionView.on('rendered', function () {
+        // make the rows clickable once the list is drawn
+        actpage.bindCollection = function () {
             document.querySelectorAll('.delete-button').forEach(function (button) {
                 button.addEventListener('click', function (event) {
                     event.preventDefault();
@@ -202,7 +188,7 @@ const actpage = {
 
             actpage.isInitialized = true;
             actpage.isInitializing = false;
-        });
+        };
 
         const initialParams = {
             filter: '',
@@ -217,22 +203,52 @@ const actpage = {
             initialParams.activity = requestedActivity;
         }
         this.fetchOnsiteActivityViews(initialParams);
+    },
 
-        // initialize the model view
-        this.modelView = new view.ModelView({
-            el: $("#onsiteActivityViewModelContainer")
+    /**
+     * Draw the list from the last fetch: a row per activity, then the pager.
+     */
+    renderCollection: function () {
+        const container = view.renderTemplate('onsiteActivityViewCollectionTemplate', 'onsiteActivityViewCollectionContainer');
+        const tbody = container.querySelector('tbody');
+        actpage.onsiteActivityViews.forEach(function (item) {
+            const row = view.copyTemplate('onsiteActivityViewRowTemplate').firstElementChild;
+            const cell = (field) => row.querySelector('[data-field="' + field + '"]');
+            row.id = item.get('id') ?? '';
+            cell('id').textContent = item.get('id') || '';
+            cell('date').textContent = item.get('date')
+                ? moment(app.parseDate(item.get('date'))).format('MMM D, YYYY h:mm A')
+                : 'NULL';
+            ['patientId', 'fname', 'mname', 'lname', 'narrative', 'activity', 'pendingAction', 'status'].forEach(function (field) {
+                cell(field).textContent = item.get(field) || '';
+            });
+            cell('amount').textContent = actpage.amountText(item);
+            const deleteButton = row.querySelector('.delete-button');
+            deleteButton.setAttribute('data-update-id', item.get('id') || '');
+            deleteButton.setAttribute('data-delete-id', item.get('tableArgs') || '');
+            tbody.append(row);
         });
+        container.insertAdjacentHTML('beforeend', view.getPaginationHtml(actpage.onsiteActivityViews));
+        actpage.bindCollection();
+    },
 
-        this.modelView.templateEl = $("#onsiteActivityViewModelTemplate");
-        if (model.longPollDuration > 0) {
-            setInterval(function () {
-
-                if (!actpage.dialogIsOpen) {
-                    actpage.fetchOnsiteActivityViews(actpage.fetchParams, true);
-                }
-
-            }, model.longPollDuration);
+    /**
+     * The Amount column: the payment total for a payment, a label for a profile change, and
+     * otherwise the activity's arguments as stored.
+     */
+    amountText: function (item) {
+        if (item.get('activity') === 'profile') {
+            return 'Demographic Profile Changes';
         }
+        try {
+            const args = JSON.parse(item.get('tableArgs') || '{}');
+            if (args.form_paytotal) {
+                return '$' + args.form_paytotal;
+            }
+        } catch {
+            // not JSON: show it as stored
+        }
+        return item.get('tableArgs') || '';
     },
 
     /**
@@ -253,101 +269,14 @@ const actpage = {
 
         if (!hideLoader) app.showProgress('loader');
 
-        actpage.onsiteActivityViews.fetch({
-
-            data: params,
-
-            success: function () {
-                if (actpage.onsiteActivityViews.collectionHasChanged) {
-                    // TODO: add any logic necessary if the collection has changed
-                    // the sync event will trigger the view to re-render
-                }
-                app.hideProgress('loader');
-                actpage.fetchInProgress = false;
-            },
-            error: function (m, r) {
-                app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'collectionAlert');
-                app.hideProgress('loader');
-                actpage.fetchInProgress = false;
-            }
+        actpage.onsiteActivityViews.fetch(params).then(function () {
+            app.hideProgress('loader');
+            actpage.fetchInProgress = false;
+            actpage.renderCollection();
+        }, function (error) {
+            app.appendAlert(app.getErrorMessage(error), 'alert-error', 0, 'collectionAlert');
+            app.hideProgress('loader');
+            actpage.fetchInProgress = false;
         });
-    },
-
-    /**
-     * show the dialog for editing a model
-     * @param model
-     */
-    showDetailDialog: function (m) {
-
-        // show the modal dialog
-        $('#onsiteActivityViewDetailDialog').modal({show: true});
-
-        // if a model was specified then that means a user is editing an existing record
-        // if not, then the user is creating a new record
-        actpage.onsiteActivityView = m ? m : new model.OnsiteActivityViewModel();
-
-        actpage.modelView.model = actpage.onsiteActivityView;
-
-        if (actpage.onsiteActivityView.id == null || actpage.onsiteActivityView.id == '') {
-            // this is a new record, there is no need to contact the server
-            actpage.renderModelView(false);
-        } else {
-            app.showProgress('modelLoader');
-
-            // fetch the model from the server so we are not updating stale data
-            actpage.onsiteActivityView.fetch({
-
-                success: function () {
-                    // data returned from the server.  render the model view
-                    actpage.renderModelView(true);
-                },
-
-                error: function (m, r) {
-                    app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'modelAlert');
-                    app.hideProgress('modelLoader');
-                }
-
-            });
-        }
-    },
-
-    /**
-     * Render the model template in the popup
-     * @param bool show the delete button
-     */
-    renderModelView: function (showDeleteButton) {
-        actpage.modelView.render();
-
-        app.hideProgress('modelLoader');
-        // initialize any special controls
-        try {
-            $('.date-picker').datepicker().on('changeDate', function (ev) {
-                $('.date-picker').datepicker('hide');
-            });
-        } catch (error) {
-            // this happens if the datepicker input.value isn't a valid date
-            if (console) console.log('datepicker error: ' + error.message);
-        }
-        if (showDeleteButton) {
-            // attach click handlers to the delete buttons
-            $('#deleteOnsiteActivityViewButton').click(function (e) {
-                e.preventDefault();
-                $('#confirmDeleteOnsiteActivityViewContainer').show('fast');
-            });
-
-            $('#cancelDeleteOnsiteActivityViewButton').click(function (e) {
-                e.preventDefault();
-                $('#confirmDeleteOnsiteActivityViewContainer').hide('fast');
-            });
-
-            $('#confirmDeleteOnsiteActivityViewButton').click(function (e) {
-                e.preventDefault();
-                actpage.deleteModel();
-            });
-
-        } else {
-            // no point in initializing the click handlers if we don't show the button
-            $('#deleteOnsiteActivityViewButtonContainer').hide();
-        }
-    },
+    }
 };
