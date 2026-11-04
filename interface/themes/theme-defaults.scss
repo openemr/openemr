@@ -19,7 +19,7 @@
 .small span.text,
 span.required,
 span.bold {
-  @include font-size("1rem");
+  @include font-size('1rem');
 }
 
 .link,
@@ -28,15 +28,15 @@ span.bold {
 .link_selected,
 .link_selected:visited,
 .items {
-  @include font-size("0.7rem");
+  @include font-size('0.7rem');
 }
 
 .title {
-  @include font-size("1.5rem");
+  @include font-size('1.5rem');
 }
 
 .title_bar {
-  @include font-size("1.13rem");
+  @include font-size('1.13rem');
 }
 
 .bgcolor2 {
@@ -52,6 +52,7 @@ span.bold {
 /* $nav_bg_line */
 
 .body_filler {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background-color: lighten($yellow, 30%) !important;
 }
 
@@ -59,11 +60,11 @@ span.bold {
 
 #addressbook_list tr.search,
 #addressbook_list .inputtext {
-  @include font-size("0.9rem");
+  @include font-size('0.9rem');
 }
 
-[href~="deleter"],
-[onclick~="delete"] {
+[href~='deleter'],
+[onclick~='delete'] {
   background: $danger !important;
 }
 
@@ -83,7 +84,7 @@ span.bold {
 
 #documents_list td,
 #documents_list a {
-  @include font-size("0.8rem");
+  @include font-size('0.8rem');
 }
 
 .body_title table tr td {
@@ -94,27 +95,27 @@ span.bold {
 #HIS .groupname,
 #HIS .label_custom,
 #HIS .data {
-  @include font-size("0.9rem");
+  @include font-size('0.9rem');
 }
 
-/*=============================================================
+/* =============================================================
  * Patient Past Encounters and Documents
  * seen in the patient encounter screen
- *============================================================*/
+ *============================================================ */
 #patient_pastenc #tooltipdiv {
-  @include font-size("0.9rem");
+  @include font-size('0.9rem');
 }
 
-/*=============================================================
+/* =============================================================
  * Report - Custom
  * seen as the patient report (custom_report.php)
- *============================================================*/
+ *============================================================ */
 #report_custom h1 {
-  @include font-size("1.2rem");
+  @include font-size('1.2rem');
 }
 
 #report_custom .encounter h1 {
-  @include font-size("1.4rem");
+  @include font-size('1.4rem');
 }
 
 #addressbook_list {
@@ -154,6 +155,7 @@ ul.tabNav {
     }
   }
 
+  /* stylelint-disable-next-line no-descending-specificity */
   a {
     color: $white;
     padding: 8px 10px;
@@ -177,14 +179,14 @@ ul.tabNav {
 .showborder_head th,
 .shownoborder td,
 .showborder_long tr td {
-  @include font-size("0.9rem");
+  @include font-size('0.9rem');
 }
 
 /**
 * Drug lookup
 **/
 .drug_lookup {
-  @include font-size("0.8rem");
+  @include font-size('0.8rem');
 }
 
 #sddm li {
@@ -197,6 +199,7 @@ ul.tabNav {
 }
 
 #sddm li a:hover {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background: darken($light, 15%);
 }
 
@@ -207,7 +210,9 @@ ul.tabNav {
   padding: 0;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 #sddm div a {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   color: darken($primary, 15%);
 }
 
@@ -222,6 +227,7 @@ ul.tabNav {
 
 .text-area {
   background-color: $white;
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
   border: 1px solid $black;
   height: 100px;
   overflow: auto;
@@ -230,16 +236,18 @@ ul.tabNav {
 }
 
 .example_menu {
-  @include font-size("0.7rem");
+  @include font-size('0.7rem');
 
+  /* stylelint-disable-next-line no-descending-specificity */
   ul a:hover {
+    /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
     background: darken($light, 15%);
     text-decoration: underline;
   }
 }
 
 .error-message {
-  @include font-size("0.8rem");
+  @include font-size('0.8rem');
 }
 
 .attach-input {
@@ -251,20 +259,22 @@ ul.tabNav {
 }
 
 .sidebar {
-  @include font-size("0.95rem");
+  @include font-size('0.95rem');
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background-color: lighten($light, 10%);
 
   .submenu {
-    @include font-size("0.9rem");
+    @include font-size('0.9rem');
   }
 }
 
 .alert-danger-custom {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background-color: lighten($danger, 20%) !important;
   color: $white !important;
 }
 
-/* to align feesheet buttons*/
+/* to align feesheet buttons */
 div.category-display {
   margin-left: 25px !important;
 }
@@ -278,31 +288,37 @@ div.category-display {
   margin-top: 25px;
 }
 
-/*~~openemr5 tabs menu, user and logout icon~~*/
+/* ~~openemr5 tabs menu, user and logout icon~~ */
 #menu_icon,
 #logout_icon,
 #user_icon {
   color: $gray-600 !important;
 }
 
-/*~~openemr5 tabs menu , user and logout icon~~*/
-/*openrmr5.0.2 edit_globals vertical menu*/
-#theform input[type="text"] {
+/* ~~openemr5 tabs menu , user and logout icon~~ */
+
+/* openrmr5.0.2 edit_globals vertical menu */
+#theform input[type='text'] {
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
   border: 1px solid $gray-400;
   margin: 0;
 }
 
 #oe-nav-ul {
   &.tabNav {
+    /* stylelint-disable-next-line declaration-property-value-no-unknown */
     background: rgba($black, 0.05) !important;
 
     li.current {
       color: $primary;
     }
 
+    /* stylelint-disable-next-line no-descending-specificity */
     a {
       background: $light;
+      /* stylelint-disable-next-line declaration-property-value-no-unknown */
       border-bottom: 1px solid $gray-400;
+      /* stylelint-disable-next-line declaration-property-value-no-unknown */
       border-left: 2px solid $primary;
 
       &:hover {
@@ -327,43 +343,53 @@ div.category-display {
   color: $primary;
 }
 
-/*openrmr5.0.2 edit_globals vertical menu*/
-/*main.php expandable search*/
+/* openrmr5.0.2 edit_globals vertical menu */
+
+/* main.php expandable search */
 #search_globals {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background: lighten($gray-200, 10%) !important;
 }
 
-/*main.php expandable search*/
-/*bootstrap navbar */
+/* main.php expandable search */
+
+/* bootstrap navbar */
 .navbar-collapse.collapse.in {
+  /* stylelint-disable-next-line scss/no-global-function-names, declaration-property-value-no-unknown */
   background-color: lighten($light, 20%) !important;
   color: $body-color !important;
 }
 
+/* stylelint-disable no-descending-specificity */
 .navbar-light .navbar-nav > li > a:focus,
 .navbar-light .navbar-nav > li > a:hover {
   background-color: $gray-200 !important;
   color: $gray-800 !important;
 }
+/* stylelint-enable no-descending-specificity */
 
-/*bootstrap navbar */
-/*openemr 5 patient-finder*/
-@media screen and (max-width: 750px) {
+/* bootstrap navbar */
+
+/* openemr 5 patient-finder */
+@media screen and (width <= 750px) {
   #pt_table {
-    @include font-size("1.2rem");
+    @include font-size('1.2rem');
   }
 }
 
-/*openemr 5 patient-finder*/
-/*vertical main menu */
+/* openemr 5 patient-finder */
+
+/* vertical main menu */
 
 .appMenu_small .menuSection > .menuEntries {
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
   box-shadow: 3px 5px 8px $gray;
   left: 40px;
 }
 
-/*vertical main menu */
-/*search any*/
+/* vertical main menu */
+
+/* search any */
 *.oe-expandable-search .any-search-legacy {
   background: $white !important;
 }
