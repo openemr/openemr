@@ -516,4 +516,19 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertNull($past->geometry());
         $this->assertTrue($past->isMisconfigured());
     }
+
+    public function testIndividualDocumentStartsOnPageOneWithTheWindowCss(): void
+    {
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+        $later = '<div class="stmt-env-sheet" style="page-break-before:always;">later</div>';
+        $html = $env->individualDocument($later);
+        $this->assertStringStartsWith($env->windowCss(), $html);
+        $this->assertStringNotContainsString('page-break-before:always', $html);
+        $this->assertStringContainsString('later', $html);
+
+        $again = $env->individualDocument($html);
+        $this->assertSame(1, substr_count($again, '<style>'));
+
+        $this->assertSame('not a sheet', $env->individualDocument('not a sheet'));
+    }
 }
