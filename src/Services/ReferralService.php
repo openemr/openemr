@@ -82,7 +82,7 @@ class ReferralService extends BaseService
      * transaction aliased $transaction. Only the current recipient's Task decides: when Refer To
      * changes, an earlier recipient's Task stops being the referral's status (#14710). Only the
      * referral's own Tasks count (code fulfill, not part of another), not a recipient's sub-Tasks, and
-     * not one ReferralTaskService cancelled because the referral went elsewhere. The Task a reply
+     * only those that still count as the recipient's (countsForRecipientSql()). The Task a reply
      * completes is the same one (ReferralTaskService::recipientTask()).
      */
     public static function taskStatusSql(string $transaction): string
@@ -91,17 +91,33 @@ class ReferralService extends BaseService
             JOIN lbt_data AS recipient ON recipient.form_id = $transaction.id AND recipient.field_id = 'refer_to'
             JOIN users AS recipient_user ON recipient_user.id = recipient.field_value
             WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = $transaction.uuid AND task.owner_uuid = recipient_user.uuid
-                AND " . self::OWN_TASK_SQL . " AND NOT (task.status = 'cancelled' AND COALESCE(task.status_reason, '') IN (" . self::ownReasonsSql() . "))
+                AND " . self::OWN_TASK_SQL . ' AND ' . self::countsForRecipientSql() . "
             ORDER BY task.id DESC LIMIT 1)";
     }
 
     /**
-     * ReferralTaskService's own cancellation reasons as SQL literals: a Task it cancelled (the referral went
-     * elsewhere) isn't its recipient's answer, so it doesn't set the status, as it doesn't count in recipientTask().
+     * Whether the Task aliased task still counts as its recipient's, as
+     * ReferralTaskService::countsForRecipient() decides: not when ReferralTaskService set it aside
+     * (a status in its SET_ASIDE_STATUSES with a reason in its OWN_REASONS: the referral went
+     * elsewhere, or the reply that completed it was cleared), since that isn't the recipient's
+     * answer. The reason is compared byte for byte, as PHP compares it: under the column's collation
+     * a recipient's reason in another case, with an accent or a trailing space would match one.
+     * Never NULL, so it is always true or false.
      */
-    private static function ownReasonsSql(): string
+    private static function countsForRecipientSql(): string
     {
-        return implode(', ', array_map(static fn(string $reason): string => "'" . str_replace("'", "''", $reason) . "'", ReferralTaskService::OWN_REASONS));
+        return 'NOT (task.status IN (' . self::literals(ReferralTaskService::SET_ASIDE_STATUSES) . ')'
+            . " AND CAST(COALESCE(task.status_reason, '') AS BINARY) IN (" . self::literals(ReferralTaskService::OWN_REASONS) . '))';
+    }
+
+    /**
+     * ReferralTaskService's constants as SQL string literals, a quote in one doubled.
+     *
+     * @param list<string> $values
+     */
+    private static function literals(array $values): string
+    {
+        return implode(', ', array_map(static fn(string $value): string => "'" . str_replace("'", "''", $value) . "'", $values));
     }
 
     /**
