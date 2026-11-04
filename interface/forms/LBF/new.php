@@ -17,6 +17,8 @@
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\LayoutColumnUpdate;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -230,6 +232,30 @@ if (
     !empty($_POST['bn_save_checkout']) ||
     !empty($_POST['bn_save_close'])
 ) {
+    $columnRows = QueryUtils::fetchRecords(
+        "SELECT field_id, source, data_type FROM layout_options "
+        . "WHERE form_id = ? AND uor > 0 AND field_id != '' AND "
+        . "edit_options != 'H' AND edit_options NOT LIKE '%0%' "
+        . "ORDER BY group_id, seq",
+        [$formname]
+    );
+    foreach ($columnRows as $checkRow) {
+        $dataType = $checkRow['data_type'] ?? null;
+        if ($dataType === 31 || $dataType === '31') {
+            continue;
+        }
+        $checkId = $checkRow['field_id'] ?? null;
+        if (!is_string($checkId)) {
+            throw new \OpenEMR\Common\Database\SqlQueryException('', 'The layout column cannot be saved.');
+        }
+        $checkSource = $checkRow['source'] ?? null;
+        if ($checkSource === 'D' && !str_starts_with($checkId, 'em_')) {
+            LayoutColumnUpdate::patientStatement($checkId);
+        } elseif ($checkSource === 'V') {
+            LayoutColumnUpdate::encounterStatement($checkId);
+        }
+    }
+
     $newid = 0;
     if (!$formid) {
         // Creating a new form. Get the new form_id by inserting and deleting a dummy row.
@@ -297,12 +323,11 @@ if (
                 $new = [$field_id => $value];
                 updateEmployerData($pid, $new);
             } else {
+                if (!is_string($field_id)) {
+                    throw new \OpenEMR\Common\Database\SqlQueryException('', 'The layout column cannot be saved.');
+                }
                 $newPatientData[$field_id] = $value;
-                $esc_field_id = escape_sql_column_name($field_id, ['patient_data']);
-                sqlStatement(
-                    "UPDATE patient_data SET `$esc_field_id` = ? WHERE pid = ?",
-                    [$value, $pid]
-                );
+                sqlStatement(LayoutColumnUpdate::patientStatement($field_id), [$value, $pid]);
             }
 
             continue;
@@ -318,12 +343,10 @@ if (
             continue;
         } elseif ($source == 'V') {
             // Save to form_encounter.
-            $esc_field_id = escape_sql_column_name($field_id, ['form_encounter']);
-            sqlStatement(
-                "UPDATE form_encounter SET `$esc_field_id` = ? WHERE " .
-                "pid = ? AND encounter = ?",
-                [$value, $pid, $visitid]
-            );
+            if (!is_string($field_id)) {
+                throw new \OpenEMR\Common\Database\SqlQueryException('', 'The layout column cannot be saved.');
+            }
+            sqlStatement(LayoutColumnUpdate::encounterStatement($field_id), [$value, $pid, $visitid]);
             continue;
         }
 
@@ -353,14 +376,18 @@ if (
     if (!empty($newhistorydata)) {
         updateHistoryData($pid, $newhistorydata);
     }
-    // until more testing can be done to understand impact of sequential field saving (which demographics_save and new_comprehensive_save don't do),
-    // we will handle the employer_data saving this way for now.
-    if (!empty($newPatientData)) {
-        if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
-            updateEmployerData($pid, [
-                'occupation' => $newPatientData['occupation']
-                ,'industry' => $newPatientData['industry']
-            ]);
+    // Occupation and industry on the patient form are mirrored onto employer_data.
+    // Any other patient field must not blank those columns.
+    if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
+        $employerUpdate = [];
+        if (array_key_exists('occupation', $newPatientData)) {
+            $employerUpdate['occupation'] = $newPatientData['occupation'];
+        }
+        if (array_key_exists('industry', $newPatientData)) {
+            $employerUpdate['industry'] = $newPatientData['industry'];
+        }
+        if ($employerUpdate !== []) {
+            updateEmployerData($pid, $employerUpdate);
         }
     }
 
