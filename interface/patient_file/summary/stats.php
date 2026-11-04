@@ -227,9 +227,11 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         if ($id == "medication_ps_expand") {
             $medListService = new ActiveMedicationListService();
             $medPid = ActiveMedicationListService::requestedPatientId(null, $pid);
-            $activeMeds = $medListService->getActiveList($medPid);
+            $includePrescriptions = !OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions')
+                && AclMain::aclCheckCore('patients', 'rx');
+            $activeMeds = $medListService->getActiveList($medPid, $includePrescriptions);
             $viewArgs['list'] = $activeMeds;
-            $viewArgs['inactiveCount'] = count($medListService->getInactiveList($medPid, $activeMeds));
+            $viewArgs['inactiveCount'] = count($medListService->getInactiveList($medPid, $activeMeds, $includePrescriptions));
             $viewArgs['printPid'] = $medPid;
             echo $t->render('patient/card/medication.html.twig', $viewArgs);
         } else {

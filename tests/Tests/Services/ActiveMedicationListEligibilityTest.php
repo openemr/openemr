@@ -50,6 +50,20 @@ class ActiveMedicationListEligibilityTest extends TestCase
     }
 
     /**
+     * A resolved medication stays off the active list even when its end date is today.
+     */
+    public function testResolvedMedicationIsInactive(): void
+    {
+        $this->insertList('Resolved warfarin', 1, 'today', 1);
+        $service = new ActiveMedicationListService();
+        $active = $this->titles($service->getActiveList($this->pid));
+        $inactive = $this->titles($service->getInactiveList($this->pid, $service->getActiveList($this->pid)));
+
+        $this->assertNotContains('Resolved warfarin', $active);
+        $this->assertContains('Resolved warfarin', $inactive);
+    }
+
+    /**
      * The inactive list keeps stopped and expired medications and drops current ones.
      */
     public function testInactiveListKeepsHistoryAndOmitsCurrentMedications(): void
@@ -78,14 +92,14 @@ class ActiveMedicationListEligibilityTest extends TestCase
     /**
      * Store one medication issue dated from the database clock.
      */
-    private function insertList(string $title, int $activity, string $endKind): void
+    private function insertList(string $title, int $activity, string $endKind, int $outcome = 0): void
     {
         $sql = match ($endKind) {
-            'none' => 'INSERT INTO lists (pid, type, title, activity, begdate, enddate) VALUES (?, ?, ?, ?, CURDATE(), NULL)',
-            'today' => 'INSERT INTO lists (pid, type, title, activity, begdate, enddate) VALUES (?, ?, ?, ?, CURDATE(), CURDATE())',
-            'yesterday' => 'INSERT INTO lists (pid, type, title, activity, begdate, enddate) VALUES (?, ?, ?, ?, CURDATE(), DATE_SUB(CURDATE(), INTERVAL 1 DAY))',
+            'none' => 'INSERT INTO lists (pid, type, title, activity, outcome, begdate, enddate) VALUES (?, ?, ?, ?, ?, CURDATE(), NULL)',
+            'today' => 'INSERT INTO lists (pid, type, title, activity, outcome, begdate, enddate) VALUES (?, ?, ?, ?, ?, CURDATE(), CURDATE())',
+            'yesterday' => 'INSERT INTO lists (pid, type, title, activity, outcome, begdate, enddate) VALUES (?, ?, ?, ?, ?, CURDATE(), DATE_SUB(CURDATE(), INTERVAL 1 DAY))',
             default => throw new \LogicException('Unknown medication end kind'),
         };
-        QueryUtils::sqlInsert($sql, [$this->pid, 'medication', $title, $activity]);
+        QueryUtils::sqlInsert($sql, [$this->pid, 'medication', $title, $activity, $outcome]);
     }
 }
