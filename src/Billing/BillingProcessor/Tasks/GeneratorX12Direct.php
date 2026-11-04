@@ -307,8 +307,8 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         }
         // Build this claim for the payer it's generated for; that payer is at
         // index 0, so its subscriber relationship is the one this claim's
-        // hierarchy uses. The next claim for this partner reads it.
-        $this->prior_self_of_insured[$partnerKey] = (new Claim(
+        // hierarchy uses. A claim left out of the batch must not change it.
+        $selfOfInsured = (new Claim(
             $claim->getPid(),
             $claim->getEncounter(),
             $partner,
@@ -400,6 +400,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         if ($hold && $batch instanceof BillingClaimBatch) {
             $batch->addClaim($claim);
         }
+        $this->prior_self_of_insured[$partnerKey] = $selfOfInsured;
         $batch->append_claim($segs);
 
         return $batch;
