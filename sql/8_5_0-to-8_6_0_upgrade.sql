@@ -284,3 +284,10 @@ ALTER TABLE `patient_review_request`
 
 #IfPatientReviewMigrationNeeded
 #EndIf
+
+-- Phone reminders log with type 'Phone', which the enum never allowed, so MySQL stored ''.
+-- Add the value, then relabel those rows; no other writer produces an empty type.
+#IfNotColumnType notification_log type enum('SMS','Email','Phone')
+ALTER TABLE `notification_log` MODIFY `type` enum('SMS','Email','Phone') NOT NULL;
+UPDATE `notification_log` SET `type` = 'Phone' WHERE `type` = '';
+#EndIf

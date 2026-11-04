@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 566
+-- v_database: 567
 --
 
 --
@@ -10204,7 +10204,7 @@ CREATE TABLE `notification_log` (
   `message` text,
   `email_sender` varchar(255) NOT NULL,
   `email_subject` varchar(255) NOT NULL,
-  `type` enum('SMS','Email') NOT NULL,
+  `type` enum('SMS','Email','Phone') NOT NULL,
   `patient_info` text,
   `pc_eventDate` date NOT NULL,
   `pc_endDate` date NOT NULL,
