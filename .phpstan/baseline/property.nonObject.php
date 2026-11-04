@@ -2057,11 +2057,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$LoadType on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientMap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$message on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/templates/DefaultErrorFatal.tpl.php',

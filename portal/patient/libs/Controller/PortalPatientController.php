@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,19 +14,25 @@ use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
+use OpenEMR\Services\PortalProfile\PortalProfileService;
 
 /**
- * PatientController is the controller class for the Patient object.
- * The
- * controller is responsible for processing input from the user, reading/updating
- * the model as necessary and displaying the appropriate view.
- *
- * @package Patient Portal::Controller
- * @author ClassBuilder
- * @version 1.0
+ * A portal patient's profile changes: they are sent for staff review, not saved to the chart.
  */
 class PortalPatientController extends AppBasePortalController
 {
+    /** The fields a patient may change, sent for review with their note. */
+    private const UPDATE_FIELDS = [
+        'title', 'language', 'fname', 'lname', 'mname', 'dob', 'street', 'postalCode', 'city',
+        'state', 'countryCode', 'driversLicense', 'ss', 'occupation', 'phoneHome', 'phoneBiz',
+        'phoneContact', 'phoneCell', 'pharmacyId', 'status', 'contactRelationship', 'date', 'sex',
+        'referrer', 'referrerid', 'providerid', 'refProviderid', 'email', 'emailDirect',
+        'ethnoracial', 'race', 'ethnicity', 'religion', 'familySize', 'pubpid', 'hipaaMail',
+        'hipaaVoice', 'hipaaNotice', 'hipaaMessage', 'hipaaAllowsms', 'hipaaAllowemail',
+        'mothersname', 'guardiansname', 'allowImmRegUse', 'allowImmInfoShare', 'allowHealthInfoEx',
+        'allowPatientPortal', 'careTeam', 'county', 'note',
+    ];
+
     /**
      * Override here for any controller-specific functionality
      *
@@ -38,145 +44,89 @@ class PortalPatientController extends AppBasePortalController
     }
 
     /**
-     * API Method retrieves a single Patient record and render as JSON
+     * API Method returns the patient's pending profile change, with camelCase keys, as JSON.
      */
     public function Read()
     {
         try {
-            $pk = $this->GetRouter()->GetUrlParam('id');
-            // @phpstan-ignore method.nonObject
-            $patient = $this->Phreezer->Get('Patient', $pk);
-            if (!($patient instanceof Patient)) {
-                throw new Exception('Not found');
-            }
-            PortalPatientAccessGuard::assertCanRead($patient->Pid);
-            $pending = ReviewQueueFactory::portalWorkflows()->pendingProfileChange($patient->Pid);
+            $record = self::profiles()->record(self::recordId($this->GetRouter()->GetUrlParam('id')))
+                ?? throw new Exception('Not found');
+            PortalPatientAccessGuard::assertCanRead($record['pid']);
+            $pending = ReviewQueueFactory::portalWorkflows()->pendingProfileChange(self::recordId($record['pid']));
             $changed = $pending->payload ?? [];
             $newv = [];
             foreach ($changed as $key => $val) {
                 $newv[lcfirst(ucwords((string) preg_replace_callback("/(\_(.))/", fn($match): string => strtoupper($match[2]), strtolower((string) $key))))] = $val;
             }
-
-            $this->RenderJSON($newv, $this->JSONPCallback(), false, $this->SimpleObjectParams());
+            $this->RenderJSON($newv, $this->JSONPCallback());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
 
     /**
-     * API Method updates an existing Patient record and render response as JSON
+     * API Method sends the patient's profile changes for staff review and renders the
+     * changed record as JSON. The chart is not changed.
      */
     public function Update()
     {
         try {
             $json = json_decode(RequestUtil::GetBody());
-
-            if (! $json) {
+            if (!$json instanceof stdClass) {
                 throw new Exception('The request body does not contain valid JSON');
             }
 
-            $pk = $this->GetRouter()->GetUrlParam('id');
-            $patient = $this->Phreezer->Get('Patient', $pk);
-            if (!($patient instanceof Patient)) {
-                throw new Exception('Not found');
-            }
-            PortalPatientAccessGuard::assertCanWrite($patient->Pid);
+            $record = self::profiles()->record(self::recordId($this->GetRouter()->GetUrlParam('id')))
+                ?? throw new Exception('Not found');
+            PortalPatientAccessGuard::assertCanWrite($record['pid']);
 
-            $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
-            $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
-            //$patient->Financial = $this->SafeGetVal($json, 'financial', $patient->Financial);
-            $patient->Fname = $this->SafeGetVal($json, 'fname', $patient->Fname);
-            $patient->Lname = $this->SafeGetVal($json, 'lname', $patient->Lname);
-            $patient->Mname = $this->SafeGetVal($json, 'mname', $patient->Mname);
-            $patient->Dob = date('Y-m-d', strtotime((string) $this->SafeGetVal($json, 'dob', $patient->Dob)));
-            $patient->Street = $this->SafeGetVal($json, 'street', $patient->Street);
-            $patient->PostalCode = $this->SafeGetVal($json, 'postalCode', $patient->PostalCode);
-            $patient->City = $this->SafeGetVal($json, 'city', $patient->City);
-            $patient->State = $this->SafeGetVal($json, 'state', $patient->State);
-            $patient->CountryCode = $this->SafeGetVal($json, 'countryCode', $patient->CountryCode);
-            $patient->DriversLicense = $this->SafeGetVal($json, 'driversLicense', $patient->DriversLicense);
-            $patient->Ss = $this->SafeGetVal($json, 'ss', $patient->Ss);
-            $patient->Occupation = $this->SafeGetVal($json, 'occupation', $patient->Occupation);
-            $patient->PhoneHome = $this->SafeGetVal($json, 'phoneHome', $patient->PhoneHome);
-            $patient->PhoneBiz = $this->SafeGetVal($json, 'phoneBiz', $patient->PhoneBiz);
-            $patient->PhoneContact = $this->SafeGetVal($json, 'phoneContact', $patient->PhoneContact);
-            $patient->PhoneCell = $this->SafeGetVal($json, 'phoneCell', $patient->PhoneCell);
-            $patient->PharmacyId = $this->SafeGetVal($json, 'pharmacyId', $patient->PharmacyId);
-            $patient->Status = $this->SafeGetVal($json, 'status', $patient->Status);
-            $patient->ContactRelationship = $this->SafeGetVal($json, 'contactRelationship', $patient->ContactRelationship);
-            $patient->Date = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'date', $patient->Date)));
-            $patient->Sex = $this->SafeGetVal($json, 'sex', $patient->Sex);
-            $patient->Referrer = $this->SafeGetVal($json, 'referrer', $patient->Referrer);
-            $patient->Referrerid = $this->SafeGetVal($json, 'referrerid', $patient->Referrerid);
-            $patient->Providerid = $this->SafeGetVal($json, 'providerid', $patient->Providerid);
-            $patient->RefProviderid = $this->SafeGetVal($json, 'refProviderid', $patient->RefProviderid);
-            $patient->Email = $this->SafeGetVal($json, 'email', $patient->Email);
-            $patient->EmailDirect = $this->SafeGetVal($json, 'emailDirect', $patient->EmailDirect);
-            $patient->Ethnoracial = $this->SafeGetVal($json, 'ethnoracial', $patient->Ethnoracial);
-            $patient->Race = $this->SafeGetVal($json, 'race', $patient->Race);
-            $patient->Ethnicity = $this->SafeGetVal($json, 'ethnicity', $patient->Ethnicity);
-            $patient->Religion = $this->SafeGetVal($json, 'religion', $patient->Religion);
-            //$patient->Interpreter = $this->SafeGetVal($json, 'interpreter', $patient->Interpreter);
-            //$patient->Migrantseasonal = $this->SafeGetVal($json, 'migrantseasonal', $patient->Migrantseasonal);
-            $patient->FamilySize = $this->SafeGetVal($json, 'familySize', $patient->FamilySize);
-            /*$patient->MonthlyIncome = $this->SafeGetVal($json, 'monthlyIncome', $patient->MonthlyIncome);
-            $patient->BillingNote = $this->SafeGetVal($json, 'billingNote', $patient->BillingNote);
-            $patient->Homeless = $this->SafeGetVal($json, 'homeless', $patient->Homeless);
-            $patient->FinancialReview = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'financialReview', $patient->FinancialReview)));*/
-            $patient->Pubpid = $this->SafeGetVal($json, 'pubpid', $patient->Pubpid);
-            // Never let the body reassign the row's Pid — the ownership check above pins it.
-            $patient->HipaaMail = $this->SafeGetVal($json, 'hipaaMail', $patient->HipaaMail);
-            $patient->HipaaVoice = $this->SafeGetVal($json, 'hipaaVoice', $patient->HipaaVoice);
-            $patient->HipaaNotice = $this->SafeGetVal($json, 'hipaaNotice', $patient->HipaaNotice);
-            $patient->HipaaMessage = $this->SafeGetVal($json, 'hipaaMessage', $patient->HipaaMessage);
-            $patient->HipaaAllowsms = $this->SafeGetVal($json, 'hipaaAllowsms', $patient->HipaaAllowsms);
-            $patient->HipaaAllowemail = $this->SafeGetVal($json, 'hipaaAllowemail', $patient->HipaaAllowemail);
-            /*$patient->Squad = $this->SafeGetVal($json, 'squad', $patient->Squad);
-            $patient->Fitness = $this->SafeGetVal($json, 'fitness', $patient->Fitness);
-            $patient->ReferralSource = $this->SafeGetVal($json, 'referralSource', $patient->ReferralSource);
-            $patient->Pricelevel = $this->SafeGetVal($json, 'pricelevel', $patient->Pricelevel);*/
-            if (!empty($patient->Regdate)) {
-                $patient->Regdate = date('Y-m-d', strtotime((string) $this->SafeGetVal($json, 'regdate', $patient->Regdate)));
+            $fields = self::UPDATE_FIELDS;
+            // A registration date is only kept up to date once the chart has one.
+            if (!empty($record['regdate'])) {
+                $fields[] = 'regdate';
             }
-            /*$patient->Contrastart = date('Y-m-d', strtotime($this->SafeGetVal($json, 'contrastart', $patient->Contrastart)));
-            $patient->CompletedAd = $this->SafeGetVal($json, 'completedAd', $patient->CompletedAd);
-            $patient->AdReviewed = date('Y-m-d', strtotime($this->SafeGetVal($json, 'adReviewed', $patient->AdReviewed)));
-            $patient->Vfc = $this->SafeGetVal($json, 'vfc', $patient->Vfc);*/
-            $patient->Mothersname = $this->SafeGetVal($json, 'mothersname', $patient->Mothersname);
-            $patient->Guardiansname = $this->SafeGetVal($json, 'guardiansname', $patient->Guardiansname);
-            $patient->AllowImmRegUse = $this->SafeGetVal($json, 'allowImmRegUse', $patient->AllowImmRegUse);
-            $patient->AllowImmInfoShare = $this->SafeGetVal($json, 'allowImmInfoShare', $patient->AllowImmInfoShare);
-            $patient->AllowHealthInfoEx = $this->SafeGetVal($json, 'allowHealthInfoEx', $patient->AllowHealthInfoEx);
-            $patient->AllowPatientPortal = $this->SafeGetVal($json, 'allowPatientPortal', $patient->AllowPatientPortal);
-            $patient->CareTeam = $this->SafeGetVal($json, 'careTeam', $patient->CareTeam);
-            $patient->County = $this->SafeGetVal($json, 'county', $patient->County);
-            //$patient->Industry = $this->SafeGetVal($json, 'industry', $patient->Industry);
-            $patient->Note = $this->SafeGetVal($json, 'note', $patient->Note);
-            $patient->Validate();
-            $errors = $patient->GetValidationErrors();
+            $record = PortalProfileService::applyRequest($record, $json, $fields);
 
-            if (count($errors) > 0) {
+            $errors = PortalProfileService::validate($record);
+            if ($errors !== []) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
-            } else {
-                self::SaveAudit($patient);
-                // $patient->Save(); //active records save
-                $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
+                return;
             }
+            self::SaveAudit($record);
+            $this->RenderJSON($record, $this->JSONPCallback());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
+
     /**
-     * Holds the patient's edit for staff review. A second edit before review replaces the first.
+     * Submit the changed profile, keyed by chart column, for staff review.
+     *
+     * @param array<string, mixed> $record
      */
-    public function SaveAudit(Patient $p): void
+    public static function SaveAudit(array $record): void
     {
-        $changes = $p->GetArray();
-        $changes['note'] = $p->Note;
+        $changes = PortalProfileService::columns($record);
+        $changes['note'] = $record['note'] ?? null;
         ReviewQueueFactory::portalWorkflows()->submitProfileChange(
-            $p->Pid,
+            self::recordId($record['pid']),
             $changes,
             SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession()),
         );
+    }
+
+    private static function recordId(mixed $id): int
+    {
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+        if (!is_int($id) || $id <= 0) {
+            throw new Exception('Not found');
+        }
+
+        return $id;
+    }
+
+    private static function profiles(): PortalProfileService
+    {
+        return new PortalProfileService();
     }
 }

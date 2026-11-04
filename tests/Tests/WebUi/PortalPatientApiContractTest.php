@@ -69,6 +69,12 @@ final class PortalPatientApiContractTest extends TestCase
         'cmsportalLogin', 'careTeam', 'county', 'industry',
     ];
 
+    /**
+     * The profile form always sends its provider selects. A new chart has these empty, and the
+     * profile's validation, unchanged from Phreeze, refuses an empty number.
+     */
+    private const PROVIDER_FIELDS = ['providerid' => '0', 'refProviderid' => '0', 'careTeam' => '0'];
+
     private const LIST_KEYS = ['orderBy', 'orderDesc', 'rows', 'totalResults', 'totalPages', 'pageSize', 'currentPage'];
 
     /** Template id 3, "Hipaa Document", ships with every install. */
@@ -303,6 +309,48 @@ final class PortalPatientApiContractTest extends TestCase
         $pending = $this->get('/portal/patient/api/portalpatient/' . self::$patientId);
         $this->assertSame(200, $pending->getStatusCode());
         $this->assertSame([], $this->json($pending), 'no pending profile change for a new patient');
+    }
+
+    #[Test]
+    public function profileChangeIsReviewedThenCommittedToTheChart(): void
+    {
+        $record = '/portal/patient/api/patient/' . self::$patientId;
+        $review = '/portal/patient/api/portalpatient/' . self::$patientId;
+        $phone = '555-' . random_int(1000, 9999);
+
+        // Sending a change for review returns the changed record but leaves the chart alone.
+        $sent = $this->send('PUT', $review, ['phoneHome' => $phone, 'note' => 'new number'] + self::PROVIDER_FIELDS);
+        $this->assertSame(200, $sent->getStatusCode());
+        $changed = $this->json($sent);
+        $this->assertSame(self::PATIENT_KEYS, array_keys($changed));
+        $this->assertSame($phone, $changed['phoneHome']);
+        $this->assertSame('new number', $changed['note']);
+        $this->assertNotSame($phone, $this->json($this->get($record))['phoneHome']);
+
+        $pending = $this->json($this->get($review));
+        $this->assertSame($phone, $pending['phoneHome'] ?? null, 'staff see the pending change, with camelCase keys');
+        $this->assertSame('new number', $pending['note'] ?? null);
+        $this->assertSame((string) self::$pid, $this->text($pending['pid'] ?? null));
+
+        // Commit to Chart saves it and closes the review.
+        $committed = $this->send('PUT', $record, ['phoneHome' => $phone] + self::PROVIDER_FIELDS);
+        $this->assertSame(200, $committed->getStatusCode());
+        $saved = $this->json($committed);
+        $this->assertSame(self::PATIENT_KEYS, array_keys($saved));
+        $this->assertSame($phone, $saved['phoneHome']);
+        $this->assertSame($phone, $this->json($this->get($record))['phoneHome']);
+        $this->assertSame([], $this->json($this->get($review)), 'the committed change is no longer pending');
+    }
+
+    #[Test]
+    public function profileValidationErrorsNameTheField(): void
+    {
+        $response = $this->send('PUT', '/portal/patient/api/patient/' . self::$patientId, ['providerid' => 'abc'] + self::PROVIDER_FIELDS);
+
+        $this->assertSame(401, $response->getStatusCode());
+        $body = $this->json($response);
+        $this->assertSame('Please check the form for errors', $body['message'] ?? null);
+        $this->assertSame(['providerid' => 'Providerid is not a valid number'], $body['errors'] ?? null);
     }
 
     #[Test]

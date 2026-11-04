@@ -232,11 +232,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/SavantRenderEngine.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property Criteria\\:\\:\\$Pid_Equals\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property BaseController\\:\\:\\$viewBean\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ActionRouter.php',

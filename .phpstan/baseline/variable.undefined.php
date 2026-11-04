@@ -1722,11 +1722,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$output might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$this might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/templates/DefaultError404.tpl.php',
