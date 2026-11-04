@@ -256,6 +256,7 @@ class OrganizationInsuranceFhirApiTest extends TestCase
             'zip wider than the column' => [['address' => [['postalCode' => '12345-67890'] + $address]]],
             'state wider than the column' => [['address' => [['state' => str_repeat('s', 36)] + $address]]],
             'address without a state' => [['address' => [array_diff_key($address, ['state' => true])]]],
+            'lines joined wider than the column' => [['address' => [['line' => ['4 Workbench Way', str_repeat('a', 150), str_repeat('b', 150)]] + $address]]],
             'address given only as text' => [['address' => [['text' => '4 Workbench Way, Testville, CA 90001']]]],
             'address given only as a district' => [['address' => [['district' => 'Testville County']]]],
             'phone that is not a NANP number' => [['telecom' => [['system' => 'phone', 'value' => '+44 20 7946 0958']]]],

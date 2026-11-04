@@ -36,9 +36,14 @@ class InsuranceCompanyValidator extends BaseValidator
                 $context->optional('ins_type_code')->numeric();
                 $context->optional('x12_receiver_id')->lengthBetween(2, 25);
                 $context->optional('x12_default_partner_id')->numeric();
-                // the addresses columns' widths
-                $context->optional('state')->lengthBetween(1, 35);
-                $context->optional('zip')->lengthBetween(1, 10);
+                // the addresses columns' widths; string() first, since the length rule can't take
+                // an array and the address keeps only strings
+                $context->optional('line1')->string()->lengthBetween(1, 255);
+                $context->optional('line2')->string()->lengthBetween(1, 255);
+                $context->optional('city')->string()->lengthBetween(1, 255);
+                $context->optional('state')->string()->lengthBetween(1, 35);
+                $context->optional('zip')->string()->lengthBetween(1, 10);
+                $context->optional('country')->string()->lengthBetween(1, 255);
             }
         );
 

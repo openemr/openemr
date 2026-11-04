@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Validators;
 
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\InsuranceCompanyValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class InsuranceCompanyValidatorTest extends TestCase
@@ -198,6 +199,52 @@ class InsuranceCompanyValidatorTest extends TestCase
         $result = $this->validator->validate($invalidData, BaseValidator::DATABASE_INSERT_CONTEXT);
 
         $this->assertFalse($result->isValid(), 'Non-numeric x12_default_partner_id should fail validation');
+    }
+
+    /**
+     * @return array<string, array{array<string, mixed>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function addressPartProvider(): array
+    {
+        return [
+            'line1 wider than its column' => [['line1' => str_repeat('a', 256)]],
+            'line2 wider than its column' => [['line2' => str_repeat('a', 256)]],
+            'city wider than its column' => [['city' => str_repeat('c', 256)]],
+            'state wider than its column' => [['state' => str_repeat('s', 36)]],
+            'zip wider than its column' => [['zip' => '12345-67890']],
+            'country wider than its column' => [['country' => str_repeat('c', 256)]],
+            'a state that is not a string' => [['state' => ['CA']]],
+            'a zip that is not a string' => [['zip' => 90001]],
+        ];
+    }
+
+    /**
+     * An address part the addresses row can't hold is refused, by its key, with a message rather
+     * than a TypeError from the length rule.
+     *
+     * @param array<string, mixed> $addressPart
+     */
+    #[DataProvider('addressPartProvider')]
+    public function testInsertValidationAddressPartMustFitItsColumn(array $addressPart): void
+    {
+        $result = $this->validator->validate(['name' => 'Blue Cross Blue Shield'] + $addressPart, BaseValidator::DATABASE_INSERT_CONTEXT);
+
+        $this->assertFalse($result->isValid());
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertSame(array_keys($addressPart), array_keys($messages));
+    }
+
+    public function testInsertValidationAddressPartsThatFit(): void
+    {
+        $result = $this->validator->validate([
+            'name' => 'Blue Cross Blue Shield',
+            'line1' => '4 Workbench Way', 'line2' => '', 'city' => 'Testville', 'state' => 'CA', 'zip' => '90001', 'country' => 'US',
+        ], BaseValidator::DATABASE_INSERT_CONTEXT);
+
+        $this->assertTrue($result->isValid());
     }
 
     public function testUpdateValidationAllFieldsOptional(): void
