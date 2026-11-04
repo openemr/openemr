@@ -25,7 +25,8 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         // Get the encounter, and also collect the duration of the encounter using the appointment category.
         // One row per visit, carrying the diagnoses of every problem of the visit's patient linked to it that
         // counts, joined with ';' as explodeAndMakeCodeArray() splits them (one problem's diagnosis can hold
-        // several that way).
+        // several that way). The link and the problem are both matched on the visit's patient: issue_encounter
+        // has no foreign key, and its writers don't check whose problem a posted issue id names.
         $sql = "SELECT
                     FE.encounter,
                     FE.pid,
@@ -36,7 +37,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                     (
                         SELECT GROUP_CONCAT(LISTS.diagnosis ORDER BY LISTS.id SEPARATOR ';')
                         FROM issue_encounter IE
-                        JOIN lists LISTS ON IE.list_id = LISTS.id
+                        JOIN lists LISTS ON IE.list_id = LISTS.id AND LISTS.pid = IE.pid
                         WHERE IE.encounter = FE.encounter AND IE.pid = FE.pid AND " . self::countedListEntry('LISTS') . "
                     ) AS diagnosis,
                     L.codes AS discharge_dispo_code,

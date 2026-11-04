@@ -174,6 +174,24 @@ class ListEntryServicesDatabaseTest extends TestCase
         $this->assertSame(['ICD10:I10'], $diagnoses);
     }
 
+    public function testAnotherPatientsProblemLinkedToTheVisitIsNotItsDiagnosis(): void
+    {
+        // A link under the visit's own patient and encounter that names another patient's problem (its
+        // writers take a posted issue id without checking whose it is) doesn't give the visit that problem.
+        $own = $this->entry('medical_problem', 'diagnosis', 'ICD10:I10', 'confirmed');
+        $others = $this->entry('medical_problem', 'diagnosis', 'ICD10:E11.9', 'confirmed', self::OTHER_PID);
+        $this->visit(self::ENCOUNTER_KEPT, [$own, $others]);
+
+        $result = (new EncounterService(new QdmRequestOne((string)self::PID), new CodeTypesService()))->executeQuery();
+        $this->assertInstanceOf(\ADORecordSet::class, $result);
+        $diagnoses = [];
+        while (is_array($row = QueryUtils::fetchArrayFromResultSet($result))) {
+            $diagnoses[] = $row['diagnosis'] ?? null;
+        }
+
+        $this->assertSame(['ICD10:I10'], $diagnoses);
+    }
+
     /** @return list<string> the diagnosis column of each row the service reads, sorted */
     private function diagnoses(AbstractQdmService $service): array
     {
