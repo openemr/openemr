@@ -70,6 +70,21 @@ class CdaVitalSignUnitsTest extends TestCase
         $this->assertSame(13.779528, $vital['head_circ']);
     }
 
+    /**
+     * Weight and head circumference under their FHIR and US Core codes, as OpenEMR's own export writes weight.
+     */
+    public function testMetricVitalsUnderTheirFhirCodesAreStoredInTheVitalsFormUnits(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizer([
+            ['29463-7', '70', 'kg'],
+            ['9843-4', '35', 'cm'],
+        ]));
+
+        $vital = $this->vitalSign(1);
+        $this->assertSame(154.323584, $vital['weight']);
+        $this->assertSame(13.779528, $vital['head_circ']);
+    }
+
     public function testVitalsAlreadyInTheVitalsFormUnitsKeepTheirValues(): void
     {
         $this->parser->fetchVitalSignData($this->organizer([
