@@ -222,4 +222,20 @@ describe('page wiring', () => {
         await flush();
         expect(document.getElementById('documentsClassic').hidden).toBe(false);
     });
+
+    test('starts when the page defines its configuration after the script tag', async () => {
+        setUp();
+        await flush();
+        const config = window.oeDocumentsFolderViewConfig;
+        window.fetch.mockClear();
+        delete window.oeDocumentsFolderViewConfig;
+        Object.defineProperty(document, 'readyState', { configurable: true, get: () => 'loading' });
+        new Function('window', src)(window);
+        expect(window.fetch).not.toHaveBeenCalled();
+        window.oeDocumentsFolderViewConfig = config;
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+        await flush();
+        delete document.readyState;
+        expect(window.fetch).toHaveBeenCalledTimes(1);
+    });
 });

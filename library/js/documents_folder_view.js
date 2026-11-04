@@ -658,9 +658,13 @@
         setView(wanted === 'folders' ? 'folders' : 'classic', false);
     }
 
-    if (root.document && root.oeDocumentsFolderViewConfig) {
+    if (root.document) {
+        // The page defines the configuration after this script tag, so it is read when the page
+        // is ready and never at script load time.
         var start = function () {
-            init(root.document, root.oeDocumentsFolderViewConfig);
+            if (root.oeDocumentsFolderViewConfig) {
+                init(root.document, root.oeDocumentsFolderViewConfig);
+            }
         };
         if (root.document.readyState === 'loading') {
             root.document.addEventListener('DOMContentLoaded', start);
