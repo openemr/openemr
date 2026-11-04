@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\PhoneType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -66,8 +67,8 @@ class OrganizationInsuranceFhirApiTest extends TestCase
     }
 
     /**
-     * An insurer posted as JSON is stored as an insurance company, with its address, phone
-     * and payer id, and reads back as an Organization of type ins.
+     * An insurer posted as JSON is stored as an insurance company, with its address, phone,
+     * fax and payer id, and reads back as an Organization of type ins.
      */
     public function testPostInsurerCreatesInsuranceCompany(): void
     {
@@ -114,12 +115,20 @@ class OrganizationInsuranceFhirApiTest extends TestCase
         $values = array_map(static fn(mixed $identifier): mixed => is_array($identifier) ? ($identifier['value'] ?? null) : null, $identifiers);
         $this->assertSame([self::CMS_ID], $values);
 
-        $phone = QueryUtils::fetchSingleValue(
-            "SELECT CONCAT(`area_code`, `prefix`, `number`) AS `phone` FROM `phone_numbers` WHERE `foreign_id` = ?",
-            'phone',
-            [$row['id']]
+        $numbers = [];
+        foreach (
+            QueryUtils::fetchRecords(
+                "SELECT `type`, CONCAT(`area_code`, `prefix`, `number`) AS `digits` FROM `phone_numbers` WHERE `foreign_id` = ? ORDER BY `type`",
+                [$row['id']]
+            ) as $number
+        ) {
+            $numbers[] = [$number['type'], $number['digits']];
+        }
+        $this->assertSame(
+            [[PhoneType::WORK->value, '5552003003'], [PhoneType::FAX->value, '5552009999']],
+            $numbers,
+            "The posted work phone and fax should be stored with the company, each with its type"
         );
-        $this->assertSame('5552003003', $phone, "The posted work phone should be stored with the company");
     }
 
     /**
@@ -206,7 +215,7 @@ class OrganizationInsuranceFhirApiTest extends TestCase
 
     /**
      * The body FHIR clients send for an insurer: the explorer's "Create missing fixtures"
-     * seed, plus a second address line, a country and a payer id.
+     * seed, plus a second address line, a country, a fax and a payer id.
      *
      * @param array<string, mixed> $overrides top-level elements to replace
      * @return array<string, mixed>
@@ -227,7 +236,10 @@ class OrganizationInsuranceFhirApiTest extends TestCase
                 'code' => 'Ins',
                 'display' => 'Insurance Company',
             ]]]],
-            'telecom' => [['system' => 'phone', 'value' => '(555) 200-3003', 'use' => 'work']],
+            'telecom' => [
+                ['system' => 'phone', 'value' => '(555) 200-3003', 'use' => 'work'],
+                ['system' => 'fax', 'value' => '(555) 200-9999', 'use' => 'work'],
+            ],
             'address' => [[
                 'line' => ['4 Workbench Way', 'Suite 200'],
                 'city' => 'Testville',

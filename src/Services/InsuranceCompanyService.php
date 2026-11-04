@@ -498,13 +498,6 @@ class InsuranceCompanyService extends BaseService
             $this->phoneNumberService->insert($data, $freshId);
         }
 
-        $fax = is_array($data) && is_string($data["fax"] ?? null) ? $data["fax"] : '';
-        if ($fax !== '') {
-            $faxNumberService = new PhoneNumberService();
-            $faxNumberService->type = PhoneType::FAX->value;
-            $faxNumberService->insert(['phone' => $fax], $freshId);
-        }
-
         return $freshId;
     }
 

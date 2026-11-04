@@ -29,6 +29,8 @@ use OpenEMR\Services\FHIR\INonPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\PhoneNumberService;
+use OpenEMR\Services\PhoneType;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
@@ -48,8 +50,10 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
      */
     private $insuranceService;
 
-    public function __construct($fhirApiURL = null)
-    {
+    public function __construct(
+        $fhirApiURL = null,
+        private readonly PhoneNumberService $phoneNumberService = new PhoneNumberService(),
+    ) {
         parent::__construct($fhirApiURL);
         $this->insuranceService = new InsuranceCompanyService();
     }
@@ -197,7 +201,16 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
             return $processingResult;
         }
         // The company, its address and its phones are stored together or not at all.
-        $id = QueryUtils::inTransaction(fn(): int|string => $this->insuranceService->insert($record));
+        $id = QueryUtils::inTransaction(function () use ($record): int|string {
+            $id = $this->insuranceService->insert($record);
+            // The fax is stored here, once unstorableParts() has accepted it, rather than by
+            // InsuranceCompanyService::insert(), which POST /api/insurance_company also calls.
+            $fax = $record['fax'] ?? null;
+            if (is_string($fax) && $fax !== '') {
+                $this->phoneNumberService->insert(['phone' => $fax], $id, PhoneType::FAX);
+            }
+            return $id;
+        });
         $stored = $this->insuranceService->getOneById($id);
         $processingResult->addData(['id' => $id, 'uuid' => is_array($stored) ? ($stored['uuid'] ?? null) : null]);
         return $processingResult;
