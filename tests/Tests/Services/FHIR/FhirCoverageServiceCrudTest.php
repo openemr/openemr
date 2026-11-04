@@ -12,6 +12,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirCoverageService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Validators\ProcessingResult;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -252,6 +253,309 @@ class FhirCoverageServiceCrudTest extends TestCase
         $messages = $result->getValidationMessages();
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('status', $messages);
+    }
+
+    /**
+     * Coverage.type comes from the policy's insurer: its CQM Source of Payment, a code of the
+     * Payer Type value set US Core binds the type to, and then the ActCode for its insurance type.
+     *
+     * @param list<string> $expected each coding as "system|code|display"
+     */
+    #[Test]
+    #[DataProvider('coverageTypeProvider')]
+    public function testReadTypeComesFromTheInsurer(?int $insTypeCode, ?int $cqmSop, array $expected): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `insurance_companies` SET `ins_type_code` = ?, `cqm_sop` = ? WHERE `uuid` = ?',
+            [$insTypeCode, $cqmSop, UuidRegistry::uuidToBytes($this->insurerUuid)]
+        );
+
+        [, $coverage] = $this->insertAndRead($this->fhirCoverageFixture);
+
+        $this->assertSame($expected, $this->typeCodings($coverage));
+    }
+
+    /**
+     * @return array<string, array{0: ?int, 1: ?int, 2: list<string>}>
+     * @codeCoverageIgnore
+     */
+    public static function coverageTypeProvider(): array
+    {
+        $public = 'http://terminology.hl7.org/CodeSystem/v3-ActCode|PUBLICPOL|public healthcare';
+        $plan = 'http://terminology.hl7.org/CodeSystem/v3-ActCode|HIP|health insurance plan policy';
+        return [
+            'Medicaid' => [3, null, [$public]],
+            'Medicare Part B' => [2, null, [$public]],
+            'Veterans Administration Plan' => [24, null, [$public]],
+            'Commercial Insurance Co.' => [17, null, [$plan]],
+            'no insurance type' => [null, null, [$plan]],
+            'HMO Medicare Risk' => [15, null, [$plan]],
+            'Medicaid, with the Medicaid source of payment' => [3, 2, ['https://nahdo.org/sopt|2|', $public]],
+            'Medicare Part B, with the Medicare source of payment' => [2, 1, ['https://nahdo.org/sopt|1|', $public]],
+            'HMO Medicare Risk, with the Medicare HMO source of payment' => [15, 111, ['https://nahdo.org/sopt|111|', $public]],
+            // a QRDA import stores the payer's source of payment code in both columns
+            'private insurance, as an import stores it' => [5, 5, ['https://nahdo.org/sopt|5|', $plan]],
+        ];
+    }
+
+    /**
+     * The insurer's codes as a read without bound values gives them (strings), and blank or
+     * unusable ones, which fall back to HIP with no source of payment.
+     *
+     * @param list<string> $expected each coding as "system|code|display"
+     */
+    #[Test]
+    #[DataProvider('typeCodeAsReadProvider')]
+    public function testTypeReadsCodesThatArriveAsStrings(mixed $insTypeCode, mixed $cqmSop, array $expected): void
+    {
+        $coverage = $this->fhirCoverageService->parseOpenEMRRecord([
+            'uuid' => '00000000-0000-4000-8000-000000000000',
+            'ins_type_code' => $insTypeCode,
+            'cqm_sop' => $cqmSop,
+        ]);
+
+        $this->assertSame($expected, $this->typeCodings($coverage));
+    }
+
+    /**
+     * @return array<string, array{0: mixed, 1: mixed, 2: list<string>}>
+     * @codeCoverageIgnore
+     */
+    public static function typeCodeAsReadProvider(): array
+    {
+        $public = 'http://terminology.hl7.org/CodeSystem/v3-ActCode|PUBLICPOL|public healthcare';
+        $plan = 'http://terminology.hl7.org/CodeSystem/v3-ActCode|HIP|health insurance plan policy';
+        return [
+            'strings' => ['3', '2', ['https://nahdo.org/sopt|2|', $public]],
+            'corrections' => [null, '41', ['https://nahdo.org/sopt|41|', $public]],
+            'self-pay' => ['8', '81', ['https://nahdo.org/sopt|81|', $plan]],
+            'blank and zero' => ['', '0', [$plan]],
+            'unusable' => ['Medicaid', ' ', [$plan]],
+            'absent' => [null, null, [$plan]],
+            'a type no row has' => [99, null, [$plan]],
+        ];
+    }
+
+    /**
+     * A Period's end is inclusive, so an end of "2024-12" covers December through its last day.
+     * The create keeps the end it was given (#7676), and the read gives the same period back.
+     */
+    #[Test]
+    #[DataProvider('periodEndProvider')]
+    public function testCreateStoresTheLastDayOfThePeriodEnd(string $periodEnd, string $expectedDateEnd): void
+    {
+        $payload = $this->fhirCoverageFixture->jsonSerialize();
+        $payload['period'] = ['start' => '2024-01-01', 'end' => $periodEnd];
+        // the period has ended, so the status OpenEMR derives from it is cancelled
+        $payload['status'] = 'cancelled';
+
+        [$uuid, $coverage] = $this->insertAndRead(new FHIRCoverage($payload));
+
+        $stored = QueryUtils::fetchSingleValue(
+            'SELECT `date_end` FROM `insurance_data` WHERE `uuid` = ?',
+            'date_end',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        $this->assertSame($expectedDateEnd, $stored);
+
+        $read = $this->toArray($coverage);
+        $this->assertSame('cancelled', $read['status'] ?? null);
+        $period = $read['period'] ?? null;
+        $this->assertIsArray($period);
+        $this->assertIsString($period['start'] ?? null);
+        $this->assertIsString($period['end'] ?? null);
+        $this->assertSame('2024-01-01', substr($period['start'], 0, 10));
+        $this->assertSame($expectedDateEnd, substr($period['end'], 0, 10));
+        $this->assertLessThanOrEqual(
+            new \DateTimeImmutable($period['end']),
+            new \DateTimeImmutable($period['start'])
+        );
+    }
+
+    /**
+     * A Coverage with no period.end is open-ended: the create stores no end date and the read
+     * gives none back.
+     */
+    #[Test]
+    public function testCreateWithoutAPeriodEndIsOpenEnded(): void
+    {
+        $payload = $this->fhirCoverageFixture->jsonSerialize();
+        $payload['period'] = ['start' => '2024-01-01'];
+
+        [$uuid, $coverage] = $this->insertAndRead(new FHIRCoverage($payload));
+
+        $stored = QueryUtils::querySingleRow(
+            'SELECT `date`, `date_end` FROM `insurance_data` WHERE `uuid` = ?',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        $this->assertIsArray($stored);
+        $this->assertSame('2024-01-01', $stored['date'] ?? null);
+        $this->assertNull($stored['date_end'] ?? null);
+
+        $read = $this->toArray($coverage);
+        $this->assertSame('active', $read['status'] ?? null);
+        $period = $read['period'] ?? null;
+        $this->assertIsArray($period);
+        $this->assertArrayNotHasKey('end', $period);
+    }
+
+    /**
+     * An update ends the period and reopens it: a period with no end clears the stored end, and a
+     * resource with no period keeps the stored dates. Each answer reads as a read of it would.
+     */
+    #[Test]
+    public function testUpdateEndsAndReopensThePeriod(): void
+    {
+        [$uuid] = $this->insertAndRead($this->fhirCoverageFixture);
+        $payload = $this->fhirCoverageFixture->jsonSerialize();
+        $payload['id'] = $uuid;
+        unset($payload['status']);
+
+        $ended = $payload;
+        $ended['period'] = ['start' => '2024-01-01', 'end' => '2024-12'];
+        $response = $this->updateAndRespond($uuid, $ended);
+        $this->assertSame('2024-12-31', $this->storedDateEnd($uuid));
+        $this->assertSame('cancelled', $response['status'] ?? null);
+        $this->assertSame(
+            ['http://terminology.hl7.org/CodeSystem/v3-ActCode|PUBLICPOL|public healthcare'],
+            $this->typeCodings(new FHIRCoverage($response))
+        );
+        $beneficiary = $response['beneficiary'] ?? null;
+        $this->assertIsArray($beneficiary);
+        $this->assertSame('Patient/' . $this->patientUuid, $beneficiary['reference'] ?? null);
+
+        $withoutPeriod = $payload;
+        unset($withoutPeriod['period']);
+        $this->updateAndRespond($uuid, $withoutPeriod);
+        $this->assertSame('2024-12-31', $this->storedDateEnd($uuid));
+
+        $reopened = $payload;
+        $reopened['period'] = ['start' => '2024-01-01'];
+        $response = $this->updateAndRespond($uuid, $reopened);
+        $this->assertNull($this->storedDateEnd($uuid));
+        $this->assertSame('active', $response['status'] ?? null);
+        $period = $response['period'] ?? null;
+        $this->assertIsArray($period);
+        $this->assertArrayNotHasKey('end', $period);
+    }
+
+    /**
+     * @return array<string, array{0: string, 1: string}>
+     * @codeCoverageIgnore
+     */
+    public static function periodEndProvider(): array
+    {
+        return [
+            'year' => ['2024', '2024-12-31'],
+            'month' => ['2024-12', '2024-12-31'],
+            'full date' => ['2024-12-15', '2024-12-15'],
+        ];
+    }
+
+    /**
+     * Inserts the Coverage and reads it back through the FHIR read.
+     *
+     * The read leaves out a policy whose insurer id is 0, and the insurer fixture is inserted
+     * with id 0, so it is given the next id first, as CoverageFhirApiTest does.
+     *
+     * @return array{0: string, 1: FHIRCoverage} its uuid and the resource read
+     */
+    private function insertAndRead(FHIRCoverage $coverage): array
+    {
+        $nextInsurerId = QueryUtils::fetchSingleValue(
+            'SELECT COALESCE(MAX(id), 0) + 1 AS id FROM insurance_companies',
+            'id'
+        );
+        $this->assertIsNumeric($nextInsurerId);
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE insurance_companies SET id = ? WHERE uuid = ? AND id = 0',
+            [$nextInsurerId, UuidRegistry::uuidToBytes($this->insurerUuid)]
+        );
+
+        $coverage->setId(new FHIRId());
+        $inserted = $this->fhirCoverageService->insert($coverage);
+        $this->assertTrue(
+            $inserted->isValid(),
+            'Insert should succeed: ' . json_encode($inserted->getValidationMessages())
+        );
+        $uuid = $this->firstDataRow($inserted)['uuid'] ?? null;
+        $this->assertIsString($uuid);
+
+        $read = $this->fhirCoverageService->getOne($uuid);
+        $this->assertTrue($read->isValid());
+        $data = $read->getData();
+        $this->assertIsArray($data);
+        $resource = $data[0] ?? null;
+        $this->assertInstanceOf(FHIRCoverage::class, $resource);
+
+        return [$uuid, $resource];
+    }
+
+    /**
+     * Updates the Coverage through the FHIR service and gives the resource it answers with.
+     *
+     * @param array<mixed> $payload
+     * @return array<mixed>
+     */
+    private function updateAndRespond(string $uuid, array $payload): array
+    {
+        $result = $this->fhirCoverageService->update($uuid, new FHIRCoverage($payload));
+        $this->assertTrue(
+            $result->isValid(),
+            'Update should succeed: ' . json_encode($result->getValidationMessages())
+        );
+        $data = $result->getData();
+        $this->assertIsArray($data);
+        $resource = $data[0] ?? null;
+        $this->assertInstanceOf(FHIRCoverage::class, $resource);
+
+        return $this->toArray($resource);
+    }
+
+    private function storedDateEnd(string $uuid): mixed
+    {
+        return QueryUtils::fetchSingleValue(
+            'SELECT `date_end` FROM `insurance_data` WHERE `uuid` = ?',
+            'date_end',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+    }
+
+    /**
+     * The Coverage's type codings, each as "system|code|display".
+     *
+     * @return list<string>
+     */
+    private function typeCodings(FHIRCoverage $coverage): array
+    {
+        $type = $this->toArray($coverage)['type'] ?? null;
+        $this->assertIsArray($type);
+        $codings = $type['coding'] ?? null;
+        $this->assertIsArray($codings);
+        $flat = [];
+        foreach ($codings as $coding) {
+            $this->assertIsArray($coding);
+            $system = $coding['system'] ?? '';
+            $code = $coding['code'] ?? '';
+            $display = $coding['display'] ?? '';
+            $this->assertIsString($system);
+            $this->assertIsString($code);
+            $this->assertIsString($display);
+            $flat[] = $system . '|' . $code . '|' . $display;
+        }
+
+        return $flat;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function toArray(FHIRCoverage $coverage): array
+    {
+        $decoded = json_decode(json_encode($coverage, JSON_THROW_ON_ERROR), true);
+        $this->assertIsArray($decoded);
+
+        return $decoded;
     }
 
     /**
