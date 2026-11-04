@@ -167,11 +167,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/ClinicalTypes/ClinicalType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property CacheMemCache\\:\\:\\$_lockFilePath is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property CacheNoCache\\:\\:\\$ram is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheNoCache.php',

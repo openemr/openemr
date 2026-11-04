@@ -1897,31 +1897,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$childNodes on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$length on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$nextSibling on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$nodeName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$previousSibling on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$extension on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
@@ -2207,11 +2182,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientMap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$LoadType on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserMap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$message on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/patient/templates/DefaultErrorFatal.tpl.php',
@@ -2355,16 +2325,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$title on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/templates/_FormsHeader.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ROOT_URL on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/_Header.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$title on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/_Header.tpl.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$ROOT_URL on mixed\\.$#',

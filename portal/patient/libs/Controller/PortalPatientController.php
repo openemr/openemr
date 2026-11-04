@@ -11,7 +11,6 @@
  */
 
 use OpenEMR\Common\Session\PortalPatientAccessGuard;
-use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
@@ -36,72 +35,6 @@ class PortalPatientController extends AppBasePortalController
     protected function Init()
     {
         parent::Init();
-    }
-
-    /**
-     * Displays a list view of Patient objects
-     */
-    public function ListView()
-    {
-        $rid = $pid = $user = $encounter = 0;
-        if (isset($_GET['id'])) {
-            $rid = (int) $_GET['id'];
-        }
-
-        if (isset($_GET['pid'])) {
-            $pid = (int) $_GET['pid'];
-        }
-
-        if (isset($_GET['user'])) {
-            $user = $_GET['user'];
-        }
-
-        if (isset($_GET['enc'])) {
-            $encounter = $_GET['enc'];
-        }
-
-        $this->Assign('recid', $rid);
-        $this->Assign('cpid', $pid);
-        $this->Assign('cuser', $user);
-        $this->Assign('encounter', $encounter);
-        $this->Render();
-    }
-
-    /**
-     * API Method queries for Patient records and render as JSON
-     */
-    public function Query()
-    {
-        try {
-            $criteria = new PatientCriteria();
-            // Bind to the validated bootstrap pid; a null/empty value would
-            // cause PatientReporter to skip its zero-pid branch and return
-            // every patient row.
-            $criteria->Pid_Equals = PortalSessionPidGuard::requireBootstrapPid();
-
-            $output = new stdClass();
-
-            // if a sort order was specified then specify in the criteria
-            $output->orderBy = RequestUtil::Get('orderBy');
-            $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if ($output->orderBy) {
-                $criteria->SetOrder($output->orderBy, $output->orderDesc);
-            }
-
-            $page = RequestUtil::Get('page');
-
-            // return all results
-            $patientdata = $this->Phreezer->Query('PatientReporter', $criteria);
-            $output->rows = $patientdata->ToObjectArray(true, $this->SimpleObjectParams());
-            $output->totalResults = count($output->rows);
-            $output->totalPages = 1;
-            $output->pageSize = $output->totalResults;
-            $output->currentPage = 1;
-
-            $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (\Throwable $ex) {
-            $this->RenderExceptionJSON($ex);
-        }
     }
 
     /**
@@ -245,32 +178,5 @@ class PortalPatientController extends AppBasePortalController
             $changes,
             SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession()),
         );
-    }
-    /**
-     * API Method deletes an existing Patient record and render response as JSON
-     */
-    public function Delete()
-    {
-        try {
-            // TODO: if a soft delete is preferred, change this to update the deleted flag instead of hard-deleting
-
-            $pk = $this->GetRouter()->GetUrlParam('id');
-            $patient = $this->Phreezer->Get('Patient', $pk);
-            if (!($patient instanceof Patient)) {
-                throw new Exception('Not found');
-            }
-            PortalSessionPidGuard::assertOwnedBySession(
-                $patient->Pid,
-                PortalSessionPidGuard::requireBootstrapPid(),
-            );
-
-            $patient->Delete();
-
-            $output = new stdClass();
-
-            $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (\Throwable $ex) {
-            $this->RenderExceptionJSON($ex);
-        }
     }
 }

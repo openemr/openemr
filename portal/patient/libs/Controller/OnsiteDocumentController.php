@@ -192,43 +192,6 @@ class OnsiteDocumentController extends AppBasePortalController
     }
 
     /**
-     * @return void
-     */
-    public function SingleView()
-    {
-        $rid = $pid = $user = $encounter = 0;
-        if (isset($_GET['id'])) {
-            $rid = (int)$_GET['id'];
-        }
-
-        if (isset($_GET['pid'])) {
-            $pid = (int)$_GET['pid'];
-        }
-
-        // only allow patient to see themself
-
-        $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            // only allow patient to delete themselves
-        if (!empty($bootstrapPid)) {
-            $pid = $bootstrapPid;
-        }
-
-        if (isset($_GET['user'])) {
-            $user = $_GET['user'];
-        }
-
-        if (isset($_GET['enc'])) {
-            $encounter = $_GET['enc'];
-        }
-
-        $this->Assign('recid', $rid);
-        $this->Assign('cpid', $pid);
-        $this->Assign('cuser', $user);
-        $this->Assign('encounter', $encounter);
-        $this->Render();
-    }
-
-    /**
      * API Method retrieves a single OnsiteDocument record and render as JSON
      */
     public function Read()

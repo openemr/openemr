@@ -91,6 +91,10 @@ class GenericRouter implements IRouter
                     $error = 'Unauthorized';
                     throw new Exception($error);
                 }
+            } elseif ($globalsBag->getBoolean('bootstrap_register')) {
+                // Self-registration (no patient yet): the p_reg check below is
+                // the whole rule, as it was before the core-user fallback was
+                // added. Its routes include POST:api/patient, which is p_none.
             } else {
                 // Core-user fallback (patient-portal session absent): allow
                 // routes explicitly marked for all users or staff. The
@@ -147,6 +151,8 @@ class GenericRouter implements IRouter
                         $error = 'Unauthorized';
                         throw new Exception($error);
                     }
+                } elseif ($globalsBag->getBoolean('bootstrap_register')) {
+                    // Self-registration: only the p_reg check below applies.
                 } else {
                     // Core-user fallback (no patient session): allow routes
                     // explicitly marked for all users or staff. Continue to

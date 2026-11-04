@@ -486,33 +486,5 @@ var page = {
             }
         });
 
-    },
-
-    /**
-     * delete the model that is currently displayed in the dialog
-     */
-    deleteModel: function () {
-        // reset any previous errors
-        $('#modelAlert').html('');
-
-        app.showProgress('modelLoader');
-
-        page.patient.destroy({
-            wait: true,
-            success: function () {
-                $('#patientDetailDialog').modal('hide');
-                setTimeout("app.appendAlert('The Patient record was deleted','success',5000,'collectionAlert')", 500);
-                app.hideProgress('modelLoader');
-
-                if (model.reloadCollectionOnModelUpdate) {
-                    // re-fetch and render the collection after the model has been updated
-                    page.fetchPatientData(page.fetchParams, true);
-                }
-            },
-            error: function (model, response, scope) {
-                app.appendAlert(app.getErrorMessage(response), 'danger', 15000, 'modelAlert');
-                app.hideProgress('modelLoader');
-            }
-        });
     }
 };
