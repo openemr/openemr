@@ -29,6 +29,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -303,11 +305,11 @@ class UtilsService
         return null;
     }
 
-    public static function createFhirMeta($version, $date): FHIRMeta
+    public static function createFhirMeta(string $version, string $date): FHIRMeta
     {
         $meta = new FHIRMeta();
-        $meta->setVersionId($version);
-        $meta->setLastUpdated($date);
+        $meta->setVersionId(new FHIRId($version));
+        $meta->setLastUpdated(new FHIRInstant($date));
         return $meta;
     }
 
