@@ -49,6 +49,9 @@ class DeviceFhirApiTest extends TestCase
     /** FHIR uuid of the patient that owns the seeded device. */
     private string $patientUuid;
 
+    /**
+     * Authenticate, install a fixture patient, and bind the Device JSON to that patient.
+     */
     protected function setUp(): void
     {
         $baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
@@ -84,6 +87,9 @@ class DeviceFhirApiTest extends TestCase
         $this->fhirFixture = $stringKeyedFixture;
     }
 
+    /**
+     * Remove seeded medical-device rows, fixture patients, and the OAuth client.
+     */
     protected function tearDown(): void
     {
         if (isset($this->fixtureManager)) {
@@ -291,6 +297,9 @@ class DeviceFhirApiTest extends TestCase
         $this->assertOAuthUnauthorizedResponse($result);
     }
 
+    /**
+     * POST the fixture Device and return its uuid so GET tests can read it.
+     */
     private function createDevice(): string
     {
         $result = $this->testClient->post(self::ENDPOINT, $this->fhirFixture);
@@ -323,6 +332,9 @@ class DeviceFhirApiTest extends TestCase
         );
     }
 
+    /**
+     * 401 must be an OAuth denial body (error + "denied the request"), not a FHIR resource.
+     */
     private function assertOAuthUnauthorizedResponse(ResponseInterface $response): void
     {
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
