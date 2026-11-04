@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2009-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -339,7 +341,8 @@ FMT, $af, $hasValue, $ai, $getValue);
 }
 function srchDone(pid){
     top.restoreSession();
-    document.location.href = "./../../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(pid);
+    const params = new URLSearchParams({set_pid: pid, csrf_token_form: top.csrf_token_js});
+    document.location.href = "./../../patient_file/summary/demographics.php?" + params;
 }
 //-->
 

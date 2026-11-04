@@ -176,7 +176,8 @@ function show_patient(newpid) {
         return;
     }
     top.restoreSession();
-    top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + newpid;
+    const params = new URLSearchParams({set_pid: newpid, csrf_token_form: top.csrf_token_js});
+    top.RTop.location = "../../patient_file/summary/demographics.php?" + params;
 }
 
 /**
