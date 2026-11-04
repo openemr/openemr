@@ -103,7 +103,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between ADORecordSet and false will always evaluate to false\\.$#',
-    'count' => 4,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [

@@ -84,6 +84,23 @@ final class DirectMessageCheckTest extends TestCase
         self::assertSame([[0, 'could not connect to server C1']], $this->auditRows);
     }
 
+    public function testUnreachableServerFailsAfterAuditing(): void
+    {
+        // Nothing listens on port 1, so every connect attempt is refused.
+        OEGlobalsBag::getInstance()->set('phimail_server_address', 'https://127.0.0.1:1');
+
+        try {
+            phimail_check();
+            self::fail('phimail_check() returned normally from an unreachable server.');
+        } catch (PhiMailCheckException $e) {
+            $reason = $e->getMessage();
+        }
+
+        // The C4 detail carries the OS error number, which differs by platform.
+        self::assertStringStartsWith('could not connect to server C4 ', $reason);
+        self::assertSame([[0, $reason]], $this->auditRows);
+    }
+
     /**
      * @return array<string, array{list<string>, string}>
      *

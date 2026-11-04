@@ -27,6 +27,7 @@
 require_once(__DIR__ . "/documents.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\DirectMessaging\PhiMailCheckException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
@@ -166,9 +167,9 @@ function phimail_check(): void
 
     // Record the failure in the audit log, then throw so the background
     // service runner reports the run as an error.
-    $fail = static function (string $text): never {
+    $fail = static function (string $text, ?\Throwable $previous = null): never {
         phimail_logit(0, $text);
-        throw new PhiMailCheckException($text);
+        throw new PhiMailCheckException($text, 0, $previous);
     };
 
     $fp = phimail_connect($err);
@@ -193,9 +194,10 @@ function phimail_check(): void
                 //Format STATUS message-id status-code [additional-information]
                 $val = explode(" ", trim($ret), 4);
                 $sql = 'SELECT * from direct_message_log WHERE msg_id = ?';
-                $res = sqlStatementNoLog($sql, [$val[1]]);
-                if ($res === false) { //database problem
-                    $fail("database problem");
+                try {
+                    $res = sqlStatementNoLog($sql, [$val[1]], true);
+                } catch (SqlQueryException $e) {
+                    $fail("database problem", $e);
                 }
 
                 if (($msg = sqlFetchArray($res)) === false) {
@@ -227,9 +229,10 @@ function phimail_check(): void
                 $val[3] ??= "";
 
                 $sql = "UPDATE direct_message_log SET status=?, status_ts=NOW(), status_info=? WHERE msg_type='S' AND msg_id=?";
-                $res = sqlStatementNoLog($sql, [$status, $val[3], $val[1]]);
-                if ($res === false) { //database problem
-                    $fail("database problem updating: " . $val[1]);
+                try {
+                    sqlStatementNoLog($sql, [$status, $val[3], $val[1]], true);
+                } catch (SqlQueryException $e) {
+                    $fail("database problem updating: " . $val[1], $e);
                 }
 
                 if (!$success) {
