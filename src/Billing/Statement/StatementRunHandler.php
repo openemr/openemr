@@ -41,9 +41,9 @@ final readonly class StatementRunHandler
 
         $message = $result->emailFailures === [] ? '' : implode('; ', $result->emailFailures);
         if ($result->portalError === StatementRunResult::PORTAL_NOT_AUTHORIZED) {
-            $message = xlt('Notification FAILED: Not Portal Authorized');
+            $message = xl('Notification FAILED: Not Portal Authorized');
         } elseif ($result->portalError === StatementRunResult::PORTAL_FAILED) {
-            $message = xlt('Notification FAILED');
+            $message = xl('Notification FAILED');
         }
         // Patients who got no statement: nothing due after their credits, or under the print minimum.
         $skipped = $result->skippedNothingDue === [] ? '' : xl('No statement for') . ' ' . implode(', ', $result->skippedNothingDue)

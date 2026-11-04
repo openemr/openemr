@@ -39,6 +39,9 @@ $srcDir = $globals->getSrcDir();
 require_once($srcDir . '/appointments.inc.php');
 // The site's statement layout; it also sets $STMT_TEMP_FILE and $STMT_TEMP_FILE_PDF.
 require_once($globals->getString('OE_SITE_DIR') . '/statement.inc.php');
+if (!isset($STMT_TEMP_FILE) || !is_string($STMT_TEMP_FILE) || $STMT_TEMP_FILE === '') {
+    throw new \RuntimeException('$STMT_TEMP_FILE must be set by statement.inc.php');
+}
 require_once($srcDir . '/../controllers/C_Document.class.php');
 require_once($srcDir . '/documents.php');
 require_once($srcDir . '/options.inc.php');
@@ -62,7 +65,7 @@ $services = StatementPageServices::create(
         $statement = make_statement($stmt);
         return is_string($statement) ? $statement : '';
     },
-    is_string($STMT_TEMP_FILE ?? null) ? $STMT_TEMP_FILE : '',
+    $STMT_TEMP_FILE,
     is_string($STMT_TEMP_FILE_PDF ?? null) ? $STMT_TEMP_FILE_PDF : '',
     defined('OPENEMR_PRINT_COMMAND') ? OPENEMR_PRINT_COMMAND : '',
     $today,
