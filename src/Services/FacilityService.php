@@ -300,7 +300,16 @@ class FacilityService extends BaseService
 
     public function updateFacility($data)
     {
-        $dataBeforeUpdate = $this->getById($data['id']);
+        $facilityId = $data['id'] ?? null;
+        if (!is_int($facilityId) && !is_string($facilityId)) {
+            return false;
+        }
+
+        $dataBeforeUpdate = $this->getById($facilityId);
+        if (!is_array($dataBeforeUpdate)) {
+            return false;
+        }
+
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE facility SET ";
         $sql .= $query['set'];
