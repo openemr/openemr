@@ -439,6 +439,28 @@ class CdaVitalSignComponentsTest extends TestCase
     }
 
     /**
+     * Weight (3141-9 and 29463-7) and head circumference (8287-5 and 9843-4) have two codes too.
+     */
+    public function testAWeightOrHeadCircumferenceUnderItsOtherCodeIsACopy(): void
+    {
+        $this->parser->fetchVitalSignData($this->organizerOf([
+            ['8867-4', '72', '/min', '<effectiveTime value="20240422"/>'],
+            ['8867-4', '90', '/min', '<effectiveTime value="20240422"/>'],
+            ['3141-9', '70', 'kg', '<effectiveTime value="20240422"/>'],
+            ['29463-7', '70', 'kg', '<effectiveTime value="20240422"/>'],
+            ['8287-5', '35', 'cm', '<effectiveTime value="20240422"/>'],
+            ['9843-4', '35', 'cm', '<effectiveTime value="20240422"/>'],
+        ]));
+
+        $first = $this->vitalSign(1);
+        $this->assertSame(['72', 154.323584, 13.779528], [$first['pulse'], $first['weight'], $first['head_circ']]);
+        $this->assertSame('90', $this->vitalSign(2)['pulse']);
+        $this->assertArrayNotHasKey('weight', $this->vitalSign(2));
+        $this->assertArrayNotHasKey('head_circ', $this->vitalSign(2));
+        $this->assertSame(2, $this->vitalSignCount());
+    }
+
+    /**
      * A blood pressure retaken under one day-only time keeps each pair whichever half repeats: the repeated
      * half isn't taken as a copy of the first pair's.
      *

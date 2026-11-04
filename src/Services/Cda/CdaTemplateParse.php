@@ -1242,8 +1242,9 @@ class CdaTemplateParse
             ];
 
             // Every component (OpenEMR's own export writes respiration, temperature and oxygen saturation after
-            // the ninth), read first by time. At one time an oxygen saturation joins the group holding the same
-            // value under its other code (2710-2 and 59408-5); any reading joins the first group with none of its
+            // the ninth), read first by time. At one time an oxygen saturation, weight or head circumference joins
+            // the group holding the same value under its other code (2710-2 and 59408-5, 3141-9 and 29463-7,
+            // 8287-5 and 9843-4); any reading joins the first group with none of its
             // measures, else starts another group; and afterwards a group whose every value one earlier group at
             // that time already holds (a reading sent twice) folds into it. So a blood pressure taken twice under
             // one day-only time keeps each pair, whichever half repeats. Then the groups are read in time order
@@ -1419,8 +1420,9 @@ class CdaTemplateParse
     {
         $present = array_filter($values, fn($v): bool => $v !== null);
         $atTime = array_keys(array_filter($times, fn(string $groupTime): bool => $groupTime === $time));
-        // Only oxygen saturation has two codes of its own; a blood pressure sent twice folds in withoutCopies().
-        $onlySaturation = array_keys($present) === ['oxygen_saturation'];
+        // A measure with two codes of its own (oxygen saturation, weight, head circumference) sent under both is
+        // one reading; a blood pressure sent twice folds in withoutCopies().
+        $measure = count($present) === 1 ? array_key_first($present) : null;
         // Every one of its values held, not blank, and the same.
         $holdsSame = function (int $k) use ($present, $readings): bool {
             foreach ($present as $column => $value) {
@@ -1431,9 +1433,11 @@ class CdaTemplateParse
             }
             return $present !== [];
         };
-        foreach ($atTime as $k) {
-            if ($onlySaturation && $holdsSame($k) && ($codes[$k]['oxygen_saturation'] ?? null) !== $code) {
-                return $k;
+        if (is_string($measure) && in_array($measure, ['oxygen_saturation', 'weight', 'head_circ'], true)) {
+            foreach ($atTime as $k) {
+                if ($holdsSame($k) && ($codes[$k][$measure] ?? null) !== $code) {
+                    return $k;
+                }
             }
         }
         foreach ($atTime as $k) {
