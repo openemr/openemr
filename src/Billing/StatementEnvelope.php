@@ -291,6 +291,26 @@ final readonly class StatementEnvelope
     /**
      * Page CSS for windowed mPDF (zero margins, first-page table layout).
      */
+    /**
+     * HTML for one patient's own PDF. The batch keeps a page break before
+     * every sheet after the first, and the window CSS rides on that first
+     * sheet. A later patient's file is a new document, so it needs the CSS
+     * and must not open on a blank page.
+     */
+    public function individualDocument(string $html): string
+    {
+        if (!str_contains($html, 'stmt-env-sheet')) {
+            return $html;
+        }
+        $html = str_replace(' style="page-break-before:always;"', '', $html);
+        $css = $this->windowCss();
+        if ($css !== '' && !str_contains($html, $css)) {
+            $html = $css . $html;
+        }
+
+        return $html;
+    }
+
     public function windowCss(): string
     {
         if (!$this->isWindowed()) {
