@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Portal;
 
 use OpenEMR\Core\OEGlobalsBag;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
@@ -112,6 +113,84 @@ final class GenericRouterStaffAclTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Unauthorized');
         $router->GetRoute('GET:patient/9');
+    }
+
+    public function testRegistrationCanReachRegistrationRouteThatIsClosedToEveryoneElse(): void
+    {
+        OEGlobalsBag::getInstance()->set('bootstrap_register', true);
+        $router = $this->createRouter([
+            'POST:api/patient' => ['route' => 'Patient.Create', 'p_acl' => 'p_none', 'p_reg' => true],
+        ]);
+
+        $this->assertSame(['Patient', 'Create'], $router->GetRoute('POST:api/patient'));
+    }
+
+    public function testCoreStaffCannotReachRegistrationOnlyRoute(): void
+    {
+        $router = $this->createRouter([
+            'POST:api/patient' => ['route' => 'Patient.Create', 'p_acl' => 'p_none', 'p_reg' => true],
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Unauthorized');
+        $router->GetRoute('POST:api/patient');
+    }
+
+    /**
+     * @return array<string, array{array<string, array<string, mixed>>, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function routesClosedToRegistrationProvider(): array
+    {
+        return [
+            'literal p_all' => [
+                ['GET:onsitedocuments' => ['route' => 'OnsiteDocument.ListView', 'p_acl' => 'p_all', 'p_reg' => false]],
+                'GET:onsitedocuments',
+            ],
+            'literal p_staff' => [
+                ['GET:staff' => ['route' => 'Staff.Index', 'p_acl' => 'p_staff', 'p_reg' => false]],
+                'GET:staff',
+            ],
+            'wildcard p_all' => [
+                ['GET:api/patient/(:num)' => ['route' => 'Patient.Read', 'params' => ['id' => 2], 'p_acl' => 'p_all', 'p_reg' => false]],
+                'GET:api/patient/9',
+            ],
+            'wildcard p_staff' => [
+                ['GET:staff/(:num)' => ['route' => 'Staff.Read', 'params' => ['id' => 1], 'p_acl' => 'p_staff', 'p_reg' => false]],
+                'GET:staff/9',
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $routes
+     */
+    #[DataProvider('routesClosedToRegistrationProvider')]
+    public function testRegistrationCannotReachRoutesWithoutRegistrationAccess(array $routes, string $uri): void
+    {
+        OEGlobalsBag::getInstance()->set('bootstrap_register', true);
+        $router = $this->createRouter($routes);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Unauthorized');
+        $router->GetRoute($uri);
+    }
+
+    #[RunInSeparateProcess]
+    public function testOnlyTheRegistrationFormRoutesAreOpenToRegistration(): void
+    {
+        class_alias(PortalRouteConfigStub::class, 'GlobalConfig');
+        \GlobalConfig::$APP_ROOT = dirname(__DIR__, 4) . '/portal/patient';
+        require __DIR__ . '/../../../../portal/patient/_app_config.php';
+
+        $registrationRoutes = array_keys(array_filter(
+            \GlobalConfig::$ROUTE_MAP,
+            static fn(array $route): bool => ($route['p_reg'] ?? false) === true,
+        ));
+        sort($registrationRoutes);
+
+        $this->assertSame(['GET:api/patientdata', 'GET:patientdata', 'POST:api/patient'], $registrationRoutes);
     }
 
     #[RunInSeparateProcess]
