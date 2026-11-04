@@ -178,6 +178,35 @@ class OrganizationInsuranceFhirApiTest extends TestCase
     }
 
     /**
+     * A North American number written with its country code is stored as its own ten digits,
+     * not as the first ten digits the number holds.
+     */
+    public function testPostStoresANumberWithItsCountryCodeAsItsTenDigits(): void
+    {
+        $body = self::insurerBody(self::NAME_PREFIX . " E164", ['telecom' => [
+            ['system' => 'phone', 'value' => '+15552003003'],
+            ['system' => 'fax', 'value' => '+1 555 200 9999'],
+        ]]);
+        $result = $this->testClient->post(self::ENDPOINT, $body);
+        $this->assertSame(Response::HTTP_CREATED, $result->getStatusCode(), "POST should return 201 Created: " . $result->getBody());
+        $row = $this->decodeJsonArray($result);
+
+        $numbers = [];
+        foreach (
+            QueryUtils::fetchRecords(
+                "SELECT `type`, `area_code`, `prefix`, `number` FROM `phone_numbers` WHERE `foreign_id` = ? ORDER BY `type`",
+                [$row['id'] ?? null]
+            ) as $number
+        ) {
+            $numbers[] = [$number['type'], $number['area_code'], $number['prefix'], $number['number']];
+        }
+        $this->assertSame(
+            [[PhoneType::WORK->value, '555', '200', '3003'], [PhoneType::FAX->value, '555', '200', '9999']],
+            $numbers
+        );
+    }
+
+    /**
      * @return array<string, array{array<string, mixed>}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
@@ -190,6 +219,8 @@ class OrganizationInsuranceFhirApiTest extends TestCase
             'state wider than the column' => [['address' => [['state' => str_repeat('s', 36)] + $address]]],
             'address without a state' => [['address' => [array_diff_key($address, ['state' => true])]]],
             'phone that is not a NANP number' => [['telecom' => [['system' => 'phone', 'value' => '+44 20 7946 0958']]]],
+            'phone whose ten digits include another country code' => [['telecom' => [['system' => 'phone', 'value' => '+354 555 1234']]]],
+            'fax whose ten digits include another country code' => [['telecom' => [['system' => 'fax', 'value' => '+354 555 1299']]]],
         ];
     }
 

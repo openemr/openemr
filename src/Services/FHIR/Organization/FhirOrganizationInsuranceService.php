@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\Organization;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
@@ -200,6 +201,14 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
             $processingResult->setValidationMessages($unstorable);
             return $processingResult;
         }
+        // PhoneNumberService splits a number by pattern, which reads +15552003003 as 155 520 0300;
+        // it gets the ten digits instead.
+        foreach (['phone', 'fax'] as $field) {
+            $number = $record[$field] ?? null;
+            if (is_string($number)) {
+                $record[$field] = self::northAmericanDigits($number);
+            }
+        }
         // The company, its address and its phones are stored together or not at all.
         $id = QueryUtils::inTransaction(function () use ($record): int|string {
             $id = $this->insuranceService->insert($record);
@@ -235,11 +244,25 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         }
         foreach (['phone' => 'telecom phone', 'fax' => 'telecom fax'] as $field => $label) {
             $number = $record[$field] ?? null;
-            if (is_string($number) && preg_match('/\d\d\d\D*\d\d\d\D*\d\d\d\d/', $number) !== 1) {
+            if (is_string($number) && self::northAmericanDigits($number) === null) {
                 $messages[$field] = "The $label must be a 10-digit North American number";
             }
         }
         return $messages;
+    }
+
+    /**
+     * The ten digits of a North American (+1) number, the parts phone_numbers stores (area code,
+     * prefix, number); null for any other number, such as +354 555 1234, whose ten digits
+     * include its country code.
+     */
+    private static function northAmericanDigits(string $number): ?string
+    {
+        $parsed = PhoneNumber::tryParse($number, 'US');
+        if ($parsed === null || $parsed->getCountryCode() !== 1 || !$parsed->isPossible()) {
+            return null;
+        }
+        return $parsed->getNationalDigits();
     }
 
     /**
