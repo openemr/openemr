@@ -118,8 +118,8 @@ template engine. This plan removes it in three pull requests that can merge in a
 ### Services to reuse
 
 - `src/Services/PatientService.php`: `databaseInsert` (which picks the pid itself; see the
-  registration note in commit 3), `databaseUpdate`,
-  `databaseUpdate` (which also records the history that Phreeze's raw save skips), and `getOne`.
+  registration note in commit 3), `databaseUpdate` (which also records the history that
+  Phreeze's raw save skips), and `getOne`.
 - `src/Services/PatientReview/*`: the profile, document and payment review workflows, already used.
 - `src/Services/DocumentTemplates/DocumentTemplateRender.php`: `fetchTemplateDocument` and
   `doRender`, already used by `OnsiteDocument.Create/Read`.
@@ -181,7 +181,20 @@ router. Either order resolves with an ordinary rebase, without changing any code
 
 ### PR 2: `refactor(portal): delete dead Phreeze code and unreachable routes`
 
-Deletions only, with no change in behaviour.
+Deletions only. Nothing in the portal calls the removed code, so the pages behave as before.
+The removed routes behave as follows:
+
+- `DELETE:api/patient/(:num)` is the one intended change (bug 2). A portal patient could reach
+  `Patient.Delete` for their own record (`p_limited`). The request now falls through to the
+  `DELETE:api/(:any)` catch-all, which has no `p_acl` (so `p_none`), and is refused with the
+  401 JSON error.
+- `DELETE:api/onsiteportalactivity/(:num)` was `p_none`, so it was already refused. The
+  catch-all refuses it the same way.
+- `GET:onsitedocument/(:num)` (`OnsiteDocument.SingleView`, `p_all`) had no caller. It now
+  matches no route and gets the not-found page.
+
+The catch-all routes still answer the removed `api/` paths, so the "keep every URL" rule holds
+for callers.
 
 - **Framework**: all of `fwk/libs/util/`, the 7 unused Savant plugins and filters under
   `savant/resources/`, `MockRouter`, `PHPRenderEngine`, `ObserveToFile`, `ExportUtility`,
