@@ -128,6 +128,54 @@ class FhirOrganizationInsuranceServiceTest extends TestCase
         $this->assertSame([1, '(555) 200-0003'], [$record['inactive'] ?? null, $record['phone'] ?? null]);
     }
 
+    /**
+     * @return array<string, array{list<array<string, mixed>>, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function addressProvider(): array
+    {
+        return [
+            'the current one, between two ended ones' => [
+                [self::endedAddress('Endedtown', '2020-01-01'), ['city' => 'Testville', 'state' => 'CA'], self::endedAddress('Laterville', '2021-01-01')],
+                'Testville',
+            ],
+            'the one that ended last, when all have ended' => [
+                [self::endedAddress('Endedtown', '2020-01-01'), self::endedAddress('Laterville', '2021-01-01'), self::endedAddress('Earlyville', '2019-06-01')],
+                'Laterville',
+            ],
+            'one whose end is still to come, as current' => [
+                [self::endedAddress('Endedtown', '2020-01-01'), self::endedAddress('Futureville', '2999-01-01')],
+                'Futureville',
+            ],
+        ];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $addresses
+     */
+    #[Test]
+    #[DataProvider('addressProvider')]
+    public function takesTheCurrentAddress(array $addresses, string $city): void
+    {
+        $organization = FhirOrganizationSerializer::deserialize([
+            'resourceType' => 'Organization',
+            'name' => self::NAME,
+            'address' => $addresses,
+        ]);
+
+        $service = new FhirOrganizationInsuranceService();
+        $this->assertSame($city, $service->parseFhirResource($organization)['city'] ?? null);
+    }
+
+    /**
+     * @return array<string, mixed> an address in CA whose period ends on $end
+     */
+    private static function endedAddress(string $city, string $end): array
+    {
+        return ['city' => $city, 'state' => 'CA', 'period' => ['start' => '2019-01-01', 'end' => $end]];
+    }
+
     private static function deserialized(): FHIROrganization
     {
         return FhirOrganizationSerializer::deserialize([

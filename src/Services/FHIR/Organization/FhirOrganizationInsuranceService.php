@@ -14,6 +14,7 @@ namespace OpenEMR\Services\FHIR\Organization;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
@@ -21,6 +22,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
@@ -305,21 +307,8 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         // R4 Organization.active defaults to true when absent.
         $data['inactive'] = self::isFalse($fhirResource->getActive()) ? 1 : 0;
 
-        $addresses = $fhirResource->getAddress();
-        if (!empty($addresses)) {
-            $activeAddress = $addresses[0];
-            $mostRecentPeriods = UtilsService::getPeriodTimestamps($activeAddress->getPeriod());
-            foreach ($fhirResource->getAddress() as $address) {
-                $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
-                if (empty($addressPeriod['end'])) {
-                    $activeAddress = $address;
-                } elseif (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
-                    // if our current period is more recent than our most recent address we want to grab that one
-                    $mostRecentPeriods = $addressPeriod;
-                    $activeAddress = $address;
-                }
-            }
-
+        $activeAddress = self::activeAddress($fhirResource);
+        if ($activeAddress !== null) {
             $lineValues = array_values(array_filter(
                 array_map(self::primitiveText(...), $activeAddress->getLine()),
                 is_string(...)
@@ -362,6 +351,28 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
     }
 
     /**
+     * The address an insurance company keeps: the last one that hasn't ended, or, when every
+     * address has ended, the one that ended last. Before, an ended address listed after the
+     * current one replaced it whenever an ended one came first.
+     */
+    private static function activeAddress(FHIROrganization $organization): ?FHIRAddress
+    {
+        $current = null;
+        $lastEnded = null;
+        $lastEnd = null;
+        foreach ($organization->getAddress() as $address) {
+            $end = self::endedAt($address->getPeriod());
+            if ($end === null) {
+                $current = $address;
+            } elseif ($lastEnd === null || $end > $lastEnd) {
+                $lastEnd = $end;
+                $lastEnded = $address;
+            }
+        }
+        return $current ?? $lastEnded;
+    }
+
+    /**
      * Whether a contact point is still in use: not marked old, and its period not ended.
      */
     private static function isCurrent(FHIRContactPoint $contactPoint): bool
@@ -369,8 +380,17 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         if (self::primitiveText($contactPoint->getUse()) === 'old') {
             return false;
         }
-        $end = UtilsService::getPeriodTimestamps($contactPoint->getPeriod())['end'];
-        return !is_int($end) || $end > time();
+        return self::endedAt($contactPoint->getPeriod()) === null;
+    }
+
+    /**
+     * When a period ended; null while it hasn't: no end, an end that doesn't parse, or an end
+     * still to come.
+     */
+    private static function endedAt(?FHIRPeriod $period): ?int
+    {
+        $end = UtilsService::getPeriodTimestamps($period)['end'];
+        return is_int($end) && $end <= time() ? $end : null;
     }
 
     /**
