@@ -1,0 +1,237 @@
+<?php
+
+/**
+ * A socket connection to a phiMail Direct Messaging server, speaking its
+ * line-based protocol.
+ *
+ * Copyright (C) 2013, 2021 EMR Direct <https://www.emrdirect.com/>
+ * Copyright (C) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  EMR Direct <https://www.emrdirect.com/>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
+ * @link    https://www.open-emr.org
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Common\DirectMessaging;
+
+use GuzzleHttp\Psr7\Exception\MalformedUriException;
+use GuzzleHttp\Psr7\Uri;
+use OpenEMR\Services\SoftwareVersion;
+use Psr\Log\LoggerInterface;
+
+final class PhiMailConnection
+{
+    private const OK = "OK\n";
+    private const CONNECT_TRIES = 3;
+    private const CONNECT_TIMEOUT_SECONDS = 10;
+    private const BLOB_CHUNK_BYTES = 1024;
+    // Version of the phiMail client protocol this code speaks.
+    private const PROTOCOL_VERSION = '1.3.2';
+
+    /** @var resource */
+    private $stream;
+
+    /**
+     * @param mixed $stream an open stream to a phiMail server
+     */
+    public function __construct(mixed $stream)
+    {
+        if (!is_resource($stream) || get_resource_type($stream) !== 'stream') {
+            throw new \InvalidArgumentException('Expected an open stream');
+        }
+        $this->stream = $stream;
+    }
+
+    /**
+     * Connect to the server and introduce this client.
+     *
+     * @throws PhiMailConnectionException
+     */
+    public static function open(PhiMailServer $server, SoftwareVersion $version, LoggerInterface $logger): self
+    {
+        if (!$server->enabled) {
+            throw new PhiMailConnectionException(PhiMailConnectionFailure::Disabled);
+        }
+        if ($server->testMode) {
+            $logger->debug('Connecting to phiMail in test mode. This should not be used for production', ['ca' => $server->caFile]);
+        }
+
+        [$target, $secure] = self::target($server->address);
+        $options = ($secure && $server->caFile !== null)
+            ? ['ssl' => ['verify_peer' => true, 'cafile' => $server->caFile]]
+            : [];
+        $context = stream_context_create($options);
+
+        $stream = false;
+        $errno = 0;
+        $errstr = '';
+        for ($try = 1; $try <= self::CONNECT_TRIES; $try++) {
+            $stream = @stream_socket_client($target, $errno, $errstr, self::CONNECT_TIMEOUT_SECONDS, STREAM_CLIENT_CONNECT, $context);
+            if ($stream !== false) {
+                break;
+            }
+        }
+        if ($stream === false) {
+            throw new PhiMailConnectionException(PhiMailConnectionFailure::Unreachable, $errno ?? 0, $errstr ?? '');
+        }
+
+        $connection = new self($stream);
+        $connection->handshake($version);
+        $logger->debug('Connected to phiMail', ['server' => $target]);
+        return $connection;
+    }
+
+    /**
+     * Send INFO VER, which the server requires before any other command.
+     * Closes the connection when the server refuses it.
+     *
+     * @throws PhiMailConnectionException
+     */
+    public function handshake(SoftwareVersion $version): void
+    {
+        $info = sprintf('INFO VER OEMR %s %s %s', $version, self::PROTOCOL_VERSION, PHP_VERSION);
+        try {
+            $this->expectOk($info . "\n");
+        } catch (PhiMailException $e) {
+            $this->close();
+            throw new PhiMailConnectionException(PhiMailConnectionFailure::HandshakeRejected, previous: $e);
+        }
+    }
+
+    /**
+     * Expose the underlying stream for the procedural helpers in
+     * library/direct_message_check.inc.php.
+     *
+     * @return resource
+     */
+    public function stream()
+    {
+        return $this->stream;
+    }
+
+    /**
+     * @throws PhiMailStreamException
+     */
+    public function write(string $data): void
+    {
+        if (@fwrite($this->stream, $data) === false || !@fflush($this->stream)) {
+            throw new PhiMailStreamException('Failed writing to the phiMail server');
+        }
+    }
+
+    /**
+     * @return string the next line from the server, including its line feed
+     * @throws PhiMailStreamException
+     */
+    public function readLine(): string
+    {
+        $line = fgets($this->stream);
+        if ($line === false) {
+            throw new PhiMailStreamException('Failed reading from the phiMail server');
+        }
+        return $line;
+    }
+
+    /**
+     * Send a command and require an OK reply.
+     *
+     * @throws PhiMailUnexpectedResponseException when the server replies with anything else
+     * @throws PhiMailStreamException
+     */
+    public function expectOk(string $data): void
+    {
+        $this->write($data);
+        $reply = $this->readLine();
+        if ($reply !== self::OK) {
+            throw new PhiMailUnexpectedResponseException($reply);
+        }
+    }
+
+    /**
+     * Download the next $length bytes into a new file in $directory. Stops
+     * early if the server closes the connection.
+     *
+     * @return string path of the downloaded file
+     * @throws PhiMailBlobException
+     */
+    public function readBlob(int $length, string $directory): string
+    {
+        if (!file_exists($directory)) {
+            throw new PhiMailBlobException('M13 temp dir does not exist: ' . $directory);
+        }
+
+        $name = uniqid('direct-');
+        $path = $directory . '/' . $name . '.dat';
+        for ($dup = 1; file_exists($path); $dup++) {
+            $path = $directory . '/' . $name . '.' . $dup . '.dat';
+        }
+
+        $file = @fopen($path, 'w');
+        if ($file === false) {
+            throw new PhiMailBlobException('M14 failed opening temp file: ' . $path);
+        }
+
+        $remaining = $length;
+        try {
+            while (!feof($this->stream) && $remaining > 0) {
+                $chunk = @fread($this->stream, min($remaining, self::BLOB_CHUNK_BYTES));
+                if ($chunk === false) {
+                    throw new PhiMailBlobException(sprintf('M15 failure reading blob chunk after %d bytes', $length - $remaining));
+                }
+                if (@fwrite($file, $chunk) === false) {
+                    throw new PhiMailBlobException(sprintf('M15 failure writing blob chunk after %d bytes', $length - $remaining));
+                }
+                $remaining -= strlen($chunk);
+            }
+        } catch (PhiMailBlobException $e) {
+            fclose($file);
+            @unlink($path);
+            throw $e;
+        }
+
+        fclose($file);
+        return $path;
+    }
+
+    public function close(): void
+    {
+        fclose($this->stream);
+    }
+
+    /**
+     * Turn the configured server address into a stream_socket_client() target.
+     *
+     * @return array{string, bool} the target, and whether it uses TLS
+     * @throws PhiMailConnectionException
+     */
+    private static function target(string $address): array
+    {
+        try {
+            $uri = new Uri($address);
+        } catch (MalformedUriException $e) {
+            throw new PhiMailConnectionException(PhiMailConnectionFailure::InvalidAddress, previous: $e);
+        }
+
+        // Uri drops a port that is the scheme's default, so restore it.
+        return match ($uri->getScheme()) {
+            'tcp', 'http' => ['tcp://' . $uri->getHost() . ':' . ($uri->getPort() ?? 80), false],
+            'https' => ['ssl://' . $uri->getHost() . ':' . ($uri->getPort() ?? 443), true],
+            'ssl', 'sslv3', 'tls' => [$address, true],
+            default => throw new PhiMailConnectionException(PhiMailConnectionFailure::InvalidAddress),
+        };
+    }
+}
