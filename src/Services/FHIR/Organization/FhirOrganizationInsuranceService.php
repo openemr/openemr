@@ -16,6 +16,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAddressUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
@@ -384,21 +385,23 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
     }
 
     /**
-     * The address an insurance company keeps: the last one that hasn't ended, or, when every
-     * address has ended, the one that ended last. Before, an ended address listed after the
-     * current one replaced it whenever an ended one came first.
+     * The address an insurance company keeps: the last one in use (not marked old, and not
+     * ended), or, when none is, the one that ended last (one marked old with no end counting as
+     * the earliest). Before, an ended address listed after the current one replaced it whenever
+     * an ended one came first, and one marked old counted as current.
      */
     private static function activeAddress(FHIROrganization $organization, \DateTimeImmutable $now): ?FHIRAddress
     {
         $current = null;
         $lastEnded = null;
-        $lastEnd = null;
+        $lastEnd = PHP_INT_MIN;
         foreach ($organization->getAddress() as $address) {
             $end = self::endedAt($address->getPeriod(), $now);
-            if ($end === null) {
+            $old = self::primitiveText($address->getUse()) === 'old';
+            if ($end === null && !$old) {
                 $current = $address;
-            } elseif ($lastEnd === null || $end > $lastEnd) {
-                $lastEnd = $end;
+            } elseif ($lastEnded === null || ($end ?? PHP_INT_MIN) > $lastEnd) {
+                $lastEnd = $end ?? PHP_INT_MIN;
                 $lastEnded = $address;
             }
         }
@@ -482,6 +485,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase implements INonPa
         if (
             $element instanceof FHIRString || $element instanceof FHIRUri
             || $element instanceof FHIRContactPointSystem || $element instanceof FHIRContactPointUse
+            || $element instanceof FHIRAddressUse
         ) {
             $element = $element->getValue();
         }

@@ -291,6 +291,10 @@ class FhirOrganizationInsuranceServiceTest extends TestCase
                 [self::endedAddress('Endedtown', '2020-01-01'), self::endedAddress('Laterville', '2021-01-01'), self::endedAddress('Earlyville', '2019-06-01')],
                 'Laterville',
             ],
+            'not one marked old' => [
+                [['city' => 'Testville', 'state' => 'CA', 'use' => 'work'], ['city' => 'Oldtown', 'state' => 'NY', 'use' => 'old']],
+                'Testville',
+            ],
             'one whose end is still to come, as current' => [
                 [self::endedAddress('Endedtown', '2020-01-01'), ['city' => 'Testville', 'state' => 'CA'], self::endedAddress('Futureville', '2999-01-01')],
                 'Futureville',
