@@ -1,11 +1,15 @@
 <?php
 
 /**
- * @package    Patient Portal
+ * Patient Portal API front controller
  *
  * From phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
  *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
 use OpenEMR\BC\ServiceContainer;
