@@ -410,26 +410,15 @@ function phimail_check(): void
                 }
 
                 $ret2 = phimail_write_expect_OK($fp, "DONE\n"); //we'll check for failure after logging.
-
-                //logging only after successful download, storage, and acknowledgement of message
-                $sql = <<<'SQL'
-                    INSERT INTO direct_message_log (msg_type, msg_id, sender, recipient, status, status_ts, user_id)
-                    VALUES ('R', ?, ?, ?, 'R', NOW(), ?)
-                    SQL;
-                try {
-                    $serviceUserId = phimail_service_userID();
-                    QueryUtils::sqlStatementThrowException($sql, [$msg_id, $sender, $recipient, $serviceUserId], noLog: true);
-                } catch (SqlQueryException $e) {
-                    $fail("database problem logging received message: " . $msg_id, $e);
-                }
-
-                phimail_logit(1, $ret);
+                // DONE acknowledges the message, so the server will not send it
+                // again. Keep the body out of the failure cleanup from here on, so
+                // a failure before the note exists leaves it on disk for recovery.
+                $tempFiles = array_values(array_diff($tempFiles, [$body]));
 
                 //alert appointed user about new message
                 switch ($mime_type_main) {
                     case "text/plain":
                         $body_text = @file_get_contents($body); //this was not uploaded as a document
-                        unlink($body);
                         if (empty($body_text ?? '')) {
                             $body_text = xl("Please note, this message was received empty and is not an error.");
                         }
@@ -444,10 +433,10 @@ function phimail_check(): void
                             "New",
                             "phimail-service"
                         );
+                        unlink($body);
                         break;
                     case "text/html":
                         $body_text = @file_get_contents($body);
-                        unlink($body);
                         if (empty($body_text ?? '')) {
                             $body_text = xl("Please note, this message was received empty and is not an error.");
                         } else {
@@ -465,6 +454,7 @@ function phimail_check(): void
                             "New",
                             "phimail-service"
                         );
+                        unlink($body);
                         break;
 
                     default:
@@ -477,6 +467,20 @@ function phimail_check(): void
                 foreach ($all_doc_ids as $doc_id) {
                     setGpRelation(1, $doc_id, 6, $pnote_id);
                 }
+
+                //logging only after successful download, storage, acknowledgement, and delivery of message
+                $sql = <<<'SQL'
+                    INSERT INTO direct_message_log (msg_type, msg_id, sender, recipient, status, status_ts, user_id)
+                    VALUES ('R', ?, ?, ?, 'R', NOW(), ?)
+                    SQL;
+                try {
+                    $serviceUserId = phimail_service_userID();
+                    QueryUtils::sqlStatementThrowException($sql, [$msg_id, $sender, $recipient, $serviceUserId], noLog: true);
+                } catch (SqlQueryException $e) {
+                    $fail("database problem logging received message: " . $msg_id, $e);
+                }
+
+                phimail_logit(1, $ret);
 
                 if ($ret2 !== true) {
                     $fail("M12 DONE failed: " . $ret2);
