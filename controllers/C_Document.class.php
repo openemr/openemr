@@ -129,6 +129,47 @@ class C_Document extends Controller
         return $this->list_action($patient_id);
     }
 
+    /**
+     * DICOM images (a single DICOM file or a zip of DICOM slices) are filed in the radiology folder,
+     * whichever folder the upload form named, unless the chosen folder is already inside it. Nothing
+     * changes when no single radiology folder is found by name or the user may not use it.
+     *
+     * @param int $chosenCategoryId category the upload form asked for
+     * @param string $mimetype mime type worked out for the file
+     */
+    private function categoryForUpload(int $chosenCategoryId, string $mimetype): int
+    {
+        if ($mimetype !== 'application/dicom' && $mimetype !== 'application/dicom+zip') {
+            return $chosenCategoryId;
+        }
+        $radiology = null;
+        foreach (['Radiology', 'X-ray & Imaging'] as $name) {
+            $rows = QueryUtils::fetchRecords("SELECT `id`, `aco_spec` FROM `categories` WHERE `name` = ?", [$name]);
+            if (count($rows) > 1) {
+                return $chosenCategoryId;
+            }
+            if (count($rows) === 1) {
+                $radiology = $rows[0];
+                break;
+            }
+        }
+        if ($radiology === null) {
+            return $chosenCategoryId;
+        }
+        $radiologyId = self::listDataInt($radiology['id'] ?? null);
+        $inside = QueryUtils::querySingleRow(
+            "SELECT COUNT(*) AS n FROM `categories` AS c INNER JOIN `categories` AS a ON a.`id` = ? WHERE c.`id` = ? AND c.`lft` >= a.`lft` AND c.`rght` <= a.`rght`",
+            [$radiologyId, $chosenCategoryId]
+        );
+        if (self::listDataInt($inside['n'] ?? null) > 0) {
+            return $chosenCategoryId;
+        }
+        if (!$this->isSkipAclCheck() && !AclMain::aclCheckAcoSpec(self::listDataString($radiology['aco_spec'] ?? null))) {
+            return $chosenCategoryId;
+        }
+        return $radiologyId;
+    }
+
     public function zip_dicom_folder($study_name = null)
     {
         $zip = new ZipArchive();
@@ -245,6 +286,8 @@ class C_Document extends Controller
                 } elseif (OEGlobalsBag::getInstance()->getBoolean('secure_upload') && !isWhiteFile($_FILES['file']['tmp_name'][$key])) {
                     $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
                 } else {
+                    // The mime type is worked out for each file on its own.
+                    $mimetype = '';
                     // Test for a zip of DICOM images
                     if (stripos((string) $_FILES['file']['type'][$key], 'zip') !== false) {
                         $za = new ZipArchive();
@@ -317,7 +360,7 @@ class C_Document extends Controller
                     $d = new Document();
                     $rc = $d->createDocument(
                         $patient_id,
-                        $category_id,
+                        $this->categoryForUpload((int) $category_id, (string) $mimetype),
                         $fname,
                         $mimetype,
                         $filetext,
@@ -1282,8 +1325,13 @@ class C_Document extends Controller
         $categories_list = $this->tree->_get_categories_array($patient_id);
         //print_r($categories_list);
 
+        $hiddenWhenEmpty = self::hiddenEmptyCategoryNames();
+        $treeData = $this->tree->tree;
+        if ($hiddenWhenEmpty !== []) {
+            $treeData = $this->pruneEmptyHiddenCategories($treeData, $categories_list, $hiddenWhenEmpty);
+        }
         $menu  = new HTML_TreeMenu();
-        $rnode = $this->array_recurse($this->tree->tree, $patient_id, $categories_list);
+        $rnode = $this->array_recurse($treeData, $patient_id, $categories_list);
         $menu->addItem($rnode);
         $treeMenu = new HTML_TreeMenu_DHTML($menu, ['images' => 'public/images', 'defaultClass' => 'treeMenuDefault']);
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, ['linkTarget' => '_self']);
@@ -1324,6 +1372,7 @@ class C_Document extends Controller
         $this->assign('is_new_referer', $is_new_referer);
         $this->assign('new_title', xlt("New Documents"));
         $this->assign('documents_default_view', OEGlobalsBag::getInstance()->getString('documents_default_view', 'tree'));
+        $this->assign('documents_hide_empty', implode(',', $hiddenWhenEmpty));
         $this->assign('documents_view_key', 'oeDocumentsView:' . self::listDataString($session->get('site_id')) . ':' . self::listDataString($session->get('authUserID')));
         $this->assign('hide_encryption', OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption'));
 
@@ -1456,6 +1505,66 @@ class C_Document extends Controller
             ['categories' => $categories, 'documents' => $documents],
             JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE
         );
+    }
+
+    /**
+     * Lower-case folder names from the documents_hide_empty_categories setting.
+     *
+     * @return list<string>
+     */
+    private static function hiddenEmptyCategoryNames(): array
+    {
+        $setting = OEGlobalsBag::getInstance()->getString('documents_hide_empty_categories', '');
+        $names = [];
+        foreach (explode(',', $setting) as $name) {
+            $name = mb_strtolower(trim($name));
+            if ($name !== '') {
+                $names[] = $name;
+            }
+        }
+        return $names;
+    }
+
+    /**
+     * True when a folder or any folder below it holds a document.
+     *
+     * @param array<int|string, mixed> $categories documents by category id, as the tree is built from
+     */
+    private static function subtreeHasDocuments(int|string $id, mixed $branch, array $categories): bool
+    {
+        if (isset($categories[$id]) && is_array($categories[$id]) && $categories[$id] !== []) {
+            return true;
+        }
+        if (!is_array($branch)) {
+            return false;
+        }
+        foreach ($branch as $childId => $childBranch) {
+            if (self::subtreeHasDocuments($childId, $childBranch, $categories)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes the folders named in the setting from the tree while nothing is filed in them.
+     *
+     * @param array<int|string, mixed> $categories documents by category id
+     * @param list<string> $hiddenNames lower-case folder names
+     */
+    private function pruneEmptyHiddenCategories(mixed $branch, array $categories, array $hiddenNames): mixed
+    {
+        if (!is_array($branch)) {
+            return $branch;
+        }
+        $kept = [];
+        foreach ($branch as $id => $child) {
+            if ($id !== 0 && $id !== '' && in_array(mb_strtolower((string) $this->tree->get_node_name($id)), $hiddenNames, true) && !self::subtreeHasDocuments($id, $child, $categories)) {
+                continue;
+            }
+            $kept[$id] = $this->pruneEmptyHiddenCategories($child, $categories, $hiddenNames);
+        }
+        return $kept;
     }
 
     private static function listDataString(mixed $value): string

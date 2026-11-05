@@ -99,6 +99,45 @@ describe('pure helpers', () => {
     });
 });
 
+describe('type tags, hidden folder names and first-open folders', () => {
+    const api = load({});
+
+    test('the type tag comes from the extension, then from the mime type', () => {
+        expect(api.typeLabel({ name: 'Chest X-ray.zip', mimetype: 'application/dicom+zip' })).toBe('ZIP');
+        expect(api.typeLabel({ name: 'slice.DCM', mimetype: '' })).toBe('DCM');
+        expect(api.typeLabel({ name: 'Letter.pdf', mimetype: 'application/pdf' })).toBe('PDF');
+        expect(api.typeLabel({ name: 'photo.jpeg', mimetype: 'image/jpeg' })).toBe('JPG');
+        expect(api.typeLabel({ name: 'IM0001', mimetype: 'application/dicom' })).toBe('DCM');
+        expect(api.typeLabel({ name: 'scan', mimetype: 'image/png' })).toBe('PNG');
+        expect(api.typeLabel({ name: 'noextension', mimetype: 'text/plain' })).toBe('FILE');
+        expect(api.typeLabel({ name: 'archive.verylongextension', mimetype: 'application/pdf' })).toBe('PDF');
+    });
+
+    test('the tag colour class follows the kind of file', () => {
+        expect(api.typeClass('PDF')).toBe('doc-type doc-type-pdf');
+        expect(api.typeClass('DCM')).toBe('doc-type doc-type-dicom');
+        expect(api.typeClass('ZIP')).toBe('doc-type doc-type-archive');
+        expect(api.typeClass('JPG')).toBe('doc-type doc-type-image');
+        expect(api.typeClass('XYZ')).toBe('doc-type doc-type-other');
+    });
+
+    test('hidden folder names only hide folders that are empty', () => {
+        const tree = api.buildFolderTree(categories, documents);
+        const hidden = api.parseHiddenNames(' Photographs , studies ,, ');
+        expect(hidden).toEqual(['photographs', 'studies']);
+        expect(api.isHiddenWhenEmpty(api.findFolder(tree, 7), hidden)).toBe(true);
+        expect(api.isHiddenWhenEmpty(api.findFolder(tree, 2), hidden)).toBe(false);
+        expect(api.countEmptyFolders(tree)).toBe(1);
+        expect(api.countEmptyFolders(tree, hidden)).toBe(0);
+    });
+
+    test('the folders on the way to documents are open at first', () => {
+        const tree = api.buildFolderTree(categories, documents);
+        expect(Object.keys(api.foldersToOpen(tree)).sort()).toEqual(['2', '5']);
+        expect(Object.keys(api.foldersWithChildren(tree)).sort()).toEqual(['2', '5']);
+    });
+});
+
 describe('list height', () => {
     test('is clamped to the allowed range and falls back for bad values', () => {
         const api = load(window);
@@ -113,7 +152,7 @@ describe('list height', () => {
 describe('page wiring', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-    function setUp(stored = {}) {
+    function setUp(stored = {}, cfgOverride = {}) {
         document.body.innerHTML = `
             <div class="container-fluid">
                 <button type="button" id="docViewFolders"></button>
@@ -134,6 +173,8 @@ describe('page wiring', () => {
                 </div>
                 <div id="documentsFolderView" hidden>
                     <div id="docFolderCol" class="col-lg-3">
+                        <button type="button" id="docExpandAll"></button>
+                        <button type="button" id="docCollapseAll"></button>
                         <div id="docFolderTree"></div>
                         <button type="button" id="docEmptyToggle"></button>
                     </div>
@@ -146,7 +187,15 @@ describe('page wiring', () => {
                             </select>
                             <div id="docCrumb"></div>
                             <div id="docListBox">
-                                <table><tbody id="docRows"></tbody></table>
+                                <table>
+                                    <colgroup><col /><col /><col /><col /><col /></colgroup>
+                                    <thead><tr>
+                                        <th>Name<span class="doc-col-grip"></span></th><th>Folder<span class="doc-col-grip"></span></th>
+                                        <th>Date<span class="doc-col-grip"></span></th><th>Size<span class="doc-col-grip"></span></th>
+                                        <th><span class="doc-col-grip"></span></th>
+                                    </tr></thead>
+                                    <tbody id="docRows"></tbody>
+                                </table>
                                 <p id="docNoResults" hidden></p>
                             </div>
                             <div id="docResize" role="separator" aria-orientation="horizontal" tabindex="0"></div>
@@ -162,7 +211,14 @@ describe('page wiring', () => {
                         </div>
                     </div>
                 </div>
-                <div id="documentsClassic"></div>
+                <div id="documentsClassic">
+                    <div id="documents_list">
+                        <a href="/folder">Studies</a>
+                        <img id="icon_objTreeMenu_1_node_5" src="/public/images/file3.png" /><a href="/view1">11/04/2026 Chest X-ray.zip-3</a>
+                        <img id="icon_objTreeMenu_1_node_6" src="/public/images/file3.png" /><a href="/view2">11/03/2026 Letter.pdf-9</a>
+                        <img id="icon_objTreeMenu_1_node_7" src="/public/images/file3.png" /><a href="/view3">11/03/2026 Slice-12</a>
+                    </div>
+                </div>
             </div>`;
         window.fetch = jest.fn(() => Promise.resolve({
             ok: true,
@@ -180,6 +236,11 @@ describe('page wiring', () => {
             forceClassic: false,
             i18n: {
                 allDocuments: 'All documents',
+                expand: 'Expand',
+                collapse: 'Collapse',
+                popupHint: 'Double click to pop up.',
+                chooseFolder: 'Choose a folder.',
+                pickFolder: 'Choose a folder...',
                 showEmpty: 'Show %d empty folders',
                 hideEmpty: 'Hide empty folders',
                 selectDocument: 'Select a document',
@@ -191,6 +252,7 @@ describe('page wiring', () => {
                 showFolders: 'Show folders'
             }
         };
+        Object.assign(window.oeDocumentsFolderViewConfig, cfgOverride);
         new Function('window', src)(window);
     }
 
@@ -203,7 +265,7 @@ describe('page wiring', () => {
         expect(window.fetch.mock.calls[0][0]).toContain('list_data&patient_id=7');
         expect(document.getElementById('documentsFolderView').hidden).toBe(false);
         expect(document.getElementById('documentsClassic').hidden).toBe(true);
-        const labels = [...document.querySelectorAll('#docFolderTree button')].map((b) => b.textContent);
+        const labels = [...document.querySelectorAll('#docFolderTree .doc-folder-btn')].map((b) => b.textContent);
         expect(labels).toEqual(['All documents5', 'Studies4', 'Lab Report2', 'Imaging2', 'Medical Record1', 'Outside Records1']);
         expect(document.getElementById('docEmptyToggle').textContent).toBe('Show 1 empty folders');
         const rows = document.querySelectorAll('#docRows tr');
@@ -220,7 +282,7 @@ describe('page wiring', () => {
         setUp();
         await flush();
         await flush();
-        const click = (text) => [...document.querySelectorAll('#docFolderTree button')].find((b) => b.textContent.startsWith(text)).click();
+        const click = (text) => [...document.querySelectorAll('#docFolderTree .doc-folder-btn')].find((b) => b.textContent.startsWith(text)).click();
         click('Imaging');
         expect(document.querySelectorAll('#docRows tr').length).toBe(2);
         expect(document.getElementById('docCrumb').textContent).toBe('Studies › Imaging (2)');
@@ -236,7 +298,7 @@ describe('page wiring', () => {
         search.dispatchEvent(new Event('input'));
 
         document.getElementById('docEmptyToggle').click();
-        expect([...document.querySelectorAll('#docFolderTree button')].map((b) => b.textContent)).toContain('Photographs0');
+        expect([...document.querySelectorAll('#docFolderTree .doc-folder-btn')].map((b) => b.textContent)).toContain('Photographs0');
         expect(document.getElementById('docEmptyToggle').textContent).toBe('Hide empty folders');
 
         const firstRow = document.querySelector('#docRows tr');
@@ -246,6 +308,72 @@ describe('page wiring', () => {
         expect(document.getElementById('docOpen').disabled).toBe(false);
         document.querySelectorAll('#docRows tr')[1].click();
         expect(document.querySelector('#docPreviewBody img').getAttribute('src')).toBe('/r/5&as_file=false');
+    });
+
+    test('folders can be collapsed, opened again and all opened or closed at once', async () => {
+        setUp();
+        await flush();
+        await flush();
+        const names = () => [...document.querySelectorAll('#docFolderTree .doc-folder-btn')].map((b) => b.querySelector('.doc-folder-name').textContent);
+        expect(names()).toEqual(['All documents', 'Studies', 'Lab Report', 'Imaging', 'Medical Record', 'Outside Records']);
+        document.getElementById('docCollapseAll').click();
+        expect(names()).toEqual(['All documents', 'Studies', 'Medical Record']);
+        const studies = document.querySelectorAll('#docFolderTree button.doc-twisty')[0];
+        expect(studies.getAttribute('aria-expanded')).toBe('false');
+        studies.click();
+        expect(names()).toEqual(['All documents', 'Studies', 'Lab Report', 'Imaging', 'Medical Record']);
+        document.getElementById('docExpandAll').click();
+        expect(names()).toContain('Outside Records');
+    });
+
+    test('folders named in the setting stay hidden while they are empty, even when empty folders are shown', async () => {
+        setUp({}, { hideEmptyNames: 'photographs' });
+        await flush();
+        await flush();
+        expect(document.getElementById('docEmptyToggle').hidden).toBe(true);
+        expect(document.querySelector('#docFolderTree').textContent).not.toContain('Photographs');
+    });
+
+    test('rows show a type tag and the full name and type on hover', async () => {
+        setUp();
+        await flush();
+        await flush();
+        const first = document.querySelector('#docRows td.doc-name');
+        expect(first.querySelector('.doc-type').textContent).toBe('ZIP');
+        expect(first.querySelector('.doc-type').className).toContain('doc-type-archive');
+        expect(first.title).toBe('Chest X-ray.zip (ZIP)');
+    });
+
+    test('the classic tree gets type tags instead of the picture icon and keeps the pop-up on double click', async () => {
+        setUp();
+        await flush();
+        const tags = [...document.querySelectorAll('#documents_list .doc-type')].map((n) => n.textContent);
+        expect(tags).toEqual(['ZIP', 'PDF', 'FILE']);
+        const icon = document.getElementById('icon_objTreeMenu_1_node_5');
+        expect(icon.style.display).toBe('none');
+        expect(icon.nextElementSibling.title).toBe('11/04/2026 Chest X-ray.zip-3 (ZIP)');
+        const popped = jest.fn();
+        window.jQuery = () => ({ trigger: popped });
+        document.querySelector('#documents_list .doc-type').dispatchEvent(new Event('dblclick', { bubbles: true, cancelable: true }));
+        expect(popped).toHaveBeenCalledWith('dblclick');
+        delete window.jQuery;
+        expect(document.querySelector('#documents_list a').title).toBe('Studies');
+    });
+
+    test('list columns can be resized and the widths are remembered', async () => {
+        setUp();
+        await flush();
+        const grip = document.querySelector('#docListBox .doc-col-grip');
+        const heads = [...document.querySelectorAll('#docListBox thead th')];
+        heads.forEach((th) => { th.getBoundingClientRect = () => ({ width: 100 }); });
+        grip.dispatchEvent(Object.assign(new Event('pointerdown', { bubbles: true, cancelable: true }), { clientX: 10, pointerId: 1 }));
+        grip.dispatchEvent(Object.assign(new Event('pointermove'), { clientX: 60 }));
+        expect(document.querySelector('#docListBox col').style.width).toBe('150px');
+        expect(document.querySelector('#docListBox table').style.width).toBe('550px');
+        grip.dispatchEvent(new Event('pointerup'));
+        expect(JSON.parse(window.localStorage.getItem('oeDocumentsView:test:columns'))).toHaveLength(5);
+        grip.dispatchEvent(new Event('dblclick'));
+        expect(document.querySelector('#docListBox col').style.width).toBe('');
     });
 
     test('the choice is only remembered when the user picks a view', async () => {
@@ -372,7 +500,8 @@ describe('page wiring', () => {
         rows.forEach((row) => {
             const cell = row.querySelector('td.doc-name');
             expect(cell).not.toBeNull();
-            expect(cell.title).toBe(row.getAttribute('data-document-name'));
+            expect(cell.title.startsWith(row.getAttribute('data-document-name'))).toBe(true);
+            expect(cell.querySelector('.doc-type')).not.toBeNull();
             expect(row.querySelector('td.doc-folder').title).not.toBe('');
         });
     });
@@ -409,6 +538,7 @@ describe('page wiring', () => {
             value: [new File(['x'], 'a.pdf'), new File(['y'], 'b.pdf')]
         });
         input.dispatchEvent(new Event('change'));
+        document.getElementById('docUploadFolder').value = '3';
         document.getElementById('docUploadSubmit').click();
         for (let i = 0; i < 10; i++) {
             await flush();
@@ -418,6 +548,52 @@ describe('page wiring', () => {
         expect(status.textContent).toContain('a.pdf');
         expect(status.className).toContain('text-danger');
         expect(document.getElementById('docFileNames').textContent).toBe('1 file(s) selected');
+    });
+
+    test('no folder is preselected for an upload: the user is asked', async () => {
+        setUp();
+        await flush();
+        await flush();
+        const folder = document.getElementById('docUploadFolder');
+        expect(folder.value).toBe('');
+        expect(folder.options[0].textContent).toBe('Choose a folder...');
+        const calls = [];
+        window.fetch = jest.fn((url) => {
+            calls.push(String(url));
+            return Promise.resolve({ ok: true, text: () => Promise.resolve(''), json: () => Promise.resolve({ categories, documents }) });
+        });
+        const input = document.getElementById('docFileInput');
+        Object.defineProperty(input, 'files', { configurable: true, value: [new File(['x'], 'letter.pdf')] });
+        input.dispatchEvent(new Event('change'));
+        document.getElementById('docUploadSubmit').click();
+        await flush();
+        expect(document.getElementById('docUploadStatus').textContent).toBe('Choose a folder.');
+        expect(calls.filter((url) => url.indexOf('document&upload') !== -1)).toEqual([]);
+    });
+
+    test('a DICOM file needs no folder: it is sent to the radiology folder', async () => {
+        setUp();
+        const withRadiology = categories.concat([{ id: 8, name: 'Radiology', parent: 0, path: 'Radiology' }]);
+        window.fetch = jest.fn((url, options) => {
+            if (String(url).indexOf('document&upload') !== -1) {
+                sent.push(options.body.get('category_id'));
+                return Promise.resolve({ ok: true, text: () => Promise.resolve('<div id="documents_actions"></div>') });
+            }
+            return Promise.resolve({ ok: true, json: () => Promise.resolve({ categories: withRadiology, documents }) });
+        });
+        const sent = [];
+        document.getElementById('docViewClassic').click();
+        document.getElementById('docViewFolders').click();
+        await flush();
+        await flush();
+        const input = document.getElementById('docFileInput');
+        Object.defineProperty(input, 'files', { configurable: true, value: [new File(['x'], 'IM0001.dcm')] });
+        input.dispatchEvent(new Event('change'));
+        document.getElementById('docUploadSubmit').click();
+        for (let i = 0; i < 10; i++) {
+            await flush();
+        }
+        expect(sent).toEqual(['8']);
     });
 
     test('refits the preview frame when the Folders view is shown again', async () => {

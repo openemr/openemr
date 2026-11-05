@@ -58,15 +58,64 @@
         return top;
     }
 
-    function countEmptyFolders(nodes) {
+    /** Lower-case folder names from a comma separated setting. */
+    function parseHiddenNames(value) {
+        return String(value || '').split(',').map(function (part) {
+            return part.trim().toLowerCase();
+        }).filter(function (part) {
+            return part !== '';
+        });
+    }
+
+    /** True for an empty folder whose name is on the "hide while empty" list. */
+    function isHiddenWhenEmpty(node, hidden) {
+        return node.count === 0 && Array.isArray(hidden) && hidden.indexOf(String(node.name).toLowerCase()) !== -1;
+    }
+
+    /** Empty folders the user can still reveal (those on the hide list never show while empty). */
+    function countEmptyFolders(nodes, hidden) {
         var empty = 0;
         nodes.forEach(function (node) {
-            if (node.count === 0) {
+            if (node.count === 0 && !isHiddenWhenEmpty(node, hidden)) {
                 empty += 1;
             }
-            empty += countEmptyFolders(node.children);
+            if (!isHiddenWhenEmpty(node, hidden)) {
+                empty += countEmptyFolders(node.children, hidden);
+            }
         });
         return empty;
+    }
+
+    /** Ids (as strings) of the folders to open at first: every folder on the way to a document. */
+    function foldersToOpen(nodes) {
+        var open = {};
+        var walk = function (node) {
+            var below = false;
+            node.children.forEach(function (child) {
+                if (walk(child)) {
+                    below = true;
+                }
+            });
+            if (below) {
+                open[String(node.id)] = true;
+            }
+            return node.count > 0;
+        };
+        nodes.forEach(walk);
+        return open;
+    }
+
+    /** Ids (as strings) of every folder that has subfolders. */
+    function foldersWithChildren(nodes) {
+        var ids = {};
+        var walk = function (node) {
+            if (node.children.length > 0) {
+                ids[String(node.id)] = true;
+            }
+            node.children.forEach(walk);
+        };
+        nodes.forEach(walk);
+        return ids;
     }
 
     function findFolder(nodes, id) {
@@ -112,6 +161,49 @@
             return doc.name.slice(dot + 1).toLowerCase();
         }
         return String(doc.mimetype || '').toLowerCase();
+    }
+
+    var TYPE_GROUPS = {
+        pdf: ['pdf'],
+        dicom: ['dcm', 'dicom'],
+        archive: ['zip', '7z', 'rar', 'tar', 'gz'],
+        image: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tif', 'tiff', 'webp', 'heic', 'svg'],
+        text: ['doc', 'docx', 'rtf', 'txt', 'odt', 'xml', 'csv', 'json', 'html', 'htm'],
+        sheet: ['xls', 'xlsx', 'ods']
+    };
+
+    /** Short upper-case file type for the list, e.g. PDF, ZIP, DCM, JPG. */
+    function typeLabel(doc) {
+        var name = String(doc.name || '');
+        var dot = name.lastIndexOf('.');
+        var ext = dot !== -1 && dot < name.length - 1 ? name.slice(dot + 1).toLowerCase() : '';
+        if (ext !== '' && ext.length <= 5 && /^[a-z0-9]+$/.test(ext)) {
+            return ext === 'jpeg' ? 'JPG' : ext.toUpperCase();
+        }
+        var mime = String(doc.mimetype || '').toLowerCase();
+        if (mime === 'application/dicom' || mime === 'application/dicom+zip') {
+            return 'DCM';
+        }
+        if (mime === 'application/pdf') {
+            return 'PDF';
+        }
+        if (mime.indexOf('image/') === 0) {
+            var sub = mime.slice(6).replace(/[^a-z0-9].*$/, '');
+            return (sub === 'jpeg' ? 'jpg' : sub).toUpperCase().slice(0, 5) || 'FILE';
+        }
+        return 'FILE';
+    }
+
+    /** Style class of the type tag, by kind of file. */
+    function typeClass(label) {
+        var lower = String(label).toLowerCase();
+        var kind = 'other';
+        Object.keys(TYPE_GROUPS).forEach(function (group) {
+            if (TYPE_GROUPS[group].indexOf(lower) !== -1) {
+                kind = group;
+            }
+        });
+        return 'doc-type doc-type-' + kind;
     }
 
     function compareText(a, b) {
@@ -194,6 +286,12 @@
         listHeightLimits: {min: LIST_MIN, max: LIST_MAX, step: LIST_STEP, fallback: LIST_DEFAULT},
         buildFolderTree: buildFolderTree,
         countEmptyFolders: countEmptyFolders,
+        parseHiddenNames: parseHiddenNames,
+        isHiddenWhenEmpty: isHiddenWhenEmpty,
+        foldersToOpen: foldersToOpen,
+        foldersWithChildren: foldersWithChildren,
+        typeLabel: typeLabel,
+        typeClass: typeClass,
         findFolder: findFolder,
         folderIds: folderIds,
         filterDocuments: filterDocuments,
@@ -217,6 +315,8 @@
             uploadWrap: el('docUploadWrap'),
             tree: el('docFolderTree'),
             emptyToggle: el('docEmptyToggle'),
+            expandAll: el('docExpandAll'),
+            collapseAll: el('docCollapseAll'),
             search: el('docSearch'),
             sort: el('docSort'),
             crumb: el('docCrumb'),
@@ -246,6 +346,8 @@
             categories: [],
             documents: [],
             folder: null,
+            expanded: {},
+            hidden: parseHiddenNames(cfg.hideEmptyNames),
             showEmpty: false,
             selected: null,
             loaded: false
@@ -300,36 +402,65 @@
 
         function renderTree() {
             view.tree.textContent = '';
-            var addButton = function (label, count, depth, active, onClick) {
-                var button = make('button', 'btn btn-sm btn-block text-left d-flex justify-content-between align-items-center mb-1 ' + (active ? 'btn-primary' : 'btn-light'));
+            var addRow = function (node, depth, label, count, active, hasChildren, onSelect) {
+                var row = make('div', 'doc-folder-row' + (active ? ' active' : ''));
+                row.style.paddingLeft = (depth * 0.85) + 'rem';
+                if (hasChildren) {
+                    var open = !!state.expanded[String(node.id)];
+                    var twisty = make('button', 'doc-twisty', open ? '\u25BE' : '\u25B8');
+                    twisty.type = 'button';
+                    twisty.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    twisty.setAttribute('aria-label', (open ? i18n.collapse : i18n.expand) + ': ' + label);
+                    twisty.addEventListener('click', function () {
+                        state.expanded[String(node.id)] = !open;
+                        renderTree();
+                    });
+                    row.appendChild(twisty);
+                } else {
+                    row.appendChild(make('span', 'doc-twisty doc-twisty-gap'));
+                }
+                var button = make('button', 'doc-folder-btn');
                 button.type = 'button';
-                button.style.paddingLeft = (0.5 + depth * 1) + 'rem';
+                button.title = label + ' (' + count + ')';
                 if (active) {
                     button.setAttribute('aria-current', 'true');
                 }
-                button.appendChild(make('span', 'text-break', label));
-                button.appendChild(make('span', 'badge badge-secondary ml-2', String(count)));
-                button.addEventListener('click', onClick);
-                view.tree.appendChild(button);
+                button.appendChild(make('span', 'doc-folder-name', label));
+                button.appendChild(make('span', 'doc-folder-count', String(count)));
+                button.addEventListener('click', onSelect);
+                row.appendChild(button);
+                view.tree.appendChild(row);
             };
-            addButton(i18n.allDocuments, state.documents.length, 0, state.folder === null, function () {
+            addRow({id: 'all'}, 0, i18n.allDocuments, state.documents.length, state.folder === null, false, function () {
                 state.folder = null;
                 render();
             });
+            var shown = function (node) {
+                if (isHiddenWhenEmpty(node, state.hidden)) {
+                    return false;
+                }
+                return node.count > 0 || state.showEmpty;
+            };
             var walk = function (nodes, depth) {
                 nodes.forEach(function (node) {
-                    if (node.count === 0 && !state.showEmpty) {
+                    if (!shown(node)) {
                         return;
                     }
-                    addButton(node.name, node.count, depth, state.folder === node, function () {
+                    var kids = node.children.filter(shown);
+                    addRow(node, depth, node.name, node.count, state.folder === node, kids.length > 0, function () {
                         state.folder = node;
+                        if (kids.length > 0) {
+                            state.expanded[String(node.id)] = true;
+                        }
                         render();
                     });
-                    walk(node.children, depth + 1);
+                    if (kids.length > 0 && state.expanded[String(node.id)]) {
+                        walk(node.children, depth + 1);
+                    }
                 });
             };
             walk(state.tree, 1);
-            var empty = countEmptyFolders(state.tree);
+            var empty = countEmptyFolders(state.tree, state.hidden);
             if (empty === 0 && !state.showEmpty) {
                 view.emptyToggle.hidden = true;
             } else {
@@ -351,8 +482,13 @@
                     tr.className = 'table-active';
                     tr.setAttribute('aria-selected', 'true');
                 }
-                var nameCell = make('td', 'doc-name', item.name);
-                nameCell.title = item.name;
+                var label = typeLabel(item);
+                var nameCell = make('td', 'doc-name');
+                var wrap = make('div', 'doc-name-wrap');
+                wrap.appendChild(make('span', typeClass(label), label));
+                wrap.appendChild(make('span', 'doc-name-text', item.name));
+                nameCell.appendChild(wrap);
+                nameCell.title = item.name + ' (' + label + ')';
                 tr.appendChild(nameCell);
                 var folderCell = make('td', 'doc-folder', item.path);
                 folderCell.title = item.path;
@@ -458,6 +594,7 @@
                     state.categories = data.categories || [];
                     state.documents = data.documents || [];
                     state.tree = buildFolderTree(state.categories, state.documents);
+                    state.expanded = foldersToOpen(state.tree);
                     state.folder = null;
                     state.selected = null;
                     state.loaded = true;
@@ -516,7 +653,7 @@
                 view.folderCol.hidden = !showFolders;
             }
             if (view.mainCol) {
-                view.mainCol.className = showFolders ? 'col-lg-9 mb-3' : 'col-lg-12 mb-3';
+                view.mainCol.className = showFolders ? 'col-lg-9 col-xl-10 mb-3' : 'col-lg-12 mb-3';
             }
         }
 
@@ -664,6 +801,10 @@
                 return;
             }
             up.folder.textContent = '';
+            var placeholder = doc.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = i18n.pickFolder || '';
+            up.folder.appendChild(placeholder);
             var used = state.categories.filter(function (category) {
                 var node = findFolder(state.tree, category.id);
                 return node && node.own > 0;
@@ -687,9 +828,7 @@
             };
             addGroup(i18n.commonFolders, used);
             addGroup(i18n.moreFolders, others);
-            if (state.folder) {
-                up.folder.value = String(state.folder.id);
-            }
+            up.folder.value = state.folder ? String(state.folder.id) : '';
             try {
                 if (root.jQuery && root.jQuery.fn && typeof root.jQuery.fn.select2 === 'function') {
                     root.jQuery(up.folder).select2({dropdownParent: root.jQuery(up.popover), width: '100%'});
@@ -697,6 +836,23 @@
             } catch (e) {
                 // a plain select is fine when select2 cannot start
             }
+        }
+
+        function radiologyFolderId() {
+            var found = state.categories.filter(function (category) {
+                var name = String(category.name).toLowerCase();
+                return name === 'radiology' || name === 'x-ray & imaging';
+            });
+            return found.length === 1 ? String(found[0].id) : '';
+        }
+
+        function onlyDicom(dicomFiles) {
+            if (dicomFiles.length > 0) {
+                return pending.length === 0;
+            }
+            return pending.length > 0 && pending.every(function (file) {
+                return /\.dcm$/i.test(file.name);
+            });
         }
 
         function showPending() {
@@ -765,6 +921,10 @@
             if (pending.length === 0 && dicomFiles.length === 0) {
                 setStatus(i18n.chooseFiles, true);
                 return;
+            }
+            if (!category && onlyDicom(dicomFiles)) {
+                // The server files image slices in the radiology folder whatever folder is sent.
+                category = radiologyFolderId();
             }
             if (!category) {
                 setStatus(i18n.chooseFolder, true);
@@ -857,7 +1017,132 @@
             });
         }
 
+        // ---- resizable list columns ----
+        function wireColumns() {
+            var box = view.listBox;
+            var table = box ? box.querySelector('table') : null;
+            var cols = table ? table.querySelectorAll('col') : [];
+            var heads = table ? table.querySelectorAll('thead th') : [];
+            var grips = table ? table.querySelectorAll('.doc-col-grip') : [];
+            if (!table || cols.length === 0 || cols.length !== heads.length) {
+                return;
+            }
+            var MIN_COLUMN = 48;
+            var applyWidths = function (widths) {
+                var sum = 0;
+                widths.forEach(function (width, index) {
+                    cols[index].style.width = width + 'px';
+                    sum += width;
+                });
+                table.style.width = sum + 'px';
+            };
+            var measure = function () {
+                return Array.prototype.map.call(heads, function (head) {
+                    return Math.round(head.getBoundingClientRect().width);
+                });
+            };
+            try {
+                var saved = JSON.parse(storedValue(':columns') || 'null');
+                if (Array.isArray(saved) && saved.length === cols.length && saved.every(function (n) {
+                    return typeof n === 'number' && n >= MIN_COLUMN && n < 5000;
+                })) {
+                    applyWidths(saved);
+                }
+            } catch (e) {
+                // a bad saved value is ignored and the default widths stay
+            }
+            Array.prototype.forEach.call(grips, function (grip, index) {
+                grip.addEventListener('dblclick', function () {
+                    Array.prototype.forEach.call(cols, function (col) {
+                        col.style.width = '';
+                    });
+                    table.style.width = '';
+                    storeValue(':columns', '');
+                });
+                grip.addEventListener('pointerdown', function (event) {
+                    var widths = measure();
+                    if (widths.every(function (width) {
+                        return width === 0;
+                    })) {
+                        return;
+                    }
+                    var startX = event.clientX;
+                    var startWidth = widths[index];
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (typeof grip.setPointerCapture === 'function' && event.pointerId !== undefined) {
+                        try {
+                            grip.setPointerCapture(event.pointerId);
+                        } catch (e) {
+                            // capture is optional
+                        }
+                    }
+                    var move = function (moveEvent) {
+                        var next = widths.slice();
+                        next[index] = Math.max(MIN_COLUMN, Math.round(startWidth + moveEvent.clientX - startX));
+                        applyWidths(next);
+                    };
+                    var stop = function () {
+                        grip.removeEventListener('pointermove', move);
+                        grip.removeEventListener('pointerup', stop);
+                        grip.removeEventListener('pointercancel', stop);
+                        storeValue(':columns', JSON.stringify(measure()));
+                    };
+                    grip.addEventListener('pointermove', move);
+                    grip.addEventListener('pointerup', stop);
+                    grip.addEventListener('pointercancel', stop);
+                });
+            });
+        }
+
+        // ---- classic tree: file type tags and full names on hover ----
+        function tagClassicTree() {
+            var tree = doc.getElementById('documents_list');
+            if (!tree) {
+                return;
+            }
+            Array.prototype.forEach.call(tree.querySelectorAll('img[src*="file3.png"]'), function (icon) {
+                var link = icon.nextElementSibling;
+                if (!link || link.tagName !== 'A' || icon.hasAttribute('data-doc-tagged')) {
+                    return;
+                }
+                // The tree text is "<date> <file name>-<document id>".
+                var text = (link.textContent || '').trim();
+                var match = /\.([A-Za-z0-9]{1,5})-\d+$/.exec(text);
+                var label = match ? (match[1].toLowerCase() === 'jpeg' ? 'JPG' : match[1].toUpperCase()) : 'FILE';
+                var tag = make('span', typeClass(label), label);
+                tag.title = (i18n.popupHint ? i18n.popupHint + ' ' : '') + text + ' (' + label + ')';
+                tag.addEventListener('dblclick', function (event) {
+                    event.preventDefault();
+                    if (root.jQuery) {
+                        root.jQuery(icon).trigger('dblclick');
+                    }
+                });
+                icon.setAttribute('data-doc-tagged', 'true');
+                icon.style.display = 'none';
+                icon.parentNode.insertBefore(tag, icon);
+                link.title = text + ' (' + label + ')';
+            });
+            Array.prototype.forEach.call(tree.querySelectorAll('a'), function (link) {
+                if (!link.title && link.textContent.trim() !== '') {
+                    link.title = link.textContent.trim();
+                }
+            });
+        }
+
         // ---- wiring ----
+        if (view.expandAll) {
+            view.expandAll.addEventListener('click', function () {
+                state.expanded = foldersWithChildren(state.tree);
+                renderTree();
+            });
+        }
+        if (view.collapseAll) {
+            view.collapseAll.addEventListener('click', function () {
+                state.expanded = {};
+                renderTree();
+            });
+        }
         view.search.addEventListener('input', renderRows);
         view.sort.addEventListener('change', renderRows);
         view.emptyToggle.addEventListener('click', function () {
@@ -884,6 +1169,8 @@
         // A forced classic page is the result of a classic action (upload or view), not a choice,
         // so it never overwrites what the user picked.
         wireLayout();
+        wireColumns();
+        tagClassicTree();
         var wanted = cfg.forceClassic ? 'classic' : (storedView() || cfg.defaultView);
         setView(wanted === 'folders' ? 'folders' : 'classic', false);
     }

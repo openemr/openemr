@@ -39,17 +39,175 @@ border-radius: 4px 0 0 4px!important;
 <style>
 .doc-table {
     table-layout: fixed;
+    width: 100%;
+    font-size: 0.875rem;
 }
-.doc-table .doc-col-name { width: 40%; }
-.doc-table .doc-col-folder { width: 28%; }
-.doc-table .doc-col-date { width: 12%; }
-.doc-table .doc-col-size { width: 9%; }
-.doc-table .doc-col-actions { width: 11%; }
+.doc-table col.doc-col-name { width: 42%; }
+.doc-table col.doc-col-folder { width: 26%; }
+.doc-table col.doc-col-date { width: 11%; }
+.doc-table col.doc-col-size { width: 8%; }
+.doc-table col.doc-col-actions { width: 13%; }
+.doc-table th {
+    position: relative;
+}
+.doc-col-grip {
+    position: absolute;
+    top: 0;
+    right: -3px;
+    bottom: 0;
+    width: 7px;
+    cursor: col-resize;
+    touch-action: none;
+    z-index: 2;
+}
+.doc-col-grip:hover {
+    background-color: rgba(128, 128, 128, 0.45);
+}
 .doc-name,
 .doc-folder {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+.doc-name-wrap {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+.doc-name-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.doc-type {
+    flex: 0 0 auto;
+    display: inline-block;
+    min-width: 2.6rem;
+    margin-right: 0.45rem;
+    padding: 0 0.3rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    text-align: center;
+    color: #0b2a66;
+    background-color: #e3e8f0;
+    border: 1px solid #b9c4d8;
+}
+.doc-type-pdf { background-color: #fde2e1; border-color: #f0a9a6; }
+.doc-type-dicom { background-color: #ffeccc; border-color: #f0c47a; }
+.doc-type-archive { background-color: #fff3bf; border-color: #e6cf62; }
+.doc-type-image { background-color: #d9f2df; border-color: #8fcf9f; }
+.doc-type-text { background-color: #dbe9fb; border-color: #9cbdea; }
+.doc-type-sheet { background-color: #d6f3ee; border-color: #86cfc3; }
+#docFolderTree {
+    max-height: 70vh;
+    overflow: auto;
+}
+.doc-folder-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    line-height: 1.25;
+}
+.doc-folder-row.active {
+    background-color: #0b2a66;
+    border-radius: 3px;
+}
+.doc-twisty {
+    flex: 0 0 1.1rem;
+    width: 1.1rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: 0.75rem;
+    line-height: 1.25;
+    color: inherit;
+    cursor: pointer;
+}
+.doc-twisty-gap {
+    cursor: default;
+}
+.doc-folder-btn {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+    padding: 1px 4px;
+    border: 0;
+    background: transparent;
+    font-size: 0.8rem;
+    text-align: left;
+    color: inherit;
+    cursor: pointer;
+}
+.doc-folder-btn:hover {
+    text-decoration: underline;
+}
+.doc-folder-row.active .doc-folder-btn,
+.doc-folder-row.active .doc-twisty {
+    color: #fff;
+}
+.doc-folder-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.doc-folder-count {
+    flex: 0 0 auto;
+    margin-left: 0.4rem;
+    padding: 0 0.35rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    background-color: rgba(128, 128, 128, 0.25);
+}
+.doc-folder-row.active .doc-folder-count {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+/* Classic tree: as wide as its longest name (up to 45% of the page), the right side takes the rest. */
+#docClassicTreeCol {
+    max-width: 45%;
+    min-width: 15rem;
+}
+#docClassicActionsCol {
+    min-width: 0;
+}
+.container-fluid #documents_list,
+.container-fluid #documents_actions {
+    float: none;
+    height: auto;
+    overflow: visible;
+}
+#docClassicTreeCol #documents_list {
+    overflow-x: auto;
+}
+#documents_list .doc-type {
+    min-width: 2.1rem;
+    margin-right: 0.3rem;
+    padding: 0 0.2rem;
+    font-size: 0.62rem;
+    font-style: normal;
+    vertical-align: middle;
+}
+#documents_actions .form-group {
+    margin-bottom: 0.5rem;
+}
+#documents_actions .form-control,
+#documents_actions .form-control-file {
+    max-width: 36rem;
+}
+#documents_actions .dropzone {
+    min-height: 0;
+    padding: 0.25rem 0.5rem;
+    border-width: 1px;
+}
+#documents_actions .dropzone .dz-message {
+    margin: 0.4rem 0;
+    font-size: 0.85rem;
 }
 .doc-list-box {
     height: var(--doc-list-height, 280px);
@@ -194,16 +352,23 @@ border-radius: 4px 0 0 4px!important;
     </div>
     <div id="documentsFolderView" hidden>
         <div class="row">
-            <div class="col-lg-3 mb-3" id="docFolderCol">
+            <div class="col-lg-3 col-xl-2 mb-3" id="docFolderCol">
                 <div class="card">
-                    <div class="card-header">{xlt t='Folders'}</div>
-                    <div class="card-body p-2" id="docFolderTree"></div>
+                    <div class="card-header d-flex align-items-center justify-content-between py-1 px-2">
+                        <span>{xlt t='Folders'}</span>
+                        <span class="small">
+                            <button type="button" class="btn btn-link btn-sm p-0" id="docExpandAll">{xlt t='Expand all'}</button>
+                            <span aria-hidden="true">|</span>
+                            <button type="button" class="btn btn-link btn-sm p-0" id="docCollapseAll">{xlt t='Collapse all'}</button>
+                        </span>
+                    </div>
+                    <div class="card-body p-1" id="docFolderTree"></div>
                     <div class="card-footer p-1">
                         <button type="button" class="btn btn-link btn-sm" id="docEmptyToggle"></button>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-9 mb-3" id="docMainCol">
+            <div class="col-lg-9 col-xl-10 mb-3" id="docMainCol">
                 <div id="docListPane">
                     <div class="card">
                         <div class="card-header form-inline">
@@ -223,13 +388,20 @@ border-radius: 4px 0 0 4px!important;
                             <div class="px-3 py-2 small text-muted" id="docCrumb"></div>
                             <div class="doc-list-box" id="docListBox">
                                 <table class="table table-sm table-hover mb-0 doc-table">
+                                    <colgroup>
+                                        <col class="doc-col-name" />
+                                        <col class="doc-col-folder" />
+                                        <col class="doc-col-date" />
+                                        <col class="doc-col-size" />
+                                        <col class="doc-col-actions" />
+                                    </colgroup>
                                     <thead>
                                         <tr>
-                                            <th scope="col" class="doc-col-name">{xlt t='Name'}</th>
-                                            <th scope="col" class="doc-col-folder">{xlt t='Folder'}</th>
-                                            <th scope="col" class="doc-col-date">{xlt t='Date'}</th>
-                                            <th scope="col" class="doc-col-size">{xlt t='Size'}</th>
-                                            <th scope="col" class="doc-col-actions"><span class="sr-only">{xlt t='Actions'}</span></th>
+                                            <th scope="col">{xlt t='Name'}<span class="doc-col-grip" role="presentation" title="{xla t='Drag to resize the column, double-click to reset'}"></span></th>
+                                            <th scope="col">{xlt t='Folder'}<span class="doc-col-grip" role="presentation" title="{xla t='Drag to resize the column, double-click to reset'}"></span></th>
+                                            <th scope="col">{xlt t='Date'}<span class="doc-col-grip" role="presentation" title="{xla t='Drag to resize the column, double-click to reset'}"></span></th>
+                                            <th scope="col">{xlt t='Size'}<span class="doc-col-grip" role="presentation" title="{xla t='Drag to resize the column, double-click to reset'}"></span></th>
+                                            <th scope="col"><span class="sr-only">{xlt t='Actions'}</span><span class="doc-col-grip" role="presentation"></span></th>
                                         </tr>
                                     </thead>
                                     <tbody id="docRows"></tbody>
@@ -261,7 +433,7 @@ border-radius: 4px 0 0 4px!important;
     </div>
 
     <div class="row" id="documentsClassic">
-		<div class="col-sm-3">
+		<div class="col-sm-auto" id="docClassicTreeCol">
 			<div id="documents_list">
 				<fieldset>
                     <legend>{xlt t='Documents List'}</legend>
@@ -272,7 +444,7 @@ border-radius: 4px 0 0 4px!important;
 			    </fieldset>
             </div>
 		</div>
-		<div class="col-sm-9">
+		<div class="col-sm" id="docClassicActionsCol">
 			<div id="documents_actions">
 				<fieldset>
 					<legend>{xlt t='Document Uploader/Viewer'}</legend>
@@ -299,6 +471,7 @@ window.oeDocumentsFolderViewConfig = {
     dataUrl: {$GLOBALS.webroot|js_escape} + '/controller.php?document&list_data&patient_id=' + encodeURIComponent({$cur_pid|js_escape}),
     storageKey: {$documents_view_key|js_escape},
     defaultView: {$documents_default_view|js_escape},
+    hideEmptyNames: {$documents_hide_empty|js_escape},
     forceClassic: {if !empty($activity)}true{else}false{/if},
     i18n: {
         allDocuments: {xlj t='All documents'},
@@ -316,7 +489,11 @@ window.oeDocumentsFolderViewConfig = {
         uploaded: {xlj t='Uploaded'},
         uploadFailed: {xlj t='The upload failed.'},
         hideFolders: {xlj t='Hide folders'},
-        showFolders: {xlj t='Show folders'}
+        showFolders: {xlj t='Show folders'},
+        expand: {xlj t='Expand'},
+        collapse: {xlj t='Collapse'},
+        pickFolder: {xlj t='Choose a folder...'},
+        popupHint: {xlj t='Double Click on this icon to pop up document in a new viewer.'}
     }
 };
 </script>
