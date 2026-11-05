@@ -728,6 +728,28 @@ $(function() {
         $("#paymentAmount").val(total);
     });
 });
+
+// In House: the card is run on the clinic's own terminal, so the dialog only records the
+// approval and saves the payment as a credit card payment. No card data is sent or kept.
+function recordInHouseCardPayment(e) {
+    e.preventDefault();
+    let auth = $("#inHouseAuthCode").val().trim();
+    let last4 = $("#inHouseLast4").val().trim();
+    if (auth === '') {
+        alert(<?php echo xlj('Please enter the card approval code'); ?>);
+        $("#inHouseAuthCode").trigger('focus');
+        return;
+    }
+    if (last4 !== '' && !/^\d{4}$/.test(last4)) {
+        alert(<?php echo xlj('The last four digits must be four numbers'); ?>);
+        $("#inHouseLast4").trigger('focus');
+        return;
+    }
+    $("#form_method").val('credit_card');
+    $("#check_number").prop('disabled', false).val(last4 === '' ? auth : auth + ' : ' + last4);
+    $('#openPayModal').modal('hide');
+    $("[name='form_save']").click();
+}
     <?php require($srcdir . "/restoreSession.php"); ?>
 function closeHow(e) {
     if (opener) {
@@ -1421,7 +1443,7 @@ function make_insurance() {
                         <div class="col-sm-12 text-left position-override">
                             <div class="form-group" role="group" id="button-group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
-                                <?php if (OEGlobalsBag::getInstance()->getBoolean('cc_front_payments') && OEGlobalsBag::getInstance()->get('payment_gateway') != 'InHouse') {
+                                <?php if (OEGlobalsBag::getInstance()->getBoolean('cc_front_payments')) {
                                     if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere') {
                                         echo SpherePayment::renderSphereHtml('clinic');
                                     } else {
@@ -1452,6 +1474,18 @@ function make_insurance() {
                         <h4><?php echo xlt('Submit Payment for Authorization'); ?></h4>
                     </div>
                     <div class="modal-body">
+                        <?php if ($globalsBag->getString('payment_gateway') === 'InHouse') { ?>
+                            <p><?php echo xlt('Charge the card on your card terminal, then record its approval here.'); ?></p>
+                            <div class="form-group">
+                                <label class="control-label" for="inHouseAuthCode"><?php echo xlt('Approval Code'); ?></label>
+                                <input id="inHouseAuthCode" type="text" class="form-control" autocomplete="off" maxlength="40" />
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="inHouseLast4"><?php echo xlt('Card Last Four Digits'); ?></label>
+                                <input id="inHouseLast4" type="text" class="form-control" autocomplete="off" maxlength="4" inputmode="numeric" />
+                            </div>
+                            <h5><?php echo xlt('Payment Amount'); ?>:&nbsp;<strong><span id="payTotal"></span></strong></h5>
+                        <?php } ?>
                         <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'AuthorizeNet') { ?>
                             <form id='paymentForm' method='post' action='./front_payment_cc.php'>
                                 <fieldset>
@@ -1579,6 +1613,10 @@ function make_insurance() {
                             <?php }
                             if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Stripe') { ?>
                                 <button id="stripeSubmit" class="btn btn-primary"><?php echo xlt('Pay Now'); ?></button>
+                            <?php }
+                            if ($globalsBag->getString('payment_gateway') === 'InHouse') { ?>
+                                <button type="button" id="inHouseRecord" class="btn btn-primary"
+                                    onclick="recordInHouseCardPayment(event)"><?php echo xlt('Record Payment'); ?></button>
                             <?php } ?>
                         </div>
                     </div>
