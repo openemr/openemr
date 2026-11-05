@@ -31,7 +31,7 @@ final class CoverageDayTest extends TestCase
     }
 
     /**
-     * @return array<string, array{?string, ?string}>
+     * @return array<string, array{mixed, ?string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
@@ -48,12 +48,15 @@ final class CoverageDayTest extends TestCase
             'not a day' => ['2026-02-30', null],
             'too short' => ['2026-11', null],
             'not a date' => ['yesterday!', null],
+            'not a string: a number' => [20261104, null],
+            'not a string: false (a failed fetch)' => [false, null],
+            'not a string: an array' => [['2026-11-04'], null],
         ];
     }
 
     #[Test]
     #[DataProvider('stored')]
-    public function aStoredValueIsItsCalendarDayOrNothing(?string $value, ?string $expected): void
+    public function aStoredValueIsItsCalendarDayOrNothing(mixed $value, ?string $expected): void
     {
         self::assertSame($expected, CoverageDay::fromStored($value)?->format('Y-m-d'));
     }
@@ -76,6 +79,7 @@ final class CoverageDayTest extends TestCase
         self::assertSame('2026-10-01', $days->forLabOrder(null, '2026-10-01')->format('Y-m-d'));
         self::assertSame('2026-10-01', $days->forLabOrder('0000-00-00 00:00:00', '2026-10-01')->format('Y-m-d'));
         self::assertSame('2026-11-04', $days->forLabOrder('', null)->format('Y-m-d'));
+        self::assertSame('2026-10-01', $days->forLabOrder(false, '2026-10-01')->format('Y-m-d'));
     }
 
     #[Test]
@@ -86,5 +90,6 @@ final class CoverageDayTest extends TestCase
         self::assertSame('2026-06-30', $days->forVisit('2026-06-30 16:45:00')->format('Y-m-d'));
         self::assertSame('2026-11-04', $days->forVisit(null)->format('Y-m-d'));
         self::assertSame('2026-11-04', $days->forVisit('0000-00-00')->format('Y-m-d'));
+        self::assertSame('2026-11-04', $days->forVisit(false)->format('Y-m-d'));
     }
 }

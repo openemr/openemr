@@ -27,11 +27,12 @@ final readonly class CoverageDay
     /**
      * A stored DATE or DATETIME as its calendar day, or null when it is blank,
      * zero or not a date. The time is dropped, so a visit at 10:00 asks about
-     * its whole day.
+     * its whole day. Takes what a row or a legacy screen holds: anything but a
+     * string counts as blank, so callers need not narrow first.
      */
-    public static function fromStored(?string $value): ?DateTimeImmutable
+    public static function fromStored(mixed $value): ?DateTimeImmutable
     {
-        if ($value === null || strlen($value) < 10) {
+        if (!is_string($value) || strlen($value) < 10) {
             return null;
         }
         $text = substr($value, 0, 10);
@@ -44,7 +45,7 @@ final readonly class CoverageDay
      * collection date, else the order date, else today. A lab test's date of
      * service is its collection date (42 CFR 414.510(a)).
      */
-    public function forLabOrder(?string $collected, ?string $ordered): DateTimeImmutable
+    public function forLabOrder(mixed $collected, mixed $ordered): DateTimeImmutable
     {
         return self::fromStored($collected) ?? self::fromStored($ordered) ?? $this->today();
     }
@@ -52,7 +53,7 @@ final readonly class CoverageDay
     /**
      * A visit, a charge or a claim: the encounter's date, else today.
      */
-    public function forVisit(?string $encounterDate): DateTimeImmutable
+    public function forVisit(mixed $encounterDate): DateTimeImmutable
     {
         return self::fromStored($encounterDate) ?? $this->today();
     }
