@@ -286,10 +286,12 @@ ALTER TABLE `patient_review_request`
 #EndIf
 
 -- Phone reminders log with type 'Phone', which the enum never allowed, so MySQL stored ''.
--- Add the value, then relabel those rows; no other writer produces an empty type.
 #IfNotColumnType notification_log type enum('SMS','Email','Phone')
 ALTER TABLE `notification_log` MODIFY `type` enum('SMS','Email','Phone') NOT NULL;
 #EndIf
 
+-- Relabel those rows. An empty type alone is not proof: under a binary collation the faxsms
+-- writer's 'EMAIL' is stored as '' too. Email rows always carry 'sender|||subject' in
+-- smsgateway_info, and phone rows carry the gateway URL, so skip rows containing '|||'.
 -- Unguarded so a rerun still relabels if a previous run stopped after the ALTER.
-UPDATE `notification_log` SET `type` = 'Phone' WHERE `type` = '';
+UPDATE `notification_log` SET `type` = 'Phone' WHERE `type` = '' AND `smsgateway_info` NOT LIKE '%|||%';
