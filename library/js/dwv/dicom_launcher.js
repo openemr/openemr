@@ -276,8 +276,8 @@ function startApp() {
                 usedWidth += el.offsetWidth;
             }
         });
-        let width = Math.floor(Math.max(256, window.innerWidth - usedWidth - marginX));
-        let height = Math.floor(Math.max(256, window.innerHeight - header.offsetHeight - marginY));
+        let width = Math.floor(Math.max(128, window.innerWidth - usedWidth - marginX));
+        let height = Math.floor(Math.max(128, window.innerHeight - header.offsetHeight - marginY));
         container.style.width = width + "px";
         container.style.height = height + "px";
         // The page must not scroll inside its frame: take back whatever still overflows
@@ -285,8 +285,8 @@ function startApp() {
         const overflowX = document.documentElement.scrollWidth - document.documentElement.clientWidth;
         const overflowY = document.documentElement.scrollHeight - document.documentElement.clientHeight;
         if (overflowX > 0 || overflowY > 0) {
-            width = Math.max(256, width - Math.max(0, overflowX));
-            height = Math.max(256, height - Math.max(0, overflowY));
+            width = Math.max(128, width - Math.max(0, overflowX));
+            height = Math.max(128, height - Math.max(0, overflowY));
             container.style.width = width + "px";
             container.style.height = height + "px";
         }
