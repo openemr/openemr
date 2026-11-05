@@ -366,14 +366,17 @@ class GenerateController
     /**
      * True when this user may read or overwrite the layout.
      *
-     * Encounter notes are checked earlier. A layout access rule still has
-     * to allow write, matching the layout form. An empty rule adds nothing.
-     * A super user is allowed, matching the layout form.
+     * Encounter notes are checked earlier. A missing or inactive layout
+     * is refused. An empty rule on an active layout adds nothing. A super
+     * user is allowed, matching the layout form.
      */
     private function layoutWriteAllowed(LayoutCatalog $catalog, string $formId): bool
     {
         if ($formId === '') {
             return true;
+        }
+        if (!$catalog->isActiveLbfForm($formId)) {
+            return false;
         }
         $acoSpec = $catalog->acoSpec($formId);
 
@@ -386,9 +389,18 @@ class GenerateController
 
     /**
      * Decide write access from an already loaded layout access rule.
+     *
+     * An inactive layout is refused before the access rule is considered.
      */
-    public static function layoutWriteDecision(string $acoSpec, bool $isSuperUser, bool $hasLayoutWrite): bool
-    {
+    public static function layoutWriteDecision(
+        string $acoSpec,
+        bool $isSuperUser,
+        bool $hasLayoutWrite,
+        bool $layoutIsActive = true,
+    ): bool {
+        if (!$layoutIsActive) {
+            return false;
+        }
         if ($isSuperUser || $acoSpec === '') {
             return true;
         }
