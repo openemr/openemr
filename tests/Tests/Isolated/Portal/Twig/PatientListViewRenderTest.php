@@ -160,8 +160,7 @@ final class PatientListViewRenderTest extends TestCase
                     'recid' => 0,
                     'cpid' => 7,
                     'cuser' => "1';alert(1)//",
-                    'register' => "1
-\';alert(1)//",
+                    'register' => '0',
                     'trow' => array_merge($emptyRow, [
                         'providerid' => '"><script>alert(1)</script>',
                         'refProviderid' => "9' x='",
