@@ -40,7 +40,8 @@ final class PortalApiCsrfTest extends TestCase
 
     public function testMethodOverridesAreIgnored(): void
     {
-        $request = Request::create('/portal/patient/api/thing/5?_method=DELETE', 'GET');
+        // Symfony applies an override only to a POST, so only a POST can tell the two apart.
+        $request = Request::create('/portal/patient/api/thing/5', 'POST');
         $request->headers->set('X-HTTP-Method-Override', 'DELETE');
         $app = new PortalPatientApp(
             new class implements PortalPageRenderer {
@@ -56,7 +57,7 @@ final class PortalApiCsrfTest extends TestCase
 
         $response = $app->handle($request, 'api/thing/5', PortalPrincipal::staff());
 
-        $this->assertSame('page:DefaultError404', $response->getContent(), 'the GET finds no route; the DELETE route never runs');
+        $this->assertSame('page:DefaultError404', $response->getContent(), 'the POST finds no route; the DELETE route never runs');
     }
 
     public function testEntryPointChecksTheTokenBeforeDispatching(): void
