@@ -4,9 +4,10 @@
  * Isolated NotificationChannel Test
  *
  * Tests the NotificationChannel enum's fromLegacyType() factory, which
- * normalizes the legacy stringly-typed $TYPE global into the typed enum.
- * The factory's behavior gates which WHERE clause runs in
- * cron_GetAlertPatientData(), so its mapping must be exhaustively covered.
+ * normalizes the legacy stringly-typed $TYPE global into the typed enum,
+ * and logType(), which spells each channel as notification_log.type
+ * stores it. The factory's behavior gates which WHERE clause runs in
+ * faxsms_getAlertPatientData(), so its mapping must be exhaustively covered.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

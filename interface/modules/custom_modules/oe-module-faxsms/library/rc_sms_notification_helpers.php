@@ -38,6 +38,8 @@
  *     in `tests/Tests/Isolated/Modules/FaxSMS/Notification/`.
  */
 
+declare(strict_types=1);
+
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Enums\NotificationChannel;
