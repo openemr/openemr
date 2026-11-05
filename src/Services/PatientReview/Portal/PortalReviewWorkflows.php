@@ -124,8 +124,28 @@ final readonly class PortalReviewWorkflows
             $submission,
             $actor,
             self::paymentSecrets($cardDetails),
-            static fn(ReviewRequest $open): bool => ($open->payload[self::PAYMENT_CHARGED] ?? true) === false,
+            static fn(ReviewRequest $open): bool => !self::isChargedPayment($open),
         );
+    }
+
+    /**
+     * Whether the gateway had already charged the card when the payment was recorded. A
+     * request with no charged flag (from before it was recorded) counts as charged.
+     */
+    public static function isChargedPayment(ReviewRequest $payment): bool
+    {
+        return ($payment->payload[self::PAYMENT_CHARGED] ?? true) !== false;
+    }
+
+    /**
+     * Whether staff can post this payment. An uncharged payment (staff charge the card) whose
+     * card details cannot be read cannot be charged, so posting it would record money that
+     * was never received; the patient submits it again instead. A charged one can be posted:
+     * the gateway holds the transaction.
+     */
+    public function canPostPayment(ReviewRequest $payment): bool
+    {
+        return self::isChargedPayment($payment) || $this->paymentCardDetails($payment) !== null;
     }
 
     /**

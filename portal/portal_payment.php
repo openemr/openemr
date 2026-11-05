@@ -30,6 +30,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
+use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewStatus;
@@ -156,6 +157,16 @@ if ($isStaffSave && !$recid) {
     }
     $postingRequestId = $pendingUnderLock->id ?? 0;
 }
+if ($isStaffSave && $postingRequestId) {
+    $postingRequest = $reviewWorkflows->payment($postingRequestId, $sessionPid);
+    if ($postingRequest !== null && !$reviewWorkflows->canPostPayment($postingRequest)) {
+        // Nothing is written; the posting lock is released on shutdown.
+        echo "<!DOCTYPE html><html><body><p>"
+            . xlt('The card details of this payment could not be read and the card was not charged, so it cannot be posted. Ask the patient to submit the payment again.')
+            . "</p></body></html>";
+        exit;
+    }
+}
 
 $payment = $recid
     ? $reviewWorkflows->payment($recid, $isPortal ? $sessionPid : null)
@@ -165,6 +176,7 @@ $pendingSince = $payment?->createdAt->format('Y-m-d H:i:s') ?? '';
 $ccdata = [];
 $invdata = [];
 $cardUnreadable = false;
+$paymentCharged = $payment !== null && PortalReviewWorkflows::isChargedPayment($payment);
 if ($payment !== null) {
     // Readable only while the payment waits to be posted; deleted once it is.
     $cardDetails = $reviewWorkflows->paymentCardDetails($payment);
@@ -1139,7 +1151,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         <div>
         <?php
         if (!$session->has('authUserID')) {
-            if (!isset($ccdata["cardHolderName"])) {
+            // A charged payment stays locked even when its card details cannot be read: paying
+            // again would charge the card a second time.
+            if (!isset($ccdata["cardHolderName"]) && !($cardUnreadable && $paymentCharged)) {
                 if ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
                 } else {
@@ -1149,10 +1163,14 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
             }
         } else {
-            if ($cardUnreadable) {
-                echo '<div class="alert alert-warning">' . xlt('The card details of this payment could not be read. Ask the patient to submit the payment again.') . '</div>';
+            if ($cardUnreadable && $paymentCharged) {
+                echo '<div class="alert alert-warning">' . xlt('The card details of this payment could not be read. The card was charged by the payment gateway: check the transaction there before posting.') . '</div>';
+            } elseif ($cardUnreadable) {
+                echo '<div class="alert alert-warning">' . xlt('The card details of this payment could not be read and the card was not charged, so it cannot be posted. Ask the patient to submit the payment again.') . '</div>';
             }
-            echo "<button type='submit' class='btn btn-success' form='invoiceForm'>" . xlt('Post Payment') . "</button>";
+            if (!$cardUnreadable || $paymentCharged) {
+                echo "<button type='submit' class='btn btn-success' form='invoiceForm'>" . xlt('Post Payment') . "</button>";
+            }
         }
         ?>
         </div>

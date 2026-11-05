@@ -20,9 +20,11 @@ use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
+use OpenEMR\Services\PatientReview\PayloadFormat;
 use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
+use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewSource;
 use OpenEMR\Services\PatientReview\ReviewStatus;
 use OpenEMR\Services\PatientReview\ReviewSubmission;
@@ -135,6 +137,54 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $again = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
         $this->assertSame(ReviewStatus::Cancelled, $this->queue->get($payment->id)->status);
         $this->assertSame('Ann Lee', $this->workflows->paymentCardDetails($again)['cardHolderName'] ?? null);
+    }
+
+    public function testAnUnreadableUnchargedPaymentCannotBePosted(): void
+    {
+        $uncharged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $this->assertTrue($this->workflows->canPostPayment($uncharged));
+
+        $this->store->putSecret($uncharged->id, ReviewQueueService::SECRET_PAYMENT_CARD, self::OLD_KEY_SECRET, new DateTimeImmutable('2026-10-01 09:30:00'));
+        $this->assertFalse(PortalReviewWorkflows::isChargedPayment($uncharged));
+        $this->assertFalse($this->workflows->canPostPayment($uncharged), 'staff cannot charge a card they cannot read');
+    }
+
+    public function testAnUnreadableChargedPaymentCanStillBePosted(): void
+    {
+        $charged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, true, $this->patient());
+        $this->store->putSecret($charged->id, ReviewQueueService::SECRET_PAYMENT_CARD, self::OLD_KEY_SECRET, new DateTimeImmutable('2026-10-01 09:30:00'));
+
+        $this->assertTrue(PortalReviewWorkflows::isChargedPayment($charged));
+        $this->assertTrue($this->workflows->canPostPayment($charged), 'the gateway holds the transaction');
+    }
+
+    public function testAPaymentWithNoChargedFlagCountsAsCharged(): void
+    {
+        $payment = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', '', false, $this->patient());
+        // A payment migrated from onsite_portal_activity has no charged flag.
+        $migrated = new ReviewRequest(
+            $payment->id,
+            $payment->uuid,
+            $payment->pid,
+            $payment->type,
+            null,
+            $payment->source,
+            null,
+            $payment->status,
+            $payment->summary,
+            ['value' => '{"1001":"10.00"}'],
+            PayloadFormat::Text,
+            null,
+            null,
+            $payment->createdAt,
+            $payment->updatedAt,
+            null,
+            null,
+            null,
+        );
+
+        $this->assertFalse(PortalReviewWorkflows::isChargedPayment($payment));
+        $this->assertTrue(PortalReviewWorkflows::isChargedPayment($migrated));
     }
 
     public function testAPaymentWithoutCardDetailsStoresNoSecret(): void
