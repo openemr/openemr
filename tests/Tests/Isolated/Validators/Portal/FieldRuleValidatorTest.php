@@ -41,6 +41,9 @@ final class FieldRuleValidatorTest extends TestCase
         ];
     }
 
+    /**
+     * A number field accepts numbers and numeric strings, and names the field otherwise.
+     */
     #[DataProvider('numberProvider')]
     public function testNumberFieldsMustBeNumeric(mixed $value, bool $valid): void
     {

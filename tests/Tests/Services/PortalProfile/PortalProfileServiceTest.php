@@ -33,6 +33,9 @@ final class PortalProfileServiceTest extends TestCase
         $this->profiles = new PortalProfileService();
     }
 
+    /**
+     * Deletes the charts the test created.
+     */
     protected function tearDown(): void
     {
         foreach ($this->createdPids as $pid) {
@@ -45,6 +48,9 @@ final class PortalProfileServiceTest extends TestCase
         }
     }
 
+    /**
+     * Registration gets a new pid, ignoring one the request names.
+     */
     public function testRegistrationCreatesAChartWithItsOwnPid(): void
     {
         // A pid no chart has or gets next: a fresh database gives the first chart pid 1.

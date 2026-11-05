@@ -40,6 +40,9 @@ final class PatientListViewRenderTest extends TestCase
     /** @var array<string, array{present: bool, value: mixed}> */
     private array $globalsSnapshot = [];
 
+    /**
+     * Saves the globals the templates read and sets the ones rendering needs, with translation off.
+     */
     protected function setUp(): void
     {
         $globals = OEGlobalsBag::getInstance();
@@ -53,6 +56,9 @@ final class PatientListViewRenderTest extends TestCase
         $globals->set('disable_translation', true);
     }
 
+    /**
+     * Puts the saved globals back, removing any that were not set before.
+     */
     protected function tearDown(): void
     {
         $globals = OEGlobalsBag::getInstance();

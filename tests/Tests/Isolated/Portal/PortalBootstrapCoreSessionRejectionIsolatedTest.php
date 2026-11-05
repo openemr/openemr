@@ -119,6 +119,9 @@ final class PortalBootstrapCoreSessionRejectionIsolatedTest extends TestCase
     // The router's own rules (the core-user fallback may reach only All and Staff routes) are
     // covered by PortalRouterTest.
 
+    /**
+     * Document routes are open to every caller, because the controller checks each document itself.
+     */
     public function testOnsiteDocumentRoutesRemainOpenToTheControllerCheck(): void
     {
         foreach (PortalRouteTable::routes() as $route) {

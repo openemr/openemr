@@ -128,6 +128,9 @@ final class OnsiteDocumentRepositoryTest extends TestCase
         );
     }
 
+    /**
+     * Rows that tie on the sort keys are ordered by id, so no row repeats or goes missing between pages.
+     */
     public function testRowsThatTieOnTheSortKeysKeepOneOrderAcrossPages(): void
     {
         $ids = [];
@@ -150,6 +153,9 @@ final class OnsiteDocumentRepositoryTest extends TestCase
         );
     }
 
+    /**
+     * A page reports its rows, the total and where it falls.
+     */
     public function testPagesReportTheirPosition(): void
     {
         foreach (range(1, 3) as $n) {

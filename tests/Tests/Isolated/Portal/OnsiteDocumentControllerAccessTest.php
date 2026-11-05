@@ -101,6 +101,9 @@ final class OnsiteDocumentControllerAccessTest extends TestCase
         $this->assertSame($expected, $actual);
     }
 
+    /**
+     * Update() checks access against the stored document's patient, never one named in the request.
+     */
     public function testUpdateTakesTheOwnerFromTheLoadedDocument(): void
     {
         $owners = (new NodeFinder())->find(
@@ -115,6 +118,9 @@ final class OnsiteDocumentControllerAccessTest extends TestCase
         $this->assertSame('$document[\'pid\']', (new Standard())->prettyPrintExpr($owners[0]->expr));
     }
 
+    /**
+     * Query() lists the patient it checked, and request keys such as pid never become list filters.
+     */
     public function testQueryListsOnlyTheCheckedPatient(): void
     {
         $finder = new NodeFinder();

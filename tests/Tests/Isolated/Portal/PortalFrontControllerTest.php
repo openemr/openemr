@@ -38,6 +38,9 @@ final class PortalFrontControllerTest extends TestCase
     /** @var list<array{string, string, PortalPrincipal}> */
     private array $dispatched = [];
 
+    /**
+     * Saves the globals the front controller reads and starts each test with none of them set.
+     */
     protected function setUp(): void
     {
         $this->globals = OEGlobalsBag::getInstance();
@@ -51,6 +54,9 @@ final class PortalFrontControllerTest extends TestCase
         $this->logger = new RecordingLogger();
     }
 
+    /**
+     * Puts the saved globals back.
+     */
     protected function tearDown(): void
     {
         foreach ($this->saved as $key => $value) {
@@ -58,6 +64,9 @@ final class PortalFrontControllerTest extends TestCase
         }
     }
 
+    /**
+     * A front controller whose dispatch records each request, or throws the given failure.
+     */
     private function controller(?\Throwable $failure = null, ?PortalPageRenderer $pages = null): PortalFrontController
     {
         $dispatch = function (Request $request, string $path, PortalPrincipal $caller) use ($failure): Response {
@@ -72,6 +81,9 @@ final class PortalFrontControllerTest extends TestCase
         return new PortalFrontController($pages ?? $this->pages(), $this->logger, $dispatch);
     }
 
+    /**
+     * A page renderer that names the page and its message, or fails to render.
+     */
     private function pages(bool $fail = false): PortalPageRenderer
     {
         return new class ($fail) implements PortalPageRenderer {
@@ -79,6 +91,9 @@ final class PortalFrontControllerTest extends TestCase
             {
             }
 
+            /**
+             * The page name and message, or a failure when asked to fail.
+             */
             public function render(string $page, array $vars = []): string
             {
                 if ($this->fail) {

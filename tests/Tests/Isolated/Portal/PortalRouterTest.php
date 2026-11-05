@@ -67,6 +67,9 @@ final class PortalRouterTest extends TestCase
         $router->match('GET', $path, $this->patient());
     }
 
+    /**
+     * A portal patient reaches routes open to all, with their parameters.
+     */
     public function testPortalPatientsReachOpenRoutes(): void
     {
         $router = $this->router(
@@ -159,6 +162,9 @@ final class PortalRouterTest extends TestCase
         $this->assertNull($router->match('DELETE', 'open/9', PortalPrincipal::staff()));
     }
 
+    /**
+     * Every route in the table names a controller action that exists.
+     */
     public function testEveryRouteNamesARealControllerAction(): void
     {
         foreach (PortalRouteTable::routes() as $route) {
@@ -166,6 +172,9 @@ final class PortalRouterTest extends TestCase
         }
     }
 
+    /**
+     * A registering caller reaches only the registration form routes.
+     */
     public function testOnlyTheRegistrationFormRoutesAreOpenToRegistration(): void
     {
         $open = array_values(array_map(
@@ -203,6 +212,9 @@ final class PortalRouterTest extends TestCase
         $router->match('PUT', 'api/patient/9', $this->patient());
     }
 
+    /**
+     * The document API routes go to OnsiteDocumentController, open to all callers.
+     */
     public function testTheDocumentRoutesAreOpenAndCheckedByTheController(): void
     {
         $router = new PortalRouter(PortalRouteTable::routes());
@@ -214,6 +226,9 @@ final class PortalRouterTest extends TestCase
         }
     }
 
+    /**
+     * An unknown API path gets the unknown-endpoint reply, whoever asks and whatever the method.
+     */
     public function testAnyOtherApiPathGetsTheUnknownEndpointReplyForEveryone(): void
     {
         $router = new PortalRouter(PortalRouteTable::routes());

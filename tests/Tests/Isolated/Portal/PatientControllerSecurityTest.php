@@ -56,6 +56,9 @@ final class PatientControllerSecurityTest extends TestCase
         ];
     }
 
+    /**
+     * Each write checks access against the record as loaded, before the request changes it.
+     */
     #[DataProvider('guardedMethodProvider')]
     public function testTheGuardChecksTheLoadedRecordBeforeTheRequestIsApplied(string $controller, string $method, string $check): void
     {
@@ -97,6 +100,9 @@ final class PatientControllerSecurityTest extends TestCase
         ];
     }
 
+    /**
+     * The writable field lists name only real profile fields, never pid or id.
+     */
     #[DataProvider('fieldListProvider')]
     public function testNoRequestCanChooseTheRecordOrThePatient(string $controller, string $constant): void
     {
@@ -161,6 +167,9 @@ final class PatientControllerSecurityTest extends TestCase
         return $fields;
     }
 
+    /**
+     * The named method of a controller, parsed.
+     */
     private function method(string $controller, string $name): ClassMethod
     {
         $method = (new NodeFinder())->findFirst(
