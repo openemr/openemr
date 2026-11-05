@@ -123,7 +123,8 @@ class SpherePayment
                 let oForm = document.forms['payment-form'];
                 oForm.elements['mode'].value = 'Sphere';
 
-                let inv_values = JSON.stringify(getFormObj('invoiceForm'));
+                // The invoice selection as it was when the card was charged, not as it is now.
+                let inv_values = window.sphereInvoiceValues || JSON.stringify(getFormObj('invoiceForm'));
                 document.getElementById('invValues').value = inv_values;
 
                 // Submit payment to server (payment data is in server session, keyed by ticket)
@@ -200,6 +201,17 @@ class SpherePayment
                 if (Number(total) < 1) {
                     alert(" . xlj('Please enter a payment amount') . ");
                     return false;
+                }
+                // Every invoice line too: a negative or malformed line would make the total
+                // charged differ from the lines staff post.
+                const lines = prepaying ? [] : [...document.querySelectorAll('input[name^=\"form_upay[\"]')];
+                if (lines.some((line) => line.value.trim() !== '' && !/^\\d+(\\.\\d{1,2})?$/.test(line.value.trim()))) {
+                    alert(" . xlj('Enter each amount as a number such as 50.00') . ");
+                    return false;
+                }
+                // Keep the selection being charged, so the payment is recorded with exactly it.
+                if (front === 'patient' && typeof getFormObj === 'function') {
+                    window.sphereInvoiceValues = JSON.stringify(getFormObj('invoiceForm'));
                 }
                 document.getElementById('form_method').value = 'credit_card';
                 // In case the javascript random generator breaks (ideally use the javascript value in case

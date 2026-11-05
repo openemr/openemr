@@ -20,6 +20,9 @@ use PHPUnit\Framework\TestCase;
 
 final class PortalPaymentAmountTest extends TestCase
 {
+    /** The invoice lines (encounters) the patient was offered. */
+    private const LINES = [1, 1687, 1688, 1690];
+
     /**
      * @return array<string, array{string, ?int}>
      *
@@ -59,11 +62,11 @@ final class PortalPaymentAmountTest extends TestCase
             'form_paytotal' => '75.50',
         ], JSON_THROW_ON_ERROR);
 
-        $this->assertSame(7550, PortalPaymentAmount::invoiceCents($invoice), 'form_bpay is not posted, so it is not counted');
-        $this->assertTrue(PortalPaymentAmount::matchesInvoice('75.50', $invoice));
-        $this->assertFalse(PortalPaymentAmount::matchesInvoice('84.50', $invoice), 'a charge that counts form_bpay');
-        $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $invoice), 'a charge for a different amount');
-        $this->assertFalse(PortalPaymentAmount::matchesInvoice('999.00', $invoice), 'a prepayment field is ignored unless it is a prepayment');
+        $this->assertSame(7550, PortalPaymentAmount::invoiceCents($invoice, self::LINES), 'form_bpay is not posted, so it is not counted');
+        $this->assertTrue(PortalPaymentAmount::matchesInvoice('75.50', $invoice, self::LINES));
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('84.50', $invoice, self::LINES), 'a charge that counts form_bpay');
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $invoice, self::LINES), 'a charge for a different amount');
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('999.00', $invoice, self::LINES), 'a prepayment field is ignored unless it is a prepayment');
     }
 
     public function testAPrepaymentTotalIsThePrepayment(): void
@@ -74,9 +77,9 @@ final class PortalPaymentAmountTest extends TestCase
             'form_upay[1687]' => '75.00',
         ], JSON_THROW_ON_ERROR);
 
-        $this->assertSame(5000, PortalPaymentAmount::invoiceCents($invoice));
-        $this->assertTrue(PortalPaymentAmount::matchesInvoice('50.00', $invoice));
-        $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $invoice));
+        $this->assertSame(5000, PortalPaymentAmount::invoiceCents($invoice, self::LINES));
+        $this->assertTrue(PortalPaymentAmount::matchesInvoice('50.00', $invoice, self::LINES));
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $invoice, self::LINES));
     }
 
     public function testAPaymentTypeStaffCannotPostMatchesNothing(): void
@@ -84,13 +87,39 @@ final class PortalPaymentAmountTest extends TestCase
         $other = json_encode(['radio_type_of_payment' => 'other', 'form_upay[1687]' => '75.00'], JSON_THROW_ON_ERROR);
         $none = json_encode(['form_upay[1687]' => '75.00'], JSON_THROW_ON_ERROR);
 
-        $this->assertNull(PortalPaymentAmount::invoiceCents($other));
-        $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $other));
-        $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $none));
+        $this->assertNull(PortalPaymentAmount::invoiceCents($other, self::LINES));
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $other, self::LINES));
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $none, self::LINES));
         foreach (['copay', 'cash', 'invoice_balance'] as $type) {
             $invoice = json_encode(['radio_type_of_payment' => $type, 'form_upay[1687]' => '75.00'], JSON_THROW_ON_ERROR);
-            $this->assertTrue(PortalPaymentAmount::matchesInvoice('75.00', $invoice), $type);
+            $this->assertTrue(PortalPaymentAmount::matchesInvoice('75.00', $invoice, self::LINES), $type);
         }
+    }
+
+    /**
+     * A line the patient was not offered would be charged but dropped when staff post, so the
+     * selection matches nothing.
+     */
+    public function testALineThePatientWasNotOfferedMatchesNothing(): void
+    {
+        foreach (['form_upay[9999]', 'form_upay[not-a-line]', 'form_upay[]', 'form_upay[1687][x]'] as $extra) {
+            $invoice = json_encode(['radio_type_of_payment' => 'invoice_balance', 'form_upay[1687]' => '75.00', $extra => '25.00'], JSON_THROW_ON_ERROR);
+            $this->assertNull(PortalPaymentAmount::invoiceCents($invoice, self::LINES), $extra);
+            $this->assertFalse(PortalPaymentAmount::matchesInvoice('100.00', $invoice, self::LINES), $extra);
+        }
+        $invoice = json_encode(['radio_type_of_payment' => 'invoice_balance', 'form_upay[1687]' => '75.00'], JSON_THROW_ON_ERROR);
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $invoice, []), 'another patient has none of these lines');
+    }
+
+    /**
+     * A negative line is not an amount, so it cannot lower the total charged.
+     */
+    public function testANegativeLineMatchesNothing(): void
+    {
+        $invoice = json_encode(['radio_type_of_payment' => 'invoice_balance', 'form_upay[1687]' => '100.00', 'form_upay[1688]' => '-50.00'], JSON_THROW_ON_ERROR);
+
+        $this->assertNull(PortalPaymentAmount::invoiceCents($invoice, self::LINES));
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('50.00', $invoice, self::LINES));
     }
 
     public function testAnUnusableSelectionMatchesNothing(): void
@@ -98,10 +127,10 @@ final class PortalPaymentAmountTest extends TestCase
         $badLine = json_encode(['radio_type_of_payment' => 'invoice_balance', 'form_upay[1]' => '20abc'], JSON_THROW_ON_ERROR);
         $badPrepay = json_encode(['radio_type_of_payment' => 'pre_payment', 'form_prepayment' => '1.005'], JSON_THROW_ON_ERROR);
 
-        $this->assertNull(PortalPaymentAmount::invoiceCents('not json'));
-        $this->assertNull(PortalPaymentAmount::invoiceCents($badLine));
-        $this->assertNull(PortalPaymentAmount::invoiceCents($badPrepay));
-        $this->assertFalse(PortalPaymentAmount::matchesInvoice('1.00', $badPrepay));
-        $this->assertFalse(PortalPaymentAmount::matchesInvoice('0.00', '{}'), 'nothing to charge');
+        $this->assertNull(PortalPaymentAmount::invoiceCents('not json', self::LINES));
+        $this->assertNull(PortalPaymentAmount::invoiceCents($badLine, self::LINES));
+        $this->assertNull(PortalPaymentAmount::invoiceCents($badPrepay, self::LINES));
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('1.00', $badPrepay, self::LINES));
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('0.00', '{}', self::LINES), 'nothing to charge');
     }
 }

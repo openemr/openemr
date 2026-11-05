@@ -30,6 +30,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
+use OpenEMR\Services\PatientReview\Portal\PortalPaymentAmount;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewStatus;
@@ -1167,6 +1168,10 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 <span class="font-weight-bold"><?php echo xlt('Authorization'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["authCode"] ?? '') ?></span><br />
         <?php } ?>
         <span class="font-weight-bold"><?php echo xlt('Charge Total'); ?>:  </span><span id="ct"><?php echo text($invdata["form_paytotal"] ?? '') ?></span><br />
+        <?php if (($ccdata[PortalPaymentAmount::MISMATCH] ?? false) === true) { ?>
+            <span class="font-weight-bold"><?php echo xlt('Amount Charged'); ?>:  </span><span id="ca"><?php echo text(is_string($ccdata['amount'] ?? null) ? $ccdata['amount'] : '') ?></span><br />
+            <div class="alert alert-warning"><?php echo xlt('The gateway charged a different amount from this invoice selection. Check the transaction at the gateway and correct the amounts before posting.'); ?></div>
+        <?php } ?>
         </div>
         </div>
         </div>

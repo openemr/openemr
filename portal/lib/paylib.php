@@ -20,6 +20,7 @@ use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
+use OpenEMR\Services\PatientReview\Portal\PortalInvoiceLines;
 use OpenEMR\Services\PatientReview\Portal\PortalPaymentAmount;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
@@ -95,8 +96,21 @@ if ($_POST['mode'] === 'Sphere') {
         'cc_type' => $paymentResult['ccBrand'] ?? '',
         'zip' => '',
     ];
+    $invoice = CurrentRequest::get()->request->getString('invValues');
+    // Sphere has already charged the card, so the payment is recorded whatever the amount. When
+    // the amount charged is not the invoice selection's total, staff are warned before posting.
+    $sphereAmount = $paymentResult['amount'] ?? '';
+    $cc['amount'] = is_string($sphereAmount) ? $sphereAmount : '';
+    $patientId = filter_var($form_pid, FILTER_VALIDATE_INT);
+    $invoiceLines = is_int($patientId) ? (new PortalInvoiceLines())->encounters($patientId) : [];
+    if (!PortalPaymentAmount::matchesInvoice($cc['amount'], $invoice, $invoiceLines)) {
+        $cc[PortalPaymentAmount::MISMATCH] = true;
+        ServiceContainer::getLogger()->warning('Sphere charged an amount that is not the invoice selection total', [
+            'pid' => $patientId,
+            'transid' => $cc['transId'],
+        ]);
+    }
     $ccaudit = json_encode($cc);
-    $invoice = $_POST['invValues'] ?? '';
 
     SessionUtil::setSession('whereto', '#paymentcard');
 
@@ -113,7 +127,8 @@ if ($_POST['mode'] == 'AuthorizeNet') {
     }
     // The amount charged must be the amount the payment is saved with, which staff post.
     $chargeRequest = CurrentRequest::get()->request;
-    if (!PortalPaymentAmount::matchesInvoice($chargeRequest->getString('payment'), $chargeRequest->getString('invValues'))) {
+    $invoiceLines = (new PortalInvoiceLines())->encounters($chargeRequest->getInt('form_pid'));
+    if (!PortalPaymentAmount::matchesInvoice($chargeRequest->getString('payment'), $chargeRequest->getString('invValues'), $invoiceLines)) {
         echo xlt('The payment amount does not match the invoice. Reload the page and try again.');
         exit();
     }
@@ -161,7 +176,8 @@ if ($_POST['mode'] == 'Stripe') {
     }
     // The amount charged must be the amount the payment is saved with, which staff post.
     $chargeRequest = CurrentRequest::get()->request;
-    if (!PortalPaymentAmount::matchesInvoice($chargeRequest->getString('payment'), $chargeRequest->getString('invValues'))) {
+    $invoiceLines = (new PortalInvoiceLines())->encounters($chargeRequest->getInt('form_pid'));
+    if (!PortalPaymentAmount::matchesInvoice($chargeRequest->getString('payment'), $chargeRequest->getString('invValues'), $invoiceLines)) {
         echo xlt('The payment amount does not match the invoice. Reload the page and try again.');
         exit();
     }

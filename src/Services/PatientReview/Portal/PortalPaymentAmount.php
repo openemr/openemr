@@ -26,25 +26,41 @@ final class PortalPaymentAmount
     private const AMOUNT = '/^(\d+)(?:\.(\d{1,2}))?$/';
 
     /**
-     * Whether $payment is a positive amount equal to the total of the invoice selection.
+     * The card-details key that marks a payment whose gateway charged an amount other than its
+     * invoice selection's total. The payment page warns staff before they post it.
      */
-    public static function matchesInvoice(string $payment, string $invoiceValues): bool
+    public const MISMATCH = 'amountMismatch';
+
+    /** An invoice line field: form_upay[<encounter>]. */
+    private const LINE = '/^form_upay\[(\d+)\]$/';
+
+    /**
+     * Whether $payment is a positive amount equal to the total of the invoice selection.
+     *
+     * @param list<int> $encounters the invoice lines the patient was offered
+     *                              (PortalInvoiceLines::encounters())
+     */
+    public static function matchesInvoice(string $payment, string $invoiceValues, array $encounters): bool
     {
         $charged = self::cents($payment);
         if ($charged === null || $charged <= 0) {
             return false;
         }
 
-        return $charged === self::invoiceCents($invoiceValues);
+        return $charged === self::invoiceCents($invoiceValues, $encounters);
     }
 
     /**
      * The total of an invoice selection in cents, as staff posting would record it: the
      * prepayment for a prepayment, otherwise the sum of its invoice lines (form_upay). Null when
-     * it is not a selection, its payment type is one posting does not record, or it holds an
-     * amount that is not one.
+     * it is not a selection, its payment type is one posting does not record, it names an
+     * invoice line the patient was not offered (posting would drop it), or it holds an amount
+     * that is not one.
+     *
+     * @param list<int> $encounters the invoice lines the patient was offered
+     *                              (PortalInvoiceLines::encounters())
      */
-    public static function invoiceCents(string $invoiceValues): ?int
+    public static function invoiceCents(string $invoiceValues, array $encounters): ?int
     {
         $values = json_decode($invoiceValues, true);
         if (!is_array($values)) {
@@ -66,7 +82,11 @@ final class PortalPaymentAmount
             if (!is_string($name) || !str_starts_with($name, 'form_upay[')) {
                 continue;
             }
-            if (!is_string($value)) {
+            if (
+                preg_match(self::LINE, $name, $line) !== 1
+                || !in_array(intval($line[1]), $encounters, true)
+                || !is_string($value)
+            ) {
                 return null;
             }
             $value = trim($value);
