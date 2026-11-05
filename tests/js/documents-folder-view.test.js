@@ -121,6 +121,12 @@ describe('type tags, hidden folder names and first-open folders', () => {
         expect(api.typeClass('XYZ')).toBe('doc-type doc-type-other');
     });
 
+    test('the move picker indents a folder by its depth', () => {
+        expect(api.indentedName({ name: 'Studies', path: 'Studies' })).toBe('Studies');
+        expect(api.indentedName({ name: 'Lab Report', path: 'Studies › Lab Report' })).toBe('\u00A0\u00A0\u00A0Lab Report');
+        expect(api.indentedName({ name: 'CCD', path: 'Medical Record › Data Exchange › CCD' })).toBe('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0CCD');
+    });
+
     test('hidden folder names only hide folders that are empty', () => {
         const tree = api.buildFolderTree(categories, documents);
         const hidden = api.parseHiddenNames(' Photographs , studies ,, ');
@@ -135,6 +141,25 @@ describe('type tags, hidden folder names and first-open folders', () => {
         const tree = api.buildFolderTree(categories, documents);
         expect(Object.keys(api.foldersToOpen(tree)).sort()).toEqual(['2', '5']);
         expect(Object.keys(api.foldersWithChildren(tree)).sort()).toEqual(['2', '5']);
+    });
+});
+
+describe('small screens', () => {
+    const template = fs.readFileSync(path.resolve(__dirname, '../../templates/documents/general_list.html'), 'utf8');
+
+    test('the page stylesheet stacks the panes and keeps the page from scrolling sideways on a tablet and a phone', () => {
+        expect(template).toContain('@media (max-width: 991.98px)');
+        expect(template).toContain('@media (max-width: 767.98px)');
+        expect(template).toContain('@media (max-width: 575.98px)');
+        expect(template).toMatch(/#docClassicTreeCol,\s*#docClassicActionsCol\s*\{\s*flex: 0 0 100%/);
+        expect(template).toMatch(/\.doc-table \{\s*min-width: 36rem/);
+        expect(template).toMatch(/\.doc-preview-actions \{\s*display: flex;\s*flex-wrap: wrap/);
+    });
+
+    test('the Folders markup keeps its columns responsive (stack below the large breakpoint)', () => {
+        expect(template).toContain('id="docFolderCol"');
+        expect(template).toMatch(/class="col-lg-3 col-xl-2 mb-3" id="docFolderCol"/);
+        expect(template).toMatch(/class="col-lg-9 col-xl-10 mb-3" id="docMainCol"/);
     });
 });
 
@@ -203,6 +228,14 @@ describe('page wiring', () => {
                         <div id="docPreviewCard">
                             <button type="button" id="docOpen" disabled></button>
                             <button type="button" id="docDownload" disabled></button>
+                            <button type="button" id="docMove" disabled hidden></button>
+                            <button type="button" id="docDelete" disabled hidden></button>
+                            <div id="docMovePopover" hidden>
+                                <select id="docMoveFolder"></select>
+                                <button type="button" id="docMoveGo"></button>
+                                <button type="button" id="docMoveCancel"></button>
+                                <div id="docMoveStatus"></div>
+                            </div>
                             <button type="button" id="docMaximize" aria-pressed="false"></button>
                             <button type="button" id="docMaxBack" hidden></button>
                             <div id="docPreviewTitle"></div>
@@ -233,6 +266,8 @@ describe('page wiring', () => {
             dataUrl: '/openemr/controller.php?document&list_data&patient_id=7',
             storageKey: 'oeDocumentsView:test',
             defaultView: 'folders',
+            canMove: true,
+            canDelete: true,
             forceClassic: false,
             i18n: {
                 allDocuments: 'All documents',
@@ -240,6 +275,9 @@ describe('page wiring', () => {
                 collapse: 'Collapse',
                 popupHint: 'Double click to pop up.',
                 chooseFolder: 'Choose a folder.',
+                currentFolder: 'current folder',
+                moving: 'Moving...',
+                moveFailed: 'The document could not be moved.',
                 pickFolder: 'Choose a folder...',
                 showEmpty: 'Show %d empty folders',
                 hideEmpty: 'Hide empty folders',
@@ -571,29 +609,127 @@ describe('page wiring', () => {
         expect(calls.filter((url) => url.indexOf('document&upload') !== -1)).toEqual([]);
     });
 
-    test('a DICOM file needs no folder: it is sent to the radiology folder', async () => {
+    test('a DICOM file is not filed anywhere by itself: it also asks for a folder', async () => {
         setUp();
-        const withRadiology = categories.concat([{ id: 8, name: 'Radiology', parent: 0, path: 'Radiology' }]);
-        window.fetch = jest.fn((url, options) => {
-            if (String(url).indexOf('document&upload') !== -1) {
-                sent.push(options.body.get('category_id'));
-                return Promise.resolve({ ok: true, text: () => Promise.resolve('<div id="documents_actions"></div>') });
-            }
-            return Promise.resolve({ ok: true, json: () => Promise.resolve({ categories: withRadiology, documents }) });
+        await flush();
+        await flush();
+        const calls = [];
+        window.fetch = jest.fn((url) => {
+            calls.push(String(url));
+            return Promise.resolve({ ok: true, text: () => Promise.resolve(''), json: () => Promise.resolve({ categories, documents }) });
         });
-        const sent = [];
-        document.getElementById('docViewClassic').click();
-        document.getElementById('docViewFolders').click();
-        await flush();
-        await flush();
         const input = document.getElementById('docFileInput');
         Object.defineProperty(input, 'files', { configurable: true, value: [new File(['x'], 'IM0001.dcm')] });
         input.dispatchEvent(new Event('change'));
         document.getElementById('docUploadSubmit').click();
-        for (let i = 0; i < 10; i++) {
+        await flush();
+        expect(document.getElementById('docUploadStatus').textContent).toBe('Choose a folder.');
+        expect(calls.filter((url) => url.indexOf('document&upload') !== -1)).toEqual([]);
+    });
+
+    test('Move and Delete wait for a selection and are hidden without the rights', async () => {
+        setUp();
+        await flush();
+        await flush();
+        expect(document.getElementById('docMove').hidden).toBe(false);
+        expect(document.getElementById('docMove').disabled).toBe(true);
+        expect(document.getElementById('docDelete').disabled).toBe(true);
+        document.querySelector('#docRows tr').click();
+        expect(document.getElementById('docMove').disabled).toBe(false);
+        expect(document.getElementById('docDelete').disabled).toBe(false);
+        setUp({}, { canMove: false, canDelete: false });
+        await flush();
+        expect(document.getElementById('docMove').hidden).toBe(true);
+        expect(document.getElementById('docDelete').hidden).toBe(true);
+    });
+
+    function mockMove(result) {
+        const posts = [];
+        window.fetch = jest.fn((url, options) => {
+            if (String(url).indexOf('document&move') !== -1) {
+                posts.push({ url: String(url), category: options.body.get('new_category_id'), token: options.body.get('csrf_token_form') });
+                return Promise.resolve({ ok: result !== 403, text: () => Promise.resolve('') });
+            }
+            const moved = documents.map((d) => (d.id === 3 && result === 'moved' ? { ...d, category_id: 3, path: 'Studies › Lab Report' } : d));
+            return Promise.resolve({ ok: true, json: () => Promise.resolve({ categories, documents: moved }) });
+        });
+        return posts;
+    }
+
+    test('Move offers an indented folder list, marks the current folder and keeps the folder selected', async () => {
+        setUp();
+        await flush();
+        await flush();
+        [...document.querySelectorAll('#docFolderTree .doc-folder-btn')].find((b) => b.textContent.startsWith('Imaging')).click();
+        document.querySelector('#docRows tr').click();
+        const posts = mockMove('moved');
+        document.getElementById('docMove').click();
+        expect(document.getElementById('docMovePopover').hidden).toBe(false);
+        const options = [...document.getElementById('docMoveFolder').options];
+        expect(options.map((o) => o.textContent)).toContain('\u00A0\u00A0\u00A0Imaging (current folder)');
+        expect(options.find((o) => o.value === '4').disabled).toBe(true);
+        expect(options.find((o) => o.textContent.indexOf('Lab Report') !== -1).textContent.startsWith('\u00A0')).toBe(true);
+        document.getElementById('docMoveFolder').value = '3';
+        document.getElementById('docMoveGo').click();
+        for (let i = 0; i < 6; i++) {
             await flush();
         }
-        expect(sent).toEqual(['8']);
+        expect(posts).toEqual([{ url: '/openemr/controller.php?document&move&patient_id=7&document_id=3&process=true', category: '3', token: 'tok' }]);
+        expect(document.getElementById('docMovePopover').hidden).toBe(true);
+        expect(document.getElementById('docCrumb').textContent).toContain('Studies › Imaging');
+        expect(document.querySelectorAll('#docRows tr').length).toBe(1);
+    });
+
+    test('a move that did not happen shows an error and keeps the picker open', async () => {
+        setUp();
+        await flush();
+        await flush();
+        document.querySelector('#docRows tr').click();
+        mockMove('unchanged');
+        document.getElementById('docMove').click();
+        document.getElementById('docMoveFolder').value = '3';
+        document.getElementById('docMoveGo').click();
+        for (let i = 0; i < 6; i++) {
+            await flush();
+        }
+        expect(document.getElementById('docMoveStatus').textContent).toBe('The document could not be moved.');
+        expect(document.getElementById('docMoveStatus').className).toContain('text-danger');
+        expect(document.getElementById('docMovePopover').hidden).toBe(false);
+        expect(document.getElementById('docMoveGo').disabled).toBe(false);
+    });
+
+    test('a refused move (HTTP 403) shows the error', async () => {
+        setUp();
+        await flush();
+        await flush();
+        document.querySelector('#docRows tr').click();
+        mockMove(403);
+        document.getElementById('docMove').click();
+        document.getElementById('docMoveFolder').value = '3';
+        document.getElementById('docMoveGo').click();
+        for (let i = 0; i < 6; i++) {
+            await flush();
+        }
+        expect(document.getElementById('docMoveStatus').textContent).toBe('The document could not be moved.');
+    });
+
+    test('Delete opens the stock delete dialog and the list refreshes when it reports success', async () => {
+        setUp();
+        await flush();
+        await flush();
+        [...document.querySelectorAll('#docFolderTree .doc-folder-btn')].find((b) => b.textContent.startsWith('Imaging')).click();
+        document.querySelector('#docRows tr').click();
+        window.dlgopen = jest.fn();
+        document.getElementById('docDelete').click();
+        expect(window.dlgopen).toHaveBeenCalledTimes(1);
+        expect(window.dlgopen.mock.calls[0][0]).toBe('/openemr/interface/patient_file/deleter.php?document=3&document_pid=7&csrf_token_form=tok');
+        window.fetch.mockClear();
+        window.imdeleted();
+        await flush();
+        await flush();
+        expect(window.fetch.mock.calls[0][0]).toContain('list_data&patient_id=7');
+        expect(document.getElementById('docCrumb').textContent).toContain('Studies › Imaging');
+        delete window.dlgopen;
     });
 
     test('refits the preview frame when the Folders view is shown again', async () => {

@@ -249,6 +249,92 @@ border-radius: 4px 0 0 4px!important;
     width: 26rem;
     max-width: 90vw;
 }
+#docMovePopover {
+    position: absolute;
+    right: 0;
+    z-index: 1050;
+    width: 22rem;
+    max-width: 90vw;
+    margin-top: 0.25rem;
+}
+.doc-preview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+/* The "download template" strip of the classic upload form, kept but smaller. */
+#documents_actions form[action*="download_template"] {
+    font-size: 0.78rem;
+}
+#documents_actions form[action*="download_template"] p {
+    margin: 0 0 0.15rem 0;
+}
+#documents_actions form[action*="download_template"] .btn,
+#documents_actions form[action*="download_template"] .form-control,
+#documents_actions form[action*="download_template"] .nav-link {
+    padding: 0.1rem 0.4rem;
+    font-size: 0.78rem;
+    height: auto;
+    line-height: 1.4;
+}
+/* Tablet and phone: panes stack, buttons wrap, tables scroll inside their box, the page never scrolls sideways. */
+@media (max-width: 991.98px) {
+    #docClassicTreeCol,
+    #docClassicActionsCol {
+        flex: 0 0 100%;
+        max-width: 100%;
+        width: 100%;
+    }
+    #docFolderTree {
+        max-height: 40vh;
+    }
+    #patientSearch {
+        flex-wrap: wrap;
+    }
+    .select2-container {
+        min-width: 0 !important;
+        max-width: 100%;
+    }
+}
+@media (max-width: 767.98px) {
+    .doc-table {
+        min-width: 36rem;
+    }
+    .doc-list-box {
+        overflow-x: auto;
+    }
+    #documents_actions .form-control,
+    #documents_actions .form-control-file {
+        max-width: 100%;
+    }
+    #documents_actions form[action*="download_template"] .form-group {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    #docMovePopover {
+        position: fixed;
+        left: 0.5rem;
+        right: 0.5rem;
+        top: 5rem;
+        width: auto;
+        max-width: none;
+    }
+}
+@media (max-width: 575.98px) {
+    #docUploadPopover {
+        position: fixed;
+        left: 0.5rem;
+        right: 0.5rem;
+        top: 4rem;
+        width: auto;
+        max-width: none;
+    }
+    #documentsClassic img,
+    #documents_actions img,
+    #documents_actions iframe {
+        max-width: 100%;
+    }
+}
 </style>
 <script src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js?v={assetVersionNumber}"></script>
 <script src="{$GLOBALS.webroot}/library/js/documents_folder_view.js?v={assetVersionNumber}"></script>
@@ -415,11 +501,24 @@ border-radius: 4px 0 0 4px!important;
                 <div class="card" id="docPreviewCard">
                     <div class="card-header d-flex flex-wrap align-items-center justify-content-between">
                         <span>{xlt t='Preview'}</span>
-                        <span>
+                        <span class="doc-preview-actions position-relative">
                             <button type="button" class="btn btn-primary btn-sm" id="docOpen" disabled="disabled">{xlt t='Open in new window'}</button>
                             <button type="button" class="btn btn-secondary btn-sm" id="docDownload" disabled="disabled">{xlt t='Download'}</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="docMove" disabled="disabled" aria-expanded="false" aria-controls="docMovePopover" hidden>{xlt t='Move'}</button>
+                            <button type="button" class="btn btn-danger btn-sm" id="docDelete" disabled="disabled" hidden>{xlt t='Delete'}</button>
                             <button type="button" class="btn btn-secondary btn-sm" id="docMaximize" aria-pressed="false">{xlt t='Maximize preview'}</button>
                             <button type="button" class="btn btn-secondary btn-sm" id="docMaxBack" hidden>{xlt t='Back'}</button>
+                            <div class="card shadow" id="docMovePopover" hidden>
+                                <div class="card-body p-2">
+                                    <label for="docMoveFolder" class="small mb-1">{xlt t='Move this document to the folder'}</label>
+                                    <select class="form-control form-control-sm" id="docMoveFolder"></select>
+                                    <div class="d-flex justify-content-end mt-2">
+                                        <button type="button" class="btn btn-secondary btn-sm mr-2" id="docMoveCancel">{xlt t='Cancel'}</button>
+                                        <button type="button" class="btn btn-primary btn-sm" id="docMoveGo">{xlt t='Move'}</button>
+                                    </div>
+                                    <div role="status" class="small mt-2" id="docMoveStatus"></div>
+                                </div>
+                            </div>
                         </span>
                     </div>
                     <div class="card-body">
@@ -472,6 +571,8 @@ window.oeDocumentsFolderViewConfig = {
     storageKey: {$documents_view_key|js_escape},
     defaultView: {$documents_default_view|js_escape},
     hideEmptyNames: {$documents_hide_empty|js_escape},
+    canMove: {if !empty($documents_can_move)}true{else}false{/if},
+    canDelete: {if !empty($documents_can_delete)}true{else}false{/if},
     forceClassic: {if !empty($activity)}true{else}false{/if},
     i18n: {
         allDocuments: {xlj t='All documents'},
@@ -493,6 +594,9 @@ window.oeDocumentsFolderViewConfig = {
         expand: {xlj t='Expand'},
         collapse: {xlj t='Collapse'},
         pickFolder: {xlj t='Choose a folder...'},
+        currentFolder: {xlj t='current folder'},
+        moving: {xlj t='Moving...'},
+        moveFailed: {xlj t='The document could not be moved.'},
         popupHint: {xlj t='Double Click on this icon to pop up document in a new viewer.'}
     }
 };

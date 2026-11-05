@@ -88,11 +88,32 @@ class C_Document extends Controller
         $this->templateService = new DocumentTemplateService();
     }
 
+    /** @var array<int, true> ids of the folders the classic tree shows open (the upload target and its parents) */
+    private array $openCategoryIds = [];
+
+    /**
+     * Ids of a folder and all of its parents, from the folder up to (not including) the root entry.
+     *
+     * @return array<int, true>
+     */
+    private function categoryPathIds(int $categoryId): array
+    {
+        $ids = [];
+        $guard = 0;
+        while ($categoryId > 0 && !isset($ids[$categoryId]) && $guard++ < 32) {
+            $ids[$categoryId] = true;
+            $categoryId = self::listDataInt($this->tree->_id_name[$categoryId]['parent'] ?? null);
+        }
+        return $ids;
+    }
+
     public function upload_action($patient_id, $category_id): string
     {
         $category_name = $this->tree->get_node_name($category_id);
         $this->assign("category_id", $category_id);
         $this->assign("category_name", $category_name);
+        // The tree opens on the folder the upload goes to, so a new file is visible there.
+        $this->openCategoryIds = $this->categoryPathIds((int) $category_id);
         $this->assign("hide_encryption", OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption'));
         $this->assign("patient_id", $patient_id);
 
@@ -127,47 +148,6 @@ class C_Document extends Controller
         $activity = $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "documents/" . $this->template_mod . "_upload.html");
         $this->assign("activity", $activity);
         return $this->list_action($patient_id);
-    }
-
-    /**
-     * DICOM images (a single DICOM file or a zip of DICOM slices) are filed in the radiology folder,
-     * whichever folder the upload form named, unless the chosen folder is already inside it. Nothing
-     * changes when no single radiology folder is found by name or the user may not use it.
-     *
-     * @param int $chosenCategoryId category the upload form asked for
-     * @param string $mimetype mime type worked out for the file
-     */
-    private function categoryForUpload(int $chosenCategoryId, string $mimetype): int
-    {
-        if ($mimetype !== 'application/dicom' && $mimetype !== 'application/dicom+zip') {
-            return $chosenCategoryId;
-        }
-        $radiology = null;
-        foreach (['Radiology', 'X-ray & Imaging'] as $name) {
-            $rows = QueryUtils::fetchRecords("SELECT `id`, `aco_spec` FROM `categories` WHERE `name` = ?", [$name]);
-            if (count($rows) > 1) {
-                return $chosenCategoryId;
-            }
-            if (count($rows) === 1) {
-                $radiology = $rows[0];
-                break;
-            }
-        }
-        if ($radiology === null) {
-            return $chosenCategoryId;
-        }
-        $radiologyId = self::listDataInt($radiology['id'] ?? null);
-        $inside = QueryUtils::querySingleRow(
-            "SELECT COUNT(*) AS n FROM `categories` AS c INNER JOIN `categories` AS a ON a.`id` = ? WHERE c.`id` = ? AND c.`lft` >= a.`lft` AND c.`rght` <= a.`rght`",
-            [$radiologyId, $chosenCategoryId]
-        );
-        if (self::listDataInt($inside['n'] ?? null) > 0) {
-            return $chosenCategoryId;
-        }
-        if (!$this->isSkipAclCheck() && !AclMain::aclCheckAcoSpec(self::listDataString($radiology['aco_spec'] ?? null))) {
-            return $chosenCategoryId;
-        }
-        return $radiologyId;
     }
 
     public function zip_dicom_folder($study_name = null)
@@ -360,7 +340,7 @@ class C_Document extends Controller
                     $d = new Document();
                     $rc = $d->createDocument(
                         $patient_id,
-                        $this->categoryForUpload((int) $category_id, (string) $mimetype),
+                        $category_id,
                         $fname,
                         $mimetype,
                         $filetext,
@@ -1373,6 +1353,9 @@ class C_Document extends Controller
         $this->assign('new_title', xlt("New Documents"));
         $this->assign('documents_default_view', OEGlobalsBag::getInstance()->getString('documents_default_view', 'tree'));
         $this->assign('documents_hide_empty', implode(',', $hiddenWhenEmpty));
+        // The same checks the stock view page makes before it offers Move and Delete.
+        $this->assign('documents_can_move', AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly']));
+        $this->assign('documents_can_delete', AclMain::aclCheckCore('patients', 'docs_rm'));
         $this->assign('documents_view_key', 'oeDocumentsView:' . self::listDataString($session->get('site_id')) . ':' . self::listDataString($session->get('authUserID')));
         $this->assign('hide_encryption', OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption'));
 
@@ -1596,7 +1579,7 @@ class C_Document extends Controller
                     $current_node = &$rnode;
                 } else {
                     //echo "p:" . $this->tree->get_node_name($id) . "<br />";
-                    $this->_last_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon]));
+                    $this->_last_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => isset($this->openCategoryIds[(int) $id])]));
                     $current_node = &$this->_last_node;
                 }
 
@@ -1611,7 +1594,7 @@ class C_Document extends Controller
                     //this conditional tree could be more efficient but working with recursive trees makes my head hurt, TODO
                     if ($id !== 0 && is_object($node)) {
                       //echo "n:" . $this->tree->get_node_name($id) . "<br />";
-                        $current_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon]));
+                        $current_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => isset($this->openCategoryIds[(int) $id])]));
                     }
                 }
             }

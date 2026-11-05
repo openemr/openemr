@@ -163,6 +163,16 @@
         return String(doc.mimetype || '').toLowerCase();
     }
 
+    /** Folder name with a non-breaking indent per level of its path (used in the move picker). */
+    function indentedName(category) {
+        var depth = String(category.path || '').split(' \u203A ').length - 1;
+        var pad = '';
+        for (var i = 0; i < depth; i++) {
+            pad += '\u00A0\u00A0\u00A0';
+        }
+        return pad + category.name;
+    }
+
     var TYPE_GROUPS = {
         pdf: ['pdf'],
         dicom: ['dcm', 'dicom'],
@@ -291,6 +301,7 @@
         foldersToOpen: foldersToOpen,
         foldersWithChildren: foldersWithChildren,
         typeLabel: typeLabel,
+        indentedName: indentedName,
         typeClass: typeClass,
         findFolder: findFolder,
         folderIds: folderIds,
@@ -327,6 +338,13 @@
             previewBody: el('docPreviewBody'),
             open: el('docOpen'),
             download: el('docDownload'),
+            move: el('docMove'),
+            del: el('docDelete'),
+            movePopover: el('docMovePopover'),
+            moveFolder: el('docMoveFolder'),
+            moveGo: el('docMoveGo'),
+            moveCancel: el('docMoveCancel'),
+            moveStatus: el('docMoveStatus'),
             folderCol: el('docFolderCol'),
             mainCol: el('docMainCol'),
             folderToggle: el('docFolderToggle'),
@@ -537,6 +555,18 @@
             frame.style.height = Math.max(PREVIEW_MIN, Math.floor(root.innerHeight - top - PREVIEW_GAP)) + 'px';
         }
 
+        function setActionButtons(enabled) {
+            if (view.move) {
+                view.move.disabled = !enabled;
+            }
+            if (view.del) {
+                view.del.disabled = !enabled;
+            }
+            if (!enabled) {
+                closeMove();
+            }
+        }
+
         function renderPreview() {
             var item = state.selected;
             view.previewBody.textContent = '';
@@ -545,12 +575,14 @@
                 view.previewMeta.textContent = '';
                 view.open.disabled = true;
                 view.download.disabled = true;
+                setActionButtons(false);
                 return;
             }
             view.previewTitle.textContent = item.name;
             view.previewMeta.textContent = item.path + ' · ' + item.date + ' · ' + formatSize(item.size);
             view.open.disabled = false;
             view.download.disabled = false;
+            setActionButtons(true);
             var kind = previewKind(item);
             if (kind === 'image') {
                 var img = make('img', 'img-fluid');
@@ -569,6 +601,7 @@
         }
 
         function select(item) {
+            closeMove();
             state.selected = item;
             restoreSession();
             renderRows();
@@ -581,7 +614,9 @@
             renderPreview();
         }
 
-        function load() {
+        function load(keep) {
+            var keepFolderId = keep && state.folder ? state.folder.id : null;
+            var keepSelectedId = keep && state.selected ? state.selected.id : null;
             restoreSession();
             return root.fetch(cfg.dataUrl, {credentials: 'same-origin', headers: {'Accept': 'application/json'}})
                 .then(function (response) {
@@ -595,8 +630,18 @@
                     state.documents = data.documents || [];
                     state.tree = buildFolderTree(state.categories, state.documents);
                     state.expanded = foldersToOpen(state.tree);
-                    state.folder = null;
+                    state.folder = keepFolderId === null ? null : findFolder(state.tree, keepFolderId);
+                    if (state.folder) {
+                        state.expanded[String(state.folder.id)] = true;
+                    }
                     state.selected = null;
+                    if (keepSelectedId !== null) {
+                        state.documents.forEach(function (item) {
+                            if (item.id === keepSelectedId) {
+                                state.selected = item;
+                            }
+                        });
+                    }
                     state.loaded = true;
                     render();
                     fillUploadFolders();
@@ -838,23 +883,6 @@
             }
         }
 
-        function radiologyFolderId() {
-            var found = state.categories.filter(function (category) {
-                var name = String(category.name).toLowerCase();
-                return name === 'radiology' || name === 'x-ray & imaging';
-            });
-            return found.length === 1 ? String(found[0].id) : '';
-        }
-
-        function onlyDicom(dicomFiles) {
-            if (dicomFiles.length > 0) {
-                return pending.length === 0;
-            }
-            return pending.length > 0 && pending.every(function (file) {
-                return /\.dcm$/i.test(file.name);
-            });
-        }
-
         function showPending() {
             up.names.textContent = pending.length === 0 ? '' : withCount(i18n.filesSelected, pending.length);
         }
@@ -921,10 +949,6 @@
             if (pending.length === 0 && dicomFiles.length === 0) {
                 setStatus(i18n.chooseFiles, true);
                 return;
-            }
-            if (!category && onlyDicom(dicomFiles)) {
-                // The server files image slices in the radiology folder whatever folder is sent.
-                category = radiologyFolderId();
             }
             if (!category) {
                 setStatus(i18n.chooseFolder, true);
@@ -1016,6 +1040,108 @@
                 }
             });
         }
+
+        // ---- move and delete the selected document (stock actions) ----
+        function closeMove() {
+            if (view.movePopover) {
+                view.movePopover.hidden = true;
+            }
+            if (view.move) {
+                view.move.setAttribute('aria-expanded', 'false');
+            }
+        }
+
+        function setMoveStatus(message, isError) {
+            if (!view.moveStatus) {
+                return;
+            }
+            view.moveStatus.textContent = message;
+            view.moveStatus.className = 'small mt-2 ' + (isError ? 'text-danger' : 'text-success');
+        }
+
+        function openMove() {
+            if (!state.selected || !view.moveFolder) {
+                return;
+            }
+            var current = String(state.selected.category_id);
+            view.moveFolder.textContent = '';
+            state.categories.forEach(function (category) {
+                var option = doc.createElement('option');
+                option.value = String(category.id);
+                option.textContent = indentedName(category) + (String(category.id) === current ? ' (' + (i18n.currentFolder || '') + ')' : '');
+                option.disabled = String(category.id) === current;
+                view.moveFolder.appendChild(option);
+            });
+            var first = Array.prototype.find.call(view.moveFolder.options, function (option) {
+                return !option.disabled;
+            });
+            view.moveFolder.value = first ? first.value : '';
+            setMoveStatus('', false);
+            view.movePopover.hidden = false;
+            view.move.setAttribute('aria-expanded', 'true');
+        }
+
+        function submitMove() {
+            var item = state.selected;
+            var target = view.moveFolder ? view.moveFolder.value : '';
+            if (!item || target === '') {
+                setMoveStatus(i18n.chooseFolder, true);
+                return;
+            }
+            var form = new root.FormData();
+            form.append('new_category_id', target);
+            form.append('process', 'true');
+            form.append('csrf_token_form', cfg.csrfToken);
+            view.moveGo.disabled = true;
+            setMoveStatus(i18n.moving, false);
+            restoreSession();
+            root.fetch(cfg.webroot + '/controller.php?document&move&patient_id=' + encodeURIComponent(cfg.patientId)
+                + '&document_id=' + encodeURIComponent(item.id) + '&process=true', {method: 'POST', body: form, credentials: 'same-origin'})
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    return load(true);
+                })
+                .then(function () {
+                    // The list is read again: the move worked when the document now sits in the target folder.
+                    var moved = state.documents.filter(function (entry) {
+                        return entry.id === item.id && String(entry.category_id) === String(target);
+                    });
+                    if (moved.length === 0) {
+                        throw new Error('not moved');
+                    }
+                    view.moveGo.disabled = false;
+                    closeMove();
+                })
+                .catch(function () {
+                    view.moveGo.disabled = false;
+                    setMoveStatus(i18n.moveFailed, true);
+                });
+        }
+
+        // The stock delete dialog asks for the confirmation, checks the same rights as the classic page and calls
+        // imdeleted() when the document is gone.
+        function deleteSelected() {
+            var item = state.selected;
+            if (!item) {
+                return;
+            }
+            closeMove();
+            restoreSession();
+            var url = cfg.webroot + '/interface/patient_file/deleter.php?document=' + encodeURIComponent(item.id)
+                + '&document_pid=' + encodeURIComponent(cfg.patientId) + '&csrf_token_form=' + encodeURIComponent(cfg.csrfToken);
+            if (typeof root.dlgopen === 'function') {
+                root.dlgopen(url, '_blank', 500, 450);
+            } else {
+                root.open(url, '_blank', 'noopener,width=500,height=450');
+            }
+        }
+
+        root.imdeleted = function () {
+            restoreSession();
+            load(true);
+        };
 
         // ---- resizable list columns ----
         function wireColumns() {
@@ -1149,6 +1275,22 @@
             state.showEmpty = !state.showEmpty;
             renderTree();
         });
+        if (view.move && view.movePopover) {
+            view.move.hidden = !cfg.canMove;
+            view.move.addEventListener('click', function () {
+                if (view.movePopover.hidden) {
+                    openMove();
+                } else {
+                    closeMove();
+                }
+            });
+            view.moveGo.addEventListener('click', submitMove);
+            view.moveCancel.addEventListener('click', closeMove);
+        }
+        if (view.del) {
+            view.del.hidden = !cfg.canDelete;
+            view.del.addEventListener('click', deleteSelected);
+        }
         view.open.addEventListener('click', function () {
             if (state.selected) {
                 root.open(openUrl(state.selected), '_blank', 'noopener');
