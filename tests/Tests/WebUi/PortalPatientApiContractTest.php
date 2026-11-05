@@ -356,18 +356,23 @@ final class PortalPatientApiContractTest extends TestCase
     #[Test]
     public function pagesRenderAndUnknownRoutesAreRefused(): void
     {
+        // page => whether it calls the API, and so needs the CSRF token. The dashboard does not.
         foreach (
             [
-                '/portal/patient/provider',
-                '/portal/patient/patientdata?pid=' . self::$pid . '&user=1',
-                '/portal/patient/onsitedocuments?pid=' . self::$pid . '&user=1',
-                '/portal/patient/onsiteactivityviews',
-            ] as $page
+                '/portal/patient/provider' => false,
+                '/portal/patient/patientdata?pid=' . self::$pid . '&user=1' => true,
+                '/portal/patient/onsitedocuments?pid=' . self::$pid . '&user=1' => true,
+                '/portal/patient/onsiteactivityviews' => true,
+            ] as $page => $callsTheApi
         ) {
             $response = $this->get($page);
             $this->assertSame(200, $response->getStatusCode(), $page);
             $this->assertStringContainsString('text/html', $response->getHeaderLine('Content-Type'), $page);
-            $this->assertStringContainsString('window.portalApiCsrfToken', (string) $response->getBody(), $page);
+            if ($callsTheApi) {
+                $this->assertStringContainsString('window.portalApiCsrfToken', (string) $response->getBody(), $page);
+            } else {
+                $this->assertStringContainsString('Portal Dashboard', (string) $response->getBody(), $page);
+            }
         }
 
         $this->assertSame(200, $this->get('/portal/patient/no-such-page')->getStatusCode(), 'an unknown page gets the not-found page');
