@@ -288,6 +288,13 @@ function startApp() {
             }
         }
     };
+    // The 'load' event is not fired when one item of a multi file load (for example a zip with a file
+    // that cannot be read) failed, so the first image that was loaded counts as well.
+    oemrApp.addEventListener('load-item', function (event) {
+        if (event.loadtype === "image") {
+            imageLoaded = true;
+        }
+    });
     oemrApp.addEventListener('load', function (event) {
         if (event.loadtype === "image") {
             imageLoaded = true;
