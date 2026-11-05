@@ -31,8 +31,11 @@ final class PortalPaymentAmount
      */
     public const MISMATCH = 'amountMismatch';
 
-    /** An invoice line field: form_upay[<encounter>]. */
-    private const LINE = '/^form_upay\[(\d+)\]$/';
+    /**
+     * An invoice line field exactly as the page renders it: form_upay[<encounter>], with no
+     * leading zeros (form_upay[01687] would be charged but not found by staff posting).
+     */
+    private const LINE = '/^form_upay\[([1-9]\d*)\]$/';
 
     /**
      * Whether $payment is a positive amount equal to the total of the invoice selection.
