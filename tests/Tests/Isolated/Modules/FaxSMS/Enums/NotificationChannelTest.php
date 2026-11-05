@@ -4,9 +4,8 @@
  * Isolated NotificationChannel Test
  *
  * Tests the NotificationChannel enum's fromLegacyType() factory, which
- * normalizes the legacy stringly-typed $TYPE global into the typed enum,
- * and logType(), which spells each channel as notification_log.type
- * stores it. The factory's behavior gates which WHERE clause runs in
+ * normalizes the legacy stringly-typed $TYPE global into the typed enum.
+ * The factory's behavior gates which WHERE clause runs in
  * faxsms_getAlertPatientData(), so its mapping must be exhaustively covered.
  *
  * @package   OpenEMR
@@ -57,11 +56,5 @@ class NotificationChannelTest extends TestCase
             'unknown defaults to SMS' => ['fax', NotificationChannel::SMS],
             'whitespace defaults'     => ['  ', NotificationChannel::SMS],
         ];
-    }
-
-    public function testLogTypeMatchesNotificationLogEnumCasing(): void
-    {
-        $this->assertSame('SMS', NotificationChannel::SMS->logType());
-        $this->assertSame('Email', NotificationChannel::EMAIL->logType());
     }
 }

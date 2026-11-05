@@ -266,7 +266,7 @@ class AppointmentNotificationRunner
     {
         $message = self::renderMessage($this->messageTemplate, $row);
         $logData = [
-            'type' => $this->channel->logType(),
+            'type' => $this->channel->value,
             'sms_gateway_type' => $this->gatewayType,
             'message' => $message,
             'email_sender' => '',
