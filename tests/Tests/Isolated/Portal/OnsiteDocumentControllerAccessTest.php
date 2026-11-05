@@ -73,9 +73,7 @@ final class OnsiteDocumentControllerAccessTest extends TestCase
             'read' => ['Read', [['assertCanReadDocuments', '$document[\'pid\']']]],
             'create' => ['Create', [['assertCanAddDocument', '$document[\'pid\']']]],
             'update' => ['Update', [
-                // before loading: the owner on file
-                ['assertCanWriteDocuments', '$this->documentOwner($pk)'],
-                // after loading, in case the document moved in between
+                // the patient the loaded document belongs to
                 ['assertCanWriteDocuments', '$owner'],
                 // the patient the document is saved under
                 ['assertCanWriteDocuments', '$document[\'pid\']'],

@@ -18,7 +18,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -73,7 +75,7 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
             if ($openAnotherChart) {
-                $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->openPid);
+                $this->client->request('GET', $this->dashboardUrl($this->openPid));
             }
             $this->openPaymentFromPortalActivity();
 
@@ -154,7 +156,7 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
         try {
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
-            $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->openPid);
+            $this->client->request('GET', $this->dashboardUrl($this->openPid));
             $this->openPaymentFromPortalActivity();
 
             // The record stops being a payment between opening the dialog and posting.

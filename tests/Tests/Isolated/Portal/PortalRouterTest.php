@@ -29,8 +29,6 @@ use PHPUnit\Framework\TestCase;
 
 final class PortalRouterTest extends TestCase
 {
-    private const PATIENT_RECORD_ID = 9;
-
     public function testStaffCanReachLiteralAndWildcardStaffRoutes(): void
     {
         $router = $this->router(
@@ -56,8 +54,6 @@ final class PortalRouterTest extends TestCase
             'wildcard staff route' => ['staff/(:num)', 'staff/9', RouteAccess::Staff],
             'literal closed route' => ['closed', 'closed', RouteAccess::None],
             'wildcard closed route' => ['closed/(:num)', 'closed/9', RouteAccess::None],
-            'literal limited route (no id to compare)' => ['mine', 'mine', RouteAccess::Limited],
-            "another patient's limited route" => ['mine/(:num)', 'mine/10', RouteAccess::Limited],
         ];
     }
 
@@ -70,15 +66,22 @@ final class PortalRouterTest extends TestCase
         $router->match('GET', $path, $this->patient());
     }
 
-    public function testPortalPatientsReachOpenRoutesAndTheirOwnLimitedRecord(): void
+    public function testPortalPatientsReachOpenRoutes(): void
     {
         $router = $this->router(
             $this->route('GET', 'open', RouteAccess::All),
-            $this->route('GET', 'mine/(:num)', RouteAccess::Limited, params: ['id' => 1]),
+            $this->route('GET', 'open/(:num)', RouteAccess::All, params: ['id' => 1]),
         );
 
         $this->assertNotNull($router->match('GET', 'open', $this->patient()));
-        $this->assertSame((string) self::PATIENT_RECORD_ID, $router->match('GET', 'mine/9', $this->patient())?->param('id'));
+        $this->assertSame('9', $router->match('GET', 'open/9', $this->patient())?->param('id'));
+    }
+
+    public function testOnlyAPortalPatientHasAPatientPid(): void
+    {
+        $this->assertSame(5, $this->patient()->patientPid());
+        $this->assertNull(PortalPrincipal::staff()->patientPid());
+        $this->assertNull(PortalPrincipal::registering()->patientPid());
     }
 
     /**
@@ -89,7 +92,6 @@ final class PortalRouterTest extends TestCase
     public static function refusedForStaffProvider(): array
     {
         return [
-            "a patient's limited route" => ['patient/(:num)', 'patient/9', RouteAccess::Limited],
             'a closed route' => ['closed', 'closed', RouteAccess::None],
         ];
     }
@@ -167,7 +169,11 @@ final class PortalRouterTest extends TestCase
     {
         $open = array_values(array_map(
             static fn(PortalRoute $route): string => $route->key(),
-            array_filter(PortalRouteTable::routes(), static fn(PortalRoute $route): bool => $route->registration),
+            // The unknown-endpoint reply is open to every caller; it serves no data.
+            array_filter(
+                PortalRouteTable::routes(),
+                static fn(PortalRoute $route): bool => $route->registration && $route->action !== 'ErrorApi404',
+            ),
         ));
         sort($open);
 
@@ -195,24 +201,21 @@ final class PortalRouterTest extends TestCase
         }
     }
 
-    public function testAnyOtherApiPathIsRefusedToEveryone(): void
+    public function testAnyOtherApiPathGetsTheUnknownEndpointReplyForEveryone(): void
     {
         $router = new PortalRouter(PortalRouteTable::routes());
 
         foreach ([PortalPrincipal::staff(), $this->patient(), PortalPrincipal::registering()] as $caller) {
-            try {
-                $router->match('GET', 'api/no-such-endpoint', $caller);
-                $this->fail('an unknown api path is refused');
-            } catch (PortalRouteDeniedException) {
-                $this->addToAssertionCount(1);
+            foreach (['GET', 'PUT', 'POST', 'DELETE'] as $method) {
+                $match = $router->match($method, 'api/no-such-endpoint', $caller);
+                $this->assertSame('ErrorApi404', $match?->route->action, "{$method} for {$caller->kind->name}");
             }
         }
-        $this->assertSame(ProviderController::class, (new PortalRouter([$this->route('GET', 'api/(:any)', RouteAccess::All)]))->match('GET', 'api/x', PortalPrincipal::staff())?->route->controller);
     }
 
     private function patient(): PortalPrincipal
     {
-        return PortalPrincipal::portalPatient(5, self::PATIENT_RECORD_ID);
+        return PortalPrincipal::portalPatient(5);
     }
 
     /**

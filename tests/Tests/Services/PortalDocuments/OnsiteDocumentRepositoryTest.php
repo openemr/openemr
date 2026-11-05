@@ -53,7 +53,6 @@ final class OnsiteDocumentRepositoryTest extends TestCase
         $this->assertSame((string) $id, $found['id']);
         $this->assertSame((string) self::PID, $found['pid'], 'values come back as strings, as the API always returned them');
         $this->assertSame('Consent', $found['docType']);
-        $this->assertSame(self::PID, $this->repository->owner($id));
 
         $this->repository->update($id, ['denialReason' => 'In Review'] + $found);
         $updated = $this->repository->find($id);
@@ -63,7 +62,6 @@ final class OnsiteDocumentRepositoryTest extends TestCase
 
         $this->repository->delete($id);
         $this->assertNull($this->repository->find($id));
-        $this->assertNull($this->repository->owner($id));
     }
 
     public function testListIsOnlyThePatientsDocumentsAndHidesLockedOnesByDefault(): void

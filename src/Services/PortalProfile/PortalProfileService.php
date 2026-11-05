@@ -117,15 +117,17 @@ final readonly class PortalProfileService
      * The rules are the old Phreeze field map's: sizes and numeric columns.
      *
      * @param ProfileRecord $record
+     * @param bool $newChart the record is a registration, which gets its pid when the chart is
+     *     created, so it has none yet
      * @return array<string, string>
      */
-    public static function validate(array $record): array
+    public static function validate(array $record, bool $newChart = false): array
     {
         $rules = [];
         foreach (array_keys(self::FIELDS) as $field) {
             $rules[$field] = match ($field) {
                 'id' => FieldRule::number(20, optional: true),
-                'pid' => FieldRule::number(20),
+                'pid' => FieldRule::number(20, optional: $newChart),
                 'pharmacyId', 'providerid', 'refProviderid', 'careTeam' => FieldRule::number(11),
                 'dob', 'date', 'regdate', 'occupation' => FieldRule::text(),
                 'religion', 'county' => FieldRule::text(40),

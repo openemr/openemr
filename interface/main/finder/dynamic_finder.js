@@ -10,6 +10,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -114,8 +116,9 @@
                 openNewTopWindow(newpid);
             } else {
                 top.restoreSession();
+                const params = new URLSearchParams({set_pid: newpid, csrf_token_form: cfg.csrfToken});
                 top.RTop.location = cfg.webroot
-                    + "/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
+                    + "/interface/patient_file/summary/demographics.php?" + params;
             }
         });
     });

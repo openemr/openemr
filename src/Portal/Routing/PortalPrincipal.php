@@ -21,17 +21,15 @@ final readonly class PortalPrincipal
     private function __construct(
         public PrincipalKind $kind,
         public ?int $pid = null,
-        public ?int $recordId = null,
     ) {
     }
 
     /**
      * @param int $pid the session's patient
-     * @param ?int $recordId the patient's `patient_data.id`, which `p_limited` URLs carry
      */
-    public static function portalPatient(int $pid, ?int $recordId): self
+    public static function portalPatient(int $pid): self
     {
-        return new self(PrincipalKind::PortalPatient, $pid, $recordId);
+        return new self(PrincipalKind::PortalPatient, $pid);
     }
 
     public static function registering(): self
@@ -42,5 +40,14 @@ final readonly class PortalPrincipal
     public static function staff(): self
     {
         return new self(PrincipalKind::Staff);
+    }
+
+    /**
+     * The portal patient's pid when the caller is one, so their requests stay on their own
+     * record; null for staff and registration.
+     */
+    public function patientPid(): ?int
+    {
+        return $this->kind === PrincipalKind::PortalPatient ? $this->pid : null;
     }
 }

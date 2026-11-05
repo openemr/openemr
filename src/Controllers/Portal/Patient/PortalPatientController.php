@@ -48,10 +48,10 @@ final readonly class PortalPatientController
     public function Read(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
         try {
-            $record = $this->profiles->record(self::positiveId($route->param('id')))
+            $record = $this->profiles->record(PortalValues::positiveId($route->param('id')))
                 ?? throw new \RuntimeException('Not found');
             PortalPatientAccessGuard::assertCanRead($record['pid']);
-            $pending = ReviewQueueFactory::portalWorkflows()->pendingProfileChange(self::positiveId($record['pid']));
+            $pending = ReviewQueueFactory::portalWorkflows()->pendingProfileChange(PortalValues::positiveId($record['pid']));
             $changed = $pending->payload ?? [];
             $newv = [];
             foreach ($changed as $key => $val) {
@@ -72,13 +72,13 @@ final readonly class PortalPatientController
     {
         try {
             $json = PortalJson::body($request->getContent());
-            $record = $this->profiles->record(self::positiveId($route->param('id')))
+            $record = $this->profiles->record(PortalValues::positiveId($route->param('id')))
                 ?? throw new \RuntimeException('Not found');
             PortalPatientAccessGuard::assertCanWrite($record['pid']);
 
             $fields = self::UPDATE_FIELDS;
             // A registration date is only kept up to date once the chart has one.
-            if (self::isFilled($record['regdate'] ?? null)) {
+            if (PortalValues::isFilled($record['regdate'] ?? null)) {
                 $fields[] = 'regdate';
             }
             $record = PortalProfileService::applyRequest($record, $json, $fields);
@@ -91,7 +91,7 @@ final readonly class PortalPatientController
             $changes = PortalProfileService::columns($record);
             $changes['note'] = $record['note'] ?? null;
             ReviewQueueFactory::portalWorkflows()->submitProfileChange(
-                self::positiveId($record['pid']),
+                PortalValues::positiveId($record['pid']),
                 $changes,
                 SessionReviewActor::from(SessionWrapperFactory::getInstance()->getActiveSession()),
             );
@@ -100,23 +100,5 @@ final readonly class PortalPatientController
         } catch (\RuntimeException | \LogicException $ex) {
             return PortalJson::exception($ex);
         }
-    }
-
-    /**
-     * What empty() treated as filled: anything but null, false, 0, '', '0' and [].
-     */
-    private static function isFilled(mixed $value): bool
-    {
-        return !in_array($value, [null, false, 0, 0.0, '', '0', []], true);
-    }
-
-    private static function positiveId(mixed $id): int
-    {
-        $id = filter_var($id, FILTER_VALIDATE_INT);
-        if (!is_int($id) || $id <= 0) {
-            throw new \RuntimeException('Not found');
-        }
-
-        return $id;
     }
 }

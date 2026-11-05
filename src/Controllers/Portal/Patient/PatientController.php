@@ -22,6 +22,7 @@ use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Portal\Routing\PortalPrincipal;
+use OpenEMR\Portal\Routing\PrincipalKind;
 use OpenEMR\Portal\Routing\RouteMatch;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
@@ -68,11 +69,11 @@ final readonly class PatientController
         $query = $request->query;
         $globalsBag = OEGlobalsBag::getInstance();
         // A portal patient sees only themselves.
-        $pid = self::sessionPid() ?? (int) $query->getString('pid');
+        $pid = $caller->patientPid() ?? $query->getInt('pid');
         $register = $query->get('register', 0);
 
         // Registration has no chart yet.
-        if ($globalsBag->getBoolean('bootstrap_register')) {
+        if ($caller->kind === PrincipalKind::Registering) {
             $pid = 0;
             $register = true;
         } else {
@@ -82,7 +83,7 @@ final readonly class PatientController
         $srcDir = $globalsBag->getString('srcdir');
 
         return new Response($this->pages->render('PatientListView', [
-            'recid' => (int) $query->getString('id'),
+            'recid' => $query->getInt('id'),
             'cpid' => $pid,
             'cuser' => $query->get('user', 0),
             'encounter' => $query->get('enc', 0),
@@ -91,7 +92,7 @@ final readonly class PatientController
             'exclude' => $this->profiles->excludedFieldContainers(),
             'users_list' => $this->profiles->portalProviders(),
             'select_lists' => self::selectLists($srcDir, $row),
-            'datetimepicker_js' => self::scriptOutput($srcDir . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'),
+            'datetimepicker_js' => PortalValues::scriptOutput($srcDir . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'),
         ]));
     }
 
@@ -124,31 +125,15 @@ final readonly class PatientController
     }
 
     /**
-     * What a PHP script that writes JavaScript (such as a localisation file) prints.
-     */
-    private static function scriptOutput(string $path): string
-    {
-        ob_start();
-        try {
-            require $path;
-        } finally {
-            $output = ob_get_clean();
-        }
-
-        return $output === false ? '' : $output;
-    }
-
-    /**
      * The profile row for a patient: GET api/patientdata.
      */
     public function Query(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
         try {
-            $globalsBag = OEGlobalsBag::getInstance();
             // A portal patient sees only themselves.
-            $pid = self::sessionPid() ?? $request->query->getString('patientId');
+            $pid = $caller->patientPid() ?? $request->query->getString('patientId');
             // Registration (no chart yet) gets one row of empty fields.
-            if ($globalsBag->getBoolean('bootstrap_register')) {
+            if ($caller->kind === PrincipalKind::Registering) {
                 $rows = [$this->profiles->profileRow(0)];
             } else {
                 PortalPatientAccessGuard::assertCanRead($pid);
@@ -177,7 +162,7 @@ final readonly class PatientController
     public function Read(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
         try {
-            $record = $this->profiles->record(self::positiveId($route->param('id')))
+            $record = $this->profiles->record(PortalValues::positiveId($route->param('id')))
                 ?? throw new \RuntimeException('Not found');
             PortalPatientAccessGuard::assertCanRead($record['pid']);
 
@@ -199,7 +184,7 @@ final readonly class PatientController
                 throw new \RuntimeException('Unauthorized');
             }
             foreach (['fnameRegistration', 'lnameRegistration', 'dobRegistration', 'emailRegistration', 'token_id_holder'] as $required) {
-                if (!self::isFilled($session->get($required))) {
+                if (!PortalValues::isFilled($session->get($required))) {
                     throw new \RuntimeException('Something went wrong');
                 }
             }
@@ -217,7 +202,8 @@ final readonly class PatientController
             $record['dob'] = $session->get('dobRegistration');
             $record['email'] = $session->get('emailRegistration');
 
-            $errors = PortalProfileService::validate(array_diff_key($record, ['pid' => true]));
+            // The chart gets its pid when it is created.
+            $errors = PortalProfileService::validate($record, newChart: true);
             if ($errors !== []) {
                 return PortalJson::error('Please check the form for errors', $errors);
             }
@@ -243,7 +229,7 @@ final readonly class PatientController
     {
         try {
             $json = PortalJson::body($request->getContent());
-            $record = $this->profiles->record(self::positiveId($route->param('id')))
+            $record = $this->profiles->record(PortalValues::positiveId($route->param('id')))
                 ?? throw new \RuntimeException('Not found');
             PortalPatientAccessGuard::assertCanWrite($record['pid']);
 
@@ -253,7 +239,7 @@ final readonly class PatientController
                 return PortalJson::error('Please check the form for errors', $errors);
             }
             $saved = $this->profiles->save($record);
-            self::closeProfileReview($saved['pid']);
+            self::closeProfileReview($saved['pid'], $caller);
 
             return PortalJson::ok($saved);
         } catch (\RuntimeException | \LogicException $ex) {
@@ -264,51 +250,23 @@ final readonly class PatientController
     /**
      * Close the patient's pending profile change once staff have committed it to the chart.
      */
-    private static function closeProfileReview(mixed $pid): void
+    private static function closeProfileReview(mixed $pid, PortalPrincipal $caller): void
     {
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Only staff accept a profile change; a patient saving their own record leaves it in review.
-        if ($session->has('patient_portal_onsite_two')) {
+        if ($caller->kind !== PrincipalKind::Staff) {
             return;
         }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // The demographics are already saved. If the request cannot be closed (a concurrent close,
         // say), it stays open for staff to clear; failing here would report the save as failed
         // and invite a second save.
         try {
-            ReviewQueueFactory::portalWorkflows()->completeProfileChange(self::positiveId($pid), SessionReviewActor::staff($session));
+            ReviewQueueFactory::portalWorkflows()->completeProfileChange(PortalValues::positiveId($pid), SessionReviewActor::staff($session));
         } catch (\RuntimeException | \LogicException | DbalException $e) {
             ServiceContainer::getLogger()->error('Could not close the profile review request after saving', [
                 'pid' => $pid,
                 'exception' => $e,
             ]);
         }
-    }
-
-    /**
-     * The portal patient's pid when the caller is one, so their requests stay on their own record.
-     */
-    private static function sessionPid(): ?int
-    {
-        $pid = filter_var(OEGlobalsBag::getInstance()->get('bootstrap_pid'), FILTER_VALIDATE_INT);
-
-        return is_int($pid) && $pid > 0 ? $pid : null;
-    }
-
-    /**
-     * What empty() treated as filled: anything but null, false, 0, '', '0' and [].
-     */
-    private static function isFilled(mixed $value): bool
-    {
-        return !in_array($value, [null, false, 0, 0.0, '', '0', []], true);
-    }
-
-    private static function positiveId(mixed $id): int
-    {
-        $id = filter_var($id, FILTER_VALIDATE_INT);
-        if (!is_int($id) || $id <= 0) {
-            throw new \RuntimeException('Not found');
-        }
-
-        return $id;
     }
 }
