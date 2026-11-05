@@ -21,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -76,6 +77,30 @@ require_once("$srcdir/encounter_events.inc.php");
 $twig = ServiceContainer::getTwig();
 
 $cryptoGen = ServiceContainer::getCrypto();
+
+// The keys the card gateway's browser script needs. A key that cannot be decrypted (the site's
+// keys were replaced after it was saved) is logged and left empty, so the page still opens for
+// staff review and for a payment already pending; the gateway's script is then not loaded and
+// the patient is not offered a card payment that cannot work.
+$cardGateway = $globalsBag->getString('payment_gateway');
+$gatewayPublicKey = '';
+$gatewayApiKey = '';
+$gatewayKeysReadable = true;
+if ($cardGateway === 'AuthorizeNet' || $cardGateway === 'Stripe') {
+    try {
+        $gatewayPublicKey = $cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'));
+        if ($cardGateway === 'AuthorizeNet') {
+            $gatewayApiKey = $cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'));
+        }
+    } catch (CryptoGenException $e) {
+        $gatewayKeysReadable = false;
+        $gatewayPublicKey = '';
+        ServiceContainer::getLogger()->error('Payment gateway keys could not be decrypted', [
+            'gateway' => $cardGateway,
+            'exception' => $e,
+        ]);
+    }
+}
 
 $recorder = new Recorder();
 
@@ -585,7 +610,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'))); ?>;
+        var publicKey = <?php echo json_encode($gatewayPublicKey); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -1154,7 +1179,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             // A charged payment stays locked even when its card details cannot be read: paying
             // again would charge the card a second time.
             if (!isset($ccdata["cardHolderName"]) && !($cardUnreadable && $paymentCharged)) {
-                if ($globalsBag->get('payment_gateway') === 'Sphere') {
+                if (!$gatewayKeysReadable) {
+                    echo '<div class="alert alert-warning">' . xlt('Card payments are not available right now. Please contact the clinic.') . '</div>';
+                } elseif ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
                 } else {
                     echo '<button type="button" id="paynowbutton" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
@@ -1353,7 +1380,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         }
     </script>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && $session->has('patient_portal_onsite_two')) {
+    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && $gatewayKeysReadable && $session->has('patient_portal_onsite_two')) {
         // Include Authorize.Net dependency to tokenize card.
         // Will return a token to use for payment request keeping
         // credit info off the server.
@@ -1361,12 +1388,12 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
         ?>
         <script>
-            var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
+            var apiLoginID = <?php echo json_encode($gatewayApiKey); ?>;
         </script>
         <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.authorizenet.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php }  // end authorize.net ?>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
+    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $gatewayKeysReadable && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
         <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.stripe.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php } ?>
 
