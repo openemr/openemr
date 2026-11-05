@@ -300,7 +300,8 @@ class CodeTypesService
         if ($useOid) {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
                 $system = '2.16.840.1.113883.6.96';
-            } elseif (self::CODE_TYPE_SNOMED == $codeType) {
+            } elseif (self::CODE_TYPE_SNOMED == $codeType || self::CODE_TYPE_SNOMED_PROCEDURE == $codeType) {
+                // SNOMED-PR holds SNOMED CT procedure codes, as getCodeTypeListForSystem() already reads them back.
                 $system = '2.16.840.1.113883.6.96';
             } elseif (self::CODE_TYPE_CPT4 == $codeType) {
                 $system = '2.16.840.1.113883.6.12';
@@ -323,7 +324,7 @@ class CodeTypesService
         } else {
             $system = match ($codeType) {
                 self::CODE_TYPE_SNOMED_CT => FhirCodeSystemConstants::SNOMED_CT,
-                self::CODE_TYPE_SNOMED => FhirCodeSystemConstants::SNOMED_CT,
+                self::CODE_TYPE_SNOMED, self::CODE_TYPE_SNOMED_PROCEDURE => FhirCodeSystemConstants::SNOMED_CT,
                 self::CODE_TYPE_NUCC => FhirCodeSystemConstants::NUCC_PROVIDER,
                 self::CODE_TYPE_LOINC => FhirCodeSystemConstants::LOINC,
                 self::CODE_TYPE_RXNORM, self::CODE_TYPE_RXCUI => FhirCodeSystemConstants::RXNORM,
