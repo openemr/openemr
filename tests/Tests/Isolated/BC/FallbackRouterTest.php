@@ -126,6 +126,9 @@ class FallbackRouterTest extends TestCase
             'static css' => ['/public/assets/modified/dygraphs-2-0-0/dygraph.css'],
             'static js' => ['/public/assets/modified/dygraphs-2-0-0/dygraph.js'],
             'image' => ['/public/images/login-logo-svg'],
+            // Under a rewritten prefix: served as files, not sent to portal/patient/index.php.
+            'portal patient script' => ['/portal/patient/scripts/portal-api.js'],
+            'portal patient app script' => ['/portal/patient/scripts/app/patientdata.js'],
         ];
     }
 

@@ -80,6 +80,18 @@ readonly class FallbackRouter
         $path = $uri->getPath();
         $this->logger->debug("Routing $path");
 
+        // An existing static asset is served as it is, even under a rewritten prefix, as the
+        // .htaccess rewrites only paths that are not files (portal/patient/scripts/*.js).
+        $literalFile = realpath($this->installRoot . $path);
+        if (
+            $literalFile !== false
+            && is_file($literalFile)
+            && self::isAllowedStaticAsset($literalFile)
+            && $this->isPathAllowed($literalFile)
+        ) {
+            return null;
+        }
+
         // Rewrite rules: prefix → handler
         $handler = $this->getRewriteHandler($path);
         if ($handler !== null) {
