@@ -99,10 +99,16 @@ class C_Document extends Controller
     private function categoryPathIds(int $categoryId): array
     {
         $ids = [];
+        $tree = $this->tree;
+        $names = $tree instanceof CategoryTree ? $tree->_id_name : null;
+        if (!is_array($names)) {
+            return $ids;
+        }
         $guard = 0;
         while ($categoryId > 0 && !isset($ids[$categoryId]) && $guard++ < 32) {
             $ids[$categoryId] = true;
-            $categoryId = self::listDataInt($this->tree->_id_name[$categoryId]['parent'] ?? null);
+            $entry = $names[$categoryId] ?? null;
+            $categoryId = is_array($entry) ? self::listDataInt($entry['parent'] ?? null) : 0;
         }
         return $ids;
     }
@@ -113,7 +119,7 @@ class C_Document extends Controller
         $this->assign("category_id", $category_id);
         $this->assign("category_name", $category_name);
         // The tree opens on the folder the upload goes to, so a new file is visible there.
-        $this->openCategoryIds = $this->categoryPathIds((int) $category_id);
+        $this->openCategoryIds = $this->categoryPathIds(self::listDataInt($category_id));
         $this->assign("hide_encryption", OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption'));
         $this->assign("patient_id", $patient_id);
 
@@ -1308,7 +1314,7 @@ class C_Document extends Controller
         $hiddenWhenEmpty = self::hiddenEmptyCategoryNames();
         $treeData = $this->tree->tree;
         if ($hiddenWhenEmpty !== []) {
-            $treeData = $this->pruneEmptyHiddenCategories($treeData, $categories_list, $hiddenWhenEmpty);
+            $treeData = $this->pruneEmptyHiddenCategories($treeData, is_array($categories_list) ? $categories_list : [], $hiddenWhenEmpty);
         }
         $menu  = new HTML_TreeMenu();
         $rnode = $this->array_recurse($treeData, $patient_id, $categories_list);
@@ -1540,10 +1546,17 @@ class C_Document extends Controller
         if (!is_array($branch)) {
             return $branch;
         }
+        $tree = $this->tree;
+        if (!$tree instanceof CategoryTree) {
+            return $branch;
+        }
         $kept = [];
         foreach ($branch as $id => $child) {
-            if ($id !== 0 && $id !== '' && in_array(mb_strtolower((string) $this->tree->get_node_name($id)), $hiddenNames, true) && !self::subtreeHasDocuments($id, $child, $categories)) {
-                continue;
+            if ($id !== 0 && $id !== '') {
+                $name = $tree->get_node_name($id);
+                if (is_string($name) && in_array(mb_strtolower($name), $hiddenNames, true) && !self::subtreeHasDocuments($id, $child, $categories)) {
+                    continue;
+                }
             }
             $kept[$id] = $this->pruneEmptyHiddenCategories($child, $categories, $hiddenNames);
         }
@@ -1579,7 +1592,7 @@ class C_Document extends Controller
                     $current_node = &$rnode;
                 } else {
                     //echo "p:" . $this->tree->get_node_name($id) . "<br />";
-                    $this->_last_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => isset($this->openCategoryIds[(int) $id])]));
+                    $this->_last_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => isset($this->openCategoryIds[self::listDataInt($id)])]));
                     $current_node = &$this->_last_node;
                 }
 
@@ -1594,7 +1607,7 @@ class C_Document extends Controller
                     //this conditional tree could be more efficient but working with recursive trees makes my head hurt, TODO
                     if ($id !== 0 && is_object($node)) {
                       //echo "n:" . $this->tree->get_node_name($id) . "<br />";
-                        $current_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => isset($this->openCategoryIds[(int) $id])]));
+                        $current_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => isset($this->openCategoryIds[self::listDataInt($id)])]));
                     }
                 }
             }

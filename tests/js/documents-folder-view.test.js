@@ -1,6 +1,10 @@
 /**
  * @jest-environment jsdom
  *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
  * Tests for the Folders view of the Documents page (library/js/documents_folder_view.js):
  * the folder counts, filtering and sorting, and the page wiring against the markup of
  * templates/documents/general_list.html.
