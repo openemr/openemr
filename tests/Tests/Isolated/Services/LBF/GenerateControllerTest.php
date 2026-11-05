@@ -103,5 +103,14 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             $this->assertTrue(GenerateController::layoutWriteDecision('patients|demo', false, true));
         }
 
+        /**
+         * A missing or inactive layout is refused before the access rule.
+         */
+        public function testLayoutWriteDecisionRefusesAnInactiveLayout(): void
+        {
+            $this->assertFalse(GenerateController::layoutWriteDecision('', true, true, false));
+            $this->assertFalse(GenerateController::layoutWriteDecision('patients|demo', true, true, false));
+        }
+
     }
 }
