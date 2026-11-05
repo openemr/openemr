@@ -6,15 +6,13 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 var page = {
     patientData: new model.PatientCollection(),
-    collectionView: null,
     patient: null,
     portalpatient: null,
-    modelView: null,
     isInitialized: false,
     isInitializing: false,
     fetchParams: {filter: '', orderBy: '', orderDesc: '', page: 1, patientId: cpid, lookupList: null},
@@ -36,7 +34,6 @@ var page = {
         $("#donePatientButton").addClass("disabled");
         $("#replaceAllButton").hide();
 
-        if (!$.isReady && console) console.warn('page was initialized before dom is ready.  views may not render properly.');
         // portal or audit
         $("#formHelp").click(function (e) {
             e.preventDefault();
@@ -61,14 +58,8 @@ var page = {
             $("#donePatientButton").show();
         });
 
-        // initialize the collection view
-        this.collectionView = new view.CollectionView({
-            el: $("#patientCollectionContainer"),
-            templateEl: $("#patientCollectionTemplate"),
-            collection: page.patientData
-        });
-
-        this.collectionView.on('rendered', function () {
+        // once the profile row is loaded, show it
+        page.onCollectionLoaded = function () {
             if (!page.isInitialized) {
                 var m = page.patientData.first();
                 m = (m === undefined) ? "" : m;
@@ -81,19 +72,10 @@ var page = {
             }
             page.isInitialized = true;
             page.isInitializing = false;
-        });
+        };
 
-        this.fetchPatientData({page: 1, patientId: cpid});
-
-        // initialize the model view
-        this.modelView = new view.ModelView({
-            el: $("#patientModelContainer")
-        });
-
-        // tell the model view where it's template is located
-        this.modelView.templateEl = $("#patientModelTemplate");
-
-        this.modelView.on('rendered', function () { // model rendered
+        // set up the form once it is drawn
+        page.onModelRendered = function () {
             $(function () {
                 $('.jquery-date-picker').datetimepicker({
                     i18n: {
@@ -133,7 +115,7 @@ var page = {
                                     value = 'Unassigned';
                                 }
                                 $('#' + key + 'InputContainer span.help-inline').html(
-                                '<a class="editval text-primary" onclick="page.toggleVal(this); return false;" data-tstate=new data-id="' + _.escape(key) + '">' + _.escape(value) + '</a>');
+                                '<a class="editval text-primary" onclick="page.toggleVal(this); return false;" data-tstate=new data-id="' + app.escapeHtml(key) + '">' + app.escapeHtml(value) + '</a>');
                                 $('#' + key + 'InputContainer span.help-inline').show();
                             }
                         });
@@ -202,7 +184,7 @@ var page = {
             });
             /* no idea why previous form inits were here! */
             if (page.portalpatient) {
-                $('#note').val(_.escape(page.portalpatient.get('note')));
+                $('#note').val(page.portalpatient.get('note') ?? '');
             }
 
             $("#dismissHelp").click(function (e) {
@@ -211,7 +193,9 @@ var page = {
             });
             page.isInitialized = true;
             page.isInitializing = false;
-        });
+        };
+
+        this.fetchPatientData({page: 1, patientId: cpid});
     },
     /**
      * Replace field with edit
@@ -220,13 +204,13 @@ var page = {
     replaceVal: function (el) {
         var a = $(el).data('id');
         if (!document.getElementById(a)) {
-			$('input[name='+a+'][value="' +  _.escape(page.portalpatient.get(a)) + '"'+']').prop('checked', true).closest('label').css({"class":"text-primary"});
+			$('input[name='+a+'][value="' +  app.escapeHtml(page.portalpatient.get(a)) + '"'+']').prop('checked', true).closest('label').css({"class":"text-primary"});
 		}
 		else{
             $('#' + a).prop('value', page.portalpatient.get(a))
 				$('#'+a).css({"class":"text-primary","font-weight":"normal"});
         }
-        var v = _.escape(page.patient.get(a));
+        var v = app.escapeHtml(page.patient.get(a));
         if (($("input[name=" + a + "]").attr('type') == 'radio' || $('#' + a).is('select')) && v == "")
             v = 'Unassigned';
         $('#' + a + 'InputContainer span.help-inline').html('');
@@ -236,13 +220,13 @@ var page = {
     revertVal: function (el) {
         var a = $(el).data('id');
         if (!document.getElementById(a)) {
-			$('input[name='+a+'][value="' +  _.escape(page.patient.get(a)) + '"'+']').prop('checked', true).closest('label').css({"class":"text-danger"});
+			$('input[name='+a+'][value="' +  app.escapeHtml(page.patient.get(a)) + '"'+']').prop('checked', true).closest('label').css({"class":"text-danger"});
 		}
 		else{
             $('#' + a).prop('value', page.patient.get(a))
 				$('#'+a).css({"class":"text-danger","font-weight":"normal"});
         }
-        var v = _.escape(page.portalpatient.get(a));
+        var v = app.escapeHtml(page.portalpatient.get(a));
         if (($("input[name=" + a + "]").attr('type') == 'radio' || $('#' + a).is('select')) && v == "")
             v = 'Unassigned';
         $('#' + a + 'InputContainer span.help-inline').html('');
@@ -288,20 +272,14 @@ var page = {
 
         if (!hideLoader) app.showProgress('modelLoader');
 
-        page.patientData.fetch({
-            data: params,
-            success: function () {
-                if (page.patientData.collectionHasChanged) {
-                    // the sync event will trigger the view to re-render
-                }
-                app.hideProgress('modelLoader');
-                page.fetchInProgress = false;
-            },
-            error: function (m, r) {
-                app.appendAlert(app.getErrorMessage(r), 'danger', 15000, 'collectionAlert');
-                app.hideProgress('modelLoader');
-                page.fetchInProgress = false;
-            }
+        page.patientData.fetch(params).then(function () {
+            app.hideProgress('modelLoader');
+            page.fetchInProgress = false;
+            page.onCollectionLoaded();
+        }, function (error) {
+            app.appendAlert(app.getErrorMessage(error), 'danger', 15000, 'collectionAlert');
+            app.hideProgress('modelLoader');
+            page.fetchInProgress = false;
         });
     },
 
@@ -311,22 +289,16 @@ var page = {
      */
     showDetailForm: function (m) {
         page.patient = m ? m : new model.PatientModel();
-        page.modelView.model = page.patient;
         if (page.patient.id == null || page.patient.id === '') {
             page.renderModelView();
             app.hideProgress('modelLoader');
         } else {
             app.showProgress('modelLoader');
-            page.patient.fetch({
-                data: {'patientId': cpid},
-                success: function () {
-                    var pm = page.portalpatient;
-                    page.getEditedPatient(pm)
-                },
-                error: function (m, r) {
-                    app.appendAlert(app.getErrorMessage(r), 'danger', 15000, 'modelAlert');
-                    app.hideProgress('modelLoader');
-                }
+            page.patient.fetch({'patientId': cpid}).then(function () {
+                page.getEditedPatient(page.portalpatient);
+            }, function (error) {
+                app.appendAlert(app.getErrorMessage(error), 'danger', 15000, 'modelAlert');
+                app.hideProgress('modelLoader');
             });
         }
     },
@@ -337,27 +309,39 @@ var page = {
     getEditedPatient: function (m) {
         page.portalpatient = m ? m : new model.PortalPatientModel();
         page.portalpatient.set('id', page.patient.get('id'))
-        page.portalpatient.fetch({
-            data: {'patientId': cpid},
-            success: function () {
-                // audit profile data returned. render needs to be here due to chaining
-                page.renderModelView();
-                return true;
-            },
-            error: function (m, r) {
-                // still have to render live data even if no changes pending
-                page.renderModelView();
-                return false;
-            }
+        page.portalpatient.fetch({'patientId': cpid}).then(function () {
+            // audit profile data returned. render needs to be here due to chaining
+            page.renderModelView();
+        }, function () {
+            // still have to render live data even if no changes pending
+            page.renderModelView();
         });
     },
     /**
-     * Render the model template in the popup
-     * @param bool show the delete button
+     * Draw the profile form from its template, filled with the current profile.
      */
     renderModelView: function () {
-        page.modelView.render();
+        const container = view.renderTemplate('patientModelTemplate', 'patientModelContainer');
+        page.fillForm(container, page.patient);
+        page.onModelRendered();
         app.hideProgress('modelLoader');
+    },
+
+    /**
+     * Fill the text inputs from the profile fields named by their ids, and check the radio
+     * buttons whose value matches the field named by their name. Selects come from the server
+     * already chosen.
+     * @param container the drawn form
+     * @param record the profile
+     */
+    fillForm: function (container, record) {
+        container.querySelectorAll('input[id]:not([type=radio])').forEach(function (input) {
+            input.defaultValue = record.get(input.id) || '';
+        });
+        container.querySelectorAll('input[type=radio][name]').forEach(function (radio) {
+            const value = record.get(radio.name);
+            radio.defaultChecked = value !== null && value !== undefined && String(value) === radio.value;
+        });
     },
 
     /**
@@ -448,41 +432,37 @@ var page = {
             'county': $('input#county').val(),
             //'industry': $('textarea#industry').val(),
             'note': $('textarea#note').val()
-        }, {
-            wait: true,
-            success: function () {
-                if (live !== 1) {
-                    setTimeout("app.appendAlert('Patient was successfully " + (isNew ? "inserted" : "updated") + "','success',5000,'collectionAlert')", 200);
-                    setTimeout("window.location.href ='" + webRoot + "/portal/home.php'", 2500);
-                } else if (live === 1 && register !== '0') { // for testing
-                    //alert('Save Success');
-                } else {
-                    window.dlgCloseAjax();
+        }).then(function () {
+            if (live !== 1) {
+                setTimeout(function () {
+                    app.appendAlert('Patient was successfully ' + (isNew ? 'inserted' : 'updated'), 'success', 5000, 'collectionAlert');
+                }, 200);
+                setTimeout(function () {
+                    window.location.href = webRoot + '/portal/home.php';
+                }, 2500);
+            } else if (live === 1 && register !== '0') { // for testing
+                //alert('Save Success');
+            } else {
+                window.dlgCloseAjax();
+            }
+            app.hideProgress('modelLoader');
+            if (isNew) {
+                page.renderModelView();
+            }
+        }, function (error) {
+            app.hideProgress('modelLoader');
+            app.appendAlert(app.getErrorMessage(error), 'danger', 15000, 'modelAlert');
+            try {
+                var json = JSON.parse(error.responseText);
+                if (json.errors) {
+                    $.each(json.errors, function (key, value) {
+                        $('#' + key + 'InputContainer').addClass('error');
+                        $('#' + key + 'InputContainer span.help-inline').html(value);
+                        $('#' + key + 'InputContainer span.help-inline').show();
+                    });
                 }
-                app.hideProgress('modelLoader');
-                if (isNew) {
-                    page.renderModelView();
-                }
-                if (model.reloadCollectionOnModelUpdate) {
-                    // re-fetch and render the collection after the model has been updated
-                    //page.fetchPatientData(page.fetchParams,true);
-                }
-            },
-            error: function (model, response, scope) {
-                app.hideProgress('modelLoader');
-                app.appendAlert(app.getErrorMessage(response), 'danger', 15000, 'modelAlert');
-                try {
-                    var json = $.parseJSON(response.responseText);
-                    if (json.errors) {
-                        $.each(json.errors, function (key, value) {
-                            $('#' + key + 'InputContainer').addClass('error');
-                            $('#' + key + 'InputContainer span.help-inline').html(value);
-                            $('#' + key + 'InputContainer span.help-inline').show();
-                        });
-                    }
-                } catch (e2) {
-                    if (console) console.log('error parsing server response: ' + e2.message);
-                }
+            } catch (e2) {
+                if (console) console.log('error parsing server response: ' + e2.message);
             }
         });
 

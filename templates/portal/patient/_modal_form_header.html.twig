@@ -1,6 +1,6 @@
 {#
- # Page head for the patient profile page: jQuery, the date pickers, the Backbone stack and the
- # API CSRF token. Registration (`register`) adds Bootstrap, which the portal frame supplies
+ # Page head for the patient profile page: jQuery, the date pickers, the portal API client and
+ # the API CSRF token. Registration (`register`) adds Bootstrap, which the portal frame supplies
  # otherwise. Pass `title`.
  #
  # @package   OpenEMR
@@ -32,16 +32,9 @@
 
 <script src="{{ assets_static_relative }}/moment/moment.js?v={{ v_js_includes|attr_url }}"></script>
 <script src="{{ assets_static_relative }}/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js?v={{ v_js_includes|attr_url }}"></script>
-<script src="{{ assets_static_relative }}/underscore/underscore-min.js?v={{ v_js_includes|attr_url }}"></script>
-<script src="{{ assets_static_relative }}/backbone/backbone-min.js?v={{ v_js_includes|attr_url }}"></script>
-<script src="{{ web_root }}/portal/patient/scripts/app.js?v={{ v_js_includes }}"></script>
 <script>window.portalApiCsrfToken = {{ csrfTokenRaw()|js_escape }};</script>
-<script src="{{ web_root }}/portal/patient/scripts/model.js?v={{ v_js_includes }}"></script>
-<script src="{{ web_root }}/portal/patient/scripts/view.js?v={{ v_js_includes }}"></script>
+<script src="{{ web_root }}/portal/patient/scripts/portal-page.js?v={{ v_js_includes|attr_url }}"></script>
+<script src="{{ web_root }}/portal/patient/scripts/portal-api.js?v={{ v_js_includes|attr_url }}"></script>
 <base href="{{ ROOT_URL|attr }}" />
-<script src="{{ web_root }}/portal/patient/scripts/libs/LAB.min.js?v={{ v_js_includes|attr_url }}"></script>
-<script>
-$LAB.setGlobalDefaults({BasePath: "{{ ROOT_URL|attr }}"});
-</script>
 </head>
 <body>
