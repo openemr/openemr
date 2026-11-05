@@ -440,8 +440,9 @@ class InsuranceService extends BaseService
      * are still returned, so a current secondary behind an ended primary comes
      * back on its own.
      *
-     * getEffectiveInsurances() in library/patient.inc.php answers the same
-     * question, but stops at the first level with nothing in force.
+     * getEffectiveInsurances() in library/patient.inc.php shares this name: it
+     * is a wrapper over getEffectiveInsuranceRows(), the same choice returned
+     * as insurance_data rows instead of these values.
      *
      * @param DateTimeImmutable $day the day asked about (date of service, order or document); its time is ignored
      * @return list<EffectiveInsurance>

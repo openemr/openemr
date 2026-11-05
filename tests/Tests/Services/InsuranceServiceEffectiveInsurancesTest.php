@@ -1,12 +1,14 @@
 <?php
 
 /**
- * InsuranceService::getEffectiveInsurances() against the two readers it grew from,
- * on the same rows: the claim's payer list (Claim::loadPayerInfo(), which decides
- * who is billed) and getEffectiveInsurances() in library/patient.inc.php.
+ * InsuranceService::getEffectiveInsurances() against the claim's payer list
+ * (Claim::loadPayerInfo(), which decides who is billed), on the same rows, and
+ * against getEffectiveInsurances() in library/patient.inc.php, now a wrapper over
+ * the service, which must choose as the service does in every case.
  *
- * Each case names what the claim and the old function choose. Where one of them
- * differs from the service, the case says so in its name.
+ * Each case names what the claim and the wrapper choose. Where the claim differs
+ * from the service, the case says so in its name; where the query the wrapper
+ * replaced chose differently, the case says that too.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -138,7 +140,7 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
     /**
      * @return list<string> each row as "level company"
      */
-    private function oldFunctionChoice(string $day): array
+    private function wrapperChoice(string $day): array
     {
         return self::levelsAndCompanies(getEffectiveInsurances($this->pid, $day));
     }
@@ -163,7 +165,7 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
 
     /**
      * Each case: the rows (type, company, start, end), what the service chooses, what the
-     * claim chooses, and what getEffectiveInsurances() chooses, on 2026-11-04.
+     * claim chooses, and what the getEffectiveInsurances() wrapper chooses, on 2026-11-04.
      *
      * @return array<string, array{list<array{string, ?string, ?string, ?string}>, list<string>, list<string>, list<string>}>
      *
@@ -213,24 +215,24 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
                 [['primary', '101', '2020-01-01', null], ['secondary', '102', '2027-01-01', null]],
                 $current, $current, $current,
             ],
-            // The old function stops at the first level with nothing in force.
-            'an ended primary and a current secondary (the old function differs)' => [
+            // The query the wrapper replaced stopped at the first level with nothing in force.
+            'an ended primary and a current secondary (the replaced query stopped)' => [
                 [['primary', '101', '2020-01-01', '2026-07-07'], ['secondary', '104', '2020-01-01', null]],
-                ['secondary 104'], ['secondary 104'], [],
+                ['secondary 104'], ['secondary 104'], ['secondary 104'],
             ],
-            'a blank primary and a current secondary (the old function differs)' => [
+            'a blank primary and a current secondary (the replaced query stopped)' => [
                 [['primary', '', null, null], ['secondary', '104', '2020-01-01', null]],
-                ['secondary 104'], ['secondary 104'], [],
+                ['secondary 104'], ['secondary 104'], ['secondary 104'],
             ],
-            'an ended secondary between a primary and a tertiary (the old function differs)' => [
+            'an ended secondary between a primary and a tertiary (the replaced query stopped)' => [
                 [['primary', '101', '2020-01-01', null], ['secondary', '102', '2020-01-01', '2026-01-01'], ['tertiary', '103', '2020-01-01', null]],
-                ['primary 101', 'tertiary 103'], ['primary 101', 'tertiary 103'], ['primary 101'],
+                ['primary 101', 'tertiary 103'], ['primary 101', 'tertiary 103'], ['primary 101', 'tertiary 103'],
             ],
-            // sql_mode = '' stores a mistyped date as 0000-00-00. The claim and the old function compare it
-            // as a day in year 0, so the policy has ended; the service reads it as no end.
-            'a zero end date (the claim and the old function differ)' => [
+            // sql_mode = '' stores a mistyped date as 0000-00-00. The claim (and the replaced query) compare it
+            // as a day in year 0, so the policy has ended; the service and its wrapper read it as no end.
+            'a zero end date (the claim differs)' => [
                 [['primary', '101', '2020-01-01', '0000-00-00']],
-                $current, [], [],
+                $current, [], $current,
             ],
         ];
     }
@@ -251,13 +253,46 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
 
         self::assertSame($service, $this->serviceChoice(self::DAY), 'the service');
         self::assertSame($claim, $this->claimChoice(self::DAY), 'the claim');
-        self::assertSame($old, $this->oldFunctionChoice(self::DAY), 'getEffectiveInsurances()');
+        self::assertSame($old, $this->wrapperChoice(self::DAY), 'getEffectiveInsurances()');
+        self::assertSame($service, $old, 'the wrapper chooses as the service does');
+    }
+
+    #[Test]
+    public function theWrapperReturnsEachPolicysRowAndReadsADatetimeAsItsDay(): void
+    {
+        $this->addPolicy('primary', '101', '2026-01-01', '2026-11-04');
+
+        $rows = getEffectiveInsurances($this->pid, self::DAY . ' 23:59:59');
+
+        self::assertCount(1, $rows);
+        self::assertSame('primary', $rows[0]['type']);
+        self::assertSame('2026-11-04', $rows[0]['date_end'], 'every insurance_data column, as stored');
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unreadableDays(): array
+    {
+        return ['blank' => [''], 'zero' => ['0000-00-00'], 'a zero datetime' => ['0000-00-00 00:00:00'], 'the display format' => ['11/04/2026']];
+    }
+
+    #[Test]
+    #[DataProvider('unreadableDays')]
+    public function theWrapperGivesNoPoliciesForADayItCantRead(string $day): void
+    {
+        $this->addPolicy('primary', '101', null, null);
+
+        self::assertSame([], getEffectiveInsurances($this->pid, $day));
     }
 
     /**
      * Two undated policies at one level: the unique key on (pid, type, date) doesn't stop
-     * them, since NULLs never collide. The claim and the old function take whichever row
-     * the database returns first; the service takes the later entry.
+     * them, since NULLs never collide. The claim takes whichever row the database returns
+     * first (as the query the wrapper replaced did); the service and its wrapper take the
+     * later entry.
      */
     #[Test]
     public function twoUndatedPoliciesAtOneLevelGoToTheLaterEntry(): void
@@ -266,6 +301,7 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
         $this->addPolicy('primary', '102', null, null);
 
         self::assertSame(['primary 102'], $this->serviceChoice(self::DAY));
+        self::assertSame(['primary 102'], $this->wrapperChoice(self::DAY));
         self::assertContains($this->claimChoice(self::DAY), [['primary 101'], ['primary 102']]);
     }
 

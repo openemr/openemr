@@ -46,8 +46,9 @@ use OpenEMR\Common\Uuid\UuidRegistry;
  * - a company that isn't a whole number ('Acme') is no company here, where
  *   the claim bills it.
  *
- * getEffectiveInsurances() in library/patient.inc.php chooses at each level
- * as the claim does, but stops at the first level with nothing in force.
+ * getEffectiveInsurances() in library/patient.inc.php is a wrapper over the
+ * service, so it follows this rule too; its docblock lists where it differs
+ * from the query it replaced.
  */
 final class EffectiveInsuranceRule
 {

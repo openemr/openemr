@@ -1151,12 +1151,17 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $effective_insurances = getEffectiveInsurances($iter['pid'], $iter['enc_date']);
                                     $insuranceCount = count($effective_insurances ?? []);
 
-                                    foreach ($effective_insurances as $key => $row) {
+                                    foreach ($effective_insurances as $row) {
                                         $insuranceName = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", [$row['provider']])['name'];
                                         $x12Partner = sqlQuery("SELECT `x12_default_partner_id` FROM `insurance_companies` WHERE `id` = ?", [$row['provider']])['x12_default_partner_id'];
                                         $lhtml .= "<option value=\"" . attr(substr((string) $row['type'], 0, 1) . $row['provider']) . "\"";
+                                        // Preselect the level after the last one closed, found by its type: the list
+                                        // can skip a level (getEffectiveInsurances() returns a current secondary
+                                        // behind an ended primary), so its position isn't the level.
+                                        $rowType = $row['type'] ?? null;
+                                        $rowLevel = is_string($rowType) ? (['primary' => 1, 'secondary' => 2, 'tertiary' => 3][$rowType] ?? 0) : 0;
                                         if (
-                                            $key == $last_level_closed
+                                            $rowLevel == (is_numeric($last_level_closed) ? (int)$last_level_closed : 0) + 1
                                             || $insuranceCount == 1
                                         ) {
                                             $lhtml .= " selected";

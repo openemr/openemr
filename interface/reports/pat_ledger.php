@@ -202,7 +202,16 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         if (empty($pmt['payer_type'])) {
             $payer = xl('Patient');
         } else {
-            $payerId = $effectiveInsurances[$pmt['payer_type'] - 1]['provider'];
+            // The policy at the payment's level, found by its type: the list can skip a level
+            // (getEffectiveInsurances() returns a current secondary behind an ended primary).
+            $payerId = null;
+            $paymentType = $pmt['payer_type'];
+            $paymentLevel = [1 => 'primary', 2 => 'secondary', 3 => 'tertiary'][is_numeric($paymentType) ? (int)$paymentType : 0] ?? '';
+            foreach (is_array($effectiveInsurances) ? $effectiveInsurances : [] as $effectiveInsurance) {
+                if (is_array($effectiveInsurance) && ($effectiveInsurance['type'] ?? '') === $paymentLevel) {
+                    $payerId = $effectiveInsurance['provider'] ?? null;
+                }
+            }
             $payer = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", [$payerId])['name'];
         }
         $pmt_date = $unassigned ? substr((string) $pmt['post_to_date'], 0, 10) : substr((string) $pmt['post_time'], 0, 10);

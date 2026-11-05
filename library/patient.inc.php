@@ -1470,31 +1470,40 @@ function dateToDB($date): string
 }
 
 /**
- * Get up to 3 insurances (primary, secondary, tertiary) that are effective
- * for the given patient on the given date.
+ * The policies in force for a patient on a day, primary first, as rows: a
+ * wrapper over the coverage service, as getEmployerData() is over
+ * EmployerService. Each row is every insurance_data column of a policy
+ * InsuranceService::getEffectiveInsuranceRows() returns.
  *
- * @param int $patient_id The PID of the patient.
- * @param string $encdate Date in yyyy-mm-dd format.
- * @return array  Array of 0-3 insurance_data rows.
+ * The service's own getEffectiveInsurances() shares this name and answers the
+ * same question by the same rule (EffectiveInsuranceRule); it returns the
+ * policies as EffectiveInsurance values, not rows. That shape is the one
+ * difference between the two.
+ *
+ * Where it differs from the query it replaced:
+ * - it doesn't stop at the first level with nothing in force: a current
+ *   secondary behind an ended primary comes back on its own, so callers find
+ *   a policy by its type, not its position in the list;
+ * - a 0000-00-00 end is open, where the query read it as ended;
+ * - between two undated policies at a level the later entry wins, where the
+ *   query took whichever row the database returned first;
+ * - a DATETIME counts as its day, and a date that can't be read (blank, zero,
+ *   or not Y-m-d) gives no policies.
+ *
+ * @param int    $patient_id The PID of the patient.
+ * @param string $encdate    The day asked about: Y-m-d, or a DATETIME.
+ * @return list<array<mixed>> 0 to 3 insurance_data rows.
  */
 function getEffectiveInsurances($patient_id, $encdate): array
 {
-    $insarr = [];
-    foreach (['primary','secondary','tertiary'] as $instype) {
-        $tmp = sqlQuery(
-            "SELECT * FROM insurance_data " .
-            "WHERE pid = ? AND type = ? " .
-            "AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY date DESC LIMIT 1",
-            [$patient_id, $instype, $encdate, $encdate]
-        );
-        if (empty($tmp['provider'])) {
-            break;
-        }
-
-        $insarr[] = $tmp;
+    $day = \OpenEMR\Services\Insurance\CoverageDay::fromStored($encdate);
+    if ($day === null) {
+        return [];
     }
-
-    return $insarr;
+    return array_map(
+        static fn(\OpenEMR\Services\Insurance\EffectiveInsuranceRow $row): array => $row->columns,
+        (new \OpenEMR\Services\InsuranceService())->getEffectiveInsuranceRows((int)$patient_id, $day)
+    );
 }
 
 /**
