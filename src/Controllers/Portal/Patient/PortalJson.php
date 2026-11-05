@@ -36,12 +36,13 @@ final class PortalJson
 
     /**
      * @param array<string, string> $errors camelCase field => message
+     * @param int $status the HTTP status; 401 is what the portal pages have always been sent
      */
-    public static function error(string $message, array $errors = []): Response
+    public static function error(string $message, array $errors = [], int $status = Response::HTTP_UNAUTHORIZED): Response
     {
         return new Response(
             json_encode(['success' => false, 'message' => $message, 'errors' => $errors], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE),
-            Response::HTTP_UNAUTHORIZED,
+            $status,
             ['Content-Type' => 'application/json'],
         );
     }

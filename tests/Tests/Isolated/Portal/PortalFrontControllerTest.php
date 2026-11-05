@@ -19,6 +19,7 @@ use OpenEMR\Controllers\Portal\Patient\PortalFrontController;
 use OpenEMR\Controllers\Portal\Patient\PortalPageRenderer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Portal\Routing\PortalPrincipal;
+use OpenEMR\Portal\Routing\PortalRouteDeniedException;
 use OpenEMR\Portal\Routing\PrincipalKind;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -161,6 +162,7 @@ final class PortalFrontControllerTest extends TestCase
         $response = $this->controller()->handle($this->request('POST', 'api/onsitedocument'), $this->session(), $this->globals, self::ROOT);
 
         $this->assertSame([], $this->dispatched, 'nothing is dispatched');
+        $this->assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), 'refused, not an authentication failure');
         $this->assertStringContainsString('application/json', (string) $response->headers->get('Content-Type'));
         $this->assertStringContainsString('An unexpected error occurred', (string) $response->getContent());
         $this->assertStringNotContainsString('CSRF', (string) $response->getContent(), 'the failure is not shown');
@@ -177,7 +179,7 @@ final class PortalFrontControllerTest extends TestCase
         $response = $this->controller()->handle($request, $this->session(), $this->globals, self::ROOT);
 
         $this->assertSame([], $this->dispatched);
-        $this->assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        $this->assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
     public function testAnEngineErrorIsNotSwallowed(): void
@@ -185,6 +187,23 @@ final class PortalFrontControllerTest extends TestCase
         $this->expectException(\TypeError::class);
 
         $this->controller(new \TypeError('bug'))->handle($this->request('GET', 'patientdata'), $this->session(), $this->globals, self::ROOT);
+    }
+
+    public function testAnApiFailureIsAServerError(): void
+    {
+        $response = $this->controller(new \RuntimeException('SELECT secret'))->handle($this->request('GET', 'api/onsitedocuments'), $this->session(), $this->globals, self::ROOT);
+
+        $this->assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        $content = $response->getContent();
+        $this->assertIsString($content);
+        $this->assertStringNotContainsString('secret', $content);
+    }
+
+    public function testAnApiRouteTheCallerMayNotUseIsRefused(): void
+    {
+        $response = $this->controller(new PortalRouteDeniedException())->handle($this->request('GET', 'api/onsiteactivityviews'), $this->session(), $this->globals, self::ROOT);
+
+        $this->assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
     public function testAPageFailureShowsTheErrorPage(): void
