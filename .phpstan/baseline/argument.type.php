@@ -9297,11 +9297,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$id of class Document constructor expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$number of method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\AppDispatch\\:\\:formatPhone\\(\\) expects string, mixed given\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
@@ -9688,11 +9683,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$filename of function filesize expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$id of class Document constructor expects int, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
 ];

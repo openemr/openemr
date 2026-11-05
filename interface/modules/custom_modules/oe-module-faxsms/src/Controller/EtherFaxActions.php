@@ -22,6 +22,7 @@ use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxDocumentDisposalInterface;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
+use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentAccessException;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
@@ -166,9 +167,11 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
         $tag = $user['username'] ?? '';
         $fileName = '';
 
-        // Validate file path if not content
+        // Validate file path if not content. A patient document send names the
+        // document's own storage path, which is never under send/; it is read
+        // by document id below, so the path isn't used.
         $allowedTempDir = realpath($this->baseDir . '/send/');
-        if (empty($isContent)) {
+        if (empty($isContent) && !$isDocuments) {
             if (str_starts_with((string)$file, 'file://')) {
                 $file = substr((string)$file, 7);
             }
@@ -215,11 +218,16 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
             $fileName = pathinfo($file, PATHINFO_BASENAME);
         }
 
-        // If document mode, load from Document table instead
+        // If document mode, load from Document table instead, enforcing the
+        // document ACLs and patient ownership for the request-supplied id.
         if ($isDocuments) {
-            $doc = new Document($docId);
-            $file = $doc->get_data();
-            $fileName = $doc->get_name() ?? 'document';
+            try {
+                $document = $this->readAuthorizedFaxDocument($docId);
+            } catch (FaxDocumentAccessException $e) {
+                return $e->getMessage();
+            }
+            $file = $document['content'];
+            $fileName = $document['name'];
         }
 
         // Optional email copy. $file is raw bytes when either the
