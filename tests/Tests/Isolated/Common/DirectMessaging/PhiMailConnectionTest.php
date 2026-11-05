@@ -150,7 +150,8 @@ final class PhiMailConnectionTest extends TestCase
             umask($umask);
         }
 
-        self::assertStringStartsWith($this->tempDir . '/direct-', $path);
+        // PHP's tempnam() keeps only three characters of the prefix on Windows, so check the directory.
+        self::assertSame($this->tempDir, dirname($path));
         self::assertSame($body, (new Filesystem())->readFile($path));
         self::assertSame(0600, fileperms($path) & 0777, 'the download is readable by others');
         self::assertSame("2\n", $this->connection->readLine(), 'readBlob() read past the blob');
@@ -178,7 +179,7 @@ final class PhiMailConnectionTest extends TestCase
         // PHP's tempnam() creates one in the system temp dir instead.
         $notADir = $this->tempDir . '/file';
         (new Filesystem())->touch($notADir);
-        $strays = glob(sys_get_temp_dir() . '/direct-*');
+        $before = glob(sys_get_temp_dir() . '/*');
 
         try {
             $this->connection->readBlob(1, $notADir);
@@ -187,7 +188,7 @@ final class PhiMailConnectionTest extends TestCase
             self::assertSame('M14 failed creating a temp file in: ' . $notADir, $e->getMessage());
         }
 
-        self::assertSame($strays, glob(sys_get_temp_dir() . '/direct-*'), 'the fallback temp file was left behind');
+        self::assertSame($before, glob(sys_get_temp_dir() . '/*'), 'the fallback temp file was left behind');
     }
 
     public function testReadBlobFailsAndCleansUpWhenTheStreamCannotBeRead(): void
@@ -203,7 +204,7 @@ final class PhiMailConnectionTest extends TestCase
             self::assertSame('M15 failure reading blob chunk after 0 bytes', $e->getMessage());
         }
 
-        self::assertSame([], glob($this->tempDir . '/direct-*'), 'the partial download was left behind');
+        self::assertSame([$source], glob($this->tempDir . '/*'), 'the partial download was left behind');
     }
 
     public function testReadBlobFailsAndCleansUpWhenTheFileCannotBeWritten(): void
