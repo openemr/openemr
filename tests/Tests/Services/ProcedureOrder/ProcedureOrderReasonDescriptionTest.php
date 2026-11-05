@@ -105,7 +105,10 @@ final class ProcedureOrderReasonDescriptionTest extends TestCase
         $code = self::element($xpath, '//input[@name="form_proc_reason_code[0]"]');
         $this->assertSame(self::REASON_CODE, $code->getAttribute('value'));
         // Picked from the code popup only, so the code can't be typed over and saved with another code's description.
-        $this->assertSame('this.blur()', $code->getAttribute('onfocus'));
+        // Read-only rather than blurred on focus, so a keyboard user can still reach it and open the popup with Enter or Space.
+        $this->assertTrue($code->hasAttribute('readonly'));
+        $this->assertFalse($code->hasAttribute('onfocus'));
+        $this->assertStringContainsString('this.click()', $code->getAttribute('onkeydown'));
         $this->assertSame('pending', self::element($xpath, '//select[@name="form_proc_reason_status[0]"]/option[@selected]')->getAttribute('value'));
         $this->assertSame('2026-01-02 03:04:00', self::element($xpath, '//input[@name="form_proc_reason_date_low[0]"]')->getAttribute('value'));
         $this->assertSame('', self::element($xpath, '//input[@name="form_proc_reason_date_high[0]"]')->getAttribute('value'));
