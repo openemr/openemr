@@ -22,7 +22,7 @@
  #}
 {% set row = trow ?: [] %}
 {% include 'portal/patient/_modal_form_header.html.twig' with {title: 'Patient Portal'|xl ~ ' | ' ~ 'Patient Data'|xl} %}
-<script>var register='{{ register|attr }}';var recid='{{ recid|attr }}';var webRoot={{ web_root|js_escape }};var cpid='{{ cpid|attr }}';var cuser={{ cuser|js_escape }};</script>
+<script>var register={{ register|js_escape }};var recid='{{ recid|attr }}';var webRoot={{ web_root|js_escape }};var cpid='{{ cpid|attr }}';var cuser={{ cuser|js_escape }};</script>
 
 <script src="{{ web_root }}/portal/patient/scripts/app/patientdata.js?v={{ v_js_includes|attr_url }}"></script>
 <script>
