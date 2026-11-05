@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientReview\Portal;
 
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\ReviewActor;
@@ -28,6 +29,7 @@ use OpenEMR\Services\PatientReview\ReviewQueueService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewSubmission;
 use OpenEMR\Services\PatientReview\ReviewType;
+use Psr\Log\LoggerInterface;
 
 final readonly class PortalReviewWorkflows
 {
@@ -54,7 +56,7 @@ final readonly class PortalReviewWorkflows
     /** The portal request types that wait on staff review (an invoice waits on the patient). */
     public const REVIEW_TYPES = [ReviewType::Profile, ReviewType::Payment, ReviewType::Document];
 
-    public function __construct(private ReviewQueueService $queue)
+    public function __construct(private ReviewQueueService $queue, private LoggerInterface $logger)
     {
     }
 
@@ -184,11 +186,24 @@ final readonly class PortalReviewWorkflows
     /**
      * The card details of a payment still waiting to be posted.
      *
-     * @return array<array-key, mixed> empty once the payment is posted or when there were none
+     * Card details that cannot be decrypted (the site's keys were replaced after the payment
+     * was submitted) come back as null rather than throwing, so the payment page still opens:
+     * the patient can submit the payment again and staff can see it needs that.
+     *
+     * @return ?array<array-key, mixed> empty once the payment is posted or when there were none;
+     *                                  null when they are stored but cannot be read
      */
-    public function paymentCardDetails(ReviewRequest $payment): array
+    public function paymentCardDetails(ReviewRequest $payment): ?array
     {
-        $json = $this->queue->readSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD);
+        try {
+            $json = $this->queue->readSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD);
+        } catch (CryptoGenException $e) {
+            $this->logger->error('Card details of a portal payment could not be decrypted', [
+                'request_id' => $payment->id,
+                'exception' => $e,
+            ]);
+            return null;
+        }
         if ($json === null || $json === '') {
             return [];
         }

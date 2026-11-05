@@ -63,6 +63,6 @@ final class ReviewQueueFactory
      */
     public static function portalWorkflows(): PortalReviewWorkflows
     {
-        return new PortalReviewWorkflows(self::create());
+        return new PortalReviewWorkflows(self::create(), ServiceContainer::getLogger());
     }
 }

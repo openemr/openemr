@@ -164,9 +164,12 @@ $payment = $recid
 $pendingSince = $payment?->createdAt->format('Y-m-d H:i:s') ?? '';
 $ccdata = [];
 $invdata = [];
+$cardUnreadable = false;
 if ($payment !== null) {
     // Readable only while the payment waits to be posted; deleted once it is.
-    $ccdata = $reviewWorkflows->paymentCardDetails($payment);
+    $cardDetails = $reviewWorkflows->paymentCardDetails($payment);
+    $cardUnreadable = $cardDetails === null;
+    $ccdata = $cardDetails ?? [];
     $invoiceValues = $reviewWorkflows->paymentInvoiceValues($payment);
     $invdata = json_decode($invoiceValues, true);
     echo "<script>var jsondata=" . js_escape($invoiceValues) . ";</script>";
@@ -1146,6 +1149,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
             }
         } else {
+            if ($cardUnreadable) {
+                echo '<div class="alert alert-warning">' . xlt('The card details of this payment could not be read. Ask the patient to submit the payment again.') . '</div>';
+            }
             echo "<button type='submit' class='btn btn-success' form='invoiceForm'>" . xlt('Post Payment') . "</button>";
         }
         ?>

@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientReview;
 
 use Doctrine\DBAL\Exception as DbalException;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewHandlerMissingException;
@@ -288,6 +289,8 @@ final class ReviewQueueService
     /**
      * The decrypted secret, or null when the request has been decided or has none. It stays
      * readable while the request is approved, so the handler applying it can use it.
+     *
+     * @throws CryptoGenException when the stored secret cannot be decrypted
      */
     public function readSecret(int $id, string $kind): ?string
     {

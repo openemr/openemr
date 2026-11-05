@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Services\PatientReview;
 
 use DateTimeImmutable;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
@@ -34,11 +35,13 @@ use Ramsey\Uuid\UuidFactory;
 final class PortalReviewWorkflowsIsolatedTest extends TestCase
 {
     private const PID = 7;
+    private const OLD_KEY_SECRET = 'written under replaced keys';
     private const CARD = '{"cardHolderName":"Ann Lee","cc_type":"Visa","cardNumber":"******** 1111","authCode":"A1","transId":"T1","zip":"12345"}';
 
     private InMemoryReviewRequestStore $store;
     private ReviewQueueService $queue;
     private PortalReviewWorkflows $workflows;
+    private RecordingLogger $logger;
 
     protected function setUp(): void
     {
@@ -51,10 +54,17 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         };
         $crypto = $this->createMock(CryptoInterface::class);
         $crypto->method('encryptForDatabase')->willReturnCallback(static fn(?string $value): string => 'enc(' . $value . ')');
-        $crypto->method('decryptFromDatabase')->willReturnCallback(static fn(?string $value): string => substr((string) $value, 4, -1));
+        $crypto->method('decryptFromDatabase')->willReturnCallback(static function (?string $value): string {
+            // A secret written under keys the site no longer has.
+            if ($value === self::OLD_KEY_SECRET) {
+                throw new CryptoGenException('Decryption failed');
+            }
+            return substr((string) $value, 4, -1);
+        });
+        $this->logger = new RecordingLogger();
 
         $this->queue = new ReviewQueueService($this->store, new RecordingReviewAuditTrail(), $clock, new UuidFactory(), $crypto, new NullLogger());
-        $this->workflows = new PortalReviewWorkflows($this->queue);
+        $this->workflows = new PortalReviewWorkflows($this->queue, $this->logger);
     }
 
     private function patient(): ReviewActor
@@ -110,6 +120,21 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $this->assertSame(PortalReviewWorkflows::NOTE_PAYMENT_POSTED, $posted->reviewNote);
         $this->assertNull($this->store->getSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD), 'card details are deleted on posting');
         $this->assertSame([], $this->workflows->paymentCardDetails($posted));
+    }
+
+    public function testCardDetailsThatCannotBeDecryptedAreReportedNotThrown(): void
+    {
+        $payment = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $this->store->putSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD, self::OLD_KEY_SECRET, new DateTimeImmutable('2026-10-01 09:30:00'));
+
+        $this->assertNull($this->workflows->paymentCardDetails($payment));
+        $this->assertCount(1, $this->logger->records);
+        $this->assertSame($payment->id, $this->logger->records[0][2]['request_id'] ?? null);
+
+        // The patient can still replace it, and the new payment's card details read normally.
+        $again = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $this->assertSame(ReviewStatus::Cancelled, $this->queue->get($payment->id)->status);
+        $this->assertSame('Ann Lee', $this->workflows->paymentCardDetails($again)['cardHolderName'] ?? null);
     }
 
     public function testAPaymentWithoutCardDetailsStoresNoSecret(): void
