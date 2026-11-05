@@ -2,7 +2,9 @@
 
 /**
  * The day each use asks the coverage service about, written once per use so
- * callers don't each decide which date counts.
+ * callers don't each decide which date counts. When a use's date can't be
+ * read, there is no day: the caller decides what that means, rather than
+ * billing the plan in force today.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -42,20 +44,20 @@ final readonly class CoverageDay
 
     /**
      * A lab order's bill-to (HL7 IN1, the requisition): the specimen's
-     * collection date, else the order date, else today. A lab test's date of
+     * collection date, else the order date, else no day. A lab test's date of
      * service is its collection date (42 CFR 414.510(a)).
      */
-    public function forLabOrder(mixed $collected, mixed $ordered): DateTimeImmutable
+    public function forLabOrder(mixed $collected, mixed $ordered): ?DateTimeImmutable
     {
-        return self::fromStored($collected) ?? self::fromStored($ordered) ?? $this->today();
+        return self::fromStored($collected) ?? self::fromStored($ordered);
     }
 
     /**
-     * A visit, a charge or a claim: the encounter's date, else today.
+     * A visit, a charge or a claim: the encounter's date, else no day.
      */
-    public function forVisit(mixed $encounterDate): DateTimeImmutable
+    public function forVisit(mixed $encounterDate): ?DateTimeImmutable
     {
-        return self::fromStored($encounterDate) ?? $this->today();
+        return self::fromStored($encounterDate);
     }
 
     /**

@@ -70,26 +70,52 @@ final class CoverageDayTest extends TestCase
         self::assertSame('America/Chicago', $today->getTimezone()->getName());
     }
 
-    #[Test]
-    public function aLabOrderAsksAboutTheCollectionDateThenTheOrderDateThenToday(): void
+    /**
+     * @return array<string, array{mixed}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unreadable(): array
     {
-        $days = self::days();
-
-        self::assertSame('2026-10-02', $days->forLabOrder('2026-10-02 08:15:00', '2026-10-01')->format('Y-m-d'));
-        self::assertSame('2026-10-01', $days->forLabOrder(null, '2026-10-01')->format('Y-m-d'));
-        self::assertSame('2026-10-01', $days->forLabOrder('0000-00-00 00:00:00', '2026-10-01')->format('Y-m-d'));
-        self::assertSame('2026-11-04', $days->forLabOrder('', null)->format('Y-m-d'));
-        self::assertSame('2026-10-01', $days->forLabOrder(false, '2026-10-01')->format('Y-m-d'));
+        return [
+            'null' => [null],
+            'blank' => [''],
+            'zero' => ['0000-00-00'],
+            'a zero datetime' => ['0000-00-00 00:00:00'],
+            'the display format' => ['05/01/2025'],
+            'not a string: false (a failed fetch)' => [false],
+        ];
     }
 
     #[Test]
-    public function aVisitAsksAboutItsDateElseToday(): void
+    #[DataProvider('unreadable')]
+    public function aVisitWithADayItCantReadAsksAboutNoDay(mixed $encounterDate): void
+    {
+        self::assertNull(self::days()->forVisit($encounterDate), 'the caller decides; today would bill the plan in force now');
+    }
+
+    #[Test]
+    public function aVisitAsksAboutItsDate(): void
+    {
+        self::assertSame('2026-06-30', self::days()->forVisit('2026-06-30 16:45:00')?->format('Y-m-d'));
+    }
+
+    #[Test]
+    public function aLabOrderAsksAboutTheCollectionDateThenTheOrderDate(): void
     {
         $days = self::days();
 
-        self::assertSame('2026-06-30', $days->forVisit('2026-06-30 16:45:00')->format('Y-m-d'));
-        self::assertSame('2026-11-04', $days->forVisit(null)->format('Y-m-d'));
-        self::assertSame('2026-11-04', $days->forVisit('0000-00-00')->format('Y-m-d'));
-        self::assertSame('2026-11-04', $days->forVisit(false)->format('Y-m-d'));
+        self::assertSame('2026-10-02', $days->forLabOrder('2026-10-02 08:15:00', '2026-10-01')?->format('Y-m-d'));
+        self::assertSame('2026-10-01', $days->forLabOrder(null, '2026-10-01')?->format('Y-m-d'));
+        self::assertSame('2026-10-01', $days->forLabOrder('0000-00-00 00:00:00', '2026-10-01')?->format('Y-m-d'));
+        self::assertSame('2026-10-01', $days->forLabOrder(false, '2026-10-01')?->format('Y-m-d'));
+    }
+
+    #[Test]
+    #[DataProvider('unreadable')]
+    public function aLabOrderWithNeitherDateReadableAsksAboutNoDay(mixed $date): void
+    {
+        self::assertNull(self::days()->forLabOrder($date, $date));
+        self::assertNull(self::days()->forLabOrder($date, '06/30/2026'), 'an order date in the display format is not read either');
     }
 }
