@@ -58,7 +58,7 @@ final readonly class OnsiteDocumentController
         ) ?? 0;
 
         // A portal patient sees only their own documents.
-        $pid = self::sessionPid() ?? (int) $query->getString('pid');
+        $pid = $caller->patientPid() ?? (int) $query->getString('pid');
         PortalPatientAccessGuard::assertCanReadDocuments($pid);
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -142,7 +142,7 @@ final readonly class OnsiteDocumentController
         try {
             $query = $request->query;
             // A portal patient lists only their own documents.
-            $pid = self::sessionPid() ?? filter_var($query->getString('patientId'), FILTER_VALIDATE_INT);
+            $pid = $caller->patientPid() ?? filter_var($query->getString('patientId'), FILTER_VALIDATE_INT);
             if (!is_int($pid) || $pid <= 0) {
                 throw new \InvalidArgumentException('A patient is required');
             }
@@ -220,7 +220,7 @@ final readonly class OnsiteDocumentController
 
             // A portal patient adds documents only for themselves.
             $document = [
-                'pid' => self::sessionPid() ?? PortalJson::field($json, 'pid'),
+                'pid' => $caller->patientPid() ?? PortalJson::field($json, 'pid'),
             ];
             PortalPatientAccessGuard::assertCanAddDocument($document['pid']);
 
@@ -320,7 +320,7 @@ final readonly class OnsiteDocumentController
 
             // A portal patient's document stays theirs. Staff may move it only to a patient
             // whose documents they may also change.
-            $document['pid'] = self::sessionPid() ?? PortalJson::field($json, 'pid', $owner);
+            $document['pid'] = $caller->patientPid() ?? PortalJson::field($json, 'pid', $owner);
             PortalPatientAccessGuard::assertCanWriteDocuments($document['pid']);
             // Set values from API interface.
             foreach (['facility', 'provider', 'encounter', 'docType', 'patientSignedStatus', 'acceptSignedStatus', 'authorizingSignator', 'denialReason', 'authorizedSignature', 'patientSignature', 'fileName', 'filePath', 'templateData'] as $field) {
@@ -364,15 +364,6 @@ final readonly class OnsiteDocumentController
         }
     }
 
-    /**
-     * The portal patient's pid when the caller is one, so their requests stay on their own record.
-     */
-    private static function sessionPid(): ?int
-    {
-        $pid = filter_var(OEGlobalsBag::getInstance()->get('bootstrap_pid'), FILTER_VALIDATE_INT);
-
-        return is_int($pid) && $pid > 0 ? $pid : null;
-    }
 
     /**
      * What empty() treated as filled: anything but null, false, 0, '', '0' and [].

@@ -19,7 +19,6 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\PortalApiCsrfGuard;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -68,16 +67,13 @@ try {
     if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
         // Bootstrap the session pid so downstream code can bind to it.
         $globalsBag->set('bootstrap_pid', $session->get('pid'));
-        $recordId = QueryUtils::fetchSingleValue('SELECT `id` FROM `patient_data` WHERE `pid` = ?', 'id', [$globalsBag->get('bootstrap_pid')]);
-        $globalsBag->set('bootstrap_uri_id', $recordId);
         // Scan every request source for any pid-family key that disagrees with the session pid.
         PortalSessionPidGuard::assertRequestKeysMatchSession($_POST, $_GET, $_REQUEST);
     }
 
     $bootstrapPid = filter_var($globalsBag->get('bootstrap_pid'), FILTER_VALIDATE_INT);
     if (is_int($bootstrapPid) && $bootstrapPid > 0) {
-        $recordId = filter_var($globalsBag->get('bootstrap_uri_id'), FILTER_VALIDATE_INT);
-        $caller = PortalPrincipal::portalPatient($bootstrapPid, is_int($recordId) ? $recordId : null);
+        $caller = PortalPrincipal::portalPatient($bootstrapPid);
     } elseif ($globalsBag->getBoolean('bootstrap_register')) {
         $caller = PortalPrincipal::registering();
     } else {

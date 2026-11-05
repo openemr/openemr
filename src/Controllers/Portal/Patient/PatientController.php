@@ -22,6 +22,7 @@ use OpenEMR\Common\Session\PortalPatientAccessGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Portal\Routing\PortalPrincipal;
+use OpenEMR\Portal\Routing\PrincipalKind;
 use OpenEMR\Portal\Routing\RouteMatch;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
@@ -68,11 +69,11 @@ final readonly class PatientController
         $query = $request->query;
         $globalsBag = OEGlobalsBag::getInstance();
         // A portal patient sees only themselves.
-        $pid = self::sessionPid() ?? (int) $query->getString('pid');
+        $pid = $caller->patientPid() ?? (int) $query->getString('pid');
         $register = $query->get('register', 0);
 
         // Registration has no chart yet.
-        if ($globalsBag->getBoolean('bootstrap_register')) {
+        if ($caller->kind === PrincipalKind::Registering) {
             $pid = 0;
             $register = true;
         } else {
@@ -144,11 +145,10 @@ final readonly class PatientController
     public function Query(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
         try {
-            $globalsBag = OEGlobalsBag::getInstance();
             // A portal patient sees only themselves.
-            $pid = self::sessionPid() ?? $request->query->getString('patientId');
+            $pid = $caller->patientPid() ?? $request->query->getString('patientId');
             // Registration (no chart yet) gets one row of empty fields.
-            if ($globalsBag->getBoolean('bootstrap_register')) {
+            if ($caller->kind === PrincipalKind::Registering) {
                 $rows = [$this->profiles->profileRow(0)];
             } else {
                 PortalPatientAccessGuard::assertCanRead($pid);
@@ -254,7 +254,7 @@ final readonly class PatientController
                 return PortalJson::error('Please check the form for errors', $errors);
             }
             $saved = $this->profiles->save($record);
-            self::closeProfileReview($saved['pid']);
+            self::closeProfileReview($saved['pid'], $caller);
 
             return PortalJson::ok($saved);
         } catch (\RuntimeException | \LogicException $ex) {
@@ -265,13 +265,13 @@ final readonly class PatientController
     /**
      * Close the patient's pending profile change once staff have committed it to the chart.
      */
-    private static function closeProfileReview(mixed $pid): void
+    private static function closeProfileReview(mixed $pid, PortalPrincipal $caller): void
     {
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Only staff accept a profile change; a patient saving their own record leaves it in review.
-        if ($session->has('patient_portal_onsite_two')) {
+        if ($caller->kind !== PrincipalKind::Staff) {
             return;
         }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // The demographics are already saved. If the request cannot be closed (a concurrent close,
         // say), it stays open for staff to clear; failing here would report the save as failed
         // and invite a second save.
@@ -285,15 +285,6 @@ final readonly class PatientController
         }
     }
 
-    /**
-     * The portal patient's pid when the caller is one, so their requests stay on their own record.
-     */
-    private static function sessionPid(): ?int
-    {
-        $pid = filter_var(OEGlobalsBag::getInstance()->get('bootstrap_pid'), FILTER_VALIDATE_INT);
-
-        return is_int($pid) && $pid > 0 ? $pid : null;
-    }
 
     /**
      * What empty() treated as filled: anything but null, false, 0, '', '0' and [].

@@ -21,8 +21,7 @@
  *      the "no authenticated user" behaviour.
  *   2. The router enforces each route's access rule for the core-user
  *      fallback as well as for portal patients. `All` and `Staff` routes are
- *      open to the fallback; `None` / `Limited` routes deny because their
- *      binding logic assumes `bootstrap_pid`. That rule now lives in
+ *      open to the fallback; `None` routes deny. That rule now lives in
  *      OpenEMR\Portal\Routing\PortalRouter and is tested by PortalRouterTest;
  *      this test keeps the route-table sentinel for the document routes.
  *

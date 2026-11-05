@@ -5,8 +5,7 @@
  *
  * The rules are the old Phreeze GenericRouter's, kept exactly:
  * - A literal route (no wildcard) is matched first; then the wildcard routes, in table order.
- * - A portal patient may use `All` routes, and `Limited` wildcard routes whose first wildcard is
- *   their own patient_data id. A literal `Limited` route is refused (it has no id to compare).
+ * - A portal patient may use `All` routes.
  * - Staff may use `All` and `Staff` routes.
  * - A registering visitor may use only routes open to registration, whatever their access.
  * - No match is the not-found page, not a refusal.
@@ -42,7 +41,7 @@ final readonly class PortalRouter
 
         foreach ($this->routes as $route) {
             if ($route->isLiteral() && $route->key() === $key) {
-                self::authorize($route, $principal, null);
+                self::authorize($route, $principal);
 
                 return new RouteMatch($route, self::params($route, $path));
             }
@@ -50,7 +49,7 @@ final readonly class PortalRouter
 
         foreach ($this->routes as $route) {
             if (preg_match($route->regex(), $key, $captures) === 1) {
-                self::authorize($route, $principal, $captures[1] ?? null);
+                self::authorize($route, $principal);
 
                 return new RouteMatch($route, self::params($route, $path));
             }
@@ -62,19 +61,16 @@ final readonly class PortalRouter
     /**
      * @throws PortalRouteDeniedException
      */
-    private static function authorize(PortalRoute $route, PortalPrincipal $principal, ?string $firstWildcard): void
+    private static function authorize(PortalRoute $route, PortalPrincipal $principal): void
     {
         $allowed = match ($principal->kind) {
             PrincipalKind::PortalPatient => match ($route->access) {
                 RouteAccess::All => true,
-                RouteAccess::Limited => $firstWildcard !== null
-                    && $principal->recordId !== null
-                    && $firstWildcard === (string) $principal->recordId,
                 RouteAccess::Staff, RouteAccess::None => false,
             },
             PrincipalKind::Staff => match ($route->access) {
                 RouteAccess::All, RouteAccess::Staff => true,
-                RouteAccess::Limited, RouteAccess::None => false,
+                RouteAccess::None => false,
             },
             PrincipalKind::Registering => $route->registration,
         };
