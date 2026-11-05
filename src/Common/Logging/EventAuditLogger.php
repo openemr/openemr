@@ -574,9 +574,19 @@ class EventAuditLogger implements AuditLoggerInterface
         // The table after FROM is the read. A joined users row must not
         // replace an unknown form table, and a known table named there
         // wins over a table that only appears later in the statement.
+        // A security table is the exception: a joined chart, order, or
+        // lab table is the read, so turning security auditing off does
+        // not drop that patient.
         if ($primaryTable !== '' && array_key_exists($primaryTable, self::LOG_TABLES)) {
             $matchedTable = $primaryTable;
             $eventCategory = self::LOG_TABLES[$primaryTable];
+            if ($eventCategory === EventCategory::SecurityAdministration) {
+                $joined = $this->joinedClinicalTable($truncated_sql);
+                if ($joined !== null) {
+                    $matchedTable = $joined;
+                    $eventCategory = self::LOG_TABLES[$joined] ?? EventCategory::PatientRecord;
+                }
+            }
             $category = $this->eventCategoryFinder($comments, $eventCategory->value, $matchedTable);
         } elseif ($primaryTable !== '' && str_starts_with($primaryTable, 'form_')) {
             $matchedTable = $primaryTable;
@@ -631,6 +641,37 @@ class EventAuditLogger implements AuditLoggerInterface
         $group = $this->session->get('authProvider') ?? "";
         $success = (int)($outcome !== false);
         $this->recordLogItem($success, $event, $user, $group, $comments, $pid, $category);
+    }
+
+
+    /**
+     * The first joined chart, order, lab, or form table, if the statement has one.
+     *
+     * Security tables are skipped. The caller uses this only when the table
+     * after FROM is itself a security table.
+     */
+    private function joinedClinicalTable(string $sql): ?string
+    {
+        if (preg_match_all('/\bjoin\s+`?([a-z0-9_]+)`?/i', $sql, $matches) < 1) {
+            return null;
+        }
+        foreach ($matches[1] as $name) {
+            if (!is_string($name)) {
+                continue;
+            }
+            $table = strtolower($name);
+            if (array_key_exists($table, self::LOG_TABLES)) {
+                if (self::LOG_TABLES[$table] === EventCategory::SecurityAdministration) {
+                    continue;
+                }
+                return $table;
+            }
+            if (str_starts_with($table, 'form_')) {
+                return $table;
+            }
+        }
+
+        return null;
     }
 
     /**
