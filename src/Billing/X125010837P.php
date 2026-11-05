@@ -1,6 +1,7 @@
 <?php
 
-/* X125010837P Class
+/**
+ * X125010837P Class
  *
  * This program creates an X12 5010 837P file.
  *
