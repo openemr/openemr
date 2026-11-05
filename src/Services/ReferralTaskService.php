@@ -116,8 +116,11 @@ class ReferralTaskService
         return $this->documentFactory === null ? new \Document() : ($this->documentFactory)();
     }
 
-    /** LOINC 11488-4, the type of the reply a Task's output holds. */
-    private const REPLY_OUTPUT_TYPE = ['type_system' => 'http://loinc.org', 'type_code' => '11488-4', 'type_text' => 'Consult note'];
+    /**
+     * LOINC 11488-4, the type of the reply a Task's output holds, and of the reply the eCQMs read
+     * (Qdm\Services\ConsultantReportService).
+     */
+    public const REPLY_OUTPUT_TYPE = ['type_system' => 'http://loinc.org', 'type_code' => '11488-4', 'type_text' => 'Consult note'];
 
     /**
      * After a transaction is saved: a Task for its referral's recipient, unless they have one that
