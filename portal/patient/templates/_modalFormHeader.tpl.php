@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 $globalsBag = OEGlobalsBag::getInstance();
@@ -43,6 +45,7 @@ $v_js_includes = $globalsBag->get('v_js_includes');
 <script src="<?php echo $assets_static_relative; ?>/underscore/underscore-min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <script src="<?php echo $assets_static_relative; ?>/backbone/backbone-min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <script src="<?php echo $web_root; ?>/portal/patient/scripts/app.js?v=<?php echo $v_js_includes; ?>"></script>
+<script>window.portalApiCsrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession())); ?>;</script>
 <script src="<?php echo $web_root; ?>/portal/patient/scripts/model.js?v=<?php echo $v_js_includes; ?>"></script>
 <script src="<?php echo $web_root; ?>/portal/patient/scripts/view.js?v=<?php echo $v_js_includes; ?>"></script>
 <base href="<?php $this->eprint($this->ROOT_URL); ?>" />

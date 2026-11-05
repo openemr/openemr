@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -41,6 +42,7 @@ if ($session->get('patient_portal_onsite_two', 0)) {
 }
 ?>
 
+<script>window.portalApiCsrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;</script>
 <script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <script>
     $LAB.script("<?php echo $assets_static_relative; ?>/underscore/underscore-min.js").wait()

@@ -15,6 +15,8 @@ $this->assign('nav', 'home');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -42,6 +44,7 @@ $v_js_includes = $globalsBag->get('v_js_includes');
     <script src="<?php echo $web_root; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="<?php echo $web_root; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"></script>
 
+    <script>window.portalApiCsrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession())); ?>;</script>
     <script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
         $LAB.script("<?php echo $assets_static_relative; ?>/underscore/underscore-min.js")
