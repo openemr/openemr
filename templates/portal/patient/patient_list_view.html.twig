@@ -21,7 +21,8 @@
  # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  #}
 {% set row = trow ?: [] %}
-<script>var register='{{ register|attr }}';var recid='{{ recid|attr }}';var webRoot={{ web_root|js_escape }};var cpid='{{ cpid|attr }}';var cuser='{{ cuser|attr }}';</script>{% include 'portal/patient/_modal_form_header.html.twig' with {title: 'Patient Portal'|xl ~ ' | ' ~ 'Patient Data'|xl} %}
+{% include 'portal/patient/_modal_form_header.html.twig' with {title: 'Patient Portal'|xl ~ ' | ' ~ 'Patient Data'|xl} %}
+<script>var register='{{ register|attr }}';var recid='{{ recid|attr }}';var webRoot={{ web_root|js_escape }};var cpid='{{ cpid|attr }}';var cuser={{ cuser|js_escape }};</script>
 
 <script src="{{ web_root }}/portal/patient/scripts/app/patientdata.js?v={{ v_js_includes|attr_url }}"></script>
 <script>

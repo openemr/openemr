@@ -42,9 +42,9 @@ final class PortalJsonTest extends TestCase
 
     public function testInvalidUtf8IsReplacedRatherThanFailingTheResponse(): void
     {
-        $response = PortalJson::ok(['fullDocument' => "caf\xE9 au lait"]);
+        $response = PortalJson::ok(['fullDocument' => "one bad \xE9 byte"]);
 
         $decoded = json_decode((string) $response->getContent(), true, flags: JSON_THROW_ON_ERROR);
-        $this->assertSame(['fullDocument' => "caf\u{FFFD} au lait"], $decoded);
+        $this->assertSame(['fullDocument' => "one bad \u{FFFD} byte"], $decoded);
     }
 }
