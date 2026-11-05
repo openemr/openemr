@@ -130,6 +130,15 @@ class ErrorHandlerTest extends TestCase
         self::assertSame('Method Not Allowed', (string) $response->getBody());
     }
 
+    public function testHttpExceptionResponseDropsStaleContentLength(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new HttpException(404, headers: ['Content-Length' => '0']));
+
+        self::assertFalse($response->hasHeader('Content-Length'));
+        self::assertSame('Not Found', (string) $response->getBody());
+    }
+
     public function testHttpExceptionWithUnknownStatusGetsGenericBody(): void
     {
         $response = $this->createResponseHandler()

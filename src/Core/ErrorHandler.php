@@ -138,7 +138,10 @@ readonly class ErrorHandler
             if ($this->shouldDisplayErrors) {
                 $message .= "\n$e";
             }
-            return $response->withBody($this->sf->createStream($message));
+            // A Content-Length copied from the exception would not match the new body.
+            return $response
+                ->withoutHeader('Content-Length')
+                ->withBody($this->sf->createStream($message));
         }
 
         // Default: nondescript 500 error.
