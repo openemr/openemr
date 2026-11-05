@@ -21,6 +21,18 @@ inputs:
     description: Skip Composer cache and install steps
     required: false
     default: 'false'
+  working-directory:
+    description: Directory holding the composer.json to install
+    required: false
+    default: '.'
+  no-scripts:
+    description: Pass --no-scripts to composer install
+    required: false
+    default: 'false'
+  no-dev:
+    description: Pass --no-dev to composer install
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -37,6 +49,7 @@ runs:
     if: inputs.skip-composer-install != 'true'
     id: composer-cache
     shell: bash
+    working-directory: ${{ inputs.working-directory }}
     run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
   - name: Cache Composer dependencies
@@ -52,4 +65,16 @@ runs:
   - name: Install Composer dependencies
     if: inputs.skip-composer-install != 'true'
     shell: bash
-    run: composer install --prefer-dist --no-progress
+    working-directory: ${{ inputs.working-directory }}
+    env:
+      NO_SCRIPTS: ${{ inputs.no-scripts }}
+      NO_DEV: ${{ inputs.no-dev }}
+    run: |
+      flags=(--prefer-dist --no-progress --no-interaction)
+      if [[ $NO_SCRIPTS = true ]]; then
+        flags+=(--no-scripts)
+      fi
+      if [[ $NO_DEV = true ]]; then
+        flags+=(--no-dev)
+      fi
+      composer install "${flags[@]}"
