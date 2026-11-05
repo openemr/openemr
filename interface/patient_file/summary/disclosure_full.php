@@ -21,7 +21,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\PhiAccessDisclosureService;
 use OpenEMR\Core\Header;
 
 
@@ -50,14 +50,14 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
             exit;
         }
         //update the recorded disclosure in the extended_log table.
-        EventAuditLogger::getInstance()->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
+        (new PhiAccessDisclosureService())->update($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
     } else {
         if (!$authWrite && !$authAddonly) {
             echo xlt('Not Authorized');
             exit;
         }
         //insert the disclosure records in the extended_log table.
-        EventAuditLogger::getInstance()->recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
+        (new PhiAccessDisclosureService())->record($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
     }
     // added ajax submit to record_disclosure thus an exit() 12/19/17
     exit();
@@ -73,7 +73,7 @@ if (isset($_GET['deletelid'])) {
 
     $deletelid = $_GET['deletelid'];
     //function to delete the recorded disclosures
-    EventAuditLogger::getInstance()->deleteDisclosure($deletelid);
+    (new PhiAccessDisclosureService())->delete($deletelid);
 }
 
 $active = $_GET['active'] ?? '';

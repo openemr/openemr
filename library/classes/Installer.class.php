@@ -1549,6 +1549,9 @@ $config = 1; /////////////
             return false;
         }
 
+        $this->logger->debug('Installing audit log triggers');
+        $this->installAuditTriggers();
+
         // Write the sql configuration file
         $this->logger->debug('Writing configuration file');
         if (! $this->write_configuration_file()) {
@@ -1629,6 +1632,26 @@ $config = 1; /////////////
             $this->die("Illegal character(s) in collation name");
         }
         return $name;
+    }
+
+    /**
+     * Create the audit triggers when the account is allowed to.
+     *
+     * A failure here does not stop installation. The upgrade applicator
+     * tries again, and the application refuses the statements itself.
+     *
+     * @return int How many trigger statements failed.
+     */
+    public function installAuditTriggers(): int
+    {
+        $failures = 0;
+        foreach (\OpenEMR\Common\Logging\Audit\AuditLogGrantPlan::triggerStatements() as $sql) {
+            if ($this->execute_sql($sql, false) === false) {
+                $failures++;
+            }
+        }
+
+        return $failures;
     }
 
     /**
