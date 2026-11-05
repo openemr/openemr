@@ -276,10 +276,20 @@ function startApp() {
                 usedWidth += el.offsetWidth;
             }
         });
-        const width = Math.floor(Math.max(256, window.innerWidth - usedWidth - marginX));
-        const height = Math.floor(Math.max(256, window.innerHeight - header.offsetHeight - marginY));
+        let width = Math.floor(Math.max(256, window.innerWidth - usedWidth - marginX));
+        let height = Math.floor(Math.max(256, window.innerHeight - header.offsetHeight - marginY));
         container.style.width = width + "px";
         container.style.height = height + "px";
+        // The page must not scroll inside its frame: take back whatever still overflows
+        // (padding or borders of the surrounding page that are not known here).
+        const overflowX = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+        const overflowY = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        if (overflowX > 0 || overflowY > 0) {
+            width = Math.max(256, width - Math.max(0, overflowX));
+            height = Math.max(256, height - Math.max(0, overflowY));
+            container.style.width = width + "px";
+            container.style.height = height + "px";
+        }
         if (imageLoaded && container.offsetParent !== null) {
             try {
                 oemrApp.fitToSize({width: width, height: height});
