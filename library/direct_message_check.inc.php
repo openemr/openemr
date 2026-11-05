@@ -422,18 +422,7 @@ function phimail_check(): void
                         if (empty($body_text ?? '')) {
                             $body_text = xl("Please note, this message was received empty and is not an error.");
                         }
-                        $pnote_id = addPnote(
-                            0,
-                            xl("Direct Message Received.") . "\n$hdrs\n$body_text$att_detail",
-                            0,
-                            1,
-                            "Unassigned",
-                            $notifyUsername,
-                            "",
-                            "New",
-                            "phimail-service"
-                        );
-                        unlink($body);
+                        $note = xl("Direct Message Received.") . "\n$hdrs\n$body_text$att_detail";
                         break;
                     case "text/html":
                         $body_text = @file_get_contents($body);
@@ -443,29 +432,27 @@ function phimail_check(): void
                             // meager attempt to convert to text. @TODO convert our Messages message body from textarea to div so can display html.
                             $body_text = trim(html_entity_decode(strip_tags(str_ireplace(["<br />", "<br>", "<br/>"], PHP_EOL, $body_text))));
                         }
-                        $pnote_id = addPnote(
-                            0,
-                            xl("Direct Message Received.") . "\n$hdrs\n$body_text$att_detail",
-                            0,
-                            1,
-                            "Unassigned",
-                            $notifyUsername,
-                            "",
-                            "New",
-                            "phimail-service"
-                        );
-                        unlink($body);
+                        $note = xl("Direct Message Received.") . "\n$hdrs\n$body_text$att_detail";
                         break;
 
                     default:
                         $note = xl("Direct Message Received.") . "\n$hdrs\n"
                             . xl("Message content is not plain text so it has been stored as a document.") . $att_detail;
-                        $pnote_id = addPnote(0, $note, 0, 1, "Unassigned", $notifyUsername, "", "New", "phimail-service");
                         break;
                 }
 
-                foreach ($all_doc_ids as $doc_id) {
-                    setGpRelation(1, $doc_id, 6, $pnote_id);
+                try {
+                    $pnote_id = addPnote(0, $note, 0, 1, "Unassigned", $notifyUsername, "", "New", "phimail-service");
+                    foreach ($all_doc_ids as $doc_id) {
+                        setGpRelation(1, $doc_id, 6, $pnote_id);
+                    }
+                } catch (SqlQueryException $e) {
+                    $fail("database problem delivering received message: " . $msg_id, $e);
+                }
+
+                // A text body was not stored as a document, so delete it only now that the note holds it
+                if ($mime_type_main === "text/plain" || $mime_type_main === "text/html") {
+                    unlink($body);
                 }
 
                 //logging only after successful download, storage, acknowledgement, and delivery of message
