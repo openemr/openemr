@@ -6,6 +6,9 @@
  * Errors keep the old Phreeze shape and status: 401 with `{"success": false, "message": …,
  * "errors": {…}}`. An unexpected failure is logged and reported with a generic message.
  *
+ * Invalid UTF-8 in a value (say, a stored document) is sent as U+FFFD rather than failing the
+ * whole response.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -25,7 +28,7 @@ final class PortalJson
     public static function ok(mixed $data): Response
     {
         return new Response(
-            json_encode($data, JSON_THROW_ON_ERROR),
+            json_encode($data, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE),
             Response::HTTP_OK,
             ['Content-Type' => 'application/json'],
         );
@@ -37,7 +40,7 @@ final class PortalJson
     public static function error(string $message, array $errors = []): Response
     {
         return new Response(
-            json_encode(['success' => false, 'message' => $message, 'errors' => $errors], JSON_THROW_ON_ERROR),
+            json_encode(['success' => false, 'message' => $message, 'errors' => $errors], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE),
             Response::HTTP_UNAUTHORIZED,
             ['Content-Type' => 'application/json'],
         );
