@@ -32,6 +32,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -110,6 +111,24 @@ if (!empty($_POST['form_save'])) {
     // Server-side validation: require check/reference number for check and bank draft payments
     if (($form_method === 'check_payment' || $form_method === 'bank_draft') && $form_source === '') {
         $alertmsg = xl('Check or Reference Number is required for this payment method.');
+    }
+
+    // In House card dialog: its approval code and the card's last four digits arrive as their
+    // own fields and are checked as the dialog checks them; together they are the reference.
+    $inHouseCard = CurrentRequest::get()->request;
+    if ($alertmsg === '' && $globalsBag->getString('payment_gateway') === 'InHouse' && $inHouseCard->getString('inhouse_card') === '1') {
+        $inHouseAuthCode = trim($inHouseCard->getString('inhouse_auth_code'));
+        $inHouseLast4 = trim($inHouseCard->getString('inhouse_last4'));
+        if (
+            $form_method !== 'credit_card'
+            || $inHouseAuthCode === ''
+            || mb_strlen($inHouseAuthCode) > 40
+            || ($inHouseLast4 !== '' && preg_match('/^\d{4}$/', $inHouseLast4) !== 1)
+        ) {
+            $alertmsg = xl('The card approval code is required, and the last four digits must be four numbers.');
+        } else {
+            $form_source = $inHouseLast4 === '' ? $inHouseAuthCode : $inHouseAuthCode . ' : ' . $inHouseLast4;
+        }
     }
 
     if ($alertmsg === '') {
@@ -744,7 +763,9 @@ $(function() {
         inHousePreviousMethod = methodSelect.value;
         inHouseRecorded = false;
         $("#form_method").val('credit_card');
-        if (!validate(true)) {
+        // The full check, save confirmation included: everything is asked before the card is
+        // charged, and the save after recording does not ask again.
+        if (!validate()) {
             $("#form_method").val(inHousePreviousMethod);
             return false;
         }
@@ -785,6 +806,9 @@ function recordInHouseCardPayment(e) {
     }
     $("#form_method").val('credit_card');
     $("#check_number").prop('disabled', false).val(last4 === '' ? auth : auth + ' : ' + last4);
+    $("#inhouse_card").val('1');
+    $("#inhouse_auth_code").val(auth);
+    $("#inhouse_last4").val(last4);
     inHouseRecorded = true;
     $('#openPayModal').modal('hide');
     $("[name='form_save']").click();
@@ -1153,7 +1177,7 @@ function make_insurance() {
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
+                <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return inHouseRecorded === true || validate();'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
@@ -1494,6 +1518,9 @@ function make_insurance() {
                                 }  ?>
                                 <button type='button' class="btn btn-secondary btn-cancel" value='<?php echo xla('Cancel'); ?>' onclick='closeHow(event)'><?php echo xlt('Cancel'); ?></button>
                                 <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($pid);?>"/>
+                                <input type="hidden" name="inhouse_card" id="inhouse_card" value="" />
+                                <input type="hidden" name="inhouse_auth_code" id="inhouse_auth_code" value="" />
+                                <input type="hidden" name="inhouse_last4" id="inhouse_last4" value="" />
                                 <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
                                 <input type='hidden' name='mode' id='mode' value='' />
                             </div>

@@ -186,7 +186,12 @@ class SpherePayment
             }
             function paySphere(front) {
                 let total = document.querySelector(\"[name='form_paytotal']\").value;
-                let prepay = document.getElementById('form_prepayment').value;
+                let prepay = document.getElementById('form_prepayment').value.trim();
+                // Only a plain amount (at most two decimals): the amount charged is the amount posted.
+                if ((prepay !== '' && !/^\\d+(\\.\\d{1,2})?$/.test(prepay)) || !Number.isFinite(Number(total))) {
+                    alert(" . xlj('Enter each amount as a number such as 50.00') . ");
+                    return false;
+                }
                 if (Number(total) < 1) {
                     if (Number(prepay) < 1) {
                         let error = " . xlj('Please enter a payment amount') . "
