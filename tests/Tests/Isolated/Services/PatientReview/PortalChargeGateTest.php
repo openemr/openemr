@@ -85,6 +85,9 @@ final class PortalChargeGateTest extends TestCase
         $this->assertSame(ChargeRefusal::PaymentInProgress, $this->gate->open(self::PID, $this->lock(busy: true)));
     }
 
+    /**
+     * A missing or invalid patient id is refused before the lock is taken.
+     */
     public function testNoPatientNoCharge(): void
     {
         $lock = $this->lock();
@@ -95,6 +98,9 @@ final class PortalChargeGateTest extends TestCase
         $this->assertSame([], $lock->calls, 'the lock is not touched');
     }
 
+    /**
+     * Every refusal tells the patient something.
+     */
     public function testEachRefusalHasAMessage(): void
     {
         foreach (ChargeRefusal::cases() as $refusal) {

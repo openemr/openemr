@@ -25,6 +25,9 @@ final class FakePaymentLock implements PatientPaymentLock
     {
     }
 
+    /**
+     * Records the call, or throws as the real lock does when it is busy.
+     */
     public function acquire(int $pid): void
     {
         $this->calls[] = 'acquire ' . $pid;

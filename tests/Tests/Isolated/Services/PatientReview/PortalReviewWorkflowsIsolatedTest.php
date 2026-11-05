@@ -47,6 +47,9 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
     private PortalReviewWorkflows $workflows;
     private RecordingLogger $logger;
 
+    /**
+     * A fresh in-memory queue, with a crypto stub that fails on the old key ciphertext.
+     */
     protected function setUp(): void
     {
         $this->store = new InMemoryReviewRequestStore();
@@ -126,6 +129,9 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $this->assertSame([], $this->workflows->paymentCardDetails($posted));
     }
 
+    /**
+     * Undecryptable card details are logged and come back as null, and the patient can submit again.
+     */
     public function testCardDetailsThatCannotBeDecryptedAreReportedNotThrown(): void
     {
         $payment = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
@@ -175,6 +181,9 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $this->assertNull($this->postingBlock($noCard));
     }
 
+    /**
+     * Every posting block tells staff something.
+     */
     public function testEachPostingBlockHasAMessage(): void
     {
         OEGlobalsBag::getInstance()->set('disable_translation', true);
