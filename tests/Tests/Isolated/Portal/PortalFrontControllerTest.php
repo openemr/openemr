@@ -113,11 +113,23 @@ final class PortalFrontControllerTest extends TestCase
         return $session;
     }
 
+    /**
+     * The response body, which must be a string: a false body would make the "does not
+     * contain" assertions pass whatever was sent.
+     */
+    private function content(Response $response): string
+    {
+        $content = $response->getContent();
+        $this->assertIsString($content);
+
+        return $content;
+    }
+
     public function testAStaffReadIsDispatchedWithItsPath(): void
     {
         $response = $this->controller()->handle($this->request('GET', 'api/onsitedocuments'), $this->session(), $this->globals, self::ROOT);
 
-        $this->assertSame('dispatched api/onsitedocuments', $response->getContent());
+        $this->assertSame('dispatched api/onsitedocuments', $this->content($response));
         $this->assertCount(1, $this->dispatched);
         $this->assertSame(PrincipalKind::Staff, $this->dispatched[0][2]->kind);
         $this->assertFalse($this->globals->getBoolean('bootstrap_register'));
@@ -164,8 +176,8 @@ final class PortalFrontControllerTest extends TestCase
         $this->assertSame([], $this->dispatched, 'nothing is dispatched');
         $this->assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), 'refused, not an authentication failure');
         $this->assertStringContainsString('application/json', (string) $response->headers->get('Content-Type'));
-        $this->assertStringContainsString('An unexpected error occurred', (string) $response->getContent());
-        $this->assertStringNotContainsString('CSRF', (string) $response->getContent(), 'the failure is not shown');
+        $this->assertStringContainsString('An unexpected error occurred', $this->content($response));
+        $this->assertStringNotContainsString('CSRF', $this->content($response), 'the failure is not shown');
         $this->assertSame('Portal request failed', $this->logger->records[0][1]);
     }
 
@@ -194,9 +206,7 @@ final class PortalFrontControllerTest extends TestCase
         $response = $this->controller(new \RuntimeException('SELECT secret'))->handle($this->request('GET', 'api/onsitedocuments'), $this->session(), $this->globals, self::ROOT);
 
         $this->assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
-        $content = $response->getContent();
-        $this->assertIsString($content);
-        $this->assertStringNotContainsString('secret', $content);
+        $this->assertStringNotContainsString('secret', $this->content($response));
     }
 
     public function testAnApiRouteTheCallerMayNotUseIsRefused(): void
@@ -210,8 +220,8 @@ final class PortalFrontControllerTest extends TestCase
     {
         $response = $this->controller(new \RuntimeException('SELECT secret'))->handle($this->request('GET', 'patientdata'), $this->session(), $this->globals, self::ROOT);
 
-        $this->assertSame('DefaultErrorFatal:An unexpected error occurred', $response->getContent());
-        $this->assertStringNotContainsString('secret', $response->getContent());
+        $this->assertSame('DefaultErrorFatal:An unexpected error occurred', $this->content($response));
+        $this->assertStringNotContainsString('secret', $this->content($response));
     }
 
     public function testAFailingErrorPageFallsBackToPlainHtml(): void
@@ -220,8 +230,8 @@ final class PortalFrontControllerTest extends TestCase
 
         $response = $controller->handle($this->request('GET', 'patientdata'), $this->session(), $this->globals, self::ROOT);
 
-        $this->assertStringContainsString('<h1>Fatal Error:</h1>', (string) $response->getContent());
-        $this->assertStringContainsString('An unexpected error occurred', (string) $response->getContent());
+        $this->assertStringContainsString('<h1>Fatal Error:</h1>', $this->content($response));
+        $this->assertStringContainsString('An unexpected error occurred', $this->content($response));
         $this->assertSame(['Portal request failed', 'Portal error template failed'], array_column($this->logger->records, 1));
     }
 }
