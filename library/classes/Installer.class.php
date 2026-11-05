@@ -753,12 +753,21 @@ class Installer implements InstallerInterface
 
         $it_died = 0;   //fmg: variable keeps running track of any errors
 
-        $this->writeToFile($fd, $string) or $it_died++;
-        $this->writeToFile($fd, "\$host\t= '$this->server';\n") or $it_died++;
-        $this->writeToFile($fd, "\$port\t= '$this->port';\n") or $it_died++;
-        $this->writeToFile($fd, "\$login\t= '$this->login';\n") or $it_died++;
-        $this->writeToFile($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
-        $this->writeToFile($fd, "\$dbase\t= '$this->dbname';\n") or $it_died++;
+        // writeToFile returns int|false — bytes written, or false. The
+        // prior `writeToFile(...) or $it_died++` idiom only caught false
+        // (and empty-string writes); a short write (fwrite returning
+        // fewer bytes than requested, e.g. disk full mid-write) returned
+        // a truthy positive int and was silently accepted, leaving
+        // sqlconf.php truncated while quick_install reported success.
+        // Treat any return value shorter than strlen() as a failure.
+        $writeFull = fn(string $data): bool => $this->writeToFile($fd, $data) === strlen($data);
+
+        $writeFull($string) or $it_died++;
+        $writeFull("\$host\t= '$this->server';\n") or $it_died++;
+        $writeFull("\$port\t= '$this->port';\n") or $it_died++;
+        $writeFull("\$login\t= '$this->login';\n") or $it_died++;
+        $writeFull("\$pass\t= '$this->pass';\n") or $it_died++;
+        $writeFull("\$dbase\t= '$this->dbname';\n") or $it_died++;
 
         // The $config marker tells the docker entrypoint (and setup.php
         // web flow) whether install has fully committed. Callers writing
@@ -788,7 +797,7 @@ $config = ' . $configMarker . '; /////////////
 ?>
 ';
 
-        $this->writeToFile($fd, $string) or $it_died++;
+        $writeFull($string) or $it_died++;
         $this->closeFile($fd) or $it_died++;
 
         //it's rather irresponsible to not report errors when writing this file.

@@ -2385,10 +2385,12 @@ class InstallerTest extends TestCase
             ->with('/test/site/dir/sqlconf.php', 'w')
             ->willReturn($mockFileHandle);
 
-        // All writeToFile calls should succeed
+        // All writeToFile calls should succeed. Return strlen($data) so
+        // the short-write check in write_configuration_file registers
+        // each call as a full write.
         $mockInstaller->expects($this->exactly(7))
             ->method('writeToFile')
-            ->willReturn(10); // Simulate successful writes
+            ->willReturnCallback(fn($h, string $d): int => strlen($d));
 
         // closeFile should succeed
         $mockInstaller->expects($this->once())
@@ -2423,7 +2425,7 @@ class InstallerTest extends TestCase
         $mockInstaller->method('touchFile')->willReturn(true);
         $mockFileHandle = fopen('php://memory', 'w+');
         $mockInstaller->method('openFile')->willReturn($mockFileHandle);
-        $mockInstaller->method('writeToFile')->willReturn(10);
+        $mockInstaller->method('writeToFile')->willReturnCallback(fn($h, string $d): int => strlen($d));
         $mockInstaller->method('closeFile')->willReturn(true);
 
         $result = $mockInstaller->write_configuration_file();
@@ -2475,14 +2477,16 @@ class InstallerTest extends TestCase
         $mockFileHandle = fopen('php://memory', 'w+');
         $mockInstaller->method('openFile')->willReturn($mockFileHandle);
 
-        // Simulate some write failures - return false for some calls
+        // Simulate some write failures — return false for some calls.
+        // Successful calls return strlen($data) so the short-write
+        // check in write_configuration_file registers them as full writes.
         $writeCallCount = 0;
         $mockInstaller->expects($this->exactly(7))
             ->method('writeToFile')
-            ->willReturnCallback(function () use (&$writeCallCount) {
+            ->willReturnCallback(function ($h, string $d) use (&$writeCallCount) {
                 $writeCallCount++;
                 // Fail on calls 3 and 5 to simulate partial write failures
-                return ($writeCallCount === 3 || $writeCallCount === 5) ? false : 10;
+                return ($writeCallCount === 3 || $writeCallCount === 5) ? false : strlen($d);
             });
 
         $mockInstaller->method('closeFile')->willReturn(false); // Also fail closeFile
@@ -2544,6 +2548,85 @@ class InstallerTest extends TestCase
         fclose($mockFileHandle);
     }
 
+    /**
+     * Phase 1 of the two-phase write (see quick_install()): when called
+     * with $configured=false the serialized output must contain
+     * $config = 0, not $config = 1. A writer that silently ignored its
+     * argument would pass the call-order mock test in
+     * testQuickInstallCommitsConfigurationFileOnlyAfterAllSeedingSteps,
+     * so this test captures the real generated content.
+     */
+    public function testWriteConfigurationFileSerializesConfigZeroWhenUnconfigured(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $GLOBALS['OE_SITE_DIR'] = '/test/site/dir';
+        $mockInstaller->conffile = '/test/site/dir/sqlconf.php';
+
+        $mockInstaller->method('fileExists')->willReturn(true);
+        $mockInstaller->method('touchFile')->willReturn(true);
+
+        $mockFileHandle = fopen('php://memory', 'w+');
+        $mockInstaller->method('openFile')->willReturn($mockFileHandle);
+
+        $writtenContent = [];
+        $mockInstaller->expects($this->exactly(7))
+            ->method('writeToFile')
+            ->willReturnCallback(function ($handle, $data) use (&$writtenContent) {
+                $writtenContent[] = $data;
+                return strlen($data);
+            });
+
+        $mockInstaller->method('closeFile')->willReturn(true);
+
+        $result = $mockInstaller->write_configuration_file(configured: false);
+
+        $this->assertTrue($result);
+
+        $allContent = implode('', $writtenContent);
+        $this->assertStringContainsString('$config = 0', $allContent);
+        $this->assertStringNotContainsString('$config = 1', $allContent);
+
+        fclose($mockFileHandle);
+    }
+
+    /**
+     * writeToFile returns int|false — bytes written, or false on error.
+     * A SHORT write (fwrite returning fewer bytes than requested, e.g.
+     * disk full mid-write) used to be silently accepted because the
+     * prior `writeToFile(...) or $it_died++` idiom only treated false
+     * and zero as failure. Lock in the stricter behavior: any return
+     * value shorter than strlen($data) must count as a failed write.
+     */
+    public function testWriteConfigurationFileDetectsShortWrite(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $GLOBALS['OE_SITE_DIR'] = '/test/site/dir';
+        $mockInstaller->conffile = '/test/site/dir/sqlconf.php';
+
+        $mockInstaller->method('fileExists')->willReturn(true);
+        $mockInstaller->method('touchFile')->willReturn(true);
+
+        $mockFileHandle = fopen('php://memory', 'w+');
+        $mockInstaller->method('openFile')->willReturn($mockFileHandle);
+
+        // Return (strlen - 1) on every write — a short write by one byte.
+        // Pre-fix: this returned truthy int and $it_died stayed 0 →
+        // write_configuration_file returned true. Post-fix: $it_died
+        // increments for every short write and the function returns
+        // false with the "Couldn't write N lines" error.
+        $mockInstaller->method('writeToFile')
+            ->willReturnCallback(fn($h, string $d): int => max(0, strlen($d) - 1));
+
+        $mockInstaller->method('closeFile')->willReturn(true);
+
+        $result = $mockInstaller->write_configuration_file();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString("Couldn't write", $mockInstaller->error_message);
+
+        fclose($mockFileHandle);
+    }
+
     public function testWriteConfigurationFileHandlesSpecialCharactersInConfig(): void
     {
         $config = [
@@ -2599,13 +2682,15 @@ class InstallerTest extends TestCase
         $mockFileHandle = fopen('php://memory', 'w+');
         $mockInstaller->method('openFile')->willReturn($mockFileHandle);
 
-        // Simulate exactly 3 write failures (every even call out of 7 total)
+        // Simulate exactly 3 write failures (every even call out of 7 total).
+        // Successful calls return strlen($data) so the short-write check
+        // in write_configuration_file registers them as full writes.
         $writeCallCount = 0;
         $mockInstaller->method('writeToFile')
-            ->willReturnCallback(function () use (&$writeCallCount) {
+            ->willReturnCallback(function ($h, string $d) use (&$writeCallCount) {
                 $writeCallCount++;
                 // Fail on calls 2, 4, 6
-                return ($writeCallCount % 2 === 0) ? false : 10;
+                return ($writeCallCount % 2 === 0) ? false : strlen($d);
             });
 
         $mockInstaller->method('closeFile')->willReturn(true);
