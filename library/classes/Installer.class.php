@@ -733,7 +733,7 @@ class Installer implements InstallerInterface
      *
      * @return bool True if configuration written successfully, false otherwise
      */
-    public function write_configuration_file(): bool
+    public function write_configuration_file(bool $configured = true): bool
     {
         if (!$this->fileExists($GLOBALS['OE_SITE_DIR'])) {
             $this->create_site_directory();
@@ -760,8 +760,16 @@ class Installer implements InstallerInterface
         $this->writeToFile($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
         $this->writeToFile($fd, "\$dbase\t= '$this->dbname';\n") or $it_died++;
 
+        // The $config marker tells the docker entrypoint (and setup.php
+        // web flow) whether install has fully committed. Callers writing
+        // credentials mid-install pass $configured=false — so Gacl and
+        // other helpers that read sqlconf.php can find connection
+        // details — then re-call with $configured=true after every
+        // seeding step has committed. See the two-phase write in
+        // quick_install() below.
+        $configMarker = $configured ? '1' : '0';
         $string = '
-$sqlconf = array();
+$sqlconf = [];
 global $sqlconf;
 $sqlconf["host"]= $host;
 $sqlconf["port"] = $port;
@@ -773,7 +781,7 @@ $sqlconf["dbase"] = $dbase;
 //////////////////////////
 //////////////////////////
 //////DO NOT TOUCH THIS///
-$config = 1; /////////////
+$config = ' . $configMarker . '; /////////////
 //////////////////////////
 //////////////////////////
 //////////////////////////
@@ -1549,6 +1557,21 @@ $config = 1; /////////////
             return false;
         }
 
+        // Write the sql configuration file with $config = 0 (install
+        // not yet committed). install_gacl() instantiates GaclApi,
+        // whose constructor reads sqlconf.php to open its own DB
+        // connection, so the file must exist before the seeding block.
+        // When source_site_id is set the copied sqlconf.php from the
+        // source site already has $config = 1 baked in — this call
+        // overwrites that marker to 0 so a kubelet-killed restart
+        // doesn't see the source's "committed" state and skip install.
+        // A second call at the end of this method flips $config to 1
+        // once every seeding step has committed.
+        $this->logger->debug('Writing configuration file (uncommitted)');
+        if (! $this->write_configuration_file(configured: false)) {
+            return false;
+        }
+
         // Load the version information, globals settings,
         // initial user, and set up gacl access controls.
         // (applicable if not cloning from another database)
@@ -1588,22 +1611,22 @@ $config = 1; /////////////
             }
         }
 
-        // Write the sql configuration file last so that the "$config = 1"
-        // marker — the signal every entrypoint uses to decide whether
-        // auto_configure.php needs to run — is only persisted after the
-        // schema load, admin user, ACL groups, additional service users,
-        // and care-coordination hookup have ALL committed. A container
-        // killed mid-install (e.g. a Kubernetes startup-probe timeout
-        // while quick_install is still executing) then restarts with
-        // $config = 0 and the entrypoint re-runs the install cleanly,
-        // which drops+recreates tables in load_dumpfiles() rather than
-        // leaving behind a half-seeded database. Previously this file was
-        // written right after load_dumpfiles(), so a crash between there
-        // and install_gacl() left sqlconf.php advertising "configured"
-        // while gacl_groups_aro_map had no admin row — manifesting as a
-        // flaky AclMain::aclCheckCore() failure in Kubernetes CI.
-        $this->logger->debug('Writing configuration file');
-        if (! $this->write_configuration_file()) {
+        // Second phase of the config-file write: flip $config to 1 to
+        // signal that install has fully committed. Every entrypoint
+        // reads this marker to decide whether auto_configure.php needs
+        // to run. A container killed between the uncommitted write above
+        // and this commit (e.g. a Kubernetes startup-probe timeout while
+        // quick_install is still executing) restarts with $config = 0;
+        // the entrypoint re-runs the install cleanly, and
+        // load_dumpfiles() drops+recreates every table rather than
+        // compounding on a half-seeded database. Previously sqlconf.php
+        // was written with $config = 1 right after load_dumpfiles(), so
+        // a crash between there and install_gacl() left the file
+        // advertising "configured" while gacl_groups_aro_map had no
+        // admin row — manifesting as a flaky AclMain::aclCheckCore()
+        // failure in Kubernetes CI.
+        $this->logger->debug('Committing configuration file ($config = 1)');
+        if (! $this->write_configuration_file(configured: true)) {
             return false;
         }
 

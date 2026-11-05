@@ -682,7 +682,9 @@ class InstallerTest extends TestCase
 
         // Mock configuration and setup methods
         $mockInstaller->expects($this->once())->method('load_dumpfiles')->willReturn("Creating Main Database tables...\n<span class='text-success'><b>OK</b></span>.<br>\nCreating Language Translations tables...\n<span class='text-success'><b>OK</b></span>.<br>\n");
-        $mockInstaller->expects($this->once())->method('write_configuration_file')->willReturn(true);
+        // Two-phase write: once with $configured=false before install_gacl,
+        // once with $configured=true after all seeding commits.
+        $mockInstaller->expects($this->exactly(2))->method('write_configuration_file')->willReturn(true);
         $mockInstaller->expects($this->once())->method('add_version_info')->willReturn(true);
         $mockInstaller->expects($this->once())->method('insert_globals')->willReturn(true);
         $mockInstaller->expects($this->once())->method('add_initial_user')->willReturn(true);
@@ -696,22 +698,28 @@ class InstallerTest extends TestCase
     }
 
     /**
-     * quick_install() must only persist the "$config = 1" marker to
-     * sites/default/sqlconf.php — via write_configuration_file() — AFTER
-     * every seeding step (schema load, version, globals, initial user,
-     * gacl install, additional users, care coordination) has committed.
+     * quick_install() writes sites/default/sqlconf.php in two phases:
+     *
+     *   Phase 1 — before install_gacl(): write_configuration_file(false)
+     *     persists connection credentials with $config = 0 so GaclApi
+     *     (which reads sqlconf.php on construct to open its own DB
+     *     connection) can find them.
+     *
+     *   Phase 2 — after every seeding step commits:
+     *     write_configuration_file(true) flips $config to 1, committing
+     *     the install.
      *
      * The flex / release entrypoint reads $config to decide whether
-     * auto_configure.php needs to run. If write_configuration_file()
-     * fires before install_gacl() / add_initial_user() and the container
-     * is killed in between (e.g. a Kubernetes startup-probe timeout),
-     * the restarted container sees $config = 1, skips auto_configure,
-     * and signals Ready on top of a half-seeded database where admin
-     * exists in `users` but no row maps admin to the Administrators
-     * group in gacl_groups_aro_map. aclCheckCore('patients', 'demo',
-     * 'admin') then returns false and AclMainTest flakes.
+     * auto_configure.php needs to run. If the $config = 1 commit fires
+     * before install_gacl() / add_initial_user() and the container is
+     * killed in between (e.g. a Kubernetes startup-probe timeout), the
+     * restarted container sees $config = 1, skips auto_configure, and
+     * signals Ready on top of a half-seeded database where admin exists
+     * in `users` but no row maps admin to the Administrators group in
+     * gacl_groups_aro_map. aclCheckCore('patients', 'demo', 'admin')
+     * then returns false and AclMainTest flakes.
      */
-    public function testQuickInstallWritesConfigurationFileAfterSeedingSteps(): void
+    public function testQuickInstallCommitsConfigurationFileOnlyAfterAllSeedingSteps(): void
     {
         $mockInstaller = $this->createMockInstaller([], [
             'add_initial_user',
@@ -762,23 +770,45 @@ class InstallerTest extends TestCase
         $mockInstaller->method('install_gacl')->willReturnCallback(static fn(): bool => $track('install_gacl'));
         $mockInstaller->method('install_additional_users')->willReturnCallback(static fn(): bool => $track('install_additional_users'));
         $mockInstaller->method('on_care_coordination')->willReturnCallback(static fn(): bool => $track('on_care_coordination'));
-        $mockInstaller->method('write_configuration_file')->willReturnCallback(static fn(): bool => $track('write_configuration_file'));
+        $mockInstaller->method('write_configuration_file')->willReturnCallback(
+            static function (bool $configured = true) use (&$callOrder): bool {
+                $callOrder[] = $configured
+                    ? 'write_configuration_file(configured=true)'
+                    : 'write_configuration_file(configured=false)';
+                return true;
+            }
+        );
 
         $this->assertTrue($mockInstaller->quick_install());
 
-        // write_configuration_file() must run exactly once, and must run
-        // after every seeding step. This locks the ordering so a future
-        // refactor can't silently reintroduce the Kubernetes AclMain flake.
-        $writeIndex = array_search('write_configuration_file', $callOrder, true);
-        $this->assertNotFalse($writeIndex, 'write_configuration_file() was not invoked');
+        $uncommittedIndex = array_search('write_configuration_file(configured=false)', $callOrder, true);
+        $committedIndex = array_search('write_configuration_file(configured=true)', $callOrder, true);
+        $installGaclIndex = array_search('install_gacl', $callOrder, true);
 
+        $this->assertNotFalse($uncommittedIndex, 'write_configuration_file(configured=false) was not invoked');
+        $this->assertNotFalse($committedIndex, 'write_configuration_file(configured=true) was not invoked');
+        $this->assertNotFalse($installGaclIndex, 'install_gacl was not invoked');
+
+        // Phase 1: sqlconf.php must exist before install_gacl — Gacl's
+        // constructor reads it to open its own DB connection.
+        $this->assertLessThan(
+            $installGaclIndex,
+            $uncommittedIndex,
+            'write_configuration_file(configured=false) must run before install_gacl — Gacl reads sqlconf.php on construct'
+        );
+
+        // Phase 2: the $config = 1 commit must come after every seeding
+        // step. This is the invariant that prevents the Kubernetes
+        // AclMain flake — a container killed between any seeding step
+        // and this commit restarts with $config = 0, and the entrypoint
+        // re-runs the install cleanly.
         foreach (['load_dumpfiles', 'add_version_info', 'insert_globals', 'add_initial_user', 'install_gacl', 'install_additional_users', 'on_care_coordination'] as $seedingStep) {
             $seedIndex = array_search($seedingStep, $callOrder, true);
             $this->assertNotFalse($seedIndex, "$seedingStep was not invoked");
             $this->assertGreaterThan(
                 $seedIndex,
-                $writeIndex,
-                "write_configuration_file() must run after $seedingStep — otherwise a container killed between $seedingStep and write_configuration_file leaves sqlconf.php advertising 'configured' on top of a half-seeded database"
+                $committedIndex,
+                "write_configuration_file(configured=true) must run after $seedingStep — otherwise a container killed between $seedingStep and the commit leaves sqlconf.php advertising 'configured' on top of a half-seeded database"
             );
         }
     }
@@ -834,7 +864,11 @@ class InstallerTest extends TestCase
         $mockInstaller->expects($this->once())->method('create_database_user')->willReturn(true);
         $mockInstaller->expects($this->once())->method('grant_privileges')->willReturn(true);
         $mockInstaller->expects($this->once())->method('load_dumpfiles')->willReturn("a string");
-        $mockInstaller->expects($this->once())->method('write_configuration_file')->willReturn(true);
+        // Two-phase write runs regardless of clone_database: phase 1
+        // (configured=false) before the seeding block, phase 2
+        // (configured=true) after. The seeding block itself is skipped
+        // when clone_database is set.
+        $mockInstaller->expects($this->exactly(2))->method('write_configuration_file')->willReturn(true);
 
         // Should not call these methods when cloning
         $mockInstaller->expects($this->never())->method('add_version_info');
