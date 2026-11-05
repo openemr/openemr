@@ -274,14 +274,13 @@ $('.btn-toggle').click(function() {
     function fitViewerFrames() {
         var frames = document.querySelectorAll('.doc-viewer-frame');
         for (var i = 0; i < frames.length; i++) {
-            var top = frames[i].getBoundingClientRect().top + (window.pageYOffset || 0);
-            frames[i].style.height = Math.max(minimumHeight, Math.floor(window.innerHeight - top - bottomGap)) + 'px';
-            // Whatever the page still adds below the frame (margins, padding) would scroll it, so
-            // take that overflow off the frame as well.
-            var overflow = document.documentElement.scrollHeight - window.innerHeight;
-            if (overflow > 0) {
-                frames[i].style.height = Math.max(minimumHeight, Math.floor(frames[i].getBoundingClientRect().height - overflow)) + 'px';
-            }
+            var frameBox = frames[i].getBoundingClientRect();
+            // What the frame's own pane adds below it (margins, padding) also takes room. Only that
+            // pane is measured: another column of the page, such as the folder tree, may be taller
+            // than the window and must not shrink the viewer.
+            var pane = frames[i].closest('#documents_actions') || document.body;
+            var below = Math.max(0, pane.getBoundingClientRect().bottom - frameBox.bottom);
+            frames[i].style.height = Math.max(minimumHeight, Math.floor(window.innerHeight - frameBox.top - below - bottomGap)) + 'px';
         }
     }
 
