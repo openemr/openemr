@@ -1717,21 +1717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/messaging/messages.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/patient/templates/OnsiteActivityViewListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../portal/patient/templates/OnsiteDocumentListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../portal/patient/templates/PatientListView.tpl.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$form_pid might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
