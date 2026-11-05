@@ -100,6 +100,9 @@ var model = (function () {
             this.attributes = Object.assign({}, defaults, attributes || {});
         }
 
+        /**
+         * The record id, or null for a record not saved yet.
+         */
         get id() {
             const id = this.attributes.id;
             return id === undefined ? null : id;
@@ -125,6 +128,9 @@ var model = (function () {
             return this.id === null;
         }
 
+        /**
+         * The record URL: the collection root for a new record, otherwise root/id.
+         */
         url() {
             return this.isNew() ? this.urlRoot : this.urlRoot + '/' + encodeURIComponent(this.id);
         }

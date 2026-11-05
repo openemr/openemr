@@ -17,6 +17,9 @@ const actpage = {
     fetchInProgress: false,
     dialogIsOpen: false,
 
+    /**
+     * Sets up the review list once: the return button, the payment, profile and document dialogs, and the list with its filter, sorting and paging.
+     */
     init: function () {
         // ensure initialization only occurs once
         if (actpage.isInitialized || actpage.isInitializing) return;

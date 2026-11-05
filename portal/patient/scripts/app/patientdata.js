@@ -58,7 +58,9 @@ var page = {
             $("#donePatientButton").show();
         });
 
-        // once the profile row is loaded, show it
+        /**
+         * Once the profile row is loaded, shows it, or an empty form when there is no chart yet.
+         */
         page.onCollectionLoaded = function () {
             if (!page.isInitialized) {
                 var m = page.patientData.first();
@@ -74,7 +76,9 @@ var page = {
             page.isInitializing = false;
         };
 
-        // set up the form once it is drawn
+        /**
+         * Once the form is drawn, sets up its date pickers and field handlers.
+         */
         page.onModelRendered = function () {
             $(function () {
                 $('.jquery-date-picker').datetimepicker({
@@ -217,6 +221,9 @@ var page = {
 		$('#'+a+'InputContainer span.help-inline').html( '<a class="editval text-danger" style="font-size: 16px" onclick="page.revertVal(this); return false;" data-tstate=chart data-id="'+a+'">'+v+'</a>');
         $('#' + a + 'InputContainer span.help-inline').show();
     },
+    /**
+     * Puts a field back to the chart value, discarding the change the patient asked for.
+     */
     revertVal: function (el) {
         var a = $(el).data('id');
         if (!document.getElementById(a)) {

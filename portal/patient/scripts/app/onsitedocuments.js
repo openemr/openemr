@@ -35,6 +35,9 @@ var page = {
     isFlattened: false,
     version: '',
     currentName: '',
+    /**
+     * Sets up the document page once: the list or dashboard view, the editor, and their handlers.
+     */
     init: function () {
         // ensure initialization only occurs once
         if (page.isInitialized || page.isInitializing) {
@@ -64,7 +67,9 @@ var page = {
             page.fetchOnsiteDocuments(page.fetchParams);
         });
 
-        // make the rows clickable once the list is drawn
+        /**
+         * Once the list is drawn, makes each row open its document.
+         */
         page.onCollectionRendered = function () {
             if (page.isDashboard) {
                 $("#topNav").hide();
@@ -124,7 +129,9 @@ var page = {
         page.fetchParams.showActive = showActive;
         this.fetchOnsiteDocuments(page.fetchParams);
 
-        // set up the document editor once it is drawn
+        /**
+         * Once the editor is drawn, sets up its date pickers and editing handlers.
+         */
         page.onModelRendered = function () {
             $('#templatecontent').on('focus', ".datepicker:not(.hasDatepicker)", function () {
                 $(".datepicker").datetimepicker({
@@ -658,6 +665,9 @@ var page = {
         list.forEach(function (item) {
             const row = view.copyTemplate('onsiteDocumentRowTemplate').firstElementChild;
             const cell = (field) => row.querySelector('[data-field="' + field + '"]');
+            /**
+             * The date in a field, or Pending when it was never set.
+             */
             const dated = (field) => (item.get(field) > '1969-12-31 24' ? item.get(field) : 'Pending');
             row.id = item.get('id') ?? '';
             cell('id').textContent = item.get('id') || '';
