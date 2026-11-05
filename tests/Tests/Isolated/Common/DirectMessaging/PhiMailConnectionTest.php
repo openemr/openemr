@@ -140,7 +140,13 @@ final class PhiMailConnectionTest extends TestCase
         $body = str_repeat('0123456789', 250);
         fwrite($this->server, $body . "2\n");
 
-        $path = $this->connection->readBlob(strlen($body), $this->tempDir);
+        // A permissive umask must not leave the download readable by others.
+        $umask = umask(0);
+        try {
+            $path = $this->connection->readBlob(strlen($body), $this->tempDir);
+        } finally {
+            umask($umask);
+        }
 
         self::assertStringStartsWith($this->tempDir . '/direct-', $path);
         self::assertSame($body, (new Filesystem())->readFile($path));
@@ -202,22 +208,6 @@ final class PhiMailConnectionTest extends TestCase
         } catch (PhiMailBlobException $e) {
             self::assertSame('M15 failure writing blob chunk after 0 bytes', $e->getMessage());
             self::assertSame([], FailingFileStreamWrapper::$files, 'the partial download was left behind');
-        } finally {
-            FailingFileStreamWrapper::unregister();
-        }
-    }
-
-    public function testReadBlobFailsAndCleansUpWhenTheTempFileCannotBeRestricted(): void
-    {
-        FailingFileStreamWrapper::register();
-        FailingFileStreamWrapper::$failChmod = true;
-
-        try {
-            $this->connection->readBlob(1, FailingFileStreamWrapper::SCHEME . '://downloads');
-            self::fail('readBlob() returned with a temp file others could read.');
-        } catch (PhiMailBlobException $e) {
-            self::assertStringStartsWith('M14 failed restricting temp file: ' . FailingFileStreamWrapper::SCHEME . '://downloads/direct-', $e->getMessage());
-            self::assertSame([], FailingFileStreamWrapper::$files, 'the unrestricted temp file was left behind');
         } finally {
             FailingFileStreamWrapper::unregister();
         }

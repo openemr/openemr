@@ -183,17 +183,15 @@ final readonly class PhiMailConnection
             throw new PhiMailBlobException('M13 temp dir does not exist: ' . $directory);
         }
 
+        // symfony/filesystem before 7.4.18 creates a suffixed temp file under the process
+        // umask, so create it private here the way later releases do.
+        $umask = umask(0o077);
         try {
             $path = $this->filesystem->tempnam($directory, 'direct-', '.dat');
         } catch (IOException $e) {
             throw new PhiMailBlobException('M14 failed creating a temp file in: ' . $directory, 0, $e);
-        }
-        // symfony/filesystem 7.3 creates the file under the process umask, so restrict it here.
-        try {
-            $this->filesystem->chmod($path, 0o600);
-        } catch (IOException $e) {
-            $this->filesystem->remove($path);
-            throw new PhiMailBlobException('M14 failed restricting temp file: ' . $path, 0, $e);
+        } finally {
+            umask($umask);
         }
 
         $file = @fopen($path, 'w');
