@@ -41,6 +41,7 @@ final class PortalPaymentAmountTest extends TestCase
             'text' => ['20abc', null],
             'empty' => ['', null],
             'trailing dot' => ['50.', null],
+            'trailing newline' => ["50.00\n", null],
         ];
     }
 
@@ -102,7 +103,7 @@ final class PortalPaymentAmountTest extends TestCase
      */
     public function testALineThePatientWasNotOfferedMatchesNothing(): void
     {
-        foreach (['form_upay[9999]', 'form_upay[not-a-line]', 'form_upay[]', 'form_upay[1687][x]', 'form_upay[01688]', 'form_upay[+1688]', 'form_upay[ 1688]'] as $extra) {
+        foreach (['form_upay[9999]', 'form_upay[not-a-line]', 'form_upay[]', 'form_upay[1687][x]', 'form_upay[01688]', 'form_upay[+1688]', 'form_upay[ 1688]', "form_upay[1688]\n"] as $extra) {
             $invoice = json_encode(['radio_type_of_payment' => 'invoice_balance', 'form_upay[1687]' => '75.00', $extra => '25.00'], JSON_THROW_ON_ERROR);
             $this->assertNull(PortalPaymentAmount::invoiceCents($invoice, self::LINES), $extra);
             $this->assertFalse(PortalPaymentAmount::matchesInvoice('100.00', $invoice, self::LINES), $extra);

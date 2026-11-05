@@ -23,7 +23,8 @@ namespace OpenEMR\Services\PatientReview\Portal;
 
 final class PortalPaymentAmount
 {
-    private const AMOUNT = '/^(\d+)(?:\.(\d{1,2}))?$/';
+    /** \A and \z, not ^ and $: $ also matches before a trailing newline ("50\n"). */
+    private const AMOUNT = '/\A(\d+)(?:\.(\d{1,2}))?\z/';
 
     /**
      * The card-details key that marks a payment whose gateway charged an amount other than its
@@ -33,9 +34,10 @@ final class PortalPaymentAmount
 
     /**
      * An invoice line field exactly as the page renders it: form_upay[<encounter>], with no
-     * leading zeros (form_upay[01687] would be charged but not found by staff posting).
+     * leading zeros or trailing newline (form_upay[01687] would be charged but not found by staff
+     * posting).
      */
-    private const LINE = '/^form_upay\[([1-9]\d*)\]$/';
+    private const LINE = '/\Aform_upay\[([1-9]\d*)\]\z/';
 
     /**
      * Whether $payment is a positive amount equal to the total of the invoice selection.
