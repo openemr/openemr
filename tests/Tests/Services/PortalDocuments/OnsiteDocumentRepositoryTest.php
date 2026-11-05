@@ -128,6 +128,28 @@ final class OnsiteDocumentRepositoryTest extends TestCase
         );
     }
 
+    public function testRowsThatTieOnTheSortKeysKeepOneOrderAcrossPages(): void
+    {
+        $ids = [];
+        foreach (range(1, 4) as $n) {
+            $ids[] = (string) $this->repository->insert($this->document());
+        }
+
+        $paged = [];
+        foreach ([1, 2] as $number) {
+            $page = $this->repository->list(new OnsiteDocumentListQuery(self::PID, orderBy: OnsiteDocumentSort::DocType, page: $number, pageSize: 2));
+            foreach ($page->rows as $row) {
+                $paged[] = $row['id'];
+            }
+        }
+
+        $this->assertSame($ids, $paged, 'every row once, by id');
+        $this->assertSame(
+            array_reverse($ids),
+            $this->ids(new OnsiteDocumentListQuery(self::PID, orderBy: OnsiteDocumentSort::DocType, orderDesc: true)),
+        );
+    }
+
     public function testPagesReportTheirPosition(): void
     {
         foreach (range(1, 3) as $n) {

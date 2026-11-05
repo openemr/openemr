@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Portal;
 
 use OpenEMR\Controllers\Portal\Patient\OnsiteDocumentController;
+use OpenEMR\Controllers\Portal\Patient\PortalPatientController;
 use OpenEMR\Controllers\Portal\Patient\ProviderController;
 use OpenEMR\Portal\Routing\PortalPrincipal;
 use OpenEMR\Portal\Routing\PortalRoute;
@@ -187,7 +188,19 @@ final class PortalRouterTest extends TestCase
             array_filter(PortalRouteTable::routes(), static fn(PortalRoute $route): bool => $route->access === RouteAccess::Staff),
         ));
 
-        $this->assertSame(['GET:onsiteactivityviews', 'GET:api/onsiteactivityviews', 'GET:api/onsiteactivityview/(:any)'], $staff);
+        $this->assertSame(['PUT:api/patient/(:num)', 'GET:onsiteactivityviews', 'GET:api/onsiteactivityviews', 'GET:api/onsiteactivityview/(:any)'], $staff);
+    }
+
+    public function testOnlyStaffSaveAProfileStraightToTheChart(): void
+    {
+        $router = new PortalRouter(PortalRouteTable::routes());
+
+        $this->assertSame('Update', $router->match('PUT', 'api/patient/9', PortalPrincipal::staff())?->route->action);
+        // A portal patient sends their changes for review instead.
+        $this->assertSame(PortalPatientController::class, $router->match('PUT', 'api/portalpatient/9', $this->patient())?->route->controller);
+
+        $this->expectException(PortalRouteDeniedException::class);
+        $router->match('PUT', 'api/patient/9', $this->patient());
     }
 
     public function testTheDocumentRoutesAreOpenAndCheckedByTheController(): void

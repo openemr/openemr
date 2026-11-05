@@ -223,7 +223,8 @@ final readonly class PatientController
     }
 
     /**
-     * Save a profile to the chart ("Commit to Chart"): PUT api/patient/{id}.
+     * Save a profile to the chart ("Commit to Chart"): PUT api/patient/{id}. Staff only; a portal
+     * patient's changes go to api/portalpatient for review.
      */
     public function Update(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
@@ -252,7 +253,7 @@ final readonly class PatientController
      */
     private static function closeProfileReview(mixed $pid, PortalPrincipal $caller): void
     {
-        // Only staff accept a profile change; a patient saving their own record leaves it in review.
+        // The route is staff-only; this keeps a review open if anyone else ever reaches it.
         if ($caller->kind !== PrincipalKind::Staff) {
             return;
         }
