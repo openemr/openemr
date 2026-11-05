@@ -19,6 +19,7 @@ use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
+use OpenEMR\Services\PatientReview\Portal\PortalChargeGate;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
@@ -109,6 +110,13 @@ if ($_POST['mode'] == 'AuthorizeNet') {
     if ($isPortal) {
         PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
     }
+    // Refuse a second charge while a charged payment is open (a page loaded before the first
+    // one can still submit), holding the patient's payment lock from the check through the charge.
+    $chargeRefusal = (new PortalChargeGate(ReviewQueueFactory::portalWorkflows()))->open($form_pid, new PaymentPostingLock());
+    if ($chargeRefusal !== null) {
+        echo text($chargeRefusal->message());
+        exit();
+    }
     $pay = new PaymentGateway("AuthorizeNetApi_Api");
     $transaction['amount'] = $_POST['payment'];
     $transaction['currency'] = "USD";
@@ -150,6 +158,13 @@ if ($_POST['mode'] == 'Stripe') {
     $form_pid = $_POST['form_pid'];
     if ($isPortal) {
         PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
+    }
+    // Refuse a second charge while a charged payment is open (a page loaded before the first
+    // one can still submit), holding the patient's payment lock from the check through the charge.
+    $chargeRefusal = (new PortalChargeGate(ReviewQueueFactory::portalWorkflows()))->open($form_pid, new PaymentPostingLock());
+    if ($chargeRefusal !== null) {
+        echo text($chargeRefusal->message());
+        exit();
     }
     $pay = new PaymentGateway("Stripe");
     $transaction['amount'] = $_POST['payment'];

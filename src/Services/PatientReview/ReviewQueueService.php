@@ -222,14 +222,15 @@ final class ReviewQueueService
     }
 
     /**
-     * Every open request of this type for the patient, newest first. Usually one, but some
-     * types (a charged payment) never replace an open request.
+     * Every open request of this type (and, for FHIR writes, resource type) for the patient,
+     * newest first. Usually one, but some types (a charged payment) never replace an open
+     * request.
      *
      * @return list<ReviewRequest>
      */
-    public function allOpenFor(int $pid, ReviewType $type): array
+    public function allOpenFor(int $pid, ReviewType $type, ?FhirResourceType $resourceType = null): array
     {
-        return $this->store->findOpen($pid, $type);
+        return $this->store->findOpen($pid, $type, $resourceType);
     }
 
     /**
