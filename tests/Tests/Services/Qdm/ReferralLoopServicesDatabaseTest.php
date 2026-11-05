@@ -230,6 +230,27 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         $this->assertCount(1, $this->reports(self::PID));
     }
 
+    public function testOneDocumentReturnedUnderTwoTypesIsOneReport(): void
+    {
+        // The same document on two of the referral's Tasks under different types is one report: typed as a
+        // reply when either output is, else by the byte-smallest system and code.
+        $referral = $this->referral(self::PID, '2026-03-02', self::SPECIALIST);
+        $first = $this->task($referral['uuid'], self::PID, 'completed');
+        $second = $this->task($referral['uuid'], self::PID, 'completed');
+        $note = $this->document(self::PID, '2026-04-10 15:00:00');
+        // 10164-2 sorts before 11488-4, so only the preference for a reply's type picks the latter.
+        $this->taskOutput($first, $note, self::LOINC, '10164-2');
+        $this->taskOutput($second, $note, self::LOINC, '11488-4');
+        $summary = $this->document(self::PID, '2026-04-11 15:00:00');
+        $this->taskOutput($first, $summary, 'http://snomed.info/sct', '371530004', seq: 1);
+        $this->taskOutput($second, $summary, self::LOINC, '34133-9', seq: 1);
+
+        $this->assertSame([
+            [self::PID, self::qdmId($referral), '2026-04-10 15:00:00', self::LOINC, '11488-4', 'document'],
+            [self::PID, self::qdmId($referral), '2026-04-11 15:00:00', self::LOINC, '34133-9', 'document'],
+        ], $this->reports(self::PID));
+    }
+
     /**
      * Three patients seen in 2026 and referred to a specialist on 2026-03-02, run through the
      * builder and the calculator eCQM reporting uses: the first one's reply was recorded on
@@ -250,11 +271,7 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         $this->taskOutput($task, $this->document(self::OTHER_PID, '2026-04-10 15:00:00', replyTo: $cleared['id']), self::LOINC, '11488-4');
         $returned = $this->referral(self::THIRD_PID, '2026-03-02', self::SPECIALIST);
         $this->taskOutput($this->task($returned['uuid'], self::THIRD_PID, 'completed'), $this->document(self::THIRD_PID, '2026-04-10 15:00:00'), self::LOINC, '11488-4');
-        QueryUtils::sqlInsert(
-            "INSERT INTO `form_care_plan` (`id`, `date`, `pid`, `encounter`, `user`, `groupname`, `authorized`, `activity`, `code`, `codetext`, `description`, `care_plan_type`)"
-            . " VALUES (?, '2026-03-02 00:00:00', ?, ?, 'test', 'Default', 1, 1, ?, 'Patient referral to specialist', 'CMS50 test', 'intervention')",
-            [self::THIRD_PID, self::THIRD_PID, self::THIRD_PID, self::SPECIALIST],
-        );
+        $this->carePlanReferral(self::THIRD_PID);
 
         $measure = new Measure(MeasureService::fetchMeasureJson(self::MEASURE));
         $measure->measure_path = self::MEASURE;
@@ -275,9 +292,12 @@ class ReferralLoopServicesDatabaseTest extends TestCase
     public function testTheQrdaCategoryOneExportCarriesTheReferralAndItsReport(): void
     {
         // The export renders every data element the builder makes: the referral as an Intervention
-        // Order, and the reply as a Communication Performed whose relatedTo names the referral.
+        // Order, and the reply as a Communication Performed whose relatedTo names the order's entry, so a
+        // reader of the file (Cypress, say) can link them.
         $this->patientSeenIn2026(self::PID);
         $referral = $this->referral(self::PID, '2026-03-02', self::SPECIALIST, reply: '2026-04-10');
+        // A care plan intervention is an Intervention Order too, and keeps an id of its own.
+        $this->carePlanReferral(self::PID);
 
         $xml = (new ExportCat1Service(new QdmBuilder(), new QdmRequestOne((string)self::PID)))->export([self::MEASURE], [
             'performance_period_start' => '2026-01-01 00:00:00',
@@ -293,11 +313,19 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         $report = $path->query("//cda:act[cda:templateId/@root='2.16.840.1.113883.10.20.24.3.156']");
         $this->assertInstanceOf(\DOMNodeList::class, $order);
         $this->assertInstanceOf(\DOMNodeList::class, $report);
-        $this->assertSame(1, $order->length);
+        $this->assertSame(2, $order->length);
         $this->assertSame(1, $report->length);
         $related = $path->query("//cda:act[cda:templateId/@root='2.16.840.1.113883.10.20.24.3.156']/sdtc:inFulfillmentOf1/sdtc:actReference/sdtc:id/@extension");
+        $orderIds = $path->query("//cda:act[cda:templateId/@root='2.16.840.1.113883.10.20.24.3.31']/cda:id/@extension");
         $this->assertInstanceOf(\DOMNodeList::class, $related);
+        $this->assertInstanceOf(\DOMNodeList::class, $orderIds);
         $this->assertSame(self::qdmId($referral), $related->item(0)?->nodeValue);
+        $ids = [];
+        foreach ($orderIds as $id) {
+            $ids[] = $id->nodeValue;
+        }
+        $this->assertContains(self::qdmId($referral), $ids, 'the report names the order\'s own entry id');
+        $this->assertCount(2, array_unique(array_filter($ids, static fn (?string $id): bool => $id !== null && $id !== '')), 'each order has an id of its own');
     }
 
     /** @return list<array{int, ?string, string, string}> pid, QDM id, date and Requested Service of each order read, sorted */
@@ -402,6 +430,16 @@ class ReferralLoopServicesDatabaseTest extends TestCase
             [self::FIRST_DOCUMENT_ID + $this->documents++, $uuid, $date, $date, $pid, $date, $deleted ? 1 : 0, $replyTo, $replyTo === null ? null : 'transactions'],
         );
         return $uuid;
+    }
+
+    /** A care plan intervention on 2026-03-02 coded as a referral to a specialist, as the care plan form records one. */
+    private function carePlanReferral(int $pid): void
+    {
+        QueryUtils::sqlInsert(
+            "INSERT INTO `form_care_plan` (`id`, `date`, `pid`, `encounter`, `user`, `groupname`, `authorized`, `activity`, `code`, `codetext`, `description`, `care_plan_type`)"
+            . " VALUES (?, '2026-03-02 00:00:00', ?, ?, 'test', 'Default', 1, 1, ?, 'Patient referral to specialist', 'CMS50 test', 'intervention')",
+            [$pid, $pid, $pid, self::SPECIALIST],
+        );
     }
 
     private function patientSeenIn2026(int $pid): void

@@ -51,25 +51,36 @@ class ConsultantReportService extends AbstractQdmService implements QdmServiceIn
         $replyCode = ReferralTaskService::REPLY_OUTPUT_TYPE['type_code'];
         // Compared byte for byte, as PHP compares it (ReferralService::countsForRecipientSql() does the same).
         $replyCleared = str_replace("'", "''", ReferralTaskService::REASON_REPLY_CLEARED);
-        // The same document returned twice for the same referral is one report. Wrapped so that the
-        // patient filter executeQuery() appends applies to the referrals' pid.
-        return "SELECT DISTINCT `pid`, `id`, `document_uuid`, `received`, `type_system`, `type_code` FROM (
+        // One report per document a referral's Tasks returned, however many times and under whatever types:
+        // typed as a reply when any of its outputs is, else by the byte-smallest system and code, so the
+        // choice never varies. A system is a URI, so the first space ends it. Wrapped so that the patient
+        // filter executeQuery() appends applies to the referrals' pid.
+        return "SELECT `pid`, `id`, `document_uuid`, `received`, `type_system`, `type_code` FROM (
                 SELECT t.`pid`, t.`id`, NULL AS `document_uuid`, TRIM(reply.`field_value`) AS `received`,
                     '$replySystem' AS `type_system`, '$replyCode' AS `type_code`
                 FROM `transactions` AS t
                 JOIN `lbt_data` AS reply ON reply.`form_id` = t.`id` AND reply.`field_id` = 'reply_date'
                 WHERE t.`title` = '$form' AND TRIM(reply.`field_value`) REGEXP '" . ReferralOrderService::DATE_PATTERN . "'
                 UNION ALL
-                SELECT t.`pid`, t.`id`, doc.`uuid`, doc.`date`, task_out.`type_system`, task_out.`type_code`
-                FROM `transactions` AS t
-                JOIN `task` ON task.`focus_type` = 'ServiceRequest' AND task.`focus_uuid` = t.`uuid` AND " . ReferralService::OWN_TASK_SQL . "
-                    AND (task.`status` <> 'entered-in-error' OR CAST(COALESCE(task.`status_reason`, '') AS BINARY) = '$replyCleared')
-                JOIN `task_output` AS task_out ON task_out.`task_id` = task.`id`
-                    AND task_out.`value_element` = 'valueReference' AND task_out.`value_type` = 'DocumentReference'
-                JOIN `documents` AS doc ON doc.`uuid` = task_out.`value_uuid` AND doc.`foreign_id` = t.`pid` AND doc.`deleted` = 0
-                WHERE t.`title` = '$form' AND doc.`date` IS NOT NULL
-                    AND NOT (COALESCE(doc.`foreign_reference_table`, '') = '" . ReferralService::TABLE_NAME . "' AND COALESCE(doc.`foreign_reference_id`, 0) = t.`id`)
-                    AND COALESCE(task_out.`type_system`, '') <> '' AND COALESCE(task_out.`type_code`, '') <> ''
+                SELECT returned.`pid`, returned.`id`, returned.`document_uuid`, returned.`received`,
+                    SUBSTRING_INDEX(returned.`type`, ' ', 1), SUBSTRING(returned.`type`, LOCATE(' ', returned.`type`) + 1)
+                FROM (
+                    SELECT t.`pid`, t.`id`, doc.`uuid` AS `document_uuid`, doc.`date` AS `received`,
+                        SUBSTRING(MIN(CAST(CONCAT(
+                            IF(CAST(task_out.`type_system` AS BINARY) = '$replySystem' AND CAST(task_out.`type_code` AS BINARY) = '$replyCode', '0', '1'),
+                            task_out.`type_system`, ' ', task_out.`type_code`
+                        ) AS BINARY)), 2) AS `type`
+                    FROM `transactions` AS t
+                    JOIN `task` ON task.`focus_type` = 'ServiceRequest' AND task.`focus_uuid` = t.`uuid` AND " . ReferralService::OWN_TASK_SQL . "
+                        AND (task.`status` <> 'entered-in-error' OR CAST(COALESCE(task.`status_reason`, '') AS BINARY) = '$replyCleared')
+                    JOIN `task_output` AS task_out ON task_out.`task_id` = task.`id`
+                        AND task_out.`value_element` = 'valueReference' AND task_out.`value_type` = 'DocumentReference'
+                    JOIN `documents` AS doc ON doc.`uuid` = task_out.`value_uuid` AND doc.`foreign_id` = t.`pid` AND doc.`deleted` = 0
+                    WHERE t.`title` = '$form' AND doc.`date` IS NOT NULL
+                        AND NOT (COALESCE(doc.`foreign_reference_table`, '') = '" . ReferralService::TABLE_NAME . "' AND COALESCE(doc.`foreign_reference_id`, 0) = t.`id`)
+                        AND COALESCE(task_out.`type_system`, '') <> '' AND COALESCE(task_out.`type_code`, '') <> ''
+                    GROUP BY t.`pid`, t.`id`, doc.`uuid`, doc.`date`
+                ) AS returned
             ) AS consultant_reports
             WHERE 1 = 1";
     }
