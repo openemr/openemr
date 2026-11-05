@@ -302,7 +302,7 @@ final readonly class PortalProfileService
     }
 
     /**
-     * strtotime() as the old controllers used it: anything unparseable is the epoch.
+     * strtotime() as the old controllers used it: anything unparsable is the epoch.
      */
     private static function timestamp(mixed $value): int
     {

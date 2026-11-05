@@ -403,7 +403,7 @@ final readonly class OnsiteDocumentController
     }
 
     /**
-     * A date as the old controller saved it: Y-m-d H:i:s, with anything unparseable as the epoch.
+     * A date as the old controller saved it: Y-m-d H:i:s, with anything unparsable as the epoch.
      */
     private static function dateTime(mixed $value): string
     {

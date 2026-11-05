@@ -47,12 +47,15 @@ final class PortalProfileServiceTest extends TestCase
 
     public function testRegistrationCreatesAChartWithItsOwnPid(): void
     {
-        $record = $this->register(['fname' => 'Portal', 'lname' => 'Registrant', 'pid' => '1', 'pubpid' => 'chosen']);
+        // A pid no chart has or gets next: a fresh database gives the first chart pid 1.
+        $maxPid = QueryUtils::fetchSingleValue('SELECT COALESCE(MAX(`pid`), 0) AS `pid` FROM `patient_data`', 'pid');
+        $chosenPid = (string) (1000 + (is_numeric($maxPid) ? (int) $maxPid : 0));
+        $record = $this->register(['fname' => 'Portal', 'lname' => 'Registrant', 'pid' => $chosenPid, 'pubpid' => 'chosen']);
 
         $this->assertSame(array_merge(['note'], array_keys(PortalProfileService::FIELDS)), array_keys($record));
         $this->assertNull($record['note']);
         $this->assertSame('Portal', $record['fname']);
-        $this->assertNotSame('1', $record['pid'], 'the request cannot choose the pid');
+        $this->assertNotSame($chosenPid, $record['pid'], 'the request cannot choose the pid');
         $this->assertSame($record['pid'], $record['pubpid'], 'the public id is the new pid, as before');
         $this->assertIsString($record['id']);
         $this->assertSame($record, $this->profiles->record((int) $record['id']));
