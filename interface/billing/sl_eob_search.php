@@ -42,6 +42,7 @@ use OpenEMR\Billing\Statement\StatementLines;
 use OpenEMR\Billing\Statement\StatementRun;
 use OpenEMR\Billing\Statement\StatementRunResult;
 use OpenEMR\Billing\Statement\StatementRunSteps;
+use OpenEMR\Billing\StatementEnvelope;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -277,7 +278,14 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     }
 
     if (OEGlobalsBag::getInstance()->get('statement_appearance') == '1') {
-        $config_mpdf = Config_Mpdf::getConfigMpdf();
+        if (
+            class_exists(StatementSiteTemplate::class, false)
+            && StatementSiteTemplate::supportsEnvelopeWindows()
+        ) {
+            $config_mpdf = StatementEnvelope::fromGlobals()->mpdfConfig();
+        } else {
+            $config_mpdf = Config_Mpdf::getConfigMpdf();
+        }
         $pdf2 = new mPDF($config_mpdf);
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($session->get('language_direction') === 'rtl') {
@@ -292,7 +300,17 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         $pdf2->Output($temp_filename, 'F');
     } else {
         $pdf = new Cezpdf('LETTER');//pdf creation starts
-        $pdf->ezSetMargins(45, 9, 36, 10);
+        $windowedTextPdf = class_exists(StatementSiteTemplate::class, false)
+            && StatementSiteTemplate::supportsEnvelopeWindows()
+            && StatementEnvelope::fromGlobals()->isWindowed();
+        // The text file is positioned from the corner of the sheet. Cezpdf's
+        // stock 45pt/36pt margins push that text out of the envelope windows.
+        // A printer fed the text file directly still has its own offsets.
+        if ($windowedTextPdf) {
+            $pdf->ezSetMargins(0, 0, 0, 0);
+        } else {
+            $pdf->ezSetMargins(45, 9, 36, 10);
+        }
         $pdf->selectFont('Courier');
         $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
         $countline = 1;
@@ -370,162 +388,183 @@ if (
         CsrfUtils::csrfNotVerified();
     }
 
-    /** @var list<int> $checkedEncounterIds form_encounter.id of every checked invoice */
-    $checkedEncounterIds = [];
-    $checkedBoxes = $_REQUEST['form_cb'];
-    foreach (is_array($checkedBoxes) ? array_keys($checkedBoxes) : [] as $key) {
-        if (is_numeric($key)) {
-            $checkedEncounterIds[] = (int) $key;
-        }
+    $envelopeReady = true;
+    if (
+        class_exists(StatementSiteTemplate::class, false)
+        && StatementSiteTemplate::supportsEnvelopeWindows()
+        && StatementEnvelope::fromGlobals()->isMisconfigured()
+    ) {
+        $envelopeReady = false;
+        $alertmsg = xlt('The custom envelope measurements are blank or do not fit the page. No statements were printed.');
     }
-    $runRequest = CurrentRequest::get()->request;
-    $delivery = match (true) {
-        $runRequest->getString('form_portalnotify') !== '' => StatementDelivery::Portal,
-        $runRequest->getString('form_email') !== '' => StatementDelivery::Email,
-        $runRequest->getString('form_download') !== '' => StatementDelivery::Download,
-        $runRequest->getString('form_pdf') !== '' => StatementDelivery::Pdf,
-        default => StatementDelivery::Print,
-    };
+    if ($envelopeReady) {
+    /** @var list<int> $checkedEncounterIds form_encounter.id of every checked invoice */
+        $checkedEncounterIds = [];
+        $checkedBoxes = $_REQUEST['form_cb'];
+        foreach (is_array($checkedBoxes) ? array_keys($checkedBoxes) : [] as $key) {
+            if (is_numeric($key)) {
+                $checkedEncounterIds[] = (int) $key;
+            }
+        }
+        $runRequest = CurrentRequest::get()->request;
+        $delivery = match (true) {
+            $runRequest->getString('form_portalnotify') !== '' => StatementDelivery::Portal,
+            $runRequest->getString('form_email') !== '' => StatementDelivery::Email,
+            $runRequest->getString('form_download') !== '' => StatementDelivery::Download,
+            $runRequest->getString('form_pdf') !== '' => StatementDelivery::Pdf,
+            default => StatementDelivery::Print,
+        };
 
-    $statementFile = is_string($STMT_TEMP_FILE) ? $STMT_TEMP_FILE : '';
+        $statementFile = is_string($STMT_TEMP_FILE) ? $STMT_TEMP_FILE : '';
     // The run's database work and the site's statement layout, email and portal.
-    $steps = new class ($statementFile, $today) implements StatementRunSteps {
-        public function __construct(private readonly string $portalTemplateFile, private readonly string $today)
-        {
-        }
-
-        public function appendInvoice(array &$stmt, int $pid, int $encounter, string $serviceDate, int $notice): void
-        {
-            StatementLines::append($stmt, $pid, $encounter, $serviceDate, $notice);
-        }
-
-        public function creditEncounters(int $pid, array $excludedEncounterIds): array
-        {
-            return PatientCreditEncounters::find($pid, $excludedEncounterIds);
-        }
-
-        public function buildStatement(array $stmt): string
-        {
-            return (string) make_statement($stmt);
-        }
-
-        public function saveDocument(int $pid, string $statement): void
-        {
-            $d = new Document();
-            $invoice_category_id = 0;
-            $catrow = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = ?", ['Invoices']);
-            if (!empty($catrow['id'])) {
-                $invoice_category_id = $catrow['id'];
+        $steps = new class ($statementFile, $today) implements StatementRunSteps {
+            public function __construct(private readonly string $portalTemplateFile, private readonly string $today)
+            {
             }
-            // even if click download pdf the file content in $statement is text
-            // set mimetype and fileext based on statement appearance
-            $isPdf = (OEGlobalsBag::getInstance()->get('statement_appearance') == 1);
-            $fileext = $isPdf ? '.pdf' : '.txt';
-            $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
-            $mimetype = $isPdf ? 'pdf' : 'text/plain';
-            if ($isPdf) {
-                $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
-                $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                if ($session->get('language_direction') === 'rtl') {
-                    $pdf2->SetDirectionality('rtl');
+
+            public function appendInvoice(array &$stmt, int $pid, int $encounter, string $serviceDate, int $notice): void
+            {
+                StatementLines::append($stmt, $pid, $encounter, $serviceDate, $notice);
+            }
+
+            public function creditEncounters(int $pid, array $excludedEncounterIds): array
+            {
+                return PatientCreditEncounters::find($pid, $excludedEncounterIds);
+            }
+
+            public function buildStatement(array $stmt): string
+            {
+                return (string) make_statement($stmt);
+            }
+
+            public function saveDocument(int $pid, string $statement): void
+            {
+                $d = new Document();
+                $invoice_category_id = 0;
+                $catrow = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = ?", ['Invoices']);
+                if (!empty($catrow['id'])) {
+                    $invoice_category_id = $catrow['id'];
                 }
-                $pdf2->WriteHTML($statement);
-                $statement = $pdf2->Output('', 'S');
-            }
-            $d->createDocument(
+                // even if click download pdf the file content in $statement is text
+                // set mimetype and fileext based on statement appearance
+                $isPdf = (OEGlobalsBag::getInstance()->get('statement_appearance') == 1);
+                $fileext = $isPdf ? '.pdf' : '.txt';
+                $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
+                $mimetype = $isPdf ? 'pdf' : 'text/plain';
+                if ($isPdf) {
+                    if (
+                    class_exists(StatementSiteTemplate::class, false)
+                    && StatementSiteTemplate::supportsEnvelopeWindows()
+                    ) {
+                        $envelope = StatementEnvelope::fromGlobals();
+                        $statement = $envelope->individualDocument($statement);
+                        $invoicePdfConfig = $envelope->mpdfConfig();
+                    } else {
+                        $invoicePdfConfig = Config_Mpdf::getConfigMpdf();
+                    }
+                    $pdf2 = new mPDF($invoicePdfConfig);
+                    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                    if ($session->get('language_direction') === 'rtl') {
+                        $pdf2->SetDirectionality('rtl');
+                    }
+                    $pdf2->WriteHTML($statement);
+                    $statement = $pdf2->Output('', 'S');
+                }
+                $d->createDocument(
                 (string) $pid,
                 $invoice_category_id, // TBD: Make sure not 0
                 $inv_filename,
                 $mimetype,
                 $statement
-            );
-        }
-
-        public function email(int $pid, string $statement): void
-        {
-            if ($statement === '') {
-                throw new InvalidArgumentException('Statement message has no text content');
+                );
             }
-            emailLogin($pid, $statement);
-        }
 
-        public function isPortalAuthorized(int $pid): bool
-        {
-            return function_exists('is_auth_portal') && is_auth_portal($pid);
-        }
+            public function email(int $pid, string $statement): void
+            {
+                if ($statement === '') {
+                    throw new InvalidArgumentException('Statement message has no text content');
+                }
+                emailLogin($pid, $statement);
+            }
 
-        public function notifyPortal(int $pid, array $invoices, string $statement, string $invoiceId): bool
-        {
-            // notify_portal() reads the statement from the file.
-            file_put_contents($this->portalTemplateFile, $statement);
-            $sent = function_exists('notify_portal') && notify_portal($pid, $invoices, $this->portalTemplateFile, $invoiceId);
-            file_put_contents($this->portalTemplateFile, '');
-            return $sent;
-        }
+            public function isPortalAuthorized(int $pid): bool
+            {
+                return function_exists('is_auth_portal') && is_auth_portal($pid);
+            }
 
-        public function recordStatementRun(array $encounterIds): void
-        {
-            StatementInvoices::recordStatementRun($encounterIds, $this->today);
-        }
-    };
+            public function notifyPortal(int $pid, array $invoices, string $statement, string $invoiceId): bool
+            {
+                // notify_portal() reads the statement from the file.
+                file_put_contents($this->portalTemplateFile, $statement);
+                $sent = function_exists('notify_portal') && notify_portal($pid, $invoices, $this->portalTemplateFile, $invoiceId);
+                file_put_contents($this->portalTemplateFile, '');
+                return $sent;
+            }
 
-    $result = (new StatementRun($steps, ServiceContainer::getLogger()))->run(
+            public function recordStatementRun(array $encounterIds): void
+            {
+                StatementInvoices::recordStatementRun($encounterIds, $this->today);
+            }
+        };
+
+        $result = (new StatementRun($steps, ServiceContainer::getLogger()))->run(
         StatementInvoices::forRun($checkedEncounterIds),
         $delivery,
         !$DEBUG && empty($_REQUEST['form_without']),
         $_REQUEST['form_category'] == 'Due Pt',
         $today
-    );
-    file_put_contents($statementFile, $result->output);
+        );
+        file_put_contents($statementFile, $result->output);
 
-    if ($result->emailFailures !== []) {
-        $alertmsg = implode('; ', $result->emailFailures);
-    }
-    if ($result->portalError === StatementRunResult::PORTAL_NOT_AUTHORIZED) {
-        $alertmsg = xlt('Notification FAILED: Not Portal Authorized');
-    } elseif ($result->portalError === StatementRunResult::PORTAL_FAILED) {
-        $alertmsg = xlt('Notification FAILED');
-    }
-    $statementsWritten = $result->statementsWritten;
-    $skippedNothingDue = $result->skippedNothingDue;
-    $skippedMessage = $skippedNothingDue === [] ? '' : xl('No statement for') . ' ' . implode(', ', $skippedNothingDue)
+        if ($result->emailFailures !== []) {
+            $alertmsg = implode('; ', $result->emailFailures);
+        }
+        if ($result->portalError === StatementRunResult::PORTAL_NOT_AUTHORIZED) {
+            $alertmsg = xlt('Notification FAILED: Not Portal Authorized');
+        } elseif ($result->portalError === StatementRunResult::PORTAL_FAILED) {
+            $alertmsg = xlt('Notification FAILED');
+        }
+        $statementsWritten = $result->statementsWritten;
+        $skippedNothingDue = $result->skippedNothingDue;
+        $skippedMessage = $skippedNothingDue === [] ? '' : xl('No statement for') . ' ' . implode(', ', $skippedNothingDue)
         . ': ' . xl('nothing is due after their credits.');
-    if ($result->skippedBelowMinimum !== []) {
-        $skippedMessage = trim($skippedMessage . ' ' . xl('No statement for') . ' ' . implode(', ', $result->skippedBelowMinimum)
+        if ($result->skippedBelowMinimum !== []) {
+            $skippedMessage = trim($skippedMessage . ' ' . xl('No statement for') . ' ' . implode(', ', $result->skippedBelowMinimum)
             . ': ' . xl('the amount due does not meet the minimum amount to print set in Globals.'));
-    }
+        }
     // Download or print the file, as selected
-    if ($statementsWritten === 0 && $skippedMessage !== '' && $delivery !== StatementDelivery::Portal) {
-        // Every checked patient was skipped: say so rather than hand back an empty file.
-        $alertmsg = $skippedMessage;
-    } elseif ($delivery === StatementDelivery::Download) {
-        upload_file_to_client($STMT_TEMP_FILE);
-    } elseif ($delivery === StatementDelivery::Pdf) {
-        upload_file_to_client_pdf(
+        if ($statementsWritten === 0 && $skippedMessage !== '' && $delivery !== StatementDelivery::Portal) {
+            // Every checked patient was skipped: say so rather than hand back an empty file.
+            $alertmsg = $skippedMessage;
+        } elseif ($delivery === StatementDelivery::Download) {
+            upload_file_to_client($STMT_TEMP_FILE);
+        } elseif ($delivery === StatementDelivery::Pdf) {
+            upload_file_to_client_pdf(
             $STMT_TEMP_FILE,
             $result->onlyPatient['firstName'] ?? '',
             $result->onlyPatient['pid'] ?? null,
             $result->onlyPatient !== null
-        );
-    } elseif ($delivery === StatementDelivery::Portal) {
-        if ($alertmsg == "") {
-            $alertmsg = xl('Sending Invoice to Patient Portal Completed');
-        }
-    } else { // Must be print!
-        if ($DEBUG) {
-            $alertmsg = xl("Printing skipped; see test output in") . ' ' . $STMT_TEMP_FILE;
-        } else {
-            (new Process([OPENEMR_PRINT_COMMAND, (string) $STMT_TEMP_FILE]))->run();
-            if ($_REQUEST['form_without']) {
-                $alertmsg = xl('Now printing') . ' ' . $statementsWritten . ' ' . xl('statements; invoices will not be updated.');
+            );
+        } elseif ($delivery === StatementDelivery::Portal) {
+            if ($alertmsg == "") {
+                $alertmsg = xl('Sending Invoice to Patient Portal Completed');
+            }
+        } else { // Must be print!
+            if ($DEBUG) {
+                $alertmsg = xl("Printing skipped; see test output in") . ' ' . $STMT_TEMP_FILE;
             } else {
-                $alertmsg = xl('Now printing') . ' ' . $statementsWritten . ' ' . xl('statements and updating invoices.');
-            }
-            if ($skippedMessage !== '') {
-                $alertmsg .= ' ' . $skippedMessage;
-            }
-        } // end not debug
-    } // end not form_download
+                (new Process([OPENEMR_PRINT_COMMAND, (string) $STMT_TEMP_FILE]))->run();
+                if ($_REQUEST['form_without']) {
+                    $alertmsg = xl('Now printing') . ' ' . $statementsWritten . ' ' . xl('statements; invoices will not be updated.');
+                } else {
+                    $alertmsg = xl('Now printing') . ' ' . $statementsWritten . ' ' . xl('statements and updating invoices.');
+                }
+                if ($skippedMessage !== '') {
+                    $alertmsg .= ' ' . $skippedMessage;
+                }
+            } // end not debug
+        } // end not form_download
+    } // custom envelope was usable
 } // end statements requested
 
 // let biller know no why statement was not generated
