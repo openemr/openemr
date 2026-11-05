@@ -517,12 +517,19 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertTrue($past->isMisconfigured());
     }
 
+    /**
+     * A saved invoice is its own document, so it starts on page one with the window CSS.
+     */
     public function testIndividualDocumentStartsOnPageOneWithTheWindowCss(): void
     {
         $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
         $later = '<div class="stmt-env-sheet" style="page-break-before:always;">later</div>';
         $html = $env->individualDocument($later);
-        $this->assertStringStartsWith($env->windowCss(), $html);
+        $css = $env->windowCss();
+        if ($css === '') {
+            $this->fail('A #9 envelope produced no window CSS');
+        }
+        $this->assertStringStartsWith($css, $html);
         $this->assertStringNotContainsString('page-break-before:always', $html);
         $this->assertStringContainsString('later', $html);
 
