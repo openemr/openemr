@@ -38,9 +38,6 @@ final class PortalPaymentAmount
         return $charged === self::invoiceCents($invoiceValues);
     }
 
-    /** The payment types staff posting (portal_payment.php) records against invoice lines. */
-    private const LINE_PAYMENT_TYPES = ['copay', 'invoice_balance', 'cash'];
-
     /**
      * The total of an invoice selection in cents, as staff posting would record it: the
      * prepayment for a prepayment, otherwise the sum of its invoice lines (form_upay). Null when
@@ -53,14 +50,15 @@ final class PortalPaymentAmount
         if (!is_array($values)) {
             return null;
         }
-        $type = $values['radio_type_of_payment'] ?? null;
-        if ($type === 'pre_payment') {
+        $typeValue = $values['radio_type_of_payment'] ?? null;
+        $type = is_string($typeValue) ? PortalPaymentType::tryFrom($typeValue) : null;
+        if ($type === null) {
+            return null;
+        }
+        if (!$type->paysInvoiceLines()) {
             $prepayment = $values['form_prepayment'] ?? null;
 
             return is_string($prepayment) ? self::cents(trim($prepayment)) : null;
-        }
-        if (!in_array($type, self::LINE_PAYMENT_TYPES, true)) {
-            return null;
         }
 
         $total = 0;

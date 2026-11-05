@@ -732,15 +732,12 @@ function toencounter(enc, datestr, topframe) {
     var publicKey = <?php echo json_encode($cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('gateway_public_key'))); ?>;
 $(function() {
     $('#openPayModal').on('show.bs.modal', function () {
-        let total = $("[name='form_paytotal']").val();
-        let prepay = $("#form_prepayment").val();
+        // The amount charged is the amount the save records: the prepayment when Pre Pay is
+        // selected, otherwise the invoice lines.
+        const total = chargeAmount();
         if (Number(total) < 1) {
-            if (Number(prepay) < 1) {
-                let error = <?php echo xlj("Please enter a payment amount"); ?>;
-                alert(error);
-                return false;
-            }
-            total = prepay;
+            alert(<?php echo xlj("Please enter a payment amount"); ?>);
+            return false;
         }
         <?php if ($globalsBag->getString('payment_gateway') === 'InHouse') { ?>
         // In House: staff charge the card on their terminal before saving, so everything that
@@ -756,7 +753,7 @@ $(function() {
         const amountFields = prepaying
             ? document.querySelectorAll('#form_prepayment')
             : document.querySelectorAll('input[name^="form_upay["], input[name^="form_bpay["]');
-        if (!Number.isFinite(Number(total)) || [...amountFields].some((field) => field.value.trim() !== '' && !/^\d+(\.\d{1,2})?$/.test(field.value.trim()))) {
+        if ([...amountFields].some((field) => field.value.trim() !== '' && !/^\d+(\.\d{1,2})?$/.test(field.value.trim()))) {
             alert(<?php echo xlj('Enter each amount as a number such as 50.00'); ?>);
             return false;
         }
@@ -796,6 +793,16 @@ $(function() {
 
 let inHousePreviousMethod = null;
 let inHouseRecorded = false;
+
+// What a card payment charges: the prepayment when Pre Pay is selected, otherwise the invoice
+// lines' total. The save records the same field, so the two cannot differ. Empty when the
+// amount is not a plain number.
+function chargeAmount() {
+    const amount = document.getElementById('radio_type_of_payment4').checked
+        ? $("#form_prepayment").val().trim()
+        : $("[name='form_paytotal']").val();
+    return /^\d+(\.\d{1,2})?$/.test(amount) ? amount : '';
+}
 
 // In House: the card is run on the clinic's own terminal, so the dialog only records the
 // approval and saves the payment as a credit card payment. No card data is sent or kept.
@@ -1947,16 +1954,10 @@ function make_insurance() {
                             alert(xl("Must have an encounter to take credit card payment."));
                             return true;
                         }
-                        let total = $("[name='form_paytotal']").val();
-                        let prepay = $("#form_prepayment").val();
-                        // just to be sure. validate() should catch...
+                        const total = chargeAmount();
                         if (Number(total) < 1) {
-                            if (Number(prepay) < 1) {
-                                let error = xl("Please enter a payment amount");
-                                alert(error);
-                                return false;
-                            }
-                            total = prepay;
+                            alert(xl("Please enter a payment amount"));
+                            return false;
                         }
                         $("#payTotal").text(total);
                         $("#paymentAmount").val(total);

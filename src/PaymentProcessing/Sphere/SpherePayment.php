@@ -185,20 +185,21 @@ class SpherePayment
                 return result;
             }
             function paySphere(front) {
-                let total = document.querySelector(\"[name='form_paytotal']\").value;
-                let prepay = document.getElementById('form_prepayment').value.trim();
-                // Only a plain amount (at most two decimals): the amount charged is the amount posted.
-                if ((prepay !== '' && !/^\\d+(\\.\\d{1,2})?$/.test(prepay)) || !Number.isFinite(Number(total))) {
+                // The amount charged is the amount posted: the prepayment when Pre Pay is selected,
+                // otherwise the invoice total. The other field is ignored, even when it still holds
+                // something from before the payment type changed.
+                const prepaying = document.getElementById('radio_type_of_payment4')?.checked === true;
+                const total = prepaying
+                    ? document.getElementById('form_prepayment').value.trim()
+                    : document.querySelector(\"[name='form_paytotal']\").value.trim();
+                // Only a plain amount (at most two decimals).
+                if (total !== '' && !/^\\d+(\\.\\d{1,2})?$/.test(total)) {
                     alert(" . xlj('Enter each amount as a number such as 50.00') . ");
                     return false;
                 }
                 if (Number(total) < 1) {
-                    if (Number(prepay) < 1) {
-                        let error = " . xlj('Please enter a payment amount') . "
-                        alert(error);
-                        return false;
-                    }
-                    total = prepay;
+                    alert(" . xlj('Please enter a payment amount') . ");
+                    return false;
                 }
                 document.getElementById('form_method').value = 'credit_card';
                 // In case the javascript random generator breaks (ideally use the javascript value in case
