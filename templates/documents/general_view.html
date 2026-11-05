@@ -234,19 +234,19 @@ function tagProcedure() {
 	<tr id="DocContents" class="h-100">
 		<td>
       {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
-			<embed  style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
+			<embed  class="w-100 doc-viewer-frame" style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or
 			 $file->get_mimetype() eq "image/jpg" or
 			 $file->get_mimetype() eq "image/jpeg" or
 			 $file->get_mimetype() eq "image/gif" or
 			 $file->get_mimetype() eq "application/pdf" }
-			<iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
+			<iframe class="w-100 doc-viewer-frame" style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
       {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
-      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?csrf_token_form={$csrf_token_form|attr_url}&web_path={$web_path|attr}as_file=false"></iframe>
+      <iframe class="w-100 doc-viewer-frame" style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?csrf_token_form={$csrf_token_form|attr_url}&web_path={$web_path|attr}as_file=false"></iframe>
       {elseif $file->get_mimetype() eq "audio/ogg" or $file->get_mimetype() eq "audio/wav" or $file->get_mimetype() eq "audio/mpeg"}
       <audio class="w-100" preload="metadata" controls="true" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false">{xlt t='Your browser does not support HTML5 audio'}</audio>
       {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
-      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
+      <iframe class="w-100 doc-viewer-frame" style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
 			{/if}
 		</td>
 	</tr>
@@ -264,5 +264,27 @@ $('.btn-toggle').click(function() {
     var show_prop = ($(this).find('.properties.active').length > 0 ? 'block':'none');
     $("#DocProperties").css('display', show_prop);
 });
+
+// Size the viewer frame to the space left in the window, so the page itself does not scroll
+// below it. The inline 84vh stays as the fallback when scripting is unavailable.
+(function () {
+    var minimumHeight = 320;
+    var bottomGap = 16;
+
+    function fitViewerFrames() {
+        var frames = document.querySelectorAll('.doc-viewer-frame');
+        for (var i = 0; i < frames.length; i++) {
+            var top = frames[i].getBoundingClientRect().top + (window.pageYOffset || 0);
+            frames[i].style.height = Math.max(minimumHeight, Math.floor(window.innerHeight - top - bottomGap)) + 'px';
+        }
+    }
+
+    window.addEventListener('resize', fitViewerFrames);
+    window.addEventListener('load', fitViewerFrames);
+    $('.btn-toggle').on('click', function () {
+        window.setTimeout(fitViewerFrames, 0);
+    });
+    fitViewerFrames();
+})();
 
 </script>
