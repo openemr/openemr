@@ -70,12 +70,13 @@ final readonly class PatientController
         $globalsBag = OEGlobalsBag::getInstance();
         // A portal patient sees only themselves.
         $pid = $caller->patientPid() ?? $query->getInt('pid');
-        $register = $query->get('register', 0);
+        // A string: patientdata.js compares it with '0'.
+        $register = $query->getString('register', '0');
 
         // Registration has no chart yet.
         if ($caller->kind === PrincipalKind::Registering) {
             $pid = 0;
-            $register = true;
+            $register = '1';
         } else {
             PortalPatientAccessGuard::assertCanRead($pid);
         }
