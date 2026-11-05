@@ -217,7 +217,8 @@ final readonly class PatientController
             $record['dob'] = $session->get('dobRegistration');
             $record['email'] = $session->get('emailRegistration');
 
-            $errors = PortalProfileService::validate(array_diff_key($record, ['pid' => true]));
+            // The chart gets its pid when it is created.
+            $errors = PortalProfileService::validate($record, newChart: true);
             if ($errors !== []) {
                 return PortalJson::error('Please check the form for errors', $errors);
             }

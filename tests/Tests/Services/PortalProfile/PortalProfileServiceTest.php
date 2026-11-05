@@ -77,6 +77,23 @@ final class PortalProfileServiceTest extends TestCase
         $this->assertSame([], array_filter($empty, static fn(mixed $v): bool => $v !== null));
     }
 
+    public function testARegistrationNeedsNoPidButASavedProfileDoes(): void
+    {
+        // As PatientController::Create() builds it: every field, no pid yet.
+        $registration = array_fill_keys(array_keys(PortalProfileService::FIELDS), null)
+            + ['hipaaAllowsms' => 'NO', 'hipaaAllowemail' => 'NO'];
+        $registration['fname'] = 'Portal';
+        $registration['lname'] = 'Registrant';
+        $registration['dob'] = '1980-01-02';
+        $registration['email'] = 'registrant@example.com';
+        // The form always sends these: its provider select, and 0 for the other number fields.
+        $registration['providerid'] = '1';
+        $registration['pharmacyId'] = $registration['refProviderid'] = $registration['careTeam'] = 0;
+
+        $this->assertSame([], PortalProfileService::validate($registration, newChart: true));
+        $this->assertArrayHasKey('pid', PortalProfileService::validate($registration), 'a saved profile must name its chart');
+    }
+
     public function testSavingARecordUpdatesTheChart(): void
     {
         $record = $this->register(['fname' => 'Portal', 'lname' => 'Saved']);
