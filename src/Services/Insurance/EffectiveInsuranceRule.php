@@ -16,6 +16,7 @@ namespace OpenEMR\Services\Insurance;
 
 use DateTimeImmutable;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 /**
  * The rule:
@@ -136,12 +137,16 @@ final class EffectiveInsuranceRule
         if (strcmp($first, $last) > 0) {
             return [];
         }
-        $changes = [$first => new DateTimeImmutable($first)];
+        // Levels are independent, so the level's own rows give the same answer at it, without choosing the others.
+        $levelRows = [];
         foreach ($rows as $row) {
             $type = $row['type'] ?? null;
-            if (!is_string($type) || InsuranceLevel::tryFrom($type) !== $level) {
-                continue;
+            if (is_string($type) && InsuranceLevel::tryFrom($type) === $level) {
+                $levelRows[] = $row;
             }
+        }
+        $changes = [$first => new DateTimeImmutable($first)];
+        foreach ($levelRows as $row) {
             $start = self::storedDate($row['date'] ?? null);
             $end = self::storedDate($row['date_end'] ?? null);
             $days = [];
@@ -164,12 +169,7 @@ final class EffectiveInsuranceRule
         $segments = [];
         $run = null;
         foreach ($changes as $i => $day) {
-            $held = null;
-            foreach (self::choose($rows, $day) as $policy) {
-                if ($policy->level === $level) {
-                    $held = $policy;
-                }
-            }
+            $held = self::choose($levelRows, $day)[0] ?? null;
             $runEnd = isset($changes[$i + 1]) ? $changes[$i + 1]->modify('-1 day') : new DateTimeImmutable($last);
             if ($run !== null && $held !== null && $held->id === $run->policy->id) {
                 $run = new CoverageSegment($run->policy, $run->from, $runEnd);
@@ -266,8 +266,8 @@ final class EffectiveInsuranceRule
      */
     private static function calendarDay(string $stored): ?DateTimeImmutable
     {
-        $day = DateTimeImmutable::createFromFormat('!Y-m-d', $stored);
-        return $day !== false && $day->format('Y-m-d') === $stored ? $day : null;
+        $ymd = DateFormatterUtils::dbDateToYmd($stored);
+        return $ymd === null ? null : new DateTimeImmutable($ymd);
     }
 
     /**

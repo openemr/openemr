@@ -6,6 +6,11 @@
  * read, there is no day: the caller decides what that means, rather than
  * billing the plan in force today.
  *
+ * Every day returned is midnight in PHP's default time zone, as the rule's
+ * dates are (EffectiveInsuranceRule), so the two compare as days. Which zone
+ * OpenEMR's dates use is a suite-wide question; this keeps the coverage code
+ * consistent with itself until it is settled.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    anun333 <anun333@posteo.net>
@@ -18,6 +23,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services\Insurance;
 
 use DateTimeImmutable;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 use Psr\Clock\ClockInterface;
 
 final readonly class CoverageDay
@@ -34,12 +40,8 @@ final readonly class CoverageDay
      */
     public static function fromStored(mixed $value): ?DateTimeImmutable
     {
-        if (!is_string($value) || strlen($value) < 10) {
-            return null;
-        }
-        $text = substr($value, 0, 10);
-        $day = DateTimeImmutable::createFromFormat('!Y-m-d', $text);
-        return $day !== false && $day->format('Y-m-d') === $text ? $day : null;
+        $ymd = is_string($value) ? DateFormatterUtils::dbDateToYmd(substr($value, 0, 10)) : null;
+        return $ymd === null ? null : new DateTimeImmutable($ymd);
     }
 
     /**
@@ -62,10 +64,10 @@ final readonly class CoverageDay
 
     /**
      * Screens and documents that show current coverage: today, the clock's
-     * calendar day in its own time zone.
+     * calendar day, at midnight in PHP's default time zone.
      */
     public function today(): DateTimeImmutable
     {
-        return $this->clock->now()->setTime(0, 0);
+        return new DateTimeImmutable($this->clock->now()->format('Y-m-d'));
     }
 }

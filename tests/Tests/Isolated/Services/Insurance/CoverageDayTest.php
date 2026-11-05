@@ -18,6 +18,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -62,12 +63,35 @@ final class CoverageDayTest extends TestCase
     }
 
     #[Test]
-    public function todayIsTheClocksCalendarDayInItsOwnZone(): void
+    public function todayIsTheClocksCalendarDayAtMidnightInPhpsZoneAsTheRulesDatesAre(): void
     {
         $today = self::days()->today();
 
         self::assertSame('2026-11-04 00:00:00', $today->format('Y-m-d H:i:s'));
-        self::assertSame('America/Chicago', $today->getTimezone()->getName());
+        self::assertSame(date_default_timezone_get(), $today->getTimezone()->getName());
+    }
+
+    #[Test]
+    public function aPolicyEndingTodayIsInForceTodayWhereTheClocksZoneDiffersFromPhps(): void
+    {
+        $saved = date_default_timezone_get();
+        date_default_timezone_set('Pacific/Auckland');
+        try {
+            // 10:00 on the 5th in Chicago, when Auckland is already on the 6th: the clock's calendar day counts.
+            $clock = new FrozenClock(new DateTimeImmutable('2026-11-05 10:00:00', new DateTimeZone('America/Chicago')));
+            $today = (new CoverageDay($clock))->today();
+            $rows = [['id' => 1, 'uuid' => null, 'type' => 'primary', 'provider' => 101, 'date' => '2026-01-01', 'date_end' => '2026-11-05']];
+
+            $policies = EffectiveInsuranceRule::choose($rows, $today);
+
+            self::assertSame('2026-11-05', $today->format('Y-m-d'));
+            self::assertCount(1, $policies);
+            self::assertNotNull($policies[0]->end);
+            self::assertFalse($policies[0]->end < $today, 'a policy that ends today has not ended');
+            self::assertEquals($today, $policies[0]->end, 'its last day is today, the same instant');
+        } finally {
+            date_default_timezone_set($saved);
+        }
     }
 
     /**
