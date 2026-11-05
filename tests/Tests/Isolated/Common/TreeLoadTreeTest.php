@@ -22,13 +22,13 @@ class TreeLoadTreeTest extends TestCase
     }
 
     /**
-     * @param list<array<string, mixed>> $rows
+     * @param list<array{id: int, name: string, value: string, parent: int, lft: int, rght: int}> $rows
      * @return list<string>
      */
     private function loadPaths(array $rows): array
     {
         $db = new class ($rows) {
-            /** @param list<array<string, mixed>> $table */
+            /** @param list<array{id: int, name: string, value: string, parent: int, lft: int, rght: int}> $table */
             public function __construct(private readonly array $table)
             {
             }
@@ -38,11 +38,11 @@ class TreeLoadTreeTest extends TestCase
                 return '';
             }
 
-            /** @param list<mixed> $binds */
+            /** @param list<int> $binds */
             public function Execute(string $sql, array $binds = []): object
             {
                 if (str_contains($sql, 'WHERE id=?')) {
-                    $found = array_values(array_filter($this->table, static fn (array $r): bool => (int) $r['id'] === (int) $binds[0]));
+                    $found = array_values(array_filter($this->table, static fn (array $r): bool => $r['id'] === $binds[0]));
                     return $this->result($found);
                 }
                 $found = array_values(array_filter($this->table, static fn (array $r): bool => $r['lft'] >= $binds[0] && $r['lft'] <= $binds[1]));
@@ -50,7 +50,7 @@ class TreeLoadTreeTest extends TestCase
                 return $this->result($found);
             }
 
-            /** @param list<array<string, mixed>> $found */
+            /** @param list<array{id: int, name: string, value: string, parent: int, lft: int, rght: int}> $found */
             private function result(array $found): object
             {
                 return new class ($found) {
@@ -92,12 +92,13 @@ class TreeLoadTreeTest extends TestCase
                 }
             }
         };
-        $walk($tree->tree, '');
+        $loaded = $tree->tree;
+        $walk(is_array($loaded) ? $loaded : [], '');
         return $paths;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{id: int, name: string, value: string, parent: int, lft: int, rght: int}
      */
     private static function row(int $id, string $name, int $parent, int $lft, int $rght): array
     {

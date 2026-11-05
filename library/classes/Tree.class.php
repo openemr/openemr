@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Tree: a modified preorder tree traversal hierarchy stored in a relational table (see the class description below)
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 use OpenEMR\Core\OEGlobalsBag;
 
 define("ROOT_TYPE_ID", 1);
@@ -92,7 +100,11 @@ class Tree
         // then miss the parent and break the tree.
         $descendants = [];
         while ($result && !$result->EOF) {
-            $descendants[] = $result->fields;
+            $fields = $result->fields;
+            if (is_array($fields)) {
+                /** @var array<string, mixed> $fields */
+                $descendants[] = $fields;
+            }
             $result->MoveNext();
         }
 
@@ -113,17 +125,21 @@ class Tree
 
         // Build the nested array level by level: a parent must be merged before its children. The sort is
         // stable, so the siblings keep the order the database returned (by parent and name).
+        $parentOf = [];
+        foreach ($descendants as $descendant) {
+            $parentOf[self::intValue($descendant['id'])] = self::intValue($descendant['parent']);
+        }
         $depths = [];
         foreach ($descendants as $descendant) {
             $depth = 0;
-            $parent = $descendant['parent'];
-            while ($parent != 0 && isset($this->_id_name[$parent]) && $depth <= count($this->_id_name)) {
+            $parent = self::intValue($descendant['parent']);
+            while ($parent !== 0 && isset($parentOf[$parent]) && $depth <= count($parentOf)) {
                 $depth++;
-                $parent = $this->_id_name[$parent]['parent'];
+                $parent = $parentOf[$parent];
             }
-            $depths[$descendant['id']] = $depth;
+            $depths[self::intValue($descendant['id'])] = $depth;
         }
-        usort($descendants, static fn (array $a, array $b): int => $depths[$a['id']] <=> $depths[$b['id']]);
+        usort($descendants, static fn (array $a, array $b): int => $depths[self::intValue($a['id'])] <=> $depths[self::intValue($b['id'])]);
 
         foreach ($descendants as $row) {
             $ar = [];
@@ -177,6 +193,12 @@ class Tree
         }
 
         $this->tree = $tree;
+    }
+
+    /** A database id or parent id as an int (a numeric string or int), 0 for anything else. */
+    private static function intValue(mixed $value): int
+    {
+        return is_numeric($value) ? (int) $value : 0;
     }
 
     /*
