@@ -178,9 +178,9 @@ $display_div = "style='display:block;'";
         $toDate = DateToYYYYMMDD($form_to_doc_date);
 
         // Get the category ID for lab reports.
-        $query = "SELECT rght FROM categories WHERE name = ?";
+        $query = "SELECT id FROM categories WHERE name = ?";
         $catIDRs = sqlQuery($query, [OEGlobalsBag::getInstance()->getString('lab_results_category_name')]);
-        $catID = is_array($catIDRs) && is_numeric($catIDRs['rght'] ?? null) ? (int) $catIDRs['rght'] : 0;
+        $catID = is_array($catIDRs) && is_numeric($catIDRs['id'] ?? null) ? (int) $catIDRs['id'] : 0;
 
         $labQuery = (new LabDocumentQuery())->build(
             $catID,
