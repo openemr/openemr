@@ -126,7 +126,6 @@ return ['includes' => [
     __DIR__ . '/preInc.type.php',
     __DIR__ . '/print.nonString.php',
     __DIR__ . '/property.defaultValue.php',
-    __DIR__ . '/property.deprecated.php',
     __DIR__ . '/property.nonObject.php',
     __DIR__ . '/property.notFound.php',
     __DIR__ . '/property.onlyRead.php',
