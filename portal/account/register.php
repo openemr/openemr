@@ -43,8 +43,9 @@ if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag-
 }
 
 // The emailed verify link can open in a fresh session; the patient API iframe needs a CSRF key.
-// Keep a key the session already has, so tokens issued earlier in it stay valid.
-if (!$session->has('csrf_private_key')) {
+// Keep an existing key so the patient's other open portal tabs still validate.
+$csrfKey = $session->get('csrf_private_key');
+if ($csrfKey === null || $csrfKey === '') {
     CsrfUtils::setupCsrfKey($session);
 }
 
