@@ -717,7 +717,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         // The card dialog opens from here, not from a data-toggle button: the portal page loads
         // Bootstrap more than once, and each copy would open the dialog even when this check fails.
         $(function () {
-            $('#paynowbutton').on('click', function () {
+            $('#paynowbutton').on('click', function (e) {
                 calctotal();
                 let total = $("#form_paytotal").val();
                 const prepayment = document.getElementById('form_prepayment').value.trim();
@@ -731,6 +731,10 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 }
                 $("#payTotal").text(total);
                 $("#paymentAmount").val(total);
+                // A gateway that starts its payment from this button (Rainforest) runs only now.
+                if (typeof window.portalGatewayPay === 'function') {
+                    window.portalGatewayPay.call(this, e);
+                }
                 $('#openPayModal').modal('show');
             });
         });
@@ -841,11 +845,11 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 </td>
                 <td class='text' colspan="2">
                     <input type="radio" name="radio_type_of_coverage" id="radio_type_of_coverage1"
-                           value="self" onClick="make_visible_radio();make_self();"/>
+                           value="self" onClick="make_visible_radio();make_self();calctotal();"/>
                     <?php echo xlt('Self'); ?>
                     <input type="radio" name="radio_type_of_coverage" id="radio_type_of_coverag2" value="insurance"
                            checked="checked"
-                           onClick="make_hide_radio();make_insurance();"/>
+                           onClick="make_hide_radio();make_insurance();calctotal();"/>
                     <?php echo xlt('Insurance'); ?>
                 </td>
             </tr>
@@ -871,9 +875,10 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                            value="copay" onClick="make_visible_row();cursor_pointer();calctotal();"/><?php echo !$hide ? xlt('Co Pay') : ''; ?>
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment2" checked="checked"
                            value="invoice_balance" onClick="make_visible_row();calctotal();"/><?php echo xlt('Invoice Balance'); ?>
-                    <?php if ($globalsBag->getString('payment_gateway') === 'Rainforest') {
-                        // Rainforest charges against invoice encounters; it has no prepayment. The
-                        // radio stays (disabled) for the scripts that look it up.
+                    <?php if ($globalsBag->getString('payment_gateway') === 'Rainforest' && !$session->has('authUserID')) {
+                        // A patient paying through Rainforest, which charges against invoice
+                        // encounters, cannot prepay; staff still can. The radio stays (disabled)
+                        // for the scripts that look it up.
                         ?>
                         <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment4" value="pre_payment" class="d-none" disabled />
                     <?php } else { ?>
@@ -1396,6 +1401,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             'csrf' => CsrfUtils::collectCsrfToken($session, 'rainforest'),
             'endpoint' => 'portal_payment.rainforest.php',
         ]);
+        // Rainforest starts its payment from the Pay Invoice button. Hand that to the button's
+        // own handler, so it runs only after the amount is checked.
+        echo "\n(function () { const button = document.getElementById('paynowbutton'); if (button) { window.portalGatewayPay = button.onclick; button.onclick = null; } })();\n";
         echo '</script>';
     }
     ?>

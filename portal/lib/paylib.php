@@ -15,10 +15,12 @@
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
+use OpenEMR\Services\PatientReview\Portal\PortalPaymentAmount;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
@@ -109,6 +111,12 @@ if ($_POST['mode'] == 'AuthorizeNet') {
     if ($isPortal) {
         PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
     }
+    // The amount charged must be the amount the payment is saved with, which staff post.
+    $chargeRequest = CurrentRequest::get()->request;
+    if (!PortalPaymentAmount::matchesInvoice($chargeRequest->getString('payment'), $chargeRequest->getString('invValues'))) {
+        echo xlt('The payment amount does not match the invoice. Reload the page and try again.');
+        exit();
+    }
     $pay = new PaymentGateway("AuthorizeNetApi_Api");
     $transaction['amount'] = $_POST['payment'];
     $transaction['currency'] = "USD";
@@ -150,6 +158,12 @@ if ($_POST['mode'] == 'Stripe') {
     $form_pid = $_POST['form_pid'];
     if ($isPortal) {
         PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
+    }
+    // The amount charged must be the amount the payment is saved with, which staff post.
+    $chargeRequest = CurrentRequest::get()->request;
+    if (!PortalPaymentAmount::matchesInvoice($chargeRequest->getString('payment'), $chargeRequest->getString('invValues'))) {
+        echo xlt('The payment amount does not match the invoice. Reload the page and try again.');
+        exit();
     }
     $pay = new PaymentGateway("Stripe");
     $transaction['amount'] = $_POST['payment'];

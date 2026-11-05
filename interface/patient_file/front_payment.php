@@ -723,17 +723,49 @@ $(function() {
             }
             total = prepay;
         }
-        $("#form_method").val('credit_card');
-        // In House: staff charge the card before saving, so check the payment can be saved first.
         <?php if ($globalsBag->getString('payment_gateway') === 'InHouse') { ?>
-        if (!validate(true)) {
+        // In House: staff charge the card on their terminal before saving, so everything that
+        // would stop the save is checked before the dialog asks them to.
+        const methodSelect = document.getElementById('form_method');
+        if (![...methodSelect.options].some((option) => option.value === 'credit_card')) {
+            alert(<?php echo xlj('The Credit Card payment method is not active. Turn it on in the payment_method list.'); ?>);
             return false;
         }
+        const amountFields = document.querySelectorAll('input[name^="form_upay["], input[name^="form_bpay["], #form_prepayment');
+        if (!Number.isFinite(Number(total)) || [...amountFields].some((field) => field.value.trim() !== '' && !/^\d+(\.\d{1,2})?$/.test(field.value.trim()))) {
+            alert(<?php echo xlj('Enter each amount as a number such as 50.00'); ?>);
+            return false;
+        }
+        const todayPayment = document.querySelector('input[name="form_upay[0]"]');
+        if (todayPayment && Number(todayPayment.value) > 0) {
+            alert(<?php echo xlj("Create today's encounter before taking a card payment for it."); ?>);
+            return false;
+        }
+        inHousePreviousMethod = methodSelect.value;
+        inHouseRecorded = false;
+        $("#form_method").val('credit_card');
+        if (!validate(true)) {
+            $("#form_method").val(inHousePreviousMethod);
+            return false;
+        }
+        <?php } else { ?>
+        $("#form_method").val('credit_card');
         <?php } ?>
         $("#payTotal").text(total);
         $("#paymentAmount").val(total);
     });
+    <?php if ($globalsBag->getString('payment_gateway') === 'InHouse') { ?>
+    // Cancelled without recording: put back the payment method staff had chosen.
+    $('#openPayModal').on('hidden.bs.modal', function () {
+        if (!inHouseRecorded && inHousePreviousMethod !== null) {
+            $("#form_method").val(inHousePreviousMethod);
+        }
+    });
+    <?php } ?>
 });
+
+let inHousePreviousMethod = null;
+let inHouseRecorded = false;
 
 // In House: the card is run on the clinic's own terminal, so the dialog only records the
 // approval and saves the payment as a credit card payment. No card data is sent or kept.
@@ -753,6 +785,7 @@ function recordInHouseCardPayment(e) {
     }
     $("#form_method").val('credit_card');
     $("#check_number").prop('disabled', false).val(last4 === '' ? auth : auth + ' : ' + last4);
+    inHouseRecorded = true;
     $('#openPayModal').modal('hide');
     $("[name='form_save']").click();
 }
@@ -1454,7 +1487,7 @@ function make_insurance() {
                                         echo SpherePayment::renderSphereHtml('clinic');
                                     } else {
                                         echo '<button type="button" id="paynowbutton" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
-                                        if (OEGlobalsBag::getInstance()->getBoolean('cc_stripe_terminal')) {
+                                        if (OEGlobalsBag::getInstance()->getBoolean('cc_stripe_terminal') && $globalsBag->getString('payment_gateway') === 'Stripe') {
                                             echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
                                         }
                                     }
