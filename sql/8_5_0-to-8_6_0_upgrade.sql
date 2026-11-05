@@ -289,5 +289,7 @@ ALTER TABLE `patient_review_request`
 -- Add the value, then relabel those rows; no other writer produces an empty type.
 #IfNotColumnType notification_log type enum('SMS','Email','Phone')
 ALTER TABLE `notification_log` MODIFY `type` enum('SMS','Email','Phone') NOT NULL;
-UPDATE `notification_log` SET `type` = 'Phone' WHERE `type` = '';
 #EndIf
+
+-- Unguarded so a rerun still relabels if a previous run stopped after the ALTER.
+UPDATE `notification_log` SET `type` = 'Phone' WHERE `type` = '';
