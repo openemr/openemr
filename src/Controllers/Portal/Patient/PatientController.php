@@ -70,8 +70,9 @@ final readonly class PatientController
         $globalsBag = OEGlobalsBag::getInstance();
         // A portal patient sees only themselves.
         $pid = $caller->patientPid() ?? $query->getInt('pid');
-        // A string: patientdata.js compares it with '0'.
-        $register = $query->getString('register', '0');
+        // '1' only for a registering visitor, whatever the query string says: patientdata.js
+        // compares it with '0', and nothing else from the request reaches the page's script.
+        $register = '0';
 
         // Registration has no chart yet.
         if ($caller->kind === PrincipalKind::Registering) {

@@ -12,8 +12,6 @@
 <script src="/openemr/public/assets/jquery/dist/jquery.min.js?v=82"></script>
 <link href="/openemr/public/assets/@fortawesome/fontawesome-free/css/all.min.css?v=82" rel="stylesheet" />
 <link href="/openemr/public/assets/jquery-datetimepicker/build/jquery.datetimepicker.min.css?v=82" rel="stylesheet" />
-    <link href="/openemr/public/assets/bootstrap/dist/css/bootstrap.min.css?v=82" rel="stylesheet">
-    <script src="/openemr/public/assets/bootstrap/dist/js/bootstrap.bundle.min.js?v=82"></script>
 
 <script src="/openemr/public/assets/moment/moment.js?v=82"></script>
 <script src="/openemr/public/assets/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js?v=82"></script>
@@ -23,7 +21,7 @@
 <base href="/openemr/portal/patient/" />
 </head>
 <body>
-<script>var register="1\n\\';alert(1)\/\/";var recid='0';var webRoot="\/openemr";var cpid='7';var cuser="1';alert(1)\/\/";</script>
+<script>var register="0";var recid='0';var webRoot="\/openemr";var cpid='7';var cuser="1';alert(1)\/\/";</script>
 
 <script src="/openemr/portal/patient/scripts/app/patientdata.js?v=82"></script>
 <script>
@@ -39,23 +37,6 @@ var datetimepicker_format = 'Y-m-d H:i:s';
 
     // profile excludes global from layouts via PatientController
     const exclude = ["suffixInputContainer","refProvideridInputContainer"];
-</script>
-<style>
-    .form-group .inline .dynhide {
-        display: none;
-    }
-
-    body {
-        padding-top: 0;
-        padding-bottom: 5px;
-        background-color: #fff !important;
-    }
-</style>
-<script>
-    // Fixes iFrame in Patient Registratiion
-    setInterval(function() {
-        window.top.postMessage(document.body.scrollHeight, "*");
-    }, 500);
 </script>
 <body>
 <div class="container-fluid">
