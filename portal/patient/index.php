@@ -25,6 +25,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Controllers\Portal\Patient\PortalErrorPages;
 use OpenEMR\Controllers\Portal\Patient\PortalJson;
 use OpenEMR\Controllers\Portal\Patient\PortalPatientApp;
+use OpenEMR\Controllers\Portal\Patient\PortalValues;
 use OpenEMR\Controllers\Portal\Patient\TwigPageRenderer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Portal\Routing\PortalPrincipal;
@@ -49,7 +50,7 @@ $pages = new TwigPageRenderer(ServiceContainer::getTwig(), [
     'web_root' => $globalsBag->getString('web_root'),
     'assets_static_relative' => $globalsBag->getString('assets_static_relative'),
     'v_js_includes' => $globalsBag->getString('v_js_includes'),
-    'is_portal_session' => $session->has('patient_portal_onsite_two') && (bool) $session->get('patient_portal_onsite_two'),
+    'is_portal_session' => PortalValues::isFilled($session->get('patient_portal_onsite_two')),
     'software_version' => (new VersionService())->getSoftwareVersion(),
     'current_year' => date('Y'),
 ]);

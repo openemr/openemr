@@ -58,7 +58,7 @@ final readonly class OnsiteDocumentController
         ) ?? 0;
 
         // A portal patient sees only their own documents.
-        $pid = $caller->patientPid() ?? (int) $query->getString('pid');
+        $pid = $caller->patientPid() ?? $query->getInt('pid');
         PortalPatientAccessGuard::assertCanReadDocuments($pid);
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -93,10 +93,10 @@ final readonly class OnsiteDocumentController
             'allow_portal_uploads' => $globals->getBoolean('allow_portal_uploads'),
             // The encounter forms the page may load, by directory: a whitelist, for security.
             'form_names_whitelist' => CoreFormToPortalUtility::getListPortalCompliantEncounterForms(),
-            'template_menu' => self::isFilled($isModule) || $isPortal === 1
+            'template_menu' => PortalValues::isFilled($isModule) || $isPortal === 1
                 ? (new DocumentTemplateService())->renderPortalTemplateMenu($pid, $cuser, true)
                 : '',
-            'datetimepicker_js' => self::datetimepickerTranslations($globals->getString('srcdir')),
+            'datetimepicker_js' => PortalValues::scriptOutput($globals->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'),
             'portal_home_url' => '../home.php?site=' . urlencode($siteId === '' ? 'default' : $siteId),
             // The patient's Exit link when the page opened a document for them has always dropped
             // the 'default' fallback.
@@ -109,29 +109,12 @@ final readonly class OnsiteDocumentController
      */
     private static function categoryName(mixed $catid): ?string
     {
-        if (!self::isFilled($catid)) {
+        if (!PortalValues::isFilled($catid)) {
             return null;
         }
         $name = QueryUtils::fetchSingleValue('SELECT `name` FROM `categories` WHERE `id` = ?', 'name', [$catid]);
 
-        return is_string($name) && self::isFilled($name) ? $name : null;
-    }
-
-    /**
-     * The date picker's translations, as the script that sets the page's datepicker_* variables.
-     */
-    private static function datetimepickerTranslations(string $srcdir): string
-    {
-        ob_start();
-        try {
-            require $srcdir . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php';
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-        $script = ob_get_clean();
-
-        return is_string($script) ? $script : '';
+        return is_string($name) && PortalValues::isFilled($name) ? $name : null;
     }
 
     /**
@@ -197,7 +180,7 @@ final readonly class OnsiteDocumentController
             $fullDocument = $document['fullDocument'];
             $isLegacy = !is_string($fullDocument) || stripos($fullDocument, 'portal_version') === false;
             $templateData = $document['templateData'];
-            if (self::isFilled($templateData) && !$isLegacy) {
+            if (PortalValues::isFilled($templateData) && !$isLegacy) {
                 // Fill the template saved at create time with the saved answers, so a document
                 // keeps the template version it was started on.
                 $templateRender = new DocumentTemplateRender($document['pid'], $document['provider'], $document['encounter']);
@@ -290,7 +273,7 @@ final readonly class OnsiteDocumentController
             $hasVersion = is_string($existing_template) && stripos($existing_template, 'portal_version') !== false;
             if (PortalJson::field($json, 'type') == 'flattened') {
                 $existing = PortalJson::field($json, 'fullDocument');
-                if (is_string($existing) && self::isFilled($existing)) {
+                if (is_string($existing) && PortalValues::isFilled($existing)) {
                     $config = \HTMLPurifier_Config::createDefault();
                     $config->set('Core.Encoding', 'UTF-8');
                     // purifier will only allow base64 data urls in img tag.
@@ -311,7 +294,7 @@ final readonly class OnsiteDocumentController
                         $existing_template .= "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
                     }
                 }
-            } elseif (self::isFilled(PortalJson::field($json, 'fullDocument'))) { // test if an unexpected document is sent.
+            } elseif (PortalValues::isFilled(PortalJson::field($json, 'fullDocument'))) { // test if an unexpected document is sent.
                 // the only time a document is allow from interface is fo flattened documents
                 // which should be flagged and even still if flagged HTMLPurifier will blow it up.
                 ServiceContainer::getLogger()->warning('Invalid portal document save attempt: an unflattened document body was sent');
@@ -362,15 +345,6 @@ final readonly class OnsiteDocumentController
         } catch (\RuntimeException | \LogicException $ex) {
             return PortalJson::exception($ex);
         }
-    }
-
-
-    /**
-     * What empty() treated as filled: anything but null, false, 0, '', '0' and [].
-     */
-    private static function isFilled(mixed $value): bool
-    {
-        return !in_array($value, [null, false, 0, 0.0, '', '0', []], true);
     }
 
     /**

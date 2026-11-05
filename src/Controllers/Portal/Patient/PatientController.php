@@ -69,7 +69,7 @@ final readonly class PatientController
         $query = $request->query;
         $globalsBag = OEGlobalsBag::getInstance();
         // A portal patient sees only themselves.
-        $pid = $caller->patientPid() ?? (int) $query->getString('pid');
+        $pid = $caller->patientPid() ?? $query->getInt('pid');
         $register = $query->get('register', 0);
 
         // Registration has no chart yet.
@@ -83,7 +83,7 @@ final readonly class PatientController
         $srcDir = $globalsBag->getString('srcdir');
 
         return new Response($this->pages->render('PatientListView', [
-            'recid' => (int) $query->getString('id'),
+            'recid' => $query->getInt('id'),
             'cpid' => $pid,
             'cuser' => $query->get('user', 0),
             'encounter' => $query->get('enc', 0),
@@ -92,7 +92,7 @@ final readonly class PatientController
             'exclude' => $this->profiles->excludedFieldContainers(),
             'users_list' => $this->profiles->portalProviders(),
             'select_lists' => self::selectLists($srcDir, $row),
-            'datetimepicker_js' => self::scriptOutput($srcDir . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'),
+            'datetimepicker_js' => PortalValues::scriptOutput($srcDir . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'),
         ]));
     }
 
@@ -122,21 +122,6 @@ final readonly class PatientController
         }
 
         return $selects;
-    }
-
-    /**
-     * What a PHP script that writes JavaScript (such as a localisation file) prints.
-     */
-    private static function scriptOutput(string $path): string
-    {
-        ob_start();
-        try {
-            require $path;
-        } finally {
-            $output = ob_get_clean();
-        }
-
-        return $output === false ? '' : $output;
     }
 
     /**
@@ -177,7 +162,7 @@ final readonly class PatientController
     public function Read(Request $request, RouteMatch $route, PortalPrincipal $caller): Response
     {
         try {
-            $record = $this->profiles->record(self::positiveId($route->param('id')))
+            $record = $this->profiles->record(PortalValues::positiveId($route->param('id')))
                 ?? throw new \RuntimeException('Not found');
             PortalPatientAccessGuard::assertCanRead($record['pid']);
 
@@ -199,7 +184,7 @@ final readonly class PatientController
                 throw new \RuntimeException('Unauthorized');
             }
             foreach (['fnameRegistration', 'lnameRegistration', 'dobRegistration', 'emailRegistration', 'token_id_holder'] as $required) {
-                if (!self::isFilled($session->get($required))) {
+                if (!PortalValues::isFilled($session->get($required))) {
                     throw new \RuntimeException('Something went wrong');
                 }
             }
@@ -244,7 +229,7 @@ final readonly class PatientController
     {
         try {
             $json = PortalJson::body($request->getContent());
-            $record = $this->profiles->record(self::positiveId($route->param('id')))
+            $record = $this->profiles->record(PortalValues::positiveId($route->param('id')))
                 ?? throw new \RuntimeException('Not found');
             PortalPatientAccessGuard::assertCanWrite($record['pid']);
 
@@ -276,31 +261,12 @@ final readonly class PatientController
         // say), it stays open for staff to clear; failing here would report the save as failed
         // and invite a second save.
         try {
-            ReviewQueueFactory::portalWorkflows()->completeProfileChange(self::positiveId($pid), SessionReviewActor::staff($session));
+            ReviewQueueFactory::portalWorkflows()->completeProfileChange(PortalValues::positiveId($pid), SessionReviewActor::staff($session));
         } catch (\RuntimeException | \LogicException | DbalException $e) {
             ServiceContainer::getLogger()->error('Could not close the profile review request after saving', [
                 'pid' => $pid,
                 'exception' => $e,
             ]);
         }
-    }
-
-
-    /**
-     * What empty() treated as filled: anything but null, false, 0, '', '0' and [].
-     */
-    private static function isFilled(mixed $value): bool
-    {
-        return !in_array($value, [null, false, 0, 0.0, '', '0', []], true);
-    }
-
-    private static function positiveId(mixed $id): int
-    {
-        $id = filter_var($id, FILTER_VALIDATE_INT);
-        if (!is_int($id) || $id <= 0) {
-            throw new \RuntimeException('Not found');
-        }
-
-        return $id;
     }
 }
