@@ -22,6 +22,7 @@
  * @package OpenEMR
  * @author  EMR Direct <https://www.emrdirect.com/>
  * @link    https://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/documents.php");
@@ -30,7 +31,15 @@ use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\DirectMessaging\PhiMailBlobException;
 use OpenEMR\Common\DirectMessaging\PhiMailCheckException;
+use OpenEMR\Common\DirectMessaging\PhiMailConfig;
+use OpenEMR\Common\DirectMessaging\PhiMailConnection;
+use OpenEMR\Common\DirectMessaging\PhiMailConnectionException;
+use OpenEMR\Common\DirectMessaging\PhiMailConnectionFailure;
+use OpenEMR\Common\DirectMessaging\PhiMailServer;
+use OpenEMR\Common\DirectMessaging\PhiMailStreamException;
+use OpenEMR\Common\DirectMessaging\PhiMailUnexpectedResponseException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
@@ -39,116 +48,34 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Connect to a phiMail Direct Messaging server
+ *
+ * @param ?string $phimail_error
+ * @param-out ?string $phimail_error the C-code of a failure; untouched on success
+ * @return resource|false
  */
-
 function phimail_connect(&$phimail_error)
 {
-
-    if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
-        $phimail_error = 'C1';
-        return false; //for safety
-    }
-
-    $phimail_server = @parse_url(OEGlobalsBag::getInstance()->getString('phimail_server_address'));
-    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
-    $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('phimail_password'));
-
-    // if test mode is disabled we use the production cert, otherwise we use the test certificate.
-    if (OEGlobalsBag::getInstance()->has('phimail_testmode_disabled') && OEGlobalsBag::getInstance()->getBoolean('phimail_testmode_disabled')) {
-        $phimail_cafile = OEGlobalsBag::getInstance()->getProjectDir() . '/public/certs/phimail/phimail_server.pem';
-    } else {
-        $phimail_cafile = OEGlobalsBag::getInstance()->getProjectDir() . '/public/certs/phimail/EMRDirectTestCA.pem';
-        ServiceContainer::getLogger()->debug("running phimail_connect in test mode.  This should not be used for production", ['ca' => $phimail_cafile, 'testmode' => OEGlobalsBag::getInstance()->getBoolean('phimail_testmode_disabled')]);
-    }
-    if (!file_exists($phimail_cafile)) {
-        $phimail_cafile = '';
-    }
-
-    $phimail_secure = true;
-    switch ($phimail_server['scheme']) {
-        case "tcp":
-        case "http":
-            $server = "tcp://" . $phimail_server['host'];
-            $phimail_secure = false;
-            break;
-        case "https":
-            $server = "ssl://" . $phimail_server['host']
-                . ':' . $phimail_server['port'];
-            break;
-        case "ssl":
-        case "sslv3":
-        case "tls":
-            $server = OEGlobalsBag::getInstance()->getString('phimail_server_address');
-            break;
-        default:
-            $phimail_error = 'C2';
-            ServiceContainer::getLogger()->error("phimail_connect failed to connect due to invalid scheme", ['error' => $phimail_error]);
-            return false;
-    }
-
-    if ($phimail_secure) {
-        $context = stream_context_create();
-        if (
-            $phimail_cafile != '' &&
-            (!stream_context_set_option($context, 'ssl', 'verify_peer', true) ||
-                !stream_context_set_option($context, 'ssl', 'cafile', $phimail_cafile))
-        ) {
-            $phimail_error = 'C3';
-            ServiceContainer::getLogger()->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
-            return false;
+    $globals = OEGlobalsBag::getInstance();
+    $logger = ServiceContainer::getLogger();
+    $server = PhiMailServer::fromGlobals($globals);
+    $version = SoftwareVersion::fromGlobals($globals);
+    try {
+        $connection = PhiMailConnection::open($server, $version, $logger);
+    } catch (PhiMailConnectionException $e) {
+        $phimail_error = $e->failure->value;
+        if ($e->failure === PhiMailConnectionFailure::Unreachable) {
+            $detail = match (true) {
+                $e->socketErrorCode === 111 => xl('Server may be offline'),
+                $e->socketErrorMessage === '' => xl('Connection error'),
+                default => $e->socketErrorMessage,
+            };
+            $phimail_error .= ' ' . $e->socketErrorCode . ' (' . $detail . ')';
         }
-
-        $socket_tries = 0;
-        $fp = false;
-        while ($socket_tries < 3 && !$fp) {
-            $socket_tries++;
-            $fp = @stream_socket_client(
-                $server,
-                $err1,
-                $err2,
-                10,
-                STREAM_CLIENT_CONNECT,
-                $context
-            );
-        }
-
-        if (!$fp) {
-            if ($err1 == '111') {
-                $err2 = xl('Server may be offline');
-            }
-
-            if ($err2 == '') {
-                $err2 = xl('Connection error');
-            }
-
-            $phimail_error = "C4 $err1 ($err2)";
-        } else {
-            ServiceContainer::getLogger()->debug("phimail_connect was successful");
-        }
-    } else {
-        $fp = @fsockopen($server, $phimail_server['port']);
+        $logger->error('phimail_connect failed to connect', ['error' => $phimail_error, 'exception' => $e]);
+        return false;
     }
 
-    if ($fp !== false) {
-        $ret = phimail_write_expect_OK($fp, "INFO VER OEMR " . SoftwareVersion::fromGlobals(OEGlobalsBag::getInstance()) . " 1.3.2 "
-            . \PHP_VERSION . "\n");
-        if ($ret !== true) {
-            phimail_close($fp);
-            $fp = false;
-            $phimail_error = 'C5';
-        }
-    }
-
-    if (!empty($phimail_error)) {
-        ServiceContainer::getLogger()->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
-    } elseif ($fp !== false) {
-        ServiceContainer::getLogger()->debug("phimail_connect was successful");
-    } else {
-        ServiceContainer::getLogger()->error("phimail_connect failed to connect with unknown error", ['error' => $phimail_error, 'server' => $server, 'port' => $phimail_server['port']]);
-    }
-
-    return $fp;
+    return $connection->stream();
 }
 
 /**
@@ -161,13 +88,10 @@ function phimail_connect(&$phimail_error)
 
 function phimail_check(): void
 {
-    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
-    $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('phimail_password'));
-
-    if (!($notifyUsername = OEGlobalsBag::getInstance()->getString('phimail_notify'))) {
-        $notifyUsername = 'admin'; //fallback
-    }
+    $config = PhiMailConfig::fromGlobals(OEGlobalsBag::getInstance(), ServiceContainer::getCrypto());
+    $phimail_username = $config->username;
+    $phimail_password = $config->password;
+    $notifyUsername = $config->notifyUsername;
 
     // Record the failure in the audit log, then throw so the background
     // service runner reports the run as an error.
@@ -486,26 +410,44 @@ function phimail_check(): void
 /**
  * Helper functions
  */
+
+/**
+ * @param resource $fp
+ * @param string $text
+ */
 function phimail_write($fp, $text): void
 {
-    fwrite($fp, (string) $text);
-    fflush($fp);
+    try {
+        (new PhiMailConnection($fp))->write($text);
+    } catch (PhiMailStreamException) {
+        // Callers expect a failed write to pass silently; their next read reports it.
+    }
 }
 
-function phimail_write_expect_OK($fp, $text)
+/**
+ * @param resource $fp
+ * @param string $text
+ * @return true|string|false true on OK, otherwise the server's reply, or false if there was none
+ */
+function phimail_write_expect_OK($fp, $text): bool|string
 {
-    phimail_write($fp, $text);
-    $ret = fgets($fp);
-    if ($ret != "OK\n") { //unexpected error
-        return $ret;
+    try {
+        (new PhiMailConnection($fp))->expectOk($text);
+    } catch (PhiMailUnexpectedResponseException $e) {
+        return $e->response;
+    } catch (PhiMailStreamException) {
+        return false;
     }
 
     return true;
 }
 
+/**
+ * @param resource $fp
+ */
 function phimail_close($fp): void
 {
-    fclose($fp);
+    (new PhiMailConnection($fp))->close();
 }
 
 /**
@@ -535,56 +477,32 @@ function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check
 
 /**
  * Read a blob of data into a local temporary file
+ *
+ * @param resource $fp
+ * @param string|int|false $len byte count, usually the raw length line the server sent
  */
 function phimail_read_blob($fp, $len): string|false
 {
     // Reject a malformed length before creating the temp file
-    $length = filter_var($len, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-    if ($length === false) {
-        phimail_logit(0, "M17 invalid blob length", failing: true);
+    $digits = is_string($len) ? trim($len) : '';
+    $length = match (true) {
+        is_int($len) && $len >= 0 => $len,
+        ctype_digit($digits) => (int) $digits,
+        default => null,
+    };
+    if ($length === null) {
+        phimail_logit(0, 'M17 invalid blob length', failing: true);
         return false;
     }
 
-    $fpath = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
-    if (!@file_exists($fpath)) {
-        phimail_logit(0, "M13 temp dir does not exist: " . $fpath, failing: true);
+    $connection = new PhiMailConnection($fp);
+    $directory = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
+    try {
+        return $connection->readBlob($length, $directory);
+    } catch (PhiMailBlobException $e) {
+        phimail_logit(0, $e->getMessage(), failing: true);
         return false;
     }
-
-    $name = uniqid("direct-");
-    $fn = $fpath . "/" . $name . ".dat";
-    $dup = 1;
-    while (file_exists($fn)) {
-        $fn = $fpath . "/" . $name . "." . $dup++ . ".dat";
-    }
-
-    $ff = @fopen($fn, "w");
-    if (!$ff) {
-        phimail_logit(0, "M14 failed opening temp file: " . $fn, failing: true);
-        return false;
-    }
-
-    $bytes_left = $length;
-    $chunk_size = 1024;
-    while (!feof($fp) && $bytes_left > 0) {
-        if ($bytes_left < $chunk_size) {
-            $chunk_size = $bytes_left;
-        }
-
-        $chunk = fread($fp, $chunk_size);
-        if ($chunk === false || @fwrite($ff, $chunk) === false) {
-            @fclose($ff);
-            @unlink($fn);
-            phimail_logit(0, "M15 failure " . ($chunk === false ? "reading" : "writing")
-                . " blob chunk after " . ($length - $bytes_left) . " bytes", failing: true);
-            return false;
-        }
-
-        $bytes_left -= strlen($chunk);
-    }
-
-    @fclose($ff);
-    return ($fn);
 }
 
 /**
