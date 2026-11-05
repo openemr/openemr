@@ -86,6 +86,20 @@ jobs:
         php-version: '8.5'
         tools: composer
 
+    # Callers run this workflow from their own repos, where
+    # ./.github/actions/setup-php-composer does not exist, so cache inline.
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config --global --absolute cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Composer dependencies
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-canonical-${{ hashFiles('_canonical-openemr/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-canonical-
+
     - name: Install canonical dependencies
       working-directory: _canonical-openemr
       # --no-dev suffices: bin/check-vendored.php only needs symfony/console +
