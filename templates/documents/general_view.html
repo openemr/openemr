@@ -276,6 +276,12 @@ $('.btn-toggle').click(function() {
         for (var i = 0; i < frames.length; i++) {
             var top = frames[i].getBoundingClientRect().top + (window.pageYOffset || 0);
             frames[i].style.height = Math.max(minimumHeight, Math.floor(window.innerHeight - top - bottomGap)) + 'px';
+            // Whatever the page still adds below the frame (margins, padding) would scroll it, so
+            // take that overflow off the frame as well.
+            var overflow = document.documentElement.scrollHeight - window.innerHeight;
+            if (overflow > 0) {
+                frames[i].style.height = Math.max(minimumHeight, Math.floor(frames[i].getBoundingClientRect().height - overflow)) + 'px';
+            }
         }
     }
 
