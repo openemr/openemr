@@ -45,20 +45,27 @@ runs:
       extensions: ${{ inputs.extensions }}
       tools: ${{ inputs.tools }}
 
-  - name: Get composer cache directory
+  - name: Get composer cache directory and key
     if: inputs.skip-composer-install != 'true'
     id: composer-cache
     shell: bash
     working-directory: ${{ inputs.working-directory }}
-    run: echo "dir=$(composer config --absolute cache-files-dir)" >> "$GITHUB_OUTPUT"
+    env:
+      # Hash the lockfiles now. actions/cache evaluates its inputs again in its
+      # post step, when the job may have left files in the workspace that
+      # hashFiles() cannot read, such as Docker-owned volumes.
+      # A --no-dev install caches fewer packages, so keep it from claiming the full-install key.
+      KEY: ${{ runner.os }}-composer-${{ inputs.php-version }}-${{ inputs.no-dev == 'true' && 'no-dev-' || '' }}${{ hashFiles('**/composer.lock') }}
+    run: |
+      echo "dir=$(composer config --absolute cache-files-dir)" >> "$GITHUB_OUTPUT"
+      echo "key=$KEY" >> "$GITHUB_OUTPUT"
 
   - name: Cache Composer dependencies
     if: inputs.skip-composer-install != 'true'
     uses: actions/cache@v5
     with:
       path: ${{ steps.composer-cache.outputs.dir }}
-      # A --no-dev install caches fewer packages, so keep it from claiming the full-install key.
-      key: ${{ runner.os }}-composer-${{ inputs.php-version }}-${{ inputs.no-dev == 'true' && 'no-dev-' || '' }}${{ hashFiles('**/composer.lock') }}
+      key: ${{ steps.composer-cache.outputs.key }}
       restore-keys: |
         ${{ runner.os }}-composer-${{ inputs.php-version }}-
         ${{ runner.os }}-composer-
