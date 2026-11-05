@@ -75,7 +75,8 @@ final class PortalChargeGateTest extends TestCase
 
     public function testAnUnchargedPendingPaymentDoesNotBlockACharge(): void
     {
-        $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', '', false, ReviewActor::patient(self::PID, 'ann'));
+        $card = '{"cardHolderName":"Ann Lee","cardNumber":"4111111111111111","month":"12","year":"2030","cardCode":"123"}';
+        $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', $card, false, ReviewActor::patient(self::PID, 'ann'));
 
         $this->assertNull($this->gate->open(self::PID, $this->lock()));
     }

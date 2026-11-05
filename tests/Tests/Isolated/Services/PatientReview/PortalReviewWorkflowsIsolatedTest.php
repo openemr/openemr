@@ -40,7 +40,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 {
     private const PID = 7;
     private const OLD_KEY_SECRET = 'written under replaced keys';
-    private const CARD = '{"cardHolderName":"Ann Lee","cc_type":"Visa","cardNumber":"******** 1111","authCode":"A1","transId":"T1","zip":"12345"}';
+    private const CARD = '{"cardHolderName":"Ann Lee","cc_type":"Visa","cardNumber":"4111111111111111","month":"12","year":"2030","cardCode":"123","zip":"12345"}';
 
     private InMemoryReviewRequestStore $store;
     private ReviewQueueService $queue;
@@ -162,11 +162,46 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $this->assertSame(PaymentPostingBlock::CardUnreadable, $this->postingBlock($uncharged), 'staff cannot charge a card they cannot read');
     }
 
+    /**
+     * Stored card details that are empty (a payment from before the rule) block posting.
+     */
     public function testAnUnchargedPaymentWithNoCardDetailsCannotBePosted(): void
     {
-        $uncharged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', '', false, $this->patient());
+        $uncharged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $this->store->putSecret($uncharged->id, ReviewQueueService::SECRET_PAYMENT_CARD, 'enc()', new DateTimeImmutable('2026-10-01 09:30:00'));
 
         $this->assertSame(PaymentPostingBlock::NoCardDetails, $this->postingBlock($uncharged), 'there is no card to charge');
+    }
+
+    /**
+     * Readable card details that lack a field needed to charge the card block posting.
+     */
+    public function testAnUnchargedPaymentWithIncompleteCardDetailsCannotBePosted(): void
+    {
+        $uncharged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $this->store->putSecret($uncharged->id, ReviewQueueService::SECRET_PAYMENT_CARD, 'enc({"cardHolderName":"Ann Lee","note":"x"})', new DateTimeImmutable('2026-10-01 09:30:00'));
+
+        $this->assertSame(PaymentPostingBlock::IncompleteCardDetails, $this->postingBlock($uncharged));
+    }
+
+    /**
+     * An uncharged payment is refused at submission unless every card field is there.
+     */
+    public function testAnUnchargedPaymentNeedsUsableCardDetails(): void
+    {
+        $incomplete = json_decode(self::CARD, true, flags: JSON_THROW_ON_ERROR);
+        $incomplete['cardCode'] = ' ';
+        foreach (['', 'not json', '{"note":"x"}', json_encode($incomplete, JSON_THROW_ON_ERROR)] as $card) {
+            try {
+                $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', $card, false, $this->patient());
+                $this->fail('accepted ' . $card);
+            } catch (\InvalidArgumentException) {
+                $this->assertNull($this->workflows->pendingPayment(self::PID), 'nothing recorded for ' . $card);
+            }
+        }
+        $this->assertTrue(PortalReviewWorkflows::isUsableCard(json_decode(self::CARD, true, flags: JSON_THROW_ON_ERROR)));
+        $charged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', '', true, $this->patient());
+        $this->assertSame($charged->id, $this->workflows->pendingPayment(self::PID)?->id, 'a charged payment needs none');
     }
 
     public function testAChargedPaymentCanBePostedWithUnreadableOrNoCardDetails(): void
@@ -208,7 +243,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testAPaymentWithNoChargedFlagCountsAsCharged(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', '', false, $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
         // A payment migrated from onsite_portal_activity has no charged flag.
         $migrated = new ReviewRequest(
             $payment->id,
@@ -237,7 +272,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testAPaymentWithoutCardDetailsStoresNoSecret(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{}', '', true, $this->patient());
 
         $this->assertNull($this->store->getSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD));
         $this->assertSame([], $this->workflows->paymentCardDetails($payment));
@@ -284,7 +319,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testPaymentLookupChecksTypeAndPatient(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{}', '', true, $this->patient());
         $profile = $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());
 
         $this->assertSame($payment->id, $this->workflows->payment($payment->id)?->id);
@@ -375,7 +410,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testDiscardRefusesARequestAlreadyClosed(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{}', '', true, $this->patient());
         $this->workflows->completePayment(self::PID, $this->staff());
 
         $this->expectException(InvalidReviewTransitionException::class);
@@ -404,9 +439,9 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
     public function testAlertCountsIncludePaymentsInAudits(): void
     {
         $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());
-        $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
+        $this->workflows->submitPayment(self::PID, '{}', '', true, $this->patient());
         $this->workflows->submitDocument(self::PID, 11, 'Consent', $this->patient());
-        $this->workflows->submitPayment(8, '{}', '', false, ReviewActor::patient(8, 'bob8'));
+        $this->workflows->submitPayment(8, '{}', '', true, ReviewActor::patient(8, 'bob8'));
 
         $this->assertSame(['audits' => 4, 'payments' => 2], $this->workflows->alertCounts());
     }

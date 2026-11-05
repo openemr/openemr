@@ -27,6 +27,9 @@ enum PaymentPostingBlock
     /** The payment was saved with no card details. */
     case NoCardDetails;
 
+    /** The card details lack a field needed to charge the card (PortalReviewWorkflows::CARD_FIELDS). */
+    case IncompleteCardDetails;
+
     /**
      * What staff are told, translated.
      */
@@ -35,6 +38,7 @@ enum PaymentPostingBlock
         return match ($this) {
             self::CardUnreadable => xl('The card details of this payment could not be read and the card was not charged, so it cannot be posted. Ask the patient to submit the payment again.'),
             self::NoCardDetails => xl('This payment has no card details and the card was not charged, so it cannot be posted. Ask the patient to submit the payment again.'),
+            self::IncompleteCardDetails => xl('The card details of this payment are incomplete and the card was not charged, so it cannot be posted. Ask the patient to submit the payment again.'),
         };
     }
 }

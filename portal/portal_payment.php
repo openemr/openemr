@@ -1202,7 +1202,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             // again would charge the card a second time.
             // No new payment while one is pending with card details, or while any open payment was
             // already charged (paying again would charge the card a second time).
-            if (!isset($ccdata["cardHolderName"]) && !$reviewWorkflows->hasOpenChargedPayment($sessionPid)) {
+            // A pending payment staff cannot post (its card details are missing or incomplete) is
+            // not locked: paying again replaces it.
+            if ((!isset($ccdata["cardHolderName"]) || $postingBlock !== null) && !$reviewWorkflows->hasOpenChargedPayment($sessionPid)) {
                 if (!$gatewayKeysReadable) {
                     echo '<div class="alert alert-warning">' . xlt('Card payments are not available right now. Please contact the clinic.') . '</div>';
                 } elseif ($globalsBag->get('payment_gateway') === 'Sphere') {
