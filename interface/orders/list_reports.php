@@ -142,7 +142,8 @@ function openPtMatch(args) {
 
 function openPatient(pid) {
     top.restoreSession();
-    document.location.href = "../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(pid);
+    const params = new URLSearchParams({set_pid: pid, csrf_token_form: top.csrf_token_js});
+    document.location.href = "../patient_file/summary/demographics.php?" + params;
 }
 
 $(function () {

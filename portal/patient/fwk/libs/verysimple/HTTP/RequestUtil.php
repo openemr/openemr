@@ -159,29 +159,15 @@ class RequestUtil
     }
 
     /**
-     * Returns the request method (GET, POST, PUT, DELETE).
-     * This is detected based
-     * on the HTTP request method, a special URL parameter, or a request header
-     * with the name 'X-HTTP-Method-Override'
+     * Returns the request method (GET, POST, PUT, DELETE) from the HTTP request.
      *
-     * For clients or servers that don't support PUT/DELETE requests, the emulated
-     * param can be used or the override header
-     *
-     * @param string $emulateHttpParamName name of the querystring parameter that has the overridden request method
+     * The method is never taken from a `_method` parameter or an X-HTTP-Method-Override
+     * header. Honouring them let a plain GET, such as an image tag, be routed as a DELETE,
+     * past the CSRF check that only data-changing methods get. The portal's Backbone models
+     * send real PUT and DELETE requests (Backbone.emulateHTTP is false).
      */
-    public static function GetMethod($emulateHttpParamName = '_method')
+    public static function GetMethod()
     {
-        if (array_key_exists($emulateHttpParamName, $_REQUEST)) {
-            return $_REQUEST [$emulateHttpParamName];
-        }
-
-        $headers = self::GetRequestHeaders();
-
-        // this is used by backbone
-        if (array_key_exists('X-HTTP-Method-Override', $headers)) {
-            return $headers ['X-HTTP-Method-Override'];
-        }
-
         return array_key_exists('REQUEST_METHOD', $_SERVER) ? $_SERVER ['REQUEST_METHOD'] : '';
     }
 

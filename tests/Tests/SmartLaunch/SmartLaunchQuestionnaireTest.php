@@ -10,7 +10,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -367,11 +369,7 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
         // Set a patient as the active chart context. demographics.php
         // honors ?set_pid=N and writes `pid` into $_SESSION. pid=1 is
         // the first demo patient the installer seeds via demoData.
-        $this->panther->request(
-            'GET',
-            self::OPENEMR_BASE . '/interface/patient_file/summary/demographics.php?set_pid=1',
-        );
-        $this->panther->waitFor('body', 10);
+        $this->openDemoPatientChart();
 
         // Load fhir_assessments.php — it renders the Launch-SMART-App
         // buttons when smart_context_test_launches is on (run.sh
@@ -503,11 +501,7 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
         $this->panther->wait(15)->until(
             static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/interface/main/tabs/main.php'),
         );
-        $this->panther->request(
-            'GET',
-            self::OPENEMR_BASE . '/interface/patient_file/summary/demographics.php?set_pid=1',
-        );
-        $this->panther->waitFor('body', 10);
+        $this->openDemoPatientChart();
         $this->panther->request(
             'GET',
             self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
@@ -580,11 +574,7 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
         $this->panther->wait(15)->until(
             static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/interface/main/tabs/main.php'),
         );
-        $this->panther->request(
-            'GET',
-            self::OPENEMR_BASE . '/interface/patient_file/summary/demographics.php?set_pid=1',
-        );
-        $this->panther->waitFor('body', 10);
+        $this->openDemoPatientChart();
 
         $this->panther->request('GET', self::OPENEMR_BASE . '/interface/smart/ehr-launch-client.php?' . http_build_query([
             'client_id' => 'nonexistent-client-id-smoke-test',
@@ -821,6 +811,28 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             $currentUrl,
             'request should terminate at the authorize endpoint with no redirect at all',
         );
+    }
+
+    /**
+     * Open demo patient 1's chart from the app shell. Switching patients
+     * needs the session's CSRF token, which the shell exposes as
+     * `csrf_token_js`, so call this while the shell is the current page.
+     */
+    private function openDemoPatientChart(): void
+    {
+        $this->panther->wait(15)->until(
+            fn (): bool => is_string($this->panther->executeScript('return window.csrf_token_js;')),
+        );
+        $token = $this->panther->executeScript('return window.csrf_token_js;');
+        $this->assertIsString($token);
+        $this->panther->request(
+            'GET',
+            self::OPENEMR_BASE . '/interface/patient_file/summary/demographics.php?' . http_build_query([
+                'set_pid' => 1,
+                'csrf_token_form' => $token,
+            ]),
+        );
+        $this->panther->waitFor('body', 10);
     }
 
     /**

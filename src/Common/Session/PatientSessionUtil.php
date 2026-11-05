@@ -7,15 +7,21 @@
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Common\Session;
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use Symfony\Component\HttpFoundation\Request;
 
 class PatientSessionUtil
 {
@@ -39,6 +45,37 @@ class PatientSessionUtil
     {
         $raw = SessionWrapperFactory::getInstance()->getActiveSession()->get('userauthorized');
         return is_numeric($raw) ? (int) $raw : 0;
+    }
+
+    /**
+     * Whether a link to $requestedPid (and $requestedEncounter, 0 for none)
+     * may change the active chart. Re-opening the current patient and
+     * encounter is always allowed; a switch needs the session's CSRF token.
+     */
+    public static function mayLinkSwitchContext(int $requestedPid, int $requestedEncounter, mixed $csrfToken): bool
+    {
+        $sameChart = $requestedPid === self::getPid()
+            && ($requestedEncounter <= 0 || $requestedEncounter === EncounterSessionUtil::getEncounter());
+        if ($sameChart) {
+            return true;
+        }
+        return is_string($csrfToken)
+            && CsrfUtils::verifyCsrfToken($csrfToken, SessionWrapperFactory::getInstance()->getActiveSession());
+    }
+
+    /**
+     * End the request with a 403 when a GET link would switch the active
+     * patient or encounter without a valid `csrf_token_form`, so a link or
+     * image on another site cannot change whose chart the user is in.
+     */
+    public static function requireCsrfForLinkSwitch(Request $request, int $requestedPid, int $requestedEncounter = 0): void
+    {
+        // Read the raw value: InputBag::get() throws on an array, which
+        // would skip both the 403 and the no-token reopen of the current chart.
+        $token = $request->query->all()['csrf_token_form'] ?? null;
+        if (!self::mayLinkSwitchContext($requestedPid, $requestedEncounter, $token)) {
+            CsrfUtils::csrfNotVerified();
+        }
     }
 
     public static function setPid($new_pid)
