@@ -22,10 +22,10 @@ final readonly class EffectiveInsurance
      * @param int                $id        insurance_data.id
      * @param ?string            $uuid      insurance_data.uuid as text, or null when the row has none
      * @param int                $companyId insurance_data.provider: the insurance company's id
-     * @param ?DateTimeImmutable $start     the first day in force, or null when the start is blank (always) or isn't a
-     *                                      calendar day (0000-00-00)
-     * @param ?DateTimeImmutable $end       the last day in force, or null when the end is blank (open) or isn't a
-     *                                      calendar day (0000-00-00 is read as open)
+     * @param ?DateTimeImmutable $start     the first day in force, or null when the start is blank or 0000-00-00
+     *                                      (always); a partial date (2026-05-00) gives the first day the rule keeps
+     * @param ?DateTimeImmutable $end       the last day in force, or null when the end is blank or 0000-00-00 (open);
+     *                                      a partial date (2026-05-00) gives the last day the rule keeps (2026-04-30)
      */
     public function __construct(
         public InsuranceLevel $level,

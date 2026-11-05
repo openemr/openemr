@@ -274,6 +274,45 @@ final class EffectiveInsuranceRuleTest extends TestCase
         self::assertNull($secondary->end, 'a zero end is read as no end');
     }
 
+    /**
+     * @return array<string, array{string, ?string, string, ?string, ?string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function partialDates(): array
+    {
+        // sql_mode = '' can store a day or a month of 00, or a day past the month's end. choose() compares them as
+        // stored; the period it reports is the days that comparison keeps.
+        return [
+            'an end with a zero day: in force through the day before the 1st' => ['2020-01-01', '2026-05-00', '2026-04-30', '2020-01-01', '2026-04-30'],
+            'a start with a zero day: in force from the 1st' => ['2026-05-00', null, '2026-05-01', '2026-05-01', null],
+            'an end with a zero month: in force through 31 December before' => ['2020-01-01', '2026-00-00', '2025-12-31', '2020-01-01', '2025-12-31'],
+            'a start with a zero month: in force from 1 January' => ['2026-00-00', null, '2026-01-01', '2026-01-01', null],
+            "an end past the month's end: in force through its last day" => ['2020-01-01', '2026-02-30', '2026-02-28', '2020-01-01', '2026-02-28'],
+            "a start past the month's end: in force from the next month" => ['2026-02-30', null, '2026-03-01', '2026-03-01', null],
+            'a zero start still means always' => ['0000-00-00', null, '2026-04-30', null, null],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('partialDates')]
+    public function aPartialDateIsReportedAsTheDaysTheRuleKeeps(string $start, ?string $end, string $day, ?string $first, ?string $last): void
+    {
+        $rows = [self::row(1, 'primary', 101, $start, $end)];
+
+        $policies = EffectiveInsuranceRule::choose($rows, new DateTimeImmutable($day));
+
+        self::assertCount(1, $policies, 'in force on ' . $day);
+        self::assertSame($first, $policies[0]->start?->format('Y-m-d'), 'the first day in force');
+        self::assertSame($last, $policies[0]->end?->format('Y-m-d'), 'the last day in force');
+
+        // The same days segments() finds over a range that holds them all.
+        $segments = EffectiveInsuranceRule::segments($rows, InsuranceLevel::Primary, new DateTimeImmutable('2019-01-01'), new DateTimeImmutable('2030-12-31'));
+        self::assertCount(1, $segments);
+        self::assertSame($first ?? '2019-01-01', $segments[0]->from->format('Y-m-d'));
+        self::assertSame($last ?? '2030-12-31', $segments[0]->to->format('Y-m-d'));
+    }
+
     #[Test]
     public function aPatientWithNoRowsHasNoCoverage(): void
     {

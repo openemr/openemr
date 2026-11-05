@@ -36,6 +36,11 @@ use OpenEMR\Common\Uuid\UuidRegistry;
  *
  * Dates are compared as stored, as SQL compares a DATE column. D is the
  * calendar day of the date given, in its own time zone; its time is ignored.
+ * A partial date sql_mode = '' can store (2026-05-00, 2026-00-00, 2026-02-30)
+ * is compared as stored too, and the policy's start and end report the days
+ * that comparison keeps: an end of 2026-05-00 is in force through 2026-04-30,
+ * a start of 2026-05-00 from 2026-05-01. Every date returned is midnight in
+ * PHP's default time zone.
  *
  * This is the claim's rule (Claim::loadPayerInfo()), with three differences:
  *
@@ -92,8 +97,8 @@ final class EffectiveInsuranceRule
                     $id,
                     self::uuidText($row['uuid'] ?? null),
                     $companyId,
-                    self::calendarDay($start),
-                    self::calendarDay($end),
+                    self::firstDayOf($start),
+                    self::lastDayOf($end),
                 ),
             ];
         }
@@ -243,6 +248,25 @@ final class EffectiveInsuranceRule
     {
         $day = DateTimeImmutable::createFromFormat('!Y-m-d', $stored);
         return $day !== false && $day->format('Y-m-d') === $stored ? $day : null;
+    }
+
+    /**
+     * A policy's first day in force: null for a blank or 0000-00-00 start
+     * (always), else the first calendar day the comparison keeps.
+     */
+    private static function firstDayOf(string $start): ?DateTimeImmutable
+    {
+        return $start === '' || $start === self::ZERO_DATE ? null : self::firstDayFrom($start);
+    }
+
+    /**
+     * A policy's last day in force: null for an open end ('', as choose()
+     * reads a blank or 0000-00-00 end), else the day before the first day
+     * after it.
+     */
+    private static function lastDayOf(string $end): ?DateTimeImmutable
+    {
+        return $end === '' ? null : self::firstDayAfter($end)->modify('-1 day');
     }
 
     /**
