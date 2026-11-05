@@ -22,6 +22,9 @@ final class FailingFileStreamWrapper
     /** Refuse to open an existing file for writing. */
     public static bool $failOpenForWrite = false;
 
+    /** Refuse to change a file's mode. */
+    public static bool $failChmod = false;
+
     /** @var array<string, true> paths of the files that exist */
     public static array $files = [];
 
@@ -31,6 +34,7 @@ final class FailingFileStreamWrapper
     public static function register(): void
     {
         self::$failOpenForWrite = false;
+        self::$failChmod = false;
         self::$files = [];
         stream_wrapper_register(self::SCHEME, self::class);
     }
@@ -65,6 +69,11 @@ final class FailingFileStreamWrapper
 
     public function stream_close(): void
     {
+    }
+
+    public function stream_metadata(string $path, int $option, mixed $value): bool
+    {
+        return !self::$failChmod;
     }
 
     public function unlink(string $path): bool

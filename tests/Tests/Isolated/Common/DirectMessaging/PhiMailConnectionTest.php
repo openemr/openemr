@@ -207,6 +207,22 @@ final class PhiMailConnectionTest extends TestCase
         }
     }
 
+    public function testReadBlobFailsAndCleansUpWhenTheTempFileCannotBeRestricted(): void
+    {
+        FailingFileStreamWrapper::register();
+        FailingFileStreamWrapper::$failChmod = true;
+
+        try {
+            $this->connection->readBlob(1, FailingFileStreamWrapper::SCHEME . '://downloads');
+            self::fail('readBlob() returned with a temp file others could read.');
+        } catch (PhiMailBlobException $e) {
+            self::assertStringStartsWith('M14 failed restricting temp file: ' . FailingFileStreamWrapper::SCHEME . '://downloads/direct-', $e->getMessage());
+            self::assertSame([], FailingFileStreamWrapper::$files, 'the unrestricted temp file was left behind');
+        } finally {
+            FailingFileStreamWrapper::unregister();
+        }
+    }
+
     public function testReadBlobFailsAndCleansUpWhenTheTempFileCannotBeOpened(): void
     {
         FailingFileStreamWrapper::register();

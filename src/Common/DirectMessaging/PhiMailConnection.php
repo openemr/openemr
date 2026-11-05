@@ -188,6 +188,13 @@ final readonly class PhiMailConnection
         } catch (IOException $e) {
             throw new PhiMailBlobException('M14 failed creating a temp file in: ' . $directory, 0, $e);
         }
+        // symfony/filesystem 7.3 creates the file under the process umask, so restrict it here.
+        try {
+            $this->filesystem->chmod($path, 0o600);
+        } catch (IOException $e) {
+            $this->filesystem->remove($path);
+            throw new PhiMailBlobException('M14 failed restricting temp file: ' . $path, 0, $e);
+        }
 
         $file = @fopen($path, 'w');
         if ($file === false) {
