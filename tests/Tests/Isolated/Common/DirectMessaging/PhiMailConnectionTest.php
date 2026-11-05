@@ -179,16 +179,18 @@ final class PhiMailConnectionTest extends TestCase
         // PHP's tempnam() creates one in the system temp dir instead.
         $notADir = $this->tempDir . '/file';
         (new Filesystem())->touch($notADir);
-        $before = glob(sys_get_temp_dir() . '/*');
+        $filesystem = new RecordingFilesystem();
+        $connection = new PhiMailConnection(fopen('php://memory', 'r'), $filesystem);
 
         try {
-            $this->connection->readBlob(1, $notADir);
+            $connection->readBlob(1, $notADir);
             self::fail('readBlob() returned a file outside the temp dir.');
         } catch (PhiMailBlobException $e) {
             self::assertSame('M14 failed creating a temp file in: ' . $notADir, $e->getMessage());
         }
 
-        self::assertSame($before, glob(sys_get_temp_dir() . '/*'), 'the fallback temp file was left behind');
+        self::assertCount(1, $filesystem->tempFiles);
+        self::assertFileDoesNotExist($filesystem->tempFiles[0], 'the fallback temp file was left behind');
     }
 
     public function testReadBlobFailsAndCleansUpWhenTheStreamCannotBeRead(): void
