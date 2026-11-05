@@ -272,15 +272,24 @@ $('.btn-toggle').click(function() {
     var bottomGap = 16;
 
     function fitViewerFrames() {
+        var root = document.documentElement;
         var frames = document.querySelectorAll('.doc-viewer-frame');
         for (var i = 0; i < frames.length; i++) {
-            var frameBox = frames[i].getBoundingClientRect();
-            // What the frame's own pane adds below it (margins, padding) also takes room. Only that
-            // pane is measured: another column of the page, such as the folder tree, may be taller
-            // than the window and must not shrink the viewer.
-            var pane = frames[i].closest('#documents_actions') || document.body;
-            var below = Math.max(0, pane.getBoundingClientRect().bottom - frameBox.bottom);
-            frames[i].style.height = Math.max(minimumHeight, Math.floor(window.innerHeight - frameBox.top - below - bottomGap)) + 'px';
+            var frame = frames[i];
+            frame.style.height = Math.max(minimumHeight, Math.floor(window.innerHeight - frame.getBoundingClientRect().top - bottomGap)) + 'px';
+            // The margins below the frame can still make the page scroll. Take that overflow off the
+            // frame, but only when the frame is what causes it: a folder tree beside the viewer may
+            // be taller than the window, and shrinking the viewer would not help then.
+            var before = root.scrollHeight;
+            var overflow = before - window.innerHeight;
+            var current = frame.getBoundingClientRect().height;
+            var shrink = Math.floor(Math.min(overflow, current - minimumHeight));
+            if (shrink > 0) {
+                frame.style.height = (current - shrink) + 'px';
+                if (root.scrollHeight > before - shrink + 1) {
+                    frame.style.height = current + 'px';
+                }
+            }
         }
     }
 
