@@ -97,6 +97,9 @@ final class OnsiteDocumentRepository
         return isset($rows[0]) ? self::toRecord($rows[0]) : null;
     }
 
+    /**
+     * One patient's documents, filtered and sorted as the query asks, as one page or all of them.
+     */
     public function list(OnsiteDocumentListQuery $query): OnsiteDocumentPage
     {
         $where = ['`pid` = ?'];

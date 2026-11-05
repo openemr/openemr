@@ -97,6 +97,9 @@ final readonly class PortalFrontController
         return PortalPrincipal::staff();
     }
 
+    /**
+     * The reply to a request that failed: JSON for the API (403 when refused, 500 otherwise), an error page for anything else. The failure is logged, never shown.
+     */
     private function failure(string $path, \Throwable $failure): Response
     {
         $publicMessage = xl('An unexpected error occurred');

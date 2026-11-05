@@ -89,11 +89,17 @@ final class PortalPatientApiContractTest extends TestCase
     /** @var list<int> */
     private array $createdDocuments = [];
 
+    /**
+     * The site under test, from OPENEMR_BASE_URL_API.
+     */
     public static function setUpBeforeClass(): void
     {
         self::$baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
     }
 
+    /**
+     * Signs in once as staff and creates the test patient, unless HTTPS tests are skipped.
+     */
     protected function setUp(): void
     {
         if (getenv('OPENEMR_ALLOW_OAUTH_HTTPS_SKIP') === '1') {
@@ -139,6 +145,9 @@ final class PortalPatientApiContractTest extends TestCase
         self::$patientId = (int) $rows[0]['id'];
     }
 
+    /**
+     * Deletes the documents the test created.
+     */
     protected function tearDown(): void
     {
         foreach ($this->createdDocuments as $id) {
@@ -233,6 +242,9 @@ final class PortalPatientApiContractTest extends TestCase
         $this->assertStringNotContainsString('<script', $saved);
     }
 
+    /**
+     * The document list keeps its response shape and honours its filters.
+     */
     #[Test]
     public function documentListShapesAndFilters(): void
     {
@@ -271,6 +283,9 @@ final class PortalPatientApiContractTest extends TestCase
         $this->assertSame([], $this->documentIds($this->json($this->get($base . rawurlencode("zz' OR '1'='1")))));
     }
 
+    /**
+     * The document list needs a patient id and ignores a pid key in the request.
+     */
     #[Test]
     public function documentListRequiresAPatientAndIgnoresAPidKey(): void
     {
@@ -311,6 +326,9 @@ final class PortalPatientApiContractTest extends TestCase
         $this->assertSame([], $this->json($pending), 'no pending profile change for a new patient');
     }
 
+    /**
+     * A profile change waits for review, leaving the chart alone, then reaches the chart once accepted.
+     */
     #[Test]
     public function profileChangeIsReviewedThenCommittedToTheChart(): void
     {
@@ -342,6 +360,9 @@ final class PortalPatientApiContractTest extends TestCase
         $this->assertSame([], $this->json($this->get($review)), 'the committed change is no longer pending');
     }
 
+    /**
+     * A rejected profile change names the field that failed.
+     */
     #[Test]
     public function profileValidationErrorsNameTheField(): void
     {
@@ -353,6 +374,9 @@ final class PortalPatientApiContractTest extends TestCase
         $this->assertSame(['providerid' => 'Providerid is not a valid number'], $body['errors'] ?? null);
     }
 
+    /**
+     * The portal pages render with the CSRF token, and unknown routes are refused.
+     */
     #[Test]
     public function pagesRenderAndUnknownRoutesAreRefused(): void
     {
@@ -475,6 +499,9 @@ final class PortalPatientApiContractTest extends TestCase
         return $ids;
     }
 
+    /**
+     * The response is a portal API error: 401 with success false and a message.
+     */
     private function assertError(ResponseInterface $response): void
     {
         $this->assertSame(401, $response->getStatusCode());

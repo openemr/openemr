@@ -26,6 +26,9 @@ final readonly class PortalPatientApp
 {
     private PortalRouter $router;
 
+    /**
+     * Routes with the portal route table unless a router is given (tests).
+     */
     public function __construct(private PortalPageRenderer $pages, ?PortalRouter $router = null)
     {
         $this->router = $router ?? new PortalRouter(PortalRouteTable::routes());
@@ -45,6 +48,9 @@ final readonly class PortalPatientApp
         return $this->run($match, $request, $caller);
     }
 
+    /**
+     * Builds the controller the matched route names and calls its action with the route parameters.
+     */
     private function run(RouteMatch $match, Request $request, PortalPrincipal $caller): Response
     {
         $route = $match->route;

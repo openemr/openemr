@@ -41,6 +41,9 @@ final readonly class TwigPageRenderer implements PortalPageRenderer
     {
     }
 
+    /**
+     * Renders a named portal page with the shared context; an unknown page name is a programming error.
+     */
     public function render(string $page, array $vars = []): string
     {
         $template = self::TEMPLATES[$page] ?? throw new \InvalidArgumentException('No portal page ' . $page);

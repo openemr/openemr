@@ -48,6 +48,9 @@ enum OnsiteDocumentSort: string
         return self::tryFrom($orderBy) ?? throw new \InvalidArgumentException('Unknown portal document sort column');
     }
 
+    /**
+     * The onsite_documents column this sort orders by.
+     */
     public function column(): string
     {
         return match ($this) {

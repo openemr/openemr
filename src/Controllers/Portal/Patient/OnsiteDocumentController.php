@@ -345,6 +345,9 @@ final readonly class OnsiteDocumentController
         }
     }
 
+    /**
+     * The document id from the route, as a positive int; a document that cannot exist is not found.
+     */
     private static function documentId(?string $id): int
     {
         $id = filter_var($id, FILTER_VALIDATE_INT);
