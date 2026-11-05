@@ -138,14 +138,23 @@ final readonly class PortalReviewWorkflows
     }
 
     /**
-     * Whether staff can post this payment. An uncharged payment (staff charge the card) whose
-     * card details cannot be read cannot be charged, so posting it would record money that
-     * was never received; the patient submits it again instead. A charged one can be posted:
-     * the gateway holds the transaction.
+     * Why staff cannot post this open payment, or null when they can. An uncharged payment
+     * (staff charge the card) needs card details they can read; the patient submits it again
+     * otherwise. A charged one can always be posted: the gateway holds the transaction.
+     *
+     * @param ?array<array-key, mixed> $cardDetails the payment's card details, as
+     *                                              paymentCardDetails() returns them
      */
-    public function canPostPayment(ReviewRequest $payment): bool
+    public static function postingBlock(ReviewRequest $payment, ?array $cardDetails): ?PaymentPostingBlock
     {
-        return self::isChargedPayment($payment) || $this->paymentCardDetails($payment) !== null;
+        if (self::isChargedPayment($payment)) {
+            return null;
+        }
+        if ($cardDetails === null) {
+            return PaymentPostingBlock::CardUnreadable;
+        }
+
+        return $cardDetails === [] ? PaymentPostingBlock::NoCardDetails : null;
     }
 
     /**

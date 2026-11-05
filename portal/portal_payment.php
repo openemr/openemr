@@ -200,11 +200,12 @@ if ($isStaffSave && !$recid) {
 }
 if ($isStaffSave && $postingRequestId) {
     $postingRequest = $reviewWorkflows->payment($postingRequestId, $sessionPid);
-    if ($postingRequest !== null && !$reviewWorkflows->canPostPayment($postingRequest)) {
+    $postingBlock = $postingRequest === null
+        ? null
+        : PortalReviewWorkflows::postingBlock($postingRequest, $reviewWorkflows->paymentCardDetails($postingRequest));
+    if ($postingBlock !== null) {
         // Nothing is written; the posting lock is released on shutdown.
-        echo "<!DOCTYPE html><html><body><p>"
-            . xlt('The card details of this payment could not be read and the card was not charged, so it cannot be posted. Ask the patient to submit the payment again.')
-            . "</p></body></html>";
+        echo "<!DOCTYPE html><html><body><p>" . text($postingBlock->message()) . "</p></body></html>";
         exit;
     }
 }
@@ -218,10 +219,15 @@ $ccdata = [];
 $invdata = [];
 $cardUnreadable = false;
 $paymentCharged = $payment !== null && PortalReviewWorkflows::isChargedPayment($payment);
+// Why staff cannot post this open payment, if they cannot.
+$postingBlock = null;
 if ($payment !== null) {
     // Readable only while the payment waits to be posted; deleted once it is.
     $cardDetails = $reviewWorkflows->paymentCardDetails($payment);
     $cardUnreadable = $cardDetails === null;
+    if ($payment->status->isOpen()) {
+        $postingBlock = PortalReviewWorkflows::postingBlock($payment, $cardDetails);
+    }
     $ccdata = $cardDetails ?? [];
     $invoiceValues = $reviewWorkflows->paymentInvoiceValues($payment);
     $invdata = json_decode($invoiceValues, true);
@@ -1208,12 +1214,12 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
             }
         } else {
-            if ($cardUnreadable && $paymentCharged) {
-                echo '<div class="alert alert-warning">' . xlt('The card details of this payment could not be read. The card was charged by the payment gateway: check the transaction there before posting.') . '</div>';
-            } elseif ($cardUnreadable) {
-                echo '<div class="alert alert-warning">' . xlt('The card details of this payment could not be read and the card was not charged, so it cannot be posted. Ask the patient to submit the payment again.') . '</div>';
-            }
-            if (!$cardUnreadable || $paymentCharged) {
+            if ($postingBlock !== null) {
+                echo '<div class="alert alert-warning">' . text($postingBlock->message()) . '</div>';
+            } else {
+                if ($cardUnreadable && $paymentCharged) {
+                    echo '<div class="alert alert-warning">' . xlt('The card details of this payment could not be read. The card was charged by the payment gateway: check the transaction there before posting.') . '</div>';
+                }
                 echo "<button type='submit' class='btn btn-success' form='invoiceForm'>" . xlt('Post Payment') . "</button>";
             }
         }

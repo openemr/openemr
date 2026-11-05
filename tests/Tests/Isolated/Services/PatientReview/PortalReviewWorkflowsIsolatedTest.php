@@ -18,9 +18,11 @@ namespace OpenEMR\Tests\Isolated\Services\PatientReview;
 use DateTimeImmutable;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\PayloadFormat;
+use OpenEMR\Services\PatientReview\Portal\PaymentPostingBlock;
 use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
@@ -139,23 +141,46 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $this->assertSame('Ann Lee', $this->workflows->paymentCardDetails($again)['cardHolderName'] ?? null);
     }
 
+    private function postingBlock(ReviewRequest $payment): ?PaymentPostingBlock
+    {
+        return PortalReviewWorkflows::postingBlock($payment, $this->workflows->paymentCardDetails($payment));
+    }
+
     public function testAnUnreadableUnchargedPaymentCannotBePosted(): void
     {
         $uncharged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
-        $this->assertTrue($this->workflows->canPostPayment($uncharged));
+        $this->assertNull($this->postingBlock($uncharged));
 
         $this->store->putSecret($uncharged->id, ReviewQueueService::SECRET_PAYMENT_CARD, self::OLD_KEY_SECRET, new DateTimeImmutable('2026-10-01 09:30:00'));
         $this->assertFalse(PortalReviewWorkflows::isChargedPayment($uncharged));
-        $this->assertFalse($this->workflows->canPostPayment($uncharged), 'staff cannot charge a card they cannot read');
+        $this->assertSame(PaymentPostingBlock::CardUnreadable, $this->postingBlock($uncharged), 'staff cannot charge a card they cannot read');
     }
 
-    public function testAnUnreadableChargedPaymentCanStillBePosted(): void
+    public function testAnUnchargedPaymentWithNoCardDetailsCannotBePosted(): void
+    {
+        $uncharged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', '', false, $this->patient());
+
+        $this->assertSame(PaymentPostingBlock::NoCardDetails, $this->postingBlock($uncharged), 'there is no card to charge');
+    }
+
+    public function testAChargedPaymentCanBePostedWithUnreadableOrNoCardDetails(): void
     {
         $charged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, true, $this->patient());
         $this->store->putSecret($charged->id, ReviewQueueService::SECRET_PAYMENT_CARD, self::OLD_KEY_SECRET, new DateTimeImmutable('2026-10-01 09:30:00'));
 
         $this->assertTrue(PortalReviewWorkflows::isChargedPayment($charged));
-        $this->assertTrue($this->workflows->canPostPayment($charged), 'the gateway holds the transaction');
+        $this->assertNull($this->postingBlock($charged), 'the gateway holds the transaction');
+
+        $noCard = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', '', true, $this->patient());
+        $this->assertNull($this->postingBlock($noCard));
+    }
+
+    public function testEachPostingBlockHasAMessage(): void
+    {
+        OEGlobalsBag::getInstance()->set('disable_translation', true);
+        foreach (PaymentPostingBlock::cases() as $block) {
+            $this->assertNotSame('', $block->message());
+        }
     }
 
     public function testAnOlderChargedPaymentStillCountsAsOpen(): void
