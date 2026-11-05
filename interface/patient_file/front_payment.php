@@ -724,6 +724,12 @@ $(function() {
             total = prepay;
         }
         $("#form_method").val('credit_card');
+        // In House: staff charge the card before saving, so check the payment can be saved first.
+        <?php if ($globalsBag->getString('payment_gateway') === 'InHouse') { ?>
+        if (!validate(true)) {
+            return false;
+        }
+        <?php } ?>
         $("#payTotal").text(total);
         $("#paymentAmount").val(total);
     });

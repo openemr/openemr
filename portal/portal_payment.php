@@ -199,7 +199,11 @@ if ($_POST['form_save'] ?? '') {
     $paymentRecorded = false;
 
     if ($radio_type_of_payment == 'pre_payment') {
-        $prepayment = ValidationUtils::parsePositiveAmount(filter_input(INPUT_POST, 'form_prepayment'));
+        // At most two decimals, as the payment page allows: the amount posted is the amount charged.
+        $prepaymentInput = trim(CurrentRequest::get()->request->getString('form_prepayment'));
+        $prepayment = preg_match('/^\d+(\.\d{1,2})?$/', $prepaymentInput) === 1
+            ? ValidationUtils::parsePositiveAmount($prepaymentInput)
+            : null;
         if ($prepayment === null) {
             $alertmsg = xl('Prepayment amount must be a positive number.');
         } else {
@@ -572,6 +576,10 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         ?>;
         var publicKey = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'))); ?>;
 
+        function isPrepaymentAmount(value) {
+            return /^\d+(\.\d{1,2})?$/.test(value);
+        }
+
         function calctotal() {
             var flag = 0;
             var f = document.forms["invoiceForm"];
@@ -587,9 +595,11 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 }
             }
             if (document.getElementById('radio_type_of_payment4').checked) {
-                // A prepayment is not paid against invoice lines; its amount is the total.
-                total = Number(f.form_prepayment.value);
-                if (total < 0) flag = 1;
+                // A prepayment is not paid against invoice lines; its amount is the total. Only a
+                // plain amount (at most two decimals) counts, so the amount charged is exactly
+                // the amount posted.
+                const prepayment = f.form_prepayment.value.trim();
+                total = isPrepaymentAmount(prepayment) ? Number(prepayment) : 0;
             }
             f.form_paytotal.value = Number(total).toFixed(2);
             if (flag) {
@@ -710,7 +720,12 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             $('#paynowbutton').on('click', function () {
                 calctotal();
                 let total = $("#form_paytotal").val();
-                if (Number(total) < 1) {
+                const prepayment = document.getElementById('form_prepayment').value.trim();
+                if (document.getElementById('radio_type_of_payment4').checked && prepayment !== '' && !isPrepaymentAmount(prepayment)) {
+                    alert(<?php echo xlj("Enter the prepayment as an amount such as 50.00"); ?>);
+                    return;
+                }
+                if (!Number.isFinite(Number(total)) || Number(total) < 1) {
                     alert(<?php echo xlj("Please enter a payment amount"); ?>);
                     return;
                 }
@@ -856,8 +871,15 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                            value="copay" onClick="make_visible_row();cursor_pointer();calctotal();"/><?php echo !$hide ? xlt('Co Pay') : ''; ?>
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment2" checked="checked"
                            value="invoice_balance" onClick="make_visible_row();calctotal();"/><?php echo xlt('Invoice Balance'); ?>
+                    <?php if ($globalsBag->getString('payment_gateway') === 'Rainforest') {
+                        // Rainforest charges against invoice encounters; it has no prepayment. The
+                        // radio stays (disabled) for the scripts that look it up.
+                        ?>
+                        <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment4" value="pre_payment" class="d-none" disabled />
+                    <?php } else { ?>
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment4" value="pre_payment"
                            onClick="make_hide_row();calctotal();"/><?php echo xlt('Pre Pay'); ?>
+                    <?php } ?>
                 </td>
             </tr>
             <tr height="15">
