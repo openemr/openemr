@@ -50,7 +50,7 @@ runs:
     id: composer-cache
     shell: bash
     working-directory: ${{ inputs.working-directory }}
-    run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+    run: echo "dir=$(composer config --absolute cache-files-dir)" >> "$GITHUB_OUTPUT"
 
   - name: Cache Composer dependencies
     if: inputs.skip-composer-install != 'true'
