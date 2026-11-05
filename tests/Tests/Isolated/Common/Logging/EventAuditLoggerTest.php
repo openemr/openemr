@@ -726,6 +726,68 @@ class EventAuditLoggerTest extends TestCase
         self::assertStringNotContainsString('tables=users', $comments);
     }
 
+    /**
+     * A users row joined to a chart is the chart read, not security administration.
+     */
+    public function testAUsersReadJoinedToAPatientStaysOnThePatient(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent(
+            'SELECT u.id FROM users JOIN patient_data ON patient_data.providerID = users.id WHERE patient_data.pid = 4',
+            true,
+        );
+        $logger->flushPendingQuerySummary();
+
+        self::assertCount(1, $captured);
+        self::assertSame('patient-record-select', $captured[0]->event);
+        self::assertSame(4, $captured[0]->patientId);
+        $comments = base64_decode($captured[0]->comments, true);
+        self::assertIsString($comments);
+        self::assertStringContainsString('tables=patient_data', $comments);
+        self::assertStringNotContainsString('tables=users', $comments);
+    }
+
+    /**
+     * A users row joined only to another security table stays security administration.
+     */
+    public function testAUsersReadJoinedToSecurityStaysSecurity(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->never())->method('record');
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent(
+            'SELECT id FROM users JOIN gacl_aro ON gacl_aro.value = users.username',
+            true,
+        );
+        $logger->flushPendingQuerySummary();
+
+        self::assertSame([], $captured);
+    }
+
     public function testAPrescriptionReadKeepsTheOpenPatient(): void
     {
         $captured = [];
