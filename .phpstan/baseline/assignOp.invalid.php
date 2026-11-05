@@ -1257,11 +1257,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/csv_like_join.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\-\\=" between mixed and int\\<0, max\\> results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
