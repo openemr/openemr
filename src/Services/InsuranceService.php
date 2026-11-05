@@ -473,38 +473,16 @@ class InsuranceService extends BaseService
         if ($policies === []) {
             return [];
         }
-        $rowsById = [];
-        foreach ($rows as $row) {
-            // A read with bound values returns the id as an int.
-            $id = $row['id'] ?? null;
-            if (is_int($id)) {
-                $rowsById[$id] = $row;
-            }
-        }
         $companyIds = array_values(array_unique(array_map(
             static fn(EffectiveInsurance $policy): int => $policy->companyId,
             $policies
         )));
-        $names = [];
         $companies = QueryUtils::fetchRecords(
             "SELECT `id`, `name` FROM `insurance_companies` WHERE `id` IN ("
                 . implode(',', array_fill(0, count($companyIds), '?')) . ")",
             $companyIds
         );
-        foreach ($companies as $company) {
-            $id = $company['id'] ?? null;
-            $name = $company['name'] ?? null;
-            if (is_int($id) && is_string($name)) {
-                $names[$id] = $name;
-            }
-        }
-        $result = [];
-        foreach ($policies as $policy) {
-            if (isset($rowsById[$policy->id])) {
-                $result[] = new EffectiveInsuranceRow($policy, $names[$policy->companyId] ?? null, $rowsById[$policy->id]);
-            }
-        }
-        return $result;
+        return EffectiveInsuranceRow::forPolicies($policies, $rows, $companies);
     }
 
     /**
@@ -520,22 +498,15 @@ class InsuranceService extends BaseService
      */
     public function getRuleRowsByPid(array $pids): array
     {
-        $rowsByPid = [];
+        $rows = [];
         foreach (array_chunk(array_values(array_unique($pids)), 1000) as $chunk) {
-            $rows = QueryUtils::fetchRecords(
+            $rows = array_merge($rows, QueryUtils::fetchRecords(
                 "SELECT `id`, `uuid`, `pid`, `type`, `provider`, `date`, `date_end` FROM `insurance_data` WHERE `pid` IN ("
                     . implode(',', array_fill(0, count($chunk), '?')) . ")",
                 $chunk
-            );
-            foreach ($rows as $row) {
-                // A read with bound values returns the pid as an int.
-                $rowPid = $row['pid'] ?? null;
-                if (is_int($rowPid)) {
-                    $rowsByPid[$rowPid][] = $row;
-                }
-            }
+            ));
         }
-        return $rowsByPid;
+        return EffectiveInsuranceRule::rowsByPid($rows);
     }
 
     /**

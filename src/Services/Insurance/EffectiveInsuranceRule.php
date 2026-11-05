@@ -71,7 +71,7 @@ final class EffectiveInsuranceRule
         foreach ($rows as $row) {
             $type = $row['type'] ?? null;
             $level = is_string($type) ? InsuranceLevel::tryFrom($type) : null;
-            $id = self::positiveInt($row['id'] ?? null);
+            $id = self::storedId($row['id'] ?? null);
             if ($level === null || $id === null) {
                 continue;
             }
@@ -88,7 +88,7 @@ final class EffectiveInsuranceRule
             if ($held !== null && !self::outranks($start, $id, $held['start'], $held['id'])) {
                 continue;
             }
-            $companyId = self::positiveInt($row['provider'] ?? null);
+            $companyId = self::storedId($row['provider'] ?? null);
             $winners[$level->value] = [
                 'start' => $start,
                 'id' => $id,
@@ -187,6 +187,26 @@ final class EffectiveInsuranceRule
     }
 
     /**
+     * Many patients' rows by pid, in the order given: what
+     * InsuranceService::getRuleRowsByPid() returns. The pid is read as ids are
+     * (storedId()); a row with no pid is left out.
+     *
+     * @param list<array<mixed>> $rows insurance_data rows, each with pid
+     * @return array<int, list<array<mixed>>>
+     */
+    public static function rowsByPid(array $rows): array
+    {
+        $rowsByPid = [];
+        foreach ($rows as $row) {
+            $rowPid = self::storedId($row['pid'] ?? null);
+            if ($rowPid !== null) {
+                $rowsByPid[$rowPid][] = $row;
+            }
+        }
+        return $rowsByPid;
+    }
+
+    /**
      * The first calendar day on or after a stored date, as SQL compares them:
      * the date itself when it is a real day, else the next real one (a zero
      * day, 2026-05-00, gives 2026-05-01; a zero month, 2026-00-00, gives
@@ -273,9 +293,10 @@ final class EffectiveInsuranceRule
      * A stored id as a positive int: an int, as a read with bound values
      * returns it, or a string of digits (leading zeros and surrounding spaces
      * allowed, as MySQL reads them). Anything else, '' and '0' included, is
-     * no id.
+     * no id. The rule and the joins on its answers (EffectiveInsuranceRow::
+     * forPolicies(), rowsByPid()) read ids this one way.
      */
-    private static function positiveInt(mixed $value): ?int
+    public static function storedId(mixed $value): ?int
     {
         if (is_string($value) && ctype_digit(trim($value))) {
             $value = filter_var(ltrim(trim($value), '0'), FILTER_VALIDATE_INT);

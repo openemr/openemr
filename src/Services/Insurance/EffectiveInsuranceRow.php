@@ -30,4 +30,42 @@ final readonly class EffectiveInsuranceRow
         public array $columns,
     ) {
     }
+
+    /**
+     * The policies choose() returned, in its order, each with its own row and
+     * its company's name: the join InsuranceService::getEffectiveInsuranceRows()
+     * makes. Ids are read as the rule reads them (EffectiveInsuranceRule::
+     * storedId()), so a read that returns them as digit strings loses no row.
+     * A policy whose row isn't among the rows is left out.
+     *
+     * @param list<EffectiveInsurance> $policies
+     * @param list<array<mixed>>       $rows      the patient's insurance_data rows
+     * @param list<array<mixed>>       $companies insurance_companies rows, each with id and name
+     * @return list<self>
+     */
+    public static function forPolicies(array $policies, array $rows, array $companies): array
+    {
+        $rowsById = [];
+        foreach ($rows as $row) {
+            $id = EffectiveInsuranceRule::storedId($row['id'] ?? null);
+            if ($id !== null) {
+                $rowsById[$id] = $row;
+            }
+        }
+        $names = [];
+        foreach ($companies as $company) {
+            $id = EffectiveInsuranceRule::storedId($company['id'] ?? null);
+            $name = $company['name'] ?? null;
+            if ($id !== null && is_string($name)) {
+                $names[$id] = $name;
+            }
+        }
+        $result = [];
+        foreach ($policies as $policy) {
+            if (isset($rowsById[$policy->id])) {
+                $result[] = new self($policy, $names[$policy->companyId] ?? null, $rowsById[$policy->id]);
+            }
+        }
+        return $result;
+    }
 }
