@@ -573,7 +573,7 @@ if ($searchRequest->getString('form_search') === 'Search') {
                             } else {
                                 $criteriaCondition = $searchCriteria->condition();
                                 if ($criteriaCondition === null) {
-                                    $alertmsg .= xlt("At least one search parameter is required if you select All.");
+                                    $alertmsg .= xl("At least one search parameter is required if you select All.");
                                     $criteriaCondition = ['1 = 2', []];
                                 }
                                 [$searchCondition, $searchBinds] = $criteriaCondition;
