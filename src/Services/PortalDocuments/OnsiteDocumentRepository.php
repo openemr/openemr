@@ -120,7 +120,9 @@ final class OnsiteDocumentRepository
 
         $direction = $query->orderDesc ? ' DESC' : '';
         $sql = 'SELECT ' . self::selectList() . ' FROM `onsite_documents` WHERE ' . implode(' AND ', $where)
-            . ' ORDER BY `' . $query->orderBy->column() . '`' . $direction . ', `review_date`' . $direction;
+            // The id last, so rows that tie on both keys keep one order from page to page.
+            . ' ORDER BY `' . $query->orderBy->column() . '`' . $direction . ', `review_date`' . $direction
+            . ', `id`' . $direction;
 
         if ($query->page === null) {
             $rows = array_map(self::toRecord(...), QueryUtils::fetchRecords($sql, $binds));
