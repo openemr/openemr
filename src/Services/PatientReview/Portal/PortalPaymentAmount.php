@@ -38,9 +38,14 @@ final class PortalPaymentAmount
         return $charged === self::invoiceCents($invoiceValues);
     }
 
+    /** The payment types staff posting (portal_payment.php) records against invoice lines. */
+    private const LINE_PAYMENT_TYPES = ['copay', 'invoice_balance', 'cash'];
+
     /**
-     * The total of an invoice selection in cents: the prepayment for a prepayment, otherwise the
-     * sum of its invoice lines. Null when it is not a selection or holds an amount that is not one.
+     * The total of an invoice selection in cents, as staff posting would record it: the
+     * prepayment for a prepayment, otherwise the sum of its invoice lines (form_upay). Null when
+     * it is not a selection, its payment type is one posting does not record, or it holds an
+     * amount that is not one.
      */
     public static function invoiceCents(string $invoiceValues): ?int
     {
@@ -48,15 +53,19 @@ final class PortalPaymentAmount
         if (!is_array($values)) {
             return null;
         }
-        if (($values['radio_type_of_payment'] ?? null) === 'pre_payment') {
+        $type = $values['radio_type_of_payment'] ?? null;
+        if ($type === 'pre_payment') {
             $prepayment = $values['form_prepayment'] ?? null;
 
             return is_string($prepayment) ? self::cents(trim($prepayment)) : null;
         }
+        if (!in_array($type, self::LINE_PAYMENT_TYPES, true)) {
+            return null;
+        }
 
         $total = 0;
         foreach ($values as $name => $value) {
-            if (!is_string($name) || !(str_starts_with($name, 'form_upay[') || str_starts_with($name, 'form_bpay['))) {
+            if (!is_string($name) || !str_starts_with($name, 'form_upay[')) {
                 continue;
             }
             if (!is_string($value)) {

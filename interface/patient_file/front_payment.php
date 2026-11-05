@@ -750,13 +750,18 @@ $(function() {
             alert(<?php echo xlj('The Credit Card payment method is not active. Turn it on in the payment_method list.'); ?>);
             return false;
         }
-        const amountFields = document.querySelectorAll('input[name^="form_upay["], input[name^="form_bpay["], #form_prepayment');
+        // Only the fields the selected payment type saves: switching type hides the others
+        // without clearing them.
+        const prepaying = document.getElementById('radio_type_of_payment4').checked;
+        const amountFields = prepaying
+            ? document.querySelectorAll('#form_prepayment')
+            : document.querySelectorAll('input[name^="form_upay["], input[name^="form_bpay["]');
         if (!Number.isFinite(Number(total)) || [...amountFields].some((field) => field.value.trim() !== '' && !/^\d+(\.\d{1,2})?$/.test(field.value.trim()))) {
             alert(<?php echo xlj('Enter each amount as a number such as 50.00'); ?>);
             return false;
         }
         const todayPayment = document.querySelector('input[name="form_upay[0]"]');
-        if (todayPayment && Number(todayPayment.value) > 0) {
+        if (!prepaying && todayPayment && Number(todayPayment.value) > 0) {
             alert(<?php echo xlj("Create today's encounter before taking a card payment for it."); ?>);
             return false;
         }
@@ -776,10 +781,14 @@ $(function() {
         $("#paymentAmount").val(total);
     });
     <?php if ($globalsBag->getString('payment_gateway') === 'InHouse') { ?>
-    // Cancelled without recording: put back the payment method staff had chosen.
+    // Cancelled without recording: put back the payment method staff had chosen, and clear the
+    // approval so it cannot be recorded against another payment.
     $('#openPayModal').on('hidden.bs.modal', function () {
-        if (!inHouseRecorded && inHousePreviousMethod !== null) {
-            $("#form_method").val(inHousePreviousMethod);
+        if (!inHouseRecorded) {
+            if (inHousePreviousMethod !== null) {
+                $("#form_method").val(inHousePreviousMethod);
+            }
+            $("#inHouseAuthCode, #inHouseLast4").val('');
         }
     });
     <?php } ?>
@@ -792,6 +801,10 @@ let inHouseRecorded = false;
 // approval and saves the payment as a credit card payment. No card data is sent or kept.
 function recordInHouseCardPayment(e) {
     e.preventDefault();
+    // Already saving this approval: a second click must not save the payment twice.
+    if (inHouseRecorded) {
+        return;
+    }
     let auth = $("#inHouseAuthCode").val().trim();
     let last4 = $("#inHouseLast4").val().trim();
     if (auth === '') {

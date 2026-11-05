@@ -54,12 +54,14 @@ final class PortalPaymentAmountTest extends TestCase
             'form_prepayment' => '999.00',
             'form_upay[1687]' => '75.00',
             'form_upay[1688]' => '',
-            'form_bpay[12]' => '0.5',
+            'form_upay[1690]' => '0.5',
+            'form_bpay[12]' => '9.00',
             'form_paytotal' => '75.50',
         ], JSON_THROW_ON_ERROR);
 
-        $this->assertSame(7550, PortalPaymentAmount::invoiceCents($invoice));
+        $this->assertSame(7550, PortalPaymentAmount::invoiceCents($invoice), 'form_bpay is not posted, so it is not counted');
         $this->assertTrue(PortalPaymentAmount::matchesInvoice('75.50', $invoice));
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('84.50', $invoice), 'a charge that counts form_bpay');
         $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $invoice), 'a charge for a different amount');
         $this->assertFalse(PortalPaymentAmount::matchesInvoice('999.00', $invoice), 'a prepayment field is ignored unless it is a prepayment');
     }
@@ -75,6 +77,20 @@ final class PortalPaymentAmountTest extends TestCase
         $this->assertSame(5000, PortalPaymentAmount::invoiceCents($invoice));
         $this->assertTrue(PortalPaymentAmount::matchesInvoice('50.00', $invoice));
         $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $invoice));
+    }
+
+    public function testAPaymentTypeStaffCannotPostMatchesNothing(): void
+    {
+        $other = json_encode(['radio_type_of_payment' => 'other', 'form_upay[1687]' => '75.00'], JSON_THROW_ON_ERROR);
+        $none = json_encode(['form_upay[1687]' => '75.00'], JSON_THROW_ON_ERROR);
+
+        $this->assertNull(PortalPaymentAmount::invoiceCents($other));
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $other));
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $none));
+        foreach (['copay', 'cash', 'invoice_balance'] as $type) {
+            $invoice = json_encode(['radio_type_of_payment' => $type, 'form_upay[1687]' => '75.00'], JSON_THROW_ON_ERROR);
+            $this->assertTrue(PortalPaymentAmount::matchesInvoice('75.00', $invoice), $type);
+        }
     }
 
     public function testAnUnusableSelectionMatchesNothing(): void
