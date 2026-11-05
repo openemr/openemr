@@ -22,6 +22,7 @@
  * @package OpenEMR
  * @author  EMR Direct <https://www.emrdirect.com/>
  * @link    https://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/documents.php");
