@@ -48,8 +48,10 @@ final class PhiMailConnectionTest extends TestCase
         [$client, $this->server] = $pair;
         $this->connection = new PhiMailConnection($client);
 
-        $this->tempDir = sys_get_temp_dir() . '/phimail-connection-test-' . uniqid('', true);
-        (new Filesystem())->mkdir($this->tempDir);
+        $tempDir = sys_get_temp_dir() . '/phimail-connection-test-' . uniqid('', true);
+        (new Filesystem())->mkdir($tempDir);
+        // PHP's tempnam() resolves symlinks in the directory, such as macOS's /var.
+        $this->tempDir = realpath($tempDir) ?: $tempDir;
     }
 
     protected function tearDown(): void
@@ -172,13 +174,20 @@ final class PhiMailConnectionTest extends TestCase
 
     public function testReadBlobFailsWhenItCannotCreateTheTempFile(): void
     {
-        // A regular file passes the existence check but cannot hold a new file.
+        // A regular file passes the existence check but cannot hold a new file, so
+        // PHP's tempnam() creates one in the system temp dir instead.
         $notADir = $this->tempDir . '/file';
         (new Filesystem())->touch($notADir);
+        $strays = glob(sys_get_temp_dir() . '/direct-*');
 
-        $this->expectException(PhiMailBlobException::class);
-        $this->expectExceptionMessage('M14 failed creating a temp file in: ' . $notADir);
-        $this->connection->readBlob(1, $notADir);
+        try {
+            $this->connection->readBlob(1, $notADir);
+            self::fail('readBlob() returned a file outside the temp dir.');
+        } catch (PhiMailBlobException $e) {
+            self::assertSame('M14 failed creating a temp file in: ' . $notADir, $e->getMessage());
+        }
+
+        self::assertSame($strays, glob(sys_get_temp_dir() . '/direct-*'), 'the fallback temp file was left behind');
     }
 
     public function testReadBlobFailsAndCleansUpWhenTheStreamCannotBeRead(): void

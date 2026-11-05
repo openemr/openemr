@@ -183,15 +183,18 @@ final readonly class PhiMailConnection
             throw new PhiMailBlobException('M13 temp dir does not exist: ' . $directory);
         }
 
-        // symfony/filesystem before 7.4.18 creates a suffixed temp file under the process
-        // umask, so create it private here the way later releases do.
-        $umask = umask(0o077);
+        // Without a suffix, tempnam() calls PHP's tempnam(), which creates the file
+        // with mode 0600. A suffix would create it under the umask and any default ACL.
         try {
-            $path = $this->filesystem->tempnam($directory, 'direct-', '.dat');
+            $path = $this->filesystem->tempnam($directory, 'direct-');
         } catch (IOException $e) {
             throw new PhiMailBlobException('M14 failed creating a temp file in: ' . $directory, 0, $e);
-        } finally {
-            umask($umask);
+        }
+        // PHP's tempnam() falls back to the system temp dir when it cannot use $directory.
+        // realpath() cannot resolve a stream wrapper URL, so compare those as given.
+        if (dirname($path) !== (realpath($directory) ?: $directory)) {
+            $this->filesystem->remove($path);
+            throw new PhiMailBlobException('M14 failed creating a temp file in: ' . $directory);
         }
 
         $file = @fopen($path, 'w');
