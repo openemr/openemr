@@ -31,6 +31,7 @@ use OpenEMR\Core\VersionFile;
 use OpenEMR\Services\CodeTypes\Subscriber\CodeTypeEventsSubscriber;
 use OpenEMR\Services\FHIR\Subscriber\CalculatedObservationEventsSubscriber;
 use OpenEMR\Services\FHIR\Subscriber\UuidMappingEventsSubscriber;
+use OpenEMR\Services\LBF\Bootstrap;
 use OpenEMR\Services\PatientFlowBoard\Subscriber\PatientFlowBoardEventsSubscriber;
 
 // Set up autoloader as early as possible
@@ -844,6 +845,7 @@ $coreDispatcher->addSubscriber(new UuidMappingEventsSubscriber());
 $coreDispatcher->addSubscriber(new CalculatedObservationEventsSubscriber());
 $coreDispatcher->addSubscriber(new CodeTypeEventsSubscriber());
 $coreDispatcher->addSubscriber(new PatientFlowBoardEventsSubscriber());
+Bootstrap::instantiate($coreDispatcher, $globalsBag->getKernel());
 
 // Module configurations.
 // Runs after OPENEMR_GLOBALS_LOADED is defined so that module class files
