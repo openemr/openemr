@@ -36,6 +36,7 @@ $reasonDateHigh = $reasonField('reason_date_high');
                         <input class="code-selector-popup form-control"
                                name="form_proc_reason_code[<?php echo attr((string) $i); ?>]" type="text" value="<?php echo attr($reasonCode); ?>"
                                placeholder="<?php echo xla("Select a reason code"); ?>"
+                               aria-label="<?php echo xla("Reason Code"); ?>"
                                readonly
                                onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); this.click(); }"
                         />

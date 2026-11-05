@@ -109,6 +109,8 @@ final class ProcedureOrderReasonDescriptionTest extends TestCase
         $this->assertTrue($code->hasAttribute('readonly'));
         $this->assertFalse($code->hasAttribute('onfocus'));
         $this->assertStringContainsString('this.click()', $code->getAttribute('onkeydown'));
+        // Named for a screen reader without an id: the order form's add-a-line script copies this row and renumbers only names.
+        $this->assertSame('Reason Code', $code->getAttribute('aria-label'));
         $this->assertSame('pending', self::element($xpath, '//select[@name="form_proc_reason_status[0]"]/option[@selected]')->getAttribute('value'));
         $this->assertSame('2026-01-02 03:04:00', self::element($xpath, '//input[@name="form_proc_reason_date_low[0]"]')->getAttribute('value'));
         $this->assertSame('', self::element($xpath, '//input[@name="form_proc_reason_date_high[0]"]')->getAttribute('value'));
