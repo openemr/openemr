@@ -144,6 +144,7 @@ final class PhiMailConnectionTest extends TestCase
 
         self::assertStringStartsWith($this->tempDir . '/direct-', $path);
         self::assertSame($body, (new Filesystem())->readFile($path));
+        self::assertSame(0600, fileperms($path) & 0777, 'the download is readable by others');
         self::assertSame("2\n", $this->connection->readLine(), 'readBlob() read past the blob');
     }
 
@@ -170,7 +171,7 @@ final class PhiMailConnectionTest extends TestCase
         (new Filesystem())->touch($notADir);
 
         $this->expectException(PhiMailBlobException::class);
-        $this->expectExceptionMessageMatches('{^M14 failed opening temp file: ' . preg_quote($notADir) . '/direct-}');
+        $this->expectExceptionMessage('M14 failed creating a temp file in: ' . $notADir);
         $this->connection->readBlob(1, $notADir);
     }
 
@@ -188,6 +189,38 @@ final class PhiMailConnectionTest extends TestCase
         }
 
         self::assertSame([], glob($this->tempDir . '/direct-*'), 'the partial download was left behind');
+    }
+
+    public function testReadBlobFailsAndCleansUpWhenTheFileCannotBeWritten(): void
+    {
+        $this->reply('data');
+        FailingFileStreamWrapper::register();
+
+        try {
+            $this->connection->readBlob(5, FailingFileStreamWrapper::SCHEME . '://downloads');
+            self::fail('readBlob() returned from a failed write.');
+        } catch (PhiMailBlobException $e) {
+            self::assertSame('M15 failure writing blob chunk after 0 bytes', $e->getMessage());
+            self::assertSame([], FailingFileStreamWrapper::$files, 'the partial download was left behind');
+        } finally {
+            FailingFileStreamWrapper::unregister();
+        }
+    }
+
+    public function testReadBlobFailsAndCleansUpWhenTheTempFileCannotBeOpened(): void
+    {
+        FailingFileStreamWrapper::register();
+        FailingFileStreamWrapper::$failOpenForWrite = true;
+
+        try {
+            $this->connection->readBlob(1, FailingFileStreamWrapper::SCHEME . '://downloads');
+            self::fail('readBlob() returned without a temp file.');
+        } catch (PhiMailBlobException $e) {
+            self::assertStringStartsWith('M14 failed opening temp file: ' . FailingFileStreamWrapper::SCHEME . '://downloads/direct-', $e->getMessage());
+            self::assertSame([], FailingFileStreamWrapper::$files, 'the empty temp file was left behind');
+        } finally {
+            FailingFileStreamWrapper::unregister();
+        }
     }
 
     public function testOpenRefusesWhenDisabled(): void
@@ -215,10 +248,25 @@ final class PhiMailConnectionTest extends TestCase
         $this->assertOpenFails(new PhiMailServer(true, $address, false, null), PhiMailConnectionFailure::InvalidAddress);
     }
 
-    public function testOpenReportsTheSocketErrorWhenUnreachable(): void
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unreachableAddressProvider(): array
     {
         // Nothing listens on port 1, so every attempt is refused.
-        $e = $this->assertOpenFails(new PhiMailServer(true, 'tcp://127.0.0.1:1', true, null), PhiMailConnectionFailure::Unreachable);
+        return [
+            'plain TCP' => ['tcp://127.0.0.1:1'],
+            'HTTPS' => ['https://127.0.0.1:1'],
+            'TLS as configured' => ['tls://127.0.0.1:1'],
+        ];
+    }
+
+    #[DataProvider('unreachableAddressProvider')]
+    public function testOpenReportsTheSocketErrorWhenUnreachable(string $address): void
+    {
+        $e = $this->assertOpenFails(new PhiMailServer(true, $address, true, __FILE__), PhiMailConnectionFailure::Unreachable);
 
         self::assertNotSame(0, $e->socketErrorCode);
         self::assertNotSame('', $e->socketErrorMessage);

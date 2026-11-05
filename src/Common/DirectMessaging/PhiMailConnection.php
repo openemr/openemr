@@ -32,10 +32,14 @@ use GuzzleHttp\Psr7\Exception\MalformedUriException;
 use GuzzleHttp\Psr7\Uri;
 use OpenEMR\Services\SoftwareVersion;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
-final class PhiMailConnection
+final readonly class PhiMailConnection
 {
-    private const OK = "OK\n";
+    // The protocol ends lines with LF on every platform, so PHP_EOL would be wrong.
+    private const LF = "\n";
+    private const OK = 'OK' . self::LF;
     private const CONNECT_TRIES = 3;
     private const CONNECT_TIMEOUT_SECONDS = 10;
     private const BLOB_CHUNK_BYTES = 1024;
@@ -43,13 +47,15 @@ final class PhiMailConnection
     private const PROTOCOL_VERSION = '1.3.2';
 
     /** @var resource */
-    private $stream;
+    private mixed $stream;
 
     /**
      * @param mixed $stream an open stream to a phiMail server
      */
-    public function __construct(mixed $stream)
-    {
+    public function __construct(
+        mixed $stream,
+        private Filesystem $filesystem = new Filesystem(),
+    ) {
         if (!is_resource($stream) || get_resource_type($stream) !== 'stream') {
             throw new \InvalidArgumentException('Expected an open stream');
         }
@@ -105,7 +111,7 @@ final class PhiMailConnection
     {
         $info = sprintf('INFO VER OEMR %s %s %s', $version, self::PROTOCOL_VERSION, PHP_VERSION);
         try {
-            $this->expectOk($info . "\n");
+            $this->expectOk($info . self::LF);
         } catch (PhiMailException $e) {
             $this->close();
             throw new PhiMailConnectionException(PhiMailConnectionFailure::HandshakeRejected, previous: $e);
@@ -165,8 +171,11 @@ final class PhiMailConnection
      * Download the next $length bytes into a new file in $directory. Stops
      * early if the server closes the connection.
      *
+     * The file is readable only by its owner, since it holds message content.
+     *
      * @return string path of the downloaded file
      * @throws PhiMailBlobException
+     * @throws IOException when a failed download cannot be removed
      */
     public function readBlob(int $length, string $directory): string
     {
@@ -174,14 +183,15 @@ final class PhiMailConnection
             throw new PhiMailBlobException('M13 temp dir does not exist: ' . $directory);
         }
 
-        $name = uniqid('direct-');
-        $path = $directory . '/' . $name . '.dat';
-        for ($dup = 1; file_exists($path); $dup++) {
-            $path = $directory . '/' . $name . '.' . $dup . '.dat';
+        try {
+            $path = $this->filesystem->tempnam($directory, 'direct-', '.dat');
+        } catch (IOException $e) {
+            throw new PhiMailBlobException('M14 failed creating a temp file in: ' . $directory, 0, $e);
         }
 
         $file = @fopen($path, 'w');
         if ($file === false) {
+            $this->filesystem->remove($path);
             throw new PhiMailBlobException('M14 failed opening temp file: ' . $path);
         }
 
@@ -199,10 +209,11 @@ final class PhiMailConnection
             }
         } catch (PhiMailBlobException $e) {
             fclose($file);
-            @unlink($path);
+            $this->filesystem->remove($path);
             throw $e;
         }
 
+        // Plain-file writes are unbuffered, so every byte is already written and close cannot lose data.
         fclose($file);
         return $path;
     }

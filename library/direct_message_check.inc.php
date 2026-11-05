@@ -56,8 +56,10 @@ function phimail_connect(&$phimail_error)
 {
     $globals = OEGlobalsBag::getInstance();
     $logger = ServiceContainer::getLogger();
+    $server = PhiMailServer::fromGlobals($globals);
+    $version = SoftwareVersion::fromGlobals($globals);
     try {
-        $connection = PhiMailConnection::open(PhiMailServer::fromGlobals($globals), SoftwareVersion::fromGlobals($globals), $logger);
+        $connection = PhiMailConnection::open($server, $version, $logger);
     } catch (PhiMailConnectionException $e) {
         $phimail_error = $e->failure->value;
         if ($e->failure === PhiMailConnectionFailure::Unreachable) {
@@ -481,14 +483,21 @@ function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check
 function phimail_read_blob($fp, $len): string|false
 {
     // Reject a malformed length before creating the temp file
-    $length = filter_var($len, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-    if ($length === false) {
-        phimail_logit(0, "M17 invalid blob length", failing: true);
+    $digits = is_string($len) ? trim($len) : '';
+    $length = match (true) {
+        is_int($len) && $len >= 0 => $len,
+        ctype_digit($digits) => (int) $digits,
+        default => null,
+    };
+    if ($length === null) {
+        phimail_logit(0, 'M17 invalid blob length', failing: true);
         return false;
     }
 
+    $connection = new PhiMailConnection($fp);
+    $directory = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
     try {
-        return (new PhiMailConnection($fp))->readBlob($length, OEGlobalsBag::getInstance()->getString('temporary_files_dir'));
+        return $connection->readBlob($length, $directory);
     } catch (PhiMailBlobException $e) {
         phimail_logit(0, $e->getMessage(), failing: true);
         return false;
