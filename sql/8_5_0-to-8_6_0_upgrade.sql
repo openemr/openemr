@@ -295,3 +295,7 @@ ALTER TABLE `notification_log` MODIFY `type` enum('SMS','Email','Phone') NOT NUL
 -- smsgateway_info, and phone rows carry the gateway URL, so skip rows containing '|||'.
 -- Unguarded so a rerun still relabels if a previous run stopped after the ALTER.
 UPDATE `notification_log` SET `type` = 'Phone' WHERE `type` = '' AND `smsgateway_info` NOT LIKE '%|||%';
+
+-- Relabel the email rows skipped above. Before 8.6.0 the faxsms writer logged 'EMAIL', which a
+-- binary collation stores as ''. Only email rows carry 'sender|||subject' in smsgateway_info.
+UPDATE `notification_log` SET `type` = 'Email' WHERE `type` = '' AND `smsgateway_info` LIKE '%|||%';
