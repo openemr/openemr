@@ -97,16 +97,6 @@ final class OnsiteDocumentRepository
         return isset($rows[0]) ? self::toRecord($rows[0]) : null;
     }
 
-    /**
-     * The pid that owns a document, or null when there is no such document.
-     */
-    public function owner(int $id): ?int
-    {
-        $owner = QueryUtils::fetchSingleValue('SELECT `pid` FROM `onsite_documents` WHERE `id` = ?', 'pid', [$id]);
-
-        return is_numeric($owner) ? (int) $owner : null;
-    }
-
     public function list(OnsiteDocumentListQuery $query): OnsiteDocumentPage
     {
         $where = ['`pid` = ?'];

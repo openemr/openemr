@@ -262,9 +262,7 @@ final readonly class OnsiteDocumentController
             $globalsBag = OEGlobalsBag::getInstance();
 
             $pk = self::documentId($route->param('id'));
-            PortalPatientAccessGuard::assertCanWriteDocuments($this->documentOwner($pk));
             $document = $this->documents->find($pk) ?? throw new PortalDocumentNotFoundException();
-            // Check the loaded document too, in case it moved to another patient after the lookup.
             $owner = $document['pid'];
             PortalPatientAccessGuard::assertCanWriteDocuments($owner);
 
@@ -345,16 +343,6 @@ final readonly class OnsiteDocumentController
         } catch (\RuntimeException | \LogicException $ex) {
             return PortalJson::exception($ex);
         }
-    }
-
-    /**
-     * The pid that owns a portal document.
-     *
-     * @throws PortalDocumentNotFoundException when no document has that id
-     */
-    private function documentOwner(int $documentId): int
-    {
-        return $this->documents->owner($documentId) ?? throw new PortalDocumentNotFoundException();
     }
 
     private static function documentId(?string $id): int
