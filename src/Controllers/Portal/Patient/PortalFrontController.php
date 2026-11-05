@@ -20,11 +20,13 @@ namespace OpenEMR\Controllers\Portal\Patient;
 
 use Closure;
 use Doctrine\DBAL\Exception as DbalException;
+use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\PortalApiCsrfGuard;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Portal\Routing\PortalPrincipal;
 use OpenEMR\Portal\Routing\PortalRequestPath;
+use OpenEMR\Portal\Routing\PortalRouteDeniedException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -73,7 +75,7 @@ final readonly class PortalFrontController
         } catch (\RuntimeException | \LogicException | DbalException | TwigError $e) {
             $this->logger->error('Portal request failed', ['exception' => $e]);
 
-            return $this->failure($path);
+            return $this->failure($path, $e);
         }
     }
 
@@ -95,11 +97,16 @@ final readonly class PortalFrontController
         return PortalPrincipal::staff();
     }
 
-    private function failure(string $path): Response
+    private function failure(string $path, \Throwable $failure): Response
     {
         $publicMessage = xl('An unexpected error occurred');
         if (str_starts_with($path, 'api/')) {
-            return PortalJson::error($publicMessage);
+            // A missing token or a route the caller may not use is refused; anything else failed.
+            $status = $failure instanceof CsrfInvalidException || $failure instanceof PortalRouteDeniedException
+                ? Response::HTTP_FORBIDDEN
+                : Response::HTTP_INTERNAL_SERVER_ERROR;
+
+            return PortalJson::error($publicMessage, status: $status);
         }
         try {
             return (new PortalErrorPages($this->pages))->failed($publicMessage);
