@@ -41,7 +41,8 @@ final class PortalRouteTable
             new PortalRoute('GET', 'api/patientdata', PatientController::class, 'Query', RouteAccess::All, registration: true),
             new PortalRoute('POST', 'api/patient', PatientController::class, 'Create', RouteAccess::None, registration: true),
             new PortalRoute('GET', 'api/patient/(:num)', PatientController::class, 'Read', RouteAccess::All, params: $id),
-            new PortalRoute('PUT', 'api/patient/(:num)', PatientController::class, 'Update', RouteAccess::All, params: $id),
+            // Commit to Chart: staff only. A portal patient's changes go to api/portalpatient for review.
+            new PortalRoute('PUT', 'api/patient/(:num)', PatientController::class, 'Update', RouteAccess::Staff, params: $id),
             new PortalRoute('PUT', 'api/portalpatient/(:num)', PortalPatientController::class, 'Update', RouteAccess::All, params: $id),
             new PortalRoute('GET', 'api/portalpatient/(:num)', PortalPatientController::class, 'Read', RouteAccess::All, params: $id),
 
