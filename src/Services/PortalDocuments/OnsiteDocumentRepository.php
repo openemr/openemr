@@ -3,8 +3,8 @@
 /**
  * Reads and writes patient portal documents (`onsite_documents`).
  *
- * Records are arrays keyed by the camelCase names the portal's JSON API and its Backbone
- * models use, in column order. Values read from the database are strings or null.
+ * Records are arrays keyed by the camelCase names the portal's JSON API and its page
+ * scripts use, in column order. Values read from the database are strings or null.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

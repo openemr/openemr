@@ -2,8 +2,8 @@
 
 /**
  * The patient portal profile: the demographics the portal's profile form shows and edits,
- * mapped between `patient_data` columns and the camelCase names its JSON API and Backbone
- * models use.
+ * mapped between `patient_data` columns and the camelCase names its JSON API and page
+ * scripts use.
  *
  * Two shapes, kept as the Phreeze models returned them:
  * - a record (`api/patient/{id}`): the 53 editable fields plus the review `note`;

@@ -16,7 +16,6 @@ const config = {
         'interface/forms/eye_mag/js/jquery-1-10-2',
         'interface/modules/zend_modules/public/js/lib',
         'interface/super/rules/www/js/cdr-multiselect',
-        'portal/patient/scripts/libs',
         'public/assets',
         'swagger',
         'tests',

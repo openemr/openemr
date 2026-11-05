@@ -3,7 +3,7 @@
 /**
  * Records the HTTP contract of the patient portal's portal/patient pages and JSON API, as a
  * staff user, so the Phreeze replacement can be checked against it: status codes, response
- * shapes and the keys of every record. The pages' Backbone models depend on these keys.
+ * shapes and the keys of every record. The page scripts depend on these keys.
  *
  * Setup is HTTP-only (see tests/Tests/WebUi/README.md): the test logs in as admin and creates
  * its own patient through the new-patient form. The patient is not removed afterwards, because

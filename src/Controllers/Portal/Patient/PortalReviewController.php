@@ -178,7 +178,7 @@ final readonly class PortalReviewController
             };
             $result ??= $workflows->latestDocument($pid, $documentId);
 
-            // Backbone keeps the id it is given; with none it posts again next time, which is
+            // The page keeps the id it is given; with none it posts again next time, which is
             // what a document with nothing in review needs.
             return PortalJson::ok($result === null ? ['id' => null] + $json : LegacyActivityRow::fromRequest($result)->toModel());
         } catch (\RuntimeException | \LogicException $ex) {

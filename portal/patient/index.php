@@ -57,7 +57,7 @@ $pages = new TwigPageRenderer(ServiceContainer::getTwig(), [
 $path = PortalRequestPath::of($request, $globalsBag->getString('web_root') . '/portal/patient/');
 
 try {
-    // Requests that can change data must carry the session's CSRF token (sent by scripts/model.js).
+    // Requests that can change data must carry the session's CSRF token (sent by scripts/portal-api.js).
     PortalApiCsrfGuard::assertValid(
         $request->getRealMethod(),
         $request->headers->get(PortalApiCsrfGuard::HEADER),
