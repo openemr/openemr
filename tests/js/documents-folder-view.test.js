@@ -118,7 +118,20 @@ describe('page wiring', () => {
             <div class="container-fluid">
                 <button type="button" id="docViewFolders"></button>
                 <button type="button" id="docViewClassic"></button>
-                <div id="docUploadWrap" hidden></div>
+                <div id="docUploadWrap" hidden>
+                    <button type="button" id="docUploadBtn"></button>
+                    <div id="docUploadPopover" hidden>
+                        <select id="docUploadFolder"><option value="2">Lab Report</option></select>
+                        <div id="docDropArea"></div>
+                        <input type="file" id="docFileInput" multiple />
+                        <div id="docFileNames"></div>
+                        <input type="file" id="docDicomInput" />
+                        <input type="text" id="docDestination" />
+                        <button type="button" id="docUploadCancel"></button>
+                        <button type="button" id="docUploadSubmit"></button>
+                        <div id="docUploadStatus"></div>
+                    </div>
+                </div>
                 <div id="documentsFolderView" hidden>
                     <div id="docFolderCol" class="col-lg-3">
                         <div id="docFolderTree"></div>
@@ -171,6 +184,9 @@ describe('page wiring', () => {
                 hideEmpty: 'Hide empty folders',
                 selectDocument: 'Select a document',
                 noPreview: 'No preview',
+                filesSelected: '%d file(s) selected',
+                uploadFailed: 'Upload failed',
+                uploaded: 'Uploaded',
                 hideFolders: 'Hide folders',
                 showFolders: 'Show folders'
             }
@@ -372,5 +388,49 @@ describe('page wiring', () => {
         window.innerHeight = 300;
         window.dispatchEvent(new Event('resize'));
         expect(frame.style.height).toBe('420px');
+    });
+
+    test('uploads one file per request and keeps the failed file with its name', async () => {
+        setUp();
+        await flush();
+        const uploads = [];
+        window.fetch = jest.fn((url, options) => {
+            if (String(url).indexOf('document&upload') !== -1) {
+                uploads.push(options.body.getAll('file[]').map((f) => f.name));
+                const failing = uploads.length === 1;
+                const html = '<div id="documents_actions">' + (failing ? '<h3>Error number: 1 while uploading a.pdf</h3>' : '') + '</div>';
+                return Promise.resolve({ ok: true, text: () => Promise.resolve(html) });
+            }
+            return Promise.resolve({ ok: true, json: () => Promise.resolve({ categories, documents }) });
+        });
+        const input = document.getElementById('docFileInput');
+        Object.defineProperty(input, 'files', {
+            configurable: true,
+            value: [new File(['x'], 'a.pdf'), new File(['y'], 'b.pdf')]
+        });
+        input.dispatchEvent(new Event('change'));
+        document.getElementById('docUploadSubmit').click();
+        for (let i = 0; i < 10; i++) {
+            await flush();
+        }
+        expect(uploads).toEqual([['a.pdf'], ['b.pdf']]);
+        const status = document.getElementById('docUploadStatus');
+        expect(status.textContent).toContain('a.pdf');
+        expect(status.className).toContain('text-danger');
+        expect(document.getElementById('docFileNames').textContent).toBe('1 file(s) selected');
+    });
+
+    test('refits the preview frame when the Folders view is shown again', async () => {
+        setUp();
+        await flush();
+        window.innerHeight = 900;
+        document.querySelector('#docRows tr').click();
+        const frame = document.querySelector('#docPreviewBody .doc-preview-frame');
+        document.getElementById('docViewClassic').click();
+        window.innerHeight = 700;
+        window.dispatchEvent(new Event('resize'));
+        expect(frame.style.height).toBe('884px');
+        document.getElementById('docViewFolders').click();
+        expect(frame.style.height).toBe('684px');
     });
 });

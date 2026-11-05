@@ -394,7 +394,10 @@
             if (!frame) {
                 return;
             }
-            var top = frame.getBoundingClientRect().top + (root.pageYOffset || 0);
+            if (view.folders && view.folders.hidden) {
+                return;
+            }
+            var top = frame.getBoundingClientRect().top;
             frame.style.height = Math.max(PREVIEW_MIN, Math.floor(root.innerHeight - top - PREVIEW_GAP)) + 'px';
         }
 
@@ -480,6 +483,9 @@
             }
             if (folders && !state.loaded) {
                 load();
+            }
+            if (folders) {
+                fitPreviewFrame();
             }
         }
 
@@ -714,24 +720,16 @@
             up.button.setAttribute('aria-expanded', 'false');
         }
 
-        function submitUpload() {
-            var category = up.folder.value;
-            var dicomFiles = up.dicom.files || [];
-            if (pending.length === 0 && dicomFiles.length === 0) {
-                setStatus(i18n.chooseFiles, true);
-                return;
-            }
-            if (!category) {
-                setStatus(i18n.chooseFolder, true);
-                return;
-            }
+        // The upload action reports only the error of the last file of a request, so every file goes
+        // in a request of its own and each failure is reported by file name.
+        function postUpload(category, files, dicomFiles) {
             var form = new root.FormData();
             form.append('MAX_FILE_SIZE', '64000000');
             form.append('patient_id', cfg.patientId);
             form.append('category_id', category);
             form.append('process', 'true');
             form.append('csrf_token_form', cfg.csrfToken);
-            pending.forEach(function (file) {
+            files.forEach(function (file) {
                 form.append('file[]', file, file.name);
             });
             for (var i = 0; i < dicomFiles.length; i++) {
@@ -742,10 +740,7 @@
                 form.append('encrypted', 'on');
                 form.append('passphrase', up.passphrase.value);
             }
-            up.submit.disabled = true;
-            setStatus(i18n.uploading, false);
-            restoreSession();
-            root.fetch(cfg.webroot + '/controller.php?document&upload&patient_id=' + encodeURIComponent(cfg.patientId)
+            return root.fetch(cfg.webroot + '/controller.php?document&upload&patient_id=' + encodeURIComponent(cfg.patientId)
                 + '&parent_id=' + encodeURIComponent(category), {method: 'POST', body: form, credentials: 'same-origin'})
                 .then(function (response) {
                     if (!response.ok) {
@@ -757,25 +752,63 @@
                     // The upload page shows a failure as the heading of its upload form.
                     var parsed = new root.DOMParser().parseFromString(html, 'text/html');
                     var heading = parsed.querySelector('#documents_actions h3');
-                    var error = heading ? heading.textContent.trim() : '';
-                    if (error !== '') {
-                        setStatus(error, true);
-                        return null;
-                    }
-                    pending = [];
-                    up.files.value = '';
-                    up.dicom.value = '';
-                    up.destination.value = '';
-                    showPending();
-                    setStatus(i18n.uploaded, false);
-                    return load().then(closeUpload);
+                    return heading ? heading.textContent.trim() : '';
                 })
                 .catch(function () {
-                    setStatus(i18n.uploadFailed, true);
-                })
-                .then(function () {
-                    up.submit.disabled = false;
+                    return i18n.uploadFailed;
                 });
+        }
+
+        function submitUpload() {
+            var category = up.folder.value;
+            var dicomFiles = Array.prototype.slice.call(up.dicom.files || []);
+            if (pending.length === 0 && dicomFiles.length === 0) {
+                setStatus(i18n.chooseFiles, true);
+                return;
+            }
+            if (!category) {
+                setStatus(i18n.chooseFolder, true);
+                return;
+            }
+            var jobs = pending.map(function (file) {
+                return {label: file.name, files: [file], dicom: []};
+            });
+            if (dicomFiles.length > 0) {
+                jobs.push({label: dicomFiles[0].name, files: [], dicom: dicomFiles});
+            }
+            var failed = [];
+            var failedFiles = [];
+            var dicomFailed = false;
+            up.submit.disabled = true;
+            setStatus(i18n.uploading, false);
+            restoreSession();
+            jobs.reduce(function (chain, job) {
+                return chain.then(function () {
+                    return postUpload(category, job.files, job.dicom).then(function (error) {
+                        if (error !== '') {
+                            failed.push(job.label + ': ' + error);
+                            failedFiles = failedFiles.concat(job.files);
+                            dicomFailed = dicomFailed || job.dicom.length > 0;
+                        }
+                    });
+                });
+            }, root.Promise.resolve()).then(function () {
+                pending = failedFiles;
+                up.files.value = '';
+                if (!dicomFailed) {
+                    up.dicom.value = '';
+                    up.destination.value = '';
+                }
+                showPending();
+                if (failed.length > 0) {
+                    setStatus(failed.join(' '), true);
+                    return load();
+                }
+                setStatus(i18n.uploaded, false);
+                return load().then(closeUpload);
+            }).then(function () {
+                up.submit.disabled = false;
+            });
         }
 
         if (up.button && up.popover) {
