@@ -336,3 +336,4 @@ CREATE TABLE `module_lbf_statement_runs` (
   PRIMARY KEY (`id`),
   KEY `pid_instance` (`pid`,`instance_form_id`)
 ) ENGINE=InnoDB;
+#EndIf
