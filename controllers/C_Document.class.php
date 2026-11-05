@@ -1324,7 +1324,7 @@ class C_Document extends Controller
         $this->assign('is_new_referer', $is_new_referer);
         $this->assign('new_title', xlt("New Documents"));
         $this->assign('documents_default_view', OEGlobalsBag::getInstance()->getString('documents_default_view', 'tree'));
-        $this->assign('documents_view_key', 'oeDocumentsView:' . (string) $session->get('site_id') . ':' . (string) $session->get('authUserID'));
+        $this->assign('documents_view_key', 'oeDocumentsView:' . self::listDataString($session->get('site_id')) . ':' . self::listDataString($session->get('authUserID')));
         $this->assign('hide_encryption', OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption'));
 
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "documents/" . $this->template_mod . "_list.html");
