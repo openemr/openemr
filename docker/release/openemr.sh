@@ -562,6 +562,8 @@ check_schema_upgrade() {
         echo "ERROR: could not read \$v_database from ${OE_ROOT}/version.php." >&2
         return 1
     fi
+    local code_release
+    code_release=$(php -r "require '${OE_ROOT}/version.php'; echo implode('.', [\$v_major, \$v_minor, \$v_patch]);")
 
     # Every site is evaluated on its own. Sites in a multisite bank can sit at
     # different revisions, and the release a site is migrating *from* selects
@@ -574,10 +576,40 @@ check_schema_upgrade() {
     for dirdata in "${OE_ROOT}"/sites/*/; do
         sitename="${dirdata%/}"
         sitename="${sitename##*/}"
-        upgrade_site_schema "${sitename}" "${code_schema_version}"
+        upgrade_site_schema "${sitename}" "${code_schema_version}" "${code_release}"
     done
 
     return 0
+}
+
+# Prints the release to pass sql_upgrade.php as --from for a site.
+#
+# sql_upgrade.php applies every file whose starting release sorts at or after
+# --from. A site stamped with the code's own release was migrated earlier in
+# this release cycle, and the changes merged since then were appended to the
+# file that leads into that release. That file starts at the previous release,
+# so it sorts before the stamped one: passing the stamped release would run no
+# file at all and still stamp the new revision. Start from that file instead.
+# Upgrade files are written to be rerun, which is also why the web upgrader
+# tells development installs to pick the older release.
+upgrade_start_release() {
+    local installed_release="$1"
+    local code_release="$2"
+    if [[ "${installed_release}" != "${code_release}" ]]; then
+        printf '%s\n' "${installed_release}"
+        return 0
+    fi
+
+    local file
+    for file in "${OE_ROOT}"/sql/*-to-"${code_release//./_}"_upgrade.sql; do
+        if [[ -f "${file}" ]]; then
+            file="${file##*/}"
+            file="${file%%-to-*}"
+            printf '%s\n' "${file//_/.}"
+            return 0
+        fi
+    done
+    printf '%s\n' "${installed_release}"
 }
 
 # Migrates one site when its schema revision is behind the code's.
@@ -588,6 +620,7 @@ check_schema_upgrade() {
 upgrade_site_schema() {
     local sitename="$1"
     local -i code_schema_version="$2"
+    local code_release="$3"
     local sqlconf="${OE_ROOT}/sites/${sitename}/sqlconf.php"
 
     # A site directory without a sqlconf.php has no database to migrate.
@@ -657,6 +690,8 @@ PHP
     fi
 
     echo "Schema upgrade detected for ${sitename}: database is at revision ${installed_schema_version} (${installed_release}), code needs ${code_schema_version}"
+    local from_release
+    from_release=$(upgrade_start_release "${installed_release}" "${code_release}")
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
 
     # sql_upgrade.php resolves its site from $_GET['site'], so prepend the
@@ -675,8 +710,8 @@ PHP
     fi
 
     # Drop privileges to apache: RootCliGuard (openemr#12267) refuses root for OpenEMR CLI scripts.
-    if ! OPENEMR_UPGRADE_SITE="${sitename}" su-exec apache php -f "${OE_ROOT}/TEMPsql_upgrade.php" -- --from="${installed_release}"; then
-        echo "ERROR: Database upgrade failed for ${sitename} from ${installed_release}" >&2
+    if ! OPENEMR_UPGRADE_SITE="${sitename}" su-exec apache php -f "${OE_ROOT}/TEMPsql_upgrade.php" -- --from="${from_release}"; then
+        echo "ERROR: Database upgrade failed for ${sitename} from ${from_release}" >&2
         echo "The database may be partially upgraded. Review the errors above and either" >&2
         echo "correct the underlying problem or restore your pre-upgrade backup." >&2
         rm -f "${OE_ROOT}/TEMPsql_upgrade.php"
@@ -685,7 +720,7 @@ PHP
 
     rm -f "${OE_ROOT}/TEMPsql_upgrade.php"
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
-    echo "Completed: schema upgrade for ${sitename} from ${installed_release}"
+    echo "Completed: schema upgrade for ${sitename} from ${from_release}"
 }
 
 # Performs the actual OpenEMR upgrade by running upgrade scripts.
