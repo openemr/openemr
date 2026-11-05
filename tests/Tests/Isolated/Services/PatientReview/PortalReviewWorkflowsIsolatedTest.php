@@ -158,6 +158,20 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $this->assertTrue($this->workflows->canPostPayment($charged), 'the gateway holds the transaction');
     }
 
+    public function testAnOlderChargedPaymentStillCountsAsOpen(): void
+    {
+        $this->assertFalse($this->workflows->hasOpenChargedPayment(self::PID));
+
+        $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, true, $this->patient());
+        // A later uncharged payment is the newest open one, but the charged one is still open.
+        $newest = $this->workflows->submitPayment(self::PID, '{"1001":"5.00"}', self::CARD, false, $this->patient());
+
+        $this->assertSame($newest->id, $this->workflows->pendingPayment(self::PID)?->id);
+        $this->assertFalse(PortalReviewWorkflows::isChargedPayment($newest));
+        $this->assertTrue($this->workflows->hasOpenChargedPayment(self::PID));
+        $this->assertFalse($this->workflows->hasOpenChargedPayment(self::PID + 1), 'another patient');
+    }
+
     public function testAPaymentWithNoChargedFlagCountsAsCharged(): void
     {
         $payment = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', '', false, $this->patient());

@@ -181,6 +181,21 @@ final readonly class PortalReviewWorkflows
     }
 
     /**
+     * Whether any open payment of the patient's was already charged by the gateway, not only the
+     * newest one: while one is, the patient is not offered another payment.
+     */
+    public function hasOpenChargedPayment(int $pid): bool
+    {
+        foreach ($this->queue->allOpenFor($pid, ReviewType::Payment) as $payment) {
+            if (self::isChargedPayment($payment)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * The payment with this id, if it is one and (when $pid is given) belongs to that patient.
      */
     public function payment(int $id, ?int $pid = null): ?ReviewRequest

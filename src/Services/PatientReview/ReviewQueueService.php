@@ -222,6 +222,17 @@ final class ReviewQueueService
     }
 
     /**
+     * Every open request of this type for the patient, newest first. Usually one, but some
+     * types (a charged payment) never replace an open request.
+     *
+     * @return list<ReviewRequest>
+     */
+    public function allOpenFor(int $pid, ReviewType $type): array
+    {
+        return $this->store->findOpen($pid, $type);
+    }
+
+    /**
      * The open request for one target row (a portal document), if any.
      */
     public function openForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): ?ReviewRequest

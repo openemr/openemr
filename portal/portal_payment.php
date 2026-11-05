@@ -162,6 +162,22 @@ if ($session->get('authUserID', '')) {
 // only open their own.
 $sessionPid = is_numeric($pid) ? intval($pid) : 0;
 
+// Sphere's patient script carries its decrypted credentials. It is built before the page so
+// credentials that cannot be read are handled as unreadable gateway keys are: logged, with no
+// card payment offered, rather than failing the page.
+$sphereScript = '';
+if ($cardGateway === 'Sphere' && $session->has('patient_portal_onsite_two')) {
+    try {
+        $sphereScript = (new SpherePayment('patient', $sessionPid))->renderSphereJs();
+    } catch (\RuntimeException $e) {
+        $gatewayKeysReadable = false;
+        ServiceContainer::getLogger()->error('Payment gateway keys could not be decrypted', [
+            'gateway' => $cardGateway,
+            'exception' => $e,
+        ]);
+    }
+}
+
 // The portal payment request a staff save closes once it is posted. From the chart (no recid)
 // it is the patient's pending payment, if any, read again under the patient's posting lock: a
 // payment posted or replaced while this save waited is refused before writing to the ledger, and
@@ -1178,7 +1194,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         if (!$session->has('authUserID')) {
             // A charged payment stays locked even when its card details cannot be read: paying
             // again would charge the card a second time.
-            if (!isset($ccdata["cardHolderName"]) && !($cardUnreadable && $paymentCharged)) {
+            // No new payment while one is pending with card details, or while any open payment was
+            // already charged (paying again would charge the card a second time).
+            if (!isset($ccdata["cardHolderName"]) && !$reviewWorkflows->hasOpenChargedPayment($sessionPid)) {
                 if (!$gatewayKeysReadable) {
                     echo '<div class="alert alert-warning">' . xlt('Card payments are not available right now. Please contact the clinic.') . '</div>';
                 } elseif ($globalsBag->get('payment_gateway') === 'Sphere') {
@@ -1399,7 +1417,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
 
     <?php
     if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
-        echo (new SpherePayment('patient', $pid))->renderSphereJs();
+        echo $sphereScript;
     }
     if ($globalsBag->get('payment_gateway') === 'Rainforest' && $session->has('patient_portal_onsite_two')) {
         if ($globalsBag->getBoolean('gateway_mode_production')) {
