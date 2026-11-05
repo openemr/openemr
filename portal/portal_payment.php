@@ -586,6 +586,11 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                     }
                 }
             }
+            if (document.getElementById('radio_type_of_payment4').checked) {
+                // A prepayment is not paid against invoice lines; its amount is the total.
+                total = Number(f.form_prepayment.value);
+                if (total < 0) flag = 1;
+            }
             f.form_paytotal.value = Number(total).toFixed(2);
             if (flag) {
                 $('#invoiceForm')[0].reset();
@@ -699,15 +704,20 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             }
         });
 
-        $('#openPayModal').on('show.bs.modal', function () {
-            let total = $("#form_paytotal").val();
-            if(Number(total) < 1) {
-                let error = <?php echo json_encode("Please enter a payment amount"); ?>;
-                alert(error);
-                return false;
-            }
-            $("#payTotal").text(total);
-            $("#paymentAmount").val(total);
+        // The card dialog opens from here, not from a data-toggle button: the portal page loads
+        // Bootstrap more than once, and each copy would open the dialog even when this check fails.
+        $(function () {
+            $('#paynowbutton').on('click', function () {
+                calctotal();
+                let total = $("#form_paytotal").val();
+                if (Number(total) < 1) {
+                    alert(<?php echo xlj("Please enter a payment amount"); ?>);
+                    return;
+                }
+                $("#payTotal").text(total);
+                $("#paymentAmount").val(total);
+                $('#openPayModal').modal('show');
+            });
         });
 
         // Posting records the payment and closes the portal payment request in one request
@@ -834,7 +844,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 </td>
                 <td class='text' colspan="2">
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment_self1"
-                           value="cash" onClick="make_visible_row();make_it_hide_enc_pay();cursor_pointer();"/>
+                           value="cash" onClick="make_visible_row();make_it_hide_enc_pay();cursor_pointer();calctotal();"/>
                     <?php echo xlt('Encounter Payment'); ?>
                 </td>
             </tr>
@@ -843,11 +853,11 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 <td class='text' valign="top"><?php echo xlt('Payment against'); ?>:</td>
                 <td class='text' colspan="2">
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment1" class="<?php echo $hide ?: ''; ?>"
-                           value="copay" onClick="make_visible_row();cursor_pointer();"/><?php echo !$hide ? xlt('Co Pay') : ''; ?>
+                           value="copay" onClick="make_visible_row();cursor_pointer();calctotal();"/><?php echo !$hide ? xlt('Co Pay') : ''; ?>
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment2" checked="checked"
-                           value="invoice_balance" onClick="make_visible_row();"/><?php echo xlt('Invoice Balance'); ?>
+                           value="invoice_balance" onClick="make_visible_row();calctotal();"/><?php echo xlt('Invoice Balance'); ?>
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment4" value="pre_payment"
-                           onClick="make_hide_row();"/><?php echo xlt('Pre Pay'); ?>
+                           onClick="make_hide_row();calctotal();"/><?php echo xlt('Pre Pay'); ?>
                 </td>
             </tr>
             <tr height="15">
@@ -857,7 +867,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         <table width="20%" border="0" cellspacing="0" cellpadding="0" id="table_display_prepayment" style="margin-bottom: 10px; display: none">
             <tr>
                 <td class='detail'><?php echo xlt('Pre Payment'); ?></td>
-                <td><input class="form-control" type='text' id= 'form_prepayment' name='form_prepayment' style=''/></td>
+                <td><input class="form-control" type='text' id='form_prepayment' name='form_prepayment' oninput="calctotal()" /></td>
             </tr>
         </table>
         <table id="table_display" style="background: #eee;" class="table table-sm table-striped table-bordered w-100">
@@ -1140,7 +1150,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 if ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
                 } else {
-                    echo '<button type="button" id="paynowbutton" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
+                    echo '<button type="button" id="paynowbutton" class="btn btn-primary">' . xlt("Pay Invoice") . '</button>';
                 }
             } else {
                 echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
@@ -1157,6 +1167,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
     <script>
         if (typeof jsondata !== 'undefined') {
             formRepopulate(jsondata);
+        }
+        if (document.getElementById('radio_type_of_payment4').checked) {
+            make_hide_row();
         }
         calctotal();
     </script>
