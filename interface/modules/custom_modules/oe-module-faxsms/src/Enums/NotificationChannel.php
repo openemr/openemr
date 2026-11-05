@@ -32,4 +32,19 @@ enum NotificationChannel: string
     {
         return self::tryFrom(strtoupper((string) $type)) ?? self::SMS;
     }
+
+    /**
+     * The value for `notification_log.type`, an enum('SMS','Email').
+     *
+     * MySQL matches enum values by the column's collation, so 'EMAIL' only
+     * finds 'Email' under a case-insensitive one. Under a binary collation
+     * the insert stores '' and the dedup lookup never matches.
+     */
+    public function logType(): string
+    {
+        return match ($this) {
+            self::SMS => 'SMS',
+            self::EMAIL => 'Email',
+        };
+    }
 }

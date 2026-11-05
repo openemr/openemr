@@ -57,4 +57,10 @@ class NotificationChannelTest extends TestCase
             'whitespace defaults'     => ['  ', NotificationChannel::SMS],
         ];
     }
+
+    public function testLogTypeMatchesNotificationLogEnumCasing(): void
+    {
+        $this->assertSame('SMS', NotificationChannel::SMS->logType());
+        $this->assertSame('Email', NotificationChannel::EMAIL->logType());
+    }
 }
