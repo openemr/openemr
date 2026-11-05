@@ -269,12 +269,17 @@ final class DirectMessageCheckTest extends TestCase
         $server->start();
         $port = null;
         // Match against all output so far, since a line can arrive split across chunks
-        $server->waitUntil(function () use ($server, &$port): bool {
+        $findPort = function () use ($server, &$port): bool {
             if (preg_match('/^port (\d+)\R/m', $server->getOutput(), $m) === 1) {
                 $port = $m[1];
             }
             return $port !== null;
-        });
+        };
+        // start() can read the port line before waitUntil() runs, and waitUntil()
+        // does not replay output already read, so check what has arrived first
+        if (!$findPort()) {
+            $server->waitUntil($findPort);
+        }
         self::assertIsString($port, 'fake phiMail server did not start: ' . $server->getErrorOutput());
         OEGlobalsBag::getInstance()->set('phimail_server_address', 'http://127.0.0.1:' . $port);
         return $server;
