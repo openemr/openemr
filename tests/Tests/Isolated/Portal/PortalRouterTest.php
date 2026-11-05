@@ -169,7 +169,11 @@ final class PortalRouterTest extends TestCase
     {
         $open = array_values(array_map(
             static fn(PortalRoute $route): string => $route->key(),
-            array_filter(PortalRouteTable::routes(), static fn(PortalRoute $route): bool => $route->registration),
+            // The unknown-endpoint reply is open to every caller; it serves no data.
+            array_filter(
+                PortalRouteTable::routes(),
+                static fn(PortalRoute $route): bool => $route->registration && $route->action !== 'ErrorApi404',
+            ),
         ));
         sort($open);
 
@@ -197,19 +201,16 @@ final class PortalRouterTest extends TestCase
         }
     }
 
-    public function testAnyOtherApiPathIsRefusedToEveryone(): void
+    public function testAnyOtherApiPathGetsTheUnknownEndpointReplyForEveryone(): void
     {
         $router = new PortalRouter(PortalRouteTable::routes());
 
         foreach ([PortalPrincipal::staff(), $this->patient(), PortalPrincipal::registering()] as $caller) {
-            try {
-                $router->match('GET', 'api/no-such-endpoint', $caller);
-                $this->fail('an unknown api path is refused');
-            } catch (PortalRouteDeniedException) {
-                $this->addToAssertionCount(1);
+            foreach (['GET', 'PUT', 'POST', 'DELETE'] as $method) {
+                $match = $router->match($method, 'api/no-such-endpoint', $caller);
+                $this->assertSame('ErrorApi404', $match?->route->action, "{$method} for {$caller->kind->name}");
             }
         }
-        $this->assertSame(ProviderController::class, (new PortalRouter([$this->route('GET', 'api/(:any)', RouteAccess::All)]))->match('GET', 'api/x', PortalPrincipal::staff())?->route->controller);
     }
 
     private function patient(): PortalPrincipal

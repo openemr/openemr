@@ -64,11 +64,11 @@ final class PortalRouteTable
             new PortalRoute('GET', 'api/onsiteactivityviews', PortalReviewController::class, 'Query', RouteAccess::Staff),
             new PortalRoute('GET', 'api/onsiteactivityview/(:any)', PortalReviewController::class, 'Read', RouteAccess::Staff, params: $id),
 
-            // Any other api/ path: nobody may use it, so it is refused.
-            new PortalRoute('GET', 'api/(:any)', ProviderController::class, 'ErrorApi404', RouteAccess::None),
-            new PortalRoute('PUT', 'api/(:any)', ProviderController::class, 'ErrorApi404', RouteAccess::None),
-            new PortalRoute('POST', 'api/(:any)', ProviderController::class, 'ErrorApi404', RouteAccess::None),
-            new PortalRoute('DELETE', 'api/(:any)', ProviderController::class, 'ErrorApi404', RouteAccess::None),
+            // Any other api/ path, for every caller: the unknown-endpoint JSON error.
+            new PortalRoute('GET', 'api/(:any)', ProviderController::class, 'ErrorApi404', RouteAccess::All, registration: true),
+            new PortalRoute('PUT', 'api/(:any)', ProviderController::class, 'ErrorApi404', RouteAccess::All, registration: true),
+            new PortalRoute('POST', 'api/(:any)', ProviderController::class, 'ErrorApi404', RouteAccess::All, registration: true),
+            new PortalRoute('DELETE', 'api/(:any)', ProviderController::class, 'ErrorApi404', RouteAccess::All, registration: true),
         ];
     }
 }
