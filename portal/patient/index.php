@@ -22,6 +22,7 @@ use OpenEMR\Common\Csrf\PortalApiCsrfGuard;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Controllers\Portal\Patient\LazyPageRenderer;
 use OpenEMR\Controllers\Portal\Patient\PortalErrorPages;
 use OpenEMR\Controllers\Portal\Patient\PortalJson;
 use OpenEMR\Controllers\Portal\Patient\PortalPatientApp;
@@ -44,8 +45,8 @@ $globalsBag = OEGlobalsBag::getInstance();
 $portalRootUrl = ($globalsBag->getBoolean('portal_onsite_two_basepath')
     ? $globalsBag->getString('qualified_site_addr')
     : $globalsBag->getString('web_root')) . '/portal/patient/';
-$request = CurrentRequest::get();
-$pages = new TwigPageRenderer(ServiceContainer::getTwig(), [
+// Built on the first page render: a JSON API call never needs it.
+$pages = new LazyPageRenderer(static fn(): TwigPageRenderer => new TwigPageRenderer(ServiceContainer::getTwig(), [
     'ROOT_URL' => $portalRootUrl,
     'web_root' => $globalsBag->getString('web_root'),
     'assets_static_relative' => $globalsBag->getString('assets_static_relative'),
@@ -53,10 +54,14 @@ $pages = new TwigPageRenderer(ServiceContainer::getTwig(), [
     'is_portal_session' => PortalValues::isFilled($session->get('patient_portal_onsite_two')),
     'software_version' => (new VersionService())->getSoftwareVersion(),
     'current_year' => date('Y'),
-]);
-$path = PortalRequestPath::of($request, $globalsBag->getString('web_root') . '/portal/patient/');
+]));
+// Set once the request is parsed; the error handler reads it to tell an API call from a page.
+$path = '';
 
 try {
+    $request = CurrentRequest::get();
+    $path = PortalRequestPath::of($request, $globalsBag->getString('web_root') . '/portal/patient/');
+
     // Requests that can change data must carry the session's CSRF token (sent by scripts/model.js).
     PortalApiCsrfGuard::assertValid(
         $request->getRealMethod(),
