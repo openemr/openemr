@@ -267,14 +267,24 @@ describe('model.List', () => {
         expect(docs.collectionHasChanged).toBe(true);
     });
 
-    test('add appends a record once', () => {
+    test('add appends a record once, and not a second copy of an id it holds', () => {
         const docs = new model.OnsiteDocumentCollection();
         const doc = new model.OnsiteDocumentModel({id: '2'});
 
-        docs.add(doc);
+        expect(docs.add(doc)).toBe(true);
+        expect(docs.add(doc)).toBe(false);
+        expect(docs.add(new model.OnsiteDocumentModel({id: '2'}))).toBe(false);
+        expect(docs.length).toBe(1);
+    });
+
+    test('remove takes out a record it holds', () => {
+        const docs = new model.OnsiteDocumentCollection();
+        const doc = new model.OnsiteDocumentModel({id: '2'});
         docs.add(doc);
 
-        expect(docs.length).toBe(1);
+        expect(docs.remove(new model.OnsiteDocumentModel({id: '3'}))).toBe(false);
+        expect(docs.remove(doc)).toBe(true);
+        expect(docs.length).toBe(0);
     });
 });
 

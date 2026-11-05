@@ -252,10 +252,31 @@ var model = (function () {
             return this.models[0];
         }
 
+        /**
+         * Add a record the list does not hold yet.
+         *
+         * @returns {boolean} whether it was added
+         */
         add(record) {
-            if (!this.models.includes(record)) {
-                this.models.push(record);
+            if (this.models.includes(record) || (!record.isNew() && this.get(record.id))) {
+                return false;
             }
+            this.models.push(record);
+            return true;
+        }
+
+        /**
+         * Take a record out of the list.
+         *
+         * @returns {boolean} whether the list held it
+         */
+        remove(record) {
+            const index = this.models.indexOf(record);
+            if (index === -1) {
+                return false;
+            }
+            this.models.splice(index, 1);
+            return true;
         }
 
         forEach(callback) {
