@@ -522,3 +522,12 @@ CREATE INDEX `pc_visit_list` ON `openemr_postcalendar_events` (`pc_aid`, `pc_eve
 INSERT INTO `openemr_postcalendar_categories` (`pc_constant_id`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`, `aco_spec`)
 SELECT 'visit_list', 'Visit List', '#9ec5fe', 'Provider block holding an untimed, ordered list of patients for the day.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 28800, 1, 3, 2, 0, 0, 1, 1, COALESCE(MAX(`pc_seq`), 0) + 1, 'encounters|notes' FROM `openemr_postcalendar_categories`;
 #EndIf
+
+-- Address Book NPI requirement. NPI is US-only (CMS/NPPES). New installs use
+-- the globals.inc.php default of on. Upgrades insert the flag off and leave
+-- it off. Units for Visit Forms is not a country, so this upgrade does not
+-- turn the setting on. A site that wants it enables it explicitly. The insert
+-- stays inside #IfNotRow so a later run does not add the row again.
+#IfNotRow globals gl_name addrbook_require_npi
+INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES ('addrbook_require_npi', 0, '0');
+#EndIf
