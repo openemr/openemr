@@ -380,7 +380,7 @@ final class PortalPatientApiContractTest extends TestCase
         $id = $this->createDocument();
 
         $response = $this->http()->request('DELETE', self::$baseUrl . '/portal/patient/api/onsitedocument/' . $id);
-        $this->assertSame(401, $response->getStatusCode());
+        $this->assertSame(403, $response->getStatusCode(), 'refused, not an authentication failure');
         $this->assertSame(200, $this->get('/portal/patient/api/onsitedocument/' . $id)->getStatusCode(), 'the document is still there');
     }
 
