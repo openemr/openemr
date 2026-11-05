@@ -298,7 +298,10 @@ class FacilityService extends BaseService
         return $record;
     }
 
-    public function updateFacility($data)
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function updateFacility(array $data)
     {
         $facilityId = $data['id'] ?? null;
         if (!is_int($facilityId) && !is_string($facilityId)) {
@@ -314,7 +317,7 @@ class FacilityService extends BaseService
         $sql = " UPDATE facility SET ";
         $sql .= $query['set'];
         $sql .= " WHERE id = ?";
-        array_push($query['bind'], $data['id']);
+        array_push($query['bind'], $facilityId);
         $result = sqlStatement(
             $sql,
             $query['bind']
