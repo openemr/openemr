@@ -173,6 +173,10 @@
     }
 
     var LIST_MIN = 120;
+
+    var PREVIEW_MIN = 420;
+
+    var PREVIEW_GAP = 16;
     var LIST_MAX = 640;
     var LIST_DEFAULT = 280;
     var LIST_STEP = 40;
@@ -383,6 +387,17 @@
             return previewKind(item) === 'dicom' ? dicomUrl(item) : item.retrieve_url;
         }
 
+        // Size the preview frame to the space left in the window, so the page itself does not scroll
+        // below it. The stylesheet height stays as the fallback.
+        function fitPreviewFrame() {
+            var frame = view.previewBody ? view.previewBody.querySelector('.doc-preview-frame') : null;
+            if (!frame) {
+                return;
+            }
+            var top = frame.getBoundingClientRect().top + (root.pageYOffset || 0);
+            frame.style.height = Math.max(PREVIEW_MIN, Math.floor(root.innerHeight - top - PREVIEW_GAP)) + 'px';
+        }
+
         function renderPreview() {
             var item = state.selected;
             view.previewBody.textContent = '';
@@ -408,6 +423,7 @@
                 frame.title = item.name;
                 frame.src = kind === 'dicom' ? dicomUrl(item) : item.retrieve_url;
                 view.previewBody.appendChild(frame);
+                fitPreviewFrame();
             } else {
                 view.previewBody.appendChild(make('p', 'text-muted', i18n.noPreview));
             }
@@ -523,6 +539,7 @@
             if (remember) {
                 storeValue(':listHeight', String(height));
             }
+            fitPreviewFrame();
             return height;
         }
 
@@ -547,9 +564,11 @@
             view.maximize.setAttribute('aria-pressed', on ? 'true' : 'false');
             view.maxBack.hidden = !on;
             applyColumns(on);
+            fitPreviewFrame();
         }
 
         function wireLayout() {
+            root.addEventListener('resize', fitPreviewFrame);
             setFoldersShown(storedValue(':folders') !== 'hidden', false);
             setListHeight(storedValue(':listHeight') === null ? LIST_DEFAULT : storedValue(':listHeight'), false);
             if (view.folderToggle) {

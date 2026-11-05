@@ -360,4 +360,17 @@ describe('page wiring', () => {
             expect(row.querySelector('td.doc-folder').title).not.toBe('');
         });
     });
+
+    test('sizes the preview frame to the space left in the window', async () => {
+        setUp();
+        await flush();
+        window.innerHeight = 900;
+        document.querySelector('#docRows tr').click();
+        const frame = document.querySelector('#docPreviewBody .doc-preview-frame');
+        expect(frame).not.toBeNull();
+        expect(frame.style.height).toBe('884px');
+        window.innerHeight = 300;
+        window.dispatchEvent(new Event('resize'));
+        expect(frame.style.height).toBe('420px');
+    });
 });
