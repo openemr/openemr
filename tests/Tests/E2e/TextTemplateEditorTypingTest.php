@@ -40,6 +40,9 @@ class TextTemplateEditorTypingTest extends PantherTestCase
     private const EDITOR_IFRAME = '//iframe[contains(@src, "custom_template.php")]';
     private const EDITABLE = '.ck-editor__editable';
 
+    /**
+     * Fails when the editor renders but ignores keystrokes, as a locked one does.
+     */
     #[Test]
     #[Depends('testLoginAuthorized')]
     public function testTypedTextReachesTheTemplateEditor(): void
@@ -57,6 +60,9 @@ class TextTemplateEditorTypingTest extends PantherTestCase
                 $this->client->wait(10)->until(
                     fn(): bool => str_contains($this->editorState('getData'), self::TYPED_TEXT)
                 );
+                // @codeCoverageIgnoreStart
+                // The failure branch runs only when the editor refuses typed
+                // text, which a working editor in normal CI never does.
             } catch (TimeoutException) {
                 $this->fail(sprintf(
                     'Text typed into the Text Templates editor never reached it (isReadOnly: %s, data: %s). A read-only editor with no other error is how CKEditor 5 refuses licenseKey "GPL" on an LTS release; check the browser console for license-key-lts-not-allowed.',
@@ -64,6 +70,7 @@ class TextTemplateEditorTypingTest extends PantherTestCase
                     $this->editorState('getData'),
                 ));
             }
+            // @codeCoverageIgnoreEnd
         } finally {
             if (isset($this->client)) {
                 $this->client->quit();
