@@ -62,7 +62,7 @@ $site_id = $session->get('site_id');
     if (!$clientApp->verifyAcl()) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
     }
-    Header::setupHeader(['opener', 'datetime-picker', 'jspdf', 'jstiff']);
+    Header::setupHeader(['opener', 'datetime-picker', 'jspdf']);
     echo "<script>let pid=" . js_escape($pid ?? 0) . ";let portalUrl=" . js_escape($clientApp->portalUrl ?? '') .
         ";let currentService=" . js_escape($service) . ";let serviceType=" . js_escape($serviceType) . ";let csrfToken=" . js_escape(CsrfUtils::collectCsrfToken($session, 'contact-form')) . "</script>";
     echo ServiceType::renderJsConstants();
