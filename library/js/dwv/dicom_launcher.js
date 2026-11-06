@@ -268,10 +268,112 @@ function startApp() {
         oemrApp.addEventListener('wl-center-change', plotInfo.update);
     }
 
+    // A zip of DICOM files (document type application/dicom+zip) is shown one image at a time. dwv stacks
+    // the files of one load into a single volume, which fails for files of different sizes (only the first
+    // image showed, with a load error). The zip is read here and every file is loaded on its own, with
+    // previous/next buttons.
+    const isZipDocumentUrl = function (url) {
+        return /[?&]type=\.zip(&|$)/.test(url);
+    };
+    const loadZipImages = function (url) {
+        const nav = document.getElementById('zipImageNav');
+        const prev = document.getElementById('zipImagePrev');
+        const next = document.getElementById('zipImageNext');
+        const count = document.getElementById('zipImageCount');
+        let entries = [];
+        let current = 0;
+        let started = false;
+        // One image is read and loaded at a time: the buttons stay disabled until the load ended, and a
+        // read that a newer click has replaced is dropped, so the counter always matches the image shown.
+        let busy = false;
+        let request = 0;
+        const updateNav = function () {
+            prev.disabled = busy || current === 0;
+            next.disabled = busy || current === entries.length - 1;
+        };
+        oemrApp.addEventListener('load-end', function () {
+            busy = false;
+            updateNav();
+        });
+        const showImage = function (index) {
+            const mine = ++request;
+            busy = true;
+            current = index;
+            count.textContent = (index + 1) + " / " + entries.length;
+            updateNav();
+            entries[index].async('arraybuffer').then(function (buffer) {
+                if (mine !== request) {
+                    return;
+                }
+                if (started) {
+                    oemrApp.reset();
+                    toggle('loaderlist'); // the load end handler closes it again.
+                }
+                started = true;
+                let name = entries[index].name.split('/').pop();
+                if (!/\.dcm$/i.test(name)) {
+                    name += '.dcm';
+                }
+                oemrApp.loadFiles([new File([buffer], name, {type: 'application/dicom'})]);
+            }).catch(function (error) {
+                console.log("DICOM zip entry could not be read: " + error);
+                if (mine === request) {
+                    busy = false;
+                    updateNav();
+                }
+            });
+        };
+        prev.onclick = function () {
+            if (!busy && current > 0) {
+                showImage(current - 1);
+            }
+        };
+        next.onclick = function () {
+            if (!busy && current < entries.length - 1) {
+                showImage(current + 1);
+            }
+        };
+        window.fetch(url, {credentials: 'same-origin'}).then(function (response) {
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+            return response.arrayBuffer();
+        }).then(function (buffer) {
+            return JSZip.loadAsync(buffer);
+        }).then(function (zip) {
+            // Only the images: skip folders, the __MACOSX/ resource forks, dot files and the DICOMDIR index of an
+            // imaging-CD export, and show them in name order (zips are not always written sorted).
+            entries = Object.values(zip.files).filter(function (file) {
+                const base = file.name.split('/').pop();
+                return !file.dir
+                    && !/(^|\/)__MACOSX\//.test(file.name)
+                    && base.charAt(0) !== '.'
+                    && base.toUpperCase() !== 'DICOMDIR';
+            }).sort(function (a, b) {
+                return a.name.localeCompare(b.name, undefined, {numeric: true});
+            });
+            if (entries.length === 0) {
+                throw new Error('no files in the zip');
+            }
+            if (entries.length > 1) {
+                nav.classList.remove('d-none');
+            }
+            showImage(0);
+        }).catch(function (error) {
+            // fall back to the default loader of the zip
+            console.log("DICOM zip could not be read, using the default loader: " + error);
+            oemrApp.loadURLs([url]);
+        });
+    };
+
     // if controller.php url for doc fetch
     if (dwvOemr.oemrDocumentUrl) {
         toggle('loaderlist'); // shows progress of file load.
-        oemrApp.loadURLs([dwvOemr.oemrDocumentUrl]);
+        if (isZipDocumentUrl(dwvOemr.oemrDocumentUrl) && typeof JSZip !== 'undefined') {
+            loadZipImages(dwvOemr.oemrDocumentUrl);
+        } else {
+            oemrApp.loadURLs([dwvOemr.oemrDocumentUrl]);
+        }
     } else {
         // possible load from location
         dwv.utils.loadFromUri(window.location.href, oemrApp);
