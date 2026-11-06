@@ -21,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -30,6 +31,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
+use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewStatus;
@@ -75,6 +77,30 @@ require_once("$srcdir/encounter_events.inc.php");
 $twig = ServiceContainer::getTwig();
 
 $cryptoGen = ServiceContainer::getCrypto();
+
+// The keys the card gateway's browser script needs. A key that cannot be decrypted (the site's
+// keys were replaced after it was saved) is logged and left empty, so the page still opens for
+// staff review and for a payment already pending; the gateway's script is then not loaded and
+// the patient is not offered a card payment that cannot work.
+$cardGateway = $globalsBag->getString('payment_gateway');
+$gatewayPublicKey = '';
+$gatewayApiKey = '';
+$gatewayKeysReadable = true;
+if ($cardGateway === 'AuthorizeNet' || $cardGateway === 'Stripe') {
+    try {
+        $gatewayPublicKey = $cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'));
+        if ($cardGateway === 'AuthorizeNet') {
+            $gatewayApiKey = $cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'));
+        }
+    } catch (CryptoGenException $e) {
+        $gatewayKeysReadable = false;
+        $gatewayPublicKey = '';
+        ServiceContainer::getLogger()->error('Payment gateway keys could not be decrypted', [
+            'gateway' => $cardGateway,
+            'exception' => $e,
+        ]);
+    }
+}
 
 $recorder = new Recorder();
 
@@ -136,6 +162,22 @@ if ($session->get('authUserID', '')) {
 // only open their own.
 $sessionPid = is_numeric($pid) ? intval($pid) : 0;
 
+// Sphere's patient script carries its decrypted credentials. It is built before the page so
+// credentials that cannot be read are handled as unreadable gateway keys are: logged, with no
+// card payment offered, rather than failing the page.
+$sphereScript = '';
+if ($cardGateway === 'Sphere' && $session->has('patient_portal_onsite_two')) {
+    try {
+        $sphereScript = (new SpherePayment('patient', $sessionPid))->renderSphereJs();
+    } catch (\RuntimeException $e) {
+        $gatewayKeysReadable = false;
+        ServiceContainer::getLogger()->error('Payment gateway keys could not be decrypted', [
+            'gateway' => $cardGateway,
+            'exception' => $e,
+        ]);
+    }
+}
+
 // The portal payment request a staff save closes once it is posted. From the chart (no recid)
 // it is the patient's pending payment, if any, read again under the patient's posting lock: a
 // payment posted or replaced while this save waited is refused before writing to the ledger, and
@@ -156,6 +198,17 @@ if ($isStaffSave && !$recid) {
     }
     $postingRequestId = $pendingUnderLock->id ?? 0;
 }
+if ($isStaffSave && $postingRequestId) {
+    $postingRequest = $reviewWorkflows->payment($postingRequestId, $sessionPid);
+    $postingBlock = $postingRequest === null
+        ? null
+        : PortalReviewWorkflows::postingBlock($postingRequest, $reviewWorkflows->paymentCardDetails($postingRequest));
+    if ($postingBlock !== null) {
+        // Nothing is written; the posting lock is released on shutdown.
+        echo "<!DOCTYPE html><html><body><p>" . text($postingBlock->message()) . "</p></body></html>";
+        exit;
+    }
+}
 
 $payment = $recid
     ? $reviewWorkflows->payment($recid, $isPortal ? $sessionPid : null)
@@ -164,9 +217,18 @@ $payment = $recid
 $pendingSince = $payment?->createdAt->format('Y-m-d H:i:s') ?? '';
 $ccdata = [];
 $invdata = [];
+$cardUnreadable = false;
+$paymentCharged = $payment !== null && PortalReviewWorkflows::isChargedPayment($payment);
+// Why staff cannot post this open payment, if they cannot.
+$postingBlock = null;
 if ($payment !== null) {
     // Readable only while the payment waits to be posted; deleted once it is.
-    $ccdata = $reviewWorkflows->paymentCardDetails($payment);
+    $cardDetails = $reviewWorkflows->paymentCardDetails($payment);
+    $cardUnreadable = $cardDetails === null;
+    if ($payment->status->isOpen()) {
+        $postingBlock = PortalReviewWorkflows::postingBlock($payment, $cardDetails);
+    }
+    $ccdata = $cardDetails ?? [];
     $invoiceValues = $reviewWorkflows->paymentInvoiceValues($payment);
     $invdata = json_decode($invoiceValues, true);
     echo "<script>var jsondata=" . js_escape($invoiceValues) . ";</script>";
@@ -570,7 +632,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'))); ?>;
+        var publicKey = <?php echo json_encode($gatewayPublicKey); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -1136,8 +1198,16 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         <div>
         <?php
         if (!$session->has('authUserID')) {
-            if (!isset($ccdata["cardHolderName"])) {
-                if ($globalsBag->get('payment_gateway') === 'Sphere') {
+            // A charged payment stays locked even when its card details cannot be read: paying
+            // again would charge the card a second time.
+            // No new payment while one is pending with card details, or while any open payment was
+            // already charged (paying again would charge the card a second time).
+            // A pending payment staff cannot post (its card details are missing or incomplete) is
+            // not locked: paying again replaces it.
+            if ((!isset($ccdata["cardHolderName"]) || $postingBlock !== null) && !$reviewWorkflows->hasOpenChargedPayment($sessionPid)) {
+                if (!$gatewayKeysReadable) {
+                    echo '<div class="alert alert-warning">' . xlt('Card payments are not available right now. Please contact the clinic.') . '</div>';
+                } elseif ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
                 } else {
                     echo '<button type="button" id="paynowbutton" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
@@ -1146,7 +1216,14 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
             }
         } else {
-            echo "<button type='submit' class='btn btn-success' form='invoiceForm'>" . xlt('Post Payment') . "</button>";
+            if ($postingBlock !== null) {
+                echo '<div class="alert alert-warning">' . text($postingBlock->message()) . '</div>';
+            } else {
+                if ($cardUnreadable && $paymentCharged) {
+                    echo '<div class="alert alert-warning">' . xlt('The card details of this payment could not be read. The card was charged by the payment gateway: check the transaction there before posting.') . '</div>';
+                }
+                echo "<button type='submit' class='btn btn-success' form='invoiceForm'>" . xlt('Post Payment') . "</button>";
+            }
         }
         ?>
         </div>
@@ -1329,7 +1406,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         }
     </script>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && $session->has('patient_portal_onsite_two')) {
+    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && $gatewayKeysReadable && $session->has('patient_portal_onsite_two')) {
         // Include Authorize.Net dependency to tokenize card.
         // Will return a token to use for payment request keeping
         // credit info off the server.
@@ -1337,18 +1414,18 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
         ?>
         <script>
-            var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
+            var apiLoginID = <?php echo json_encode($gatewayApiKey); ?>;
         </script>
         <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.authorizenet.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php }  // end authorize.net ?>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
+    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $gatewayKeysReadable && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
         <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.stripe.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php } ?>
 
     <?php
     if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
-        echo (new SpherePayment('patient', $pid))->renderSphereJs();
+        echo $sphereScript;
     }
     if ($globalsBag->get('payment_gateway') === 'Rainforest' && $session->has('patient_portal_onsite_two')) {
         if ($globalsBag->getBoolean('gateway_mode_production')) {
