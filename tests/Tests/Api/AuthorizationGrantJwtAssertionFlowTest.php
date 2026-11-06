@@ -546,6 +546,9 @@ class AuthorizationGrantJwtAssertionFlowTest extends TestCase
         return [$privateKey, $publicKey, $callbackQuery['code']];
     }
 
+    /**
+     * An HTTP client that does not send the authorize URL as the Referer.
+     */
     private function buildClient(): Client
     {
         return new Client([
@@ -555,7 +558,8 @@ class AuthorizationGrantJwtAssertionFlowTest extends TestCase
             'allow_redirects' => [
                 'max' => 10,
                 'strict' => true,
-                'referer' => true,
+                // A random client id in the Referer trips the nginx word filter.
+                'referer' => false,
                 'protocols' => ['http', 'https'],
             ],
             'timeout' => 15,
