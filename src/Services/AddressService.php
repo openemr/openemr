@@ -61,8 +61,12 @@ class AddressService extends BaseService
      */
     public function insert(AddressData $data, int $foreignId): int|false
     {
-        /** @var int $freshId */
-        $freshId = $this->getFreshId("id", "addresses");
+        // The id comes from the sequences counter, as the Address object
+        // (insurance company and pharmacy screens, patient addresses) takes
+        // it. MAX(id)+1 here could be above the counter, and that object's
+        // save, an INSERT ... ON DUPLICATE KEY UPDATE, would later overwrite
+        // the row with another owner's address.
+        $freshId = QueryUtils::generateId();
 
         $addressesSql  = " INSERT INTO addresses SET";
         $addressesSql .= "     id=?,";

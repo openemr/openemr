@@ -397,24 +397,18 @@ class ContactRelationService extends BaseService
                 continue;
             }
 
-            // addresses has no AUTO_INCREMENT (legacy schema); allocate id with
-            // duplicate-key retry to close the concurrent-writer race. Proper fix
-            // is the AUTO_INCREMENT schema migration tracked separately.
-            //
-            // The candidate comes from a locking read, not SELECT MAX(id). This runs inside a
-            // transaction, where a plain SELECT is a consistent read served from the snapshot
-            // taken at its start: two writers would pick the same candidate and keep picking it
-            // on every retry, so the retry loop could not converge. ORDER BY id DESC LIMIT 1
-            // FOR UPDATE walks the primary key and locks the top row, serialising allocation.
+            // addresses has no AUTO_INCREMENT (legacy schema; that migration is tracked
+            // separately). The id comes from the sequences counter, as the Address object
+            // (insurance company and pharmacy screens, patient addresses) takes it.
+            // MAX(id)+1 could be above the counter, and that object's save, an INSERT ...
+            // ON DUPLICATE KEY UPDATE, would later overwrite this row with another owner's
+            // address. GenID() is atomic and independent of this transaction's snapshot.
+            // The duplicate-key retry stays for a row an older MAX(id)+1 writer left above
+            // the counter: each attempt takes the next number.
             $newAddressId = null;
             $maxAttempts = 5;
             for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
-                $maxAddressId = QueryUtils::fetchSingleValue(
-                    "SELECT id AS m FROM addresses ORDER BY id DESC LIMIT 1 FOR UPDATE",
-                    'm',
-                    []
-                );
-                $candidate = (is_numeric($maxAddressId) ? (int) $maxAddressId : 0) + 1;
+                $candidate = QueryUtils::generateId();
                 try {
                     QueryUtils::sqlStatementThrowException(
                         "INSERT INTO addresses (id, line1, line2, city, state, zip, country) "
