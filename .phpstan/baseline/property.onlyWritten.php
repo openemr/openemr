@@ -162,11 +162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/ClinicalTypes/ClinicalType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property CacheNoCache\\:\\:\\$ram is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheNoCache.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\AuthUtils\\:\\:\\$otherAuth is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
