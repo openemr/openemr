@@ -1,11 +1,9 @@
 <?php
 
 /**
- * Isolated tests for how eRxXMLBuilder turns rows into elements and posts the request.
+ * Isolated tests for how ErxXmlBuilder turns rows into elements and posts the request.
  *
- * interface/eRxXMLBuilder.php, eRxGlobals.php and eRxStore.php declare nothing
- * but their classes, so they can be required on their own. The store is
- * mocked, so no test touches the database.
+ * The settings and the store are stubbed, so no test touches the database.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -16,32 +14,28 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Isolated\ERx;
+namespace OpenEMR\Tests\Isolated\Rx\Ensora;
 
 use DOMElement;
-use eRxGlobals;
-use eRxStore;
-use eRxXMLBuilder;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Rx\Ensora\ErxGlobalsInterface;
+use OpenEMR\Rx\Ensora\ErxLaunchBlock;
+use OpenEMR\Rx\Ensora\ErxLaunchBlockedException;
+use OpenEMR\Rx\Ensora\ErxStoreInterface;
+use OpenEMR\Rx\Ensora\ErxXmlBuilder;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use UnexpectedValueException;
 
-class ERxXMLBuilderTest extends TestCase
+class ErxXmlBuilderTest extends TestCase
 {
     private const ERX_URL = 'https://erx.example.test/RxEntry.aspx';
-
-    public static function setUpBeforeClass(): void
-    {
-        require_once __DIR__ . '/../../../../interface/eRxGlobals.php';
-        require_once __DIR__ . '/../../../../interface/eRxStore.php';
-        require_once __DIR__ . '/../../../../interface/eRxXMLBuilder.php';
-    }
 
     protected function setUp(): void
     {
@@ -54,14 +48,30 @@ class ERxXMLBuilderTest extends TestCase
         OEGlobalsBag::getInstance()->remove('disable_translation');
     }
 
-    public function testCreateElementTextCleansTheValue(): void
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function elementTextProvider(): array
     {
-        $value = 'take "as needed"' . chr(13) . chr(10) . chr(9) . 'with food';
+        return [
+            'plain' => ['Lisinopril 10 mg', 'Lisinopril 10 mg'],
+            'carriage return' => ['one' . chr(13) . chr(10) . 'two', 'one' . chr(10) . 'two'],
+            'tab' => ['tw' . chr(9) . 'o', 'two'],
+            'double quotes kept' => ['take "as needed"', 'take "as needed"'],
+            'markup characters kept' => ['HTN & HLD <2>', 'HTN & HLD <2>'],
+            'empty' => ['', ''],
+        ];
+    }
 
+    #[DataProvider('elementTextProvider')]
+    public function testCreateElementTextDropsCarriageReturnsAndTabs(string $value, string $expected): void
+    {
         $element = $this->builder()->createElementText('sig', $value);
 
         $this->assertSame('sig', $element->tagName);
-        $this->assertSame("take 'as needed'" . chr(10) . 'with food', $element->textContent);
+        $this->assertSame($expected, $element->textContent);
     }
 
     public function testCheckErrorPostsTheXmlFormEncoded(): void
@@ -69,7 +79,7 @@ class ERxXMLBuilderTest extends TestCase
         $history = [];
         $stack = HandlerStack::create(new MockHandler([new Response(200, [], 'eRx page')]));
         $stack->push(Middleware::history($history));
-        $builder = new eRxXMLBuilder($this->globals(['erx_newcrop_path' => self::ERX_URL]), null, new Client(['handler' => $stack]));
+        $builder = new ErxXmlBuilder($this->globals(self::ERX_URL), null, new Client(['handler' => $stack]));
         $xml = '<?xml version="1.0"?><a b="1&amp;2">x &lt; y + 50%20 = z</a>';
 
         $this->assertSame('eRx page', $builder->checkError($xml));
@@ -91,14 +101,14 @@ class ERxXMLBuilderTest extends TestCase
     public function testCheckErrorReturnsThePageOfAnErrorStatus(): void
     {
         $client = new Client(['handler' => HandlerStack::create(new MockHandler([new Response(500, [], 'error page')]))]);
-        $builder = new eRxXMLBuilder($this->globals(['erx_newcrop_path' => self::ERX_URL]), null, $client);
+        $builder = new ErxXmlBuilder($this->globals(self::ERX_URL), null, $client);
 
         $this->assertSame('error page', $builder->checkError('<NCScript/>'));
     }
 
     public function testCheckErrorRequiresThePath(): void
     {
-        $builder = new eRxXMLBuilder($this->globals([]), null, new Client());
+        $builder = new ErxXmlBuilder($this->globals(''), null, new Client());
 
         $this->expectException(UnexpectedValueException::class);
 
@@ -107,7 +117,7 @@ class ERxXMLBuilderTest extends TestCase
 
     public function testDestinationFollowsTheRoleUnlessAPageIsRequested(): void
     {
-        $store = $this->createMock(eRxStore::class);
+        $store = $this->createMock(ErxStoreInterface::class);
         $store->method('getUserById')->willReturn(['newcrop_user_role' => 'erxmanager']);
         $builder = $this->builder($store);
 
@@ -115,9 +125,35 @@ class ERxXMLBuilderTest extends TestCase
         $this->assertSame('medentry', $builder->getDestination(7, 'medentry')->textContent);
     }
 
+    public function testAUserWithoutARoleBlocksTheLaunch(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->method('getUserById')->willReturn(['newcrop_user_role' => null]);
+
+        try {
+            $this->builder($store)->getUserRole(7);
+            $this->fail('Expected the launch to be blocked');
+        } catch (ErxLaunchBlockedException $e) {
+            $this->assertSame(ErxLaunchBlock::UnauthorizedRole, $e->reason);
+        }
+    }
+
+    public function testAPrimaryFacilityWithoutATaxIdBlocksTheLaunch(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->method('getFacilityPrimary')->willReturn([]);
+
+        try {
+            $this->builder($store)->getAccount();
+            $this->fail('Expected the launch to be blocked');
+        } catch (ErxLaunchBlockedException $e) {
+            $this->assertSame(ErxLaunchBlock::MissingTaxId, $e->reason);
+        }
+    }
+
     public function testManagersSendStaffWithoutALocation(): void
     {
-        $store = $this->createMock(eRxStore::class);
+        $store = $this->createMock(ErxStoreInterface::class);
         $store->method('getUserById')->willReturn([
             'newcrop_user_role' => 'erxmanager',
             'username' => 'frontdesk',
@@ -137,7 +173,7 @@ class ERxXMLBuilderTest extends TestCase
 
     public function testAllergiesRecordTheIdsTheySend(): void
     {
-        $store = $this->createMock(eRxStore::class);
+        $store = $this->createMock(ErxStoreInterface::class);
         $store->method('getPatientAllergiesByPatientId')->with(42)->willReturn([
             ['id' => '5', 'title1' => 'Penicillin', 'title2' => 'Severe', 'comments' => ''],
             ['id' => 9, 'title1' => 'Latex', 'title2' => 'Unassigned', 'comments' => null],
@@ -153,8 +189,8 @@ class ERxXMLBuilderTest extends TestCase
 
     public function testPrescriptionsAreSentAsOutsidePrescriptions(): void
     {
-        $store = $this->createMock(eRxStore::class);
-        $store->method('getPrescriptionById')->with(12)->willReturn([
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->method('getPrescriptionById')->with(12, 42)->willReturn([
             'prescid' => '12',
             'date_added' => '20260102',
             'docname' => 'Dr Who',
@@ -170,7 +206,7 @@ class ERxXMLBuilderTest extends TestCase
         ]);
         $builder = $this->builder($store);
 
-        $elements = $builder->getPatientPrescriptions([12]);
+        $elements = $builder->getPatientPrescriptions(42, [12]);
 
         $this->assertSame([12], $builder->getSentPrescriptionIds());
         $this->assertSame([
@@ -185,9 +221,19 @@ class ERxXMLBuilderTest extends TestCase
         ], $this->children($elements[0]));
     }
 
+    public function testPrescriptionsThatAreNotThePatientsAreSkipped(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->method('getPrescriptionById')->with(12, 42)->willReturn([]);
+        $builder = $this->builder($store);
+
+        $this->assertSame([], $builder->getPatientPrescriptions(42, [12]));
+        $this->assertSame([], $builder->getSentPrescriptionIds());
+    }
+
     public function testMedicationsRecordTheIdsTheySend(): void
     {
-        $store = $this->createMock(eRxStore::class);
+        $store = $this->createMock(ErxStoreInterface::class);
         $store->method('selectMedicationsNotUploadedByPatientId')->with(42, 1, 60)->willReturn([
             ['id' => '3', 'begdate' => '2026-01-02', 'title' => 'Metformin'],
         ]);
@@ -201,7 +247,7 @@ class ERxXMLBuilderTest extends TestCase
 
     public function testNoPatientSendsNoPatientElements(): void
     {
-        $store = $this->createMock(eRxStore::class);
+        $store = $this->createMock(ErxStoreInterface::class);
         $store->expects($this->never())->method('getPatientByPatientId');
 
         $this->assertSame([], $this->builder($store)->getPatientElements(0, 60, [12]));
@@ -209,7 +255,7 @@ class ERxXMLBuilderTest extends TestCase
 
     public function testDiagnosesComeFromTheProblemRows(): void
     {
-        $store = $this->createMock(eRxStore::class);
+        $store = $this->createMock(ErxStoreInterface::class);
         $store->method('getPatientDiagnosisByPatientId')->with(42)->willReturn([
             ['diagnosis' => 'ICD10:I10', 'begdate' => '2026-01-02 00:00:00', 'enddate' => null, 'title' => 'Hypertension', 'date' => '2026-01-03 09:00:00'],
         ]);
@@ -220,17 +266,17 @@ class ERxXMLBuilderTest extends TestCase
         $this->assertSame('I10', $this->children($elements[0])['diagnosisID'] ?? null);
     }
 
-    private function builder(?eRxStore $store = null): eRxXMLBuilder
+    private function builder(?ErxStoreInterface $store = null): ErxXmlBuilder
     {
-        return new eRxXMLBuilder(null, $store, new Client());
+        return new ErxXmlBuilder(null, $store, new Client());
     }
 
-    /**
-     * @param array<string, mixed> $configuration
-     */
-    private function globals(array $configuration): eRxGlobals
+    private function globals(string $path): ErxGlobalsInterface
     {
-        return new eRxGlobals($configuration);
+        $globals = $this->createStub(ErxGlobalsInterface::class);
+        $globals->method('getPath')->willReturn($path);
+
+        return $globals;
     }
 
     /**

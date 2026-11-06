@@ -13,8 +13,9 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Rx\Ensora\ErxGlobalsInterface;
 
-class eRxGlobals
+class eRxGlobals implements ErxGlobalsInterface
 {
     private $configuration;
 
@@ -140,21 +141,21 @@ class eRxGlobals
     }
 
     /**
-     * Return the Ensora eRx account Id for credentials
-     * @return string Account Id for credentials
+     * Return the Ensora eRx account Id for credentials, or empty when unset
      */
-    public function getAccountId()
+    public function getAccountId(): string
     {
-        return $this->getGlobalValue('erx_account_id');
+        $value = $this->getGlobalValue('erx_account_id');
+
+        return is_string($value) ? $value : '';
     }
 
     /**
      * Return enable state for Ensora eRx only upload prescriptions
-     * @return bool Ensora eRx only upload prescriptions enabled state
      */
-    public function getUploadActive()
+    public function getUploadActive(): bool
     {
-        return $this->getGlobalValue('erx_upload_active');
+        return in_array($this->getGlobalValue('erx_upload_active'), [true, 1, '1'], true);
     }
 
     /**
@@ -185,12 +186,13 @@ class eRxGlobals
     }
 
     /**
-     * Return Ensora eRx default patient country code
-     * @return string Ensora eRx default patient country code
+     * Return Ensora eRx default patient country code, or empty when unset
      */
-    public function getDefaultPatientCountry()
+    public function getDefaultPatientCountry(): string
     {
-        return $this->getGlobalValue('erx_default_patient_country');
+        $value = $this->getGlobalValue('erx_default_patient_country');
+
+        return is_string($value) ? $value : '';
     }
 
     /**

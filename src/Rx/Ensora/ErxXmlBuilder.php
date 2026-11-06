@@ -1,7 +1,7 @@
 <?php
 
 /**
- * interface/eRxXMLBuilder.php Functions for building Ensora eRx XML.
+ * Builds the NCScript XML that interface/eRx.php posts to launch Ensora eRx.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -15,18 +15,23 @@
 
 declare(strict_types=1);
 
+namespace OpenEMR\Rx\Ensora;
+
+use DOMDocument;
+use DOMElement;
+use DOMNode;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
+use LogicException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Rx\Ensora\PatientContact;
-use OpenEMR\Rx\Ensora\PatientDiagnosisList;
-use OpenEMR\Rx\Ensora\RxInput;
 use OpenEMR\Services\VersionService;
+use RuntimeException;
+use UnexpectedValueException;
 
-class eRxXMLBuilder
+class ErxXmlBuilder
 {
     private readonly ClientInterface $httpClient;
 
@@ -48,8 +53,8 @@ class eRxXMLBuilder
     private array $warningMessages = [];
 
     public function __construct(
-        private ?eRxGlobals $globals = null,
-        private ?eRxStore $store = null,
+        private ?ErxGlobalsInterface $globals = null,
+        private ?ErxStoreInterface $store = null,
         ?ClientInterface $httpClient = null,
     ) {
         $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
@@ -58,7 +63,7 @@ class eRxXMLBuilder
     /**
      * Set Globals for retrieving eRx global configurations
      */
-    public function setGlobals(eRxGlobals $globals): static
+    public function setGlobals(ErxGlobalsInterface $globals): static
     {
         $this->globals = $globals;
 
@@ -68,10 +73,10 @@ class eRxXMLBuilder
     /**
      * Get Globals for retrieving eRx global configurations
      */
-    public function getGlobals(): eRxGlobals
+    public function getGlobals(): ErxGlobalsInterface
     {
-        if (!$this->globals instanceof eRxGlobals) {
-            throw new LogicException('eRxXMLBuilder has no eRxGlobals');
+        if (!$this->globals instanceof ErxGlobalsInterface) {
+            throw new LogicException('ErxXmlBuilder has no eRx settings');
         }
 
         return $this->globals;
@@ -80,7 +85,7 @@ class eRxXMLBuilder
     /**
      * Set Store to handle eRx cached data
      */
-    public function setStore(eRxStore $store): static
+    public function setStore(ErxStoreInterface $store): static
     {
         $this->store = $store;
 
@@ -90,10 +95,10 @@ class eRxXMLBuilder
     /**
      * Get Store for handling eRx cached data
      */
-    public function getStore(): eRxStore
+    public function getStore(): ErxStoreInterface
     {
-        if (!$this->store instanceof eRxStore) {
-            throw new LogicException('eRxXMLBuilder has no eRxStore');
+        if (!$this->store instanceof ErxStoreInterface) {
+            throw new LogicException('ErxXmlBuilder has no eRx store');
         }
 
         return $this->store;
@@ -111,7 +116,7 @@ class eRxXMLBuilder
 
     /**
      * Post the request server-side and return the page, which
-     * eRxPage::checkError() searches for validation errors.
+     * ErxPage::checkError() searches for validation errors.
      *
      * @throws GuzzleException when the eRx service cannot be reached
      */
@@ -126,7 +131,7 @@ class eRxXMLBuilder
             RequestOptions::COOKIES => new CookieJar(),
             RequestOptions::FORM_PARAMS => ['RxInput' => $xml],
             RequestOptions::HEADERS => ['User-Agent' => 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'],
-            // eRxPage::checkError() reads the page whatever its status.
+            // ErxPage::checkError() reads the page whatever its status.
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
         ]);
@@ -221,7 +226,7 @@ class eRxXMLBuilder
     public function createElementText(string $name, string $value): DOMElement
     {
         $element = $this->getDocument()->createElement($name);
-        $element->appendChild($this->getDocument()->createTextNode(RxInput::text($value)));
+        $element->appendChild($this->getDocument()->createTextNode(self::text($value)));
 
         return $element;
     }
@@ -291,14 +296,13 @@ class eRxXMLBuilder
         return $element;
     }
 
+    /** @throws ErxLaunchBlockedException when the user has no eRx role */
     public function getUserRole(int $authUserId): DOMElement
     {
         $eRxUserRole = $this->userRole($authUserId);
 
-        $this->fieldEmpty($eRxUserRole, xl('Ensora eRx User Role'));
         if ($eRxUserRole === '') {
-            echo xlt('Unauthorized access to ePrescription');
-            die;
+            throw new ErxLaunchBlockedException(ErxLaunchBlock::UnauthorizedRole);
         }
 
         $eRxUserRole = str_replace('erx', '', $eRxUserRole);
@@ -362,17 +366,17 @@ class eRxXMLBuilder
         return $element;
     }
 
+    /** @throws ErxLaunchBlockedException when the primary business entity has no tax id */
     public function getAccount(): DOMElement
     {
-        $facility = self::row($this->getStore()->getFacilityPrimary());
+        $facility = $this->getStore()->getFacilityPrimary();
 
         if (self::field($facility, 'federal_ein') === '') {
-            echo xlt('Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.');
-            die;
+            throw new ErxLaunchBlockedException(ErxLaunchBlock::MissingTaxId);
         }
 
         $element = $this->getDocument()->createElement('Account');
-        $element->setAttribute('ID', RxInput::text(self::scalar($this->getGlobals()->getAccountId())));
+        $element->setAttribute('ID', self::text($this->getGlobals()->getAccountId()));
         $element->appendChild($this->createElementTextFieldEmpty('accountName', $this->trimData($this->stripSpecialCharacter(self::field($facility, 'name')), 35), xl('Facility Name')));
         $element->appendChild($this->createElementText('siteID', self::field($facility, 'federal_ein')));
         $element->appendChild($this->getAccountAddress($facility));
@@ -427,12 +431,12 @@ class eRxXMLBuilder
 
     public function getLocation(int $authUserId): DOMElement
     {
-        $userFacility = self::row($this->getStore()->getUserFacility($authUserId));
+        $userFacility = $this->getStore()->getUserFacility($authUserId);
         $phone = self::regexRemove('/[^0-9]/', self::field($userFacility, 'phone'));
         $fax = self::regexRemove('/[^0-9]/', self::field($userFacility, 'fax'));
 
         $element = $this->getDocument()->createElement('Location');
-        $element->setAttribute('ID', RxInput::text(self::field($userFacility, 'id')));
+        $element->setAttribute('ID', self::text(self::field($userFacility, 'id')));
         $element->appendChild($this->createElementText('locationName', $this->trimData($this->stripSpecialCharacter(self::field($userFacility, 'name')), 35)));
         $element->appendChild($this->getLocationAddress($userFacility));
         if (self::field($userFacility, 'phone') !== '') {
@@ -470,10 +474,10 @@ class eRxXMLBuilder
 
     public function getStaff(int $authUserId): DOMElement
     {
-        $userDetails = self::row($this->getStore()->getUserById($authUserId));
+        $userDetails = $this->getStore()->getUserById($authUserId);
 
         $element = $this->getDocument()->createElement('Staff');
-        $element->setAttribute('ID', RxInput::text(self::field($userDetails, 'username')));
+        $element->setAttribute('ID', self::text(self::field($userDetails, 'username')));
         $element->appendChild($this->getStaffName($userDetails));
         $element->appendChild($this->createElementText('license', self::field($userDetails, 'state_license_number')));
 
@@ -559,7 +563,7 @@ class eRxXMLBuilder
 
         $countryCode = self::field($patient, 'country_code');
         if (trim($countryCode) === '') {
-            $eRxDefaultPatientCountry = self::scalar($this->getGlobals()->getDefaultPatientCountry());
+            $eRxDefaultPatientCountry = $this->getGlobals()->getDefaultPatientCountry();
 
             if ($eRxDefaultPatientCountry === '') {
                 $this->demographicsCheck('', xl('Global Default Patient Country'));
@@ -612,7 +616,7 @@ class eRxXMLBuilder
     /**
      * @param array<mixed> $patient `patient_data` row
      */
-    public function getPatientCharacteristics(array $patient): DOMElement
+    public function getPatientCharacteristics(int $patientId, array $patient): DOMElement
     {
         $dateOfBirth = self::field($patient, 'date_of_birth');
         $sex = self::field($patient, 'sex');
@@ -633,7 +637,7 @@ class eRxXMLBuilder
             $element->appendChild($this->createElementText('gender', substr($sex, 0, 1)));
         }
 
-        $vitals = $this->getStore()->getPatientVitalsByPatientId(self::field($patient, 'pid'));
+        $vitals = $this->getStore()->getPatientVitalsByPatientId($patientId);
         $age = getPatientAgeYMD($dateOfBirth);
         $years = $age['age'] ?? null;
         $underNineteen = (!is_int($years) && !is_float($years)) || $years < 19;
@@ -741,14 +745,14 @@ class eRxXMLBuilder
 
     public function getPatient(int $patientId): DOMElement
     {
-        $patientData = self::row($this->getStore()->getPatientByPatientId($patientId));
+        $patientData = $this->getStore()->getPatientByPatientId($patientId);
 
         $element = $this->getDocument()->createElement('Patient');
-        $element->setAttribute('ID', RxInput::text(self::field($patientData, 'pid')));
+        $element->setAttribute('ID', self::text(self::field($patientData, 'pid')));
         $element->appendChild($this->getPatientName($patientData));
         $element->appendChild($this->getPatientAddress($patientData));
         $element->appendChild($this->getPatientContact($patientData));
-        $element->appendChild($this->getPatientCharacteristics($patientData));
+        $element->appendChild($this->getPatientCharacteristics($patientId, $patientData));
         $this->appendChildren($element, $this->getPatientDiagnosis($patientId));
         $this->appendChildren($element, $this->getPatientFreeformHealthplans($patientId));
         $this->appendChildren($element, $this->getPatientFreeformAllergy($patientId));
@@ -784,15 +788,21 @@ class eRxXMLBuilder
     }
 
     /**
+     * Ids that are not one of the patient's prescriptions are skipped.
+     *
      * @param list<int> $prescriptionIds
      * @return list<DOMElement>
      */
-    public function getPatientPrescriptions(array $prescriptionIds): array
+    public function getPatientPrescriptions(int $patientId, array $prescriptionIds): array
     {
         $elements = [];
 
         foreach ($prescriptionIds as $prescriptionId) {
-            $prescription = self::row($this->getStore()->getPrescriptionById($prescriptionId));
+            $prescription = $this->getStore()->getPrescriptionById($prescriptionId, $patientId);
+            if ($prescription === []) {
+                continue;
+            }
+
             $quantity = self::field($prescription, 'quantity');
             $sig = substr($quantity, 1, 1) . self::field($prescription, 'size') . ' ' . self::field($prescription, 'title4') . ' '
                 . self::field($prescription, 'dosage') . ' In ' . self::field($prescription, 'title1') . ' '
@@ -856,10 +866,10 @@ class eRxXMLBuilder
             return [];
         }
 
-        $uploadActive = self::scalar($this->getGlobals()->getUploadActive()) === '1' ? 1 : 0;
+        $uploadActive = $this->getGlobals()->getUploadActive() ? 1 : 0;
 
         $elements = [$this->getPatient($patientId)];
-        $elements = array_merge($elements, $this->getPatientPrescriptions($requestedPrescriptionIds));
+        $elements = array_merge($elements, $this->getPatientPrescriptions($patientId, $requestedPrescriptionIds));
 
         $notUploadedCount = count($this->getStore()->selectPrescriptionIdsNotUploadedByPatientId($patientId, $uploadActive, $totalCount));
         if ($notUploadedCount < $totalCount) {
@@ -871,17 +881,17 @@ class eRxXMLBuilder
 
     private function userRole(int $authUserId): string
     {
-        return self::field(self::row($this->getStore()->getUserById($authUserId)), 'newcrop_user_role');
+        return self::field($this->getStore()->getUserById($authUserId), 'newcrop_user_role');
     }
 
     private function getPrescriber(string $tagName, int $authUserId, string $prescriberType, string $deaText, string $npiText, bool $prefix = false): DOMElement
     {
-        $userDetails = self::row($this->getStore()->getUserById($authUserId));
+        $userDetails = $this->getStore()->getUserById($authUserId);
         $npi = self::field($userDetails, 'npi');
         $upin = self::field($userDetails, 'upin');
 
         $element = $this->getDocument()->createElement($tagName);
-        $element->setAttribute('ID', RxInput::text($npi));
+        $element->setAttribute('ID', self::text($npi));
         $element->appendChild($this->getLicensedPrescriberName($userDetails, $prescriberType, $prefix));
         $element->appendChild($this->createElementTextFieldEmpty('dea', self::field($userDetails, 'federaldrugid'), $deaText));
         if ($upin !== '') {
@@ -892,16 +902,6 @@ class eRxXMLBuilder
         $element->appendChild($this->createElementTextFieldEmpty('npi', $npi, $npiText));
 
         return $element;
-    }
-
-    /**
-     * A single-row query result, or no columns when the query found nothing.
-     *
-     * @return array<mixed>
-     */
-    private static function row(mixed $row): array
-    {
-        return is_array($row) ? $row : [];
     }
 
     /**
@@ -944,6 +944,14 @@ class eRxXMLBuilder
         }
 
         throw new UnexpectedValueException('Ensora eRx values must be strings or numbers');
+    }
+
+    /**
+     * Drop carriage returns and tabs from a value before DOM writes it.
+     */
+    private static function text(string $value): string
+    {
+        return str_replace([chr(13), chr(9)], '', $value);
     }
 
     private static function regexRemove(string $pattern, string $subject): string

@@ -1,10 +1,7 @@
 <?php
 
 /**
- * Isolated tests for the XML and errors eRxPage hands to interface/eRx.php.
- *
- * interface/eRxPage.php and the files it depends on declare nothing but their
- * classes, so they can be required on their own.
+ * Isolated tests for the XML and errors ErxPage hands to interface/eRx.php.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -15,37 +12,29 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Isolated\ERx;
+namespace OpenEMR\Tests\Isolated\Rx\Ensora;
 
 use DOMDocument;
-use eRxGlobals;
-use eRxPage;
-use eRxXMLBuilder;
 use GuzzleHttp\Client;
+use OpenEMR\Rx\Ensora\ErxGlobalsInterface;
+use OpenEMR\Rx\Ensora\ErxPage;
+use OpenEMR\Rx\Ensora\ErxXmlBuilder;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class ERxPageTest extends TestCase
+class ErxPageTest extends TestCase
 {
-    public static function setUpBeforeClass(): void
-    {
-        require_once __DIR__ . '/../../../../interface/eRxGlobals.php';
-        require_once __DIR__ . '/../../../../interface/eRxStore.php';
-        require_once __DIR__ . '/../../../../interface/eRxXMLBuilder.php';
-        require_once __DIR__ . '/../../../../interface/eRxPage.php';
-    }
-
     public function testGetXmlReturnsTheDocumentUnedited(): void
     {
-        $builder = new eRxXMLBuilder(null, null, new Client());
+        $builder = new ErxXmlBuilder(null, null, new Client());
         $builder->getNCScript()->appendChild($builder->createElementText('sig', 'take "as needed"'));
 
-        $xml = (new eRxPage($builder))->getXML();
+        $xml = (new ErxPage($builder))->getXML();
 
         $this->assertSame($builder->getDocument()->saveXML(), $xml);
         $parsed = new DOMDocument();
         $this->assertTrue($parsed->loadXML($xml));
-        $this->assertSame("take 'as needed'", $parsed->getElementsByTagName('sig')->item(0)?->textContent);
+        $this->assertSame('take "as needed"', $parsed->getElementsByTagName('sig')->item(0)?->textContent);
     }
 
     /**
@@ -69,27 +58,33 @@ class ERxPageTest extends TestCase
     #[DataProvider('prescriptionIdsProvider')]
     public function testSetPrescriptionIdsSplitsOnColons(string $ids, array $expected): void
     {
-        $this->assertSame($expected, (new eRxPage())->setPrescriptionIds($ids)->getPrescriptionIds());
+        $this->assertSame($expected, (new ErxPage())->setPrescriptionIds($ids)->getPrescriptionIds());
     }
 
     public function testCheckErrorListsTheValidationErrors(): void
     {
         $page = '<html><textarea rows="4">Error: no NPI Error: no DEA Original XML: <NCScript/></textarea>';
 
-        $this->assertSame([': no NPI ', ': no DEA '], (new eRxPage($this->builderReturning($page)))->checkError('<NCScript/>'));
+        $this->assertSame([': no NPI ', ': no DEA '], (new ErxPage($this->builderReturning($page)))->checkError('<NCScript/>'));
     }
 
     public function testCheckErrorIsEmptyWhenThePageHasNoErrors(): void
     {
-        $this->assertSame([], (new eRxPage($this->builderReturning('<html>ok</html>')))->checkError('<NCScript/>'));
+        $this->assertSame([], (new ErxPage($this->builderReturning('<html>ok</html>')))->checkError('<NCScript/>'));
     }
 
-    private function builderReturning(string $page): eRxXMLBuilder
+    public function testAnErrorLogThatCannotBeWrittenStillReturnsTheErrors(): void
     {
-        $configuration = ['erx_debug_setting' => '0'];
-        $builder = $this->createMock(eRxXMLBuilder::class);
+        $page = '<form action="RxEntry.aspx"><textarea>Error: no NPI Original XML:';
+
+        $this->assertSame([': no NPI '], (new ErxPage($this->builderReturning($page)))->checkError('<NCScript/>'));
+    }
+
+    private function builderReturning(string $page): ErxXmlBuilder
+    {
+        $builder = $this->createMock(ErxXmlBuilder::class);
         $builder->method('checkError')->willReturn($page);
-        $builder->method('getGlobals')->willReturn(new eRxGlobals($configuration));
+        $builder->method('getGlobals')->willReturn($this->createStub(ErxGlobalsInterface::class));
 
         return $builder;
     }

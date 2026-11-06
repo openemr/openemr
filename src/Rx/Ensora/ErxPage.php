@@ -1,7 +1,7 @@
 <?php
 
 /**
- * interface/eRxPage.php Functions for redirecting to Ensora eRx pages.
+ * Builds, checks and records the request interface/eRx.php posts to launch Ensora eRx.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -14,12 +14,18 @@
 
 declare(strict_types=1);
 
+namespace OpenEMR\Rx\Ensora;
+
+use LogicException;
+use OpenEMR\BC\ServiceContainer;
+use RuntimeException;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
-class eRxPage
+class ErxPage
 {
-    const DEBUG_XML    = 1;
-    const DEBUG_RESULT = 2;
+    public const int DEBUG_XML = 1;
+    public const int DEBUG_RESULT = 2;
 
     private int $authUserId = 0;
     private string $destination = '';
@@ -28,14 +34,14 @@ class eRxPage
     private array $prescriptionIds = [];
     private int $prescriptionCount = 0;
 
-    public function __construct(private ?eRxXMLBuilder $xmlBuilder = null)
+    public function __construct(private ?ErxXmlBuilder $xmlBuilder = null)
     {
     }
 
     /**
      * Set XMLBuilder to handle eRx XML
      */
-    public function setXMLBuilder(eRxXMLBuilder $xmlBuilder): static
+    public function setXMLBuilder(ErxXmlBuilder $xmlBuilder): static
     {
         $this->xmlBuilder = $xmlBuilder;
 
@@ -45,10 +51,10 @@ class eRxPage
     /**
      * Get XMLBuilder for handling eRx XML
      */
-    public function getXMLBuilder(): eRxXMLBuilder
+    public function getXMLBuilder(): ErxXmlBuilder
     {
-        if (!$this->xmlBuilder instanceof eRxXMLBuilder) {
-            throw new LogicException('eRxPage has no eRxXMLBuilder');
+        if (!$this->xmlBuilder instanceof ErxXmlBuilder) {
+            throw new LogicException('ErxPage has no ErxXmlBuilder');
         }
 
         return $this->xmlBuilder;
@@ -186,6 +192,8 @@ class eRxPage
      *   empty: list<string>,
      *   warning: list<string>,
      * }
+     *
+     * @throws ErxLaunchBlockedException when the launch cannot go ahead
      */
     public function buildXML(): array
     {
@@ -209,7 +217,7 @@ class eRxPage
     }
 
     /**
-     * The XML as DOM serialized it. eRxXMLBuilder::createElementText() cleans
+     * The XML as DOM serialized it. ErxXmlBuilder::createElementText() cleans
      * each value, so the markup itself is never edited.
      */
     public function getXML(): string
@@ -222,20 +230,29 @@ class eRxPage
         return $xml;
     }
 
+    /**
+     * A failed write is logged and dropped, so it never hides the validation
+     * errors checkError() returns.
+     */
     protected function errorLog(string $message): void
     {
         $siteDirectory = $this->getXMLBuilder()->getGlobals()->getOpenEMRSiteDirectory();
         if ($siteDirectory === '') {
-            throw new UnexpectedValueException('The OpenEMR site directory is not configured');
+            ServiceContainer::getLogger()->error('Could not write the Ensora eRx error log: no site directory');
+            return;
         }
 
         $path = $siteDirectory . '/documents/erx_error';
         $filesystem = new Filesystem();
-        $filesystem->mkdir($path);
-        $filesystem->appendToFile(
-            $path . '/erx_error-' . date('Y-m-d') . '.log',
-            date('Y-m-d H:i:s') . ' ==========> ' . $message . PHP_EOL,
-        );
+        try {
+            $filesystem->mkdir($path);
+            $filesystem->appendToFile(
+                $path . '/erx_error-' . date('Y-m-d') . '.log',
+                date('Y-m-d H:i:s') . ' ==========> ' . $message . PHP_EOL,
+            );
+        } catch (IOExceptionInterface $e) {
+            ServiceContainer::getLogger()->error('Could not write the Ensora eRx error log', ['exception' => $e]);
+        }
     }
 
     /**

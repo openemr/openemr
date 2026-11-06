@@ -21,12 +21,14 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Rx\Ensora\ErxLaunchBlock;
+use OpenEMR\Rx\Ensora\ErxLaunchBlockedException;
+use OpenEMR\Rx\Ensora\ErxPage;
+use OpenEMR\Rx\Ensora\ErxXmlBuilder;
 
 require_once(__DIR__ . '/globals.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxGlobals.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxStore.php');
-require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxXMLBuilder.php');
-require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxPage.php');
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
     AccessDeniedHelper::deny('eRx.php: patients/rx not granted');
@@ -37,8 +39,8 @@ set_time_limit(0);
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $GLOBALS_REF = $GLOBALS;
-$eRxPage = new eRxPage(
-    new eRxXMLBuilder(
+$eRxPage = new ErxPage(
+    new ErxXmlBuilder(
         new eRxGlobals($GLOBALS_REF),
         new eRxStore()
     )
@@ -80,9 +82,20 @@ if (count($missingExtensions) > 0) {
         <ul>
     <?php
 } else {
-    $messages = $eRxPage->buildXML();
+    $blocked = null;
+    $messages = ['demographics' => [], 'empty' => [], 'warning' => []];
+    try {
+        $messages = $eRxPage->buildXML();
+    } catch (ErxLaunchBlockedException $e) {
+        $blocked = $e->reason;
+    }
 
-    if (count($messages['demographics']) > 0) {
+    if ($blocked instanceof ErxLaunchBlock) {
+        echo match ($blocked) {
+            ErxLaunchBlock::UnauthorizedRole => xlt('Unauthorized access to ePrescription'),
+            ErxLaunchBlock::MissingTaxId => xlt('Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.'),
+        };
+    } elseif (count($messages['demographics']) > 0) {
         ?>
         <strong><?php echo xlt('Warning'); ?>:</strong>
         <p><?php echo xlt('The following fields have to be filled to send a request.'); ?></p>
