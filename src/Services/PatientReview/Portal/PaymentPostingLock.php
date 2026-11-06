@@ -29,7 +29,7 @@ namespace OpenEMR\Services\PatientReview\Portal;
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\Common\Database\QueryUtils;
 
-final class PaymentPostingLock
+final class PaymentPostingLock implements PatientPaymentLock
 {
     /** GET_LOCK's name prefix, as core's other advisory locks are prefixed (within MySQL's 64 characters). */
     private const PREFIX = 'openemr.portal_payment.';

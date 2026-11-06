@@ -5995,7 +5995,9 @@
          </index>
       </table>
       <table catalog="openemr" name="onsite_portal_activity" numRows="1" remarks="Patient portal activity (document submission, and other activities) that requires review before they are accepted into the patient chart" type="TABLE">
-         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5">
+            <child catalog="openemr" column="legacy_activity_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_review_request"/>
+         </column>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="1" name="date" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="2" name="patient_id" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -6414,6 +6416,7 @@
             <child catalog="openemr" column="patient_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_care_experience_preferences"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_history"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_reminders"/>
+            <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_review_request"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_tracker"/>
             <child catalog="openemr" column="patient_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_treatment_intervention_preferences"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="pnotes"/>
@@ -6585,6 +6588,76 @@
          <primaryKey column="patient_portal_menu_id" sequenceNumberInPK="1"/>
          <index name="PRIMARY" unique="true">
             <column ascending="true" name="patient_portal_menu_id"/>
+         </index>
+      </table>
+      <table catalog="openemr" name="patient_review_event" numRows="0" remarks="Append-only history of patient_review_request state changes" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="request_id" nullable="false" remarks="The request the event belongs to" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_review_request"/>
+         </column>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="2" name="from_status" nullable="true" remarks="NULL for the event that created the request" size="24" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="to_status" nullable="false" remarks="" size="24" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="actor_type" nullable="false" remarks="patient, user or system" size="16" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="5" name="actor_id" nullable="true" remarks="pid for a patient, users.id for a user" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_at" nullable="false" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="7" name="note" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="request_id" unique="false">
+            <column ascending="true" name="request_id"/>
+         </index>
+      </table>
+      <table catalog="openemr" name="patient_review_request" numRows="0" remarks="Patient-submitted data awaiting staff review, one row per submission, including denied and cancelled submissions" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5">
+            <child catalog="openemr" column="request_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_review_event"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="false" remarks="" size="16" type="BINARY" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="pid" nullable="false" remarks="The patient the submission belongs to" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="type" nullable="false" remarks="profile, payment, document, invoice, fhir-write" size="32" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="4" name="resource_type" nullable="true" remarks="FHIR resource type when type is fhir-write, e.g. Condition; NULL otherwise" size="64" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="'portal'" digits="0" id="5" name="source" nullable="false" remarks="portal or api" size="16" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="6" name="client_id" nullable="true" remarks="oauth_clients.client_id when source is api" size="80" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="'pending'" digits="0" id="7" name="status" nullable="false" remarks="pending, awaiting_payment, approved, denied, cancelled, completed" size="24" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="''" digits="0" id="8" name="summary" nullable="false" remarks="Staff-facing description of the request" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="9" name="payload" nullable="true" remarks="The submitted data" size="2147483647" type="LONGTEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="'json'" digits="0" id="10" name="payload_format" nullable="false" remarks="json; php-serialized or text only for rows migrated from onsite_portal_activity" size="16" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="11" name="target_table" nullable="true" remarks="Table the request applies to, when known" size="64" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="12" name="target_id" nullable="true" remarks="Row id or uuid in target_table" size="64" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="created_at" nullable="false" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="updated_at" nullable="false" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="15" name="reviewed_by" nullable="true" remarks="The user who decided the request" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="users"/>
+         </column>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="16" name="reviewed_at" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="17" name="review_note" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="18" name="legacy_activity_id" nullable="true" remarks="The onsite_portal_activity row this request was migrated from" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="onsite_portal_activity"/>
+         </column>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="created_at" unique="false">
+            <column ascending="true" name="created_at"/>
+         </index>
+         <index name="legacy_activity_id" unique="true">
+            <column ascending="true" name="legacy_activity_id"/>
+         </index>
+         <index name="pid_type_status" unique="false">
+            <column ascending="true" name="pid"/>
+            <column ascending="true" name="type"/>
+            <column ascending="true" name="status"/>
+         </index>
+         <index name="status_type" unique="false">
+            <column ascending="true" name="status"/>
+            <column ascending="true" name="type"/>
+         </index>
+         <index name="uuid" unique="true">
+            <column ascending="true" name="uuid"/>
          </index>
       </table>
       <table catalog="openemr" name="patient_reminders" remarks="Patient Reminders generated from the clinical decision support engine that are sent via a communication medium to the patient" type="TABLE">
@@ -8261,6 +8334,7 @@
             <child catalog="openemr" column="ref_providerID" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
             <child catalog="openemr" column="updated_by" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
             <child catalog="openemr" column="created_by" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_history"/>
+            <child catalog="openemr" column="reviewed_by" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_review_request"/>
             <child catalog="openemr" column="created_by" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="person"/>
             <child catalog="openemr" column="updated_by" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="person"/>
             <child catalog="openemr" column="linked_by" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="person_patient_link"/>
