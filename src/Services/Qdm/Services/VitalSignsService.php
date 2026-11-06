@@ -106,8 +106,8 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
             }
             $selects[] = "SELECT v.`pid`, v.`date`, 'LOINC:$loinc' AS `code`, $value AS `value`, '$unit' AS `unit`
                 FROM `form_vitals` AS v
-                JOIN `forms` AS f ON f.`form_id` = v.`id` AND f.`formdir` = 'vitals' AND f.`deleted` = 0
                 WHERE $isNumber
+                AND " . self::countedFormRow('v.`id`', 'v.`pid`', QdmForm::Vitals) . "
                 AND NOT EXISTS (
                     SELECT 1 FROM `form_observation` AS o
                     WHERE o.`pid` = v.`pid` AND o.`ob_type` = '" . AbstractObservationService::OB_TYPE_PHYSICAL_EXAM . "'
@@ -117,8 +117,7 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
                     AND $same
                 )";
         }
-        // Wrapped so that the patient filter executeQuery() appends applies to every vital.
-        return "SELECT `pid`, `date`, `code`, `value`, `unit` FROM (\n" . implode("\nUNION ALL\n", $selects) . "\n) AS vital_signs WHERE 1 = 1";
+        return implode("\nUNION ALL\n", $selects);
     }
 
     public function makeQdmModel(QdmRecord $recordObj): PhysicalExamPerformed
