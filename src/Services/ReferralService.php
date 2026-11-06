@@ -36,8 +36,12 @@ class ReferralService extends BaseService
     /** The referral form's id, in transactions.title. */
     public const FORM_ID = 'LBTref';
 
-    /** The referral's own Tasks, the ones ReferralTaskService makes: code fulfill, not part of another Task. */
-    private const OWN_TASK_SQL = "task.code = 'fulfill' AND task.part_of_uuid IS NULL";
+    /**
+     * The referral's own Tasks, the ones ReferralTaskService makes: code fulfill, not part of another
+     * Task. For a query that names the task table task, as the eCQM reports read too
+     * (Qdm\Services\ConsultantReportService).
+     */
+    public const OWN_TASK_SQL = "task.code = 'fulfill' AND task.part_of_uuid IS NULL";
 
     /** The lbt_data fields read, each as a column of the same name. */
     private const FIELDS = ['refer_date', 'refer_from', 'refer_to', 'body', 'refer_diag', 'refer_related_code', 'reply_date'];
