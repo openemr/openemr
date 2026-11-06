@@ -4627,22 +4627,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_queries.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$encounter of method OpenEMR\\\\Services\\\\PatientIssuesService\\:\\:linkIssueToEncounter\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_queries.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$description of class OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo constructor expects string, mixed given\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_queries.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$description of class OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure constructor expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_queries.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$issueId of method OpenEMR\\\\Services\\\\PatientIssuesService\\:\\:linkIssueToEncounter\\(\\) expects string, int given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_queries.php',
 ];

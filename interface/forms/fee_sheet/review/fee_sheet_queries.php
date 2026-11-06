@@ -109,8 +109,8 @@ function update_issues($pid, $encounter, $diags): void
                 $newProblem = sqlStatement($sqlFindProblem, $lists_params); // requerying the database for the newly created ID, instead of using the sqlInsert return value for backwards compatibility with 4.1.0 and earlier insert ID bug.
                 if (sqlNumRows($newProblem) > 0) {
                     $list_id = $newProblem->fields['id'];
-                    if ($list_id > 0) {
-                        $patientIssuesService->linkIssueToEncounter($pid, $list_id, $encounter, $authUserID);
+                    if (is_numeric($list_id) && $list_id > 0) {
+                        $patientIssuesService->linkIssueToEncounter($pid, (string) $encounter, (string) $list_id, $authUserID);
                     }
                 }
 
