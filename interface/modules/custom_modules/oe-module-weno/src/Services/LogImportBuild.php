@@ -13,6 +13,7 @@ namespace OpenEMR\Modules\WenoModule\Services;
 use DateTime;
 use DateTimeZone;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Rx\Weno\WenoPrescriptionLog;
 
 class LogImportBuild
 {
@@ -78,6 +79,7 @@ class LogImportBuild
         $l = 0;
         $rxCnt = 0;
         $updateCnt = 0;
+        $failedCnt = 0;
         if (file_exists($this->rxsynclog)) {
             $records = fopen($this->rxsynclog, "r");
 
@@ -132,8 +134,7 @@ class LogImportBuild
                     $insertdata['drug'] = $drug;
                     $insertdata['quantity'] = $line[18] ?? '';
                     $insertdata['refills'] = $refills;
-                    $sub = ($line[14] = 'Allowed' ? 1 : 0);
-                    $insertdata['substitute'] = $sub ?? '';
+                    $insertdata['substitute'] = WenoPrescriptionLog::substituteValue($line[14] ?? null);
                     $insertdata['note'] = $line[21] ?? '';
                     $insertdata['rxnorm_drugcode'] = $line[12] ?? '';
                     $insertdata['provider_id'] = $pr;
@@ -141,13 +142,20 @@ class LogImportBuild
                     $insertdata['prescriptionguid'] = $line[4] ?? '';
                     $insertdata['txDate'] = $ida;
                     $loginsert = new LogDataInsert();
-                    if ($is_saved > 0) {
-                        $loginsert->updatePrescriptions($insertdata);
+                    $written = $is_saved > 0
+                        ? $loginsert->updatePrescriptions($insertdata)
+                        : $loginsert->insertPrescriptions($insertdata);
+                    if ($written !== true) {
+                        ++$failedCnt;
+                        $wenoLog->insertWenoLog(
+                            "Sync Report",
+                            xl("Prescription not saved") . " " . text($this->messageid) . ": " . text((string) $written)
+                        );
+                    } elseif ($is_saved > 0) {
                         if (trim((string) ($line[7] ?? '')) == 'True') {
                             ++$updateCnt;
                         }
                     } else {
-                        $loginsert->insertPrescriptions($insertdata);
                         ++$rxCnt;
                     }
                     ++$l;
@@ -159,12 +167,16 @@ class LogImportBuild
             return false;
         }
 
-        if ($rxCnt == 0 && $updateCnt == 0) {
+        if ($rxCnt == 0 && $updateCnt == 0 && $failedCnt == 0) {
             $status = xl("No new prescriptions to sync.");
         } else {
             $status = xl("Synced") . " " . text($rxCnt) . " new " . text($updateCnt) . " " . xl("updated")  . " " . xl("prescriptions.");
+            if ($failedCnt > 0) {
+                $status .= " " . text($failedCnt) . " " . xl("could not be saved.");
+            }
         }
         $wenoLog->insertWenoLog("Sync Report", $status);
-        return true;
+        // A prescription that was not saved makes the sync a failure, so it is reported and retried.
+        return $failedCnt === 0;
     }
 }
