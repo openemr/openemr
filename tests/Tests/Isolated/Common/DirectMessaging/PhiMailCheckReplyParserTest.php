@@ -86,6 +86,7 @@ final class PhiMailCheckReplyParserTest extends TestCase
             'STATUS with an empty code' => ["STATUS msg-1  recipient rejected\n"],
             'MAIL with an empty recipient' => ["MAIL  from@direct.example 0 msg-4\n"],
             'MAIL with an empty sender' => ["MAIL to@direct.example  0 msg-4\n"],
+            'MAIL with an extra field' => ["MAIL to@direct.example from@direct.example 0 msg-4 extra\n"],
             'MAIL without a message ID' => ["MAIL to@direct.example from@direct.example 0\n"],
             'MAIL with an empty message ID' => ["MAIL to@direct.example from@direct.example 0 \n"],
             'MAIL with a non-numeric count' => ["MAIL to@direct.example from@direct.example two msg-4\n"],

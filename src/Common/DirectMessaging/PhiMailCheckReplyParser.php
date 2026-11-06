@@ -76,8 +76,8 @@ final class PhiMailCheckReplyParser
      */
     private static function mail(string $line): PhiMailMailReply
     {
-        $fields = explode(' ', trim($line), 5);
-        if (count($fields) < 5 || in_array('', $fields, true) || !ctype_digit($fields[3])) {
+        $fields = explode(' ', trim($line));
+        if (count($fields) !== 5 || in_array('', $fields, true) || !ctype_digit($fields[3])) {
             throw new PhiMailUnexpectedResponseException($line);
         }
         return new PhiMailMailReply(

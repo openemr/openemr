@@ -194,6 +194,7 @@ final class PhiMailReceiverTest extends TestCase
             'unknown keyword' => ['BOGUS'],
             'STATUS with an empty code' => ['STATUS msg-1  recipient rejected'],
             'MAIL with an empty sender' => ['MAIL to@direct.example  0 msg-4'],
+            'MAIL with an extra field' => ['MAIL to@direct.example from@direct.example 0 msg-4 extra'],
         ];
     }
 
