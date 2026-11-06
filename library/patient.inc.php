@@ -1475,10 +1475,8 @@ function dateToDB($date): string
  * EmployerService. Each row is every insurance_data column of a policy
  * InsuranceService::getEffectiveInsuranceRows() returns.
  *
- * The service's own getEffectiveInsurances() shares this name and answers the
- * same question by the same rule (EffectiveInsuranceRule); it returns the
- * policies as EffectiveInsurance values, not rows. That shape is the one
- * difference between the two.
+ * It chooses by the service's rule (EffectiveInsuranceRule), so the
+ * procedural screens and the service agree.
  *
  * Where it differs from the query it replaced:
  * - it doesn't stop at the first level with nothing in force: a current

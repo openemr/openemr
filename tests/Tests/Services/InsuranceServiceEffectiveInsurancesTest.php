@@ -1,10 +1,10 @@
 <?php
 
 /**
- * InsuranceService::getEffectiveInsurances() against the claim's payer list
+ * InsuranceService::getEffectiveInsuranceRows() against the claim's payer list
  * (Claim::loadPayerInfo(), which decides who is billed), on the same rows, and
  * against getEffectiveInsurances() in library/patient.inc.php, now a wrapper over
- * the service, which must choose as the service does in every case.
+ * it, which must choose as the service does in every case.
  *
  * Each case names what the claim and the wrapper choose. Where the claim differs
  * from the service, the case says so in its name; where the query the wrapper
@@ -26,6 +26,7 @@ use OpenEMR\Billing\Claim;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Insurance\EffectiveInsurance;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRow;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -104,8 +105,8 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
     private function serviceChoice(string $day): array
     {
         return array_map(
-            static fn(EffectiveInsurance $p): string => "{$p->level->value} {$p->companyId}",
-            $this->service->getEffectiveInsurances($this->pid, new DateTimeImmutable($day))
+            static fn(EffectiveInsuranceRow $row): string => "{$row->policy->level->value} {$row->policy->companyId}",
+            $this->service->getEffectiveInsuranceRows($this->pid, new DateTimeImmutable($day))
         );
     }
 
@@ -310,7 +311,10 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
     {
         $uuid = $this->addPolicy('primary', '101', '2026-01-01', '2026-12-31');
 
-        $policies = $this->service->getEffectiveInsurances($this->pid, new DateTimeImmutable(self::DAY));
+        $policies = array_map(
+            static fn(EffectiveInsuranceRow $row): EffectiveInsurance => $row->policy,
+            $this->service->getEffectiveInsuranceRows($this->pid, new DateTimeImmutable(self::DAY))
+        );
 
         self::assertCount(1, $policies);
         self::assertSame($uuid, $policies[0]->uuid);
@@ -321,6 +325,6 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
     #[Test]
     public function aPatientWithNoPoliciesHasNoCoverage(): void
     {
-        self::assertSame([], $this->service->getEffectiveInsurances($this->pid, new DateTimeImmutable(self::DAY)));
+        self::assertSame([], $this->service->getEffectiveInsuranceRows($this->pid, new DateTimeImmutable(self::DAY)));
     }
 }

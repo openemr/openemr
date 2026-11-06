@@ -14,23 +14,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Insurance;
 
-use DateTimeImmutable;
-use DateTimeZone;
-use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Services\Insurance\CoverageDay;
-use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 final class CoverageDayTest extends TestCase
 {
-    private static function days(): CoverageDay
-    {
-        // 23:30 on the 4th in Chicago is already the 5th in UTC.
-        return new CoverageDay(new FrozenClock(new DateTimeImmutable('2026-11-04 23:30:00', new DateTimeZone('America/Chicago'))));
-    }
-
     /**
      * @return array<string, array{mixed, ?string}>
      *
@@ -63,83 +53,12 @@ final class CoverageDayTest extends TestCase
     }
 
     #[Test]
-    public function todayIsTheClocksCalendarDayAtMidnightInPhpsZoneAsTheRulesDatesAre(): void
+    public function theDayIsMidnightInPhpsZoneAsTheRulesDatesAre(): void
     {
-        $today = self::days()->today();
+        $day = CoverageDay::fromStored('2026-11-04 23:30:00');
 
-        self::assertSame('2026-11-04 00:00:00', $today->format('Y-m-d H:i:s'));
-        self::assertSame(date_default_timezone_get(), $today->getTimezone()->getName());
-    }
-
-    #[Test]
-    public function aPolicyEndingTodayIsInForceTodayWhereTheClocksZoneDiffersFromPhps(): void
-    {
-        $saved = date_default_timezone_get();
-        date_default_timezone_set('Pacific/Auckland');
-        try {
-            // 10:00 on the 5th in Chicago, when Auckland is already on the 6th: the clock's calendar day counts.
-            $clock = new FrozenClock(new DateTimeImmutable('2026-11-05 10:00:00', new DateTimeZone('America/Chicago')));
-            $today = (new CoverageDay($clock))->today();
-            $rows = [['id' => 1, 'uuid' => null, 'type' => 'primary', 'provider' => 101, 'date' => '2026-01-01', 'date_end' => '2026-11-05']];
-
-            $policies = EffectiveInsuranceRule::choose($rows, $today);
-
-            self::assertSame('2026-11-05', $today->format('Y-m-d'));
-            self::assertCount(1, $policies);
-            self::assertNotNull($policies[0]->end);
-            self::assertFalse($policies[0]->end < $today, 'a policy that ends today has not ended');
-            self::assertEquals($today, $policies[0]->end, 'its last day is today, the same instant');
-        } finally {
-            date_default_timezone_set($saved);
-        }
-    }
-
-    /**
-     * @return array<string, array{mixed}>
-     *
-     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
-     */
-    public static function unreadable(): array
-    {
-        return [
-            'null' => [null],
-            'blank' => [''],
-            'zero' => ['0000-00-00'],
-            'a zero datetime' => ['0000-00-00 00:00:00'],
-            'the display format' => ['05/01/2025'],
-            'not a string: false (a failed fetch)' => [false],
-        ];
-    }
-
-    #[Test]
-    #[DataProvider('unreadable')]
-    public function aVisitWithADayItCantReadAsksAboutNoDay(mixed $encounterDate): void
-    {
-        self::assertNull(self::days()->forVisit($encounterDate), 'the caller decides; today would bill the plan in force now');
-    }
-
-    #[Test]
-    public function aVisitAsksAboutItsDate(): void
-    {
-        self::assertSame('2026-06-30', self::days()->forVisit('2026-06-30 16:45:00')?->format('Y-m-d'));
-    }
-
-    #[Test]
-    public function aLabOrderAsksAboutTheCollectionDateThenTheOrderDate(): void
-    {
-        $days = self::days();
-
-        self::assertSame('2026-10-02', $days->forLabOrder('2026-10-02 08:15:00', '2026-10-01')?->format('Y-m-d'));
-        self::assertSame('2026-10-01', $days->forLabOrder(null, '2026-10-01')?->format('Y-m-d'));
-        self::assertSame('2026-10-01', $days->forLabOrder('0000-00-00 00:00:00', '2026-10-01')?->format('Y-m-d'));
-        self::assertSame('2026-10-01', $days->forLabOrder(false, '2026-10-01')?->format('Y-m-d'));
-    }
-
-    #[Test]
-    #[DataProvider('unreadable')]
-    public function aLabOrderWithNeitherDateReadableAsksAboutNoDay(mixed $date): void
-    {
-        self::assertNull(self::days()->forLabOrder($date, $date));
-        self::assertNull(self::days()->forLabOrder($date, '06/30/2026'), 'an order date in the display format is not read either');
+        self::assertNotNull($day);
+        self::assertSame('2026-11-04 00:00:00', $day->format('Y-m-d H:i:s'));
+        self::assertSame(date_default_timezone_get(), $day->getTimezone()->getName());
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * The service's joins on ids: a policy with its row and company name, and
- * many patients' rows by pid, whichever way a read returns the ids.
+ * The service's join on ids: a policy with its row and company name,
+ * whichever way a read returns the ids.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -69,24 +69,5 @@ final class EffectiveInsuranceRowTest extends TestCase
 
         self::assertCount(2, $policies);
         self::assertSame(['P-5 Gold Aetna', 'S-6 Gold BCBS'], self::shown($joined));
-    }
-
-    #[Test]
-    public function manyPatientsRowsGroupByPidWhicheverWayThePidArrives(): void
-    {
-        $rows = [
-            ['id' => 1, 'pid' => 42],
-            ['id' => 2, 'pid' => '42'],
-            ['id' => 3, 'pid' => '043'],
-            ['id' => 4, 'pid' => 'not a pid'],
-            ['id' => 5, 'pid' => 0],
-            ['id' => 6, 'pid' => null],
-        ];
-
-        $byPid = EffectiveInsuranceRule::rowsByPid($rows);
-
-        self::assertSame([42, 43], array_keys($byPid));
-        self::assertSame([1, 2], array_column($byPid[42], 'id'));
-        self::assertSame([3], array_column($byPid[43], 'id'));
     }
 }

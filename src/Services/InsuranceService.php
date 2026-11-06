@@ -23,11 +23,9 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
-use OpenEMR\Services\Insurance\CoverageSegment;
 use OpenEMR\Services\Insurance\EffectiveInsurance;
 use OpenEMR\Services\Insurance\EffectiveInsuranceRow;
 use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
-use OpenEMR\Services\Insurance\InsuranceLevel;
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
@@ -433,37 +431,19 @@ class InsuranceService extends BaseService
     }
 
     /**
-     * The policies in force for a patient on a day: at most one per level,
-     * primary first, by the rule in EffectiveInsuranceRule. That is the
-     * claim's rule (Claim::loadPayerInfo()) with three differences, which its
-     * docblock lists. A level with nothing in force is left out and the others
-     * are still returned, so a current secondary behind an ended primary comes
-     * back on its own.
+     * The policies in force for a patient on a day, at most one per level and
+     * primary first, by the rule in EffectiveInsuranceRule: the claim's rule
+     * (Claim::loadPayerInfo()) with the three differences its docblock lists.
+     * A level with nothing in force is left out and the others are still
+     * returned, so a current secondary behind an ended primary comes back on
+     * its own. Each policy comes with its insurance_data row and its company's
+     * name; an inactive company's name comes back too, since inactive keeps a
+     * company off the pick lists, not off the policies already on file.
      *
-     * getEffectiveInsurances() in library/patient.inc.php shares this name: it
-     * is a wrapper over getEffectiveInsuranceRows(), the same choice returned
-     * as insurance_data rows instead of these values.
+     * getEffectiveInsurances() in library/patient.inc.php is a wrapper over
+     * this method and returns the rows.
      *
-     * @param DateTimeImmutable $day the day asked about (date of service, order or document); its time is ignored
-     * @return list<EffectiveInsurance>
-     */
-    public function getEffectiveInsurances(int $pid, DateTimeImmutable $day): array
-    {
-        $rows = QueryUtils::fetchRecords(
-            "SELECT `id`, `uuid`, `type`, `provider`, `date`, `date_end` FROM `insurance_data` WHERE `pid` = ?",
-            [$pid]
-        );
-        return EffectiveInsuranceRule::choose($rows, $day);
-    }
-
-    /**
-     * The policies in force on a day, as getEffectiveInsurances() chooses them
-     * and in its order, each with its insurance_data row and its company's
-     * name: for callers that show or send the plan, the policy number or the
-     * subscriber (the lab IN1 and requisitions, the claim, the 270). An
-     * inactive company's name comes back too: inactive keeps a company off the
-     * pick lists, not off the policies already on file.
-     *
+     * @param DateTimeImmutable $day the day asked about; its time is ignored
      * @return list<EffectiveInsuranceRow>
      */
     public function getEffectiveInsuranceRows(int $pid, DateTimeImmutable $day): array
@@ -483,56 +463,6 @@ class InsuranceService extends BaseService
             $companyIds
         );
         return EffectiveInsuranceRow::forPolicies($policies, $rows, $companies);
-    }
-
-    /**
-     * Many patients' insurance_data rows, by pid, as EffectiveInsuranceRule
-     * reads them (id, uuid, pid, type, provider, date, date_end): for reports
-     * and the eCQM run, which read once and then ask the rule about each
-     * patient's own days (EffectiveInsuranceRule::choose()) or period
-     * (EffectiveInsuranceRule::segments()). One query per 1000 patients. A
-     * patient with no rows has no key.
-     *
-     * @param list<int> $pids
-     * @return array<int, list<array<mixed>>>
-     */
-    public function getRuleRowsByPid(array $pids): array
-    {
-        $rows = [];
-        foreach (array_chunk(array_values(array_unique($pids)), 1000) as $chunk) {
-            $rows = array_merge($rows, QueryUtils::fetchRecords(
-                "SELECT `id`, `uuid`, `pid`, `type`, `provider`, `date`, `date_end` FROM `insurance_data` WHERE `pid` IN ("
-                    . implode(',', array_fill(0, count($chunk), '?')) . ")",
-                $chunk
-            ));
-        }
-        return EffectiveInsuranceRule::rowsByPid($rows);
-    }
-
-    /**
-     * The runs of days within a range on which each policy heads a level
-     * (EffectiveInsuranceRule::segments()), oldest first: for readers that
-     * report over a period, such as eCQM's payer over the measurement period.
-     *
-     * @return list<CoverageSegment>
-     */
-    public function getCoverageSegments(int $pid, InsuranceLevel $level, DateTimeImmutable $from, DateTimeImmutable $to): array
-    {
-        return EffectiveInsuranceRule::segments($this->getRuleRowsByPid([$pid])[$pid] ?? [], $level, $from, $to);
-    }
-
-    /**
-     * The policy in force at one level on a day, or null when the level has
-     * none, as getEffectiveInsurances() chooses it.
-     */
-    public function getEffectiveInsuranceAt(int $pid, InsuranceLevel $level, DateTimeImmutable $day): ?EffectiveInsurance
-    {
-        foreach ($this->getEffectiveInsurances($pid, $day) as $policy) {
-            if ($policy->level === $level) {
-                return $policy;
-            }
-        }
-        return null;
     }
 
     public function swapInsurance($pid, string $targetType, string $insuranceUuid): ProcessingResult

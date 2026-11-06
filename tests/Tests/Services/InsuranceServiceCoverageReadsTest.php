@@ -1,9 +1,9 @@
 <?php
 
 /**
- * The reads InsuranceService builds on getEffectiveInsurances(): the policies with their rows and
- * company names, many patients' rows in one query, the runs of days over a range, and one level.
- * Each agrees with getEffectiveInsurances() on the same rows.
+ * InsuranceService::getEffectiveInsuranceRows(): each policy in force with its stored row and its
+ * company's name. Which policies it chooses is the comparison test's subject
+ * (InsuranceServiceEffectiveInsurancesTest).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -19,14 +19,9 @@ namespace OpenEMR\Tests\Services;
 use DateTimeImmutable;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\Insurance\CoverageSegment;
-use OpenEMR\Services\Insurance\EffectiveInsurance;
-use OpenEMR\Services\Insurance\EffectiveInsuranceRow;
-use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
 use OpenEMR\Services\Insurance\InsuranceLevel;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -108,19 +103,6 @@ final class InsuranceServiceCoverageReadsTest extends TestCase
         );
     }
 
-    /**
-     * @param list<EffectiveInsurance> $policies
-     * @return list<string> each policy as "level #id company start..end uuid"
-     */
-    private static function described(array $policies): array
-    {
-        return array_map(
-            static fn(EffectiveInsurance $p): string => "{$p->level->value} #{$p->id} {$p->companyId} "
-                . ($p->start?->format('Y-m-d') ?? '-') . '..' . ($p->end?->format('Y-m-d') ?? '-') . ' ' . ($p->uuid ?? 'no uuid'),
-            $policies
-        );
-    }
-
     private function day(): DateTimeImmutable
     {
         return new DateTimeImmutable(self::DAY);
@@ -153,137 +135,5 @@ final class InsuranceServiceCoverageReadsTest extends TestCase
         self::assertSame(InsuranceLevel::Secondary, $second->policy->level);
         self::assertSame($secondary, $second->columns['id']);
         self::assertNull($second->companyName, 'company 102 has no row');
-    }
-
-    /**
-     * Every case of the comparison test, through each read: they choose as getEffectiveInsurances() does.
-     *
-     * @param list<array{string, ?string, ?string, ?string}> $rows
-     * @param list<string> $service what getEffectiveInsurances() chooses (asserted in that test)
-     * @param list<string> $claim   what the claim chooses (asserted in that test, not here)
-     * @param list<string> $old     what the procedural function chooses (asserted in that test, not here)
-     */
-    #[Test]
-    #[DataProviderExternal(InsuranceServiceEffectiveInsurancesTest::class, 'cases')]
-    public function everyReadChoosesAsGetEffectiveInsurancesDoes(array $rows, array $service, array $claim, array $old): void
-    {
-        [$pid] = $this->pids;
-        foreach ($rows as [$type, $provider, $start, $end]) {
-            $this->addPolicy($pid, $type, $provider, $start, $end);
-        }
-        $expected = $this->service->getEffectiveInsurances($pid, $this->day());
-        self::assertCount(count($service), $expected);
-
-        self::assertSame(
-            self::described($expected),
-            self::described(array_map(static fn(EffectiveInsuranceRow $r): EffectiveInsurance => $r->policy, $this->service->getEffectiveInsuranceRows($pid, $this->day()))),
-            'the rows'
-        );
-        self::assertSame(
-            self::described($expected),
-            self::described(EffectiveInsuranceRule::choose($this->service->getRuleRowsByPid([$pid])[$pid] ?? [], $this->day())),
-            'the batch'
-        );
-        foreach (InsuranceLevel::cases() as $level) {
-            $atLevel = array_values(array_filter($expected, static fn(EffectiveInsurance $p): bool => $p->level === $level));
-            $found = $this->service->getEffectiveInsuranceAt($pid, $level, $this->day());
-            self::assertSame(self::described($atLevel), self::described($found === null ? [] : [$found]), "the {$level->value} lookup");
-            self::assertSame(
-                self::described($atLevel),
-                self::described(array_map(
-                    static fn(CoverageSegment $s): EffectiveInsurance => $s->policy,
-                    $this->service->getCoverageSegments($pid, $level, $this->day(), $this->day())
-                )),
-                "the {$level->value} runs on the day"
-            );
-        }
-    }
-
-    #[Test]
-    public function manyPatientsComeBackInOneQuery(): void
-    {
-        [$a, $b, $c, $none] = $this->pids;
-        $this->addPolicy($a, 'primary', '101', '2020-01-01', null);
-        $this->addPolicy($b, 'primary', '102', '2020-01-01', '2026-06-30');
-        $this->addPolicy($b, 'primary', '103', '2026-07-01', null);
-        $this->addPolicy($b, 'secondary', '104', null, null);
-        $this->addPolicy($c, 'primary', '', '2026-01-01', null);
-
-        $byPid = $this->service->getRuleRowsByPid([$a, $b, $c, $none, $a]);
-
-        $pids = array_keys($byPid);
-        sort($pids);
-        self::assertSame([$a, $b, $c], $pids, 'a patient with no rows has no key');
-        self::assertCount(1, $byPid[$a]);
-        self::assertCount(3, $byPid[$b], 'each row once, though the pid was asked twice');
-        foreach ([$a, $b, $c, $none] as $pid) {
-            self::assertSame(
-                self::described($this->service->getEffectiveInsurances($pid, $this->day())),
-                self::described(EffectiveInsuranceRule::choose($byPid[$pid] ?? [], $this->day())),
-                "patient $pid"
-            );
-        }
-        self::assertSame([], $this->service->getRuleRowsByPid([]));
-
-        $one = self::statements(fn(): array => $this->service->getRuleRowsByPid([$a]));
-        $four = self::statements(fn(): array => $this->service->getRuleRowsByPid([$a, $b, $c, $none]));
-        $perPatient = self::statements(function () use ($a, $b, $c, $none): void {
-            foreach ([$a, $b, $c, $none] as $pid) {
-                $this->service->getEffectiveInsurances($pid, $this->day());
-            }
-        });
-        self::assertSame($one, $four, 'four patients cost what one does');
-        self::assertGreaterThan($four, $perPatient, 'control: a read per patient costs more, so the count can tell');
-    }
-
-    /**
-     * The statements this session sends while $read runs (the counter read itself included, the same each time).
-     */
-    private static function statements(callable $read): int
-    {
-        $before = QueryUtils::querySingleRow("SHOW SESSION STATUS LIKE 'Questions'");
-        $read();
-        $after = QueryUtils::querySingleRow("SHOW SESSION STATUS LIKE 'Questions'");
-        $value = static function (mixed $row): int {
-            $count = is_array($row) ? filter_var($row['Value'] ?? null, FILTER_VALIDATE_INT) : false;
-            return is_int($count) ? $count : self::fail('no Questions counter');
-        };
-        return $value($after) - $value($before);
-    }
-
-    #[Test]
-    public function aLevelLookupFindsThePolicyAtThatLevelOnly(): void
-    {
-        [$pid] = $this->pids;
-        $this->addPolicy($pid, 'primary', '101', '2020-01-01', '2026-07-07');
-        $secondary = $this->addPolicy($pid, 'secondary', '104', '2020-01-01', null);
-
-        self::assertNull($this->service->getEffectiveInsuranceAt($pid, InsuranceLevel::Primary, $this->day()), 'the primary has ended');
-        self::assertSame($secondary, $this->service->getEffectiveInsuranceAt($pid, InsuranceLevel::Secondary, $this->day())?->id);
-        self::assertNull($this->service->getEffectiveInsuranceAt($pid, InsuranceLevel::Tertiary, $this->day()));
-        self::assertSame(
-            101,
-            $this->service->getEffectiveInsuranceAt($pid, InsuranceLevel::Primary, new DateTimeImmutable('2026-07-07'))?->companyId
-        );
-    }
-
-    #[Test]
-    public function runsComeFromThePatientsOwnRowsOverTheRange(): void
-    {
-        [$pid, $other, , $none] = $this->pids;
-        $this->addPolicy($pid, 'primary', '101', '2020-01-01', '2026-03-31');
-        $this->addPolicy($pid, 'primary', '102', '2026-04-01', null);
-        $this->addPolicy($other, 'primary', '109', '2026-02-01', null);
-
-        $runs = array_map(
-            static fn(CoverageSegment $s): string => $s->from->format('Y-m-d') . '..' . $s->to->format('Y-m-d') . " {$s->policy->companyId}",
-            $this->service->getCoverageSegments($pid, InsuranceLevel::Primary, new DateTimeImmutable('2026-01-01'), new DateTimeImmutable('2026-12-31'))
-        );
-
-        self::assertSame(['2026-01-01..2026-03-31 101', '2026-04-01..2026-12-31 102'], $runs);
-        self::assertSame(
-            [],
-            $this->service->getCoverageSegments($none, InsuranceLevel::Primary, new DateTimeImmutable('2026-01-01'), new DateTimeImmutable('2026-12-31'))
-        );
     }
 }

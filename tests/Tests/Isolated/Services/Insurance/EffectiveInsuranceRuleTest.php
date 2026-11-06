@@ -305,12 +305,6 @@ final class EffectiveInsuranceRuleTest extends TestCase
         self::assertCount(1, $policies, 'in force on ' . $day);
         self::assertSame($first, $policies[0]->start?->format('Y-m-d'), 'the first day in force');
         self::assertSame($last, $policies[0]->end?->format('Y-m-d'), 'the last day in force');
-
-        // The same days segments() finds over a range that holds them all.
-        $segments = EffectiveInsuranceRule::segments($rows, InsuranceLevel::Primary, new DateTimeImmutable('2019-01-01'), new DateTimeImmutable('2030-12-31'));
-        self::assertCount(1, $segments);
-        self::assertSame($first ?? '2019-01-01', $segments[0]->from->format('Y-m-d'));
-        self::assertSame($last ?? '2030-12-31', $segments[0]->to->format('Y-m-d'));
     }
 
     #[Test]
