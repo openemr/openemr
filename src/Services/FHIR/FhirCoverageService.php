@@ -145,19 +145,23 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         $id->setValue($dataRecord['uuid']);
         $coverageResource->setId($id);
 
-        // Identifier (Must Support) - Policy Number with Member type
+        // Identifier (Must Support) - Policy Number with Member type. US Core requires a member id
+        // or a subscriber id (us-core-15), so a policy stored without a number (a document import
+        // brings in none) says the member id is unknown.
+        $identifier = new FHIRIdentifier();
+        $identifierType = new FHIRCodeableConcept();
+        $identifierTypeCoding = new FHIRCoding();
+        $identifierTypeCoding->setSystem("http://terminology.hl7.org/CodeSystem/v2-0203");
+        $identifierTypeCoding->setCode("MB");
+        $identifierTypeCoding->setDisplay("Member Number");
+        $identifierType->addCoding($identifierTypeCoding);
+        $identifier->setType($identifierType);
         if (!empty($dataRecord['policy_number'])) {
-            $identifier = new FHIRIdentifier();
-            $identifierType = new FHIRCodeableConcept();
-            $identifierTypeCoding = new FHIRCoding();
-            $identifierTypeCoding->setSystem("http://terminology.hl7.org/CodeSystem/v2-0203");
-            $identifierTypeCoding->setCode("MB");
-            $identifierTypeCoding->setDisplay("Member Number");
-            $identifierType->addCoding($identifierTypeCoding);
-            $identifier->setType($identifierType);
             $identifier->setValue($dataRecord['policy_number']);
-            $coverageResource->addIdentifier($identifier);
+        } else {
+            $identifier->addExtension(UtilsService::createDataAbsentReasonExtension());
         }
+        $coverageResource->addIdentifier($identifier);
 
         // Policy Type as additional identifier if present
         if (!empty($dataRecord['policy_type'])) {
@@ -191,20 +195,28 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             $coverageResource->setBeneficiary($patient);
         }
 
+        // A blank relationship (the legacy forms and the XML import store '' for none) is none, as NULL is.
+        $subscriberRelationship = $dataRecord['subscriber_relationship'] ?? null;
+        $hasRelationship = is_string($subscriberRelationship) && $subscriberRelationship !== '';
+
         // Dependent (Must Support) - for non-self relationships
-        if (
-            isset($dataRecord['subscriber_relationship']) &&
-            strtolower($dataRecord['subscriber_relationship']) !== 'self'
-        ) {
+        if ($hasRelationship && strtolower($subscriberRelationship) !== 'self') {
             $dependent = new FHIRString();
             $dependent->setValue('1');
             $coverageResource->setDependent($dependent);
         }
 
-        // Relationship (Must Support) - relationship to subscriber
-        if (isset($dataRecord['subscriber_relationship'])) {
-            $relationship = $this->mapRelationship($dataRecord['subscriber_relationship']);
+        // Relationship (Must Support) - relationship to subscriber, which US Core requires (1..1).
+        // A policy stored without one (a document import names no subscriber) says it is unknown.
+        if ($hasRelationship) {
+            $relationship = $this->mapRelationship($subscriberRelationship);
             $coverageResource->setRelationship($relationship);
+        } else {
+            // UtilsService declares no return type here; it builds a FHIRCodeableConcept
+            $unknownRelationship = UtilsService::createDataAbsentUnknownCodeableConcept();
+            if ($unknownRelationship instanceof FHIRCodeableConcept) {
+                $coverageResource->setRelationship($unknownRelationship);
+            }
         }
 
         // Period (Must Support) - coverage effective dates

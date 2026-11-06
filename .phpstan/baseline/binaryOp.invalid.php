@@ -12647,11 +12647,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'QRDA Insurance…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'RXNORM\\:\' and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',

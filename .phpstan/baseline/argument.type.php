@@ -59782,17 +59782,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$relationship of method OpenEMR\\\\Services\\\\FHIR\\\\FhirCoverageService\\:\\:mapRelationship\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$status of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCoverage\\:\\:setStatus\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRFinancialResourceStatusCodes, OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function strtolower expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
