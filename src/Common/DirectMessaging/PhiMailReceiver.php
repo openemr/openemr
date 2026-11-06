@@ -324,9 +324,12 @@ final class PhiMailReceiver
         // a failure before the note exists leaves it on disk for recovery.
         $this->tempFiles = array_values(array_diff($this->tempFiles, [$body]));
 
-        $note = xl('Direct Message Received.') . self::LF . $headers . self::LF
-            . ($isText ? $this->bodyText($body, $mimeType) : xl('Message content is not plain text so it has been stored as a document.'))
-            . $details;
+        try {
+            $content = $isText ? $this->bodyText($body, $mimeType) : xl('Message content is not plain text so it has been stored as a document.');
+        } catch (IOException $e) {
+            $this->fail('problem reading received message body: ' . $reply->messageId, $e);
+        }
+        $note = xl('Direct Message Received.') . self::LF . $headers . self::LF . $content . $details;
         try {
             $noteId = $this->notes->addNote(0, $note, $this->config->notifyUsername);
             foreach ($documentIds as $documentId) {

@@ -37,6 +37,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -592,6 +593,18 @@ final class PhiMailReceiverTest extends TestCase
         self::assertSame('hello', $files[0]->getContents());
     }
 
+    public function testUnreadableBodyFailsAndKeepsTheAcknowledgedBody(): void
+    {
+        $this->reply(self::lines('OK', 'MAIL to@direct.example from@direct.example 0 msg-5', 'OK', 'Subject: hello', '', 'text/plain', '5') . 'hello' . self::lines('0', 'OK'));
+        $filesystem = $this->createPartialMock(Filesystem::class, ['readFile']);
+        $filesystem->method('readFile')->willThrowException(new IOException('unreadable'));
+
+        $this->assertCheckFails('problem reading received message body: msg-5', $this->receiver(filesystem: $filesystem));
+
+        self::assertSame([], $this->notes->notes);
+        self::assertCount(1, (new Finder())->in($this->tempDir)->files());
+    }
+
     public function testReceivedLogFailure(): void
     {
         $this->reply(self::lines('OK', 'MAIL to@direct.example from@direct.example 0 msg-5', 'OK', 'Subject: hello', '', 'text/plain', '5') . 'hello' . self::lines('0', 'OK'));
@@ -614,7 +627,7 @@ final class PhiMailReceiverTest extends TestCase
         self::assertSame([[1, $mail . self::LF, 0], [0, 'M12 DONE failed: FAIL' . self::LF, 0]], $this->auditRows);
     }
 
-    private function receiver(?PhiMailConnectionFactory $connections = null, ?string $tempDir = null): PhiMailReceiver
+    private function receiver(?PhiMailConnectionFactory $connections = null, ?string $tempDir = null, Filesystem $filesystem = new Filesystem()): PhiMailReceiver
     {
         $auditLogger = $this->createMock(EventAuditLogger::class);
         $auditLogger->method('newEvent')->willReturnCallback(
@@ -649,6 +662,7 @@ final class PhiMailReceiverTest extends TestCase
             audit: new PhiMailAuditLog($auditLogger, new NullLogger()),
             logger: new NullLogger(),
             tempDir: $tempDir ?? $this->tempDir,
+            filesystem: $filesystem,
         );
     }
 
