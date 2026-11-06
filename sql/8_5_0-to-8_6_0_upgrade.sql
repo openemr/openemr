@@ -304,3 +304,10 @@ UPDATE `notification_log` SET `type` = 'Email' WHERE `type` = '' AND `smsgateway
 #IfMissingColumn oauth_clients address_book_uuid
 ALTER TABLE `oauth_clients` ADD COLUMN `address_book_uuid` binary(16) DEFAULT NULL COMMENT 'users.uuid of the address book entry this client acts for; limits it to that entry''s Tasks and referrals';
 #EndIf
+
+-- addresses.id now comes only from the sequences counter. AddressService and
+-- ContactRelationService took MAX(id)+1, which can be above the counter; move the
+-- counter past every id in use, so the Address object's INSERT ... ON DUPLICATE KEY
+-- UPDATE never takes one and overwrites another owner's address. It never moves the
+-- counter back, so it is safe to run again.
+UPDATE `sequences` SET `id` = (SELECT MAX(`id`) FROM `addresses`) WHERE `id` < (SELECT MAX(`id`) FROM `addresses`);
