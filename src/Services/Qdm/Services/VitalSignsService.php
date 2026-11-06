@@ -13,7 +13,9 @@
  * as a Vitals form. A reading with a form_observation physical exam of the same code,
  * on the same day and with the same value, is left to PhysicalExamService, so it is
  * counted once. A different reading the same day is kept: CMS165 takes the lowest
- * blood pressure of the most recent day. Only an exam whose value is a plain number
+ * blood pressure of the most recent day. An exam sent in kilograms or centimetres also
+ * matches its copy after the conversion the import applies to it. Only an exam whose
+ * value is a plain number
  * counts: PhysicalExamService reads any other as no result, and CAST would read
  * "128abc" as 128. Spaces around a number don't make it something else: the Vitals
  * form stores blood pressure as typed, and "128 " is still 128, so both sides are
@@ -39,6 +41,7 @@ use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use OpenEMR\Cqm\Qdm\PhysicalExamPerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
+use OpenEMR\Services\VitalsStorageUnits;
 
 class VitalSignsService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -64,6 +67,14 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
     ];
 
     /**
+     * The unit form_vitals stores these columns in, as VitalsStorageUnits names it.
+     */
+    private const STORAGE_UNITS = [
+        'height' => 'in',
+        'weight' => 'lb',
+    ];
+
+    /**
      * Decimal places form_vitals keeps for each column (DECIMAL(12,6)); the others
      * (blood pressure as text, ped_bmi as DECIMAL(6,2)) are compared at two.
      */
@@ -85,6 +96,14 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
                 : "$value > 0";
             $codes = implode(', ', array_map(static fn(string $c): string => "'LOINC:$c'", self::IMPORTED_AS[$loinc] ?? [$loinc]));
             $scale = self::STORED_SCALE[$column] ?? 2;
+            $same = "CAST(TRIM(o.`ob_value`) AS DECIMAL(12,$scale)) = CAST($value AS DECIMAL(12,$scale))";
+            if (isset(self::STORAGE_UNITS[$column])) {
+                // The import converts a weight or height sent in kilograms or centimetres before it
+                // stores the Vitals form's copy, so the exam is converted the same way to match it.
+                // Copies imported before it did kept the number as sent, and still match as they did.
+                $converted = VitalsStorageUnits::convertSql('TRIM(o.`ob_value`)', 'o.`ob_unit`', self::STORAGE_UNITS[$column]);
+                $same = "($same OR CAST($converted AS DECIMAL(12,$scale)) = CAST($value AS DECIMAL(12,$scale)))";
+            }
             $selects[] = "SELECT v.`pid`, v.`date`, 'LOINC:$loinc' AS `code`, $value AS `value`, '$unit' AS `unit`
                 FROM `form_vitals` AS v
                 JOIN `forms` AS f ON f.`form_id` = v.`id` AND f.`formdir` = 'vitals' AND f.`deleted` = 0
@@ -95,7 +114,7 @@ class VitalSignsService extends AbstractQdmService implements QdmServiceInterfac
                     AND " . AbstractObservationService::countedObservation('o') . "
                     AND o.`code` IN ($codes) AND DATE(o.`date`) = DATE(v.`date`)
                     AND TRIM(o.`ob_value`) REGEXP '^[0-9]+([.][0-9]+)?$'
-                    AND CAST(TRIM(o.`ob_value`) AS DECIMAL(12,$scale)) = CAST($value AS DECIMAL(12,$scale))
+                    AND $same
                 )";
         }
         // Wrapped so that the patient filter executeQuery() appends applies to every vital.

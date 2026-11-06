@@ -1973,20 +1973,21 @@ class CdaTemplateImportDispose
                          )";
                 $vitals_id = QueryUtils::sqlInsert(
                     $query_insert,
+                    // A record carries only the readings sent for it.
                     [
                         $pid,
                         $vitals_date_value,
-                        $value['bps'],
-                        $value['bpd'],
-                        $value['height'],
-                        $value['weight'],
-                        $value['temperature'],
-                        $value['pulse'],
-                        $value['respiration'],
-                        $value['head_circ'],
-                        $value['oxygen_saturation'],
-                        $value['BMI'],
-                        $value['extension']]
+                        $value['bps'] ?? null,
+                        $value['bpd'] ?? null,
+                        $value['height'] ?? null,
+                        $value['weight'] ?? null,
+                        $value['temperature'] ?? null,
+                        $value['pulse'] ?? null,
+                        $value['respiration'] ?? null,
+                        $value['head_circ'] ?? null,
+                        $value['oxygen_saturation'] ?? null,
+                        $value['BMI'] ?? null,
+                        $value['extension'] ?? null]
                 );
             } else {
                 $reimported = true;
