@@ -46,6 +46,10 @@ final class PortalPaymentAmountTest extends TestCase
             'one cent digit only' => ['.5', 50],
             'point only' => ['.', null],
             'three cent digits only' => ['.505', null],
+            'more dollars than integer cents hold' => ['999999999999999999999999', null],
+            'sixteen dollar digits' => ['1000000000000000', null],
+            'fifteen dollar digits' => ['999999999999999.99', 99999999999999999],
+            'leading zeros do not count' => ['0000000000000000001.00', 100],
         ];
     }
 

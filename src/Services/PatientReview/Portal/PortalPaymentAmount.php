@@ -30,10 +30,13 @@ final class PortalPaymentAmount
     private const AMOUNT = '/\A(?=\.?\d)(\d*)(?:\.(\d{1,2}))?\z/';
 
     /**
-     * The card-details key that marks a payment whose gateway charged an amount other than its
-     * invoice selection's total. The payment page warns staff before they post it.
+     * The card-details key that marks a payment whose gateway reported an amount other than its
+     * invoice selection's total, or that could not be checked. Staff are warned before posting.
      */
     public const MISMATCH = 'amountMismatch';
+
+    /** The most whole-dollar digits an amount may have. */
+    private const MAX_DOLLAR_DIGITS = 15;
 
     /**
      * Whether $payment is a positive amount equal to the total of the invoice selection.
@@ -101,7 +104,7 @@ final class PortalPaymentAmount
                 continue;
             }
             $cents = self::cents($value);
-            if ($cents === null) {
+            if ($cents === null || $cents > PHP_INT_MAX - $total) {
                 return null;
             }
             $total += $cents;
@@ -111,15 +114,21 @@ final class PortalPaymentAmount
     }
 
     /**
-     * An amount in cents, or null when it is not a plain amount with at most two decimals.
+     * An amount in cents, or null when it is not a plain amount with at most two decimals, or
+     * has more whole dollars than integer cents can hold.
      */
     public static function cents(string $amount): ?int
     {
         if (preg_match(self::AMOUNT, $amount, $parts) !== 1) {
             return null;
         }
+        $dollars = ltrim($parts[1], '0');
+        // At most 15 digits keeps dollars * 100 well inside PHP_INT_MAX (19 digits).
+        if (strlen($dollars) > self::MAX_DOLLAR_DIGITS) {
+            return null;
+        }
         $fraction = str_pad($parts[2] ?? '', 2, '0');
 
-        return intval($parts[1]) * 100 + intval($fraction);
+        return intval($dollars) * 100 + intval($fraction);
     }
 }

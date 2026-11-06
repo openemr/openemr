@@ -102,10 +102,22 @@ if ($_POST['mode'] === 'Sphere') {
     $sphereAmount = $paymentResult['amount'] ?? '';
     $cc['amount'] = is_string($sphereAmount) ? $sphereAmount : '';
     $patientId = filter_var($form_pid, FILTER_VALIDATE_INT);
-    $invoiceLines = is_int($patientId) ? (new PortalInvoiceLines())->encounters($patientId) : [];
-    if (!PortalPaymentAmount::matchesInvoice($cc['amount'], $invoice, $invoiceLines)) {
+    try {
+        $invoiceLines = is_int($patientId) ? (new PortalInvoiceLines())->encounters($patientId) : [];
+        $amountMatches = PortalPaymentAmount::matchesInvoice($cc['amount'], $invoice, $invoiceLines);
+    } catch (\RuntimeException $lookupError) {
+        // The card is already charged and the Sphere result is gone from the session, so the
+        // payment is still recorded; staff check it instead.
+        ServiceContainer::getLogger()->error('Could not check a Sphere payment against its invoice selection', [
+            'pid' => $patientId,
+            'transid' => $cc['transId'],
+            'exception' => $lookupError,
+        ]);
+        $amountMatches = false;
+    }
+    if (!$amountMatches) {
         $cc[PortalPaymentAmount::MISMATCH] = true;
-        ServiceContainer::getLogger()->warning('Sphere charged an amount that is not the invoice selection total', [
+        ServiceContainer::getLogger()->warning('Sphere payment flagged: its amount does not match the invoice selection, or could not be checked', [
             'pid' => $patientId,
             'transid' => $cc['transId'],
         ]);
