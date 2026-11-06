@@ -183,11 +183,27 @@ final class PhiMailReceiverTest extends TestCase
         $this->assertCheckFails('M16 unexpected problem checking messages ');
     }
 
-    public function testUnexpectedCheckReplyFails(): void
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unexpectedCheckReplyProvider(): array
     {
-        $this->reply(self::lines('OK', 'BOGUS'));
+        return [
+            'unknown keyword' => ['BOGUS'],
+            'STATUS with an empty code' => ['STATUS msg-1  recipient rejected'],
+            'MAIL with an empty sender' => ['MAIL to@direct.example  0 msg-4'],
+        ];
+    }
 
-        $this->assertCheckFails('M16 unexpected problem checking messages BOGUS' . self::LF);
+    #[DataProvider('unexpectedCheckReplyProvider')]
+    public function testUnexpectedCheckReplyFails(string $reply): void
+    {
+        $this->reply(self::lines('OK', $reply));
+
+        $this->assertCheckFails('M16 unexpected problem checking messages ' . $reply . self::LF);
+        self::assertSame(self::lines('AUTH test-user test-password', 'CHECK'), $this->sentCommands());
     }
 
     public function testFailedAuditWriteFailsAnOtherwiseSuccessfulCheck(): void

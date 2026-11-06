@@ -58,7 +58,7 @@ final class PhiMailCheckReplyParser
     private static function status(string $line): PhiMailStatusReply
     {
         $fields = explode(' ', trim($line), 4);
-        if (count($fields) < 3 || $fields[1] === '') {
+        if (count($fields) < 3 || in_array('', $fields, true)) {
             throw new PhiMailUnexpectedResponseException($line);
         }
         return new PhiMailStatusReply(
@@ -77,7 +77,7 @@ final class PhiMailCheckReplyParser
     private static function mail(string $line): PhiMailMailReply
     {
         $fields = explode(' ', trim($line), 5);
-        if (count($fields) < 5 || !ctype_digit($fields[3]) || $fields[4] === '') {
+        if (count($fields) < 5 || in_array('', $fields, true) || !ctype_digit($fields[3])) {
             throw new PhiMailUnexpectedResponseException($line);
         }
         return new PhiMailMailReply(
