@@ -17,9 +17,20 @@
     {% for m in list %}
         <div class="list-group-item p-0 pl-1">
             <span class="font-weight-normal">{{ m.title|text }}</span>
-            <span>{{ m.drug_dosage_instructions|text }}</span>
+            <span>{{ m.dose|text }}</span>
         </div>
     {% endfor %}
 {% endif %}
 </div>
+{% if printPid is defined and printPid %}
+<div class="p-1">
+    <form method="get" action="active_medications_print.php" target="_blank" class="d-inline">
+        <input type="hidden" name="pid" value="{{ printPid|attr }}">
+        <button type="submit" class="btn btn-link p-0 border-0 align-baseline" onclick="top.restoreSession()">{{ "Print"|xlt }}</button>
+    </form>
+    {% if inactiveCount is defined and inactiveCount > 0 %}
+        <span class="text-muted">({{ inactiveCount|text }} {{ "inactive"|xlt }})</span>
+    {% endif %}
+</div>
+{% endif %}
 {% endblock %}
