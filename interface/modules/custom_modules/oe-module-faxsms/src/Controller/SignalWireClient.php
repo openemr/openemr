@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
-use Document;
 use Exception;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
@@ -20,6 +19,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxDocumentDisposalInterface;
+use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentAccessException;
 use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\Client;
 use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\FaxInstance;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
@@ -222,9 +222,14 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
             $file = $plainStagePath;
         }
 
-        // Handle document retrieval
+        // Handle document retrieval, enforcing the document ACLs and patient
+        // ownership for the request-supplied id.
         if ($isDocuments) {
-            $file = (new Document($docId))->get_data();
+            try {
+                $file = $this->readAuthorizedFaxDocument($docId)['content'];
+            } catch (FaxDocumentAccessException $e) {
+                return $e->getMessage();
+            }
         }
 
         // Send email if requested. $file is raw bytes when either the

@@ -20,6 +20,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxDocumentDisposalInterface;
 use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
+use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentAccessException;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
@@ -265,8 +266,10 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
         $fileName ??= pathinfo((string)$file, PATHINFO_BASENAME);
 
         $allowedTempDir = realpath($this->baseDir . '/send/');
-        // Validate file path to prevent path traversal
-        if (is_file($file)) {
+        // Validate file path to prevent path traversal. A patient document
+        // send names the document's own storage path, which is never under
+        // send/; it is read by document id below, so the path isn't used.
+        if (!$isDocuments && is_file($file)) {
             if (str_starts_with((string)$file, 'file://')) {
                 $file = substr((string)$file, 7);
             }
@@ -322,9 +325,15 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                 $file = 'report-' . attr(OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
             } else {
                 if ($isDocuments) {
-                    // Enforce patients/docs ACL and patient ownership before
-                    // reading a request-supplied document id (see A3).
-                    $content = $this->readAuthorizedFaxDocument(is_scalar($docId) ? (int) $docId : 0);
+                    // Enforce the document ACLs and patient ownership before
+                    // reading a request-supplied document id.
+                    try {
+                        $document = $this->readAuthorizedFaxDocument($docId);
+                    } catch (FaxDocumentAccessException $e) {
+                        return $e->getMessage();
+                    }
+                    $content = $document['content'];
+                    $fileName = $document['name'];
                 } elseif (is_file($file)) {
                     $content = file_get_contents($file);
                     if ($content === false) {
