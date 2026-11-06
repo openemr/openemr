@@ -409,6 +409,11 @@ class ContactRelationService extends BaseService
             $maxAttempts = 5;
             for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
                 $candidate = QueryUtils::generateId();
+                // GenID() gives 0 (or false) when it cannot update the counter; an address
+                // must not be saved under that id.
+                if ($candidate <= 0) {
+                    throw new \RuntimeException('addresses id allocation failed: the sequences counter gave no id');
+                }
                 try {
                     QueryUtils::sqlStatementThrowException(
                         "INSERT INTO addresses (id, line1, line2, city, state, zip, country) "

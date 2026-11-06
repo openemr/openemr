@@ -58,6 +58,7 @@ class AddressService extends BaseService
      * Insert a new address record.
      *
      * @return int|false The new address ID, or false on failure
+     * @throws \RuntimeException when the sequences counter gives no id
      */
     public function insert(AddressData $data, int $foreignId): int|false
     {
@@ -67,6 +68,10 @@ class AddressService extends BaseService
         // save, an INSERT ... ON DUPLICATE KEY UPDATE, would later overwrite
         // the row with another owner's address.
         $freshId = QueryUtils::generateId();
+        // GenID() gives 0 (or false) when it cannot update the counter.
+        if ($freshId <= 0) {
+            throw new \RuntimeException('addresses id allocation failed: the sequences counter gave no id');
+        }
 
         $addressesSql  = " INSERT INTO addresses SET";
         $addressesSql .= "     id=?,";

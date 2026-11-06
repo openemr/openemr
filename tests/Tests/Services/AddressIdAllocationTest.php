@@ -20,6 +20,7 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\AddressService;
 use OpenEMR\Services\ContactRelationService;
@@ -120,6 +121,52 @@ class AddressIdAllocationTest extends TestCase
             $this->addressRow((int) $relatedId)
         );
         $this->assertSame(3, $this->syntheticAddressCount(), 'three saves, three rows');
+    }
+
+    public function testNoAddressIsSavedWhenTheCounterGivesNoId(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO patient_data (pid, uuid, fname, lname, `date`) VALUES (?, ?, 'test-fixture-address-id', 'test-fixture-address-id', NOW())",
+            [self::PID, random_bytes(16)]
+        );
+        $service = new ContactRelationService();
+        $created = $service->insertRelatedPerson([
+            'pid' => self::PID,
+            'relationship' => 'SPS',
+            'first_name' => 'test-fixture-address-id',
+            'last_name' => 'test-fixture-address-id',
+        ]);
+        $this->assertTrue($created->isValid() && $created->hasData(), 'the related person is created');
+        $personUuid = QueryUtils::fetchSingleValue("SELECT uuid FROM person WHERE first_name = 'test-fixture-address-id'", 'uuid');
+        $this->assertIsString($personUuid);
+
+        // GenID() returns false with hasGenID off, and 0 when it cannot update the counter: no id either way.
+        $adodb = OEGlobalsBag::getInstance()->get('adodb');
+        $this->assertIsArray($adodb);
+        $db = $adodb['db'];
+        $this->assertInstanceOf(\ADOConnection::class, $db);
+        $db->hasGenID = false;
+        try {
+            $updated = $service->updateRelatedPerson(
+                UuidRegistry::uuidToString($personUuid),
+                ['addresses' => [['line1' => 'test-fixture-address-id related', 'city' => 'Testville', 'state' => 'VT']]],
+                self::PID
+            );
+            $this->assertTrue($updated->hasErrors(), 'the related person update fails');
+            $serviceFailed = false;
+            try {
+                (new AddressService())->insert(
+                    new AddressData('test-fixture-address-id service', '', 'Testville', 'VT', '05001', 'USA'),
+                    self::OWNER_SERVICE
+                );
+            } catch (\RuntimeException) {
+                $serviceFailed = true;
+            }
+            $this->assertTrue($serviceFailed, 'the address service refuses the insert');
+        } finally {
+            $db->hasGenID = true;
+        }
+        $this->assertSame(0, $this->syntheticAddressCount(), 'no address saved');
     }
 
     /**
