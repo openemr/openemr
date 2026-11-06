@@ -429,7 +429,7 @@ final class PhiMailReceiver
         try {
             $document = $this->documents->store($name, $mimeType, $path, $this->users->serviceUserId());
         } catch (SqlQueryException | PhiMailDocumentException $e) {
-            $this->logger->error('phiMail could not store a received document', ['exception' => $e, 'name' => $name, 'mimeType' => $mimeType]);
+            $this->logger->error('phiMail could not store a received document', ['exception' => $e, 'mimeType' => $mimeType]);
             $this->audit->record(false, 'problem storing attachment in OpenEMR', failing: true);
             $this->fail($failure, $e);
         } finally {
