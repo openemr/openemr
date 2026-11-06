@@ -730,7 +730,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     $prev_row = [];
     $effectiveInsurances = [];
     while ($erow = sqlFetchArray($res)) {
-        $effectiveInsurances = getEffectiveInsurances(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'), $erow['date']);
+        $effectiveInsurances = getEffectiveInsurances($form_pid, $erow['date']);
         $print = '';
         $csv = '';
         if ($erow['encounter'] != $prev_encounter_id) {
