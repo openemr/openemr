@@ -90,6 +90,10 @@ final readonly class PhiMailSender
         if (!$this->config->server->enabled) {
             return $configError . ' ' . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED;
         }
+        $refusal = $this->lineBreakRefusal($message, $configError);
+        if ($refusal !== null) {
+            return $refusal;
+        }
 
         try {
             $connection = $this->connections->open();
@@ -131,40 +135,41 @@ final readonly class PhiMailSender
      */
     private function transmit(PhiMailConnection $connection, PhiMailOutgoingMessage $message, string $configError): string
     {
-        if (self::sendExpectingOk($connection, 'AUTH ' . $this->config->username . ' ' . $this->config->password . self::LF) !== null) {
+        if ($this->sendExpectingOk($connection, 'AUTH ' . $this->config->username . ' ' . $this->config->password . self::LF) !== null) {
             throw new PhiMailSendException($configError . ' ' . ErrorConstants::ERROR_CODE_AUTH_FAILED);
         }
 
-        $reply = self::sendExpectingOk($connection, 'TO ' . $message->recipient . self::LF);
+        $reply = $this->sendExpectingOk($connection, 'TO ' . $message->recipient . self::LF);
         if ($reply !== null) {
             throw new PhiMailSendException(xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . ' ' . $reply);
         }
         // The server follows its OK with one more line, which the send does not use.
         try {
             $connection->readLine();
-        } catch (PhiMailStreamException) {
+        } catch (PhiMailStreamException $e) {
+            $this->connectionLost($e);
             throw new PhiMailSendException($configError . ' ' . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_FAILED);
         }
 
-        if (!self::sendExpectingBegin($connection, 'TEXT ' . strlen($message->text) . self::LF)) {
+        if (!$this->sendExpectingBegin($connection, 'TEXT ' . strlen($message->text) . self::LF)) {
             throw new PhiMailSendException($configError . ' ' . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_FAILED);
         }
-        if (self::sendExpectingOk($connection, $message->text) !== null) {
+        if ($this->sendExpectingOk($connection, $message->text) !== null) {
             throw new PhiMailSendException($configError . ' ' . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_OK_FAILED);
         }
 
         $attachment = $message->attachment;
         if ($attachment instanceof PhiMailOutgoingAttachment) {
             $add = 'ADD ' . $attachment->type->value . ' ' . strlen($attachment->content) . ' ' . $attachment->fileName . self::LF;
-            if (!self::sendExpectingBegin($connection, $add)) {
+            if (!$this->sendExpectingBegin($connection, $add)) {
                 throw new PhiMailSendException($configError . ' ' . ErrorConstants::ERROR_CODE_ADD_FILE_FAILED);
             }
-            if (self::sendExpectingOk($connection, $attachment->content) !== null) {
+            if ($this->sendExpectingOk($connection, $attachment->content) !== null) {
                 throw new PhiMailSendException($configError . ' ' . ErrorConstants::ERROR_CODE_ADD_FILE_CONFIRM_FAILED);
             }
         }
 
-        $reply = self::sendExpectingOk($connection, 'SET FINAL ' . ($message->verifyFinalDelivery ? '1' : '0') . self::LF);
+        $reply = $this->sendExpectingOk($connection, 'SET FINAL ' . ($message->verifyFinalDelivery ? '1' : '0') . self::LF);
         if ($reply !== null) {
             throw new PhiMailSendException(xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . ' ' . $reply);
         }
@@ -172,15 +177,45 @@ final readonly class PhiMailSender
         try {
             $connection->write('SEND' . self::LF);
             $reply = $connection->readLine();
-        } catch (PhiMailStreamException) {
+        } catch (PhiMailStreamException $e) {
+            $this->connectionLost($e);
             return '';
         }
         try {
             $connection->write('OK' . self::LF);
-        } catch (PhiMailStreamException) {
+        } catch (PhiMailStreamException $e) {
             // The reply is already in hand, so a lost acknowledgment changes nothing.
+            $this->connectionLost($e);
         }
         return $reply;
+    }
+
+    /**
+     * A line break in a command argument would end the command early and send
+     * the rest as another command, so refuse the send before connecting.
+     *
+     * @return ?string the message for the user, or null when every argument is safe
+     */
+    private function lineBreakRefusal(PhiMailOutgoingMessage $message, string $configError): ?string
+    {
+        $attachment = $message->attachment;
+        $refusal = match (true) {
+            self::hasLineBreak($this->config->username), self::hasLineBreak($this->config->password)
+                => $configError . ' ' . ErrorConstants::ERROR_CODE_AUTH_FAILED,
+            self::hasLineBreak($message->recipient) => xl(ErrorConstants::RECIPIENT_NOT_ALLOWED),
+            $attachment instanceof PhiMailOutgoingAttachment && self::hasLineBreak($attachment->fileName)
+                => $configError . ' ' . ErrorConstants::ERROR_CODE_ADD_FILE_FAILED,
+            default => null,
+        };
+        if ($refusal !== null) {
+            $this->logger->warning('phiMail send refused a command argument with a line break');
+        }
+        return $refusal;
+    }
+
+    private function connectionLost(PhiMailStreamException $e): void
+    {
+        $this->logger->warning('phiMail connection failed during a send', ['exception' => $e]);
     }
 
     private function audit(string $event, PhiMailRequester $requester, bool $success, string $text, ?int $patientId): void
@@ -191,13 +226,14 @@ final readonly class PhiMailSender
     /**
      * @return ?string null on OK, otherwise the server's reply, or '' when there was none
      */
-    private static function sendExpectingOk(PhiMailConnection $connection, string $data): ?string
+    private function sendExpectingOk(PhiMailConnection $connection, string $data): ?string
     {
         try {
             $connection->expectOk($data);
         } catch (PhiMailUnexpectedResponseException $e) {
             return $e->response;
-        } catch (PhiMailStreamException) {
+        } catch (PhiMailStreamException $e) {
+            $this->connectionLost($e);
             return '';
         }
         return null;
@@ -206,13 +242,19 @@ final readonly class PhiMailSender
     /**
      * Send a command that announces upload content, and report whether the server is ready for it.
      */
-    private static function sendExpectingBegin(PhiMailConnection $connection, string $command): bool
+    private function sendExpectingBegin(PhiMailConnection $connection, string $command): bool
     {
         try {
             $connection->write($command);
             return $connection->readLine() === self::BEGIN;
-        } catch (PhiMailStreamException) {
+        } catch (PhiMailStreamException $e) {
+            $this->connectionLost($e);
             return false;
         }
+    }
+
+    private static function hasLineBreak(string $value): bool
+    {
+        return strpbrk($value, "\r\n") !== false;
     }
 }

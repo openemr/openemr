@@ -32,6 +32,7 @@ use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 #[BackupGlobals(true)]
@@ -217,6 +218,55 @@ final class PhiMailSenderTest extends TestCase
         self::assertStringNotContainsString('SEND' . self::LF, $this->sentCommands());
     }
 
+    /**
+     * @return array<string, array{string, string, string, string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function lineBreakProvider(): array
+    {
+        return [
+            'username' => ["test-user\nSEND", 'test-password', 'to@direct.example', 'doc.pdf', self::CONFIG_ERROR . ' 4'],
+            'password' => ['test-user', "test-password\r", 'to@direct.example', 'doc.pdf', self::CONFIG_ERROR . ' 4'],
+            'recipient' => ['test-user', 'test-password', "to@direct.example\nSEND", 'doc.pdf', 'Delivery is not allowed to the specified Direct Address:'],
+            'attachment name' => ['test-user', 'test-password', 'to@direct.example', "doc.pdf\nSEND", self::CONFIG_ERROR . ' 7'],
+        ];
+    }
+
+    #[DataProvider('lineBreakProvider')]
+    public function testLineBreakInACommandArgumentRefusesTheSend(
+        string $username,
+        string $password,
+        string $recipient,
+        string $fileName,
+        string $expected,
+    ): void {
+        $connections = $this->createMock(PhiMailConnectionFactory::class);
+        $connections->expects(self::never())->method('open');
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('warning')->with('phiMail send refused a command argument with a line break');
+
+        $result = $this->send(
+            new PhiMailOutgoingMessage($recipient, 'hello', new PhiMailOutgoingAttachment(PhiMailAttachmentType::Raw, $fileName, '%PDF')),
+            $this->sender($connections, username: $username, password: $password, logger: $logger),
+        );
+
+        self::assertSame($expected, $result);
+        self::assertSame([], $this->auditRows);
+    }
+
+    public function testDroppedConnectionIsLogged(): void
+    {
+        stream_socket_shutdown($this->server, STREAM_SHUT_WR);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('warning')->with('phiMail connection failed during a send', self::arrayHasKey('exception'));
+
+        $result = $this->send(new PhiMailOutgoingMessage('to@direct.example', 'hello'), $this->sender(logger: $logger));
+
+        self::assertSame(self::CONFIG_ERROR . ' 4', $result);
+        $this->sentCommands();
+    }
+
     public function testLostAcknowledgmentKeepsTheQueuedMessage(): void
     {
         HangUpAfterSendStream::$replies = self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-3');
@@ -248,7 +298,13 @@ final class PhiMailSenderTest extends TestCase
         );
     }
 
-    private function sender(?PhiMailConnectionFactory $connections = null, bool $enabled = true): PhiMailSender
+    private function sender(
+        ?PhiMailConnectionFactory $connections = null,
+        bool $enabled = true,
+        string $username = 'test-user',
+        string $password = 'test-password',
+        LoggerInterface $logger = new NullLogger(),
+    ): PhiMailSender
     {
         $auditLogger = $this->createMock(EventAuditLogger::class);
         $auditLogger->method('newEvent')->willReturnCallback(
@@ -259,7 +315,7 @@ final class PhiMailSenderTest extends TestCase
         $connection = $this->connection;
 
         return new PhiMailSender(
-            config: new PhiMailConfig(new PhiMailServer($enabled, 'tls://phimail.example:32541', true, null), 'test-user', 'test-password', 'admin'),
+            config: new PhiMailConfig(new PhiMailServer($enabled, 'tls://phimail.example:32541', true, null), $username, $password, 'admin'),
             connections: $connections ?? new class ($connection) implements PhiMailConnectionFactory {
                 public function __construct(private readonly PhiMailConnection $connection)
                 {
@@ -272,7 +328,7 @@ final class PhiMailSenderTest extends TestCase
             },
             messageLog: $this->messageLog,
             auditLogger: $auditLogger,
-            logger: new NullLogger(),
+            logger: $logger,
         );
     }
 
