@@ -125,9 +125,12 @@ class eRxStore
         ];
     }
 
-    public function getPatientHealthplansByPatientId($patientId)
+    /**
+     * @return list<array<mixed>>
+     */
+    public function getPatientHealthplansByPatientId(int $patientId): array
     {
-        return sqlStatement(
+        return QueryUtils::fetchRecords(
             'SELECT `ins`.`name`
 			FROM (
 				SELECT
@@ -145,9 +148,12 @@ class eRxStore
         );
     }
 
-    public function getPatientAllergiesByPatientId($patientId)
+    /**
+     * @return list<array<mixed>>
+     */
+    public function getPatientAllergiesByPatientId(int $patientId): array
     {
-        return sqlStatement(
+        return QueryUtils::fetchRecords(
             'SELECT id, lists.title as title1, list_options.title as title2, comments
 			FROM lists
 				LEFT JOIN list_options ON lists.outcome = list_options.option_id
@@ -164,10 +170,13 @@ class eRxStore
         );
     }
 
-    public function getPatientDiagnosisByPatientId($patientId)
+    /**
+     * @return list<array<mixed>>
+     */
+    public function getPatientDiagnosisByPatientId(int $patientId): array
     {
         // Newest onset first: PatientDiagnosisList keeps the first row per code.
-        return QueryUtils::sqlStatementThrowException(
+        return QueryUtils::fetchRecords(
             <<<'SQL'
             SELECT diagnosis, begdate, enddate, title, date
             FROM lists
@@ -287,9 +296,12 @@ class eRxStore
     }
 
 
-    public function selectMedicationsNotUploadedByPatientId($patientId, $uploadActive, $limit)
+    /**
+     * @return list<array<mixed>>
+     */
+    public function selectMedicationsNotUploadedByPatientId(int $patientId, int $uploadActive, int $limit): array
     {
-        return sqlStatement(
+        return QueryUtils::fetchRecords(
             'SELECT id, begdate, title
 			FROM lists
 			WHERE type = \'medication\'
@@ -311,9 +323,12 @@ class eRxStore
         );
     }
 
-    public function selectPrescriptionIdsNotUploadedByPatientId($patientId, $uploadActive, $limit)
+    /**
+     * @return list<array<mixed>>
+     */
+    public function selectPrescriptionIdsNotUploadedByPatientId(int $patientId, int $uploadActive, int $limit): array
     {
-        return sqlStatement(
+        return QueryUtils::fetchRecords(
             'SELECT id
 			FROM prescriptions
 			WHERE patient_id = ?

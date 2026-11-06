@@ -13,46 +13,52 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Rx\Ensora\PatientContact;
 use OpenEMR\Rx\Ensora\PatientDiagnosisList;
+use OpenEMR\Rx\Ensora\RxInput;
 use OpenEMR\Services\VersionService;
 
 class eRxXMLBuilder
 {
-    /** @var ?eRxGlobals */
-    private $globals;
-    /** @var ?eRxStore */
-    private $store;
+    private readonly ClientInterface $httpClient;
 
-    private $document;
-    private $ncScript;
+    private ?DOMDocument $document = null;
+    private ?DOMElement $ncScript = null;
 
-    private $sentAllergyIds = [];
-    private $sentMedicationIds = [];
-    private $sentPrescriptionIds = [];
+    /** @var list<int> */
+    private array $sentAllergyIds = [];
+    /** @var list<int> */
+    private array $sentMedicationIds = [];
+    /** @var list<int> */
+    private array $sentPrescriptionIds = [];
 
-    private $fieldEmptyMessages = [];
-    private $demographicsCheckMessages = [];
-    private $warningMessages = [];
+    /** @var list<string> */
+    private array $fieldEmptyMessages = [];
+    /** @var list<string> */
+    private array $demographicsCheckMessages = [];
+    /** @var list<string> */
+    private array $warningMessages = [];
 
-    public function __construct($globals = null, $store = null)
-    {
-        if ($globals) {
-            $this->setGlobals($globals);
-        }
-
-        if ($store) {
-            $this->setStore($store);
-        }
+    public function __construct(
+        private ?eRxGlobals $globals = null,
+        private ?eRxStore $store = null,
+        ?ClientInterface $httpClient = null,
+    ) {
+        $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
     }
 
     /**
      * Set Globals for retrieving eRx global configurations
-     * @param  eRxGlobals    $globals The eRx Globals object to use for processing
-     * @return eRxXMLBuilder          This object is returned for method chaining
      */
-    public function setGlobals($globals)
+    public function setGlobals(eRxGlobals $globals): static
     {
         $this->globals = $globals;
 
@@ -61,19 +67,20 @@ class eRxXMLBuilder
 
     /**
      * Get Globals for retrieving eRx global configurations
-     * @return eRxGlobals The eRx Globals object to use for processing
      */
-    public function getGlobals()
+    public function getGlobals(): eRxGlobals
     {
+        if (!$this->globals instanceof eRxGlobals) {
+            throw new LogicException('eRxXMLBuilder has no eRxGlobals');
+        }
+
         return $this->globals;
     }
 
     /**
-     * Set Store to handle eRx cashed data
-     * @param  eRxStore      $store The eRx Store object to use for processing
-     * @return eRxXMLBuilder        This object is returned for method chaining
+     * Set Store to handle eRx cached data
      */
-    public function setStore($store)
+    public function setStore(eRxStore $store): static
     {
         $this->store = $store;
 
@@ -81,169 +88,169 @@ class eRxXMLBuilder
     }
 
     /**
-     * Get Store for handling eRx cashed data
-     * @return eRxStore The eRx Store object to use for processing
+     * Get Store for handling eRx cached data
      */
-    public function getStore()
+    public function getStore(): eRxStore
     {
+        if (!$this->store instanceof eRxStore) {
+            throw new LogicException('eRxXMLBuilder has no eRxStore');
+        }
+
         return $this->store;
     }
 
-    protected function trimData($string, $length): string
+    protected function trimData(string $string, int $length): string
     {
-        return substr((string) $string, 0, $length - 1);
+        return substr($string, 0, $length - 1);
     }
 
-    protected function stripSpecialCharacter($string)
+    protected function stripSpecialCharacter(string $string): string
     {
-        return preg_replace('/[^a-zA-Z0-9 \'().,#:\/\-@_%]/', '', (string) $string);
+        return self::regexRemove('/[^a-zA-Z0-9 \'().,#:\/\-@_%]/', $string);
     }
 
-    public function checkError($xml)
+    /**
+     * Post the request server-side and return the page, which
+     * eRxPage::checkError() searches for validation errors.
+     *
+     * @throws GuzzleException when the eRx service cannot be reached
+     */
+    public function checkError(string $xml): string
     {
-        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
-        $curlHandler = curl_init($xml);
-        $sitePath = $this->getGlobals()->getOpenEMRSiteDirectory();
-        $data = ['RxInput' => $xml];
-
-        curl_setopt($curlHandler, CURLOPT_URL, $this->getGlobals()->getPath());
-        curl_setopt($curlHandler, CURLOPT_POST, 1);
-        curl_setopt($curlHandler, CURLOPT_POSTFIELDS, 'RxInput=' . $xml);
-        curl_setopt($curlHandler, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
-        curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($curlHandler, CURLOPT_COOKIESESSION, true);
-        curl_setopt($curlHandler, CURLOPT_COOKIEFILE, $sitePath . '/newcrop-cookiefile');
-        curl_setopt($curlHandler, CURLOPT_COOKIEJAR, $sitePath . '/newcrop-cookiefile');
-        curl_setopt($curlHandler, CURLOPT_COOKIE, session_name() . '=' . session_id());
-        curl_setopt($curlHandler, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)');
-        curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
-
-        $result = curl_exec($curlHandler) or die(curl_error($curlHandler));
-
-        curl_close($curlHandler);
-
-        return $result;
-    }
-
-    public function addSentAllergyIds($allergyIds)
-    {
-        if (is_array($allergyIds)) {
-            foreach ($allergyIds as $allergyId) {
-                $this->sentAllergyIds[] = $allergyId;
-            }
-        } else {
-            $this->sentAllergyIds[] = $allergyIds;
+        $url = $this->getGlobals()->getPath();
+        if ($url === '') {
+            throw new UnexpectedValueException('The Ensora eRx path is not configured');
         }
+
+        $response = $this->httpClient->request('POST', $url, [
+            RequestOptions::COOKIES => new CookieJar(),
+            RequestOptions::FORM_PARAMS => ['RxInput' => $xml],
+            RequestOptions::HEADERS => ['User-Agent' => 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'],
+            // eRxPage::checkError() reads the page whatever its status.
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
+        ]);
+
+        return (string) $response->getBody();
     }
 
-    public function getSentAllergyIds()
+    public function addSentAllergyIds(int $allergyId): void
+    {
+        $this->sentAllergyIds[] = $allergyId;
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getSentAllergyIds(): array
     {
         return $this->sentAllergyIds;
     }
 
-    public function addSentMedicationIds($medicationIds)
+    public function addSentMedicationIds(int $medicationId): void
     {
-        if (is_array($medicationIds)) {
-            foreach ($medicationIds as $medicationId) {
-                $this->sentMedicationIds[] = $medicationId;
-            }
-        } else {
-            $this->sentMedicationIds[] = $medicationIds;
-        }
+        $this->sentMedicationIds[] = $medicationId;
     }
 
-    public function getSentMedicationIds()
+    /**
+     * @return list<int>
+     */
+    public function getSentMedicationIds(): array
     {
         return $this->sentMedicationIds;
     }
 
-    public function addSentPrescriptionId($prescriptionIds)
+    public function addSentPrescriptionId(int $prescriptionId): void
     {
-        if (is_array($prescriptionIds)) {
-            foreach ($prescriptionIds as $prescriptionId) {
-                $this->sentPrescriptionIds[] = $prescriptionId;
-            }
-        } else {
-            $this->sentPrescriptionIds[] = $prescriptionIds;
-        }
+        $this->sentPrescriptionIds[] = $prescriptionId;
     }
 
-    public function getSentPrescriptionIds()
+    /**
+     * @return list<int>
+     */
+    public function getSentPrescriptionIds(): array
     {
         return $this->sentPrescriptionIds;
     }
 
-    public function fieldEmpty($value, $message)
+    public function fieldEmpty(string $value, string $message): void
     {
-        if (empty($value)) {
+        if ($value === '') {
             $this->fieldEmptyMessages[] = $message;
         }
     }
 
-    public function getFieldEmptyMessages()
+    /**
+     * @return list<string>
+     */
+    public function getFieldEmptyMessages(): array
     {
         return $this->fieldEmptyMessages;
     }
 
-    public function demographicsCheck($value, $message)
+    public function demographicsCheck(string $value, string $message): void
     {
-        if (empty($value)) {
+        if ($value === '') {
             $this->demographicsCheckMessages[] = $message;
         }
     }
 
-    public function getDemographicsCheckMessages()
+    /**
+     * @return list<string>
+     */
+    public function getDemographicsCheckMessages(): array
     {
         return $this->demographicsCheckMessages;
     }
 
-    public function warningMessage($value, $message)
+    public function warningMessage(string $value, string $message): void
     {
-        if (empty($value)) {
+        if ($value === '') {
             $this->warningMessages[] = $message;
         }
     }
 
-    public function getWarningMessages()
+    /**
+     * @return list<string>
+     */
+    public function getWarningMessages(): array
     {
         return $this->warningMessages;
     }
 
-    public function createElementText($name, $value)
+    public function createElementText(string $name, string $value): DOMElement
     {
         $element = $this->getDocument()->createElement($name);
-        $element->appendChild($this->getDocument()->createTextNode($value));
+        $element->appendChild($this->getDocument()->createTextNode(RxInput::text($value)));
 
         return $element;
     }
 
-    public function createElementTextFieldEmpty($name, $value, $validationText)
+    public function createElementTextFieldEmpty(string $name, string $value, string $validationText): DOMElement
     {
         $this->fieldEmpty($value, $validationText);
 
         return $this->createElementText($name, $value);
     }
 
-    public function createElementTextDemographicsCheck($name, $value, $validationText)
+    public function createElementTextDemographicsCheck(string $name, string $value, string $validationText): DOMElement
     {
         $this->demographicsCheck($value, $validationText);
 
         return $this->createElementText($name, $value);
     }
 
-    public function appendChildren($element, &$children)
+    /**
+     * @param list<DOMElement> $children
+     */
+    public function appendChildren(DOMNode $element, array $children): void
     {
-        if (is_a($element, 'DOMNode') && is_array($children) && count($children)) {
-            foreach ($children as $child) {
-                // if(is_array($child)) {
-                //  $this->appendChildren($element, $child);
-                // }
-                $element->appendChild($child);
-            }
+        foreach ($children as $child) {
+            $element->appendChild($child);
         }
     }
 
-    public function getDocument()
+    public function getDocument(): DOMDocument
     {
         if ($this->document === null) {
             $this->document = new DOMDocument();
@@ -253,7 +260,7 @@ class eRxXMLBuilder
         return $this->document;
     }
 
-    public function getNCScript()
+    public function getNCScript(): DOMElement
     {
         if ($this->ncScript === null) {
             $document = $this->getDocument();
@@ -269,35 +276,32 @@ class eRxXMLBuilder
         return $this->ncScript;
     }
 
-    public function getCredentials()
+    public function getCredentials(): DOMElement
     {
         $eRxCredentials = $this->getGlobals()
             ->getCredentials();
 
         $element = $this->getDocument()->createElement('Credentials');
-        $element->appendChild($this->createElementTextFieldEmpty('partnerName', $eRxCredentials['0'], xl('Ensora eRx Partner Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('name', $eRxCredentials['1'], xl('Ensora eRx Account Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('password', $eRxCredentials['2'], xl('Ensora eRx Password')));
+        $element->appendChild($this->createElementTextFieldEmpty('partnerName', self::field($eRxCredentials, 0), xl('Ensora eRx Partner Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('name', self::field($eRxCredentials, 1), xl('Ensora eRx Account Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('password', self::field($eRxCredentials, 2), xl('Ensora eRx Password')));
         $element->appendChild($this->createElementText('productName', 'OpenEMR'));
         $element->appendChild($this->createElementText('productVersion', (new VersionService())->getSoftwareVersion()->full));
 
         return $element;
     }
 
-    public function getUserRole($authUserId)
+    public function getUserRole(int $authUserId): DOMElement
     {
-        $eRxUserRole = $this->getStore()
-            ->getUserById($authUserId);
-
-        $eRxUserRole = $eRxUserRole['newcrop_user_role'];
+        $eRxUserRole = $this->userRole($authUserId);
 
         $this->fieldEmpty($eRxUserRole, xl('Ensora eRx User Role'));
-        if (!$eRxUserRole) {
+        if ($eRxUserRole === '') {
             echo xlt('Unauthorized access to ePrescription');
             die;
         }
 
-        $eRxUserRole = preg_replace('/erx/', '', (string) $eRxUserRole);
+        $eRxUserRole = str_replace('erx', '', $eRxUserRole);
 
         $newCropUser = match ($eRxUserRole) {
             'admin', 'manager', 'nurse' => 'Staff',
@@ -314,23 +318,15 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getDestination($authUserId, $page = null)
+    public function getDestination(int $authUserId, string $page = ''): DOMElement
     {
-        $eRxUserRole = $this->getStore()
-            ->getUserById($authUserId);
+        $eRxUserRole = str_replace('erx', '', $this->userRole($authUserId));
 
-        $eRxUserRole = $eRxUserRole['newcrop_user_role'];
-
-        $eRxUserRole = preg_replace('/erx/', '', (string) $eRxUserRole);
-
-        if (!$page) {
-            if ($eRxUserRole == 'admin') {
-                $page = 'admin';
-            } elseif ($eRxUserRole == 'manager') {
-                $page = 'manager';
-            } else {
-                $page = 'compose';
-            }
+        if ($page === '') {
+            $page = match ($eRxUserRole) {
+                'admin', 'manager' => $eRxUserRole,
+                default => 'compose',
+            };
         }
 
         $element = $this->getDocument()->createElement('Destination');
@@ -339,274 +335,264 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getAccountAddress($facility)
+    /**
+     * @param array<mixed> $facility `facility` row
+     */
+    public function getAccountAddress(array $facility): DOMElement
     {
-        $postalCode = preg_replace('/[^0-9]/', '', (string) $facility['postal_code']);
-        $postalCodePostfix = substr((string) $postalCode, 5, 4);
-        $postalCode = substr((string) $postalCode, 0, 5);
+        $postalCode = self::regexRemove('/[^0-9]/', self::field($facility, 'postal_code'));
+        $postalCodePostfix = substr($postalCode, 5, 4);
+        $postalCode = substr($postalCode, 0, 5);
 
         if (strlen($postalCode) < 5) {
             $this->fieldEmpty('', xl('Primary Facility Zip Code'));
         }
 
         $element = $this->getDocument()->createElement('AccountAddress');
-        $element->appendChild($this->createElementTextFieldEmpty('address1', $this->trimData($this->stripSpecialCharacter($facility['street']), 35), xl('Primary Facility Street Address')));
-        $element->appendChild($this->createElementTextFieldEmpty('city', $facility['city'], xl('Primary Facility City')));
-        $element->appendChild($this->createElementTextFieldEmpty('state', $facility['state'], xl('Primary Facility State')));
+        $element->appendChild($this->createElementTextFieldEmpty('address1', $this->trimData($this->stripSpecialCharacter(self::field($facility, 'street')), 35), xl('Primary Facility Street Address')));
+        $element->appendChild($this->createElementTextFieldEmpty('city', self::field($facility, 'city'), xl('Primary Facility City')));
+        $element->appendChild($this->createElementTextFieldEmpty('state', self::field($facility, 'state'), xl('Primary Facility State')));
         $element->appendChild($this->createElementText('zip', $postalCode));
-        if (strlen($postalCodePostfix) == 4) {
+        if (strlen($postalCodePostfix) === 4) {
             $element->appendChild($this->createElementText('zip4', $postalCodePostfix));
         }
 
-        $element->appendChild($this->createElementTextFieldEmpty('country', substr((string) $facility['country_code'], 0, 2), xl('Primary Facility Country code')));
+        $element->appendChild($this->createElementTextFieldEmpty('country', substr(self::field($facility, 'country_code'), 0, 2), xl('Primary Facility Country code')));
 
         return $element;
     }
 
-    public function getAccount()
+    public function getAccount(): DOMElement
     {
-        $facility = $this->getStore()
-            ->getFacilityPrimary();
+        $facility = self::row($this->getStore()->getFacilityPrimary());
 
-        if (!$facility['federal_ein']) {
+        if (self::field($facility, 'federal_ein') === '') {
             echo xlt('Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.');
             die;
         }
 
         $element = $this->getDocument()->createElement('Account');
-        $element->setAttribute('ID', $this->getGlobals()->getAccountId());
-        $element->appendChild($this->createElementTextFieldEmpty('accountName', $this->trimData($this->stripSpecialCharacter($facility['name']), 35), xl('Facility Name')));
-        $element->appendChild($this->createElementText('siteID', $facility['federal_ein']));
+        $element->setAttribute('ID', RxInput::text(self::scalar($this->getGlobals()->getAccountId())));
+        $element->appendChild($this->createElementTextFieldEmpty('accountName', $this->trimData($this->stripSpecialCharacter(self::field($facility, 'name')), 35), xl('Facility Name')));
+        $element->appendChild($this->createElementText('siteID', self::field($facility, 'federal_ein')));
         $element->appendChild($this->getAccountAddress($facility));
-        $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryPhoneNumber', preg_replace('/[^0-9]/', '', (string) $facility['phone']), xl('Facility Phone')));
-        $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryFaxNumber', preg_replace('/[^0-9]/', '', (string) $facility['fax']), xl('Facility Fax')));
+        $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryPhoneNumber', self::regexRemove('/[^0-9]/', self::field($facility, 'phone')), xl('Facility Phone')));
+        $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryFaxNumber', self::regexRemove('/[^0-9]/', self::field($facility, 'fax')), xl('Facility Fax')));
 
         return $element;
     }
 
-    public function getLocationAddress($facility)
+    /**
+     * @param array<mixed> $facility `facility` row
+     */
+    public function getLocationAddress(array $facility): DOMElement
     {
-        $postalCode = preg_replace('/[^0-9]/', '', (string) $facility['postal_code']);
-        $postalCodePostfix = substr((string) $postalCode, 5, 4);
-        $postalCode = substr((string) $postalCode, 0, 5);
+        $postalCode = self::regexRemove('/[^0-9]/', self::field($facility, 'postal_code'));
+        $postalCodePostfix = substr($postalCode, 5, 4);
+        $postalCode = substr($postalCode, 0, 5);
 
         if (strlen($postalCode) < 5) {
             $this->fieldEmpty('', xl('Facility Zip Code'));
         }
 
+        $street = self::field($facility, 'street');
+        $city = self::field($facility, 'city');
+        $state = self::field($facility, 'state');
+        $countryCode = self::field($facility, 'country_code');
+
         $element = $this->getDocument()->createElement('LocationAddress');
-        if ($facility['street']) {
-            $element->appendChild($this->createElementText('address1', $this->trimData($this->stripSpecialCharacter($facility['street']), 35)));
+        if ($street !== '') {
+            $element->appendChild($this->createElementText('address1', $this->trimData($this->stripSpecialCharacter($street), 35)));
         }
 
-        if ($facility['city']) {
-            $element->appendChild($this->createElementText('city', $facility['city']));
+        if ($city !== '') {
+            $element->appendChild($this->createElementText('city', $city));
         }
 
-        if ($facility['state']) {
-            $element->appendChild($this->createElementText('state', $facility['state']));
+        if ($state !== '') {
+            $element->appendChild($this->createElementText('state', $state));
         }
 
         $element->appendChild($this->createElementText('zip', $postalCode));
-        if (strlen($postalCodePostfix) == 4) {
+        if (strlen($postalCodePostfix) === 4) {
             $element->appendChild($this->createElementText('zip4', $postalCodePostfix));
         }
 
-        if ($facility['country_code']) {
-            $element->appendChild($this->createElementText('country', substr((string) $facility['country_code'], 0, 2)));
+        if ($countryCode !== '') {
+            $element->appendChild($this->createElementText('country', substr($countryCode, 0, 2)));
         }
 
         return $element;
     }
 
-    public function getLocation($authUserId)
+    public function getLocation(int $authUserId): DOMElement
     {
-        $userFacility = $this->getStore()
-            ->getUserFacility($authUserId);
+        $userFacility = self::row($this->getStore()->getUserFacility($authUserId));
+        $phone = self::regexRemove('/[^0-9]/', self::field($userFacility, 'phone'));
+        $fax = self::regexRemove('/[^0-9]/', self::field($userFacility, 'fax'));
 
         $element = $this->getDocument()->createElement('Location');
-        $element->setAttribute('ID', $userFacility['id']);
-        $element->appendChild($this->createElementText('locationName', $this->trimData($this->stripSpecialCharacter($userFacility['name']), 35)));
+        $element->setAttribute('ID', RxInput::text(self::field($userFacility, 'id')));
+        $element->appendChild($this->createElementText('locationName', $this->trimData($this->stripSpecialCharacter(self::field($userFacility, 'name')), 35)));
         $element->appendChild($this->getLocationAddress($userFacility));
-        if ($userFacility['phone']) {
-            $element->appendChild($this->createElementText('primaryPhoneNumber', preg_replace('/[^0-9]/', '', (string) $userFacility['phone'])));
+        if (self::field($userFacility, 'phone') !== '') {
+            $element->appendChild($this->createElementText('primaryPhoneNumber', $phone));
         }
 
-        if ($userFacility['fax']) {
-            $element->appendChild($this->createElementText('primaryFaxNumber', preg_replace('/[^0-9]/', '', (string) $userFacility['fax'])));
+        if (self::field($userFacility, 'fax') !== '') {
+            $element->appendChild($this->createElementText('primaryFaxNumber', $fax));
         }
 
-        if ($userFacility['phone']) {
-            $element->appendChild($this->createElementText('pharmacyContactNumber', preg_replace('/[^0-9]/', '', (string) $userFacility['phone'])));
+        if (self::field($userFacility, 'phone') !== '') {
+            $element->appendChild($this->createElementText('pharmacyContactNumber', $phone));
         }
 
         return $element;
     }
 
-    public function getLicensedPrescriber($authUserId)
+    public function getLicensedPrescriber(int $authUserId): DOMElement
     {
-        $userDetails = $this->getStore()
-            ->getUserById($authUserId);
-
-        $element = $this->getDocument()->createElement('LicensedPrescriber');
-        $element->setAttribute('ID', $userDetails['npi']);
-        $element->appendChild($this->getLicensedPrescriberName($userDetails, xl('Licensed Prescriber')));
-        $element->appendChild($this->createElementTextFieldEmpty('dea', $userDetails['federaldrugid'], 'Licensed Prescriber DEA'));
-        if ($userDetails['upin']) {
-            $element->appendChild($this->createElementText('upin', $userDetails['upin']));
-        }
-
-        $element->appendChild($this->createElementText('licenseNumber', $userDetails['state_license_number']));
-        $element->appendChild($this->createElementTextFieldEmpty('npi', $userDetails['npi'], xl('Licensed Prescriber NPI')));
-
-        return $element;
+        return $this->getPrescriber('LicensedPrescriber', $authUserId, xl('Licensed Prescriber'), 'Licensed Prescriber DEA', xl('Licensed Prescriber NPI'));
     }
 
-    public function getStaffName($user)
+    /**
+     * @param array<mixed> $user `users` row
+     */
+    public function getStaffName(array $user): DOMElement
     {
         $element = $this->getDocument()->createElement('StaffName');
-        $element->appendChild($this->createElementText('last', $this->stripSpecialCharacter($user['lname'])));
-        $element->appendChild($this->createElementText('first', $this->stripSpecialCharacter($user['fname'])));
-        $element->appendChild($this->createElementText('middle', $this->stripSpecialCharacter($user['mname'])));
+        $element->appendChild($this->createElementText('last', $this->stripSpecialCharacter(self::field($user, 'lname'))));
+        $element->appendChild($this->createElementText('first', $this->stripSpecialCharacter(self::field($user, 'fname'))));
+        $element->appendChild($this->createElementText('middle', $this->stripSpecialCharacter(self::field($user, 'mname'))));
 
         return $element;
     }
 
-    public function getStaff($authUserId)
+    public function getStaff(int $authUserId): DOMElement
     {
-        $userDetails = $this->getStore()
-            ->getUserById($authUserId);
+        $userDetails = self::row($this->getStore()->getUserById($authUserId));
 
         $element = $this->getDocument()->createElement('Staff');
-        $element->setAttribute('ID', $userDetails['username']);
+        $element->setAttribute('ID', RxInput::text(self::field($userDetails, 'username')));
         $element->appendChild($this->getStaffName($userDetails));
-        $element->appendChild($this->createElementText('license', $userDetails['state_license_number']));
+        $element->appendChild($this->createElementText('license', self::field($userDetails, 'state_license_number')));
 
         return $element;
     }
 
-    public function getLicensedPrescriberName($user, $prescriberType, $prefix = false)
+    /**
+     * @param array<mixed> $user `users` row
+     */
+    public function getLicensedPrescriberName(array $user, string $prescriberType, bool $prefix = false): DOMElement
     {
+        $title = self::field($user, 'title');
+
         $element = $this->getDocument()->createElement('LicensedPrescriberName');
-        $element->appendChild($this->createElementTextFieldEmpty('last', $this->stripSpecialCharacter($user['lname']), $prescriberType . ' ' . xl('Licensed Prescriber Last Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('first', $this->stripSpecialCharacter($user['fname']), $prescriberType . ' ' . xl('Licensed Prescriber First Name')));
-        $element->appendChild($this->createElementText('middle', $this->stripSpecialCharacter($user['mname'])));
-        if ($prefix && $user['title']) {
-            $element->appendChild($this->createElementTextFieldEmpty('prefix', $user['title'], $prescriberType . ' ' . xl('Licensed Prescriber Title (Prefix)')));
+        $element->appendChild($this->createElementTextFieldEmpty('last', $this->stripSpecialCharacter(self::field($user, 'lname')), $prescriberType . ' ' . xl('Licensed Prescriber Last Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('first', $this->stripSpecialCharacter(self::field($user, 'fname')), $prescriberType . ' ' . xl('Licensed Prescriber First Name')));
+        $element->appendChild($this->createElementText('middle', $this->stripSpecialCharacter(self::field($user, 'mname'))));
+        if ($prefix && $title !== '') {
+            $element->appendChild($this->createElementTextFieldEmpty('prefix', $title, $prescriberType . ' ' . xl('Licensed Prescriber Title (Prefix)')));
         }
 
         return $element;
     }
 
-    public function getSupervisingDoctor($authUserId)
+    public function getSupervisingDoctor(int $authUserId): DOMElement
     {
-        $userDetails = $this->getStore()
-            ->getUserById($authUserId);
-
-        $element = $this->getDocument()->createElement('SupervisingDoctor');
-        $element->setAttribute('ID', $userDetails['npi']);
-        $element->appendChild($this->getLicensedPrescriberName($userDetails, xl('Supervising Doctor')));
-        $element->appendChild($this->createElementTextFieldEmpty('dea', $userDetails['federaldrugid'], xl('Supervising Doctor DEA')));
-        if ($userDetails['upin']) {
-            $element->appendChild($this->createElementText('upin', $userDetails['upin']));
-        }
-
-        $element->appendChild($this->createElementText('licenseNumber', $userDetails['state_license_number']));
-        $element->appendChild($this->createElementTextFieldEmpty('npi', $userDetails['npi'], xl('Supervising Doctor NPI')));
-
-        return $element;
+        return $this->getPrescriber('SupervisingDoctor', $authUserId, xl('Supervising Doctor'), xl('Supervising Doctor DEA'), xl('Supervising Doctor NPI'));
     }
 
-    public function getMidlevelPrescriber($authUserId)
+    public function getMidlevelPrescriber(int $authUserId): DOMElement
     {
-        $userDetails = $this->getStore()
-            ->getUserById($authUserId);
-
-        $element = $this->getDocument()->createElement('MidlevelPrescriber');
-        $element->setAttribute('ID', $userDetails['npi']);
-        $element->appendChild($this->getLicensedPrescriberName($userDetails, xl('Midlevel Prescriber'), true));
-        $element->appendChild($this->createElementTextFieldEmpty('dea', $userDetails['federaldrugid'], xl('Midlevel Prescriber DEA')));
-        if ($userDetails['upin']) {
-            $element->appendChild($this->createElementText('upin', $userDetails['upin']));
-        }
-
-        $element->appendChild($this->createElementText('licenseNumber', $userDetails['state_license_number']));
-        $element->appendChild($this->createElementTextFieldEmpty('npi', $userDetails['npi'], xl('Midlevel Prescriber NPI')));
-
-        return $element;
+        return $this->getPrescriber('MidlevelPrescriber', $authUserId, xl('Midlevel Prescriber'), xl('Midlevel Prescriber DEA'), xl('Midlevel Prescriber NPI'), true);
     }
 
-    public function getStaffElements($authUserId, $destination): array
+    /**
+     * @return list<DOMElement>
+     */
+    public function getStaffElements(int $authUserId, string $destination): array
     {
-        $userRole = $this->getStore()->getUserById($authUserId);
-        $userRole = preg_replace('/erx/', '', (string) $userRole['newcrop_user_role']);
+        $userRole = str_replace('erx', '', $this->userRole($authUserId));
 
         $elements = [];
 
-        if ($userRole != 'manager') {
+        if ($userRole !== 'manager') {
             $elements[] = $this->getLocation($authUserId);
         }
 
-        if ($userRole == 'doctor' || $destination == 'renewal') {
+        if ($userRole === 'doctor' || $destination === 'renewal') {
             $elements[] = $this->getLicensedPrescriber($authUserId);
         }
 
-        if (in_array($userRole, ['manager', 'admin', 'nurse'])) {
+        if (in_array($userRole, ['manager', 'admin', 'nurse'], true)) {
             $elements[] = $this->getStaff($authUserId);
-        } elseif ($userRole == 'supervisingDoctor') {
+        } elseif ($userRole === 'supervisingDoctor') {
             $elements[] = $this->getSupervisingDoctor($authUserId);
-        } elseif ($userRole == 'midlevelPrescriber') {
+        } elseif ($userRole === 'midlevelPrescriber') {
             $elements[] = $this->getMidlevelPrescriber($authUserId);
         }
 
         return $elements;
     }
 
-    public function getPatientName($patient)
+    /**
+     * @param array<mixed> $patient `patient_data` row
+     */
+    public function getPatientName(array $patient): DOMElement
     {
         $element = $this->getDocument()->createElement('PatientName');
-        $element->appendChild($this->createElementTextDemographicsCheck('last', $this->trimData($this->stripSpecialCharacter($patient['lname']), 35), xl('Patient Last Name')));
-        $element->appendChild($this->createElementTextDemographicsCheck('first', $this->trimData($this->stripSpecialCharacter($patient['fname']), 35), xl('Patient First Name')));
-        $element->appendChild($this->createElementText('middle', $this->trimData($this->stripSpecialCharacter($patient['mname']), 35)));
+        $element->appendChild($this->createElementTextDemographicsCheck('last', $this->trimData($this->stripSpecialCharacter(self::field($patient, 'lname')), 35), xl('Patient Last Name')));
+        $element->appendChild($this->createElementTextDemographicsCheck('first', $this->trimData($this->stripSpecialCharacter(self::field($patient, 'fname')), 35), xl('Patient First Name')));
+        $element->appendChild($this->createElementText('middle', $this->trimData($this->stripSpecialCharacter(self::field($patient, 'mname')), 35)));
 
         return $element;
     }
 
-    public function getPatientAddress($patient)
+    /**
+     * @param array<mixed> $patient `patient_data` row
+     */
+    public function getPatientAddress(array $patient): DOMElement
     {
-        $patient['street'] = $this->trimData($this->stripSpecialCharacter($patient['street']), 35);
-        $this->warningMessage($patient['street'], xl('Patient Street Address'));
+        $street = $this->trimData($this->stripSpecialCharacter(self::field($patient, 'street')), 35);
+        $this->warningMessage($street, xl('Patient Street Address'));
 
+        $countryCode = self::field($patient, 'country_code');
+        if (trim($countryCode) === '') {
+            $eRxDefaultPatientCountry = self::scalar($this->getGlobals()->getDefaultPatientCountry());
 
-        if (trim((string) $patient['country_code']) == '') {
-            $eRxDefaultPatientCountry = $this->getGlobals()->getDefaultPatientCountry();
-
-            if ($eRxDefaultPatientCountry == '') {
+            if ($eRxDefaultPatientCountry === '') {
                 $this->demographicsCheck('', xl('Global Default Patient Country'));
             } else {
-                $patient['country_code'] = $eRxDefaultPatientCountry;
+                $countryCode = $eRxDefaultPatientCountry;
             }
 
             $this->demographicsCheck('', xl('Patient Country'));
         }
 
+        $state = self::field($patient, 'state');
+        $postalCode = self::field($patient, 'postal_code');
+
         $element = $this->getDocument()->createElement('PatientAddress');
-        $element->appendChild($this->createElementTextFieldEmpty('address1', $patient['street'], xl('Patient Street Address')));
-        $element->appendChild($this->createElementTextDemographicsCheck('city', $patient['city'], xl('Patient City')));
-        if ($patient['state']) {
-            $element->appendChild($this->createElementText('state', $patient['state']));
+        $element->appendChild($this->createElementTextFieldEmpty('address1', $street, xl('Patient Street Address')));
+        $element->appendChild($this->createElementTextDemographicsCheck('city', self::field($patient, 'city'), xl('Patient City')));
+        if ($state !== '') {
+            $element->appendChild($this->createElementText('state', $state));
         }
 
-        if ($patient['postal_code']) {
-            $element->appendChild($this->createElementText('zip', $patient['postal_code']));
+        if ($postalCode !== '') {
+            $element->appendChild($this->createElementText('zip', $postalCode));
         }
 
-        $element->appendChild($this->createElementText('country', substr((string) $patient['country_code'], 0, 2)));
+        $element->appendChild($this->createElementText('country', substr($countryCode, 0, 2)));
 
         return $element;
     }
 
-    public function getPatientContact($patient)
+    /**
+     * @param array<mixed> $patient `patient_data` row
+     */
+    public function getPatientContact(array $patient): DOMElement
     {
         $element = $this->getDocument()->createElement('PatientContact');
         $contact = PatientContact::fromPatientRow($patient);
@@ -623,59 +609,66 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getPatientCharacteristics($patient)
+    /**
+     * @param array<mixed> $patient `patient_data` row
+     */
+    public function getPatientCharacteristics(array $patient): DOMElement
     {
-        if (trim((string) $patient['date_of_birth']) == '' || $patient['date_of_birth'] == '00000000') {
+        $dateOfBirth = self::field($patient, 'date_of_birth');
+        $sex = self::field($patient, 'sex');
+        $hasDateOfBirth = trim($dateOfBirth) !== '' && $dateOfBirth !== '00000000';
+
+        if (!$hasDateOfBirth) {
             $this->warningMessage('', xl('Patient Date Of Birth'));
         }
 
-        $this->warningMessage(trim((string) $patient['sex']), xl('Patient Gender'));
+        $this->warningMessage(trim($sex), xl('Patient Gender'));
 
         $element = $this->getDocument()->createElement('PatientCharacteristics');
-        if ($patient['date_of_birth'] && $patient['date_of_birth'] != '00000000') {
-            $element->appendChild($this->createElementText('dob', $patient['date_of_birth']));
+        if ($hasDateOfBirth) {
+            $element->appendChild($this->createElementText('dob', $dateOfBirth));
         }
 
-        if ($patient['sex']) {
-            $element->appendChild($this->createElementText('gender', substr((string) $patient['sex'], 0, 1)));
+        if ($sex !== '') {
+            $element->appendChild($this->createElementText('gender', substr($sex, 0, 1)));
         }
 
-        $vitals = $this->getStore()->getPatientVitalsByPatientId($patient['pid']);
-        $age = getPatientAgeYMD($patient['date_of_birth']);
+        $vitals = $this->getStore()->getPatientVitalsByPatientId(self::field($patient, 'pid'));
+        $age = getPatientAgeYMD($dateOfBirth);
+        $years = $age['age'] ?? null;
+        $underNineteen = (!is_int($years) && !is_float($years)) || $years < 19;
 
-        if (
-            $vitals['height'] &&
-            $vitals['height_units']
-        ) {
-            $element->appendChild($this->createElementText('height', $vitals['height']));
-            $element->appendChild($this->createElementText('heightUnits', $vitals['height_units']));
-        } elseif ($age['age'] < 19) {
+        $height = self::field($vitals, 'height');
+        $heightUnits = self::field($vitals, 'height_units');
+        if ($height !== '' && $heightUnits !== '') {
+            $element->appendChild($this->createElementText('height', $height));
+            $element->appendChild($this->createElementText('heightUnits', $heightUnits));
+        } elseif ($underNineteen) {
             $this->warningMessage('', xl('Patient Height Vital is required under age 19'));
         }
 
-        if (
-            $vitals['weight'] &&
-            $vitals['weight_units']
-        ) {
-            $element->appendChild($this->createElementText('weight', $vitals['weight']));
-            $element->appendChild($this->createElementText('weightUnits', $vitals['weight_units']));
-        } elseif ($age['age'] < 19) {
+        $weight = self::field($vitals, 'weight');
+        $weightUnits = self::field($vitals, 'weight_units');
+        if ($weight !== '' && $weightUnits !== '') {
+            $element->appendChild($this->createElementText('weight', $weight));
+            $element->appendChild($this->createElementText('weightUnits', $weightUnits));
+        } elseif ($underNineteen) {
             $this->warningMessage('', xl('Patient Weight Vital is required under age 19'));
         }
 
         return $element;
     }
 
-    public function getPatientFreeformHealthplans($patientId): array
+    /**
+     * @return list<DOMElement>
+     */
+    public function getPatientFreeformHealthplans(int $patientId): array
     {
-        $healthplans = $this->getStore()
-            ->getPatientHealthplansByPatientId($patientId);
-
         $elements = [];
 
-        while ($healthplan = sqlFetchArray($healthplans)) {
+        foreach ($this->getStore()->getPatientHealthplansByPatientId($patientId) as $healthplan) {
             $element = $this->getDocument()->createElement('PatientFreeformHealthplans');
-            $element->appendChild($this->createElementText('healthplanName', $this->trimData($this->stripSpecialCharacter($healthplan['name']), 35)));
+            $element->appendChild($this->createElementText('healthplanName', $this->trimData($this->stripSpecialCharacter(self::field($healthplan, 'name')), 35)));
 
             $elements[] = $element;
         }
@@ -683,46 +676,48 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientFreeformAllergy($patientId): array
+    /**
+     * @return list<DOMElement>
+     */
+    public function getPatientFreeformAllergy(int $patientId): array
     {
-        $allergyData = $this->getStore()
-            ->getPatientAllergiesByPatientId($patientId);
-
         $elements = [];
 
-        while ($allergy = sqlFetchArray($allergyData)) {
+        foreach ($this->getStore()->getPatientAllergiesByPatientId($patientId) as $allergy) {
+            $allergyId = self::id($allergy);
+            $name = self::field($allergy, 'title1');
+            $severity = self::field($allergy, 'title2');
+            $comments = self::field($allergy, 'comments');
+
             $element = $this->getDocument()->createElement('PatientFreeformAllergy');
-            $element->setAttribute('ID', $allergy['id']);
+            $element->setAttribute('ID', (string) $allergyId);
 
-            if ($allergy['title1']) {
-                $element->appendChild($this->createElementText('allergyName', $this->trimData($this->stripSpecialCharacter($allergy['title1']), 70)));
+            if ($name !== '') {
+                $element->appendChild($this->createElementText('allergyName', $this->trimData($this->stripSpecialCharacter($name), 70)));
             }
 
-            if (in_array($allergy['title2'], ['Mild', 'Moderate', 'Severe'])) {
-                $element->appendChild($this->createElementText('allergySeverityTypeID', $allergy['title2']));
+            if (in_array($severity, ['Mild', 'Moderate', 'Severe'], true)) {
+                $element->appendChild($this->createElementText('allergySeverityTypeID', $severity));
             }
 
-            if ($allergy['comments']) {
-                $element->appendChild($this->createElementText('allergyComment', $this->trimData($this->stripSpecialCharacter($allergy['comments']), 200)));
+            if ($comments !== '') {
+                $element->appendChild($this->createElementText('allergyComment', $this->trimData($this->stripSpecialCharacter($comments), 200)));
             }
 
             $elements[] = $element;
 
-            $this->addSentAllergyIds($allergy['id']);
+            $this->addSentAllergyIds($allergyId);
         }
 
         return $elements;
     }
 
-    public function getPatientDiagnosis($patientId): array
+    /**
+     * @return list<DOMElement>
+     */
+    public function getPatientDiagnosis(int $patientId): array
     {
-        $diagnosisData = $this->getStore()
-            ->getPatientDiagnosisByPatientId($patientId);
-
-        $rows = [];
-        while ($row = sqlFetchArray($diagnosisData)) {
-            $rows[] = $row;
-        }
+        $rows = $this->getStore()->getPatientDiagnosisByPatientId($patientId);
 
         $elements = [];
         foreach (PatientDiagnosisList::fromProblemRows($rows) as $diagnosis) {
@@ -744,13 +739,12 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatient($patientId)
+    public function getPatient(int $patientId): DOMElement
     {
-        $patientData = $this->getStore()
-            ->getPatientByPatientId($patientId);
+        $patientData = self::row($this->getStore()->getPatientByPatientId($patientId));
 
         $element = $this->getDocument()->createElement('Patient');
-        $element->setAttribute('ID', $patientData['pid']);
+        $element->setAttribute('ID', RxInput::text(self::field($patientData, 'pid')));
         $element->appendChild($this->getPatientName($patientData));
         $element->appendChild($this->getPatientAddress($patientData));
         $element->appendChild($this->getPatientContact($patientData));
@@ -762,7 +756,19 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getOutsidePrescription($prescription)
+    /**
+     * @param array{
+     *   externalId: string,
+     *   date: string,
+     *   doctorName: string,
+     *   drug: string,
+     *   dispenseNumber: string,
+     *   sig: string,
+     *   refillCount: string,
+     *   prescriptionType: string,
+     * } $prescription
+     */
+    public function getOutsidePrescription(array $prescription): DOMElement
     {
         $element = $this->getDocument()->createElement('OutsidePrescription');
         $element->appendChild($this->createElementText('externalId', $prescription['externalId']));
@@ -777,103 +783,176 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getPatientPrescriptions($prescriptionIds): array
+    /**
+     * @param list<int> $prescriptionIds
+     * @return list<DOMElement>
+     */
+    public function getPatientPrescriptions(array $prescriptionIds): array
     {
         $elements = [];
 
         foreach ($prescriptionIds as $prescriptionId) {
-            if ($prescriptionId) {
-                $prescription = $this->getStore()
-                    ->getPrescriptionById($prescriptionId);
+            $prescription = self::row($this->getStore()->getPrescriptionById($prescriptionId));
+            $quantity = self::field($prescription, 'quantity');
+            $sig = substr($quantity, 1, 1) . self::field($prescription, 'size') . ' ' . self::field($prescription, 'title4') . ' '
+                . self::field($prescription, 'dosage') . ' In ' . self::field($prescription, 'title1') . ' '
+                . self::field($prescription, 'title2') . ' ' . self::field($prescription, 'title3');
 
-                $element = $this->getOutsidePrescription([
-                    'externalId'        => $prescription['prescid'],
-                    'date'              => $prescription['date_added'],
-                    'doctorName'        => $prescription['docname'],
-                    'drug'              => $this->trimData($this->stripSpecialCharacter($prescription['drug']), 80),
-                    'dispenseNumber'    => intval($prescription['quantity']),
-                    'sig'               => $this->trimData($this->stripSpecialCharacter($prescription['quantity'][1] . $prescription['size'] . ' ' . $prescription['title4'] . ' ' . $prescription['dosage'] . ' In ' . $prescription['title1'] . ' ' . $prescription['title2'] . ' ' . $prescription['title3']), 140),
-                    'refillCount'       => intval($prescription['per_refill']),
-                    'prescriptionType'  => 'reconcile'
-                ]);
+            $elements[] = $this->getOutsidePrescription([
+                'externalId'        => self::field($prescription, 'prescid'),
+                'date'              => self::field($prescription, 'date_added'),
+                'doctorName'        => self::field($prescription, 'docname'),
+                'drug'              => $this->trimData($this->stripSpecialCharacter(self::field($prescription, 'drug')), 80),
+                'dispenseNumber'    => (string) intval($quantity),
+                'sig'               => $this->trimData($this->stripSpecialCharacter($sig), 140),
+                'refillCount'       => (string) intval(self::field($prescription, 'per_refill')),
+                'prescriptionType'  => 'reconcile',
+            ]);
 
-                $this->addSentPrescriptionId($prescriptionId);
-
-                $elements[] = $element;
-            }
+            $this->addSentPrescriptionId($prescriptionId);
         }
 
         return $elements;
     }
 
-    public function getPatientMedication($patientId, $uploadActive, $count): array
+    /**
+     * @return list<DOMElement>
+     */
+    public function getPatientMedication(int $patientId, int $uploadActive, int $count): array
     {
-        $medications = $this->getStore()
-            ->selectMedicationsNotUploadedByPatientId($patientId, $uploadActive, $count);
-
         $elements = [];
 
-        while ($medication = sqlFetchArray($medications)) {
+        foreach ($this->getStore()->selectMedicationsNotUploadedByPatientId($patientId, $uploadActive, $count) as $medication) {
+            $medicationId = self::id($medication);
+
             $elements[] = $this->getOutsidePrescription([
-                'externalId'        => $medication['id'],
-                'date'              => $medication['begdate'],
+                'externalId'        => (string) $medicationId,
+                'date'              => self::field($medication, 'begdate'),
                 'doctorName'        => '',
-                'drug'              => $this->trimData($medication['title'], 80),
+                'drug'              => $this->trimData(self::field($medication, 'title'), 80),
                 'dispenseNumber'    => '',
                 'sig'               => '',
                 'refillCount'       => '',
-                'prescriptionType'  => 'reconcile'
+                'prescriptionType'  => 'reconcile',
             ]);
 
-            $this->addSentMedicationIds($medication['id']);
+            $this->addSentMedicationIds($medicationId);
         }
 
         return $elements;
     }
 
-    public function getPatientElements($patientId, $totalCount, $requestedPrescriptionIds): array
+    /**
+     * Not-uploaded prescriptions only shorten the medication list. They are
+     * never sent themselves: before the page parsed its ids, no request could
+     * reach the branch that sent them.
+     *
+     * @param list<int> $requestedPrescriptionIds
+     * @return list<DOMElement>
+     */
+    public function getPatientElements(int $patientId, int $totalCount, array $requestedPrescriptionIds): array
     {
-        $elements = [];
+        if ($patientId === 0) {
+            return [];
+        }
 
-        if ($patientId) {
-            $uploadActive = $this->getGlobals()->getUploadActive();
+        $uploadActive = self::scalar($this->getGlobals()->getUploadActive()) === '1' ? 1 : 0;
 
-            $elements[] = $this->getPatient($patientId);
+        $elements = [$this->getPatient($patientId)];
+        $elements = array_merge($elements, $this->getPatientPrescriptions($requestedPrescriptionIds));
 
-            $selectPrescriptionIds = $this->getStore()
-                ->selectPrescriptionIdsNotUploadedByPatientId(
-                    $patientId,
-                    $uploadActive,
-                    $totalCount
-                );
-
-            $selectPrescriptionIdsCount = sqlNumRows($selectPrescriptionIds);
-
-            $prescriptionIds = [];
-
-            while ($selectPrescriptionId = sqlFetchArray($selectPrescriptionIds)) {
-                $prescriptionIds[] = $selectPrescriptionId['id'];
-            }
-
-            if (
-                is_array($requestedPrescriptionIds) &&
-                count($requestedPrescriptionIds) > 0
-            ) {
-                $elements = array_merge($elements, $this->getPatientPrescriptions($requestedPrescriptionIds));
-            } elseif (
-                is_array($requestedPrescriptionIds) &&
-                count($prescriptionIds) > 0
-            ) {
-                $elements = array_merge($elements, $this->getPatientPrescriptions($prescriptionIds));
-            } else {
-                $this->getPatientPrescriptions([0]);
-            }
-
-            if ($selectPrescriptionIdsCount < $totalCount) {
-                $elements = array_merge($elements, $this->getPatientMedication($patientId, $uploadActive, $totalCount - $selectPrescriptionIdsCount));
-            }
+        $notUploadedCount = count($this->getStore()->selectPrescriptionIdsNotUploadedByPatientId($patientId, $uploadActive, $totalCount));
+        if ($notUploadedCount < $totalCount) {
+            $elements = array_merge($elements, $this->getPatientMedication($patientId, $uploadActive, $totalCount - $notUploadedCount));
         }
 
         return $elements;
+    }
+
+    private function userRole(int $authUserId): string
+    {
+        return self::field(self::row($this->getStore()->getUserById($authUserId)), 'newcrop_user_role');
+    }
+
+    private function getPrescriber(string $tagName, int $authUserId, string $prescriberType, string $deaText, string $npiText, bool $prefix = false): DOMElement
+    {
+        $userDetails = self::row($this->getStore()->getUserById($authUserId));
+        $npi = self::field($userDetails, 'npi');
+        $upin = self::field($userDetails, 'upin');
+
+        $element = $this->getDocument()->createElement($tagName);
+        $element->setAttribute('ID', RxInput::text($npi));
+        $element->appendChild($this->getLicensedPrescriberName($userDetails, $prescriberType, $prefix));
+        $element->appendChild($this->createElementTextFieldEmpty('dea', self::field($userDetails, 'federaldrugid'), $deaText));
+        if ($upin !== '') {
+            $element->appendChild($this->createElementText('upin', $upin));
+        }
+
+        $element->appendChild($this->createElementText('licenseNumber', self::field($userDetails, 'state_license_number')));
+        $element->appendChild($this->createElementTextFieldEmpty('npi', $npi, $npiText));
+
+        return $element;
+    }
+
+    /**
+     * A single-row query result, or no columns when the query found nothing.
+     *
+     * @return array<mixed>
+     */
+    private static function row(mixed $row): array
+    {
+        return is_array($row) ? $row : [];
+    }
+
+    /**
+     * @param array<mixed> $row
+     */
+    private static function field(array $row, int|string $key): string
+    {
+        return self::scalar($row[$key] ?? null);
+    }
+
+    /**
+     * @param array<mixed> $row
+     */
+    private static function id(array $row): int
+    {
+        $id = $row['id'] ?? null;
+        if (is_string($id) && ctype_digit($id)) {
+            return (int) $id;
+        }
+        if (is_int($id)) {
+            return $id;
+        }
+
+        throw new UnexpectedValueException('Ensora eRx rows must have a numeric id');
+    }
+
+    /**
+     * A database or configuration value as text; null is empty.
+     */
+    private static function scalar(mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+        if (is_string($value)) {
+            return $value;
+        }
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+
+        throw new UnexpectedValueException('Ensora eRx values must be strings or numbers');
+    }
+
+    private static function regexRemove(string $pattern, string $subject): string
+    {
+        $result = preg_replace($pattern, '', $subject);
+        if ($result === null) {
+            throw new RuntimeException('Could not clean an Ensora eRx value');
+        }
+
+        return $result;
     }
 }

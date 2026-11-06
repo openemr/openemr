@@ -6,37 +6,36 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Sam Likins <sam.likins@wsi-services.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
+use Symfony\Component\Filesystem\Filesystem;
 
 class eRxPage
 {
     const DEBUG_XML    = 1;
     const DEBUG_RESULT = 2;
 
-    /** @var ?eRxXMLBuilder */
-    private $xmlBuilder;
-    private $authUserId;
-    private $destination;
-    private $patientId;
-    private $prescriptionIds;
-    private $prescriptionCount;
+    private int $authUserId = 0;
+    private string $destination = '';
+    private int $patientId = 0;
+    /** @var list<int> */
+    private array $prescriptionIds = [];
+    private int $prescriptionCount = 0;
 
-    public function __construct($xmlBuilder = null)
+    public function __construct(private ?eRxXMLBuilder $xmlBuilder = null)
     {
-        if ($xmlBuilder) {
-            $this->setXMLBuilder($xmlBuilder);
-        }
     }
 
     /**
      * Set XMLBuilder to handle eRx XML
-     * @param  eRxXMLBuilder $xmlBuilder The eRx XMLBuilder object to use for processing
-     * @return eRxPage                   This object is returned for method chaining
      */
-    public function setXMLBuilder($xmlBuilder)
+    public function setXMLBuilder(eRxXMLBuilder $xmlBuilder): static
     {
         $this->xmlBuilder = $xmlBuilder;
 
@@ -45,19 +44,20 @@ class eRxPage
 
     /**
      * Get XMLBuilder for handling eRx XML
-     * @return eRxXMLBuilder The eRx XMLBuilder object to use for processing
      */
-    public function getXMLBuilder()
+    public function getXMLBuilder(): eRxXMLBuilder
     {
+        if (!$this->xmlBuilder instanceof eRxXMLBuilder) {
+            throw new LogicException('eRxPage has no eRxXMLBuilder');
+        }
+
         return $this->xmlBuilder;
     }
 
     /**
      * Set the Id of the authenticated user
-     * @param int $userId The Id for the authenticated user
-     * @return eRxPage         This object is returned for method chaining
      */
-    public function setAuthUserId($userId)
+    public function setAuthUserId(int $userId): static
     {
         $this->authUserId = $userId;
 
@@ -66,19 +66,16 @@ class eRxPage
 
     /**
      * Get the Id of the authenticated user
-     * @return int The Id of the authenticated user
      */
-    public function getAuthUserId()
+    public function getAuthUserId(): int
     {
         return $this->authUserId;
     }
 
     /**
-     * Set the destination for the page request
-     * @param  string  $destination The destination for the page request
-     * @return eRxPage              This object is returned for method chaining
+     * Set the destination for the page request; empty picks one by user role
      */
-    public function setDestination($destination)
+    public function setDestination(string $destination): static
     {
         $this->destination = $destination;
 
@@ -87,19 +84,16 @@ class eRxPage
 
     /**
      * Get the destination for the page request
-     * @return string The destination for the page request
      */
-    public function getDestination()
+    public function getDestination(): string
     {
         return $this->destination;
     }
 
     /**
-     * Set the Patient Id for the page request
-     * @param int $patientId The Patient Id for the page request
-     * @return eRxPage            This object is returned for method chaining
+     * Set the Patient Id for the page request; 0 sends no patient
      */
-    public function setPatientId($patientId)
+    public function setPatientId(int $patientId): static
     {
         $this->patientId = $patientId;
 
@@ -108,40 +102,43 @@ class eRxPage
 
     /**
      * Get the Patient Id for the page request
-     * @return string The Patient Id for the page request
      */
-    public function getPatientId()
+    public function getPatientId(): int
     {
         return $this->patientId;
     }
 
     /**
      * Set the Prescription Ids to send with page request
-     * @param  string  $prescriptionIds The Prescription Ids for the page request
-     * @return eRxPage                  This object is returned for method chaining
+     *
+     * @param string $prescriptionIds colon-separated prescription ids
      */
-    public function setPrescriptionIds($prescriptionIds)
+    public function setPrescriptionIds(string $prescriptionIds): static
     {
-        $this->prescriptions = explode(':', $prescriptionIds);
+        $this->prescriptionIds = [];
+        foreach (explode(':', $prescriptionIds) as $id) {
+            if (ctype_digit($id) && (int) $id !== 0) {
+                $this->prescriptionIds[] = (int) $id;
+            }
+        }
 
         return $this;
     }
 
     /**
      * Get the Prescription Ids for the page request
-     * @return string The Prescription Ids for the page request
+     *
+     * @return list<int>
      */
-    public function getPrescriptionIds()
+    public function getPrescriptionIds(): array
     {
         return $this->prescriptionIds;
     }
 
     /**
      * Set the prescription count for the page request
-     * @param  string  $count The prescription count for the page request
-     * @return eRxPage        This object is returned for method chaining
      */
-    public function setPrescriptionCount($count)
+    public function setPrescriptionCount(int $count): static
     {
         $this->prescriptionCount = $count;
 
@@ -150,16 +147,16 @@ class eRxPage
 
     /**
      * Get the prescription count for the page request
-     * @return string The prescription count for the page request
      */
-    public function getPrescriptionCount()
+    public function getPrescriptionCount(): int
     {
         return $this->prescriptionCount;
     }
 
     /**
      * Check for required PHP extensions, return array of messages for missing extensions
-     * @return array Array of messages for missing extensions
+     *
+     * @return list<string>
      */
     public function checkForMissingExtensions(): array
     {
@@ -183,27 +180,26 @@ class eRxPage
 
     /**
      * Construct the XML document
+     *
      * @return array{
-     *   demographics: mixed,
-     *   empty: mixed,
-     *   warning: mixed,
+     *   demographics: list<string>,
+     *   empty: list<string>,
+     *   warning: list<string>,
      * }
      */
     public function buildXML(): array
     {
         $XMLBuilder = $this->getXMLBuilder();
         $NCScript = $XMLBuilder->getNCScript();
-        $Store = $XMLBuilder->getStore();
         $authUserId = $this->getAuthUserId();
         $destination = $this->getDestination();
-        $patientId = $this->getPatientId();
 
         $NCScript->appendChild($XMLBuilder->getCredentials());
         $NCScript->appendChild($XMLBuilder->getUserRole($authUserId));
         $NCScript->appendChild($XMLBuilder->getDestination($authUserId, $destination));
         $NCScript->appendChild($XMLBuilder->getAccount());
         $XMLBuilder->appendChildren($NCScript, $XMLBuilder->getStaffElements($authUserId, $destination));
-        $XMLBuilder->appendChildren($NCScript, $XMLBuilder->getPatientElements($patientId, $this->getPrescriptionCount(), $this->getPrescriptionIds()));
+        $XMLBuilder->appendChildren($NCScript, $XMLBuilder->getPatientElements($this->getPatientId(), $this->getPrescriptionCount(), $this->getPrescriptionIds()));
 
         return [
             'demographics' => $XMLBuilder->getDemographicsCheckMessages(),
@@ -213,75 +209,64 @@ class eRxPage
     }
 
     /**
-     * Return a string version of the constructed XML cleaned-up for Ensora
-     * @return string Ensora ready string of the constructed XML.
-     *
-     * XML has had double-quotes converted to single-quotes and \r and \t has been removed.
+     * The XML as DOM serialized it. eRxXMLBuilder::createElementText() cleans
+     * each value, so the markup itself is never edited.
      */
-    public function getXML()
+    public function getXML(): string
     {
-        return preg_replace(
-            '/\t/',
-            '',
-            (string) preg_replace(
-                '/&#xD;/',
-                '',
-                (string) preg_replace(
-                    '/"/',
-                    '\'',
-                    (string) $this->getXMLBuilder()->getDocument()->saveXML()
-                )
-            )
+        $xml = $this->getXMLBuilder()->getDocument()->saveXML();
+        if ($xml === false) {
+            throw new RuntimeException('Could not serialize the Ensora eRx request');
+        }
+
+        return $xml;
+    }
+
+    protected function errorLog(string $message): void
+    {
+        $siteDirectory = $this->getXMLBuilder()->getGlobals()->getOpenEMRSiteDirectory();
+        if ($siteDirectory === '') {
+            throw new UnexpectedValueException('The OpenEMR site directory is not configured');
+        }
+
+        $path = $siteDirectory . '/documents/erx_error';
+        $filesystem = new Filesystem();
+        $filesystem->mkdir($path);
+        $filesystem->appendToFile(
+            $path . '/erx_error-' . date('Y-m-d') . '.log',
+            date('Y-m-d H:i:s') . ' ==========> ' . $message . PHP_EOL,
         );
     }
 
-    protected function errorLog($message)
-    {
-        $date = date('Y-m-d');
-        $path = $this->getXMLBuilder()->getGlobals()
-            ->getOpenEMRSiteDirectory() . '/documents/erx_error';
-
-        if (!is_dir($path)) {
-            mkdir($path, 0777, true);
-        }
-
-        $fileHandler = fopen($path . '/erx_error' . '-' . $date . '.log', 'a');
-
-        fwrite($fileHandler, date('Y-m-d H:i:s') . ' ==========> ' . $message . PHP_EOL);
-
-        fclose($fileHandler);
-    }
-
-    public function checkError($xml)
+    /**
+     * @return list<string>
+     */
+    public function checkError(string $xml): array
     {
         $XMLBuilder = $this->getXMLBuilder();
 
         $result = $XMLBuilder->checkError($xml);
 
-        preg_match('/<textarea.*>(.*)Original XML:/is', (string) $result, $errorMessage);
+        $errorText = self::errorText($result);
+        $errorMessages = $errorText === null ? [] : array_slice(explode('Error', $errorText), 1);
 
-        if (count($errorMessage) > 0) {
-            $errorMessages = explode('Error', $errorMessage[1]);
-            array_shift($errorMessages);
-        } else {
-            $errorMessages = [];
-        }
+        $debugSetting = $XMLBuilder->getGlobals()->getDebugSetting();
 
-        if (strpos((string) $result, 'RxEntry.aspx')) {
+        if (str_contains($result, 'RxEntry.aspx')) {
             $this->errorLog($xml);
             $this->errorLog($result);
 
-            if (!count($errorMessages)) {
+            if ($errorMessages === []) {
                 $errorMessages[] = xl('An undefined error occurred, please contact your systems administrator.');
             }
-        } elseif ($XMLBuilder->getGlobals()->getDebugSetting() !== 0) {
+        } elseif ($debugSetting !== 0) {
             $debugString = '( ' . xl('DEBUG OUTPUT') . ' )' . PHP_EOL;
 
-            if ($XMLBuilder->getGlobals()->getDebugSetting() & self::DEBUG_XML) {
+            if ($debugSetting & self::DEBUG_XML) {
                 $this->errorLog($debugString . $xml);
             }
 
-            if ($XMLBuilder->getGlobals()->getDebugSetting() & self::DEBUG_RESULT) {
+            if ($debugSetting & self::DEBUG_RESULT) {
                 $this->errorLog($debugString . $result);
             }
         }
@@ -289,38 +274,42 @@ class eRxPage
         return $errorMessages;
     }
 
-    public function updatePatientData()
+    public function updatePatientData(): void
     {
         $XMLBuilder = $this->getXMLBuilder();
         $Store = $XMLBuilder->getStore();
         $page = $this->getDestination();
         $patientId = $this->getPatientId();
 
-        if ($page == 'compose') {
+        if ($page === 'compose') {
             $Store->updatePatientImportStatusByPatientId($patientId, 1);
-        } elseif ($page == 'medentry') {
+        } elseif ($page === 'medentry') {
             $Store->updatePatientImportStatusByPatientId($patientId, 3);
         }
 
-        $allergyIds = $XMLBuilder->getSentAllergyIds();
-        if (count($allergyIds)) {
-            foreach ($allergyIds as $allergyId) {
-                $Store->updateAllergyUploadedByPatientIdAllergyId(1, $patientId, $allergyId);
-            }
+        foreach ($XMLBuilder->getSentAllergyIds() as $allergyId) {
+            $Store->updateAllergyUploadedByPatientIdAllergyId(1, $patientId, $allergyId);
         }
 
-        $prescriptionIds = $XMLBuilder->getSentPrescriptionIds();
-        if (count($prescriptionIds)) {
-            foreach ($prescriptionIds as $prescriptionId) {
-                $Store->updatePrescriptionsUploadActiveByPatientIdPrescriptionId(1, 0, $patientId, $prescriptionId);
-            }
+        foreach ($XMLBuilder->getSentPrescriptionIds() as $prescriptionId) {
+            $Store->updatePrescriptionsUploadActiveByPatientIdPrescriptionId(1, 0, $patientId, $prescriptionId);
         }
 
-        $medicationIds = $XMLBuilder->getSentMedicationIds();
-        if (count($medicationIds)) {
-            foreach ($medicationIds as $medicationId) {
-                $Store->updateErxUploadedByListId($medicationId, 1);
-            }
+        foreach ($XMLBuilder->getSentMedicationIds() as $medicationId) {
+            $Store->updateErxUploadedByListId($medicationId, 1);
         }
+    }
+
+    /**
+     * The validation errors the response page lists above the original XML.
+     */
+    private static function errorText(string $page): ?string
+    {
+        $matched = preg_match('/<textarea.*>(.*)Original XML:/is', $page, $match);
+        if ($matched === false) {
+            throw new RuntimeException('Could not search the Ensora eRx response for errors');
+        }
+
+        return $matched === 1 ? $match[1] : null;
     }
 }

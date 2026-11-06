@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Sam Likins <sam.likins@wsi-services.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -53,12 +55,13 @@ class eRxGlobals
     }
 
     /**
-     * Return the OpenEMR site directory
-     * @return string OpenEMR site directory
+     * Return the OpenEMR site directory, or empty when unset
      */
-    public function getOpenEMRSiteDirectory()
+    public function getOpenEMRSiteDirectory(): string
     {
-        return $this->getGlobalValue('OE_SITE_DIR');
+        $value = $this->getGlobalValue('OE_SITE_DIR');
+
+        return is_string($value) ? $value : '';
     }
 
     /**
@@ -71,12 +74,13 @@ class eRxGlobals
     }
 
     /**
-     * Return the Ensora eRx requests URL
-     * @return string URL for Ensora eRx requests
+     * Return the Ensora eRx requests URL, or empty when unset
      */
-    public function getPath()
+    public function getPath(): string
     {
-        return $this->getGlobalValue('erx_newcrop_path');
+        $value = $this->getGlobalValue('erx_newcrop_path');
+
+        return is_string($value) ? $value : '';
     }
 
     /**
@@ -206,8 +210,10 @@ class eRxGlobals
      * Return Debug Ensora eRx settings
      * @return int Debug settings: flags [ 1 = XML, 2 = RESULT ]
      */
-    public function getDebugSetting()
+    public function getDebugSetting(): int
     {
-        return $this->getGlobalValue('erx_debug_setting');
+        $value = $this->getGlobalValue('erx_debug_setting');
+
+        return is_numeric($value) ? (int) $value : 0;
     }
 }

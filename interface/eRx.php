@@ -9,13 +9,16 @@
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Sam Likins <sam.likins@wsi-services.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2011 ZMG LLC <sam@zhservices.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -33,13 +36,6 @@ set_time_limit(0);
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-function array_key_exists_default($key, $search, $default = null)
-{
-    $value = array_key_exists($key, $search) ? $search[$key] : $default;
-
-    return $value;
-}
-
 $GLOBALS_REF = $GLOBALS;
 $eRxPage = new eRxPage(
     new eRxXMLBuilder(
@@ -48,10 +44,19 @@ $eRxPage = new eRxPage(
     )
 );
 
-$eRxPage->setAuthUserId(array_key_exists_default('authUserID', $session->all()))
-    ->setDestination(array_key_exists_default('page', $_REQUEST))
-    ->setPatientId(array_key_exists_default('pid', $GLOBALS))
-    ->setPrescriptionIds(array_key_exists_default('id', $_REQUEST))
+$authUserId = $session->get('authUserID');
+if (is_string($authUserId) && ctype_digit($authUserId)) {
+    $authUserId = (int) $authUserId;
+}
+if (!is_int($authUserId)) {
+    AccessDeniedHelper::deny('eRx.php: no authenticated user');
+}
+
+$request = CurrentRequest::get();
+$eRxPage->setAuthUserId($authUserId)
+    ->setDestination($request->query->getString('page'))
+    ->setPatientId(OEGlobalsBag::getInstance()->getInt('pid'))
+    ->setPrescriptionIds($request->query->getString('id'))
     ->setPrescriptionCount(60);
 
 ?>
