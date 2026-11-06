@@ -75,7 +75,10 @@ final class PortalPaymentAmount
         if (!$type->paysInvoiceLines()) {
             $prepayment = $values['form_prepayment'] ?? null;
 
-            return is_string($prepayment) ? self::cents(trim($prepayment)) : null;
+            // Staff posting needs whole dollars in a prepayment ("0.50", not ".50"), unlike a line.
+            $prepayment = is_string($prepayment) ? trim($prepayment) : '';
+
+            return str_starts_with($prepayment, '.') ? null : self::cents($prepayment);
         }
 
         // The line fields exactly as the page renders them. Comparing the whole name, not a number

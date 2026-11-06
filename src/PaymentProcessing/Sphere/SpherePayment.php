@@ -203,9 +203,10 @@ class SpherePayment
                     return false;
                 }
                 // Every invoice line too: a negative or malformed line would make the total
-                // charged differ from the lines staff post.
+                // charged differ from the lines staff post. Cents only (\".50\") is a line amount
+                // posting accepts.
                 const lines = prepaying ? [] : [...document.querySelectorAll('input[name^=\"form_upay[\"]')];
-                if (lines.some((line) => line.value.trim() !== '' && !/^\\d+(\\.\\d{1,2})?$/.test(line.value.trim()))) {
+                if (lines.some((line) => line.value.trim() !== '' && !/^(\\d+(\\.\\d{1,2})?|\\.\\d{1,2})$/.test(line.value.trim()))) {
                     alert(" . xlj('Enter each amount as a number such as 50.00') . ");
                     return false;
                 }

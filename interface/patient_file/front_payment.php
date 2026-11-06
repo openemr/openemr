@@ -753,7 +753,9 @@ $(function() {
         const amountFields = prepaying
             ? document.querySelectorAll('#form_prepayment')
             : document.querySelectorAll('input[name^="form_upay["], input[name^="form_bpay["]');
-        if ([...amountFields].some((field) => field.value.trim() !== '' && !/^\d+(\.\d{1,2})?$/.test(field.value.trim()))) {
+        // A line may be cents only (".50"), as posting accepts; a prepayment needs whole dollars.
+        const amountFormat = prepaying ? /^\d+(\.\d{1,2})?$/ : /^(\d+(\.\d{1,2})?|\.\d{1,2})$/;
+        if ([...amountFields].some((field) => field.value.trim() !== '' && !amountFormat.test(field.value.trim()))) {
             alert(<?php echo xlj('Enter each amount as a number such as 50.00'); ?>);
             return false;
         }

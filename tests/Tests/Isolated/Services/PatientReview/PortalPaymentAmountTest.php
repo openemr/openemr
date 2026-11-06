@@ -146,6 +146,10 @@ final class PortalPaymentAmountTest extends TestCase
         $this->assertNull(PortalPaymentAmount::invoiceCents($badLine, self::LINES));
         $this->assertNull(PortalPaymentAmount::invoiceCents($badPrepay, self::LINES));
         $this->assertFalse(PortalPaymentAmount::matchesInvoice('1.00', $badPrepay, self::LINES));
+        $centsOnlyPrepay = json_encode(['radio_type_of_payment' => 'pre_payment', 'form_prepayment' => '.50'], JSON_THROW_ON_ERROR);
+        $this->assertFalse(PortalPaymentAmount::matchesInvoice('0.50', $centsOnlyPrepay, self::LINES), 'staff posting refuses ".50" as a prepayment');
+        $centsOnlyLine = json_encode(['radio_type_of_payment' => 'invoice_balance', 'form_upay[1687]' => '.50'], JSON_THROW_ON_ERROR);
+        $this->assertTrue(PortalPaymentAmount::matchesInvoice('0.50', $centsOnlyLine, self::LINES), 'but accepts it on a line');
         $this->assertFalse(PortalPaymentAmount::matchesInvoice('0.00', '{}', self::LINES), 'nothing to charge');
     }
 }
