@@ -795,13 +795,18 @@ let inHousePreviousMethod = null;
 let inHouseRecorded = false;
 
 // What a card payment charges: the prepayment when Pre Pay is selected, otherwise the invoice
-// lines' total. The save records the same field, so the two cannot differ. Empty when the
-// amount is not a plain number.
+// lines' total. The save records the same field, so the two cannot differ. Always two decimals
+// ("100" is "100.00"): the POS terminal reads the amount in cents by dropping the point. Empty
+// when the amount is not a plain number.
 function chargeAmount() {
     const amount = document.getElementById('radio_type_of_payment4').checked
         ? $("#form_prepayment").val().trim()
         : $("[name='form_paytotal']").val();
-    return /^\d+(\.\d{1,2})?$/.test(amount) ? amount : '';
+    if (!/^\d+(\.\d{1,2})?$/.test(amount)) {
+        return '';
+    }
+    const [dollars, cents = ''] = amount.split('.');
+    return dollars + '.' + cents.padEnd(2, '0');
 }
 
 // In House: the card is run on the clinic's own terminal, so the dialog only records the

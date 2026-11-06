@@ -1169,8 +1169,8 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         <?php } ?>
         <span class="font-weight-bold"><?php echo xlt('Charge Total'); ?>:  </span><span id="ct"><?php echo text($invdata["form_paytotal"] ?? '') ?></span><br />
         <?php if (($ccdata[PortalPaymentAmount::MISMATCH] ?? false) === true) { ?>
-            <span class="font-weight-bold"><?php echo xlt('Amount Charged'); ?>:  </span><span id="ca"><?php echo text(is_string($ccdata['amount'] ?? null) ? $ccdata['amount'] : '') ?></span><br />
-            <div class="alert alert-warning"><?php echo xlt('The gateway charged a different amount from this invoice selection. Check the transaction at the gateway and correct the amounts before posting.'); ?></div>
+            <span class="font-weight-bold"><?php echo xlt('Amount Reported by Gateway'); ?>:  </span><span id="ca"><?php echo text(is_string($ccdata['amount'] ?? null) ? $ccdata['amount'] : '') ?></span><br />
+            <div class="alert alert-warning"><?php echo xlt('The gateway reported a different amount from this invoice selection. Check the transaction at the gateway and correct the amounts before posting.'); ?></div>
         <?php } ?>
         </div>
         </div>
