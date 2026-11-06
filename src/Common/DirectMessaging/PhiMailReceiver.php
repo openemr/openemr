@@ -211,11 +211,12 @@ final class PhiMailReceiver
             . xl('Sent to:') . ' ' . $sent->recipient . self::LF
             . xl('Server message:') . ' ' . $serverMessage;
         $this->notifier->notify(xl('Direct Messaging Send Failure.'), $notice);
-        $this->notes->addNote(
-            $sent->patientId ?? 0,
-            xl('FAILURE NOTICE: Direct Message Send Failed.') . self::LF . self::LF . $notice . self::LF,
-            $this->config->notifyUsername,
-        );
+        $note = xl('FAILURE NOTICE: Direct Message Send Failed.') . self::LF . self::LF . $notice . self::LF;
+        try {
+            $this->notes->addNote($sent->patientId ?? 0, $note, $this->config->notifyUsername);
+        } catch (SqlQueryException $e) {
+            $this->fail('database problem adding failure notice for: ' . $reply->messageId, $e);
+        }
     }
 
     private function processMail(PhiMailConnection $connection, PhiMailMailReply $reply): void

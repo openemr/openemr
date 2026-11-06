@@ -345,6 +345,15 @@ final class PhiMailReceiverTest extends TestCase
         $this->assertCheckFails('database problem looking up sender of: msg-1');
     }
 
+    public function testFailureNoticeNoteFailure(): void
+    {
+        $this->reply(self::lines('OK', 'STATUS msg-1 failed'));
+        $this->messageLog->method('findByMessageId')->willReturn(self::sentMessage());
+        $this->notes->failure = self::sqlFailure();
+
+        $this->assertCheckFails('database problem adding failure notice for: msg-1');
+    }
+
     public function testPlainTextMessageBecomesTheNote(): void
     {
         $mail = 'MAIL to@direct.example from@direct.example 0 msg-5';
