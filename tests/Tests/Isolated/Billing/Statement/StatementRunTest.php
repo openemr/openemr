@@ -121,6 +121,102 @@ class StatementRunTest extends TestCase
         ]], $this->logger->records);
     }
 
+    public function testAnInvoiceAModuleLeftOffIsNotCountedAsStatemented(): void
+    {
+        // A module leaves Ann's 102 off (StatementEncounterEvent); her 101 goes out.
+        $this->steps->owed = [101 => 30.0, 102 => 20.0];
+        $this->steps->leftOff = [102 => 12];
+
+        $result = $this->runStatements([self::invoice(1, 11, 101, '2026-03-04'), self::invoice(1, 12, 102, '2026-04-01')]);
+
+        $this->assertSame([[11]], $this->steps->recorded, 'the invoice left off is not counted');
+        $this->assertSame(1, $result->statementsWritten);
+        $this->assertSame([], $result->skippedLeftOff);
+        $this->assertSame([101], $this->steps->built[0]['encounters']);
+        $this->assertSame('30.00', $this->steps->built[0]['amount']);
+        $this->assertSame([], $this->logger->records);
+    }
+
+    public function testAPatientWithEveryInvoiceLeftOffGetsNoStatementNotEvenTheirCredits(): void
+    {
+        // Ann's only checked invoice is left off; her 12.50 credit alone doesn't make a statement.
+        $this->steps->owed = [101 => 30.0, 109 => -12.5, 201 => 50.0];
+        $this->steps->credits = [1 => [['encounter' => 109, 'date' => '2026-01-01 00:00:00', 'stmt_count' => 0]]];
+        $this->steps->leftOff = [101 => 11];
+
+        $result = $this->runStatements([self::invoice(1, 11, 101, '2026-03-04'), self::invoice(2, 21, 201, '2026-05-01', 'Bob', 'Owes')]);
+
+        $this->assertSame('statement 2|', $result->output);
+        $this->assertSame(1, $result->statementsWritten);
+        $this->assertSame(['Ann Credit'], $result->skippedLeftOff);
+        $this->assertSame([], $result->skippedBelowMinimum);
+        $this->assertSame([2], array_column($this->steps->built, 'pid'));
+        $this->assertSame([[2, 'statement 2|']], $this->steps->saved);
+        $this->assertSame([[21]], $this->steps->recorded);
+        $this->assertSame([[
+            'info',
+            'Statement not sent: a module left every invoice off',
+            ['pid' => 1, 'encounters' => [11], 'delivery' => 'Print'],
+        ]], $this->logger->records);
+    }
+
+    public function testTheDueDateIsTheOldestInvoiceOnTheStatement(): void
+    {
+        // Ann's oldest invoice (101) is left off, and her credit (109) is older still.
+        $this->steps->owed = [101 => 30.0, 102 => 20.0, 109 => -12.5];
+        $this->steps->credits = [1 => [['encounter' => 109, 'date' => '2026-01-01 00:00:00', 'stmt_count' => 0]]];
+        $this->steps->leftOff = [101 => 11];
+
+        $this->runStatements([self::invoice(1, 11, 101, '2026-03-04'), self::invoice(1, 12, 102, '2026-04-01')]);
+
+        $this->assertSame('2026-04-01', $this->steps->built[0]['duedate']);
+        $this->assertEquals(212, $this->steps->built[0]['age']);
+    }
+
+    public function testAPortalRunKeepsWhatWasLeftOffOutOfThePortalsCopy(): void
+    {
+        $this->steps->owed = [101 => 30.0, 102 => 20.0];
+        $this->steps->leftOff = [101 => 11];
+
+        $this->runStatements([self::invoice(1, 11, 101, '2026-03-04'), self::invoice(1, 12, 102, '2026-04-01')], StatementDelivery::Portal);
+
+        // One copy, after the invoice on the statement, with nothing of the one left off.
+        $this->assertCount(1, $this->steps->portalInvoices);
+        $this->assertSame([102], $this->steps->portalInvoices[0]['encounters'] ?? null);
+        $this->assertArrayNotHasKey('excluded', $this->steps->portalInvoices[0]);
+        $this->assertSame([[12]], $this->steps->recorded);
+    }
+
+    public function testWithoutUpdateAPatientWithEveryInvoiceLeftOffStillGetsNoStatement(): void
+    {
+        $this->steps->owed = [101 => 30.0];
+        $this->steps->leftOff = [101 => 11];
+
+        $result = $this->runStatements([self::invoice(1, 11, 101, '2026-03-04')], recordRun: false);
+
+        $this->assertSame(0, $result->statementsWritten);
+        $this->assertSame(['Ann Credit'], $result->skippedLeftOff);
+        $this->assertSame([], $this->steps->built);
+    }
+
+    public function testAPortalRunSendsNothingForAPatientWithEveryInvoiceLeftOff(): void
+    {
+        $this->steps->owed = [101 => 30.0, 201 => 50.0];
+        $this->steps->leftOff = [101 => 11];
+        $this->steps->portalAuthorized = [1 => false, 2 => true];
+
+        $result = $this->runStatements(
+            [self::invoice(1, 11, 101, '2026-03-04'), self::invoice(2, 21, 201, '2026-05-01', 'Bob', 'Owes')],
+            StatementDelivery::Portal
+        );
+
+        // Ann has no portal access, but nothing was going to her, so the run doesn't stop there.
+        $this->assertNull($result->portalError);
+        $this->assertSame(['Ann Credit'], $result->skippedLeftOff);
+        $this->assertSame([[2, 1, 'statement 2|', '2-201']], $this->steps->portal);
+        $this->assertSame([[21]], $this->steps->recorded);
+    }
+
     public function testEmailRunEmailsEachStatementAndKeepsGoingAfterAFailure(): void
     {
         $this->steps->owed = [101 => 30.0, 201 => 50.0];
@@ -275,6 +371,8 @@ final class FakeStatementRunSteps implements StatementRunSteps
     public array $emptyFor = [];
     /** @var array<int, string> pid => email error */
     public array $emailFailsFor = [];
+    /** @var array<int, int> encounter => form_encounter.id, for the encounters a module leaves off */
+    public array $leftOff = [];
     /** @var array<int, bool> */
     public array $portalAuthorized = [];
     public bool $portalFails = false;
@@ -289,11 +387,21 @@ final class FakeStatementRunSteps implements StatementRunSteps
     public array $emailed = [];
     /** @var list<array{int, int, string, string}> pid, invoices sent, statement, invoice id */
     public array $portal = [];
+    /** @var list<array<string, mixed>> the statement after each invoice, as the portal got it */
+    public array $portalInvoices = [];
     /** @var list<list<int>> */
     public array $recorded = [];
 
     public function appendInvoice(array &$stmt, int $pid, int $encounter, string $serviceDate, int $notice): void
     {
+        if (isset($this->leftOff[$encounter])) {
+            // Kept the way StatementLines::append() keeps an encounter a module left off.
+            $kept = is_array($stmt['excluded'] ?? null) ? $stmt['excluded'] : ['pid' => $pid, 'encounters' => []];
+            $left = is_array($kept['encounters'] ?? null) ? $kept['encounters'] : [];
+            $left[] = ['encounter' => $encounter, 'id' => $this->leftOff[$encounter], 'dos' => $serviceDate, 'lines' => [], 'amount' => '0.00'];
+            $stmt['excluded'] = ['pid' => $pid, 'encounters' => $left];
+            return;
+        }
         $encounters = is_array($stmt['encounters'] ?? null) ? $stmt['encounters'] : [];
         $encounters[] = $encounter;
         $stmt['encounters'] = $encounters;
@@ -335,6 +443,7 @@ final class FakeStatementRunSteps implements StatementRunSteps
     public function notifyPortal(int $pid, array $invoices, string $statement, string $invoiceId): bool
     {
         $this->portal[] = [$pid, count($invoices), $statement, $invoiceId];
+        array_push($this->portalInvoices, ...$invoices);
         return !$this->portalFails;
     }
 

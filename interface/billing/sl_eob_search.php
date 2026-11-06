@@ -494,6 +494,10 @@ if (
         $skippedMessage = trim($skippedMessage . ' ' . xl('No statement for') . ' ' . implode(', ', $result->skippedBelowMinimum)
             . ': ' . xl('the amount due does not meet the minimum amount to print set in Globals.'));
     }
+    if ($result->skippedLeftOff !== []) {
+        $skippedMessage = trim($skippedMessage . ' ' . xl('No statement for') . ' ' . implode(', ', $result->skippedLeftOff)
+            . ': ' . xl('a module left all of their invoices off the statement.'));
+    }
     // Download or print the file, as selected
     if ($statementsWritten === 0 && $skippedMessage !== '' && $delivery !== StatementDelivery::Portal) {
         // Every checked patient was skipped: say so rather than hand back an empty file.
@@ -510,6 +514,10 @@ if (
     } elseif ($delivery === StatementDelivery::Portal) {
         if ($alertmsg == "") {
             $alertmsg = xl('Sending Invoice to Patient Portal Completed');
+        }
+        // A portal run skips only the patients a module left everything off for.
+        if ($skippedMessage !== '') {
+            $alertmsg .= ' ' . $skippedMessage;
         }
     } else { // Must be print!
         if ($DEBUG) {
