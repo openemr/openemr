@@ -20,6 +20,7 @@ class ClickatellSMSClient extends AppDispatch implements SmsChannelInterface
         if (empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
+        $this->credentials = $this->getCredentials();
         parent::__construct();
     }
 
@@ -28,12 +29,6 @@ class ClickatellSMSClient extends AppDispatch implements SmsChannelInterface
      */
     public function sendSMS($toPhone = '', string $subject = '', string $message = '', string $from = ''): string
     {
-        // If this is made as an API call we need to check authorization.
-        $authErrorMsg = $this->authenticate(); // currently default is only admin can send SMS. check with author!
-        if ($authErrorMsg !== 1) {
-            return text(js_escape($authErrorMsg));
-        }
-
         // If this is invoked from the UI via AppDispatch::dispatchAction(), the
         // values won't be parameters, but instead will come from the request.
         $toPhone = $toPhone ?: $this->getRequest('phone');
