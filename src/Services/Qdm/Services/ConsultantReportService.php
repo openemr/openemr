@@ -44,6 +44,10 @@ use OpenEMR\Services\ReferralTaskService;
 
 class ConsultantReportService extends AbstractQdmService implements QdmServiceInterface
 {
+    /**
+     * The consultant reports on referrals: each Reply Date recorded on a referral, and each document a
+     * referral's Tasks returned, with when it was received and the report's type.
+     */
     public function getSqlStatement(): string
     {
         $form = ReferralService::FORM_ID;
@@ -85,6 +89,11 @@ class ConsultantReportService extends AbstractQdmService implements QdmServiceIn
             WHERE 1 = 1";
     }
 
+    /**
+     * A report as a Communication, Performed related to its referral's order (ReferralOrderService::qdmId()):
+     * received when its document was filed, or by the end of its Reply Date. Null when the referral, the
+     * time or the type is missing.
+     */
     public function makeQdmModel(QdmRecord $recordObj): ?CommunicationPerformed
     {
         $record = $recordObj->getData();

@@ -206,6 +206,7 @@ trait Cat1View
         return is_string($id) && $id !== '' ? $this->documentScopedId($id) : '';
     }
 
+    /** $id prefixed with this document's guid, so an id stays unique across the documents of one export. */
     private function documentScopedId(string $id): string
     {
         $guid = $this->random_id();

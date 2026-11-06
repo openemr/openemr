@@ -44,6 +44,10 @@ class ReferralLoopServicesTest extends TestCase
     /** Patient referral to specialist, the first code of CMS50's Referral value set. */
     private const SPECIALIST = 'SNOMED-CT:103696004';
 
+    /**
+     * The order's QDM id is "referral-" and the transaction id, the id a report names; the builder's
+     * count stays its _id.
+     */
     public function testAReferralIsAnOrderNamedByItsTransaction(): void
     {
         $order = $this->order(['pid' => 1, 'id' => 12, 'refer_date' => '2026-03-02', 'refer_related_code' => self::SPECIALIST], 10007);
@@ -66,9 +70,9 @@ class ReferralLoopServicesTest extends TestCase
         );
     }
 
+    /** Not by its uuid, which a referral saved while referral Tasks are off gets only when FHIR first reads it. */
     public function testAReferralIsNamedByItsTransactionIdAlone(): void
     {
-        // Not its uuid, which a referral saved while referral Tasks are off gets only when FHIR first reads it.
         $this->assertSame('referral-12', ReferralOrderService::qdmId('12'), 'as the database returns the id');
         $this->assertSame('referral-12', ReferralOrderService::qdmId(12));
         $this->assertNull(ReferralOrderService::qdmId(null));
@@ -102,9 +106,9 @@ class ReferralLoopServicesTest extends TestCase
         $this->assertNull($this->order(['pid' => 1, 'id' => 12, 'refer_date' => $date, 'refer_related_code' => self::SPECIALIST], 1));
     }
 
+    /** A site's layout can record the Referral Date with a time; FHIR's authoredOn keeps the day. */
     public function testADateAndTimeIsReadAsItsDay(): void
     {
-        // A site's layout can record the Referral Date with a time; FHIR's authoredOn keeps the day.
         foreach (['2026-03-02 10:15', '2026-03-02 10:15:30'] as $date) {
             $json = self::json($this->order(['pid' => 1, 'id' => 12, 'refer_date' => $date, 'refer_related_code' => self::SPECIALIST], 1));
             $this->assertIsString($json['authorDatetime'] ?? null);
@@ -112,6 +116,10 @@ class ReferralLoopServicesTest extends TestCase
         }
     }
 
+    /**
+     * A Reply Date names a day, so the reply counts as received by its end; a date that doesn't exist
+     * gives no report.
+     */
     public function testAReplyIsACommunicationReceivedByTheEndOfItsReplyDate(): void
     {
         $report = $this->report(['pid' => 1, 'id' => 12, 'document_uuid' => null, 'received' => '2026-04-10', 'type_system' => 'http://loinc.org', 'type_code' => '11488-4'], 10010);
@@ -126,6 +134,7 @@ class ReferralLoopServicesTest extends TestCase
         $this->assertNull($this->report(['pid' => 1, 'id' => 12, 'document_uuid' => null, 'received' => '2026-02-30', 'type_system' => 'http://loinc.org', 'type_code' => '11488-4'], 1), 'a Reply Date that names no day');
     }
 
+    /** Unlike a Reply Date, a document a Task returned keeps the time of day it was filed. */
     public function testADocumentOnTheTaskIsACommunicationReceivedWhenItWasFiled(): void
     {
         $json = self::json($this->report(['pid' => 1, 'id' => 12, 'document_uuid' => self::DOCUMENT, 'received' => '2026-04-10 15:00:00', 'type_system' => 'http://loinc.org', 'type_code' => '11488-4'], 1));

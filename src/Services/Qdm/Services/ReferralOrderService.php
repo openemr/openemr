@@ -55,6 +55,10 @@ class ReferralOrderService extends AbstractQdmService implements QdmServiceInter
             WHERE `refer_date` REGEXP '" . self::DATE_PATTERN . "' AND `refer_related_code` <> ''";
     }
 
+    /**
+     * A referral as an Intervention, Order on its Referral Date, coded with each code of its Requested
+     * Service. Null without a Referral Date or a transaction id.
+     */
     public function makeQdmModel(QdmRecord $recordObj): ?InterventionOrder
     {
         $record = $recordObj->getData();

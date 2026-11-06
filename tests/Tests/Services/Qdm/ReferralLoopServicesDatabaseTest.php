@@ -54,11 +54,13 @@ class ReferralLoopServicesDatabaseTest extends TestCase
     /** @var list<int> */
     private array $transactions = [];
 
+    /** Start from no rows for the synthetic patients, so tearDown()'s count back to zero means something. */
     protected function setUp(): void
     {
         $this->assertSame(0, $this->rowsLeft(), 'no rows for the synthetic patients before the test');
     }
 
+    /** Remove every row the test made, and count the synthetic patients' rows back to zero. */
     protected function tearDown(): void
     {
         foreach ($this->tasks as $task) {
@@ -117,10 +119,12 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         $this->assertSame([[self::PID, self::qdmId($referral), '2026-04-10', self::LOINC, '11488-4', 'reply']], $this->reports(self::PID));
     }
 
+    /**
+     * A referral saved with its Reply Date already in gets no Task, nor does one saved while referral Tasks
+     * are off, which has no uuid either.
+     */
     public function testAReplyThatNeverReachedATaskIsStillAReport(): void
     {
-        // A referral saved with its Reply Date already in gets no Task, nor does one saved while
-        // referral Tasks are off, which has no uuid either.
         $backEntered = $this->referral(self::PID, '2026-03-02', self::SPECIALIST, reply: '2026-04-10');
         $tasksOff = $this->referral(self::PID, '2026-03-09', self::SPECIALIST, uuid: false, reply: ' 2026-04-17 ');
 
@@ -138,10 +142,12 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         $this->assertSame([[self::PID, self::qdmId($referral), '2026-04-10 15:00:00', self::LOINC, '11488-4', 'document']], $this->reports(self::PID));
     }
 
+    /**
+     * A report an earlier recipient sent still counts after the referral is sent on, and so does one a
+     * recipient attached to the Task a reply completed and a cleared Reply Date set aside.
+     */
     public function testEveryRecipientsReportCountsWhateverTheTaskBecame(): void
     {
-        // A report an earlier recipient sent still counts after the referral is sent on, and so does
-        // one a recipient attached to the Task a reply completed and a cleared Reply Date set aside.
         $referral = $this->referral(self::PID, '2026-03-02', self::SPECIALIST);
         $statuses = [['completed', null], ['cancelled', ReferralTaskService::REASON_SENT_ELSEWHERE], ['rejected', null], ['accepted', null],
             ['entered-in-error', ReferralTaskService::REASON_REPLY_CLEARED]];
@@ -230,10 +236,12 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         $this->assertCount(1, $this->reports(self::PID));
     }
 
+    /**
+     * The same document on two of the referral's Tasks under different types is one report: typed as a reply
+     * when either output is, else by the byte-smallest system and code.
+     */
     public function testOneDocumentReturnedUnderTwoTypesIsOneReport(): void
     {
-        // The same document on two of the referral's Tasks under different types is one report: typed as a
-        // reply when either output is, else by the byte-smallest system and code.
         $referral = $this->referral(self::PID, '2026-03-02', self::SPECIALIST);
         $first = $this->task($referral['uuid'], self::PID, 'completed');
         $second = $this->task($referral['uuid'], self::PID, 'completed');
@@ -311,10 +319,12 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         $this->assertCount(2, array_unique($ids), 'each order has an id of its own');
     }
 
+    /**
+     * Two patients exported one at a time: each export numbers its data elements from the same start, so their
+     * care plan orders have the same QDM id, yet their entries keep ids unique across documents.
+     */
     public function testTheSameQdmIdInTwoPatientsExportsIsTwoIds(): void
     {
-        // Two patients exported one at a time: each export numbers its data elements from the same start,
-        // so their care plan orders have the same QDM id, yet their entries keep ids unique across documents.
         foreach ([self::PID, self::OTHER_PID] as $pid) {
             $this->patientSeenIn2026($pid);
             $this->carePlanReferral($pid);
@@ -438,6 +448,7 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         return ['id' => $id, 'uuid' => $bytes];
     }
 
+    /** A referral Task for the ServiceRequest $focusUuid in $status, and its id, kept for tearDown(). */
     private function task(string $focusUuid, int $pid, string $status, string $code = 'fulfill', ?string $partOf = null, ?string $reason = null): int
     {
         return $this->tasks[] = QueryUtils::sqlInsert(
@@ -481,6 +492,7 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         );
     }
 
+    /** A synthetic patient with an office visit in the 2026 measurement period. */
     private function patientSeenIn2026(int $pid): void
     {
         QueryUtils::sqlInsert(
@@ -494,11 +506,13 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         );
     }
 
+    /** The placeholders for self::PIDS in an IN list. */
     private static function in(): string
     {
         return '(' . implode(', ', array_fill(0, count(self::PIDS), '?')) . ')';
     }
 
+    /** The rows the synthetic patients still have in every table this test writes. */
     private function rowsLeft(): int
     {
         $count = static fn (string $sql, array $binds): int => (int)self::number(QueryUtils::fetchSingleValue($sql, 'n', $binds));
