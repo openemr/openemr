@@ -61,7 +61,7 @@ function saveProcedureOrderCodes($formid, $postData): array
 
         // Prepare data for insert/update
         $reason_code = trim($postData['form_proc_reason_code'][$i] ?? '');
-        $reason_description = trim($postData['form_proc_reason_description'][$i] ?? '');
+        $reason_description = trim($postData['form_proc_reason_code_text'][$i] ?? '');
         $reason_date_low = trim($postData['form_proc_reason_date_low'][$i] ?? '');
         $reason_date_high = trim($postData['form_proc_reason_date_high'][$i] ?? '');
         $reason_status = trim($postData['form_proc_reason_status'][$i] ?? '');
