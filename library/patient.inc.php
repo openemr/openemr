@@ -1498,9 +1498,15 @@ function getEffectiveInsurances($patient_id, $encdate): array
     if ($day === null) {
         return [];
     }
+    // One service per request: its constructor backfills missing uuids in three tables, which these
+    // rows' callers don't read, and the Billing Manager, balances and ledgers call this once per visit.
+    static $service = null;
+    if (!$service instanceof \OpenEMR\Services\InsuranceService) {
+        $service = new \OpenEMR\Services\InsuranceService();
+    }
     return array_map(
         static fn(\OpenEMR\Services\Insurance\EffectiveInsuranceRow $row): array => $row->columns,
-        (new \OpenEMR\Services\InsuranceService())->getEffectiveInsuranceRows((int)$patient_id, $day)
+        $service->getEffectiveInsuranceRows((int)$patient_id, $day)
     );
 }
 
