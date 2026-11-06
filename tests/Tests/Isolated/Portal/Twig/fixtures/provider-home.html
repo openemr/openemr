@@ -11,22 +11,6 @@
     <link href="/openemr/portal/sign/css/signer_modal.css?v=82" rel="stylesheet">
     <script src="/openemr/portal/sign/assets/signature_pad.umd.js?v=82"></script>
     <script src="/openemr/portal/sign/assets/signer_api.js?v=82"></script>
-
-    <script>window.portalApiCsrfToken = "test-csrf-token";</script>
-    <script src="/openemr/portal/patient/scripts/libs/LAB.min.js?v=82"></script>
-    <script>
-        $LAB.script("/openemr/public/assets/underscore/underscore-min.js")
-        .script("/openemr/public/assets/moment/moment.js")
-        .script("/openemr/public/assets/backbone/backbone-min.js")
-        .script("/openemr/portal/patient/scripts/app.js?v=82")
-        .script("/openemr/portal/patient/scripts/model.js?v=82").wait()
-        .script("/openemr/portal/patient/scripts/view.js?v=82")
-        .wait(function () {
-            $(function () {
-                console.log('*** Provider Template Load Done ***');
-            });
-        });
-    </script>
 </head>
 
 <body class="pt-2">

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * JSON responses for the portal/patient API, in the shapes its Backbone models expect.
+ * JSON responses for the portal/patient API, in the shapes its page scripts expect.
  *
  * Errors keep the old Phreeze shape and status: 401 with `{"success": false, "message": …,
  * "errors": {…}}`. An unexpected failure is logged and reported with a generic message.

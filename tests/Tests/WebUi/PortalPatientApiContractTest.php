@@ -3,7 +3,7 @@
 /**
  * Records the HTTP contract of the patient portal's portal/patient pages and JSON API, as a
  * staff user, so the Phreeze replacement can be checked against it: status codes, response
- * shapes and the keys of every record. The pages' Backbone models depend on these keys.
+ * shapes and the keys of every record. The page scripts depend on these keys.
  *
  * Setup is HTTP-only (see tests/Tests/WebUi/README.md): the test logs in as admin and creates
  * its own patient through the new-patient form. The patient is not removed afterwards, because
@@ -380,18 +380,23 @@ final class PortalPatientApiContractTest extends TestCase
     #[Test]
     public function pagesRenderAndUnknownRoutesAreRefused(): void
     {
+        // page => whether it calls the API, and so needs the CSRF token. The dashboard does not.
         foreach (
             [
-                '/portal/patient/provider',
-                '/portal/patient/patientdata?pid=' . self::$pid . '&user=1',
-                '/portal/patient/onsitedocuments?pid=' . self::$pid . '&user=1',
-                '/portal/patient/onsiteactivityviews',
-            ] as $page
+                '/portal/patient/provider' => false,
+                '/portal/patient/patientdata?pid=' . self::$pid . '&user=1' => true,
+                '/portal/patient/onsitedocuments?pid=' . self::$pid . '&user=1' => true,
+                '/portal/patient/onsiteactivityviews' => true,
+            ] as $page => $callsTheApi
         ) {
             $response = $this->get($page);
             $this->assertSame(200, $response->getStatusCode(), $page);
             $this->assertStringContainsString('text/html', $response->getHeaderLine('Content-Type'), $page);
-            $this->assertStringContainsString('window.portalApiCsrfToken', (string) $response->getBody(), $page);
+            if ($callsTheApi) {
+                $this->assertStringContainsString('window.portalApiCsrfToken', (string) $response->getBody(), $page);
+            } else {
+                $this->assertStringContainsString('Portal Dashboard', (string) $response->getBody(), $page);
+            }
         }
 
         $this->assertSame(200, $this->get('/portal/patient/no-such-page')->getStatusCode(), 'an unknown page gets the not-found page');

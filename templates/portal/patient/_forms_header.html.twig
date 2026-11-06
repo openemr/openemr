@@ -1,5 +1,5 @@
 {#
- # Page head for the staff review list: theme, the Backbone stack and the API CSRF token.
+ # Page head for the staff review list: theme, the portal API client and the API CSRF token.
  # Set `title` (translated with xl, not escaped: this head escapes it) before including it.
  #
  # @package   OpenEMR
@@ -27,15 +27,9 @@
 {% endif %}
 
 <script>window.portalApiCsrfToken = {{ csrfTokenRaw()|js_escape }};</script>
-<script src="{{ web_root }}/portal/patient/scripts/libs/LAB.min.js?v={{ v_js_includes|attr_url }}"></script>
-<script>
-    $LAB.script("{{ assets_static_relative }}/underscore/underscore-min.js").wait()
-        .script("{{ assets_static_relative }}/backbone/backbone-min.js")
-        .script("{{ web_root }}/portal/patient/scripts/app.js?v={{ v_js_includes }}")
-        .script("{{ web_root }}/portal/patient/scripts/model.js?v={{ v_js_includes }}").wait()
-        .script("{{ web_root }}/portal/patient/scripts/view.js?v={{ v_js_includes }}").wait()
-        .script("{{ web_root }}/portal/portal_payment.js?v={{ v_js_includes }}").wait();
-</script>
+<script src="{{ web_root }}/portal/patient/scripts/portal-page.js?v={{ v_js_includes|attr_url }}"></script>
+<script src="{{ web_root }}/portal/patient/scripts/portal-api.js?v={{ v_js_includes|attr_url }}"></script>
+<script src="{{ web_root }}/portal/portal_payment.js?v={{ v_js_includes|attr_url }}"></script>
 
 </head>
 <body>

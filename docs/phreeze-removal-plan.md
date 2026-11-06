@@ -350,3 +350,15 @@ Behaviour changes in PR 3:
 - Refused and failed API calls send their JSON error as `application/json`; JSONP is gone.
 - Escaping fixes (bug 5): `cuser` and `webRoot` JS values, the provider select values and the
   documents page's `csrf_token_form` inputs.
+
+## After PR 3: the front end
+
+Decision 4 was revisited after PR 3: the Backbone front end is replaced in a follow-up PR (#15065).
+
+- `scripts/portal-api.js` replaces `model.js`: records and lists with the same model names and the
+  same JSON requests, built on `fetch`, with the CSRF header on writes.
+- `scripts/portal-page.js` replaces `app.js` and `view.js`: alerts, progress, escaping and the pager,
+  without underscore.
+- The underscore templates are `<template>` elements, filled with `textContent` or, for the profile
+  form, by setting input values. The element ids and the inline globals stay.
+- Plain `<script>` tags replace LAB.js. `backbone` and `underscore` are removed from `package.json`.
