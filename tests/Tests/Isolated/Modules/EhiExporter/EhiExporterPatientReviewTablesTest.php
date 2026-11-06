@@ -46,6 +46,10 @@ namespace OpenEMR\Tests\Isolated\Modules\EhiExporter {
         private const EHI_DOCS = '/Documentation/EHI_Export/';
         private const REQUEST_UUID = 'f1e2d3c4-b5a6-4978-8695-a4b3c2d1e0f9';
 
+        /**
+         * A table added to b10-tables.yml alone is left out of the export without any error, so every listed
+         * table has to be in the schema file the exporter walks.
+         */
         #[Test]
         public function everyTableInTheEhiTableSetIsInTheExportersSchema(): void
         {
