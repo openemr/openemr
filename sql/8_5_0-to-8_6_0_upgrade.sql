@@ -299,3 +299,10 @@ UPDATE `notification_log` SET `type` = 'Phone' WHERE `type` = '' AND `smsgateway
 -- Relabel the email rows skipped above. Before 8.6.0 the faxsms writer logged 'EMAIL', which a
 -- binary collation stores as ''. Only email rows carry 'sender|||subject' in smsgateway_info.
 UPDATE `notification_log` SET `type` = 'Email' WHERE `type` = '' AND `smsgateway_info` LIKE '%|||%';
+
+-- addresses.id now comes only from the sequences counter. AddressService and
+-- ContactRelationService took MAX(id)+1, which can be above the counter; move the
+-- counter past every id in use, so the Address object's INSERT ... ON DUPLICATE KEY
+-- UPDATE never takes one and overwrites another owner's address. It never moves the
+-- counter back, so it is safe to run again.
+UPDATE `sequences` SET `id` = (SELECT MAX(`id`) FROM `addresses`) WHERE `id` < (SELECT MAX(`id`) FROM `addresses`);
