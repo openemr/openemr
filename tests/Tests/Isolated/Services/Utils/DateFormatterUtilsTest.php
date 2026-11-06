@@ -15,6 +15,7 @@
 namespace OpenEMR\Tests\Isolated\Services\Utils;
 
 use OpenEMR\Services\Utils\DateFormatterUtils;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -138,6 +139,34 @@ class DateFormatterUtilsTest extends TestCase
         $result = DateFormatterUtils::DateToYYYYMMDD('15/06/2024', $globals);
 
         $this->assertSame('2024-06-15', $result);
+    }
+
+    /**
+     * What the issue form's scripts type into its end date: the Active checkbox
+     * unpadded, the Resolved outcome padded.
+     *
+     * @return array<string, array{int, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function isoDateOnEverySiteProvider(): array
+    {
+        return [
+            'ISO site, Active checkbox' => [DateFormatterUtils::DATE_FORMAT_ISO, '2026-11-4'],
+            'ISO site, Resolved outcome' => [DateFormatterUtils::DATE_FORMAT_ISO, '2026-11-04'],
+            'US site, Active checkbox' => [DateFormatterUtils::DATE_FORMAT_US, '2026-11-4'],
+            'US site, Resolved outcome' => [DateFormatterUtils::DATE_FORMAT_US, '2026-11-04'],
+            'international site, Active checkbox' => [DateFormatterUtils::DATE_FORMAT_INTL, '2026-11-4'],
+            'international site, Resolved outcome' => [DateFormatterUtils::DATE_FORMAT_INTL, '2026-11-04'],
+        ];
+    }
+
+    #[DataProvider('isoDateOnEverySiteProvider')]
+    public function testDateToYYYYMMDDKeepsAnIsoDateWhateverTheDisplayFormat(int $dateFormat, string $typed): void
+    {
+        $globals = $this->createGlobals($dateFormat);
+
+        $this->assertSame($typed, DateFormatterUtils::DateToYYYYMMDD($typed, $globals));
     }
 
     public function testDateToYYYYMMDDWithEmptyString(): void
