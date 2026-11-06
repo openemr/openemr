@@ -91,6 +91,33 @@ final class DirectMessageLogRepositoryTest extends TestCase
         );
     }
 
+    public function testRecordsASentMessage(): void
+    {
+        $this->repository->recordSent($this->messageId, 'from@direct.example', 'to@direct.example', 42, 3);
+
+        $row = QueryUtils::querySingleRow(
+            'SELECT msg_type, sender, recipient, status, patient_id, user_id FROM direct_message_log WHERE msg_id = ?',
+            [$this->messageId],
+        );
+        self::assertIsArray($row);
+        // The database returns numbers as strings, so compare loosely.
+        self::assertEquals(
+            ['msg_type' => 'S', 'sender' => 'from@direct.example', 'recipient' => 'to@direct.example', 'status' => 'S', 'patient_id' => 42, 'user_id' => 3],
+            $row,
+        );
+    }
+
+    public function testRecordsASentMessageWithoutPatientOrUser(): void
+    {
+        $this->repository->recordSent($this->messageId, 'from@direct.example', 'to@direct.example', null, null);
+
+        $entry = $this->repository->findByMessageId($this->messageId);
+
+        self::assertNotNull($entry);
+        self::assertNull($entry->patientId);
+        self::assertNull($entry->userId);
+    }
+
     private function insertSent(?int $patientId, ?int $userId): void
     {
         $sql = <<<'SQL'
