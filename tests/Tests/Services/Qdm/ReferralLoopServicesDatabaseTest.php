@@ -299,7 +299,39 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         // A care plan intervention is an Intervention Order too, and keeps an id of its own.
         $this->carePlanReferral(self::PID);
 
-        $xml = (new ExportCat1Service(new QdmBuilder(), new QdmRequestOne((string)self::PID)))->export([self::MEASURE], [
+        $path = $this->categoryOne(self::PID);
+        // Intervention Order (V4) and Communication Performed (V3)
+        $this->assertSame(1, self::nodes($path, "//cda:act[cda:templateId/@root='2.16.840.1.113883.10.20.24.3.156']")->length);
+        $related = self::values($path, "//cda:act[cda:templateId/@root='2.16.840.1.113883.10.20.24.3.156']/sdtc:inFulfillmentOf1/sdtc:actReference/sdtc:id/@extension");
+        $ids = self::values($path, "//cda:act[cda:templateId/@root='2.16.840.1.113883.10.20.24.3.31']/cda:id/@extension");
+        $this->assertCount(1, $related);
+        $this->assertCount(2, $ids);
+        $this->assertStringEndsWith('-' . self::qdmId($referral), $related[0], 'the referral\'s QDM id, scoped to the document');
+        $this->assertContains($related[0], $ids, 'the report names the order\'s own entry id');
+        $this->assertCount(2, array_unique($ids), 'each order has an id of its own');
+    }
+
+    public function testTheSameQdmIdInTwoPatientsExportsIsTwoIds(): void
+    {
+        // Two patients exported one at a time: each export numbers its data elements from the same start,
+        // so their care plan orders have the same QDM id, yet their entries keep ids unique across documents.
+        foreach ([self::PID, self::OTHER_PID] as $pid) {
+            $this->patientSeenIn2026($pid);
+            $this->carePlanReferral($pid);
+        }
+        $order = "//cda:act[cda:templateId/@root='2.16.840.1.113883.10.20.24.3.31']/cda:id/@extension";
+        $first = self::values($this->categoryOne(self::PID), $order);
+        $second = self::values($this->categoryOne(self::OTHER_PID), $order);
+        $this->assertCount(1, $first);
+        $this->assertCount(1, $second);
+        $this->assertSame(self::lastPart($first[0]), self::lastPart($second[0]), 'the same QDM id in both');
+        $this->assertNotSame($first[0], $second[0]);
+    }
+
+    /** One patient's QRDA Category I document for CMS50v14, ready to query. */
+    private function categoryOne(int $pid): \DOMXPath
+    {
+        $xml = (new ExportCat1Service(new QdmBuilder(), new QdmRequestOne((string)$pid)))->export([self::MEASURE], [
             'performance_period_start' => '2026-01-01 00:00:00',
             'performance_period_end' => '2026-12-31 23:59:59',
         ]);
@@ -308,24 +340,31 @@ class ReferralLoopServicesDatabaseTest extends TestCase
         $path = new \DOMXPath($document);
         $path->registerNamespace('cda', 'urn:hl7-org:v3');
         $path->registerNamespace('sdtc', 'urn:hl7-org:sdtc');
-        // Intervention Order (V4) and Communication Performed (V3)
-        $order = $path->query("//cda:act[cda:templateId/@root='2.16.840.1.113883.10.20.24.3.31']");
-        $report = $path->query("//cda:act[cda:templateId/@root='2.16.840.1.113883.10.20.24.3.156']");
-        $this->assertInstanceOf(\DOMNodeList::class, $order);
-        $this->assertInstanceOf(\DOMNodeList::class, $report);
-        $this->assertSame(2, $order->length);
-        $this->assertSame(1, $report->length);
-        $related = $path->query("//cda:act[cda:templateId/@root='2.16.840.1.113883.10.20.24.3.156']/sdtc:inFulfillmentOf1/sdtc:actReference/sdtc:id/@extension");
-        $orderIds = $path->query("//cda:act[cda:templateId/@root='2.16.840.1.113883.10.20.24.3.31']/cda:id/@extension");
-        $this->assertInstanceOf(\DOMNodeList::class, $related);
-        $this->assertInstanceOf(\DOMNodeList::class, $orderIds);
-        $this->assertSame(self::qdmId($referral), $related->item(0)?->nodeValue);
-        $ids = [];
-        foreach ($orderIds as $id) {
-            $ids[] = $id->nodeValue;
+        return $path;
+    }
+
+    /** @return \DOMNodeList<\DOMNameSpaceNode|\DOMNode> */
+    private static function nodes(\DOMXPath $path, string $query): \DOMNodeList
+    {
+        $nodes = $path->query($query);
+        self::assertInstanceOf(\DOMNodeList::class, $nodes);
+        return $nodes;
+    }
+
+    /** @return list<string> */
+    private static function values(\DOMXPath $path, string $query): array
+    {
+        $values = [];
+        foreach (self::nodes($path, $query) as $node) {
+            $values[] = self::text($node->nodeValue);
         }
-        $this->assertContains(self::qdmId($referral), $ids, 'the report names the order\'s own entry id');
-        $this->assertCount(2, array_unique(array_filter($ids, static fn (?string $id): bool => $id !== null && $id !== '')), 'each order has an id of its own');
+        return $values;
+    }
+
+    /** An exported id's QDM id: what follows the document's guid (five dash-separated groups), or the whole id. */
+    private static function lastPart(string $id): string
+    {
+        return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-(.+)$/', $id, $match) === 1 ? $match[1] : $id;
     }
 
     /** @return list<array{int, ?string, string, string}> pid, QDM id, date and Requested Service of each order read, sorted */

@@ -14,6 +14,7 @@ namespace OpenEMR\Services\Qrda\Helpers;
 
 use Mustache_Context;
 use OpenEMR\Services\CodeTypesService;
+use Ramsey\Uuid\UuidInterface;
 
 trait Cat1View
 {
@@ -181,6 +182,34 @@ trait Cat1View
         $authorDateTime = $context->find('authorDatetime');
         $dispenserId = $context->find('dispenserId');
         return !empty($authorDateTime) || !empty($dispenserId);
+    }
+
+    /**
+     * The id of an entry another entry's relatedTo can name (an Intervention Order's): the data
+     * element's QDM id, scoped to this document by its guid (random_id()), so the same QDM id in
+     * another patient's document, or another export, is another id; a random one when the element
+     * has no QDM id. related_id() scopes the reference the same way, so the two match.
+     */
+    public function entry_id(Mustache_Context $context): string
+    {
+        $id = $context->find('id');
+        return is_string($id) && $id !== '' ? $this->documentScopedId($id) : $this->object_id();
+    }
+
+    /**
+     * The id a relatedTo item names, inside {{#relatedTo}} (the item is the context's top), scoped to
+     * this document as entry_id() scopes the entry's own.
+     */
+    public function related_id(Mustache_Context $context): string
+    {
+        $id = $context->last();
+        return is_string($id) && $id !== '' ? $this->documentScopedId($id) : '';
+    }
+
+    private function documentScopedId(string $id): string
+    {
+        $guid = $this->random_id();
+        return ($guid instanceof UuidInterface ? $guid->toString() : (is_string($guid) ? $guid : '')) . '-' . $id;
     }
 
     private function get_code_system_for_oid($oid): string
