@@ -42,6 +42,10 @@ final class PortalPaymentAmountTest extends TestCase
             'empty' => ['', null],
             'trailing dot' => ['50.', null],
             'trailing newline' => ["50.00\n", null],
+            'cents only' => ['.50', 50],
+            'one cent digit only' => ['.5', 50],
+            'point only' => ['.', null],
+            'three cent digits only' => ['.505', null],
         ];
     }
 

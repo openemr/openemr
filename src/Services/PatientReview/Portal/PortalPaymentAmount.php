@@ -23,8 +23,11 @@ namespace OpenEMR\Services\PatientReview\Portal;
 
 final class PortalPaymentAmount
 {
-    /** \A and \z, not ^ and $: $ also matches before a trailing newline ("50\n"). */
-    private const AMOUNT = '/\A(\d+)(?:\.(\d{1,2}))?\z/';
+    /**
+     * Whole dollars, optional when there are cents (".50", as the page and staff posting accept).
+     * \A and \z, not ^ and $: $ also matches before a trailing newline ("50\n").
+     */
+    private const AMOUNT = '/\A(?=\.?\d)(\d*)(?:\.(\d{1,2}))?\z/';
 
     /**
      * The card-details key that marks a payment whose gateway charged an amount other than its
