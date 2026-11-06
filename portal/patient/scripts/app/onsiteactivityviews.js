@@ -231,7 +231,7 @@ const actpage = {
             deleteButton.setAttribute('data-delete-id', item.get('tableArgs') || '');
             tbody.append(row);
         });
-        container.insertAdjacentHTML('beforeend', view.getPaginationHtml(actpage.onsiteActivityViews));
+        container.append(view.pagination(actpage.onsiteActivityViews));
         actpage.bindCollection();
     },
 

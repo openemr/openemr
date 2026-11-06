@@ -305,24 +305,35 @@ describe('app', () => {
 
 describe('view', () => {
     test('a single page has no pager', () => {
-        expect(view.getPaginationHtml({totalPages: 1, currentPage: 1})).toBe('');
+        expect(view.pagination({totalPages: 1, currentPage: 1}).childNodes).toHaveLength(0);
     });
 
     test('the pager marks the current page and pages past ten', () => {
-        document.body.innerHTML = view.getPaginationHtml({totalPages: 30, currentPage: 12});
+        document.body.replaceChildren(view.pagination({totalPages: 30, currentPage: 12}));
         const buttons = [...document.querySelectorAll('.pageButton')].map((a) => a.id);
 
+        const labels = [...document.querySelectorAll('.pageButton')].map((a) => a.textContent);
+
         expect(buttons[0]).toBe('page-6');
-        expect(buttons).toContain('page-17');
+        expect(labels[0]).toBe('«');
+        expect(buttons[1]).toBe('page-7');
         expect(buttons[buttons.length - 1]).toBe('page-17');
+        expect(labels[labels.length - 1]).toBe('»');
         expect(document.querySelector('li.active a').id).toBe('page-12');
+        expect(document.querySelector('.pagination').className).toBe('pagination float-right');
+    });
+
+    test('the top pager is placed above the list', () => {
+        document.body.replaceChildren(view.pagination({totalPages: 2, currentPage: 1}, true));
+
+        expect(document.querySelector('.pagination').className).toBe('pagination float-left m-0 mb-1');
     });
 
     test('pager figures that are not numbers add no markup', () => {
-        const html = view.getPaginationHtml({totalPages: '2"><img src=x>', currentPage: 1});
+        document.body.replaceChildren(view.pagination({totalPages: '2"><img src=x>', currentPage: 1}));
 
-        expect(html).not.toContain('<img');
-        expect(html).toContain('id="page-2"');
+        expect(document.querySelector('img')).toBeNull();
+        expect(document.getElementById('page-2')).not.toBeNull();
     });
 
     test('renderTemplate replaces the container with a copy of the template', () => {
@@ -338,8 +349,11 @@ describe('view', () => {
     test('the active filter reflects the saved choice', () => {
         localStorage.setItem('showActive', 'true');
 
-        expect(view.sortTableWithActiveFilterHtml(true)).toContain('checked');
-        expect(view.sortTableWithActiveFilterHtml(true)).toContain('(Show Active Status)');
-        expect(view.sortTableWithActiveFilterHtml(false)).not.toContain('checked');
+        expect(view.activeFilter(true).querySelector('#active-checkbox').checked).toBe(true);
+        expect(view.activeFilter(true).textContent).toContain('(Show Active Status)');
+        expect(view.activeFilter(false).querySelector('#active-checkbox').checked).toBe(false);
+
+        localStorage.setItem('showActive', 'false');
+        expect(view.activeFilter(false).textContent).toContain('(Show All)');
     });
 });

@@ -143,68 +143,87 @@ var view = (function () {
 
         /**
          * The pager for a list with more than one page: buttons with the ids page-1, page-2, …
+         * Built as elements, not HTML, so nothing from the response is parsed as markup.
          *
          * @param {{totalPages: *, currentPage: *}} page
          * @param {boolean} top the pager above the list, rather than below it
-         * @returns {string} HTML, or '' for a single page
+         * @returns {DocumentFragment} the pager, or an empty fragment for a single page
          */
-        getPaginationHtml: function (page, top = false) {
+        pagination: function (page, top = false) {
             const totalPages = pageNumber(page.totalPages);
             const currentPage = pageNumber(page.currentPage);
-            let html = '';
-            if (totalPages > 1) {
-                if (top) {
-                    html += `<span aria-label="Page navigation">
-                    <span class="pagination float-left m-0 mb-1">`;
-                } else {
-                    html += `<span aria-label="Page navigation">
-                    <span class="pagination float-right">`;
-                }
-
-                let first = 1;
-                let last = totalPages;
-                if (last > 10) {
-                    first = currentPage - 5;
-                    first = first > 1 ? first : 1;
-
-                    last = last > (first + 9) ? (first + 9) : last;
-                }
-
-                if (first > 1) {
-                    html += '<li><a class="pageButton btn btn-sm btn-outline-secondary" id="page-' + (first - 1) + '" href="#">&laquo;</a></li>';
-                }
-                for (let i = first; i <= last; i++) {
-                    html += '<li' + (currentPage === i ? ' class="active"' : '') + '>'
-                        + '<a class="pageButton btn btn-sm btn-outline-secondary" id="page-' + i + '" href="#">'
-                        + i + '</a></li>';
-                }
-
-                if (last < totalPages) {
-                    html += '<li><a class="pageButton btn btn-sm btn-outline-secondary" id="page-' + (last + 1) + '" href="#">&raquo;</a></li>';
-                }
-
-                html += `</span></span>`;
+            const pager = document.createDocumentFragment();
+            if (totalPages <= 1) {
+                return pager;
             }
 
-            return html;
+            let first = 1;
+            let last = totalPages;
+            if (last > 10) {
+                first = currentPage - 5;
+                first = first > 1 ? first : 1;
+
+                last = last > (first + 9) ? (first + 9) : last;
+            }
+
+            const nav = document.createElement('span');
+            nav.setAttribute('aria-label', 'Page navigation');
+            const list = document.createElement('span');
+            list.className = top ? 'pagination float-left m-0 mb-1' : 'pagination float-right';
+            nav.append(list);
+
+            /**
+             * A page button: its label, and the page it opens.
+             */
+            const button = function (label, target, active = false) {
+                const item = document.createElement('li');
+                if (active) {
+                    item.className = 'active';
+                }
+                const link = document.createElement('a');
+                link.className = 'pageButton btn btn-sm btn-outline-secondary';
+                link.id = 'page-' + target;
+                link.href = '#';
+                link.textContent = label;
+                item.append(link);
+                list.append(item);
+            };
+            if (first > 1) {
+                button('«', first - 1);
+            }
+            for (let i = first; i <= last; i++) {
+                button(String(i), i, currentPage === i);
+            }
+            if (last < totalPages) {
+                button('»', last + 1);
+            }
+
+            pager.append(nav);
+            return pager;
         },
 
         /**
          * The "show active only" checkbox of the document list.
          *
          * @param {boolean} isActiveOnly
-         * @returns {string} HTML
+         * @returns {HTMLElement}
          */
-        sortTableWithActiveFilterHtml: function (isActiveOnly) {
+        activeFilter: function (isActiveOnly) {
             const showActive = localStorage.getItem('showActive') === 'true';
-            return `<span class="table-active-filter float-right">
-            <span class="show-active-filter">
-                <label>
-                    <input type="checkbox" id="active-checkbox" class="active-only-checkbox" ${isActiveOnly ? 'checked' : ''}>
-                    ${showActive ? '(' + jsText("Show Active Status") + ')' : '(' + jsText("Show All") + ')'}
-                </label>
-            </span>
-    </span>`;
+            const filter = document.createElement('span');
+            filter.className = 'table-active-filter float-right';
+            const inner = document.createElement('span');
+            inner.className = 'show-active-filter';
+            const label = document.createElement('label');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = 'active-checkbox';
+            checkbox.className = 'active-only-checkbox';
+            checkbox.checked = isActiveOnly;
+            label.append(checkbox, ' ', showActive ? '(Show Active Status)' : '(Show All)');
+            inner.append(label);
+            filter.append(inner);
+            return filter;
         }
     };
 }());

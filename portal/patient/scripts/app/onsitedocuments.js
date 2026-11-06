@@ -652,8 +652,8 @@ var page = {
     renderCollection: function () {
         const list = page.onsiteDocuments;
         const container = view.renderTemplate('onsiteDocumentCollectionTemplate', 'onsiteDocumentCollectionContainer');
-        container.querySelector('[data-slot="pager-top"]').innerHTML = view.getPaginationHtml(list, true);
-        container.querySelector('[data-slot="active-filter"]').innerHTML = view.sortTableWithActiveFilterHtml(false);
+        container.querySelector('[data-slot="pager-top"]').replaceChildren(view.pagination(list, true));
+        container.querySelector('[data-slot="active-filter"]').replaceChildren(view.activeFilter(false));
         container.querySelectorAll('thead th[id^="header_"]').forEach(function (th) {
             if (list.orderBy && th.id === 'header_' + list.orderBy) {
                 const arrow = document.createElement('i');
@@ -679,7 +679,7 @@ var page = {
             cell('patientSignedTime').textContent = dated('patientSignedTime');
             tbody.append(row);
         });
-        container.querySelector('.table-responsive').insertAdjacentHTML('beforeend', view.getPaginationHtml(list));
+        container.querySelector('.table-responsive').append(view.pagination(list));
         page.onCollectionRendered();
     },
 
