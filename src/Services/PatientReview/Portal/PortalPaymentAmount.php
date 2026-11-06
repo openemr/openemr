@@ -36,13 +36,6 @@ final class PortalPaymentAmount
     public const MISMATCH = 'amountMismatch';
 
     /**
-     * An invoice line field exactly as the page renders it: form_upay[<encounter>], with no
-     * leading zeros or trailing newline (form_upay[01687] would be charged but not found by staff
-     * posting).
-     */
-    private const LINE = '/\Aform_upay\[([1-9]\d*)\]\z/';
-
-    /**
      * Whether $payment is a positive amount equal to the total of the invoice selection.
      *
      * @param list<int> $encounters the invoice lines the patient was offered
@@ -85,16 +78,19 @@ final class PortalPaymentAmount
             return is_string($prepayment) ? self::cents(trim($prepayment)) : null;
         }
 
+        // The line fields exactly as the page renders them. Comparing the whole name, not a number
+        // parsed from it, refuses form_upay[01687], a trailing newline or an out-of-range number:
+        // each would be charged but not found by staff posting.
+        $lines = [];
+        foreach ($encounters as $encounter) {
+            $lines['form_upay[' . $encounter . ']'] = true;
+        }
         $total = 0;
         foreach ($values as $name => $value) {
             if (!is_string($name) || !str_starts_with($name, 'form_upay[')) {
                 continue;
             }
-            if (
-                preg_match(self::LINE, $name, $line) !== 1
-                || !in_array(intval($line[1]), $encounters, true)
-                || !is_string($value)
-            ) {
+            if (!isset($lines[$name]) || !is_string($value)) {
                 return null;
             }
             $value = trim($value);

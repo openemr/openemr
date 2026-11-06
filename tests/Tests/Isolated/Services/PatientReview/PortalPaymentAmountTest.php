@@ -107,13 +107,23 @@ final class PortalPaymentAmountTest extends TestCase
      */
     public function testALineThePatientWasNotOfferedMatchesNothing(): void
     {
-        foreach (['form_upay[9999]', 'form_upay[not-a-line]', 'form_upay[]', 'form_upay[1687][x]', 'form_upay[01688]', 'form_upay[+1688]', 'form_upay[ 1688]', "form_upay[1688]\n"] as $extra) {
+        foreach (['form_upay[9999]', 'form_upay[not-a-line]', 'form_upay[]', 'form_upay[1687][x]', 'form_upay[01688]', 'form_upay[+1688]', 'form_upay[ 1688]', "form_upay[1688]\n", 'form_upay[99999999999999999999]', 'form_upay[9223372036854775807]', 'form_upay[0]'] as $extra) {
             $invoice = json_encode(['radio_type_of_payment' => 'invoice_balance', 'form_upay[1687]' => '75.00', $extra => '25.00'], JSON_THROW_ON_ERROR);
             $this->assertNull(PortalPaymentAmount::invoiceCents($invoice, self::LINES), $extra);
             $this->assertFalse(PortalPaymentAmount::matchesInvoice('100.00', $invoice, self::LINES), $extra);
         }
         $invoice = json_encode(['radio_type_of_payment' => 'invoice_balance', 'form_upay[1687]' => '75.00'], JSON_THROW_ON_ERROR);
         $this->assertFalse(PortalPaymentAmount::matchesInvoice('75.00', $invoice, []), 'another patient has none of these lines');
+    }
+
+    /**
+     * Encounter 0, when the patient has one, is a line like any other.
+     */
+    public function testAnEncounterZeroLineIsALine(): void
+    {
+        $invoice = json_encode(['radio_type_of_payment' => 'invoice_balance', 'form_upay[0]' => '5.00', 'form_upay[1687]' => '75.00'], JSON_THROW_ON_ERROR);
+
+        $this->assertSame(8000, PortalPaymentAmount::invoiceCents($invoice, [0, 1687]));
     }
 
     /**
