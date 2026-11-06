@@ -1478,13 +1478,17 @@ function dateToDB($date): string
  * It chooses by the service's rule (EffectiveInsuranceRule), so the
  * procedural screens and the service agree.
  *
+ * Like the query it replaced, the list stops at the first level with nothing
+ * in force, so a row's position is its level: a current secondary behind an
+ * ended primary gives no policies.
+ *
  * Where it differs from the query it replaced:
- * - it doesn't stop at the first level with nothing in force: a current
- *   secondary behind an ended primary comes back on its own, so callers find
- *   a policy by its type, not its position in the list;
  * - a 0000-00-00 end is open, where the query read it as ended;
  * - between two undated policies at a level the later entry wins, where the
  *   query took whichever row the database returned first;
+ * - a company that isn't a whole number above 0 ('Acme', '12abc', '00')
+ *   empties its level, where the query counted any company that wasn't
+ *   blank or '0';
  * - a DATETIME counts as its day, and a date that can't be read (blank, zero,
  *   or not Y-m-d) gives no policies.
  *
@@ -1504,10 +1508,18 @@ function getEffectiveInsurances($patient_id, $encdate): array
     if (!$service instanceof \OpenEMR\Services\InsuranceService) {
         $service = new \OpenEMR\Services\InsuranceService();
     }
-    return array_map(
-        static fn(\OpenEMR\Services\Insurance\EffectiveInsuranceRow $row): array => $row->columns,
-        $service->getEffectiveInsuranceRows((int)$patient_id, $day)
-    );
+    $byLevel = [];
+    foreach ($service->getEffectiveInsuranceRows((int)$patient_id, $day) as $row) {
+        $byLevel[$row->policy->level->value] = $row->columns;
+    }
+    $rows = [];
+    foreach (\OpenEMR\Services\Insurance\InsuranceLevel::cases() as $level) {
+        if (!isset($byLevel[$level->value])) {
+            break;
+        }
+        $rows[] = $byLevel[$level->value];
+    }
+    return $rows;
 }
 
 /**

@@ -4,11 +4,13 @@
  * InsuranceService::getEffectiveInsuranceRows() against the claim's payer list
  * (Claim::loadPayerInfo(), which decides who is billed), on the same rows, and
  * against getEffectiveInsurances() in library/patient.inc.php, now a wrapper over
- * it, which must choose as the service does in every case.
+ * it. The wrapper chooses as the service does up to the first level with nothing
+ * in force, and stops there as the query it replaced did, so a row's position in
+ * its list is still its level.
  *
  * Each case names what the claim and the wrapper choose. Where the claim differs
- * from the service, the case says so in its name; where the query the wrapper
- * replaced chose differently, the case says that too.
+ * from the service, the case says so in its name; where the wrapper stops before
+ * the service's last policy, the case says that too.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -178,7 +180,7 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
 
     /**
      * Each case: the rows (type, company, start, end), what the service chooses, what the
-     * claim chooses, and what the getEffectiveInsurances() wrapper chooses, on 2026-11-04.
+     * claim chooses, and what the getEffectiveInsurances() wrapper returns, on 2026-11-04.
      *
      * @return array<string, array{list<array{string, ?string, ?string, ?string}>, list<string>, list<string>, list<string>}>
      *
@@ -228,18 +230,18 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
                 [['primary', '101', '2020-01-01', null], ['secondary', '102', '2027-01-01', null]],
                 $current, $current, $current,
             ],
-            // The query the wrapper replaced stopped at the first level with nothing in force.
-            'an ended primary and a current secondary (the replaced query stopped)' => [
+            // The wrapper stops at the first level with nothing in force, as the query it replaced did.
+            'an ended primary and a current secondary (the wrapper stops)' => [
                 [['primary', '101', '2020-01-01', '2026-07-07'], ['secondary', '104', '2020-01-01', null]],
-                ['secondary 104'], ['secondary 104'], ['secondary 104'],
+                ['secondary 104'], ['secondary 104'], [],
             ],
-            'a blank primary and a current secondary (the replaced query stopped)' => [
+            'a blank primary and a current secondary (the wrapper stops)' => [
                 [['primary', '', null, null], ['secondary', '104', '2020-01-01', null]],
-                ['secondary 104'], ['secondary 104'], ['secondary 104'],
+                ['secondary 104'], ['secondary 104'], [],
             ],
-            'an ended secondary between a primary and a tertiary (the replaced query stopped)' => [
+            'an ended secondary between a primary and a tertiary (the wrapper stops)' => [
                 [['primary', '101', '2020-01-01', null], ['secondary', '102', '2020-01-01', '2026-01-01'], ['tertiary', '103', '2020-01-01', null]],
-                ['primary 101', 'tertiary 103'], ['primary 101', 'tertiary 103'], ['primary 101', 'tertiary 103'],
+                ['primary 101', 'tertiary 103'], ['primary 101', 'tertiary 103'], $current,
             ],
             // sql_mode = '' stores a mistyped date as 0000-00-00. The claim (and the replaced query) compare it
             // as a day in year 0, so the policy has ended; the service and its wrapper read it as no end.
@@ -254,11 +256,11 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
      * @param list<array{string, ?string, ?string, ?string}> $rows
      * @param list<string> $service
      * @param list<string> $claim
-     * @param list<string> $old
+     * @param list<string> $wrapper
      */
     #[Test]
     #[DataProvider('cases')]
-    public function theServiceMatchesTheClaimExceptWhereNamed(array $rows, array $service, array $claim, array $old): void
+    public function theServiceMatchesTheClaimExceptWhereNamed(array $rows, array $service, array $claim, array $wrapper): void
     {
         foreach ($rows as [$type, $provider, $start, $end]) {
             $this->addPolicy($type, $provider, $start, $end);
@@ -266,8 +268,43 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
 
         self::assertSame($service, $this->serviceChoice(self::DAY), 'the service');
         self::assertSame($claim, $this->claimChoice(self::DAY), 'the claim');
-        self::assertSame($old, $this->wrapperChoice(self::DAY), 'getEffectiveInsurances()');
-        self::assertSame($service, $old, 'the wrapper chooses as the service does');
+        self::assertSame($wrapper, $this->wrapperChoice(self::DAY), 'getEffectiveInsurances()');
+        self::assertSame(self::upToTheFirstGap($service), $wrapper, 'the wrapper chooses as the service does, up to the first gap');
+    }
+
+    /**
+     * The policies at the leading levels with no gap: primary, then secondary, then tertiary.
+     *
+     * @param list<string> $chosen each policy as "level company", primary first
+     * @return list<string>
+     */
+    private static function upToTheFirstGap(array $chosen): array
+    {
+        $leading = [];
+        foreach (['primary', 'secondary', 'tertiary'] as $index => $level) {
+            if (!str_starts_with($chosen[$index] ?? '', $level . ' ')) {
+                break;
+            }
+            $leading[] = $chosen[$index];
+        }
+        return $leading;
+    }
+
+    /**
+     * A current secondary behind an ended primary: the claim bills the secondary, and the service
+     * returns it, but the wrapper returns no policies, as the query it replaced did, so callers that
+     * read a row's position as its level (the Billing Manager, ledgers, lab orders) never take the
+     * secondary for the primary.
+     */
+    #[Test]
+    public function theWrapperStopsAtTheFirstLevelWithNothingInForce(): void
+    {
+        $this->addPolicy('primary', '101', '2020-01-01', '2026-07-07');
+        $this->addPolicy('secondary', '104', '2020-01-01', null);
+
+        self::assertSame(['secondary 104'], $this->serviceChoice(self::DAY));
+        self::assertSame([], getEffectiveInsurances($this->pid, self::DAY));
+        self::assertSame(['primary 101', 'secondary 104'], $this->wrapperChoice('2026-07-07'), 'both in force the day the primary ends');
     }
 
     /**

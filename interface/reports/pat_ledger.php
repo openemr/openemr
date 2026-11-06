@@ -144,11 +144,6 @@ function PrintEncFooter(): void
     echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_bal)) . "</td>";
     echo "</tr>\n";
 }
-/**
- * Prints one visit's payment and adjustment rows (or, with $unassigned, the unapplied payments) and adds
- * them to the running totals. An insurer payment is named by the policy at its level in $effectiveInsurances,
- * found by type, since that list can skip a level.
- */
 function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsurances = []): void
 {
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;
@@ -207,16 +202,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         if (empty($pmt['payer_type'])) {
             $payer = xl('Patient');
         } else {
-            // The policy at the payment's level, found by its type: the list can skip a level
-            // (getEffectiveInsurances() returns a current secondary behind an ended primary).
-            $payerId = null;
-            $paymentType = $pmt['payer_type'];
-            $paymentLevel = [1 => 'primary', 2 => 'secondary', 3 => 'tertiary'][is_numeric($paymentType) ? (int)$paymentType : 0] ?? '';
-            foreach (is_array($effectiveInsurances) ? $effectiveInsurances : [] as $effectiveInsurance) {
-                if (is_array($effectiveInsurance) && ($effectiveInsurance['type'] ?? '') === $paymentLevel) {
-                    $payerId = $effectiveInsurance['provider'] ?? null;
-                }
-            }
+            $payerId = $effectiveInsurances[$pmt['payer_type'] - 1]['provider'];
             $payer = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", [$payerId])['name'];
         }
         $pmt_date = $unassigned ? substr((string) $pmt['post_to_date'], 0, 10) : substr((string) $pmt['post_time'], 0, 10);
