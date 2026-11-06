@@ -25,7 +25,11 @@ class MeasurementUtils
     }
     public static function cmToInches(float|int $val): string
     {
-        return number_format(round($val / 2.54, self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
+        return number_format(self::cmToInchesFloat($val), self::MEASUREMENT_PRECISION);
+    }
+    public static function cmToInchesFloat(float|int $val): float
+    {
+        return round($val / 2.54, self::MEASUREMENT_PRECISION);
     }
     public static function inchesToCm(float|int $val): string
     {
@@ -33,7 +37,11 @@ class MeasurementUtils
     }
     public static function fhToCelsius(float|int $val): string
     {
-        return number_format(round(($val - 32) * (5 / 9), self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
+        return number_format(self::fhToCelsiusFloat($val), self::MEASUREMENT_PRECISION);
+    }
+    public static function fhToCelsiusFloat(float|int $val): float
+    {
+        return round(($val - 32) * (5 / 9), self::MEASUREMENT_PRECISION);
     }
 
     public static function celsiusToFh(float|int $val): string
