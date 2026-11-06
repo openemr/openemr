@@ -174,9 +174,9 @@ class FHIRSearchFieldFactory
         } elseif ($type == SearchFieldType::URI) {
             throw new \BadMethodCallException("URI Search Parameter not implemented yet");
         } elseif ($type == SearchFieldType::DATE) {
-            return new DateSearchField($fieldName, $fhirSearchValues, DateSearchField::DATE_TYPE_DATE);
+            return $this->createDateSearchField($fieldName, $fhirSearchValues, DateSearchField::DATE_TYPE_DATE, $modifier);
         } elseif ($type == SearchFieldType::DATETIME) {
-            return new DateSearchField($fieldName, $fhirSearchValues, DateSearchField::DATE_TYPE_DATETIME);
+            return $this->createDateSearchField($fieldName, $fhirSearchValues, DateSearchField::DATE_TYPE_DATETIME, $modifier);
         } elseif ($type == SearchFieldType::NUMBER) {
             throw new \BadMethodCallException("Number search parameter not implemented yet");
         } elseif ($type == SearchFieldType::REFERENCE) {
@@ -186,6 +186,63 @@ class FHIRSearchFieldFactory
             return new StringSearchField($fieldName, $fhirSearchValues, $modifier, isLiteral: true);
         }
     }
+
+    /**
+     * A date the date parser rejects is the request's syntax error, not a search that matches nothing. Three cases
+     * fail as they did before instead: an empty value (R4 search: "Empty parameters are not an error"), a
+     * modifier, such as :missing, which date parameters don't support here, so the value was never meant as a date,
+     * and the ap prefix before a well-formed date, which R4 defines but the date parser doesn't support.
+     * @param array<mixed> $fhirSearchValues
+     * @throws SearchParameterSyntaxException if a non-empty value isn't an ISO 8601 date with an optional comparator
+     */
+    private function createDateSearchField(string $fieldName, array $fhirSearchValues, string $dateType, ?string $modifier): DateSearchField
+    {
+        try {
+            return new DateSearchField($fieldName, $fhirSearchValues, $dateType);
+        } catch (\InvalidArgumentException $exception) {
+            if ($modifier !== null && $modifier !== '') {
+                throw $exception;
+            }
+            foreach ($fhirSearchValues as $value) {
+                if (!is_string($value) || trim($value) === '') {
+                    continue;
+                }
+                try {
+                    new DateSearchField($fieldName, [$value], $dateType);
+                } catch (\InvalidArgumentException $valueException) {
+                    if ($this->isApproximateDate($fieldName, $value, $dateType)) {
+                        continue;
+                    }
+                    throw new SearchParameterSyntaxException(
+                        $fieldName,
+                        $valueException->getMessage(),
+                        $valueException->getCode(),
+                        $valueException,
+                        'must be a FHIR date or dateTime, such as 2020-01-31 or 2020-01-31T13:45:00Z.',
+                    );
+                }
+            }
+            throw $exception;
+        }
+    }
+
+    /**
+     * Whether the value is the ap prefix before a date the parser accepts: a valid R4 search this server doesn't
+     * support, rather than a malformed one.
+     */
+    private function isApproximateDate(string $fieldName, string $value, string $dateType): bool
+    {
+        if (!str_starts_with($value, SearchComparator::APROXIMATELY_SAME)) {
+            return false;
+        }
+        try {
+            new DateSearchField($fieldName, [substr($value, strlen(SearchComparator::APROXIMATELY_SAME))], $dateType);
+            return true;
+        } catch (\InvalidArgumentException) {
+            return false;
+        }
+    }
+
     /**
      * @param array<mixed> $fhirSearchValues
      */

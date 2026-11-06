@@ -157,6 +157,10 @@ class FhirGenericRestController implements IGlobalsAware {
         $bundleEntries = [];
         $resourceName = 'FhirDomainResource';
         $processingResult = $this->getAllProcessingResult($searchParams);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $this->getGlobalsBag()->get('site_addr_oath') . $redirectUrl . '/' . $searchResult->getId(),

@@ -202,7 +202,10 @@ class PhoneNotificationCommand extends Command implements IGlobalsAware
             $patientInfo,
             $phoneGateway,
             $row['pc_eventDate'] ?? null,
-            $row['pc_endDate'] ?? null,
+            // notification_log.pc_endDate is DATE NOT NULL, but calendar rows
+            // now carry NULL for "no end date". A NULL bind fails the insert
+            // even with sql_mode = '', so the reminder would resend every run.
+            $row['pc_endDate'] ?? '',
             $row['pc_startTime'] ?? null,
             $row['pc_endTime'] ?? null,
             date('Y-m-d H:i:s'),

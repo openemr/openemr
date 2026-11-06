@@ -30,7 +30,7 @@ function updateAppointmentStatus($pid, $encdate, $newstatus): void
     "FROM openemr_postcalendar_events WHERE " .
     "pc_pid = ? AND pc_recurrtype = 0 AND pc_eventDate = ? " .
     "ORDER BY pc_startTime DESC, pc_eid DESC LIMIT 1";
-    $tmp = sqlQuery($query, [$pid, $encdate]);
+    $tmp = sqlQuery($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($pid), $encdate]);
     if (!empty($tmp['pc_eid'])) {
         $appt_eid = $tmp['pc_eid'];
         $appt_status = $tmp['pc_apptstatus'];

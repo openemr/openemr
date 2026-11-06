@@ -192,7 +192,7 @@ class DownloadWenoPharmacies
                 QueryUtils::sqlStatementThrowException('DELETE FROM weno_pharmacy');
             }
 
-            $csv = Reader::createFromPath($filePath, 'r');
+            $csv = Reader::from($filePath, 'r');
             $csv->setEscape('\\');
             $headerOffset = $this->detectHeaderOffset($filePath);
             $csv->setHeaderOffset($headerOffset);

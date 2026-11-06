@@ -40,6 +40,48 @@ final class EraCheckPostingTest extends TestCase
     }
 
     #[Test]
+    public function aPendedLineStaysPendingUntilALaterClaimPaymentAnswersIt(): void
+    {
+        $run = new EraCheckPosting('9902');
+        $this->assertSame(0, $run->pendedLineCount(5, 501, 1));
+
+        $run->recordClaimPayment(5, 501, 1, ['92015'], ['92014']);
+        $this->assertSame(1, $run->pendedLineCount(5, 501, 1));
+
+        $run->recordClaimPayment(5, 501, 1, [], ['92014']);
+        $this->assertSame(1, $run->pendedLineCount(5, 501, 1), 'Another code does not settle it');
+
+        $run->recordClaimPayment(5, 501, 1, [], ['92015']);
+        $this->assertSame(0, $run->pendedLineCount(5, 501, 1));
+    }
+
+    #[Test]
+    public function linesWithTheSameCodeAreCountedNotMerged(): void
+    {
+        $run = new EraCheckPosting('9902');
+        // Two 92014 lines on one CLP: one pended, one paid. The paid one doesn't settle its twin.
+        $run->recordClaimPayment(5, 501, 1, ['92014'], ['92014']);
+        $this->assertSame(1, $run->pendedLineCount(5, 501, 1));
+
+        // Two pended 92014 lines; a later CLP answers one of them.
+        $run->recordClaimPayment(5, 501, 1, ['92014'], []);
+        $this->assertSame(2, $run->pendedLineCount(5, 501, 1));
+        $run->recordClaimPayment(5, 501, 1, [], ['92014']);
+        $this->assertSame(1, $run->pendedLineCount(5, 501, 1));
+    }
+
+    #[Test]
+    public function pendsAreKeptPerClaimAndLevel(): void
+    {
+        $run = new EraCheckPosting('9902');
+        $run->recordClaimPayment(5, 501, 2, ['92015'], []);
+
+        $this->assertSame(0, $run->pendedLineCount(5, 501, 1), 'Another level');
+        $this->assertSame(0, $run->pendedLineCount(5, 502, 2), 'Another encounter');
+        $this->assertSame(1, $run->pendedLineCount(5, 501, 2));
+    }
+
+    #[Test]
     public function oneInstancePerRequest(): void
     {
         $request = new Request(['InsId' => '9902']);

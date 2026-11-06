@@ -36,6 +36,18 @@ class CdaTemplateImportDispose
     private int $currentEncounter;
     private array $encounterList = [];
 
+    /**
+     * The policy columns a document import never writes. A stored primary policy with any of them
+     * set was entered or completed in OpenEMR.
+     */
+    private const ENTERED_POLICY_COLUMNS = [
+        'policy_number', 'plan_name', 'group_number', 'copay',
+        'subscriber_lname', 'subscriber_mname', 'subscriber_fname', 'subscriber_relationship', 'subscriber_ss',
+        'subscriber_DOB', 'subscriber_sex', 'subscriber_street', 'subscriber_postal_code', 'subscriber_city',
+        'subscriber_state', 'subscriber_country', 'subscriber_phone', 'subscriber_employer', 'subscriber_employer_street',
+        'subscriber_employer_postal_code', 'subscriber_employer_city', 'subscriber_employer_state', 'subscriber_employer_country',
+    ];
+
     public function __construct()
     {
         $this->userauthorized = 1; // @todo unsure what to do with this flag for forms.
@@ -769,8 +781,8 @@ class CdaTemplateImportDispose
                     $provider_id,
                     $value['extension'],
                     $pid]);
-                $q_sel_enc = "SELECT id FROM form_encounter WHERE external_id=?";
-                $res_q_sel_enc = QueryUtils::fetchRecords($q_sel_enc, [$value['extension']]);
+                $q_sel_enc = "SELECT id FROM form_encounter WHERE external_id=? AND pid=?";
+                $res_q_sel_enc = QueryUtils::fetchRecords($q_sel_enc, [$value['extension'], $pid]);
                 $res_enc_cur = $res_q_sel_enc[0] ?? [];
                 $enc_id = $res_enc_cur['id'];
             }
@@ -1914,12 +1926,15 @@ class CdaTemplateImportDispose
                 $vitals_date_value = fixDate($vitals_date);
             }
 
+            // A document's vitals update the patient's own copy from an earlier import of it. Matched on the
+            // extension alone, another patient's vitals with the same one were moved to this patient.
             if (!empty($value['extension'])) {
                 $q_sel_vitals = "SELECT *
                            FROM form_vitals
-                           WHERE external_id=?";
-                $res_q_sel_vitals = QueryUtils::fetchRecords($q_sel_vitals, [$value['extension']]);
+                           WHERE external_id=? AND pid=?";
+                $res_q_sel_vitals = QueryUtils::fetchRecords($q_sel_vitals, [$value['extension'], $pid]);
             }
+            $reimported = false;
             if (empty($value['extension']) || count($res_q_sel_vitals) == 0) {
                 // TODO: @adunsulag we should move this into the vitals service.
                 $query_insert = "INSERT INTO form_vitals
@@ -1958,22 +1973,26 @@ class CdaTemplateImportDispose
                          )";
                 $vitals_id = QueryUtils::sqlInsert(
                     $query_insert,
+                    // A record carries only the readings sent for it.
                     [
                         $pid,
                         $vitals_date_value,
-                        $value['bps'],
-                        $value['bpd'],
-                        $value['height'],
-                        $value['weight'],
-                        $value['temperature'],
-                        $value['pulse'],
-                        $value['respiration'],
-                        $value['head_circ'],
-                        $value['oxygen_saturation'],
-                        $value['BMI'],
-                        $value['extension']]
+                        $value['bps'] ?? null,
+                        $value['bpd'] ?? null,
+                        $value['height'] ?? null,
+                        $value['weight'] ?? null,
+                        $value['temperature'] ?? null,
+                        $value['pulse'] ?? null,
+                        $value['respiration'] ?? null,
+                        $value['head_circ'] ?? null,
+                        $value['oxygen_saturation'] ?? null,
+                        $value['BMI'] ?? null,
+                        $value['extension'] ?? null]
                 );
             } else {
+                $reimported = true;
+                // A reading the document doesn't carry keeps its stored value instead of being cleared.
+                $readings = CdaVitalsReimport::withStoredReadings($value, end($res_q_sel_vitals), $pid);
                 $q_upd_vitals = "UPDATE form_vitals
                          SET pid=?,
                              date=?,
@@ -1987,20 +2006,21 @@ class CdaTemplateImportDispose
                              head_circ=?,
                              oxygen_saturation=?,
                              BMI=?
-                         WHERE external_id=?";
+                         WHERE external_id=? AND pid=?";
                 QueryUtils::sqlStatementThrowException($q_upd_vitals, [$pid,
                     $vitals_date_value,
-                    $value['bps'],
-                    $value['bpd'],
-                    $value['height'],
-                    $value['weight'],
-                    $value['temperature'],
-                    $value['pulse'],
-                    $value['respiration'],
-                    $value['head_circ'],
-                    $value['oxygen_saturation'],
-                    $value['BMI'],
-                    $value['extension']]);
+                    $readings['bps'],
+                    $readings['bpd'],
+                    $readings['height'],
+                    $readings['weight'],
+                    $readings['temperature'],
+                    $readings['pulse'],
+                    $readings['respiration'],
+                    $readings['head_circ'],
+                    $readings['oxygen_saturation'],
+                    $readings['BMI'],
+                    $value['extension'],
+                    $pid]);
                 foreach ($res_q_sel_vitals as $row_vitals) {
                     $vitals_id = $row_vitals['id'];
                 }
@@ -2041,14 +2061,44 @@ class CdaTemplateImportDispose
                 }
             }
             if (!empty($value['reason_code'] ?? null)) {
-                $detail_query = "INSERT INTO `form_vital_details` (`form_id`, `vitals_column`, `reason_code`, `reason_description`, `reason_status`) VALUES (?,?,?,?,?)";
-                QueryUtils::sqlStatementThrowException($detail_query, [
-                    $vitals_id,
-                    $value['vital_column'] ?? '',
-                    $value['reason_code'] ?? '',
-                    $value['reason_code_text'] ?? null,
-                    $value['reason_status'] ?? null
-                ]);
+                $reasonColumn = $value['vital_column'] ?? '';
+                $reasonCode = $value['reason_code'] ?? '';
+                $reasonText = $value['reason_code_text'] ?? null;
+                $reasonStatus = $value['reason_status'] ?? null;
+                // Imported again, a reason already stored for the reading is updated, not added a second time.
+                $storedReason = $reimported ? QueryUtils::fetchSingleValue(
+                    "SELECT `id` FROM `form_vital_details` WHERE `form_id` = ? AND `vitals_column` = ? AND `reason_code` = ? LIMIT 1",
+                    'id',
+                    [$vitals_id, $reasonColumn, $reasonCode]
+                ) : null;
+                if ($storedReason !== null) {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE `form_vital_details` SET `reason_description` = ?, `reason_status` = ? WHERE `id` = ?",
+                        [$reasonText, $reasonStatus, $storedReason]
+                    );
+                } else {
+                    $detail_query = "INSERT INTO `form_vital_details` (`form_id`, `vitals_column`, `reason_code`, `reason_description`, `reason_status`) VALUES (?,?,?,?,?)";
+                    QueryUtils::sqlStatementThrowException($detail_query, [
+                        $vitals_id,
+                        $reasonColumn,
+                        $reasonCode,
+                        $reasonText,
+                        $reasonStatus
+                    ]);
+                }
+            }
+            // Imported again, a reading already listed in an encounter isn't listed a second time. It stays
+            // where it was first filed, which may be a signed encounter. One whose form was deleted, or whose
+            // encounter number is gone (importing the encounter again gives it a new one), is listed again,
+            // as before.
+            $listed = $reimported && QueryUtils::fetchSingleValue(
+                "SELECT f.`id` FROM `forms` AS f JOIN `form_encounter` AS fe ON fe.`encounter` = f.`encounter` AND fe.`pid` = f.`pid`"
+                . " WHERE f.`formdir` = 'vitals' AND f.`form_id` = ? AND f.`pid` = ? AND f.`deleted` = 0 LIMIT 1",
+                'id',
+                [$vitals_id, $pid]
+            ) !== null;
+            if ($listed) {
+                continue;
             }
             $query = "INSERT INTO forms
                 (
@@ -2189,42 +2239,66 @@ class CdaTemplateImportDispose
         }
         $data = [];
         $payer = $payer[1]; // will only be one payer per patient.
+        if (!is_array($payer)) {
+            return;
+        }
+        // A Source of Payment Typology code is digits (cqm_sop is an INT column). An entry without
+        // one (a nullFlavor) names no payer, so there is nothing to link and no policy to save.
+        $code = $payer['code'] ?? null;
+        if (!is_string($code) || preg_match('/^\d{1,9}$/D', $code) !== 1) {
+            ServiceContainer::getLogger()->info('QRDA import: the payer entry has no payer code, so no policy is saved', ['pid' => $pid]);
+            return;
+        }
+        // Dates as precise as a day. An end given less precisely (a month, a year) can't be stored
+        // without claiming coverage the document doesn't state; a blank one (a nullFlavor) is none.
+        $date = self::documentDate($payer['low_date'] ?? null);
+        $highDate = $payer['high_date'] ?? null;
+        $dateEnd = self::documentDate($highDate);
+        if ($date === null || ($dateEnd === null && $highDate !== null && $highDate !== '')) {
+            ServiceContainer::getLogger()->info('QRDA import: the payer entry has no full start or end date, so no policy is saved', ['pid' => $pid]);
+            return;
+        }
         $insuranceData = new InsuranceService();
+        $stored = $insuranceData->search(['type' => 'primary', 'pid' => $pid])->getData()[0] ?? null;
+        if (is_array($stored) && self::hasEnteredDetails($stored)) {
+            // Someone entered or completed this policy: the document's payer doesn't replace theirs.
+            ServiceContainer::getLogger()->info('QRDA import: the patient\'s primary policy was entered in OpenEMR, so it is kept', ['pid' => $pid]);
+            return;
+        }
 
-        $res_ins = QueryUtils::fetchRecords("SELECT `id`, `uuid` FROM `insurance_companies` WHERE `cqm_sop` = ? AND `inactive` = 0 ORDER BY `id` DESC LIMIT 1", [$payer['code'] ?? '1']);
+        $res_ins = QueryUtils::fetchRecords("SELECT `id`, `uuid` FROM `insurance_companies` WHERE `cqm_sop` = ? AND `inactive` = 0 ORDER BY `id` DESC LIMIT 1", [$code]);
         $res_ins_cur = $res_ins[0] ?? [];
         if (empty($res_ins_cur['id'])) {
-            $data["name"] = 'QRDA Insurance Company Payer ' . $payer['code'] ?? '1';
-            $data["ins_type_code"] = $payer['code'] ?? '1';
+            $data["name"] = 'QRDA Insurance Company Payer ' . $code;
+            $data["ins_type_code"] = $code;
             $data["city"] = 'QRDA City';
             $data["state"] = 'QRDA State';
             $data["zip"] = '33333';
-            $data["cqm_sop"] = $payer['code'] ?? 1;
+            $data["cqm_sop"] = $code;
             $insuranceCompany = new InsuranceCompanyService();
             $ins_id = $insuranceCompany->insert($data);
         } else {
             $ins_id = $res_ins_cur['id'];
         }
-        unset($data["name"]);
-        unset($data["ins_type_code"]);
-        $data["provider"] = $ins_id;
-        $data["date"] = $payer['low_date'] ?? null;
-        $data["type"] = 'primary';
-        $data['pid'] = $pid;
-        $data["plan_name"] = 'QRDA Payer';
-        $data["policy_number"] = $payer['code'] ?? '1';
+        // The document names the payer and when its coverage starts, and sometimes ends. It has no
+        // policy number, plan name or subscriber, so none is stored.
+        $policy = [
+            'pid' => $pid,
+            'type' => 'primary',
+            'provider' => $ins_id,
+            'date' => $date,
+            'date_end' => $dateEnd,
+        ];
 
-        $id_data = null;
-        if ($insuranceData->doesInsuranceTypeHaveEntry($pid, 'primary')) {
-            $insuranceEntry = $insuranceData->search(['type' => 'primary', 'pid' => $pid]);
-            if ($insuranceEntry->hasData()) {
-                $data['uuid'] = $insuranceEntry->getData()[0]['uuid'];
-                $id_data = $insuranceData->update($data);
-            }
+        if (!is_array($stored)) {
+            $id_data = $insuranceData->insertImported($policy);
         } else {
-            $id_data = $insuranceData->insert($data);
+            // A policy an earlier import saved: it takes this document's payer and period. The
+            // update writes every column, so the document's values go over the stored row (as
+            // FhirCoverageService::updateOpenEMRRecord() does) and the rest stays as stored.
+            $id_data = $insuranceData->updateImported(array_merge($stored, $policy));
         }
-        if ($id_data === null || !$id_data->isValid()) {
+        if (!$id_data->isValid()) {
             ServiceContainer::getLogger()->error(
                 'Error inserting insurance data: {validationErrors} {internalErrors}',
                 [
@@ -2232,6 +2306,36 @@ class CdaTemplateImportDispose
                 ]
             );
         }
+    }
+
+    /**
+     * Whether a stored policy has any of the details an import never stores (a policy number, plan,
+     * group, copay or subscriber): someone entered or completed it in OpenEMR.
+     *
+     * @param array<mixed> $policy
+     */
+    private static function hasEnteredDetails(array $policy): bool
+    {
+        foreach (self::ENTERED_POLICY_COLUMNS as $column) {
+            if (!in_array($policy[$column] ?? null, [null, ''], true)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The calendar date an HL7 timestamp (YYYYMMDD[HHMM[SS[.S]]][+/-ZZZZ]) begins with, as Y-m-d,
+     * or null when it doesn't begin with a full date (the coverage validator refuses one that
+     * doesn't exist). The date is the one the document writes, not moved into the server's
+     * time zone.
+     */
+    private static function documentDate(mixed $timestamp): ?string
+    {
+        if (!is_string($timestamp) || preg_match('/^(\d{4})(\d{2})(\d{2})/', $timestamp, $parts) !== 1) {
+            return null;
+        }
+        return $parts[1] . '-' . $parts[2] . '-' . $parts[3];
     }
 
     /**

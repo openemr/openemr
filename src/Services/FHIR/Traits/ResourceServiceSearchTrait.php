@@ -19,6 +19,7 @@ use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldOrder;
+use OpenEMR\Services\Search\SearchParameterSyntaxException;
 
 trait ResourceServiceSearchTrait
 {
@@ -78,6 +79,15 @@ trait ResourceServiceSearchTrait
             } catch (InvalidArgumentException $exception) {
                 $message = "The search field argument was invalid, improperly formatted, or could not be parsed. "
                     . " Inner message: " . $exception->getMessage();
+                if ($exception instanceof SearchParameterSyntaxException) {
+                    throw new SearchParameterSyntaxException(
+                        $fhirSearchField,
+                        $message,
+                        $exception->getCode(),
+                        $exception,
+                        $exception->getClientMessage(),
+                    );
+                }
                 throw new SearchFieldException($fhirSearchField, $message, $exception->getCode(), $exception);
             }
         }

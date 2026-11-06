@@ -18,7 +18,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -26,8 +28,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e;
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\PatientReview\ReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
@@ -72,7 +75,7 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
             if ($openAnotherChart) {
-                $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->openPid);
+                $this->client->request('GET', $this->dashboardUrl($this->openPid));
             }
             $this->openPaymentFromPortalActivity();
 
@@ -99,13 +102,15 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
 
             $this->client->executeScript('window.alert = function () {}; window.confirm = function () { return true; };');
             $this->client->executeScript('document.querySelector("button[form=invoiceForm][type=submit]").click();');
+            // Closing the request is the last thing a successful posting does, after the
+            // ar_session and ar_activity writes; ar_session alone is written part way through.
             $this->client->wait(30)->until(
-                fn(): bool => $this->toInt(QueryUtils::fetchSingleValue(
-                    'SELECT COUNT(*) AS c FROM ar_session WHERE patient_id IN (?, ?)',
-                    'c',
-                    [$this->payingPid, $this->openPid]
-                )) > 0,
-                'Posting the payment did not record it'
+                fn(): bool => QueryUtils::fetchSingleValue(
+                    'SELECT status FROM patient_review_request WHERE id = ?',
+                    'status',
+                    [$this->recordId]
+                ) === 'completed',
+                'The portal payment must be closed once posted (did the posting fail part way?)'
             );
 
             $sessions = QueryUtils::fetchRecords(
@@ -117,8 +122,21 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
                 array_map(fn(array $row): array => [$this->toInt($row['patient_id']), is_string($row['pay_total']) ? $row['pay_total'] : ''], $sessions),
                 'The payment must be recorded for the paying patient only'
             );
-            $status = QueryUtils::fetchSingleValue('SELECT status FROM onsite_portal_activity WHERE id = ?', 'status', [$this->recordId]);
-            $this->assertSame('closed', $status, 'The portal payment must be closed once posted');
+            $activity = QueryUtils::fetchRecords(
+                'SELECT pid, encounter, pay_amount FROM ar_activity WHERE pid IN (?, ?) AND deleted IS NULL',
+                [$this->payingPid, $this->openPid]
+            );
+            $this->assertSame(
+                [[$this->payingPid, $this->payingEncounter, '1.00']],
+                array_map(fn(array $row): array => [
+                    $this->toInt($row['pid']),
+                    $this->toInt($row['encounter']),
+                    is_string($row['pay_amount']) ? $row['pay_amount'] : '',
+                ], $activity),
+                "The payment must be applied to the paying patient's encounter only"
+            );
+            $secrets = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS c FROM patient_review_secret WHERE request_id = ?', 'c', [$this->recordId]);
+            $this->assertSame(0, $this->toInt($secrets), 'The card details must be deleted once the payment is posted');
         } finally {
             try {
                 if (isset($this->client)) {
@@ -138,11 +156,11 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
         try {
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
-            $this->client->request('GET', '/interface/patient_file/summary/demographics.php?set_pid=' . $this->openPid);
+            $this->client->request('GET', $this->dashboardUrl($this->openPid));
             $this->openPaymentFromPortalActivity();
 
             // The record stops being a payment between opening the dialog and posting.
-            QueryUtils::sqlStatementThrowException("UPDATE onsite_portal_activity SET activity = 'profile' WHERE id = ?", [$this->recordId]);
+            QueryUtils::sqlStatementThrowException("UPDATE patient_review_request SET type = 'profile' WHERE id = ?", [$this->recordId]);
             $this->client->executeScript('window.alert = function () {}; window.confirm = function () { return true; };');
             $this->client->executeScript('document.querySelector("button[form=invoiceForm][type=submit]").click();');
             $this->client->wait(30)->until(
@@ -157,6 +175,55 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
                 [$this->payingPid, $this->openPid]
             );
             $this->assertSame(0, $this->toInt($recorded), 'A record that is no longer a payment must not be posted to anyone');
+        } finally {
+            try {
+                if (isset($this->client)) {
+                    $this->client->quit();
+                }
+            } finally {
+                $this->cleanUpFixtureData();
+            }
+        }
+    }
+
+    #[Test]
+    #[Depends('testLoginAuthorized')]
+    public function testASaveWithNoAmountLeavesThePaymentPending(): void
+    {
+        $this->insertFixtureData();
+        try {
+            $this->base();
+            $this->login(LoginTestData::username, LoginTestData::password);
+            $this->openPaymentFromPortalActivity();
+
+            // Clear the amount and submit the form itself, past the page's validate(), as a
+            // hand-made POST would.
+            $this->client->executeScript(
+                'var form = document.forms["invoiceForm"];'
+                . ' form.elements["form_upay[" + arguments[0] + "]"].value = "";'
+                . ' HTMLFormElement.prototype.submit.call(form);',
+                [$this->payingEncounter]
+            );
+            $this->client->wait(30)->until(
+                fn(): bool => str_contains($this->client->getCurrentURL(), 'portal_payment.php'),
+                'Saving did not reach portal_payment.php'
+            );
+            // The whole response, so the script has finished whatever it was going to do.
+            $this->client->wait(30)->until(
+                fn(): bool => $this->client->executeScript('return document.readyState;') === 'complete',
+                'The page after saving did not finish loading'
+            );
+
+            $recorded = QueryUtils::fetchSingleValue(
+                'SELECT COUNT(*) AS c FROM ar_session WHERE patient_id = ?',
+                'c',
+                [$this->payingPid]
+            );
+            $this->assertSame(0, $this->toInt($recorded), 'Nothing was posted');
+            $status = QueryUtils::fetchSingleValue('SELECT status FROM patient_review_request WHERE id = ?', 'status', [$this->recordId]);
+            $this->assertSame('pending', $status, 'A save that posts nothing must leave the portal payment pending');
+            $secrets = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS c FROM patient_review_secret WHERE request_id = ?', 'c', [$this->recordId]);
+            $this->assertGreaterThan(0, $this->toInt($secrets), 'Its card details must be kept for the posting');
         } finally {
             try {
                 if (isset($this->client)) {
@@ -205,6 +272,8 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
                 'INSERT INTO form_encounter (date, reason, pid, encounter, provider_id) VALUES (NOW(), ?, ?, ?, 1)',
                 [self::FIXTURE_MARKER, $pid, $encounter]
             );
+            // billing.modifier is left NULL (the column allows it); posting must still record
+            // the payment, as ar_activity.modifier does not.
             QueryUtils::sqlInsert(
                 "INSERT INTO billing (date, code_type, code, pid, provider_id, encounter, code_text, billed, activity, units, fee)"
                 . " VALUES (NOW(), 'CPT4', '99213', ?, 1, ?, ?, 1, 1, 1, ?)",
@@ -229,12 +298,13 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
             'cc_type' => 'Visa',
             'zip' => '05701',
         ], JSON_THROW_ON_ERROR);
-        $this->recordId = $this->toInt(QueryUtils::sqlInsert(
-            'INSERT INTO onsite_portal_activity (date, patient_id, activity, require_audit, pending_action, action_taken,'
-            . ' status, narrative, table_action, table_args, action_user, action_taken_time, checksum)'
-            . " VALUES (NOW(), ?, 'payment', 1, 'review', '', 'waiting', ?, '', ?, 0, NULL, ?)",
-            [$this->payingPid, self::FIXTURE_MARKER, $invoice, ServiceContainer::getCrypto()->encryptForDatabase($card)]
-        ));
+        $this->recordId = ReviewQueueFactory::portalWorkflows()->submitPayment(
+            $this->payingPid,
+            $invoice,
+            $card,
+            true,
+            ReviewActor::patient($this->payingPid, self::FIXTURE_MARKER),
+        )->id;
     }
 
     private function cleanUpFixtureData(): void
@@ -248,7 +318,14 @@ class PortalPaymentStaffReviewTest extends PantherTestCase
             QueryUtils::sqlStatementThrowException('DELETE FROM ar_session WHERE patient_id = ?', [$pid]);
             QueryUtils::sqlStatementThrowException('DELETE FROM payments WHERE pid = ?', [$pid]);
             QueryUtils::sqlStatementThrowException('DELETE FROM billing WHERE pid = ?', [$pid]);
-            QueryUtils::sqlStatementThrowException('DELETE FROM onsite_portal_activity WHERE patient_id = ?', [$pid]);
+            foreach (['patient_review_secret', 'patient_review_event'] as $table) {
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM ' . QueryUtils::escapeTableName($table)
+                    . ' WHERE request_id IN (SELECT id FROM patient_review_request WHERE pid = ?)',
+                    [$pid]
+                );
+            }
+            QueryUtils::sqlStatementThrowException('DELETE FROM patient_review_request WHERE pid = ?', [$pid]);
         }
         QueryUtils::sqlStatementThrowException('DELETE FROM form_encounter WHERE reason = ?', [self::FIXTURE_MARKER]);
         QueryUtils::sqlStatementThrowException('DELETE FROM patient_data WHERE pubpid = ?', [self::FIXTURE_MARKER]);

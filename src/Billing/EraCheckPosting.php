@@ -26,6 +26,9 @@ final class EraCheckPosting
     /** @var array<string, true> claims posted from each check in this run */
     private array $postedClaims = [];
 
+    /** @var array<string, array<string, int>> claim and level => code => service lines still pended in this run */
+    private array $pendedLines = [];
+
     /**
      * @param string $payerId the insurance company the ERA is posted for
      */
@@ -77,6 +80,46 @@ final class EraCheckPosting
     public function reuseSession(string $checkNumber, int $sessionId): void
     {
         $this->reusedSessions[$checkNumber] = $sessionId;
+    }
+
+    /**
+     * Record one claim payment's (CLP's) service lines for the claim at this
+     * insurance level: the codes of the lines it pended (adjustment reason 133)
+     * and of the lines it answered, one entry per line. Each answered line
+     * settles one line of the same code pended by an earlier CLP in this run;
+     * a line answered in the same CLP doesn't settle a line pended there. The
+     * 835 carries no line control number here (claims go out without REF*6R),
+     * so lines with the same code are counted rather than told apart.
+     *
+     * @param list<string> $pendedCodes
+     * @param list<string> $answeredCodes
+     */
+    public function recordClaimPayment(int $pid, int $encounter, int $level, array $pendedCodes, array $answeredCodes): void
+    {
+        $key = self::claimLevel($pid, $encounter, $level);
+        $pended = $this->pendedLines[$key] ?? [];
+        foreach ($answeredCodes as $code) {
+            if (($pended[$code] ?? 0) > 0) {
+                --$pended[$code];
+            }
+        }
+        foreach ($pendedCodes as $code) {
+            $pended[$code] = ($pended[$code] ?? 0) + 1;
+        }
+        $this->pendedLines[$key] = $pended;
+    }
+
+    /**
+     * How many of the claim's service lines are still pended at this level in this run.
+     */
+    public function pendedLineCount(int $pid, int $encounter, int $level): int
+    {
+        return array_sum($this->pendedLines[self::claimLevel($pid, $encounter, $level)] ?? []);
+    }
+
+    private static function claimLevel(int $pid, int $encounter, int $level): string
+    {
+        return $pid . '-' . $encounter . '-' . $level;
     }
 
     /**

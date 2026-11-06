@@ -21,13 +21,20 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
+use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
+use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
+use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
+use OpenEMR\Services\PatientReview\ReviewStatus;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -63,7 +70,6 @@ if (!$isPortal) {
 }
 
 $srcdir = $globalsBag->getString('srcdir');
-require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
@@ -72,9 +78,33 @@ $twig = ServiceContainer::getTwig();
 
 $cryptoGen = ServiceContainer::getCrypto();
 
+// The keys the card gateway's browser script needs. A key that cannot be decrypted (the site's
+// keys were replaced after it was saved) is logged and left empty, so the page still opens for
+// staff review and for a payment already pending; the gateway's script is then not loaded and
+// the patient is not offered a card payment that cannot work.
+$cardGateway = $globalsBag->getString('payment_gateway');
+$gatewayPublicKey = '';
+$gatewayApiKey = '';
+$gatewayKeysReadable = true;
+if ($cardGateway === 'AuthorizeNet' || $cardGateway === 'Stripe') {
+    try {
+        $gatewayPublicKey = $cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'));
+        if ($cardGateway === 'AuthorizeNet') {
+            $gatewayApiKey = $cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'));
+        }
+    } catch (CryptoGenException $e) {
+        $gatewayKeysReadable = false;
+        $gatewayPublicKey = '';
+        ServiceContainer::getLogger()->error('Payment gateway keys could not be decrypted', [
+            'gateway' => $cardGateway,
+            'exception' => $e,
+        ]);
+    }
+}
+
 $recorder = new Recorder();
 
-$appsql = new ApplicationTable();
+$reviewWorkflows = ReviewQueueFactory::portalWorkflows();
 $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 
 // Staff open a patient's portal payment from Portal Activity (recid). It is that
@@ -83,18 +113,31 @@ $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 // action, so the save finds the same patient. A recid that isn't a payment record
 // (deleted or changed since the dialog opened) is refused rather than falling back
 // to the open chart. A portal patient stays on the session patient.
+// Only a payment still pending is opened or posted: one the patient has since replaced cannot
+// post its old invoice selection, and one already posted cannot be posted twice.
+// A staff save holds the patient's posting lock from this check until the request is closed
+// below. Two saves of the same payment at once cannot both post it, and the patient cannot
+// replace it mid-posting (paylib.php takes the same lock): whoever comes second waits, then sees
+// what the first left. The record is read once to find its patient, then again under the lock.
+$isStaffSave = !$isPortal && CurrentRequest::get()->request->getString('form_save') !== '';
+$postingLock = null;
 if (!$isPortal && $recid) {
-    $paymentRecord = $appsql->getPortalAuditRec($recid);
-    if (!is_array($paymentRecord)) {
-        throw new \RuntimeException('Portal activity record not found');
+    $paymentRecord = $reviewWorkflows->payment($recid);
+    if ($isStaffSave && $paymentRecord !== null) {
+        $postingLock = new PaymentPostingLock();
+        $postingLock->acquire($paymentRecord->pid);
+        $paymentRecord = $reviewWorkflows->payment($recid);
     }
-    if (($paymentRecord['activity'] ?? null) !== 'payment') {
-        throw new \RuntimeException('Portal activity record is not a payment');
+    if ($paymentRecord === null || $paymentRecord->status !== ReviewStatus::Pending) {
+        // Usually a stale row in the review list: another user posted the payment, or the
+        // patient replaced it, after the list loaded. Say so rather than failing the page; a save
+        // stops here too, before anything is written. The posting lock is released on shutdown.
+        echo "<!DOCTYPE html><html><body><p>"
+            . xlt('This portal payment has already been posted or was replaced by the patient. Refresh the review list.')
+            . "</p></body></html>";
+        exit;
     }
-    if (!is_numeric($paymentRecord['patient_id'] ?? null)) {
-        throw new \RuntimeException('Portal payment record has no patient');
-    }
-    $pid = (int) $paymentRecord['patient_id'];
+    $pid = $paymentRecord->pid;
 }
 // Otherwise $pid is the session patient, set by globals.php (PHPStan can't see through require_once).
 if (!isset($pid)) {
@@ -115,14 +158,80 @@ if ($session->get('authUserID', '')) {
     $adminUser = sqlQueryNoLog($query, [$session->get('authUserID')]);
 }
 
-$edata = $recid ? $appsql->getPortalAuditRec($recid, $isPortal ? (int)$pid : null) : $appsql->getPortalAudit($pid, 'review', 'payment');
+// The payment staff opened (recid), or the patient's own pending payment. A portal patient can
+// only open their own.
+$sessionPid = is_numeric($pid) ? intval($pid) : 0;
+
+// Sphere's patient script carries its decrypted credentials. It is built before the page so
+// credentials that cannot be read are handled as unreadable gateway keys are: logged, with no
+// card payment offered, rather than failing the page.
+$sphereScript = '';
+if ($cardGateway === 'Sphere' && $session->has('patient_portal_onsite_two')) {
+    try {
+        $sphereScript = (new SpherePayment('patient', $sessionPid))->renderSphereJs();
+    } catch (\RuntimeException $e) {
+        $gatewayKeysReadable = false;
+        ServiceContainer::getLogger()->error('Payment gateway keys could not be decrypted', [
+            'gateway' => $cardGateway,
+            'exception' => $e,
+        ]);
+    }
+}
+
+// The portal payment request a staff save closes once it is posted. From the chart (no recid)
+// it is the patient's pending payment, if any, read again under the patient's posting lock: a
+// payment posted or replaced while this save waited is refused before writing to the ledger, and
+// none can change until the save finishes. Without a pending payment the save closes nothing.
+$postingRequestId = $recid;
+if ($isStaffSave && !$recid) {
+    $pendingAtSave = $reviewWorkflows->pendingPayment($sessionPid);
+    $postingLock = new PaymentPostingLock();
+    $postingLock->acquire($sessionPid);
+    $pendingUnderLock = $reviewWorkflows->pendingPayment($sessionPid);
+    if ($pendingUnderLock?->id !== $pendingAtSave?->id) {
+        // Posted or replaced while this save waited. Nothing is written yet; the posting lock is
+        // released on shutdown.
+        echo "<!DOCTYPE html><html><body><p>"
+            . xlt('This portal payment has already been posted or was replaced by the patient. Refresh and try again.')
+            . "</p></body></html>";
+        exit;
+    }
+    $postingRequestId = $pendingUnderLock->id ?? 0;
+}
+if ($isStaffSave && $postingRequestId) {
+    $postingRequest = $reviewWorkflows->payment($postingRequestId, $sessionPid);
+    $postingBlock = $postingRequest === null
+        ? null
+        : PortalReviewWorkflows::postingBlock($postingRequest, $reviewWorkflows->paymentCardDetails($postingRequest));
+    if ($postingBlock !== null) {
+        // Nothing is written; the posting lock is released on shutdown.
+        echo "<!DOCTYPE html><html><body><p>" . text($postingBlock->message()) . "</p></body></html>";
+        exit;
+    }
+}
+
+$payment = $recid
+    ? $reviewWorkflows->payment($recid, $isPortal ? $sessionPid : null)
+    : $reviewWorkflows->pendingPayment($sessionPid);
+// When the payment was submitted, shown as "Pending since".
+$pendingSince = $payment?->createdAt->format('Y-m-d H:i:s') ?? '';
 $ccdata = [];
 $invdata = [];
-if ($edata) {
-    $ccdataRaw = $cryptoGen->decryptFromDatabase(is_string($edata['checksum']) ? $edata['checksum'] : null);
-    $ccdata = json_decode($ccdataRaw, true);
-    $invdata = json_decode((string) $edata['table_args'], true);
-    echo "<script>var jsondata=" . js_escape($edata['table_args']) . ";var ccdata=" . js_escape($edata['checksum']) . "</script>";
+$cardUnreadable = false;
+$paymentCharged = $payment !== null && PortalReviewWorkflows::isChargedPayment($payment);
+// Why staff cannot post this open payment, if they cannot.
+$postingBlock = null;
+if ($payment !== null) {
+    // Readable only while the payment waits to be posted; deleted once it is.
+    $cardDetails = $reviewWorkflows->paymentCardDetails($payment);
+    $cardUnreadable = $cardDetails === null;
+    if ($payment->status->isOpen()) {
+        $postingBlock = PortalReviewWorkflows::postingBlock($payment, $cardDetails);
+    }
+    $ccdata = $cardDetails ?? [];
+    $invoiceValues = $reviewWorkflows->paymentInvoiceValues($payment);
+    $invdata = json_decode($invoiceValues, true);
+    echo "<script>var jsondata=" . js_escape($invoiceValues) . ";</script>";
 }
 
 $now = time();
@@ -148,6 +257,8 @@ if ($_POST['form_save'] ?? '') {
     $form_source = trim((string) $_POST['form_source']);
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
+    // Set once a payment is written to the ledger; a save that writes none closes nothing.
+    $paymentRecorded = false;
 
     if ($radio_type_of_payment == 'pre_payment') {
         $prepayment = ValidationUtils::parsePositiveAmount(filter_input(INPUT_POST, 'form_prepayment'));
@@ -175,6 +286,7 @@ if ($_POST['form_save'] ?? '') {
             );
 
             frontPayment($form_pid, 0, $form_method, $form_source, $prepayment, 0, $timestamp);//insertion to 'payments' table.
+            $paymentRecorded = true;
         }
     }
 
@@ -197,7 +309,7 @@ if ($_POST['form_save'] ?? '') {
             if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                 $Codetype = $RowSearch['code_type'];
                 $Code = $RowSearch['code'];
-                $Modifier = $RowSearch['modifier'];
+                $Modifier = $RowSearch['modifier'] ?? '';
             } else {
                 $Codetype = '';
                 $Code = '';
@@ -229,6 +341,7 @@ if ($_POST['form_save'] ?? '') {
                 ]);
 
                 frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
+                $paymentRecorded = true;
             }
 
             if ($radio_type_of_payment == 'invoice_balance' || $radio_type_of_payment == 'cash') {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
@@ -286,7 +399,7 @@ if ($_POST['form_save'] ?? '') {
                 while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     $Codetype = $RowSearch['code_type'];
                     $Code = $RowSearch['code'];
-                    $Modifier = $RowSearch['modifier'];
+                    $Modifier = $RowSearch['modifier'] ?? '';
                     $Fee = $RowSearch['fee'];
 
                     $resMoneyGot = sqlStatement(
@@ -350,10 +463,31 @@ if ($_POST['form_save'] ?? '') {
                     ]);
                 }
 
+                $paymentRecorded = true;
                 //--------------------------------------------------------------------------------------------------------------------
             }//invoice_balance
         }//foreach
     }//if ($_POST['form_upay'])
+
+    // A payment was recorded; close the portal request staff were posting, and only now, so a
+    // posting that failed above, or a save with no amount to post, leaves it pending (with its
+    // card details) to post again. With no recid, staff were posting from the chart: close the
+    // patient's pending payment locked above, if any.
+    if ($paymentRecorded && $alertmsg === '' && !$isPortal && $postingRequestId) {
+        $closed = $reviewWorkflows->completePaymentRequest($postingRequestId, $sessionPid, SessionReviewActor::staff($session));
+        // Not expected while the lock is held. If it happens, the ledger rows are written but the
+        // request is still open (or another one is): say so instead of showing a receipt, so the
+        // payment is not posted a second time from the review list.
+        if ($closed === null) {
+            ServiceContainer::getLogger()->error('Portal payment posted but its review request could not be closed', [
+                'request_id' => $postingRequestId,
+                'pid' => $sessionPid,
+            ]);
+            $alertmsg = xl('The payment was recorded, but its portal payment request could not be closed. Check the patient ledger and the review list before posting it again.');
+        }
+    }
+    // Posted and closed, or refused: either way the next save of this payment may go ahead.
+    $postingLock?->release();
 }//if ($_POST['form_save'])
 
 // Skip the receipt when the payment was rejected; there is nothing to receipt for.
@@ -498,7 +632,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'))); ?>;
+        var publicKey = <?php echo json_encode($gatewayPublicKey); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -638,44 +772,15 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             $("#paymentAmount").val(total);
         });
 
+        // Posting records the payment and closes the portal payment request in one request
+        // (portal_payment.php form_save), so a failed posting leaves the request pending.
         $("#invoiceForm").on('submit', function (e) {
             e.preventDefault();
-            let thisform = this;
-            $("#mode").val("review-save");
-            let inv_values = JSON.stringify(getFormObj('invoiceForm'));
-            let extra_values = JSON.stringify(getFormObj('paymentForm'));
-            const params = new URLSearchParams();
-            $("#invoiceForm").serializeArray().forEach(function (field) {
-                if (field.name !== 'csrf_token_form') {
-                    params.append(field.name, field.value);
-                }
-            });
-            params.set('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>);
-            params.set('inv_values', inv_values);
-            params.set('extra_values', extra_values);
-
-            let flag = 0
-            let liburl = '<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php';
-            $.ajax({
-                type: "POST",
-                url: liburl,
-                data: params.toString(),
-                beforeSend: function (xhr) {
-                    if (validate() != true) {
-                        flag = 1;
-                        alert(<?php echo xlj('Validation error: Fix and resubmit.'); ?>)
-                        return false;
-                    }
-                },
-                error: function (xhr, textStatus, error) {
-                    alert(<?php echo xlj('There is a Post error'); ?>)
-                    console.log("There was an error:" + textStatus);
-                    return false;
-                },
-                success: function (templateHtml, textStatus, jqXHR) {
-                    thisform.submit();
-                }
-            });
+            if (validate() != true) {
+                alert(<?php echo xlj('Validation error: Fix and resubmit.'); ?>);
+                return false;
+            }
+            this.submit();
         });
 
         function getAuth() {
@@ -1055,10 +1160,10 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             echo '<div class="col-5"><div class="card panel-default height">';
             if (!$session->has('authUserID')) {
                 echo '<div class="card-heading">' . xlt("Payment Information") .
-                    '<span style="color: #cc0000"><em> ' . xlt("Pending Auth since") . ': </em>' . text($edata["date"]) . '</span></div>';
+                    '<span style="color: #cc0000"><em> ' . xlt("Pending Auth since") . ': </em>' . text($pendingSince) . '</span></div>';
             } else {
                 echo '<div class="card-heading">' . xlt("Audit Payment") .
-                    '<span style="color: #cc0000"><em> ' . xlt("Pending since") . ': </em>' . text($edata["date"]) . '</span>' .
+                    '<span style="color: #cc0000"><em> ' . xlt("Pending since") . ': </em>' . text($pendingSince) . '</span>' .
                     ' <button type="button" class="btn btn-warning btn-sm" onclick="getAuth()">' . xlt("Authorize") . '</button></div>';
             }
         } else {
@@ -1083,7 +1188,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 <span class="font-weight-bold"><?php echo xlt('Exp Date'); ?>:  </span><span id="ed"><?php echo text($ccdata["month"] ?? '') . "/" . text($ccdata["year"] ?? '') ?></span>
                 <span class="font-weight-bold"><?php echo xlt('CVV'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["cardCode"] ?? '') ?></span><br />
         <?php } else { ?>
-                <span class="font-weight-bold"><?php echo xlt('Transaction Id'); ?>:  </span><span id="ed"><?php echo text($ccdata["transId"] ?? '') . "/" . text($ccdata["year"]) ?></span>
+                <span class="font-weight-bold"><?php echo xlt('Transaction Id'); ?>:  </span><span id="ed"><?php echo text($ccdata["transId"]) . "/" . text($ccdata["year"] ?? '') ?></span>
                 <span class="font-weight-bold"><?php echo xlt('Authorization'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["authCode"] ?? '') ?></span><br />
         <?php } ?>
         <span class="font-weight-bold"><?php echo xlt('Charge Total'); ?>:  </span><span id="ct"><?php echo text($invdata["form_paytotal"] ?? '') ?></span><br />
@@ -1093,8 +1198,16 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         <div>
         <?php
         if (!$session->has('authUserID')) {
-            if (!isset($ccdata["cardHolderName"])) {
-                if ($globalsBag->get('payment_gateway') === 'Sphere') {
+            // A charged payment stays locked even when its card details cannot be read: paying
+            // again would charge the card a second time.
+            // No new payment while one is pending with card details, or while any open payment was
+            // already charged (paying again would charge the card a second time).
+            // A pending payment staff cannot post (its card details are missing or incomplete) is
+            // not locked: paying again replaces it.
+            if ((!isset($ccdata["cardHolderName"]) || $postingBlock !== null) && !$reviewWorkflows->hasOpenChargedPayment($sessionPid)) {
+                if (!$gatewayKeysReadable) {
+                    echo '<div class="alert alert-warning">' . xlt('Card payments are not available right now. Please contact the clinic.') . '</div>';
+                } elseif ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
                 } else {
                     echo '<button type="button" id="paynowbutton" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
@@ -1103,7 +1216,14 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
             }
         } else {
-            echo "<button type='submit' class='btn btn-success' form='invoiceForm'>" . xlt('Post Payment') . "</button>";
+            if ($postingBlock !== null) {
+                echo '<div class="alert alert-warning">' . text($postingBlock->message()) . '</div>';
+            } else {
+                if ($cardUnreadable && $paymentCharged) {
+                    echo '<div class="alert alert-warning">' . xlt('The card details of this payment could not be read. The card was charged by the payment gateway: check the transaction there before posting.') . '</div>';
+                }
+                echo "<button type='submit' class='btn btn-success' form='invoiceForm'>" . xlt('Post Payment') . "</button>";
+            }
         }
         ?>
         </div>
@@ -1286,7 +1406,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         }
     </script>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && $session->has('patient_portal_onsite_two')) {
+    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && $gatewayKeysReadable && $session->has('patient_portal_onsite_two')) {
         // Include Authorize.Net dependency to tokenize card.
         // Will return a token to use for payment request keeping
         // credit info off the server.
@@ -1294,18 +1414,18 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
         ?>
         <script>
-            var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
+            var apiLoginID = <?php echo json_encode($gatewayApiKey); ?>;
         </script>
         <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.authorizenet.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php }  // end authorize.net ?>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
+    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $gatewayKeysReadable && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
         <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.stripe.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php } ?>
 
     <?php
     if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
-        echo (new SpherePayment('patient', $pid))->renderSphereJs();
+        echo $sphereScript;
     }
     if ($globalsBag->get('payment_gateway') === 'Rainforest' && $session->has('patient_portal_onsite_two')) {
         if ($globalsBag->getBoolean('gateway_mode_production')) {

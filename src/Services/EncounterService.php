@@ -388,10 +388,12 @@ class EncounterService extends BaseService
      *
      * @param $puuid The patient identifier of particular encounter
      * @param $data  The encounter fields (array) to insert.
+     * @param ?string $authorized the encounter form's `forms.authorized` value; when null (every caller but the
+     *               arrival path), the provider id is stored there, as before
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      *               payload.
      */
-    public function insertEncounter($puuid, $data)
+    public function insertEncounter($puuid, $data, ?string $authorized = null)
     {
         $processingResult = new ProcessingResult();
         $processingResult = $this->encounterValidator->validate(
@@ -428,7 +430,7 @@ class EncounterService extends BaseService
             $results,
             "newpatient",
             $data['pid'],
-            $data["provider_id"],
+            $authorized ?? $data["provider_id"],
             $data["date"],
             $data['user'],
             $data['group']
@@ -766,8 +768,10 @@ class EncounterService extends BaseService
      */
     public function getSensitivity(mixed $pid, mixed $encounter_id): ?string
     {
+        // pid and eid are integer columns, which compare the same with a number as text; given as
+        // text, the lookup uses their index (FhirSearchWhereClauseBuilder keeps a number on BINARY alone).
         $encounterResult = $this->search(
-            ['pid' => $pid, 'eid' => $encounter_id],
+            ['pid' => is_int($pid) ? (string) $pid : $pid, 'eid' => is_int($encounter_id) ? (string) $encounter_id : $encounter_id],
             options: ['limit' => 1],
         );
         if (!$encounterResult->hasData()) {

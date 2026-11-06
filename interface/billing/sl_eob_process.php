@@ -535,6 +535,13 @@ function eob_process_era_callback(array &$out): void
             : $ferow['fname'] . ' ' . $ferow['lname'];
 
         $error = $inverror;
+        // Service lines the payer pended (adjustment reason 133) are tracked for the whole
+        // run: another claim payment (CLP) in this ERA may cover the same claim.
+        $claimPid = is_numeric($pid) ? (int) $pid : 0;
+        $claimEncounter = is_numeric($encounter) ? (int) $encounter : 0;
+        $claimLevel = (int) substr($inslabel, 3);
+        $pendedCodes = [];
+        $answeredCodes = [];
 
         // create array of cpts and mods for complex matching
         $codes_arr_keys = array_keys($codes);
@@ -552,6 +559,7 @@ function eob_process_era_callback(array &$out): void
 
         // This loops once for each service item in this claim.
         foreach ($out['svc'] as $svc) {
+            $svcPended = false;
             // Treat a modifier in the remit data as part of the procedure key.
             // This key will then make its way into SQL-Ledger.
             $codekey = $svc['code'];
@@ -700,6 +708,15 @@ function eob_process_era_callback(array &$out): void
             foreach ($svc['adj'] as $adj) {
                 $description = ($adj['reason_code'] ?? '') . ': ' .
                     BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code'] ?? ''];
+                if (($adj['reason_code'] ?? '') === '133') {
+                    // 133: the disposition of this line is pending further review. It is not
+                    // the payer's answer, whatever group it comes with: post nothing for it and
+                    // leave the level open. The payer sends a reversal and correction once the
+                    // line is decided.
+                    $svcPended = true;
+                    echo getMessageLine($bgcolor, 'infdetail', "$description (pended by the payer; not posted)");
+                    continue;
+                }
                 $isContractualWriteoff = $adj['group_code'] === 'CO'
                     && in_array($adj['reason_code'], ['45', '59'], true);
                 if ($adj['group_code'] === 'PR' || !$primary) {
@@ -764,7 +781,21 @@ function eob_process_era_callback(array &$out): void
                     balance: ($error ? '' : $invoice_total)
                 );
             }
+            $lineCode = is_string($codekey) ? $codekey : '';
+            if ($svcPended) {
+                $pendedCodes[] = $lineCode;
+            } else {
+                $answeredCodes[] = $lineCode;
+            }
         } // End of service item
+        // Lines answered here settle lines pended by an earlier CLP in this run. Only a
+        // claim matched to a patient and encounter is tracked; an unmatched one is
+        // reported by the invoice error path. A CLP in error posted nothing, so its
+        // lines don't settle anything.
+        $hasClaimIdentity = $claimPid > 0 && $claimEncounter > 0;
+        if ($hasClaimIdentity) {
+            $eraRun->recordClaimPayment($claimPid, $claimEncounter, $claimLevel, $pendedCodes, $error ? [] : $answeredCodes);
+        }
 
         // Report any existing service items not mentioned in the ERA, and
         // determine if any of them are still missing an insurance response
@@ -790,6 +821,17 @@ function eob_process_era_callback(array &$out): void
             if (!$got_response) {
                 $insurance_done = false;
             }
+        }
+
+        // A pended line means the payer isn't done with the claim yet.
+        $pendedCount = $hasClaimIdentity ? $eraRun->pendedLineCount($claimPid, $claimEncounter, $claimLevel) : 0;
+        if ($pendedCount > 0) {
+            $insurance_done = false;
+            echo getMessageLine(
+                $bgcolor,
+                'errdetail',
+                "$inslabel left open: the payer pended $pendedCount line(s) (adjustment reason 133); wait for its final remittance"
+            );
         }
 
         // Cleanup: If all is well, mark Ins<x> done and check for secondary billing.
