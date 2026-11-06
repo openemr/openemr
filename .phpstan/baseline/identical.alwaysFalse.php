@@ -107,16 +107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_io.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between \\(int\\|false\\) and \'\' will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between int\\<0, max\\>\\|false and true will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/ExceptionThrower.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between mixed~\'09\' and \'09\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/X125010837P.php',

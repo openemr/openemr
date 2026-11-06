@@ -20,6 +20,7 @@ use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
+use OpenEMR\Services\PatientReview\Portal\PortalChargeGate;
 use OpenEMR\Services\PatientReview\Portal\PortalInvoiceLines;
 use OpenEMR\Services\PatientReview\Portal\PortalPaymentAmount;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
@@ -141,10 +142,18 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
     }
     // The amount charged must be the amount the payment is saved with, which staff post.
+    // Checked before the charge gate so a mismatch is refused without taking the payment lock.
     $chargeRequest = CurrentRequest::get()->request;
     $invoiceLines = (new PortalInvoiceLines())->encounters($chargeRequest->getInt('form_pid'));
     if (!PortalPaymentAmount::matchesInvoice($chargeRequest->getString('payment'), $chargeRequest->getString('invValues'), $invoiceLines)) {
         echo xlt('The payment amount does not match the invoice. Reload the page and try again.');
+        exit();
+    }
+    // Refuse a second charge while a charged payment is open (a page loaded before the first
+    // one can still submit), holding the patient's payment lock from the check through the charge.
+    $chargeRefusal = (new PortalChargeGate(ReviewQueueFactory::portalWorkflows()))->open($form_pid, new PaymentPostingLock());
+    if ($chargeRefusal !== null) {
+        echo text($chargeRefusal->message());
         exit();
     }
     $pay = new PaymentGateway("AuthorizeNetApi_Api");
@@ -190,10 +199,18 @@ if ($_POST['mode'] == 'Stripe') {
         PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
     }
     // The amount charged must be the amount the payment is saved with, which staff post.
+    // Checked before the charge gate so a mismatch is refused without taking the payment lock.
     $chargeRequest = CurrentRequest::get()->request;
     $invoiceLines = (new PortalInvoiceLines())->encounters($chargeRequest->getInt('form_pid'));
     if (!PortalPaymentAmount::matchesInvoice($chargeRequest->getString('payment'), $chargeRequest->getString('invValues'), $invoiceLines)) {
         echo xlt('The payment amount does not match the invoice. Reload the page and try again.');
+        exit();
+    }
+    // Refuse a second charge while a charged payment is open (a page loaded before the first
+    // one can still submit), holding the patient's payment lock from the check through the charge.
+    $chargeRefusal = (new PortalChargeGate(ReviewQueueFactory::portalWorkflows()))->open($form_pid, new PaymentPostingLock());
+    if ($chargeRefusal !== null) {
+        echo text($chargeRefusal->message());
         exit();
     }
     $pay = new PaymentGateway("Stripe");

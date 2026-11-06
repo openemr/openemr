@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientReview;
 
 use Doctrine\DBAL\Exception as DbalException;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewHandlerMissingException;
@@ -221,6 +222,18 @@ final class ReviewQueueService
     }
 
     /**
+     * Every open request of this type (and, for FHIR writes, resource type) for the patient,
+     * newest first. Usually one, but some types (a charged payment) never replace an open
+     * request.
+     *
+     * @return list<ReviewRequest>
+     */
+    public function allOpenFor(int $pid, ReviewType $type, ?FhirResourceType $resourceType = null): array
+    {
+        return $this->store->findOpen($pid, $type, $resourceType);
+    }
+
+    /**
      * The open request for one target row (a portal document), if any.
      */
     public function openForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): ?ReviewRequest
@@ -288,6 +301,8 @@ final class ReviewQueueService
     /**
      * The decrypted secret, or null when the request has been decided or has none. It stays
      * readable while the request is approved, so the handler applying it can use it.
+     *
+     * @throws CryptoGenException when the stored secret cannot be decrypted
      */
     public function readSecret(int $id, string $kind): ?string
     {
