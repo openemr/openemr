@@ -1168,9 +1168,17 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 <span class="font-weight-bold"><?php echo xlt('Authorization'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["authCode"] ?? '') ?></span><br />
         <?php } ?>
         <span class="font-weight-bold"><?php echo xlt('Charge Total'); ?>:  </span><span id="ct"><?php echo text($invdata["form_paytotal"] ?? '') ?></span><br />
-        <?php if (($ccdata[PortalPaymentAmount::MISMATCH] ?? false) === true) { ?>
+        <?php
+        // Staff only: what the gateway's callback reported, which OpenEMR has not confirmed with it.
+        $amountMismatch = ($ccdata[PortalPaymentAmount::MISMATCH] ?? false) === true;
+        $amountUnverified = ($ccdata[PortalPaymentAmount::UNVERIFIED] ?? false) === true;
+        if ($session->has('authUserID') && ($amountMismatch || $amountUnverified)) { ?>
             <span class="font-weight-bold"><?php echo xlt('Amount Reported by Gateway'); ?>:  </span><span id="ca"><?php echo text(is_string($ccdata['amount'] ?? null) ? $ccdata['amount'] : '') ?></span><br />
+            <?php if ($amountMismatch) { ?>
             <div class="alert alert-warning"><?php echo xlt('The amount the gateway reported does not match this invoice selection, or could not be checked. Check the transaction at the gateway and correct the amounts before posting.'); ?></div>
+            <?php } else { ?>
+            <div class="alert alert-info"><?php echo xlt('The gateway does not confirm this amount to OpenEMR. Check the transaction amount at the gateway before posting.'); ?></div>
+            <?php } ?>
         <?php } ?>
         </div>
         </div>

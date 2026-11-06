@@ -101,6 +101,9 @@ if ($_POST['mode'] === 'Sphere') {
     // the amount charged is not the invoice selection's total, staff are warned before posting.
     $sphereAmount = $paymentResult['amount'] ?? '';
     $cc['amount'] = is_string($sphereAmount) ? $sphereAmount : '';
+    // The amount comes from Sphere's redirect through the browser, not from Sphere itself, so a
+    // match proves nothing: staff are always asked to check it at Sphere.
+    $cc[PortalPaymentAmount::UNVERIFIED] = true;
     $patientId = filter_var($form_pid, FILTER_VALIDATE_INT);
     try {
         $invoiceLines = is_int($patientId) ? (new PortalInvoiceLines())->encounters($patientId) : [];

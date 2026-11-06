@@ -35,6 +35,13 @@ final class PortalPaymentAmount
      */
     public const MISMATCH = 'amountMismatch';
 
+    /**
+     * The card-details key that marks a payment whose amount came from the gateway's browser
+     * callback and was not confirmed with the gateway (Sphere). Staff are told to check it there
+     * even when it matches the invoice selection.
+     */
+    public const UNVERIFIED = 'amountUnverified';
+
     /** The most whole-dollar digits an amount may have. */
     private const MAX_DOLLAR_DIGITS = 15;
 
