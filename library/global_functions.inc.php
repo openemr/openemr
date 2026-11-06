@@ -17,6 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Billing\Statement\StatementPortal;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -589,6 +590,18 @@ function hl7Time($s, bool $withSeconds): string
 function hl7Zip($s)
 {
     return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
+}
+
+/**
+ * The patient may use the patient portal, and is now the session's portal user.
+ * The statements pages' site statement.inc.php files call this when sending a
+ * statement to the portal.
+ *
+ * @param mixed $pid patient_data.pid
+ */
+function is_auth_portal($pid = 0): bool
+{
+    return StatementPortal::authorize(is_numeric($pid) ? (int) $pid : 0);
 }
 
 /**
