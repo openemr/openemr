@@ -144,6 +144,11 @@ function PrintEncFooter(): void
     echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_bal)) . "</td>";
     echo "</tr>\n";
 }
+/**
+ * Prints one visit's payment and adjustment rows (or, with $unassigned, the unapplied payments) and adds
+ * them to the running totals. An insurer payment is named by the policy at its level in $effectiveInsurances,
+ * found by type, since that list can skip a level.
+ */
 function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsurances = []): void
 {
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;

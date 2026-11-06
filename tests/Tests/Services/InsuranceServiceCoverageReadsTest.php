@@ -36,6 +36,9 @@ final class InsuranceServiceCoverageReadsTest extends TestCase
     /** @var list<int> four fixture patients */
     private array $pids = [];
 
+    /**
+     * Four fixture patients with no policies.
+     */
     protected function setUp(): void
     {
         $this->service = new InsuranceService();
@@ -58,12 +61,18 @@ final class InsuranceServiceCoverageReadsTest extends TestCase
         $this->removeRows();
     }
 
+    /**
+     * Removes the test's policies, its company and the fixture patients.
+     */
     protected function tearDown(): void
     {
         $this->removeRows();
         $this->fixtureManager->removePatientFixtures();
     }
 
+    /**
+     * Deletes the fixture patients' policies with their uuid registry entries, and the one company the test adds.
+     */
     private function removeRows(): void
     {
         $placeholders = implode(',', array_fill(0, count($this->pids), '?'));
@@ -103,11 +112,17 @@ final class InsuranceServiceCoverageReadsTest extends TestCase
         );
     }
 
+    /**
+     * The day every read in this test asks about, unless a test names another.
+     */
     private function day(): DateTimeImmutable
     {
         return new DateTimeImmutable(self::DAY);
     }
 
+    /**
+     * A row comes back with every insurance_data column as stored and its company's name, an inactive company's included.
+     */
     #[Test]
     public function aRowCarriesItsColumnsAndItsCompanysName(): void
     {

@@ -45,6 +45,9 @@ final class CoverageDayTest extends TestCase
         ];
     }
 
+    /**
+     * A DATE or DATETIME gives its calendar day; blank, zero, partial or impossible dates and non-strings give none.
+     */
     #[Test]
     #[DataProvider('stored')]
     public function aStoredValueIsItsCalendarDayOrNothing(mixed $value, ?string $expected): void
@@ -52,6 +55,9 @@ final class CoverageDayTest extends TestCase
         self::assertSame($expected, CoverageDay::fromStored($value)?->format('Y-m-d'));
     }
 
+    /**
+     * A DATETIME late in the day gives that day at midnight in PHP's default zone, where the rule's dates are.
+     */
     #[Test]
     public function theDayIsMidnightInPhpsZoneAsTheRulesDatesAre(): void
     {

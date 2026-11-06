@@ -43,6 +43,9 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
     private FixtureManager $fixtureManager;
     private int $pid;
 
+    /**
+     * One fixture patient with no policies.
+     */
     protected function setUp(): void
     {
         $this->service = new InsuranceService();
@@ -61,12 +64,18 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
         $this->removePolicies();
     }
 
+    /**
+     * Removes the test's policies and the fixture patient.
+     */
     protected function tearDown(): void
     {
         $this->removePolicies();
         $this->fixtureManager->removePatientFixtures();
     }
 
+    /**
+     * Deletes the fixture patient's policies with their uuid registry entries.
+     */
     private function removePolicies(): void
     {
         $uuids = QueryUtils::fetchTableColumn(
@@ -120,6 +129,9 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
     private function claimChoice(string $day): array
     {
         $claim = new class extends Claim {
+            /**
+             * No encounter, billing rows, facility or users to load: only loadPayerInfo() is under test.
+             */
             public function __construct()
             {
             }
@@ -258,6 +270,9 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
         self::assertSame($service, $old, 'the wrapper chooses as the service does');
     }
 
+    /**
+     * A policy ending on the day still covers a visit late that day, and the wrapper returns its stored row.
+     */
     #[Test]
     public function theWrapperReturnsEachPolicysRowAndReadsADatetimeAsItsDay(): void
     {
@@ -280,6 +295,9 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
         return ['blank' => [''], 'zero' => ['0000-00-00'], 'a zero datetime' => ['0000-00-00 00:00:00'], 'the display format' => ['11/04/2026']];
     }
 
+    /**
+     * Even an undated policy, in force on any day, isn't returned for a date the wrapper can't read.
+     */
     #[Test]
     #[DataProvider('unreadableDays')]
     public function theWrapperGivesNoPoliciesForADayItCantRead(string $day): void
@@ -306,6 +324,9 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
         self::assertContains($this->claimChoice(self::DAY), [['primary 101'], ['primary 102']]);
     }
 
+    /**
+     * The service's policy carries the uuid the row was saved with and its dates.
+     */
     #[Test]
     public function aPolicyCarriesItsUuidAndDates(): void
     {
@@ -322,6 +343,9 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
         self::assertSame('2026-12-31', $policies[0]->end?->format('Y-m-d'));
     }
 
+    /**
+     * No policies give an empty list, not an error.
+     */
     #[Test]
     public function aPatientWithNoPoliciesHasNoCoverage(): void
     {

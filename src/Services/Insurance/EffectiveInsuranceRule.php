@@ -212,6 +212,9 @@ final class EffectiveInsuranceRule
         return is_int($value) && $value > 0 ? $value : null;
     }
 
+    /**
+     * A stored binary uuid as text, or null when the row has none (anything but 16 bytes).
+     */
     private static function uuidText(mixed $bytes): ?string
     {
         return is_string($bytes) && strlen($bytes) === 16 ? UuidRegistry::uuidToString($bytes) : null;

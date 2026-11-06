@@ -46,6 +46,9 @@ final class EffectiveInsuranceRowTest extends TestCase
         }, $joined);
     }
 
+    /**
+     * The join as a read with bound values returns the ids: ints.
+     */
     #[Test]
     public function aPolicyKeepsItsRowAndCompanyNameWhenIdsArriveAsInts(): void
     {
@@ -57,10 +60,12 @@ final class EffectiveInsuranceRowTest extends TestCase
         self::assertSame(['P-5 Gold Aetna', 'S-6 Gold BCBS'], self::shown($joined));
     }
 
+    /**
+     * The rule accepts digit strings, so the join must too, or every policy it chose would be dropped with no error.
+     */
     #[Test]
     public function aPolicyKeepsItsRowAndCompanyNameWhenIdsArriveAsDigitStrings(): void
     {
-        // The rule accepts digit strings; the join must too, or every policy it chose would be dropped silently.
         $rows = self::rows(static fn(int $n): string => (string)$n);
         $companies = [['id' => '101', 'name' => 'Gold Aetna'], ['id' => '102', 'name' => 'Gold BCBS']];
 
