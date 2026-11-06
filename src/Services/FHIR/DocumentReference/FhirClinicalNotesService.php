@@ -195,7 +195,11 @@ class FhirClinicalNotesService extends FhirServiceBase implements IPatientCompar
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        if (isset($openEMRSearchParameters['code']) && $openEMRSearchParameters['code'] instanceof TokenSearchField) {
+        if (
+            isset($openEMRSearchParameters['code'])
+            && $openEMRSearchParameters['code'] instanceof TokenSearchField
+            && $openEMRSearchParameters['code']->getModifier() !== SearchModifier::MISSING
+        ) {
             $openEMRSearchParameters['code']->transformValues(function (TokenSearchValue $val) {
                 // TODO: @adunsulag I don't like this, is there a way we can mark the code system we are using that will prefix the value
                 // automatically?

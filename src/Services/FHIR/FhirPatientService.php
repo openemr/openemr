@@ -30,6 +30,7 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -927,13 +928,16 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             /** @var TokenSearchField $field */
             $field = $openEMRSearchParameters[self::FIELD_NAME_GENDER];
 
-            $upperCaseCode = function (TokenSearchValue $tokenSearchValue) {
-                $tokenSearchValue->setCode(ucfirst($tokenSearchValue->getCode()));
-                return $tokenSearchValue;
-            };
+            // :missing carries true or false, not a gender code
+            if ($field->getModifier() !== SearchModifier::MISSING) {
+                $upperCaseCode = function (TokenSearchValue $tokenSearchValue) {
+                    $tokenSearchValue->setCode(ucfirst($tokenSearchValue->getCode()));
+                    return $tokenSearchValue;
+                };
 
-            // need to convert our gender's to a format that are stored in the database.
-            $field->setValues(array_map($upperCaseCode, $field->getValues()));
+                // need to convert our gender's to a format that are stored in the database.
+                $field->setValues(array_map($upperCaseCode, $field->getValues()));
+            }
         }
 
         return $this->patientService->search($openEMRSearchParameters, true, $config);
