@@ -653,7 +653,7 @@ HTML;
             $showString .= !empty($benefit['coverage_level']) ? "<b>" . xlt('Coverage Level') . ":</b> " . text($benefit['coverage_level']) . "<br />\n" : '';
             $showString .= !empty($benefit['coverage_type']) ? "<b>" . xlt('Coverage Type') . ":</b> " . text($benefit['coverage_type']) . "<br />\n" : '';
             $showString .= !empty($benefit['plan_type']) ? "<b>" . xlt('Plan Type') . ":</b> " . text($benefit['plan_type']) . "<br />\n" : '';
-            $showString .= !empty($benefit['plan_desc']) ? "<b>" . xlt('Plan Description') . ":</b> " . text(text($benefit['plan_desc'])) . "<br />\n" : '';
+            $showString .= !empty($benefit['plan_description']) ? "<b>" . xlt('Plan Description') . ":</b> " . text($benefit['plan_description']) . "<br />\n" : '';
             $showString .= !empty($benefit['coverage_period']) ? "<b>" . xlt('Coverage Period') . ":</b> " . text($benefit['coverage_period']) . "<br />\n" : '';
             $showString .= !empty($benefit['amount']) ? "<b>" . xlt('Amount') . ":</b> " . text($benefit['amount']) . "<br />\n" : '';
             $showString .= !empty($benefit['percent']) ? "<b>" . xlt('Percentage') . ":</b> " . text($benefit['percent']) . "<br />\n" : '';
@@ -711,6 +711,8 @@ HTML;
         $res = sqlStatement($query, [$verification_id]);
 
         foreach ($subscriber['benefits'] as $benefit) {
+            // parseEdi271() keeps EB05 under 'plan_description'.
+            $planDescription = is_array($benefit) ? ($benefit['plan_description'] ?? null) : null;
             $bind = [
                 $verification_id,
                 "A",
@@ -723,7 +725,7 @@ HTML;
                 $benefit['coverage_level'],
                 $benefit['coverage_type'],
                 $benefit['plan_type'],
-                $benefit['plan_desc'],
+                $planDescription,
                 $benefit['coverage_period'],
                 $benefit['amount'],
                 $benefit['percent'],
