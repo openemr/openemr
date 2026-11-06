@@ -137,6 +137,27 @@ final class EffectiveInsuranceRuleTest extends TestCase
                 [self::row(1, 'primary', 101, '2020-01-01', null), self::row(2, 'primary', 'Acme', '2026-07-01', null)],
                 [],
             ],
+            // A cast would read these as companies 12, 1000 and 0 (none), and MySQL would compare '12abc' as 12.
+            'a company with letters after its digits is no company' => [
+                [self::row(1, 'primary', 101, '2020-01-01', null), self::row(2, 'primary', '12abc', '2026-07-01', null)],
+                [],
+            ],
+            'a company in exponent form is no company' => [
+                [self::row(1, 'primary', 101, '2020-01-01', null), self::row(2, 'primary', '1e3', '2026-07-01', null)],
+                [],
+            ],
+            'a company of zeros is no company' => [
+                [self::row(1, 'primary', 101, '2020-01-01', null), self::row(2, 'primary', '00', '2026-07-01', null)],
+                [],
+            ],
+            'a company of 0 and a space is no company' => [
+                [self::row(1, 'primary', 101, '2020-01-01', null), self::row(2, 'primary', '0 ', '2026-07-01', null)],
+                [],
+            ],
+            'a company of spaces is no company' => [
+                [self::row(1, 'primary', 101, '2020-01-01', null), self::row(2, 'primary', '  ', '2026-07-01', null)],
+                [],
+            ],
             'an older row with no company doesn\'t hide a newer policy' => [
                 [self::row(1, 'primary', '', null, null), self::row(2, 'primary', 101, '2024-01-01', null)],
                 ['primary #2 company 101'],

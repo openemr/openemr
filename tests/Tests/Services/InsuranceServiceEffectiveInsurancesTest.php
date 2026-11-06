@@ -76,12 +76,13 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
     }
 
     /**
-     * Deletes the fixture patient's policies with their uuid registry entries.
+     * Deletes the fixture patient's policies, and any this test filed under pid 0, with their uuid registry entries.
      */
     private function removePolicies(): void
     {
         $uuids = QueryUtils::fetchTableColumn(
-            "SELECT `uuid` FROM `insurance_data` WHERE `pid` = ? AND `uuid` IS NOT NULL",
+            "SELECT `uuid` FROM `insurance_data` WHERE (`pid` = ? OR (`pid` = 0 AND `plan_name` = 'test-fixture'))"
+            . " AND `uuid` IS NOT NULL",
             'uuid',
             [$this->pid]
         );
@@ -91,21 +92,25 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
                 [$uuid]
             );
         }
-        QueryUtils::sqlStatementThrowException("DELETE FROM `insurance_data` WHERE `pid` = ?", [$this->pid]);
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM `insurance_data` WHERE `pid` = ? OR (`pid` = 0 AND `plan_name` = 'test-fixture')",
+            [$this->pid]
+        );
     }
 
     /**
      * Company ids 101-104 needn't exist: which policy is in force is read from insurance_data alone.
      *
+     * @param ?int $pid the fixture patient's unless given
      * @return string the policy's uuid
      */
-    private function addPolicy(string $type, ?string $provider, ?string $start, ?string $end): string
+    private function addPolicy(string $type, ?string $provider, ?string $start, ?string $end, ?int $pid = null): string
     {
         $uuid = (new UuidRegistry(['table_name' => 'insurance_data']))->createUuid();
         QueryUtils::sqlInsert(
             "INSERT INTO `insurance_data` (`uuid`, `pid`, `type`, `provider`, `date`, `date_end`, `plan_name`)"
             . " VALUES (?, ?, ?, ?, ?, ?, 'test-fixture')",
-            [$uuid, $this->pid, $type, $provider, $start, $end]
+            [$uuid, $pid ?? $this->pid, $type, $provider, $start, $end]
         );
         return UuidRegistry::uuidToString($uuid);
     }
@@ -342,6 +347,29 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
         $this->addPolicy('primary', '101', null, null);
 
         self::assertSame([], getEffectiveInsurances($this->pid, $day));
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unreadablePatientIds(): array
+    {
+        return ['NULL, as a session without a patient holds' => [null], 'zero' => [0], 'blank' => [''], 'negative' => [-1], 'not a number' => ['12abc']];
+    }
+
+    /**
+     * A policy filed under pid 0 isn't returned for a patient id the wrapper can't read: the query it
+     * replaced matched no row for NULL, and reading the id as an int would give pid 0's.
+     */
+    #[Test]
+    #[DataProvider('unreadablePatientIds')]
+    public function theWrapperGivesNoPoliciesForAPatientIdItCantRead(mixed $patientId): void
+    {
+        $this->addPolicy('primary', '101', null, null, 0);
+
+        self::assertSame([], getEffectiveInsurances($patientId, self::DAY));
     }
 
     /**
