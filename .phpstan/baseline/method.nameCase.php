@@ -289,16 +289,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:send\\(\\) with incorrect case\\: Send$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
 ];
 $ignoreErrors[] = [
