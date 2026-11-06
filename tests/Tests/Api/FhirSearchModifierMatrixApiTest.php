@@ -278,6 +278,55 @@ class FhirSearchModifierMatrixApiTest extends TestCase
     }
 
     /**
+     * `:missing=true` on a token param. FhirPatientService capitalises
+     * gender codes before the search, so this goes through that path.
+     * The resolver emits `sex IS NULL` or empty, so a patient without a
+     * gender is in the Bundle and the three fixtures are not.
+     */
+    #[Test]
+    public function testTokenMissingTrueMatchesOnlyAbsentValues(): void
+    {
+        $noGender = $this->installPatientFixture(self::FAMILY_PREFIX . 'NoGender', self::DOB_1, '');
+        $bundle = $this->getBundle('/apis/default/fhir/Patient?gender:missing=true');
+        self::assertContains(
+            $noGender['uuid'],
+            $this->extractEntryIds($bundle),
+            'gender:missing=true must return a patient without a gender',
+        );
+        self::assertSame(
+            [],
+            $this->extractFixtureFamilies($bundle),
+            'gender:missing=true must not return a patient that has a gender',
+        );
+    }
+
+    /**
+     * `:missing=false` on a token param, the complement of
+     * `:missing=true`: every fixture is in the Bundle and the patient
+     * without a gender is not.
+     */
+    #[Test]
+    public function testTokenMissingFalseMatchesPresentValues(): void
+    {
+        $noGender = $this->installPatientFixture(self::FAMILY_PREFIX . 'NoGender', self::DOB_1, '');
+        $bundle = $this->getBundle('/apis/default/fhir/Patient?gender:missing=false');
+        self::assertNotContains(
+            $noGender['uuid'],
+            $this->extractEntryIds($bundle),
+            'gender:missing=false must not return a patient without a gender',
+        );
+        $families = $this->extractFixtureFamilies($bundle);
+        sort($families);
+        $expected = [self::FAMILY_ALPHA, self::FAMILY_BRAVO, self::FAMILY_CHARLIE];
+        sort($expected);
+        self::assertSame(
+            $expected,
+            $families,
+            'gender:missing=false must return every patient that has a gender',
+        );
+    }
+
+    /**
      * `:not` on a token param — FHIR R4 §3.1.1.5.5.4 says the server
      * should return resources whose token does NOT match the given
      * value. Current server behavior: `:not` is NOT implemented.
@@ -625,7 +674,7 @@ class FhirSearchModifierMatrixApiTest extends TestCase
     /**
      * @return array{pid: int, uuid: string, family: string, dob: string}
      */
-    private function installPatientFixture(string $family, string $dob): array
+    private function installPatientFixture(string $family, string $dob, string $sex = 'Male'): array
     {
         $registry = new UuidRegistry(['table_name' => 'patient_data']);
         $uuidBytes = $registry->createUuid();
@@ -646,7 +695,7 @@ class FhirSearchModifierMatrixApiTest extends TestCase
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO patient_data (pid, uuid, fname, lname, DOB, sex, pubpid) '
             . 'VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [$pid, $uuidBytes, 'Testfirst', $family, $dob, 'Male', 'TEST-' . $pid],
+            [$pid, $uuidBytes, 'Testfirst', $family, $dob, $sex, 'TEST-' . $pid],
         );
         $this->createdPatientPids[] = $pid;
 
