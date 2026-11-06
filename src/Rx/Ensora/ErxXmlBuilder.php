@@ -947,11 +947,13 @@ class ErxXmlBuilder
     }
 
     /**
-     * Drop carriage returns and tabs from a value before DOM writes it.
+     * Drop carriage returns, tabs and the other control characters except line
+     * feeds, and replace invalid UTF-8 with '?'. DOM writes a value holding a
+     * control character XML forbids, or invalid UTF-8, as empty.
      */
     private static function text(string $value): string
     {
-        return str_replace([chr(13), chr(9)], '', $value);
+        return self::regexRemove('/[\x00-\x09\x0B-\x1F]/', mb_scrub($value, 'UTF-8'));
     }
 
     private static function regexRemove(string $pattern, string $subject): string

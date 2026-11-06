@@ -236,6 +236,7 @@ class ErxPage
      */
     protected function errorLog(string $message): void
     {
+        $message = $this->redactPassword($message);
         $siteDirectory = $this->getXMLBuilder()->getGlobals()->getOpenEMRSiteDirectory();
         if ($siteDirectory === '') {
             ServiceContainer::getLogger()->error('Could not write the Ensora eRx error log: no site directory');
@@ -253,6 +254,23 @@ class ErxPage
         } catch (IOExceptionInterface $e) {
             ServiceContainer::getLogger()->error('Could not write the Ensora eRx error log', ['exception' => $e]);
         }
+    }
+
+    /**
+     * Replace the account password wherever a logged request or response
+     * carries it, raw or XML-escaped once or twice.
+     */
+    private function redactPassword(string $message): string
+    {
+        $password = $this->getXMLBuilder()->getGlobals()->getCredentials()[2] ?? null;
+        if (!is_string($password) || $password === '') {
+            return $message;
+        }
+
+        $escaped = htmlspecialchars($password, ENT_XML1 | ENT_NOQUOTES);
+        $forms = array_unique([htmlspecialchars($escaped, ENT_XML1 | ENT_NOQUOTES), $escaped, $password]);
+
+        return str_replace($forms, '[redacted]', $message);
     }
 
     /**

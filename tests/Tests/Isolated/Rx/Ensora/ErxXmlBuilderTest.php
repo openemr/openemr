@@ -61,12 +61,14 @@ class ErxXmlBuilderTest extends TestCase
             'tab' => ['tw' . chr(9) . 'o', 'two'],
             'double quotes kept' => ['take "as needed"', 'take "as needed"'],
             'markup characters kept' => ['HTN & HLD <2>', 'HTN & HLD <2>'],
+            'other control characters dropped' => ['a' . chr(11) . 'b' . chr(27) . 'c', 'abc'],
+            'invalid UTF-8 replaced' => ['bad' . chr(255) . 'byte', 'bad?byte'],
             'empty' => ['', ''],
         ];
     }
 
     #[DataProvider('elementTextProvider')]
-    public function testCreateElementTextDropsCarriageReturnsAndTabs(string $value, string $expected): void
+    public function testCreateElementTextKeepsOnlyTextXmlCanCarry(string $value, string $expected): void
     {
         $element = $this->builder()->createElementText('sig', $value);
 

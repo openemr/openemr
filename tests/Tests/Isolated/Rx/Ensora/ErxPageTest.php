@@ -21,6 +21,7 @@ use OpenEMR\Rx\Ensora\ErxPage;
 use OpenEMR\Rx\Ensora\ErxXmlBuilder;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 class ErxPageTest extends TestCase
 {
@@ -80,11 +81,35 @@ class ErxPageTest extends TestCase
         $this->assertSame([': no NPI '], (new ErxPage($this->builderReturning($page)))->checkError('<NCScript/>'));
     }
 
-    private function builderReturning(string $page): ErxXmlBuilder
+    public function testTheErrorLogRedactsThePassword(): void
+    {
+        $siteDirectory = sys_get_temp_dir() . '/erx-page-test-' . bin2hex(random_bytes(4));
+        $globals = $this->createStub(ErxGlobalsInterface::class);
+        $globals->method('getOpenEMRSiteDirectory')->willReturn($siteDirectory);
+        $globals->method('getCredentials')->willReturn(['partner', 'account', 'p&ss<1']);
+        $xml = '<NCScript><password>p&amp;ss&lt;1</password></NCScript>';
+        $page = '<form action="RxEntry.aspx"><textarea>Error: bad password Original XML: '
+            . '&lt;password&gt;p&amp;amp;ss&amp;lt;1&lt;/password&gt; raw p&ss<1</textarea>';
+
+        try {
+            (new ErxPage($this->builderReturning($page, $globals)))->checkError($xml);
+            $log = file_get_contents($siteDirectory . '/documents/erx_error/erx_error-' . date('Y-m-d') . '.log');
+        } finally {
+            (new Filesystem())->remove($siteDirectory);
+        }
+
+        $this->assertIsString($log);
+        $this->assertStringNotContainsString('ss<1', $log);
+        $this->assertStringNotContainsString('ss&lt;1', $log);
+        $this->assertStringNotContainsString('ss&amp;lt;1', $log);
+        $this->assertSame(3, substr_count($log, '[redacted]'));
+    }
+
+    private function builderReturning(string $page, ?ErxGlobalsInterface $globals = null): ErxXmlBuilder
     {
         $builder = $this->createMock(ErxXmlBuilder::class);
         $builder->method('checkError')->willReturn($page);
-        $builder->method('getGlobals')->willReturn($this->createStub(ErxGlobalsInterface::class));
+        $builder->method('getGlobals')->willReturn($globals ?? $this->createStub(ErxGlobalsInterface::class));
 
         return $builder;
     }
