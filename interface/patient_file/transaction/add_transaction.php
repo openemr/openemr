@@ -462,7 +462,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </a>
                     </div>
                 </div>
-                <?php echo (new ReferralDisplay())->forTransactionPage($form_id, is_numeric($transid) ? intval($transid) : 0); // Where a saved referral stands (#14710). ?>
+                <?php
+                // Where a saved referral stands (#14710), and its Re-send button for someone who can write here (#15137).
+                $referralDisplay = new ReferralDisplay();
+                $referralId = is_numeric($transid) ? intval($transid) : 0;
+                $resendTask = AclMain::aclCheckCore('patients', 'trans', '', 'write') ? $referralDisplay->resendableTask($form_id, $referralId) : null;
+                echo $referralDisplay->forTransactionPage($form_id, $referralId, $resendTask !== null);
+                ?>
                 <div class="col-sm-12 mt-3">
                     <fieldset>
                         <legend><?php echo xlt('Select Transaction Type'); ?></legend>
@@ -657,6 +663,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 </div><!-- end of DEM div -->
             </div><!-- end of referdiv -->
         </form>
+        <?php if ($resendTask !== null) {
+            echo $referralDisplay->resendForm($referralId, $resendTask, CsrfUtils::collectCsrfToken(session: $session));
+        } ?>
 
         <!-- include support for the list-add selectbox feature -->
         <?php require OEGlobalsBag::getInstance()->getProjectDir() . "/library/options_listadd.inc.php"; ?>

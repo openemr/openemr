@@ -1076,6 +1076,28 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * After a re-send (#15137), the reply completes the new Task, and the Task they turned down stays
+     * as it was.
+     */
+    public function testAReplyAfterAReSendCompletesTheNewTask(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $rejected = $this->taskOf($id, 'pantry');
+        $rejectedUuid = $rejected['id'] ?? null;
+        $this->assertIsString($rejectedUuid);
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($rejected, 'rejected'));
+        $new = (new ReferralTaskService(new UserService()))->resend($id, $rejectedUuid, null);
+        $this->assertIsString($new);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+
+        $this->afterSave($id);
+
+        $this->assertSame('completed', $this->read('Task', $new)['status'] ?? null);
+        $this->assertSame('rejected', $this->read('Task', $rejectedUuid)['status'] ?? null);
+    }
+
+    /**
      * A reply completes Refer To's Task, not a later one of the same kind that an API client made
      * for someone else.
      */

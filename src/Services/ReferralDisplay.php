@@ -35,6 +35,7 @@ final class ReferralDisplay
      * @param ?\Closure(int): ?array<mixed> $findReferral a referral by its transaction id; ReferralService::getReferral() when null
      * @param ?\Closure(list<int>): array<int, ?string> $findTaskStatuses referrals' Task statuses by transaction id; ReferralService::getTaskStatuses() when null
      * @param ?int $overdueDays the referral_overdue_days global when null
+     * @param ?\Closure(int): ?string $findResendableTask the Task a re-send would follow on from, by transaction id; ReferralTaskService::resendableTask() when null
      */
     public function __construct(
         private ?Environment $twig = null,
@@ -42,6 +43,7 @@ final class ReferralDisplay
         private ?\Closure $findTaskStatuses = null,
         ?ClockInterface $clock = null,
         private ?int $overdueDays = null,
+        private ?\Closure $findResendableTask = null,
     ) {
         $this->now = ($clock ?? ServiceContainer::getClock())->now();
     }
@@ -49,8 +51,10 @@ final class ReferralDisplay
     /**
      * The status block for the transaction the add/edit page shows: empty unless it is a saved
      * referral.
+     *
+     * @param bool $resendable whether to show the Re-send button, which submits resendForm()
      */
-    public function forTransactionPage(mixed $formId, mixed $transactionId): string
+    public function forTransactionPage(mixed $formId, mixed $transactionId, bool $resendable = false): string
     {
         if ($formId !== ReferralStatus::FORM_ID || !is_numeric($transactionId) || !($transactionId > 0)) {
             return '';
@@ -59,7 +63,33 @@ final class ReferralDisplay
         if ($referral === null) {
             return '';
         }
-        return $this->render('referrals/status_block.html.twig', ReferralStatus::ofReferral($referral, $this->now, $this->overdueDays()));
+        return $this->render('referrals/status_block.html.twig', ReferralStatus::ofReferral($referral, $this->now, $this->overdueDays()), $resendable);
+    }
+
+    /**
+     * The Task a re-send of the page's referral would follow on from, or null when it isn't a saved
+     * referral that can be re-sent.
+     */
+    public function resendableTask(mixed $formId, mixed $transactionId): ?string
+    {
+        if ($formId !== ReferralStatus::FORM_ID || !is_numeric($transactionId) || !($transactionId > 0)) {
+            return null;
+        }
+        $find = $this->findResendableTask ??= (new ReferralTaskService(new UserService()))->resendableTask(...);
+        return $find((int)$transactionId);
+    }
+
+    /**
+     * The form the Re-send button submits. It goes outside the page's own form, which it can't be
+     * nested in, and posting it doesn't save the referral.
+     */
+    public function resendForm(int $transactionId, string $taskUuid, string $csrfToken): string
+    {
+        return $this->twig()->render('referrals/resend_form.html.twig', [
+            'transaction_id' => $transactionId,
+            'task_uuid' => $taskUuid,
+            'csrf_token' => $csrfToken,
+        ]);
     }
 
     /**
@@ -185,11 +215,12 @@ final class ReferralDisplay
         return ReferralStatus::ofReferral($row, $this->now, $this->overdueDays());
     }
 
-    private function render(string $template, ?ReferralStatus $status): string
+    private function render(string $template, ?ReferralStatus $status, bool $resendable = false): string
     {
         return $this->twig()->render($template, [
             'label' => $status?->label(),
             'overdue' => $status !== null && $status->overdue,
+            'resendable' => $resendable,
         ]);
     }
 
