@@ -392,7 +392,7 @@ class FhirGenericRestController implements IGlobalsAware {
                     $resource = $this->getFhirResourceForAudit(
                         $processingResult->getFirstDataResult(),
                         $fhirResource,
-                        $fhirResourceId
+                        $fhirId
                     );
                     $this->recordSuccessfulWrite(
                         $resource,
