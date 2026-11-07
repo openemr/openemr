@@ -289,8 +289,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             'patient-derived observations are a view over patient demographics; write them through Patient',
         FhirObservationEmployerService::class =>
             'employer-derived observations are a view over employer demographics; write them through Patient',
-        FhirObservationLaboratoryService::class =>
-            'laboratory results are written through their procedure order; Observation write for laboratory is not implemented yet',
         FhirObservationObservationFormService::class =>
             'observation form results are written through their form; Observation write for this category is not implemented yet',
         FhirObservationAdvanceDirectiveService::class =>
