@@ -62,7 +62,7 @@ class ErxXmlBuilderTest extends TestCase
             'double quotes kept' => ['take "as needed"', 'take "as needed"'],
             'markup characters kept' => ['HTN & HLD <2>', 'HTN & HLD <2>'],
             'other control characters dropped' => ['a' . chr(11) . 'b' . chr(27) . 'c', 'abc'],
-            'invalid UTF-8 replaced' => ['bad' . chr(255) . 'byte', 'bad?byte'],
+            'invalid UTF-8 replaced' => ['bad' . chr(255) . 'byte', 'bad' . mb_chr(0xFFFD) . 'byte'],
             'empty' => ['', ''],
         ];
     }
@@ -74,6 +74,19 @@ class ErxXmlBuilderTest extends TestCase
 
         $this->assertSame('sig', $element->tagName);
         $this->assertSame($expected, $element->textContent);
+    }
+
+    public function testInvalidUtf8IsReplacedWhateverTheMbstringSubstitution(): void
+    {
+        $previous = mb_substitute_character();
+        mb_substitute_character('none');
+        try {
+            $text = $this->builder()->createElementText('sig', 'bad' . chr(255) . 'byte')->textContent;
+        } finally {
+            mb_substitute_character($previous);
+        }
+
+        $this->assertSame('bad' . mb_chr(0xFFFD) . 'byte', $text);
     }
 
     public function testCheckErrorPostsTheXmlFormEncoded(): void

@@ -258,7 +258,8 @@ class ErxPage
 
     /**
      * Replace the account password wherever a logged request or response
-     * carries it, raw or XML-escaped once or twice.
+     * carries it: as configured or as the request cleaned it, each raw or
+     * XML-escaped once or twice.
      */
     private function redactPassword(string $message): string
     {
@@ -267,8 +268,12 @@ class ErxPage
             return $message;
         }
 
-        $escaped = htmlspecialchars($password, ENT_XML1 | ENT_NOQUOTES);
-        $forms = array_unique([htmlspecialchars($escaped, ENT_XML1 | ENT_NOQUOTES), $escaped, $password]);
+        $forms = [];
+        foreach ([$password, ErxXmlBuilder::cleanText($password)] as $value) {
+            $escaped = htmlspecialchars($value, ENT_XML1 | ENT_NOQUOTES | ENT_SUBSTITUTE);
+            array_push($forms, htmlspecialchars($escaped, ENT_XML1 | ENT_NOQUOTES), $escaped, $value);
+        }
+        $forms = array_values(array_unique(array_filter($forms, static fn(string $form): bool => $form !== '')));
 
         return str_replace($forms, '[redacted]', $message);
     }

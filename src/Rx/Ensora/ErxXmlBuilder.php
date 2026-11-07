@@ -29,6 +29,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 use RuntimeException;
+use UConverter;
 use UnexpectedValueException;
 
 class ErxXmlBuilder
@@ -226,9 +227,24 @@ class ErxXmlBuilder
     public function createElementText(string $name, string $value): DOMElement
     {
         $element = $this->getDocument()->createElement($name);
-        $element->appendChild($this->getDocument()->createTextNode(self::text($value)));
+        $element->appendChild($this->getDocument()->createTextNode(self::cleanText($value)));
 
         return $element;
+    }
+
+    /**
+     * Drop carriage returns, tabs and the other control characters except line
+     * feeds, and replace invalid UTF-8 with U+FFFD whatever the mbstring
+     * substitution setting. DOM writes a value holding a control character XML
+     * forbids, or invalid UTF-8, as empty.
+     */
+    public static function cleanText(string $value): string
+    {
+        if (!mb_check_encoding($value, 'UTF-8')) {
+            $value = UConverter::transcode($value, 'UTF-8', 'UTF-8');
+        }
+
+        return self::regexRemove('/[\x00-\x09\x0B-\x1F]/', $value);
     }
 
     public function createElementTextFieldEmpty(string $name, string $value, string $validationText): DOMElement
@@ -376,7 +392,7 @@ class ErxXmlBuilder
         }
 
         $element = $this->getDocument()->createElement('Account');
-        $element->setAttribute('ID', self::text($this->getGlobals()->getAccountId()));
+        $element->setAttribute('ID', self::cleanText($this->getGlobals()->getAccountId()));
         $element->appendChild($this->createElementTextFieldEmpty('accountName', $this->trimData($this->stripSpecialCharacter(self::field($facility, 'name')), 35), xl('Facility Name')));
         $element->appendChild($this->createElementText('siteID', self::field($facility, 'federal_ein')));
         $element->appendChild($this->getAccountAddress($facility));
@@ -436,7 +452,7 @@ class ErxXmlBuilder
         $fax = self::regexRemove('/[^0-9]/', self::field($userFacility, 'fax'));
 
         $element = $this->getDocument()->createElement('Location');
-        $element->setAttribute('ID', self::text(self::field($userFacility, 'id')));
+        $element->setAttribute('ID', self::cleanText(self::field($userFacility, 'id')));
         $element->appendChild($this->createElementText('locationName', $this->trimData($this->stripSpecialCharacter(self::field($userFacility, 'name')), 35)));
         $element->appendChild($this->getLocationAddress($userFacility));
         if (self::field($userFacility, 'phone') !== '') {
@@ -477,7 +493,7 @@ class ErxXmlBuilder
         $userDetails = $this->getStore()->getUserById($authUserId);
 
         $element = $this->getDocument()->createElement('Staff');
-        $element->setAttribute('ID', self::text(self::field($userDetails, 'username')));
+        $element->setAttribute('ID', self::cleanText(self::field($userDetails, 'username')));
         $element->appendChild($this->getStaffName($userDetails));
         $element->appendChild($this->createElementText('license', self::field($userDetails, 'state_license_number')));
 
@@ -748,7 +764,7 @@ class ErxXmlBuilder
         $patientData = $this->getStore()->getPatientByPatientId($patientId);
 
         $element = $this->getDocument()->createElement('Patient');
-        $element->setAttribute('ID', self::text(self::field($patientData, 'pid')));
+        $element->setAttribute('ID', self::cleanText(self::field($patientData, 'pid')));
         $element->appendChild($this->getPatientName($patientData));
         $element->appendChild($this->getPatientAddress($patientData));
         $element->appendChild($this->getPatientContact($patientData));
@@ -891,7 +907,7 @@ class ErxXmlBuilder
         $upin = self::field($userDetails, 'upin');
 
         $element = $this->getDocument()->createElement($tagName);
-        $element->setAttribute('ID', self::text($npi));
+        $element->setAttribute('ID', self::cleanText($npi));
         $element->appendChild($this->getLicensedPrescriberName($userDetails, $prescriberType, $prefix));
         $element->appendChild($this->createElementTextFieldEmpty('dea', self::field($userDetails, 'federaldrugid'), $deaText));
         if ($upin !== '') {
@@ -944,16 +960,6 @@ class ErxXmlBuilder
         }
 
         throw new UnexpectedValueException('Ensora eRx values must be strings or numbers');
-    }
-
-    /**
-     * Drop carriage returns, tabs and the other control characters except line
-     * feeds, and replace invalid UTF-8 with '?'. DOM writes a value holding a
-     * control character XML forbids, or invalid UTF-8, as empty.
-     */
-    private static function text(string $value): string
-    {
-        return self::regexRemove('/[\x00-\x09\x0B-\x1F]/', mb_scrub($value, 'UTF-8'));
     }
 
     private static function regexRemove(string $pattern, string $subject): string

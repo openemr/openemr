@@ -83,13 +83,41 @@ class ErxPageTest extends TestCase
 
     public function testTheErrorLogRedactsThePassword(): void
     {
-        $siteDirectory = sys_get_temp_dir() . '/erx-page-test-' . bin2hex(random_bytes(4));
-        $globals = $this->createStub(ErxGlobalsInterface::class);
-        $globals->method('getOpenEMRSiteDirectory')->willReturn($siteDirectory);
-        $globals->method('getCredentials')->willReturn(['partner', 'account', 'p&ss<1']);
         $xml = '<NCScript><password>p&amp;ss&lt;1</password></NCScript>';
         $page = '<form action="RxEntry.aspx"><textarea>Error: bad password Original XML: '
             . '&lt;password&gt;p&amp;amp;ss&amp;lt;1&lt;/password&gt; raw p&ss<1</textarea>';
+
+        $log = $this->errorLogFor('p&ss<1', $xml, $page);
+
+        $this->assertStringNotContainsString('ss<1', $log);
+        $this->assertStringNotContainsString('ss&lt;1', $log);
+        $this->assertStringNotContainsString('ss&amp;lt;1', $log);
+        $this->assertSame(3, substr_count($log, '[redacted]'));
+    }
+
+    public function testTheErrorLogRedactsThePasswordAsTheRequestCleanedIt(): void
+    {
+        $password = 'p' . chr(9) . 'ss<1';
+        $builder = new ErxXmlBuilder(null, null, new Client());
+        $builder->getNCScript()->appendChild($builder->createElementText('password', $password));
+        $xml = (new ErxPage($builder))->getXML();
+        $this->assertStringContainsString('pss&lt;1', $xml);
+
+        $log = $this->errorLogFor($password, $xml, '<form action="RxEntry.aspx"><textarea>Error: bad password Original XML:');
+
+        $this->assertStringNotContainsString('pss&lt;1', $log);
+        $this->assertSame(1, substr_count($log, '[redacted]'));
+    }
+
+    /**
+     * The error log checkError() writes for a failed request.
+     */
+    private function errorLogFor(string $password, string $xml, string $page): string
+    {
+        $siteDirectory = sys_get_temp_dir() . '/erx-page-test-' . bin2hex(random_bytes(4));
+        $globals = $this->createStub(ErxGlobalsInterface::class);
+        $globals->method('getOpenEMRSiteDirectory')->willReturn($siteDirectory);
+        $globals->method('getCredentials')->willReturn(['partner', 'account', $password]);
 
         try {
             (new ErxPage($this->builderReturning($page, $globals)))->checkError($xml);
@@ -99,10 +127,8 @@ class ErxPageTest extends TestCase
         }
 
         $this->assertIsString($log);
-        $this->assertStringNotContainsString('ss<1', $log);
-        $this->assertStringNotContainsString('ss&lt;1', $log);
-        $this->assertStringNotContainsString('ss&amp;lt;1', $log);
-        $this->assertSame(3, substr_count($log, '[redacted]'));
+
+        return $log;
     }
 
     private function builderReturning(string $page, ?ErxGlobalsInterface $globals = null): ErxXmlBuilder
