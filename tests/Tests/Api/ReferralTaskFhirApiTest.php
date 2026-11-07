@@ -266,6 +266,9 @@ class ReferralTaskFhirApiTest extends TestCase
         ];
     }
 
+    /**
+     * A Task this service set aside isn't the recipient's answer, and only their refusal can be re-sent.
+     */
     #[DataProvider('recipientAnswers')]
     public function testOnlyTheRecipientsOwnRefusalCanBeReSent(string $status, ?string $reason, bool $resendable): void
     {
@@ -274,7 +277,6 @@ class ReferralTaskFhirApiTest extends TestCase
         $this->assertIsString($task);
         (new TaskService())->update($task, ['status' => $status, 'status_reason' => $reason], null);
 
-        // A Task this service set aside doesn't count for the recipient, so nothing is left to follow on from.
         $this->assertSame($resendable ? $task : null, $this->service()->resendableTask($id));
     }
 
