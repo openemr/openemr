@@ -90,6 +90,9 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         SessionWrapperFactory::getInstance()->getActiveSession()->remove('authUserID');
     }
 
+    /**
+     * Removes the patient, its requests and responses, the questionnaire and the client these tests create.
+     */
     private function removeTestRows(): void
     {
         $pids = QueryUtils::fetchTableColumn('SELECT `pid` FROM `patient_data` WHERE `pubpid` = ?', 'pid', [self::PUBPID]);
@@ -143,6 +146,9 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         ]);
     }
 
+    /**
+     * How many questionnaire responses the test patient has in the chart.
+     */
     private function storedResponseCount(): int
     {
         $count = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS c FROM `questionnaire_response` WHERE `patient_id` = ?', 'c', [$this->pid]);
@@ -155,6 +161,9 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         return UuidRegistry::getRegistryRecordForUuid($uuid) !== [];
     }
 
+    /**
+     * Approval stores the response under the request uuid with the patient as its source.
+     */
     public function testApprovalWritesTheResponseUnderTheIdTheAppWasGiven(): void
     {
         $held = $this->heldResponse();
@@ -182,6 +191,9 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         $this->assertSame('Patient/' . $this->patientUuid, $json['source']['reference'] ?? null, 'the patient answered');
     }
 
+    /**
+     * A response whose Questionnaire is gone rolls back and leaves no registered id.
+     */
     public function testAFailedWriteLeavesTheRequestPendingWithNothingWritten(): void
     {
         $held = $this->heldResponse();
@@ -200,6 +212,9 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         $this->assertFalse($this->registered($held->uuid), 'the issued id is not left registered');
     }
 
+    /**
+     * A held vital sign has no applier yet and stays pending.
+     */
     public function testATypeThatCannotBeApprovedYetStaysPending(): void
     {
         $held = $this->hold(PatientWritableType::VitalSignObservation, [
@@ -221,6 +236,9 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         $this->assertSame(ReviewStatus::Pending, $this->queue->get($held->id)->status);
     }
 
+    /**
+     * The list names the app and client type, shows answers and flags a repeated reading.
+     */
     public function testTheReviewListShowsTheAppItsClientTypeAnswersAndPossibleDuplicates(): void
     {
         QueryUtils::sqlStatementThrowException(

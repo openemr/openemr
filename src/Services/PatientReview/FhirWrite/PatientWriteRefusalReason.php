@@ -28,6 +28,9 @@ enum PatientWriteRefusalReason
     /** The app already has as many writes waiting for review for the patient as it may. */
     case TooManyOpen;
 
+    /**
+     * The HTTP status the app is answered with.
+     */
     public function httpStatus(): int
     {
         return match ($this) {

@@ -52,6 +52,9 @@ final class FhirWriteReviewHandler implements ReviewHandlerInterface
         return $this->applierFor($request) !== null;
     }
 
+    /**
+     * Writes the approved request through its type's applier; a type without one is refused.
+     */
     public function apply(ReviewRequest $request, ReviewActor $reviewer): void
     {
         $applier = $this->applierFor($request)
@@ -59,6 +62,9 @@ final class FhirWriteReviewHandler implements ReviewHandlerInterface
         $applier->apply($request);
     }
 
+    /**
+     * The applier for a fhir-write request's resource type, if there is one.
+     */
     private function applierFor(ReviewRequest $request): ?PatientWriteApplierInterface
     {
         if ($request->type !== ReviewType::FhirWrite || $request->resourceType === null) {

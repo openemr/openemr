@@ -113,6 +113,9 @@ final class PatientWriteFields
         return $resource;
     }
 
+    /**
+     * Whether any category coding is the observation-category vital-signs code.
+     */
     private function hasVitalSignsCategory(mixed $categories): bool
     {
         if (!is_array($categories)) {

@@ -88,6 +88,9 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         return array_map($this->mapper->toRequest(...), $rows);
     }
 
+    /**
+     * Counts pending and awaiting-payment requests the client submitted for the patient.
+     */
     public function countOpenForClient(int $pid, ReviewType $type, string $clientId): int
     {
         $row = QueryUtils::querySingleRow(

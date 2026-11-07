@@ -80,6 +80,9 @@ final readonly class PatientWriteReviewQuery
         return ['items' => $items, 'total' => $this->countPending()];
     }
 
+    /**
+     * How many fhir-write requests are waiting, including those past the first page.
+     */
     private function countPending(): int
     {
         $total = QueryUtils::fetchSingleValue(
@@ -110,6 +113,9 @@ final readonly class PatientWriteReviewQuery
         return is_string($name) && $name !== '' ? $name : null;
     }
 
+    /**
+     * The client type from oauth_clients.is_confidential; null when the client is gone.
+     */
     private static function clientType(mixed $isConfidential): ?PatientWriteClientType
     {
         return match (true) {
@@ -119,6 +125,9 @@ final readonly class PatientWriteReviewQuery
         };
     }
 
+    /**
+     * A database value as text; anything that isn't a string or integer is empty.
+     */
     private static function text(mixed $value): string
     {
         return is_string($value) ? $value : (is_int($value) ? (string) $value : '');

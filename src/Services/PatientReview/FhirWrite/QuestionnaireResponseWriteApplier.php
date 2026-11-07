@@ -33,6 +33,9 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
         return PatientWritableType::QuestionnaireResponse;
     }
 
+    /**
+     * Parses the held response and saves it under the request uuid; any failure throws.
+     */
     public function apply(ReviewRequest $request): void
     {
         $json = $request->payload;

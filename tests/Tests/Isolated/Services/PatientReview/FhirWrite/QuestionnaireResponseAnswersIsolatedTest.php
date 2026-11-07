@@ -60,6 +60,9 @@ class QuestionnaireResponseAnswersIsolatedTest extends TestCase
         $this->assertSame([], QuestionnaireResponseAnswers::of(['item' => 'not a list']));
     }
 
+    /**
+     * Items nested past the depth limit are not followed.
+     */
     public function testNestingStopsAtTheDepthLimit(): void
     {
         $item = ['linkId' => 'deepest', 'text' => 'Deepest', 'answer' => [['valueString' => 'x']]];

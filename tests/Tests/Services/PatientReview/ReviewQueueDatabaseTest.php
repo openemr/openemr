@@ -236,6 +236,9 @@ class ReviewQueueDatabaseTest extends TestCase
         $repository->lockTarget('users', '1');
     }
 
+    /**
+     * The count is per client and patient, and a denied request stops counting.
+     */
     public function testSubmitWithinLimitCountsOnlyTheClientsOpenRequests(): void
     {
         $this->insertPatient();
@@ -260,6 +263,9 @@ class ReviewQueueDatabaseTest extends TestCase
         $this->assertSame(1, $repository->countOpenForClient(self::PID, ReviewType::FhirWrite, 'client-a'));
     }
 
+    /**
+     * A write for a patient who doesn't exist is refused before anything is stored.
+     */
     public function testSubmitWithinLimitCreatesNothingForAMissingPatient(): void
     {
         $service = ReviewQueueFactory::create();

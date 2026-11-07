@@ -69,6 +69,9 @@ class PatientWriteHoldIsolatedTest extends TestCase
         );
     }
 
+    /**
+     * The hold step with the given mode, and every type enabled unless one is named.
+     */
     private function hold(
         PatientWriteMode $mode = PatientWriteMode::ConfidentialAndPublic,
         ?PatientWritableType $enabled = null,
@@ -116,6 +119,9 @@ class PatientWriteHoldIsolatedTest extends TestCase
         ];
     }
 
+    /**
+     * Asserts the write is refused for the reason given and adds nothing to the queue.
+     */
     private function assertRefused(PatientWriteRefusalReason $reason, callable $write): void
     {
         $before = $this->queue->countPending();
@@ -333,6 +339,9 @@ class PatientWriteHoldIsolatedTest extends TestCase
         );
     }
 
+    /**
+     * The 51st waiting write from one app is refused with 429.
+     */
     public function testTheAppIsRefusedOnceItHasTheLimitOfWritesWaiting(): void
     {
         $hold = $this->hold();
@@ -371,6 +380,9 @@ class PatientWriteHoldIsolatedTest extends TestCase
         $this->assertNotSame('', $reason->diagnostics());
     }
 
+    /**
+     * The context needs a lower-case uuid, a client id and a patient actor.
+     */
     public function testTheContextRefusesAnythingButAPatientWithAUuidAndAClient(): void
     {
         $patient = ReviewActor::patient(self::PID, 'ann7');

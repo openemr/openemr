@@ -181,6 +181,9 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertSame(['patient_data|' . self::PID, 'patient_data|' . self::PID], $this->store->locks);
     }
 
+    /**
+     * At the limit nothing is added or audited, whatever the resource type.
+     */
     public function testSubmitWithinLimitRefusesAtTheLimitAndAddsNothing(): void
     {
         $service = $this->service();
@@ -220,6 +223,9 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertSame(ReviewStatus::Pending, $again->status, 'a decided request no longer counts');
     }
 
+    /**
+     * A portal submission or a limit below 1 is a programming error.
+     */
     public function testSubmitWithinLimitNeedsAClientAndALimitOfAtLeastOne(): void
     {
         $service = $this->service();

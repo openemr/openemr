@@ -65,6 +65,9 @@ final class PatientWriteSummary
         return self::text($first['display'] ?? null) ?? self::text($first['code'] ?? null);
     }
 
+    /**
+     * App text on one line with surrounding space removed; null when there is none.
+     */
     private static function text(mixed $value): ?string
     {
         if (!is_string($value)) {

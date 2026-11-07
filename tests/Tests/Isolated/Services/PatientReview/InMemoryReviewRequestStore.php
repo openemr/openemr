@@ -113,6 +113,9 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         return $open;
     }
 
+    /**
+     * Counts the open requests the client submitted for the patient.
+     */
     public function countOpenForClient(int $pid, ReviewType $type, string $clientId): int
     {
         $count = 0;

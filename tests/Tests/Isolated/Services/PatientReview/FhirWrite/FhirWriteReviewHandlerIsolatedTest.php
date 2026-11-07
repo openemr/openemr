@@ -46,6 +46,9 @@ class FhirWriteReviewHandlerIsolatedTest extends TestCase
         $this->applied = new \ArrayObject();
     }
 
+    /**
+     * An applier that records the uuid it wrote, or throws when told to fail.
+     */
     private function applier(PatientWritableType $type, bool $fails = false): PatientWriteApplierInterface
     {
         return new class ($type, $fails, $this->applied) implements PatientWriteApplierInterface {
@@ -64,6 +67,9 @@ class FhirWriteReviewHandlerIsolatedTest extends TestCase
                 return $this->type;
             }
 
+            /**
+             * Records the request, or throws to stand in for a failed chart write.
+             */
             public function apply(ReviewRequest $request): void
             {
                 if ($this->fails) {
@@ -126,6 +132,9 @@ class FhirWriteReviewHandlerIsolatedTest extends TestCase
         $this->assertSame([$vital->uuid], $this->applied->getArrayCopy(), 'written under the id the app was given');
     }
 
+    /**
+     * A type without an applier is refused and nothing is written.
+     */
     public function testATypeWithNoApplierCannotBeApprovedAndStaysPending(): void
     {
         $handler = new FhirWriteReviewHandler([$this->applier(PatientWritableType::QuestionnaireResponse)]);
@@ -146,6 +155,9 @@ class FhirWriteReviewHandlerIsolatedTest extends TestCase
         $this->assertSame([], $this->applied->getArrayCopy());
     }
 
+    /**
+     * An applier that throws rolls the approval back.
+     */
     public function testAFailedWriteLeavesTheRequestPending(): void
     {
         $handler = new FhirWriteReviewHandler([$this->applier(PatientWritableType::QuestionnaireResponse, fails: true)]);

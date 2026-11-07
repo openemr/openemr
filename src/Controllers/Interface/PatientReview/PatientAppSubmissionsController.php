@@ -51,6 +51,9 @@ final readonly class PatientAppSubmissionsController
     ) {
     }
 
+    /**
+     * Renders the list, after applying an approve or deny the page posted.
+     */
     public function dispatchAction(Request $request): Response
     {
         if (!AclMain::aclCheckCore('patients', 'med')) {
@@ -135,6 +138,9 @@ final readonly class PatientAppSubmissionsController
         }
     }
 
+    /**
+     * The signed-in user, as the queue records who decided.
+     */
     private function reviewer(): ReviewActor
     {
         $userId = $this->session->get('authUserID');
