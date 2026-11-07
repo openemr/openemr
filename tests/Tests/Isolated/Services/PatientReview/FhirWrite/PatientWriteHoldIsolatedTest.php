@@ -387,10 +387,10 @@ class PatientWriteHoldIsolatedTest extends TestCase
     {
         $patient = ReviewActor::patient(self::PID, 'ann7');
         $attempts = [
-            'patient id not a uuid' => static fn(): \OpenEMR\Services\PatientReview\FhirWrite\PatientWriteContext => new PatientWriteContext('42', self::CLIENT, PatientWriteClientType::Public, $patient),
-            'upper-case uuid' => static fn(): \OpenEMR\Services\PatientReview\FhirWrite\PatientWriteContext => new PatientWriteContext(strtoupper(self::PATIENT), self::CLIENT, PatientWriteClientType::Public, $patient),
-            'no client' => static fn(): \OpenEMR\Services\PatientReview\FhirWrite\PatientWriteContext => new PatientWriteContext(self::PATIENT, '', PatientWriteClientType::Public, $patient),
-            'staff actor' => static fn(): \OpenEMR\Services\PatientReview\FhirWrite\PatientWriteContext => new PatientWriteContext(self::PATIENT, self::CLIENT, PatientWriteClientType::Public, ReviewActor::user(3, 'drsmith')),
+            'patient id not a uuid' => static fn(): PatientWriteContext => new PatientWriteContext('42', self::CLIENT, PatientWriteClientType::Public, $patient),
+            'upper-case uuid' => static fn(): PatientWriteContext => new PatientWriteContext(strtoupper(self::PATIENT), self::CLIENT, PatientWriteClientType::Public, $patient),
+            'no client' => static fn(): PatientWriteContext => new PatientWriteContext(self::PATIENT, '', PatientWriteClientType::Public, $patient),
+            'staff actor' => static fn(): PatientWriteContext => new PatientWriteContext(self::PATIENT, self::CLIENT, PatientWriteClientType::Public, ReviewActor::user(3, 'drsmith')),
         ];
         foreach ($attempts as $label => $attempt) {
             try {
