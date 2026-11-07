@@ -586,6 +586,58 @@ class ReferralTaskService
     }
 
     /**
+     * What's wrong with a PUT to a referral's own Task, by FHIR element: it keeps the referral it's
+     * for, who it's for, and the code and missing parent that make it the referral's. Changing them
+     * would quietly take the Task out of the referral: its recipient's notices would stop, and the
+     * next save of the referral would cancel it. A referral is sent elsewhere from its Refer To.
+     * Empty for any other Task, a lab order's among them.
+     *
+     * @param array<mixed> $stored the Task as TaskService::getForWrite() reads it
+     * @param array<string, string|null> $fields the task fields of the PUT
+     * @return array<string, string>
+     */
+    public function writeProblems(array $stored, array $fields): array
+    {
+        $focus = self::isReferralTask($stored) && is_string($stored['focus_uuid'] ?? null) ? $stored['focus_uuid'] : null;
+        if ($focus === null) {
+            return [];
+        }
+        $problems = self::lockedChanges($stored, $fields);
+        // Looked up last: nearly every PUT changes none of these, and the referral's query is the costly part.
+        return $problems === [] || $this->getReferralService()->getReferralByUuid($focus) === null ? [] : $problems;
+    }
+
+    /**
+     * The elements a PUT changes that a referral's own Task keeps. An owner it never had can be set,
+     * as an API client's Task may start without one.
+     *
+     * @param array<mixed> $stored
+     * @param array<string, string|null> $fields
+     * @return array<string, string>
+     */
+    public static function lockedChanges(array $stored, array $fields): array
+    {
+        $same = static function (string $column) use ($stored, $fields): bool {
+            $before = $stored[$column] ?? null;
+            return strcasecmp(is_string($before) ? $before : '', $fields[$column] ?? '') === 0;
+        };
+        $problems = [];
+        if (!$same('code')) {
+            $problems['code'] = "Task.code can't change on a referral's Task";
+        }
+        if (!$same('focus_type') || !$same('focus_uuid')) {
+            $problems['focus'] = "Task.focus can't change on a referral's Task";
+        }
+        if (($stored['owner_uuid'] ?? null) !== null && (!$same('owner_type') || !$same('owner_uuid'))) {
+            $problems['owner'] = "Task.owner can't change on a referral's Task: send the referral elsewhere from its Refer To";
+        }
+        if (($fields['part_of_uuid'] ?? null) !== null) {
+            $problems['partOf'] = "Task.partOf can't be set on a referral's Task";
+        }
+        return $problems;
+    }
+
+    /**
      * The message taskStatusChanged() files: to Refer By, about the Task's new status.
      *
      * @param array<string, mixed> $task
