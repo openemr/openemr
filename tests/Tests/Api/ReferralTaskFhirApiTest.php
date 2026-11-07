@@ -626,6 +626,39 @@ class ReferralTaskFhirApiTest extends TestCase
         $this->assertSame([$referral], self::ids($this->search('ServiceRequest', ['patient' => $this->patient['uuid'], '_lastUpdated' => 'gt2026-06-01'])));
     }
 
+    /**
+     * A lower bound narrows the referrals before they're grouped, by the transaction's date or its
+     * Tasks' last change, and has to find just what the last update itself would.
+     */
+    public function testASearchByLastUpdateFindsWhatEitherDateMoved(): void
+    {
+        $patient = ['patient' => $this->patient['uuid']];
+        $byTask = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'by its Task']);
+        $task = $this->createTask($byTask);
+        $this->assertIsString($task);
+        $byDate = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'body' => 'by its date']);
+        $this->assertNull($this->createTask($byDate), 'it has no recipient, but gets its uuid');
+        $neither = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'neither']);
+        $old = $this->createTask($neither);
+        $this->assertIsString($old);
+        $sql = 'UPDATE task SET last_modified = ? WHERE uuid = ?';
+        QueryUtils::sqlStatementThrowException($sql, ['2026-02-01 09:00:00', UuidRegistry::uuidToBytes($old)]);
+        QueryUtils::sqlStatementThrowException($sql, ['2026-08-01 09:00:00', UuidRegistry::uuidToBytes($task)]);
+        QueryUtils::sqlStatementThrowException('UPDATE transactions SET date = ? WHERE id IN (?, ?)', ['2026-01-05 09:00:00', $byTask, $neither]);
+        QueryUtils::sqlStatementThrowException('UPDATE transactions SET date = ? WHERE id = ?', ['2026-08-01 09:00:00', $byDate]);
+        $recent = [$this->referralUuid($byTask), $this->referralUuid($byDate)];
+        $all = [...$recent, $this->referralUuid($neither)];
+
+        foreach (['gt', 'ge', 'sa'] as $comparator) {
+            $this->assertSame($recent, self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => $comparator . '2026-06-01'])), $comparator);
+            $this->assertSame([], self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => $comparator . '2026-09-01'])), $comparator);
+            $this->assertSame($all, self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => $comparator . '2026-01-01'])), $comparator);
+        }
+        $this->assertSame([$this->referralUuid($neither)], self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => 'lt2026-06-01'])), 'an upper bound');
+        $this->assertSame($recent, self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => 'eq2026-08-01'])), 'an exact day');
+        $this->assertSame($all, self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => 'lt2026-06-01,gt2026-06-01'])), 'alternatives');
+    }
+
     public function testDeletingAReferralCancelsItsOpenTask(): void
     {
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
