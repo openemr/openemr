@@ -27,6 +27,9 @@ enum PatientWritableType
     case AllergyIntolerance;
     case Condition;
 
+    /**
+     * The site setting that opens this type to patient app writes.
+     */
     public function setting(): GlobalConnectorsEnum
     {
         return match ($this) {
@@ -37,6 +40,9 @@ enum PatientWritableType
         };
     }
 
+    /**
+     * The FHIR resource type a held write of this kind is filed under in the review queue.
+     */
     public function fhirResourceType(): FhirResourceType
     {
         return new FhirResourceType(match ($this) {

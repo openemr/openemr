@@ -22,6 +22,9 @@ enum PatientWriteMode: string
     case Confidential = 'confidential';
     case ConfidentialAndPublic = 'confidential_public';
 
+    /**
+     * Whether this mode lets the given kind of client submit writes. Off refuses every client.
+     */
     public function allowsClient(PatientWriteClientType $client): bool
     {
         return match ($this) {

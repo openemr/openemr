@@ -53,6 +53,9 @@ class PatientWritePolicyIsolatedTest extends TestCase
         $this->assertSame($expected, $policy->allowsWrite($client, PatientWritableType::QuestionnaireResponse));
     }
 
+    /**
+     * A site opens each type separately, so a client mode alone never opens a type.
+     */
     public function testATypeLeftOffIsRefusedInEveryMode(): void
     {
         foreach (PatientWriteMode::cases() as $mode) {
@@ -62,6 +65,9 @@ class PatientWritePolicyIsolatedTest extends TestCase
         }
     }
 
+    /**
+     * A site that has never saved these settings has no rows for them, and must stay closed.
+     */
     public function testNothingIsOpenWhenNoSettingsAreStored(): void
     {
         $policy = PatientWritePolicy::fromGlobals(new ParameterBag());
@@ -73,6 +79,9 @@ class PatientWritePolicyIsolatedTest extends TestCase
         }
     }
 
+    /**
+     * A bad stored mode must not open writes, even with a type switched on.
+     */
     public function testAnUnrecognizedStoredModeIsTreatedAsOff(): void
     {
         $policy = PatientWritePolicy::fromGlobals(new ParameterBag([
@@ -108,6 +117,9 @@ class PatientWritePolicyIsolatedTest extends TestCase
         $this->assertSame([], $policy->advertisedTypes());
     }
 
+    /**
+     * Two types sharing a setting would open one whenever the other was switched on.
+     */
     public function testEveryTypeHasItsOwnSettingAndAValidResourceType(): void
     {
         $settings = [];
@@ -119,14 +131,34 @@ class PatientWritePolicyIsolatedTest extends TestCase
         $this->assertCount(count($settings), array_unique($settings));
     }
 
-    public function testEverySettingAppearsInTheGlobalsPageDefinitions(): void
+    /**
+     * Off by default is the safety property of this feature, so a default that opened writes has
+     * to fail here. library/globals.inc.php can't be loaded in an isolated test because xl() needs
+     * the database, so this reads each entry from the Connectors group in the source.
+     */
+    public function testEverySettingIsAConnectorsEntryThatDefaultsToOff(): void
     {
         $source = file_get_contents(dirname(__DIR__, 6) . '/library/globals.inc.php');
         $this->assertIsString($source);
+        $this->assertSame(1, preg_match("/^    'Connectors' => \[\n(.*?)^    \],\n/ms", $source, $group));
 
-        $this->assertStringContainsString('GlobalConnectorsEnum::FHIR_PATIENT_WRITE_MODE->value', $source);
+        $mode = $this->settingEntry($group[1], GlobalConnectorsEnum::FHIR_PATIENT_WRITE_MODE);
+        $this->assertStringContainsString("],\n            PatientWriteMode::Off->value,\n", $mode);
+
         foreach (PatientWritableType::cases() as $type) {
-            $this->assertStringContainsString('GlobalConnectorsEnum::' . $type->setting()->name . '->value', $source, $type->name);
+            $entry = $this->settingEntry($group[1], $type->setting());
+            $this->assertStringContainsString("'bool',\n            '0',\n", $entry, $type->name);
         }
+    }
+
+    /**
+     * The source text of one setting's entry in a globals group.
+     */
+    private function settingEntry(string $group, GlobalConnectorsEnum $setting): string
+    {
+        $pattern = '/^        GlobalConnectorsEnum::' . $setting->name . '->value => \[\n(.*?)^        \],\n/ms';
+        $this->assertSame(1, preg_match($pattern, $group, $entry), $setting->name);
+
+        return $entry[1];
     }
 }

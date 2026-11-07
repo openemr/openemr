@@ -54,6 +54,9 @@ final readonly class PatientWritePolicy
         return new self($mode, $enabledTypes);
     }
 
+    /**
+     * Whether this client may submit this type. Both the mode and the type's setting must allow it.
+     */
     public function allowsWrite(PatientWriteClientType $client, PatientWritableType $type): bool
     {
         return $this->mode->allowsClient($client) && in_array($type, $this->enabledTypes, true);
