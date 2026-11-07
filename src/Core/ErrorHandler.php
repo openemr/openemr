@@ -37,6 +37,10 @@ use const E_USER_DEPRECATED;
 
 readonly class ErrorHandler
 {
+    // Error bodies are plain text. Without this PHP sends text/html, and the
+    // exception string shown when error display is on would render as HTML.
+    private const BODY_CONTENT_TYPE = 'text/plain; charset=utf-8';
+
     private bool $isCli;
 
     public function __construct(
@@ -141,6 +145,7 @@ readonly class ErrorHandler
             // A Content-Length copied from the exception would not match the new body.
             return $response
                 ->withoutHeader('Content-Length')
+                ->withHeader('Content-Type', self::BODY_CONTENT_TYPE)
                 ->withBody($this->sf->createStream($message));
         }
 
@@ -151,6 +156,7 @@ readonly class ErrorHandler
         }
 
         return $this->rf->createResponse(500)
+            ->withHeader('Content-Type', self::BODY_CONTENT_TYPE)
             ->withBody($this->sf->createStream($message));
     }
 

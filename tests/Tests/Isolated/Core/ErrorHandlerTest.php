@@ -118,6 +118,15 @@ class ErrorHandlerTest extends TestCase
 
         self::assertSame(404, $response->getStatusCode());
         self::assertSame('Not Found', (string) $response->getBody());
+        self::assertSame('text/plain; charset=utf-8', $response->getHeaderLine('Content-Type'));
+    }
+
+    public function testHttpExceptionResponseReplacesContentType(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new HttpException(404, headers: ['Content-Type' => 'text/html']));
+
+        self::assertSame('text/plain; charset=utf-8', $response->getHeaderLine('Content-Type'));
     }
 
     public function testHttpExceptionResponseKeepsHeaders(): void
@@ -166,6 +175,7 @@ class ErrorHandlerTest extends TestCase
 
         self::assertSame(500, $response->getStatusCode());
         self::assertSame('An error has occurred.', (string) $response->getBody());
+        self::assertSame('text/plain; charset=utf-8', $response->getHeaderLine('Content-Type'));
     }
 
     // handleException() cannot be unit tested because it calls exit() which
