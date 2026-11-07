@@ -14,14 +14,18 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\SMART\ResourceConstraintFilterer;
 use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\FHIR\ApiWriteAction;
+use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\FhirValidationService;
@@ -229,8 +233,34 @@ class FhirGenericRestController implements IGlobalsAware {
             return $fhirResource;
         }
 
+        $auditEnabled = ServiceContainer::getApiWriteAuditService()->shouldAudit($this->request);
         try {
-            $processingResult = $this->getFhirService()->insert($fhirResource);
+            $write = function () use ($fhirResource, $fhirJson, $auditEnabled): Response {
+                $processingResult = $this->getFhirService()->insert($fhirResource);
+                $response = RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
+                if ($auditEnabled && !$response->isSuccessful()) {
+                    throw new FhirWriteResponseException($response);
+                }
+                if ($auditEnabled && $response->getStatusCode() === Response::HTTP_CREATED && $processingResult->hasData()) {
+                    $resource = $this->getFhirResourceForAudit(
+                        $processingResult->getFirstDataResult(),
+                        $fhirResource
+                    );
+                    $this->recordSuccessfulWrite(
+                        $resource,
+                        ApiWriteAction::Create,
+                        patientUuid: $this->getAuditPatientUuid($fhirJson, $resource)
+                    );
+                }
+                return $response;
+            };
+            // TaskService sets isolation before its snapshot read, so it cannot run inside
+            // the controller transaction; its writes manage their own transaction.
+            $response = $this->expectedResourceType === 'Task'
+                ? $write()
+                : QueryUtils::inTransaction($write);
+        } catch (FhirWriteResponseException $e) {
+            return $e->getResponse();
         } catch (\InvalidArgumentException $e) {
             return $this->respondWithSafeError(
                 'invalid',
@@ -256,7 +286,7 @@ class FhirGenericRestController implements IGlobalsAware {
                 'post'
             );
         }
-        return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
+        return $response;
     }
 
     /**
@@ -324,8 +354,65 @@ class FhirGenericRestController implements IGlobalsAware {
             return $fhirResource;
         }
 
+        $auditService = ServiceContainer::getApiWriteAuditService();
+        $auditEnabled = $auditService->shouldAudit($this->request);
+        $captureBeforeSnapshot = $auditEnabled && $this->getGlobalsBag()->getInt('api_write_audit_option') === 2;
+
         try {
-            $processingResult = $this->getFhirService()->update($fhirId, $fhirResource);
+            $write = function () use (
+                $fhirId,
+                $fhirResource,
+                $fhirJson,
+                $auditEnabled,
+                $captureBeforeSnapshot
+            ): Response {
+                $beforeResource = null;
+                if ($captureBeforeSnapshot) {
+                    if ($this->expectedResourceType === 'Patient') {
+                        $fhirService = $this->getFhirService();
+                        if (!$fhirService instanceof FhirPatientService) {
+                            throw new \LogicException('Patient FHIR route is not backed by the Patient service');
+                        }
+                        $fhirService->lockPatientForUpdate($fhirId);
+                    }
+                    try {
+                        $beforeResult = $this->getFhirService()->getOne($fhirId);
+                        $beforeResource = $beforeResult->isValid() && $beforeResult->hasData()
+                            ? $beforeResult->getFirstDataResult()
+                            : null;
+                        if (!$beforeResource instanceof FHIRDomainResource) {
+                            $beforeResource = null;
+                        }
+                    } catch (SqlQueryException) {
+                        $beforeResource = null;
+                    }
+                }
+
+                $processingResult = $this->getFhirService()->update($fhirId, $fhirResource);
+                $response = RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
+                if ($auditEnabled && !$response->isSuccessful()) {
+                    throw new FhirWriteResponseException($response);
+                }
+                if ($auditEnabled && $response->getStatusCode() === Response::HTTP_OK && $processingResult->hasData()) {
+                    $resource = $this->getFhirResourceForAudit(
+                        $processingResult->getFirstDataResult(),
+                        $fhirResource,
+                        $fhirId
+                    );
+                    $this->recordSuccessfulWrite(
+                        $resource,
+                        ApiWriteAction::Update,
+                        $beforeResource,
+                        $this->getAuditPatientUuid($fhirJson, $resource)
+                    );
+                }
+                return $response;
+            };
+            $response = $this->expectedResourceType === 'Task'
+                ? $write()
+                : QueryUtils::inTransaction($write);
+        } catch (FhirWriteResponseException $e) {
+            return $e->getResponse();
         } catch (\InvalidArgumentException $e) {
             return $this->respondWithSafeError(
                 'invalid',
@@ -351,7 +438,77 @@ class FhirGenericRestController implements IGlobalsAware {
                 'put'
             );
         }
-        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
+        return $response;
+    }
+
+    private function recordSuccessfulWrite(
+        FHIRDomainResource $afterResource,
+        ApiWriteAction $action,
+        ?FHIRDomainResource $beforeResource = null,
+        ?string $patientUuid = null
+    ): void {
+        $auditService = ServiceContainer::getApiWriteAuditService();
+        if (!$auditService->shouldAudit($this->request)) {
+            return;
+        }
+        if ($this->expectedResourceType === null) {
+            throw new \LogicException('FHIR write route did not set the expected resource type');
+        }
+        $auditId = $auditService->recordSuccessfulWrite(
+            $this->request,
+            $this->expectedResourceType,
+            $afterResource,
+            $action,
+            $beforeResource,
+            $patientUuid,
+            $this->getGlobalsBag()->getInt('api_write_audit_option')
+        );
+        $this->request->attributes->set('apiWriteAuditId', $auditId);
+    }
+
+    private function getFhirResourceForAudit(
+        mixed $result,
+        FHIRDomainResource $submittedResource,
+        ?string $fallbackUuid = null
+    ): FHIRDomainResource
+    {
+        if ($result instanceof FHIRDomainResource) {
+            return $result;
+        }
+
+        $resourceUuid = is_array($result)
+            ? ($result['uuid'] ?? $result['pc_uuid'] ?? $result['euuid'] ?? null)
+            : null;
+        if (!is_string($resourceUuid) || $resourceUuid === '') {
+            $resourceUuid = $fallbackUuid;
+        }
+        if (!is_string($resourceUuid) || $resourceUuid === '') {
+            throw new \LogicException('Successful FHIR write did not return a resource UUID for auditing');
+        }
+
+        // Insert services return different result shapes, so retain the submitted
+        // resource and replace its ID with the persisted UUID for the audit snapshot.
+        $resourceId = new FHIRId();
+        $resourceId->setValue($resourceUuid);
+        $submittedResource->setId($resourceId);
+
+        return $submittedResource;
+    }
+
+    /**
+     * Resolve the patient represented by the write body, including a Patient
+     * resource whose own id is its patient UUID.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    private function getAuditPatientUuid(array $fhirJson, FHIRDomainResource $resource): ?string
+    {
+        $patientUuid = self::extractPatientUuidFromFhirJson($fhirJson);
+        if ($patientUuid !== null || $this->expectedResourceType !== 'Patient') {
+            return $patientUuid;
+        }
+
+        return $resource->getId()->getValue();
     }
 
     /**
@@ -362,9 +519,7 @@ class FhirGenericRestController implements IGlobalsAware {
      * correlation id; the client gets a generic message + the same id so
      * operators can trace incidents.
      *
-     * Audit-event emission for write paths is intentionally out of scope here
-     * — that's a project-wide concern that needs an EventAuditLogger contract
-     * for FHIR mutations and will land in a separate change.
+     * Failed write requests are not added to the successful-write audit ledger.
      */
     private function respondWithSafeError(
         string $issueCode,

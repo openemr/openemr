@@ -32,6 +32,9 @@ class QueryUtils
     /** @var array<string, list<array<mixed>>> */
     private static array $autoIncrementCache = [];
 
+    private static int $transactionDepth = 0;
+    private static bool $transactionMarkedForRollback = false;
+
     /**
      * Drop memoized schema reads. Required after any DDL executed within the
      * same request (which really shouldn't happen), otherwise subsequent reads
@@ -453,16 +456,35 @@ class QueryUtils
      */
     public static function inTransaction(callable $action): mixed
     {
-        self::startTransaction();
+        $isOutermostTransaction = self::$transactionDepth === 0;
+        if ($isOutermostTransaction) {
+            self::$transactionMarkedForRollback = false;
+            static::startTransaction();
+        }
+        self::$transactionDepth++;
 
         try {
             $return = $action();
 
-            self::commitTransaction();
+            if ($isOutermostTransaction && self::$transactionMarkedForRollback) {
+                throw new \RuntimeException('Cannot commit a transaction after a nested transaction failed');
+            }
+            if ($isOutermostTransaction) {
+                static::commitTransaction();
+            }
             return $return;
         } catch (Throwable $e) {
-            self::rollbackTransaction();
+            if ($isOutermostTransaction) {
+                static::rollbackTransaction();
+            } else {
+                self::$transactionMarkedForRollback = true;
+            }
             throw $e;
+        } finally {
+            self::$transactionDepth--;
+            if ($isOutermostTransaction) {
+                self::$transactionMarkedForRollback = false;
+            }
         }
     }
 

@@ -129,4 +129,25 @@ class MultiSinkTest extends TestCase
         $multiSink = new MultiSink([$sink1, $sink2]);
         $multiSink->record($event);
     }
+
+    public function testRecordReturnsApiLogIdWhenFollowingSinkReturnsNull(): void
+    {
+        $event = $this->createEvent();
+
+        $logTablesSink = $this->createMock(SinkInterface::class);
+        $logTablesSink->expects($this->once())
+            ->method('record')
+            ->with($event)
+            ->willReturn(42);
+
+        $atnaSink = $this->createMock(SinkInterface::class);
+        $atnaSink->expects($this->once())
+            ->method('record')
+            ->with($event)
+            ->willReturn(null);
+
+        $multiSink = new MultiSink([$logTablesSink, $atnaSink]);
+
+        self::assertSame(42, $multiSink->record($event));
+    }
 }
