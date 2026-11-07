@@ -22,6 +22,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 
 final class ReferralResendEndpointTest extends TestCase
 {
@@ -119,6 +120,25 @@ final class ReferralResendEndpointTest extends TestCase
         $response = $this->http->post($this->baseUrl . self::PATH, $request);
         $this->assertSame(302, $response->getStatusCode(), 'its own chart');
         $this->assertStringContainsString('add_transaction.php?transid=' . $referral . '&', $response->getHeaderLine('Location'));
+    }
+
+    /**
+     * A field sent as an array is no referral, or no Task to follow on from: the first is refused
+     * like any other id, the second makes nothing, and neither is a server error.
+     */
+    #[Test]
+    public function aFieldSentAsAnArrayIsNotAServerError(): void
+    {
+        $patient = $this->createPatient();
+        $this->openChart($patient);
+        $referral = $this->saveReferral();
+        $post = fn(array $fields): ResponseInterface => $this->http->post($this->baseUrl . self::PATH, [
+            'allow_redirects' => false,
+            'form_params' => ['csrf_token_form' => $this->token] + $fields,
+        ]);
+
+        $this->assertSame(403, $post(['transid' => [(string)$referral], 'task' => 'not-a-task'])->getStatusCode(), 'an array for the referral');
+        $this->assertSame(302, $post(['transid' => (string)$referral, 'task' => ['not-a-task']])->getStatusCode(), 'an array for the Task');
     }
 
     private function createPatient(): int

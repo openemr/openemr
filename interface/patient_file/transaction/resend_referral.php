@@ -33,8 +33,10 @@ if (!AclMain::aclCheckCore('patients', 'trans', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate('ACL check failed for patients/trans: Transactions', xl('Transactions'));
 }
 
-$post = CurrentRequest::get()->request;
-$transactionId = $post->getInt('transid');
+// Read raw: the bag's typed getters throw on a field sent as an array, which is a server error here.
+$post = CurrentRequest::get()->request->all();
+$transactionId = is_numeric($post['transid'] ?? null) ? (int)$post['transid'] : 0;
+$taskUuid = is_string($post['task'] ?? null) ? $post['task'] : '';
 
 // The referral has to be in the open chart, as add_transaction.php requires of what it edits.
 $chart = $session->get('pid', 0);
@@ -44,6 +46,6 @@ if (!is_numeric($chart) || (int)$chart <= 0 || !is_numeric($owner) || (int)$owne
 }
 
 $userId = $session->get('authUserID');
-(new ReferralTaskService(new UserService()))->resend($transactionId, $post->getString('task'), is_numeric($userId) ? (int)$userId : null);
+(new ReferralTaskService(new UserService()))->resend($transactionId, $taskUuid, is_numeric($userId) ? (int)$userId : null);
 
 header('Location: add_transaction.php?transid=' . urlencode((string)$transactionId) . '&title=' . urlencode(ReferralStatus::FORM_ID) . '&inmode=edit');
