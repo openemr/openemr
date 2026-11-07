@@ -53,27 +53,29 @@ class QueryUtilsTransactionTest extends TestCase
 
     public function testNestedTransactionsUseTheOutermostDatabaseTransaction(): void
     {
+        $expectedResult = bin2hex(random_bytes(8));
         $result = QueryUtilsTransactionRunner::inTransaction(
-            static fn(): string => QueryUtils::inTransaction(static fn(): string => 'saved')
+            static fn(): string => QueryUtils::inTransaction(static fn(): string => $expectedResult)
         );
 
-        $this->assertSame('saved', $result);
+        $this->assertSame($expectedResult, $result);
         $this->assertSame(['begin', 'commit'], QueryUtilsTransactionRunner::$calls);
     }
 
     public function testNestedFailureRollsBackTheOutermostTransaction(): void
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('nested failure');
+
         try {
             QueryUtilsTransactionRunner::inTransaction(
                 static fn(): mixed => QueryUtils::inTransaction(
                     static fn(): never => throw new RuntimeException('nested failure')
                 )
             );
-            $this->fail('The nested exception should propagate');
-        } catch (RuntimeException $exception) {
-            $this->assertSame('nested failure', $exception->getMessage());
+        } finally {
+            $this->assertSame(['begin', 'rollback'], QueryUtilsTransactionRunner::$calls);
         }
-        $this->assertSame(['begin', 'rollback'], QueryUtilsTransactionRunner::$calls);
     }
 
     public function testSwallowedNestedFailureStillPreventsCommit(): void
