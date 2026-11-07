@@ -1703,6 +1703,23 @@ $GLOBALS_METADATA = [
             xl('Expand All Document Categories by Default')
         ],
 
+        'documents_default_view' => [
+            xl('Documents Default View'),
+            [
+                'tree' => xl('Classic folder tree'),
+                'folders' => xl('Folders (only folders in use, with a document list)'),
+            ],
+            'tree',                           // default = classic folder tree
+            xl("Choose the view the Documents page opens in. A user's last choice is remembered in the browser.")
+        ],
+
+        'documents_hide_empty_categories' => [
+            xl('Hide Empty Document Folders by Name'),
+            'text',                           // data type
+            '',                               // default = hide none
+            xl('Optional. Folder names, separated by commas, that are hidden in the Documents page while nothing is filed in them (for example: Eye Module).')
+        ],
+
         'patient_id_category_name' => [
             xl('Patient ID Category Name'),
             'text',                           // data type
