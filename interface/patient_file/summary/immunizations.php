@@ -64,10 +64,10 @@ if (isset($_GET['mode'])) {
         $submittedAdministeredDate = trim(CurrentRequest::get()->query->getString('administered_date'));
         if ($submittedAdministeredDate !== '' && !ImmunizationValidator::isAdministeredDateValid($submittedAdministeredDate)) {
             $administered_date = $submittedAdministeredDate;
-            $administeredDateError = xlt('Date & Time Administered is invalid.');
+            $administeredDateError = 'invalid';
         } elseif (ImmunizationValidator::isAdministeredDateInFuture($submittedAdministeredDate)) {
             $administered_date = $submittedAdministeredDate;
-            $administeredDateError = xlt('Date & Time Administered cannot be in the future.');
+            $administeredDateError = 'future';
         } else {
             $sql = "REPLACE INTO immunizations set
             id = ?,
@@ -428,7 +428,11 @@ tr.selected {
                     }
                     if (isset($administeredDateError)) {
                         echo "<div class='alert alert-danger' role='alert'>";
-                        echo $administeredDateError;
+                        if ($administeredDateError === 'invalid') {
+                            echo xlt('Date & Time Administered is invalid.');
+                        } else {
+                            echo xlt('Date & Time Administered cannot be in the future.');
+                        }
                         echo "</div>";
                     }
                     ?>
