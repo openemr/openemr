@@ -266,8 +266,9 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
             return 'inactive';
         }
 
-        // Check occurrence and outcome for additional status
-        if ($dataRecord['occurrence'] == 1 || $dataRecord['outcome'] == 1) {
+        // Outcome 1 is "Resolved". Occurrence 1 is "First", not a status; the
+        // occurrence values above it are the recurrence kinds.
+        if ($dataRecord['outcome'] == 1) {
             return 'resolved';
         } elseif ($dataRecord['occurrence'] > 1) {
             return 'recurrence';
