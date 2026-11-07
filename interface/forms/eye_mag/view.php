@@ -33,10 +33,12 @@ use function OpenEMR\Forms\EyeMag\Clinical\display_wear_header_cells;
 use function OpenEMR\Forms\EyeMag\Clinical\display_wear_lower_cells;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_dilation_med_options;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_ensure_handout_category;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_document_ids;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_iop_method_options;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_material_ids;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_motility_display_preference;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_prior_refractions;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_report_documents;
 
 require_once(__DIR__ . "/../../globals.php");
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/FeeSheetHtml.class.php");
@@ -222,7 +224,7 @@ $RUL ??= null; $RVFISSURE ??= null; $SCNEARODVA ??= null; $SCNEAROSVA ??= null; 
 $SCOSVA ??= null; $SEVERITY1 ??= null; $SEVERITY2 ??= null; $SEVERITY3 ??= null; $STEREOPSIS ??= null;
 $TIMING1 ??= null; $TIMING2 ??= null; $TIMING3 ??= null; $TROPICAMIDE ??= null; $VERTFUSAMPS ??= null;
 $WETTYPE ??= null; $alert ??= null; $confused ??= null; $encounter_date ??= null; $oriented ??= null;
-$provider_id ??= null;
+$provider_id ??= null; $VF_UNABLE ??= null;
 // End column defaults.
 $id = $form_id;
 
@@ -244,12 +246,14 @@ if ($clinicalBPDD === '' && is_numeric($ODPDMeasured ?? null) && is_numeric($OSP
     $clinicalBPDD = rtrim(rtrim(number_format(EyeFormData::number($ODPDMeasured) + EyeFormData::number($OSPDMeasured), 2, '.', ''), '0'), '.');
 }
 $materialsRow = QueryUtils::querySingleRow(
-    "SELECT content, include_text, handout_document_id, handout_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
+    "SELECT content, include_text, handout_document_id, handout_document_ids, report_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
     [$id, $pid]
 );
 $materialsToPrint = $materialsRow['content'] ?? '';
 $materialsTextIncluded = EyeFormData::integer($materialsRow['include_text'] ?? 0) === 1;
 $materialsHandoutIds = eye_mag_material_ids($materialsRow ?: []);
+$materialsReportIds = eye_mag_document_ids($materialsRow['report_document_ids'] ?? []);
+$materialsReportDocuments = eye_mag_report_documents($pid, $encounter);
 $materialsHandouts = [];
 $materialsHandoutResult = QueryUtils::sqlStatementThrowException(
     "SELECT DISTINCT d.id, d.name, d.url, d.foreign_id
@@ -358,7 +362,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
 
       <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'chart' ]); ?>
-      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/css">
+      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;vfutp=1&amp;overaction=6" type="text/css">
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/dotphrases.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/css">
       <script>window.eyeMagDpCssV = "<?php echo attr(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>";</script>
 
@@ -565,7 +569,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                         <i class="closeButton_4 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes."); ?>"></i>
                           <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Minimize this panel'); ?>" id="BUTTON_TAB_HPI" name="BUTTON_TAB_HPI"></i>
 
-                          <b><?php echo xlt('HPI'); ?>:</b> <i class="fa fa-help"></i><br />
+                          <b><?php echo xlt('HPI'); ?>:</b> <i class="fas fa-question-circle"></i><br />
                           <div id="tabs_wrapper" >
                             <div id="tabs_container">
                               <ul id="tabs">
@@ -942,7 +946,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                     <!-- start  PMH Left -->
                     <div id="PMH_left" name="PMH_left" class="exam_section_left borderShadow">
                       <div id="PMH_left_text" class="TEXT_class">
-                        <b class="left"><?php echo xlt('PMSFH{{Abbreviation for Past medical Surgical Family and Social History}}'); ?>:</b> <i class="fa fa-help"></i><br />
+                        <b class="left"><?php echo xlt('PMSFH{{Abbreviation for Past medical Surgical Family and Social History}}'); ?>:</b> <i class="fas fa-question-circle"></i><br />
                           <a class="closeButton_2 fa fa-list" title="<?php echo xla('Toggle the right-sided PMSFH panel'); ?>" id="right-panel-link" name="right-panel-link" href="#right-panel"></a>
                           <i class="closeButton_3 fa fa-paint-brush" title="<?php echo xla('Open/Close the PMH draw panel'); ?>" id="BUTTON_DRAW_PMH" name="BUTTON_DRAW_PMH"></i>
                         <i class="closeButton_4 fa fa-database" title="<?php echo xla('Open/Close the PMSFH panel'); ?>" id="BUTTON_QP_PMH" name="BUTTON_QP_PMH"></i>
@@ -1511,12 +1515,14 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             }
                         }
 
-                        if (!$bad) {
+                        if (!$bad && EyeFormData::integer($VF_UNABLE) !== 1) {
                             $VFFTCF = "checked";
                         }
                         ?>
                     <div id="Lyr60">
-                                <label for="FieldsNormal" class="input-helper input-helper--checkbox"><?php echo xlt('FTCF{{Full to count fingers}}'); ?></label>
+                                <label for="VF_UNABLE" class="input-helper input-helper--checkbox" title="<?php echo xla('Unable to perform'); ?>"><?php echo xlt('UTP'); ?></label>
+                                <input id="VF_UNABLE" name="VF_UNABLE" type="checkbox" value="1" title="<?php echo xla('Unable to perform'); ?>" <?php echo EyeFormData::integer($VF_UNABLE) === 1 ? 'checked' : ''; ?>>
+                                <label for="FieldsNormal" class="input-helper input-helper--checkbox" title="<?php echo xla('Full to count fingers'); ?>"><?php echo xlt('Full'); ?></label>
                                 <input id="FieldsNormal" type="checkbox" value="1" <?php echo attr($VFFTCF ?? ''); ?>>
                     </div>
                     <div id="Lyr511">
@@ -1797,13 +1803,6 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                           </td>
                           <?php display_wear_comment_tail_cells(); ?>
                         </tr>
-                        <tr>
-                          <td colspan="6">
-                            <textarea id="COMMENTS_1" name="COMMENTS_1" tabindex="111"><?php echo text($wearValues[1]["COMMENTS"] ?? ''); ?></textarea>
-                          </td>
-                          <td colspan="8">
-                          </td>
-                         </tr>
                       </table>
                     </div>
                     <?php
@@ -3479,10 +3478,15 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                 </td>
                             </tr>
                             <tr>
-                              <td class="left">OD</td><td>OS</td>
+                              <td colspan="2">
+                                <div class="motility-eye-headings">
+                                  <span><?php echo xlt('OD{{right eye}}'); ?></span>
+                                  <span><?php echo xlt('OS{{left eye}}'); ?></span>
+                                </div>
+                              </td>
                             </tr>
                             <tr>
-                              <td colspan="2">
+                              <td colspan="2" class="motility-chart-cell">
                                 <input type="hidden" name="MOTILITY_RS"  id="MOTILITY_RS" value="<?php echo attr($MOTILITY_RS); ?>">
                                 <input type="hidden" name="MOTILITY_RI"  id="MOTILITY_RI" value="<?php echo attr($MOTILITY_RI); ?>">
                                 <input type="hidden" name="MOTILITY_RR"  id="MOTILITY_RR" value="<?php echo attr($MOTILITY_RR); ?>">
@@ -3501,6 +3505,12 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                 <input type="hidden" name="MOTILITY_LRIO" id="MOTILITY_LRIO" value="<?php echo attr($MOTILITY_LRIO); ?>">
                                 <input type="hidden" name="MOTILITY_LLSO" id="MOTILITY_LLSO" value="<?php echo attr($MOTILITY_LLSO); ?>">
                                 <input type="hidden" name="MOTILITY_LLIO" id="MOTILITY_LLIO" value="<?php echo attr($MOTILITY_LLIO); ?>">
+
+                                <?php $motilityRow = EyeFormData::row($encounter_data);
+                                foreach (['RRSO', 'RLSO', 'RRIO', 'RLIO', 'LRSO', 'LLSO', 'LRIO', 'LLIO'] as $direction) {
+                                    $overField = 'MOTILITY_' . $direction . '_OVER'; ?>
+                                    <input type="hidden" name="<?php echo attr($overField); ?>" id="<?php echo attr($overField); ?>" value="<?php echo attr((string) max(0, min(4, EyeFormData::integer($motilityRow[$overField] ?? 0)))); ?>">
+                                <?php } ?>
 
                                 <div class="motility-h-charts nodisplay" aria-label="<?php echo xla('H-pattern motility charts'); ?>"></div>
 
@@ -4097,24 +4107,22 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                             foreach ($PMSFH[0]['POH'] as $k => $v) {
                                                 $insert_code = '';
                                                 if ($v['diagnosis'] > '') {
-                                                    $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
+                                                    $insert_code = "<code class='float-right diagnosis'>" . text($v['diagnosis']) . "</code>";
                                                 }
 
                                                 $k = attr(is_int($k) || is_string($k) ? (string) $k : '');
-                                                $title = is_string($v['title'] ?? null) ? $v['title'] : '';
-                                                $insert_code = text($insert_code);
+                                                $title = text(is_string($v['title'] ?? null) ? $v['title'] : '');
                                                 echo "<li class='ui-widget-content'> <span id='DX_POH_" . $k . "' name='DX_POH_" . $k . "'>" . $title . "</span> " . $insert_code . "</li>";
                                             }
 
                                             foreach ($PMSFH[0]['POS'] as $k => $v) {
                                                 $insert_code = '';
                                                 if ($v['diagnosis'] > '') {
-                                                    $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
+                                                    $insert_code = "<code class='float-right diagnosis'>" . text($v['diagnosis']) . "</code>";
                                                 }
 
                                                 $k = attr(is_int($k) || is_string($k) ? (string) $k : '');
-                                                $title = is_string($v['title'] ?? null) ? $v['title'] : '';
-                                                $insert_code = text($insert_code);
+                                                $title = text(is_string($v['title'] ?? null) ? $v['title'] : '');
                                                 echo "<li class='ui-widget-content'> <span id='DX_POS_" . $k . "' name='DX_POS_" . $k . "'>" . $title . "</span> " . $insert_code . "</li>";
                                             }
 
@@ -4122,12 +4130,11 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                 foreach ($PMSFH[0]['PMH'] as $k => $v) {
                                                     $insert_code = '';
                                                     if ($v['diagnosis'] > '') {
-                                                        $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
+                                                        $insert_code = "<code class='float-right diagnosis'>" . text($v['diagnosis']) . "</code>";
                                                     }
 
                                                     $k = attr(is_int($k) || is_string($k) ? (string) $k : '');
-                                                    $title = is_string($v['title'] ?? null) ? $v['title'] : '';
-                                                    $insert_code = text($insert_code);
+                                                    $title = text(is_string($v['title'] ?? null) ? $v['title'] : '');
                                                     echo "<li class='ui-widget-content'> <span id='DX_PMH_" . $k . "' name='DX_PMH_" . $k . "'>" . $title . "</span> " . $insert_code . "</li>";
                                                 }
                                             }
@@ -4256,8 +4263,13 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                           </tr>
 
                                           <tr id="neurosens_code" name="neurosens_code" class="nodisplay">
-                                              <td colspan="3" style="padding-top:5px;padding-left:15px;"><input type="hidden" id="neurosens" style="width:50px;" value="92060" class="">
-                                                  <i class="fa fa-check"></i> 92060 Sensorimotor Exam - no modifier required.
+                                              <td colspan="3" style="padding-top:5px;padding-left:15px;">
+                                                  <label for="CPT_92060_SELECTED" class="input-helper input-helper--checkbox">
+                                                      <input type="checkbox" id="CPT_92060_SELECTED"
+                                                          data-choice="<?php echo attr(EyeFormData::text($encounter_data['CPT_92060_SELECTED'] ?? '')); ?>"
+                                                          data-csrf="<?php echo attr($motilityCsrfToken); ?>">
+                                                      <?php echo xlt('92060 Sensorimotor Exam - no modifier required.'); ?>
+                                                  </label>
                                               </td>
                                           </tr>
 
@@ -4478,7 +4490,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                               </dd>
 
 
-                              <dt class="borderShadow"><span><?php echo xlt('Communication Engine'); ?></span></dt>
+                              <dt class="borderShadow" id="COMMUNICATION_ENGINE"><span><?php echo xlt('Communication Engine'); ?></span></dt>
                               <dd>
                                   <div style="padding:5px 20px 5px 20px;">
                                       <table style="width:100%;">
@@ -4811,6 +4823,36 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                               </div>
                                               </template>
                                           </div>
+                                          <div class="mt-3" id="MATERIALS_REPORT_DOCUMENTS">
+                                              <div class="bold mb-1"><?php echo xlt('Documents to include in the report'); ?></div>
+                                              <small class="text-muted d-block mb-1"><?php echo xlt('Select encounter files or untagged patient files. Other encounters are not listed.'); ?></small>
+                                              <small id="MATERIALS_REPORT_SAVE_STATUS" class="text-muted" role="status" style="display:none;"><?php echo xlt('Saving report selections…'); ?></small>
+                                              <input type="hidden" name="MATERIALS_REPORT_DOCUMENTS_PRESENT" value="1">
+                                              <?php foreach ($materialsReportDocuments as $document) {
+                                                  $documentId = EyeFormData::integer($document['id'] ?? 0); ?>
+                                                  <label class="d-block mb-1">
+                                                      <input type="checkbox" name="MATERIALS_REPORT_DOCUMENT_IDS[]" value="<?php echo attr($documentId); ?>"
+                                                          <?php echo in_array($documentId, $materialsReportIds, true) ? 'checked' : ''; ?>>
+                                                      <?php echo text($document['name'] ?? ''); ?>
+                                                      <small class="text-muted">
+                                                          (<?php echo EyeFormData::integer($document['encounter_id'] ?? 0) === $encounter ? xlt('This encounter') : xlt('Not tagged to an encounter'); ?>
+                                                          <?php if (!empty($document['category'])) { echo ' · ' . text($document['category']); } ?>
+                                                          <?php $documentDate = EyeFormData::text($document['docdate'] ?? '') ?: substr(EyeFormData::text($document['date'] ?? ''), 0, 10);
+                                                          if ($documentDate !== '' && $documentDate !== '0000-00-00') { echo ' · ' . text($documentDate); } ?>)
+                                                      </small>
+                                                  </label>
+                                              <?php }
+                                              $availableReportIds = array_column($materialsReportDocuments, 'id');
+                                              foreach (array_diff($materialsReportIds, $availableReportIds) as $documentId) { ?>
+                                                  <label class="d-block mb-1">
+                                                      <input type="checkbox" name="MATERIALS_REPORT_DOCUMENT_IDS[]" value="<?php echo attr($documentId); ?>" checked>
+                                                      <?php echo xlt('Unavailable document') . ' #' . text($documentId); ?>
+                                                  </label>
+                                              <?php }
+                                              if ($materialsReportDocuments === [] && $materialsReportIds === []) { ?>
+                                                  <small class="text-muted"><?php echo xlt('No eligible PDF or image documents are available for this encounter.'); ?></small>
+                                              <?php } ?>
+                                          </div>
                                           <?php if (($materialsHandouts === [])) { ?>
                                               <small class="text-muted"><?php echo xlt('No practice PDFs have been added yet. Use Add Practice PDF above; new uploads appear the next time the Eye Form is opened.'); ?></small>
                                           <?php } else { ?>
@@ -5096,12 +5138,13 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
       }
     </script>
     <?php require __DIR__ . '/php/neuro_pattern_strings.php'; ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/neuro_patterns.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>&v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/neuro_patterns.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;overaction=1"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>&v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;feedback=13"></script>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/visual_acuity_history.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
       window.eyeMagDocumentNotesStrings = {
         enterPatientMaterial: <?php echo xlj('Enter patient material text before adding it.'); ?>,
+        materialsSaveFailed: <?php echo xlj('The report selection could not be saved. Please try again.'); ?>,
         allowPopups: <?php echo xlj('Allow pop-ups to print the PDF handout.'); ?>,
         selectHandout: <?php echo xlj('Select a PDF handout first.'); ?>,
         unavailableHandout: <?php echo xlj('Unavailable PDF'); ?>,
@@ -5116,8 +5159,8 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         pdfHandoutToPrint: <?php echo xlj('PDF handout to print'); ?>
       };
     </script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/document_notes.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/document_notes.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;report-documents=4"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;touch=2"></script>
     <script>
       window.eyeMagDrawingStrings = {
         libraryTitle: <?php echo xlj('Saved overlays · {zone}'); ?>,
@@ -5178,7 +5221,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
       };
     </script>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/public/assets/konva/konva.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/konva_overlay.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/konva_overlay.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;overaction=3&amp;pencil=1"></script>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/drawing_library.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <div id="right-panel" name="right-panel" class="panel_side" >
       <div class="text-center" style="margin-top: 10px;">

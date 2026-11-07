@@ -55,7 +55,9 @@ function resetEyeDrawingInk(zone, canvas, source) {
     eyeCanvasRestoring[zone] = false;
     eyeCanvasRestoreError[zone] = null;
     eyeCanvasReady[zone] = Promise.resolve();
-    eyeCanvasFlattened[zone] = /controller\.php\?document(?:&|$)/.test(source);
+    eyeCanvasFlattened[zone] = /controller\.php\?document(?:&|$)/.test(source)
+        || (zone === 'NEURO' && /^data:image\/png;base64,/.test(source)
+            && $(canvas).closest('.eye-drawing-stage').attr('data-has-saved-drawing') === '1');
 }
 
 /** Flag this zone for persistence after an actual drawing or background change. */
@@ -88,22 +90,53 @@ function isEyeCanvasDirty(zone)
 function InitThis(zone)
 {
     clearEyeCanvasDirty(zone);
-    ctx[zone] = document.getElementById('myCanvas_' + zone).getContext("2d");
+    var canvas = document.getElementById('myCanvas_' + zone);
+    var activeTouchId = null;
+    ctx[zone] = canvas.getContext("2d");
+
+    /** Locate the active touch in the browser's changed-touch list. */
+    function changedTouch(event, id) {
+        var touches = event.originalEvent.changedTouches;
+        for (var i = 0; i < touches.length; i++) {
+            if (touches[i].identifier === id) return touches[i];
+        }
+        return null;
+    }
+
+    /** Map touch coordinates to the canvas's intrinsic drawing dimensions. */
+    function drawTouch(touch, down) {
+        var rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        Draw((touch.clientX - rect.left) * canvas.width / rect.width,
+            (touch.clientY - rect.top) * canvas.height / rect.height, down, zone);
+    }
 
     $('#myCanvas_' + zone).on('touchstart', function (e) {
+        if (activeTouchId !== null || mousePressed) return;
+        var touch = e.originalEvent.changedTouches[0];
+        if (!touch) return;
+        e.preventDefault();
+        activeTouchId = touch.identifier;
         mousePressed = true;
-        Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false, zone);
+        drawTouch(touch, false);
     });
 
     $('#myCanvas_' + zone).on('touchmove',function (e) {
-        if (mousePressed) {
-            e.preventDefault();
-            Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, true, zone);
-        }
+        if (activeTouchId === null) return;
+        var touch = changedTouch(e, activeTouchId);
+        if (!touch) return;
+        e.preventDefault();
+        drawTouch(touch, true);
     });
-    $('#myCanvas_' + zone).on('touchend', function (e) {
+    $('#myCanvas_' + zone).on('touchend touchcancel', function (e) {
+        if (activeTouchId === null || !changedTouch(e, activeTouchId)) return;
+        e.preventDefault();
+        activeTouchId = null;
         mousePressed = false;
         cPush(zone);
+        if (isEyeCanvasDirty(zone) && typeof window.submit_canvas === 'function') {
+            window.submit_canvas(zone);
+        }
     });
 
     $('#myCanvas_' + zone).mousedown(function (e) {

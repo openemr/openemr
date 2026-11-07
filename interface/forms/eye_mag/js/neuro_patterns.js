@@ -90,10 +90,16 @@
                 evidence: (fields || []).filter(function (field) { return String(values[field] == null ? '' : values[field]).trim() !== ''; })
                     .map(function (field) { return {field: field, value: String(values[field])}; }), missing: missing || []});
         }
-        /** Read an entered motility limitation grade from zero through four. */
+        /** Read an entered vertical overaction grade from zero through four. */
+        function overGrade(suffix) {
+            var raw = String(values['MOTILITY_' + suffix + '_OVER'] == null ? '' : values['MOTILITY_' + suffix + '_OVER']).trim();
+            return /^[0-4]$/.test(raw) ? Number(raw) : null;
+        }
+        /** Read a limitation grade, excluding conflicting limitation and overaction entries. */
         function grade(suffix) {
             var raw = String(values['MOTILITY_' + suffix] == null ? '' : values['MOTILITY_' + suffix]).trim();
-            return /^[0-4]$/.test(raw) ? Number(raw) : null;
+            if (!/^[0-4]$/.test(raw)) return null;
+            return Number(raw) > 0 && overGrade(suffix) > 0 ? null : Number(raw);
         }
         /** Use a direct vertical limitation or agreement between both diagonal measurements. */
         function verticalMotor(map, direction) {
@@ -106,7 +112,7 @@
         var normalConflict = !!values.MOTILITYNORMAL && Object.keys(motors).some(function (eye) {
             var map = motors[eye];
             return [map.adduction, map.abduction, map.elevation, map.depression].concat(map.up, map.down)
-                .some(function (field) { return grade(field) > 0; });
+                .some(function (field) { return grade(field) > 0 || overGrade(field) > 0; });
         });
         if (normalConflict) { add('normalConflict'); }
 
@@ -229,7 +235,9 @@
                     var ipsiTilt = v(eye === 'OD' ? 10 : 11) * sign;
                     var contraTilt = v(eye === 'OD' ? 11 : 10) * sign;
                     if (contraGaze > ipsiGaze && ipsiTilt > contraTilt) {
-                        add('ivPattern', context, eye, verticalFields);
+                        var associatedOver = eye === 'OD' ? 'RLSO' : 'LRSO';
+                        add('ivPattern', context, eye, verticalFields.concat(overGrade(associatedOver) > 0
+                            ? ['MOTILITY_' + associatedOver + '_OVER'] : []));
                     } else {
                         add('verticalNonlocalizing', context, eye, verticalFields);
                     }
@@ -368,6 +376,21 @@
             var map = motors[eye];
             var fields = [map.adduction, map.abduction, map.elevation, map.depression].concat(map.up, map.down)
                 .map(function (field) { return 'MOTILITY_' + field; });
+            var overactions = eye === 'OD'
+                ? [['RLSO', 'ioOveraction'], ['RLIO', 'soOveraction'], ['RRSO', 'elevationOveraction'], ['RRIO', 'depressionOveraction']]
+                : [['LRSO', 'ioOveraction'], ['LRIO', 'soOveraction'], ['LLSO', 'elevationOveraction'], ['LLIO', 'depressionOveraction']];
+            overactions.forEach(function (entry) {
+                var suffix = entry[0], over = overGrade(suffix);
+                if (!(over > 0)) return;
+                var overField = 'MOTILITY_' + suffix + '_OVER';
+                var limitationField = 'MOTILITY_' + suffix;
+                var rawLimitation = String(values[limitationField] == null ? '' : values[limitationField]).trim();
+                if (/^[1-4]$/.test(rawLimitation)) {
+                    add('overactionConflict', '', eye, [limitationField, overField]);
+                } else if (!normalConflict) {
+                    add(entry[1], '', eye, [overField], {grade: over});
+                }
+            });
             if (normalConflict) { return; }
             var abd = grade(map.abduction), addu = grade(map.adduction);
             var elev = verticalMotor(map, 'elevation'), dep = verticalMotor(map, 'depression');
@@ -432,14 +455,15 @@
                 LR: ['OS', 'adduction'], LL: ['OS', 'abduction'], LS: ['OS', 'up'], LI: ['OS', 'down'],
                 LRSO: ['OS', 'upRight'], LLSO: ['OS', 'upLeft'], LRIO: ['OS', 'downRight'], LLIO: ['OS', 'downLeft']
             };
-            var label = motorLabels[field.replace(/^MOTILITY_/, '')];
-            if (label) { return t(label[0]) + ' ' + t(label[1]) + ' ' + t('limitation'); }
+            var isOveraction = /_OVER$/.test(field);
+            var label = motorLabels[field.replace(/^MOTILITY_/, '').replace(/_OVER$/, '')];
+            if (label) { return t(label[0]) + ' ' + t(label[1]) + ' ' + t(isOveraction ? 'overaction' : 'limitation'); }
             return strings['field_' + field] || field;
         }
         // Order findings the way the deviation is worked up; completeness notes last.
         var groupOf = {};
         [
-            ['group_conflict', ['normalConflict']],
+            ['group_conflict', ['normalConflict', 'overactionConflict']],
             ['group_primary', ['orthoAll', 'primaryOrtho', 'primaryDeviation', 'comitantHorizontal']],
             ['group_distanceNear', ['nearExo', 'distanceExo', 'basicExo', 'nearEso', 'distanceEso', 'basicEso', 'npcRemote']],
             ['group_correction', ['correctionChange', 'refractiveAccommodative', 'partiallyAccommodative', 'accommodativeNear',
@@ -451,7 +475,7 @@
             ['group_motility', ['viPattern', 'viMixed', 'viCheckMotility', 'viNoLimitation', 'horizontalGazeIncomplete',
                 'iiiPattern', 'iiiIncomplete', 'globalRestriction', 'duaneScreen', 'duane3Screen', 'adductionDeficit',
                 'bilateralAbduction', 'brownScreen', 'elevationDeficit', 'depressionInAdduction', 'depressionDeficit',
-                'verticalRestriction']],
+                'verticalRestriction', 'ioOveraction', 'soOveraction', 'elevationOveraction', 'depressionOveraction']],
             ['group_sensory', ['dissociated', 'spctConflict', 'monofixation', 'smallTropiaStereo']],
             ['group_data', ['unparsed']]
         ].forEach(function (group, index) {
@@ -492,7 +516,7 @@
                 var li = $('<li></li>').text(prefix + message);
                 if (finding.evidence.length) {
                     li.append($('<div class="guidance-evidence"></div>').text(finding.evidence.map(function (item) {
-                        return fieldLabel(item.field) + ' = ' + item.value;
+                        return fieldLabel(item.field) + ' = ' + (/_OVER$/.test(item.field) && /^[1-4]$/.test(item.value) ? '+' : '') + item.value;
                     }).join('; ')));
                 }
                 // An entered box that lacks the needed component is not "missing".

@@ -728,11 +728,15 @@
                 composite.height = height;
                 var context = composite.getContext('2d');
                 context.drawImage(sourceCanvas || baseCanvas, 0, 0, width, height);
+                var rasterMode = zone === 'NEURO'
+                    ? ($(baseCanvas).closest('.eye-drawing-stage').attr('data-raster-legacy') === '1' ? 'legacy' : 'separate') : '';
+                var rasterBase = rasterMode ? composite.toDataURL('image/png') : '';
                 var annotations = objectLayer.toCanvas({ x: 0, y: 0, width: width, height: height, pixelRatio: 1 });
                 return svgCanvas().then(function (structured) {
                     if (structured) context.drawImage(structured, 0, 0, width, height);
                     context.drawImage(annotations, 0, 0, width, height);
-                    return {canvas: composite, overlayJson: json, revision: revision, backgroundKey: backgroundKey};
+                    return {canvas: composite, overlayJson: json, revision: revision, backgroundKey: backgroundKey,
+                        rasterMode: rasterMode, rasterBase: rasterBase};
                 });
             });
         }
@@ -749,7 +753,9 @@
                     dataURL: snapshot.canvas.toDataURL('image/jpeg', 1),
                     overlayJson: snapshot.overlayJson,
                     revision: snapshot.revision,
-                    backgroundKey: snapshot.backgroundKey
+                    backgroundKey: snapshot.backgroundKey,
+                    rasterMode: snapshot.rasterMode,
+                    rasterBase: snapshot.rasterBase
                 };
             });
         }
@@ -775,7 +781,15 @@
             selectNode(annotationRoot(event.target));
         });
         // Pencil onclick handlers set the zone's color before this bubbled event.
-        $('[id^="sketch_tools_' + zone + '_"]').parent().on('click', '[id^="sketch_tools_' + zone + '_"]', applyTextColor);
+        $('[id^="sketch_tools_' + zone + '_"]').parent().on('click', '[id^="sketch_tools_' + zone + '_"]', function () {
+            applyTextColor();
+            activateZone();
+            if (!$(container).hasClass('is-draw-mode')) setMode('draw');
+        });
+        $('#sketch_tooled_' + zone + '_8').on('click', function () {
+            activateZone();
+            if (!$(container).hasClass('is-draw-mode')) setMode('draw');
+        });
         $('#selColor_' + zone).on('input change', applyTextColor);
         $('#' + zone + '_KONVA_TOOLS').on('click', '[data-konva-tool]', function () {
             setMode($(this).data('konva-tool'));

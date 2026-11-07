@@ -220,13 +220,13 @@ class ReportRenderer
      * @param callable(int,int):PatientMaterials $loadMaterials
      * @param callable(Mpdf,int,int,PatientMaterials):bool $embedMaterials
      */
-    public static function materialsText(int $pid, int $formId, ?Mpdf $materialsPdf, bool $pdfOutput, callable $loadMaterials, callable $embedMaterials): void
+    public static function materialsText(int $pid, int $formId, ?Mpdf $materialsPdf, bool $pdfOutput, callable $loadMaterials, callable $embedMaterials, bool $inlinePreview = false): void
     {
         $materials = $loadMaterials($formId, $pid);
         $content = $materials->content;
         $includeText = $materials->includeText && trim($content) !== '';
         $includeHandout = $materials->handouts !== [];
-        if (!$includeText && !$includeHandout) {
+        if (!$includeText && !$includeHandout && $materials->documents === []) {
             return;
         }
         $embedded = false;
@@ -235,8 +235,15 @@ class ReportRenderer
             $embedded = ($materialsPdf instanceof Mpdf && $embedMaterials($materialsPdf, $formId, $pid, $materials));
             echo '<pagebreak />';
         }
-        echo '<div class="report_exam_group" style="text-align:left;width:100%;">';
+        echo '<div class="report_exam_group eye-report-materials" style="text-align:left;width:100%;">';
         self::zoneHeading(xl('Patient Materials'), $pdfOutput);
+        if (!$pdfOutput && $inlinePreview && ($includeHandout || $materials->documents !== [])) {
+            echo '<button type="button" class="eye-report-print-pdf" onclick="var f=document.createElement(\'form\');'
+                . 'f.method=\'post\';f.action=window.location.href;f.target=\'_blank\';'
+                . 'var p=document.createElement(\'input\');p.type=\'hidden\';p.name=\'pdf\';p.value=\'1\';'
+                . 'f.appendChild(p);document.body.appendChild(f);f.submit();f.remove();">'
+                . xlt('Open complete PDF for printing') . '</button>';
+        }
         if ($includeText) {
             echo '<p><b>' . xlt('Patient instructions included') . '</b></p>';
             echo '<div style="white-space:pre-wrap;padding:6px;">' . nl2br(text($content)) . '</div>';
@@ -248,7 +255,28 @@ class ReportRenderer
             } else {
                 echo '<p><b>' . xlt('Patient PDF instructions included') . ':</b> ' . text($handout->name) . '</p>';
                 if ($pdfOutput) {
-                    echo '<p>' . xlt('An exact copy of the original PDF is embedded in this report. Use a PDF reader with an Attachments panel to open or print it.') . '</p>';
+                    echo '<p>' . xlt('The original PDF is embedded; its pages are appended when supported.') . '</p>';
+                } elseif ($inlinePreview) {
+                    $data = 'data:application/pdf;base64,' . base64_encode($handout->pdfData);
+                    echo '<object type="application/pdf" data="' . attr($data) . '" style="width:100%;height:500px;">'
+                        . '<a href="' . attr($data) . '" download="handout.pdf">' . xlt('Open PDF handout') . '</a></object>';
+                }
+            }
+        }
+        foreach ($materials->documents as $document) {
+            if ($document->data === '' || ($pdfOutput && !$embedded)) {
+                echo '<p><b>' . xlt('The selected encounter document could not be included.') . '</b> '
+                    . text($document->name ?: (xl('Document') . ' #' . $document->documentId)) . '</p>';
+            } else {
+                echo '<p><b>' . xlt('Encounter document included') . ':</b> ' . text($document->name) . '</p>';
+                if (!$pdfOutput && $inlinePreview) {
+                    $data = 'data:' . $document->mimeType . ';base64,' . base64_encode($document->data);
+                    if ($document->mimeType === 'application/pdf') {
+                        echo '<object type="application/pdf" data="' . attr($data) . '" style="width:100%;height:500px;">'
+                            . '<a href="' . attr($data) . '" download="document.pdf">' . xlt('Open PDF document') . '</a></object>';
+                    } else {
+                        echo '<img src="' . attr($data) . '" alt="' . attr($document->name) . '" style="max-width:100%;height:auto;">';
+                    }
                 }
             }
         }
@@ -327,8 +355,7 @@ class ReportRenderer
     }
 
     /**
-     * Section heading for an exam zone: a banded heading in the PDF, the
-     * underlined label on screen.
+     * Section heading for an exam zone, using matching report colors on screen and in PDF.
      */
     public static function zoneHeading(string $title, bool $pdfOutput): void
     {
@@ -337,7 +364,7 @@ class ReportRenderer
             // table cell, and carries the white text colour into the next line.
             echo '<table style="width:100%;border-collapse:collapse;margin-bottom:3pt;"><tr><td class="rpt-h">' . text($title) . '</td></tr></table>';
         } else {
-            echo '<span style="font-weight:bold;text-decoration: underline">' . text($title) . ':</span>';
+            echo '<div class="eye-report-heading">' . text($title) . '</div>';
         }
     }
 
@@ -347,7 +374,7 @@ class ReportRenderer
      */
     public static function rlHeader(bool $pdfOutput): void
     {
-        $w = $pdfOutput ? ['38%', '24%', '38%'] : ['150px', '100px', '150px'];
+        $w = ['30%', '40%', '30%'];
         echo '<tr class="rl-head">'
         . '<td class="rl-r" style="font-weight:bold;text-align:right;padding-right:10px;text-decoration:underline;width:' . $w[0] . ';">' . xlt('Right') . '</td>'
         . '<td class="rl-m" style="width:' . $w[1] . ';"></td>'
@@ -361,7 +388,7 @@ class ReportRenderer
      * is queued for self::pdfZoneLayout(), and the pixel widths written for
      * the screen are dropped so the fixed header widths set the columns.
      *
-     * @param list<array{section:string,drawing:string,fullwidth?:bool}> $pdf_zones
+     * @param list<array{section:string,drawing:string,fullwidth?:bool,heading?:string}> $pdf_zones
      * @param callable(string,mixed,mixed):void $displayDrawing
      */
     public static function zoneEmit(string $section, string $zone, mixed $encounter, mixed $pid, array &$pdf_zones, bool $pdfOutput, callable $displayDrawing): void
@@ -369,20 +396,30 @@ class ReportRenderer
         ob_start();
         $displayDrawing($zone, $encounter, $pid);
         $drawing = trim(EyeFormData::text(ob_get_clean()));
+        /** Remove fixed pixel widths while retaining the shared right and left header columns. */
+        $section = preg_replace_callback('~<td\b([^>]*)>~', function (array $m): string {
+            if (str_contains($m[1], 'class="rl-')) {
+                return $m[0];
+            }
+            return '<td' . preg_replace('~\bwidth\s*:\s*[\d.]+px\s*;?~i', '', $m[1]) . '>';
+        }, $section) ?? $section;
+        $heading = '';
+        if ($drawing !== '') {
+            $pattern = $pdfOutput
+                ? '~\A\s*(<table[^>]*><tr><td class="rpt-h">.*?</td></tr></table>)(.*)\z~s'
+                : '~\A\s*(<div class="eye-report-heading">.*?</div>)(.*)\z~s';
+            if (preg_match($pattern, $section, $parts)) {
+                $heading = $parts[1];
+                $section = $parts[2];
+            }
+        }
         if ($pdfOutput) {
-            /** Remove screen-only cell widths while retaining the shared right and left header columns. */
-            $section = preg_replace_callback('~<td\b([^>]*)>~', function (array $m): string {
-                if (str_contains($m[1], 'class="rl-')) {
-                    return $m[0];
-                }
-                return '<td' . preg_replace('~\bwidth\s*:\s*[\d.]+px\s*;?~i', '', $m[1]) . '>';
-            }, $section) ?? $section;
-            $pdf_zones[] = ['section' => $section, 'drawing' => $drawing];
+            $pdf_zones[] = ['section' => $section, 'drawing' => $drawing, 'heading' => $heading];
             return;
         }
-        echo '<div class="report_exam_group"><table><tr>'
-        . '<td style="text-align:left;vertical-align:top;padding:1px;">' . $section . '</td>'
-        . '<td style="text-align:center;padding:1px;vertical-align:middle;">' . $drawing . '</td>'
+        echo '<div class="report_exam_group">' . $heading . '<table class="eye-zone-layout"><tr>'
+        . '<td class="eye-zone-content">' . $section . '</td>'
+        . ($drawing !== '' ? '<td class="eye-zone-drawing">' . $drawing . '</td>' : '')
         . '</tr></table></div>';
     }
 
@@ -391,7 +428,7 @@ class ReportRenderer
      * drawing takes a row, the drawing pinned to its right. A zone without one
      * moves up into the free right half of the row above when there is room.
      *
-     * @param list<array{section:string,drawing:string,fullwidth?:bool}> $zones
+     * @param list<array{section:string,drawing:string,fullwidth?:bool,heading?:string}> $zones
      */
     public static function pdfZoneLayout(array $zones): void
     {
@@ -404,14 +441,16 @@ class ReportRenderer
                 continue;
             }
             if ($z['drawing'] !== '') {
-                $rows[] = [$z['section'], $z['drawing'], true];
+                $rows[] = [$z['section'], $z['drawing'], true, $z['heading'] ?? ''];
             } elseif ($rows && end($rows)[1] === null) {
                 $rows[array_key_last($rows)][1] = $z['section'];
             } else {
                 $rows[] = [$z['section'], null, false];
             }
         }
-        foreach ($rows as [$left, $right, $is_drawing]) {
+        foreach ($rows as $row) {
+            [$left, $right, $is_drawing] = $row;
+            $heading = $row[3] ?? '';
             if ($is_drawing === 'full') {
                 echo '<table class="rpt-pdf" style="width:100%;border-collapse:collapse;margin-top:10pt;"><tr>'
                 . '<td colspan="2" style="text-align:center;padding:0;">' . $left . '</td>'
@@ -419,7 +458,9 @@ class ReportRenderer
                 continue;
             }
             // The 10pt row gap and the 5mm gutter keep neighbouring zones visually apart.
-            echo '<table class="rpt-pdf" style="width:100%;border-collapse:collapse;margin-top:10pt;"><tr>'
+            echo '<table class="rpt-pdf" style="width:100%;border-collapse:collapse;margin-top:10pt;">'
+            . ($heading !== '' ? '<tr><td colspan="2" style="padding:0;">' . $heading . '</td></tr>' : '')
+            . '<tr>'
             . '<td style="width:50%;vertical-align:top;padding:0 2.5mm 0 0;">' . $left . '</td>'
             . '<td style="width:50%;vertical-align:' . ($is_drawing ? 'middle' : 'top') . ';text-align:' . ($is_drawing ? 'center' : 'left') . ';padding:0 0 0 2.5mm;">' . ($right ?? '') . '</td>'
             . '</tr></table>';
@@ -439,6 +480,11 @@ class ReportRenderer
         $display = strtoupper($display) === 'H' ? 'H' : 'X';
         /** Clamp each recorded motility limitation to the supported zero-to-four grade range. */
         $grade = static fn(string $key): int => max(0, min(4, EyeFormData::integer($values[$key] ?? 0)));
+        /** Display a nonzero overaction as one +grade outside the chart limb. */
+        $overaction = static function (string $key, float $x, float $y) use ($grade): string {
+            $value = $grade($key . 'Over');
+            return $value > 0 ? sprintf('<text x="%.2f" y="%.2f" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="#111">+%d</text>', $x, $y, $value) : '';
+        };
         /** Create a single SVG stroke with explicit geometry and line width. */
         $line = static fn(float $x1, float $y1, float $x2, float $y2, float $width = 1.8): string => sprintf(
         '<line x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f" stroke="#111" stroke-width="%.2f" stroke-linecap="square"/>',
@@ -472,7 +518,11 @@ class ReportRenderer
             . $ticks(21, 60, 0, 1, 'lowerLeft', 30)
             . $ticks(99, 60, 0, -1, 'upperRight', 30)
             . $ticks(60, 60, 1, 0, 'right', 22)
-            . $ticks(99, 60, 0, 1, 'lowerRight', 30);
+            . $ticks(99, 60, 0, 1, 'lowerRight', 30)
+            . $overaction('upperLeft', 21, 18)
+            . $overaction('upperRight', 99, 18)
+            . $overaction('lowerLeft', 21, 112)
+            . $overaction('lowerRight', 99, 112);
         } else {
             $directions = [
             'up' => [0, -1], 'down' => [0, 1],
@@ -493,6 +543,10 @@ class ReportRenderer
                     $svg .= $line($tx - $px, $ty - $py, $tx + $px, $ty + $py, 2);
                 }
             }
+            $svg .= $overaction('upperLeft', 21, 18)
+                . $overaction('upperRight', 99, 18)
+                . $overaction('lowerLeft', 21, 112)
+                . $overaction('lowerRight', 99, 112);
         }
         $svg .= '</svg>';
         $size = $pdfOutput ? '15mm' : '58px';

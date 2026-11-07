@@ -20,11 +20,13 @@ final readonly class PatientMaterials
      * Capture the instruction text, inclusion choice, and handouts used by one report.
      *
      * @param list<PatientHandout> $handouts
+     * @param list<PatientReportDocument> $documents
      */
     public function __construct(
         public string $content,
         public bool $includeText,
         public array $handouts,
+        public array $documents = [],
     ) {
     }
 }

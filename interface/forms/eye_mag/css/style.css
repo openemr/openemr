@@ -1912,6 +1912,22 @@ display: block;
   margin: -2px auto 1px;
 }
 
+.motility-eye-headings {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.motility-eye-headings span {
+  text-align: center;
+  width: 74px;
+}
+
+#NEURO_MOTILITY .motility-chart-cell {
+  height: 85.8px;
+  vertical-align: top;
+}
+
 .motility-h-eye {
   height: 68px;
   position: relative;
@@ -1967,6 +1983,8 @@ display: block;
 .motility-h-point[data-level="top"],
 .motility-h-point[data-level="bottom"] {
   flex-direction: column;
+  height: 13px;
+  z-index: 2;
 }
 
 .motility-h-point[data-side="left"] {
@@ -1987,15 +2005,56 @@ display: block;
 }
 
 .motility-h-point[data-level="top"] {
-  top: -4px;
+  top: 17px;
 }
 
 .motility-h-point[data-level="middle"] {
   top: 18px;
+  width: 16px;
 }
 
 .motility-h-point[data-level="bottom"] {
-  top: 43px;
+  top: 32px;
+}
+
+.motility-h-point[data-side="left"][data-level="middle"] { left: 15px; }
+.motility-h-point[data-side="right"][data-level="middle"] { right: 15px; }
+
+.motility-h-overaction {
+  background: transparent;
+  border: 0;
+  color: #18324f;
+  cursor: pointer;
+  height: 13px;
+  padding: 0;
+  position: absolute;
+  touch-action: manipulation;
+  width: 22px;
+  z-index: 2;
+}
+
+.motility-h-overaction[data-side="left"] { left: -3px; }
+.motility-h-overaction[data-side="right"] { right: -3px; }
+.motility-h-overaction[data-level="top"] { top: 4px; }
+.motility-h-overaction[data-level="bottom"] { top: 45px; }
+
+.motility-h-overaction-value {
+  font-size: 10px;
+  font-weight: 700;
+  left: 50%;
+  line-height: 12px;
+  pointer-events: none;
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.motility-h-overaction[data-level="top"] .motility-h-overaction-value { bottom: 100%; }
+.motility-h-overaction[data-level="bottom"] .motility-h-overaction-value { top: 100%; }
+
+.motility-h-overaction:focus-visible {
+  outline: 2px solid #1c73b8;
+  outline-offset: 1px;
 }
 
 .motility-h-mark {
@@ -2003,7 +2062,7 @@ display: block;
   flex: 0 0 auto;
   display: block;
   height: 2px;
-  margin: 1px 0;
+  margin: 0.5px 0;
   width: 10px;
 }
 
@@ -2054,6 +2113,38 @@ display: block;
   text-align: center;
   width: 5.1px;
 }
+
+/* X-chart marks must fit their cells and not depend on an icon font. */
+#NEURO_MOTILITY .motility-x-mark {
+  background: currentColor;
+  display: block;
+  height: 1.5px;
+  margin: 1.8px auto 0;
+  pointer-events: none;
+  width: 4.5px;
+}
+
+#NEURO_MOTILITY .motility-x-mark.is-vertical {
+  height: 4.5px;
+  margin: 0 auto;
+  width: 1.5px;
+}
+
+#NEURO_MOTILITY .motility-x-overaction {
+  color: #18324f;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+  position: absolute;
+  text-shadow: -1px -1px #fff, 1px -1px #fff, -1px 1px #fff, 1px 1px #fff;
+  z-index: 2;
+}
+
+.motility-x-overaction[data-position^="top"] { top: 0; }
+.motility-x-overaction[data-position^="bottom"] { bottom: 0; }
+.motility-x-overaction[data-position$="left"] { left: 0; }
+.motility-x-overaction[data-position$="right"] { right: 0; }
 
 .top_right {
   font-size: 1.4em;
@@ -2925,8 +3016,8 @@ a:focus {
   padding: 3px 5px;
 }
 
-#QP_PMH .PMSFH_header span,
-#QP_PMH .PMSFH_table span {
+#QP_PMH .PMSFH_header span:not(.fa):not(.fas):not(.far):not(.fab):not([class*="fa-"]),
+#QP_PMH .PMSFH_table span:not(.fa):not(.fas):not(.far):not(.fab):not([class*="fa-"]) {
   font-family: inherit !important;
   line-height: 1.25;
 }
@@ -3603,6 +3694,14 @@ View.php
   position: relative;
   right: 0.1in;
   text-align: right;
+}
+
+#Lyr60 {
+  align-items: center;
+  display: flex;
+  gap: 3px;
+  justify-content: flex-end;
+  white-space: nowrap;
 }
 
 #Lyr51 > table {

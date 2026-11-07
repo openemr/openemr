@@ -41,6 +41,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Forms\ReportPdfAppendQueue;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -54,7 +55,6 @@ use OpenEMR\Forms\EyeMag\SqlFragment;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
-use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_append_materials_handout_pdf;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_prior_refractions;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_report_filename;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_save_materials;
@@ -96,6 +96,34 @@ if ($requestMode !== '' && !in_array($requestMode, $allowedModes, true)) {
 $requiredAccess = $requestMode === 'update' ? 'write' : ['write', 'addonly'];
 if (!AclMain::aclCheckCore('patients', 'med', '', $requiredAccess)) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Eye Form Save", xl("Eye Form"));
+}
+
+$is92060Selection = ($posted['action'] ?? '') === 'set_92060';
+if ($is92060Selection) {
+    $selectionPatient = EyeFormData::identifier($session->get('pid'));
+    $selectionEncounter = EyeFormData::identifier($session->get('encounter'));
+    $selectionForm = EyeFormData::identifier($posted['form_id'] ?? null);
+    $selectionValue = $posted['selected'] ?? null;
+    $token = $posted['csrf_token_form'] ?? null;
+    if ($requestMode !== 'update' || !is_string($token) || !CsrfUtils::verifyCsrfToken($token, $session)
+        || (!AclMain::aclCheckCore('encounters', 'coding_a', '', 'write') && !AclMain::aclCheckCore('encounters', 'coding', '', 'write'))) {
+        http_response_code(403);
+        exit;
+    }
+    if (!$selectionPatient || !$selectionEncounter || !$selectionForm || !in_array($selectionValue, ['0', '1'], true)
+        || EyeFormData::identifier($_REQUEST['form_id'] ?? null) !== $selectionForm
+        || EyeFormData::identifier($posted['encounter'] ?? null) !== $selectionEncounter) {
+        http_response_code(400);
+        exit;
+    }
+    $selectionOwner = QueryUtils::querySingleRow(
+        "SELECT form_id FROM forms WHERE form_id=? AND pid=? AND encounter=? AND formdir='eye_mag' AND deleted=0 LIMIT 1",
+        [$selectionForm, $selectionPatient, $selectionEncounter]
+    );
+    if (!$selectionOwner) {
+        http_response_code(404);
+        exit;
+    }
 }
 
 if (($posted['action'] ?? '') === 'drawing_tool_preference') {
@@ -632,6 +660,60 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
 } elseif (($_REQUEST["mode"]  ?? '') == "update") {
     // The user has write privileges to work with...
 
+    if ($is92060Selection) {
+        header('Content-Type: application/json');
+        try {
+            QueryUtils::inTransaction(static function () use ($selectionPatient, $selectionEncounter, $selectionForm, $selectionValue): void {
+                $neuro = QueryUtils::querySingleRow('SELECT id,CPT_92060_SELECTED,CPT_92060_REMOVED_IDS FROM form_eye_neuro WHERE id=? AND pid=? FOR UPDATE', [$selectionForm, $selectionPatient]);
+                if (!$neuro) {
+                    throw new \DomainException('Missing Eye Form');
+                }
+                $previousIds = json_decode(EyeFormData::text($neuro['CPT_92060_REMOVED_IDS'] ?? ''), true);
+                $previousIds = is_array($previousIds) ? array_values(array_filter(array_map(EyeFormData::identifier(...), $previousIds))) : [];
+                $removedIds = [];
+                if ($selectionValue === '0') {
+                    $charges = QueryUtils::fetchRecords(
+                        "SELECT id,billed,bill_process,bill_date FROM billing WHERE pid=? AND encounter=? AND code_type='CPT4' AND code='92060' AND activity=1 FOR UPDATE",
+                        [$selectionPatient, $selectionEncounter]
+                    );
+                    foreach ($charges as $charge) {
+                        if (EyeFormData::integer($charge['billed'] ?? 0) !== 0 || EyeFormData::integer($charge['bill_process'] ?? 0) !== 0 || !empty($charge['bill_date'])) {
+                            throw new \DomainException('Already billed');
+                        }
+                        $removedIds[] = EyeFormData::identifier($charge['id'] ?? null);
+                    }
+                    if ($removedIds === [] && EyeFormData::text($neuro['CPT_92060_SELECTED'] ?? '') === '0') {
+                        $removedIds = $previousIds;
+                    }
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE billing SET activity=0 WHERE pid=? AND encounter=? AND code_type='CPT4' AND code='92060' AND activity=1",
+                        [$selectionPatient, $selectionEncounter]
+                    );
+                } elseif ($previousIds !== []) {
+                    $active = QueryUtils::querySingleRow(
+                        "SELECT id FROM billing WHERE pid=? AND encounter=? AND code_type='CPT4' AND code='92060' AND activity=1 LIMIT 1 FOR UPDATE",
+                        [$selectionPatient, $selectionEncounter]
+                    );
+                    if (!$active) {
+                        foreach ($previousIds as $chargeId) {
+                            QueryUtils::sqlStatementThrowException(
+                                "UPDATE billing SET activity=1 WHERE id=? AND pid=? AND encounter=? AND code_type='CPT4' AND code='92060' AND activity=0 AND COALESCE(billed,0)=0 AND bill_process=0 AND bill_date IS NULL",
+                                [$chargeId, $selectionPatient, $selectionEncounter]
+                            );
+                        }
+                    }
+                }
+                QueryUtils::sqlStatementThrowException('UPDATE form_eye_neuro SET CPT_92060_SELECTED=?,CPT_92060_REMOVED_IDS=? WHERE id=? AND pid=?', [(int) $selectionValue, $selectionValue === '0' ? json_encode($removedIds) : null, $selectionForm, $selectionPatient]);
+            });
+        } catch (\DomainException) {
+            http_response_code(409);
+            echo json_encode(['ok' => false, 'error' => xl('This charge has already entered billing and cannot be removed here.')]);
+            exit;
+        }
+        echo json_encode(['ok' => true, 'selected' => $selectionValue === '1']);
+        exit;
+    }
+
     if (($_REQUEST['action'] ?? '') == "store_PDF") {
         // Retain every explicitly stored version, including its patient materials.
         $query = "select id from categories where name = 'Encounters'";
@@ -675,7 +757,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         //$pdf->writeHTML($content, 2);
 
         $pdf->writeHTML($content);
-        eye_mag_append_materials_handout_pdf($pdf, EyeFormData::integer($form_id), EyeFormData::integer($pid));
+        ReportPdfAppendQueue::append($pdf);
         $tmpdir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
         $temp_filename = $tmpdir . $filename;
         $content_pdf = $pdf->Output($temp_filename, 'F');
@@ -847,7 +929,9 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                         $newdata[$field_id] = get_layout_form_value($frow);
                     }
                 }
-                //have to figure where to put comments in this next line for the rest of openemr
+                // The history service clones the latest row; a new patient may not
+                // have one yet, so supply the trusted session patient explicitly.
+                $newdata['pid'] = $pid;
                 updateHistoryData($pid, $newdata);
                 if ($_REQUEST['marital_status'] > '') {
                     // have to match input with list_option for marital to not break openEMR
@@ -1088,11 +1172,34 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
 
     if (($_REQUEST['action'] ?? '') == 'code_visit') {
         $CODING = json_decode((string) $_REQUEST['parameter'], true);
-        $query = "delete from billing where encounter =?";
-        sqlStatement($query, [$encounter]);
-        $dups = [];
-        foreach ($CODING as $item) { //need toremove duplicate codes
+        if (!is_array($CODING) || EyeFormData::identifier($session->get('encounter')) !== EyeFormData::identifier($encounter)) {
+            http_response_code(400);
+            exit;
+        }
+        try {
+            QueryUtils::inTransaction(static function () use ($CODING, $form_id, $pid, $encounter, $providerID): void {
+                // Serialize against the 92060 choice so a stale submission cannot re-add an opted-out charge.
+                $choice = QueryUtils::querySingleRow(
+                    "SELECT n.CPT_92060_SELECTED FROM form_eye_neuro n JOIN forms f ON f.form_id=n.id AND f.pid=n.pid WHERE n.id=? AND n.pid=? AND f.encounter=? AND f.formdir='eye_mag' AND f.deleted=0 FOR UPDATE",
+                    [$form_id, $pid, $encounter]
+                );
+                if (!$choice) {
+                    throw new \DomainException('Missing Eye Form');
+                }
+                $existing = QueryUtils::fetchRecords('SELECT billed,bill_process,bill_date FROM billing WHERE pid=? AND encounter=? AND activity=1 FOR UPDATE', [$pid, $encounter]);
+                foreach ($existing as $line) {
+                    if (EyeFormData::integer($line['billed'] ?? 0) !== 0 || EyeFormData::integer($line['bill_process'] ?? 0) !== 0 || !empty($line['bill_date'])) {
+                        throw new \DomainException('Already billed');
+                    }
+                }
+                QueryUtils::sqlStatementThrowException('DELETE FROM billing WHERE pid=? AND encounter=? AND activity=1', [$pid, $encounter]);
+                $dups = [];
+                foreach ($CODING as $item) { //need toremove duplicate codes
             if (!is_array($item)) {
+                continue;
+            }
+            if (($choice['CPT_92060_SELECTED'] ?? null) !== null && EyeFormData::integer($choice['CPT_92060_SELECTED']) === 0
+                && ($item['codetype'] ?? '') === 'CPT4' && ($item['code'] ?? '') === '92060') {
                 continue;
             }
             if (($dups[$item["code"]] ?? '') == '1') {
@@ -1118,6 +1225,12 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $billed = "0";
             $item["justify"] .= ":";
             BillingUtilities::addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
+                }
+            });
+        } catch (\DomainException) {
+            http_response_code(409);
+            echo xlt('The fee sheet cannot be replaced after charges have entered billing.');
+            exit;
         }
         echo "OK";
         exit;
@@ -1285,6 +1398,50 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $_POST['BALANCED'] = '0';
     }
 
+    // Preserve overactions when an older open form does not contain these new fields.
+    $overDirections = ['RRSO', 'RLSO', 'RRIO', 'RLIO', 'LRSO', 'LLSO', 'LRIO', 'LLIO'];
+    $missingOverFields = array_filter($overDirections, static fn(string $direction): bool => !array_key_exists('MOTILITY_' . $direction . '_OVER', $posted));
+    $storedOveractions = [];
+    if ($missingOverFields !== []) {
+        $storedOveractions = EyeFormData::row(QueryUtils::querySingleRow(
+            'SELECT MOTILITY_RRSO_OVER, MOTILITY_RLSO_OVER, MOTILITY_RRIO_OVER, MOTILITY_RLIO_OVER, MOTILITY_LRSO_OVER, MOTILITY_LLSO_OVER, MOTILITY_LRIO_OVER, MOTILITY_LLIO_OVER FROM form_eye_neuro WHERE id=? AND pid=?',
+            [EyeFormData::integer($form_id), EyeFormData::integer($pid)]
+        ));
+    }
+    foreach ($overDirections as $direction) {
+        $limitationField = 'MOTILITY_' . $direction;
+        $overField = $limitationField . '_OVER';
+        if (array_key_exists($overField, $posted)) {
+            $rawGrade = EyeFormData::text($posted[$overField]);
+            if (!in_array($rawGrade, ['0', '1', '2', '3', '4'], true)) {
+                http_response_code(400);
+                exit;
+            }
+            $overGrade = (int) $rawGrade;
+        } else {
+            $overGrade = EyeFormData::integer($_POST[$limitationField] ?? 0) > 0
+                ? 0 : max(0, min(4, EyeFormData::integer($storedOveractions[$overField] ?? 0)));
+        }
+        $_POST[$overField] = $overGrade;
+        if ($overGrade > 0) {
+            $_POST[$limitationField] = '0';
+            $_POST['MOTILITYNORMAL'] = '0';
+        }
+    }
+    foreach (['RS', 'RI', 'RR', 'RL', 'LS', 'LI', 'LR', 'LL', 'RRSO', 'RLSO', 'RRIO', 'RLIO', 'LRSO', 'LLSO', 'LRIO', 'LLIO'] as $direction) {
+        if (EyeFormData::integer($_POST['MOTILITY_' . $direction] ?? 0) > 0) {
+            $_POST['MOTILITYNORMAL'] = '0';
+            break;
+        }
+    }
+
+    $_POST['VF_UNABLE'] = ($posted['VF_UNABLE'] ?? '') === '1' ? '1' : '0';
+    if ($_POST['VF_UNABLE'] === '1') {
+        foreach (['ODVF1', 'ODVF2', 'ODVF3', 'ODVF4', 'OSVF1', 'OSVF2', 'OSVF3', 'OSVF4'] as $field) {
+            $_POST[$field] = '0';
+        }
+    }
+
     if (!($_POST['ODVF1'] ?? '')) {
         $_POST['ODVF1'] = '0';
     }
@@ -1353,6 +1510,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                     $row['Field'] == 'LOCKED' or
                     $row['Field'] == 'LOCKEDBY' or
                     $row['Field'] == 'activity' or
+                    $row['Field'] == 'CPT_92060_SELECTED' or
+                    $row['Field'] == 'CPT_92060_REMOVED_IDS' or
                     $row['Field'] == 'NEURO_DRAWING_JSON' or
                     $row['Field'] == 'PLAN' or
                     $row['Field'] == 'Resource'
@@ -1538,7 +1697,17 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
  */
 
 if ($_REQUEST['canvas'] ?? '') {
-    if (!$pid || !$encounter || !$zone || !$_POST["imgBase64"]) {
+    if (!$pid || !$encounter || !$zone || !($posted['imgBase64'] ?? '')) {
+        http_response_code(400);
+        exit;
+    }
+
+    $drawingForm = EyeFormData::row(QueryUtils::querySingleRow(
+        'SELECT form_id FROM forms WHERE form_id=? AND pid=? AND encounter=? AND formdir=? AND deleted=0 LIMIT 1',
+        [EyeFormData::integer($id), EyeFormData::integer($pid), EyeFormData::integer($encounter), 'eye_mag']
+    ));
+    if (EyeFormData::integer($drawingForm['form_id'] ?? 0) <= 0 || ($_REQUEST['canvas'] ?? '') !== $zone) {
+        http_response_code(404);
         exit;
     }
 
@@ -1565,6 +1734,46 @@ if ($_REQUEST['canvas'] ?? '') {
         echo "Invalid drawing background.";
         exit;
     }
+    $rasterMode = EyeFormData::text($posted['rasterMode'] ?? '');
+    if ($zone === 'NEURO' && $rasterMode === '') {
+        // Older clients save only a flattened image; do not restore an outdated separate base.
+        $rasterMode = 'legacy';
+    }
+    $rasterBase = null;
+    $hadRasterBase = false;
+    if ($zone === 'NEURO' && $rasterMode !== '') {
+        if (!in_array($rasterMode, ['separate', 'legacy'], true)) {
+            http_response_code(400);
+            exit;
+        }
+        $rasterUrl = EyeFormData::text($posted['rasterBase'] ?? '');
+        if ($rasterMode === 'legacy') {
+            $priorRaster = EyeFormData::row(QueryUtils::querySingleRow(
+                'SELECT raster_base IS NOT NULL AS has_base FROM form_eye_mag_drawing_overlays WHERE form_id=? AND pid=? AND zone=?',
+                [EyeFormData::integer($id), EyeFormData::integer($pid), $zone]
+            ));
+            $hadRasterBase = EyeFormData::integer($priorRaster['has_base'] ?? 0) === 1;
+        }
+        if ($rasterMode === 'separate' || $rasterUrl !== '') {
+            $prefix = 'data:image/png;base64,';
+            if (!str_starts_with($rasterUrl, $prefix) || strlen($rasterUrl) > 7 * 1024 * 1024) {
+                http_response_code(400);
+                exit;
+            }
+            $decodedRaster = base64_decode(substr($rasterUrl, strlen($prefix)), true);
+            if ($decodedRaster === false || strlen($decodedRaster) > 5 * 1024 * 1024
+                || !str_starts_with($decodedRaster, "\x89PNG\r\n\x1a\n")) {
+                http_response_code(400);
+                exit;
+            }
+            $rasterSize = getimagesizefromstring($decodedRaster);
+            if ($rasterSize === false || $rasterSize[0] !== 450 || $rasterSize[1] !== 250 || ($rasterSize['mime'] ?? '') !== 'image/png') {
+                http_response_code(400);
+                exit;
+            }
+            $rasterBase = $decodedRaster;
+        }
+    }
     QueryUtils::sqlStatementThrowException(
         "INSERT INTO form_eye_mag_drawing_overlays
             (form_id, pid, zone, overlay_json, background_key, updated_at)
@@ -1580,30 +1789,15 @@ if ($_REQUEST['canvas'] ?? '') {
         );
     }
 
-    // we receive a canvas: adding or replacing this image
-    // Does it exist already? If so delete it. Yep.
-    //      We should not need to keep each progressive stroke on a canvas, just the last one...
-    //      We are attaching it to this encounter so when the encounter is locked
-    //      this file should also be locked.  Right?
-    // Then add this.
-
-    $sql = "SELECT * from documents where documents.name like ?";
-    $ans1 = sqlQuery($sql, ['%' . $base_name . '%']);
+    // Retain the previous image until the replacement and its separate raster are saved.
+    $sql = "SELECT * from documents where documents.name = ? AND foreign_id = ? AND encounter_id = ? AND deleted = 0 ORDER BY id DESC";
+    $ans1 = sqlQuery($sql, [$filename, EyeFormData::integer($pid), EyeFormData::integer($encounter)]);
     $category_id = null;
-    if ($ans1['id'] ?? '') {  //it is new, add it
-        $file = substr((string) $ans1['url'], 7);
-        foreach (glob($file) as $file_to_delete) {
-            unlink($file_to_delete);
-        }
+    if ($ans1['id'] ?? '') {
         $query = "select id from categories where name like 'Drawings%'";
         $result = sqlStatement($query);
         $ID = sqlFetchArray($result);
-        $category_id = $ID['id'];//we need to know where to store this new one.
-
-        $sql = "DELETE from categories_to_documents where document_id = ?";
-        sqlQuery($sql, [$ans1['id']]);
-        $sql = "DELETE from documents where id = ?";
-        sqlQuery($sql, [$ans1['id']]);
+        $category_id = $ID['id'];
     }
 
     $type = "image/jpeg"; // all our canvases are this type
@@ -1613,9 +1807,33 @@ if ($_REQUEST['canvas'] ?? '') {
     $size = strlen($data);
 
     $return = addNewDocument($filename, $type, $_POST["imgBase64"], 0, $size, $session->get('authUserID'), $pid, $category_id);
-    $doc_id = $return['doc_id'];
+    $doc_id = is_array($return) ? EyeFormData::integer($return['doc_id'] ?? 0) : 0;
+    if ($doc_id <= 0) {
+        http_response_code(500);
+        exit;
+    }
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
     sqlQuery($sql, [$encounter, $doc_id]);
+
+    if ($zone === 'NEURO' && $rasterMode !== '') {
+        // Do not write patient image bytes into the SQL audit log.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE form_eye_mag_drawing_overlays SET raster_base=?, raster_legacy=? WHERE form_id=? AND pid=? AND zone=?',
+            [$rasterBase, $rasterMode === 'legacy' ? 1 : 0, EyeFormData::integer($id), EyeFormData::integer($pid), $zone],
+            true
+        );
+    }
+
+    $preserveLegacyOriginal = $zone === 'NEURO' && $rasterMode === 'legacy' && !$hadRasterBase;
+    if (($ans1['id'] ?? '') && EyeFormData::integer($ans1['id']) !== $doc_id && !$preserveLegacyOriginal) {
+        $oldId = EyeFormData::integer($ans1['id']);
+        sqlQuery('DELETE FROM categories_to_documents WHERE document_id = ?', [$oldId]);
+        sqlQuery('DELETE FROM documents WHERE id = ? AND foreign_id = ? AND encounter_id = ?', [$oldId, EyeFormData::integer($pid), EyeFormData::integer($encounter)]);
+        $file = substr(EyeFormData::text($ans1['url'] ?? ''), 7);
+        foreach (glob($file) ?: [] as $fileToDelete) {
+            unlink($fileToDelete);
+        }
+    }
 
     echo "doc stored.";
     exit;

@@ -809,7 +809,9 @@ function build_PMSFH($pid): array
         $row_counter = '0';
         foreach (QueryUtils::fetchRecords($issues->sql, $issues->params) as $row) {
             $rowid = $row['id'];
-            $disptitle = text(trim((string) $row['title'])) ? text($row['title']) : "[" . xlt("Missing Title") . "]";
+            // Keep model values unescaped; each HTML or JavaScript sink escapes them once.
+            $title = EyeFormData::text($row['title'] ?? '');
+            $disptitle = trim($title) !== '' ? $title : '[' . xl('Missing Title') . ']';
             //  look up the diag codes
             $codetext = "";
             $codedesc = "";
@@ -2322,7 +2324,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
         $backgroundPreference = $zone === 'SDRETINA' ? 'large-retina' : 'default';
     }
     $overlayRow = EyeFormData::integer($formId) > 0 ? QueryUtils::querySingleRow(
-        "SELECT overlay_json, background_key FROM form_eye_mag_drawing_overlays WHERE form_id=? AND pid=? AND zone=?",
+        "SELECT overlay_json, background_key, raster_base, raster_legacy FROM form_eye_mag_drawing_overlays WHERE form_id=? AND pid=? AND zone=?",
         [EyeFormData::integer($formId), EyeFormData::integer($pid), (string) $zone]
     ) : [];
     $drawingOverlayJson = EyeFormData::text($overlayRow['overlay_json'] ?? '');
@@ -2359,6 +2361,10 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 $sql = "SELECT * from documents where name like ? AND foreign_id = ? AND deleted = 0 ORDER by id DESC";
                 $doc = QueryUtils::querySingleRow($sql, ["%" . $base_name . "%", EyeFormData::integer($pid)]);
                 $has_saved_drawing = EyeFormData::integer($doc['id'] ?? 0) > 0;
+                $rasterBase = $overlayRow['raster_base'] ?? null;
+                $hasRasterBase = $zone === 'NEURO' && is_string($rasterBase) && $rasterBase !== '';
+                $legacyRaster = $zone === 'NEURO' && $has_saved_drawing
+                    && (!$hasRasterBase || EyeFormData::integer($overlayRow['raster_legacy'] ?? 0) === 1);
                 if (!$has_saved_drawing && $drawingOverlayJson === '[]') {
                     $drawingBackground = $backgroundPreference;
                 }
@@ -2374,7 +2380,10 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                     && !str_starts_with($drawingBackground, 'custom-')
                     && !str_starts_with($drawingBackground, 'saved-')
                     && $activeBackground->structured;
-                if ($has_saved_drawing) {
+                if ($has_saved_drawing && $zone === 'NEURO' && is_string($rasterBase) && $rasterBase !== '') {
+                    // Restore the original ink/background without previously flattened structured marks.
+                    $filetoshow = 'data:image/png;base64,' . base64_encode($rasterBase);
+                } elseif ($has_saved_drawing) {
                     $filetoshow = OEGlobalsBag::getInstance()->getWebRoot()
                         . "/controller.php?document&retrieve&patient_id=" . attr_url($pid)
                         . "&document_id=" . attr_url(EyeFormData::text($doc['id'] ?? ''))
@@ -2452,7 +2461,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
             </div>
 
             <div class="borderShadow">
-                <div class="eye-drawing-stage" data-structured-background="<?php echo $structuredBackground ? '1' : '0'; ?>" data-has-saved-drawing="<?php echo $has_saved_drawing ? '1' : '0'; ?>">
+                <div class="eye-drawing-stage" data-structured-background="<?php echo $structuredBackground ? '1' : '0'; ?>" data-has-saved-drawing="<?php echo $has_saved_drawing ? '1' : '0'; ?>" data-raster-base="<?php echo !$has_saved_drawing || $hasRasterBase ? '1' : '0'; ?>" data-raster-legacy="<?php echo $legacyRaster ? '1' : '0'; ?>">
                 <canvas id="myCanvas_<?php echo attr($zone); ?>"
                         name="myCanvas_<?php echo attr($zone); ?>"
                     <?php
@@ -2842,7 +2851,8 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li class="nav-lik" id="menu_PRINT_narrative" name="menu_PRINT_report"><a class="nav-link black" id="BUTTON_PRINT_report" target="_new" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?><span class="menu_icon"><i class="fa fa-print"></i></span></a></li>
+                             <li class="nav-lik" id="menu_PRINT_narrative" name="menu_PRINT_report"><a class="nav-link black" id="BUTTON_PRINT_report" target="_new" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?><span class="menu_icon"><i class="fa fa-print"></i></span></a></li>
+                            <li class="nav-item"><a class="nav-link black" id="OPEN_REPORT_ATTACHMENTS" href="#"><?php echo xlt('Report Attachments'); ?><span class="menu_icon"><i class="fa fa-paperclip"></i></span></a></li>
                             <li class="nav-ite" id="menu_PRINT_narrative_2" name="menu_PRINT_report_2"><a class="nav-link black" id="BUTTON_PRINT_report_2" target="_new" href="#"
                                 onclick="top.restoreSession(); create_task('<?php echo attr($provider_id); ?>','Report','menu'); return false;">
                                 <?php echo xlt("Save Report as PDF"); ?><span class="menu_icon"><i class="fa fa-file-pdf"></i></span></a></li>
@@ -2938,13 +2948,13 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                         <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
                             <li>
                                 <a class="nav-link black" href="#"  tabindex="-1" id="tooltips_toggle" name="tooltips_toggle">
-                                <i class="fa fa-help"></i>  <?php echo xlt("Tooltips"); ?>
+                                <i class="fas fa-question-circle"></i>  <?php echo xlt("Tooltips"); ?>
                                 <span id="tooltips_status" name="tooltips_status"></span>
                                 <span class="menu_icon"><i title="<?php echo xla('Tooltips on/off'); ?>" id="qtip_icon" class="fa fa-info-circle fa-1"></i></span></a>
                             </li>
                             <li>
                                 <a class="nav-link black" tabindex="-1" target="_shorthand" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/eye_mag/help.php">
-                                    <i class="fa fa-help"></i>  <?php echo xlt("Shorthand Help"); ?>
+                                    <i class="fas fa-question-circle"></i>  <?php echo xlt("Shorthand Help"); ?>
                                     <span class="menu_icon">
                                         <i title="<?php echo xla('Click for Shorthand Help.'); ?>" class="fa fa-info-circle fa-1"></i></span></a>
                             </li>

@@ -277,11 +277,15 @@ function submit_canvas(zone, force) {
             var canvas = document.getElementById('myCanvas_' + zone);
             if (!canvas || (!force && typeof isEyeCanvasDirty === 'function' && !isEyeCanvasDirty(zone))) return;
             var overlay = window.eyeDrawingOverlays && window.eyeDrawingOverlays[zone];
+            var rasterMode = zone === 'NEURO'
+                ? ($(canvas).closest('.eye-drawing-stage').attr('data-raster-legacy') === '1' ? 'legacy' : 'separate') : '';
             var exported = overlay ? overlay.exportSnapshot(canvas) : Promise.resolve({
                 dataURL: canvas.toDataURL('image/jpeg', 1),
                 overlayJson: '[]',
                 revision: typeof getEyeCanvasRevision === 'function' ? getEyeCanvasRevision(zone) : undefined,
-                backgroundKey: $('#current_background_' + zone).val() || 'default'
+                backgroundKey: $('#current_background_' + zone).val() || 'default',
+                rasterMode: rasterMode,
+                rasterBase: rasterMode ? canvas.toDataURL('image/png') : ''
             });
             return exported.then(function (snapshot) {
                 snapshot.overlay = overlay;
@@ -309,7 +313,9 @@ function eyeDrawingUseChosenBackground(zone, key) {
     $('#current_background_' + zone).val(option.key);
     $('#myCanvas_' + zone).closest('.eye-drawing-stage')
         .attr('data-structured-background', option.structured ? '1' : '0')
-        .attr('data-has-saved-drawing', '0');
+        .attr('data-has-saved-drawing', '0')
+        .attr('data-raster-base', '1')
+        .attr('data-raster-legacy', '0');
     $(document).trigger('eye:background-changed', [zone]);
     return true;
 }
@@ -361,13 +367,18 @@ function persist_canvas(zone, dataURL, overlayJson, savedState) {
            'zone'        : zone,
            'visit_date'  : $("#visit_date").val(),
            'encounter'   : $("#encounter").val(),
-           'pid'         : $("#pid").val(),
-           'overlayJson' : overlayJson,
-           'backgroundKey': savedState.backgroundKey
+            'pid'         : $("#pid").val(),
+            'overlayJson' : overlayJson,
+            'backgroundKey': savedState.backgroundKey,
+            'rasterMode'  : savedState.rasterMode || '',
+            'rasterBase'  : savedState.rasterBase || ''
            }
 
-           }).done(function(o) {
-                   if (typeof clearEyeCanvasDirty === 'function') {
+           }).then(function(o) {
+                    if (typeof o !== 'string' || o.trim() !== 'doc stored.') {
+                        throw new Error(<?php echo xlj('The drawing could not be saved. Please try again.'); ?>);
+                    }
+                    if (typeof clearEyeCanvasDirty === 'function') {
                        clearEyeCanvasDirty(zone, savedState.revision);
                    }
                    var drawingOverlay = window.eyeDrawingOverlays && window.eyeDrawingOverlays[zone];
@@ -381,11 +392,12 @@ function persist_canvas(zone, dataURL, overlayJson, savedState) {
                            .closest('.eye-drawing-stage').attr('data-has-saved-drawing', '1');
                        $("#NEURO_structured_overlay").trigger('drawing-created');
                    }
-                   }).fail(function() {
-                       if (typeof markEyeCanvasDirty === 'function') {
-                           markEyeCanvasDirty(zone);
-                       }
-                   });
+                    }, function() {
+                        if (typeof markEyeCanvasDirty === 'function') {
+                            markEyeCanvasDirty(zone);
+                        }
+                        throw new Error(<?php echo xlj('The drawing could not be saved. Please try again.'); ?>);
+                    });
 }
 /**
  *  Function to update the user's preferences
@@ -856,7 +868,7 @@ function show_right() {
 /**
  * Function to implode the form and hide the right side of every section.
  */
-function hide_right() {
+function hide_right(persistPreference) {
     $("#HPI_1").removeClass("size100").addClass("size50");
     $("#PMH_1").removeClass("size100").addClass("size50");
     $("#EXT_1").removeClass("size100").addClass("size50");
@@ -876,7 +888,7 @@ function hide_right() {
     $("#ANTSEG_1").removeClass("clear_both");
     $("#RETINA_1").removeClass("clear_both");
     $("#NEURO_1").removeClass("clear_both");
-    update_PREFS();
+    if (persistPreference !== false) update_PREFS();
 }
 /*
  * Function to explode the form and show the left side of every section.
@@ -953,9 +965,9 @@ function show_DRAW() {
 function show_TEXT(persistPreference) {
     $(".TEXT_class").removeClass('nodisplay');
     show_left();
-    hide_right(); //this hides the right half
+    hide_right(persistPreference); //this hides the right half
     hide_QP();
-    hide_DRAW();
+    hide_DRAW(persistPreference);
     hide_PRIORS();
     // Impression/Plan is the text-mode exception: keep its builder available.
     $("#IMPPLAN_right").removeClass('nodisplay').addClass('canvas');
@@ -1023,7 +1035,7 @@ function show_QP() {
 /**
  * Function to display only one DRAW panel of one section.
  */
-function show_DRAW_section(zone) {
+function show_DRAW_section(zone, persistPreference) {
     $("#QP_"+zone).addClass('nodisplay');
     $("#"+zone+"_left").removeClass('nodisplay');
     $("#"+zone+"_right").addClass('canvas').removeClass('nodisplay');
@@ -1033,7 +1045,7 @@ function show_DRAW_section(zone) {
         $("#Draw_NEURO").trigger('eye:drawing-opened');
     }
     $("#PREFS_"+zone+"_DRAW").val(1);
-    update_PREFS();
+    if (persistPreference !== false) update_PREFS();
 }
 /*
  * Function to display only one PRIORS panel of one section.
@@ -1093,6 +1105,7 @@ function show_CURRENT_CANVAS_section(zone) {
 /** Replace a zone canvas image and switch its drawing selector back to the current visit. */
 function replace_CANVAS(zone, url) {
     $("#url_"+zone).val(url);
+    $('#myCanvas_' + zone).closest('.eye-drawing-stage').attr('data-raster-base', '0').attr('data-raster-legacy', '1');
     cReplace(zone);
     $("#SELECT_CANVAS_"+zone).val('current');
     show_CURRENT_CANVAS_section(zone);
@@ -1124,9 +1137,9 @@ function hide_PRIORS_section(zone) {
 /*
  * Function to hide all the DRAW panels of every section.
  */
-function hide_DRAW() {
+function hide_DRAW(persistPreference) {
     $(".Draw_class").addClass('nodisplay');
-    hide_right();
+    hide_right(persistPreference);
     $("#LayerTechnical_sections").removeClass('nodisplay');
     $("#REFRACTION_sections").removeClass('nodisplay');
     $("#PMH_sections").removeClass('nodisplay');
@@ -1310,13 +1323,47 @@ function check_CPT_92060() {
             return false;
         }
     });
-    if ((neuro1 && neuro2) || hasPrismData){
-        $("#neurosens_code").removeClass('nodisplay');
-        CPT_92060 = 'here';
-    } else {
-        $("#neurosens_code").addClass('nodisplay');
-        CPT_92060 = '';
-    }
+    var suggested = !!((neuro1 && neuro2) || hasPrismData);
+    var checkbox = $('#CPT_92060_SELECTED');
+    var choice = checkbox.attr('data-choice');
+    var selected = choice === '1' || (choice !== '0' && suggested);
+    checkbox.prop('checked', selected);
+    $('#neurosens_code').toggleClass('nodisplay', !suggested && !selected);
+    CPT_92060 = selected ? 'here' : '';
+}
+
+/** Persist the clinician's 92060 choice before allowing another fee-sheet submission. */
+function save_CPT_92060_choice(checkbox) {
+    var control = $(checkbox);
+    var selected = checkbox.checked;
+    var codingButton = $('#code_me_now');
+    var wasDisabled = codingButton.prop('disabled');
+    control.prop('disabled', true);
+    codingButton.prop('disabled', true);
+    if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+    $.ajax({
+        type: 'POST', url: '../../forms/eye_mag/save.php?mode=update', dataType: 'json',
+        data: {
+            action: 'set_92060', form_id: $('#form_id').val(), encounter: $('#encounter').val(),
+            uniqueID: $('#uniqueID').val(), selected: selected ? '1' : '0',
+            csrf_token_form: control.attr('data-csrf')
+        }
+    }).done(function (result) {
+        if (!result || result.ok !== true || result.selected !== selected) {
+            window.alert(<?php echo xlj('The 92060 selection could not be saved. Please try again.'); ?>);
+            check_CPT_92060();
+            return;
+        }
+        control.attr('data-choice', selected ? '1' : '0');
+        check_CPT_92060();
+    }).fail(function (response) {
+        var message = response.responseJSON && response.responseJSON.error;
+        window.alert(message || <?php echo xlj('The 92060 selection could not be saved. Please try again.'); ?>);
+        check_CPT_92060();
+    }).always(function () {
+        control.prop('disabled', false);
+        codingButton.prop('disabled', wasDisabled);
+    });
 }
 /*
  * Function to check documentation level for coding purposes
@@ -1506,9 +1553,10 @@ function build_IMPPLAN(items,nodisplay) {
         visit_justifier =[];
         $.each(items, function( index, value ) {
             if (!value.codetext) value.codetext="";
-            if (!value.code) value.code="";
-            if ((value.code==="") || (value.code.match(/Code/) || (value.code==null))) {
-              value.code="<i class='fa fa-search-plus'></i>&nbsp;Code";
+            value.code = value.code ? String(value.code) : "";
+            var missingCode = value.code.trim() === "" || /^(?:<i\b[^>]*\bfa-search-plus\b[^>]*>\s*<\/i>)?(?:&nbsp;|&#160;|\s)*Code\s*$/i.test(value.code.trim());
+            if (missingCode) {
+              value.code="";
             } else {
               count_dx++;
 
@@ -1577,8 +1625,8 @@ function build_IMPPLAN(items,nodisplay) {
                var title2 = value.title.replace(/(\')/g, '');
                contents_here = "<span class='bold' contenteditable title='<?php echo xla('Click to edit'); ?>' id='IMPRESSION_"+index+"'>" +
                jsText(value.title) +"</span>"+
-               " <span contenteditable class='float-right' onclick='sel_diagnosis("+index+","+jsAttr(JSON.stringify(title2))+");' title='"+jsAttr(value.codetext)+"' id='CODE_"+index+"'>"+
-               jsText(value.code) + "</span>"+
+               " <span contenteditable class='float-right' data-code-placeholder='"+(missingCode ? '1' : '0')+"' onclick='sel_diagnosis("+index+","+jsAttr(JSON.stringify(title2))+");' title='"+jsAttr(value.codetext)+"' id='CODE_"+index+"'>"+
+               (missingCode ? "<i class='fa fa-search-plus'></i>&nbsp;Code" : jsText(value.code)) + "</span>"+
                "<br /><textarea id='PLAN_"+index+"' name='PLAN_"+index+
                "' style='width:100%;max-width:100%;height:auto;min-height:3em;overflow-y: hidden;padding-top: 1.1em; '>"+
                jsText(value.plan) +"</textarea><br /></li>";
@@ -1634,9 +1682,13 @@ function build_IMPPLAN(items,nodisplay) {
                                     //$(this).css('background-color','#F0F8FF');
                                     return false;
                                     });
-        $('[id^=CODE_]').on('blur', function() {
+        $('[id^=CODE_]').on('focus', function() {
+                              if ($(this).attr('data-code-placeholder') === '1') {
+                                  $(this).empty().attr('data-code-placeholder', '0');
+                              }
+                            }).on('blur', function() {
                               var item = this.id.match(/CODE_(.*)/)[1];
-                              var new_code = this.innerText || this.innerHTML;
+                              var new_code = $(this).attr('data-code-placeholder') === '1' ? '' : (this.innerText || '').trim();
                               obj.IMPPLAN_items[item].code =  new_code;
                               //obj.IMPPLAN_items[item].codetext = '';
                               //obj.IMPPLAN_items[item].codedesc = '';
@@ -1748,8 +1800,12 @@ function CODING_to_feesheet(CODING_items) {
                         return;
                        } else {
                         //$("#goto_fee_sheet").prop('disabled', false);
-                        $("#goto_fee_sheet").removeClass('nodisplay');
-                       }
+                         $("#goto_fee_sheet").removeClass('nodisplay');
+                        }
+                       }).fail(function (response) {
+                           window.alert(response.status === 409
+                               ? <?php echo xlj('The fee sheet cannot be replaced after charges have entered billing.'); ?>
+                               : <?php echo xlj('The fee sheet could not be updated. Please try again.'); ?>);
                        });
     }
 
@@ -1957,6 +2013,23 @@ function toggle_active_flags(new_state) {
         $("#COPY_SECTION").val("READONLY-"+this_form_id);
     }
 }
+/** Restore visual-field checkbox state after a prior or read-only record is applied. */
+function eyeSyncVisualFieldStatus(record) {
+    if (!record || !Object.prototype.hasOwnProperty.call(record, 'VF_UNABLE')) return;
+    var unable = String(record.VF_UNABLE) === '1';
+    $('#VF_UNABLE').val('1').prop('checked', unable);
+    for (var index = 1; index <= 4; index++) {
+        ['ODVF', 'OSVF'].forEach(function (prefix) {
+            var key = prefix + index;
+            if (Object.prototype.hasOwnProperty.call(record, key)) {
+                var checked = !unable && String(record[key]) === '1';
+                $('#' + key).val(checked ? '1' : '0').prop('checked', checked);
+            }
+        });
+    }
+    $('#FieldsNormal').prop('checked', !unable && $("[name^='ODVF']:checked,[name^='OSVF']:checked").length === 0);
+}
+
 /*
  * Function to update a form in READ-ONLY mode with any data added by the Active version of this form_id/encounter form
  */
@@ -2040,6 +2113,8 @@ function update_READONLY() {
                  }
                  }
                  });
+           eyeSyncVisualFieldStatus(result);
+           $(document).trigger('eye:motility-refresh', [result]);
            }});
 }
 function dopopup(url) {
@@ -2410,7 +2485,7 @@ function show_by_setting() {
     var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
     for (index = '0'; index < zones.length; ++index) {
         if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
-            show_DRAW_section(zones[index]);
+            show_DRAW_section(zones[index], false);
         } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP'
                 || $("#PREFS_"+zones[index]+"_RIGHT").val() =='DF') {
             show_QP_section(zones[index],'1');
@@ -2465,10 +2540,13 @@ function show_by_setting() {
     }
 
     // TEXT is a complete display mode, not only a selected toolbar state.
-    // Reapply it after the zone-specific setup so the next Eye Form opens
-    // with left text panels and the Impression/Plan options accordion visible.
+    // Reapply it after zone-specific setup, then restore the separately chosen
+    // Neuro drawing without changing the saved exam mode.
     if ($("#PREFS_EXAM").val() === 'TEXT') {
         show_TEXT(false);
+        if ($("#PREFS_NEURO_RIGHT").val() === 'DRAW') {
+            show_DRAW_section('NEURO', false);
+        }
     }
 
     return true;
@@ -2502,8 +2580,9 @@ $(function () {
                   var allPanels2 = $('.building_blocks2 > dd').hide();
                   refresh_page();
 
-                // AUTO- CODING FEATURES
+                  // AUTO- CODING FEATURES
                   check_CPT_92060();
+                  $('#CPT_92060_SELECTED').on('change', function () { save_CPT_92060_choice(this); });
                   check_exam_detail();
                   hide_DRAW();
                   hide_right();
@@ -2763,6 +2842,16 @@ $(function () {
 
                   var hash_tag = '<i class="fa fa-minus"></i>';
                   var index;
+                  var motilitySaveQueue = Promise.resolve();
+                  /** Serialize motility saves so rapid grade changes cannot be stored out of order. */
+                  function saveNeuroMotility(action) {
+                      motilitySaveQueue = motilitySaveQueue.then(function() {
+                          return submit_form(action);
+                      }).catch(function() {
+                          window.alert(<?php echo xlj('The motility changes could not be saved. Please try again.'); ?>);
+                      });
+                      return motilitySaveQueue;
+                  }
                   // display any stored MOTILITY values
                   $("#MOTILITY_RS").value = parseInt($("#MOTILITY_RS").val());
                   if ($("#MOTILITY_RS").val() > '0') {
@@ -2910,6 +2999,19 @@ $(function () {
                                       'data-level': point[2],
                                       'aria-label': eye.label + ' ' + point[2] + ' ' + point[1]
                                   }));
+                              if (point[2] !== 'middle') {
+                                  var patternStrings = window.eyeNeuroPatternStrings || {};
+                                  var label = eye.label + ' ' + point[2] + ' ' + point[1] + ' ' + (patternStrings.overaction || 'overaction');
+                                  chart.append($('<button type="button" class="motility-h-overaction"></button>')
+                                      .attr({
+                                          'data-field': point[0] + '_OVER',
+                                          'data-limitation': point[0],
+                                          'data-side': point[1],
+                                          'data-level': point[2],
+                                          'data-label': label,
+                                          'title': (patternStrings.overactionControl || 'Click to change overaction from 0 to +4')
+                                      }).append('<span class="motility-h-overaction-value"></span>'));
+                              }
                           });
                           charts.append(chart);
                       });
@@ -2925,6 +3027,45 @@ $(function () {
                           }
                           $(this).html(marks).attr('aria-label', $(this).attr('aria-label').replace(/, grade [0-4]$/, '') + ', grade ' + value);
                       });
+                      $("#NEURO_MOTILITY .motility-h-overaction").each(function() {
+                          var value = Math.max(0, Math.min(4, parseInt($('#' + $(this).data('field')).val(), 10) || 0));
+                          $(this).find('.motility-h-overaction-value').text(value ? '+' + value : '');
+                          $(this).attr('aria-label', $(this).attr('data-label') + ', ' + (value ? '+' + value : '0'));
+                      });
+                  }
+
+                  /** Rebuild the X-chart limitation marks from the saved motility grades. */
+                  function renderMotilityXCharts() {
+                      ['RS', 'RI', 'RR', 'RL', 'LS', 'LI', 'LR', 'LL',
+                          'RRSO', 'RLSO', 'RRIO', 'RLIO', 'LRSO', 'LLSO', 'LRIO', 'LLIO'].forEach(function(direction) {
+                          var field = 'MOTILITY_' + direction;
+                          var grade = Math.max(0, Math.min(4, parseInt($('#' + field).val(), 10) || 0));
+                          var vertical = ['RR', 'RL', 'LR', 'LL'].indexOf(direction) !== -1;
+                          var mark = '<span class="motility-x-mark' + (vertical ? ' is-vertical' : '') + '" aria-hidden="true"></span>';
+                          for (var index = 1; index <= 4; index++) {
+                              $('#' + field + '_' + index).html(index <= grade ? mark : '');
+                          }
+                      });
+                      var eyes = [
+                          ['RRSO', 'RLSO', 'RRIO', 'RLIO'],
+                          ['LRSO', 'LLSO', 'LRIO', 'LLIO']
+                      ];
+                      var positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+                      $('#NEURO_MOTILITY .divTable').each(function(eyeIndex) {
+                          if (!eyes[eyeIndex]) return;
+                          var chart = $(this);
+                          eyes[eyeIndex].forEach(function(direction, index) {
+                              var field = 'MOTILITY_' + direction + '_OVER';
+                              var label = chart.find('.motility-x-overaction[data-field="' + field + '"]');
+                              if (!label.length) {
+                                  label = $('<span class="motility-x-overaction"></span>')
+                                      .attr({'data-field': field, 'data-position': positions[index]});
+                                  chart.append(label);
+                              }
+                              var grade = Math.max(0, Math.min(4, parseInt($('#' + field).val(), 10) || 0));
+                              label.text(grade ? '+' + grade : '');
+                          });
+                      });
                   }
 
                   /** Switch between H and X motility charts and optionally persist the practice preference. */
@@ -2936,7 +3077,7 @@ $(function () {
                       switcher.find('[data-motility-display="' + display + '"]').addClass('is-selected').attr('aria-pressed', 'true');
                       $("#NEURO_MOTILITY .divTable").toggleClass('nodisplay', display === 'H');
                       $("#NEURO_MOTILITY .motility-h-charts").toggleClass('nodisplay', display !== 'H');
-                      if (display === 'H') { renderMotilityHCharts(); }
+                      if (display === 'H') { renderMotilityHCharts(); } else { renderMotilityXCharts(); }
                       if (typeof updateNeuroStructuredOverlay === 'function') { updateNeuroStructuredOverlay(); }
 
                       if (savePreference) {
@@ -2967,15 +3108,42 @@ $(function () {
                   $("#NEURO_MOTILITY").on('click', '.motility-h-point', function() {
                       var field = $(this).data('field');
                       var value = parseInt($("#" + field).val(), 10) || 0;
-                      $("#" + field).val(value >= 4 ? 0 : value + 1);
+                      var next = value >= 4 ? 0 : value + 1;
+                      $("#" + field).val(next);
+                      if (next > 0) $('#' + field + '_OVER').val('0');
                       $("#MOTILITYNORMAL").prop('checked', false);
+                      renderMotilityHCharts();
+                      renderMotilityXCharts();
+                      updateNeuroStructuredOverlay();
+                      scheduleNeuroMotilityOverlaySave();
+                      saveNeuroMotility('3');
+                  });
+                  $("#NEURO_MOTILITY").on('click', '.motility-h-overaction', function() {
+                      var field = $(this).data('field');
+                      var limitation = $(this).data('limitation');
+                      var value = parseInt($('#' + field).val(), 10) || 0;
+                      var next = value >= 4 ? 0 : value + 1;
+                      $('#' + field).val(next);
+                      if (next > 0) {
+                          $('#' + limitation).val('0');
+                          for (var index = 0; index < 5; index++) $('#' + limitation + '_' + index).html('');
+                          $('#MOTILITYNORMAL').prop('checked', false);
+                      }
                       renderMotilityHCharts();
                       updateNeuroStructuredOverlay();
                       scheduleNeuroMotilityOverlaySave();
-                      submit_form('3');
+                      saveNeuroMotility('3');
                   });
                   $("#MOTILITYNORMAL").on('click', function() {
                       setTimeout(renderMotilityHCharts, 0);
+                  });
+                  $(document).on('eye:motility-refresh', function(_event, record) {
+                      if (record && Object.prototype.hasOwnProperty.call(record, 'MOTILITYNORMAL')) {
+                          $('#MOTILITYNORMAL').val('on').prop('checked', record.MOTILITYNORMAL === 'on');
+                      }
+                      renderMotilityHCharts();
+                      renderMotilityXCharts();
+                      updateNeuroStructuredOverlay();
                   });
 
                   $(".chronic_HPI,.count_HPI").on("blur", function() {
@@ -3012,6 +3180,17 @@ $(function () {
                   function neuroDrawingPanelIsVisible() {
                       return $("#Draw_NEURO").is(':visible') && $("#NEURO_right").is(':visible');
                   }
+                  /** Detect any recorded limitation or overaction in the motility controls. */
+                  function neuroMotilityHasGrades() {
+                      var hasGrade = false;
+                      $("input[type='hidden'][name^='MOTILITY_']").each(function() {
+                          if ((parseInt($(this).val(), 10) || 0) > 0) {
+                              hasGrade = true;
+                              return false;
+                          }
+                      });
+                      return hasGrade;
+                  }
                   /** Detect stereopsis selections or motility grades that belong in the drawing overlay. */
                   function neuroStructuredOverlayHasValues() {
                       if ($.trim($("#STEREO_ANIMALS").val()) !== '' || $.trim($("#STEREO_CIRCLES").val()) !== '') {
@@ -3022,14 +3201,7 @@ $(function () {
                           $("input[name='STEREO_FIXATION_PREF'][type='radio']:checked").length) {
                           return true;
                       }
-                      var hasMotilityGrade = false;
-                      $("input[type='hidden'][name^='MOTILITY_']").each(function() {
-                          if ((parseInt($(this).val(), 10) || 0) > 0) {
-                              hasMotilityGrade = true;
-                              return false;
-                          }
-                      });
-                      return hasMotilityGrade;
+                      return neuroMotilityHasGrades();
                   }
                   /** Debounce visible structured-overlay saves until the background and annotations are ready. */
                   function scheduleNeuroMotilityOverlaySave() {
@@ -3082,6 +3254,7 @@ $(function () {
                       var svgNamespace = 'http://www.w3.org/2000/svg';
                       var display = $("#NEURO_MOTILITY .motility-display-switch").attr('data-display') === 'H' ? 'H' : 'X';
                       var stroke = '#18324f';
+                      var legacyRaster = $('#myCanvas_NEURO').closest('.eye-drawing-stage').attr('data-raster-legacy') === '1';
 
                       /** Append an SVG element with the supplied attributes to the motility diagram group. */
                       function element(name, attributes) {
@@ -3117,6 +3290,16 @@ $(function () {
                               line(tx - px, ty - py, tx + px, ty + py, 2);
                           }
                       }
+                      /** Draw a single +grade outside the appropriate vertical chart limb. */
+                      function overaction(x, y, field) {
+                          var value = grade(field + '_OVER');
+                          if (value > 0) {
+                              element('text', {x: x, y: y, fill: stroke, 'font-family': 'Arial, sans-serif',
+                                  'font-size': 14, 'font-weight': 'bold', 'text-anchor': 'middle',
+                                  stroke: '#fff', 'stroke-width': field === 'MOTILITY_RLIO' ? 8 : 3, 'stroke-linejoin': 'round',
+                                  'paint-order': 'stroke fill'}).textContent = '+' + value;
+                          }
+                      }
                       /** Draw one eye H diagram with grade ticks on its six tested directions. */
                       function drawH(centerX, fields) {
                           var left = centerX - 41;
@@ -3131,6 +3314,10 @@ $(function () {
                           rayTicks(right, middle, 0, -1, fields.upperRight, 31);
                           rayTicks(centerX, middle, 1, 0, fields.right, 31);
                           rayTicks(right, middle, 0, 1, fields.lowerRight, 31);
+                          overaction(left, 105, fields.upperLeft);
+                          overaction(right, 105, fields.upperRight);
+                          overaction(left, 204, fields.lowerLeft);
+                          overaction(right, 204, fields.lowerRight);
                       }
                       /** Draw one eye X diagram with grade ticks on its eight tested directions. */
                       function drawX(centerX, fields) {
@@ -3148,8 +3335,25 @@ $(function () {
                               line(centerX, centerY, centerX + direction[0] * 39, centerY + direction[1] * 39, 1.5);
                               rayTicks(centerX, centerY, direction[0], direction[1], direction[2], 34);
                           });
+                          overaction(centerX - 34, 105, fields.upperLeft);
+                          overaction(centerX + 34, 105, fields.upperRight);
+                          overaction(centerX - 34, 204, fields.lowerLeft);
+                          overaction(centerX + 34, 204, fields.lowerRight);
                       }
 
+                      if (legacyRaster) {
+                          // Previous images flattened dynamic marks into the raster. Mask only the
+                          // reserved labels while keeping the original raster separately stored.
+                          [38, 118, 170, 249].forEach(function(x) {
+                              element('rect', {x: x, y: 89, width: 36, height: 20, fill: '#fff'});
+                              element('rect', {x: x, y: 189, width: 36, height: 20, fill: '#fff'});
+                          });
+                          [115, 244].forEach(function(x) {
+                              element('rect', {x: x - 27, y: 52, width: 54, height: 32, fill: '#fff'});
+                              element('text', {x: x, y: 73, fill: '#111', 'font-family': 'Arial, sans-serif',
+                                  'font-size': 16, 'text-anchor': 'middle'}).textContent = 'Full';
+                          });
+                      }
                       element('rect', {x: 42, y: 101, width: 107, height: 93, fill: '#fff'});
                       element('rect', {x: 174, y: 101, width: 107, height: 93, fill: '#fff'});
 
@@ -3198,7 +3402,8 @@ $(function () {
                           $("#NEURO_overlay_fixation_" + fixation.toLowerCase()).addClass('is-visible');
                       }
 
-                      var motilityNormal = $("#MOTILITYNORMAL").is(':checked');
+                      var motilityNormal = $("#MOTILITYNORMAL").is(':checked') && !neuroMotilityHasGrades();
+                      if (!motilityNormal && neuroMotilityHasGrades()) $('#MOTILITYNORMAL').prop('checked', false);
                       $("#NEURO_overlay_motility_od, #NEURO_overlay_motility_os")
                           .toggleClass('is-visible', motilityNormal);
                       renderNeuroMotilityOverlay();
@@ -3783,9 +3988,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                      submit_form("eye_mag");
                                                      });
                   $("[name^='ODVF'],[name^='OSVF']").on("click", function() {
-                                                           if ($(this).is(':checked') == true) {
-                                                           $("#FieldsNormal").prop('checked', false);
-                                                           $(this).val('1');
+                                                            if ($(this).is(':checked') == true) {
+                                                            $("#FieldsNormal").prop('checked', false);
+                                                            $("#VF_UNABLE").prop('checked', false);
+                                                            $(this).val('1');
                                                            }else{
                                                            $(this).val('0');
                                                            $(this).prop('checked', false);
@@ -3793,11 +3999,22 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                            submit_form("eye_mag");
                                                            });
                   $("#FieldsNormal").on("click", function() {
-                                           if ($(this).is(':checked')) {
-                                                $("[id^='ODVF']").prop('checked', false);
-                                                $("[id^='OSVF']").prop('checked', false);
-                                           }
-                                           });
+                                            if ($(this).is(':checked')) {
+                                                 $("[id^='ODVF']").prop('checked', false).val('0');
+                                                 $("[id^='OSVF']").prop('checked', false).val('0');
+                                                 $("#VF_UNABLE").prop('checked', false);
+                                            }
+                                            submit_form("eye_mag");
+                                            });
+                  $("#VF_UNABLE").on("click", function() {
+                      if (this.checked) {
+                          $("[id^='ODVF'],[id^='OSVF']").prop('checked', false).val('0');
+                          $("#FieldsNormal").prop('checked', false);
+                      } else {
+                          $("#FieldsNormal").prop('checked', $("[name^='ODVF']:checked,[name^='OSVF']:checked").length === 0);
+                      }
+                      submit_form("eye_mag");
+                  });
                   $("[id^='EXT_prefix']").on("change", function() {
                                                  var newValue =$('#EXT_prefix').val();
                                                  newValue = newValue.replace('+', '');
@@ -4361,6 +4578,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              $("#MOTILITY_LRIO").val('0');
                                              $("#MOTILITY_LLSO").val('0');
                                              $("#MOTILITY_LLIO").val('0');
+                                             $("input[name^='MOTILITY_'][name$='_OVER']").val('0');
 
                                              for (index = '0'; index < 5; ++index) {
                                              $("#MOTILITY_RS_"+index).html('');
@@ -4381,13 +4599,15 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              $("#MOTILITY_LLSO_"+index).html('');
                                              $("#MOTILITY_LLIO_"+index).html('');
                                              }
+                                             renderMotilityXCharts();
                                              updateNeuroStructuredOverlay();
                                              scheduleNeuroMotilityOverlaySave();
-                                             submit_form('eye_mag');
+                                             saveNeuroMotility('eye_mag');
                                              });
 
                   $("[name^='MOTILITY_']").on("click", function()  {
-                                                 $("#MOTILITYNORMAL").removeAttr('checked');
+                                                 if (!/^MOTILITY_(?:[RL](?:S|I|R|L)|[RL](?:RSO|LSO|RIO|LIO))_[0-4](?:_[0-9]+)?$/.test(this.id)) return;
+                                                 $("#MOTILITYNORMAL").prop('checked', false);
 
                                                  if (this.id.match(/(MOTILITY_([A-Z]{4}))_(.)/)) {
                                                  var zone = this.id.match(/(MOTILITY_([A-Z]{4}))_(.)/);
@@ -4424,6 +4644,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  }
 
                                                  $("#"+zone[1]).val(valued);
+                                                 if (valued > 0) $("#" + zone[1] + "_OVER").val('0');
 
                                                  for (index = '0'; index < 5; ++index) {
                                                  $("#"+zone[1]+"_"+index).html('');
@@ -4434,9 +4655,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  }
                                                  }
 
+                                                 renderMotilityXCharts();
                                                  updateNeuroStructuredOverlay();
                                                  scheduleNeuroMotilityOverlaySave();
-                                                 submit_form('3');
+                                                 saveNeuroMotility('3');
                                                  });
 
                   $("[name^='Close_']").on("click", function()  {
@@ -4545,15 +4767,19 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                        $("#"+zone+"_right").addClass('nodisplay');
                                                        $("#PREFS_"+zone+"_RIGHT").val(1);
                                                      }
-                                                     scrollTo(zone+"_left");
+                                                     scrollTo(zone === 'SDRETINA' ? 'RETINA_left' : zone+"_left");
                                                      update_PREFS();
                                                    }
                                                   });
 
                   $("#EXAM_TEXT").addClass('button_selected');
                   if (($("#PREFS_CLINICAL").val() !='1')) {
-                  var actionQ = "#EXAM_"+$("#PREFS_EXAM").val();
-                  $(actionQ).trigger('click');
+                  if ($("#PREFS_EXAM").val() === 'TEXT') {
+                      show_TEXT(false);
+                  } else {
+                      var actionQ = "#EXAM_"+$("#PREFS_EXAM").val();
+                      $(actionQ).trigger('click');
+                  }
                   } else {
                   $("#EXAM_TEXT").addClass('button_selected');
                   }
@@ -4743,6 +4969,8 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                          $("#"+keyhere+"_copy_brd").val(valhere).css("background-color","#F0F8FF");;
                                                          }
                                                          });
+                                                   eyeSyncVisualFieldStatus(result);
+                                                   $(document).trigger('eye:motility-refresh', [result]);
                                                    if (zone === "NEURO") { updatePrismPatternGuidance(); }
                                                    if (zone != "READONLY") { submit_form("eye_mag"); }
                                                    }
@@ -4770,7 +4998,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   }
 
                                                   update_PREFS();
-                                                  scrollToAfterLayout(zone+"_left");
+                                                  scrollToAfterLayout(zone === 'SDRETINA' ? 'RETINA_left' : zone+"_left");
                                                   }
                                                   });
                   $("[id^='BUTTON_QP_']").on("click", function() {
@@ -4938,6 +5166,7 @@ $("body").on("click","[name^='old_canvas']", function() {
 
                   $("input,textarea,text,checkbox").on("change", function(){
                                                            $(this).css("background-color","#F0F8FF");
+                                                           if (this.name === 'MATERIALS_REPORT_DOCUMENT_IDS[]') return;
                                                            if (this.name.match(/IOP/)) { color_IOP(this); }
                                                            if ( ($(this).id != 'IMP') &&
                                                                 (!this.name.match(/^inc_/)) &&

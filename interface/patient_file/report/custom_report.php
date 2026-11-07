@@ -32,6 +32,7 @@ use Mpdf\MpdfException;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Forms\ReportPdfAppendQueue;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -826,6 +827,7 @@ function getContent()
 
         try {
             $pdf->writeHTML($content); // convert html
+            ReportPdfAppendQueue::append($pdf);
         } catch (MpdfException $exception) {
             throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Failed to render the patient report HTML into a PDF', $exception);
         }

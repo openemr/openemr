@@ -19,11 +19,14 @@ namespace OpenEMR\Forms\EyeMag\Clinical;
 use CategoryTree;
 use Document;
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\EyeFormData;
 use OpenEMR\Forms\EyeMag\PatientHandout;
 use OpenEMR\Forms\EyeMag\PatientMaterials;
+use OpenEMR\Forms\EyeMag\PatientReportDocument;
 
 /**
  * Render historical Neuro findings without editable current-exam controls.
@@ -47,7 +50,7 @@ function eye_mag_neuro_prior(array $exam, string $motilityDisplay): string
         $fields = $eye === 'OD'
             ? ['MOTILITY_RS', 'MOTILITY_RI', 'MOTILITY_RR', 'MOTILITY_RL', 'MOTILITY_RRSO', 'MOTILITY_RRIO', 'MOTILITY_RLSO', 'MOTILITY_RLIO']
             : ['MOTILITY_LS', 'MOTILITY_LI', 'MOTILITY_LR', 'MOTILITY_LL', 'MOTILITY_LRSO', 'MOTILITY_LRIO', 'MOTILITY_LLSO', 'MOTILITY_LLIO'];
-        $html = '<svg viewBox="0 0 74 68" role="img" data-display="' . $motilityDisplay . '" aria-label="' . attr($eye . ' ' . $motilityDisplay) . '">';
+        $html = '<svg viewBox="0 -12 74 88" role="img" data-display="' . $motilityDisplay . '" aria-label="' . attr($eye . ' ' . $motilityDisplay) . '">';
         if ($motilityDisplay === 'H') {
             $html .= $line(8, 5, 8, 57) . $line(66, 5, 66, 57) . $line(8, 31, 66, 31);
             $rays = [[8, 31, 0, -1, 4, 22, 5], [37, 31, -1, 0, 2, 16, 4], [8, 31, 0, 1, 5, 22, 5],
@@ -72,6 +75,12 @@ function eye_mag_neuro_prior(array $exam, string $motilityDisplay): string
                 $html .= $line($x + $dy * 4, $y - $dx * 4, $x - $dy * 4, $y + $dx * 4);
             }
             $html .= '</g>';
+        }
+        foreach ([[4, 8, -1], [6, 66, -1], [5, 8, 72], [7, 66, 72]] as [$index, $x, $y]) {
+            $over = max(0, min(4, EyeFormData::integer($value($fields[$index] . '_OVER'))));
+            if ($over > 0) {
+                $html .= '<text x="' . $x . '" y="' . $y . '" text-anchor="middle" font-size="9" font-weight="bold">+' . $over . '</text>';
+            }
         }
         return $html . '</svg>';
     };
@@ -603,6 +612,15 @@ function eye_mag_material_ids(array $materials): array
     $ids = isset($materials['handout_document_ids'])
         ? json_decode(EyeFormData::text($materials['handout_document_ids']), true)
         : [$materials['handout_document_id'] ?? 0];
+    return eye_mag_document_ids($ids);
+}
+
+/** Normalize a JSON or posted list of document IDs without accepting nested values. */
+function eye_mag_document_ids(mixed $ids): array
+{
+    if (is_string($ids)) {
+        $ids = json_decode($ids, true);
+    }
     $result = [];
     foreach (is_array($ids) ? $ids : [] as $id) {
         if ((is_int($id) || is_string($id)) && ctype_digit(EyeFormData::text($id)) && EyeFormData::integer($id) > 0) {
@@ -610,6 +628,68 @@ function eye_mag_material_ids(array $materials): array
         }
     }
     return array_values($result);
+}
+
+/** Find an Eye Form's encounter only within the requested patient. */
+function eye_mag_material_encounter(int $formId, int $pid): int
+{
+    $form = QueryUtils::querySingleRow(
+        "SELECT encounter FROM forms WHERE formdir='eye_mag' AND form_id=? AND pid=? AND deleted=0 LIMIT 1",
+        [$formId, $pid]
+    );
+    return EyeFormData::integer($form['encounter'] ?? 0);
+}
+
+/**
+ * List supported documents tagged to this encounter or not yet tagged at all.
+ * Generated Eye reports and drawings already in the note are excluded.
+ *
+ * @return list<array<string,mixed>>
+ */
+function eye_mag_report_documents(int $pid, int $encounter): array
+{
+    if ($pid <= 0 || $encounter <= 0) {
+        return [];
+    }
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $portal = (bool) $session->get('patient_portal_onsite_two');
+    if ($portal && EyeFormData::integer($session->get('pid')) !== $pid) {
+        return [];
+    }
+    $rows = QueryUtils::fetchRecords(
+        "SELECT d.id,d.name,d.url,d.mimetype,d.encounter_id,d.docdate,d.date,c.name AS category,c.aco_spec
+           FROM documents d
+      LEFT JOIN categories_to_documents cd ON cd.document_id=d.id
+      LEFT JOIN categories c ON c.id=cd.category_id
+          WHERE d.foreign_id=? AND (d.encounter_id=? OR d.encounter_id=0) AND d.deleted=0
+            AND (d.type IS NULL OR d.type <> 'web_url')
+       ORDER BY d.encounter_id DESC,d.id DESC",
+        [$pid, $encounter]
+    );
+    $documents = [];
+    foreach ($rows as $row) {
+        $id = EyeFormData::integer($row['id'] ?? 0);
+        $name = EyeFormData::text($row['name'] ?? '');
+        $url = EyeFormData::text($row['url'] ?? '');
+        $mime = strtolower(EyeFormData::text($row['mimetype'] ?? ''));
+        if (!$id || str_starts_with($name, 'Eye_Report_')
+            || preg_match('/(?:^|[^0-9])' . preg_quote($pid . '_' . $encounter, '/') . '_OU_(?:HPI|PMH|EXT|ANTSEG|RETINA|SDRETINA|NEURO|IMPPLAN)_VIEW\.jpg$/i', $name)) {
+            continue;
+        }
+        if (!in_array($mime, ['application/pdf', 'image/jpeg', 'image/png', 'image/gif'], true)
+            && !preg_match('/\.(?:pdf|jpe?g|png|gif)$/i', $name)
+            && !preg_match('/\.(?:pdf|jpe?g|png|gif)$/i', $url)) {
+            continue;
+        }
+        $aco = EyeFormData::text($row['aco_spec'] ?? '');
+        if (!$portal && $aco !== '' && !AclMain::aclCheckAcoSpec($aco)) {
+            continue;
+        }
+        $documents[$id] = ['id' => $id, 'name' => $name !== '' ? $name : basename($url), 'mimetype' => $mime,
+            'encounter_id' => EyeFormData::integer($row['encounter_id'] ?? 0), 'category' => EyeFormData::text($row['category'] ?? ''),
+            'docdate' => EyeFormData::text($row['docdate'] ?? ''), 'date' => EyeFormData::text($row['date'] ?? '')];
+    }
+    return array_values($documents);
 }
 
 /**
@@ -642,7 +722,7 @@ function eye_mag_save_materials(int $formId, int $pid, array $posted): void
 {
 
     $previous = QueryUtils::querySingleRow(
-        "SELECT handout_document_id, handout_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
+        "SELECT handout_document_id, handout_document_ids, report_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
         [$formId, $pid]
     ) ?: [];
     $oldIds = eye_mag_material_ids($previous);
@@ -660,12 +740,21 @@ function eye_mag_save_materials(int $formId, int $pid, array $posted): void
         // both viewing and report generation independently recheck document access.
         /** Retain existing handout selections or newly selected documents the patient may access. */
         static fn(int $id): bool => in_array($id, $oldIds, true) || eye_mag_material_handout($id, $pid) !== []));
+    $oldReportIds = eye_mag_document_ids($previous['report_document_ids'] ?? []);
+    $reportIds = $oldReportIds;
+    if (($posted['MATERIALS_REPORT_DOCUMENTS_PRESENT'] ?? '') === '1') {
+        $allowed = array_column(eye_mag_report_documents($pid, eye_mag_material_encounter($formId, $pid)), 'id');
+        $reportIds = array_values(array_filter(
+            eye_mag_document_ids($posted['MATERIALS_REPORT_DOCUMENT_IDS'] ?? []),
+            static fn(int $id): bool => in_array($id, $oldReportIds, true) || in_array($id, $allowed, true)
+        ));
+    }
     QueryUtils::sqlStatementThrowException(
-        "REPLACE INTO form_eye_mag_materials (form_id,pid,content,include_text,handout_document_id,handout_document_ids,updated_at)
-         VALUES (?,?,?,?,?,?,NOW())",
+        "REPLACE INTO form_eye_mag_materials (form_id,pid,content,include_text,handout_document_id,handout_document_ids,report_document_ids,updated_at)
+         VALUES (?,?,?,?,?,?,?,NOW())",
         [$formId, $pid, EyeFormData::text($posted['MATERIALS_TO_PRINT'] ?? ''),
             EyeFormData::integer($posted['MATERIALS_TEXT_INCLUDED'] ?? 0) === 1 ? 1 : 0,
-            $ids[0] ?? null, json_encode($ids)]
+            $ids[0] ?? null, json_encode($ids), json_encode($reportIds)]
     );
 }
 
@@ -684,7 +773,7 @@ function eye_mag_materials_for_report(int $formId, int $pid): PatientMaterials
     }
 
     $materials = QueryUtils::querySingleRow(
-        "SELECT content, include_text, handout_document_id, handout_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
+        "SELECT content, include_text, handout_document_id, handout_document_ids, report_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
         [$formId, $pid]
     ) ?: [];
     $handouts = [];
@@ -707,10 +796,39 @@ function eye_mag_materials_for_report(int $formId, int $pid): PatientMaterials
         }
         $handouts[] = new PatientHandout($documentId, $name, $pdfData);
     }
+    $reportIds = eye_mag_document_ids($materials['report_document_ids'] ?? []);
+    $available = $reportIds !== [] ? array_column(eye_mag_report_documents($pid, eye_mag_material_encounter($formId, $pid)), null, 'id') : [];
+    $documents = [];
+    foreach ($reportIds as $documentId) {
+        $metadata = $available[$documentId] ?? null;
+        $name = EyeFormData::text($metadata['name'] ?? '');
+        $mime = '';
+        $data = '';
+        if ($metadata !== null) {
+            try {
+                $bytes = (new Document($documentId))->get_data();
+                if (is_string($bytes) && str_starts_with($bytes, '%PDF-')) {
+                    $mime = 'application/pdf';
+                    $data = $bytes;
+                } elseif (is_string($bytes)) {
+                    $image = @getimagesizefromstring($bytes);
+                    $detected = is_array($image) ? EyeFormData::text($image['mime'] ?? '') : '';
+                    if (in_array($detected, ['image/jpeg', 'image/png', 'image/gif'], true)) {
+                        $mime = $detected;
+                        $data = $bytes;
+                    }
+                }
+            } catch (\BadMethodCallException | \RuntimeException) {
+                // Preserve the selection and show it as unavailable in the report.
+            }
+        }
+        $documents[] = new PatientReportDocument($documentId, $name, $mime, $data);
+    }
     return $snapshots[$key] = new PatientMaterials(
         EyeFormData::text($materials['content'] ?? ''),
         EyeFormData::integer($materials['include_text'] ?? 0) === 1,
         $handouts,
+        $documents,
     );
 }
 
@@ -732,6 +850,19 @@ function eye_mag_embed_materials(Mpdf $pdf, int $formId, int $pid, PatientMateri
             $originals[] = ['name' => 'patient-handout-' . $pid . '-' . $formId . '-' . $handout->documentId . '.pdf',
                 'content' => $handout->pdfData, 'mime' => 'application/pdf',
                 'description' => $handout->name];
+        }
+    }
+    foreach ($materials->documents as $document) {
+        if ($document->data === '') {
+            continue;
+        }
+        $extension = match ($document->mimeType) {
+            'application/pdf' => 'pdf', 'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif',
+            default => '',
+        };
+        if ($extension !== '') {
+            $originals[] = ['name' => 'encounter-document-' . $pid . '-' . $formId . '-' . $document->documentId . '.' . $extension,
+                'content' => $document->data, 'mime' => $document->mimeType, 'description' => $document->name];
         }
     }
     foreach ($originals as $original) {
@@ -774,6 +905,42 @@ function eye_mag_append_materials_handout_pdf(Mpdf $pdf, int $formId, int $pid):
         }
     }
     return $allAppended;
+}
+
+/** Append selected handouts and encounter documents after the report body. */
+function eye_mag_append_report_materials(Mpdf $pdf, int $formId, int $pid): void
+{
+    $materials = eye_mag_materials_for_report($formId, $pid);
+    eye_mag_embed_materials($pdf, $formId, $pid, $materials);
+    foreach ($materials->handouts as $handout) {
+        if ($handout->pdfData !== '' && !eye_mag_append_handout_pages($pdf, $handout->pdfData)) {
+            $pdf->AddPage();
+            $pdf->WriteHTML('<p>' . xlt('The selected PDF could not be rendered as pages. Its original is included as an attachment.') . '</p><p>' . text($handout->name) . '</p>');
+        }
+    }
+    foreach ($materials->documents as $document) {
+        if ($document->data === '') {
+            continue;
+        }
+        if ($document->mimeType === 'application/pdf') {
+            if (!eye_mag_append_handout_pages($pdf, $document->data)) {
+                $pdf->AddPage();
+                $pdf->WriteHTML('<p>' . xlt('The selected PDF could not be rendered as pages. Its original is included as an attachment.') . '</p><p>' . text($document->name) . '</p>');
+            }
+            continue;
+        }
+        $size = @getimagesizefromstring($document->data);
+        if (!is_array($size) || $size[0] <= 0 || $size[1] <= 0) {
+            continue;
+        }
+        $scale = min(180 / $size[0], 235 / $size[1]);
+        $width = max(1, round($size[0] * $scale, 2));
+        $imageKey = 'eye_report_document_' . $pid . '_' . $formId . '_' . $document->documentId;
+        $pdf->imageVars[$imageKey] = $document->data;
+        $pdf->AddPage();
+        $pdf->WriteHTML('<h2>' . text($document->name) . '</h2><div style="text-align:center;">'
+            . '<img src="var:' . attr($imageKey) . '" style="width:' . $width . 'mm;height:auto;" /></div>');
+    }
 }
 
 /** Isolate each import so an unsupported PDF cannot suppress later handouts. */

@@ -13617,6 +13617,8 @@ CREATE TABLE `form_eye_mag_drawing_overlays` (
   `zone` varchar(24) NOT NULL,
   `overlay_json` longtext NOT NULL,
   `background_key` varchar(32) NOT NULL DEFAULT '',
+  `raster_base` longblob DEFAULT NULL,
+  `raster_legacy` tinyint(1) NOT NULL DEFAULT 0,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`form_id`,`zone`),
   KEY `pid` (`pid`)
@@ -13636,6 +13638,7 @@ CREATE TABLE `form_eye_mag_materials` (
   `include_text` tinyint(1) NOT NULL DEFAULT 0,
   `handout_document_id` bigint(20) DEFAULT NULL,
   `handout_document_ids` longtext DEFAULT NULL COMMENT 'JSON list; NULL keeps the legacy single selection, [] means none',
+  `report_document_ids` longtext DEFAULT NULL COMMENT 'JSON list of encounter documents selected for the Eye report',
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`form_id`)
 ) ENGINE=InnoDB;
@@ -13767,6 +13770,7 @@ CREATE TABLE `form_eye_vitals` (
   `OSVF2`       tinyint(1)  DEFAULT NULL,
   `OSVF3`       tinyint(1)  DEFAULT NULL,
   `OSVF4`       tinyint(1)  DEFAULT NULL,
+  `VF_UNABLE`   tinyint(1)  NOT NULL DEFAULT 0,
   PRIMARY KEY `vitals_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
   )
@@ -14133,6 +14137,14 @@ CREATE TABLE `form_eye_neuro` (
   `MOTILITY_LLSO` int (1) DEFAULT NULL,
   `MOTILITY_LRIO` int (1) DEFAULT NULL,
   `MOTILITY_LLIO` int (1) DEFAULT NULL,
+  `MOTILITY_RRSO_OVER` tinyint(1) NOT NULL DEFAULT 0,
+  `MOTILITY_RLSO_OVER` tinyint(1) NOT NULL DEFAULT 0,
+  `MOTILITY_RRIO_OVER` tinyint(1) NOT NULL DEFAULT 0,
+  `MOTILITY_RLIO_OVER` tinyint(1) NOT NULL DEFAULT 0,
+  `MOTILITY_LRSO_OVER` tinyint(1) NOT NULL DEFAULT 0,
+  `MOTILITY_LLSO_OVER` tinyint(1) NOT NULL DEFAULT 0,
+  `MOTILITY_LRIO_OVER` tinyint(1) NOT NULL DEFAULT 0,
+  `MOTILITY_LLIO_OVER` tinyint(1) NOT NULL DEFAULT 0,
   `NEURO_COMMENTS` text,
   `STEREOPSIS` varchar (25) DEFAULT NULL,
   `ODNPA` text,
@@ -14159,6 +14171,8 @@ CREATE TABLE `form_eye_neuro` (
   `SPCT_CCDIST` text,
   `SPCT_SCNEAR` text,
   `SPCT_CCNEAR` text,
+  `CPT_92060_SELECTED` tinyint(1) DEFAULT NULL COMMENT 'NULL uses the automatic suggestion; 0 or 1 records the clinician choice',
+  `CPT_92060_REMOVED_IDS` text DEFAULT NULL COMMENT 'Unbilled charge rows disabled by this form selection',
   PRIMARY KEY `neuro_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
  )

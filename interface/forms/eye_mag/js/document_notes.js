@@ -29,6 +29,24 @@
 
         var materialsSaving = false;
         var materialsSaveAgain = false;
+        var reportActions = document.querySelectorAll('#BUTTON_PRINT_report, #BUTTON_PRINT_report_2');
+        var saveStatus = document.getElementById('MATERIALS_REPORT_SAVE_STATUS');
+        /** Keep report generation from racing an unsaved document selection. */
+        function setReportSaving(saving) {
+            reportActions.forEach(function (action) {
+                action.classList.toggle('disabled', saving);
+                action.setAttribute('aria-disabled', saving ? 'true' : 'false');
+            });
+            if (saveStatus) saveStatus.style.display = saving ? 'block' : 'none';
+        }
+        reportActions.forEach(function (action) {
+            action.addEventListener('click', function (event) {
+                if (materialsSaving) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                }
+            }, true);
+        });
         /** Serialize autosaves so a change during an in-flight save is sent afterward. */
         function saveMaterialsSelection() {
             if (typeof window.submit_form !== 'function') return;
@@ -37,17 +55,22 @@
                 return;
             }
             materialsSaving = true;
-            var request = window.submit_form();
+            setReportSaving(true);
+            var request = window.submit_form('1');
             /** Release the material-save lock and send any selection changes queued during that request. */
             function finished() {
                 materialsSaving = false;
                 if (materialsSaveAgain) {
                     materialsSaveAgain = false;
                     saveMaterialsSelection();
+                } else {
+                    setReportSaving(false);
                 }
             }
-            if (request && typeof request.always === 'function') request.always(finished);
-            else finished();
+            if (request && typeof request.always === 'function') {
+                request.fail(function () { window.alert(docT('materialsSaveFailed', 'The report selection could not be saved. Please try again.')); });
+                request.always(finished);
+            } else finished();
         }
 
         /** Collapse whitespace and shorten material text for the included-material summary. */
@@ -103,6 +126,22 @@
         var openHandout = document.getElementById('OPEN_MATERIALS_HANDOUT');
         var addedHandouts = document.getElementById('MATERIALS_ADDED_PDFS');
         var handoutTemplate = document.getElementById('MATERIALS_PDF_ROW');
+        var openReportAttachments = document.getElementById('OPEN_REPORT_ATTACHMENTS');
+        if (openReportAttachments) {
+            openReportAttachments.addEventListener('click', function (event) {
+                event.preventDefault();
+                if (typeof window.show_QP_section === 'function') window.show_QP_section('IMPPLAN', '1');
+                $('#IMPPLAN_1').removeClass('nodisplay');
+                var heading = $('#COMMUNICATION_ENGINE');
+                if (!heading.next().is(':visible')) heading.trigger('click');
+                window.setTimeout(function () {
+                    document.getElementById('MATERIALS_REPORT_DOCUMENTS').scrollIntoView({behavior: 'smooth', block: 'start'});
+                }, 250);
+            });
+        }
+        document.querySelectorAll('input[name="MATERIALS_REPORT_DOCUMENT_IDS[]"]').forEach(function (checkbox) {
+            checkbox.addEventListener('change', saveMaterialsSelection);
+        });
         if (!handout || !includedHandouts || !openHandout || !addedHandouts || !handoutTemplate) return;
         var selectedIds;
         try { selectedIds = JSON.parse(includedHandouts.value); } catch { selectedIds = []; }

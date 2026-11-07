@@ -17,13 +17,13 @@
  */
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Forms\ReportPdfAppendQueue;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\EyeFormData;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
 
-use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_append_materials_handout_pdf;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_report_filename;
 
 $facilityService = new FacilityService();
@@ -565,7 +565,7 @@ mpdf-->
     //$pdf->WriteHTML($stylesheet,\Mpdf\HTMLParserMode::HEADER_CSS);
     $pdf->WriteHTML($header);
     $pdf->writeHTML($content);
-    eye_mag_append_materials_handout_pdf($pdf, EyeFormData::integer($form_id), EyeFormData::integer($pid));
+    ReportPdfAppendQueue::append($pdf);
 
     $temp_filename = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
     $pdf->Output($temp_filename, 'F');

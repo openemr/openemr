@@ -447,10 +447,20 @@ CREATE TABLE `form_eye_mag_drawing_overlays` (
   `zone` varchar(24) NOT NULL,
   `overlay_json` longtext NOT NULL,
   `background_key` varchar(32) NOT NULL DEFAULT '',
+  `raster_base` longblob DEFAULT NULL,
+  `raster_legacy` tinyint(1) NOT NULL DEFAULT 0,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`form_id`,`zone`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn form_eye_mag_drawing_overlays raster_base
+ALTER TABLE `form_eye_mag_drawing_overlays` ADD `raster_base` longblob DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_eye_mag_drawing_overlays raster_legacy
+ALTER TABLE `form_eye_mag_drawing_overlays` ADD `raster_legacy` tinyint(1) NOT NULL DEFAULT 0;
 #EndIf
 
 #IfNotTable form_eye_mag_materials
@@ -461,6 +471,7 @@ CREATE TABLE `form_eye_mag_materials` (
   `include_text` tinyint(1) NOT NULL DEFAULT 0,
   `handout_document_id` bigint(20) DEFAULT NULL,
   `handout_document_ids` longtext DEFAULT NULL COMMENT 'JSON list; NULL keeps the legacy single selection, [] means none',
+  `report_document_ids` longtext DEFAULT NULL COMMENT 'JSON list of encounter documents selected for the Eye report',
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`form_id`)
 ) ENGINE=InnoDB;
@@ -480,7 +491,41 @@ ALTER TABLE `form_eye_mag_materials` ADD `handout_document_id` bigint(20) DEFAUL
 ALTER TABLE `form_eye_mag_materials` ADD `handout_document_ids` longtext DEFAULT NULL COMMENT 'JSON list; NULL keeps the legacy single selection, [] means none';
 #EndIf
 
+#IfMissingColumn form_eye_mag_materials report_document_ids
+ALTER TABLE `form_eye_mag_materials` ADD `report_document_ids` longtext DEFAULT NULL COMMENT 'JSON list of encounter documents selected for the Eye report';
+#EndIf
+
+-- Visual fields: record when confrontation testing could not be performed.
+#IfMissingColumn form_eye_vitals VF_UNABLE
+ALTER TABLE `form_eye_vitals` ADD `VF_UNABLE` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+
 -- Neuro: drawing, stereopsis and primary-position SPCT. STEREOPSIS (legacy) is untouched.
+#IfMissingColumn form_eye_neuro MOTILITY_RRSO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_RRSO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_RLSO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_RLSO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_RRIO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_RRIO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_RLIO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_RLIO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_LRSO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_LRSO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_LLSO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_LLSO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_LRIO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_LRIO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_LLIO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_LLIO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+
 #IfMissingColumn form_eye_neuro NEURO_DRAWING_JSON
 ALTER TABLE `form_eye_neuro` ADD `NEURO_DRAWING_JSON` longtext DEFAULT NULL;
 #EndIf
@@ -515,6 +560,14 @@ ALTER TABLE `form_eye_neuro` ADD `SPCT_SCNEAR` text;
 
 #IfMissingColumn form_eye_neuro SPCT_CCNEAR
 ALTER TABLE `form_eye_neuro` ADD `SPCT_CCNEAR` text;
+#EndIf
+
+#IfMissingColumn form_eye_neuro CPT_92060_SELECTED
+ALTER TABLE `form_eye_neuro` ADD `CPT_92060_SELECTED` tinyint(1) DEFAULT NULL COMMENT 'NULL uses the automatic suggestion; 0 or 1 records the clinician choice';
+#EndIf
+
+#IfMissingColumn form_eye_neuro CPT_92060_REMOVED_IDS
+ALTER TABLE `form_eye_neuro` ADD `CPT_92060_REMOVED_IDS` text DEFAULT NULL COMMENT 'Unbilled charge rows disabled by this form selection';
 #EndIf
 
 -- Prism and pupillary distance (Spectacle Rx / refraction / biometrics).
