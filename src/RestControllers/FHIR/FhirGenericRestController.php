@@ -14,7 +14,6 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
@@ -235,7 +234,7 @@ class FhirGenericRestController implements IGlobalsAware {
 
         $auditEnabled = ServiceContainer::getApiWriteAuditService()->shouldAudit($this->request);
         try {
-            $response = QueryUtils::inTransaction(function () use ($fhirResource, $fhirJson, $auditEnabled): Response {
+            $write = function () use ($fhirResource, $fhirJson, $auditEnabled): Response {
                 $processingResult = $this->getFhirService()->insert($fhirResource);
                 $response = RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
                 if ($auditEnabled && !$response->isSuccessful()) {
@@ -253,7 +252,12 @@ class FhirGenericRestController implements IGlobalsAware {
                     );
                 }
                 return $response;
-            });
+            };
+            // TaskService sets isolation before its snapshot read, so it cannot run inside
+            // the controller transaction; its writes manage their own transaction.
+            $response = $this->expectedResourceType === 'Task'
+                ? $write()
+                : QueryUtils::inTransaction($write);
         } catch (FhirWriteResponseException $e) {
             return $e->getResponse();
         } catch (\InvalidArgumentException $e) {
@@ -354,7 +358,7 @@ class FhirGenericRestController implements IGlobalsAware {
         $captureBeforeSnapshot = $auditEnabled && $this->getGlobalsBag()->getInt('api_write_audit_option') === 2;
 
         try {
-            $response = QueryUtils::inTransaction(function () use (
+            $write = function () use (
                 $fhirId,
                 $fhirResource,
                 $fhirJson,
@@ -402,7 +406,10 @@ class FhirGenericRestController implements IGlobalsAware {
                     );
                 }
                 return $response;
-            });
+            };
+            $response = $this->expectedResourceType === 'Task'
+                ? $write()
+                : QueryUtils::inTransaction($write);
         } catch (FhirWriteResponseException $e) {
             return $e->getResponse();
         } catch (\InvalidArgumentException $e) {
@@ -468,7 +475,9 @@ class FhirGenericRestController implements IGlobalsAware {
             return $result;
         }
 
-        $resourceUuid = is_array($result) ? ($result['uuid'] ?? $result['pc_uuid'] ?? null) : null;
+        $resourceUuid = is_array($result)
+            ? ($result['uuid'] ?? $result['pc_uuid'] ?? $result['euuid'] ?? null)
+            : null;
         if (!is_string($resourceUuid) || $resourceUuid === '') {
             $resourceUuid = $fallbackUuid;
         }
