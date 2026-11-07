@@ -1,0 +1,12 @@
+{
+    "name": "exetazo/oe-module-grapheus",
+    "description": "Grapheus by Exetazo: AI scribe for OpenEMR. Records the visit, then drafts the SOAP note, problems, allergies, prescriptions (entered, never sent) and fee-sheet codes (unbilled) for the clinician to review. Requires a paid Grapheus subscription.",
+    "type": "openemr-module",
+    "license": "GPL-3.0-or-later",
+    "homepage": "https://scribe.exetazohealth.com",
+    "authors": [{ "name": "Exetazo Health", "email": "support@exetazohealth.com" }],
+    "keywords": ["openemr", "openemr-module", "ai scribe", "grapheus", "clinical documentation"],
+    "autoload": { "psr-4": { "Exetazo\\Grapheus\\": "src/" } },
+    "require": { "php": ">=8.1", "ext-curl": "*" },
+    "conflict": { "openemr/openemr": "<7.0.0" }
+}
