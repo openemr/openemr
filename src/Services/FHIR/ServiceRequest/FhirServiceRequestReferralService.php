@@ -63,6 +63,9 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
 
     private ?ReferralService $referralService = null;
 
+    /** The address book entry whose referrals alone are read (restrictToRecipient()), or null for all. */
+    private ?string $recipientOnly = null;
+
     private function getReferralService(): ReferralService
     {
         return $this->referralService ??= new ReferralService();
@@ -105,6 +108,14 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
     }
 
     /**
+     * Limits this service to the referrals an address book entry is the current recipient of.
+     */
+    public function restrictToRecipient(string $recipientUuid): void
+    {
+        $this->recipientOnly = $recipientUuid;
+    }
+
+    /**
      * The category is always the referral one, so a category search either keeps every
      * referral or none. The code can be any of a referral's requested services, kept as
      * "TYPE:CODE" text, so it is matched after mapping, against each coding's system and code.
@@ -139,7 +150,7 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
             $fields[$name] = $field;
         }
 
-        $result = $this->getReferralService()->search($fields);
+        $result = $this->getReferralService()->search($fields, true, $this->recipientOnly);
         if (!$result->isValid() || $code === null) {
             return $result;
         }

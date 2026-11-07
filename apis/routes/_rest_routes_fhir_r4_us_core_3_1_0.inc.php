@@ -1211,10 +1211,10 @@ return [
     "GET /fhir/ServiceRequest" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirServiceRequestRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+            $return = (new FhirServiceRequestRestController($request->getClientAddressBookUuid()))->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
             RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirServiceRequestRestController())->getAll($request->getQueryParams());
+            $return = (new FhirServiceRequestRestController($request->getClientAddressBookUuid()))->getAll($request->getQueryParams());
         }
 
         return $return;
@@ -1222,10 +1222,10 @@ return [
     "GET /fhir/ServiceRequest/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirServiceRequestRestController())->getOne($uuid, $request->getPatientUUIDString());
+            $return = (new FhirServiceRequestRestController($request->getClientAddressBookUuid()))->getOne($uuid, $request->getPatientUUIDString());
         } else {
             RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirServiceRequestRestController())->getOne($uuid);
+            $return = (new FhirServiceRequestRestController($request->getClientAddressBookUuid()))->getOne($uuid);
         }
 
         return $return;

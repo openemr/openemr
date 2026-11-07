@@ -24,9 +24,16 @@ class FhirServiceRequestRestController
     private $fhirServiceRequestService;
     private $fhirService;
 
-    public function __construct()
+    /**
+     * @param ?string $addressBookUuid the address book entry the request's client is limited to:
+     *     it reads only the referrals it's the current recipient of
+     */
+    public function __construct(?string $addressBookUuid = null)
     {
         $this->fhirServiceRequestService = new FhirServiceRequestService();
+        if ($addressBookUuid !== null) {
+            $this->fhirServiceRequestService->restrictToRecipient($addressBookUuid);
+        }
         $this->fhirService = new FhirResourcesService();
     }
 
