@@ -594,6 +594,10 @@ class ClientAdminController
                 ,'link' => $this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION, 'edit', $client->getIdentifier()])
             ];
         }
+        // The entry a client is limited to can drop off the list (made inactive, or given a login) while
+        // the limit still holds, so the page has to go on showing the client as limited.
+        $addressBookUuid = $client->getAddressBookUuid();
+        $addressBookRecipients = (new ReferralService())->addressBookRecipients();
         $data = [
             'listAction' => $listAction
             ,'client' => $client
@@ -611,8 +615,9 @@ class ClientAdminController
             ,'formValues' => $formValues
             ,'scopes' => $client->getScopes()
             ,'addressBookLink' => $this->getActionUrl(['edit', $client->getIdentifier(), 'address-book'])
-            ,'addressBookUuid' => $client->getAddressBookUuid()
-            ,'addressBookRecipients' => (new ReferralService())->addressBookRecipients()
+            ,'addressBookUuid' => $addressBookUuid
+            ,'addressBookRecipients' => $addressBookRecipients
+            ,'addressBookLimitUnlisted' => $addressBookUuid !== null && !in_array($addressBookUuid, array_column($addressBookRecipients, 'uuid'), true)
             ,'trustedUsers' => $trustedUsersList
             ,'services' => $servicesList
             ,'nav' => $this->getDefaultNavData()

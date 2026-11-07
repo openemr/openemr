@@ -51,6 +51,9 @@
                     <label for="address_book_uuid">{{ "Limit to Address Book Entry"|xlt }}</label>
                     <select class="form-control" id="address_book_uuid" name="address_book_uuid">
                         <option value="">{{ "Not limited"|xlt }}</option>
+                        {% if addressBookLimitUnlisted %}
+                            <option value="{{ addressBookUuid|attr }}" selected disabled>{{ "Limited to an entry that is no longer listed (inactive, or now has a login)"|xlt }}: {{ addressBookUuid|text }}</option>
+                        {% endif %}
                         {% for recipient in addressBookRecipients %}
                             <option value="{{ recipient.uuid|attr }}"{% if recipient.uuid == addressBookUuid %} selected{% endif %}>{{ recipient.name|text }} ({{ recipient.type|xlt }})</option>
                         {% endfor %}

@@ -107,6 +107,23 @@ class AddressBookClientAdminTest extends TestCase
     }
 
     /**
+     * An entry that drops off the list still shows as the client's limit, and saving without choosing keeps it.
+     */
+    #[Test]
+    public function aLimitToAnEntryNoLongerListedStillShows(): void
+    {
+        $this->save($this->entryUuid);
+        QueryUtils::sqlStatementThrowException('UPDATE users SET active = 0 WHERE id = ?', [$this->entryId]);
+
+        $page = $this->editPage();
+        $this->assertStringContainsString('value="' . $this->entryUuid . '" selected disabled', $page);
+        $this->assertStringContainsString('Limited to an entry that is no longer listed', $page);
+
+        $this->save(null);
+        $this->assertSame($this->entryUuid, $this->storedLimit());
+    }
+
+    /**
      * Nothing but an address book entry that can own a Task: not any uuid, nor a user who logs in.
      */
     #[Test]
