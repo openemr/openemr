@@ -28,6 +28,7 @@ require_once($srcdir . "/encounter_events.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\VisitBalanceDue;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -1465,7 +1466,7 @@ function make_insurance() {
                                     $NumberOfInsurance = $RowNumberOfInsurance['NumberOfInsurance'] * 1;
                                     //------------------------------------------------------------------------------------
                                     $duept = 0;
-                                    if ((($NumberOfInsurance == 0 || $value['last_level_closed'] == 4 || $NumberOfInsurance == $value['last_level_closed']))) {//Patient balance
+                                    if (VisitBalanceDue::fromPatient($NumberOfInsurance, $value['last_level_closed'])) {//Patient balance
                                         $brow = sqlQuery("SELECT SUM(fee) AS amount FROM `billing` WHERE " .
                                             "pid = ? and encounter = ? AND activity = 1", [$pid, $enc]);
                                         $srow = sqlQuery("SELECT SUM(fee) AS amount FROM `drug_sales` WHERE " .
