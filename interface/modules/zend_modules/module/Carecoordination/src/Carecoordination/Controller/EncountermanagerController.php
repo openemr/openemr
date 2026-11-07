@@ -28,7 +28,9 @@ use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -489,7 +491,9 @@ class EncountermanagerController extends AbstractActionController
     // note this gets called from the frontend javascript (see public/js/application/sendTo.js::send()
 
     /**
-     * A patient's referrals as JSON, for the send form's choice of which one a C-CDA goes with.
+     * A patient's referrals as JSON, for the send form's choice of which one a C-CDA goes with. The
+     * list shows each referral's date, recipient and reason, so the caller needs what the Transactions
+     * screen asks for (patients/trans), and the patient's squad, on top of reaching the patient.
      */
     public function referralsAction(): LaminasResponse
     {
@@ -497,6 +501,13 @@ class EncountermanagerController extends AbstractActionController
         $pid = is_string($rawPid) && ctype_digit($rawPid) ? (int)$rawPid : 0;
         if (!$this->isPatientAuthorized($pid)) {
             AccessDeniedHelper::deny('EncountermanagerController::referralsAction: pid not accessible by caller');
+        }
+        if (!AclMain::aclCheckCore('patients', 'trans')) {
+            AccessDeniedHelper::deny('EncountermanagerController::referralsAction: caller may not read transactions');
+        }
+        $squad = QueryUtils::fetchSingleValue('SELECT squad FROM patient_data WHERE pid = ?', 'squad', [$pid]);
+        if (is_string($squad) && $squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
+            AccessDeniedHelper::deny('EncountermanagerController::referralsAction: patient is in a squad the caller may not see');
         }
         $response = new LaminasResponse();
         $response->getHeaders()->addHeaderLine('Content-Type', 'application/json');

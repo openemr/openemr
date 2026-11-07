@@ -597,7 +597,7 @@ class ClientAdminController
         // The entry a client is limited to can drop off the list (made inactive, or given a login) while
         // the limit still holds, so the page has to go on showing the client as limited.
         $addressBookUuid = $client->getAddressBookUuid();
-        $addressBookRecipients = (new ReferralService())->addressBookRecipients();
+        $addressBookRecipients = $this->addressBookRecipients();
         $data = [
             'listAction' => $listAction
             ,'client' => $client
@@ -983,6 +983,19 @@ class ClientAdminController
     }
 
     /**
+     * The address book entries a client can be limited to. Only `users` gets missing uuids filled in,
+     * since an entry without one can't be listed. A plain ReferralService would also backfill
+     * transactions and patient_data, which this screen has no use for.
+     *
+     * @return list<array{uuid: string, name: string, type: string}>
+     */
+    private function addressBookRecipients(): array
+    {
+        UuidRegistry::createMissingUuidsForTables(['users']);
+        return (new ReferralService(createMissingUuids: false))->addressBookRecipients();
+    }
+
+    /**
      * Limits a client to an address book entry's Tasks and referrals, or lifts that when the empty
      * choice is posted. It only ever changes on a POST, and anything else posted leaves it as it was:
      * it decides what patient data an outside party's client can reach.
@@ -997,7 +1010,7 @@ class ClientAdminController
             return new Response('', Response::HTTP_METHOD_NOT_ALLOWED, ['Allow' => 'POST']);
         }
         $posted = $request->request->all()['address_book_uuid'] ?? null;
-        $known = array_column((new ReferralService())->addressBookRecipients(), 'uuid');
+        $known = array_column($this->addressBookRecipients(), 'uuid');
         if (!is_string($posted) || ($posted !== '' && !in_array($posted, $known, true))) {
             $message = xl('That address book entry cannot be used for a client.');
         } else {
