@@ -178,6 +178,44 @@ class ErrorHandlerTest extends TestCase
         self::assertSame('text/plain; charset=utf-8', $response->getHeaderLine('Content-Type'));
     }
 
+    public function testHeaderLinesReplaceHeadersAlreadySent(): void
+    {
+        $handler = $this->createResponseHandler();
+        $response = $handler->buildResponse(new MethodNotAllowedHttpException(['GET', 'POST']));
+
+        $lines = $handler->headerLines($response);
+
+        self::assertContains(['line' => 'Content-Type: text/plain; charset=utf-8', 'replace' => true], $lines);
+        self::assertContains(['line' => 'Allow: GET, POST', 'replace' => true], $lines);
+    }
+
+    public function testHeaderLinesReplaceOnlyWithTheFirstValue(): void
+    {
+        $handler = $this->createResponseHandler();
+        $response = $handler->buildResponse(new HttpException(404))
+            ->withAddedHeader('Link', '</a>; rel=preload')
+            ->withAddedHeader('Link', '</b>; rel=preload');
+
+        self::assertSame(
+            [
+                ['line' => 'Link: </a>; rel=preload', 'replace' => true],
+                ['line' => 'Link: </b>; rel=preload', 'replace' => false],
+            ],
+            array_values(array_filter(
+                $handler->headerLines($response),
+                static fn(array $header): bool => str_starts_with($header['line'], 'Link: '),
+            )),
+        );
+    }
+
+    public function testHeaderLinesKeepEarlierCookies(): void
+    {
+        $handler = $this->createResponseHandler();
+        $response = $handler->buildResponse(new HttpException(404, headers: ['Set-Cookie' => 'a=1']));
+
+        self::assertContains(['line' => 'Set-Cookie: a=1', 'replace' => false], $handler->headerLines($response));
+    }
+
     // handleException() cannot be unit tested because it calls exit() which
     // terminates the process. Tests run in CLI mode which hits exit(1)
     // immediately after logging.

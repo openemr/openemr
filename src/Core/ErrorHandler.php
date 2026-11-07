@@ -31,6 +31,7 @@ use function is_string;
 use function set_error_handler;
 use function set_exception_handler;
 use function sprintf;
+use function strcasecmp;
 
 use const E_DEPRECATED;
 use const E_USER_DEPRECATED;
@@ -108,15 +109,35 @@ readonly class ErrorHandler
 
         if (!headers_sent()) {
             http_response_code($response->getStatusCode());
-            foreach ($response->getHeaders() as $name => $values) {
-                foreach ($values as $value) {
-                    header(sprintf('%s: %s', $name, $value), false);
-                }
+            foreach ($this->headerLines($response) as $header) {
+                header($header['line'], $header['replace']);
             }
         }
 
         echo (string)$response->getBody();
         exit();
+    }
+
+    /**
+     * The header() calls for a response. The first value of each header
+     * replaces one the page already set, such as a text/html Content-Type, so
+     * the client does not get two. Set-Cookie always adds, so cookies set
+     * earlier (e.g. the session) are kept. Separate from handleException() so
+     * it can be tested without exiting the process.
+     *
+     * @return list<array{line: string, replace: bool}>
+     */
+    public function headerLines(ResponseInterface $response): array
+    {
+        $lines = [];
+        foreach ($response->getHeaders() as $name => $values) {
+            $replace = strcasecmp($name, 'Set-Cookie') !== 0;
+            foreach ($values as $value) {
+                $lines[] = ['line' => sprintf('%s: %s', $name, $value), 'replace' => $replace];
+                $replace = false;
+            }
+        }
+        return $lines;
     }
 
     /**
