@@ -13,12 +13,18 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Core;
 
 use ErrorException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\ErrorHandler;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\NullLogger;
+use RuntimeException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use const E_DEPRECATED;
 use const E_USER_WARNING;
@@ -91,6 +97,123 @@ class ErrorHandlerTest extends TestCase
             restore_error_handler();
             error_reporting($old);
         }
+    }
+
+    private function createResponseHandler(bool $shouldDisplayErrors = false): ErrorHandler
+    {
+        // The production factories, so known codes get their standard reason phrase.
+        ServiceContainer::reset();
+        return new ErrorHandler(
+            new NullLogger(),
+            ServiceContainer::getResponseFactory(),
+            ServiceContainer::getStreamFactory(),
+            $shouldDisplayErrors,
+        );
+    }
+
+    public function testHttpExceptionResponseHasStatusTextBody(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new NotFoundHttpException('Controller not found: Some\Internal\Controller'));
+
+        self::assertSame(404, $response->getStatusCode());
+        self::assertSame('Not Found', (string) $response->getBody());
+        self::assertSame('text/plain; charset=utf-8', $response->getHeaderLine('Content-Type'));
+    }
+
+    public function testHttpExceptionResponseReplacesContentType(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new HttpException(404, headers: ['Content-Type' => 'text/html']));
+
+        self::assertSame('text/plain; charset=utf-8', $response->getHeaderLine('Content-Type'));
+    }
+
+    public function testHttpExceptionResponseKeepsHeaders(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new MethodNotAllowedHttpException(['GET', 'POST']));
+
+        self::assertSame(405, $response->getStatusCode());
+        self::assertSame('GET, POST', $response->getHeaderLine('Allow'));
+        self::assertSame('Method Not Allowed', (string) $response->getBody());
+    }
+
+    public function testHttpExceptionResponseDropsStaleContentLength(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new HttpException(404, headers: ['Content-Length' => '0']));
+
+        self::assertFalse($response->hasHeader('Content-Length'));
+        self::assertSame('Not Found', (string) $response->getBody());
+    }
+
+    public function testHttpExceptionWithUnknownStatusGetsGenericBody(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new HttpException(499, 'Client closed request'));
+
+        self::assertSame(499, $response->getStatusCode());
+        self::assertSame('An error has occurred.', (string) $response->getBody());
+    }
+
+    public function testHttpExceptionResponseIncludesDetailWhenDisplayingErrors(): void
+    {
+        $response = $this->createResponseHandler(shouldDisplayErrors: true)
+            ->buildResponse(new BadRequestHttpException('Missing pid'));
+
+        self::assertSame(400, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        self::assertStringStartsWith("Bad Request\n", $body);
+        self::assertStringContainsString('Missing pid', $body);
+    }
+
+    public function testOtherExceptionResponseIsGeneric500(): void
+    {
+        $response = $this->createResponseHandler()
+            ->buildResponse(new RuntimeException('SELECT * FROM secrets'));
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame('An error has occurred.', (string) $response->getBody());
+        self::assertSame('text/plain; charset=utf-8', $response->getHeaderLine('Content-Type'));
+    }
+
+    public function testHeaderLinesReplaceHeadersAlreadySent(): void
+    {
+        $handler = $this->createResponseHandler();
+        $response = $handler->buildResponse(new MethodNotAllowedHttpException(['GET', 'POST']));
+
+        $lines = $handler->headerLines($response);
+
+        self::assertContains(['line' => 'Content-Type: text/plain; charset=utf-8', 'replace' => true], $lines);
+        self::assertContains(['line' => 'Allow: GET, POST', 'replace' => true], $lines);
+    }
+
+    public function testHeaderLinesReplaceOnlyWithTheFirstValue(): void
+    {
+        $handler = $this->createResponseHandler();
+        $response = $handler->buildResponse(new HttpException(404))
+            ->withAddedHeader('Link', '</a>; rel=preload')
+            ->withAddedHeader('Link', '</b>; rel=preload');
+
+        self::assertSame(
+            [
+                ['line' => 'Link: </a>; rel=preload', 'replace' => true],
+                ['line' => 'Link: </b>; rel=preload', 'replace' => false],
+            ],
+            array_values(array_filter(
+                $handler->headerLines($response),
+                static fn(array $header): bool => str_starts_with($header['line'], 'Link: '),
+            )),
+        );
+    }
+
+    public function testHeaderLinesKeepEarlierCookies(): void
+    {
+        $handler = $this->createResponseHandler();
+        $response = $handler->buildResponse(new HttpException(404, headers: ['Set-Cookie' => 'a=1']));
+
+        self::assertContains(['line' => 'Set-Cookie: a=1', 'replace' => false], $handler->headerLines($response));
     }
 
     // handleException() cannot be unit tested because it calls exit() which

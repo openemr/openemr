@@ -38,6 +38,11 @@ class Psr17Factory implements RequestFactoryInterface, ResponseFactoryInterface,
      */
     public function createResponse(int $code = 200, string $reasonPhrase = ''): ResponseInterface
     {
+        // Nyholm uses the standard phrase only when the argument is omitted;
+        // an explicit '' would leave e.g. a 404 with no "Not Found".
+        if ($reasonPhrase === '') {
+            return (new NyholmPsr17Factory())->createResponse($code);
+        }
         return (new NyholmPsr17Factory())->createResponse($code, $reasonPhrase);
     }
 
