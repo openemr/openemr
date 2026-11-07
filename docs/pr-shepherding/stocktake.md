@@ -1,0 +1,226 @@
+# PR Shepherding — Phase 1: Stock-take
+
+Return to the [hub](README.md).
+
+**Purpose.** Produce a snapshot of every open PR matching the subject filter, classified
+into one of the five buckets, with change-since-last-snapshot deltas called out. The
+output is a workstream-doc section update + a shepherd-log index that drives Phase 2.
+
+**Prerequisites.**
+
+- The maintainer has named a subject (see [hub §2](README.md#2-the-subject-arg)).
+- Standing rules read: [standing-rules.md](standing-rules.md).
+
+**Deliverables.**
+
+- Updated "Open as of <today>" subsection in the workstream doc.
+- Shepherd log entries (one short line per PR) in the running shepherd log.
+- Change-since-last-snapshot delta list: new PRs, promoted drafts, regressed CI,
+  resurfaced-from-dormancy, closed, newly-shipped.
+
+---
+
+## 1. Scan step — list every candidate PR
+
+Pull the full open-PR list, filter by subject, sort by `updatedAt desc`.
+
+### Pattern
+
+```bash
+gh pr list --repo openemr/openemr --state open --limit 100 \
+  --json number,title,updatedAt,isDraft,author,headRefName \
+  --search "sort:updated-desc"
+```
+
+Then apply the subject filter in post-processing. For a keyword subject, a case-insensitive
+title regex is enough:
+
+```python
+pat = re.compile(r'fhir|ccda|cda|us[ -]?core|inferno|smart|oauth2|...', re.I)
+hits = [p for p in prs if pat.search(p['title'])]
+```
+
+For an author subject, filter by `p['author']['login']`.
+
+For a milestone/label subject, use `gh pr list ... --search "milestone:<name>"` or
+`--label <name>` directly instead of post-filter.
+
+### Scope pass — not every title match is in scope
+
+Scan the title list and move anything that is title-matching-but-content-wrong into an
+"outside primary scope" bucket for the snapshot. Example: a PR titled
+"fix(payments): a visit closed past the levels on file is the patient's" matches the
+`insurance` word in a FHIR keyword filter but is a billing-UI fix with no FHIR surface —
+belongs outside primary scope.
+
+Conversely: a PR titled "refactor(encounter): move encounter.inc.php lookups into
+EncounterService" has no FHIR keyword in the title but touches FHIR Encounter emission
+downstream — belongs *in* a FHIR scope pass.
+
+The subject filter is advisory, not strict. Use judgment.
+
+---
+
+## 2. Metadata pass — classify each PR
+
+For every PR in scope, pull the metadata needed for bucketing. One `gh pr view ... --json`
+call per PR with the full set:
+
+```bash
+gh pr view <N> --repo openemr/openemr --json \
+  title,isDraft,state,reviewDecision,mergeable,updatedAt,\
+  statusCheckRollup,additions,deletions,files,author,commits,reviews
+```
+
+Collect the following signals per PR:
+
+| Signal | Source | Use |
+|---|---|---|
+| `isDraft` | `view.isDraft` | Draft vs non-draft |
+| `reviewDecision` | `view.reviewDecision` | `CHANGES_REQUESTED` → held |
+| `mergeable` | `view.mergeable` | `CONFLICTING` → held |
+| CI rollup | `statusCheckRollup` | Any `FAILURE` → held |
+| CANCELLED lanes | `statusCheckRollup` | Investigate; see §3 |
+| Author activity | `commits[-N:].authoredDate` | Dormant vs active |
+| Last update | `updatedAt` | Freshness, dormancy check |
+| Diff size | `additions / deletions / files` | Review-effort estimate |
+| Rabbit state | `reviews` + `comments` | See [per-pr-review §4](per-pr-review.md#4-walk-rabbit-history) |
+
+**CI rollup quick-classify:**
+
+- All `SUCCESS` or `SKIPPED` (+ at most 1 `CANCELLED` that's title-lint-superseded) → `OK`
+- Any `FAILURE` → `FAIL`
+- Many `CANCELLED` + no `FAILURE` → `CRED` (concurrency-redeemed; usually in-flight
+  re-run — recheck in 5-10m)
+
+Store these as a one-line summary per PR; feed into the bucketing step.
+
+---
+
+## 3. Bucketing step — place each PR
+
+Apply the decision gate from [hub §5](README.md#5-decision-gate--is-this-pr-merge-ready).
+Every PR lands in exactly one bucket.
+
+### Classification buckets
+
+#### ✅ Merge-ready
+
+Every decision-gate row passes. No unresolved rabbit Actionable. No open maintainer
+`CHANGES_REQUESTED`. CI green. Non-draft. Mergeable.
+
+Produces a Phase 2 brief.
+
+#### 🔶 Merge-ready with known residual
+
+Decision gate passes but one non-blocking concern is recorded. Common residuals:
+
+- Sibling-file pattern the PR correctly scopes out (→ `📏` sweep follow-up).
+- Pre-existing bug the PR surfaces but doesn't own (→ `🧹` cleanup follow-up).
+- Format/convention nit rabbit raised and author legitimately scoped out.
+
+Produces a Phase 2 brief that calls out the residual explicitly.
+
+#### 🔴 Held
+
+One or more rows of the decision gate fails. Private brief states the exact blocker and
+who owns it:
+
+- Author (needs to address a rabbit Major / fix CI lane / respond to maintainer CR).
+- Maintainer (needs to re-review to clear `CHANGES_REQUESTED`).
+- CI (flaky lane; recheck).
+- Dependency (waiting on a sibling PR to land first).
+
+Does **not** produce a deep Phase 2 brief — just a shepherd log entry naming the blocker.
+
+#### ⏸️ Author-declared draft
+
+`isDraft == true`. Scan the metadata only; do not deep-review. The author has explicitly
+said "not ready." A one-line log entry is enough.
+
+If a draft has a long dormancy + a specific question in the body ("RFC: should this..."),
+flag it for the maintainer so they can engage if they want.
+
+#### Outside primary scope
+
+Caught in the subject filter but on inspection not actually in subject-scope. Listed in
+the snapshot for maintainer visibility with a one-line explanation of why it's out of
+scope. No further action.
+
+---
+
+## 4. Delta step — what changed since the last snapshot
+
+If a prior snapshot exists in the workstream doc, call out the differences:
+
+- **Newly shipped** since last snapshot (with merge SHA + date).
+- **Newly ready** — was draft, now non-draft.
+- **Newly held** — was green, CI regressed, or author's `CHANGES_REQUESTED` replied to.
+- **Resurfaced from dormancy** — was dormant 30+ days, now receiving commits.
+- **Newly arrived** — opened since the last snapshot.
+- **Closed** without merge — note why if visible.
+
+The delta is often the most useful thing in the snapshot for the maintainer, because it
+shows what moved. Put it at the top of the new "Open as of <date>" subsection.
+
+---
+
+## 5. Snapshot-doc output
+
+Write to the workstream doc (see [deliverables.md §1](deliverables.md#1-workstream-doc-snapshot)
+for the exact format). Shape:
+
+```markdown
+**Open as of <YYYY-MM-DD> (<count> PRs):**
+
+Changes since the <prior-date> snapshot:
+- 5 batch-N PRs landed (#NNNN, #NNNN, ...)
+- #NNNN promoted from draft → ready
+- #NNNN **unblocked** — author pushed N CI-fixing commits on <date>
+- #NNNN **CI regressed** to FAIL on new <lane> workflow (was green before)
+- NEW: #NNNN (<author> <scope summary>)
+- Resurfaced from dormancy: #NNNN (<author> <scope>, last touched <date>)
+
+✅ Shepherd-reviewed, merge-ready:
+- #NNNN — <title> — <author>. <one-sentence verdict>. Brief: `/path/to/brief.md`.
+
+🔶 Shepherd-reviewed, merge-ready with known residual:
+- ...
+
+🔴 Held (author/CI blockers unaddressed):
+- ...
+
+⏳ Awaiting shepherd review (non-draft, CI green, net-new or newly-promoted):
+- ...
+
+⏸️ Author-declared draft (not shippable yet):
+- ...
+
+Outside primary scope (visibility only):
+- ...
+```
+
+---
+
+## 6. Shepherd-log index
+
+For each PR touched in the pass — whether or not it got a Phase 2 brief — append or
+update a one-paragraph entry in the running shepherd log (see
+[deliverables.md §2](deliverables.md#2-shepherd-log-entry)). Minimum fields:
+
+- PR number + title + author
+- Bucket emoji
+- Shipped SHA + date if merged
+- Scope summary (one line)
+- Link to brief if one exists
+
+The shepherd log is the audit trail across passes. It is additive, not rewritten per pass.
+
+---
+
+## 7. Pass handoff
+
+A stock-take pass hands off to Phase 2 with the merge-ready + residual list, and hands
+the held/draft/out-of-scope entries back to the maintainer for direction. The hub's
+three-phase loop restarts only after Phase 2 drains the merge-ready queue; don't start a
+fresh stock-take while Phase 2 still has open briefs.
