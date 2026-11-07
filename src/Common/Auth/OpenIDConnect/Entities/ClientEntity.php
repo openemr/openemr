@@ -136,11 +136,17 @@ class ClientEntity implements ClientEntityInterface
         return $this->userId;
     }
 
+    /**
+     * The address book entry this client is limited to, or null when it has no such limit.
+     */
     public function getAddressBookUuid(): ?string
     {
         return $this->addressBookUuid;
     }
 
+    /**
+     * Sets the address book entry this client is limited to, or null for no limit.
+     */
     public function setAddressBookUuid(?string $uuid): void
     {
         $this->addressBookUuid = $uuid;

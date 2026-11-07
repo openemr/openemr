@@ -36,6 +36,9 @@ class CcdaGenerator
     {
     }
 
+    /**
+     * The table this generator saves its documents through.
+     */
     public function getEncounterccdadispatchTable(): EncounterccdadispatchTable
     {
         return $this->dispatchTable;

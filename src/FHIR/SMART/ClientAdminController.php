@@ -116,17 +116,15 @@ class ClientAdminController
 
     /**
      * Validates the given request for CSRF attacks as well as ACL permissions.
+     * @param Request $request The request, which carries the token to check
      * @param string $action The action that is being requested
      * @throws CsrfInvalidException If the CSRF token is required but invalid for the given action request
      * @throws AccessDeniedException If the user does not have permission to make the requested action
      */
-    public function checkSecurity(string $action): void
+    public function checkSecurity(Request $request, string $action): void
     {
-        if ($this->shouldCheckCSRFTokenForRequest($action)) {
-            $CSRFToken = $this->getCSRFToken();
-            if (!CsrfUtils::verifyCsrfToken($CSRFToken, $this->session, self::CSRF_TOKEN_NAME)) {
-                throw new CsrfInvalidException(xlt('Authentication Error'));
-            }
+        if ($this->shouldCheckCSRFTokenForRequest($action) && !$this->hasValidCSRFToken($request, $action)) {
+            throw new CsrfInvalidException(xlt('Authentication Error'));
         }
 
         if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -144,7 +142,7 @@ class ClientAdminController
     public function dispatch(Request $request): Response
     {
         $action = $this->normalizeAction($request);
-        $this->checkSecurity($action);
+        $this->checkSecurity($request, $action);
 
         if ($action === '' || $action === 'list/') {
             return $this->listAction();
@@ -656,6 +654,19 @@ class ClientAdminController
     }
 
     /**
+     * Whether the request carries this screen's token. The external CDR screens also accept the general
+     * token, because the patient chart's SMART launch card opens them holding only that one.
+     */
+    private function hasValidCSRFToken(Request $request, string $action): bool
+    {
+        $token = $request->query->getString('csrf_token');
+        if (CsrfUtils::verifyCsrfToken($token, $this->session, self::CSRF_TOKEN_NAME)) {
+            return true;
+        }
+        return str_starts_with($action, RouteController::EXTERNAL_CDR_ACTION . '/') && CsrfUtils::verifyCsrfToken($token, $this->session);
+    }
+
+    /**
      * Retrieves the CSRF token string to use
      */
     private function getCSRFToken(): string
@@ -967,9 +978,9 @@ class ClientAdminController
     }
 
     /**
-     * Limits a client to an address book entry's Tasks and referrals, or lifts that when no entry is
-     * posted. It only ever changes on a POST with the page's own token, checked here: it decides what
-     * patient data an outside party's client can reach.
+     * Limits a client to an address book entry's Tasks and referrals, or lifts that when the empty
+     * choice is posted. It only ever changes on a POST, and anything else posted leaves it as it was:
+     * it decides what patient data an outside party's client can reach.
      */
     private function addressBookAction(string $clientId, Request $request): Response
     {
@@ -977,15 +988,15 @@ class ClientAdminController
         if ($client === false) {
             return $this->notFoundAction();
         }
-        if (!$request->isMethod('POST') || !CsrfUtils::verifyCsrfToken($request->query->getString('csrf_token'), $this->session, self::CSRF_TOKEN_NAME)) {
+        if (!$request->isMethod('POST')) {
             throw new CsrfInvalidException(xlt('Authentication Error'));
         }
-        $posted = $request->request->all()['address_book_uuid'] ?? '';
-        $uuid = is_string($posted) && $posted !== '' ? $posted : null;
+        $posted = $request->request->all()['address_book_uuid'] ?? null;
         $known = array_column((new ReferralService())->addressBookRecipients(), 'uuid');
-        if ($uuid !== null && !in_array($uuid, $known, true)) {
+        if (!is_string($posted) || ($posted !== '' && !in_array($posted, $known, true))) {
             $message = xl('That address book entry cannot be used for a client.');
         } else {
+            $uuid = $posted === '' ? null : $posted;
             $before = $client->getAddressBookUuid();
             try {
                 $this->clientRepo->saveAddressBookUuid($client, $uuid);

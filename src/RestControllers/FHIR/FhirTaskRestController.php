@@ -33,6 +33,9 @@ class FhirTaskRestController
 {
     private readonly FhirTaskService $service;
 
+    /**
+     * Holds a client limited to an address book entry to that entry's Tasks.
+     */
     public function __construct(private readonly HttpRestRequest $request, private readonly OEGlobalsBag $globalsBag)
     {
         $this->service = new FhirTaskService(referralTaskService: new ReferralTaskService(new UserService()));

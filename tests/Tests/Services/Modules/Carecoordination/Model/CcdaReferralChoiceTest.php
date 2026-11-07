@@ -37,6 +37,9 @@ class CcdaReferralChoiceTest extends TestCase
         $this->orgId = (int)QueryUtils::sqlInsert("INSERT INTO users (username, active, authorized, abook_type, organization) VALUES ('', 1, 0, 'external_org', 'Zq Choice Pantry')");
     }
 
+    /**
+     * Removes the transactions and the organization the test created.
+     */
     protected function tearDown(): void
     {
         foreach ($this->transactions as $id) {
@@ -128,6 +131,9 @@ class CcdaReferralChoiceTest extends TestCase
         }
     }
 
+    /**
+     * Removes a saved C-CDA, with its document and file.
+     */
     private function removeCcda(int $ccdaId): void
     {
         $url = QueryUtils::fetchSingleValue("SELECT url FROM documents WHERE foreign_reference_table = 'ccda' AND foreign_reference_id = ?", 'url', [$ccdaId]);

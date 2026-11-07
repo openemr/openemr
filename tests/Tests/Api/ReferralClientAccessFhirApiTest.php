@@ -48,6 +48,9 @@ class ReferralClientAccessFhirApiTest extends TestCase
     /** @var list<string> */
     private array $createdTasks = [];
 
+    /**
+     * The address book entries, referrals and Tasks each test starts from.
+     */
     protected function setUp(): void
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
@@ -64,6 +67,9 @@ class ReferralClientAccessFhirApiTest extends TestCase
         $this->people['clinic'] = $this->insertOrganization('Zq Client Clinic');
     }
 
+    /**
+     * Removes everything setUp and the test created.
+     */
     protected function tearDown(): void
     {
         OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, $this->globalBefore);
@@ -150,6 +156,9 @@ class ReferralClientAccessFhirApiTest extends TestCase
         $this->assertSame(Response::HTTP_BAD_REQUEST, $this->put($task, $this->taskBody($task, 'accepted'))->getStatusCode(), 'dropping the owner');
     }
 
+    /**
+     * A referral is readable only while the entry is its current recipient.
+     */
     public function testItReadsTheReferralsItIsSentAndNoOthers(): void
     {
         ['referral' => $own] = $this->referralFor('pantry');
@@ -236,6 +245,9 @@ class ReferralClientAccessFhirApiTest extends TestCase
         ];
     }
 
+    /**
+     * The limit is read from the client on each request, so a token already issued follows it.
+     */
     public function testRemovingTheLimitTakesEffectAtOnce(): void
     {
         ['task' => $own] = $this->referralFor('pantry');
@@ -249,6 +261,9 @@ class ReferralClientAccessFhirApiTest extends TestCase
         $this->assertContains($own, $this->ids('Task', ['patient' => $this->patient['uuid']]));
     }
 
+    /**
+     * Saves the limit on the test client directly, as the admin screen would.
+     */
     private function limitClientTo(string $person): void
     {
         QueryUtils::sqlStatementThrowException(
@@ -316,6 +331,9 @@ class ReferralClientAccessFhirApiTest extends TestCase
         return $task;
     }
 
+    /**
+     * Updates a Task to the status, sending the rest of it unchanged.
+     */
     private function putStatus(string $uuid, string $ownerName, string $status): ResponseInterface
     {
         // Read as the unlimited client would see it: a client can't read another's Task to copy it.
@@ -340,6 +358,9 @@ class ReferralClientAccessFhirApiTest extends TestCase
         return $this->testClient->put(self::FHIR_URL . 'Task', $uuid, $body);
     }
 
+    /**
+     * The status a Task has in the database.
+     */
     private function storedStatus(string $uuid): mixed
     {
         return QueryUtils::fetchSingleValue('SELECT status FROM task WHERE uuid = ?', 'status', [UuidRegistry::uuidToBytes($uuid)]);
@@ -377,6 +398,9 @@ class ReferralClientAccessFhirApiTest extends TestCase
         return ['uuid' => UuidRegistry::uuidToString($uuid), 'id' => (int)$id];
     }
 
+    /**
+     * Removes a uuid this test registered.
+     */
     private static function forgetUuid(string $table, mixed $uuid): void
     {
         if (is_string($uuid)) {

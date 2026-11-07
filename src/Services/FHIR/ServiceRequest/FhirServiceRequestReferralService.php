@@ -102,6 +102,9 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
         ];
     }
 
+    /**
+     * The search parameter for when a referral last changed.
+     */
     public function getLastModifiedSearchField(): FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_modified']);

@@ -34,6 +34,9 @@ class AddressBookClientAdminTest extends TestCase
     private int $entryId = 0;
     private string $entryUuid = '';
 
+    /**
+     * A signed-in admin, a client with no limit, and an address book entry to limit it to.
+     */
     protected function setUp(): void
     {
         if (getenv('OPENEMR_ALLOW_OAUTH_HTTPS_SKIP') === '1') {
@@ -70,6 +73,9 @@ class AddressBookClientAdminTest extends TestCase
         $this->token = $match[1];
     }
 
+    /**
+     * Removes the client and the address book entry.
+     */
     protected function tearDown(): void
     {
         QueryUtils::sqlStatementThrowException('DELETE FROM oauth_clients WHERE client_id = ?', [$this->clientId]);
@@ -113,7 +119,25 @@ class AddressBookClientAdminTest extends TestCase
         $this->assertNull($this->storedLimit());
     }
 
+    /**
+     * Only the empty choice lifts a limit: a post missing the field, or sending it malformed, doesn't.
+     */
     #[Test]
+    public function aMalformedPostLeavesALimitInPlace(): void
+    {
+        $this->save($this->entryUuid);
+
+        $this->save(['not', 'a', 'uuid']);
+        $this->assertSame($this->entryUuid, $this->storedLimit(), 'an array');
+
+        $this->save(null);
+        $this->assertSame($this->entryUuid, $this->storedLimit(), 'no field');
+    }
+
+    #[Test]
+    /**
+     * The limit takes a POST with the right token, so a link or a forged form can't set it.
+     */
     public function aLinkOrAWrongTokenChangesNothing(): void
     {
         $url = $this->baseUrl . self::SCREEN . '?action=' . urlencode('edit/' . $this->clientId . '/address-book');
@@ -126,21 +150,54 @@ class AddressBookClientAdminTest extends TestCase
     }
 
     /**
-     * @param string|list<string> $uuid
+     * The screen's other actions change a client from a plain link, so the link's token has to be right.
      */
-    private function save(string|array $uuid): ResponseInterface
+    #[Test]
+    public function theScreensLinksChangeNothingWithoutTheToken(): void
+    {
+        $url = $this->baseUrl . self::SCREEN . '?action=' . urlencode('edit/' . $this->clientId . '/disable');
+
+        $this->assertSame(403, $this->http->get($url)->getStatusCode(), 'no token');
+        $this->assertSame(403, $this->http->get($url . '&csrf_token=wrong')->getStatusCode(), 'a wrong token');
+        $this->assertSame(1, $this->storedEnabled());
+
+        $this->http->get($url . '&csrf_token=' . $this->token);
+        $this->assertSame(0, $this->storedEnabled(), 'the screen\'s own token');
+    }
+
+    /**
+     * Posts the screen's form, with no field at all when given null.
+     *
+     * @param string|list<string>|null $uuid
+     */
+    private function save(string|array|null $uuid): ResponseInterface
     {
         return $this->http->post(
             $this->baseUrl . self::SCREEN . '?action=' . urlencode('edit/' . $this->clientId . '/address-book') . '&csrf_token=' . $this->token,
-            ['allow_redirects' => false, 'form_params' => ['address_book_uuid' => $uuid]]
+            ['allow_redirects' => false, 'form_params' => $uuid === null ? ['other' => '1'] : ['address_book_uuid' => $uuid]]
         );
     }
 
+    /**
+     * The client's enabled flag as saved.
+     */
+    private function storedEnabled(): int
+    {
+        $enabled = QueryUtils::fetchSingleValue('SELECT is_enabled FROM oauth_clients WHERE client_id = ?', 'is_enabled', [$this->clientId]);
+        return is_numeric($enabled) ? (int)$enabled : -1;
+    }
+
+    /**
+     * The client's edit page, as the signed-in admin sees it.
+     */
     private function editPage(): string
     {
         return (string)$this->http->get($this->baseUrl . self::SCREEN . '?action=' . urlencode('edit/' . $this->clientId) . '&csrf_token=' . $this->token)->getBody();
     }
 
+    /**
+     * The client's limit as saved, or null with none.
+     */
     private function storedLimit(): ?string
     {
         $uuid = QueryUtils::fetchSingleValue('SELECT address_book_uuid FROM oauth_clients WHERE client_id = ?', 'address_book_uuid', [$this->clientId]);

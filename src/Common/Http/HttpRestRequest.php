@@ -493,6 +493,9 @@ class HttpRestRequest extends Request implements Stringable
         return $this->clientAddressBookUuid;
     }
 
+    /**
+     * Records the address book entry the calling client is limited to, or null for no limit.
+     */
     public function setClientAddressBookUuid(?string $uuid): void
     {
         $this->clientAddressBookUuid = $uuid;
