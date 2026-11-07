@@ -27,10 +27,12 @@ use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteFields;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteHold;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteMode;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWritePolicy;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewQuery;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
+use OpenEMR\Services\PatientReview\ReviewRequestMapper;
 use OpenEMR\Services\PatientReview\ReviewStatus;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\QuestionnaireService;
@@ -110,6 +112,7 @@ class PatientWriteApprovalDatabaseTest extends TestCase
             [self::QUESTIONNAIRE_NAME]
         );
         QueryUtils::sqlStatementThrowException('DELETE FROM `questionnaire_repository` WHERE `name` = ?', [self::QUESTIONNAIRE_NAME]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `oauth_clients` WHERE `client_id` = ?', [self::CLIENT]);
     }
 
     /**
@@ -172,7 +175,7 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         $read = (new FhirQuestionnaireResponseFormService())->getOne($held->uuid);
         $resource = $read->getFirstDataResult();
         $this->assertInstanceOf(FHIRQuestionnaireResponse::class, $resource);
-        $this->assertSame($held->uuid, $resource->getId()?->getValue());
+        $this->assertSame($held->uuid, $resource->getId()->getValue());
         $json = json_decode((string) json_encode($resource), true);
         $this->assertIsArray($json);
         $this->assertIsArray($json['source'] ?? null);
@@ -216,6 +219,44 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         }
 
         $this->assertSame(ReviewStatus::Pending, $this->queue->get($held->id)->status);
+    }
+
+    public function testTheReviewListShowsTheAppItsClientTypeAnswersAndPossibleDuplicates(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO `oauth_clients` (`client_id`, `client_name`, `is_confidential`) VALUES (?, ?, 0)',
+            [self::CLIENT, 'PHPUnit Patient App']
+        );
+        $response = $this->heldResponse();
+        $vital = [
+            'resourceType' => 'Observation',
+            'category' => [['coding' => [['system' => PatientWriteFields::OBSERVATION_CATEGORY_SYSTEM, 'code' => 'vital-signs']]]],
+            'code' => ['coding' => [['system' => 'http://loinc.org', 'code' => '29463-7', 'display' => 'Body weight']]],
+            'effectiveDateTime' => '2026-11-07T08:00:00Z',
+            'valueQuantity' => ['value' => 70, 'unit' => 'kg'],
+        ];
+        $first = $this->hold(PatientWritableType::VitalSignObservation, $vital);
+        $again = $this->hold(PatientWritableType::VitalSignObservation, $vital);
+
+        $items = [];
+        foreach ((new PatientWriteReviewQuery(new ReviewRequestMapper(), ReviewQueueFactory::fhirWriteHandler()))->pending()['items'] as $item) {
+            $items[$item->request->id] = $item;
+        }
+
+        $this->assertArrayHasKey($response->id, $items);
+        $listed = $items[$response->id];
+        $this->assertSame('PHPUnit Patient App', $listed->appName);
+        $this->assertSame(PatientWriteClientType::Public, $listed->clientType);
+        $this->assertSame('Held Write', $listed->patientName);
+        $this->assertSame([['question' => 'How are you feeling?', 'answers' => ['Better']]], $listed->answers);
+        $this->assertTrue($listed->canApprove);
+        $this->assertNull($listed->duplicateOf);
+        $this->assertSame(self::QUESTIONNAIRE_NAME, $listed->questionnaireName, 'the title staff know it by');
+        $this->assertNull($items[$first->id]->questionnaireName);
+
+        $this->assertNull($items[$first->id]->duplicateOf);
+        $this->assertSame($first->id, $items[$again->id]->duplicateOf, 'the same reading sent twice');
+        $this->assertFalse($items[$again->id]->canApprove, 'vital signs cannot be approved yet');
     }
 
     public function testAnIssuedUuidAlreadyInUseIsRefused(): void
