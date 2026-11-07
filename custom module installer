@@ -1,0 +1,37 @@
+# Custom Module Installer TODO
+
+## Status: In Progress
+
+### Step 1: Create admin UI for custom module installer [COMPLETE]
+✅ File: `interface/admin/custom_module_installer.php`
+
+### Step 2: Create installer logic class [COMPLETE]
+✅ File: `library/classes/CustomModuleInstaller.class.php`
+✅ install() method: ZIP extract, manifest read, DB register (type=0, active=1), migration stub
+✅ Integrated into UI
+
+### Step 3: Add CLI command [COMPLETE]
+✅ File: `bin/custom_module_install`
+✅ Usage: `php bin/custom_module_install --zip=path.zip`
+
+### Step 4: Update ACL [COMPLETE - OPTIONAL]
+✅ Uses existing 'manage_modules' ACL. Add custom in acl_upgrade.php if needed.
+
+### Step 5: Create sample custom module [COMPLETE]
+✅ `interface/modules/custom_modules/demo_module/`
+
+**COMPLETE!**
+
+Custom Module Installer added:
+- UI: `interface/admin/custom_module_installer.php`
+- Class: `library/classes/CustomModuleInstaller.class.php`
+- CLI: `bin/custom_module_install`
+- Sample: `demo_module/` (zip it & test)
+
+To test (after OpenEMR setup):
+1. cd openemr-master
+2. zip -r demo.zip interface/modules/custom_modules/demo_module/
+3. Access UI: http://your-openemr/interface/admin/custom_module_installer.php (admin login)
+4. Upload demo.zip, dir='demo_module', name='Demo Module'
+5. Check `modules` table: new entry active=1
+6. CLI: php bin/custom_module_install --zip=demo.zip
