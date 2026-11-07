@@ -21,6 +21,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Services\PatientReview\EventAuditReviewTrail;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
+use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewActorType;
@@ -65,6 +66,29 @@ class ReviewQueueDatabaseTest extends TestCase
         );
         QueryUtils::sqlStatementThrowException('DELETE FROM `patient_review_request` WHERE `pid` IN (?, ?)', $pids);
         QueryUtils::sqlStatementThrowException('DELETE FROM `onsite_documents` WHERE `pid` IN (?, ?)', $pids);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `patient_data` WHERE `pid` IN (?, ?)', $pids);
+    }
+
+    /** The patient row a patient app write is held against. */
+    private function insertPatient(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `patient_data` (`pid`, `pubpid`, `fname`, `lname`, `DOB`, `sex`) VALUES (?, ?, 'Review', 'Test', '1970-01-01', 'Female')",
+            [self::PID, 'review-test-' . self::PID]
+        );
+    }
+
+    private function appWrite(string $clientId, string $resourceType): ReviewSubmission
+    {
+        return new ReviewSubmission(
+            self::PID,
+            ReviewType::FhirWrite,
+            'Patient app ' . $resourceType . ' write',
+            ['resourceType' => $resourceType],
+            ReviewSource::Api,
+            $clientId,
+            resourceType: new FhirResourceType($resourceType),
+        );
     }
 
     /** A portal document row for the patient, as the portal creates one; returns its id. */
@@ -209,7 +233,49 @@ class ReviewQueueDatabaseTest extends TestCase
         $repository = new ReviewRequestRepository(new ReviewRequestMapper());
 
         $this->expectException(\DomainException::class);
-        $repository->lockTarget('patient_data', '1');
+        $repository->lockTarget('users', '1');
+    }
+
+    public function testSubmitWithinLimitCountsOnlyTheClientsOpenRequests(): void
+    {
+        $this->insertPatient();
+        $service = ReviewQueueFactory::create();
+        $first = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 2);
+        $service->submitWithinLimit($this->appWrite('client-a', 'Condition'), $this->patient(), 2);
+        $service->submitWithinLimit($this->appWrite('client-b', 'Observation'), $this->patient(), 2);
+
+        $repository = new ReviewRequestRepository(new ReviewRequestMapper());
+        $this->assertSame(2, $repository->countOpenForClient(self::PID, ReviewType::FhirWrite, 'client-a'));
+        $this->assertSame(1, $repository->countOpenForClient(self::PID, ReviewType::FhirWrite, 'client-b'));
+        $this->assertSame(0, $repository->countOpenForClient(self::OTHER_PID, ReviewType::FhirWrite, 'client-a'));
+
+        try {
+            $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 2);
+            $this->fail('client-a is at its limit');
+        } catch (ReviewLimitReachedException) {
+            // expected
+        }
+
+        $service->deny($first->id, $this->staff(), 'duplicate reading');
+        $this->assertSame(1, $repository->countOpenForClient(self::PID, ReviewType::FhirWrite, 'client-a'));
+    }
+
+    public function testSubmitWithinLimitCreatesNothingForAMissingPatient(): void
+    {
+        $service = ReviewQueueFactory::create();
+
+        try {
+            $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 2);
+            $this->fail('A write for a patient who does not exist must be refused');
+        } catch (\RuntimeException $e) {
+            $this->assertNotInstanceOf(ReviewLimitReachedException::class, $e);
+        }
+        $created = QueryUtils::fetchSingleValue(
+            'SELECT COUNT(*) AS c FROM `patient_review_request` WHERE `pid` = ?',
+            'c',
+            [self::PID]
+        );
+        $this->assertSame(0, is_numeric($created) ? (int) $created : -1);
     }
 
     public function testSubmitUnlessOpenCreatesNothingForAMissingTargetRow(): void

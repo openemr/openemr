@@ -18,6 +18,7 @@ use DateTimeImmutable;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewHandlerMissingException;
+use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\ReviewActor;
@@ -167,6 +168,70 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertSame(ReviewType::FhirWrite, $request->type);
         $this->assertSame('Condition', $request->resourceType?->value);
         $this->assertSame(ReviewStatus::Pending, $request->status);
+    }
+
+    public function testSubmitWithinLimitKeepsEveryEarlierRequestOpen(): void
+    {
+        $service = $this->service();
+        $first = $service->submitWithinLimit($this->fhirWrite('Observation'), $this->patient(), 2);
+        $second = $service->submitWithinLimit($this->fhirWrite('Observation'), $this->patient(), 2);
+
+        $this->assertSame(ReviewStatus::Pending, $service->get($first->id)->status, 'a second reading must not cancel the first');
+        $this->assertSame(ReviewStatus::Pending, $second->status);
+        $this->assertSame(['patient_data|' . self::PID, 'patient_data|' . self::PID], $this->store->locks);
+    }
+
+    public function testSubmitWithinLimitRefusesAtTheLimitAndAddsNothing(): void
+    {
+        $service = $this->service();
+        $service->submitWithinLimit($this->fhirWrite('Observation'), $this->patient(), 2);
+        $service->submitWithinLimit($this->fhirWrite('Condition'), $this->patient(), 2);
+        $auditedBefore = count($this->trail->entries);
+
+        try {
+            $service->submitWithinLimit($this->fhirWrite('Observation'), $this->patient(), 2);
+            $this->fail('A third open request should be refused');
+        } catch (ReviewLimitReachedException) {
+            // expected: the limit counts every resource type the client wrote
+        }
+
+        $this->assertSame(2, $service->countPending());
+        $this->assertCount($auditedBefore, $this->trail->entries);
+    }
+
+    public function testSubmitWithinLimitCountsOnlyThisClientsOpenRequests(): void
+    {
+        $service = $this->service();
+        $first = $service->submitWithinLimit($this->fhirWrite('Observation'), $this->patient(), 1);
+        $other = new ReviewSubmission(
+            self::PID,
+            ReviewType::FhirWrite,
+            'Patient app Observation write',
+            ['resourceType' => 'Observation'],
+            ReviewSource::Api,
+            'client-other',
+            resourceType: new FhirResourceType('Observation'),
+        );
+        $service->submitWithinLimit($other, $this->patient(), 1);
+
+        $service->deny($first->id, $this->staff(), 'not a vital sign');
+        $again = $service->submitWithinLimit($this->fhirWrite('Observation'), $this->patient(), 1);
+
+        $this->assertSame(ReviewStatus::Pending, $again->status, 'a decided request no longer counts');
+    }
+
+    public function testSubmitWithinLimitNeedsAClientAndALimitOfAtLeastOne(): void
+    {
+        $service = $this->service();
+        try {
+            $service->submitWithinLimit($this->profile(), $this->patient(), 5);
+            $this->fail('A portal submission has no client to limit');
+        } catch (\DomainException) {
+            // expected
+        }
+
+        $this->expectException(\DomainException::class);
+        $service->submitWithinLimit($this->fhirWrite('Observation'), $this->patient(), 0);
     }
 
     public function testReplacePendingSupersedesFhirWritesOnlyOfTheSameResourceType(): void

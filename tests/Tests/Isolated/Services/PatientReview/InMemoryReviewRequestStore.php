@@ -113,6 +113,18 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         return $open;
     }
 
+    public function countOpenForClient(int $pid, ReviewType $type, string $clientId): int
+    {
+        $count = 0;
+        foreach ($this->requests as $row) {
+            $request = $this->mapper->toRequest($row);
+            if ($request->pid === $pid && $request->type === $type && $request->clientId === $clientId && $request->status->isOpen()) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
     public function lockTarget(string $targetTable, string $targetId): void
     {
         // Nothing runs concurrently in memory; record the call so tests can see it was made.
