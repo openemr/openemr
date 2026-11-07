@@ -131,8 +131,11 @@ function getFormsByCategory($state = '1', $lbfonly = false): array
     $all = [];
     if (!$lbfonly) {
         // First get the traditional form types from the registry table.
+        // form_foreign_id identifies which questionnaire a questionnaire_assessments row
+        // stands for; every such row shares one directory, so callers that need to tell
+        // them apart have nothing else to key on.
         $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
-            "unpackaged, date, priority, aco_spec FROM registry WHERE ";
+            "unpackaged, date, priority, aco_spec, form_foreign_id FROM registry WHERE ";
         if (($attendant_type ?? 'pid') == 'pid') {
             $sql .= "patient_encounter = 1 AND ";
         } else {

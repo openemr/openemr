@@ -45,14 +45,28 @@ jobs:
       run: |
         # github.event.workflow_run.pull_requests is empty for fork PRs, so
         # resolve the PR number by looking up PRs associated with the head
-        # commit. This works for both in-repo and fork PRs.
-        # `|| true` prevents `set -e` from aborting if `gh api` fails (e.g.
-        # 404 when the head SHA isn't reachable in this repo because a fork
-        # branch was rebased or force-pushed). `// empty` makes jq emit
-        # nothing instead of `null` on an empty array.
+        # commit. That endpoint only knows commits in this repository, so it
+        # finds in-repo PRs but returns nothing for fork PRs; those are found
+        # by searching for the SHA (#11894). The search also matches PRs that
+        # merely contain the commit, so keep the one whose head it is.
+        # `|| true` prevents `set -e` from aborting if `gh api` fails, but on
+        # an error gh prints the response body to stdout, so only a number is
+        # kept. `// empty` makes jq emit nothing instead of `null`.
         number=$(gh api "repos/${REPO}/commits/${HEAD_SHA}/pulls" --jq '.[0].number // empty' 2>/dev/null || true)
+        [[ "$number" =~ ^[0-9]+$ ]] || number=
         if [ -z "$number" ]; then
-          echo "Could not resolve a PR number for commit ${HEAD_SHA}; skipping."
+          for candidate in $(gh api "search/issues?q=repo:${REPO}+type:pr+sha:${HEAD_SHA}" --jq '.items[].number' 2>/dev/null || true); do
+            [[ "$candidate" =~ ^[0-9]+$ ]] || continue
+            if [ "$(gh api "repos/${REPO}/pulls/${candidate}" --jq '.head.sha' 2>/dev/null || true)" = "${HEAD_SHA}" ]; then
+              number=${candidate}
+              break
+            fi
+          done
+        fi
+        if [ -z "$number" ]; then
+          # Also the case for a run whose PR has since been pushed again; the
+          # newer push's run posts the comment.
+          echo "::warning::Could not resolve a PR number for commit ${HEAD_SHA}; skipping."
           exit 0
         fi
         printf 'number=%s\n' "$number" >> "$GITHUB_OUTPUT"

@@ -10,7 +10,9 @@
  * Measures whose populations random patients rarely reach also get seed
  * patients, written by hand in seeds/<year>/<measure>.json. Each seed names
  * the measure's data criteria and value sets; seeds are always kept and also
- * serve as bases for the generated variations.
+ * serve as bases for the generated variations. A seed element may give its
+ * own code ({code, system}) in place of the value set's first, for a record
+ * of the criterion's type that the measure should not count.
  *
  * The engine is called directly and awaited. The oe-cqm-service HTTP wrapper
  * calls the async Calculator.calculate() without awaiting it and so answers
@@ -343,7 +345,7 @@ function patientFactory(measure, valueSets) {
         const c = valueSetNamed(name, where).concepts[0];
         return { code: c.code, system: c.code_system_oid };
     };
-    const SEED_KEYS = new Set(['ref', 'type', 'valueSet', 'result', 'clazz', 'diagnoses', 'participant', 'relatedTo', ...PERIOD_KEYS, ...DATETIME_KEYS]);
+    const SEED_KEYS = new Set(['ref', 'type', 'valueSet', 'code', 'result', 'clazz', 'diagnoses', 'participant', 'relatedTo', ...PERIOD_KEYS, ...DATETIME_KEYS]);
 
     const seedElement = (item, where) => {
         for (const key of Object.keys(item)) {
@@ -364,7 +366,7 @@ function patientFactory(measure, valueSets) {
                 el[k] = v;
             }
         }
-        el.dataElementCodes = [firstCode(item.valueSet, where)];
+        el.dataElementCodes = [item.code ? { code: item.code.code, system: item.code.system } : firstCode(item.valueSet, where)];
         for (const key of PERIOD_KEYS) {
             if (key in item) {
                 el[key] = { low: item[key][0], high: item[key][1], lowClosed: true, highClosed: true };

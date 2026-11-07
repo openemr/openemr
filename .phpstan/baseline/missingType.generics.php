@@ -167,16 +167,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/library/RsPopulation.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Class DataPage implements generic interface Iterator but does not specify its types\\: TKey, TValue$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class DataSet implements generic interface Iterator but does not specify its types\\: TKey, TValue$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ResourceScopeEntityList extends generic class ArrayObject but does not specify its types\\: TKey, TValue$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ResourceScopeEntityList.php',

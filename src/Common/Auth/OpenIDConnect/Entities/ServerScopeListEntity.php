@@ -98,7 +98,7 @@ class ServerScopeListEntity
                 'PractitionerRole',
                 'Procedure',
                 'Provenance',
-                // These four are writable (see $fhirWriteResources) and get a v1 read scope so a
+                // These five are writable (see $fhirWriteResources) and get a v1 read scope so a
                 // v1-only client can hold read and write together. Mixing v1 and v2 for the same
                 // resource is also valid: grants are checked as a permission union
                 // (ResourceScopeEntityList::grantsScope) and consent keeps each scope's spelling.
@@ -106,7 +106,6 @@ class ServerScopeListEntity
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
-                // Task is read and search only for now; its write scopes come with create and update.
                 'Task',
                 'ValueSet',
                 'OperationDefinition',
@@ -138,6 +137,7 @@ class ServerScopeListEntity
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
+                'Task',
             ];
             $fhirScopes = [];
             $systemEnabled = $this->systemScopesEnabled;
@@ -228,6 +228,7 @@ class ServerScopeListEntity
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
+                'Task',
             ];
             $scopes = [];
             $systemEnabled = $this->systemScopesEnabled;
@@ -347,6 +348,11 @@ class ServerScopeListEntity
             $userResources = [
                 'allergy' => ['c','r','u','d','s']
                 ,'appointment' => ['c','r','u','d','s']
+                // `background_service` is admin-tier: list (s) and single (r) only.
+                // POST execution is modeled as the `$run` operation scope below,
+                // not as a CRUDS 'c', so a client cannot be granted blanket write
+                // over the resource — only the one operation the route exposes.
+                ,'background_service' => ['r','s']
                 ,'dental_issue' => ['c','r','u','d','s']
                 ,'document' => ['c','r','s']
                 ,'drug' => ['r','s']
@@ -379,6 +385,7 @@ class ServerScopeListEntity
                 $scopes[] = "user/$resource.$actionString";
             }
             $scopes[] = 'user/insurance.$swap-insurance';
+            $scopes[] = 'user/background_service.$run';
             $patientResources = [
                 'patient' => ['s']
                 ,'encounter' => ['r','s']
@@ -478,6 +485,7 @@ class ServerScopeListEntity
             // standard api resources
             'allergy' => xl("allergies/adverse reactions"),
             'appointment' => xl("appointments"),
+            'background_service' => xl("background service entries (list, inspect, and execute scheduled jobs)"),
             'dental_issue' => xl("dental issues"),
             'document' => xl("clinical and non-clinical documents"),
             'drug' => xl("drug information related to planned and prescribed medication history"),

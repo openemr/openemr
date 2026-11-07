@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+
+<title>Patient Portal | Patient Data</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+<meta name="description" content="Patient Profile" />
+<meta name="author" content="Form | sjpadgett@gmail.com" />
+
+<script src="/openemr/public/assets/jquery/dist/jquery.min.js?v=82"></script>
+<link href="/openemr/public/assets/@fortawesome/fontawesome-free/css/all.min.css?v=82" rel="stylesheet" />
+<link href="/openemr/public/assets/jquery-datetimepicker/build/jquery.datetimepicker.min.css?v=82" rel="stylesheet" />
+
+<script src="/openemr/public/assets/moment/moment.js?v=82"></script>
+<script src="/openemr/public/assets/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js?v=82"></script>
+<script>window.portalApiCsrfToken = "test-csrf-token";</script>
+<script src="/openemr/portal/patient/scripts/portal-page.js?v=82"></script>
+<script src="/openemr/portal/patient/scripts/portal-api.js?v=82"></script>
+<base href="/openemr/portal/patient/" />
+</head>
+<body>
+<script>var register="0";var recid='0';var webRoot="\/openemr";var cpid='7';var cuser="1';alert(1)\/\/";</script>
+
+<script src="/openemr/portal/patient/scripts/app/patientdata.js?v=82"></script>
+<script>
+    $(function () {
+        page.init();
+    });
+    // bring in the datepicker and datetimepicker localization and setting elements
+
+//datepicker elements
+var datepicker_format = 'Y-m-d';
+var datetimepicker_format = 'Y-m-d H:i:s';
+
+
+    // profile excludes global from layouts via PatientController
+    const exclude = ["suffixInputContainer","refProvideridInputContainer"];
+</script>
+<body>
+<div class="container-fluid">
+    <!-- Could add/manage table list here -->
+<template id="patientModelTemplate">
+
+<div id='profileHelp' class='jumbotron jumbotron-fluid' style='display: none; width: 650px; margin: 0 auto;'>
+<p>
+Any changes here will be reviewed by provider staff before committing to your chart. The following apply:<br />
+Change any item available and when ready click Send for review. The changes will be flagged and staff notified to review changes before committing them to chart. During the time period before changes are reviewed the Revised button will show Pending and profile data is still available for changes. When accessing profile in pending state all previous edits will appear in Blue and current chart values in Red. You may revert any edit to chart value by clicking that red item (or vica versa) but remember that when you click Send for Review then items that populate the field items are the ones that are sent. Revert Edits button changes everything back to chart values and you may make changes from there. So to recap: Items in BLUE are patient edits with items in RED being original values before any edits.</p>
+        <button class="btn btn-primary btn-sm" type="button" id='dismissHelp'>Dismiss</button>
+        </div>
+        <form onsubmit="return false;">
+            <fieldset>
+            <div class="form-row mb-2 pb-2">
+            <div class="col-sm-auto px-3 form-group plist-group" id="provideridInputContainer">
+                    <label class="plist-label" for="providerid">Current Physician</label>
+                    <div class="controls inline-inputs">
+                        <select class="form-control" id="providerid" value="&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;">
+                            <option value='1'>Administrator Assign</option><option value='4'>Ann Davis</option><option value='5'>Sean O'Brien &amp; &lt;Partners&gt;</option><option value='9'>Kim Lee</option>                        </select>
+                        <span class="help-inline"></span>
+                    </div>
+            </div>
+            <div class="col-sm-auto px-3 form-group plist-group" id="titleInputContainer">
+                <label class="plist-label" for="title">Title</label><br />
+                <div class="controls inline-inputs">
+                    <select name="title" id="title" class="form-control form-control"><option value="Mr." selected>Mr.</option></select>
+                 <span class="help-inline"></span>
+                </div>
+            </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="fnameInputContainer">
+                    <label class="plist-label" for="fname">First</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="fname" required placeholder="First Name">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="mnameInputContainer">
+                    <label class="plist-label" for="mname">Middle</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="mname" placeholder="Middle Name">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="lnameInputContainer">
+                    <label class="plist-label" for="lname">Last</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="lname" required placeholder="Last Name">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <!--<div class="col-sm-auto px-3 form-group plist-group  dynhide hide" id="pidInputContainer">
+                    <label class="plist-label" for="pid"></label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="pid" readonly placeholder="">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <div class="col-sm-auto px-3 form-group plist-group" id="pubpidInputContainer">
+                    <label class="plist-label" for="pubpid">Public Patient Id</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="pubpid" disabled>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="dobInputContainer">
+                    <label class="plist-label" for="dob">Birth Date</label>
+                    <div class="controls inline-inputs">
+                        <div class="input-group" >
+                            <input id="dob" type="text" required class="form-control jquery-date-picker" placeholder="I know but we need it!" />
+                        </div>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <!--<div class="col-sm-auto px-3 form-group plist-group" id="ssInputContainer">
+                    <label class="plist-label" for="ss"></label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="ss" title="###-##-####" placeholder="">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <div class="col-sm-auto px-3 form-group plist-group" id="sexInputContainer">
+                    <label class="plist-label" for="sex">Gender</label><br />
+                    <div class="controls inline-inputs">
+                        <select name="sex" id="sex" class="form-control"><option value="Male" selected>Male</option></select>
+                     <span class="help-inline"></span>
+                    </div>
+                </div>
+                <!--<div class="col-sm-auto px-3 form-group plist-group" id="pharmacyIdInputContainer">
+                    <label class="plist-label" for="pharmacyId">Pharmacy Id</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="pharmacyId" placeholder="Pharmacy Id">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <div class="col-sm-auto px-3 form-group plist-group" id="statusInputContainer">
+                    <label class="plist-label" for="status">Marital Status</label><br />
+                    <div class="controls inline-inputs">
+                    <select name="status" id="status" class="form-control form-control"><option value="married" selected>Married</option></select>
+                    <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="streetInputContainer">
+                    <label class="plist-label" for="street">Street</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="street" required placeholder="Street"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+            <div class="col-sm-auto px-3 form-group plist-group" id="cityInputContainer">
+                    <label class="plist-label" for="city">City</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="city" required placeholder="City">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+            <div class="col-sm-auto px-3 form-group plist-group" id="stateInputContainer">
+                <label class="plist-label" for="state">State</label><br />
+                <div class="controls inline-inputs">
+                    <select name="state" id="state" class="form-control form-control"><option value="CA" selected>California</option></select>
+                 <span class="help-inline"></span>
+                </div>
+            </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="postalCodeInputContainer">
+                    <label class="plist-label" for="postalCode">Postal Code</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="postalCode" placeholder="Postal Code">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="countyInputContainer">
+                    <label class="plist-label" for="county">County</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="county" placeholder="County">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="countryCodeInputContainer">
+                    <label class="plist-label" for="countryCode">Country Code</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="countryCode" placeholder="Country Code">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="phoneHomeInputContainer">
+                    <label class="plist-label" for="phoneHome">Home Phone</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="phoneHome" placeholder="Phone Home">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="phoneBizInputContainer">
+                    <label class="plist-label" for="phoneBiz">Business Phone</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="phoneBiz" placeholder="Phone Biz">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="phoneCellInputContainer">
+                    <label class="plist-label" for="phoneCell">Cell Phone</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="phoneCell" placeholder="Phone Cell">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="phoneContactInputContainer">
+                    <label class="plist-label" for="phoneContact">Contact or Notify Phone</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="phoneContact" placeholder="Phone Contact">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="contactRelationshipInputContainer">
+                    <label class="plist-label" for="contactRelationship">Contact Relationship</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="contactRelationship" placeholder="Contact Relationship">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="dateInputContainer">
+                    <label class="plist-label" for="date">Date</label>
+                    <div class="controls inline-inputs">
+                        <div class="input-group">
+                            <input disabled id="date" type="text" class="form-control jquery-date-time-picker" />
+                        </div>
+                        <span class="help-inline"></span>
+                    </div>
+                </div><!-- -->
+                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="refProvideridInputContainer">
+                    <label class="plist-label" for="refProviderid">Referral Provider</label>
+                    <div class="controls inline-inputs">
+                        <select  disabled class="form-control" id="refProviderid"  value="9&#039; x=&#039;">
+                            <option value=''>Unassigned</option><option value='4'>Ann Davis</option><option value='5'>Sean O'Brien &amp; &lt;Partners&gt;</option><option value='9'>Kim Lee</option>                        </select>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="emailInputContainer">
+                    <label class="plist-label" for="email">Email</label>
+                    <div class="controls inline-inputs">
+                        <input type="email" class="form-control" id="email" required placeholder="Email">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="emailDirectInputContainer">
+                    <label class="plist-label" for="emailDirect">Email Direct</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="emailDirect" placeholder="Direct Email">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="languageInputContainer">
+                    <label class="plist-label" for="language">Preferred Language</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="language" placeholder="Language">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+            <div class="col-sm-auto px-3 form-group plist-group" id="raceInputContainer">
+                <label class="plist-label" for="race">Race</label><br />
+                <div class="controls inline-inputs">
+                    <select name="race" id="race" class="form-control form-control"><option value="white" selected>White</option></select>
+                <span class="help-inline"></span>
+                </div>
+           </div>
+           <div class="col-sm-auto px-3 form-group plist-group" id="ethnicityInputContainer">
+                    <label class="plist-label" for="ethnicity">Ethnicity</label><br />
+                    <div class="controls inline-inputs">
+                        <select name="ethnicity" id="ethnicity" class="form-control form-control"><option value="" selected>Unassigned</option></select>
+                    <span class="help-inline"></span>
+                    </div>
+            </div>
+            <div class="col-sm-auto px-3 form-group plist-group" id="religionInputContainer">
+                <label class="plist-label" for="religion">Religion</label><br />
+                <div class="controls inline-inputs">
+                    <select name="religion" id="religion" class="form-control form-control"><option value="" selected>Unassigned</option></select>
+                 <span class="help-inline"></span>
+                </div>
+            </div>
+            <div class="col-sm-auto px-3 form-group plist-group dynhide" id="familySizeInputContainer">
+                    <label class="plist-label" for="familySize">Family Size</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="familySize" placeholder="Family Size">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <!--<div class="col-sm-auto px-3 form-group plist-group" id="referralSourceInputContainer">
+                    <label class="plist-label" for="referralSource"></label><br />
+                    <div class="controls inline-inputs">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <!--<div class="col-sm-auto px-3 form-group plist-group dynhide" id="regdateInputContainer">
+                    <label class="plist-label" for="regdate"></label>
+                    <div class="controls inline-inputs">
+                        <div class="input-group">
+                            <input disabled id="regdate" type="text" class="form-control jquery-date-picker" />
+                        </div>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <div class="col-sm-auto px-3 form-group plist-group" id="mothersnameInputContainer">
+                    <label class="plist-label" for="mothersname">Mothers Name</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="mothersname" placeholder="Mothers Name">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="guardiansnameInputContainer">
+                    <label class="plist-label" for="guardiansname">Guardians Name</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="guardiansname" placeholder="Guardians Name">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="hipaaMailInputContainer">
+                    <label class="plist-label" for="hipaaMail">Allow Postal Mail</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaMail0" name="hipaaMail" type="radio" value="NO">NO</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaMail1" name="hipaaMail" type="radio" value="YES">YES</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaMail2" name="hipaaMail" type="radio" value="">Unassigned</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="hipaaVoiceInputContainer">
+                    <label class="plist-label" for="hipaaVoice">Allow Voice Call</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaVoice0" name="hipaaVoice" type="radio" value="NO">NO</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaVoice1" name="hipaaVoice" type="radio" value="YES">YES</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaVoice2" name="hipaaVoice" type="radio" value="">Unassigned</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="hipaaNoticeInputContainer">
+                    <label class="plist-label" for="hipaaNotice">Allow Notice</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaNotice0" name="hipaaNotice" type="radio" value="NO">NO</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaNotice1" name="hipaaNotice" type="radio" value="YES">YES</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaNotice2" name="hipaaNotice" type="radio" value="">Unassigned</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="hipaaMessageInputContainer">
+                    <label class="plist-label" for="hipaaMessage">Hipaa Message</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="hipaaMessage" placeholder="Hipaa Message">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="hipaaAllowsmsInputContainer">
+                    <label class="plist-label" for="hipaaAllowsms">Allow SMS</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowsms0" name="hipaaAllowsms" type="radio" value="NO">NO</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowsms1" name="hipaaAllowsms" type="radio" value="YES">YES</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowsms2" name="hipaaAllowsms" type="radio" value="">Unassigned</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="hipaaAllowemailInputContainer">
+                    <label class="plist-label" for="hipaaAllowemail">Allow Email</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowemail0" name="hipaaAllowemail" type="radio" value="NO">NO</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowemail1" name="hipaaAllowemail" type="radio" value="YES">YES</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowemail2" name="hipaaAllowemail" type="radio" value="">Unassigned</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="allowImmRegUseInputContainer">
+                    <label class="plist-label" for="allowImmRegUse">Allow Immunization Registry Use</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmRegUse0" name="allowImmRegUse" type="radio" value="NO">NO</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmRegUse1" name="allowImmRegUse" type="radio" value="YES">YES</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmRegUse2" name="allowImmRegUse" type="radio" value="">Unassigned</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="allowImmInfoShareInputContainer">
+                    <label class="plist-label" for="allowImmInfoShare">Allow Immunization Info Share</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmInfoShare0" name="allowImmInfoShare" type="radio" value="NO">NO</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmInfoShare1" name="allowImmInfoShare" type="radio" value="YES">YES</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmInfoShare2" name="allowImmInfoShare" type="radio" value="">Unassigned</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="allowHealthInfoExInputContainer">
+                    <label class="plist-label" for="allowHealthInfoEx">Allow Health Info Exchange</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowHealthInfoEx0" name="allowHealthInfoEx" type="radio" value="NO">NO</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowHealthInfoEx1" name="allowHealthInfoEx" type="radio" value="YES">YES</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowHealthInfoEx2" name="allowHealthInfoEx" type="radio" value="">Unassigned</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="allowPatientPortalInputContainer">
+                    <label class="plist-label" for="allowPatientPortal">Allow Patient Portal</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input disabled id="allowPatientPortal0" name="allowPatientPortal" type="radio" value="NO">NO</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input disabled id="allowPatientPortal1" name="allowPatientPortal" type="radio" value="YES">YES</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input disabled id="allowPatientPortal2" name="allowPatientPortal" type="radio" value="">Unassigned</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <!--<div class="col-sm-auto px-3 form-group plist-group dynhide" id="careTeamInputContainer">
+                    <label class="plist-label" for="careTeam"></label>
+                    <div class="controls inline-inputs">
+                        <select disabled class="form-control" id="careTeam"
+                            title="" value="">
+                        </select>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="noteInputContainer">
+                    <label class="plist-label" style="color:green" for="note">Comments about change request</label>
+                    <div class="controls inline-inputs">
+                        <textarea class="form-control" id="note" rows="2" col="160" style='min-width:380px'>To Admin: </textarea>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                </div>
+            </fieldset>
+        </form>
+</template>
+    <div id="collectionAlert"></div>
+    <div id="modelAlert"></div>
+    <div id="patientCollectionContainer" class="collectionContainer"></div>
+    <div id="patientModelContainer" class="modelContainer"></div>
+</div> <!-- /container -->
+</body>
+</html>

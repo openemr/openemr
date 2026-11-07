@@ -309,6 +309,19 @@ class ProcedureOrderFixtureManager extends BaseFixtureManager
                 [$fixturePrefix]
             );
 
+            // The orders are installed without a uuid, but ProcedureService fills in
+            // missing ones when it is constructed; remove those with the orders.
+            QueryUtils::sqlStatementThrowException(
+                <<<'SQL'
+                DELETE FROM uuid_registry
+                WHERE table_name = 'procedure_order'
+                  AND uuid IN (
+                    SELECT uuid FROM procedure_order WHERE control_id LIKE ?
+                  )
+                SQL,
+                [$fixturePrefix]
+            );
+
             QueryUtils::sqlStatementThrowException(
                 <<<'SQL'
                 DELETE FROM procedure_order WHERE control_id LIKE ?

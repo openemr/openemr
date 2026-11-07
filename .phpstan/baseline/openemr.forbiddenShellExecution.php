@@ -18,7 +18,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Shell execution function passthru\\(\\) is forbidden\\. passthru\\(\\) executes a command and passes raw output\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/fax/fax_view.php',
 ];
 $ignoreErrors[] = [
@@ -35,11 +35,6 @@ $ignoreErrors[] = [
     'message' => '#^Shell execution function exec\\(\\) is forbidden\\. exec\\(\\) executes a shell command\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Shell execution function exec\\(\\) is forbidden\\. exec\\(\\) executes a shell command\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/Mime_Types.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Shell execution function exec\\(\\) is forbidden\\. exec\\(\\) executes a shell command\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',

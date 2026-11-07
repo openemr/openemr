@@ -28,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\Services\Questionnaire\QuestionnaireCanonical;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -443,7 +444,11 @@ class QuestionnaireResponseService extends BaseService
 
         $fhirResponseOb->setId(new FHIRId($qr_id));
         $serverConfig = new ServerConfig();
-        $fhirResponseOb->setQuestionnaire(new FHIRCanonical($serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id));
+        $fhirResponseOb->setQuestionnaire(new FHIRCanonical(QuestionnaireCanonical::forResponse(
+            $this->getValue($fhirQuestionnaireOb->url),
+            $this->getValue($fhirQuestionnaireOb->version),
+            $serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id
+        )));
         // the FHIR reference uses the encounter uuid; the encounter column keeps the encounter id
         $encounterReference = $encounter;
         if (is_numeric($encounter)) {
@@ -709,26 +714,60 @@ class QuestionnaireResponseService extends BaseService
     }
 
     /**
-     * @param $answer
-     * @return string
+     * Display text for one QuestionnaireResponse answer; 'N/A' when it is not an answer array.
      */
-    public function extractAnswerValue($answer)
+    public function extractAnswerValue(mixed $answer): string
     {
-        if (isset($answer['valueCoding'])) {
-            return $answer['valueCoding']['display'];
-        } elseif (isset($answer['valueDecimal'])) {
-            return $answer['valueDecimal'];
-        } elseif (isset($answer['valueString'])) {
-            return $answer['valueString'];
-        } elseif (isset($answer['valueBoolean'])) {
-            return $answer['valueBoolean'] ? 'Yes' : 'No';
-        } elseif (isset($answer['valueInteger'])) {
-            return $answer['valueInteger'];
-        } elseif (isset($answer['valueDate'])) {
-            return $answer['valueDate'];
-        } else {
-            return 'N/A';
+        return is_array($answer) ? self::answerText($answer) : 'N/A';
+    }
+
+    /**
+     * The text the encounter view shows for one answer, for each FHIR R4 answer type. A date, dateTime
+     * or time is shown as saved; a Coding by its display, else its code.
+     *
+     * @param array<mixed> $answer
+     */
+    public static function answerText(array $answer): string
+    {
+        $text = self::firstText($answer, 'valueString', 'valueDate', 'valueDateTime', 'valueTime', 'valueUri');
+        if ($text !== null) {
+            return $text;
         }
+        if (isset($answer['valueBoolean'])) {
+            return $answer['valueBoolean'] ? 'Yes' : 'No';
+        }
+        foreach (['valueInteger', 'valueDecimal'] as $key) {
+            $number = $answer[$key] ?? null;
+            if (is_int($number) || is_float($number)) {
+                return (string)$number;
+            }
+        }
+        $quantity = $answer['valueQuantity'] ?? null;
+        if (is_array($quantity) && (is_int($quantity['value'] ?? null) || is_float($quantity['value'] ?? null))) {
+            return trim($quantity['value'] . ' ' . (self::firstText($quantity, 'unit', 'code') ?? ''));
+        }
+        foreach (['valueCoding' => ['display', 'code'], 'valueReference' => ['display', 'reference'], 'valueAttachment' => ['title', 'url']] as $key => $fields) {
+            $value = $answer[$key] ?? null;
+            if (is_array($value)) {
+                return self::firstText($value, ...$fields) ?? ($key === 'valueAttachment' ? 'Attachment' : 'N/A');
+            }
+        }
+        return 'N/A';
+    }
+
+    /**
+     * The first of the keys whose value is a non-empty string.
+     *
+     * @param array<mixed> $values
+     */
+    private static function firstText(array $values, string ...$keys): ?string
+    {
+        foreach ($keys as $key) {
+            if (isset($values[$key]) && is_string($values[$key]) && $values[$key] !== '') {
+                return $values[$key];
+            }
+        }
+        return null;
     }
 
 

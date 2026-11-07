@@ -17,7 +17,7 @@ parameters:
     # not maintained in this repo, so exclude it from analysis the same way vendor/
     # is excluded.
     - interface/modules/custom_modules/oe-module-claimrev-connect/*
-    # ci/api-explorer/run.sh clones sjpadgett/oe-module-api-explorer into
+    # ci/api-explorer/run.sh clones openemr/oe-module-api-explorer into
     # /devtools/oe-module-api-explorer/ on every smoke run. It is third-party code,
     # not maintained in this repo, so exclude it from analysis the same way vendor/
     # is excluded.

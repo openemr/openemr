@@ -191,6 +191,7 @@ updates:
   - ci/compose-shared-nginx/
   - ci/compose-shared-redis-sentinel/
   - ci/inferno/
+  - ci/smart-launch/
   - ci/nginx_83/
   - ci/nginx_84/
   - ci/nginx_85/

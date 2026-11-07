@@ -16,10 +16,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Property GlobalConfig\\:\\:\\$context is never written, only read\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

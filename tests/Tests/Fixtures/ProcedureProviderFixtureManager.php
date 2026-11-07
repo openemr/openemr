@@ -118,12 +118,18 @@ class ProcedureProviderFixtureManager extends BaseFixtureManager
     /**
      * Delete all test fixture provider records from the database
      *
-     * Removes every procedure_providers row whose name carries the fixture prefix.
+     * Removes every procedure_providers row whose name carries the fixture prefix, and the
+     * uuid_registry row of any uuid a service has given it since (ProcedureService fills in
+     * missing ones when it is constructed).
      *
      * @throws \OpenEMR\Common\Database\SqlQueryException If the database deletion fails
      */
     protected function removeInstalledFixtures(): void
     {
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE table_name = 'procedure_providers' AND uuid IN (SELECT uuid FROM procedure_providers WHERE name LIKE ?)",
+            [self::FIXTURE_PREFIX . '-%']
+        );
         QueryUtils::sqlStatementThrowException(
             'DELETE FROM procedure_providers WHERE name LIKE ?',
             [self::FIXTURE_PREFIX . '-%']

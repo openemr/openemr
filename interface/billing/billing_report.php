@@ -10,11 +10,13 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2021-2025 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -380,7 +382,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             top.restoreSession();
             const params = new URLSearchParams({
                 set_encounterid: enc,
-                set_pid: newpid
+                set_pid: newpid,
+                csrf_token_form: top.csrf_token_js
             });
             top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?" + params;
         }

@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 Eric Stern
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -326,5 +328,136 @@ class EventAuditLoggerTest extends TestCase
         );
 
         $logger->auditSQLEvent('UPDATE patient_data SET committed = 1 WHERE pid = 1', true);
+    }
+
+    public function testPatientRecordEventUsesSessionPatientByDefault(): void
+    {
+        $events = [];
+        $logger = $this->patientRecordLogger($events, '7');
+
+        $logger->auditSQLEvent('SELECT * FROM patient_data WHERE pid = ?', true, [42]);
+
+        self::assertCount(1, $events);
+        self::assertSame(7, $events[0]->patientId);
+    }
+
+    public function testPatientRecordEventUsesRequestPatientOverSession(): void
+    {
+        $events = [];
+        $logger = $this->patientRecordLogger($events, '7');
+
+        $logger->setRequestPatientId(42);
+        $logger->auditSQLEvent('SELECT * FROM patient_data WHERE pid = ?', true, [42]);
+
+        self::assertCount(1, $events);
+        self::assertSame(42, $events[0]->patientId);
+    }
+
+    public function testClearingRequestPatientFallsBackToSession(): void
+    {
+        $events = [];
+        $logger = $this->patientRecordLogger($events, 7);
+
+        $logger->setRequestPatientId(42);
+        $logger->setRequestPatientId(null);
+        $logger->auditSQLEvent('SELECT * FROM patient_data WHERE pid = ?', true, [42]);
+
+        self::assertCount(1, $events);
+        self::assertSame(7, $events[0]->patientId);
+    }
+
+    public function testNonPatientRecordEventIgnoresRequestPatient(): void
+    {
+        $events = [];
+        $logger = $this->patientRecordLogger($events, '7');
+
+        $logger->setRequestPatientId(42);
+        $logger->auditSQLEvent('UPDATE users SET active = ? WHERE id = ?', true, [1, 3]);
+
+        self::assertCount(1, $events);
+        self::assertSame(0, $events[0]->patientId);
+    }
+
+    #[DataProvider('unusableSessionPidProvider')]
+    public function testPatientRecordEventRecordsZeroWithoutUsableSessionPatient(mixed $sessionPid): void
+    {
+        $events = [];
+        $logger = $this->patientRecordLogger($events, $sessionPid);
+
+        $logger->auditSQLEvent('SELECT * FROM patient_data WHERE pid = ?', true, [42]);
+
+        self::assertCount(1, $events);
+        self::assertSame(0, $events[0]->patientId);
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unusableSessionPidProvider(): array
+    {
+        return [
+            'unset' => [null],
+            'empty string' => [''],
+            'non-numeric string' => ['abc'],
+            'negative int' => [-1],
+        ];
+    }
+
+    #[DataProvider('nonPositivePidProvider')]
+    public function testSetRequestPatientIdRejectsNonPositive(int $pid): void
+    {
+        $events = [];
+        $logger = $this->patientRecordLogger($events, null);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $logger->setRequestPatientId($pid);
+    }
+
+    /**
+     * @return array<string, array{int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function nonPositivePidProvider(): array
+    {
+        return [
+            'zero' => [0],
+            'negative' => [-1],
+        ];
+    }
+
+    /**
+     * A logger with patient-record and security-administration events on that
+     * appends every recorded event to $events.
+     *
+     * @param list<Event> $events
+     */
+    private function patientRecordLogger(array &$events, mixed $sessionPid): EventAuditLogger
+    {
+        $this->session->method('get')->willReturnCallback(
+            fn (string $name): mixed => $name === 'pid' ? $sessionPid : null
+        );
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->method('record')->willReturnCallback(
+            function (Event $event) use (&$events): void {
+                $events[] = $event;
+            }
+        );
+
+        return new EventAuditLogger(
+            sink: $sink,
+            session: $this->session,
+            config: new AuditConfig(
+                enabled: true,
+                forceBreakglass: false,
+                queryEvents: true,
+                httpRequestEvents: false,
+                enabledEventTypes: [EventCategory::PatientRecord, EventCategory::SecurityAdministration],
+            ),
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
     }
 }

@@ -1277,21 +1277,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function phimail_notify\\(\\) should return true but returns bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_notify\\(\\) should return true but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_store\\(\\) should return array but returns array\\|bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function document_category_to_id\\(\\) should return bool\\|int but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/documents.php',
@@ -1555,611 +1540,6 @@ $ignoreErrors[] = [
     'message' => '#^Function getPidHolder\\(\\) should return int but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method GlobalConfig\\:\\:GetContext\\(\\) should return Context but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method GlobalConfig\\:\\:GetPhreezer\\(\\) should return Phreezer but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method GlobalConfig\\:\\:GetRenderEngine\\(\\) should return IRenderEngine but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method GlobalConfig\\:\\:GetRouter\\(\\) should return UrlWriter but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Savant3\\:\\:applyFilters\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Savant3\\:\\:getEscape\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Savant3\\:\\:getOutput\\(\\) should return string but returns mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Savant3\\:\\:template\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Mime_Types\\:\\:get_extension\\(\\) should return string but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/Mime_Types.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Mime_Types\\:\\:get_file_type\\(\\) should return string but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/Mime_Types.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Mime_Types\\:\\:get_file_type\\(\\) should return string but returns string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/Mime_Types.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Mime_Types\\:\\:get_type\\(\\) should return string but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/Mime_Types.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Mime_Types\\:\\:get_type\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/Mime_Types.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_enclose_value\\(\\) should return Processed but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_rfile\\(\\) should return Data but returns false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_rfile\\(\\) should return Data but returns string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_validate_offset\\(\\) should return true but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_validate_row_conditions\\(\\) should return true but returns bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_validate_row_conditions\\(\\) should return true but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_wfile\\(\\) should return true but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:auto\\(\\) should return delimiter but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:auto\\(\\) should return delimiter but returns int\\|string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:parse_file\\(\\) should return array but returns array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:parse_string\\(\\) should return array but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Auth401\\:\\:GetPassword\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Authentication/Auth401.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Auth401\\:\\:GetUsername\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Authentication/Auth401.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Authenticator\\:\\:GetCurrentUser\\(\\) should return IAuthenticatable\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Authentication/Authenticator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Execute\\(\\) should return int but returns int\\<\\-1, max\\>\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Fetch\\(\\) should return array but returns array\\<string, float\\|int\\|string\\|null\\>\\|false\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Query\\(\\) should return resultset but returns mysqli_result\\|true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BrowserDevice\\:\\:GetInstance\\(\\) should return BrowserDevice but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/BrowserDevice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Context\\:\\:Get\\(\\) should return value but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/Context.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method RequestUtil\\:\\:GetBody\\(\\) should return string but returns body\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method RequestUtil\\:\\:GetCurrency\\(\\) should return string but returns array\\<string\\>\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method RequestUtil\\:\\:GetFileUpload\\(\\) should return FileUpload but returns null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method RequestUtil\\:\\:GetPersisted\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method RequestUtil\\:\\:GetRemoteHost\\(\\) should return string but returns mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method RequestUtil\\:\\:GetRequestHeaders\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method RequestUtil\\:\\:Get\\(\\) should return array\\|string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ActionRouter\\:\\:GetUrlParam\\(\\) should return string but returns array\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Criteria\\:\\:GetAnds\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Criteria\\:\\:GetFilters\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Criteria\\:\\:GetOrs\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataAdapter\\:\\:Escape\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataAdapter\\:\\:Execute\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataAdapter\\:\\:GetLastInsertId\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataAdapter\\:\\:GetQuotedSql\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataAdapter\\:\\:GetTableNames\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataAdapter\\:\\:IsTransactionInProgress\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataPage\\:\\:Next\\(\\) should return Phreezable but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataPage\\:\\:ToObjectArray\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataPage\\:\\:current\\(\\) should return Phreezable but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataSet\\:\\:Count\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataSet\\:\\:GetDataPage\\(\\) should return DataPage but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataSet\\:\\:GetEmptyArray\\(\\) should return array but returns array\\|SplFixedArray\\<mixed\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataSet\\:\\:GetLabelArray\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataSet\\:\\:Next\\(\\) should return Preezable but returns Preezable\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataSet\\:\\:ToObjectArray\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataSet\\:\\:_getObject\\(\\) should return Preezable but returns object\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method FieldMap\\:\\:GetEnumValues\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/FieldMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method GenericRouter\\:\\:GetUri\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method GenericRouter\\:\\:GetUrlParam\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MockRouter\\:\\:GetUri\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MockRouter\\:\\:GetUrlParam\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MockRouter\\:\\:GetUrlParams\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MockRouter\\:\\:GetUrl\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PHPRenderEngine\\:\\:fetch\\(\\) should return string but returns string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PHPRenderEngine.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PHPRenderEngine\\:\\:getAll\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PHPRenderEngine.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:CacheLevel\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:Delete\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:GetCache\\(\\) should return object but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:GetCustomQuery\\(\\) should return string but returns null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:GetPrimaryKeyName\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:GetPrimaryKeyValue\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:GetPublicProperties\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:GetValidationErrors\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:IsLoaded\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:IsPartiallyLoaded\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:NoCache\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:Save\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:GetByCriteria\\(\\) should return Phreezable but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:GetCache\\(\\) should return Phreezable but returns mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:GetCache\\(\\) should return Phreezable but returns null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:GetCustomCountQuery\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:GetCustomQuery\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:GetFieldMaps\\(\\) should return array\\<string, FieldMap\\> but returns mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:GetKeyMaps\\(\\) should return array\\<string, KeyMap\\> but returns mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:GetOneToMany\\(\\) should return Criteria but returns DataSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:GetPrimaryKeyMap\\(\\) should return KeyMap\\|null but returns FieldMap\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:Get\\(\\) should return Phreezable but returns Preezable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:Save\\(\\) should return int but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:SelectAdapter\\(\\) should return DataAdapter but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:SetValueCache\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:Get401Authentication\\(\\) should return IAuthenticatable but returns IAuthenticatable\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:GetCSRFToken\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:GetCurrentUser\\(\\) should return IAuthenticatable\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:GetRouter\\(\\) should return IRouter but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:IsTerminated\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:LoadFromForm\\(\\) should return Phreezable but returns null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Reporter\\:\\:CacheLevel\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Reporter\\:\\:GetPublicProperties\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Reporter\\:\\:IsLoaded\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Reporter\\:\\:IsPartiallyLoaded\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Reporter\\:\\:NoCache\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method SavantRenderEngine\\:\\:fetch\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/SavantRenderEngine.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method VerySimpleStringUtil\\:\\:ConvertEmailToMailTo\\(\\) should return string but returns string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method VerySimpleStringUtil\\:\\:ConvertUrlToLink\\(\\) should return string but returns string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method VerySimpleStringUtil\\:\\:GetCharArray\\(\\) should return array but returns list\\<string\\>\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method VerySimpleStringUtil\\:\\:unicode_entity_replace\\(\\) should return string but returns char\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OnsiteActivityViewMap\\:\\:GetFieldMaps\\(\\) should return array\\<FieldMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OnsiteActivityViewMap\\:\\:GetKeyMaps\\(\\) should return array\\<KeyMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OnsiteDocumentMap\\:\\:GetFieldMaps\\(\\) should return array\\<FieldMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteDocumentMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OnsiteDocumentMap\\:\\:GetKeyMaps\\(\\) should return array\\<KeyMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteDocumentMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OnsitePortalActivityMap\\:\\:GetFieldMaps\\(\\) should return array\\<FieldMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsitePortalActivityMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OnsitePortalActivityMap\\:\\:GetKeyMaps\\(\\) should return array\\<KeyMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsitePortalActivityMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PatientMap\\:\\:GetFieldMaps\\(\\) should return array\\<FieldMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PatientMap\\:\\:GetKeyMaps\\(\\) should return array\\<KeyMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method UserDAO\\:\\:GetExaminerFormHearings\\(\\) should return DataSet but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method UserDAO\\:\\:GetReviewerFormHearings\\(\\) should return DataSet but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method UserMap\\:\\:GetFieldMaps\\(\\) should return array\\<FieldMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method UserMap\\:\\:GetKeyMaps\\(\\) should return array\\<KeyMap\\> but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserMap.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function report_header_2\\(\\) should return outputs but returns string\\|false\\.$#',
@@ -7637,11 +7017,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_acl\\(\\) should return bool but returns array\\<string, mixed\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_children\\(\\) should return array but returns array\\|bool\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
@@ -7767,11 +7142,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) should return array but returns array\\|bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:sort_groups\\(\\) should return array but returns false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
@@ -7857,7 +7227,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirQuestionnaireResponseRestController\\:\\:getAll\\(\\) should return OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRBundle\\|false but returns mixed\\.$#',
+    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirQuestionnaireResponseRestController\\:\\:getAll\\(\\) should return OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRBundle\\|Psr\\\\Http\\\\Message\\\\ResponseInterface\\|false but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireResponseRestController.php',
 ];
@@ -7867,7 +7237,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireResponseRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirQuestionnaireRestController\\:\\:getAll\\(\\) should return OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRBundle but returns mixed\\.$#',
+    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirQuestionnaireRestController\\:\\:getAll\\(\\) should return OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRBundle\\|Psr\\\\Http\\\\Message\\\\ResponseInterface but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireRestController.php',
 ];
@@ -8077,12 +7447,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateRender.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\DocumentTemplates\\\\DocumentTemplateRender\\:\\:fetchTemplateDocument\\(\\) should return array but returns array\\|false\\|null\\.$#',
+    'message' => '#^Method OpenEMR\\\\Services\\\\DocumentTemplates\\\\DocumentTemplateService\\:\\:fetchPortalAuthUsers\\(\\) should return array\\<array\\<string\\>\\> but returns list\\<array\\>\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateRender.php',
+    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\DocumentTemplates\\\\DocumentTemplateService\\:\\:fetchPortalAuthUsers\\(\\) should return array\\<array\\<string\\>\\> but returns list\\<array\\>\\.$#',
+    'message' => '#^Method OpenEMR\\\\Services\\\\DocumentTemplates\\\\DocumentTemplateService\\:\\:fetchTemplateForPatient\\(\\) should return array\\<string, mixed\\>\\|false\\|null but returns array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
@@ -8692,21 +8062,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceRequestService\\:\\:buildOrderCode\\(\\) should return OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCodeableConcept\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceRequestService\\:\\:loadSearchParameters\\(\\) should return array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\> but returns array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\|null\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceRequestService\\:\\:parseOpenEMRRecord\\(\\) should return OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRServiceRequest but returns string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirSpecimenService\\:\\:createProvenanceResource\\(\\) should return OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|null but returns string\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
@@ -9012,11 +8367,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceService\\:\\:insert\\(\\) should return OpenEMR\\\\Validators\\\\ProcessingResult but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\JWTClientAuthenticationService\\:\\:extractClientIdFromJWT\\(\\) should return string\\|null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/JWTClientAuthenticationService.php',
@@ -9072,11 +8422,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientAdvanceDirectiveService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PatientIssuesService\\:\\:linkIssueToEncounter\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientIssuesService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:databaseInsert\\(\\) should return int\\|false but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
@@ -9085,11 +8430,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:getPatientAgeDisplay\\(\\) should return string but returns mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PatientTrackerService\\:\\:collectApptStatusSettings\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientTrackerService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientTrackerService\\:\\:collect_checkin\\(\\) should return bool but returns mixed\\.$#',
@@ -9160,11 +8500,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\QrdaReportService\\:\\:generateCategoryIIIXml\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:extractAnswerValue\\(\\) should return string but returns mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:groupByItemsRecursively\\(\\) should return array but returns mixed\\.$#',

@@ -6,6 +6,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -93,7 +94,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
             'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ["lname"]),
             'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ["fname", "mname"]),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["title", "fname", "mname", "lname"]),
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['users.title', 'users.fname', 'users.mname', 'users.lname']),
             '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
     }
@@ -120,9 +121,9 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['last_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $practitionerResource->setMeta($meta);
 

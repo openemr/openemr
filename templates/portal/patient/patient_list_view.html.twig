@@ -1,0 +1,453 @@
+{#
+ # The patient profile page (portal/patient/patientdata): the profile form a portal patient edits
+ # and staff review, and the self-registration form (`register`).
+ #
+ # Variables:
+ # - register, recid, cpid, cuser: page state, also handed to patientdata.js as JS globals;
+ #   patientdata.js fills the form copied from #patientModelTemplate from the profile API;
+ # - trow: the profile row (camelCase keys), for the provider selects;
+ # - users_list: the providers a patient may choose (rows of id, fname, lname);
+ # - exclude: the element ids of the fields the layout hides from the portal;
+ # - select_lists: the list-backed selects, by field (title, sex, status, state, race,
+ #   ethnicity, religion), as rendered HTML;
+ # - datetimepicker_js: the date picker localisation script;
+ # - and the shared portal page context.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @author    Terry Hill <teryhill@yahoo.com>
+ # @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+{% set row = trow ?: [] %}
+{% include 'portal/patient/_modal_form_header.html.twig' with {title: 'Patient Portal'|xl ~ ' | ' ~ 'Patient Data'|xl} %}
+<script>var register={{ register|js_escape }};var recid='{{ recid|attr }}';var webRoot={{ web_root|js_escape }};var cpid='{{ cpid|attr }}';var cuser={{ cuser|js_escape }};</script>
+
+<script src="{{ web_root }}/portal/patient/scripts/app/patientdata.js?v={{ v_js_includes|attr_url }}"></script>
+<script>
+    $(function () {
+        page.init();
+    });
+    // bring in the datepicker and datetimepicker localization and setting elements
+    {{ datetimepicker_js }}
+
+    // profile excludes global from layouts via PatientController
+    const exclude = {{ (exclude ?: [])|js_escape }};
+</script>
+{% if register %}
+<style>
+    .form-group .inline .dynhide {
+        display: none;
+    }
+
+    body {
+        padding-top: 0;
+        padding-bottom: 5px;
+        background-color: #fff !important;
+    }
+</style>
+<script>
+    // Fixes iFrame in Patient Registratiion
+    setInterval(function() {
+        window.top.postMessage(document.body.scrollHeight, "*");
+    }, 500);
+</script>
+{% endif %}
+<body>
+<div class="container-fluid">
+    <!-- Could add/manage table list here -->
+<template id="patientModelTemplate">
+
+<div id='profileHelp' class='jumbotron jumbotron-fluid' style='display: none; width: 650px; margin: 0 auto;'>
+<p>
+{{ 'Any changes here will be reviewed by provider staff before committing to your chart. The following apply'|xlt }}:<br />
+{{ 'Change any item available and when ready click Send for review. The changes will be flagged and staff notified to review changes before committing them to chart. During the time period before changes are reviewed the Revised button will show Pending and profile data is still available for changes. When accessing profile in pending state all previous edits will appear in Blue and current chart values in Red. You may revert any edit to chart value by clicking that red item (or vica versa) but remember that when you click Send for Review then items that populate the field items are the ones that are sent. Revert Edits button changes everything back to chart values and you may make changes from there. So to recap: Items in BLUE are patient edits with items in RED being original values before any edits.'|xlt -}}
+</p>
+        <button class="btn btn-primary btn-sm" type="button" id='dismissHelp'>{{ 'Dismiss'|xlt }}</button>
+        </div>
+        <form onsubmit="return false;">
+            <fieldset>
+            <div class="form-row mb-2 pb-2">
+            <div class="col-sm-auto px-3 form-group plist-group" id="provideridInputContainer">
+                    <label class="plist-label" for="providerid">{{ 'Current Physician'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <select class="form-control" id="providerid" value="{{ row.providerid|attr }}">
+                            <option value='1'>{{ 'Administrator Assign'|xlt }}</option>
+                            {%- for user in users_list -%}
+                                <option value='{{ user.id|attr }}'{% if user.id == row.providerid %} selected{% endif %}>{{ (user.fname ~ ' ' ~ user.lname)|text }}</option>
+                            {%- endfor %}
+                        </select>
+                        <span class="help-inline"></span>
+                    </div>
+            </div>
+            <div class="col-sm-auto px-3 form-group plist-group" id="titleInputContainer">
+                <label class="plist-label" for="title">{{ 'Title'|xlt }}</label><br />
+                <div class="controls inline-inputs">
+                    {{ select_lists.title }}
+                 <span class="help-inline"></span>
+                </div>
+            </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="fnameInputContainer">
+                    <label class="plist-label" for="fname">{{ 'First{{Name}}'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="fname" required placeholder="{{ 'First Name'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="mnameInputContainer">
+                    <label class="plist-label" for="mname">{{ 'Middle{{Name}}'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="mname" placeholder="{{ 'Middle Name'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="lnameInputContainer">
+                    <label class="plist-label" for="lname">{{ 'Last{{Name}}'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="lname" required placeholder="{{ 'Last Name'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <!--<div class="col-sm-auto px-3 form-group plist-group  dynhide hide" id="pidInputContainer">
+                    <label class="plist-label" for="pid"></label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="pid" readonly placeholder="">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <div class="col-sm-auto px-3 form-group plist-group" id="pubpidInputContainer">
+                    <label class="plist-label" for="pubpid">{{ 'Public Patient Id'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="pubpid" disabled>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="dobInputContainer">
+                    <label class="plist-label" for="dob">{{ 'Birth Date'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <div class="input-group" >
+                            <input id="dob" type="text" required class="form-control jquery-date-picker" placeholder="{{ 'I know but we need it!'|xla }}" />
+                        </div>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <!--<div class="col-sm-auto px-3 form-group plist-group" id="ssInputContainer">
+                    <label class="plist-label" for="ss"></label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="ss" title="###-##-####" placeholder="">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <div class="col-sm-auto px-3 form-group plist-group" id="sexInputContainer">
+                    <label class="plist-label" for="sex">{{ 'Gender'|xlt }}</label><br />
+                    <div class="controls inline-inputs">
+                        {{ select_lists.sex }}
+                     <span class="help-inline"></span>
+                    </div>
+                </div>
+                <!--<div class="col-sm-auto px-3 form-group plist-group" id="pharmacyIdInputContainer">
+                    <label class="plist-label" for="pharmacyId">{{ 'Pharmacy Id'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="pharmacyId" placeholder="{{ 'Pharmacy Id'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <div class="col-sm-auto px-3 form-group plist-group" id="statusInputContainer">
+                    <label class="plist-label" for="status">{{ 'Marital Status'|xlt }}</label><br />
+                    <div class="controls inline-inputs">
+                    {{ select_lists.status }}
+                    <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="streetInputContainer">
+                    <label class="plist-label" for="street">{{ 'Street'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="street" required placeholder="{{ 'Street'|xla }}"/>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+            <div class="col-sm-auto px-3 form-group plist-group" id="cityInputContainer">
+                    <label class="plist-label" for="city">{{ 'City'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="city" required placeholder="{{ 'City'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+            <div class="col-sm-auto px-3 form-group plist-group" id="stateInputContainer">
+                <label class="plist-label" for="state">{{ 'State'|xlt }}</label><br />
+                <div class="controls inline-inputs">
+                    {{ select_lists.state }}
+                 <span class="help-inline"></span>
+                </div>
+            </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="postalCodeInputContainer">
+                    <label class="plist-label" for="postalCode">{{ 'Postal Code'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="postalCode" placeholder="{{ 'Postal Code'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="countyInputContainer">
+                    <label class="plist-label" for="county">{{ 'County'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="county" placeholder="{{ 'County'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="countryCodeInputContainer">
+                    <label class="plist-label" for="countryCode">{{ 'Country Code'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="countryCode" placeholder="{{ 'Country Code'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="phoneHomeInputContainer">
+                    <label class="plist-label" for="phoneHome">{{ 'Home Phone'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="phoneHome" placeholder="{{ 'Phone Home'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="phoneBizInputContainer">
+                    <label class="plist-label" for="phoneBiz">{{ 'Business Phone'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="phoneBiz" placeholder="{{ 'Phone Biz'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="phoneCellInputContainer">
+                    <label class="plist-label" for="phoneCell">{{ 'Cell Phone'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="phoneCell" placeholder="{{ 'Phone Cell'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="phoneContactInputContainer">
+                    <label class="plist-label" for="phoneContact">{{ 'Contact or Notify Phone'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="phoneContact" placeholder="{{ 'Phone Contact'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="contactRelationshipInputContainer">
+                    <label class="plist-label" for="contactRelationship">{{ 'Contact Relationship'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="contactRelationship" placeholder="{{ 'Contact Relationship'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="dateInputContainer">
+                    <label class="plist-label" for="date">{{ 'Date'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <div class="input-group">
+                            <input disabled id="date" type="text" class="form-control jquery-date-time-picker" />
+                        </div>
+                        <span class="help-inline"></span>
+                    </div>
+                </div><!-- -->
+                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="refProvideridInputContainer">
+                    <label class="plist-label" for="refProviderid">{{ 'Referral Provider'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <select  disabled class="form-control" id="refProviderid"  value="{{ row.refProviderid|attr }}">
+                            <option value=''>{{ 'Unassigned'|xlt }}</option>
+                            {%- for user in users_list -%}
+                                <option value='{{ user.id|attr }}'{% if user.id == row.refProviderid %} selected{% endif %}>{{ (user.fname ~ ' ' ~ user.lname)|text }}</option>
+                            {%- endfor %}
+                        </select>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="emailInputContainer">
+                    <label class="plist-label" for="email">{{ 'Email'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="email" class="form-control" id="email" required placeholder="{{ 'Email'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="emailDirectInputContainer">
+                    <label class="plist-label" for="emailDirect">{{ 'Email Direct'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="emailDirect" placeholder="{{ 'Direct Email'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="languageInputContainer">
+                    <label class="plist-label" for="language">{{ 'Preferred Language'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="language" placeholder="{{ 'Language'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+            <div class="col-sm-auto px-3 form-group plist-group" id="raceInputContainer">
+                <label class="plist-label" for="race">{{ 'Race'|xlt }}</label><br />
+                <div class="controls inline-inputs">
+                    {{ select_lists.race }}
+                <span class="help-inline"></span>
+                </div>
+           </div>
+           <div class="col-sm-auto px-3 form-group plist-group" id="ethnicityInputContainer">
+                    <label class="plist-label" for="ethnicity">{{ 'Ethnicity'|xlt }}</label><br />
+                    <div class="controls inline-inputs">
+                        {{ select_lists.ethnicity }}
+                    <span class="help-inline"></span>
+                    </div>
+            </div>
+            <div class="col-sm-auto px-3 form-group plist-group" id="religionInputContainer">
+                <label class="plist-label" for="religion">{{ 'Religion'|xlt }}</label><br />
+                <div class="controls inline-inputs">
+                    {{ select_lists.religion }}
+                 <span class="help-inline"></span>
+                </div>
+            </div>
+            <div class="col-sm-auto px-3 form-group plist-group dynhide" id="familySizeInputContainer">
+                    <label class="plist-label" for="familySize">{{ 'Family Size'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="familySize" placeholder="{{ 'Family Size'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <!--<div class="col-sm-auto px-3 form-group plist-group" id="referralSourceInputContainer">
+                    <label class="plist-label" for="referralSource"></label><br />
+                    <div class="controls inline-inputs">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <!--<div class="col-sm-auto px-3 form-group plist-group dynhide" id="regdateInputContainer">
+                    <label class="plist-label" for="regdate"></label>
+                    <div class="controls inline-inputs">
+                        <div class="input-group">
+                            <input disabled id="regdate" type="text" class="form-control jquery-date-picker" />
+                        </div>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <div class="col-sm-auto px-3 form-group plist-group" id="mothersnameInputContainer">
+                    <label class="plist-label" for="mothersname">{{ 'Mothers Name'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="mothersname" placeholder="{{ 'Mothers Name'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="guardiansnameInputContainer">
+                    <label class="plist-label" for="guardiansname">{{ 'Guardians Name'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="guardiansname" placeholder="{{ 'Guardians Name'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="hipaaMailInputContainer">
+                    <label class="plist-label" for="hipaaMail">{{ 'Allow Postal Mail'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaMail0" name="hipaaMail" type="radio" value="NO">{{ 'NO'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaMail1" name="hipaaMail" type="radio" value="YES">{{ 'YES'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaMail2" name="hipaaMail" type="radio" value="">{{ 'Unassigned'|xlt }}</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="hipaaVoiceInputContainer">
+                    <label class="plist-label" for="hipaaVoice">{{ 'Allow Voice Call'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaVoice0" name="hipaaVoice" type="radio" value="NO">{{ 'NO'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaVoice1" name="hipaaVoice" type="radio" value="YES">{{ 'YES'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaVoice2" name="hipaaVoice" type="radio" value="">{{ 'Unassigned'|xlt }}</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="hipaaNoticeInputContainer">
+                    <label class="plist-label" for="hipaaNotice">{{ 'Allow Notice'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaNotice0" name="hipaaNotice" type="radio" value="NO">{{ 'NO'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaNotice1" name="hipaaNotice" type="radio" value="YES">{{ 'YES'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaNotice2" name="hipaaNotice" type="radio" value="">{{ 'Unassigned'|xlt }}</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="hipaaMessageInputContainer">
+                    <label class="plist-label" for="hipaaMessage">{{ 'Hipaa Message'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <input type="text" class="form-control" id="hipaaMessage" placeholder="{{ 'Hipaa Message'|xla }}">
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="hipaaAllowsmsInputContainer">
+                    <label class="plist-label" for="hipaaAllowsms">{{ 'Allow SMS'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowsms0" name="hipaaAllowsms" type="radio" value="NO">{{ 'NO'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowsms1" name="hipaaAllowsms" type="radio" value="YES">{{ 'YES'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowsms2" name="hipaaAllowsms" type="radio" value="">{{ 'Unassigned'|xlt }}</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="hipaaAllowemailInputContainer">
+                    <label class="plist-label" for="hipaaAllowemail">{{ 'Allow Email'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowemail0" name="hipaaAllowemail" type="radio" value="NO">{{ 'NO'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowemail1" name="hipaaAllowemail" type="radio" value="YES">{{ 'YES'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowemail2" name="hipaaAllowemail" type="radio" value="">{{ 'Unassigned'|xlt }}</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="allowImmRegUseInputContainer">
+                    <label class="plist-label" for="allowImmRegUse">{{ 'Allow Immunization Registry Use'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmRegUse0" name="allowImmRegUse" type="radio" value="NO">{{ 'NO'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmRegUse1" name="allowImmRegUse" type="radio" value="YES">{{ 'YES'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmRegUse2" name="allowImmRegUse" type="radio" value="">{{ 'Unassigned'|xlt }}</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="allowImmInfoShareInputContainer">
+                    <label class="plist-label" for="allowImmInfoShare">{{ 'Allow Immunization Info Share'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmInfoShare0" name="allowImmInfoShare" type="radio" value="NO">{{ 'NO'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmInfoShare1" name="allowImmInfoShare" type="radio" value="YES">{{ 'YES'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmInfoShare2" name="allowImmInfoShare" type="radio" value="">{{ 'Unassigned'|xlt }}</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="allowHealthInfoExInputContainer">
+                    <label class="plist-label" for="allowHealthInfoEx">{{ 'Allow Health Info Exchange'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowHealthInfoEx0" name="allowHealthInfoEx" type="radio" value="NO">{{ 'NO'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowHealthInfoEx1" name="allowHealthInfoEx" type="radio" value="YES">{{ 'YES'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowHealthInfoEx2" name="allowHealthInfoEx" type="radio" value="">{{ 'Unassigned'|xlt }}</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <div class="col-sm-auto px-3 form-group plist-group" id="allowPatientPortalInputContainer">
+                    <label class="plist-label" for="allowPatientPortal">{{ 'Allow Patient Portal'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input disabled id="allowPatientPortal0" name="allowPatientPortal" type="radio" value="NO">{{ 'NO'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input disabled id="allowPatientPortal1" name="allowPatientPortal" type="radio" value="YES">{{ 'YES'|xlt }}</label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input disabled id="allowPatientPortal2" name="allowPatientPortal" type="radio" value="">{{ 'Unassigned'|xlt }}</label>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                <!--<div class="col-sm-auto px-3 form-group plist-group dynhide" id="careTeamInputContainer">
+                    <label class="plist-label" for="careTeam"></label>
+                    <div class="controls inline-inputs">
+                        <select disabled class="form-control" id="careTeam"
+                            title="" value="">
+                        </select>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>-->
+                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="noteInputContainer">
+                    <label class="plist-label" style="color:green" for="note">{{ 'Comments about change request'|xlt }}</label>
+                    <div class="controls inline-inputs">
+                        <textarea class="form-control" id="note" rows="2" col="160" style='min-width:380px'>To Admin: </textarea>
+                        <span class="help-inline"></span>
+                    </div>
+                </div>
+                </div>
+            </fieldset>
+        </form>
+</template>
+    <div id="collectionAlert"></div>
+    <div id="modelAlert"></div>
+    <div id="patientCollectionContainer" class="collectionContainer"></div>
+    <div id="patientModelContainer" class="modelContainer"></div>
+</div> <!-- /container -->
+</body>
+</html>

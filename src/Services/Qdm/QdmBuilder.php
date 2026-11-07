@@ -5,7 +5,7 @@
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm;
@@ -16,6 +16,7 @@ use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\Services\AllergyIntoleranceService;
 use OpenEMR\Services\Qdm\Services\AssessmentService;
+use OpenEMR\Services\Qdm\Services\ConsultantReportService;
 use OpenEMR\Services\Qdm\Services\DeviceAppliedService;
 use OpenEMR\Services\Qdm\Services\DeviceOrderService;
 use OpenEMR\Services\Qdm\Services\DeviceRecommendedService;
@@ -33,6 +34,7 @@ use OpenEMR\Services\Qdm\Services\PatientService;
 use OpenEMR\Services\Qdm\Services\PhysicalExamService;
 use OpenEMR\Services\Qdm\Services\ProcedureRecommendedService;
 use OpenEMR\Services\Qdm\Services\ProcedureService;
+use OpenEMR\Services\Qdm\Services\ReferralOrderService;
 use OpenEMR\Services\Qdm\Services\SubstanceOrderService;
 use OpenEMR\Services\Qdm\Services\SubstanceRecommendedService;
 use OpenEMR\Services\Qdm\Services\SymptomService;
@@ -43,6 +45,7 @@ class QdmBuilder
     protected $services = [
         AllergyIntoleranceService::class,
         AssessmentService::class,
+        ConsultantReportService::class,
         DeviceAppliedService::class,
         DeviceOrderService::class,
         DeviceRecommendedService::class,
@@ -59,6 +62,9 @@ class QdmBuilder
         PhysicalExamService::class,
         ProcedureService::class,
         ProcedureRecommendedService::class,
+        // After the care plan's orders (InterventionOrderedService): CMS50 sorts referrals by date, and its sort
+        // puts the later of two data elements with the same date first, so a referral a report can name wins.
+        ReferralOrderService::class,
         SubstanceOrderService::class,
         SubstanceRecommendedService::class,
         SymptomService::class,

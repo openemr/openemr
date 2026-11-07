@@ -14,6 +14,7 @@ namespace OpenEMR\Services\FHIR\Organization;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -98,9 +99,9 @@ class FhirOrganizationFacilityService extends FhirServiceBase implements INonPat
             'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
             'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone']),
             'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone']),
-            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country_code","line1"]),
+            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ["street", "postal_code", "city", "state", "country_code"]),
             'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
-            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code', "zip"]),
+            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code']),
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
             'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name']),
             '_lastUpdated' => $this->getLastModifiedSearchField()
@@ -169,9 +170,9 @@ class FhirOrganizationFacilityService extends FhirServiceBase implements INonPat
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['last_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $organizationResource->setMeta($meta);
         // facilities have no active / inactive state

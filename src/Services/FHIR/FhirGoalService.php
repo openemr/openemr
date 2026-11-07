@@ -21,6 +21,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDate;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRGoalLifecycleStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRGoal\FHIRGoalTarget;
@@ -71,7 +72,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             '_lastUpdated' => $this->getLastModifiedSearchField(),
             'lifecycle-status' => new FhirSearchParameterDefinition('lifecycle-status', SearchFieldType::TOKEN, ['plan_status']),
             'target-date' => new FhirSearchParameterDefinition('target-date', SearchFieldType::DATE, ['date_end']),
-            'description' => new FhirSearchParameterDefinition('description', SearchFieldType::TOKEN, ['code']),
+            'description' => new FhirSearchParameterDefinition('description', SearchFieldType::TOKEN, ['fcp.code']),
         ];
     }
 
@@ -96,9 +97,9 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         if (!empty($dataRecord['creation_date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['creation_date']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['creation_date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $fhirMeta->addProfile(self::USCGI_PROFILE_URI);
         $goal->setMeta($fhirMeta);

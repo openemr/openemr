@@ -289,41 +289,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Observable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/SavantRenderEngine.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
@@ -340,11 +305,6 @@ $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Core/Kernel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',

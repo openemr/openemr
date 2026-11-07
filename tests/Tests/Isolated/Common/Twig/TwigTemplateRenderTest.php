@@ -20,17 +20,25 @@
 namespace OpenEMR\Tests\Isolated\Common\Twig;
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\PostOutcome;
+use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailabilityController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\PostCalendarTwigExtension;
 use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
 use OpenEMR\Services\Patient\DuplicatePatientRow;
 use OpenEMR\Services\Patient\PatientMergeResult;
+use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityLookups;
+use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 use Twig\TwigFunction;
 
 #[Group('isolated')]
@@ -802,6 +810,58 @@ class TwigTemplateRenderTest extends TestCase
             ],
             $fixtureDir . '/care-plan-card-populated.html',
         ];
+
+        // Questionnaire availability manager. The view comes from the controller itself,
+        // fed by in-memory fakes, so the fixtures cover the real view model as well as the
+        // markup: the grid alone, the limits panel open, a limit being edited, and an empty
+        // repository.
+        yield 'super/questionnaire_availability grid' => [
+            'super/questionnaire_availability.html.twig',
+            self::availabilityView(null, null, new PostOutcome(notices: ['Saved 2 change(s)'])),
+            $fixtureDir . '/questionnaire-availability-grid.html',
+        ];
+
+        yield 'super/questionnaire_availability limits panel' => [
+            'super/questionnaire_availability.html.twig',
+            self::availabilityView(50, null, new PostOutcome()),
+            $fixtureDir . '/questionnaire-availability-limits.html',
+        ];
+
+        yield 'super/questionnaire_availability editing a limit' => [
+            'super/questionnaire_availability.html.twig',
+            self::availabilityView(null, 4, new PostOutcome(errors: ['Another rule already has exactly these limits'])),
+            $fixtureDir . '/questionnaire-availability-edit-limit.html',
+        ];
+
+        yield 'super/questionnaire_availability empty repository' => [
+            'super/questionnaire_availability.html.twig',
+            self::availabilityView(null, null, new PostOutcome(), new FakeAvailabilityService()),
+            $fixtureDir . '/questionnaire-availability-empty.html',
+        ];
+    }
+
+    /**
+     * The availability manager's template variables, built by its controller from fakes.
+     *
+     * @return array<string, mixed>
+     */
+    private static function availabilityView(
+        ?int $selectedId,
+        ?int $editId,
+        PostOutcome $outcome,
+        ?FakeAvailabilityService $service = null,
+    ): array {
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('csrf_private_key', 'render-test-key');
+        $controller = new QuestionnaireAvailabilityController(
+            $service ?? FakeAvailabilityService::sample(),
+            new FakeAvailabilityLookups(),
+            new Environment(new ArrayLoader()),
+            $session,
+            new NullLogger(),
+        );
+
+        return $controller->buildView($selectedId, $editId, $outcome);
     }
 
     /**

@@ -202,31 +202,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_object\\(\\) with object will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_object\\(\\) with Phreezable will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
@@ -283,7 +258,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 7,
+    'count' => 5,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
@@ -380,11 +355,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with \\*NEVER\\* will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/FhirSearchWhereClauseBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function method_exists\\(\\) with \\*NEVER\\* and \'__toString\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchFieldComparableValue.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_callable\\(\\) with callable\\(\\)\\: mixed will always evaluate to true\\.$#',

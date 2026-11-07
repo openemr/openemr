@@ -35,14 +35,20 @@ use ESign\Api;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 use OpenEMR\Events\Encounter\EncounterMenuEvent;
+use OpenEMR\Forms\LockedEncounterBillingForms;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\Questionnaire\AvailabilityContext;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 use OpenEMR\Services\UserService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -525,12 +531,56 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
 <body>
 <nav>
     <?php //DYNAMIC FORM RETRIEVAL
-    $reg = getFormsByCategory();
+    // Which questionnaires this encounter may use is an assignment question, answered in
+    // one place for every surface. Non-questionnaire forms are returned untouched.
+    //
+    // A null scope means "cannot answer for this axis", which matches every assignment
+    // rather than only the unscoped ones — a group encounter has no form_encounter row,
+    // and must not silently lose its questionnaires because of it.
+    //
+    // $encounter rather than the session value: review mode reassigns it from review_id
+    // above, and the scope has to describe the encounter actually on screen.
+    $encounterAvailabilityPid = is_numeric($pid) ? (int)$pid : null;
+    $encounterAvailabilityEncounter = is_numeric($encounter) ? (int)$encounter : null;
+    $encounterAvailabilityVisitCategoryId = null;
+    $encounterAvailabilityFacility = null;
+    $encounterAvailabilityProvider = null;
+    if ($encounterAvailabilityEncounter !== null && $attendant_type === 'pid') {
+        // facility and provider describe the visit, not the person looking at it, so both
+        // come off the encounter row alongside the visit category — one query, three scopes
+        $encounterScopeRow = QueryUtils::querySingleRow(
+            "SELECT `pc_catid`, `facility_id`, `provider_id`
+               FROM `form_encounter` WHERE `encounter` = ?",
+            [$encounterAvailabilityEncounter]
+        );
+        if (is_array($encounterScopeRow)) {
+            $encounterAvailabilityVisitCategoryId = is_numeric($encounterScopeRow['pc_catid'] ?? null)
+                ? (int)$encounterScopeRow['pc_catid']
+                : null;
+            $encounterAvailabilityFacility = is_numeric($encounterScopeRow['facility_id'] ?? null)
+                ? (int)$encounterScopeRow['facility_id']
+                : null;
+            $encounterAvailabilityProvider = is_numeric($encounterScopeRow['provider_id'] ?? null)
+                ? (int)$encounterScopeRow['provider_id']
+                : null;
+        }
+    }
+    $questionnaireAvailability = new QuestionnaireAvailabilityService();
+    $questionnaireContext = new AvailabilityContext(
+        QuestionnaireSurface::Encounter,
+        pid: $encounterAvailabilityPid,
+        encounter: $encounterAvailabilityEncounter,
+        visitCategoryId: $encounterAvailabilityVisitCategoryId,
+        facility: $encounterAvailabilityFacility,
+        provider: $encounterAvailabilityProvider,
+    );
     $old_category = '';
     $DivId = 1;
 
-    // To see if the encounter is locked. If it is, no new forms can be created
+    // To see if the encounter is locked. If it is, no new forms can be created,
+    // except its billing forms (LockedEncounterBillingForms).
     $encounterLocked = false;
+    $billingForms = new LockedEncounterBillingForms(OEGlobalsBag::getInstance()->getBoolean('lock_esign_individual'));
     if (
         $esignApi->lockEncounters() &&
         OEGlobalsBag::getInstance()->has('encounter') &&
@@ -542,47 +592,62 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         }
     }
 
+    $hideMiscBilling = $billingForms->hidesMiscBillingFromMenu(
+        is_numeric($encounter) ? (int) $encounter : null,
+        EncounterSessionUtil::getEncounter(),
+        $reviewMode
+    );
+
+    // Convert the flat list of menu items into a multi-dimensional array based on the category
+    // decide what will be displayed (name or nickname)
+    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($encounterLocked, $billingForms, $hideMiscBilling, $questionnaireAvailability, $questionnaireContext) {
+        $menuArray = $menuEvent->getMenuData();
+        $reg = $questionnaireAvailability->filterEncounterFormRows(
+            getFormsByCategory(),
+            $questionnaireContext
+        );
+        // Check sensitivity from the appropriate table based on encounter type
+        $sensitivityQuery = ($attendant_type ?? 'pid') === 'pid'
+            ? "SELECT sensitivity FROM form_encounter WHERE encounter = ?"
+            : "SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?";
+        $sensitivity = sqlQuery($sensitivityQuery, [OEGlobalsBag::getInstance()->get("encounter") ?? null])['sensitivity'] ?? null;
+        $pass_sens = true;
+        if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
+            $pass_sens = false;
+        }
+        foreach ($reg as $item) {
+            // filterEncounterFormRows() returns array rows, so no is_array() guard here.
+            $directory = is_string($item['directory'] ?? null) ? $item['directory'] : '';
+            if ($encounterLocked && !$billingForms->isBillingForm($directory)) {
+                continue;
+            }
+            if ($hideMiscBilling && $directory === 'misc_billing_options') {
+                continue;
+            }
+            $tmp = explode('|', (string) $item['aco_spec']);
+            if ($pass_sens) {
+                if (!empty($tmp[1])) {
+                    if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
+                        continue;
+                    }
+                }
+            } else {
+                continue;
+            }
+
+            $_cat = trim($item['category'] ?? '');
+            $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
+            $item['displayText'] = (trim($item['nickname'] ?? '') != '') ? trim($item['nickname'] ?? '') : trim($item['name'] ?? '');
+            unset($item['category']);
+            unset($item['name']);
+            unset($item['nickname']);
+            $menuArray[$_cat]['children'][] = $item;
+        }
+        $menuEvent->setMenuData($menuArray);
+        return $menuEvent;
+    });
 
     if (!$encounterLocked) {
-        // Convert the flat list of menu items into a multi-dimensional array based on the category
-        // decide what will be displayed (name or nickname)
-        $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
-            $menuArray = $menuEvent->getMenuData();
-            $reg = getFormsByCategory();
-            // Check sensitivity from the appropriate table based on encounter type
-            $sensitivityQuery = ($attendant_type ?? 'pid') === 'pid'
-                ? "SELECT sensitivity FROM form_encounter WHERE encounter = ?"
-                : "SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?";
-            $sensitivity = sqlQuery($sensitivityQuery, [OEGlobalsBag::getInstance()->get("encounter") ?? null])['sensitivity'] ?? null;
-            $pass_sens = true;
-            if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
-                $pass_sens = false;
-            }
-            foreach ($reg as $item) {
-                $tmp = explode('|', (string) $item['aco_spec']);
-                if ($pass_sens) {
-                    if (!empty($tmp[1])) {
-                        if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
-                            continue;
-                        }
-                    }
-                } else {
-                    continue;
-                }
-
-                $_cat = trim($item['category'] ?? '');
-                $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
-                $item['displayText'] = (trim($item['nickname'] ?? '') != '') ? trim($item['nickname'] ?? '') : trim($item['name'] ?? '');
-                unset($item['category']);
-                unset($item['name']);
-                unset($item['nickname']);
-                $menuArray[$_cat]['children'][] = $item;
-            }
-            $menuEvent->setMenuData($menuArray);
-            return $menuEvent;
-        });
-
-
         // Zend Module hooks
         $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
             $module_query = sqlStatement("SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name, m.type
@@ -952,8 +1017,15 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
             <div class='form_header_controls btn-group' role='group'>
     HTML;
 
-                // If the form is locked, it is no longer editable
-                if ($esign->isLocked()) {
+                // If the form is locked, it is no longer editable. A billing form
+                // locked only by the encounter's signature stays editable; one
+                // signed and locked on its own does not.
+                $formLocked = $esign->isLocked();
+                $formsId = is_array($iter) ? ($iter['id'] ?? null) : null;
+                if ($formLocked && $encounterLocked && is_string($formdir) && $billingForms->isBillingForm($formdir) && is_numeric($formsId)) {
+                    $formLocked = $billingForms->isLockedOnItsOwn((int) $formsId);
+                }
+                if ($formLocked) {
                     echo "<a href='#' class='btn btn-text btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><i class='fa fa-lock fa-fw'></i>&nbsp;" . xlt('Locked') . "</a>";
                 } else {
                     if (

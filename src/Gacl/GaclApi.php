@@ -168,6 +168,9 @@ class GaclApi extends Gacl {
             foreach ($current_acl_ids as $current_acl_id) {
                 //Check to make sure these ACLs only have a single ACO mapped to them.
                 $current_acl_array = &$this->get_acl($current_acl_id);
+                if (!is_array($current_acl_array)) {
+                    continue;
+                }
 
                 //showarray($current_acl_array);
                 $this->debug_text("add_consolidated_acl(): Current Count: ".$this->count_all($current_acl_array['aco'])."");
@@ -211,7 +214,6 @@ class GaclApi extends Gacl {
 
         //At this point there should be no conflicting ACLs, searching for an existing ACL with the new values.
         $new_acl_ids = $this->search_acl($aco_section_value, $aco_value, FALSE, FALSE, NULL, NULL, NULL, NULL, $return_value);
-        $new_acl_count = count($new_acl_ids);
         //showarray($new_acl_ids);
 
         if (is_array($new_acl_ids)) {
@@ -220,6 +222,9 @@ class GaclApi extends Gacl {
             foreach ($new_acl_ids as $new_acl_id) {
                 //Check to make sure these ACLs only have a single ACO mapped to them.
                 $new_acl_array = &$this->get_acl($new_acl_id);
+                if (!is_array($new_acl_array)) {
+                    continue;
+                }
                 //showarray($new_acl_array);
                 $this->debug_text("add_consolidated_acl(): New Count: ".$this->count_all($new_acl_array['aco'])."");
                 if ( $this->count_all($new_acl_array['aco']) == 1) {
@@ -282,17 +287,17 @@ class GaclApi extends Gacl {
      * NULL values are included in the search, if you want to ignore
      * for instance aro_groups use FALSE instead of NULL.
      *
-     * @return array containing ACL IDs if search is successful
+     * @return array<mixed>|bool ACL IDs, or FALSE if the query fails
      *
-     * @param string $aco_section_value ACO Section Value
-     * @param string $aco_value ACO Value
-     * @param string $aro_section_value ARO Section Value
-     * @param string $aro_value ARO Value
-     * @param string $aro_group_name ARO Group Name
-     * @param string $axo_section_value AXO Section Value
-     * @param string $axo_value AXO Value
-     * @param string $axo_group_name AXO Group Name
-     * @param string $return_value Return Value
+     * @param string|false|null $aco_section_value ACO Section Value
+     * @param string|false|null $aco_value ACO Value
+     * @param string|false|null $aro_section_value ARO Section Value
+     * @param string|false|null $aro_value ARO Value
+     * @param string|false|null $aro_group_name ARO Group Name
+     * @param string|false|null $axo_section_value AXO Section Value
+     * @param string|false|null $axo_value AXO Value
+     * @param string|false|null $axo_group_name AXO Group Name
+     * @param string|false|null $return_value Return Value
      */
     public function search_acl($aco_section_value=NULL, $aco_value=NULL, $aro_section_value=NULL, $aro_value=NULL, $aro_group_name=NULL, $axo_section_value=NULL, $axo_value=NULL, $axo_group_name=NULL, $return_value=NULL) {
         $this->debug_text("search_acl(): aco_section_value: $aco_section_value aco_value: $aco_value, aro_section_value: $aro_section_value, aro_value: $aro_value, aro_group_name: $aro_group_name, axo_section_value: $axo_section_value, axo_value: $axo_value, axo_group_name: $axo_group_name, return_value: $return_value");
@@ -398,6 +403,10 @@ class GaclApi extends Gacl {
 
         //Grab ACL data.
         $get_acl = $this->get_acl($acl_id);
+        if (!is_array($get_acl)) {
+            $this->debug_text("append_acl(): No ACL found for that ID! ACL_ID: $acl_id");
+            return false;
+        }
         $acl_array = &$get_acl;
 
         //Append each object type separately.
@@ -519,6 +528,10 @@ class GaclApi extends Gacl {
 
         //Grab ACL data.
         $get_acl = $this->get_acl($acl_id);
+        if (!is_array($get_acl)) {
+            $this->debug_text("shift_acl(): No ACL found for that ID! ACL_ID: $acl_id");
+            return false;
+        }
         $acl_array = &$get_acl;
 
         //showarray($acl_array);
@@ -650,7 +663,7 @@ class GaclApi extends Gacl {
      *
      * Grabs ACL data.
      *
-     * @return bool FALSE if not found, or Associative Array with the following items:
+     * @return array<string, mixed>|false FALSE if not found, or Associative Array with the following items:
      *
      *  - 'aco' => Associative array, item={Section Value}, key={Array of Object Values} i.e. ["<Section Value>" => ["<Value 1>", "<Value 2>", "<Value 3>"], ...]
      *  - 'aro' => Associative array, item={Section Value}, key={Array of Object Values} i.e. ["<Section Value>" => ["<Value 1>", "<Value 2>", "<Value 3>"], ...]

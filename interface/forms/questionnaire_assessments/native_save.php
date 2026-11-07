@@ -69,7 +69,7 @@ try {
         if ($processor->normalizeNonNegativeInt($existingResponse['patient_id'] ?? null) !== $pid) {
             throw new RuntimeException(xlt('The QuestionnaireResponse does not belong to the selected patient.'));
         }
-        if ($processor->normalizeNonNegativeInt($existingResponse['encounter'] ?? null) !== 0) {
+        if (!$processor->isPatientLevelEncounter($existingResponse['encounter'] ?? null)) {
             throw new RuntimeException(xlt('Encounter questionnaires cannot be updated from the patient assessment workspace.'));
         }
         if ($processor->normalizeNonNegativeInt($existingResponse['questionnaire_foreign_id'] ?? null) !== $questionnaireRecordId) {

@@ -245,6 +245,10 @@ class FhirRelatedPersonRestController
     public function getAll($searchParams): JsonResponse|Response
     {
         $processingResult = $this->fhirRelatedPersonService->getAll($searchParams);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

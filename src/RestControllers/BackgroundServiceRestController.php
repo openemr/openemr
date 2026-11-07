@@ -188,7 +188,7 @@ class BackgroundServiceRestController
      * @param array<mixed> $data
      */
     #[OA\Post(
-        path: '/api/background_service/{name}/run',
+        path: '/api/background_service/{name}/$run',
         description: 'Triggers execution of a background service',
         tags: ['standard'],
         parameters: [

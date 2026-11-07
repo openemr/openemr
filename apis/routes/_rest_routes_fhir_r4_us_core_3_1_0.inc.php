@@ -410,7 +410,7 @@ return [
             // only allow access to data of binded patient
             $return = $controller->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::request_authorization_check($request, "admin", "super");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = $controller->getAll($getParams);
         }
 
@@ -423,7 +423,7 @@ return [
             // only allow access to data of binded patient
             $return = $controller->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::request_authorization_check($request, "admin", "super");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = $controller->getOne($uuid);
         }
 
@@ -1258,6 +1258,10 @@ return [
     "GET /fhir/Task" => fn(HttpRestRequest $request, OEGlobalsBag $globalsBag): Response => (new FhirTaskRestController($request, $globalsBag))->getAll(),
 
     "GET /fhir/Task/:uuid" => fn(string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag): Response => (new FhirTaskRestController($request, $globalsBag))->getOne($uuid),
+
+    "POST /fhir/Task" => fn(HttpRestRequest $request, OEGlobalsBag $globalsBag): Response => (new FhirTaskRestController($request, $globalsBag))->post(),
+
+    "PUT /fhir/Task/:uuid" => fn(string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag): Response => (new FhirTaskRestController($request, $globalsBag))->put($uuid),
 
     "GET /fhir/Procedure/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {

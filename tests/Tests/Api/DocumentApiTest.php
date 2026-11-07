@@ -297,34 +297,23 @@ class DocumentApiTest extends TestCase
     }
 
     /**
-     * Pre-existing bug: `GET /api/patient/:pid/document/:did` is unusable over the REST API.
-     *
-     * DocumentService::getFile() constructs C_Document, whose constructor calls
-     * CsrfUtils::collectCsrfToken() against the active session. OAuth2AuthorizationListener only
-     * seeds `csrf_private_key` for `/oauth2/...` requests (its shouldProcessRequest() matches on a
-     * `/oauth2` base path), and AuthorizationController strips the key from the API session, so a
-     * bearer token request to `/apis/...` has no key. The constructor therefore throws and the
-     * request fails with a 500 before the document is ever read.
-     *
-     * This is not reachable through the UI download path (controller.php), which runs under a
-     * fully bootstrapped browser session. Once the API session carries a CSRF key, this endpoint
-     * serves the file correctly, so when that is fixed this test should assert a 200 with the
-     * uploaded bytes and a `Content-Disposition` attachment header carrying the stored filename.
+     * API bearer token sessions have no `csrf_private_key`, so DocumentService::getFile() builds
+     * C_Document without a CSRF token (it renders nothing). Before that, the constructor threw and
+     * this endpoint always answered 500.
      */
     #[Test]
-    public function testDownloadFileFailsBecauseTheApiSessionHasNoCsrfKey(): void
+    public function testDownloadFile(): void
     {
         $this->assertEquals(200, $this->postDocument()->getStatusCode());
         $documentId = $this->getUploadedDocumentId();
 
         $response = $this->testClient->getOne($this->documentEndpoint(), (string)$documentId);
 
-        $this->assertEquals(500, $response->getStatusCode());
-        $this->assertNotEquals(
-            self::FILE_CONTENTS,
-            (string)$response->getBody(),
-            "The endpoint fails before it reads the document"
-        );
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(self::FILE_CONTENTS, (string)$response->getBody());
+        $disposition = $response->getHeaderLine('Content-Disposition');
+        $this->assertStringContainsString('attachment', $disposition);
+        $this->assertStringContainsString(self::FILE_NAME, $disposition);
     }
 
     #[Test]

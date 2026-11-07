@@ -1173,6 +1173,13 @@ $GLOBALS_METADATA = [
             xl('Display Invoice Number or Patient Name in the Cash Receipt Report')
         ],
 
+        'referral_overdue_days' => [
+            xl('Referrals Overdue After (Days)'),
+            'num',
+            '14',
+            xl('A referral still open (not completed, and its Task not cancelled, rejected, failed or entered in error) shows as overdue this many days after its Referral Date, on the Transactions screen and in the Referrals report. 0 turns this off.')
+        ],
+
     ],
 
     // Billing Tab
@@ -1331,6 +1338,13 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '0',                              // default = false
             xl('Automatically replicate justification codes in Fee Sheet (basically fills in the blanks with the justification code above it).')
+        ],
+
+        'fee_sheet_save_appt_status' => [
+            xl('Fee Sheet Save: Ask to Set Appointment Status'),
+            'text',                           // data type
+            '',                               // default = off
+            xl('Code of an appointment status, for example $ for Coding done. When set, Save on the fee sheet asks whether to set the patient\'s appointment on the visit date to this status, and on Yes opens the calendar on that date. Not asked for an appointment that already has the status or is canceled or a no show. Blank: off.')
         ],
 
         'display_units_in_billing' => [
@@ -3268,6 +3282,13 @@ $GLOBALS_METADATA = [
             'bool',
             '0',
             xl('Enable OpenEMR Standard FHIR RESTful API.')
+        ],
+
+        GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value => [
+            xl('Track Referrals with FHIR Tasks'),
+            'bool',
+            '0',
+            xl('When a referral is saved, on the Transactions screen or through the REST API, create a FHIR Task for the one it is sent to (Refer To) if FHIR serves them as a Practitioner or Organization. The receiving system can then accept, reject, complete or cancel it through the FHIR API, or mark it failed, and each of those sends the one who made the referral (Refer By) an inbox message. When the referral records a Reply Date, the reply is filed in the patient\'s documents and completes the recipient\'s Task; clearing the Reply Date on the Transactions screen marks that Task entered in error and, when FHIR serves the recipient, gives them a new one.')
         ],
 
         GlobalConnectorsEnum::SMART_TEST_LAUNCHES_ENABLE->value => [

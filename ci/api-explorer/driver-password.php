@@ -23,7 +23,7 @@
  *   4. GET /apis/default/fhir/Patient with that bearer token. Asserts
  *      a FHIR Bundle with total >= 1 (demo data seeded by drid).
  *
- * The explorer upstream (sjpadgett/oe-module-api-explorer) does expose
+ * The explorer upstream (openemr/oe-module-api-explorer) does expose
  * a password-grant lane through its Scope Lab panel (scope_lab.php's
  * action=run with grant=password), but driving that lane from a CLI
  * driver requires seeding the explorer's per-session CSRF token via

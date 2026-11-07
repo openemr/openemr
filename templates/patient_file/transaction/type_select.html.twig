@@ -1,0 +1,6 @@
+{# The Transactions screen's Transaction Type: one option per LBT layout. #}
+<select name='title' id='title' class='form-control' onchange='titleChanged()'>
+{% for type in types %}
+<option value='{{ type.grp_form_id|attr }}'{% if type.grp_form_id == selected %} selected{% endif %}>{{ type.grp_title|text }}</option>
+{% endfor %}
+</select>

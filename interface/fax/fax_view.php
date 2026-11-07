@@ -29,9 +29,6 @@ if ($jobid) {
 
     $jfhandle = fopen($jfname, 'r');
     if (!$jfhandle) {
-        echo "I am in these groups: ";
-        passthru("groups");
-        echo "<br />";
         die(xlt("Cannot open ") . text($jfname));
     }
 
