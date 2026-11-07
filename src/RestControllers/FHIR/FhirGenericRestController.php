@@ -18,6 +18,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\SMART\ResourceConstraintFilterer;
@@ -241,7 +242,10 @@ class FhirGenericRestController implements IGlobalsAware {
                     throw new FhirWriteResponseException($response);
                 }
                 if ($auditEnabled && $response->getStatusCode() === Response::HTTP_CREATED && $processingResult->hasData()) {
-                    $resource = $this->getFhirResourceForAudit($processingResult->getFirstDataResult());
+                    $resource = $this->getFhirResourceForAudit(
+                        $processingResult->getFirstDataResult(),
+                        $fhirResource
+                    );
                     $this->recordSuccessfulWrite(
                         $resource,
                         ApiWriteAction::Create,
@@ -385,7 +389,11 @@ class FhirGenericRestController implements IGlobalsAware {
                     throw new FhirWriteResponseException($response);
                 }
                 if ($auditEnabled && $response->getStatusCode() === Response::HTTP_OK && $processingResult->hasData()) {
-                    $resource = $this->getFhirResourceForAudit($processingResult->getFirstDataResult());
+                    $resource = $this->getFhirResourceForAudit(
+                        $processingResult->getFirstDataResult(),
+                        $fhirResource,
+                        $fhirResourceId
+                    );
                     $this->recordSuccessfulWrite(
                         $resource,
                         ApiWriteAction::Update,
@@ -450,28 +458,31 @@ class FhirGenericRestController implements IGlobalsAware {
         $this->request->attributes->set('apiWriteAuditId', $auditId);
     }
 
-    private function getFhirResourceForAudit(mixed $result): FHIRDomainResource
+    private function getFhirResourceForAudit(
+        mixed $result,
+        FHIRDomainResource $submittedResource,
+        ?string $fallbackUuid = null
+    ): FHIRDomainResource
     {
         if ($result instanceof FHIRDomainResource) {
             return $result;
         }
 
-        $resourceUuid = is_array($result) ? ($result['uuid'] ?? null) : null;
+        $resourceUuid = is_array($result) ? ($result['uuid'] ?? $result['pc_uuid'] ?? null) : null;
+        if (!is_string($resourceUuid) || $resourceUuid === '') {
+            $resourceUuid = $fallbackUuid;
+        }
         if (!is_string($resourceUuid) || $resourceUuid === '') {
             throw new \LogicException('Successful FHIR write did not return a resource UUID for auditing');
         }
 
-        $resourceResult = $this->getFhirService()->getOne($resourceUuid);
-        if (!$resourceResult->isValid() || $resourceResult->hasInternalErrors() || !$resourceResult->hasData()) {
-            throw new \LogicException('Successful FHIR write could not be reloaded for auditing');
-        }
+        // Insert services return different result shapes, so retain the submitted
+        // resource and replace its ID with the persisted UUID for the audit snapshot.
+        $resourceId = new FHIRId();
+        $resourceId->setValue($resourceUuid);
+        $submittedResource->setId($resourceId);
 
-        $resource = $resourceResult->getFirstDataResult();
-        if (!$resource instanceof FHIRDomainResource) {
-            throw new \LogicException('Successful FHIR write did not reload a FHIR resource for auditing');
-        }
-
-        return $resource;
+        return $submittedResource;
     }
 
     /**
