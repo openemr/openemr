@@ -156,6 +156,9 @@ class PatientWritePolicyIsolatedTest extends TestCase
      */
     private function settingEntry(string $group, GlobalConnectorsEnum $setting): string
     {
+        // PHP keeps the last of a repeated array key, so a second entry would be the one that applies.
+        $this->assertSame(1, substr_count($group, 'GlobalConnectorsEnum::' . $setting->name . '->value =>'), $setting->name);
+
         $pattern = '/^        GlobalConnectorsEnum::' . $setting->name . '->value => \[\n(.*?)^        \],\n/ms';
         $this->assertSame(1, preg_match($pattern, $group, $entry), $setting->name);
 
