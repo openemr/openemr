@@ -6,13 +6,16 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Sam Likins <sam.likins@wsi-services.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Rx\Ensora\ErxGlobalsInterface;
 
-class eRxGlobals
+class eRxGlobals implements ErxGlobalsInterface
 {
     private $configuration;
 
@@ -53,12 +56,13 @@ class eRxGlobals
     }
 
     /**
-     * Return the OpenEMR site directory
-     * @return string OpenEMR site directory
+     * Return the OpenEMR site directory, or empty when unset
      */
-    public function getOpenEMRSiteDirectory()
+    public function getOpenEMRSiteDirectory(): string
     {
-        return $this->getGlobalValue('OE_SITE_DIR');
+        $value = $this->getGlobalValue('OE_SITE_DIR');
+
+        return is_string($value) ? $value : '';
     }
 
     /**
@@ -71,12 +75,13 @@ class eRxGlobals
     }
 
     /**
-     * Return the Ensora eRx requests URL
-     * @return string URL for Ensora eRx requests
+     * Return the Ensora eRx requests URL, or empty when unset
      */
-    public function getPath()
+    public function getPath(): string
     {
-        return $this->getGlobalValue('erx_newcrop_path');
+        $value = $this->getGlobalValue('erx_newcrop_path');
+
+        return is_string($value) ? $value : '';
     }
 
     /**
@@ -136,21 +141,21 @@ class eRxGlobals
     }
 
     /**
-     * Return the Ensora eRx account Id for credentials
-     * @return string Account Id for credentials
+     * Return the Ensora eRx account Id for credentials, or empty when unset
      */
-    public function getAccountId()
+    public function getAccountId(): string
     {
-        return $this->getGlobalValue('erx_account_id');
+        $value = $this->getGlobalValue('erx_account_id');
+
+        return is_string($value) ? $value : '';
     }
 
     /**
      * Return enable state for Ensora eRx only upload prescriptions
-     * @return bool Ensora eRx only upload prescriptions enabled state
      */
-    public function getUploadActive()
+    public function getUploadActive(): bool
     {
-        return $this->getGlobalValue('erx_upload_active');
+        return in_array($this->getGlobalValue('erx_upload_active'), [true, 1, '1'], true);
     }
 
     /**
@@ -181,12 +186,13 @@ class eRxGlobals
     }
 
     /**
-     * Return Ensora eRx default patient country code
-     * @return string Ensora eRx default patient country code
+     * Return Ensora eRx default patient country code, or empty when unset
      */
-    public function getDefaultPatientCountry()
+    public function getDefaultPatientCountry(): string
     {
-        return $this->getGlobalValue('erx_default_patient_country');
+        $value = $this->getGlobalValue('erx_default_patient_country');
+
+        return is_string($value) ? $value : '';
     }
 
     /**
@@ -206,8 +212,10 @@ class eRxGlobals
      * Return Debug Ensora eRx settings
      * @return int Debug settings: flags [ 1 = XML, 2 = RESULT ]
      */
-    public function getDebugSetting()
+    public function getDebugSetting(): int
     {
-        return $this->getGlobalValue('erx_debug_setting');
+        $value = $this->getGlobalValue('erx_debug_setting');
+
+        return is_numeric($value) ? (int) $value : 0;
     }
 }

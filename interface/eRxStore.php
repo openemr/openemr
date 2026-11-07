@@ -14,8 +14,9 @@
  */
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Rx\Ensora\ErxStoreInterface;
 
-class eRxStore
+class eRxStore implements ErxStoreInterface
 {
     /**
      * Strip away any non numerical characters
@@ -36,13 +37,13 @@ class eRxStore
      * Return the primary business entity
      * @return array Primary business entity
      */
-    public function getFacilityPrimary()
+    public function getFacilityPrimary(): array
     {
-        $return = sqlQuery('SELECT `name`, `federal_ein`, `street`, `city`, `state`, `postal_code`, `country_code`, `phone`, `fax`
+        $return = QueryUtils::querySingleRow('SELECT `name`, `federal_ein`, `street`, `city`, `state`, `postal_code`, `country_code`, `phone`, `fax`
 			FROM `facility`
 			WHERE `primary_business_entity` = \'1\';');
 
-        return $return;
+        return is_array($return) ? $return : [];
     }
 
     /**
@@ -61,14 +62,16 @@ class eRxStore
      * @param int $id Id of user to return
      * @return array       Specified user information: index [id, username, lname, fname, mname, title, license, federaldrugid, upin, state_license_number, npi, newcrop_user_role]
      */
-    public function getUserById($id)
+    public function getUserById($id): array
     {
-        return sqlQuery(
+        $return = QueryUtils::querySingleRow(
             'SELECT id, username, lname, fname, mname, title, federaldrugid, upin, state_license_number, npi, newcrop_user_role
 			FROM users
 			WHERE id = ?;',
             [$id]
         );
+
+        return is_array($return) ? $return : [];
     }
 
     /**
@@ -76,15 +79,17 @@ class eRxStore
      * @param int $id Id of user to return
      * @return array       User facility business entity
      */
-    public function getUserFacility($id)
+    public function getUserFacility($id): array
     {
-        return sqlQuery(
+        $return = QueryUtils::querySingleRow(
             'SELECT facility.id, facility.name, facility.street, facility.city, facility.state, facility.postal_code, facility.country_code, facility.phone, facility.fax
 			FROM users
 				LEFT JOIN facility ON facility.id = users.facility_id
 			WHERE users.id = ?;',
             [$id]
         );
+
+        return is_array($return) ? $return : [];
     }
 
     /**
@@ -92,14 +97,16 @@ class eRxStore
      * @param int $patientId Id of patient
      * @return array              Specified patient information: index [pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, phone_cell, date_of_birth, sex]
      */
-    public function getPatientByPatientId($patientId)
+    public function getPatientByPatientId($patientId): array
     {
-        return sqlQuery(
+        $return = QueryUtils::querySingleRow(
             'SELECT pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, phone_cell, DATE_FORMAT(DOB,\'%Y%m%d\') AS date_of_birth, sex
 			FROM patient_data
 			WHERE pid = ?;',
             [$patientId]
         );
+
+        return is_array($return) ? $return : [];
     }
 
     public function getPatientVitalsByPatientId($patientId): array
@@ -125,9 +132,12 @@ class eRxStore
         ];
     }
 
-    public function getPatientHealthplansByPatientId($patientId)
+    /**
+     * @return list<array<mixed>>
+     */
+    public function getPatientHealthplansByPatientId(int $patientId): array
     {
-        return sqlStatement(
+        return QueryUtils::fetchRecords(
             'SELECT `ins`.`name`
 			FROM (
 				SELECT
@@ -145,9 +155,12 @@ class eRxStore
         );
     }
 
-    public function getPatientAllergiesByPatientId($patientId)
+    /**
+     * @return list<array<mixed>>
+     */
+    public function getPatientAllergiesByPatientId(int $patientId): array
     {
-        return sqlStatement(
+        return QueryUtils::fetchRecords(
             'SELECT id, lists.title as title1, list_options.title as title2, comments
 			FROM lists
 				LEFT JOIN list_options ON lists.outcome = list_options.option_id
@@ -164,10 +177,13 @@ class eRxStore
         );
     }
 
-    public function getPatientDiagnosisByPatientId($patientId)
+    /**
+     * @return list<array<mixed>>
+     */
+    public function getPatientDiagnosisByPatientId(int $patientId): array
     {
         // Newest onset first: PatientDiagnosisList keeps the first row per code.
-        return QueryUtils::sqlStatementThrowException(
+        return QueryUtils::fetchRecords(
             <<<'SQL'
             SELECT diagnosis, begdate, enddate, title, date
             FROM lists
@@ -242,7 +258,7 @@ class eRxStore
         );
     }
 
-    public function updatePrescriptionsUploadActiveByPatientIdPrescriptionId($upload, $active, $patientId, $prescriptionId)
+    public function updatePrescriptionsUploadActiveByPatientIdPrescriptionId($upload, $active, $patientId, $prescriptionId): void
     {
         sqlQuery(
             'UPDATE prescriptions
@@ -260,13 +276,13 @@ class eRxStore
     }
 
     /**
-     * Return prescription specified
-     * @param int $prescriptionId Id of the prescription to return
-     * @return array                   Prescription information specified
+     * Return the prescription when it belongs to the patient
+     *
+     * @return array<mixed> no columns when it is not the patient's
      */
-    public function getPrescriptionById($prescriptionId)
+    public function getPrescriptionById(int $prescriptionId, int $patientId): array
     {
-        return sqlQuery(
+        $return = QueryUtils::querySingleRow(
             'SELECT p.note, p.dosage, p.substitute, p.per_refill, p.form, p.route, p.size, p.interval, p.drug, p.quantity,
 			p.id AS prescid, l1.title AS title1, l2.title AS title2, l3.title AS title3, l4.title AS title4,
 			DATE_FORMAT(date_added,\'%Y%m%d\') AS date_added, CONCAT_WS(fname, \' \', mname, \' \', lname) AS docname
@@ -281,15 +297,21 @@ class eRxStore
 			LEFT JOIN list_options AS l4 ON l4.list_id = \'drug_units\'
 				AND l4.option_id = p.unit
 			WHERE p.drug <> \'\'
-				AND p.id = ?;',
-            [$prescriptionId]
+				AND p.id = ?
+				AND p.patient_id = ?;',
+            [$prescriptionId, $patientId]
         );
+
+        return is_array($return) ? $return : [];
     }
 
 
-    public function selectMedicationsNotUploadedByPatientId($patientId, $uploadActive, $limit)
+    /**
+     * @return list<array<mixed>>
+     */
+    public function selectMedicationsNotUploadedByPatientId(int $patientId, int $uploadActive, int $limit): array
     {
-        return sqlStatement(
+        return QueryUtils::fetchRecords(
             'SELECT id, begdate, title
 			FROM lists
 			WHERE type = \'medication\'
@@ -311,9 +333,12 @@ class eRxStore
         );
     }
 
-    public function selectPrescriptionIdsNotUploadedByPatientId($patientId, $uploadActive, $limit)
+    /**
+     * @return list<array<mixed>>
+     */
+    public function selectPrescriptionIdsNotUploadedByPatientId(int $patientId, int $uploadActive, int $limit): array
     {
-        return sqlStatement(
+        return QueryUtils::fetchRecords(
             'SELECT id
 			FROM prescriptions
 			WHERE patient_id = ?
@@ -678,7 +703,7 @@ class eRxStore
         );
     }
 
-    public function updateAllergyUploadedByPatientIdAllergyId($uploaded, $patientId, $allergyId)
+    public function updateAllergyUploadedByPatientIdAllergyId($uploaded, $patientId, $allergyId): void
     {
         sqlQuery(
             'UPDATE lists
@@ -740,7 +765,7 @@ class eRxStore
      * @param int $listId Id of list item
      * @param int $erx [optional - defaults to 0] Upload status to set: [0 = Pending NewCrop upload, 1 = Uploaded TO NewCrop]
      */
-    public function updateErxUploadedByListId($listId, $erx = 0)
+    public function updateErxUploadedByListId($listId, $erx = 0): void
     {
         sqlQuery(
             'UPDATE lists
@@ -774,7 +799,7 @@ class eRxStore
      * @param int $patientId Id of patient to update
      * @param int $status Import status to update specified patient: [1 = Prescription Press, 2 = Prescription Import, 3 = Allergy Press, 4 = Allergy Import]
      */
-    public function updatePatientImportStatusByPatientId($patientId, $status)
+    public function updatePatientImportStatusByPatientId($patientId, $status): void
     {
         sqlQuery(
             'UPDATE patient_data
