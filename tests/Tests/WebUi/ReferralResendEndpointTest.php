@@ -2,8 +2,9 @@
 
 /**
  * What resend_referral.php refuses (#15137): a request without the page's token, and a referral
- * that isn't in the open chart. Setup is HTTP-only (see tests/Tests/WebUi/README.md), and these
- * cases need no referral: a refused request never reaches one. ReferralTaskFhirApiTest covers
+ * that isn't in the open chart. Setup is HTTP-only (see tests/Tests/WebUi/README.md): the test
+ * makes its own patients and referral through the forms, and doesn't remove them, because
+ * deleting a patient over HTTP needs the allow_pat_delete global. ReferralTaskFhirApiTest covers
  * what a re-send does.
  *
  * @package   OpenEMR
@@ -93,5 +94,69 @@ final class ReferralResendEndpointTest extends TestCase
 
         $this->assertSame(403, $response->getStatusCode());
         $this->assertStringNotContainsString('Authentication Error', (string)$response->getBody());
+    }
+
+    /**
+     * One patient's referral can't be re-sent from another patient's chart, and the same request
+     * from its own chart gets through, so it's the chart that was refused.
+     */
+    #[Test]
+    public function anotherPatientsReferralIsRefusedAndItsOwnChartIsNot(): void
+    {
+        $owner = $this->createPatient();
+        $other = $this->createPatient();
+        $this->openChart($owner);
+        $referral = $this->saveReferral();
+        $this->openChart($other);
+        $request = [
+            'allow_redirects' => false,
+            'form_params' => ['csrf_token_form' => $this->token, 'transid' => (string)$referral, 'task' => 'not-a-task'],
+        ];
+
+        $this->assertSame(403, $this->http->post($this->baseUrl . self::PATH, $request)->getStatusCode(), "another patient's chart");
+
+        $this->openChart($owner);
+        $response = $this->http->post($this->baseUrl . self::PATH, $request);
+        $this->assertSame(302, $response->getStatusCode(), 'its own chart');
+        $this->assertStringContainsString('add_transaction.php?transid=' . $referral . '&', $response->getHeaderLine('Location'));
+    }
+
+    private function createPatient(): int
+    {
+        $form = (string)$this->http->get($this->baseUrl . '/interface/new/new_comprehensive.php')->getBody();
+        $this->assertSame(1, preg_match('/name="csrf_token_form" value="([^"]+)"/', $form, $token), 'the new-patient form prints a token');
+        $saved = (string)$this->http->post($this->baseUrl . '/interface/new/new_comprehensive_save.php', [
+            'allow_redirects' => false,
+            'form_params' => [
+                'csrf_token_form' => $token[1],
+                'form_fname' => 'ReferralResend',
+                'form_lname' => 'Test' . bin2hex(random_bytes(3)),
+                'form_DOB' => '1980-01-02',
+                'form_sex' => 'Female',
+            ],
+        ])->getBody();
+        $this->assertSame(1, preg_match('/set_pid=(\d+)/', $saved, $pid), 'the new-patient save names the new pid');
+        return (int)$pid[1];
+    }
+
+    private function openChart(int $pid): void
+    {
+        $url = $this->baseUrl . '/interface/patient_file/summary/demographics.php?set_pid=' . $pid . '&csrf_token_form=' . $this->token;
+        $this->assertSame(200, $this->http->get($url)->getStatusCode(), 'the chart opens');
+    }
+
+    /**
+     * Saves a referral in the open chart through the Transactions form.
+     *
+     * @return int its transaction id, as the patient's Transactions list links to it
+     */
+    private function saveReferral(): int
+    {
+        $this->http->post($this->baseUrl . '/interface/patient_file/transaction/add_transaction.php', [
+            'form_params' => ['csrf_token_form' => $this->token, 'mode' => 'add', 'title' => 'LBTref', 'form_body' => 'A referral'],
+        ]);
+        $list = (string)$this->http->get($this->baseUrl . '/interface/patient_file/transaction/transactions.php')->getBody();
+        $this->assertSame(1, preg_match('/add_transaction\.php\?transid=(\d+)/', $list, $id), 'the list links to the referral');
+        return (int)$id[1];
     }
 }
