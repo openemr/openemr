@@ -14,6 +14,7 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
