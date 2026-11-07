@@ -347,6 +347,38 @@ class UuidRegistry
     }
 
     /**
+     * Registers a uuid that was issued before its record existed, for this registry's table.
+     *
+     * The patient review queue gives a patient app the id of a write it holds; approving the
+     * write creates the record under that id. createUuid() picks its own, so this takes the
+     * issued one instead, after the same uniqueness checks.
+     *
+     * @param string $uuidBytes the 16-byte uuid
+     * @throws \RuntimeException when the uuid is already registered or used in the table
+     */
+    public function registerIssuedUuid(string $uuidBytes): void
+    {
+        if (strlen($uuidBytes) !== 16) {
+            throw new \InvalidArgumentException('A uuid is 16 bytes');
+        }
+        $table = $this->table_name;
+        if (!is_string($table) || $table === '') {
+            throw new \LogicException('An issued uuid is registered for a table');
+        }
+        $used = QueryUtils::fetchRecordsNoLog('SELECT `uuid` FROM `uuid_registry` WHERE `uuid` = ?', [$uuidBytes]) !== []
+            || QueryUtils::fetchRecordsNoLog(
+                'SELECT `uuid` FROM ' . QueryUtils::escapeTableName($table) . ' WHERE `uuid` = ?',
+                [$uuidBytes]
+            ) !== [];
+        if ($used) {
+            throw new \RuntimeException('The issued uuid is already in use');
+        }
+        if (!$this->disable_tracker) {
+            $this->insertUuidsIntoRegistry([$uuidBytes]);
+        }
+    }
+
+    /**
      * Check if UUID String is Valid
      * @return bool
      */

@@ -41,6 +41,21 @@ enum PatientWritableType
     }
 
     /**
+     * The kind of write a held request is, from the resource type it was filed under. An
+     * Observation is a vital sign: no other Observation can be held.
+     */
+    public static function forResourceType(FhirResourceType $resourceType): ?self
+    {
+        foreach (self::cases() as $type) {
+            if ($type->fhirResourceType()->equals($resourceType)) {
+                return $type;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * The FHIR resource type a held write of this kind is filed under in the review queue.
      */
     public function fhirResourceType(): FhirResourceType

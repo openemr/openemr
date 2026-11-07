@@ -420,6 +420,26 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
 
     public function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        return $this->insertParsedRecord($openEmrRecord, null);
+    }
+
+    /**
+     * Creates the response under an id issued before it existed: a patient app's write that was
+     * held for review is approved under the id the app was given when it was held.
+     *
+     * @param array<array-key, mixed> $openEmrRecord from parseFhirResource()
+     * @param string $issuedUuid the id the response is created under
+     */
+    public function insertOpenEMRRecordWithIssuedId(array $openEmrRecord, string $issuedUuid): ProcessingResult
+    {
+        return $this->insertParsedRecord($openEmrRecord, $issuedUuid);
+    }
+
+    /**
+     * @param mixed $openEmrRecord
+     */
+    private function insertParsedRecord($openEmrRecord, ?string $issuedUuid): ProcessingResult
+    {
         $patientId = $this->resolvePatientId($openEmrRecord['puuid'] ?? null);
         $encounterId = $this->resolveEncounterId(
             $openEmrRecord['encounter_uuid'] ?? null,
@@ -446,7 +466,8 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
             null,
             $questionnaire,
             is_string($openEmrRecord['questionnaire_id'] ?? null) ? $openEmrRecord['questionnaire_id'] : null,
-            false
+            false,
+            $issuedUuid
         );
     }
 
@@ -541,7 +562,8 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
         ?string $responseId,
         string|array|null $questionnaire,
         ?string $questionnaireId,
-        bool $isUpdate
+        bool $isUpdate,
+        ?string $issuedUuid = null
     ): ProcessingResult {
         $processingResult = new ProcessingResult();
         try {
@@ -554,7 +576,8 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
                 $questionnaire,
                 $questionnaireId,
                 null,
-                true // I think we want to always generate a narrative here.
+                true, // I think we want to always generate a narrative here.
+                issuedUuid: $issuedUuid
             );
         } catch (\Throwable $exception) {
             ServiceContainer::getLogger()->error(

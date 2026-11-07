@@ -342,6 +342,10 @@ class QuestionnaireResponseService extends BaseService
      * @param ?string  $form_response
      * @param bool  $add_report
      * @param array $scores
+     * @param ?string $issuedUuid the uuid a new response is created under, when it was issued
+     *                            before the response existed (a patient app write held for
+     *                            review); a new uuid is created when null. Never for an update.
+     *                            Such a response has no creating user: the patient wrote it.
      * @return array{
      *   id: mixed,
      *   response_id: mixed,
@@ -359,7 +363,8 @@ class QuestionnaireResponseService extends BaseService
         $q_id = null,
         $form_response = null,
         $add_report = false,
-        $scores = []
+        $scores = [],
+        ?string $issuedUuid = null
     ): array {
         $q_content = null;
         $q_title = null;
@@ -425,7 +430,18 @@ class QuestionnaireResponseService extends BaseService
         } else {
             $qr_id = $this->getValue($fhirResponseOb->id);
         }
-        if (empty($qr_id)) {
+        if ($issuedUuid !== null && $qr_id !== null && $qr_id !== '') {
+            throw new Exception(xlt("An issued uuid is only for a new questionnaire response"));
+        }
+        if ($issuedUuid !== null) {
+            if (!UuidRegistry::isValidStringUUID($issuedUuid)) {
+                throw new Exception(xlt("Questionnaire response uuid is invalid"));
+            }
+            $qr_uuid = UuidRegistry::uuidToBytes($issuedUuid);
+            (new UuidRegistry(['table_name' => 'questionnaire_response']))->registerIssuedUuid($qr_uuid);
+            $qr_id = UuidRegistry::uuidToString($qr_uuid);
+            $update_flag = false;
+        } elseif (empty($qr_id)) {
             $qr_uuid = (new UuidRegistry(['table_name' => 'questionnaire_response']))->createUuid();
             // unique id for this set of answers
             $qr_id = UuidRegistry::uuidToString($qr_uuid);
@@ -479,7 +495,9 @@ class QuestionnaireResponseService extends BaseService
             , 'questionnaire_name' => $q_title
             // if its created by a patient we won't have an authUserID
             , 'audit_user_id' => $update_flag ? $session->get('authUserID') : null
-            , 'creator_user_id' => $session->get('authUserID')
+            // A response under an issued uuid is a patient app's write that staff approved: the
+            // patient answered it, and the approver is recorded by the review queue instead.
+            , 'creator_user_id' => $issuedUuid === null ? $session->get('authUserID') : null
             , 'version' => $update_flag ? (int)$id['version'] + 1 : 1
             , 'last_updated' => date("Y-m-d H:i:s")
             , 'patient_id' => $pid
