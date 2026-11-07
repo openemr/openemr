@@ -78,12 +78,16 @@ class InsuranceService extends BaseService
     {
         $sql = "SELECT `insurance_data`.*,
                        `puuid`,
-                       `insureruuid`
+                       `insureruuid`,
+                       `ins_type_code`,
+                       `cqm_sop`
                 FROM `insurance_data`
                 LEFT JOIN (
                     SELECT
                     `uuid` AS `insureruuid`,
-                    `id` AS `insurerid`
+                    `id` AS `insurerid`,
+                    `ins_type_code`,
+                    `cqm_sop`
                     FROM `insurance_companies`
                     ) `insurance_company_data` ON `insurance_data`.`provider` = `insurance_company_data`.`insurerid`
                 LEFT JOIN (
@@ -320,6 +324,7 @@ class InsuranceService extends BaseService
         $sql .= "   subscriber_employer_city=?,";
         $sql .= "   copay=?,";
         $sql .= "   date=?,";
+        $sql .= "   date_end=?,";
         $sql .= "   pid=?,";
         $sql .= "   subscriber_sex=?,";
         $sql .= "   accept_assignment=?,";
@@ -328,6 +333,9 @@ class InsuranceService extends BaseService
         $serviceSaveEvent = new ServiceSaveEvent($this, $data);
         $dispatchedEvent = $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_PRE_SAVE);
         $data = $dispatchedEvent->getSaveData();
+        // as update() writes it: a policy with no end date is open-ended (NULL)
+        $dateEnd = $data['date_end'] ?? null;
+        $dateEnd = is_string($dateEnd) && $dateEnd !== '' ? $dateEnd : null;
 
         $insuranceDataId = sqlInsert(
             $sql,
@@ -358,6 +366,7 @@ class InsuranceService extends BaseService
                 $data["subscriber_employer_city"] ?? '',
                 $data["copay"] ?? '',
                 $data["date"] ?? '',
+                $dateEnd,
                 $data['pid'],
                 $data["subscriber_sex"] ?? '',
                 $data["accept_assignment"] ?? '',
