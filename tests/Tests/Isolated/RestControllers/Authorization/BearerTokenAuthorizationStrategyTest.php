@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Tests of the bearer token authorization strategy.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Tests\Isolated\RestControllers\Authorization;
 
 use Lcobucci\JWT\Configuration;
@@ -567,5 +578,45 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
 
         $this->assertSame([], $notices);
         $this->assertSame('file://' . $keyPath, $strategy->getPublicKey()->getKeyPath());
+    }
+
+    /**
+     * Anchored, so a route that only starts or ends like an allowed one isn't let through.
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('addressBookClientRoutes')]
+    public function testWhatAClientLimitedToAnAddressBookEntryMayCall(?string $method, ?string $path, bool $allowed): void
+    {
+        $this->assertSame($allowed, BearerTokenAuthorizationStrategy::addressBookClientMayCall($method, $path));
+    }
+
+    /**
+     * @return array<string, array{?string, ?string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function addressBookClientRoutes(): array
+    {
+        return [
+            'Task search' => ['GET', '/fhir/Task', true],
+            'Task read' => ['GET', '/fhir/Task/abc', true],
+            'Task update' => ['PUT', '/fhir/Task/abc', true],
+            'ServiceRequest search' => ['GET', '/fhir/ServiceRequest', true],
+            'ServiceRequest read' => ['GET', '/fhir/ServiceRequest/abc', true],
+            'Task create' => ['POST', '/fhir/Task', false],
+            'Task delete' => ['DELETE', '/fhir/Task/abc', false],
+            'Task PUT with no id' => ['PUT', '/fhir/Task', false],
+            'ServiceRequest update' => ['PUT', '/fhir/ServiceRequest/abc', false],
+            'ServiceRequest create' => ['POST', '/fhir/ServiceRequest', false],
+            'a Task sub-route' => ['GET', '/fhir/Task/abc/history', false],
+            'a name that starts the same' => ['GET', '/fhir/TaskList', false],
+            'a prefix before it' => ['GET', '/x/fhir/Task', false],
+            'a line break after it' => ['GET', "/fhir/Task
+", false],
+            'the patient' => ['GET', '/fhir/Patient', false],
+            'the standard API' => ['GET', '/api/patient', false],
+            'no method' => [null, '/fhir/Task', false],
+            'no path' => ['GET', null, false],
+            'a HEAD' => ['HEAD', '/fhir/Task', false],
+        ];
     }
 }

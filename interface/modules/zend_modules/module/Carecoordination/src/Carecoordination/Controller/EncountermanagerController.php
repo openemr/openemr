@@ -18,8 +18,10 @@ namespace Carecoordination\Controller;
 use Application\Listener\Listener;
 use Carecoordination\Model\CcdaGlobalsConfiguration;
 use Carecoordination\Model\CcdaUserPreferencesTransformer;
+use Carecoordination\Model\EncounterccdadispatchTable;
 use Carecoordination\Model\EncountermanagerTable;
 use DOMDocument;
+use Laminas\Http\Response as LaminasResponse;
 use Laminas\Hydrator\Exception\RuntimeException;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
@@ -485,6 +487,22 @@ class EncountermanagerController extends AbstractActionController
     }
 
     // note this gets called from the frontend javascript (see public/js/application/sendTo.js::send()
+
+    /**
+     * A patient's referrals as JSON, for the send form's choice of which one a C-CDA goes with.
+     */
+    public function referralsAction(): LaminasResponse
+    {
+        $rawPid = $this->getRequest()->getQuery('pid');
+        $pid = is_string($rawPid) && ctype_digit($rawPid) ? (int)$rawPid : 0;
+        if (!$this->isPatientAuthorized($pid)) {
+            AccessDeniedHelper::deny('EncountermanagerController::referralsAction: pid not accessible by caller');
+        }
+        $response = new LaminasResponse();
+        $response->getHeaders()->addHeaderLine('Content-Type', 'application/json');
+        $response->setContent(json_encode((new EncounterccdadispatchTable())->getPatientReferrals($pid), JSON_THROW_ON_ERROR));
+        return $response;
+    }
 
     /**
      * @return \Laminas\Stdlib\ResponseInterface

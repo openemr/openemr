@@ -56,6 +56,7 @@ class CcdaGenerator
      * @param $document_type
      * @param $referral_reason
      * @param $date_options has the format of ['date_start' => 'YYYY-MM-DD HH:mm:ss', 'date_end' => 'YYYY-MM-DD HH:mm:ss', 'filter_content' => boolean]
+     * @param ?int $referralId the referral staff chose this C-CDA for, or null for the patient's most recent
      * @return GeneratedCcdaResult
      * @throws \Exception
      */
@@ -72,7 +73,8 @@ class CcdaGenerator
         $params,
         $document_type,
         $referral_reason,
-        $date_options = []
+        $date_options = [],
+        ?int $referralId = null
     ): GeneratedCcdaResult {
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -146,7 +148,8 @@ class CcdaGenerator
                 'unstructured',
                 $view,
                 $send,
-                $emr_transfer
+                $emr_transfer,
+                $referralId
             );
         }
         $generatedResult = $this->getEncounterccdadispatchTable()->logCCDA(
@@ -159,7 +162,8 @@ class CcdaGenerator
             $document_type,
             $view,
             $send,
-            $emr_transfer
+            $emr_transfer,
+            $referralId
         );
         if ($this->debug_ccda === true) {
             $tmp_file_location = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . DIRECTORY_SEPARATOR;

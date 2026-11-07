@@ -77,6 +77,9 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
 
     private bool $versionConflict = false;
 
+    /** The only owner whose tasks can be read or updated (restrictToOwner()), or null for any. */
+    private ?string $ownerOnly = null;
+
     /** How far up a parent chain the loop check walks; deeper chains aren't a workflow anyone builds. */
     private const MAX_PARENT_DEPTH = 100;
 
@@ -116,6 +119,15 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
     }
 
     /**
+     * Limits this service to one owner's tasks, for a client limited to an address book entry. Another's
+     * task reads and updates as if it weren't there, and an update can't give a task to anyone else.
+     */
+    public function restrictToOwner(string $ownerUuid): void
+    {
+        $this->ownerOnly = strtolower($ownerUuid);
+    }
+
+    /**
      * @return array<string, FhirSearchParameterDefinition>
      */
     protected function loadSearchParameters(): array
@@ -151,7 +163,7 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        return $this->getTaskService()->search(self::searchFields($openEMRSearchParameters));
+        return $this->getTaskService()->search($this->searchFields($openEMRSearchParameters));
     }
 
     /**
@@ -161,14 +173,14 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
      */
     protected function searchForOpenEMRRecordsWithConfig(array $openEMRSearchParameters, SearchQueryConfig $searchConfig): ProcessingResult
     {
-        return $this->getTaskService()->search(self::searchFields($openEMRSearchParameters), true, $searchConfig);
+        return $this->getTaskService()->search($this->searchFields($openEMRSearchParameters), true, $searchConfig);
     }
 
     /**
      * @param array<mixed> $openEMRSearchParameters
      * @return array<string, ISearchField>
      */
-    private static function searchFields(array $openEMRSearchParameters): array
+    private function searchFields(array $openEMRSearchParameters): array
     {
         $search = [];
         foreach ($openEMRSearchParameters as $name => $field) {
@@ -179,6 +191,10 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         // code:missing is read as for any token; a code search reads the system as well.
         if (($search['code'] ?? null) instanceof TokenSearchField && $search['code']->getModifier() !== SearchModifier::MISSING) {
             $search['code'] = self::codeSearch($search['code']);
+        }
+        // Under its own key, so a search by owner narrows it and can't replace it.
+        if ($this->ownerOnly !== null) {
+            $search['restricted_owner'] = new TokenSearchField('owner_uuid', [new TokenSearchValue($this->ownerOnly, null, true)], true);
         }
         return $search;
     }
@@ -413,9 +429,12 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         // authoredOn is when the task was made: an update keeps the stored one, so a bad one in the body doesn't matter.
         unset($errors['authoredOn']);
         $stored = UuidRegistry::isValidStringUUID($fhirResourceId) ? $this->getTaskService()->getForWrite($fhirResourceId) : null;
-        if ($stored === null) {
+        if ($stored === null || ($this->ownerOnly !== null && strtolower((string)$stored['owner_uuid']) !== $this->ownerOnly)) {
             // Nothing to update: handleFhirProcessingResult() answers 404 for an empty result.
             return new ProcessingResult();
+        }
+        if ($this->ownerOnly !== null && (!is_string($fields['owner_uuid'] ?? null) || strtolower($fields['owner_uuid']) !== $this->ownerOnly)) {
+            $errors['owner'] = "Task.owner can't change: this client is limited to its own tasks";
         }
         // The patient a task is for doesn't change: the body has to name the one it has, so a
         // task id can't be used to move a task, or write one, under another patient.

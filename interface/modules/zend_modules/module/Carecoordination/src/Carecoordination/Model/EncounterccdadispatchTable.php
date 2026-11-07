@@ -3942,9 +3942,10 @@ class EncounterccdadispatchTable
      * @param $view
      * @param $transfer
      * @param $emr_transfer
+     * @param ?int $chosenReferralId the referral staff chose this C-CDA for (referralForCcda())
      * @throws \Exception
      */
-    public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0): GeneratedCcdaResult
+    public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0, ?int $chosenReferralId = null): GeneratedCcdaResult
     {
         $content = base64_decode((string)$content);
         $document = new \Document();
@@ -3983,7 +3984,7 @@ class EncounterccdadispatchTable
         $mimeType = "text/xml";
 
         // TODO: @adunsulag do we need to clean up the file if we fail to commit the transaction here?
-        $moduleInsertId = QueryUtils::inTransaction(function () use ($document, $pid, $categoryId, $file_name, $mimeType, $content, $binaryUuid, $encounter, $time, $status, $user_id, $view, $transfer, $emr_transfer) {
+        $moduleInsertId = QueryUtils::inTransaction(function () use ($document, $pid, $categoryId, $file_name, $mimeType, $content, $binaryUuid, $encounter, $time, $status, $user_id, $view, $transfer, $emr_transfer, $chosenReferralId) {
             // set the foreign key so we can track documents connected to a specific export
             $result = $document->createDocument(
                 $pid,
@@ -4001,7 +4002,7 @@ class EncounterccdadispatchTable
             $revid = $document->get_couch_revid();
             $hash = $document->get_hash();
             $encrypted = $document->is_encrypted();
-            $referralId = $this->getMostRecentPatientReferral($pid);
+            $referralId = $this->referralForCcda(is_numeric($pid) ? (int)$pid : 0, $chosenReferralId);
 
             $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $moduleInsertId = QueryUtils::sqlInsert($query, [$binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId]);
@@ -4027,6 +4028,61 @@ class EncounterccdadispatchTable
     }
 
     /**
+     * The referral a C-CDA is linked to: the one staff chose, if it's a referral of this patient's, or
+     * with no choice the patient's most recent. A choice that isn't this patient's links to nothing
+     * rather than falling back to a guess, since this link decides which referral the document counts for.
+     */
+    public function referralForCcda(int $pid, ?int $chosenReferralId): ?int
+    {
+        if ($chosenReferralId === null) {
+            $referralId = $this->getMostRecentPatientReferral($pid);
+            return is_numeric($referralId) ? (int)$referralId : null;
+        }
+        $found = QueryUtils::fetchSingleValue("SELECT id FROM transactions WHERE id = ? AND pid = ? AND title = 'LBTref'", 'id', [$chosenReferralId, $pid]);
+        if (!is_numeric($found)) {
+            ServiceContainer::getLogger()->error('EncounterccdadispatchTable::referralForCcda: the chosen referral is not a referral of this patient', ['pid' => $pid, 'referral' => $chosenReferralId]);
+            return null;
+        }
+        return (int)$found;
+    }
+
+    /**
+     * A patient's referrals, newest first, to choose from when sending a C-CDA.
+     *
+     * @return list<array{id: int, label: string}>
+     */
+    public function getPatientReferrals(int $pid): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT t.id, referred.field_value AS refer_date, body.field_value AS body,
+                    COALESCE(NULLIF(TRIM(CONCAT_WS(' ', u.fname, u.lname)), ''), u.organization) AS recipient
+                FROM transactions AS t
+                LEFT JOIN lbt_data AS referred ON referred.form_id = t.id AND referred.field_id = 'refer_date'
+                LEFT JOIN lbt_data AS body ON body.form_id = t.id AND body.field_id = 'body'
+                LEFT JOIN lbt_data AS recipient ON recipient.form_id = t.id AND recipient.field_id = 'refer_to'
+                LEFT JOIN users AS u ON u.id = recipient.field_value
+                WHERE t.pid = ? AND t.title = 'LBTref'
+                ORDER BY t.id DESC",
+            [$pid]
+        );
+        $referrals = [];
+        foreach ($rows as $row) {
+            if (!is_numeric($row['id'] ?? null)) {
+                continue;
+            }
+            $parts = ['#' . (int)$row['id']];
+            foreach (['refer_date', 'recipient', 'body'] as $column) {
+                $value = $row[$column] ?? null;
+                if (is_string($value) && trim($value) !== '') {
+                    $parts[] = mb_substr(trim($value), 0, 60);
+                }
+            }
+            $referrals[] = ['id' => (int)$row['id'], 'label' => implode(' - ', $parts)];
+        }
+        return $referrals;
+    }
+
+    /**
      * Retrieves the most recent patient referral found in the transactions table or null if none is found.
      *
      * @param $pid
@@ -4042,9 +4098,8 @@ class EncounterccdadispatchTable
         $refs = QueryUtils::fetchRecords("select t.id as trans_id from transactions t where t.pid = ? and t.date = NOW() AND t.title = 'LBTref'", [$pid]);
         $trans_id = null;
         if (count($refs) == 0) {
-            // the choose the most recent transaction to link this up...  This could create problems in the
-            // future if multiple referrals are created BEFORE sending the CCDA.
-            // TODO: is there a way to fix it so we can choose a referral (works for single ccda generation, more problematic for multiple patient select).
+            // no referral was chosen (a send for several patients, or one that left the choice alone), so
+            // the most recent one is used, which is a guess when the patient has several.
             $trans = QueryUtils::fetchRecords("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1", [$pid]);
             $trans_cur = $trans[0] ?? [];
             $trans_id = $trans_cur['id'] ?? null;

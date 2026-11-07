@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Authorizes an API request from its bearer token.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\RestControllers\Authorization;
 
 use League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator;
@@ -202,6 +213,15 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
                 );
                 throw OAuthServerException::accessDenied('Client is not enabled');
             }
+            $addressBookUuid = $client->getAddressBookUuid();
+            if ($addressBookUuid !== null && !self::addressBookClientMayCall($request->getMethod(), $request->getRequestPathWithoutSite())) {
+                $logger->error(
+                    "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: route is outside what a client limited to an address book entry may call",
+                    ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
+                );
+                throw new HttpException(403, "This client is limited to its own Tasks and referrals.");
+            }
+            $request->setClientAddressBookUuid($addressBookUuid);
         }
         $logger->debug("BearerTokenAuthorizationStrategy->authorizeRequest() - Access token verified, authenticating user");
 
@@ -276,6 +296,20 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return true;
     }
 
+
+    /**
+     * What a client limited to an address book entry may call, whatever its scopes say: reading and
+     * updating Tasks, and reading ServiceRequests. Each of those keeps to the entry's own (FhirTaskService,
+     * FhirServiceRequestReferralService). Anything else is refused, a route added later included.
+     */
+    public static function addressBookClientMayCall(?string $method, ?string $path): bool
+    {
+        return match ($method) {
+            'GET' => preg_match('#^/fhir/(Task|ServiceRequest)(/[^/]+)?$#D', (string)$path) === 1,
+            'PUT' => preg_match('#^/fhir/Task/[^/]+$#D', (string)$path) === 1,
+            default => false,
+        };
+    }
 
     private function setupSessionForUserRole(string $userRole, string $userUuid, array $user, HttpRestRequest $request): void
     {

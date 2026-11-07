@@ -37,6 +37,7 @@ use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
 use OpenEMR\Services\DecisionSupportInterventionService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\ReferralService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Symfony\Component\HttpFoundation\Request;
@@ -176,6 +177,7 @@ class ClientAdminController
                 ,self::REVOKE_TRUSTED_USER => $this->revokeTrustedUserAction($mainActionChild, $request)
                 ,self::REVOKE_ACCESS_TOKEN => $this->revokeAccessToken($mainActionChild, $request)
                 ,self::REVOKE_REFRESH_TOKEN => $this->revokeRefreshToken($mainActionChild, $request)
+                ,'address-book' => $this->addressBookAction($mainActionChild, $request)
                 ,'allow-password-grant' => $this->passwordGrantAction($mainActionChild, true)
                 ,'deny-password-grant' => $this->passwordGrantAction($mainActionChild, false)
                 ,'enable-authorization-flow-skip' => $this->enableAuthorizationFlowSkipAction($mainActionChild)
@@ -610,6 +612,9 @@ class ClientAdminController
             ,'isEnabled' => $isEnabled
             ,'formValues' => $formValues
             ,'scopes' => $client->getScopes()
+            ,'addressBookLink' => $this->getActionUrl(['edit', $client->getIdentifier(), 'address-book'])
+            ,'addressBookUuid' => $client->getAddressBookUuid()
+            ,'addressBookRecipients' => (new ReferralService())->addressBookRecipients()
             ,'trustedUsers' => $trustedUsersList
             ,'services' => $servicesList
             ,'nav' => $this->getDefaultNavData()
@@ -959,6 +964,53 @@ class ClientAdminController
         } catch (SqlQueryException $ex) {
             return $this->returnFailedToSaveClientResponse($ex, $client);
         }
+    }
+
+    /**
+     * Limits a client to an address book entry's Tasks and referrals, or lifts that when no entry is
+     * posted. It only ever changes on a POST with the page's own token, checked here: it decides what
+     * patient data an outside party's client can reach.
+     */
+    private function addressBookAction(string $clientId, Request $request): Response
+    {
+        $client = $this->clientRepo->getClientEntity($clientId);
+        if ($client === false) {
+            return $this->notFoundAction();
+        }
+        if (!$request->isMethod('POST') || !CsrfUtils::verifyCsrfToken($request->query->getString('csrf_token'), $this->session, self::CSRF_TOKEN_NAME)) {
+            throw new CsrfInvalidException(xlt('Authentication Error'));
+        }
+        $posted = $request->request->all()['address_book_uuid'] ?? '';
+        $uuid = is_string($posted) && $posted !== '' ? $posted : null;
+        $known = array_column((new ReferralService())->addressBookRecipients(), 'uuid');
+        if ($uuid !== null && !in_array($uuid, $known, true)) {
+            $message = xl('That address book entry cannot be used for a client.');
+        } else {
+            $before = $client->getAddressBookUuid();
+            try {
+                $this->clientRepo->saveAddressBookUuid($client, $uuid);
+            } catch (SqlQueryException $ex) {
+                return $this->returnFailedToSaveClientResponse($ex, $client);
+            }
+            $this->eventAuditLogger ??= EventAuditLogger::getInstance();
+            $this->eventAuditLogger->newEvent(
+                'oauth2',
+                $this->session->get('authUser', ''),
+                $this->session->get('authProvider', ''),
+                1,
+                json_encode([
+                    'action' => 'limit_client_to_address_book_entry',
+                    'client_id' => $client->getIdentifier(),
+                    'client_name' => $client->getName(),
+                    'admin_user_id' => $this->session->get('authUserID', 0),
+                    'previous_address_book_uuid' => $before,
+                    'address_book_uuid' => $uuid,
+                ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)
+            );
+            $message = ($uuid === null ? xl('Removed the address book limit from') : xl('Limited to an address book entry:')) . ' ' . $client->getName();
+        }
+        $url = $this->getActionUrl(['edit', $client->getIdentifier()], ['queryParams' => ['message' => $message]]);
+        return new Response(null, Response::HTTP_SEE_OTHER, ['Location' => $url]);
     }
 
     private function enableAuthorizationFlowSkipAction(string $clientId): Response
