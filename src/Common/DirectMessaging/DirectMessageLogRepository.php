@@ -77,6 +77,20 @@ class DirectMessageLogRepository
     }
 
     /**
+     * Log a message the server accepted for delivery.
+     *
+     * @throws SqlQueryException
+     */
+    public function recordSent(string $messageId, string $sender, string $recipient, ?int $patientId, ?int $userId): void
+    {
+        $sql = <<<'SQL'
+            INSERT INTO direct_message_log (msg_type, msg_id, sender, recipient, status, status_ts, patient_id, user_id)
+            VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)
+            SQL;
+        QueryUtils::sqlStatementThrowException($sql, [$messageId, $sender, $recipient, $patientId, $userId], noLog: true);
+    }
+
+    /**
      * Log a message received from the server.
      *
      * @throws SqlQueryException
