@@ -21,6 +21,8 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class LaboratoryTestService extends AbstractQdmService implements QdmServiceInterface
 {
+    private const NEGATIVE_RESULT = 'Negative';
+
     public function getSqlStatement(): string
     {
         $sql = "SELECT
@@ -52,23 +54,39 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
     public function makeQdmModel(QdmRecord $recordObj): LaboratoryTestPerformed
     {
         $record = $recordObj->getData();
-        $result = 'Negative';
-        if (
-            !empty($record['result'])
-            && $record['result'] != 'Negative'
-        ) {
+        $resultValue = $record['result'] ?? null;
+        if (is_string($resultValue)) {
+            $resultValue = trim($resultValue);
+        }
+        $resultUnit = is_string($record['units'] ?? null) ? trim($record['units']) : '';
+        if (strcasecmp($resultUnit, 'percent') === 0) {
+            $resultUnit = '%';
+        }
+        if (is_string($resultValue) && str_ends_with($resultValue, '%')) {
+            $numericValue = trim(substr($resultValue, 0, -1));
+            if (is_numeric($numericValue) && ($resultUnit === '' || $resultUnit === '%')) {
+                $resultValue = $numericValue;
+                $resultUnit = '%';
+            }
+        }
+
+        $result = null;
+        if (is_numeric($resultValue)) {
             $result = new Quantity([
-                'value' => (int)$record['result'],
-                'unit' => $record['units']
+                'value' => (float) $resultValue,
+                'unit' => $resultUnit
             ]);
+        } elseif (
+            is_string($resultValue)
+            && $resultValue !== ''
+            && strcasecmp($resultValue, self::NEGATIVE_RESULT) !== 0
+        ) {
+            $result = $resultValue;
         }
         // A result generally should have a code however,
         // for rare occasions with values such as Negative, schematron expects a code type
         // or will throw a warning. This holds for CDA too.
-        if (
-            is_string($record['result'] ?? null)
-            && $record['result'] == 'Negative'
-        ) {
+        if (is_string($resultValue) && strcasecmp($resultValue, self::NEGATIVE_RESULT) === 0) {
             $result = $this->makeQdmCode('SNOMED-CT:260385009');
         }
 
