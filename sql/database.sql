@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 569
+-- v_database: 571
 --
 
 --
@@ -10051,7 +10051,8 @@ CREATE TABLE `uuid_mapping` (
   KEY `uuid` (`uuid`),
   KEY `resource` (`resource`),
   KEY `table` (`table`),
-  KEY `target_uuid` (`target_uuid`)
+  KEY `target_uuid` (`target_uuid`),
+  KEY `idx_target_res_path` (`target_uuid`, `resource`, `resource_path`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------

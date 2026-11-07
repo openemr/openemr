@@ -304,3 +304,9 @@ UPDATE `notification_log` SET `type` = 'Email' WHERE `type` = '' AND `smsgateway
 #IfMissingColumn oauth_clients address_book_uuid
 ALTER TABLE `oauth_clients` ADD COLUMN `address_book_uuid` binary(16) DEFAULT NULL COMMENT 'users.uuid of the address book entry this client acts for; limits it to that entry''s Tasks and referrals';
 #EndIf
+
+-- The UUID service's mapping check joins on target_uuid, resource and resource_path; with only the
+-- single-column target_uuid key it reads every mapping row of a record to keep one (15 per vitals form).
+#IfNotIndex uuid_mapping idx_target_res_path
+CREATE INDEX `idx_target_res_path` ON `uuid_mapping` (`target_uuid`, `resource`, `resource_path`);
+#EndIf
