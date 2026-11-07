@@ -26,7 +26,41 @@ final class PaymentDistributionIdentifier
         string $modifier,
         string $codeType
     ): string {
-        return implode('/', array_map('rawurlencode', [$paymentId, $patientId, $encounter, $code, $modifier, $codeType]));
+        return implode('/', array_map(rawurlencode(...), [$paymentId, $patientId, $encounter, $code, $modifier, $codeType]));
+    }
+
+    /**
+     * Encodes values read from the legacy database result rows.
+     */
+    public static function encodeDatabaseValues(
+        mixed $paymentId,
+        mixed $patientId,
+        mixed $encounter,
+        mixed $code,
+        mixed $modifier,
+        mixed $codeType
+    ): string {
+        return self::encode(
+            self::normalizeDatabaseValue($paymentId),
+            self::normalizeDatabaseValue($patientId),
+            self::normalizeDatabaseValue($encounter),
+            self::normalizeDatabaseValue($code),
+            self::normalizeDatabaseValue($modifier),
+            self::normalizeDatabaseValue($codeType)
+        );
+    }
+
+    private static function normalizeDatabaseValue(mixed $value): string
+    {
+        if (is_int($value) || is_string($value)) {
+            return (string) $value;
+        }
+
+        if ($value === null) {
+            return '';
+        }
+
+        throw new \UnexpectedValueException('Payment distribution fields must be strings, integers, or null');
     }
 
     /**
@@ -36,6 +70,6 @@ final class PaymentDistributionIdentifier
      */
     public static function decode(string $identifier): array
     {
-        return array_map('rawurldecode', explode('/', $identifier));
+        return array_map(rawurldecode(...), explode('/', $identifier));
     }
 }

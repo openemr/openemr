@@ -40,4 +40,32 @@ class PaymentDistributionIdentifierTest extends TestCase
             PaymentDistributionIdentifier::decode($identifier)
         );
     }
+
+    public function testDatabaseValuesEncodeIntegerAndNullFields(): void
+    {
+        $identifier = PaymentDistributionIdentifier::encodeDatabaseValues(
+            12,
+            34,
+            56,
+            'HCPCS/A01',
+            null,
+            'HCPCS'
+        );
+
+        $this->assertSame('12/34/56/HCPCS%2FA01//HCPCS', $identifier);
+    }
+
+    public function testDatabaseValuesRejectUnsupportedFieldTypes(): void
+    {
+        $this->expectException(\UnexpectedValueException::class);
+
+        PaymentDistributionIdentifier::encodeDatabaseValues(
+            12,
+            34,
+            56,
+            ['unexpected'],
+            '',
+            'HCPCS'
+        );
+    }
 }
