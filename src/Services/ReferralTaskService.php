@@ -39,6 +39,13 @@ class ReferralTaskService
     /** FHIR Task statuses a Task doesn't move on from. */
     private const FINISHED_STATUSES = ['completed', 'cancelled', 'entered-in-error', 'failed', 'rejected'];
 
+    /**
+     * The recipient's answers a referral can be sent to them again after: they turned it down, couldn't
+     * do it, or called it off. A status of this kind with one of this service's own reasons isn't
+     * their answer, and doesn't count for them (countsForRecipient()).
+     */
+    private const RESENDABLE_STATUSES = ['rejected', 'failed', 'cancelled'];
+
     /** GET_LOCK's name for a referral's Task, prefixed as core's other advisory locks are (within MySQL's 64 characters). */
     private const LOCK_PREFIX = 'openemr.referral_task.';
 
@@ -210,24 +217,110 @@ class ReferralTaskService
             ) {
                 return null;
             }
-            $requester = self::party($referral, 'requester');
-            return $this->getTaskService()->insert([
-                'status' => 'requested',
-                'intent' => 'order',
-                'code' => 'fulfill',
-                // #14669 renders a code only with its system, so the referral's Task records task-code's.
-                'code_system' => FhirTaskService::TASK_CODE_SYSTEM,
-                'focus_type' => 'ServiceRequest',
-                'focus_uuid' => $referralUuid,
-                'owner_type' => $owner[0],
-                'owner_uuid' => $owner[1],
-                'requester_type' => $requester[0] ?? null,
-                'requester_uuid' => $requester[1] ?? null,
-                'authored_on' => $this->getClock()->now()->format('Y-m-d H:i:s'),
-            ], (int)$patientId, $userId);
+            return $this->insertTask($referral, $referralUuid, $owner, (int)$patientId, $userId);
         } finally {
             self::unlock($lock);
         }
+    }
+
+    /**
+     * The recipient's Task as a new one, requested of them.
+     *
+     * @param array<string, mixed> $referral as ReferralService::getReferral() reads it
+     * @param array{string, string} $owner from party()
+     * @return string the new Task's uuid
+     */
+    private function insertTask(array $referral, string $referralUuid, array $owner, int $patientId, ?int $userId): string
+    {
+        $requester = self::party($referral, 'requester');
+        return $this->getTaskService()->insert([
+            'status' => 'requested',
+            'intent' => 'order',
+            'code' => 'fulfill',
+            // #14669 renders a code only with its system, so the referral's Task records task-code's.
+            'code_system' => FhirTaskService::TASK_CODE_SYSTEM,
+            'focus_type' => 'ServiceRequest',
+            'focus_uuid' => $referralUuid,
+            'owner_type' => $owner[0],
+            'owner_uuid' => $owner[1],
+            'requester_type' => $requester[0] ?? null,
+            'requester_uuid' => $requester[1] ?? null,
+            'authored_on' => $this->getClock()->now()->format('Y-m-d H:i:s'),
+        ], $patientId, $userId);
+    }
+
+    /**
+     * The uuid of the Task a re-send would follow on from, which is what the referral screen's
+     * Re-send button posts, or null when the referral can't be re-sent: the global is off, the
+     * referral has a reply or no recipient FHIR serves, or the recipient's latest Task isn't one
+     * they turned down, failed or cancelled (RESENDABLE_STATUSES).
+     */
+    public function resendableTask(int $transactionId): ?string
+    {
+        if (!OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)) {
+            return null;
+        }
+        $referralUuid = $this->getReferralService()->getReferralUuid($transactionId);
+        $referral = $referralUuid === null ? null : $this->getReferralService()->getReferral($transactionId);
+        return $referralUuid === null || $referral === null ? null : $this->resendableTaskOf($referral, $referralUuid);
+    }
+
+    /**
+     * Sends a referral to its recipient again after they turned it down, as a new requested Task. The
+     * old one stays as the record, and the new one is the referral's status from here on, which
+     * reopens it, since the latest Task that counts for the recipient decides (recipientTask(),
+     * ReferralService::taskStatusSql()). A save of the referral never does this, so nobody re-sends by accident.
+     *
+     * It happens only if the Task the page showed is still the one to follow on from: a second click,
+     * a stale page, or a recipient's change since then all make nothing new. It runs under the
+     * referral's lock, as a save does.
+     *
+     * @param string $taskUuid what resendableTask() found when the page was shown
+     * @return ?string the new Task's uuid
+     */
+    public function resend(int $transactionId, string $taskUuid, ?int $userId): ?string
+    {
+        if (!OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)) {
+            return null;
+        }
+        $referralUuid = $this->getReferralService()->getReferralUuid($transactionId);
+        if ($referralUuid === null) {
+            return null;
+        }
+        $lock = self::LOCK_PREFIX . $referralUuid;
+        $locked = self::lock($lock);
+        if ($locked !== true) {
+            $this->getLogger()->warning('A referral was not re-sent: its lock was not acquired', [
+                'transaction_id' => $transactionId,
+                'referral_uuid' => $referralUuid,
+                'reason' => $locked === false ? 'another save held it past the wait' : 'GET_LOCK failed',
+            ]);
+            return null;
+        }
+        try {
+            $referral = $this->getReferralService()->getReferral($transactionId);
+            $owner = $referral === null ? null : self::party($referral, 'performer');
+            $patientId = $referral['patient_id'] ?? null;
+            if ($referral === null || $owner === null || !is_numeric($patientId) || $this->resendableTaskOf($referral, $referralUuid) !== $taskUuid) {
+                return null;
+            }
+            return $this->insertTask($referral, $referralUuid, $owner, (int)$patientId, $userId);
+        } finally {
+            self::unlock($lock);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $referral as ReferralService::getReferral() reads it
+     */
+    private function resendableTaskOf(array $referral, string $referralUuid): ?string
+    {
+        $recipientUuid = self::text($referral, 'performer_uuid');
+        if ($recipientUuid === null || self::text($referral, 'reply_date') !== null || self::party($referral, 'performer') === null) {
+            return null;
+        }
+        $task = $this->recipientTask($referralUuid, $recipientUuid);
+        return $task !== null && in_array($task['status'] ?? null, self::RESENDABLE_STATUSES, true) ? self::text($task, 'uuid') : null;
     }
 
     /**
@@ -583,6 +676,58 @@ class ReferralTaskService
     public static function isReferralTask(array $task): bool
     {
         return self::isOwnTask($task) && ($task['focus_type'] ?? null) === 'ServiceRequest' && is_string($task['focus_uuid'] ?? null);
+    }
+
+    /**
+     * What's wrong with a PUT to a referral's own Task, by FHIR element: it keeps the referral it's
+     * for, who it's for, and the code and missing parent that make it the referral's. Changing them
+     * would quietly take the Task out of the referral: its recipient's notices would stop, and the
+     * next save of the referral would cancel it. A referral is sent elsewhere from its Refer To.
+     * Empty for any other Task, a lab order's among them.
+     *
+     * @param array<mixed> $stored the Task as TaskService::getForWrite() reads it
+     * @param array<string, string|null> $fields the task fields of the PUT
+     * @return array<string, string>
+     */
+    public function writeProblems(array $stored, array $fields): array
+    {
+        $focus = self::isReferralTask($stored) && is_string($stored['focus_uuid'] ?? null) ? $stored['focus_uuid'] : null;
+        if ($focus === null) {
+            return [];
+        }
+        $problems = self::lockedChanges($stored, $fields);
+        // Looked up last: nearly every PUT changes none of these, and the referral's query is the costly part.
+        return $problems === [] || $this->getReferralService()->getReferralByUuid($focus) === null ? [] : $problems;
+    }
+
+    /**
+     * The elements a PUT changes that a referral's own Task keeps. An owner it never had can be set,
+     * as an API client's Task may start without one.
+     *
+     * @param array<mixed> $stored
+     * @param array<string, string|null> $fields
+     * @return array<string, string>
+     */
+    public static function lockedChanges(array $stored, array $fields): array
+    {
+        $same = static function (string $column) use ($stored, $fields): bool {
+            $before = $stored[$column] ?? null;
+            return strcasecmp(is_string($before) ? $before : '', $fields[$column] ?? '') === 0;
+        };
+        $problems = [];
+        if (!$same('code')) {
+            $problems['code'] = "Task.code can't change on a referral's Task";
+        }
+        if (!$same('focus_type') || !$same('focus_uuid')) {
+            $problems['focus'] = "Task.focus can't change on a referral's Task";
+        }
+        if (($stored['owner_uuid'] ?? null) !== null && (!$same('owner_type') || !$same('owner_uuid'))) {
+            $problems['owner'] = "Task.owner can't change on a referral's Task: send the referral elsewhere from its Refer To";
+        }
+        if (($fields['part_of_uuid'] ?? null) !== null) {
+            $problems['partOf'] = "Task.partOf can't be set on a referral's Task";
+        }
+        return $problems;
     }
 
     /**

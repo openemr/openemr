@@ -434,6 +434,9 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
         if ($stored['patient_id'] !== null && ($problem = $this->parentProblem($fields['part_of_uuid'] ?? null, $stored['patient_id'], $fhirResourceId)) !== null) {
             $errors['partOf'] = $problem;
         }
+        if ($this->referralTaskService !== null) {
+            $errors += $this->referralTaskService->writeProblems($stored, $fields);
+        }
         if ($errors !== []) {
             return self::invalid($errors);
         }

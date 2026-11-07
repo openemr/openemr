@@ -24,8 +24,11 @@ use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\ReferenceSearchField;
+use OpenEMR\Services\Search\SearchComparator;
+use OpenEMR\Services\Search\SearchFieldComparableValue;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
+use OpenEMR\Services\Search\SearchQueryFragment;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -56,7 +59,7 @@ class ReferralService extends BaseService
      * Search columns that are the transaction's own, by the column each is read from.
      * Filters on them are applied before the fields are grouped, so that a search by
      * patient or id doesn't group every referral first. The last update isn't one: it
-     * moves with the referral's Task too.
+     * moves with the referral's Task too (lastUpdatedAtSource()).
      */
     private const SOURCE_COLUMNS = ['uuid' => 't.uuid', 'puuid' => 'patients.uuid'];
 
@@ -268,6 +271,11 @@ class ReferralService extends BaseService
         // builders don't take. The query and the mapping below don't throw SearchFieldException.
         try {
             foreach ($search as $key => $field) {
+                $lastUpdated = $isAnd ? self::lastUpdatedAtSource($field) : null;
+                if ($lastUpdated !== null) {
+                    $sourceFilter .= ' AND ' . $lastUpdated->getFragment();
+                    $sourceValues = array_merge($sourceValues, $lastUpdated->getBoundValues());
+                }
                 $sourceField = $isAnd ? self::atSource($field) : null;
                 if ($sourceField === null) {
                     $grouped[$key] = $field;
@@ -296,6 +304,43 @@ class ReferralService extends BaseService
             $processingResult->addData($this->createResultRecordFromDatabaseResult($record));
         }
         return $processingResult;
+    }
+
+    /**
+     * A _lastUpdated search's lower bound before the fields are grouped, or null for a search with
+     * none, so that a client asking what changed lately doesn't group every referral first. The last
+     * update is the later of the transaction's date and its own Tasks' last change, so it's after a
+     * date only when one of those is. This narrows what's grouped and decides nothing: the search's
+     * own filter still runs on the grouped last_modified. An upper bound can't narrow it this way,
+     * since either one being before a date says nothing about the other.
+     */
+    public static function lastUpdatedAtSource(ISearchField $field): ?SearchQueryFragment
+    {
+        if (!($field instanceof DateSearchField) || $field->getField() !== 'last_modified') {
+            return null;
+        }
+        $values = $field->getValues();
+        // Alternatives (ge2026-01-01,lt2020-01-01) can each match on their own, so no one of them narrows the search.
+        if (count($values) > 1 && !$field->isAnd()) {
+            return null;
+        }
+        $lowerBounds = array_values(array_filter(
+            $values,
+            static fn(SearchFieldComparableValue $value): bool => in_array($value->getComparator(), [SearchComparator::GREATER_THAN, SearchComparator::GREATER_THAN_OR_EQUAL_TO, SearchComparator::STARTS_AFTER], true)
+        ));
+        if ($lowerBounds === []) {
+            return null;
+        }
+        $transaction = SearchFieldStatementResolver::getStatementForSearchField(new DateSearchField('t.date', $lowerBounds, $field->getDateType(), true));
+        $task = SearchFieldStatementResolver::getStatementForSearchField(new DateSearchField('task.last_modified', $lowerBounds, $field->getDateType(), true));
+        $fragment = new SearchQueryFragment(
+            '(' . $transaction->getFragment() . " OR EXISTS (SELECT 1 FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid AND "
+                . self::OWN_TASK_SQL . ' AND ' . $task->getFragment() . '))'
+        );
+        foreach (array_merge($transaction->getBoundValues(), $task->getBoundValues()) as $value) {
+            $fragment->addBoundValue($value);
+        }
+        return $fragment;
     }
 
     /**

@@ -1036,6 +1036,68 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A PUT can't take a referral's Task away from the referral (#15137). What's refused changes
+     * nothing, and the same Task still takes a status: a recipient's usual PUT.
+     */
+    public function testAPutCanNotTakeTheTaskAwayFromTheReferral(): void
+    {
+        $this->people['clinic'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Reply Clinic']);
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $task = $this->taskOf($id, 'pantry');
+        $taskUuid = $task['id'] ?? null;
+        $this->assertIsString($taskUuid);
+        $clinic = ['reference' => 'Organization/' . $this->people['clinic']['uuid']];
+        $body = [];
+        foreach ($task as $name => $value) {
+            if (is_string($name)) {
+                $body[$name] = $value;
+            }
+        }
+
+        foreach (
+            [
+                'owner' => ['owner' => $clinic],
+                'code' => ['code' => ['coding' => [['system' => FhirTaskService::TASK_CODE_SYSTEM, 'code' => 'approve']]]],
+                'partOf' => ['partOf' => [['reference' => 'Task/' . $this->postTaskFor($id, 'clinic')]]],
+            ] as $element => $change
+        ) {
+            $response = $this->testClient->put(self::FHIR_URL . 'Task', $taskUuid, array_merge($body, $change));
+            $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $element);
+            $result = json_decode((string)$response->getBody(), true);
+            $this->assertIsArray($result);
+            $this->assertIsArray($result['validationErrors'] ?? null);
+            $this->assertSame([$element], array_keys($result['validationErrors']));
+        }
+
+        $this->assertSame($task, $this->taskOf($id, 'pantry'), 'nothing changed');
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($task, 'accepted'));
+        $this->assertSame('accepted', $this->taskOf($id, 'pantry')['status'] ?? null);
+    }
+
+    /**
+     * After a re-send (#15137), the reply completes the new Task, and the Task they turned down stays
+     * as it was.
+     */
+    public function testAReplyAfterAReSendCompletesTheNewTask(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $rejected = $this->taskOf($id, 'pantry');
+        $rejectedUuid = $rejected['id'] ?? null;
+        $this->assertIsString($rejectedUuid);
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($rejected, 'rejected'));
+        $new = (new ReferralTaskService(new UserService()))->resend($id, $rejectedUuid, null);
+        $this->assertIsString($new);
+        $this->saveFields($id, ['reply_date' => '2026-10-18', 'reply_findings' => 'Enrolled']);
+
+        $this->afterSave($id);
+
+        $this->assertSame('completed', $this->read('Task', $new)['status'] ?? null);
+        $this->assertSame('rejected', $this->read('Task', $rejectedUuid)['status'] ?? null);
+    }
+
+    /**
      * A reply completes Refer To's Task, not a later one of the same kind that an API client made
      * for someone else.
      */
