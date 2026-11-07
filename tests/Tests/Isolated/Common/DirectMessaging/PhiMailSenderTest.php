@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\DirectMessaging;
 
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogRepository;
 use OpenEMR\Common\DirectMessaging\PhiMailAttachmentType;
 use OpenEMR\Common\DirectMessaging\PhiMailConfig;
@@ -134,6 +135,22 @@ final class PhiMailSenderTest extends TestCase
         self::assertSame([], $this->auditRows);
     }
 
+    public function testBuildsFromGlobals(): void
+    {
+        $globals = OEGlobalsBag::getInstance();
+        $globals->set('fileroot', dirname(__DIR__, 5));
+        $globals->set('phimail_enable', true);
+        $globals->set('phimail_server_address', 'tcp://127.0.0.1:1');
+        $crypto = $this->createStub(CryptoInterface::class);
+        $crypto->method('decryptFromDatabase')->willReturn('test-password');
+
+        $sender = PhiMailSender::fromGlobals($globals, $crypto, new NullLogger(), $this->createStub(EventAuditLogger::class));
+        $result = $this->send(new PhiMailOutgoingMessage('to@direct.example', 'hello'), $sender);
+
+        // Nothing listens on port 1, so the configured server refuses the connection.
+        self::assertStringStartsWith(self::CONFIG_ERROR . ' C4 ', $result);
+    }
+
     public function testServerErrorIsAuditedAsAFailure(): void
     {
         $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'OK', 'ERROR message rejected'));
@@ -190,6 +207,7 @@ final class PhiMailSenderTest extends TestCase
             'TO unanswered' => [self::lines('OK'), 'Delivery is not allowed to the specified Direct Address: '],
             'closed after TO' => [self::lines('OK', 'OK'), self::CONFIG_ERROR . ' 5'],
             'TEXT refused' => [self::lines('OK', 'OK', 'recipient info', 'FAIL'), self::CONFIG_ERROR . ' 5'],
+            'TEXT unanswered' => [self::lines('OK', 'OK', 'recipient info'), self::CONFIG_ERROR . ' 5'],
             'text refused' => [self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'FAIL'), self::CONFIG_ERROR . ' 6'],
             'ADD refused' => [self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'FAIL'), self::CONFIG_ERROR . ' 7'],
             'attachment refused' => [self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'BEGIN', 'FAIL'), self::CONFIG_ERROR . ' 8'],
