@@ -142,7 +142,8 @@ class AddressBookClientAdminTest extends TestCase
     {
         $url = $this->baseUrl . self::SCREEN . '?action=' . urlencode('edit/' . $this->clientId . '/address-book');
 
-        $this->http->get($url . '&csrf_token=' . $this->token . '&address_book_uuid=' . $this->entryUuid);
+        $get = $this->http->get($url . '&csrf_token=' . $this->token . '&address_book_uuid=' . $this->entryUuid);
+        $this->assertSame(405, $get->getStatusCode());
         $this->assertNull($this->storedLimit(), 'a GET');
 
         $this->http->post($url . '&csrf_token=wrong', ['allow_redirects' => false, 'form_params' => ['address_book_uuid' => $this->entryUuid]]);

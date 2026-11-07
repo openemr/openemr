@@ -989,7 +989,7 @@ class ClientAdminController
             return $this->notFoundAction();
         }
         if (!$request->isMethod('POST')) {
-            throw new CsrfInvalidException(xlt('Authentication Error'));
+            return new Response('', Response::HTTP_METHOD_NOT_ALLOWED, ['Allow' => 'POST']);
         }
         $posted = $request->request->all()['address_book_uuid'] ?? null;
         $known = array_column((new ReferralService())->addressBookRecipients(), 'uuid');
