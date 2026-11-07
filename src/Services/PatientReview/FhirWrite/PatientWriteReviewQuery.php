@@ -63,6 +63,7 @@ final readonly class PatientWriteReviewQuery
             $firstWithContent[$contentKey] ??= $request->id;
 
             $isResponse = $request->resourceType?->value === 'QuestionnaireResponse';
+            $answers = $isResponse ? QuestionnaireResponseAnswers::of($request->payload) : ['rows' => [], 'tooDeep' => 0];
             $items[] = new PatientWriteReviewItem(
                 $request,
                 trim(self::text($record['patient_fname'] ?? null) . ' ' . self::text($record['patient_lname'] ?? null)),
@@ -70,10 +71,11 @@ final readonly class PatientWriteReviewQuery
                 ($record['app_name'] ?? null) === null ? null : self::text($record['app_name']),
                 self::clientType($record['app_is_confidential'] ?? null),
                 $duplicateOf,
-                $isResponse ? QuestionnaireResponseAnswers::of($request->payload) : [],
+                $answers['rows'],
                 $json,
                 $this->handler->canApply($request),
                 $isResponse ? self::questionnaireName($request->payload['questionnaire'] ?? null) : null,
+                $answers['tooDeep'],
             );
         }
 

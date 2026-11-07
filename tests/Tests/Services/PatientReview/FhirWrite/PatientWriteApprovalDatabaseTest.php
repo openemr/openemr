@@ -266,7 +266,8 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         $this->assertSame('PHPUnit Patient App', $listed->appName);
         $this->assertSame(PatientWriteClientType::Public, $listed->clientType);
         $this->assertSame('Held Write', $listed->patientName);
-        $this->assertSame([['question' => 'How are you feeling?', 'answers' => ['Better']]], $listed->answers);
+        $this->assertSame([['question' => 'How are you feeling?', 'answers' => ['Better'], 'unshown' => 0]], $listed->answers);
+        $this->assertSame(0, $listed->answersTooDeep);
         $this->assertTrue($listed->canApprove);
         $this->assertNull($listed->duplicateOf);
         $this->assertSame(self::QUESTIONNAIRE_NAME, $listed->questionnaireName, 'the title staff know it by');

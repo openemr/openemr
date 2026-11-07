@@ -25,8 +25,10 @@ final readonly class PatientWriteReviewItem
      * @param ?string $appName oauth_clients.client_name; null when the client has been removed
      * @param ?PatientWriteClientType $clientType null when the client has been removed
      * @param ?int $duplicateOf an earlier pending request for the patient with the same content
-     * @param list<array{question: string, answers: list<string>}> $answers a questionnaire
-     *                                                                     response's answers; empty for other types
+     * @param list<array{question: string, answers: list<string>, unshown: int}> $answers a
+     *        questionnaire response's answers, with how many of each question's answers are of a
+     *        type the screen doesn't show; empty for other types
+     * @param int $answersTooDeep answers nested too deeply for any row to show them
      * @param string $resourceJson the held resource, pretty-printed
      * @param bool $canApprove whether this type can be approved yet
      * @param ?string $questionnaireName the name of the Questionnaire a response answers, when it
@@ -43,6 +45,7 @@ final readonly class PatientWriteReviewItem
         public string $resourceJson,
         public bool $canApprove,
         public ?string $questionnaireName = null,
+        public int $answersTooDeep = 0,
     ) {
     }
 }

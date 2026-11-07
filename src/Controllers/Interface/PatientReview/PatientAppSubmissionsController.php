@@ -179,6 +179,7 @@ final readonly class PatientAppSubmissionsController
             },
             'duplicateOf' => $item->duplicateOf,
             'answers' => $item->answers,
+            'answersTooDeep' => $item->answersTooDeep,
             'resourceJson' => $item->resourceJson,
             'canApprove' => $item->canApprove,
             'questionnaireName' => $item->questionnaireName,

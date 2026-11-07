@@ -95,14 +95,26 @@
                             {% for row in item.answers %}
                                 <tr>
                                     <td>{{ row.question|text }}</td>
-                                    <td>{{ row.answers|join(', ')|text }}</td>
+                                    <td>
+                                        {{ row.answers|join(', ')|text }}
+                                        {% if row.unshown > 0 %}
+                                            <span class="text-danger">{{ row.answers is empty ? '' : '+ '|text }}{{ row.unshown|text }} {{ 'answer not shown here; see what the app sent'|xlt }}</span>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
                         </table>
                     {% endif %}
+                    {% if item.answersTooDeep > 0 %}
+                        <div class="alert alert-warning py-2">
+                            {{ item.answersTooDeep|text }} {{ 'answers are nested too deeply to show here. Open what the app sent before deciding.'|xlt }}
+                        </div>
+                    {% endif %}
 
-                    <details class="mb-3">
+                    {# Opened when the table can't show everything, so nothing is decided unseen. #}
+                    {% set partlyShown = item.answersTooDeep > 0 or item.answers|filter(row => row.unshown > 0) is not empty %}
+                    <details class="mb-3"{% if partlyShown %} open{% endif %}>
                         <summary>{{ 'Show what the app sent'|xlt }}</summary>
                         <pre class="bg-light p-2 mt-2">{{ item.resourceJson|text }}</pre>
                     </details>

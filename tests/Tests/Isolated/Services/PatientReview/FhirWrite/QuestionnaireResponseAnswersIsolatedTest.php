@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Isolated tests for flattening a held QuestionnaireResponse into rows staff can read.
+ * Isolated tests for flattening a held QuestionnaireResponse into rows staff can read, and for
+ * counting what the rows can't show.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -19,9 +20,12 @@ use PHPUnit\Framework\TestCase;
 
 class QuestionnaireResponseAnswersIsolatedTest extends TestCase
 {
-    public function testEveryAnswerTypeIsShownInOrderThroughNestedItems(): void
+    /**
+     * Each shown answer type appears as text, in order, through groups and answer-nested items.
+     */
+    public function testEveryShownAnswerTypeAppearsInOrderThroughNestedItems(): void
     {
-        $rows = QuestionnaireResponseAnswers::of([
+        $result = QuestionnaireResponseAnswers::of([
             'resourceType' => 'QuestionnaireResponse',
             'item' => [
                 ['linkId' => 'g1', 'text' => 'About you', 'item' => [
@@ -38,38 +42,65 @@ class QuestionnaireResponseAnswersIsolatedTest extends TestCase
                 ]],
                 ['linkId' => 'weight', 'text' => 'Weight', 'answer' => [['valueQuantity' => ['value' => 70, 'unit' => 'kg']]]],
                 ['linkId' => 'when', 'text' => 'Since', 'answer' => [['valueDate' => '2026-01-02']]],
+                ['linkId' => 'doctor', 'text' => 'Your doctor', 'answer' => [['valueReference' => ['reference' => 'Practitioner/9', 'display' => 'Dr Lee']]]],
                 ['linkId' => 'blank', 'text' => 'Unanswered'],
                 'not an item',
             ],
         ]);
 
         $this->assertSame([
-            ['question' => 'Name', 'answers' => ['Ann']],
-            ['question' => 'age', 'answers' => ['42']],
-            ['question' => 'Do you smoke?', 'answers' => ['Yes']],
-            ['question' => 'Packs a day', 'answers' => ['1.5']],
-            ['question' => 'Mood', 'answers' => ['Several days', 'LA2']],
-            ['question' => 'Weight', 'answers' => ['70 kg']],
-            ['question' => 'Since', 'answers' => ['2026-01-02']],
-        ], $rows);
-    }
-
-    public function testAResponseWithNoItemsHasNoRows(): void
-    {
-        $this->assertSame([], QuestionnaireResponseAnswers::of(['resourceType' => 'QuestionnaireResponse']));
-        $this->assertSame([], QuestionnaireResponseAnswers::of(['item' => 'not a list']));
+            ['question' => 'Name', 'answers' => ['Ann'], 'unshown' => 0],
+            ['question' => 'age', 'answers' => ['42'], 'unshown' => 0],
+            ['question' => 'Do you smoke?', 'answers' => ['Yes'], 'unshown' => 0],
+            ['question' => 'Packs a day', 'answers' => ['1.5'], 'unshown' => 0],
+            ['question' => 'Mood', 'answers' => ['Several days', 'LA2'], 'unshown' => 0],
+            ['question' => 'Weight', 'answers' => ['70 kg'], 'unshown' => 0],
+            ['question' => 'Since', 'answers' => ['2026-01-02'], 'unshown' => 0],
+            ['question' => 'Your doctor', 'answers' => ['Dr Lee'], 'unshown' => 0],
+        ], $result['rows']);
+        $this->assertSame(0, $result['tooDeep']);
     }
 
     /**
-     * Items nested past the depth limit are not followed.
+     * A question whose only answer can't be shown still gets a row, counting it.
      */
-    public function testNestingStopsAtTheDepthLimit(): void
+    public function testAnAnswerThatCannotBeShownIsCountedNotDropped(): void
     {
-        $item = ['linkId' => 'deepest', 'text' => 'Deepest', 'answer' => [['valueString' => 'x']]];
+        $result = QuestionnaireResponseAnswers::of(['item' => [
+            ['linkId' => 'photo', 'text' => 'Photo of the rash', 'answer' => [
+                ['valueAttachment' => ['contentType' => 'image/png', 'title' => 'rash.png', 'data' => 'iVBORw0KGgo=']],
+            ]],
+            ['linkId' => 'notes', 'text' => 'Anything else?', 'answer' => [
+                ['valueString' => 'It itches'],
+                ['valueSomethingNew' => 'x'],
+            ]],
+        ]]);
+
+        $this->assertSame([
+            ['question' => 'Photo of the rash', 'answers' => [], 'unshown' => 1],
+            ['question' => 'Anything else?', 'answers' => ['It itches'], 'unshown' => 1],
+        ], $result['rows']);
+    }
+
+    /**
+     * No items, or an item list that isn't a list, gives no rows.
+     */
+    public function testAResponseWithNoItemsHasNoRows(): void
+    {
+        $this->assertSame(['rows' => [], 'tooDeep' => 0], QuestionnaireResponseAnswers::of(['resourceType' => 'QuestionnaireResponse']));
+        $this->assertSame(['rows' => [], 'tooDeep' => 0], QuestionnaireResponseAnswers::of(['item' => 'not a list']));
+    }
+
+    /**
+     * Answers past the depth limit aren't shown, but they are counted so staff know to look.
+     */
+    public function testAnswersPastTheDepthLimitAreCounted(): void
+    {
+        $item = ['linkId' => 'deepest', 'text' => 'Deepest', 'answer' => [['valueString' => 'x'], ['valueString' => 'y']]];
         for ($i = 0; $i < 30; $i++) {
             $item = ['linkId' => 'g' . $i, 'item' => [$item]];
         }
 
-        $this->assertSame([], QuestionnaireResponseAnswers::of(['item' => [$item]]));
+        $this->assertSame(['rows' => [], 'tooDeep' => 2], QuestionnaireResponseAnswers::of(['item' => [$item]]));
     }
 }
