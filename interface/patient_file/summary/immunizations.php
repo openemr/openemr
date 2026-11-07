@@ -19,6 +19,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\Types\EncounterListOptionType;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -60,13 +61,13 @@ if (isset($_GET['mode'])) {
      */
 
     if ($_GET['mode'] == "add") {
-        $submittedAdministeredDate = trim((string) ($_GET['administered_date'] ?? ''));
+        $submittedAdministeredDate = trim(CurrentRequest::get()->query->getString('administered_date'));
         if ($submittedAdministeredDate !== '' && !ImmunizationValidator::isAdministeredDateValid($submittedAdministeredDate)) {
             $administered_date = $submittedAdministeredDate;
-            $administeredDateError = xlt('Date & Time Administered is invalid.');
+            $administeredDateError = 'Date & Time Administered is invalid.';
         } elseif (ImmunizationValidator::isAdministeredDateInFuture($submittedAdministeredDate)) {
             $administered_date = $submittedAdministeredDate;
-            $administeredDateError = xlt('Date & Time Administered cannot be in the future.');
+            $administeredDateError = 'Date & Time Administered cannot be in the future.';
         } else {
             $sql = "REPLACE INTO immunizations set
             id = ?,
@@ -100,7 +101,7 @@ if (isset($_GET['mode'])) {
             $sqlBindArray = [
             trim((string) $_GET['id']),
             UuidRegistry::isValidStringUUID($_GET['uuid']) ? UuidRegistry::uuidToBytes($_GET['uuid']) : null,
-            trim((string) $_GET['administered_date']), trim((string) $_GET['administered_date']),
+            $submittedAdministeredDate, $submittedAdministeredDate,
             trim($_GET['form_immunization_id'] ?? ''),
             trim((string) $_GET['cvx_code']),
             trim((string) $_GET['manufacturer']),
@@ -426,7 +427,7 @@ tr.selected {
                         echo "<p class='text-danger font-weight-bold'>" . xlt("Entered in Error") . "</p>";
                     }
                     if (isset($administeredDateError)) {
-                        echo "<div class='alert alert-danger' role='alert'>" . $administeredDateError . "</div>";
+                        echo "<div class='alert alert-danger' role='alert'>" . xlt($administeredDateError) . "</div>";
                     }
                     ?>
 
