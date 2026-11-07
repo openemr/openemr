@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Logs REST API responses after request handling.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    OpenEMR Community
+ * @copyright Copyright (c) 2026 OpenEMR Community
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\RestControllers\Subscriber;
 
 use OpenEMR\BC\ServiceContainer;
