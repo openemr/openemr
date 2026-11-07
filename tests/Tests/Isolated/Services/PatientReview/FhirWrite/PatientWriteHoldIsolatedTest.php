@@ -28,6 +28,7 @@ use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteRefusal;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteRefusalReason;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
+use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewSource;
 use OpenEMR\Services\PatientReview\ReviewStatus;
 use OpenEMR\Services\PatientReview\ReviewType;
@@ -191,7 +192,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
 
         $this->assertRefused(
             PatientWriteRefusalReason::OtherPatient,
-            fn() => $this->hold()->hold($this->context(), PatientWritableType::VitalSignObservation, $resource)
+            fn(): ReviewRequest => $this->hold()->hold($this->context(), PatientWritableType::VitalSignObservation, $resource)
         );
     }
 
@@ -201,7 +202,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
 
         $this->assertRefused(
             PatientWriteRefusalReason::OtherPatient,
-            fn() => $this->hold()->hold($this->context(), PatientWritableType::AllergyIntolerance, $resource)
+            fn(): ReviewRequest => $this->hold()->hold($this->context(), PatientWritableType::AllergyIntolerance, $resource)
         );
     }
 
@@ -222,7 +223,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
 
         $this->assertRefused(
             PatientWriteRefusalReason::OtherPatient,
-            fn() => $this->hold()->hold($this->context(), PatientWritableType::QuestionnaireResponse, $resource)
+            fn(): ReviewRequest => $this->hold()->hold($this->context(), PatientWritableType::QuestionnaireResponse, $resource)
         );
     }
 
@@ -241,7 +242,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
 
         $this->assertRefused(
             PatientWriteRefusalReason::WrongType,
-            fn() => $this->hold()->hold($this->context(), PatientWritableType::VitalSignObservation, $resource)
+            fn(): ReviewRequest => $this->hold()->hold($this->context(), PatientWritableType::VitalSignObservation, $resource)
         );
     }
 
@@ -283,7 +284,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
 
         $this->assertRefused(
             PatientWriteRefusalReason::WrongType,
-            fn() => $this->hold()->hold($this->context(), PatientWritableType::QuestionnaireResponse, $resource)
+            fn(): ReviewRequest => $this->hold()->hold($this->context(), PatientWritableType::QuestionnaireResponse, $resource)
         );
     }
 
@@ -293,7 +294,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
 
         $this->assertRefused(
             PatientWriteRefusalReason::NotAllowed,
-            fn() => $hold->hold($this->context(PatientWriteClientType::Public), PatientWritableType::VitalSignObservation, $this->vitalSign())
+            fn(): ReviewRequest => $hold->hold($this->context(PatientWriteClientType::Public), PatientWritableType::VitalSignObservation, $this->vitalSign())
         );
         $this->assertSame(
             ReviewStatus::Pending,
@@ -307,7 +308,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
 
         $this->assertRefused(
             PatientWriteRefusalReason::NotAllowed,
-            fn() => $hold->hold($this->context(), PatientWritableType::VitalSignObservation, $this->vitalSign())
+            fn(): ReviewRequest => $hold->hold($this->context(), PatientWritableType::VitalSignObservation, $this->vitalSign())
         );
     }
 
@@ -317,7 +318,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
 
         $this->assertRefused(
             PatientWriteRefusalReason::NotAllowed,
-            fn() => $hold->hold($this->context(), PatientWritableType::QuestionnaireResponse, $this->questionnaireResponse())
+            fn(): ReviewRequest => $hold->hold($this->context(), PatientWritableType::QuestionnaireResponse, $this->questionnaireResponse())
         );
     }
 
@@ -328,7 +329,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
 
         $this->assertRefused(
             PatientWriteRefusalReason::TooLarge,
-            fn() => $this->hold()->hold($this->context(), PatientWritableType::VitalSignObservation, $resource)
+            fn(): ReviewRequest => $this->hold()->hold($this->context(), PatientWritableType::VitalSignObservation, $resource)
         );
     }
 
@@ -341,7 +342,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
 
         $this->assertRefused(
             PatientWriteRefusalReason::TooManyOpen,
-            fn() => $hold->hold($this->context(), PatientWritableType::QuestionnaireResponse, $this->questionnaireResponse())
+            fn(): ReviewRequest => $hold->hold($this->context(), PatientWritableType::QuestionnaireResponse, $this->questionnaireResponse())
         );
         $this->assertSame(PatientWriteHold::MAX_OPEN_PER_CLIENT, $this->queue->countPending(ReviewType::FhirWrite));
     }
@@ -374,10 +375,10 @@ class PatientWriteHoldIsolatedTest extends TestCase
     {
         $patient = ReviewActor::patient(self::PID, 'ann7');
         $attempts = [
-            'patient id not a uuid' => static fn() => new PatientWriteContext('42', self::CLIENT, PatientWriteClientType::Public, $patient),
-            'upper-case uuid' => static fn() => new PatientWriteContext(strtoupper(self::PATIENT), self::CLIENT, PatientWriteClientType::Public, $patient),
-            'no client' => static fn() => new PatientWriteContext(self::PATIENT, '', PatientWriteClientType::Public, $patient),
-            'staff actor' => static fn() => new PatientWriteContext(self::PATIENT, self::CLIENT, PatientWriteClientType::Public, ReviewActor::user(3, 'drsmith')),
+            'patient id not a uuid' => static fn(): \OpenEMR\Services\PatientReview\FhirWrite\PatientWriteContext => new PatientWriteContext('42', self::CLIENT, PatientWriteClientType::Public, $patient),
+            'upper-case uuid' => static fn(): \OpenEMR\Services\PatientReview\FhirWrite\PatientWriteContext => new PatientWriteContext(strtoupper(self::PATIENT), self::CLIENT, PatientWriteClientType::Public, $patient),
+            'no client' => static fn(): \OpenEMR\Services\PatientReview\FhirWrite\PatientWriteContext => new PatientWriteContext(self::PATIENT, '', PatientWriteClientType::Public, $patient),
+            'staff actor' => static fn(): \OpenEMR\Services\PatientReview\FhirWrite\PatientWriteContext => new PatientWriteContext(self::PATIENT, self::CLIENT, PatientWriteClientType::Public, ReviewActor::user(3, 'drsmith')),
         ];
         foreach ($attempts as $label => $attempt) {
             try {
