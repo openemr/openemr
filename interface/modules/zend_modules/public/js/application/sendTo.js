@@ -321,8 +321,11 @@ function refreshCcdaReferrals() {
         });
         $("#ccda_referral_row").toggle(referrals.length > 0);
     }).fail(function (xhr) {
-        // No list means the send links the most recent referral; let the next click try again.
-        picker.removeData("pid");
+        // No list means the send links the most recent referral; let the next click try again,
+        // unless another patient has been selected since and this failure is not theirs.
+        if (picker.data("pid") === pid) {
+            picker.removeData("pid");
+        }
         console.error("Could not load the patient's referrals", xhr.status);
     });
 }
