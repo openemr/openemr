@@ -208,9 +208,6 @@ class PatientWriteApprovalDatabaseTest extends TestCase
     }
 
     /**
-     * A response whose Questionnaire is gone rolls back and leaves no registered id.
-     */
-    /**
      * A response a caregiver answered keeps the caregiver as its source once it is in the chart.
      */
     public function testAnApprovedCaregiverResponseReadsBackWithTheCaregiverAsSource(): void
@@ -229,6 +226,9 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         $this->assertSame(['reference' => 'RelatedPerson/caregiver-1'], $json['source'] ?? null);
     }
 
+    /**
+     * A response whose Questionnaire is gone rolls back and leaves no registered id.
+     */
     public function testAFailedWriteLeavesTheRequestPendingWithNothingWritten(): void
     {
         $held = $this->heldResponse();
