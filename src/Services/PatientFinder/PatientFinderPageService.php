@@ -30,11 +30,12 @@ final class PatientFinderPageService
     /**
      * Build the finder's column data from the registry, in display order.
      *
-     * @return array<int, array{key: string, title: string, sortDir: string, link: bool}>
+     * @return array<int, array{key: string, title: string, sortDir: string, link: bool, width: string}>
      *         key     - the column key / DataTables sName;
      *         title   - the (translated) header label;
      *         sortDir - the initial sort direction ("asc"/"desc");
-     *         link    - whether the cell renders as a link (the Name column).
+     *         link    - whether the cell renders as a link (the Name column);
+     *         width   - the display width as a CSS length, or "" to let the table size it.
      */
     public function getColumns(PatientFinderColumnRegistry $registry): array
     {
@@ -45,6 +46,7 @@ final class PatientFinderPageService
                 'title' => $column->title,
                 'sortDir' => $column->defaultSortDir,
                 'link' => $column->key === PatientFinderQueryBuilder::NAME_KEY,
+                'width' => $column->width,
             ];
         }
         return $columns;

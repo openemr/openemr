@@ -10,7 +10,8 @@
  * column's configured initial sort direction (its `toggle_setting_1`, resolved
  * through the `Sort_Direction` list). An entry whose option id is one of
  * {@see PatientFinderBuiltInColumns::keys()} is seeded as that combined column
- * rather than as a `patient_data` field. It then dispatches
+ * rather than as a `patient_data` field. An entry's notes hold its display width
+ * (see {@see PatientFinderColumn::withWidth()}). It then dispatches
  * {@see PatientFinderColumnRegistrationEvent} so modules can add, remove or
  * reorder columns.
  *
@@ -67,7 +68,7 @@ final class PatientFinderColumnRegistryFactory
     {
         $registry = new PatientFinderColumnRegistry();
         $rows = ($this->fetchRecords)(
-            "SELECT option_id, title, toggle_setting_1 FROM list_options "
+            "SELECT option_id, title, toggle_setting_1, notes FROM list_options "
             . "WHERE list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title",
             []
         );
@@ -81,10 +82,9 @@ final class PatientFinderColumnRegistryFactory
                 $title = PatientFinderValue::string(xl_list_label($title));
             }
             $sortDir = $this->sortDirection(PatientFinderValue::string($row['toggle_setting_1'] ?? null));
-            $registry->add(
-                $this->builtInColumn($key, $title, $sortDir)
-                    ?? PatientFinderColumn::fromTable($key, $title, defaultSortDir: $sortDir)
-            );
+            $column = $this->builtInColumn($key, $title, $sortDir)
+                ?? PatientFinderColumn::fromTable($key, $title, defaultSortDir: $sortDir);
+            $registry->add($column->withWidth(PatientFinderValue::string($row['notes'] ?? null)));
         }
 
         $this->dispatcher->dispatch(

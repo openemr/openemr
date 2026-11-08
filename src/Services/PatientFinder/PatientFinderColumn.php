@@ -60,6 +60,8 @@ final readonly class PatientFinderColumn
      * @param array<int, string|int> $joinBoundValues TYPE_SQL: values bound to the ?s in $joinClause.
      * @param string $defaultSortDir Initial sort direction the finder page requests for this
      *        column ("asc" or "desc"); drives the DataTables "order" option.
+     * @param string $width Display width as a CSS length ("8rem", "120px", "10%"), or "" to let
+     *        the table size the column; see withWidth().
      */
     private function __construct(
         public string $key,
@@ -73,7 +75,8 @@ final readonly class PatientFinderColumn
         public ?string $searchExpression = null,
         public array $selectBoundValues = [],
         public array $joinBoundValues = [],
-        public string $defaultSortDir = 'asc'
+        public string $defaultSortDir = 'asc',
+        public string $width = ''
     ) {
     }
 
@@ -206,7 +209,35 @@ final readonly class PatientFinderColumn
             $this->searchExpression,
             $this->selectBoundValues,
             $this->joinBoundValues,
-            $dir
+            $dir,
+            $this->width
+        );
+    }
+
+    /**
+     * Return a copy of this column with a display width. Anything that is not a plain CSS
+     * length in px, rem, em or % (such as "8rem") is ignored, leaving the width to the table.
+     */
+    public function withWidth(string $width): self
+    {
+        $width = trim($width);
+        if (preg_match('/^\d{1,4}(\.\d{1,2})?(px|rem|em|%)$/', $width) !== 1) {
+            $width = '';
+        }
+        return new self(
+            $this->key,
+            $this->title,
+            $this->type,
+            $this->searchable,
+            $this->sortable,
+            $this->table,
+            $this->selectExpression,
+            $this->joinClause,
+            $this->searchExpression,
+            $this->selectBoundValues,
+            $this->joinBoundValues,
+            $this->defaultSortDir,
+            $width
         );
     }
 }
