@@ -135,7 +135,9 @@ class AppointmentNotificationRunner
     /**
      * Substitute ***NAME*** / ***PROVIDER*** / ***DATE*** / ***STARTTIME*** /
      * ***ENDTIME*** / ***ORG*** tokens in the message template with row data.
-     * Pure; callable from isolated tests without a DB.
+     * Pure; callable from isolated tests without a DB. Returns plain text:
+     * SMS and the reminder email are not HTML, and the log views escape
+     * the stored message when they print it.
      *
      * @param array<mixed> $row Event + patient row from faxsms_getAlertPatientData().
      */
@@ -172,7 +174,7 @@ class AppointmentNotificationRunner
             '***ORG***' => $org,
         ];
 
-        return text(strtr($template, $replacements));
+        return strtr($template, $replacements);
     }
 
     /**

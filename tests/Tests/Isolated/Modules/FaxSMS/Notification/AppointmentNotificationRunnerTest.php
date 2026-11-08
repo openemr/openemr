@@ -284,6 +284,18 @@ class AppointmentNotificationRunnerTest extends TestCase
         $this->assertStringContainsString('see you', $rendered);
     }
 
+    public function testRenderMessageDoesNotHtmlEscape(): void
+    {
+        // SMS and the plain-text reminder email are not HTML, so escaping here
+        // showed patients "Tom &amp; Jerry's" (#11856).
+        $rendered = AppointmentNotificationRunner::renderMessage(
+            'Hi ***NAME***, see you at ***ORG*** <no reply>',
+            ['fname' => 'Tom', 'name' => "Tom & Jerry's Clinic"],
+        );
+
+        $this->assertSame("Hi Tom, see you at Tom & Jerry's Clinic <no reply>", $rendered);
+    }
+
     public function testRunReturnsZeroResultWhenNoAppointmentsPending(): void
     {
         $runner = $this->makeSmsRunner(client: new FakeSmsClient(), dryRun: false);
