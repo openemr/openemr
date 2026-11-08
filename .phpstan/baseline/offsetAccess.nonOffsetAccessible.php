@@ -10792,11 +10792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'date_ordered\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'diagnoses\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
@@ -16907,16 +16902,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/find_order_popup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'company\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'data\' on mixed\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'group_number\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
@@ -16928,11 +16913,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'object\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
 ];
@@ -20937,16 +20917,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/procedure_tools/ereqs/ereq_universal_form.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'company\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'data\' on mixed\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'group_number\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
@@ -20958,11 +20928,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'object\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
 ];
@@ -21157,13 +21122,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'company\' on mixed\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'data\' on mixed\\.$#',
-    'count' => 41,
+    'count' => 22,
     'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
@@ -21184,11 +21144,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'object\' on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
@@ -21282,16 +21237,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/procedure_tools/libs/labs_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'company\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'data\' on mixed\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'group_number\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
@@ -21303,11 +21248,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'object\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
 ];

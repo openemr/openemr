@@ -67,4 +67,46 @@ final class CoverageDayTest extends TestCase
         self::assertSame('2026-11-04 00:00:00', $day->format('Y-m-d H:i:s'));
         self::assertSame(date_default_timezone_get(), $day->getTimezone()->getName());
     }
+
+    /**
+     * A lab order is billed on its collection day, else its order date, each read as fromStored() reads it.
+     */
+    #[Test]
+    public function aLabOrderAsksAboutTheCollectionDateThenTheOrderDate(): void
+    {
+        self::assertSame('2026-10-02', CoverageDay::forLabOrder('2026-10-02 08:15:00', '2026-10-01')?->format('Y-m-d'));
+        self::assertSame('2026-10-02', CoverageDay::forLabOrder('2026-10-02 23:30:00', '2026-10-03 00:10:00')?->format('Y-m-d'));
+        self::assertSame('2026-10-01', CoverageDay::forLabOrder(null, '2026-10-01')?->format('Y-m-d'));
+        self::assertSame('2026-10-01', CoverageDay::forLabOrder('', '2026-10-01 14:00:00')?->format('Y-m-d'));
+        self::assertSame('2026-10-01', CoverageDay::forLabOrder('0000-00-00 00:00:00', '2026-10-01')?->format('Y-m-d'));
+        self::assertSame('2026-10-01', CoverageDay::forLabOrder(false, '2026-10-01')?->format('Y-m-d'));
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unreadable(): array
+    {
+        return [
+            'null' => [null],
+            'blank' => [''],
+            'zero' => ['0000-00-00'],
+            'a zero datetime' => ['0000-00-00 00:00:00'],
+            'the display format' => ['05/01/2025'],
+            'not a string: false (a failed fetch)' => [false],
+        ];
+    }
+
+    /**
+     * With neither date readable there is no day: the caller decides, where today would bill the plan in force now.
+     */
+    #[Test]
+    #[DataProvider('unreadable')]
+    public function aLabOrderWithNeitherDateReadableAsksAboutNoDay(mixed $date): void
+    {
+        self::assertNull(CoverageDay::forLabOrder($date, $date));
+        self::assertNull(CoverageDay::forLabOrder($date, '06/30/2026'), 'an order date in the display format is not read either');
+    }
 }
