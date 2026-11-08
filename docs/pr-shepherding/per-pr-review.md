@@ -228,7 +228,7 @@ output. You usually can't rerun that, but you can:
   way.
 - Note "author-reported, not independently verified" if you can't rerun.
 
-### 6.6 `mergeable: UNKNOWN` — how to probe
+### 6.6 Probe an UNKNOWN mergeable state
 
 GitHub computes `mergeable` lazily. `UNKNOWN` is the default state on a cold PR,
 not an actual conflict signal. Two paths:
@@ -244,21 +244,12 @@ not an actual conflict signal. Two paths:
 
 ```bash
 # in a throwaway clone (not the primary repo):
+base_branch=$(gh pr view <N> --repo openemr/openemr --json baseRefName --jq .baseRefName)
 git clone <primary> /tmp/merge-test-<N>
 cd /tmp/merge-test-<N>
-git fetch <upstream> master:upstream-master
+git fetch <upstream> "$base_branch":upstream-base
 git fetch <upstream> pull/<N>/head:pr-<N>
-git checkout upstream-master -q
-git -c user.email=t@t -c user.name=t merge pr-<N> --no-ff --no-commit
-```
-
-```bash
-# in a throwaway clone (not the primary repo):
-git clone <primary> /tmp/merge-test-<N>
-cd /tmp/merge-test-<N>
-git fetch <upstream> master:upstream-master
-git fetch <upstream> pull/<N>/head:pr-<N>
-git checkout upstream-master -q
+git checkout upstream-base -q
 git -c user.email=t@t -c user.name=t merge pr-<N> --no-ff --no-commit
 ```
 
@@ -298,7 +289,9 @@ Not every green rollup is cleanly green. Call out explicitly:
   lint. Verify the next job passed.
 - **SKIPPED lanes.** Inferno is often SKIPPED on forks (expected); other skips may be
   conditional on label.
-- **FAILURE lanes** — the PR is held; name the lane in the brief.
+- **FAILURE lanes** — the PR is held; name the lane in the brief. Exception: a solo
+  `codecov/patch` or `codecov/project` FAILURE with a green "All Checks Passed"
+  aggregator is OK; those are advisory status checks.
 
 A common masking pattern: "All Checks Passed" job shows FAILURE because it depends on a
 preceding CANCELLED or FAILURE. The underlying lane is what matters; the aggregator is
@@ -353,7 +346,7 @@ Some patterns that should move a verdict from `✅ Merge-ready` to `🔶 residua
 
 - Open rabbit Actionable that isn't withdrawn or addressed.
 - Open maintainer `CHANGES_REQUESTED` with no evidence of substantive resolution.
-- CI FAILURE in any lane that isn't title-lint-superseded.
+- CI FAILURE in any lane that isn't title-lint-superseded or advisory codecov/*.
 - Baseline entries added (not removed).
 - A convention violation flagged by `AGENTS.md` that would land `mixed`, cast, or
   un-ignored data provider.
@@ -380,15 +373,26 @@ is written, the recorded head no longer matches the PR's current head — the ve
 applies to different code, and a fresh review (or at minimum a delta review against
 the new commits) is needed before the maintainer merges.
 
+The brief records both the reviewed **head SHA** and the reviewed **base-branch tip**
+(the base branch itself can advance without the head moving — e.g. master receives
+unrelated commits between the brief and the merge — and the merge-compatibility checks
+need to re-run against the new base tip).
+
 Before merging on a shepherd verdict, the maintainer (or the agent, when confirming
 `landed <N>` reports) verifies:
 
-1. The brief's recorded head SHA still matches `gh pr view <N> --json commits | ... | last`.
-2. CI is still green (no regression since the brief was written).
-3. No new rabbit Actionable has been posted since the brief.
-4. No new maintainer `CHANGES_REQUESTED` has been filed.
+1. Head unchanged: `gh pr view <N> --json headRefOid --jq .headRefOid` equals the
+   brief's recorded head SHA. (Don't derive from `--json commits` — that API caps at
+   100 commits; on a 100+ commit PR the last returned SHA can match while new ones
+   exist.)
+2. Base-tip unchanged: the current tip of the PR's base branch equals the brief's
+   recorded base-tip. If it moved, re-run the merge-compatibility checks (§6.6)
+   against the new tip before merging.
+3. CI is still green.
+4. No new rabbit Actionable has been posted since the brief.
+5. No new maintainer `CHANGES_REQUESTED` has been filed.
 
-If any of 1-4 moved, refresh the brief before merging.
+If any of 1-5 moved, refresh the brief before merging.
 
 **Do not post the brief publicly.** The brief lives in the private briefs directory. The
 maintainer decides whether anything in it should land on the PR, and the maintainer does

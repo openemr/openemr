@@ -124,7 +124,7 @@ maintainer reports `landed <PR#>`. Update the brief + log entry with the merge S
 | Scan the queue + classify every open PR | [stocktake.md](stocktake.md) |
 | Deep-review one merge-ready PR | [per-pr-review.md](per-pr-review.md) |
 | Review a batch of 3+ independent PRs via parallel subagents | [per-pr-review.md §13](per-pr-review.md#13-parallel-subagents-for-batch-reviews) |
-| Verify two PRs touching the same files really merge cleanly (overlapping-touch) | [per-pr-review.md §6.6](per-pr-review.md#66-merges-cleanly-on-current-master-overlapping-touch-verification) |
+| Verify two PRs touching the same files really merge cleanly (overlapping-touch) | [per-pr-review.md §6.6](per-pr-review.md#66-probe-an-unknown-mergeable-state) |
 | Write a review brief, log entry, or follow-up register entry | [deliverables.md](deliverables.md) |
 | Decide whether an action (public comment, branch push, direct code change) is allowed | [standing-rules.md](standing-rules.md) |
 | Interpret a confusing CodeRabbit interaction (incremental review, "already reviewed," paused reviews, typo'd mention) | [standing-rules.md](standing-rules.md#2-coderabbit-mechanics) |
@@ -143,8 +143,12 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   `codecov/patch` and `codecov/project` are advisory status checks — they don't fail the
   "All Checks Passed" aggregator, so a solo codecov FAILURE with green aggregator is OK.
 - **No unresolved rabbit Actionable.** Every CodeRabbit "Actionable" finding is either
-  addressed in a subsequent commit, withdrawn by rabbit, or scoped out by the author with
-  rabbit's acknowledgement. "Already-reviewed, no new findings" counts as resolved; see
+  addressed in a subsequent commit (confirmed by rabbit's auto-ack **or** by the
+  shepherd's diff inspection against the raised line), withdrawn by rabbit, or
+  scoped out by the author with rabbit's acknowledgement (also acceptable: the
+  shepherd documents the scope-out based on diff inspection when the author doesn't
+  reply inline — see [per-pr-review §4](per-pr-review.md#4-walk-rabbit-history) step 4).
+  "Already-reviewed, no new findings" counts as resolved; see
   [standing-rules.md](standing-rules.md#2-coderabbit-mechanics).
 - **No unresolved maintainer `CHANGES_REQUESTED`.** A formal review-state request stays
   open until the requesting maintainer re-reviews. A separate maintainer approving does
@@ -152,7 +156,7 @@ false, the PR goes into the matching held / residual / draft bucket instead.
 - **Mergeable state.** GitHub's `mergeable` is `MERGEABLE`. `UNKNOWN` does not count as
   mergeable (GitHub hasn't finished computing it, or a conflict exists that doesn't show
   as markers). Either poll until the state refreshes, or run the local merge-compatibility
-  verify ([per-pr-review §6.6](per-pr-review.md#66-merges-cleanly-on-current-master-overlapping-touch-verification)).
+  verify ([per-pr-review §6.6](per-pr-review.md#66-probe-an-unknown-mergeable-state)).
 - **Scope confirmed in scope.** The PR falls in the subject-filter bucket, not "outside
   primary scope."
 - **Baseline integrity.** PHPStan baseline: zero new entries. Count reductions are fine

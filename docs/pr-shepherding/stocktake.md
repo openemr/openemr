@@ -86,7 +86,7 @@ Collect the following signals per PR:
 | `isDraft` | `view.isDraft` | Draft vs non-draft |
 | `reviewDecision` | `view.reviewDecision` | `CHANGES_REQUESTED` → held |
 | `mergeable` | `view.mergeable` | `CONFLICTING` → held |
-| CI rollup | `statusCheckRollup` | Any `FAILURE` → held |
+| CI rollup | `statusCheckRollup` | Any `FAILURE` outside `codecov/*` → held (`codecov/patch` and `codecov/project` are advisory; don't fail the aggregator) |
 | CANCELLED lanes | `statusCheckRollup` | Investigate; see §3 |
 | Author activity | `commits[-N:].authoredDate` | Dormant vs active |
 | Last update | `updatedAt` | Freshness, dormancy check |
@@ -96,7 +96,7 @@ Collect the following signals per PR:
 **CI rollup quick-classify:**
 
 - All `SUCCESS` or `SKIPPED` (+ at most 1 `CANCELLED` that's title-lint-superseded) → `OK`
-- Any `FAILURE` → `FAIL`
+- Any `FAILURE` outside `codecov/*` → `FAIL` (codecov/patch and codecov/project are advisory and don't fail the aggregator — a solo codecov FAILURE with green aggregator is OK)
 - Many `CANCELLED` + no `FAILURE` → `CRED` (concurrency-redeemed; usually in-flight
   re-run — recheck in 5-10m)
 
@@ -123,7 +123,8 @@ verdict.
 #### ⏳ Awaiting shepherd review (Phase 1 default for candidates)
 
 Every decision-gate metadata row passes (non-draft, CI green, no open maintainer
-`CHANGES_REQUESTED`, mergeable). No brief yet. Feeds Phase 2.
+`CHANGES_REQUESTED`, mergeable). No brief yet, OR the brief's recorded head/base-tip
+no longer matches (author pushed, or base branch advanced). Feeds Phase 2.
 
 #### ✅ Merge-ready
 
@@ -240,10 +241,12 @@ The shepherd log is the audit trail across passes. It is additive, not rewritten
 
 ## 7. Pass handoff
 
-A stock-take pass hands off to Phase 2 with the merge-ready + residual list, and hands
-the held/draft/out-of-scope entries back to the maintainer for direction. The hub's
-three-phase loop restarts only after Phase 2 drains the merge-ready queue; don't start a
-fresh stock-take while Phase 2 still has open briefs.
+A stock-take pass hands off to Phase 2 with the **⏳ awaiting-review** list — the
+PRs whose metadata passes but don't yet have a brief. ✅ / 🔶 / 🔴 / ⏸️ are Phase 2
+outputs or already-classified and don't need re-review. Held / draft / out-of-scope
+go back to the maintainer for direction. The hub's three-phase loop restarts only
+after Phase 2 drains the ⏳ queue; don't start a fresh stock-take while Phase 2 still
+has open briefs.
 
 ### Chain order over updated-desc
 

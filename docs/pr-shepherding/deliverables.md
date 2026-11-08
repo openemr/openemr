@@ -162,9 +162,8 @@ historical record — don't rewrite the verdict.
 # PR #<N> deep review brief — `<title>`
 
 **Author:** <login> · <N> commits, +<adds>/-<dels> across <N> files · base: `<base-branch>` (merge base `<short-sha>`)
-**Reviewed head:** `<head-sha>` — <date-reviewed>. **Re-verify before merging** that the
-current head still matches this SHA; a push after this brief is written invalidates the
-verdict until a delta review covers the new commits.
+**Reviewed head:** `<head-sha>` — **re-verify before merging** via `gh pr view <N> --json headRefOid --jq .headRefOid`; a push after this brief invalidates the verdict until a delta review covers the new commits.
+**Reviewed base-tip:** `<base-tip-sha>` — if the base branch advances before merge, re-run §6.6 against the new tip.
 **CI:** <summary — "all green" or "N SUCCESS, M SKIPPED (<reasons>)">.
 **Prior maintainer action:** <e.g. "kojiromike filed CHANGES_REQUESTED 2026-11-05; addressed by commits X + Y">.
 **Previous status:** <prior bucket if applicable — e.g. "🔴 held at 2026-11-04 end-of-day; promoted to ✅ on ...">.
