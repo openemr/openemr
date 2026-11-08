@@ -243,8 +243,10 @@ not an actual conflict signal. Two paths:
   is actually needed.
 
 ```bash
-# in a throwaway clone (not the primary repo):
+# in a throwaway clone (not the primary repo). rm -rf lets this run idempotently —
+# the §12 pre-merge checklist can re-invoke this when the base tip advances.
 base_branch=$(gh pr view <N> --repo openemr/openemr --json baseRefName --jq .baseRefName)
+rm -rf /tmp/merge-test-<N>
 git clone <primary> /tmp/merge-test-<N>
 cd /tmp/merge-test-<N>
 # the fresh clone has only origin; fetch directly from the upstream URL
