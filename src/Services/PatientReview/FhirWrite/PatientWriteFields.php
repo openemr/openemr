@@ -64,6 +64,44 @@ final class PatientWriteFields
     }
 
     /**
+     * Whether an update marks the resource entered-in-error: the app withdrawing its write.
+     * QuestionnaireResponse and Observation say so in status; AllergyIntolerance and Condition
+     * in verificationStatus.
+     *
+     * @param array<array-key, mixed> $resource decoded FHIR JSON
+     */
+    public function withdraws(PatientWritableType $type, array $resource): bool
+    {
+        return match ($type) {
+            PatientWritableType::QuestionnaireResponse,
+            PatientWritableType::VitalSignObservation => ($resource['status'] ?? null) === 'entered-in-error',
+            PatientWritableType::AllergyIntolerance => $this->verifiedAs($resource, self::ALLERGY_VERIFICATION_SYSTEM, 'entered-in-error'),
+            PatientWritableType::Condition => $this->verifiedAs($resource, self::CONDITION_VERIFICATION_SYSTEM, 'entered-in-error'),
+        };
+    }
+
+    /**
+     * Whether any verificationStatus coding is this code in this system.
+     *
+     * @param array<array-key, mixed> $resource
+     */
+    private function verifiedAs(array $resource, string $system, string $code): bool
+    {
+        $status = $resource['verificationStatus'] ?? null;
+        $codings = is_array($status) ? ($status['coding'] ?? null) : null;
+        if (!is_array($codings)) {
+            return false;
+        }
+        foreach ($codings as $coding) {
+            if (is_array($coding) && ($coding['system'] ?? null) === $system && ($coding['code'] ?? null) === $code) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return array{reference: string}
      * @throws PatientWriteRefusal when the reference names anyone but the token's patient
      */

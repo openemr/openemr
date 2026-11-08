@@ -29,6 +29,12 @@ enum PatientWriteRefusalReason
     case TooManyOpen;
     /** The resource refers to something this server doesn't have, so it could never be approved. */
     case NotWritable;
+    /** An update names something other than the app's own write waiting for review: a chart record, another app's write, or nothing. */
+    case NotHeldForApp;
+    /** An update names the app's own write that staff denied or that was withdrawn. */
+    case Gone;
+    /** An update's resource id doesn't match the id it was sent to. */
+    case IdMismatch;
 
     /**
      * The HTTP status the app is answered with.
@@ -36,8 +42,9 @@ enum PatientWriteRefusalReason
     public function httpStatus(): int
     {
         return match ($this) {
-            self::NotAllowed, self::OtherPatient => 403,
-            self::WrongType, self::NotWritable => 400,
+            self::NotAllowed, self::OtherPatient, self::NotHeldForApp => 403,
+            self::WrongType, self::NotWritable, self::IdMismatch => 400,
+            self::Gone => 410,
             self::TooLarge => 413,
             self::TooManyOpen => 429,
         };
@@ -49,9 +56,10 @@ enum PatientWriteRefusalReason
     public function issueCode(): string
     {
         return match ($this) {
-            self::NotAllowed, self::OtherPatient => 'forbidden',
-            self::WrongType => 'invalid',
+            self::NotAllowed, self::OtherPatient, self::NotHeldForApp => 'forbidden',
+            self::WrongType, self::IdMismatch => 'invalid',
             self::NotWritable => 'not-found',
+            self::Gone => 'deleted',
             self::TooLarge => 'too-costly',
             self::TooManyOpen => 'throttled',
         };
@@ -70,6 +78,9 @@ enum PatientWriteRefusalReason
             self::TooLarge => 'The resource is larger than ' . intdiv(PatientWriteHold::MAX_PAYLOAD_BYTES, 1024) . ' KB',
             self::TooManyOpen => 'This app already has ' . PatientWriteHold::MAX_OPEN_PER_CLIENT . ' writes waiting for review for this patient',
             self::NotWritable => 'The resource refers to something this server does not have. A QuestionnaireResponse must answer a Questionnaire on this server, at its current version, and any encounter or caregiver (RelatedPerson) source must be this patient\'s.',
+            self::NotHeldForApp => 'A patient app can change only its own writes that are still waiting for review',
+            self::Gone => 'This write was denied or withdrawn; it can no longer be changed',
+            self::IdMismatch => 'The resource id must match the id in the request URL',
         };
     }
 }
