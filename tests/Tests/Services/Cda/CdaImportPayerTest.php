@@ -28,6 +28,7 @@ use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCoverageService;
 use OpenEMR\Services\InsuranceService;
+use OpenEMR\Services\Qdm\QdmRecord;
 use OpenEMR\Services\Qdm\QdmRequestOne;
 use OpenEMR\Services\Qdm\Services\PatientService as QdmPatientService;
 use OpenEMR\Validators\CoverageValidator;
@@ -141,15 +142,32 @@ class CdaImportPayerTest extends TestCase
 
         $this->assertSame([['type' => 'primary', 'date' => '1985-01-22', 'cqm_sop' => self::SOP_CODE]], $this->policies());
         $this->assertNull($this->storedPolicy()['date_end'], 'an unknown end date (nullFlavor) is none');
-        $qdmPatients = (new QdmPatientService(new QdmRequestOne((string) self::PID), new CodeTypesService()))->executeQuery();
+        // The eCQM patient's payer elements come from the patient's primary policies' runs of days, so the
+        // model built from the patient's row is read.
+        $qdmService = new QdmPatientService(new QdmRequestOne((string) self::PID), new CodeTypesService());
+        $qdmPatients = $qdmService->executeQuery();
         $this->assertInstanceOf(\ADORecordSet::class, $qdmPatients);
         $patient = QueryUtils::fetchArrayFromResultSet($qdmPatients);
         $this->assertIsArray($patient);
-        $this->assertSame(
-            ['payer_eff_date' => '1985-01-22', 'payer_code' => (int) self::SOP_CODE],
-            ['payer_eff_date' => $patient['payer_eff_date'] ?? null, 'payer_code' => self::number($patient['payer_code'] ?? null)],
-            "the eCQM patient's payer (Patient Characteristic Payer) is the document's"
-        );
+        $model = json_decode((string) json_encode($qdmService->makeQdmModel(new QdmRecord($patient, self::number($patient['pid'] ?? null), self::number($patient['pid'] ?? null)))), true);
+        $this->assertIsArray($model);
+        $elements = $model['dataElements'] ?? null;
+        $this->assertIsArray($elements);
+        $payers = [];
+        foreach ($elements as $element) {
+            $this->assertIsArray($element);
+            if (($element['qdmStatus'] ?? null) !== 'payer') {
+                continue;
+            }
+            $period = $element['relevantPeriod'] ?? null;
+            $codes = $element['dataElementCodes'] ?? null;
+            $this->assertIsArray($period);
+            $this->assertIsArray($codes);
+            $this->assertIsArray($codes[0] ?? null);
+            $low = $period['low'] ?? null;
+            $payers[] = [$codes[0]['code'] ?? null, is_string($low) ? substr($low, 0, 10) : null, $period['high'] ?? null];
+        }
+        $this->assertSame([[self::SOP_CODE, '1985-01-22', null]], $payers, "the eCQM patient's payer (Patient Characteristic Payer) is the document's");
     }
 
     public function testTheImportedPolicyHoldsOnlyWhatTheDocumentSays(): void

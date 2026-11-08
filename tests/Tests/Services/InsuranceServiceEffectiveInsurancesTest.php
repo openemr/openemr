@@ -2,15 +2,14 @@
 
 /**
  * InsuranceService::getEffectiveInsuranceRows() against the claim's payer list
- * (Claim::loadPayerInfo(), which decides who is billed), on the same rows, and
- * against getEffectiveInsurances() in library/patient.inc.php, now a wrapper over
- * it. The wrapper chooses as the service does up to the first level with nothing
- * in force, and stops there as the query it replaced did, so a row's position in
- * its list is still its level.
+ * (Claim::loadPayerInfo(), which decides who is billed and now reads the
+ * service), on the same rows, and against getEffectiveInsurances() in
+ * library/patient.inc.php, a wrapper over it. The wrapper chooses as the service
+ * does up to the first level with nothing in force, and stops there as the query
+ * it replaced did, so a row's position in its list is still its level.
  *
- * Each case names what the claim and the wrapper choose. Where the claim differs
- * from the service, the case says so in its name; where the wrapper stops before
- * the service's last policy, the case says that too.
+ * Each case names what the claim and the wrapper choose. Where the wrapper stops
+ * before the service's last policy, the case says so in its name.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -248,11 +247,22 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
                 [['primary', '101', '2020-01-01', null], ['secondary', '102', '2020-01-01', '2026-01-01'], ['tertiary', '103', '2020-01-01', null]],
                 ['primary 101', 'tertiary 103'], ['primary 101', 'tertiary 103'], $current,
             ],
-            // sql_mode = '' stores a mistyped date as 0000-00-00. The claim (and the replaced query) compare it
-            // as a day in year 0, so the policy has ended; the service and its wrapper read it as no end.
-            'a zero end date (the claim differs)' => [
+            // sql_mode = '' stores a mistyped date as 0000-00-00. The service, the claim and the wrapper read it
+            // as no end (the claim's own query read it as a day in year 0, so the policy had ended).
+            'a zero end date' => [
                 [['primary', '101', '2020-01-01', '0000-00-00']],
-                $current, [], $current,
+                $current, $current, $current,
+            ],
+            // A newer primary whose end was mistyped (0000-00-00): the claim's own query dropped it and billed
+            // the older primary it replaced.
+            'a zero end on the newer of two primaries' => [
+                [['primary', '101', '2019-01-01', null], ['primary', '102', '2025-01-01', '0000-00-00']],
+                ['primary 102'], ['primary 102'], ['primary 102'],
+            ],
+            // A company id that isn't a whole number is no company (the claim's own query billed it).
+            'a company that is not a whole number' => [
+                [['primary', 'Acme', '2020-01-01', null]],
+                [], [], [],
             ],
         ];
     }
@@ -350,6 +360,19 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
     }
 
     /**
+     * The claim bills nothing for an encounter date it can't read, not even an undated policy, as the
+     * wrapper gives none.
+     */
+    #[Test]
+    #[DataProvider('unreadableDays')]
+    public function theClaimBillsNothingForADayItCantRead(string $day): void
+    {
+        $this->addPolicy('primary', '101', null, null);
+
+        self::assertSame([], $this->claimChoice($day));
+    }
+
+    /**
      * @return array<string, array{mixed}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
@@ -374,9 +397,8 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
 
     /**
      * Two undated policies at one level: the unique key on (pid, type, date) doesn't stop
-     * them, since NULLs never collide. The claim takes whichever row the database returns
-     * first (as the query the wrapper replaced did); the service and its wrapper take the
-     * later entry.
+     * them, since NULLs never collide. The service, the claim and the wrapper take the later
+     * entry (the claim's own query took whichever row the database returned first).
      */
     #[Test]
     public function twoUndatedPoliciesAtOneLevelGoToTheLaterEntry(): void
@@ -386,7 +408,7 @@ final class InsuranceServiceEffectiveInsurancesTest extends TestCase
 
         self::assertSame(['primary 102'], $this->serviceChoice(self::DAY));
         self::assertSame(['primary 102'], $this->wrapperChoice(self::DAY));
-        self::assertContains($this->claimChoice(self::DAY), [['primary 101'], ['primary 102']]);
+        self::assertSame(['primary 102'], $this->claimChoice(self::DAY));
     }
 
     /**

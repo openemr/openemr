@@ -21,6 +21,10 @@ use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRow;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\UserService;
@@ -29,6 +33,14 @@ class Claim
 {
     public const X12_VERSION = '005010X222A1';
     public const NOC_CODES = ['J3301']; // not otherwise classified HCPCS/CPT
+
+    /**
+     * The X12 5010 individual relationship codes the 837 sends in SBR02 and PAT01: spouse, self, child,
+     * employee, unknown, organ donor, cadaver donor, life partner, other relationship.
+     */
+    private const X12_RELATIONSHIP_CODES = ['01', '18', '19', '20', '21', '39', '40', '53', 'G8'];
+
+    private static ?InsuranceService $insurance = null;
 
     public $procs;             // array of procedure rows from billing table
     public $diags;             // array of icd codes from billing table
@@ -64,7 +76,17 @@ class Claim
      *   the payer on the encounter's billing rows; lets Validate Only show the claim
      *   for the payer selected in the billing manager without saving that choice
      */
-    public function __construct(public $pid, public $encounter_id, $x12_partner_id, private readonly ?string $payerId = null)
+    /**
+     * @param ?InsuranceService $insuranceService the coverage service the claim's policies come from; a caller building
+     *                                            many claims can pass one, else the request shares one
+     */
+    public function __construct(
+        public $pid,
+        public $encounter_id,
+        $x12_partner_id,
+        private readonly ?string $payerId = null,
+        private readonly ?InsuranceService $insuranceService = null
+    )
     {
         $this->encounterService = new EncounterService();
         $this->encounter = $this->encounterService->getOneByPidEid($this->pid, $this->encounter_id);
@@ -264,6 +286,30 @@ class Claim
         return ($cleandate);
     }
 
+    /**
+     * The insurance_data rows of the policies in force on the encounter date,
+     * at most one per level, primary first, from InsuranceService: at each
+     * level the latest-starting policy in force. A level whose policy has no
+     * company has no coverage: that is how staff end a level (the "Unassigned"
+     * row). An encounter date that can't be read has none.
+     *
+     * @return list<array<mixed>>
+     */
+    private function policiesInForce(string $encounterDate): array
+    {
+        $patientId = EffectiveInsuranceRule::storedId($this->pid);
+        $day = CoverageDay::fromStored($encounterDate);
+        if ($patientId === null || $day === null) {
+            return [];
+        }
+        // The caller's service, else one per request: a batch builds a claim, or two, for every encounter it bills.
+        $insurance = $this->insuranceService ?? (self::$insurance ??= new InsuranceService());
+        return array_map(
+            static fn(EffectiveInsuranceRow $effective): array => $effective->columns,
+            $insurance->getEffectiveInsuranceRows($patientId, $day)
+        );
+    }
+
     public function loadPayerInfo(&$billrow)
     {
         global $sl_err;
@@ -275,22 +321,7 @@ class Claim
         //
         $this->payers = [];
         $this->payers[0] = [];
-        $query = "SELECT * FROM insurance_data WHERE pid = ? AND
-            (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY type ASC, date DESC";
-        $dres = sqlStatement($query, [$this->pid, $encounter_date, $encounter_date]);
-        $prevtype = '';
-        while ($drow = sqlFetchArray($dres)) {
-            if (strcmp((string) $prevtype, (string) $drow['type']) == 0) {
-                continue;
-            }
-
-            $prevtype = $drow['type'];
-            // Very important to look at entries with a missing provider because
-            // they indicate no insurance as of the given date.
-            if (empty($drow['provider'])) {
-                continue;
-            }
-
+        foreach ($this->policiesInForce($encounter_date) as $drow) {
             $ins = count($this->payers);
             if (
                 (
@@ -325,7 +356,7 @@ class Claim
         for ($i = 1; $i < count($this->payers); ++$i) {
             if (
                 $billrow['process_date'] &&
-                $this->payers[0]['data']['provider'] == $this->payers[$i]['data']['provider']
+                ($this->payers[0]['data']['provider'] ?? null) == ($this->payers[$i]['data']['provider'] ?? null)
             ) {
                 $tmp = $this->payers[0];
                 $this->payers[0] = $this->payers[$i];
@@ -1110,6 +1141,9 @@ class Claim
   //
     public function insuredRelationship($ins = 0): string
     {
+        if (!isset($this->payers[$ins]['data'])) {
+            return ''; // no payer at that position, so no relationship to send
+        }
         $tmp = strtolower(($this->payers[$ins]['data']['subscriber_relationship'] ?? ''));
         if (strcmp($tmp, 'self') == 0) {
             return '18';
@@ -1123,11 +1157,11 @@ class Claim
             return '19';
         }
 
-        if (strcmp($tmp, 'other') == 0) {
-            return 'G8';
-        }
-
-        return $tmp; // should not happen
+        // A site's own relationship that is already an X12 individual relationship code (837 SBR02 and PAT01)
+        // goes out as stored; 'other', and any other value (a site's own word, or the new-patient screen's
+        // blank choice), is G8, Other Relationship.
+        $code = strtoupper($tmp);
+        return in_array($code, self::X12_RELATIONSHIP_CODES, true) ? $code : 'G8';
     }
 
     public function insuredTypeCode($ins = 0)
