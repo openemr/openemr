@@ -141,7 +141,7 @@ class PatientFinderBuiltInColumnsTest extends TestCase
         $fetch = static fn(string $sql, array $binds): array => str_contains($sql, 'ptlistcols')
             ? [
                 ['option_id' => 'phone_home', 'title' => 'Home Phone', 'toggle_setting_1' => ''],
-                ['option_id' => 'city_state', 'title' => 'City State', 'toggle_setting_1' => '1'],
+                ['option_id' => 'city_state', 'title' => 'City State', 'toggle_setting_1' => '1', 'notes' => '10rem'],
             ]
             : [];
         $listMap = static fn(string $listId): array => ['0' => 'asc', '1' => 'desc'];
@@ -154,11 +154,15 @@ class PatientFinderBuiltInColumnsTest extends TestCase
         ))->create();
 
         $this->assertSame(['phone_home', 'city_state'], $registry->keys());
-        $this->assertSame(PatientFinderColumn::TYPE_PATIENT_DATA, $registry->get('phone_home')?->type);
+        $phone = $registry->get('phone_home');
+        $this->assertNotNull($phone);
+        $this->assertSame(PatientFinderColumn::TYPE_PATIENT_DATA, $phone->type);
         $cityState = $registry->get('city_state');
         $this->assertNotNull($cityState);
         $this->assertSame(PatientFinderColumn::TYPE_SQL, $cityState->type);
         $this->assertSame('City State', $cityState->title);
         $this->assertSame('desc', $cityState->defaultSortDir);
+        $this->assertSame('10rem', $cityState->width, 'the width comes from the entry notes');
+        $this->assertSame('', $phone->width);
     }
 }

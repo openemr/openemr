@@ -29,16 +29,16 @@ class PatientFinderPageServiceTest extends TestCase
     {
         $registry = new PatientFinderColumnRegistry();
         $registry->add(PatientFinderColumn::fromTable('name', 'Full Name'));
-        $registry->add(PatientFinderColumn::fromTable('sex', 'Sex', defaultSortDir: 'desc'));
+        $registry->add(PatientFinderColumn::fromTable('sex', 'Sex', defaultSortDir: 'desc')->withWidth('6rem'));
         $registry->add(PatientFinderColumn::enriched('ihi', 'IHI'));
 
         $columns = (new PatientFinderPageService())->getColumns($registry);
 
         $this->assertSame(
             [
-                ['key' => 'name', 'title' => 'Full Name', 'sortDir' => 'asc', 'link' => true],
-                ['key' => 'sex', 'title' => 'Sex', 'sortDir' => 'desc', 'link' => false],
-                ['key' => 'ihi', 'title' => 'IHI', 'sortDir' => 'asc', 'link' => false],
+                ['key' => 'name', 'title' => 'Full Name', 'sortDir' => 'asc', 'link' => true, 'width' => ''],
+                ['key' => 'sex', 'title' => 'Sex', 'sortDir' => 'desc', 'link' => false, 'width' => '6rem'],
+                ['key' => 'ihi', 'title' => 'IHI', 'sortDir' => 'asc', 'link' => false, 'width' => ''],
             ],
             $columns
         );

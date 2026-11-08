@@ -424,7 +424,7 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
         if ($current_id !== '' && !in_array($current_id, $built_in_ids, true) && !in_array($current_id, $field_ids, true)) {
             $id_groups[xl('Other')] = [$current_id];
         }
-        echo "<select name='" . $id_name . "' class='optin form-control form-control-sm select-dropdown'>";
+        echo "<select name='" . $id_name . "' class='optin form-control form-control-sm select-dropdown' data-width='100%'>";
         echo "<option value=''></option>";
         foreach ($id_groups as $group_label => $group_ids) {
             echo "<optgroup label='" . attr($group_label) . "'>";
@@ -1449,6 +1449,9 @@ function writeITLine($it_array): void
                         echo xlt('External URL');
                     } elseif ($list_id == "default_open_tabs") {
                         echo xlt("URL");
+                    } elseif ($list_id == 'ptlistcols') {
+                        // PatientFinderColumnRegistryFactory reads the column width from notes.
+                        echo xlt('Width (px, rem, em or %)');
                     } else {
                         echo xlt('Notes');
                     } ?></th>

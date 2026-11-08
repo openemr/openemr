@@ -137,6 +137,9 @@
             // Column names come over as $_GET['sColumns']; the Name column renders as a link.
             "columns": columns.map(function (c, idx) {
                 var col = {"sName": c.key};
+                if (c.width) {
+                    col.width = c.width;
+                }
                 if (c.link || (idx === 0 && detail.enabled)) {
                     col.mRender = cellRenderer(c, idx);
                 }
