@@ -179,3 +179,16 @@ table thead .sorting_desc::after,
 table thead .sorting::after {
   display: none !important;
 }
+
+/* An expanded row: the Patient Finder Detail layout, set off from the result rows. */
+#pt_table tbody tr td > .finder-detail {
+  padding: 0.5rem 1rem;
+  border-left: 3px solid var(--primary);
+  background-color: var(--light);
+  cursor: default;
+}
+
+#pt_table .finder-detail-toggle {
+  line-height: 1;
+  vertical-align: baseline;
+}
