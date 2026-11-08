@@ -256,19 +256,26 @@ class GenHl7OrderBase
         return $payers;
     }
 
+    /**
+     * The guarantor for the specified patient on the specified date: the
+     * subscriber of the first policy in force, the one IN1 sends first. None
+     * when the date can't be read or no policy is in force.
+     *
+     * @return list<array{data: array<mixed>}>
+     */
     public function loadGuarantorInfo($pid, $date = ''): array
     {
-        if (empty($date)) {
-            $date = date('Y-m-d');
+        $patientId = EffectiveInsuranceRule::storedId($pid);
+        $day = CoverageDay::fromStored($date);
+        if ($patientId === null || $day === null) {
+            return [];
         }
-        $guarantors = [];
-        $gres = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? AND date <= ? ORDER BY type ASC, date DESC LIMIT 1", [$pid, $date]);
-        // type is primary, secondary or tertiary
-        while ($drow = sqlFetchArray($gres)) {
-            $gnt = count($guarantors);
-            $guarantors[$gnt] = [];
-            $guarantors[$gnt]['data'] = $drow;
+        // One service per request, as loadPayerInfo() keeps.
+        static $service = null;
+        if (!$service instanceof InsuranceService) {
+            $service = new InsuranceService();
         }
-        return $guarantors;
+        $first = $service->getEffectiveInsuranceRows($patientId, $day)[0] ?? null;
+        return $first === null ? [] : [['data' => $first->columns]];
     }
 }
