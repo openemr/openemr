@@ -247,8 +247,9 @@ not an actual conflict signal. Two paths:
 base_branch=$(gh pr view <N> --repo openemr/openemr --json baseRefName --jq .baseRefName)
 git clone <primary> /tmp/merge-test-<N>
 cd /tmp/merge-test-<N>
-git fetch <upstream> "$base_branch":upstream-base
-git fetch <upstream> pull/<N>/head:pr-<N>
+# the fresh clone has only origin; fetch directly from the upstream URL
+git fetch https://github.com/openemr/openemr.git "$base_branch":upstream-base
+git fetch https://github.com/openemr/openemr.git pull/<N>/head:pr-<N>
 git checkout upstream-base -q
 git -c user.email=t@t -c user.name=t merge pr-<N> --no-ff --no-commit
 ```
@@ -375,24 +376,31 @@ the new commits) is needed before the maintainer merges.
 
 The brief records both the reviewed **head SHA** and the reviewed **base-branch tip**
 (the base branch itself can advance without the head moving — e.g. master receives
-unrelated commits between the brief and the merge — and the merge-compatibility checks
-need to re-run against the new base tip).
+unrelated commits between the brief and the merge — and the merge-compatibility and
+baseline checks need to re-run against the new base tip).
 
-Before merging on a shepherd verdict, the maintainer (or the agent, when confirming
-`landed <N>` reports) verifies:
+**Before** merging on a shepherd verdict, the maintainer verifies:
 
 1. Head unchanged: `gh pr view <N> --json headRefOid --jq .headRefOid` equals the
    brief's recorded head SHA. (Don't derive from `--json commits` — that API caps at
    100 commits; on a 100+ commit PR the last returned SHA can match while new ones
    exist.)
 2. Base-tip unchanged: the current tip of the PR's base branch equals the brief's
-   recorded base-tip. If it moved, re-run the merge-compatibility checks (§6.6)
-   against the new tip before merging.
+   recorded base-tip. If it moved, re-run both the merge-compatibility checks (§6.6)
+   **and** the baseline-integrity check (§7) against the new tip — a base advance can
+   change the merge base, which can expose a baseline violation the old comparison
+   missed (e.g. a preceding PR removed a baseline entry this PR would restore).
 3. CI is still green.
 4. No new rabbit Actionable has been posted since the brief.
 5. No new maintainer `CHANGES_REQUESTED` has been filed.
 
 If any of 1-5 moved, refresh the brief before merging.
+
+**After** merging — when the agent is processing a `landed <N>` report from the
+maintainer — do NOT re-run checks 1-2. The merge itself advances both head (into the
+merge commit) and base-tip (same reason), so the equality check would wrongly flag
+every successful merge as stale. The post-merge path just records the merge SHA, moves
+the log entry, and updates the workstream doc.
 
 **Do not post the brief publicly.** The brief lives in the private briefs directory. The
 maintainer decides whether anything in it should land on the PR, and the maintainer does

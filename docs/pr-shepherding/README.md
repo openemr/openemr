@@ -142,14 +142,16 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   cancellation is a title-lint-superseded-by-next-commit case; note it explicitly.
   `codecov/patch` and `codecov/project` are advisory status checks — they don't fail the
   "All Checks Passed" aggregator, so a solo codecov FAILURE with green aggregator is OK.
-- **No unresolved rabbit Actionable.** Every CodeRabbit "Actionable" finding is either
-  addressed in a subsequent commit (confirmed by rabbit's auto-ack **or** by the
-  shepherd's diff inspection against the raised line), withdrawn by rabbit, or
-  scoped out by the author with rabbit's acknowledgement (also acceptable: the
-  shepherd documents the scope-out based on diff inspection when the author doesn't
-  reply inline — see [per-pr-review §4](per-pr-review.md#4-walk-rabbit-history) step 4).
-  "Already-reviewed, no new findings" counts as resolved; see
-  [standing-rules.md](standing-rules.md#2-coderabbit-mechanics).
+- **No unresolved rabbit Actionable.** Every CodeRabbit "Actionable" finding needs its
+  own finding-specific evidence of resolution: addressed in a subsequent commit
+  (confirmed by rabbit's auto-ack **or** by the shepherd's diff inspection against the
+  raised line), withdrawn by rabbit, or scoped out by the author with rabbit's
+  acknowledgement (also acceptable: the shepherd documents the scope-out based on
+  diff inspection when the author doesn't reply inline — see
+  [per-pr-review §4](per-pr-review.md#4-walk-rabbit-history) step 4). Rabbit's
+  "already reviewed the last commit" no-op response does **not** confirm earlier
+  findings are fixed — see
+  [standing-rules.md](standing-rules.md#2-coderabbit-mechanics) §2.1.
 - **No unresolved maintainer `CHANGES_REQUESTED`.** A formal review-state request stays
   open until the requesting maintainer re-reviews. A separate maintainer approving does
   not clear it.
