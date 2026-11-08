@@ -47,13 +47,13 @@ class eRxStore
 
     /**
      * Return the Federal EIN established with the primary business entity
-     * @return string Federal EIN for the primary business entity
+     * @return string|null Federal EIN for the primary business entity, or null when there is none
      */
     public function selectFederalEin()
     {
         $return = $this->getFacilityPrimary();
 
-        return $return['federal_ein'];
+        return $return['federal_ein'] ?? null;
     }
 
     /**
@@ -112,10 +112,10 @@ class eRxStore
             [$patientId]
         );
 
-        $data = formFetch("form_vitals", $result['id']);
+        $data = is_array($result) ? formFetch("form_vitals", $result['id']) : false;
 
-        $weight = number_format($data['weight'] * 0.45359237, 2);
-        $height = number_format(round($data['height'] * 2.54, 1), 2);
+        $weight = number_format(($data['weight'] ?? 0) * 0.45359237, 2);
+        $height = number_format(round(($data['height'] ?? 0) * 2.54, 1), 2);
 
         return [
             'height' => $height,
@@ -382,7 +382,7 @@ class eRxStore
     /**
      * Return user Id by user name
      * @param  string  $name Name of user to reference
-     * @return int Id of provided user name
+     * @return int|null Id of provided user name, or null when no user has it
      */
     public function selectUserIdByUserName($name)
     {
@@ -393,7 +393,7 @@ class eRxStore
             [$name]
         );
 
-        return $return['id'];
+        return $return['id'] ?? null;
     }
 
     /**
@@ -443,7 +443,7 @@ class eRxStore
      * Insert new prescription as external sourced
      * @param  array   $prescriptionData Information for creating prescription: [PrescriptionDate, DrugName, DrugID, DrugInfo, DosageNumberDescription, Strength, Refills, PrescriptionNotes, SiteID, rxcui, PrescriptionGuid, ExternalPatientID]
      * @param int $encounter Id of encounter for prescription
-     * @param int $providerId Id of provider for prescription
+     * @param int|null $providerId Id of provider for prescription, or null when the prescriber is not a user
      * @param  string  $authUserId       Id of user creating prescription
      * @param int $formOptionId Option Id for prescription form
      * @param int $routeOptionId Option Id for prescription route
@@ -511,7 +511,7 @@ class eRxStore
     /**
      * Update prescription information as external sourced
      * @param  array   $prescriptionData Information for creating prescription: [DrugName, DrugID, DrugInfo, DosageNumberDescription, Strength, Refills, PrescriptionNotes, SiteID, rxcui, PrescriptionGuid, ExternalPatientID]
-     * @param int $providerId Id of provider for prescription
+     * @param int|null $providerId Id of provider for prescription, or null when the prescriber is not a user
      * @param  string  $authUserId       Id of user creating prescription
      * @param int $formOptionId Option Id for prescription form
      * @param int $routeOptionId Option Id for prescription route
@@ -756,7 +756,7 @@ class eRxStore
     /**
      * Return patient import status using patient Id
      * @param int $patientId Id of patient
-     * @return int Import status for specified patient: [1 = Prescription Press, 2 = Prescription Import, 3 = Allergy Press, 4 = Allergy Import]
+     * @return int|null Import status for specified patient: [1 = Prescription Press, 2 = Prescription Import, 3 = Allergy Press, 4 = Allergy Import], or null when the patient is not found
      */
     public function getPatientImportStatusByPatientId($patientId)
     {
@@ -766,7 +766,7 @@ class eRxStore
 			WHERE pid = ?;',
             [$patientId]
         );
-        return $return['soap_import_status'];
+        return $return['soap_import_status'] ?? null;
     }
 
     /**
