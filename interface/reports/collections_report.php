@@ -31,6 +31,7 @@ use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
@@ -962,20 +963,22 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
         }
 
-        // Look up insurance policy number if we need it.
-        if ($form_cb_policy) {
+        // Look up the insurance policy number and group number if we need them: the policy at the
+        // claim's level started by the date of service (the latest such).
+        if ($form_cb_policy || $form_cb_group_number) {
             $instype = ($insposition == 2) ? 'secondary' : (($insposition == 3) ? 'tertiary' : 'primary');
-            $insrow = sqlQuery("SELECT policy_number FROM insurance_data WHERE " .
-            "pid = ? AND type = ? AND (date <= ? OR date IS NULL) " .
-            "ORDER BY date DESC LIMIT 1", [$patient_id, $instype, $svcdate]);
-            $row['policy'] = $insrow['policy_number'] ?? '';
-        }
-        if ($form_cb_group_number) {
-            $instype = ($insposition == 2) ? 'secondary' : (($insposition == 3) ? 'tertiary' : 'primary');
-            $insrow = sqlQuery("SELECT group_number FROM insurance_data WHERE " .
-            "pid = ? AND type = ? AND (date <= ? OR date IS NULL) " .
-            "ORDER BY date DESC LIMIT 1", [$patient_id, $instype, $svcdate]);
-            $row['groupnumber'] = $insrow['group_number'];
+            $insrow = QueryUtils::querySingleRow(
+                "SELECT policy_number, group_number FROM insurance_data WHERE " .
+                "pid = ? AND type = ? AND (date <= ? OR date IS NULL) ORDER BY date DESC LIMIT 1",
+                [$patient_id, $instype, $svcdate]
+            );
+            $insrow = is_array($insrow) ? $insrow : [];
+            if ($form_cb_policy) {
+                $row['policy'] = $insrow['policy_number'] ?? '';
+            }
+            if ($form_cb_group_number) {
+                $row['groupnumber'] = $insrow['group_number'] ?? null;
+            }
         }
 
 
