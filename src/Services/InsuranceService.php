@@ -103,10 +103,11 @@ class InsuranceService extends BaseService
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
+        // By level, the current policies first (an end still to come, then no end), then the latest start.
+        // The policy editor and the demographics card open on the first; the editor sorts the same way
+        // (InsurancePolicyService.currentRank()).
         $orderClause = " ORDER BY `patient_data_pid` ASC,`type` ASC"
-            // sort by 1 first then 0
-        . ", (`date_end` is null or `date_end` > NOW()) DESC"
-        . ", (`date_end` IS NOT NULL AND `date_end` > NOW()) DESC"
+        . ", CASE WHEN `date_end` > NOW() THEN 2 WHEN `date_end` IS NULL THEN 1 ELSE 0 END DESC"
         . ", `date` DESC, `date_end` DESC, `policy_number` ASC";
 
         $sql .= $whereClause->getFragment() . $orderClause;

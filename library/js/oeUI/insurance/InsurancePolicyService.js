@@ -184,32 +184,23 @@ export class InsurancePolicyService
         return 0;
     }
 
-    sortInsurancesByDate(insurances) {
-        let futureDate = new Date();
-        insurances.sort((a, b) => {
-            // since we can add / update policies in JS land, we need to handle the sort order here
-            // need to convert the following mysql order by to js
-            //         . ", (`date_end` is null or `date_end` > NOW()) DESC"
-            //         . ", (`date_end` IS NOT NULL AND `date_end` > NOW()) DESC"
-            //         . ", `date` DESC, `date_end` DESC, `policy_number` ASC";
-            // we want to sort by date_end first so that the most current one is first
-            let dateEndNullA = a.date_end === null;
-            let dateEndNullB = b.date_end === null;
-            let dateEndFutureA = !dateEndNullA && a.date_end > futureDate;
-            let dateEndFutureB = !dateEndNullB && b.date_end > futureDate;
-            let dateEndNullOrFutureA = dateEndNullA || dateEndFutureA ? 1 : 0;
-            let dateEndNullOrFutureB = dateEndNullB || dateEndFutureB ? 1 : 0;
-            let dateEndNotNullAndFutureA = !dateEndNullA && dateEndFutureA ? 1 : 0;
-            let dateEndNotNullAndFutureB = !dateEndNullB && dateEndFutureB ? 1 : 0;
+    /**
+     * How current a policy is, as the server ranks it (InsuranceService::search()): 2 for an end
+     * still to come, 1 for no end, 0 for an ended policy. A higher rank sorts first.
+     */
+    static currentRank(policy, now) {
+        if (policy.date_end === null) {
+            return 1;
+        }
+        return policy.date_end > now ? 2 : 0;
+    }
 
-            let sortIndex = 0;
-            // b - a for descending order => (`date_end` is null or `date_end` > NOW()) DESC
-            sortIndex += dateEndNullOrFutureB - dateEndNullOrFutureA;
-            if (sortIndex !== 0) {
-                return sortIndex;
-            }
-            // b - a for descending order => (`date_end` IS NOT NULL AND `date_end` > NOW()) DESC
-            sortIndex += dateEndNotNullAndFutureB - dateEndNotNullAndFutureA;
+    sortInsurancesByDate(insurances) {
+        let now = new Date();
+        insurances.sort((a, b) => {
+            // since we can add / update policies in JS land, we need to handle the sort order here,
+            // as the server orders them (InsuranceService::search()): the current ones first
+            let sortIndex = InsurancePolicyService.currentRank(b, now) - InsurancePolicyService.currentRank(a, now);
             if (sortIndex !== 0) {
                 return sortIndex;
             }
