@@ -224,3 +224,20 @@ A stock-take pass hands off to Phase 2 with the merge-ready + residual list, and
 the held/draft/out-of-scope entries back to the maintainer for direction. The hub's
 three-phase loop restarts only after Phase 2 drains the merge-ready queue; don't start a
 fresh stock-take while Phase 2 still has open briefs.
+
+### Chain order over updated-desc
+
+Phase 1 sorts by `updatedAt desc` by default. When the merge-ready list contains a
+visible **chain** — several PRs touching the same services, or one landing after
+another in a sibling-PR series (e.g. #15030 → #15042 → #15059 → #15038 all touching
+`InsuranceService` and `FhirCoverageService`) — hand off Phase 2 in chain order
+instead. Each brief then references the prior brief's lane context while it's still
+warm in session memory. This matters most for bigger reviews: the parent session's
+fourth brief in a chain writes faster because it has the first three to lean on.
+
+A chain is recognizable by:
+
+- Overlapping file lists across candidate PRs on the merge-ready list.
+- One PR's description referencing another ("follows #15030," "carries
+  #14925's two fixes").
+- A single author staging a strategy across multiple PRs with a reference-branch fork.

@@ -275,6 +275,12 @@ grep-across-docs works.
   consistency gap.
 - `📏` — Coverage gap. Missing test for a behavior the PR touches or a sibling it doesn't.
 
+**Security-adjacent findings use `🧹`, not a separate emoji.** A sibling-file sweep that
+happens to involve a known-risky pattern (IDOR template, injection surface, DoS vector)
+is still a hygiene follow-up at the register level, with specific details kept in the
+private brief only. See [per-pr-review §13](per-pr-review.md#13-parallel-subagents-for-batch-reviews)
+for the pattern.
+
 ---
 
 ## 10. CLAUDE.md house conventions (pointers)

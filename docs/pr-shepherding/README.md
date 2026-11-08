@@ -123,6 +123,8 @@ maintainer reports `landed <PR#>`. Update the brief + log entry with the merge S
 |---|---|
 | Scan the queue + classify every open PR | [stocktake.md](stocktake.md) |
 | Deep-review one merge-ready PR | [per-pr-review.md](per-pr-review.md) |
+| Review a batch of 3+ independent PRs via parallel subagents | [per-pr-review.md §13](per-pr-review.md#13-parallel-subagents-for-batch-reviews) |
+| Verify two PRs touching the same files really merge cleanly (overlapping-touch) | [per-pr-review.md §6.6](per-pr-review.md#66-merges-cleanly-on-current-master-overlapping-touch-verification) |
 | Write a review brief, log entry, or follow-up register entry | [deliverables.md](deliverables.md) |
 | Decide whether an action (public comment, branch push, direct code change) is allowed | [standing-rules.md](standing-rules.md) |
 | Interpret a confusing CodeRabbit interaction (incremental review, "already reviewed," paused reviews, typo'd mention) | [standing-rules.md](standing-rules.md#coderabbit-mechanics) |

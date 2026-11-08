@@ -125,6 +125,15 @@ doesn't match any PR commit, verify the claim against current code before propag
 it into the brief. Precedent: #13598's Nov-2 uuid-registry finding cited a stale SHA;
 current code already handled the cleanup.
 
+**Walk the pre-merge-checks table separately from Actionable/Nitpick counts.** Rabbit's
+walkthrough comment (not the review body) carries a pre-merge-checks table — Title,
+Description, Linked Issues, Out of Scope Changes, and Docstring Coverage, each rated
+Passed / Warning / Failed. A PR with zero Actionable findings can still carry a
+non-blocking warning worth recording. Walk the table, note any warning or failure in
+the brief's rabbit-coverage section. Example: a Docstring Coverage warning at 50 %
+(threshold 80 %) is not merge-blocking — rabbit's own gating treats it as info —
+but it belongs in the brief so a later reader isn't surprised.
+
 ---
 
 ## 5. Walk maintainer review history
@@ -146,6 +155,14 @@ formally cleared — the blocker is a re-review, not a code change.
 Precedent: #14730 at 2026-11-07 — kojiromike filed `CHANGES_REQUESTED`, author fixed
 it, anun333 confirmed closure, rabbit raised a new Major that was legitimately scoped
 out — state still `CHANGES_REQUESTED` because kojiromike hadn't re-reviewed.
+
+**Reference-branch strategy signal.** When a PR author has posted a staged strategy on
+their own fork (reference branches showing later phases of the work), capture it in the
+brief: which branches exist, what each represents, what's merged in the current PR vs
+waiting. This becomes the follow-up register entry for the chain, and lets later
+shepherd passes expect the sequel PRs. Example: #15038 referenced `insurance-reference`,
+`-boundary`, `-full`, `-module` branches on `anun333/openemr`; the register tracks the
+~12 sequel PRs that chain is expected to produce.
 
 ---
 
@@ -192,6 +209,31 @@ output. You usually can't rerun that, but you can:
 - Verify the US Core constraint ID (e.g. `us-core-15`) is referenced in a recognizable
   way.
 - Note "author-reported, not independently verified" if you can't rerun.
+
+### 6.6 "Merges cleanly on current master" (overlapping-touch verification)
+
+When the PR body signals overlapping-touch with a recently-landed PR (phrases like
+"whichever lands second takes the other's lines," or when GitHub says
+`mergeable: UNKNOWN` on a branch whose base pre-dates a known-related merge), run a
+real 3-way merge locally and inspect the result — don't rely on GitHub's auto-merge
+state alone.
+
+```bash
+# in a throwaway clone (not the primary repo):
+git clone <primary> /tmp/merge-test-<N>
+cd /tmp/merge-test-<N>
+git fetch <upstream> master:upstream-master
+git fetch <upstream> pull/<N>/head:pr-<N>
+git checkout upstream-master -q
+git -c user.email=t@t -c user.name=t merge pr-<N> --no-ff --no-commit
+```
+
+Then grep the conflict-prone sections for the expected post-merge markers from both
+PRs. The merge either (a) succeeds with both PRs' semantics preserved — approve without
+a rebase, OR (b) succeeds but silently drops one side's intent — request a rebase, OR
+(c) fails with conflicts — request a rebase. Decides whether a rebase is actually
+needed vs a defensive author note. Precedent: #15042 against #15030 (clean, no rebase)
+and #15038 against #15030 + #15042 (clean, no rebase).
 
 ---
 
@@ -304,3 +346,67 @@ to match. See [deliverables.md](deliverables.md).
 **Do not post the brief publicly.** The brief lives in the private briefs directory. The
 maintainer decides whether anything in it should land on the PR, and the maintainer does
 the posting. See [standing-rules §1.1](standing-rules.md#11-no-public-pr-comments-without-per-post-approval).
+
+**The brief on disk is authoritative, not the subagent return summary.** When Phase 2
+is delegated to a subagent (see §13), the agent returns a short summary as a courtesy
+preview. Before propagating anything into the shepherd log, workstream doc, or
+follow-up register, re-read the brief on disk — the summary is lossy by design and can
+drop nuance that matters at the dashboard level (a Docstring Coverage warning the
+summary paraphrased away as "no findings," a scoped-out concern the summary omitted,
+etc.).
+
+---
+
+## 13. Parallel subagents for batch reviews
+
+When Phase 1 hands off a merge-ready list of several PRs that are mutually independent
+(no cross-dependencies between adjacent PRs on the list), dispatch one agent per PR in
+parallel. Each agent runs Phase 2 against its PR and writes the brief to disk;
+the parent session integrates the results into Phase 3 deliverables.
+
+**When this works well:** 4–5 independent PRs on the list. One agent handles one PR.
+Keep the parent session concurrently handling the biggest or most-complex PR directly
+— the parent has conversation context the subagent can't easily get (recent review
+briefs, running follow-up register, maintainer-preference nuance).
+
+**When to skip:** fewer than 3 independent PRs on the list (overhead not worth it); or
+a PR pair with a dependency (one agent reviewing both is cheaper than coordinating two);
+or a security-sensitive PR where the parent's standing-rules context is load-bearing.
+
+### Prompting shape
+
+Each agent needs enough context to apply the process without the parent's conversation
+history. Minimum prompt fields:
+
+- **PR number** and one-line scope description.
+- **Process-doc paths** in this subtree ([per-pr-review.md](per-pr-review.md),
+  [standing-rules.md](standing-rules.md), [deliverables.md](deliverables.md) §3 for
+  the brief template). Agent is expected to read them before starting.
+- **Recent-master context.** Short list of recently-landed related PRs with SHAs and
+  one-line summaries — anything the agent would need to interpret "merges cleanly against
+  current master" or "this is part of chain X." The agent doesn't have the running
+  shepherd log in context.
+- **Brief output path.** Standard convention: `<git-parent>/pr-<N>-review-brief.md`.
+- **Standing rules re-emphasis.** The agent must not post anything publicly. Brief on
+  disk only.
+- **Return-format expectations.** A `<250-word` summary with verdict, 3–5 key findings,
+  follow-ups surfaced. Explicitly note that the summary is a preview — the brief is
+  authoritative.
+
+### Security-adjacent findings in subagent briefs
+
+If a subagent surfaces a security-adjacent concern (IDOR, injection, DoS pattern) in a
+private brief, the parent session handles it neutrally in the public-facing artifacts:
+
+- **Private brief:** keep the specific concern details (vuln class, surface, attacker
+  model). This is the record for maintainer action.
+- **Shepherd log:** neutral framing — "open-aisle concerns per private brief" rather
+  than naming the vuln class. The shepherd log lives in scratch but is where a maintainer
+  summary would be sourced from.
+- **Follow-up register:** use the `🧹` (hygiene/cleanup) emoji from the standard legend,
+  not `📏` or an invented emoji. Frame the sweep as hygiene or pattern alignment, not
+  as a vuln-class remediation.
+
+This matches the "no security language in bundle-lane titles, PR bodies, or code
+comments" rule — the rule survives even when the finding is pre-existing and the
+affected code isn't under a draft advisory.
