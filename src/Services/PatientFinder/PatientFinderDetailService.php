@@ -14,7 +14,9 @@
  * here either, so expanding a row can never show more than the finder would.
  *
  * Values are returned raw. The layout renderer escapes each one when it builds
- * the HTML.
+ * the HTML, except for the NationNotes type, which it prints as is; a field of
+ * that type is never read, so it shows empty. A combined column that needs an
+ * ACL the user lacks (the appointments need patients/appt) is not read either.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -29,6 +31,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientFinder;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
@@ -43,24 +46,35 @@ final class PatientFinderDetailService
      */
     public const LAYOUT_ID = 'PTFINDER';
 
+    /** The NationNotes data type, which the layout renderer prints without escaping. */
+    private const UNESCAPED_DATA_TYPE = 34;
+
     /** @var callable(string, array<int, string|int>): list<array<mixed>> */
     private $fetchRecords;
 
     /** @var callable(): list<string> */
     private $patientDataFields;
 
+    /** @var callable(string, string): bool */
+    private $aclCheck;
+
     /**
      * @param callable(string, array<int, string|int>): list<array<mixed>>|null $fetchRecords
      * @param callable(): list<string>|null $patientDataFields the patient_data column names
+     * @param callable(string, string): bool|null $aclCheck whether the current user has an ACL
+     *        section and value (defaults to AclMain::aclCheckCore())
      */
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         ?callable $fetchRecords = null,
         ?callable $patientDataFields = null,
-        private ?PatientFinderBuiltInColumns $builtInColumns = null
+        private ?PatientFinderBuiltInColumns $builtInColumns = null,
+        ?callable $aclCheck = null
     ) {
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
         $this->patientDataFields = $patientDataFields ?? self::listPatientDataFields(...);
+        $this->aclCheck = $aclCheck ?? static fn(string $section, string $value): bool
+            => AclMain::aclCheckCore($section, $value);
     }
 
     /**
@@ -87,6 +101,10 @@ final class PatientFinderDetailService
         $patientDataFields = ($this->patientDataFields)();
         foreach ($this->layoutFieldIds() as $fieldId) {
             if (PatientFinderBuiltInColumns::has($fieldId)) {
+                $acl = PatientFinderBuiltInColumns::requiredAcl($fieldId);
+                if ($acl !== null && !($this->aclCheck)($acl[0], $acl[1])) {
+                    continue;
+                }
                 $this->builtInColumns ??= PatientFinderBuiltInColumns::fromGlobals(OEGlobalsBag::getInstance());
                 $column = $this->builtInColumns->column($fieldId, $fieldId);
                 if ($column !== null) {
@@ -118,15 +136,16 @@ final class PatientFinderDetailService
     }
 
     /**
-     * The field ids the detail layout shows, in its order.
+     * The field ids the detail layout shows, in its order, leaving out NationNotes fields.
      *
      * @return list<string>
      */
     private function layoutFieldIds(): array
     {
         $rows = ($this->fetchRecords)(
-            'SELECT field_id FROM layout_options WHERE form_id = ? AND uor > 0 ORDER BY group_id, seq',
-            [self::LAYOUT_ID]
+            'SELECT field_id FROM layout_options WHERE form_id = ? AND uor > 0 AND data_type != ?'
+            . ' ORDER BY group_id, seq',
+            [self::LAYOUT_ID, self::UNESCAPED_DATA_TYPE]
         );
         $ids = [];
         foreach ($rows as $row) {

@@ -63,6 +63,9 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
 
     private ?ReferralService $referralService = null;
 
+    /** The address book entry whose referrals alone are read (restrictToRecipient()), or null for all. */
+    private ?string $recipientOnly = null;
+
     private function getReferralService(): ReferralService
     {
         return $this->referralService ??= new ReferralService();
@@ -99,9 +102,20 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
         ];
     }
 
+    /**
+     * The search parameter for when a referral last changed.
+     */
     public function getLastModifiedSearchField(): FhirSearchParameterDefinition
     {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_modified']);
+    }
+
+    /**
+     * Limits this service to the referrals an address book entry is the current recipient of.
+     */
+    public function restrictToRecipient(string $recipientUuid): void
+    {
+        $this->recipientOnly = $recipientUuid;
     }
 
     /**
@@ -139,7 +153,7 @@ class FhirServiceRequestReferralService extends FhirServiceBase implements IPati
             $fields[$name] = $field;
         }
 
-        $result = $this->getReferralService()->search($fields);
+        $result = $this->getReferralService()->search($fields, true, $this->recipientOnly);
         if (!$result->isValid() || $code === null) {
             return $result;
         }

@@ -72,6 +72,9 @@ final readonly class PatientFinderBuiltInColumns
             . ' ' . (self::TIME_FORMATS[$timeDisplayFormat] ?? self::TIME_FORMATS[0]);
     }
 
+    /**
+     * The columns, using the site's date and time display formats.
+     */
     public static function fromGlobals(OEGlobalsBag $globals): self
     {
         return new self($globals->getInt('date_display_format'), $globals->getInt('time_display_format'));
@@ -99,9 +102,26 @@ final readonly class PatientFinderBuiltInColumns
         ];
     }
 
+    /**
+     * Whether a ptlistcols option id is one of these columns.
+     */
     public static function has(string $key): bool
     {
         return in_array($key, self::keys(), true);
+    }
+
+    /**
+     * The ACL section and value a user needs to see a column, beyond the finder's own
+     * patients/demo, or null when the finder's access is enough. Appointment times need
+     * patients/appt, as on the patient summary.
+     *
+     * @return array{string, string}|null
+     */
+    public static function requiredAcl(string $key): ?array
+    {
+        return $key === self::NEXT_APPOINTMENT || $key === self::LAST_APPOINTMENT
+            ? ['patients', 'appt']
+            : null;
     }
 
     /**

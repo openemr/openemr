@@ -68,6 +68,18 @@ class FhirServiceRequestService extends FhirServiceBase implements
     }
 
     /**
+     * Limits searches and reads to the referrals an address book entry is the current recipient of, so
+     * not procedure orders, for a client limited to that entry.
+     */
+    public function restrictToRecipient(string $recipientUuid): void
+    {
+        $referrals = new FhirServiceRequestReferralService();
+        $this->configure($referrals);
+        $referrals->restrictToRecipient($recipientUuid);
+        $this->mappedServices = [$referrals];
+    }
+
+    /**
      * The services a search can reach, built on first use so constructing this service reads nothing.
      *
      * @return list<FhirServiceBase>

@@ -300,6 +300,11 @@ UPDATE `notification_log` SET `type` = 'Phone' WHERE `type` = '' AND `smsgateway
 -- binary collation stores as ''. Only email rows carry 'sender|||subject' in smsgateway_info.
 UPDATE `notification_log` SET `type` = 'Email' WHERE `type` = '' AND `smsgateway_info` LIKE '%|||%';
 
+-- An outside organization's or practitioner's OAuth client, limited to that address book entry's Tasks and referrals.
+#IfMissingColumn oauth_clients address_book_uuid
+ALTER TABLE `oauth_clients` ADD COLUMN `address_book_uuid` binary(16) DEFAULT NULL COMMENT 'users.uuid of the address book entry this client acts for; limits it to that entry''s Tasks and referrals';
+#EndIf
+
 -- Patient Finder combined columns (PatientFinderBuiltInColumns). Added switched off, so a
 -- site's finder only changes once an administrator enables one in Patient List Columns.
 #IfNotRow2D list_options list_id ptlistcols option_id name_first_last
@@ -343,12 +348,21 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_valu
 #EndIf
 
 -- Patient Finder Detail: the layout an expanded Patient Finder row shows. Not an LBF id, since
--- every active LBF layout is offered as an encounter form.
+-- every active LBF layout is offered as an encounter form. Each part has its own guard so a
+-- rerun finishes an interrupted seed; the fields go in only while the layout has none, so a
+-- site that removed some of them keeps its changes.
 #IfNotRow layout_group_properties grp_form_id PTFINDER
 INSERT INTO `layout_group_properties` (`grp_form_id`, `grp_group_id`, `grp_title`, `grp_mapping`, `grp_columns`, `grp_size`) VALUES ('PTFINDER', '', 'Patient Finder Detail', 'Core', 8, 9);
+#EndIf
+
+#IfNotRow2D layout_group_properties grp_form_id PTFINDER grp_group_id 1
 INSERT INTO `layout_group_properties` (`grp_form_id`, `grp_group_id`, `grp_title`, `grp_mapping`) VALUES ('PTFINDER', '1', 'Main', '');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('PTFINDER', 'insurance_primary_provider_name', '1', 'Insurance', 10, 2, 1, 20, 63, '', 1, 2, '', '', 'Primary insurance in effect today', 0);
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('PTFINDER', 'sex', '1', 'Sex', 20, 1, 1, 0, 0, 'sex', 1, 2, '', '', 'Sex', 0);
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('PTFINDER', 'insurance_primary_policy', '1', 'Insurance ID', 30, 2, 1, 20, 60, '', 1, 2, '', '["J"]', 'Policy number of the primary insurance in effect today', 0);
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('PTFINDER', 'address_full', '1', 'Address', 40, 2, 1, 20, 200, '', 1, 7, '', '["J"]', 'Street, city, state and postal code', 0);
+#EndIf
+
+#IfNotRow layout_options form_id PTFINDER
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES
+    ('PTFINDER', 'insurance_primary_provider_name', '1', 'Insurance', 10, 2, 1, 20, 63, '', 1, 2, '', '', 'Primary insurance in effect today', 0),
+    ('PTFINDER', 'sex', '1', 'Sex', 20, 1, 1, 0, 0, 'sex', 1, 2, '', '', 'Sex', 0),
+    ('PTFINDER', 'insurance_primary_policy', '1', 'Insurance ID', 30, 2, 1, 20, 60, '', 1, 2, '', '["J"]', 'Policy number of the primary insurance in effect today', 0),
+    ('PTFINDER', 'address_full', '1', 'Address', 40, 2, 1, 20, 200, '', 1, 7, '', '["J"]', 'Street, city, state and postal code', 0);
 #EndIf

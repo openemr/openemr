@@ -45,6 +45,9 @@ class PatientFinderBuiltInColumnsTest extends TestCase
         return $cases;
     }
 
+    /**
+     * Each combined column is searchable and sortable SQL with no binds the finder would have to place.
+     */
     #[DataProvider('builtInKeyProvider')]
     public function testEveryKeyIsASearchableSortableSqlColumnWithoutBinds(string $key): void
     {
@@ -62,6 +65,9 @@ class PatientFinderBuiltInColumnsTest extends TestCase
         $this->assertStringNotContainsString('?', (string) $column->searchExpression);
     }
 
+    /**
+     * A patient_data field is not mistaken for a combined column.
+     */
     public function testUnknownKeyIsNotABuiltInColumn(): void
     {
         $this->assertFalse(PatientFinderBuiltInColumns::has('phone_home'));
@@ -83,6 +89,9 @@ class PatientFinderBuiltInColumnsTest extends TestCase
         ];
     }
 
+    /**
+     * Appointments show in the site formats and search and sort on the stored date and time.
+     */
     #[DataProvider('displayFormatProvider')]
     public function testAppointmentDisplaysInSiteFormatButSearchesStoredValue(
         int $dateFormat,
@@ -98,6 +107,9 @@ class PatientFinderBuiltInColumnsTest extends TestCase
         $this->assertStringNotContainsString('DATE_FORMAT', (string) $column->searchExpression);
     }
 
+    /**
+     * Next takes the soonest future appointment and last the latest past one, leaving out canceled ones.
+     */
     public function testNextAndLastAppointmentLookInOppositeDirections(): void
     {
         $columns = new PatientFinderBuiltInColumns();
@@ -111,6 +123,9 @@ class PatientFinderBuiltInColumnsTest extends TestCase
         $this->assertStringContainsString("pc_apptstatus NOT IN ('x', '%')", $next);
     }
 
+    /**
+     * Sorting and searching a combined column use its expression in the finder query.
+     */
     public function testSortingOnABuiltInColumnOrdersByItsExpression(): void
     {
         $age = (new PatientFinderBuiltInColumns())->column(PatientFinderBuiltInColumns::AGE, 'Age');
@@ -136,6 +151,9 @@ class PatientFinderBuiltInColumnsTest extends TestCase
         $this->assertContains('4%', $plan->dataBinds);
     }
 
+    /**
+     * A ptlistcols entry with a combined key is seeded as that column, with its sort and width.
+     */
     public function testFactorySeedsABuiltInKeyAsItsSqlColumn(): void
     {
         $fetch = static fn(string $sql, array $binds): array => str_contains($sql, 'ptlistcols')
@@ -164,5 +182,56 @@ class PatientFinderBuiltInColumnsTest extends TestCase
         $this->assertSame('desc', $cityState->defaultSortDir);
         $this->assertSame('10rem', $cityState->width, 'the width comes from the entry notes');
         $this->assertSame('', $phone->width);
+    }
+
+    /**
+     * Without patients/appt the appointment columns are left out, on the page and in the
+     * search alike, rather than read as patient_data fields of the same name.
+     */
+    public function testAppointmentColumnsNeedTheAppointmentAcl(): void
+    {
+        $fetch = static fn(string $sql, array $binds): array => str_contains($sql, 'ptlistcols')
+            ? [
+                ['option_id' => 'age', 'title' => 'Age', 'toggle_setting_1' => ''],
+                ['option_id' => 'next_appointment', 'title' => 'Next Appt', 'toggle_setting_1' => ''],
+                ['option_id' => 'last_appointment', 'title' => 'Last Appt', 'toggle_setting_1' => ''],
+            ]
+            : [];
+        $listMap = static fn(string $listId): array => [];
+        $checked = [];
+        $deny = static function (string $section, string $value) use (&$checked): bool {
+            $checked[] = "$section/$value";
+            return false;
+        };
+
+        $denied = (new PatientFinderColumnRegistryFactory(
+            new EventDispatcher(),
+            $fetch,
+            $listMap,
+            new PatientFinderBuiltInColumns(),
+            $deny
+        ))->create();
+        $allowed = (new PatientFinderColumnRegistryFactory(
+            new EventDispatcher(),
+            $fetch,
+            $listMap,
+            new PatientFinderBuiltInColumns(),
+            static fn(string $section, string $value): bool => true
+        ))->create();
+
+        $this->assertSame(['age'], $denied->keys());
+        $this->assertSame(['patients/appt', 'patients/appt'], $checked, 'only the appointment columns are checked');
+        $this->assertSame(['age', 'next_appointment', 'last_appointment'], $allowed->keys());
+    }
+
+    /**
+     * Only the appointment columns need more than the finder's own access.
+     */
+    public function testRequiredAcl(): void
+    {
+        $this->assertSame(['patients', 'appt'], PatientFinderBuiltInColumns::requiredAcl('next_appointment'));
+        $this->assertSame(['patients', 'appt'], PatientFinderBuiltInColumns::requiredAcl('last_appointment'));
+        $this->assertNull(PatientFinderBuiltInColumns::requiredAcl('age'));
+        $this->assertNull(PatientFinderBuiltInColumns::requiredAcl('phone_home'));
     }
 }
