@@ -33,7 +33,10 @@ use Monolog\{
 use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Installer\InstallerInterface;
-use OpenEMR\Core\ErrorHandler;
+use OpenEMR\Core\{
+    ErrorHandler,
+    ErrorHandlingMode,
+};
 use OpenEMR\Services;
 use OpenEMR\Services\Storage\{
     Location,
@@ -50,11 +53,13 @@ return [
     // Error handling
     ErrorHandler::class => fn (TC $c): ErrorHandler => new ErrorHandler(
         logger: $c->get(LoggerInterface::class),
+        errorMode: $c->get(ErrorHandlingMode::class),
         rf: $c->get(ResponseFactoryInterface::class),
         sf: $c->get(StreamFactoryInterface::class),
         // Once there are more well-defined environments, set this using them
         shouldDisplayErrors: false,
     ),
+    ErrorHandlingMode::class => ErrorHandlingMode::Throw,
 
     // Filesystem abstraction
     ManagerInterface::class => Manager::class,
