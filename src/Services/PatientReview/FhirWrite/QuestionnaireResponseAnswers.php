@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientReview\FhirWrite;
 
+use OpenEMR\Services\Questionnaire\QuestionnaireAnswerText;
+
 /**
  * @phpstan-type AnswerRow array{question: string, answers: list<string>, unshown: int}
  */
@@ -28,6 +30,12 @@ final class QuestionnaireResponseAnswers
 {
     /** How deep nested items are followed; a resource is at most 256 KB, but not unbounded. */
     private const MAX_DEPTH = 20;
+
+    /** The answer types shown as text; the rest are counted as not shown. */
+    private const SHOWN_TYPES = [
+        'valueString', 'valueDate', 'valueDateTime', 'valueTime', 'valueUri', 'valueBoolean',
+        'valueInteger', 'valueDecimal', 'valueQuantity', 'valueCoding', 'valueReference',
+    ];
 
     /**
      * @param array<array-key, mixed> $resource
@@ -119,43 +127,20 @@ final class QuestionnaireResponseAnswers
     }
 
     /**
-     * The answer as text, or null for a type this screen doesn't show.
+     * The answer as text, as the chart shows it (QuestionnaireAnswerText), or
+     * null for a type this screen doesn't show. An attachment's content, and any type not listed
+     * here, is only in what the app sent, so it is counted rather than labelled.
      *
      * @param array<array-key, mixed> $answer
      */
     private static function answerValue(array $answer): ?string
     {
-        foreach (['valueString', 'valueDate', 'valueDateTime', 'valueTime', 'valueUri'] as $key) {
-            if (is_string($answer[$key] ?? null)) {
-                return $answer[$key];
+        foreach (self::SHOWN_TYPES as $key) {
+            if (array_key_exists($key, $answer)) {
+                return QuestionnaireAnswerText::of($answer);
             }
-        }
-        foreach (['valueInteger', 'valueDecimal'] as $key) {
-            $number = $answer[$key] ?? null;
-            if (is_int($number) || is_float($number)) {
-                return (string) $number;
-            }
-        }
-        if (is_bool($answer['valueBoolean'] ?? null)) {
-            return $answer['valueBoolean'] ? 'Yes' : 'No';
-        }
-        $coding = $answer['valueCoding'] ?? null;
-        if (is_array($coding)) {
-            $label = $coding['display'] ?? ($coding['code'] ?? null);
-            return is_string($label) ? $label : null;
-        }
-        $quantity = $answer['valueQuantity'] ?? null;
-        if (is_array($quantity) && (is_int($quantity['value'] ?? null) || is_float($quantity['value'] ?? null))) {
-            $unit = $quantity['unit'] ?? ($quantity['code'] ?? null);
-            return (string) $quantity['value'] . (is_string($unit) ? ' ' . $unit : '');
-        }
-        $reference = $answer['valueReference'] ?? null;
-        if (is_array($reference)) {
-            $label = $reference['display'] ?? ($reference['reference'] ?? null);
-            return is_string($label) ? $label : null;
         }
 
-        // valueAttachment among others: its content is only in what the app sent.
         return null;
     }
 }

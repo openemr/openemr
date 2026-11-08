@@ -45,11 +45,25 @@ final class FhirWriteReviewHandler implements ReviewHandlerInterface
     }
 
     /**
-     * Whether staff can approve this request: its resource type has an applier.
+     * Whether staff can approve this request: its resource type has an applier, and what it
+     * holds could be written now.
      */
     public function canApply(ReviewRequest $request): bool
     {
-        return $this->applierFor($request) !== null;
+        return $this->applierFor($request)?->canWrite($request->payload) === true;
+    }
+
+    /**
+     * Whether a resource being held could be written on approval. True when the type has no
+     * applier yet: nothing can be checked, and staff can still deny it.
+     *
+     * @param array<array-key, mixed> $resource the resource as it would be held
+     */
+    public function couldWrite(PatientWritableType $type, array $resource): bool
+    {
+        $applier = $this->appliers[$type->name] ?? null;
+
+        return $applier === null || $applier->canWrite($resource);
     }
 
     /**

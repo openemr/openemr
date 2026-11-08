@@ -20,6 +20,7 @@ namespace OpenEMR\Services\PatientReview\FhirWrite;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\PatientReview\ReviewRequestMapper;
 use OpenEMR\Services\PatientReview\ReviewStatus;
 use OpenEMR\Services\PatientReview\ReviewType;
@@ -54,6 +55,8 @@ final readonly class PatientWriteReviewQuery
         $items = [];
         /** @var array<string, int> $firstWithContent request id keyed by patient, type and content */
         $firstWithContent = [];
+        /** @var array<string, ?string> $names questionnaire name keyed by uuid, so each is looked up once */
+        $names = [];
         foreach ($records as $record) {
             $request = $this->mapper->toRequest($record);
             $json = json_encode($request->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -74,7 +77,7 @@ final readonly class PatientWriteReviewQuery
                 $answers['rows'],
                 $json,
                 $this->handler->canApply($request),
-                $isResponse ? self::questionnaireName($request->payload['questionnaire'] ?? null) : null,
+                $isResponse ? self::questionnaireName($request->payload['questionnaire'] ?? null, $names) : null,
                 $answers['tooDeep'],
             );
         }
@@ -98,21 +101,34 @@ final readonly class PatientWriteReviewQuery
 
     /**
      * The name of the local Questionnaire a canonical such as "Questionnaire/<uuid>|1" points
-     * to, or null when it points elsewhere.
+     * to, or null when it points elsewhere. The reference is resolved as approval resolves it
+     * (UtilsService::parseReferenceString()), so an absolute URL to another server is not local.
+     * Whether the pinned version still matches is for canApprove to say.
+     *
+     * @param array<string, ?string> $names names already looked up, by uuid
      */
-    private static function questionnaireName(mixed $canonical): ?string
+    private static function questionnaireName(mixed $canonical, array &$names): ?string
     {
-        $pattern = '#(?:^|/)Questionnaire/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:\|.*)?$#';
-        if (!is_string($canonical) || preg_match($pattern, $canonical, $match) !== 1) {
+        if (!is_string($canonical) || $canonical === '') {
             return null;
         }
-        $name = QueryUtils::fetchSingleValue(
-            'SELECT `name` FROM `questionnaire_repository` WHERE `uuid` = ?',
-            'name',
-            [UuidRegistry::uuidToBytes($match[1])]
-        );
+        $separator = strpos($canonical, '|');
+        $reference = $separator === false ? $canonical : substr($canonical, 0, $separator);
+        $uuid = UtilsService::parseReferenceString($reference, 'Questionnaire')['uuid'];
+        if (!is_string($uuid) || !UuidRegistry::isValidStringUUID($uuid)) {
+            return null;
+        }
+        $key = strtolower($uuid);
+        if (!array_key_exists($key, $names)) {
+            $name = QueryUtils::fetchSingleValue(
+                'SELECT `name` FROM `questionnaire_repository` WHERE `uuid` = ?',
+                'name',
+                [UuidRegistry::uuidToBytes($uuid)]
+            );
+            $names[$key] = is_string($name) && $name !== '' ? $name : null;
+        }
 
-        return is_string($name) && $name !== '' ? $name : null;
+        return $names[$key];
     }
 
     /**

@@ -27,6 +27,9 @@ use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteFields;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteHold;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteMode;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWritePolicy;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteRefusal;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteRefusalReason;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewItem;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewQuery;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
@@ -34,6 +37,7 @@ use OpenEMR\Services\PatientReview\ReviewQueueService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewRequestMapper;
 use OpenEMR\Services\PatientReview\ReviewStatus;
+use OpenEMR\Services\PatientReview\ReviewType;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\QuestionnaireService;
 use PHPUnit\Framework\TestCase;
@@ -123,7 +127,11 @@ class PatientWriteApprovalDatabaseTest extends TestCase
      */
     private function hold(PatientWritableType $type, array $resource): ReviewRequest
     {
-        $hold = new PatientWriteHold($this->queue, new PatientWritePolicy(PatientWriteMode::ConfidentialAndPublic, PatientWritableType::cases()));
+        $hold = new PatientWriteHold(
+            $this->queue,
+            new PatientWritePolicy(PatientWriteMode::ConfidentialAndPublic, PatientWritableType::cases()),
+            ReviewQueueFactory::fhirWriteHandler(),
+        );
         $context = new PatientWriteContext(
             $this->patientUuid,
             self::CLIENT,
@@ -136,14 +144,22 @@ class PatientWriteApprovalDatabaseTest extends TestCase
 
     private function heldResponse(): ReviewRequest
     {
-        return $this->hold(PatientWritableType::QuestionnaireResponse, [
+        return $this->hold(PatientWritableType::QuestionnaireResponse, $this->response('Better'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function response(string $answer): array
+    {
+        return [
             'resourceType' => 'QuestionnaireResponse',
             'id' => 'chosen-by-the-app',
             'questionnaire' => 'Questionnaire/' . $this->questionnaireUuid,
             'status' => 'completed',
             'subject' => ['reference' => 'Patient/' . $this->patientUuid],
-            'item' => [['linkId' => '1', 'text' => 'How are you feeling?', 'answer' => [['valueString' => 'Better']]]],
-        ]);
+            'item' => [['linkId' => '1', 'text' => 'How are you feeling?', 'answer' => [['valueString' => $answer]]]],
+        ];
     }
 
     /**
@@ -276,6 +292,54 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         $this->assertNull($items[$first->id]->duplicateOf);
         $this->assertSame($first->id, $items[$again->id]->duplicateOf, 'the same reading sent twice');
         $this->assertFalse($items[$again->id]->canApprove, 'vital signs cannot be approved yet');
+    }
+
+    /**
+     * A response approval could never write is refused when the app sends it, not given an id:
+     * a pinned version the repository no longer has, another server's Questionnaire, or an
+     * encounter that isn't this patient's.
+     */
+    public function testAResponseThatCouldNeverBeApprovedIsRefusedWhenHeld(): void
+    {
+        $attempts = [
+            'stale version' => ['questionnaire' => 'Questionnaire/' . $this->questionnaireUuid . '|999'],
+            'another server' => ['questionnaire' => 'https://other.example/fhir/Questionnaire/' . $this->questionnaireUuid],
+            'unknown encounter' => ['encounter' => ['reference' => 'Encounter/00000000-0000-4000-8000-000000000000']],
+        ];
+        foreach ($attempts as $label => $change) {
+            try {
+                $this->hold(PatientWritableType::QuestionnaireResponse, $change + $this->response('Better'));
+                $this->fail('Expected a refusal: ' . $label);
+            } catch (PatientWriteRefusal $refusal) {
+                $this->assertSame(PatientWriteRefusalReason::NotWritable, $refusal->reason, $label);
+            }
+        }
+        $this->assertSame([], $this->queue->allOpenFor($this->pid, ReviewType::FhirWrite, PatientWritableType::QuestionnaireResponse->fhirResourceType()));
+    }
+
+    /**
+     * Approve is offered only while the response could still be written: once its
+     * Questionnaire changes version, the screen withholds Approve rather than fail on it.
+     */
+    public function testApproveIsWithheldOnceTheResponseCanNoLongerBeWritten(): void
+    {
+        $version = QueryUtils::fetchSingleValue('SELECT `version` FROM `questionnaire_repository` WHERE `name` = ?', 'version', [self::QUESTIONNAIRE_NAME]);
+        $this->assertIsScalar($version);
+        $held = $this->hold(
+            PatientWritableType::QuestionnaireResponse,
+            ['questionnaire' => 'Questionnaire/' . $this->questionnaireUuid . '|' . $version] + $this->response('Better')
+        );
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `questionnaire_repository` SET `version` = `version` + 1 WHERE `name` = ?',
+            [self::QUESTIONNAIRE_NAME]
+        );
+
+        $query = new PatientWriteReviewQuery(new ReviewRequestMapper(), ReviewQueueFactory::fhirWriteHandler());
+        $listed = array_values(array_filter($query->pending()['items'], static fn(PatientWriteReviewItem $item): bool => $item->request->id === $held->id));
+
+        $this->assertCount(1, $listed);
+        $this->assertSame(self::QUESTIONNAIRE_NAME, $listed[0]->questionnaireName);
+        $this->assertFalse($listed[0]->canApprove);
     }
 
     public function testAnIssuedUuidAlreadyInUseIsRefused(): void

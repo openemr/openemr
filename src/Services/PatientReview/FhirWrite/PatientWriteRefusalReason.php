@@ -27,6 +27,8 @@ enum PatientWriteRefusalReason
     case TooLarge;
     /** The app already has as many writes waiting for review for the patient as it may. */
     case TooManyOpen;
+    /** The resource refers to something this server doesn't have, so it could never be approved. */
+    case NotWritable;
 
     /**
      * The HTTP status the app is answered with.
@@ -35,7 +37,7 @@ enum PatientWriteRefusalReason
     {
         return match ($this) {
             self::NotAllowed, self::OtherPatient => 403,
-            self::WrongType => 400,
+            self::WrongType, self::NotWritable => 400,
             self::TooLarge => 413,
             self::TooManyOpen => 429,
         };
@@ -49,6 +51,7 @@ enum PatientWriteRefusalReason
         return match ($this) {
             self::NotAllowed, self::OtherPatient => 'forbidden',
             self::WrongType => 'invalid',
+            self::NotWritable => 'not-found',
             self::TooLarge => 'too-costly',
             self::TooManyOpen => 'throttled',
         };
@@ -66,6 +69,7 @@ enum PatientWriteRefusalReason
             self::WrongType => 'The resource is not the type this endpoint accepts from patient apps',
             self::TooLarge => 'The resource is larger than ' . intdiv(PatientWriteHold::MAX_PAYLOAD_BYTES, 1024) . ' KB',
             self::TooManyOpen => 'This app already has ' . PatientWriteHold::MAX_OPEN_PER_CLIENT . ' writes waiting for review for this patient',
+            self::NotWritable => 'The resource refers to something this server does not have. A QuestionnaireResponse must answer a Questionnaire on this server, at its current version, and any encounter must be this patient\'s.',
         };
     }
 }

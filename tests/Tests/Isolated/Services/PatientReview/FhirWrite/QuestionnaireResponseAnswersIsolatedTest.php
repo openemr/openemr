@@ -83,6 +83,22 @@ class QuestionnaireResponseAnswersIsolatedTest extends TestCase
     }
 
     /**
+     * The screen shows an answer as the chart will, so staff don't approve different text.
+     */
+    public function testAnswersReadAsTheChartShowsThem(): void
+    {
+        $result = QuestionnaireResponseAnswers::of(['item' => [
+            ['linkId' => 'empty', 'text' => 'Empty', 'answer' => [['valueString' => '']]],
+            ['linkId' => 'coded', 'text' => 'Coded', 'answer' => [['valueCoding' => ['code' => 'LA3', 'display' => '']]]],
+        ]]);
+
+        $this->assertSame([
+            ['question' => 'Empty', 'answers' => ['N/A'], 'unshown' => 0],
+            ['question' => 'Coded', 'answers' => ['LA3'], 'unshown' => 0],
+        ], $result['rows']);
+    }
+
+    /**
      * No items, or an item list that isn't a list, gives no rows.
      */
     public function testAResponseWithNoItemsHasNoRows(): void

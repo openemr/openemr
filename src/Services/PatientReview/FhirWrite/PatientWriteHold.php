@@ -8,7 +8,9 @@
  *  1. The practice's policy must allow this kind of client to write this type (403).
  *  2. The server-set fields are forced (PatientWriteFields: 400 or 403).
  *  3. The resource, as the queue stores it, must be within the size limit (413).
- *  4. The app must have fewer than the limit of writes waiting for this patient (429).
+ *  4. It must refer only to what this server has, as approval will need (400): for a
+ *     QuestionnaireResponse, a local Questionnaire at its current version.
+ *  5. The app must have fewer than the limit of writes waiting for this patient (429).
  *
  * Then it is a pending fhir-write request. Its uuid is the id the app is given in Location;
  * approval writes the record under the same id.
@@ -46,6 +48,7 @@ final readonly class PatientWriteHold
     public function __construct(
         private ReviewQueueService $queue,
         private PatientWritePolicy $policy,
+        private FhirWriteReviewHandler $handler,
         private PatientWriteFields $fields = new PatientWriteFields(),
         private ReviewRequestMapper $mapper = new ReviewRequestMapper(),
     ) {
@@ -71,6 +74,10 @@ final readonly class PatientWriteHold
         }
         if (strlen($stored) > self::MAX_PAYLOAD_BYTES) {
             throw new PatientWriteRefusal(PatientWriteRefusalReason::TooLarge);
+        }
+        // Otherwise the app is given an id for a record that can never exist.
+        if (!$this->handler->couldWrite($type, $held)) {
+            throw new PatientWriteRefusal(PatientWriteRefusalReason::NotWritable);
         }
 
         $submission = new ReviewSubmission(

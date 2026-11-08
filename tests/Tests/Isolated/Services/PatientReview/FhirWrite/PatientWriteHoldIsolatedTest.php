@@ -17,7 +17,9 @@ namespace OpenEMR\Tests\Isolated\Services\PatientReview\FhirWrite;
 
 use DateTimeImmutable;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Services\PatientReview\FhirWrite\FhirWriteReviewHandler;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWritableType;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteApplierInterface;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteClientType;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteContext;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteFields;
@@ -75,10 +77,11 @@ class PatientWriteHoldIsolatedTest extends TestCase
     private function hold(
         PatientWriteMode $mode = PatientWriteMode::ConfidentialAndPublic,
         ?PatientWritableType $enabled = null,
+        ?FhirWriteReviewHandler $handler = null,
     ): PatientWriteHold {
         $types = $enabled === null ? PatientWritableType::cases() : [$enabled];
 
-        return new PatientWriteHold($this->queue, new PatientWritePolicy($mode, $types));
+        return new PatientWriteHold($this->queue, new PatientWritePolicy($mode, $types), $handler ?? new FhirWriteReviewHandler([]));
     }
 
     private function context(PatientWriteClientType $clientType = PatientWriteClientType::Confidential): PatientWriteContext
@@ -220,6 +223,40 @@ class PatientWriteHoldIsolatedTest extends TestCase
         $request = $this->hold()->hold($this->context(), PatientWritableType::QuestionnaireResponse, $resource);
 
         $this->assertSame(['reference' => 'RelatedPerson/42'], $request->payload['source']);
+    }
+
+    /**
+     * @return array<string, array{array<string, mixed>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function otherSourceProvider(): array
+    {
+        return [
+            'practitioner' => [['reference' => 'Practitioner/9a3c1f2e-0000-4000-8000-000000000001']],
+            'organization' => [['reference' => 'Organization/1']],
+            'display only' => [['display' => 'Dr Lee']],
+            'absolute related person' => [['reference' => 'https://other.example/fhir/RelatedPerson/42']],
+        ];
+    }
+
+    /**
+     * A patient app cannot vouch for anyone but the patient or a caregiver, so any other source
+     * becomes the patient, and author is dropped.
+     *
+     * @param array<string, mixed> $source
+     */
+    #[DataProvider('otherSourceProvider')]
+    public function testAQuestionnaireSourceOtherThanACaregiverBecomesThePatient(array $source): void
+    {
+        $resource = $this->questionnaireResponse();
+        $resource['source'] = $source;
+        $resource['author'] = ['reference' => 'Practitioner/9a3c1f2e-0000-4000-8000-000000000001'];
+
+        $request = $this->hold()->hold($this->context(), PatientWritableType::QuestionnaireResponse, $resource);
+
+        $this->assertSame(['reference' => 'Patient/' . self::PATIENT], $request->payload['source']);
+        $this->assertArrayNotHasKey('author', $request->payload);
     }
 
     public function testAQuestionnaireAnsweredAsAnotherPatientIsRefused(): void
@@ -369,6 +406,23 @@ class PatientWriteHoldIsolatedTest extends TestCase
     }
 
     /**
+     * A write that refers to something this server lacks is refused, rather than given an id
+     * for a record that could never exist.
+     */
+    public function testAWriteThatCouldNeverBeApprovedIsRefused(): void
+    {
+        $applier = $this->createStub(PatientWriteApplierInterface::class);
+        $applier->method('type')->willReturn(PatientWritableType::QuestionnaireResponse);
+        $applier->method('canWrite')->willReturn(false);
+        $hold = $this->hold(handler: new FhirWriteReviewHandler([$applier]));
+
+        $this->assertRefused(
+            PatientWriteRefusalReason::NotWritable,
+            fn(): ReviewRequest => $hold->hold($this->context(), PatientWritableType::QuestionnaireResponse, $this->questionnaireResponse())
+        );
+    }
+
+    /**
      * The 51st waiting write from one app is refused with 429.
      */
     public function testTheAppIsRefusedOnceItHasTheLimitOfWritesWaiting(): void
@@ -398,6 +452,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
             'wrong type' => [PatientWriteRefusalReason::WrongType, 400, 'invalid'],
             'too large' => [PatientWriteRefusalReason::TooLarge, 413, 'too-costly'],
             'too many open' => [PatientWriteRefusalReason::TooManyOpen, 429, 'throttled'],
+            'not writable' => [PatientWriteRefusalReason::NotWritable, 400, 'not-found'],
         ];
     }
 

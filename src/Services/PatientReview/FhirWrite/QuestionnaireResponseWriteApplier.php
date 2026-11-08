@@ -34,6 +34,23 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
     }
 
     /**
+     * Runs the parse and the look-ups approval runs: the Questionnaire (at the version the
+     * canonical pins), the patient and any encounter must be on this server, and any source a
+     * reference to this server.
+     */
+    public function canWrite(array $resource): bool
+    {
+        unset($resource['resourceType']);
+        try {
+            $this->service->checkInsertable($this->service->parseFhirResource(new FHIRQuestionnaireResponse($resource)));
+        } catch (\InvalidArgumentException) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Parses the held response and saves it under the request uuid; any failure throws.
      */
     public function apply(ReviewRequest $request): void
@@ -46,7 +63,7 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
 
         try {
             $parsed = $this->service->parseFhirResource(new FHIRQuestionnaireResponse($json));
-            $result = $this->service->insertOpenEMRRecordWithIssuedId($parsed, $request->uuid);
+            $result = $this->service->insertOpenEMRRecordWithIssuedId($parsed, $request->uuid, writtenByPatient: true);
         } catch (\InvalidArgumentException $e) {
             // e.g. the Questionnaire it answers has been removed since the write was held
             throw new \RuntimeException('The held QuestionnaireResponse cannot be saved', 0, $e);

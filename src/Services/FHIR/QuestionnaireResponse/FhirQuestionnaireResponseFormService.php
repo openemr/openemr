@@ -429,26 +429,50 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
      *
      * @param array<array-key, mixed> $openEmrRecord from parseFhirResource()
      * @param string $issuedUuid the id the response is created under
+     * @param bool $writtenByPatient the patient wrote it, so no staff user is recorded as its creator
      */
-    public function insertOpenEMRRecordWithIssuedId(array $openEmrRecord, string $issuedUuid): ProcessingResult
+    public function insertOpenEMRRecordWithIssuedId(array $openEmrRecord, string $issuedUuid, bool $writtenByPatient): ProcessingResult
     {
-        return $this->insertParsedRecord($openEmrRecord, $issuedUuid);
+        return $this->insertParsedRecord($openEmrRecord, $issuedUuid, $writtenByPatient);
+    }
+
+    /**
+     * Checks, without writing anything, that a create of this record would find what it refers
+     * to: the patient, the encounter (in the patient's records) and the questionnaire at the
+     * version it pins. A patient app's write is checked when it is held, so the app is told then
+     * rather than staff finding at approval that it can never be added.
+     *
+     * @param array<array-key, mixed> $openEmrRecord from parseFhirResource()
+     * @throws InvalidArgumentException naming what is missing
+     */
+    public function checkInsertable(array $openEmrRecord): void
+    {
+        $this->resolveForInsert($openEmrRecord);
+    }
+
+    /**
+     * The patient id, encounter id and questionnaire content a create needs.
+     *
+     * @return array{int, ?int, string}
+     * @throws InvalidArgumentException when any of them is not on this server
+     */
+    private function resolveForInsert(mixed $openEmrRecord): array
+    {
+        $record = is_array($openEmrRecord) ? $openEmrRecord : [];
+
+        return [
+            $this->resolvePatientId($record['puuid'] ?? null),
+            $this->resolveEncounterId($record['encounter_uuid'] ?? null, FhirPayloadReader::get($record, 'puuid')),
+            $this->fetchQuestionnaireContent($record['questionnaire_id'] ?? null, FhirPayloadReader::get($record, 'questionnaire_version')),
+        ];
     }
 
     /**
      * @param mixed $openEmrRecord
      */
-    private function insertParsedRecord($openEmrRecord, ?string $issuedUuid): ProcessingResult
+    private function insertParsedRecord($openEmrRecord,?string $issuedUuid, bool $writtenByPatient = false): ProcessingResult
     {
-        $patientId = $this->resolvePatientId($openEmrRecord['puuid'] ?? null);
-        $encounterId = $this->resolveEncounterId(
-            $openEmrRecord['encounter_uuid'] ?? null,
-            FhirPayloadReader::get($openEmrRecord, 'puuid')
-        );
-        $questionnaire = $this->fetchQuestionnaireContent(
-            $openEmrRecord['questionnaire_id'] ?? null,
-            FhirPayloadReader::get($openEmrRecord, 'questionnaire_version')
-        );
+        [$patientId, $encounterId, $questionnaire] = $this->resolveForInsert($openEmrRecord);
 
         // note https://build.fhir.org/http.html#create specification states that an id SHALL be
         // ignored for our create operation, so the client's id is dropped from the payload as
@@ -467,7 +491,8 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
             $questionnaire,
             is_string($openEmrRecord['questionnaire_id'] ?? null) ? $openEmrRecord['questionnaire_id'] : null,
             false,
-            $issuedUuid
+            $issuedUuid,
+            $writtenByPatient
         );
     }
 
@@ -563,7 +588,8 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
         string|array|null $questionnaire,
         ?string $questionnaireId,
         bool $isUpdate,
-        ?string $issuedUuid = null
+        ?string $issuedUuid = null,
+        bool $writtenByPatient = false
     ): ProcessingResult {
         $processingResult = new ProcessingResult();
         try {
@@ -577,7 +603,8 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
                 $questionnaireId,
                 null,
                 true, // I think we want to always generate a narrative here.
-                issuedUuid: $issuedUuid
+                issuedUuid: $issuedUuid,
+                writtenByPatient: $writtenByPatient
             );
         } catch (\Throwable $exception) {
             ServiceContainer::getLogger()->error(
@@ -709,10 +736,9 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
         // the row and increments `version` -- so the alternative to rejecting is silently
         // answering a different questionnaire than the client was shown.
         if (is_string($requestedVersion) && $requestedVersion !== '') {
-            $storedVersion = FhirPayloadReader::getString(
-                FhirPayloadReader::get($questionnaireRecords, 0),
-                'version'
-            );
+            // The column is an integer, and the database returns it as one.
+            $stored = FhirPayloadReader::get(FhirPayloadReader::get($questionnaireRecords, 0), 'version');
+            $storedVersion = is_int($stored) ? (string) $stored : (is_string($stored) && $stored !== '' ? $stored : null);
             if ($storedVersion !== $requestedVersion) {
                 throw new InvalidArgumentException(
                     'QuestionnaireResponse.questionnaire pins version ' . $requestedVersion

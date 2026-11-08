@@ -47,11 +47,12 @@ class FhirWriteReviewHandlerIsolatedTest extends TestCase
     }
 
     /**
-     * An applier that records the uuid it wrote, or throws when told to fail.
+     * An applier that records the uuid it wrote, or throws when told to fail; it reports every
+     * resource writable unless told otherwise.
      */
-    private function applier(PatientWritableType $type, bool $fails = false): PatientWriteApplierInterface
+    private function applier(PatientWritableType $type, bool $fails = false, bool $writable = true): PatientWriteApplierInterface
     {
-        return new class ($type, $fails, $this->applied) implements PatientWriteApplierInterface {
+        return new class ($type, $fails, $this->applied, $writable) implements PatientWriteApplierInterface {
             /**
              * @param \ArrayObject<int, string> $applied
              */
@@ -59,7 +60,13 @@ class FhirWriteReviewHandlerIsolatedTest extends TestCase
                 private readonly PatientWritableType $type,
                 private readonly bool $fails,
                 private readonly \ArrayObject $applied,
+                private readonly bool $writable,
             ) {
+            }
+
+            public function canWrite(array $resource): bool
+            {
+                return $this->writable;
             }
 
             public function type(): PatientWritableType
@@ -173,6 +180,20 @@ class FhirWriteReviewHandlerIsolatedTest extends TestCase
 
         $this->assertSame(ReviewStatus::Pending, $queue->get($response->id)->status);
         $this->assertCount(1, $queue->history($response->id), 'no approval is recorded');
+    }
+
+    /**
+     * Approve is offered only when what is held could be written; a type with no applier yet
+     * can still be held, for staff to deny.
+     */
+    public function testApproveIsOfferedOnlyWhenTheApplierCouldWriteIt(): void
+    {
+        $handler = new FhirWriteReviewHandler([$this->applier(PatientWritableType::QuestionnaireResponse, writable: false)]);
+        $response = $this->held($this->queue($handler), 'QuestionnaireResponse');
+
+        $this->assertFalse($handler->canApply($response));
+        $this->assertFalse($handler->couldWrite(PatientWritableType::QuestionnaireResponse, $response->payload));
+        $this->assertTrue($handler->couldWrite(PatientWritableType::Condition, ['resourceType' => 'Condition']));
     }
 
     public function testOnlyFhirWriteRequestsHaveAnApplier(): void

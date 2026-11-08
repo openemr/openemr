@@ -32,6 +32,9 @@ final class PatientWriteFields
     /** A Patient reference: relative, absolute, or versioned. Group 1 is the id. */
     private const PATIENT_REFERENCE = '#(?:^|/)Patient/([A-Za-z0-9\-.]{1,64})(?:/_history/[A-Za-z0-9\-.]{1,64})?$#';
 
+    /** A relative RelatedPerson reference, the only other source a held response keeps. */
+    private const RELATED_PERSON_REFERENCE = '#^RelatedPerson/[A-Za-z0-9\-.]{1,64}$#';
+
     /**
      * @param array<array-key, mixed> $resource decoded FHIR JSON
      * @return array<array-key, mixed> the resource as it is held
@@ -81,19 +84,25 @@ final class PatientWriteFields
     }
 
     /**
-     * The patient answered unless the app says who did. A source naming another patient is
-     * refused; a RelatedPerson (a caregiver) is kept.
+     * The patient answered, unless the source is a RelatedPerson (a caregiver), which is kept.
+     * A source naming another patient is refused; any other source (a Practitioner, an
+     * Organization, a display with no reference) becomes the patient, since a patient app cannot
+     * vouch for anyone else. author is dropped for the same reason.
      *
      * @param array<array-key, mixed> $resource
      * @return array<array-key, mixed>
      */
     private function questionnaireResponse(array $resource, string $patientUuid): array
     {
+        unset($resource['author']);
         $source = $resource['source'] ?? null;
         $reference = is_array($source) ? ($source['reference'] ?? null) : null;
-        if ($source === null || (is_string($reference) && preg_match(self::PATIENT_REFERENCE, $reference) === 1)) {
-            $resource['source'] = $this->patientReference($source, $patientUuid);
+        if (is_string($reference) && preg_match(self::RELATED_PERSON_REFERENCE, $reference) === 1) {
+            $resource['source'] = ['reference' => $reference];
+            return $resource;
         }
+        $isPatient = is_string($reference) && preg_match(self::PATIENT_REFERENCE, $reference) === 1;
+        $resource['source'] = $this->patientReference($isPatient ? $source : null, $patientUuid);
 
         return $resource;
     }

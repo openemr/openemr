@@ -25,6 +25,14 @@ interface PatientWriteApplierInterface
     public function type(): PatientWritableType;
 
     /**
+     * Whether the resource, as held, could be written now: everything it refers to is on this
+     * server. Checked when the write is held and when staff are offered Approve. Writes nothing.
+     *
+     * @param array<array-key, mixed> $resource the held resource
+     */
+    public function canWrite(array $resource): bool;
+
+    /**
      * Runs inside the transaction that approves the request. Throwing rolls the approval back
      * and leaves the request pending.
      *
