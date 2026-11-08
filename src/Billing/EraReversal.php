@@ -100,8 +100,8 @@ final readonly class EraReversal
 
     /**
      * The insurance companies covering the patient on the date of service, by
-     * level, from SLEOB::arGetPayerID() (the newest policy of each type in
-     * effect). Levels stop at the first one with no insurance.
+     * level, from SLEOB::arGetPayerID(): each level with a policy in force, so
+     * a current secondary is found behind an ended primary.
      *
      * @return array<int, string>
      */
@@ -110,10 +110,9 @@ final readonly class EraReversal
         $providers = [];
         foreach ([1, 2, 3] as $level) {
             $provider = SLEOB::arGetPayerID($pid, $dateOfService, $level);
-            if (!is_scalar($provider) || in_array((string) $provider, ['', '0'], true)) {
-                break;
+            if ($provider !== 0) {
+                $providers[$level] = (string) $provider;
             }
-            $providers[$level] = (string) $provider;
         }
         return $providers;
     }
