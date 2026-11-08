@@ -173,8 +173,10 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
             if ($this::debugLogging) error_log("SignalWireClient.sendFax(): DEBUG - File size: " . filesize($file) . " bytes");
         }
 
-        // Handle file path
-        if (empty($isContent) && !empty($file)) {
+        // Handle file path. A patient document send names the document's
+        // storage location, which need not resolve locally (CouchDB storage);
+        // it is read by document id below, so the value isn't used.
+        if (empty($isContent) && !$isDocuments && !empty($file)) {
             if (str_starts_with((string)$file, 'file://')) {
                 $file = substr((string)$file, 7);
             }

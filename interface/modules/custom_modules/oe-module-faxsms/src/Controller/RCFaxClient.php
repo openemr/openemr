@@ -355,12 +355,17 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
             // plaintext path (the staged-upload branch), it's emailed as
             // is; for the isContent / isDocuments branches we pass the
             // decrypted bytes and FaxMailer writes a per-request scratch
-            // file, returning that path for finally cleanup.
+            // file, returning that path for finally cleanup. A document
+            // send must never email the request's `file` value: it skipped
+            // the send/ path check above, so it could name any readable
+            // server file.
             $error = false;
             if ($hasEmail && $smtpEnabled) {
                 try {
-                    $payloadIsContent = !(is_string($file) && is_file($file));
-                    $emailPath = FaxMailer::mailUploadedDocument(
+                    $payloadIsContent = $isDocuments !== 0
+                        || (bool) $isContent
+                        || !(is_string($file) && is_file($file));
+                    $emailPath = $this->emailCopy(
                         $email,
                         $comments,
                         $payloadIsContent ? $content : $file,
@@ -388,6 +393,19 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                 $emailPath
             );
         }
+    }
+
+    /**
+     * Email a copy of the fax payload (see FaxMailer::mailUploadedDocument).
+     * Overridable so a test can check what a send hands to the mailer.
+     *
+     * @param array<array-key, mixed> $user
+     * @return string|null The scratch file written for a content payload, for cleanup.
+     * @throws \PHPMailer\PHPMailer\Exception
+     */
+    protected function emailCopy(mixed $email, string $comments, mixed $payload, array $user, bool $payloadIsContent): ?string
+    {
+        return FaxMailer::mailUploadedDocument($email, $comments, $payload, $user, $payloadIsContent);
     }
 
     /**

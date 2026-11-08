@@ -26,7 +26,9 @@ namespace OpenEMR\Tests\Services\Modules\FaxSMS;
 
 use Composer\Autoload\ClassLoader;
 use Document;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use OpenEMR\Modules\FaxSMS\Controller\EtherFaxActions;
@@ -223,6 +225,76 @@ class FaxDocumentSendAuthorizationTest extends TestCase
 
         $this->assertInstanceOf(FaxChannelInterface::class, $vendor);
         $this->assertSame('refused by the reader', $vendor->sendFax());
+    }
+
+    /**
+     * A document kept in CouchDB names no local file, so its `file` value
+     * doesn't resolve; SignalWire's path handling must not refuse the send
+     * before the document is read by id.
+     */
+    public function testSignalWireDocumentSendWithNoLocalPathReachesTheReader(): void
+    {
+        $vendor = $this->getMockBuilder(SignalWireClient::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['authenticate', 'readAuthorizedFaxDocument'])
+            ->getMock();
+        $vendor->method('authenticate')->willReturn(1);
+        $vendor->expects($this->once())
+            ->method('readAuthorizedFaxDocument')
+            ->with('94810')
+            ->willThrowException(new FaxDocumentAccessException('refused by the reader'));
+        (new ReflectionProperty(SignalWireClient::class, 'client'))
+            ->setValue($vendor, $this->createMock(SignalWireRestClient::class));
+        $this->setRequest($vendor, [
+            'isDocuments' => '1',
+            'docid' => '94810',
+            'file' => '7f3a9c2e1b4d-couchdb-document.pdf',
+            'phone' => '5551234567',
+            'email' => '',
+        ]);
+
+        $this->assertSame('refused by the reader', $vendor->sendFax());
+    }
+
+    /**
+     * The email copy of a document send carries the authorized document's
+     * bytes, never the request's `file` value, which skipped the send/ path
+     * check and could name any readable server file.
+     */
+    public function testRingCentralEmailsTheDocumentBytesNotTheRequestPath(): void
+    {
+        $vendor = $this->getMockBuilder(RCFaxClient::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['authenticate', 'readAuthorizedFaxDocument', 'emailCopy'])
+            ->getMock();
+        $vendor->method('authenticate')->willReturn(1);
+        $vendor->method('readAuthorizedFaxDocument')
+            ->willReturn(['content' => self::CONTENT, 'name' => 'letter.pdf']);
+        $vendor->expects($this->once())
+            ->method('emailCopy')
+            ->with('copy@example.test', '', self::CONTENT, $this->anything(), true)
+            ->willReturn(null);
+        $this->initialize($vendor, RCFaxClient::class, 'crypto', ServiceContainer::getCrypto());
+        $this->initialize($vendor, RCFaxClient::class, 'uploadStaging', FaxUploadStaging::create());
+        $this->setRequest($vendor, [
+            'isDocuments' => '1',
+            'docid' => '84259',
+            // An existing file the sender has no business emailing.
+            'file' => __FILE__,
+            'phone' => '5551234567',
+            'email' => 'copy@example.test',
+        ]);
+
+        $globals = OEGlobalsBag::getInstance();
+        $smtpHost = $globals->getString('SMTP_HOST');
+        $globals->set('SMTP_HOST', 'smtp.example.test');
+        try {
+            // The fax request itself fails (no RingCentral platform); the email
+            // copy is handed over before that.
+            $this->assertStringStartsWith('Error:', (string) $vendor->sendFax());
+        } finally {
+            $globals->set('SMTP_HOST', $smtpHost);
+        }
     }
 
     public function testEtherFaxSendsTheAuthorizedDocument(): void
