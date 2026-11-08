@@ -173,17 +173,23 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
             if ($this::debugLogging) error_log("SignalWireClient.sendFax(): DEBUG - File size: " . filesize($file) . " bytes");
         }
 
-        // Handle file path. A patient document send names the document's
-        // storage location, which need not resolve locally (CouchDB storage);
-        // it is read by document id below, so the value isn't used.
-        if (empty($isContent) && !$isDocuments && !empty($file)) {
+        // Handle file path. Every existing file the request names is resolved
+        // and checked below, whatever flags come with it: inline content
+        // (`isContent`) is bytes, never a path, so it can't exempt a path. A
+        // patient document send names the document's storage location, which
+        // need not resolve locally (CouchDB storage); it is read by document
+        // id below, so the value isn't used.
+        if (!$isDocuments && !empty($file)) {
             if (str_starts_with((string)$file, 'file://')) {
                 $file = substr((string)$file, 7);
             }
-            $realPath = realpath($file);
-            if ($realPath !== false) {
+            if (is_string($file) && is_file($file)) {
+                $realPath = realpath($file);
+                if ($realPath === false) {
+                    return xlt('Error: Invalid file location');
+                }
                 $file = str_replace("\\", "/", $realPath);
-            } else {
+            } elseif (empty($isContent)) {
                 return xlt('Error: No content SignalWireClient');
             }
         }
@@ -191,13 +197,13 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
         // Outbound file-mode sends must reference an upload this controller
         // staged (see FaxUploadStaging::isStagedUploadPath); reject any other
         // resolved server path so an authenticated caller cannot fax out
-        // arbitrary local files. Document sends ($isDocuments) and inline
-        // content ($isContent) take their own paths below and are exempt.
+        // arbitrary local files. Document sends ($isDocuments) are read by id
+        // below and are exempt.
         if (
-            empty($isContent)
-            && !$isDocuments
-            && !empty($file)
-            && !$this->uploadStaging->isStagedUploadPath((string)$file)
+            !$isDocuments
+            && is_string($file)
+            && is_file($file)
+            && !$this->uploadStaging->isStagedUploadPath($file)
         ) {
             error_log('SignalWireClient.sendFax(): rejected non-staged file path');
             return xlt('Error: Invalid file location');

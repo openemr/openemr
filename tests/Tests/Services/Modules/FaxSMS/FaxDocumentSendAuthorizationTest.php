@@ -257,6 +257,42 @@ class FaxDocumentSendAuthorizationTest extends TestCase
     }
 
     /**
+     * `isContent` says the payload is bytes; it must not exempt an existing
+     * server path from the send/ check, or the send reads that file.
+     *
+     * @param class-string<AppDispatch> $class
+     */
+    #[DataProvider('vendorProvider')]
+    public function testInlineContentFlagDoesNotExemptAServerPath(string $class): void
+    {
+        $vendor = $this->getMockBuilder($class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['authenticate'])
+            ->getMock();
+        $vendor->method('authenticate')->willReturn(1);
+        if ($vendor instanceof RCFaxClient) {
+            $this->initialize($vendor, RCFaxClient::class, 'uploadStaging', FaxUploadStaging::create());
+        }
+        if ($vendor instanceof SignalWireClient) {
+            (new ReflectionProperty(SignalWireClient::class, 'client'))
+                ->setValue($vendor, $this->createMock(SignalWireRestClient::class));
+            $this->initialize($vendor, SignalWireClient::class, 'uploadStaging', FaxUploadStaging::create());
+        }
+        if ($vendor instanceof EtherFaxActions) {
+            $this->initialize($vendor, EtherFaxActions::class, 'uploadStaging', FaxUploadStaging::create());
+        }
+        $this->setRequest($vendor, [
+            'isContent' => '1',
+            'file' => __FILE__,
+            'phone' => '5551234567',
+            'email' => '',
+        ]);
+
+        $this->assertInstanceOf(FaxChannelInterface::class, $vendor);
+        $this->assertSame('Error: Invalid file location', $vendor->sendFax());
+    }
+
+    /**
      * A document send is read by id whatever else the request claims: with
      * `isContent` set as well, the `file` value (which skipped the send/ path
      * check) must not become the fax payload, which the send would otherwise

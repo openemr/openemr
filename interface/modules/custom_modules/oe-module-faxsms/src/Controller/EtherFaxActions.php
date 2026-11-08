@@ -167,31 +167,35 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
         $tag = $user['username'] ?? '';
         $fileName = '';
 
-        // Validate file path if not content. A patient document send names the
-        // document's own storage path, which is never under send/; it is read
-        // by document id below, so the path isn't used.
+        // Validate the file path. Every existing file the request names must
+        // be under send/, whatever flags come with it: inline content
+        // (`isContent`) is bytes, never a path, so it can't exempt a path. A
+        // patient document send names the document's own storage path, which
+        // is never under send/; it is read by document id below, so the path
+        // isn't used.
         $allowedTempDir = realpath($this->baseDir . '/send/');
-        if (empty($isContent) && !$isDocuments) {
+        if (!$isDocuments) {
             if (str_starts_with((string)$file, 'file://')) {
                 $file = substr((string)$file, 7);
             }
-            $realPath = realpath((string)$file);
-            if ($realPath !== false) {
+            if (is_string($file) && is_file($file)) {
+                $realPath = realpath($file);
                 $allowedRoot = $allowedTempDir !== false
                     ? rtrim($allowedTempDir, DIRECTORY_SEPARATOR)
                     : false;
                 // Require an exact match or a true child path; a bare prefix
                 // check would let a sibling like ".../send_evil" slip through.
-                $withinAllowed = $allowedRoot !== false
+                $withinAllowed = $realPath !== false
+                    && $allowedRoot !== false
                     && ($realPath === $allowedRoot
                         || str_starts_with($realPath, $allowedRoot . DIRECTORY_SEPARATOR));
-                if (!$withinAllowed) {
-                    error_log("Path traversal blocked: " . $realPath);
+                if ($realPath === false || !$withinAllowed) {
+                    error_log("Path traversal blocked: " . ($realPath === false ? $file : $realPath));
                     return xlt('Error: Invalid file location');
                 }
                 $file = str_replace("\\", "/", $realPath);
-                $fileName = pathinfo((string)$file, PATHINFO_BASENAME);
-            } else {
+                $fileName = pathinfo($file, PATHINFO_BASENAME);
+            } elseif (empty($isContent)) {
                 return xlt('Error: No Fax content');
             }
         }
