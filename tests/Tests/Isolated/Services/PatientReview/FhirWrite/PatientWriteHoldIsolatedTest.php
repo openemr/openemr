@@ -340,9 +340,6 @@ class PatientWriteHoldIsolatedTest extends TestCase
     }
 
     /**
-     * The 51st waiting write from one app is refused with 429.
-     */
-    /**
      * Non-ASCII text under the limit as sent is over it as stored, where it is escaped.
      */
     public function testTheSizeLimitIsMeasuredAsTheQueueStoresIt(): void
@@ -371,6 +368,9 @@ class PatientWriteHoldIsolatedTest extends TestCase
         $this->assertArrayNotHasKey('text', $request->payload);
     }
 
+    /**
+     * The 51st waiting write from one app is refused with 429.
+     */
     public function testTheAppIsRefusedOnceItHasTheLimitOfWritesWaiting(): void
     {
         $hold = $this->hold();
