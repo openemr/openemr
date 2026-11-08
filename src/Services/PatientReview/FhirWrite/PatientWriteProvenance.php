@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientReview\FhirWrite;
 
+use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 
 /**
@@ -36,8 +37,6 @@ final class PatientWriteProvenance
 
     /** Prefix of the Provenance id; the rest is the request uuid. */
     public const ID_PREFIX = 'patient-write-';
-
-    private const RELATED_PERSON_REFERENCE = '#^RelatedPerson/[A-Za-z0-9\-.]{1,64}$#';
 
     /**
      * @param string $patientUuid the patient's FHIR id
@@ -86,7 +85,7 @@ final class PatientWriteProvenance
         if (
             $request->resourceType?->value === 'QuestionnaireResponse'
             && is_string($reference)
-            && preg_match(self::RELATED_PERSON_REFERENCE, $reference) === 1
+            && preg_match(FhirQuestionnaireResponseFormService::CAREGIVER_SOURCE_REFERENCE, $reference) === 1
         ) {
             return $reference;
         }

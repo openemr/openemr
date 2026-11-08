@@ -83,12 +83,12 @@ class PatientWriteProvenanceIsolatedTest extends TestCase
      */
     public function testACaregiversQuestionnaireResponseNamesTheCaregiverAsAuthor(): void
     {
-        $answered = ['source' => ['reference' => 'RelatedPerson/rp-1']] + $this->resourceOf(PatientWritableType::QuestionnaireResponse);
+        $answered = ['source' => ['reference' => 'RelatedPerson/3f1b2c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d']] + $this->resourceOf(PatientWritableType::QuestionnaireResponse);
         $request = $this->hold()->hold($this->context(), PatientWritableType::QuestionnaireResponse, $answered);
 
         $agents = PatientWriteProvenance::of($request, self::PATIENT, null, null)['agent'];
 
-        $this->assertSame(['reference' => 'RelatedPerson/rp-1'], $agents[0]['who']);
+        $this->assertSame(['reference' => 'RelatedPerson/3f1b2c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d'], $agents[0]['who']);
     }
 
     public function testOnlyAPatientAppWriteHasThisProvenance(): void
