@@ -140,6 +140,8 @@ false, the PR goes into the matching held / residual / draft bucket instead.
 - **Non-draft.** The PR is not in GitHub Draft state.
 - **CI green.** All checks either SUCCESS or SKIPPED. CANCELLED is acceptable only if the
   cancellation is a title-lint-superseded-by-next-commit case; note it explicitly.
+  `codecov/patch` and `codecov/project` are advisory status checks — they don't fail the
+  "All Checks Passed" aggregator, so a solo codecov FAILURE with green aggregator is OK.
 - **No unresolved rabbit Actionable.** Every CodeRabbit "Actionable" finding is either
   addressed in a subsequent commit, withdrawn by rabbit, or scoped out by the author with
   rabbit's acknowledgement. "Already-reviewed, no new findings" counts as resolved; see
@@ -174,14 +176,12 @@ known residual`** and log the residual in the follow-up register.
 
 Full definitions live in [stocktake.md](stocktake.md#classification-buckets). Short form:
 
-- **✅ Merge-ready.** Decision gate passes; approve + merge.
-- **🔶 Merge-ready with known residual.** Decision gate passes but a non-blocking concern is
-  recorded in the follow-up register.
-- **🔴 Held.** One or more rows of the decision gate fail. Private brief notes the exact
-  blocker and who owns it (author, maintainer, CI, dependency).
+- **⏳ Awaiting shepherd review.** Phase 1 metadata passes; no Phase 2 brief yet.
+- **✅ Merge-ready.** Phase 2 brief written with approve verdict; decision gate passes.
+- **🔶 Merge-ready with known residual.** As ✅ but one non-blocking concern is recorded.
+- **🔴 Held.** One or more decision-gate rows fail. Brief names the blocker and owner.
 - **⏸️ Draft.** Author-declared draft. Scan metadata only; no deep review.
-- **Outside primary scope.** Caught in the subject filter but on inspection not actually
-  in scope. Listed for maintainer visibility, not for shepherd action.
+- **Outside primary scope.** Caught in the subject filter but not actually in scope.
 
 ---
 

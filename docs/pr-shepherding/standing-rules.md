@@ -35,7 +35,16 @@ it looks obviously correct:
   via `git format-patch`, and hands them off with an explicit push command for the
   maintainer to run from their own terminal.
 
-### 1.3 No rebase of a contributor PR without per-PR approval
+### 1.3 No other modifications of another PR without per-PR approval
+
+Beyond pushes (§1.2) and rebases (§1.4), the agent does not modify another contributor's
+PR at all without explicit per-PR approval. That includes `gh pr edit` (title, body,
+base, reviewers, assignees, labels, milestones), `gh pr close` / `gh pr reopen`,
+toggling draft ↔ ready, merging, and any `gh api PATCH/PUT/DELETE` against the pull or
+its comments. The agent prepares a proposed change in a brief and waits for an
+explicit "go ahead and <action> #NNNN."
+
+### 1.4 No rebase of a contributor PR without per-PR approval
 
 - A rebase of someone else's PR is a hard-to-undo action that rewrites their branch
   history and triggers CI + notification noise.
@@ -43,7 +52,7 @@ it looks obviously correct:
   "go ahead and rebase #NNNN" from the maintainer before preparing the rebase.
 - The agent never rebases a PR that is currently receiving commits from its author.
 
-### 1.4 No destructive git actions on master/main
+### 1.5 No destructive git actions on master/main
 
 - The agent does not force-push, reset, or amend commits on `master`, `main`, or any
   shared release branch (`rel-NNN`).
@@ -51,13 +60,13 @@ it looks obviously correct:
   also in `AGENTS.md` → "Working in a git worktree"). Feature work goes on a feature
   branch via `openemr-cmd worktree add <branch> -b`.
 
-### 1.5 No fetch with `--update-head-ok` in the primary repo
+### 1.6 No fetch with `--update-head-ok` in the primary repo
 
 - Covered in `AGENTS.md`. Mentioned here so a shepherd pass that needs to refresh
   `upstream/master` uses `git fetch upstream` (or `git pull`), not
   `git fetch --update-head-ok`.
 
-### 1.6 Memory discretion
+### 1.7 Memory discretion
 
 - The agent never saves a memory entry that would be surprising to the maintainer if
   read back later (private opinions about contributors, internal strategy, anything the
@@ -267,9 +276,9 @@ grep-across-docs works.
 
 ### PR buckets
 
-- `✅` — Merge-ready. Decision gate passes.
-- `🔶` — Merge-ready with known residual. Decision gate passes; a non-blocking concern is
-  recorded in the follow-up register.
+- `⏳` — Awaiting shepherd review. Phase 1 metadata passes; no Phase 2 brief yet.
+- `✅` — Merge-ready. Phase 2 brief with approve verdict; decision gate passes.
+- `🔶` — Merge-ready with known residual. As ✅ but one non-blocking concern is recorded.
 - `🔴` — Held. One or more decision-gate rows fails.
 - `⏸️` — Author-declared draft. Scan-only; no deep review.
 - `🚢` — Shipped. Appended to a bucketed entry once the maintainer confirms merge. Keep the

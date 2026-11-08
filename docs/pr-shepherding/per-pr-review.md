@@ -106,21 +106,32 @@ coverage notes. See [deliverables.md §3.3](deliverables.md#33-commit-walk).
 
 ## 4. Walk rabbit history
 
-CodeRabbit posts in two places: PR reviews (the top-level review-body comments) and
-inline pull-request-review-comments. Both matter.
+Rabbit state lives in **three** API endpoints, not two — pull all three:
+
+| Endpoint | What it carries |
+|---|---|
+| `issues/<N>/comments` | Walkthrough summary, pre-merge-checks table, top-level review body, maintainer / author chat replies |
+| `pulls/<N>/reviews` | Review-body-level posts (sometimes carry the `Actionable comments posted: N` header) |
+| `pulls/<N>/comments` | Inline file-level findings — the Actionables and Nitpicks live here as resolvable threads |
 
 For every rabbit Actionable or Major on the PR:
 
 1. **Raised.** What rabbit said, with line reference and severity.
 2. **Addressed.** The specific commit that addresses it. If rabbit auto-marked it
-   ("✅ Addressed in commit X"), note the SHA. If not, read the commit diff and
-   confirm manually.
-3. **Confirmed.** Rabbit's follow-up acknowledgement ("Review thread resolved" /
-   "I withdraw the request" / "This addresses the finding"). An un-acknowledged
-   finding is still open even if the author claims it's addressed.
+   ("✅ Addressed in commit X"), note the SHA. Rabbit's auto-ack is intermittent in
+   practice — fires on some findings and not others on the same PR, so don't require
+   it. Read the commit diff against the raised line and confirm the specific concern
+   is addressed.
+3. **Confirmed.** Either rabbit's follow-up acknowledgement ("Review thread resolved" /
+   "I withdraw the request" / "This addresses the finding") **or** verified-by-diff
+   inspection against the raised line. A finding without rabbit's ack but with a commit
+   that demonstrably addresses the raised concern counts as confirmed; record the SHA
+   and the specific lines.
 4. **Scoped-out.** The author legitimately pushed back ("that's pre-existing", "that's
-   out of scope") and rabbit accepted the scoping decision. Record as a `🔶 residual`
-   with follow-up register entry, not as an open finding.
+   out of scope") and rabbit accepted. Record as a `🔶 residual` with follow-up register
+   entry. For an author who doesn't reply inline, Scoped-out can be reached via rabbit's
+   own withdrawal or the shepherd's verdict based on the diff — don't block waiting for
+   an author reply that may not come.
 
 Treat rabbit's assertions as evidence, not ground truth. See
 [standing-rules §2](standing-rules.md#2-coderabbit-mechanics) for non-obvious
@@ -217,13 +228,19 @@ output. You usually can't rerun that, but you can:
   way.
 - Note "author-reported, not independently verified" if you can't rerun.
 
-### 6.6 "Merges cleanly on current master" (overlapping-touch verification)
+### 6.6 `mergeable: UNKNOWN` — how to probe
 
-When the PR body signals overlapping-touch with a recently-landed PR (phrases like
-"whichever lands second takes the other's lines," or when GitHub says
-`mergeable: UNKNOWN` on a branch whose base pre-dates a known-related merge), run a
-real 3-way merge locally and inspect the result — don't rely on GitHub's auto-merge
-state alone.
+GitHub computes `mergeable` lazily. `UNKNOWN` is the default state on a cold PR,
+not an actual conflict signal. Two paths:
+
+- **Poll.** Call `gh pr view <N> --json mergeable` every 15 s until it flips to
+  `MERGEABLE` or `CONFLICTING`. GitHub typically computes within a minute of the
+  first external viewer.
+- **Local 3-way merge.** For PRs touching the same files as a recently-landed PR
+  ("overlapping-touch"), the poll alone isn't enough — a merge can succeed but silently
+  drop one side's intent. Run the throwaway-clone merge below and grep the conflict-prone
+  sections for the expected post-merge markers from both PRs. Decides whether a rebase
+  is actually needed.
 
 ```bash
 # in a throwaway clone (not the primary repo):
@@ -235,12 +252,19 @@ git checkout upstream-master -q
 git -c user.email=t@t -c user.name=t merge pr-<N> --no-ff --no-commit
 ```
 
-Then grep the conflict-prone sections for the expected post-merge markers from both
-PRs. The merge either (a) succeeds with both PRs' semantics preserved — approve without
-a rebase, OR (b) succeeds but silently drops one side's intent — request a rebase, OR
-(c) fails with conflicts — request a rebase. Decides whether a rebase is actually
-needed vs a defensive author note. Precedent: #15042 against #15030 (clean, no rebase)
-and #15038 against #15030 + #15042 (clean, no rebase).
+```bash
+# in a throwaway clone (not the primary repo):
+git clone <primary> /tmp/merge-test-<N>
+cd /tmp/merge-test-<N>
+git fetch <upstream> master:upstream-master
+git fetch <upstream> pull/<N>/head:pr-<N>
+git checkout upstream-master -q
+git -c user.email=t@t -c user.name=t merge pr-<N> --no-ff --no-commit
+```
+
+The merge either (a) succeeds with both PRs' semantics preserved — approve without a
+rebase, (b) succeeds but silently drops one side's intent — request a rebase, or
+(c) fails with conflicts — request a rebase.
 
 ---
 
