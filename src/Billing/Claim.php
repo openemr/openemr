@@ -1135,6 +1135,9 @@ class Claim
   //
     public function insuredRelationship($ins = 0): string
     {
+        if (!isset($this->payers[$ins]['data'])) {
+            return ''; // no payer at that position, so no relationship to send
+        }
         $tmp = strtolower(($this->payers[$ins]['data']['subscriber_relationship'] ?? ''));
         if (strcmp($tmp, 'self') == 0) {
             return '18';
