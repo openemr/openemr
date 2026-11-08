@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientFinder;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent;
@@ -44,6 +45,9 @@ final class PatientFinderColumnRegistryFactory
     /** @var (callable(string): array<array-key, mixed>)|null */
     private $listMapResolver;
 
+    /** @var callable(string, string): bool */
+    private $aclCheck;
+
     /** @var array<array-key, mixed>|null Cached Sort_Direction map. */
     private ?array $sortDirectionMap = null;
 
@@ -53,17 +57,25 @@ final class PatientFinderColumnRegistryFactory
      *        Resolves a list id to a value => title map (defaults to generate_list_map()).
      * @param PatientFinderBuiltInColumns|null $builtInColumns
      *        The combined columns (defaults to one using the site's date and time formats).
+     * @param callable(string, string): bool|null $aclCheck
+     *        Whether the current user has an ACL section and value (defaults to AclMain::aclCheckCore()).
      */
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         ?callable $fetchRecords = null,
         ?callable $listMapResolver = null,
-        private ?PatientFinderBuiltInColumns $builtInColumns = null
+        private ?PatientFinderBuiltInColumns $builtInColumns = null,
+        ?callable $aclCheck = null
     ) {
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
         $this->listMapResolver = $listMapResolver;
+        $this->aclCheck = $aclCheck ?? static fn(string $section, string $value): bool
+            => AclMain::aclCheckCore($section, $value);
     }
 
+    /**
+     * Build the registry: the active ptlistcols columns the user may see, then any columns listeners add.
+     */
     public function create(): PatientFinderColumnRegistry
     {
         $registry = new PatientFinderColumnRegistry();
@@ -82,8 +94,15 @@ final class PatientFinderColumnRegistryFactory
                 $title = PatientFinderValue::string(xl_list_label($title));
             }
             $sortDir = $this->sortDirection(PatientFinderValue::string($row['toggle_setting_1'] ?? null));
-            $column = $this->builtInColumn($key, $title, $sortDir)
-                ?? PatientFinderColumn::fromTable($key, $title, defaultSortDir: $sortDir);
+            if (PatientFinderBuiltInColumns::has($key)) {
+                // A combined column the user may not see is left out, never read as a table field.
+                $column = $this->builtInColumn($key, $title, $sortDir);
+                if ($column === null) {
+                    continue;
+                }
+            } else {
+                $column = PatientFinderColumn::fromTable($key, $title, defaultSortDir: $sortDir);
+            }
             $registry->add($column->withWidth(PatientFinderValue::string($row['notes'] ?? null)));
         }
 
@@ -95,9 +114,13 @@ final class PatientFinderColumnRegistryFactory
         return $registry;
     }
 
+    /**
+     * A combined column, or null when the user lacks the ACL it needs.
+     */
     private function builtInColumn(string $key, string $title, string $sortDir): ?PatientFinderColumn
     {
-        if (!PatientFinderBuiltInColumns::has($key)) {
+        $acl = PatientFinderBuiltInColumns::requiredAcl($key);
+        if ($acl !== null && !($this->aclCheck)($acl[0], $acl[1])) {
             return null;
         }
         $this->builtInColumns ??= PatientFinderBuiltInColumns::fromGlobals(OEGlobalsBag::getInstance());

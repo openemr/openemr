@@ -182,11 +182,17 @@ final readonly class PatientFinderColumn
         return new self($key, $title, self::TYPE_ENRICHED, false, false);
     }
 
+    /**
+     * Whether the column is display-only, filled after the query by PatientFinderRowEnrichEvent.
+     */
     public function isEnriched(): bool
     {
         return $this->type === self::TYPE_ENRICHED;
     }
 
+    /**
+     * Whether the column comes from an author-supplied SQL expression.
+     */
     public function isSql(): bool
     {
         return $this->type === self::TYPE_SQL;

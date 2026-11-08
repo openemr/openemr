@@ -389,8 +389,9 @@ function getCodeDescriptions($codes): string
     return $s;
 }
 
-// Write one option line to the form.
-//
+/**
+ * Write one option line to the form.
+ */
 function writeOptionLine($option_id, string $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '1', $subtype = ''): void
 {
     global $opt_line_no, $list_id;

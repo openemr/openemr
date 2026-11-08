@@ -110,6 +110,9 @@ class PatientFinderColumnTest extends TestCase
         ];
     }
 
+    /**
+     * Only a plain px, rem, em or % length is kept as a width; the other properties carry over.
+     */
     #[DataProvider('widthProvider')]
     public function testWithWidthKeepsOnlyAPlainCssLength(string $given, string $expected): void
     {

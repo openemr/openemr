@@ -203,6 +203,9 @@ function swapGroups($id1, $id2): void
     }
 }
 
+/**
+ * The table a layout stores its fields in, or "" for a layout with no table of its own.
+ */
 function tableNameFromLayout($layout_id): string
 {
     // Skip layouts that store data in vertical tables, and the Patient Finder Detail layout

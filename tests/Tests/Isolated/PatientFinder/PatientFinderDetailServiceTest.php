@@ -36,7 +36,8 @@ class PatientFinderDetailServiceTest extends TestCase
     private function service(
         array $layoutFields,
         array $patientRows,
-        ?EventDispatcher $dispatcher = null
+        ?EventDispatcher $dispatcher = null,
+        bool $appointmentAccess = true
     ): PatientFinderDetailService {
         $fetch = function (string $sql, array $binds) use ($layoutFields, $patientRows): array {
             $this->queries[] = [$sql, $binds];
@@ -49,10 +50,14 @@ class PatientFinderDetailServiceTest extends TestCase
             $dispatcher ?? new EventDispatcher(),
             $fetch,
             static fn(): array => ['pid', 'sex', 'DOB', 'ss'],
-            new PatientFinderBuiltInColumns()
+            new PatientFinderBuiltInColumns(),
+            static fn(string $section, string $value): bool => $appointmentAccess
         );
     }
 
+    /**
+     * Only fields the layout shows are read, unknown ids are dropped, and values come back unescaped.
+     */
     public function testReadsOnlyTheLayoutFieldsAndReturnsThemRaw(): void
     {
         $service = $this->service(
@@ -72,6 +77,9 @@ class PatientFinderDetailServiceTest extends TestCase
         $this->assertSame([7], $binds);
     }
 
+    /**
+     * A patient the finder filter hides is not found here either.
+     */
     public function testAppliesTheFinderPatientFilter(): void
     {
         $dispatcher = new EventDispatcher();
@@ -90,6 +98,9 @@ class PatientFinderDetailServiceTest extends TestCase
         $this->assertSame([42, 42], $binds);
     }
 
+    /**
+     * A pid that is not positive runs no query.
+     */
     public function testNonPositivePidIsNotLookedUp(): void
     {
         $service = $this->service(['sex'], [['pid' => 1, 'sex' => 'Male']]);
@@ -99,9 +110,47 @@ class PatientFinderDetailServiceTest extends TestCase
         $this->assertSame([], $this->queries);
     }
 
+    /**
+     * Rows offer to expand only when the layout has fields.
+     */
     public function testEnabledOnlyWhenTheLayoutShowsSomething(): void
     {
         $this->assertTrue($this->service(['sex'], [])->isEnabled());
         $this->assertFalse($this->service([], [])->isEnabled());
+    }
+
+    /**
+     * An appointment field in the layout is not read for a user without patients/appt.
+     */
+    public function testAppointmentFieldNeedsTheAppointmentAcl(): void
+    {
+        $this->service(['sex', 'next_appointment'], [['pid' => 7, 'sex' => 'Male']], null, false)->values(7);
+        $denied = $this->lastSql();
+        $this->service(['sex', 'next_appointment'], [['pid' => 7, 'sex' => 'Male']])->values(7);
+        $allowed = $this->lastSql();
+
+        $this->assertStringNotContainsString('openemr_postcalendar_events', $denied);
+        $this->assertStringContainsString('AS `next_appointment`', $allowed);
+    }
+
+    /**
+     * The layout query leaves out NationNotes fields, which the renderer prints unescaped.
+     */
+    public function testLayoutQueryLeavesOutNationNotesFields(): void
+    {
+        $this->service(['sex'], [])->isEnabled();
+        [$sql, $binds] = $this->queries[0];
+
+        $this->assertStringContainsString('AND data_type != ?', $sql);
+        $this->assertSame(['PTFINDER', 34], $binds);
+    }
+
+    /**
+     * The SQL of the last query the service ran.
+     */
+    private function lastSql(): string
+    {
+        $last = end($this->queries);
+        return $last === false ? '' : $last[0];
     }
 }
