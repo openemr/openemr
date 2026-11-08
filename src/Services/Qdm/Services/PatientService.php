@@ -67,6 +67,45 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
+    /**
+     * The patient's Patient Characteristic Payer elements: the primary policy
+     * on the patient's row (getSqlStatement() joins the primary policies),
+     * from its start, with no stop.
+     *
+     * @param array<mixed> $record
+     * @return list<PatientCharacteristicPayer>
+     */
+    private function payers(array $record): array
+    {
+        return [self::payer($record['payer_eff_date'] ?? null, null, $record['payer_code'] ?? null)];
+    }
+
+    /**
+     * One Patient Characteristic Payer: its relevant period (a missing start or stop is open) and its Source
+     * of Payment Typology code.
+     */
+    private static function payer(mixed $low, ?string $high, mixed $code): PatientCharacteristicPayer
+    {
+        return new PatientCharacteristicPayer([
+            'relevantPeriod' => new Interval([
+                'low' => new DateTime([
+                    'date' => $low
+                ]),
+                'high' => $high === null ? null : new DateTime(['date' => $high]),
+                'lowClosed' => (bool) $low,
+                'highClosed' => $high !== null
+            ]),
+            'dataElementCodes' => [
+                new Code(
+                    [
+                        'code' => $code,
+                        'system' => '2.16.840.1.113883.3.221.5'
+                    ]
+                )
+            ]
+        ]);
+    }
+
     public static function makeQdmIdentifier($namingSystem, $value): Identifier
     {
         return new Identifier(
@@ -159,25 +198,9 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
             $qdmPatient->add_data_element($pcexp);
         }
 
-        $payer = new PatientCharacteristicPayer([
-            'relevantPeriod' => new Interval([
-                'low' => new DateTime([
-                    'date' => $record['payer_eff_date']
-                ]),
-                'high' => null, // TODO We don't have an end-date for insurance?,
-                'lowClosed' => (bool) $record['payer_eff_date'],
-                'highClosed' => false
-            ]),
-            'dataElementCodes' => [
-                new Code(
-                    [
-                        'code' => $record['payer_code'],
-                        'system' => '2.16.840.1.113883.3.221.5'
-                    ]
-                )
-            ]
-        ]);
-        $qdmPatient->add_data_element($payer);
+        foreach ($this->payers($record) as $payer) {
+            $qdmPatient->add_data_element($payer);
+        }
 
         // Reference: https://phinvads.cdc.gov/vads/ViewCodeSystem.action?id=2.16.840.1.113883.6.238
         $pcr = new PatientCharacteristicRace(
