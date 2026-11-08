@@ -23,6 +23,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
+use OpenEMR\Services\Insurance\CoverageDay;
 use OpenEMR\Services\Insurance\EffectiveInsurance;
 use OpenEMR\Services\Insurance\EffectiveInsuranceRow;
 use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
@@ -103,12 +104,15 @@ class InsuranceService extends BaseService
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
-        // By level, the current policies first (an end still to come, then no end), then the latest start.
-        // The policy editor and the demographics card open on the first; the editor sorts the same way
+        // By level, the policies in force today first (started on or before today, or undated, and ending
+        // today or later, or not at all; a 0000-00-00 end is open, as EffectiveInsuranceRule reads it), then
+        // the latest start, then the later entry, as the rule breaks a tie between two undated policies (a
+        // level can't hold two with one start date). The policy editor sorts the same way
         // (InsurancePolicyService.currentRank()).
         $orderClause = " ORDER BY `patient_data_pid` ASC,`type` ASC"
-        . ", CASE WHEN `date_end` > NOW() THEN 2 WHEN `date_end` IS NULL THEN 1 ELSE 0 END DESC"
-        . ", `date` DESC, `date_end` DESC, `policy_number` ASC";
+        . ", CASE WHEN (`date` IS NULL OR `date` <= CURDATE())"
+        . " AND (`date_end` IS NULL OR `date_end` = '0000-00-00' OR `date_end` >= CURDATE()) THEN 1 ELSE 0 END DESC"
+        . ", `date` DESC, `insurance_data`.`id` DESC";
 
         $sql .= $whereClause->getFragment() . $orderClause;
         $sqlBindArray = $whereClause->getBoundValues();
@@ -486,9 +490,26 @@ class InsuranceService extends BaseService
             }
             $result[$insurancePolicy['type']][] = $insurancePolicy;
         }
+        // Each level's current policy is the one in force today, as EffectiveInsuranceRule chooses it; the
+        // others keep search()'s order. A level with nothing in force keeps search()'s first policy.
+        $inForce = [];
+        $patientId = EffectiveInsuranceRule::storedId($pid);
+        if ($patientId !== null) {
+            $today = CoverageDay::today(ServiceContainer::getClock());
+            foreach ($this->getEffectiveInsuranceRows($patientId, $today) as $effective) {
+                $inForce[$effective->policy->level->value] = $effective->policy->id;
+            }
+        }
         $organizedResults = [];
         foreach ($result as $key => $policies) {
             if (count($policies) > 0) {
+                foreach ($policies as $i => $policy) {
+                    $policyId = is_array($policy) ? EffectiveInsuranceRule::storedId($policy['id'] ?? null) : null;
+                    if (isset($inForce[$key]) && $policyId === $inForce[$key]) {
+                        array_unshift($policies, ...array_splice($policies, $i, 1));
+                        break;
+                    }
+                }
                 reset($policies);
                 $current = current($policies);
                 $history = array_splice($policies, 1);
