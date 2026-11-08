@@ -35,11 +35,14 @@ require_once(__DIR__ . "/appointment_status.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\Insurance\InsuranceLevel;
+use OpenEMR\Services\InsuranceService;
 
 // For logging checksums set this to true.
 define('CHECKSUM_LOGGING', true);
@@ -90,6 +93,8 @@ class FeeSheet
     public $contraception_cyp  = 0;
 
     public $ALLOW_COPAYS = false;
+
+    private ?InsuranceService $insurance = null;
 
     public function __construct($pid = 0, $encounter = 0)
     {
@@ -181,17 +186,25 @@ class FeeSheet
      * The insurance_data row of the primary policy this visit bills, or [] when
      * there is none: billing.payer_id is its company, and the COPAY line
      * (interface/forms/fee_sheet/new.php) charges its copay. This is the
-     * patient's latest-starting primary.
+     * primary in force on the visit date (InsuranceService); a visit date that
+     * can't be read has none.
      *
      * @return array<mixed>
      */
     public function primaryPolicy(): array
     {
-        $row = QueryUtils::querySingleRow(
-            "SELECT * FROM insurance_data WHERE pid = ? AND type = 'primary' ORDER BY date DESC LIMIT 1",
-            [$this->pid]
-        );
-        return is_array($row) ? $row : [];
+        $patientId = EffectiveInsuranceRule::storedId($this->pid);
+        $visitDay = CoverageDay::fromStored($this->visit_date);
+        if ($patientId === null || $visitDay === null) {
+            return [];
+        }
+        $this->insurance ??= new InsuranceService();
+        foreach ($this->insurance->getEffectiveInsuranceRows($patientId, $visitDay) as $effective) {
+            if ($effective->policy->level === InsuranceLevel::Primary) {
+                return $effective->columns;
+            }
+        }
+        return [];
     }
 
   // Gets the provider from the encounter, logged-in user or patient demographics.
