@@ -3128,7 +3128,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../src/Billing/SLEOB.php',
 ];
 $ignoreErrors[] = [

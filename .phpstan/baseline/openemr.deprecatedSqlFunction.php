@@ -5803,7 +5803,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Billing/SLEOB.php',
 ];
 $ignoreErrors[] = [

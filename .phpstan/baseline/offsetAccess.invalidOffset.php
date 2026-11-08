@@ -814,11 +814,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/SLEOB.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerReview.php',
 ];
 $ignoreErrors[] = [
