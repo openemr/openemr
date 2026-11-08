@@ -229,6 +229,37 @@ class ReferralService extends BaseService
     }
 
     /**
+     * The address book entries that can be a Task's owner without being a user who logs in: the
+     * External Organizations and practitioners ReferralTaskService can send a referral to.
+     *
+     * @return list<array{uuid: string, name: string, type: string}> by name
+     */
+    public function addressBookRecipients(): array
+    {
+        $name = AddressBookOrganizationService::nameSql('u');
+        $isOrganization = AddressBookOrganizationService::isOrganizationSql('u');
+        $rows = QueryUtils::fetchRecords(
+            "SELECT u.uuid, $isOrganization AS is_organization,
+                    CASE WHEN $isOrganization THEN $name ELSE COALESCE(NULLIF(TRIM(CONCAT_WS(' ', u.fname, u.lname)), ''), u.organization) END AS name
+                FROM users AS u
+                WHERE u.active = 1 AND u.uuid IS NOT NULL AND COALESCE(u.username, '') = ''
+                    AND ($isOrganization OR (COALESCE(u.npi, '') <> '' AND u.abook_type IN (" . self::PRACTITIONER_ABOOK_TYPES . ')))
+                ORDER BY name'
+        );
+        $recipients = [];
+        foreach ($rows as $row) {
+            if (is_string($row['uuid'] ?? null)) {
+                $recipients[] = [
+                    'uuid' => UuidRegistry::uuidToString($row['uuid']),
+                    'name' => is_string($row['name'] ?? null) ? $row['name'] : '',
+                    'type' => in_array($row['is_organization'] ?? null, [1, '1'], true) ? 'Organization' : 'Practitioner',
+                ];
+            }
+        }
+        return $recipients;
+    }
+
+    /**
      * Each referral's Task status as taskStatusSql() finds it, by transaction id, in one query: for a
      * page that lists referrals with their fields already in hand.
      *
@@ -258,8 +289,11 @@ class ReferralService extends BaseService
     /**
      * @param array<string, ISearchField> $search
      * @param mixed $isAndCondition
+     * @param ?string $recipientOnly an address book entry's uuid, for only the referrals it's the current
+     *     recipient of with a Task that counts: once a referral goes elsewhere, its earlier recipient
+     *     no longer reads it
      */
-    public function search(array $search, $isAndCondition = true): ProcessingResult
+    public function search(array $search, $isAndCondition = true, ?string $recipientOnly = null): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         // Fields joined by OR stay together, after grouping.
@@ -267,6 +301,14 @@ class ReferralService extends BaseService
         $grouped = [];
         $sourceFilter = '';
         $sourceValues = [];
+        if ($recipientOnly !== null) {
+            $sourceFilter = " AND EXISTS (SELECT 1 FROM task
+                JOIN lbt_data AS recipient ON recipient.form_id = t.id AND recipient.field_id = 'refer_to'
+                JOIN users AS recipient_user ON recipient_user.id = recipient.field_value
+                WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid AND task.owner_uuid = recipient_user.uuid
+                    AND recipient_user.uuid = ? AND " . self::OWN_TASK_SQL . ' AND ' . self::countsForRecipientSql() . ')';
+            $sourceValues[] = UuidRegistry::uuidToBytes($recipientOnly);
+        }
         // Only turning the fields into SQL can refuse a search: a field or modifier the statement
         // builders don't take. The query and the mapping below don't throw SearchFieldException.
         try {

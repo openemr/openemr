@@ -56162,11 +56162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$clientId of method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:setClientId\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$currentServerScopes of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Validators\\\\ScopeValidatorFactory\\:\\:buildScopeValidatorArray\\(\\) expects array\\<OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopeEntity\\|string\\>, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
@@ -67449,11 +67444,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$haystack of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|null given\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$clientRepo of class OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController@anonymous/tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest\\.php\\:424 constructor expects OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest.php',
 ];
 $ignoreErrors[] = [

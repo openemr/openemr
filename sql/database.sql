@@ -14252,6 +14252,7 @@ CREATE TABLE `oauth_clients` (
 `is_enabled` tinyint(1) NOT NULL DEFAULT '0',
 `skip_ehr_launch_authorization_flow` tinyint(1) NOT NULL DEFAULT '0',
 `dsi_type` TINYINT UNSIGNED NOT NULL DEFAULT '1' COMMENT '0=none, 1=evidence-based,2=predictive',
+`address_book_uuid` binary(16) DEFAULT NULL COMMENT 'users.uuid of the address book entry this client acts for; limits it to that entry''s Tasks and referrals',
 PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB;
 

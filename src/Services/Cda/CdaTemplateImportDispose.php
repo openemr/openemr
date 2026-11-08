@@ -2269,11 +2269,11 @@ class CdaTemplateImportDispose
         $res_ins = QueryUtils::fetchRecords("SELECT `id`, `uuid` FROM `insurance_companies` WHERE `cqm_sop` = ? AND `inactive` = 0 ORDER BY `id` DESC LIMIT 1", [$code]);
         $res_ins_cur = $res_ins[0] ?? [];
         if (empty($res_ins_cur['id'])) {
+            // A placeholder holding the document's Source of Payment code (cqm_sop). The document
+            // gives no address, so none is stored, and ins_type_code is the claim insurance type,
+            // another code set, so it stays unset.
             $data["name"] = 'QRDA Insurance Company Payer ' . $code;
-            $data["ins_type_code"] = $code;
-            $data["city"] = 'QRDA City';
-            $data["state"] = 'QRDA State';
-            $data["zip"] = '33333';
+            $data["ins_type_code"] = null;
             $data["cqm_sop"] = $code;
             $insuranceCompany = new InsuranceCompanyService();
             $ins_id = $insuranceCompany->insert($data);
