@@ -185,22 +185,46 @@ export class InsurancePolicyService
     }
 
     /**
-     * How current a policy is, as the server ranks it (InsuranceService::search()): 2 for an end
-     * still to come, 1 for no end, 0 for an ended policy. A higher rank sorts first.
+     * Compares two policy ids for a descending sort: the higher id (the later entry) first, and a missing id
+     * (a policy not saved yet) before any.
      */
-    static currentRank(policy, now) {
-        if (policy.date_end === null) {
-            return 1;
+    static compareIdsDesc(a, b) {
+        let missingA = a === null || a === undefined || a === '';
+        let missingB = b === null || b === undefined || b === '';
+        if (missingA || missingB) {
+            return missingA === missingB ? 0 : (missingA ? -1 : 1);
         }
-        return policy.date_end > now ? 2 : 0;
+        return Number(b) - Number(a);
+    }
+
+    /**
+     * How current a policy is, as the server ranks it (InsuranceService::search()): 1 for a policy
+     * in force today (no start, or one on or before today; no end, or one on or after today), else 0.
+     * A higher rank sorts first.
+     */
+    static currentRank(policy, today) {
+        let started = policy.date === null || InsurancePolicyService.dayOf(policy.date) <= today;
+        let notEnded = policy.date_end === null || InsurancePolicyService.dayOf(policy.date_end) >= today;
+        return started && notEnded ? 1 : 0;
+    }
+
+    /**
+     * A policy date's calendar day, at local midnight: a policy added in the editor starts now, with the
+     * time of day, and still starts today.
+     */
+    static dayOf(date) {
+        let day = new Date(date.getTime());
+        day.setHours(0, 0, 0, 0);
+        return day;
     }
 
     sortInsurancesByDate(insurances) {
-        let now = new Date();
+        let today = new Date();
+        today.setHours(0, 0, 0, 0);
         insurances.sort((a, b) => {
             // since we can add / update policies in JS land, we need to handle the sort order here,
             // as the server orders them (InsuranceService::search()): the current ones first
-            let sortIndex = InsurancePolicyService.currentRank(b, now) - InsurancePolicyService.currentRank(a, now);
+            let sortIndex = InsurancePolicyService.currentRank(b, today) - InsurancePolicyService.currentRank(a, today);
             if (sortIndex !== 0) {
                 return sortIndex;
             }
@@ -211,7 +235,13 @@ export class InsurancePolicyService
             if (sortIndex !== 0) {
                 return sortIndex;
             }
-            // `date_end` DESC, same rule
+            // `id` DESC as the server orders it: the later entry, as the coverage rule breaks a tie between
+            // two undated policies. A policy not saved yet has no id and is the latest entry.
+            sortIndex = InsurancePolicyService.compareIdsDesc(a.id, b.id);
+            if (sortIndex !== 0) {
+                return sortIndex;
+            }
+            // `date_end` DESC, same rule (only two policies not saved yet get this far)
             sortIndex = InsurancePolicyService.compareDatesDesc(a.date_end, b.date_end);
             if (sortIndex !== 0) {
                 return sortIndex;

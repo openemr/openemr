@@ -21,6 +21,7 @@ namespace OpenEMR\Services\Insurance;
 
 use DateTimeImmutable;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+use Psr\Clock\ClockInterface;
 
 final class CoverageDay
 {
@@ -46,5 +47,14 @@ final class CoverageDay
     public static function forLabOrder(mixed $collected, mixed $ordered): ?DateTimeImmutable
     {
         return self::fromStored($collected) ?? self::fromStored($ordered);
+    }
+
+    /**
+     * Today, for the screens and documents that show the coverage in force
+     * now: the clock's calendar day, at midnight in PHP's default time zone.
+     */
+    public static function today(ClockInterface $clock): DateTimeImmutable
+    {
+        return new DateTimeImmutable($clock->now()->format('Y-m-d'));
     }
 }

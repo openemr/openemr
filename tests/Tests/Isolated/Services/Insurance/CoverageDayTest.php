@@ -14,6 +14,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Insurance;
 
+use DateTimeImmutable;
+use DateTimeZone;
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Services\Insurance\CoverageDay;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -66,6 +69,21 @@ final class CoverageDayTest extends TestCase
         self::assertNotNull($day);
         self::assertSame('2026-11-04 00:00:00', $day->format('Y-m-d H:i:s'));
         self::assertSame(date_default_timezone_get(), $day->getTimezone()->getName());
+    }
+
+    /**
+     * Today is the clock's calendar day, at midnight in PHP's default zone as the rule's dates are, even where
+     * the clock's zone is a day ahead.
+     */
+    #[Test]
+    public function todayIsTheClocksDayAtMidnightInPhpsZone(): void
+    {
+        $clock = new FrozenClock(new DateTimeImmutable('2026-11-05 01:30:00', new DateTimeZone('Pacific/Kiritimati')));
+
+        $today = CoverageDay::today($clock);
+
+        self::assertSame('2026-11-05 00:00:00', $today->format('Y-m-d H:i:s'));
+        self::assertSame(date_default_timezone_get(), $today->getTimezone()->getName());
     }
 
     /**
