@@ -301,6 +301,11 @@ function singleCcdaPid() {
 function refreshCcdaReferrals() {
     var pid = singleCcdaPid();
     var picker = $("#ccda_referral");
+    // Same patient as last time: keep the list, and the referral staff picked from it.
+    if (picker.data("pid") === pid) {
+        return;
+    }
+    picker.data("pid", pid);
     picker.find("option:not(:first)").remove();
     picker.val('');
     $("#ccda_referral_row").hide();
@@ -315,6 +320,10 @@ function refreshCcdaReferrals() {
             picker.append($("<option>").val(referral.id).text(referral.label));
         });
         $("#ccda_referral_row").toggle(referrals.length > 0);
+    }).fail(function (xhr) {
+        // No list means the send links the most recent referral; let the next click try again.
+        picker.removeData("pid");
+        console.error("Could not load the patient's referrals", xhr.status);
     });
 }
 

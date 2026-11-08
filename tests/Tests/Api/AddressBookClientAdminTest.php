@@ -107,7 +107,7 @@ class AddressBookClientAdminTest extends TestCase
     }
 
     /**
-     * An entry that drops off the list still shows as the client's limit, and saving without choosing keeps it.
+     * An entry that drops off the list still shows as the client's limit, and saving it as shown keeps it.
      */
     #[Test]
     public function aLimitToAnEntryNoLongerListedStillShows(): void
@@ -116,9 +116,12 @@ class AddressBookClientAdminTest extends TestCase
         QueryUtils::sqlStatementThrowException('UPDATE users SET active = 0 WHERE id = ?', [$this->entryId]);
 
         $page = $this->editPage();
-        $this->assertStringContainsString('value="' . $this->entryUuid . '" selected disabled', $page);
+        $this->assertStringContainsString('value="' . $this->entryUuid . '" selected>', $page);
         $this->assertStringContainsString('Limited to an entry that is no longer listed', $page);
 
+        $saved = $this->save($this->entryUuid);
+        $this->assertStringContainsString(urlencode('The address book limit is unchanged for'), $saved->getHeaderLine('Location'));
+        $this->assertSame($this->entryUuid, $this->storedLimit());
         $this->save(null);
         $this->assertSame($this->entryUuid, $this->storedLimit());
     }

@@ -28,6 +28,7 @@ use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\AddressBookOrganizationService;
 use OpenEMR\Services\CareTeamService;
 use OpenEMR\Services\Cda\VitalSignConversion;
 use OpenEMR\Services\CodeTypesService;
@@ -4053,9 +4054,10 @@ class EncounterccdadispatchTable
      */
     public function getPatientReferrals(int $pid): array
     {
+        // The recipient's name as the FHIR performer and the client screen give it.
         $rows = QueryUtils::fetchRecords(
             "SELECT t.id, referred.field_value AS refer_date, body.field_value AS body,
-                    COALESCE(NULLIF(TRIM(CONCAT_WS(' ', u.fname, u.lname)), ''), u.organization) AS recipient
+                    " . AddressBookOrganizationService::nameSql('u') . " AS recipient
                 FROM transactions AS t
                 LEFT JOIN lbt_data AS referred ON referred.form_id = t.id AND referred.field_id = 'refer_date'
                 LEFT JOIN lbt_data AS body ON body.form_id = t.id AND body.field_id = 'body'

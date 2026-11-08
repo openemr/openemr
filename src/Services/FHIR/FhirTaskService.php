@@ -433,7 +433,14 @@ class FhirTaskService extends FhirServiceBase implements IPatientCompartmentReso
             // Nothing to update: handleFhirProcessingResult() answers 404 for an empty result.
             return new ProcessingResult();
         }
-        if ($this->ownerOnly !== null && (!is_string($fields['owner_uuid'] ?? null) || strtolower($fields['owner_uuid']) !== $this->ownerOnly)) {
+        if (
+            $this->ownerOnly !== null
+            && (
+                !is_string($fields['owner_uuid'] ?? null)
+                || strtolower($fields['owner_uuid']) !== $this->ownerOnly
+                || ($fields['owner_type'] ?? null) !== $stored['owner_type']
+            )
+        ) {
             $errors['owner'] = "Task.owner can't change: this client is limited to its own tasks";
         }
         // The patient a task is for doesn't change: the body has to name the one it has, so a

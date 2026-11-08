@@ -1010,12 +1010,15 @@ class ClientAdminController
             return new Response('', Response::HTTP_METHOD_NOT_ALLOWED, ['Allow' => 'POST']);
         }
         $posted = $request->request->all()['address_book_uuid'] ?? null;
+        $before = $client->getAddressBookUuid();
         $known = array_column($this->addressBookRecipients(), 'uuid');
-        if (!is_string($posted) || ($posted !== '' && !in_array($posted, $known, true))) {
+        if (is_string($posted) && $posted !== '' && $posted === $before) {
+            // The page offers the current limit even after its entry drops off the list.
+            $message = xl('The address book limit is unchanged for') . ' ' . $client->getName();
+        } elseif (!is_string($posted) || ($posted !== '' && !in_array($posted, $known, true))) {
             $message = xl('That address book entry cannot be used for a client.');
         } else {
             $uuid = $posted === '' ? null : $posted;
-            $before = $client->getAddressBookUuid();
             try {
                 $this->clientRepo->saveAddressBookUuid($client, $uuid);
             } catch (SqlQueryException $ex) {

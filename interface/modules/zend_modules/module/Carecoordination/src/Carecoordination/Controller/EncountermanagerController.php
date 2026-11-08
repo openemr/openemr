@@ -511,7 +511,7 @@ class EncountermanagerController extends AbstractActionController
         }
         $response = new LaminasResponse();
         $response->getHeaders()->addHeaderLine('Content-Type', 'application/json');
-        $response->setContent(json_encode((new EncounterccdadispatchTable())->getPatientReferrals($pid), JSON_THROW_ON_ERROR));
+        $response->setContent(json_encode((new EncounterccdadispatchTable())->getPatientReferrals($pid), JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE));
         return $response;
     }
 

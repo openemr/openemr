@@ -179,7 +179,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $attributes = $tokenRaw->getAttributes();
         // collect openemr user uuid
         $userId = $attributes['oauth_user_id'];
-        // collect client id (will be empty for PKCE)
+        // collect client id: every token this server issues names its client in aud, PKCE ones included
         $clientId = $attributes['oauth_client_id'] ?? null;
         // collect token id
         $tokenId = $attributes['oauth_access_token_id'];
@@ -202,27 +202,33 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             );
             throw OAuthServerException::accessDenied('Access token has been revoked');
         }
+        // A token that names no client can't be held to its client's limits, so it is refused.
+        if (!is_string($clientId) || $clientId === '') {
+            $logger->error(
+                "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: token names no client",
+                ['tokenId' => $tokenId, 'userId' => $userId]
+            );
+            throw OAuthServerException::accessDenied('Access token names no client');
+        }
         // A client an administrator disabled (or deleted) loses API access now, not when the
         // tokens it already holds expire; disabling a client does not revoke its tokens.
-        if (is_string($clientId) && $clientId !== '') {
-            $client = $this->getClientRepository()->getClientEntity($clientId);
-            if (!$client instanceof ClientEntity || !$client->isEnabled()) {
-                $logger->error(
-                    "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: client disabled or not registered",
-                    ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
-                );
-                throw OAuthServerException::accessDenied('Client is not enabled');
-            }
-            $addressBookUuid = $client->getAddressBookUuid();
-            if ($addressBookUuid !== null && !self::addressBookClientMayCall($request->getMethod(), $request->getRequestPathWithoutSite())) {
-                $logger->error(
-                    "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: route is outside what a client limited to an address book entry may call",
-                    ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
-                );
-                throw new HttpException(403, "This client is limited to its own Tasks and referrals.");
-            }
-            $request->setClientAddressBookUuid($addressBookUuid);
+        $client = $this->getClientRepository()->getClientEntity($clientId);
+        if (!$client instanceof ClientEntity || !$client->isEnabled()) {
+            $logger->error(
+                "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: client disabled or not registered",
+                ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
+            );
+            throw OAuthServerException::accessDenied('Client is not enabled');
         }
+        $addressBookUuid = $client->getAddressBookUuid();
+        if ($addressBookUuid !== null && !self::addressBookClientMayCall($request->getMethod(), $request->getRequestPathWithoutSite())) {
+            $logger->error(
+                "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: route is outside what a client limited to an address book entry may call",
+                ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
+            );
+            throw new HttpException(403, "This client is limited to its own Tasks and referrals.");
+        }
+        $request->setClientAddressBookUuid($addressBookUuid);
         $logger->debug("BearerTokenAuthorizationStrategy->authorizeRequest() - Access token verified, authenticating user");
 
         // verify that user tokens haven't been revoked
