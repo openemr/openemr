@@ -264,6 +264,36 @@ class Claim
         return ($cleandate);
     }
 
+    /**
+     * The insurance_data rows of the policies in force on the encounter date,
+     * at most one per level, primary first: at each level the latest-starting
+     * policy in force. A level whose policy has no company has no coverage:
+     * that is how staff end a level (the "Unassigned" row).
+     *
+     * @return list<array<mixed>>
+     */
+    private function policiesInForce(string $encounterDate): array
+    {
+        $query = "SELECT * FROM insurance_data WHERE pid = ? AND
+            (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY type ASC, date DESC";
+        $policies = [];
+        $prevtype = '';
+        foreach (QueryUtils::fetchRecords($query, [$this->pid, $encounterDate, $encounterDate]) as $drow) {
+            if (strcmp((string) $prevtype, (string) $drow['type']) == 0) {
+                continue;
+            }
+
+            $prevtype = $drow['type'];
+            // Very important to look at entries with a missing provider because
+            // they indicate no insurance as of the given date.
+            if (empty($drow['provider'])) {
+                continue;
+            }
+            $policies[] = $drow;
+        }
+        return $policies;
+    }
+
     public function loadPayerInfo(&$billrow)
     {
         global $sl_err;
@@ -275,22 +305,7 @@ class Claim
         //
         $this->payers = [];
         $this->payers[0] = [];
-        $query = "SELECT * FROM insurance_data WHERE pid = ? AND
-            (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY type ASC, date DESC";
-        $dres = sqlStatement($query, [$this->pid, $encounter_date, $encounter_date]);
-        $prevtype = '';
-        while ($drow = sqlFetchArray($dres)) {
-            if (strcmp((string) $prevtype, (string) $drow['type']) == 0) {
-                continue;
-            }
-
-            $prevtype = $drow['type'];
-            // Very important to look at entries with a missing provider because
-            // they indicate no insurance as of the given date.
-            if (empty($drow['provider'])) {
-                continue;
-            }
-
+        foreach ($this->policiesInForce($encounter_date) as $drow) {
             $ins = count($this->payers);
             if (
                 (
@@ -325,7 +340,7 @@ class Claim
         for ($i = 1; $i < count($this->payers); ++$i) {
             if (
                 $billrow['process_date'] &&
-                $this->payers[0]['data']['provider'] == $this->payers[$i]['data']['provider']
+                ($this->payers[0]['data']['provider'] ?? null) == ($this->payers[$i]['data']['provider'] ?? null)
             ) {
                 $tmp = $this->payers[0];
                 $this->payers[0] = $this->payers[$i];
