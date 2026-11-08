@@ -24,6 +24,7 @@ $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
 require_once($srcdir . "/appointments.inc.php");
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
@@ -482,11 +483,18 @@ foreach ($pid_list as $pid) {
             if (empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                 $html .= xlt('Insurance') . ":";
                 if ($form_fill) {
+                    // The policy printed at each level: the level's latest-starting one.
+                    $printedPolicies = [];
                     foreach (['primary', 'secondary', 'tertiary'] as $instype) {
-                        $query = "SELECT * FROM insurance_data WHERE " .
-                                "pid = ? AND type = ? " .
-                                "ORDER BY date DESC LIMIT 1";
-                        $row = sqlQuery($query, [$pid, $instype]);
+                        $row = QueryUtils::querySingleRow(
+                            "SELECT * FROM insurance_data WHERE pid = ? AND type = ? ORDER BY date DESC LIMIT 1",
+                            [$pid, $instype]
+                        );
+                        if (is_array($row)) {
+                            $printedPolicies[$instype] = $row;
+                        }
+                    }
+                    foreach ($printedPolicies as $instype => $row) {
                         if (!empty($row['provider'])) {
                             $icobj = new InsuranceCompany($row['provider']);
                             $adobj = $icobj->get_address();
