@@ -25,6 +25,7 @@ require_once("../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Billing\ReceiptPayerPolicy;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -32,6 +33,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Insurance\InsuranceLevel;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
 
@@ -61,6 +63,7 @@ $insarray = [];
  * @param float $rowadjamount
  * @param int $payer_type
  * @param string $irnumber
+ * @param ?string $policy_number the number of the policy that named the payer, or null to look it up
  * @return void
  */
 function receiptsByMethodLineItem(
@@ -72,7 +75,8 @@ function receiptsByMethodLineItem(
     float $rowpayamount,
     float $rowadjamount,
     int $payer_type = 0,
-    string $irnumber = ''
+    string $irnumber = '',
+    ?string $policy_number = null
 ): void {
 
     global $form_report_by, $insarray, $grandpaytotal, $grandadjtotal;
@@ -87,7 +91,8 @@ function receiptsByMethodLineItem(
             $rowpayamount,
             $rowadjamount,
             $payer_type,
-            $irnumber
+            $irnumber,
+            $policy_number
         );
         return;
     }
@@ -105,7 +110,8 @@ function receiptsByMethodLineItem(
             $rowpayamount,
             $rowadjamount,
             $payer_type,
-            $irnumber
+            $irnumber,
+            $policy_number
         ];
     } else { // details not wanted
         if (empty($insarray[$rowmethod])) {
@@ -128,7 +134,8 @@ function showLineItem(
     $rowpayamount,
     $rowadjamount,
     $payer_type = 0,
-    $irnumber = ''
+    $irnumber = '',
+    mixed $policy_number = null
 ): void {
 
     global $paymethod, $paymethodleft, $methodpaytotal, $methodadjtotal,
@@ -200,7 +207,10 @@ function showLineItem(
             echo "  </td>\n";
 
             echo "  <td class='font-weight-bold'>\n";
-            if ($payer_type) {
+            if (is_string($policy_number)) {
+                // the policy that named the payer
+                echo "   " . text($policy_number);
+            } elseif ($payer_type) {
                 $ptarr = [1 => 'primary', 2 => 'secondary', 3 => 'tertiary'];
                 $insrow = getInsuranceDataByDate(
                     $patient_id,
@@ -640,6 +650,7 @@ if (!empty($_POST['form_refresh'])) {
 
         //
         $res = sqlStatement($query, $sqlBindArray);
+        $insuranceService = new InsuranceService();
         while ($row = sqlFetchArray($res)) {
             if ($form_use_edate) {
                 $thedate = substr((string) $row['date'], 0, 10);
@@ -651,6 +662,7 @@ if (!empty($_POST['form_refresh'])) {
 
           // Compute reporting key: insurance company name or payment method.
             $rowmethod = '';
+            $rowpolicy = null;
             if ($form_report_by == '1') {
                 if (empty($row['payer_id'])) {
                     // 'ar_session' is not capturing payer_id when entering payments through invoice or era posting:
@@ -662,7 +674,10 @@ if (!empty($_POST['form_refresh'])) {
                         default => null,
                     };
                     if ($payerLevel !== null) {
-                        $insurance_id = (new InsuranceService())->getOneByPid($row['pid'], $payerLevel);
+                        // the policy at that level in force on the date of service names the payer and fills the Policy column
+                        $policy = ReceiptPayerPolicy::inForce($insuranceService, $row['pid'], InsuranceLevel::from($payerLevel), $row['date']);
+                        $insurance_id = ['provider' => $policy?->companyId];
+                        $rowpolicy = $policy->policyNumber ?? '';
                     } elseif ($row['payer_type'] == '0') {
                         $rowmethod = xl('Personal pay');
                         $rowreference = trim((string) $row['reference']);
@@ -707,7 +722,8 @@ if (!empty($_POST['form_refresh'])) {
                 $row['pay_amount'],
                 $row['adj_amount'],
                 $row['payer_type'],
-                $row['invoice_refno']
+                $row['invoice_refno'],
+                $rowpolicy
             );
         }
 
@@ -737,14 +753,14 @@ if (!empty($_POST['form_refresh'])) {
                             $b[5] += $a[5];
                             $b[6] += $a[6];
                         } else {
-                            showLineItem($b[0], $b[1], $b[2], $b[3], $b[4], $b[5], $b[6], $b[7], $b[8]);
+                            showLineItem($b[0], $b[1], $b[2], $b[3], $b[4], $b[5], $b[6], $b[7], $b[8], $b[9]);
                             $b = $a;
                         }
                     }
                 }
 
                 if (!empty($b)) {
-                    showLineItem($b[0], $b[1], $b[2], $b[3], $b[4], $b[5], $b[6], $b[7], $b[8]);
+                    showLineItem($b[0], $b[1], $b[2], $b[3], $b[4], $b[5], $b[6], $b[7], $b[8], $b[9]);
                 }
             } // end by payer with details
 
