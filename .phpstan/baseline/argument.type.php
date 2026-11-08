@@ -492,11 +492,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$haystack of function str_contains expects string, string\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../controllers/C_Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$id of class Document constructor expects int, mixed given\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
