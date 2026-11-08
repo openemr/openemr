@@ -21557,11 +21557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/collections_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'group_number\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/collections_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'insname\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/collections_report.php',

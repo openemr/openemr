@@ -17,9 +17,14 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\Insurance\InsuranceLevel;
+use OpenEMR\Services\InsuranceService;
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Patient Insurance Distribution", xl("Patient Insurance Distribution"));
@@ -198,18 +203,23 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $insarr = [];
     $prev_pid = 0;
     $patcount = 0;
+    $insuranceService = new InsuranceService();
+    $companyNames = [];
 
     while ($row = sqlFetchArray($res)) {
         $patient_id = $row['pid'];
         $encounter_date = $row['date'];
-        $irow = sqlQuery("SELECT insurance_companies.name " .
-        "FROM insurance_data, insurance_companies WHERE " .
-        "insurance_data.pid = ? AND " .
-        "insurance_data.type = 'primary' AND " .
-        "(insurance_data.date <= ? OR insurance_data.date IS NULL) AND " .
-        "insurance_companies.id = insurance_data.provider " .
-        "ORDER BY insurance_data.date DESC LIMIT 1", [$patient_id, $encounter_date]);
-        $plan = (!empty($irow['name'])) ? $irow['name'] : '-- No Insurance --';
+        // The visit counts under the primary in force on its date (InsuranceService), if any.
+        $visitDay = CoverageDay::fromStored($encounter_date);
+        $patientId = EffectiveInsuranceRule::storedId($patient_id);
+        $primary = $visitDay === null || $patientId === null ? null
+            : $insuranceService->getEffectiveInsuranceAt($patientId, InsuranceLevel::Primary, $visitDay);
+        if ($primary !== null && !array_key_exists($primary->companyId, $companyNames)) {
+            $companyName = QueryUtils::fetchSingleValue("SELECT name FROM insurance_companies WHERE id = ?", 'name', [$primary->companyId]);
+            $companyNames[$primary->companyId] = is_string($companyName) ? $companyName : null;
+        }
+        $planName = $primary === null ? null : $companyNames[$primary->companyId];
+        $plan = (!empty($planName)) ? $planName : '-- No Insurance --';
         $insarr[$plan]['visits'] ??= 0;
         $insarr[$plan]['visits'] += 1;
         $insarr[$plan]['charges'] ??= 0;

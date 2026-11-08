@@ -31,11 +31,13 @@ use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\InsuranceService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
@@ -795,6 +797,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     $invlines = [];
     $ins_id = 0;
     $insposition = 0;
+    $insuranceService = new InsuranceService();
     while ($erow = sqlFetchArray($eres)) {
         $patient_id = $erow['pid'];
         $encounter_id = $erow['encounter'];
@@ -964,15 +967,17 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         }
 
         // Look up the insurance policy number and group number if we need them: the policy at the
-        // claim's level started by the date of service (the latest such).
+        // claim's level in force on the date of service (InsuranceService), if any.
         if ($form_cb_policy || $form_cb_group_number) {
             $instype = ($insposition == 2) ? 'secondary' : (($insposition == 3) ? 'tertiary' : 'primary');
-            $insrow = QueryUtils::querySingleRow(
-                "SELECT policy_number, group_number FROM insurance_data WHERE " .
-                "pid = ? AND type = ? AND (date <= ? OR date IS NULL) ORDER BY date DESC LIMIT 1",
-                [$patient_id, $instype, $svcdate]
-            );
-            $insrow = is_array($insrow) ? $insrow : [];
+            $insrow = [];
+            $serviceDay = CoverageDay::fromStored($svcdate);
+            $patientId = EffectiveInsuranceRule::storedId($patient_id);
+            foreach ($serviceDay === null || $patientId === null ? [] : $insuranceService->getEffectiveInsuranceRows($patientId, $serviceDay) as $effective) {
+                if ($effective->policy->level->value === $instype) {
+                    $insrow = $effective->columns;
+                }
+            }
             if ($form_cb_policy) {
                 $row['policy'] = $insrow['policy_number'] ?? '';
             }
