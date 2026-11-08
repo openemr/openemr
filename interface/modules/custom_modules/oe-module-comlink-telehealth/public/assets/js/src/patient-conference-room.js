@@ -3,7 +3,7 @@
  * (though a form of prototype/object delegation)
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -20,9 +20,13 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
 
     function checkProviderReadyForPatient()
     {
-        let pc_eid = patientConferenceRoom.telehealthSessionData.pc_eid;
+        const pc_eid = patientConferenceRoom.telehealthSessionData.pc_eid;
+        const params = new URLSearchParams({
+            action: 'patient_appointment_ready',
+            eid: pc_eid
+        });
         window.top.restoreSession();
-        window.fetch(scriptLocation + '?action=patient_appointment_ready&eid=' + encodeURIComponent(pc_eid), {redirect: "manual"})
+        window.fetch(scriptLocation + '?' + params, {redirect: "manual"})
             .then(result => {
                 if (result.ok) {
                     return result.json();
@@ -32,7 +36,7 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
             })
             .then(apptReadyData => {
                 if (patientConferenceRoom.__shutdown || !checkProviderReadyForPatientInterval) {
-                    return; // don't do anything else here as we have shutdown inbetween the callback.
+                    return; // don't do anything else here as we have shutdown in between the callback.
                 }
                 if (apptReadyData.session)
                 {

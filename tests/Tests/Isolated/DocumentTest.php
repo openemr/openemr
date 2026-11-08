@@ -1,0 +1,286 @@
+<?php
+
+/**
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR <https://opencoreemr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Isolated;
+
+use Document;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\TestCase;
+
+#[Group('isolated')]
+class DocumentTest extends TestCase
+{
+    /**
+     * @return array<string, array{
+     *   higherLevelPath: string,
+     *   patientId: int|string,
+     *   pathDepth: int,
+     *   randomSubdir: int,
+     *   expectedPath: string,
+     *   expectedDepth: int,
+     *   expectedPatientId: int|string,
+     * }>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function calculateStoragePathProvider(): array
+    {
+        return [
+            'valid patient, no higher level path' => [
+                'higherLevelPath' => '',
+                'patientId' => 123,
+                'pathDepth' => 1,
+                'randomSubdir' => 5000,
+                'expectedPath' => '123/',
+                'expectedDepth' => 1,
+                'expectedPatientId' => 123,
+            ],
+            'valid patient, with higher level path' => [
+                'higherLevelPath' => 'ccda/imports',
+                'patientId' => 456,
+                'pathDepth' => 1,
+                'randomSubdir' => 9999,
+                'expectedPath' => 'ccda/imports/',
+                'expectedDepth' => 1,
+                'expectedPatientId' => 456,
+            ],
+            'invalid patient (string), no higher level path - uses random subdir' => [
+                'higherLevelPath' => '',
+                'patientId' => 'direct',
+                'pathDepth' => 1,
+                'randomSubdir' => 42,
+                'expectedPath' => 'direct/42/',
+                'expectedDepth' => 2,
+                'expectedPatientId' => 0,
+            ],
+            'invalid patient (zero), no higher level path - uses random subdir' => [
+                'higherLevelPath' => '',
+                'patientId' => 0,
+                'pathDepth' => 1,
+                'randomSubdir' => 1,
+                'expectedPath' => '0/1/',
+                'expectedDepth' => 2,
+                'expectedPatientId' => 0,
+            ],
+            'invalid patient (negative), no higher level path - uses random subdir' => [
+                'higherLevelPath' => '',
+                'patientId' => -5,
+                'pathDepth' => 1,
+                'randomSubdir' => 999,
+                'expectedPath' => '-5/999/',
+                'expectedDepth' => 2,
+                'expectedPatientId' => 0,
+            ],
+            'invalid patient (zero), with higher level path - uses random subdir' => [
+                'higherLevelPath' => 'exports',
+                'patientId' => 0,
+                'pathDepth' => 1,
+                'randomSubdir' => 7777,
+                'expectedPath' => 'exports/7777/',
+                'expectedDepth' => 2,
+                'expectedPatientId' => 0,
+            ],
+            'invalid patient (string), with higher level path - preserves patientId' => [
+                'higherLevelPath' => 'ccda/exports',
+                'patientId' => 'direct',
+                'pathDepth' => 1,
+                'randomSubdir' => 1234,
+                'expectedPath' => 'ccda/exports/1234/',
+                'expectedDepth' => 2,
+                'expectedPatientId' => 'direct',
+            ],
+            'path depth is preserved when not overwritten' => [
+                'higherLevelPath' => 'custom/path',
+                'patientId' => 99,
+                'pathDepth' => 5,
+                'randomSubdir' => 1,
+                'expectedPath' => 'custom/path/',
+                'expectedDepth' => 5,
+                'expectedPatientId' => 99,
+            ],
+        ];
+    }
+
+    /**
+     * @param int|string $patientId
+     * @param int|string $expectedPatientId
+     */
+    #[DataProvider('calculateStoragePathProvider')]
+    public function testCalculateStoragePath(
+        string $higherLevelPath,
+        int|string $patientId,
+        int $pathDepth,
+        int $randomSubdir,
+        string $expectedPath,
+        int $expectedDepth,
+        int|string $expectedPatientId,
+    ): void {
+        $result = Document::calculateStoragePath(
+            higherLevelPath: $higherLevelPath,
+            patientId: $patientId,
+            pathDepth: $pathDepth,
+            randomSubdir: $randomSubdir,
+        );
+
+        self::assertSame($expectedPath, $result['relativePath']);
+        self::assertSame($expectedDepth, $result['depth']);
+        self::assertSame($expectedPatientId, $result['patientId']);
+    }
+
+    /**
+     * @return array<string, array{input: string, expected: string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function calculateStoragePathSanitizationProvider(): array
+    {
+        return [
+            'alphanumeric unchanged' => [
+                'input' => 'foo/bar',
+                'expected' => 'foo/bar/',
+            ],
+            'dashes replaced' => [
+                'input' => 'foo-bar',
+                'expected' => 'foo_bar/',
+            ],
+            'special chars replaced' => [
+                'input' => 'foo@bar#baz',
+                'expected' => 'foo_bar_baz/',
+            ],
+            'spaces replaced' => [
+                'input' => 'foo bar',
+                'expected' => 'foo_bar/',
+            ],
+            'multiple slashes preserved' => [
+                'input' => 'a/b/c/d',
+                'expected' => 'a/b/c/d/',
+            ],
+            'dots replaced' => [
+                'input' => 'file.name',
+                'expected' => 'file_name/',
+            ],
+        ];
+    }
+
+    #[DataProvider('calculateStoragePathSanitizationProvider')]
+    public function testCalculateStoragePathSanitization(string $input, string $expected): void
+    {
+        $result = Document::calculateStoragePath(
+            higherLevelPath: $input,
+            patientId: 1,
+            pathDepth: 1,
+            randomSubdir: 1,
+        );
+
+        self::assertSame($expected, $result['relativePath']);
+    }
+
+    /**
+     * The document is expired iff its `date_expires` is at or before the
+     * current instant. `has_expired()` must return true for past timestamps
+     * (so callers deny + purge) and false for future timestamps (so valid
+     * documents remain accessible during their retention window).
+     */
+    public function testHasExpiredReturnsTrueForPastTimestamp(): void
+    {
+        $doc = self::makeDocumentWithExpires('-2 hours');
+        self::assertTrue($doc->has_expired());
+    }
+
+    public function testHasExpiredReturnsFalseForFutureTimestamp(): void
+    {
+        $doc = self::makeDocumentWithExpires('+30 minutes');
+        self::assertFalse($doc->has_expired());
+    }
+
+    public function testHasExpiredReturnsFalseWhenDateExpiresIsBlank(): void
+    {
+        $doc = self::makeDocumentWithExpires(null);
+        self::assertFalse($doc->has_expired());
+    }
+
+    /**
+     * Fail-closed: an unparsable `date_expires` string cannot be used to
+     * assert that the document is still within its retention window, so it
+     * must read as expired rather than as still valid.
+     */
+    public function testHasExpiredReturnsTrueWhenDateExpiresIsUnparsable(): void
+    {
+        $doc = self::makeDocumentWithExpires('not-a-date');
+        self::assertTrue($doc->has_expired());
+    }
+
+    /**
+     * createFromFormat can return a valid DateTime for inputs that technically
+     * parse but overflow (e.g. Feb 30 rolls into March). Warnings from
+     * getLastErrors() mean the resulting timestamp is not the value the caller
+     * stored — must fail closed regardless of the rolled-over timestamp being
+     * past or future.
+     */
+    public function testHasExpiredReturnsTrueForRolledOverDateExpires(): void
+    {
+        $doc = self::makeDocumentWithExpires('rollover');
+        self::assertTrue($doc->has_expired());
+    }
+
+    /**
+     * set_date_expires must round-trip via the getter. The setter also needs
+     * to be present for ORDataObject::populate_array() to wire the field on
+     * every `new Document($id)` load — without it, has_expired() always sees
+     * a null date_expires regardless of the DB value.
+     */
+    public function testSetDateExpiresRoundTripsViaGetter(): void
+    {
+        $rc = new \ReflectionClass(Document::class);
+        $doc = $rc->newInstanceWithoutConstructor();
+        $doc->set_date_expires('2026-09-16 18:32:34');
+        self::assertSame('2026-09-16 18:32:34', $doc->get_date_expires());
+        $doc->set_date_expires(null);
+        self::assertNull($doc->get_date_expires());
+    }
+
+    /**
+     * ORDataObject::populate_array() calls set_<field> when callable, so
+     * feeding it a row with date_expires must land the value on the object.
+     * Regression guard for the "silently dropped" behavior that predated
+     * this fix.
+     */
+    public function testPopulateArrayWiresDateExpires(): void
+    {
+        $rc = new \ReflectionClass(Document::class);
+        $doc = $rc->newInstanceWithoutConstructor();
+        $doc->populate_array([
+            'date_expires' => '2026-09-16 18:32:34',
+        ]);
+        self::assertSame('2026-09-16 18:32:34', $doc->get_date_expires());
+    }
+
+    private static function makeDocumentWithExpires(?string $when): Document
+    {
+        $rc = new \ReflectionClass(Document::class);
+        $doc = $rc->newInstanceWithoutConstructor();
+        $prop = new \ReflectionProperty(Document::class, 'date_expires');
+        if ($when === null) {
+            $prop->setValue($doc, null);
+        } elseif ($when === 'not-a-date') {
+            $prop->setValue($doc, 'not-a-date');
+        } elseif ($when === 'rollover') {
+            // Feb 30 does not exist; createFromFormat parses it into March 1
+            // with a "The parsed date was invalid" warning in getLastErrors().
+            $prop->setValue($doc, '2024-02-30 12:00:00');
+        } else {
+            $prop->setValue($doc, (new \DateTime($when))->format('Y-m-d H:i:s'));
+        }
+        return $doc;
+    }
+}

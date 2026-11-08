@@ -61,4 +61,3 @@ class AssessmentOrder extends QDMBaseType
 
     public $_type = 'QDM::AssessmentOrder';
 }
-

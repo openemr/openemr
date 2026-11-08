@@ -19,17 +19,17 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class AMC_304b_2_STG2_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304b_2_STG2 Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         //The number of prescriptions in the denominator generated, queried for a drug formulary and transmitted electronically
         $eprescribe = amcCollect('e_prescribe_amc', $patient->id, 'prescriptions', $patient->object['id']);

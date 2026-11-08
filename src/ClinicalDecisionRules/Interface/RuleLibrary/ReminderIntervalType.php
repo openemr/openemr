@@ -15,13 +15,8 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
  */
 class ReminderIntervalType
 {
-    var $code;
-    var $lbl;
-
-    function __construct($code, $lbl)
+    public function __construct(public string $code, public string $lbl)
     {
-        $this->lbl = $lbl;
-        $this->code = $code;
     }
 
     /**
@@ -41,12 +36,12 @@ class ReminderIntervalType
         return array_values($map);
     }
 
-    private static function map()
+    private static function map(): array
     {
-        $map = array(
+        $map = [
             'clinical' => new ReminderIntervalType('clinical', xl('Clinical')),
             'patient' => new ReminderIntervalType('patient', xl('Patient'))
-        );
+        ];
         return $map;
     }
 }

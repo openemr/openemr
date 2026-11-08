@@ -26,4 +26,3 @@ class PositiveDeviceRecommended extends DeviceRecommended
 
     public $_type = 'QDM::PositiveDeviceRecommended';
 }
-

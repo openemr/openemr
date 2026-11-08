@@ -41,4 +41,3 @@ class PatientCharacteristicRace extends QDMBaseType
 
     public $_type = 'QDM::PatientCharacteristicRace';
 }
-

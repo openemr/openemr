@@ -15,55 +15,34 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Order Summary")]);
-    exit;
-}
-
-function getListItem($listid, $value)
-{
-    $lrow = sqlQuery(
-        "SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        array($listid, $value)
-    );
-    $tmp = xl_list_label($lrow['title']);
-    if (empty($tmp)) {
-        $tmp = "($value)";
-    }
-
-    return $tmp;
-}
-
-function myCellText($s)
-{
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Order Summary", xl("Order Summary"));
 }
 
 function generate_order_summary($orderid): void
 {
 
   // If requested, save checkbox selections as to which procedures are not sendable.
-    if ($_POST['bn_save']) {
+    if (($_POST['bn_save'] ?? '') !== '') {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med write: Order Summary save", xl("Order Summary"));
+        }
         sqlStatement(
             "UPDATE procedure_order_code " .
             "SET do_not_send = 0 WHERE " .
             "procedure_order_id = ? AND " .
             "do_not_send != 0",
-            array($orderid)
+            [$orderid]
         );
         if (!empty($_POST['form_omit'])) {
             foreach ($_POST['form_omit'] as $key) {
@@ -73,7 +52,7 @@ function generate_order_summary($orderid): void
                     "procedure_order_id = ? AND " .
                     "do_not_send = 0 AND " .
                     "procedure_order_seq = ?",
-                    array($orderid, intval($key))
+                    [$orderid, intval($key)]
                 );
             }
         }
@@ -97,12 +76,12 @@ function generate_order_summary($orderid): void
         "LEFT JOIN users AS ru ON ru.id = pd.ref_providerID " .
         "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
         "WHERE po.procedure_order_id = ?",
-        array($orderid)
+        [$orderid]
     );
 
     $lab_id = intval($orow['lab_id']);
     $patient_id = intval($orow['patient_id']);
-    $encdate = substr($orow['date'], 0, 10);
+    $encdate = substr((string) $orow['date'], 0, 10);
 
   // Get insurance info.
     $ins_policy = '';
@@ -185,6 +164,7 @@ function generate_order_summary($orderid): void
 </style>
 
 <form method='post' action='order_manifest.php?orderid=<?php echo attr_url($orderid); ?>'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession())); ?>" />
 
 <div class='ordsum table-responsive'>
     <table class='table table-active'>
@@ -273,7 +253,7 @@ function generate_order_summary($orderid): void
         }
 
         $query .= "ORDER BY procedure_order_seq";
-        $res = sqlStatement($query, array($orderid));
+        $res = sqlStatement($query, [$orderid]);
 
         $encount = 0;
 
@@ -298,14 +278,14 @@ function generate_order_summary($orderid): void
                 "a.procedure_order_id = ? AND " .
                 "a.procedure_order_seq = ? " .
                 "ORDER BY q.seq, a.answer_seq",
-                array($lab_id, $procedure_code, $orderid, $order_seq)
+                [$lab_id, $procedure_code, $orderid, $order_seq]
             );
 
             $notes = '';
             while ($qrow = sqlFetchArray($qres)) {
                 // Formatting of these answer values may be lab-specific and we'll figure
                 // out how to deal with that as more labs are supported.
-                $answer = trim($qrow['answer']);
+                $answer = trim((string) $qrow['answer']);
                 $fldtype = $qrow['fldtype'];
                 if ($fldtype == 'G') {
                     $weeks = intval($answer / 7);

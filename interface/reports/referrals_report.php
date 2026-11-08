@@ -4,7 +4,7 @@
  * This report lists referrals for a given date range.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -15,28 +15,33 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once "$srcdir/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ReferralDisplay;
+use OpenEMR\Services\ReferralService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Referrals")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Referrals", xl("Referrals"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
-$form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
-$form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_from_date = CurrentRequest::get()->request->has('form_from_date') ? DateToYYYYMMDD(CurrentRequest::get()->request->getString('form_from_date')) : date('Y-01-01');
+$form_to_date   = CurrentRequest::get()->request->has('form_to_date') ? DateToYYYYMMDD(CurrentRequest::get()->request->getString('form_to_date')) : date('Y-m-d');
+$form_facility = $_POST['form_facility'] ?? '';
+// All referrals, the open ones, or the overdue ones (#14710).
+$form_show = ReferralDisplay::show(CurrentRequest::get()->request->getString('form_show'));
+$referralDisplay = new ReferralDisplay();
 ?>
 <html>
 <head>
@@ -45,7 +50,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
     <script>
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
         $(function () {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
@@ -56,7 +61,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -105,7 +110,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 </div>
 
 <form name='theform' id='theform' method='post' action='referrals_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -136,6 +141,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
                <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'
          class='datepicker form-control'>
             </td>
+            <?php echo $referralDisplay->showFilter($form_show); ?>
         </tr>
     </table>
 
@@ -175,6 +181,7 @@ if (!empty($_POST['form_refresh'])) {
 <th> <?php echo xlt('Refer To'); ?> </th>
 <th> <?php echo xlt('Refer Date'); ?> </th>
 <th> <?php echo xlt('Reply Date'); ?> </th>
+<th> <?php echo xlt('Status'); ?> </th>
 <th> <?php echo xlt('Patient'); ?> </th>
 <th> <?php echo xlt('ID'); ?> </th>
 <th> <?php echo xlt('Reason'); ?> </th>
@@ -186,6 +193,8 @@ if (!empty($_POST['form_refresh'])) {
         "d1.field_value AS refer_date, " .
         "d3.field_value AS reply_date, " .
         "d4.field_value AS body, " .
+        // The status of the recipient's latest Task, which is the referral's status (#14710).
+        ReferralService::taskStatusSql('t') . " AS task_status, " .
         "ut.organization, uf.facility_id, p.pubpid, " .
         "CONCAT(uf.fname,' ', uf.lname) AS referer_name, " .
         "CONCAT(ut.fname,' ', ut.lname) AS referer_to, " .
@@ -202,32 +211,18 @@ if (!empty($_POST['form_refresh'])) {
         "WHERE t.title = 'LBTref' AND " .
         "d1.field_value >= ? AND d1.field_value <= ? " .
         "ORDER BY ut.organization, d1.field_value, t.id";
-        $res = sqlStatement($query, array($form_from_date, $form_to_date));
+        $res = sqlStatement($query, [ReferralDisplay::fromDate($form_show, $form_from_date), $form_to_date]);
 
         while ($row = sqlFetchArray($res)) {
-            // If a facility is specified, ignore rows that do not match.
-            if ($form_facility !== '') {
-                if ($form_facility) {
-                    if ($row['facility_id'] != $form_facility) {
-                        continue;
-                    }
-                } else {
-                    if (!empty($row['facility_id'])) {
-                        continue;
-                    }
-                }
+            // Rows outside the Show choice or the facility (#14710).
+            if (!$referralDisplay->keeps($row, $form_show, $form_facility)) {
+                continue;
             }
 
             ?>
    <tr>
     <td>
-            <?php
-            if ($row['organization'] != null || $row['organization'] != '') {
-                echo text($row['organization']);
-            } else {
-                echo text($row['referer_to']);
-            }
-            ?>
+            <?php echo text(ReferralDisplay::referTo($row)); ?>
     </td>
     <td>
      <a href='#' onclick="return show_referral(<?php echo js_escape($row['id']); ?>)">
@@ -237,6 +232,7 @@ if (!empty($_POST['form_refresh'])) {
     <td>
             <?php echo text(oeFormatShortDate($row['reply_date'])) ?>
     </td>
+            <?php echo $referralDisplay->reportCell($row); ?>
     <td>
             <?php echo text($row['patient_name']) ?>
     </td>

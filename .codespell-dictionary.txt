@@ -1,0 +1,37 @@
+# OpenEMR Custom Dictionary for Codespell
+# Medical and domain-specific terms that should NOT be flagged as errors
+# Format: one word per line
+
+# Medical abbreviations/terms
+ehr
+abd
+aci
+mor
+hsa
+promis
+opthalmic
+
+# Names (proper nouns used in sample data)
+cartledge
+skelton
+regester
+nast
+captian
+
+# Domain-specific terms
+requestor
+keypair
+delink
+formend
+inout
+
+# Abbreviations used in code
+dorp
+insid
+
+# International/Spanish medical terms
+sindrom
+syndrom
+
+# Legacy system terms
+thur

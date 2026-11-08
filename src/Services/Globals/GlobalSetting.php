@@ -89,31 +89,28 @@ class GlobalSetting
 
     const DATA_TYPE_ADDRESS_BOOK = 'address_book';
 
-    protected $label = null;
-    /**
-     * @var string The field type that this value can be.  Valid options include 'bool', 'color_code',
-     */
-    protected $dataType = null;
-    protected $default = null;
-    protected $description = null;
-    protected $isUserSetting = false;
-
     /**
      * @var array Any specific field options such as
      */
     protected $fieldOptions = [];
 
-    public function __construct($label, $dataType, $default, $description, $isUserSetting = false)
-    {
-        $this->label = $label;
-        // TODO: do we want to validate the data type here?  Could slow down modules and anyone modifying globals...
-        $this->dataType = $dataType;
-        $this->default = $default;
-        $this->description = $description;
-        $this->isUserSetting = $isUserSetting;
+    /**
+     * @param mixed $label
+     * @param string $dataType The field type that this value can be.  Valid options include 'bool', 'color_code',
+     * @param mixed $default
+     * @param mixed $description
+     * @param bool $isUserSetting
+     */
+    public function __construct(
+        protected $label,
+        protected $dataType,
+        protected $default,
+        protected $description,
+        protected $isUserSetting = false
+    ) {
     }
 
-    public function format()
+    public function format(): array
     {
         $result = [
             $this->label,
@@ -153,12 +150,12 @@ class GlobalSetting
         $this->fieldOptions[$key] = $option;
     }
 
-    public function dataTypeSupportsOptions($datatype)
+    public function dataTypeSupportsOptions($datatype): bool
     {
         return in_array($datatype, self::DATA_TYPES_WITH_OPTIONS);
     }
 
-    public function dataTypeSupportsOptionKey($datatype, $key)
+    public function dataTypeSupportsOptionKey($datatype, $key): bool
     {
         if ($this->dataTypeSupportsOptions($datatype)) {
             return in_array($key, self::DATA_TYPE_FIELD_OPTIONS_SUPPORTED[$datatype]);

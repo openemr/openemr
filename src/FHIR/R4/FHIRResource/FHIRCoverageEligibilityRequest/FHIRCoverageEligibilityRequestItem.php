@@ -411,7 +411,7 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -468,15 +468,13 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CoverageEligibilityRequestItem xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestItem>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CoverageEligibilityRequestItem xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestItem>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->supportingInfoSequence)) {
             foreach ($this->supportingInfoSequence as $supportingInfoSequence) {

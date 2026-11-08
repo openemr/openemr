@@ -8,7 +8,7 @@
  * Call to top.restoreSession() happens to ensure directed to correct session.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -34,7 +34,7 @@ if (!empty($_GET['revert'])) {
     // user submitted the payment (will go to process_response.php)
     $cancel = '';
     $transaction = $_GET['transaction'];
-    $customFields = json_decode($transaction['transactioncustomfield'], true);
+    $customFields = json_decode((string) $transaction['transactioncustomfield'], true);
     $front = $customFields[1];
     $patientIdCc = $customFields[2];
     $csrf = $customFields[3];
@@ -50,13 +50,13 @@ if (!empty($_GET['revert'])) {
     </head>
     <body>
         <?php if ($revert === 1) { ?>
-            <form id="myForm" method="post" onsubmit="return top.restoreSession()" action="process_revert_response.php?front=<?php echo htmlspecialchars(urlencode($front), ENT_QUOTES); ?>&csrf_token=<?php echo htmlspecialchars(urlencode($csrf), ENT_QUOTES); ?>">
+            <form id="myForm" method="post" onsubmit="return top.restoreSession()" action="process_revert_response.php?front=<?php echo htmlspecialchars(urlencode((string) $front), ENT_QUOTES); ?>&csrf_token=<?php echo htmlspecialchars(urlencode((string) $csrf), ENT_QUOTES); ?>">
         <?php } else { ?>
-            <form id="myForm" method="post" onsubmit="return top.restoreSession()" action="process_response.php?front=<?php echo htmlspecialchars(urlencode($front), ENT_QUOTES); ?>&cancel=<?php echo htmlspecialchars(urlencode($cancel), ENT_QUOTES); ?>&patient_id_cc=<?php echo htmlspecialchars(urlencode($patientIdCc), ENT_QUOTES); ?>&csrf_token=<?php echo htmlspecialchars(urlencode($csrf), ENT_QUOTES); ?>">
+            <form id="myForm" method="post" onsubmit="return top.restoreSession()" action="process_response.php?front=<?php echo htmlspecialchars(urlencode((string) $front), ENT_QUOTES); ?>&cancel=<?php echo htmlspecialchars(urlencode($cancel), ENT_QUOTES); ?>&patient_id_cc=<?php echo htmlspecialchars(urlencode((string) $patientIdCc), ENT_QUOTES); ?>&csrf_token=<?php echo htmlspecialchars(urlencode((string) $csrf), ENT_QUOTES); ?>">
         <?php } ?>
         <?php
         foreach ($transaction as $a => $b) {
-            echo '<input type="hidden" name="' . htmlspecialchars($a, ENT_QUOTES) . '" value="' . htmlspecialchars($b, ENT_QUOTES) . '">';
+            echo '<input type="hidden" name="' . htmlspecialchars((string) $a, ENT_QUOTES) . '" value="' . htmlspecialchars((string) $b, ENT_QUOTES) . '">';
         }
         ?>
         </form>

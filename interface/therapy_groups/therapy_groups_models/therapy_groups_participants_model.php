@@ -22,7 +22,7 @@
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class Therapy_groups_participants
@@ -30,20 +30,20 @@ class Therapy_groups_participants
     const TABLE = 'therapy_groups_participants';
     const PATIENT_TABLE = 'patient_data';
 
-    public function getParticipants($groupId, $onlyActive = false)
+    public function getParticipants($groupId, $onlyActive = false): array
     {
 
         $sql = "SELECT gp.*, p.fname, p.lname FROM " . self::TABLE . " AS gp ";
         $sql .= "JOIN " . self::PATIENT_TABLE . " AS p ON gp.pid = p.pid ";
         $sql .= "WHERE gp.group_id = ?";
-        $binds = array($groupId);
+        $binds = [$groupId];
 
         if ($onlyActive) {
             $sql .= " AND gp.group_patient_status = ?";
             $binds[] = 10;
         }
 
-        $groupParticipants = array();
+        $groupParticipants = [];
         $result = sqlStatement($sql, $binds);
         while ($gp = sqlFetchArray($result)) {
             $groupParticipants[] = $gp;
@@ -52,7 +52,7 @@ class Therapy_groups_participants
         return $groupParticipants;
     }
 
-    public function updateParticipant(array $participant, $patientId, $groupId)
+    public function updateParticipant(array $participant, $patientId, $groupId): bool
     {
 
         if (empty($participant['group_patient_end'])) {
@@ -67,31 +67,31 @@ class Therapy_groups_participants
         $sql = substr($sql, 0, -1);
         $sql .= ' WHERE pid = ? AND group_id = ?';
 
-        $data = array_merge($participant, array($patientId, $groupId));
+        $data = array_merge($participant, [$patientId, $groupId]);
         $result = sqlStatement($sql, $data);
-        return !$result ? false : true;
+        return (bool) $result;
     }
 
-    public function removeParticipant($groupId, $pid)
+    public function removeParticipant($groupId, $pid): bool
     {
 
         $sql = "DELETE FROM " . self::TABLE . " WHERE group_id = ? AND pid = ?";
-        $result = sqlStatement($sql, array($groupId, $pid));
-        return !$result ? false : true;
+        $result = sqlStatement($sql, [$groupId, $pid]);
+        return (bool) $result;
     }
 
-    public function isAlreadyRegistered($pid, $groupId)
+    public function isAlreadyRegistered($pid, $groupId): bool
     {
 
         $sql = "SELECT COUNT(*) AS count FROM " . self::TABLE . " WHERE pid = ? AND group_id = ?";
 
 //        $result = sqlStatement($sql, array($pid, $groupId));
 //        $count = sqlFetchArray($result);
-        $count = sqlQuery($sql, array($pid, $groupId));
-        return($count['count'] > 0) ? true : false;
+        $count = sqlQuery($sql, [$pid, $groupId]);
+        return$count['count'] > 0;
     }
 
-    public function saveParticipant($participantData)
+    public function saveParticipant($participantData): bool
     {
            // print_r($participantData);die;
         $sql = "INSERT INTO " . self::TABLE . " VALUES(?,?,?,?,?,?);";
@@ -104,6 +104,6 @@ class Therapy_groups_participants
 
         $result = sqlStatement($sql, $data);
 
-        return !$result ? false : true;
+        return (bool) $result;
     }
 }

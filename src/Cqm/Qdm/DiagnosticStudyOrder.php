@@ -61,4 +61,3 @@ class DiagnosticStudyOrder extends QDMBaseType
 
     public $_type = 'QDM::DiagnosticStudyOrder';
 }
-

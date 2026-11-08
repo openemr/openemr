@@ -26,4 +26,3 @@ class NegativeMedicationDischarge extends MedicationDischarge
 
     public $_type = 'QDM::NegativeMedicationDischarge';
 }
-

@@ -19,17 +19,17 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class NQF_0013_Numerator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         // See if BP has been done within the measurement period (on a day of a specified encounter)
         $query = "SELECT form_vitals.bps, form_vitals.bpd " .
@@ -44,7 +44,7 @@ class NQF_0013_Numerator implements CqmFilterIF
                  "AND form_vitals.date >= ? " .
                  "AND form_vitals.date <= ? " .
                  "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' OR enc_category_map.rule_enc_id = 'enc_nurs_fac' )";
-        $res = sqlStatement($query, array( $patient->id, $beginDate, $endDate ));
+        $res = sqlStatement($query, [ $patient->id, $beginDate, $endDate ]);
         $number = sqlNumRows($res);
         if ($number > 0) {
             return true;

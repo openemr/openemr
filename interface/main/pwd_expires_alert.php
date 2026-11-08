@@ -4,7 +4,7 @@
  * Display a message indicating that the user's password has/will expire.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    ViCarePlus Team, Visolve <vicareplus_engg@visolve.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 ViCarePlus Team, Visolve <vicareplus_engg@visolve.com>
@@ -16,21 +16,23 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (AuthUtils::useActiveDirectory()) {
     // this user should never of been directed to this screen
     die(xlt('Not Applicable'));
 }
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-$result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION["authUserID"]]);
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+
+$result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$session->get('authUserID')]);
 $current_date = date("Y-m-d");
-$pwd_expires = date("Y-m-d", strtotime($result['last_update_password'] . "+" . $GLOBALS['password_expiration_days'] . " days"));
-$grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . $GLOBALS['password_grace_time'] . " days"));
+$pwd_expires = date("Y-m-d", strtotime($result['last_update_password'] . "+" . OEGlobalsBag::getInstance()->getInt('password_expiration_days') . " days"));
+$grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . OEGlobalsBag::getInstance()->getInt('password_grace_time') . " days"));
 
 // Determine the expiration message to display
 //  (note that user can not even get to this screen if credentials are expired)

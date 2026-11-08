@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Common\System;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 /**
  * Handles any commands dealing with the operating system.
  */
@@ -16,18 +18,18 @@ class System
      * @param string $command The command to check
      * @return bool True if the command has been found ; otherwise, false.
      */
-    public function command_exists($command)
+    public function command_exists($command): bool
     {
         $exec_command = escapeshellcmd($command); // @see  https://www.php.net/manual/en/function.escapeshellcmd.php
         $whereIsCommand = (PHP_OS == 'WINNT') ? 'where' : 'which';
 
         $process = proc_open(
             "$whereIsCommand $exec_command",
-            array(
-            0 => array("pipe", "r"), //STDIN
-            1 => array("pipe", "w"), //STDOUT
-            2 => array("pipe", "w"), //STDERR
-            ),
+            [
+            0 => ["pipe", "r"], //STDIN
+            1 => ["pipe", "w"], //STDOUT
+            2 => ["pipe", "w"], //STDERR
+            ],
             $pipes
         );
         if ($process !== false) {
@@ -57,7 +59,7 @@ class System
         $phandle = false;
         if (IS_WINDOWS) {
             $redirect_errors = " > " .
-                $this->escapeshellcmd($GLOBALS['temporary_files_dir'] .
+                $this->escapeshellcmd(OEGlobalsBag::getInstance()->getString('temporary_files_dir') .
                     "/oe-system-start_server.log") . " 2>&1";
             $cmd .= $redirect_errors;
             $phandle = popen("start /B " . $cmd, "r");
@@ -81,7 +83,7 @@ class System
      * @param string $command a command or command string that needs to be sanitized.
      * @return string The cleaned up string.
      */
-    public function escapeshellcmd($command)
+    public function escapeshellcmd($command): string
     {
         // for now we just pass through to the php cleanup, any specifics we can add after
         return escapeshellcmd($command);

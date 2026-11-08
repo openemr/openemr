@@ -61,4 +61,3 @@ class AssessmentRecommended extends QDMBaseType
 
     public $_type = 'QDM::AssessmentRecommended';
 }
-

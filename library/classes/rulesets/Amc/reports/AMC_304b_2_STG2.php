@@ -19,28 +19,28 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 
 class AMC_304b_2_STG2 extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304b_2_STG2";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "prescriptions";
     }
 
-    public function createDenominator()
+    public function createDenominator(): AmcFilterIF
     {
         return new AMC_304b_2_STG2_Denominator();
     }
 
-    public function createNumerator()
+    public function createNumerator(): AmcFilterIF
     {
         return new AMC_304b_2_STG2_Numerator();
     }

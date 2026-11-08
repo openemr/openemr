@@ -2,10 +2,10 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
@@ -18,7 +18,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class AllergyIntoleranceService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT pid, begdate, enddate, `date`, diagnosis
                 FROM lists
@@ -27,7 +27,7 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
         return $sql;
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): AllergyIntolerance
     {
         $record = $recordObj->getData();
         $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());
@@ -40,8 +40,9 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
             'prevalencePeriod' => new Interval([
                 'low' => $record['begdate'],
                 'high' => $record['enddate'],
-                'lowClosed' => $record['begdate'] ? true : false,
-                'highClosed' => $this->validDateOrNull($record['enddate']) ? true : false
+                'lowClosed' => (bool) $record['begdate'],
+                // No end date means ongoing: in CQL a closed null end is unbounded, an open one unknown (#14526)
+                'highClosed' => true
             ])
         ]);
 

@@ -4,7 +4,7 @@
  * Misc. BatchCom convenience functions
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Andres Paglayan <andres@paglayan.com>
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @copyright Copyright (c) 2005 Andres Paglayan <andres@paglayan.com>
@@ -12,29 +12,31 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
+
 //validation functions
-function check_date_format($date)
+function check_date_format($date): bool
 {
-    if (($date == '') || ($date == '0000-00-00')) {
+    if (Utilities::isDateEmpty($date)) {
         return true;
     }
-    $ymd = explode('-', $date);
+    $ymd = explode('-', (string) $date);
     return (count($ymd) == 3) && ($ymd[0] > 1900) && checkdate($ymd[1], $ymd[2], $ymd[0]);
 }
 
-function check_age($age)
+function check_age($age): bool
 {
-    $age = trim($age);
+    $age = trim((string) $age);
     $pat = "/^([0-9]+)$/";
     return preg_match($pat, $age) or $age == '';
 }
 
-function check_select($select, $array)
+function check_select($select, $array): bool
 {
     return array_search($select, $array) or 0 === array_search($select, $array);
 }
 
-function where_or_and($and)
+function where_or_and($and): string
 {
     if ($and == '') {
         $and = 'WHERE ';
@@ -56,7 +58,7 @@ function register_email($patient_id, $sent_by, $msg_type, $msg_subject, $msg_tex
 
     echo $sql;
 
-    $res = sqlStatement($sql, array($patient_id, $sent_by, $msg_type, $msg_subject, $msg_text));
+    $res = sqlStatement($sql, [$patient_id, $sent_by, $msg_type, $msg_subject, $msg_text]);
 }
 
 function generate_csv($sql_result): void
@@ -65,6 +67,8 @@ function generate_csv($sql_result): void
     // create file header.
     // menu for fields could be added in the future
 
+    $flag_on = false;
+    $file = '';
     while ($row = sqlFetchArray($sql_result)) {
         if (!$flag_on) {
             $flag_on = true;
@@ -77,6 +81,7 @@ function generate_csv($sql_result): void
             reset($row);
         }
 
+        $line = '';
         foreach ($row as $value) {
             $line .= csvEscape($value) . ",";
         }
@@ -84,7 +89,6 @@ function generate_csv($sql_result): void
         $line = substr($line, 0, -1);
         $line .= "\n";
         $file .= $line;
-        $line = '';
     }
 
     //download

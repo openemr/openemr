@@ -1,0 +1,65 @@
+<?php
+
+declare(strict_types=1);
+
+namespace OpenEMR\Encryption\Cipher;
+
+use BadMethodCallException;
+use OpenEMR\Common\Crypto\CryptoGenException;
+use OpenEMR\Encryption\Keys\KeyMaterial;
+use OpenEMR\Encryption\{
+    Ciphertext,
+    Plaintext,
+};
+
+/**
+ * Legacy "version 2-3" handling.
+ *
+ * @deprecated
+ */
+readonly class Aes256CbcHmacSha256 implements CipherInterface
+{
+    private const HMAC_LENGTH = 32; // 256/8
+
+    private const IV_LENGTH = 16; // openssl_cipher_iv_length('aes-256-cbc')
+
+    public function __construct(
+        private KeyMaterial $key,
+        private KeyMaterial $hmacKey,
+    ) {
+    }
+
+    public function decrypt(Ciphertext $ciphertext): Plaintext
+    {
+        $ciphertext = $ciphertext->value;
+        $hmac = substr($ciphertext, 0, self::HMAC_LENGTH);
+        $iv = substr($ciphertext, self::HMAC_LENGTH, self::IV_LENGTH);
+        $data = substr($ciphertext, self::HMAC_LENGTH + self::IV_LENGTH);
+
+        $expectedHmac = hash_hmac('sha256', $iv . $data, $this->hmacKey->key, true);
+        if (!hash_equals(known_string: $expectedHmac, user_string: $hmac)) {
+            throw new CryptoGenException('HMAC invalid while decrypting message');
+        }
+
+        $decrypted = openssl_decrypt(
+            $data,
+            'aes-256-cbc',
+            $this->key->key,
+            OPENSSL_RAW_DATA,
+            $iv,
+        );
+
+        if ($decrypted === false) {
+            throw new CryptoGenException('Decryption failed despite HMAC validating');
+        }
+        return new Plaintext($decrypted);
+    }
+
+    public function encrypt(Plaintext $plaintext): Ciphertext
+    {
+        throw new BadMethodCallException(sprintf(
+            'Encrypting new data with %s is not supported',
+            self::class,
+        ));
+    }
+}

@@ -14,9 +14,16 @@
  /////////////////////////////////////////////////////////////////////
 
  require_once("../interface/globals.php");
- require_once("../library/patient.inc.php");
 
+ use OpenEMR\Common\Acl\AccessDeniedHelper;
+ use OpenEMR\Common\Acl\AclMain;
+ use OpenEMR\Common\Csrf\CsrfUtils;
  use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patients', 'demo')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Export Patient Demographics LabWorks", xl("Export Patient Demographics LabWorks"));
+}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
  // FTP parameters that you must customize.  If you are not sending
  // then set $FTP_SERVER to an empty string.
@@ -34,37 +41,21 @@
  $out = "";
 
  // Add a string to output with some basic sanitizing.
-function Add($field)
+function custom_labworks_Add($field): string
 {
-    return "^" . trim(str_replace(array("\r", "\n", "\t"), " ", $field));
+    return "^" . trim(str_replace(["\r", "\n", "\t"], " ", $field));
 }
 
- // Remove all non-digits from a string.
-function Digits($field)
-{
-    return preg_replace("/\D/", "", $field);
-}
-
- // Translate sex.
-function Sex($field)
-{
-    $sex = strtoupper(substr(trim($field), 0, 1));
-    if ($sex != "M" && $sex != "F") {
-        $sex = "U";
-    }
-
-    return $sex;
-}
 
  // Translate a date.
-function LWDate($field)
+function LWDate($field): string
 {
     $tmp = fixDate($field);
-    return substr($tmp, 5, 2) . substr($tmp, 8, 2) . substr($tmp, 0, 4);
+    return substr((string) $tmp, 5, 2) . substr((string) $tmp, 8, 2) . substr((string) $tmp, 0, 4);
 }
 
  // Translate insurance type.
-function InsType($field)
+function InsType($field): string
 {
     if (! $field) {
         return "";
@@ -93,11 +84,11 @@ function mydie($msg): void
 
  // This mess gets all the info for the patient.
  //
- $insrow = array();
+ $insrow = [];
  global $pid; // defined in globals.php
-foreach (array('primary','secondary') as $value) {
+foreach (['primary','secondary'] as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
-    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", array($pid, $value));
+    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", [$pid, $value]);
 }
 
  $query = "SELECT " .
@@ -128,13 +119,13 @@ foreach (array('primary','secondary') as $value) {
   "LEFT OUTER JOIN addresses AS a2 ON a2.foreign_id = c2.id " .
   "WHERE p.pid = ? LIMIT 1";
 
- $row = sqlFetchArray(sqlStatement($query, array($insrow[0]['id'], $insrow[1]['id'], $pid)));
+ $row = sqlFetchArray(sqlStatement($query, [$insrow[0]['id'], $insrow[1]['id'], $pid]));
 
  // Get primary care doc info.  If none was selected in the patient
  // demographics then pick the #1 doctor in the clinic.
  //
  $query = "select id, fname, mname, lname from users where authorized = 1";
- $sqlBindArray = array();
+ $sqlBindArray = [];
 if ($row['providerID']) {
     $query .= " AND id = ?";
     array_push($sqlBindArray, $row['providerID']);
@@ -147,84 +138,84 @@ if ($row['providerID']) {
  // Patient Section.
  //
  $out .= $pid;                     // patient id
- $out .= Add($row['pubpid']);              // chart number
- $out .= Add($row['lname']);               // last name
- $out .= Add($row['fname']);               // first name
- $out .= Add(substr($row['mname'], 0, 1)); // middle initial
- $out .= Add("");                          // alias
- $out .= Add(Digits($row['ss']));          // ssn
- $out .= Add(LWDate($row['DOB']));         // dob
- $out .= Add(Sex($row['sex']));            // gender
- $out .= Add("");                          // notes
- $out .= Add($row['street']);              // address 1
- $out .= Add("");                          // address2
- $out .= Add($row['city']);                // city
- $out .= Add($row['state']);               // state
- $out .= Add($row['postal_code']);         // zip
- $out .= Add(Digits($row['phone_home']));  // home phone
+ $out .= custom_labworks_Add($row['pubpid']);              // chart number
+ $out .= custom_labworks_Add($row['lname']);               // last name
+ $out .= custom_labworks_Add($row['fname']);               // first name
+ $out .= custom_labworks_Add(substr((string) $row['mname'], 0, 1)); // middle initial
+ $out .= custom_labworks_Add("");                          // alias
+ $out .= custom_labworks_Add(Digits($row['ss']));          // ssn
+ $out .= custom_labworks_Add(LWDate($row['DOB']));         // dob
+ $out .= custom_labworks_Add(hl7Sex($row['sex']));            // gender
+ $out .= custom_labworks_Add("");                          // notes
+ $out .= custom_labworks_Add($row['street']);              // address 1
+ $out .= custom_labworks_Add("");                          // address2
+ $out .= custom_labworks_Add($row['city']);                // city
+ $out .= custom_labworks_Add($row['state']);               // state
+ $out .= custom_labworks_Add($row['postal_code']);         // zip
+ $out .= custom_labworks_Add(Digits($row['phone_home']));  // home phone
 
  // Guarantor Section.  OpenEMR does not have guarantors so we use the primary
  // insurance subscriber if there is one, otherwise the patient.
  //
-if (trim($row['lname1'])) {
-    $out .= Add($row['lname1']);
-    $out .= Add($row['fname1']);
-    $out .= Add(substr($row['mname1'], 0, 1));
-    $out .= Add($row['sstreet1']);
-    $out .= Add("");
-    $out .= Add($row['scity1']);
-    $out .= Add($row['sstate1']);
-    $out .= Add($row['szip1']);
+if (trim((string) $row['lname1'])) {
+    $out .= custom_labworks_Add($row['lname1']);
+    $out .= custom_labworks_Add($row['fname1']);
+    $out .= custom_labworks_Add(substr((string) $row['mname1'], 0, 1));
+    $out .= custom_labworks_Add($row['sstreet1']);
+    $out .= custom_labworks_Add("");
+    $out .= custom_labworks_Add($row['scity1']);
+    $out .= custom_labworks_Add($row['sstate1']);
+    $out .= custom_labworks_Add($row['szip1']);
 } else {
-    $out .= Add($row['lname']);
-    $out .= Add($row['fname']);
-    $out .= Add(substr($row['mname'], 0, 1));
-    $out .= Add($row['street']);
-    $out .= Add("");
-    $out .= Add($row['city']);
-    $out .= Add($row['state']);
-    $out .= Add($row['postal_code']);
+    $out .= custom_labworks_Add($row['lname']);
+    $out .= custom_labworks_Add($row['fname']);
+    $out .= custom_labworks_Add(substr((string) $row['mname'], 0, 1));
+    $out .= custom_labworks_Add($row['street']);
+    $out .= custom_labworks_Add("");
+    $out .= custom_labworks_Add($row['city']);
+    $out .= custom_labworks_Add($row['state']);
+    $out .= custom_labworks_Add($row['postal_code']);
 }
 
  // Primary Insurance Section.
  //
- $out .= Add($row['provider1']);
- $out .= Add($row['name1']);
- $out .= Add($row['street11']);
- $out .= Add($row['street21']);
- $out .= Add($row['city1']);
- $out .= Add($row['state1']);
- $out .= Add($row['zip1']);
- $out .= Add("");
- $out .= Add(InsType($row['instype1']));
- $out .= Add($row['fname1'] . " " . $row['lname1']);
- $out .= Add(ucfirst($row['relationship1']));
- $out .= Add($row['group1']);
- $out .= Add($row['policy1']);
+ $out .= custom_labworks_Add($row['provider1']);
+ $out .= custom_labworks_Add($row['name1']);
+ $out .= custom_labworks_Add($row['street11']);
+ $out .= custom_labworks_Add($row['street21']);
+ $out .= custom_labworks_Add($row['city1']);
+ $out .= custom_labworks_Add($row['state1']);
+ $out .= custom_labworks_Add($row['zip1']);
+ $out .= custom_labworks_Add("");
+ $out .= custom_labworks_Add(InsType($row['instype1']));
+ $out .= custom_labworks_Add($row['fname1'] . " " . $row['lname1']);
+ $out .= custom_labworks_Add(ucfirst((string) $row['relationship1']));
+ $out .= custom_labworks_Add($row['group1']);
+ $out .= custom_labworks_Add($row['policy1']);
 
  // Secondary Insurance Section.
  //
- $out .= Add($row['provider2']);
- $out .= Add($row['name2']);
- $out .= Add($row['street12']);
- $out .= Add($row['street22']);
- $out .= Add($row['city2']);
- $out .= Add($row['state2']);
- $out .= Add($row['zip2']);
- $out .= Add("");
- $out .= Add(InsType($row['instype2']));
- $out .= Add($row['fname2'] . " " . $row['lname2']);
- $out .= Add(ucfirst($row['relationship2']));
- $out .= Add($row['group2']);
- $out .= Add($row['policy2']);
+ $out .= custom_labworks_Add($row['provider2']);
+ $out .= custom_labworks_Add($row['name2']);
+ $out .= custom_labworks_Add($row['street12']);
+ $out .= custom_labworks_Add($row['street22']);
+ $out .= custom_labworks_Add($row['city2']);
+ $out .= custom_labworks_Add($row['state2']);
+ $out .= custom_labworks_Add($row['zip2']);
+ $out .= custom_labworks_Add("");
+ $out .= custom_labworks_Add(InsType($row['instype2']));
+ $out .= custom_labworks_Add($row['fname2'] . " " . $row['lname2']);
+ $out .= custom_labworks_Add(ucfirst((string) $row['relationship2']));
+ $out .= custom_labworks_Add($row['group2']);
+ $out .= custom_labworks_Add($row['policy2']);
 
  // Primary Care Physician Section.
  //
- $out .= Add($prow['id']);
- $out .= Add($prow['lname']);
- $out .= Add($prow['fname']);
- $out .= Add(substr($prow['mname'], 0, 1));
- $out .= Add(""); // UPIN not available
+ $out .= custom_labworks_Add($prow['id']);
+ $out .= custom_labworks_Add($prow['lname']);
+ $out .= custom_labworks_Add($prow['fname']);
+ $out .= custom_labworks_Add(substr((string) $prow['mname'], 0, 1));
+ $out .= custom_labworks_Add(""); // UPIN not available
 
  // All done.
  $out .= "\rEND";

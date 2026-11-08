@@ -13,23 +13,31 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
+// This template is embedded in demographics dashboard rendering via
+// RenderPharmacySectionEvent. Do not hard-exit the parent page when the
+// user lacks patients/rx — Front Office and other non-clinical roles need
+// demographics/appointments without prescription access.
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
-    exit;
+    AccessDeniedHelper::logDenial('ACL check failed for patients/rx: Pharmacy Selector');
+    return;
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pharmacyService = new PharmacyService();
-$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? false;
-$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? false;
+$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid'));
+$prim_pharmacy = is_array($prim_pharmacy) ? $prim_pharmacy : [];
+$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid'));
+$alt_pharmacy = is_array($alt_pharmacy) ? $alt_pharmacy : [];
 
 $primary_pharmacy = ($prim_pharmacy['business_name'] ?? false) ? ($prim_pharmacy['business_name'] . ' - ' . ($prim_pharmacy['address_line_1'] ?? '') .
     ' ' . ($prim_pharmacy['city'] ?? '') . ', ' . ($prim_pharmacy['state'] ?? '')) : '';
 $alternate_pharmacy = ($alt_pharmacy['business_name'] ?? false) ? ($alt_pharmacy['business_name'] . ' - ' . ($alt_pharmacy['address_line_1'] ?? '') .
-    ' ' . ($alt_pharmacy['city'] ?? '') . ', ' . $alt_pharmacy['state'] ?? '') : '';
+    ' ' . ($alt_pharmacy['city'] ?? '') . ', ' . ($alt_pharmacy['state'] ?? '')) : '';
 ?>
 
 <div class="row col-12">

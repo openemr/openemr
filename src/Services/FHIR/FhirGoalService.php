@@ -3,27 +3,35 @@
 /**
  * FhirGoalService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGoal;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDate;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRGoalLifecycleStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRGoal\FHIRGoalTarget;
 use OpenEMR\Services\CarePlanService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -35,6 +43,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     /**
      * @var CarePlanService
@@ -54,13 +63,16 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
             // note even though we label this as a uuid, it is a SURROGATE UID because of the nature of how goals are stored
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
+            'lifecycle-status' => new FhirSearchParameterDefinition('lifecycle-status', SearchFieldType::TOKEN, ['plan_status']),
+            'target-date' => new FhirSearchParameterDefinition('target-date', SearchFieldType::DATE, ['date_end']),
+            'description' => new FhirSearchParameterDefinition('description', SearchFieldType::TOKEN, ['fcp.code']),
         ];
     }
 
@@ -74,20 +86,22 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
      * Parses an OpenEMR careTeam record, returning the equivalent FHIR CareTeam Resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRGoal
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $goal = new FHIRGoal();
 
+        // FIXED: Add US Core profile to meta
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         if (!empty($dataRecord['creation_date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['creation_date']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['creation_date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
+        $fhirMeta->addProfile(self::USCGI_PROFILE_URI);
         $goal->setMeta($fhirMeta);
 
         $fhirId = new FHIRId();
@@ -100,53 +114,141 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             $goal->setSubject(UtilsService::createDataMissingExtension());
         }
 
-        $lifecycleStatus = new FHIRGoalLifecycleStatus();
-        $lifecycleStatus->setValue("active");
-        $goal->setLifecycleStatus($lifecycleStatus);
+        // US Core 8.0: lifecycleStatus is mandatory and Must Support
+        $lifecycleStatus = $this->mapPlanStatusToLifecycleStatus($dataRecord['plan_status'] ?? null);
+        $fhirLifecycleStatus = new FHIRGoalLifecycleStatus();
+        $fhirLifecycleStatus->setValue($lifecycleStatus);
+        $goal->setLifecycleStatus($fhirLifecycleStatus);
 
+        // US Core 8.0: achievementStatus is Must Support (new requirement)
+        if (!empty($dataRecord['plan_status'])) {
+            $achievementStatus = $this->mapPlanStatusToAchievementStatus($dataRecord['plan_status']);
+            if ($achievementStatus) {
+                $goal->setAchievementStatus($achievementStatus);
+            }
+        }
+
+        // US Core 8.0: category is Must Support
+        $category = new FHIRCodeableConcept();
+        $categoryCoding = new FHIRCoding();
+        $categoryCoding->setSystem('http://hl7.org/fhir/goal-category');
+
+        // Check if this is an SDOH goal based on code or description
+        if ($this->isSDOHGoal($dataRecord)) {
+            $categoryCoding->setCode('sdoh');
+            $categoryCoding->setDisplay('Social Determinants of Health');
+        } else {
+            $categoryCoding->setCode('physiological');
+            $categoryCoding->setDisplay('Physiological');
+        }
+        $category->addCoding($categoryCoding);
+        $goal->addCategory($category);
+
+        // US Core 8.0: expressedBy is Must Support for provenance
         if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
             $goal->setExpressedBy(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
         }
 
+        // US Core 8.0: startDate is Must Support (at least one of startDate or target.dueDate required)
+        if (!empty($dataRecord['date'])) {
+            $parsedDateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'], new \DateTimeZone(date('P')));
+            if ($parsedDateTime) {
+                $fhirDate = new FHIRDate();
+                $fhirDate->setValue($parsedDateTime->format("Y-m-d"));
+                $goal->setStartDate($fhirDate);
+            }
+        }
 
-        // ONC only requires a descriptive text.  Future FHIR implementors can grab these details and populate the
-        // activity element if they so choose, for now we just return the combined description of the care plan.
+        // US Core 8.0: description is mandatory and Must Support with preferred binding
         if (!empty($dataRecord['details'])) {
             $text = $this->getGoalTextFromDetails($dataRecord['details']);
             $codeableConcept = new FHIRCodeableConcept();
-            $codeableConcept->setText($text['text']);
+
+            // FIXED: Fix apostrophes in text
+            $cleanText = str_replace('`', "'", $text['text']);
+            $codeableConcept->setText($cleanText);
+
+            // FIXED: Add coding from US Core Goal Description value set (no duplicates, clean codes)
+            $codeTypeService = new CodeTypesService();
+            $addedCodes = []; // Track codes to prevent duplicates
+
+            foreach ($dataRecord['details'] as $detail) {
+                if (!empty($detail['code'])) {
+                    // FIXED: Strip prefix from code
+                    $cleanCode = self::stripCodePrefix($detail['code']);
+
+                    // FIXED: Prevent duplicate codes
+                    if (in_array($cleanCode, $addedCodes)) {
+                        continue;
+                    }
+
+                    $codeText = $codeTypeService->lookup_code_description($detail['code']);
+                    $codeSystem = $codeTypeService->getSystemForCode($detail['code']);
+
+                    $coding = new FHIRCoding();
+                    $coding->setCode($cleanCode);
+                    if (!empty($codeText)) {
+                        // FIXED: Fix apostrophes in display text
+                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                        $cleanDisplay = str_replace('`', "'", xl($codeText));
+                        $coding->setDisplay($cleanDisplay);
+                    }
+                    $coding->setSystem($codeSystem);
+                    $codeableConcept->addCoding($coding);
+
+                    $addedCodes[] = $cleanCode;
+                }
+            }
             $goal->setDescription($codeableConcept);
 
-            $codeTypeService = new CodeTypesService();
+            // US Core 8.0: target is Must Support with measure and dueDate
             foreach ($dataRecord['details'] as $detail) {
                 $fhirGoalTarget = new FHIRGoalTarget();
-                if (!empty($detail['date'])) {
-                    $fhirDate = new FHIRDate();
+
+                // target.dueDate from date_end (US Core 8.0 requirement)
+                if (!empty($dataRecord['date_end'])) {
+                    $parsedEndDate = \DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date_end'], new \DateTimeZone(date('P')));
+                    if ($parsedEndDate) {
+                        $fhirDueDate = new FHIRDate();
+                        $fhirDueDate->setValue($parsedEndDate->format("Y-m-d"));
+                        $fhirGoalTarget->setDueDate($fhirDueDate);
+                    }
+                } elseif (!empty($detail['date'])) {
+                    // Fallback to detail date if no date_end
                     $parsedDateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $detail['date'], new \DateTimeZone(date('P')));
-                    $fhirDate->setValue($parsedDateTime->format("Y-m-d"));
-                    $fhirGoalTarget->setDueDate($fhirDate);
-                } else {
-                    $fhirGoalTarget->setDueDate(UtilsService::createDataMissingExtension());
+                    if ($parsedDateTime) {
+                        $fhirDueDate = new FHIRDate();
+                        $fhirDueDate->setValue($parsedDateTime->format("Y-m-d"));
+                        $fhirGoalTarget->setDueDate($fhirDueDate);
+                    }
                 }
+
                 $detailDescription = trim($detail['description'] ?? "");
                 if (!empty($detailDescription)) {
-                    // if description is populated we also have to populate the measure with the correct code
-                    $fhirGoalTarget->setDetailString($detailDescription);
+                    // FIXED: Fix apostrophes in detail string
+                    $cleanDetailDescription = str_replace('`', "'", $detailDescription);
+                    $fhirGoalTarget->setDetailString($cleanDetailDescription);
 
+                    // US Core 8.0: target.measure required if target.detail is populated
                     if (!empty($detail['code'])) {
+                        // FIXED: Strip prefix from target measure code
+                        $cleanCode = self::stripCodePrefix($detail['code']);
+
                         $codeText = $codeTypeService->lookup_code_description($detail['code']);
                         $codeSystem = $codeTypeService->getSystemForCode($detail['code']);
 
                         $targetCodeableConcept = new FHIRCodeableConcept();
-                        $coding = new FhirCoding();
-                        $coding->setCode($detail['code']);
+                        $coding = new FHIRCoding();
+                        $coding->setCode($cleanCode);
                         if (empty($codeText)) {
                             $coding->setDisplay(UtilsService::createDataMissingExtension());
                         } else {
-                            $coding->setDisplay(xlt($codeText));
+                            // FIXED: Fix apostrophes in target display text
+                            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                            $cleanCodeText = str_replace('`', "'", xl($codeText));
+                            $coding->setDisplay($cleanCodeText);
                         }
-
-                        $coding->setSystem($codeSystem); // these should always be LOINC but we want this generic
+                        $coding->setSystem($codeSystem);
                         $targetCodeableConcept->addCoding($coding);
                         $fhirGoalTarget->setMeasure($targetCodeableConcept);
                     } else {
@@ -165,15 +267,423 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     }
 
     /**
+     * Map OpenEMR plan_status to FHIR Goal lifecycleStatus
+     *
+     * @param string|null $planStatus
+     * @return string
+     */
+    private function mapPlanStatusToLifecycleStatus(?string $planStatus): string
+    {
+        if (empty($planStatus)) {
+            return 'active'; // Default per US Core
+        }
+
+        // Map common status values
+        $statusMap = [
+            'active' => 'active',
+            'completed' => 'completed',
+            'cancelled' => 'cancelled',
+            'canceled' => 'cancelled',
+            'on-hold' => 'on-hold',
+            'entered-in-error' => 'entered-in-error',
+        ];
+
+        $lowerStatus = strtolower(trim($planStatus));
+        return $statusMap[$lowerStatus] ?? 'active';
+    }
+
+    /**
+     * Map OpenEMR plan_status to FHIR Goal achievementStatus
+     * US Core 8.0 new requirement
+     *
+     * @param string $planStatus
+     * @return FHIRCodeableConcept|null
+     */
+    private function mapPlanStatusToAchievementStatus(string $planStatus): ?FHIRCodeableConcept
+    {
+        $achievementMap = [
+            'completed' => ['code' => 'achieved', 'display' => 'Achieved'],
+            'active' => ['code' => 'in-progress', 'display' => 'In Progress'],
+            'on-hold' => ['code' => 'sustaining', 'display' => 'Sustaining'],
+            'cancelled' => ['code' => 'not-achieved', 'display' => 'Not Achieved'],
+            'canceled' => ['code' => 'not-achieved', 'display' => 'Not Achieved'],
+        ];
+
+        $lowerStatus = strtolower(trim($planStatus));
+        if (!isset($achievementMap[$lowerStatus])) {
+            return null;
+        }
+
+        $achievement = $achievementMap[$lowerStatus];
+        $codeableConcept = new FHIRCodeableConcept();
+        $coding = new FHIRCoding();
+        $coding->setSystem('http://terminology.hl7.org/CodeSystem/goal-achievement');
+        $coding->setCode($achievement['code']);
+        $coding->setDisplay($achievement['display']);
+        $codeableConcept->addCoding($coding);
+
+        return $codeableConcept;
+    }
+
+    /**
+     * Check if goal is SDOH-related based on code or description
+     * USCDI v5 requirement for SDOH Goals
+     *
+     * @param array $dataRecord
+     * @return bool
+     */
+    private function isSDOHGoal(array $dataRecord): bool
+    {
+        // Check for SDOH-related codes or keywords
+        $sdohKeywords = ['social', 'housing', 'food', 'transportation', 'education',
+            'employment', 'financial', 'social support', 'stress'];
+
+        foreach ($dataRecord['details'] ?? [] as $detail) {
+            $description = strtolower($detail['description'] ?? '');
+            $codetext = strtolower($detail['codetext'] ?? '');
+
+            foreach ($sdohKeywords as $keyword) {
+                if (str_contains($description, $keyword) || str_contains($codetext, $keyword)) {
+                    return true;
+                }
+            }
+
+            // Check if code is from SDOH code system
+            $code = $detail['code'] ?? '';
+            if (str_contains($code, 'SDOH') || str_contains($code, '96777')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        return $this->service->search($openEMRSearchParameters, true, $puuidBind);
+        return $this->service->search($openEMRSearchParameters, true);
+    }
+
+    /**
+     * Parses a FHIR Goal into the OpenEMR shape consumed by
+     * CarePlanService::create / replace. Goal storage uses the same form_care_plan
+     * table as CarePlan, scoped to care_plan_type='goal' (this service's
+     * CarePlanService is constructed with TYPE_GOAL).
+     *
+     * One FHIR Goal becomes one row in form_care_plan: description -> description,
+     * lifecycleStatus -> plan_status, target.dueDate -> proposed_date,
+     * description.coding -> code+codetext.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
+    {
+        if (!($fhirResource instanceof FHIRGoal)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRGoal resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
+        }
+
+        // subject.reference -> puuid
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (is_string($subjectUuid) && $subjectUuid !== '' && UuidRegistry::isValidStringUUID($subjectUuid)) {
+                $data['puuid'] = $subjectUuid;
+            }
+        }
+
+        // FHIR Goal has no encounter field. To anchor the goal to a form_care_plan
+        // row we require an encounter via the `encounter-associatedEncounter`
+        // extension on the resource.
+        $extensions = $json['extension'] ?? null;
+        foreach (is_array($extensions) ? $extensions : [] as $ext) {
+            if (!is_array($ext)) {
+                continue;
+            }
+            if (($ext['url'] ?? null) !== 'http://hl7.org/fhir/StructureDefinition/encounter-associatedEncounter') {
+                continue;
+            }
+            $ref = FhirPayloadReader::reference($ext['valueReference'] ?? null);
+            if ($ref !== null) {
+                $encounterUuid = UtilsService::parseReferenceString($ref, 'Encounter')['uuid'] ?? null;
+                if (
+                    is_string($encounterUuid) && $encounterUuid !== ''
+                    && UuidRegistry::isValidStringUUID($encounterUuid)
+                ) {
+                    $data['euuid'] = $encounterUuid;
+                }
+            }
+            break;
+        }
+
+        // lifecycleStatus -> plan_status. R4 marks lifecycleStatus as 1..1; we require it
+        // on write rather than silently defaulting. OpenEMR plan_status values are a free
+        // string at storage; the read side maps via mapPlanStatusToLifecycleStatus.
+        $lifecycleStatus = $json['lifecycleStatus'] ?? null;
+        if (!is_string($lifecycleStatus) || $lifecycleStatus === '') {
+            $data['__validation_error__'] = 'Goal.lifecycleStatus is required (FHIR R4 1..1)';
+            $data['__validation_field__'] = 'lifecycleStatus';
+            return $data;
+        }
+        $planStatus = $lifecycleStatus;
+
+        // Build the single item row
+        $item = ['plan_status' => $planStatus];
+
+        // description.text -> description; description.coding[0] -> code+codetext
+        $description = $json['description'] ?? null;
+        $descriptionText = FhirPayloadReader::getString($description, 'text');
+        if ($descriptionText !== null) {
+            $item['description'] = $descriptionText;
+            $item['codetext'] = $descriptionText;
+        }
+        $coding = FhirPayloadReader::firstCoding($description);
+        $codeValue = FhirPayloadReader::getString($coding, 'code');
+        if ($codeValue !== null) {
+            $storedCode = $this->prefixCodeForStorage(
+                FhirPayloadReader::getString($coding, 'system') ?? '',
+                $codeValue
+            );
+            if ($storedCode === null) {
+                $data['__validation_error__'] = 'Goal.description.coding carries no system OpenEMR '
+                    . 'recognises, so the code cannot be stored without misattributing it';
+                $data['__validation_field__'] = 'description';
+                return $data;
+            }
+            $item['code'] = $storedCode;
+        }
+        $display = $coding['display'] ?? null;
+        if (is_string($display) && !isset($item['codetext'])) {
+            $item['codetext'] = $display;
+        }
+
+        // Goal.description is 1..1 in FHIR R4, and none of its three sources produced anything.
+        // Without this the row is stored with empty description and codetext -- a goal that
+        // reads back blank -- and the caller still gets a 201.
+        if ($descriptionText === null && $codeValue === null && !is_string($display)) {
+            $data['__validation_error__'] = 'Goal.description is required (FHIR R4 1..1)';
+            $data['__validation_field__'] = 'description';
+            return $data;
+        }
+
+        // startDate -> date. Goal.startDate is a FHIR `date`, where partial
+        // precision is both legal and common ("started in 2024"), so widening to
+        // the first day of the period is allowed here rather than rejected. The
+        // widening is lossy and deliberate; see FhirDateTimeParser.
+        $startDate = FhirDateTimeParser::toDbDate($json['startDate'] ?? null, 'Goal.startDate', true);
+        if ($startDate !== null) {
+            $item['date'] = $startDate;
+        }
+
+        // target[0].dueDate -> proposed_date. Previously stored verbatim, which
+        // let any client-supplied string reach the column.
+        $dueDate = FhirDateTimeParser::toDbDate(
+            FhirPayloadReader::get(FhirPayloadReader::get($json['target'] ?? null, 0), 'dueDate'),
+            'Goal.target[0].dueDate',
+            true
+        );
+        if ($dueDate !== null) {
+            $item['proposed_date'] = $dueDate;
+        }
+
+        $data['items'] = [$item];
+
+        return $data;
+    }
+
+    /**
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Goal record array');
+        }
+
+        if (isset($openEmrRecord['__validation_error__'])) {
+            $result = new ProcessingResult();
+            // The marker names its own element; lifecycleStatus stays the default because it
+            // was the only producer before description started using it.
+            $field = $openEmrRecord['__validation_field__'] ?? 'lifecycleStatus';
+            $result->setValidationMessages([
+                is_string($field) ? $field : 'lifecycleStatus' => $openEmrRecord['__validation_error__'],
+            ]);
+            return $result;
+        }
+        $puuid = $openEmrRecord['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'FHIR Goal requires a Patient reference']);
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'Patient reference could not be resolved: ' . $puuid]);
+            return $result;
+        }
+
+        // Goal also needs an encounter to anchor the form. FHIR Goal has no encounter
+        // field directly; we look at extension['encounter'] for explicit binding, otherwise
+        // require it via a custom field on the OpenEMR record. The simplest robust path:
+        // require the FHIR resource to include encounter context via an extension URL.
+        // Without that, we cannot create a form_care_plan row.
+        $encounterUuid = $this->resolveGoalEncounterUuid($openEmrRecord);
+        if ($encounterUuid === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'encounter' => 'FHIR Goal create requires an encounter; supply via extension url '
+                    . 'http://hl7.org/fhir/StructureDefinition/encounter-associatedEncounter',
+            ]);
+            return $result;
+        }
+        // A soft-deleted encounter resolves to null, like an unknown one.
+        $encounterId = EncounterService::getActiveEncounterByUuid($encounterUuid)['encounter'] ?? null;
+        if ($encounterId === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['encounter' => 'Encounter reference could not be resolved: ' . $encounterUuid]);
+            return $result;
+        }
+
+        return $this->service->create(
+            (int) $pid,
+            (int) $encounterId,
+            FhirPayloadReader::rows($openEmrRecord['items'] ?? null)
+        );
+    }
+
+    /**
+     * @param string $fhirResourceId
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        if (isset($updatedOpenEMRRecord['__validation_error__'])) {
+            $result = new ProcessingResult();
+            $field = $updatedOpenEMRRecord['__validation_field__'] ?? 'lifecycleStatus';
+            $result->setValidationMessages([
+                is_string($field) ? $field : 'lifecycleStatus' => $updatedOpenEMRRecord['__validation_error__'],
+            ]);
+            return $result;
+        }
+        $parts = $this->service->splitSurrogateKeyIntoParts($fhirResourceId);
+        $euuid = $parts['euuid'] ?? '';
+        $encounterUuid = is_string($euuid) ? $euuid : '';
+        $formIdRaw = $parts['form_id'] ?? 0;
+        $formId = is_numeric($formIdRaw) ? (int) $formIdRaw : 0;
+        if ($encounterUuid === '' || $formId <= 0 || !UuidRegistry::isValidStringUUID($encounterUuid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Invalid Goal id; expected encounter-uuid + "-SK-" + form-id']);
+            return $result;
+        }
+        // A soft-deleted encounter resolves to null, like an unknown one.
+        $encounterId = EncounterService::getActiveEncounterByUuid($encounterUuid)['encounter'] ?? null;
+        if ($encounterId === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Encounter not found for given Goal id']);
+            return $result;
+        }
+
+        // Goal shares the care_plan form, so it shares CarePlan's ownership concern: the URL's
+        // surrogate id chooses the form to rewrite, and a body naming a different patient must
+        // not be able to replace this one's goals. Resolve the body's subject and let
+        // CarePlanService::replace() compare it against the row it locates.
+        $expectedPid = $this->resolveGoalPatientId($updatedOpenEMRRecord);
+        if ($expectedPid instanceof ProcessingResult) {
+            return $expectedPid;
+        }
+
+        return $this->service->replace(
+            (int) $encounterId,
+            $formId,
+            FhirPayloadReader::rows($updatedOpenEMRRecord['items'] ?? null),
+            [],
+            $expectedPid
+        );
+    }
+
+    /**
+     * Resolves the Goal's subject reference to a pid.
+     *
+     * @param array<array-key, mixed> $record
+     * @return int|ProcessingResult Numeric pid on success, ProcessingResult on resolution failure.
+     */
+    private function resolveGoalPatientId(array $record): int|ProcessingResult
+    {
+        $puuid = $record['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '' || !UuidRegistry::isValidStringUUID($puuid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'FHIR Goal requires a Patient reference']);
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'Patient reference could not be resolved: ' . $puuid]);
+            return $result;
+        }
+
+        return (int) $pid;
+    }
+
+    /**
+     * Looks for an encounter uuid on the parsed Goal — either via the
+     * `encounter-associatedEncounter` extension placed on the FHIR resource, or as
+     * a sibling `euuid` field already extracted by some caller. Returns null if
+     * neither is present.
+     *
+     * @param array<array-key, mixed> $record
+     */
+    private function resolveGoalEncounterUuid(array $record): ?string
+    {
+        $euuid = $record['euuid'] ?? null;
+        if (is_string($euuid) && UuidRegistry::isValidStringUUID($euuid)) {
+            return $euuid;
+        }
+        return null;
+    }
+
+    /**
+     * OpenEMR's form_care_plan.code column stores codes prefixed by code-type
+     * (e.g. "SNOMED-CT:182840001"). The read side splits this via CodeTypesService, so the write
+     * side resolves the system URL through the same service to stay in sync.
+     *
+     * Returns null when the system is absent or unknown to OpenEMR:
+     * getOpenEMRCodeForSystemAndCode() answers the bare code in that case, which the reader
+     * cannot tell from a code whose type was never recorded, so it would come back under a
+     * system the caller never sent. Callers reject rather than store that.
+     */
+    private function prefixCodeForStorage(string $system, string $code): ?string
+    {
+        if ($system === '') {
+            return null;
+        }
+        $stored = (new CodeTypesService())->getOpenEMRCodeForSystemAndCode($system, $code);
+
+        return str_contains($stored, ':') ? $stored : null;
     }
 
     public function createProvenanceResource($dataRecord, $encode = false)
@@ -188,7 +698,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
 
     public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
@@ -196,7 +706,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 
-    private function getGoalTextFromDetails($details)
+    private function getGoalTextFromDetails($details): array
     {
         $descriptions = [];
         foreach ($details as $detail) {
@@ -208,5 +718,36 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             $carePlanText['xhtml'] = "<p>" . implode("</p><p>", $descriptions) . "</p>";
         }
         return $carePlanText;
+    }
+
+    public static function stripCodePrefix(?string $code): ?string
+    {
+        if (empty($code)) {
+            return $code;
+        }
+        $prefixes = [
+            'LOINC:',
+            'SNOMED:',
+            'SNOMEDCT:',
+            'SNOMED-CT:',
+            'ICD10:',
+            'ICD10CM:',
+            'ICD-10:',
+            'ICD-10-CM:',
+            'ICD9:',
+            'ICD-9:',
+            'CPT:',
+            'CPT4:',
+            'RXNORM:',
+            'CVX:',
+            'UCUM:',
+        ];
+        foreach ($prefixes as $prefix) {
+            if (stripos($code, $prefix) === 0) {
+                return substr($code, strlen($prefix));
+            }
+        }
+
+        return $code;
     }
 }

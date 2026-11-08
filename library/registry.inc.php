@@ -3,18 +3,17 @@
 //these are the functions used to access the forms registry database
 //
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\InfoTxt;
+use OpenEMR\Core\OEGlobalsBag;
+
 function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 {
-    $check = sqlQuery("select state from registry where directory=?", array($directory));
+    $check = sqlQuery("select state from registry where directory=?", [$directory]);
     if ($check == false) {
-        $lines = @file($GLOBALS['srcdir'] . "/../interface/forms/$directory/info.txt");
-        if ($lines) {
-            $name = $lines[0];
-            $category = $category ?? ($lines[1] ?? 'Miscellaneous');
-        } else {
-            $name = $directory;
-            $category = "Miscellaneous";
-        }
+        $info = InfoTxt::read(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$directory/info.txt");
+        $name = $info->name ?? $directory;
+        $category = $info->category ?? 'Miscellaneous';
 
         return sqlInsert("insert into registry set
 			name=?,
@@ -24,7 +23,7 @@ function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
             unpackaged=?,
             category=?,
 			date=NOW()
-		", array($name, $state, $directory, $sql_run, $unpackaged, $category));
+		", [$name, $state, $directory, $sql_run, $unpackaged, $category]);
     }
 
     return false;
@@ -32,7 +31,7 @@ function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 
 function updateRegistered($id, $mod)
 {
-    return sqlInsert("update registry set $mod, date=NOW() where id=?", array($id));
+    return sqlInsert("update registry set $mod, date=NOW() where id=?", [$id]);
 }
 
 /**
@@ -44,6 +43,7 @@ function updateRegistered($id, $mod)
 function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encounterType = 'all')
 {
     $sql = "select * from registry where state like ? ";
+    $sqlBindArray = [$state];
     if ($encounterType !== 'all') {
         switch ($encounterType) {
             case 'patient':
@@ -56,34 +56,26 @@ function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encou
     }
     $sql .= "order by priority, name ";
     if ($limit != "unlimited") {
-        $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
+        $sql .= " LIMIT ? OFFSET ?";
+        array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0));
     }
 
-    $res = sqlStatement($sql, array($state));
-    if ($res) {
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
-        }
-    } else {
-        return false;
-    }
-
-    return $all;
+    return QueryUtils::fetchRecords($sql, $sqlBindArray);
 }
 
 function getRegistryEntry($id, $cols = "*")
 {
-    $sql = "select " . escape_sql_column_name(process_cols_escape($cols), array('registry')) . " from registry where id=?";
-    return sqlQuery($sql, array($id));
+    $sql = "select " . escape_sql_column_name(process_cols_escape($cols), ['registry']) . " from registry where id=?";
+    return sqlQuery($sql, [$id]);
 }
 
 function getRegistryEntryByDirectory($directory, $cols = "*")
 {
-    $sql = "select " . escape_sql_column_name(process_cols_escape($cols), array('registry')) . " from registry where directory = ?";
+    $sql = "select " . escape_sql_column_name(process_cols_escape($cols), ['registry']) . " from registry where directory = ?";
     return sqlQuery($sql, $directory);
 }
 
-function installSQL($dir)
+function installSQL($dir): bool
 {
     $sqltext = $dir . "/table.sql";
     if ($sqlarray = @file($sqltext)) {
@@ -114,10 +106,10 @@ function installSQL($dir)
  *            state => 0=inactive / 1=active
  *  OUTPUT = true or false
  */
-function isRegistered($directory, $state = 1)
+function isRegistered($directory, $state = 1): bool
 {
     $sql = "select id from registry where directory=? and state=?";
-    $result = sqlQuery($sql, array($directory, $state));
+    $result = sqlQuery($sql, [$directory, $state]);
     if (!empty($result['id'])) {
         return true;
     }
@@ -125,29 +117,32 @@ function isRegistered($directory, $state = 1)
     return false;
 }
 
-function getTherapyGroupCategories()
+function getTherapyGroupCategories(): array
 {
-    return array('');
+    return [''];
 }
 
 // This gets an array including both standard and LBF visit form types,
 // one row per form type, sorted by category, priority, is lbf, name.
 //
-function getFormsByCategory($state = '1', $lbfonly = false)
+function getFormsByCategory($state = '1', $lbfonly = false): array
 {
     global $attendant_type;
-    $all = array();
+    $all = [];
     if (!$lbfonly) {
         // First get the traditional form types from the registry table.
+        // form_foreign_id identifies which questionnaire a questionnaire_assessments row
+        // stands for; every such row shares one directory, so callers that need to tell
+        // them apart have nothing else to key on.
         $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
-            "unpackaged, date, priority, aco_spec FROM registry WHERE ";
+            "unpackaged, date, priority, aco_spec, form_foreign_id FROM registry WHERE ";
         if (($attendant_type ?? 'pid') == 'pid') {
             $sql .= "patient_encounter = 1 AND ";
         } else {
             $sql .= "therapy_group_encounter = 1 AND ";
         }
         $sql .= "state LIKE ? ORDER BY category, priority, name";
-        $res = sqlStatement($sql, array($state));
+        $res = sqlStatement($sql, [$state]);
         if ($res) {
             while ($row = sqlFetchArray($res)) {
                 // Flag this entry as not LBF
@@ -165,8 +160,8 @@ function getFormsByCategory($state = '1', $lbfonly = false)
         "ORDER BY grp_mapping, grp_seq, grp_title"
     );
     while ($lrow = sqlFetchArray($lres)) {
-        $rrow = array();
-        $rrow['category']  = $lrow['grp_mapping'] ? $lrow['grp_mapping'] : 'Clinical';
+        $rrow = [];
+        $rrow['category']  = $lrow['grp_mapping'] ?: 'Clinical';
         $rrow['name']      = $lrow['grp_title'];
         $rrow['nickname']  = $lrow['grp_title'];
         $rrow['directory'] = $lrow['grp_form_id']; // should start with LBF
@@ -182,8 +177,8 @@ function getFormsByCategory($state = '1', $lbfonly = false)
         if ($a['category'] == $b['category']) {
             if ($a['priority'] == $b['priority']) {
                 if ($a['LBF'] == $b['LBF']) {
-                    $name1 = $a['nickname'] ? $a['nickname'] : $a['name'];
-                    $name2 = $b['nickname'] ? $b['nickname'] : $b['name'];
+                    $name1 = $a['nickname'] ?: $a['name'];
+                    $name2 = $b['nickname'] ?: $b['name'];
                     if ($name1 == $name2) {
                         return 0;
                     }

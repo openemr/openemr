@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
@@ -47,10 +47,10 @@ class LabRouteSetup
             ,recv_fac_id = ?, DorP = ?, direction = ?, protocol = ?, remote_host = ?,orders_path = ?,results_path = ?,notes = ?
             ,lab_director = ?, active = ?,type = ?
         WHERE ppid = ?";
-        $sqlarr = array(
+        $sqlarr = [
             $labName, $npi, $send_app_id, $send_fac_id, $recv_app_id,
             $recv_fac_id, $DorP, $direction, $protocol, $remote_host, $orders_path, $results_path, $notes,
-            $lab_director, $active, $type, $ppid);
+            $lab_director, $active, $type, $ppid];
         sqlStatement($sql, $sqlarr);
     }
     public static function createProcedureProviders($labName, $npi, $labGuid, $uuid, $labAccountNumber)
@@ -79,11 +79,11 @@ class LabRouteSetup
             ,lab_director, active,type)
             VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            $sql_pp_insert_sqlarr = array(
+            $sql_pp_insert_sqlarr = [
                 $labName, $npi, $send_app_id, $send_fac_id, $recv_app_id,
                 $recv_fac_id, $DorP, $direction, $protocol, $remote_host, $orders_path, $results_path, $notes,
                 $lab_director, $active, $type
-            );
+            ];
 
             $result = sqlStatement($sql_pp_insert, $sql_pp_insert_sqlarr);
 
@@ -120,14 +120,14 @@ class LabRouteSetup
         $record = sqlQuery($sql_pp_search, [$npi, $active, $notes]);
         return $record['ppid'];
     }
-    public static function createDornRoute($labName, $routeGuid, $labGuid, $ppid, $uid, $lineBreakChar, $labAccountNumber)
+    public static function createDornRoute($labName, $routeGuid, $labGuid, $ppid, $uid, $lineBreakChar, $labAccountNumber): bool
     {
         $sql = "INSERT INTO mod_dorn_routes (lab_guid, lab_name, ppid, route_guid, uid, text_line_break_character, lab_account_number)
                 VALUES (?,?,?,?,?,?,?)
                 ON DUPLICATE KEY UPDATE lab_name = VALUES(lab_name), ppid = VALUES(ppid),
                 uid = VALUES(uid), text_line_break_character = VALUES(text_line_break_character), lab_account_number = VALUES(lab_account_number)";
 
-        $sqlarr = array($labGuid, $labName, $ppid, $routeGuid, $uid, $lineBreakChar, $labAccountNumber);
+        $sqlarr = [$labGuid, $labName, $ppid, $routeGuid, $uid, $lineBreakChar, $labAccountNumber];
         $result = sqlStatement($sql, $sqlarr);
 
         if (sqlNumRows($result) <= 0) {

@@ -1,0 +1,25 @@
+[
+    {
+        "resourceType": "Medication",
+        "status": "active",
+        "code": {
+            "coding": [
+                {
+                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                    "code": "1049502",
+                    "display": "test-fixture-medication-001"
+                }
+            ],
+            "text": "test-fixture-medication-001"
+        },
+        "form": {
+            "coding": [
+                {
+                    "system": "http://ncimeta.nci.nih.gov",
+                    "code": "C42998",
+                    "display": "tablet"
+                }
+            ]
+        }
+    }
+]

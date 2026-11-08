@@ -4,105 +4,94 @@
  * Controller for fee sheet related AJAX requests
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 OEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../../globals.php");
 require_once("fee_sheet_queries.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
+use OpenEMR\Forms\FeeSheet\Review\Procedure;
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
-    header("HTTP/1.0 403 Forbidden");
-    echo "Not authorized for billing";
-    return false;
+    AccessDeniedHelper::deny('Unauthorized access to fee sheet');
 }
 
-if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-if (isset($_REQUEST['pid'])) {
-    $req_pid = $_REQUEST['pid'];
-}
+$req_pid = filter_input(INPUT_POST, 'pid', FILTER_VALIDATE_INT) ?: 0;
+$req_encounter = filter_input(INPUT_POST, 'encounter', FILTER_VALIDATE_INT) ?: 0;
+$task = filter_input(INPUT_POST, 'task');
+$mode = filter_input(INPUT_POST, 'mode');
+$prev_encounter_param = filter_input(INPUT_POST, 'prev_encounter', FILTER_VALIDATE_INT) ?: null;
+$diags_raw = filter_input(INPUT_POST, 'diags');
+$procs_raw = filter_input(INPUT_POST, 'procs');
+$issues = [];
 
-if (isset($_REQUEST['encounter'])) {
-    $req_encounter = $_REQUEST['encounter'];
-}
-
-if (isset($_REQUEST['task'])) {
-    $task = $_REQUEST['task'];
-}
-
-if ($task == 'retrieve') {
-    $retval = array();
-    if ($_REQUEST['mode'] == 'encounters') {
-        $encounters = select_encounters($req_pid, $req_encounter);
-        if (isset($_REQUEST['prev_encounter'])) {
-            $prev_enc = $_REQUEST['prev_encounter'];
-        } else {
-            if (count($encounters) > 0) {
-                $prev_enc = $encounters[0]->getID();
-            }
+switch ($task) {
+    case 'retrieve':
+        $retval = [];
+        switch ($mode) {
+            case 'encounters':
+                $encounters = select_encounters($req_pid, $req_encounter);
+                $prev_enc = $prev_encounter_param ?? ($encounters[0] ?? null)?->getID();
+                $procedures = [];
+                if ($prev_enc !== null) {
+                    fee_sheet_items($req_pid, $prev_enc, $issues, $procedures);
+                }
+                $retval['prev_encounter'] = $prev_enc;
+                $retval['encounters'] = $encounters;
+                $retval['procedures'] = $procedures;
+                break;
+            case 'issues':
+                $issues = issue_diagnoses($req_pid, $req_encounter);
+                break;
+            case 'common':
+                $issues = common_diagnoses();
+                break;
         }
-
-        $issues = array();
-        $procedures = array();
-        fee_sheet_items($req_pid, ($prev_enc ?? null), $issues, $procedures);
-        $retval['prev_encounter'] = $prev_enc ?? null;
-        $retval['encounters'] = $encounters;
-        $retval['procedures'] = $procedures;
-    }
-
-    if ($_REQUEST['mode'] == 'issues') {
-        $issues = issue_diagnoses($req_pid, $req_encounter);
-    }
-
-    if ($_REQUEST['mode'] == 'common') {
-            $issues = common_diagnoses();
-    }
-
-    $retval['issues'] = $issues;
-    echo text(json_encode($retval));
-    return;
-}
-
-if ($task == 'add_diags') {
-    if (isset($_REQUEST['diags'])) {
-        $json_diags = json_decode($_REQUEST['diags']);
-    }
-
-    $diags = array();
-    foreach ($json_diags as $diag) {
-        $diags[] = new code_info($diag->code, $diag->code_type, $diag->description);
-    }
-
-    $procs = array();
-    if (isset($_REQUEST['procs'])) {
-        $json_procs = json_decode($_REQUEST['procs']);
-    }
-
-    foreach ($json_procs as $proc) {
-        $procs[] = new procedure(
-            $proc->code,
-            $proc->code_type,
-            $proc->description,
-            $proc->fee,
-            $proc->justify,
-            $proc->modifiers,
-            $proc->units,
-            0
+        $retval['issues'] = $issues;
+        echo json_encode($retval);
+        return;
+    case 'add_diags':
+        $json_diags = is_string($diags_raw) ? json_decode($diags_raw) : [];
+        $json_diags = is_array($json_diags) ? $json_diags : [];
+        $diags = array_map(
+            fn($diag): CodeInfo => new CodeInfo($diag->code, $diag->code_type, $diag->description),
+            $json_diags
         );
-    }
 
-    $database->StartTrans();
-    create_diags($req_pid, $req_encounter, $diags);
-    update_issues($req_pid, $req_encounter, $diags);
-    create_procs($req_pid, $req_encounter, $procs);
-    $database->CompleteTrans();
-    return;
+        $json_procs = is_string($procs_raw) ? json_decode($procs_raw) : [];
+        $json_procs = is_array($json_procs) ? $json_procs : [];
+        $procs = array_map(
+            fn($proc): Procedure => new Procedure(
+                $proc->code,
+                $proc->code_type,
+                $proc->description,
+                $proc->fee,
+                $proc->justify,
+                $proc->modifiers,
+                $proc->units,
+                /** ai generated code by google-labs-jules starts */
+                $proc->mod_size, // mod_size
+                $proc->ndc_info ?? '' // ndc_info
+                /** ai generated code by google-labs-jules end */
+            ),
+            $json_procs
+        );
+
+        $database->StartTrans();
+        create_diags($req_pid, $req_encounter, $diags);
+        update_issues($req_pid, $req_encounter, $diags);
+        create_procs($req_pid, $req_encounter, $procs);
+        $database->CompleteTrans();
+        return;
 }

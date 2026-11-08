@@ -4,7 +4,7 @@
  * Open websearch for patient education materials
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Tony McCormick <tony@mi-squared.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
@@ -13,21 +13,29 @@
  * @copyright Copyright (C) 2011-2018 Brady Miller   <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
 
 //Include required scripts/libraries
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ListService;
 
+// Patient-education lookup is driven from the open-chart menu; align the
+// permission check with the surrounding `patients/med` chart views.
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Patient Education Web Lookup", xl("Patient Education Web Lookup"));
+}
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Reference website links
@@ -40,8 +48,8 @@ foreach ($options as $opt) {
 }
 
 // Collect variables
-$form_lookup_at = (isset($_POST['form_lookup_at'])) ? $_POST['form_lookup_at'] : '';
-$form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] : '';
+$form_lookup_at = $_POST['form_lookup_at'] ?? '';
+$form_diagnosis = $_POST['form_diagnosis'] ?? '';
 ?>
 
 <html>
@@ -68,7 +76,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
         <div class="row">
             <div class="col-12">
                 <form method='post' action='patient_edu_web_lookup.php' id='theform' class='form-horizontal' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div class="form-group">
                         <label for='form_lookup_at' class='control-label col-sm-2'><?php echo xlt('Patient Resource'); ?></label>
                         <div class='col-sm-12'>

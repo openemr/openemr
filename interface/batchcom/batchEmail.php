@@ -4,7 +4,7 @@
  * Batch Email processor, included from batchcom
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  cfapress
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @copyright Copyright (c) 2008 cfapress
@@ -17,11 +17,22 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
+// This script is meant to be required from batchcom.php, which sets $res
+// (the SQL result of the patient query). Direct access has nothing to send.
+if (!isset($res)) {
+    require_once(__DIR__ . '/batchcom.php');
+    exit;
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+$m_error = false;
+$m_error_count = 0;
 
 ?>
 <html>
@@ -41,7 +52,10 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     <ul class="col-md-12">
         <?php
         $email_sender = $_POST['email_sender'];
-        $sent_by = $_SESSION['authUserID'];
+        if (!is_string($email_sender)) {
+            $email_sender = '';
+        }
+        $sent_by = $session->get('authUserID');
 
         while ($row = sqlFetchArray($res)) {
             // prepare text for ***NAME*** tag
@@ -50,16 +64,16 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
             $email_subject = $_POST['email_subject'];
             $email_body = $_POST['email_body'];
-            $email_subject = preg_replace('/\*{3}NAME\*{3}/', $pt_name, $email_subject);
-            $email_body = preg_replace('/\*{3}NAME\*{3}/', $pt_name, $email_body);
+            $email_subject = preg_replace('/\*{3}NAME\*{3}/', $pt_name, (string) $email_subject);
+            $email_body = preg_replace('/\*{3}NAME\*{3}/', $pt_name, (string) $email_body);
 
-            $headers = "MIME-Version: 1.0\r\n";
-            $headers .= "To: $pt_name<" . $pt_email . ">\r\n";
-            $headers .= "From: <" . $email_sender . ">\r\n";
-            $headers .= "Reply-to: <" . $email_sender . ">\r\n";
-            $headers .= "X-Priority: 3\r\n";
-            $headers .= "X-Mailer: PHP mailer\r\n";
-            if (mail($pt_email, $email_subject, $email_body, $headers)) {
+            $mail = new MyMailer();
+            $mail->setFrom($email_sender);
+            $mail->addReplyTo($email_sender);
+            $mail->addAddress((string) $pt_email, $pt_name);
+            $mail->Subject = (string) $email_subject;
+            $mail->Body = (string) $email_body;
+            if ($mail->send()) {
                 echo "<li>" . xlt('Email sent to') . ": " . text($pt_name) . " , " . text($pt_email) . "</li>";
             } else {
                 $m_error = true;
@@ -70,7 +84,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     </ul>
     <?php
     if ($m_error) {
-        echo '<div class="alert alert-danger">' . xlt('Could not send email due to a server problem.') . ' ' . text($m_error_count) . ' ' . xlt('emails not sent') . '</div>';
+        echo '<div class="alert alert-danger">' . xlt('Could not send email due to a server problem.') . ' ' . text((string) $m_error_count) . ' ' . xlt('emails not sent') . '</div>';
     }
     ?>
 </main>

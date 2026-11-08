@@ -83,7 +83,7 @@ class FHIRAppointment extends FHIRDomainResource implements \JsonSerializable
     public $status = null;
 
     /**
-     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/futher processing to determine if further actions are required, or specific fees apply.
+     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/further processing to determine if further actions are required, or specific fees apply.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public $cancelationReason = null;
@@ -250,7 +250,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
     }
 
     /**
-     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/futher processing to determine if further actions are required, or specific fees apply.
+     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/further processing to determine if further actions are required, or specific fees apply.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public function getCancelationReason()
@@ -259,7 +259,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
     }
 
     /**
-     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/futher processing to determine if further actions are required, or specific fees apply.
+     * The coded reason for the appointment being cancelled. This is often used in reporting/billing/further processing to determine if further actions are required, or specific fees apply.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $cancelationReason
      * @return $this
      */
@@ -808,7 +808,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -923,15 +923,13 @@ The duration (usually in minutes) could also be provided to indicate the length 
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Appointment xmlns="http://hl7.org/fhir"></Appointment>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Appointment xmlns="http://hl7.org/fhir"></Appointment>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

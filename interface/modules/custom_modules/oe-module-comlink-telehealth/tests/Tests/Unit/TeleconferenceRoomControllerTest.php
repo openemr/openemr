@@ -4,7 +4,7 @@
  * Unit Tests for the TeleconferenceRoomController class
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -46,7 +46,7 @@ class TeleconferenceRoomControllerTest extends TestCase
         );
     }
 
-    private function getDefaultAppointment()
+    private function getDefaultAppointment(): array
     {
         return [
             'pc_eid' => 1,

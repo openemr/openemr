@@ -20,13 +20,8 @@ namespace OpenEMR\Events\PatientFinder;
  */
 class ColumnFilter
 {
-    private $name;
-    private $value;
-
-    public function __construct($name, $value)
+    public function __construct(private $name, private $value)
     {
-        $this->name = $name;
-        $this->value = $value;
     }
 
     /**

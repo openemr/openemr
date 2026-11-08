@@ -4,36 +4,35 @@
  * FhirImmunizationRestController
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\Services\FHIR\FhirImmunizationService;
-use OpenEMR\Services\FHIR\FhirValidationService;
-use OpenEMR\RestControllers\RestControllerHelper;
+use OpenApi\Attributes as OA;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
-
-require_once(__DIR__ . '/../../../_rest_config.php');
+use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\FHIR\FhirImmunizationService;
+use OpenEMR\Services\FHIR\FhirResourcesService;
 
 /**
  * Supports REST interactions with the FHIR immunization resource
  */
 class FhirImmunizationRestController
 {
-    private FhirImmunizationService $fhirImmunizationService;
-    private FhirResourcesService $fhirService;
-    private FhirValidationService $fhirValidationService;
+    private readonly FhirImmunizationService $fhirImmunizationService;
+    private readonly FhirResourcesService $fhirService;
 
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
         $this->fhirImmunizationService = new FhirImmunizationService();
-        $this->fhirValidate = new FhirValidationService();
     }
 
     /**
@@ -42,6 +41,66 @@ class FhirImmunizationRestController
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */
+    #[OA\Get(
+        path: '/fhir/Immunization/{uuid}',
+        description: 'Returns a single Immunization resource.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the Immunization resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Standard Response',
+                content: new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
+                            ),
+                        ],
+                        example: [
+                            'id' => '95e8d8b7-e3e2-4e03-8eb1-31e1d9097d8f',
+                            'meta' => [
+                                'versionId' => '1',
+                                'lastUpdated' => '2022-03-26T05:42:59+00:00',
+                            ],
+                            'resourceType' => 'Immunization',
+                            'status' => 'completed',
+                            'vaccineCode' => [
+                                'coding' => [
+                                    [
+                                        'system' => 'http://hl7.org/fhir/sid/cvx',
+                                        'code' => '207',
+                                        'display' => 'SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 100 mcg/0.5mL dose',
+                                    ],
+                                ],
+                            ],
+                            'patient' => [
+                                'reference' => 'Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf',
+                            ],
+                            'occurrenceDateTime' => '2022-03-26T05:35:00+00:00',
+                            'recorded' => '2022-03-26T05:42:26+00:00',
+                            'primarySource' => false,
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getOne($fhirId, $puuidBind = null)
     {
         $processingResult = $this->fhirImmunizationService->getOne($fhirId, $puuidBind);
@@ -52,15 +111,89 @@ class FhirImmunizationRestController
      * Queries for FHIR immunization resources using various search parameters.
      * Search parameters include:
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return FHIR bundle with query results, if found
+     * @return \Symfony\Component\HttpFoundation\Response FHIR bundle with query results, if found
      */
+    #[OA\Get(
+        path: '/fhir/Immunization',
+        description: 'Returns a list of Immunization resources.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: '_id',
+                in: 'query',
+                description: 'The uuid for the Immunization resource.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: '_lastUpdated',
+                in: 'query',
+                description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: '_lastUpdated',
+                in: 'query',
+                description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'patient',
+                in: 'query',
+                description: 'The uuid for the patient.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Standard Response',
+                content: new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
+                            ),
+                        ],
+                        example: [
+                            'meta' => [
+                                'lastUpdated' => '2021-09-14T09:13:51',
+                            ],
+                            'resourceType' => 'Bundle',
+                            'type' => 'collection',
+                            'total' => 0,
+                            'link' => [
+                                [
+                                    'relation' => 'self',
+                                    'url' => 'https://localhost:9300/apis/default/fhir/Immunization',
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirImmunizationService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
-                'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
+                'fullUrl' =>  OEGlobalsBag::getInstance()->get('site_addr_oath') . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
@@ -70,4 +203,77 @@ class FhirImmunizationRestController
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
     }
+
+    /**
+     * Creates a new FHIR Immunization resource.
+     * Routed via FhirGenericRestController::post(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    // @codeCoverageIgnoreStart
+    #[OA\Post(
+        path: '/fhir/Immunization',
+        description: 'Creates a new Immunization resource.',
+        tags: ['fhir'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '201', description: 'Immunization resource created'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function post(array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::post()
+    }
+
+    /**
+     * Updates an existing FHIR Immunization resource.
+     * Routed via FhirGenericRestController::put(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    #[OA\Put(
+        path: '/fhir/Immunization/{uuid}',
+        description: 'Modifies an Immunization resource.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the Immunization resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', description: 'Immunization resource updated'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function put(string $fhirId, array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::put()
+    }
+    // @codeCoverageIgnoreEnd
 }

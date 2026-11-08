@@ -9,36 +9,36 @@
 //
 class NQF_0024_PopulationCriteria1 implements CqmPopulationCrtiteriaFactory
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Population Criteria 1";
     }
 
-    public function createInitialPatientPopulation()
+    public function createInitialPatientPopulation(): CqmFilterIF
     {
         return new NQF_0024_InitialPatientPopulation1();
     }
 
-    public function createNumerators()
+    public function createNumerators(): array
     {
-        $nums = array();
+        $nums = [];
         $nums[] = new NQF_0024_Numerator1();
         $nums[] = new NQF_0024_Numerator2();
         $nums[] = new NQF_0024_Numerator3();
         return $nums;
     }
 
-    public function createDenominator()
+    public function createDenominator(): CqmFilterIF
     {
         return new NQF_0024_Denominator();
     }
 
-    public function createExclusion()
+    public function createExclusion(): CqmFilterIF
     {
         return new NQF_0024_Exclusion();
     }
 
-    public function createDenominatorException()
+    public function createDenominatorException(): CqmFilterIF
     {
         return new ExceptionsNone();
     }

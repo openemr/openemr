@@ -7,7 +7,7 @@
  * BaseValidator is the abstract base class for all OpenEMR validators.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -196,7 +196,7 @@ class BaseValidatorTestStub extends BaseValidator
         return $this->validator;
     }
 
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
 
@@ -224,7 +224,6 @@ class BaseValidatorTestStub extends BaseValidator
         // Use reflection to access private method
         $reflection = new \ReflectionClass($this);
         $method = $reflection->getMethod('isValidContext');
-        $method->setAccessible(true);
         return $method->invoke($this, $context);
     }
 
@@ -252,7 +251,7 @@ class BaseValidatorTestStub extends BaseValidator
         // Simulate validation logic without database
         if ($isUuid) {
             // Simple UUID format check
-            if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $lookupId)) {
+            if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', (string) $lookupId)) {
                 $validationResult = new ProcessingResult();
                 $validationMessages = [
                     $field => ["invalid or nonexisting value" => "value " . $lookupId],
@@ -289,7 +288,7 @@ class BaseValidatorTestStub extends BaseValidator
     /**
      * Override validateCode to avoid database calls
      */
-    public function validateCode($code, $table, $valueset)
+    public function validateCode($code, $table, $valueset): bool
     {
         // Simulate database lookup - return true for 'valid_code', false for others
         if ($code === 'valid_code') {
@@ -309,7 +308,7 @@ class BaseValidatorCustomStub extends BaseValidator
         return new \OpenEMR\Validators\OpenEMRParticleValidator();
     }
 
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         // Only support insert context, not update
         array_push($this->supportedContexts, self::DATABASE_INSERT_CONTEXT);
@@ -328,7 +327,6 @@ class BaseValidatorCustomStub extends BaseValidator
         // Use reflection to access private method
         $reflection = new \ReflectionClass($this);
         $method = $reflection->getMethod('isValidContext');
-        $method->setAccessible(true);
         return $method->invoke($this, $context);
     }
 }

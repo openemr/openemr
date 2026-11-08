@@ -5,7 +5,7 @@
  * as a string or as a URI.  If a URI is provided it will retrieve the JWKS and store them internally.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,7 +17,7 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use Lcobucci\JWT\Signer\Key;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
@@ -45,9 +45,9 @@ class JsonWebKeySet implements Key
      */
     private $logger;
 
-    public function __construct(ClientInterface $httpClient, $jwks_uri = null, $jwks = null)
+    public function __construct(ClientInterface $httpClient, $jwks_uri = null, $jwks = null, ?LoggerInterface $logger = null)
     {
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->setHttpClient($httpClient);
 
         $passphrase = '';
@@ -63,8 +63,14 @@ class JsonWebKeySet implements Key
         }
 
         // grab the keys array from the content
-        $jwks = json_decode($content);
-        if (!property_exists($jwks, 'keys')) {
+        $jwks = json_decode((string) $content);
+        if (!is_object($jwks) || !property_exists($jwks, 'keys') || !is_array($jwks->keys)) {
+            // json_decode returns null on malformed JSON; property_exists
+            // on null throws a TypeError that bubbles out as an HTTP 500
+            // rather than the usual invalid_client / 401 shape. The
+            // is_array check also rejects `{"keys":null}`, which would
+            // otherwise store null and emit an ErrorException when
+            // getJSONWebKey() iterates it under the repo error handler.
             throw new JWKValidatorException("Malformed jwks missing keys property");
         }
         $this->jwks = $jwks->keys;
@@ -115,8 +121,8 @@ class JsonWebKeySet implements Key
             return $json;
         } catch (RequestException | ConnectException $exception) {
             throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
-        } catch (\Exception $exception) {
-            (new SystemLogger())->errorLogCaller("Failed to retrieve jwk contents from jwk_uri and unknown error occurred", ['jwk_uri' => $jwk_uri]);
+        } catch (\Throwable $exception) {
+            $this->logger->error("Failed to retrieve jwk contents from jwk_uri and unknown error occurred", ['exception' => $exception, 'jwk_uri' => $jwk_uri]);
             throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
         }
     }

@@ -155,7 +155,7 @@ class FHIRSearchParameterComponent extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -176,15 +176,13 @@ class FHIRSearchParameterComponent extends FHIRBackboneElement implements \JsonS
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SearchParameterComponent xmlns="http://hl7.org/fhir"></SearchParameterComponent>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SearchParameterComponent xmlns="http://hl7.org/fhir"></SearchParameterComponent>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->definition)) {
             $this->definition->xmlSerialize(true, $sxe->addChild('definition'));

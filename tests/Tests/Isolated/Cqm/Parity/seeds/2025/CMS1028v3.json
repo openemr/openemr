@@ -1,0 +1,61 @@
+{
+    "patients": [
+        {
+            "note": "Inpatient delivery in June 2025 coded at 20 or more weeks of gestation: initial population and denominator.",
+            "birthDatetime": "1995-04-12T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Encounter Inpatient",
+                    "relevantPeriod": [
+                        "2025-06-01T06:00:00.000+00:00",
+                        "2025-06-03T10:00:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "20 to 42 Plus Weeks Gestation",
+                            "rank": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "ProcedurePerformed",
+                    "valueSet": "Delivery Procedures",
+                    "relevantDatetime": "2025-06-01T14:00:00.000+00:00"
+                }
+            ]
+        },
+        {
+            "note": "The same delivery with a blood transfusion during the stay: severe obstetric complication.",
+            "birthDatetime": "1990-11-30T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Encounter Inpatient",
+                    "relevantPeriod": [
+                        "2025-06-01T06:00:00.000+00:00",
+                        "2025-06-03T10:00:00.000+00:00"
+                    ],
+                    "diagnoses": [
+                        {
+                            "code": "20 to 42 Plus Weeks Gestation",
+                            "rank": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "ProcedurePerformed",
+                    "valueSet": "Delivery Procedures",
+                    "relevantDatetime": "2025-06-01T14:00:00.000+00:00"
+                },
+                {
+                    "type": "ProcedurePerformed",
+                    "valueSet": "Blood Transfusion",
+                    "relevantDatetime": "2025-06-01T18:00:00.000+00:00"
+                }
+            ]
+        }
+    ]
+}

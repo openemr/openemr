@@ -1,0 +1,7 @@
+{# set MULTIDAY otherwise day header is not shown. This is what makes week view different from day view #}
+{% set MULTIDAY = true %}
+{% if PRINT_VIEW == 1 %}
+    {% include 'calendar/default/views/month_print/outlook_ajax_template.html.twig' %}
+{% else %}
+    {% include 'calendar/default/views/month/ajax_template.html.twig' %}
+{% endif %}

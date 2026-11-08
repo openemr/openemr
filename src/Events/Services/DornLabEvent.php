@@ -3,7 +3,7 @@
 /**
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -18,28 +18,33 @@ class DornLabEvent extends Event
     public const GEN_HL7_ORDER = 'dorn.gen_hl7_order';
     public const GEN_BARCODE = 'dorn.gen_barcode';
     public const SEND_ORDER = 'dorn.send_order';
-
-    private int $ppid;
-    private int $formid;
-    private ?string $hl7;
-    private ?string $reqStr;
+    /** @var array<int, string> */
     private array $messages = [];
-    private $sendOrderResponse;
+    private mixed $sendOrderResponse = null;
+    private ?string $hl7 = null;
+    private ?string $reqStr = null;
 
-    public function __construct($formid, $ppid, ?string &$hl7 = null, ?string &$reqStr = null)
+    public function __construct(
+        private readonly int $formid,
+        private readonly int $ppid,
+        ?string &$hl7 = null,
+        ?string &$reqStr = null
+    )
     {
-        $this->ppid = $ppid;
-        $this->formid = $formid;
-        $this->hl7 = &$hl7;
-        $this->reqStr = &$reqStr;
+        if ($hl7 !== null) {
+            $this->hl7 =& $hl7;
+        }
+        if ($reqStr !== null) {
+            $this->reqStr =& $reqStr;
+        }
     }
 
-    public function setSendOrderResponse($response): void
+    public function setSendOrderResponse(mixed $response): void
     {
         $this->sendOrderResponse = $response;
     }
 
-    public function getSendOrderResponse()
+    public function getSendOrderResponse(): mixed
     {
         return $this->sendOrderResponse;
     }
@@ -90,6 +95,9 @@ class DornLabEvent extends Event
         return $rtn;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getMessages(): array
     {
         return $this->messages;

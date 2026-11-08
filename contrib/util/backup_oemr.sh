@@ -12,7 +12,7 @@ tempdir='/var/tmp/isos/'
 installdir='/var/www/openemr'
 newerthan='2005-01-01'
 #newerthan is a workaround for when your media gets full,
-#re-edit this file and change the date to the last succesfull cd copy
+#re-edit this file and change the date to the last successful cd copy
 
 # a name for the file that is unique of that day
 file=$(date +%F)

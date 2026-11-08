@@ -27,19 +27,19 @@
 *
 */
 
-require_once(dirname(__FILE__) . '/appointments.inc.php');
+require_once(__DIR__ . '/appointments.inc.php');
 
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientTrackerService;
 
-function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
+function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false): string
 {
     return PatientTrackerService::get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec);
 }
 
-function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat = null, $form_patient_name = null, $form_patient_id = null)
+function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat = null, $form_patient_name = null, $form_patient_id = null): array
 {
-    // TODO: refactor this method to use the PatientTrackerService  There is a whole heirarchy of inner function calls
+    // TODO: refactor this method to use the PatientTrackerService  There is a whole hierarchy of inner function calls
     // inside the fetchAppointments method scattered across several different files which will require creating lots more classes
     // (ie a bigger undertaking).  Leaving this method alone until we can tackle this work at a later date in time.
     # used to determine which providers to display in the Patient Tracker

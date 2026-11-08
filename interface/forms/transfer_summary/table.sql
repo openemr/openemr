@@ -20,4 +20,3 @@ CREATE TABLE IF NOT EXISTS `form_transfer_summary` (
   `overall_status_of_discharge` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-

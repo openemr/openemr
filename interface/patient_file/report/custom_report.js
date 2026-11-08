@@ -1,7 +1,6 @@
-  /**
+/**
  *
  * Javascript extracted from Patient custom report.
- * Uses - jquery instance and SearchHighlight plug-in
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,77 +17,32 @@
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Tony McCormick <tony@mi-squared.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
-// Code for search & Highlight
-function reset_highlight(form_id,form_dir,class_name) { // Removes <span class='hilite' id=''>VAL</span> with VAL
-    $("."+class_name).each(function(){
-    val = document.getElementById(this.id).innerHTML;
-    $("#"+this.id).replaceWith(val);
+// Search & highlight backed by library/js/searchHighlight.js
+// (window.OpenEMRSearchHighlight). The previous SearchHighlight.js jQuery
+// plugin and the hand-rolled mark_hilight() regex have been replaced by a
+// single DOM-walking module that produces the same <mark class="hilite">
+// output.
 
-  });
-}
 var res_id = 0;
-function doSearch(form_id,form_dir,exact,class_name,keys,case_sensitive) { // Uses jquery SearchHighlight Plug in
-  var options ={};
-  var keys = keys.replace(/^\s+|\s+$/g, '') ;
-  options = {
-    exact     :exact,
-    style_name :class_name,
-    style_name_suffix:false,
-    highlight:'#search_div_'+form_id+'_'+form_dir,
-    keys      :keys,
-    set_case_sensitive:case_sensitive
-    }
-    $(document).SearchHighlight(options);
-      $('.'+class_name).each(function(){
-      res_id = res_id+1;
-      $(this).attr("id",'result_'+res_id);
-    });
-}
 
-function remove_mark(form_id,form_dir){ // Removes all <mark> and </mark> tags
-  var match1 = null;
-  var src_str = document.getElementById('search_div_'+form_id+'_'+form_dir).innerHTML;
-  var re = new RegExp('<mark>',"gi");
-  var match2 = src_str.match(re);
-  if(match2){
-    src_str = src_str.replace(re,'');
+function mark_hilight(form_id, form_dir, keys, case_sensitive) { // Adds <mark class="hilite"> tags
+  var trimmed = keys.replace(/^\s+|\s+$/g, '');
+  if (trimmed === '') {
+    return;
   }
-  var match2 = null;
-  re = new RegExp('</mark>',"gi");
-  if(match2){
-    src_str = src_str.replace(re,'');
-  }
-  document.getElementById('search_div_'+form_id+'_'+form_dir).innerHTML=src_str;
-}
-function mark_hilight(form_id,form_dir,keys,case_sensitive){ // Adds <mark>match_val</mark> tags
-  keys = keys.replace(/^\s+|\s+$/g, '') ;
-  if(keys == '') return;
-  var src_str = $('#search_div_'+form_id+'_'+form_dir).html();
-  var term = keys;
-  if((/\s+/).test(term) == true || (/['""-]{1,}/).test(term) == true){
-    term = term.replace(/(\s+)/g,"(<[^>]+>)*$1(<[^>]+>)*");
-    if(case_sensitive == true){
-      var pattern = new RegExp("("+term+")", "g");
-    }
-    else{
-      var pattern = new RegExp("("+term+")", "ig");
-    }
-    src_str = src_str.replace(/[\s\r\n]{1,}/g, ' '); // Replace text area newline or multiple spaces with single space
-    src_str = src_str.replace(pattern, "<mark class='hilite'>$1</mark>");
-    src_str = src_str.replace(/(<mark class='hilite'>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/g,"$1</mark>$2<mark class='hilite'>$4");
-    $('#search_div_'+form_id+'_'+form_dir).html(src_str);
-      $('.hilite').each(function(){
-      res_id = res_id+1;
-      $(this).attr("id",'result_'+res_id);
-    });
-  }else{
-    if(case_sensitive == true)
-    doSearch(form_id,form_dir,'partial','hilite',keys,'true');
-    else
-    doSearch(form_id,form_dir,'partial','hilite',keys,'false');
+  var target = '#search_div_' + form_id + '_' + form_dir;
+  var inserted = window.OpenEMRSearchHighlight.search(target, trimmed, {
+    exact: 'partial',
+    caseSensitive: case_sensitive === true || case_sensitive === 'true',
+    className: 'hilite',
+    tagName: 'mark'
+  });
+  for (var i = 0; i < inserted.length; i++) {
+    res_id = res_id + 1;
+    inserted[i].id = 'result_' + res_id;
   }
 }
 
@@ -103,12 +57,10 @@ function find_all(){ // for each report the function mark_hilight() is called
   var match = null;
   match = keys.match(/[\^$.|?+()\\~`!@#%&+={}<>]{1,}/);
   if(match){
-    document.getElementById('alert_msg').innerHTML = jsText(xl('Special characters are not allowed'));
+    document.getElementById('alert_msg').textContent = xl('Special characters are not allowed');
     return;
   }
-  else{
-    document.getElementById('alert_msg').innerHTML='';
-  }
+  document.getElementById('alert_msg').textContent = '';
 
   forms_arr = document.getElementById('forms_to_search');
   for (var i = 0; i < forms_arr.options.length; i++) {
@@ -125,33 +77,27 @@ function find_all(){ // for each report the function mark_hilight() is called
 
     }
   }
-  if($('.hilite').length <1){
-    if(keys != '')
-    document.getElementById('alert_msg').innerHTML = jsText(xl('No results found'));
-  }
-  else{
-    document.getElementById('alert_msg').innerHTML='';
+  if ($('.hilite').length < 1) {
+    if (keys != '') {
+      document.getElementById('alert_msg').textContent = xl('No results found');
+    }
+  } else {
+    document.getElementById('alert_msg').textContent = '';
     f_id = $('.hilite:first').attr('id');
     element = document.getElementById(f_id);
     element.scrollIntoView(false);
   }
-
 }
 
 function remove_mark_all(){ // clears previous search results if exists
   $('.report_search_div').each(function(){
-    var id_arr = this.id.split('search_div_');
-    var re = new RegExp('_','i');
-    var new_id = id_arr[1].replace(re, "|");
-    var new_id_arr = new_id.split('|');
-    var form_id = new_id_arr[0];
-    var form_dir = new_id_arr[1];
-    reset_highlight(form_id,form_dir,'hilite');
-    reset_highlight(form_id,form_dir,'hilite2');
-    remove_mark(form_id,form_dir);
-    res_id = 0;
-    res_array =[];
+    if (window.OpenEMRSearchHighlight) {
+      window.OpenEMRSearchHighlight.unhighlight(this, 'hilite');
+      window.OpenEMRSearchHighlight.unhighlight(this, 'hilite2');
+    }
   });
+  res_id = 0;
+  res_array = [];
 }
 //
 var last_visited = -1;
@@ -236,30 +182,16 @@ function clear_last_visit(){
   last_clicked = "";
 }
 
-function get_word_count(form_id,form_dir,keys,case_sensitive){
-  keys = keys.replace(/^\s+|\s+$/g, '') ;
-  if(keys == '') return;
-  var src_str = $('#search_div_'+form_id+'_'+form_dir).html();
-  var term = keys;
-  if((/\s+/).test(term) == true){
-    term = term.replace(/(\s+)/g,"(<[^>]+>)*$1(<[^>]+>)*");
-    if(case_sensitive == true){
-      var pattern = new RegExp("("+term+")", "");
-    }
-    else{
-      var pattern = new RegExp("("+term+")", "i");
-    }
-    src_str = src_str.replace(/[\s\r\n]{1,}/g, ' '); // Replace text area newline or multiple spaces with single space
-    src_str = src_str.replace(pattern, "<mark class='hilite'>$1</mark>");
-    src_str = src_str.replace(/(<mark class='hilite'>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark class='hilite'>$4");
-    var res =[];
-    res = src_str.match(/<mark class='hilite'>/g);
-    if(res != null){
-      return res.length;
-    }
-  }else{
-    return 1;
+function get_word_count(form_id, form_dir, keys, case_sensitive) {
+  var trimmed = keys.replace(/^\s+|\s+$/g, '');
+  if (trimmed === '') {
+    return;
   }
+  // w_count = number of search tokens so navigation steps past one full "result"
+  // (one mark per token) at a time. Derived from the query, not from live DOM
+  // state, so it stays correct after hilite→hilite2 class swaps in next()/prev().
+  var tokens = trimmed.split(/[\s,]+/).filter(function(t) { return t.length > 0; });
+  return tokens.length;
 }
 
 function next_prev(action){
@@ -272,11 +204,11 @@ function next_prev(action){
   var match = null;
   match = keys.match(/[\^$.|?+()\\~`!@#%&+={}<>]{1,}/);
   if(match){
-    document.getElementById('alert_msg').innerHTML = jsText(xl('Special characters are not allowed'));
+    document.getElementById('alert_msg').textContent = xl('Special characters are not allowed');
     return;
   }
   else{
-    document.getElementById('alert_msg').innerHTML='';
+    document.getElementById('alert_msg').textContent = '';
   }
   forms_arr = document.getElementById('forms_to_search');
   for (var i = 0; i < forms_arr.options.length; i++) {
@@ -297,10 +229,10 @@ function next_prev(action){
   }
   if(w_count <1){
     if(keys != '')
-    document.getElementById('alert_msg').innerHTML = jsText(xl('No results found'));
+    document.getElementById('alert_msg').textContent = xl('No results found');
   }
   else{
-    document.getElementById('alert_msg').innerHTML='';
+    document.getElementById('alert_msg').textContent = '';
     if(action == 'next'){
      next(w_count);
     }
@@ -309,7 +241,7 @@ function next_prev(action){
     }
     var tot_res = res_array.length/w_count;
   if(tot_res > 0){
-	document.getElementById('alert_msg').innerHTML = jsText(xl('Showing result')) + ' ' + cur_res + ' ' + jsText(xl('of')) + ' ' + tot_res;
+	document.getElementById('alert_msg').textContent = xl('Showing result') + ' ' + cur_res + ' ' + xl('of') + ' ' + tot_res;
   }
   }
 

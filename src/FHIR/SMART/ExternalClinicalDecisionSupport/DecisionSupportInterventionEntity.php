@@ -6,7 +6,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 
 abstract class DecisionSupportInterventionEntity
 {
-    protected ?ClientEntity $client;
+    protected ?ClientEntity $client = null;
     protected string $id;
     protected string $name;
     protected string $type;
@@ -57,9 +57,7 @@ abstract class DecisionSupportInterventionEntity
 
     public function getFields(): array
     {
-        return array_map(function ($name) {
-            return $this->fields[$name];
-        }, $this->fieldsByIndex);
+        return array_map(fn($name) => $this->fields[$name], $this->fieldsByIndex);
     }
 
     public function setField(string $name, string $label, string $value, string $type = "text", array $options = []): void

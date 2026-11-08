@@ -13357,7 +13357,8 @@ CREATE TABLE `lang_definitions` (
   `lang_id` int(11) NOT NULL default '0',
   `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
-  KEY `cons_id` (`cons_id`)
+  KEY `cons_id` (`cons_id`),
+  KEY `lang_cons` (`lang_id`, `cons_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=237510 ;
 
 
@@ -250876,4 +250877,3 @@ INSERT INTO `lang_definitions` VALUES (237508, 13233, 59, 'dummy');
 INSERT INTO `lang_definitions` VALUES (237509, 13234, 59, 'dummy');
 
 --
-

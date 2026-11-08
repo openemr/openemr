@@ -124,7 +124,7 @@ class FHIRImmunizationEvaluationStatusCodes extends FHIRElement implements \Json
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }
@@ -138,15 +138,13 @@ class FHIRImmunizationEvaluationStatusCodes extends FHIRElement implements \Json
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImmunizationEvaluationStatusCodes xmlns="http://hl7.org/fhir"></ImmunizationEvaluationStatusCodes>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ImmunizationEvaluationStatusCodes xmlns="http://hl7.org/fhir"></ImmunizationEvaluationStatusCodes>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

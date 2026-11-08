@@ -4,7 +4,7 @@
  * pending followup
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Rod Roark <rod@sunsetsystems.com>
@@ -13,18 +13,19 @@
  */
 
 require_once("../globals.php");
-require_once("../../library/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
-if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pending Followup from Results")]);
-    exit;
+// Lab results across patients, so require what the menu entry does: patients/lab.
+if (! AclMain::aclCheckCore('patients', 'lab')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Pending Followup from Results", xl("Pending Followup from Results"));
 }
 
 $facilityService = new FacilityService();
@@ -51,7 +52,7 @@ function pendingFollowupLineItem(array $row, string $codetype, string $code): vo
 
     $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
     "code_type = ? AND " .
-    "code = ? LIMIT 1", array($code_types[$codetype]['id'], $code));
+    "code = ? LIMIT 1", [$code_types[$codetype]['id'], $code]);
     $code_text = $crow['code_text'];
 
     if ($_POST['form_csvexport']) {
@@ -81,10 +82,9 @@ $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_csvexport']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     header("Pragma: public");
     header("Expires: 0");
@@ -93,13 +93,13 @@ if ($_POST['form_csvexport']) {
     header("Content-Disposition: attachment; filename=pending_followup.csv");
     header("Content-Description: File Transfer");
   // CSV headers:
-    echo csvEscape(xl('Patient')) . ',';
-    echo csvEscape(xl('ID')) . ',';
-    echo csvEscape(xl('Ordered')) . ',';
-    echo csvEscape(xl('Procedure')) . ',';
-    echo csvEscape(xl('Provider')) . ',';
-    echo csvEscape(xl('Code')) . ',';
-    echo csvEscape(xl('Service')) . "\n";
+    echo xlc('Patient') . ',';
+    echo xlc('ID') . ',';
+    echo xlc('Ordered') . ',';
+    echo xlc('Procedure') . ',';
+    echo xlc('Provider') . ',';
+    echo xlc('Code') . ',';
+    echo xlc('Service') . "\n";
 } else { // not export
     ?>
 <html>
@@ -118,7 +118,7 @@ if ($_POST['form_csvexport']) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -132,7 +132,7 @@ if ($_POST['form_csvexport']) {
 <h2><?php echo xlt('Pending Followup from Results')?></h2>
 
 <form method='post' action='pending_followup.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table border='0' cellpadding='3'>
 
@@ -195,31 +195,32 @@ if ($_POST['form_csvexport']) {
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
 
-    $query = "SELECT po.patient_id, po.encounter_id, po.date_ordered, " .
-    "pd.pubpid, " .
+    // DISTINCT because a lab may define the same result code more than once, which would
+    // list one pending follow-up twice. MySQL 8 then needs every ORDER BY column selected.
+    $query = "SELECT DISTINCT po.patient_id, po.encounter_id, po.date_ordered, po.procedure_order_id, " .
+    "pd.pubpid, pd.lname, pd.fname, pd.mname, " .
     "CONCAT(pd.lname, ', ', pd.fname, ' ', pd.mname) AS patient_name, " .
-    "pto.name AS procedure_name, " .
+    "pc.procedure_name AS procedure_name, " .
     "pts.related_code, " .
     "u1.lname AS provider_lname, u1.fname AS provider_fname, u1.mname AS provider_mname, " .
     "pr.procedure_report_id, pr.date_report, pr.report_status " .
     "FROM procedure_order AS po " .
     "JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
     "JOIN patient_data AS pd ON pd.pid = po.patient_id " .
+    "JOIN procedure_order_code AS pc ON pc.procedure_order_id = po.procedure_order_id " .
     "JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id " .
+    "AND pr.procedure_order_seq = pc.procedure_order_seq " .
     "JOIN procedure_result AS ps ON ps.procedure_report_id = pr.procedure_report_id " .
     "AND ps.abnormal != '' AND ps.abnormal != 'no' " .
-    "JOIN procedure_type AS pto ON pto.procedure_type_id = po.procedure_type_id " .
-    "JOIN procedure_type AS pts ON pts.procedure_type_id = ps.procedure_type_id " .
-    "AND pts.related_code != '' " .
+    "JOIN procedure_type AS pts ON pts.lab_id = po.lab_id AND pts.procedure_code = ps.result_code " .
+    "AND pts.procedure_type LIKE 'res%' AND pts.related_code != '' " .
     "LEFT JOIN users AS u1 ON u1.id = po.provider_id " .
     "WHERE " .
     "po.date_ordered >= ? AND po.date_ordered <= ?";
@@ -239,13 +240,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         $patient_id = $row['patient_id'];
         $date_ordered = $row['date_ordered'];
 
-        $relcodes = explode(';', $row['related_code']);
+        $relcodes = explode(';', (string) $row['related_code']);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
 
             $brow = sqlQuery("SELECT count(*) AS count " .
             "FROM billing AS b, form_encounter AS fe WHERE " .
@@ -254,7 +255,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             "b.code = ? AND " .
             "b.activity = 1 AND " .
             "fe.pid = b.pid AND fe.encounter = b.encounter AND " .
-            "fe.date >= ?", array($patient_id, $codetype, $code, $date_ordered . ' 00:00:00'));
+            "fe.date >= ?", [$patient_id, $codetype, $code, $date_ordered . ' 00:00:00']);
 
             // If there was such a service, then this followup is not pending.
             if (!empty($brow['count'])) {

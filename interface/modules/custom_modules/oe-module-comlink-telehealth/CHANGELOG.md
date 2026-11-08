@@ -22,7 +22,7 @@ V2.0.0
 - Bug Fix - expired sessions would show the launch button on the add edit event screen which would then display an error when clicked
 - Bug Fix - Launching a second telehealth session in the same day for the same patient would often grab the earlier session for the patient and the patient would be unable to join
 - Bug Fix - added ACL checks on the room controller action dispatcher to prevent improper access to the api
-  
+
 v1.2.0
 - Added registration code capability for mobile app use
 - Add App registration and use instructions to patient credentials screen

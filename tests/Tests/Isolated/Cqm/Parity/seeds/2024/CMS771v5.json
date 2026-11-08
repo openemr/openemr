@@ -1,0 +1,74 @@
+{
+    "patients": [
+        {
+            "note": "New BPH with symptoms in September 2023, IPSS 20 two weeks later and 12 eight months later, office visit in May 2024: denominator and numerator (improvement 8).",
+            "birthDatetime": "1950-03-01T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Benign prostatic hyperplasia with lower urinary tract symptoms",
+                    "prevalencePeriod": [
+                        "2023-09-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "International Prostate Symptom Score [IPSS]",
+                    "relevantDatetime": "2023-09-15T09:00:00.000+00:00",
+                    "result": 20
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "International Prostate Symptom Score [IPSS]",
+                    "relevantDatetime": "2024-05-01T09:00:00.000+00:00",
+                    "result": 12
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2024-05-01T09:00:00.000+00:00",
+                        "2024-05-01T09:30:00.000+00:00"
+                    ]
+                }
+            ]
+        },
+        {
+            "note": "The same with a follow-up IPSS of 18: denominator, not numerator (improvement 2).",
+            "birthDatetime": "1948-11-01T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Benign prostatic hyperplasia with lower urinary tract symptoms",
+                    "prevalencePeriod": [
+                        "2023-10-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "International Prostate Symptom Score [IPSS]",
+                    "relevantDatetime": "2023-10-20T09:00:00.000+00:00",
+                    "result": 20
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "International Prostate Symptom Score [IPSS]",
+                    "relevantDatetime": "2024-06-02T09:00:00.000+00:00",
+                    "result": 18
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2024-06-02T09:00:00.000+00:00",
+                        "2024-06-02T09:30:00.000+00:00"
+                    ]
+                }
+            ]
+        }
+    ]
+}

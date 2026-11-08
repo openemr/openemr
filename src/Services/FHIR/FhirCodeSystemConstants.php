@@ -2,8 +2,9 @@
 
 /**
  * FhirCodeSystemUris.php
- * @package openemr
- * @link      http://www.open-emr.org
+ *
+ * @package   openemr
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -32,6 +33,19 @@ class FhirCodeSystemConstants
 
     const HL7_OBSERVATION_CATEGORY = "http://terminology.hl7.org/CodeSystem/observation-category";
 
+    // Displays for HL7_OBSERVATION_CATEGORY codes. A coding's display must match the code system's.
+    const HL7_OBSERVATION_CATEGORY_DISPLAYS = [
+        'social-history' => 'Social History',
+        'vital-signs' => 'Vital Signs',
+        'imaging' => 'Imaging',
+        'laboratory' => 'Laboratory',
+        'procedure' => 'Procedure',
+        'survey' => 'Survey',
+        'exam' => 'Exam',
+        'therapy' => 'Therapy',
+        'activity' => 'Activity',
+    ];
+
     // @see https://www.hl7.org/fhir/us/core/ValueSet-us-core-documentreference-category.html
     const DOCUMENT_REFERENCE_CATEGORY = "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category";
 
@@ -56,7 +70,18 @@ class FhirCodeSystemConstants
 
     const HL7_ICD10 = "http://hl7.org/fhir/sid/icd-10";
 
+    // US Core uses the -cm variants for diagnosis codings; OpenEMR stores both
+    // under its ICD10 / ICD9 code types.
+    const HL7_ICD10_CM = "http://hl7.org/fhir/sid/icd-10-cm";
+
+    const HL7_ICD9_CM = "http://hl7.org/fhir/sid/icd-9-cm";
+
     public const HL7_V3_ACT_CODE = "http://terminology.hl7.org/CodeSystem/v3-ActCode";
+
+    // Source of Payment Typology (OID 2.16.840.1.113883.3.221.5), the codes of the Payer Type value set
+    // that US Core binds Coverage.type to
+    // @see https://hl7.org/fhir/us/core/STU8.0.1/Coverage-coverage-example.json.html
+    public const SOURCE_OF_PAYMENT_TYPOLOGY = "https://nahdo.org/sopt";
 
     public const HL7_PARTICIPATION_TYPE = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType";
 
@@ -66,7 +91,17 @@ class FhirCodeSystemConstants
 
     const RXNORM = "http://www.nlm.nih.gov/research/umls/rxnorm";
 
+    // TODO: this is referenced a few places in HL7 as the NDC system, but does not appear to be officially documented
+    const NDC = "http://hl7.org/fhir/sid/ndc";
+
     const HL7_MEDICATION_REQUEST_CATEGORY = "http://terminology.hl7.org/CodeSystem/medicationrequest-category";
+    // Displays for HL7_MEDICATION_REQUEST_CATEGORY codes. A coding's display must match the code system's.
+    const HL7_MEDICATION_REQUEST_CATEGORY_DISPLAYS = [
+        'inpatient' => 'Inpatient',
+        'outpatient' => 'Outpatient',
+        'community' => 'Community',
+        'discharge' => 'Discharge',
+    ];
     public const NCIMETA_NCI_NIH = "http://ncimeta.nci.nih.gov";
 
     const OID_RACE_AND_ETHNICITY = "urn:oid:2.16.840.1.113883.6.238";
@@ -83,9 +118,69 @@ class FhirCodeSystemConstants
 
     /**
      * Required for Structured Data Collection (SDC) Task implementations
+     *
      * @see https://build.fhir.org/ig/HL7/sdc/ValueSet-task-code.html
      */
     const HL7_SDC_TASK_TEMP = "https://build.fhir.org/ig/HL7/sdc/CodeSystem-temp.html";
 
     const HL7_SDC_TASK_SERVICE_REQUEST = "http://hl7.org/fhir/CodeSystem/task-code";
+
+    /**
+     * CPT4 code sets are owned by the American Medical Association (AMA)
+     */
+    const AMA_CPT = 'http://www.ama-assn.org/go/cpt';
+
+    const HL7_CATEGORY_OBSERVATION = 'http://terminology.hl7.org/CodeSystem/observation-category';
+
+    const HL7_US_CORE_CATEGORY_OBSERVATION = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category';
+
+    const INDUSTRY_NAICS_DETAIL_ODH = 'urn:oid:2.16.840.1.114222.4.11.7900';
+
+    const OCCUPATION_ODH = 'urn:oid:2.16.840.1.114222.4.11.7901';
+
+    const SPECIMEN_IDENTIFIER = "http://terminology.hl7.org/CodeSystem/v2-0203";
+
+// HL7 v2 table 0487: Specimen Type
+    const SPECIMEN_TYPE = "http://terminology.hl7.org/CodeSystem/v2-0487";
+// HL7 v2 table 0488: Specimen Collection Method
+    const SPECIMEN_COLLECTION_METHOD = "http://terminology.hl7.org/CodeSystem/v2-0488";
+// HL7 v2 table 0493: Specimen Condition
+    const SPECIMEN_CONDITION = "http://terminology.hl7.org/CodeSystem/v2-0493";
+// HL7 v2 table 0371: Additive/Preservative
+    const SPECIMEN_ADDITIVE_PRESERVATIVE = "http://terminology.hl7.org/CodeSystem/v2-0371";
+// HL7 v2 table 0070: Specimen Source Codes (legacy)
+    const SPECIMEN_SOURCE = "http://terminology.hl7.org/CodeSystem/v2-0070";
+// FHIR core: Specimen Status (availability)
+    const SPECIMEN_STATUS = "http://hl7.org/fhir/specimen-status";
+
+    const HL7_CONDITION_CATEGORY = 'http://terminology.hl7.org/CodeSystem/condition-category';
+
+    const HL7_CONDITION_CATEGORY_3_1_1 = ' http://hl7.org/fhir/us/core/CodeSystem/condition-category';
+
+    // NCI 2025-04 release of NCI Thesaurus
+    const NCI_THESAURUS = 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl';
+
+    const HL7_TIMING_ABBREVIATION = 'http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation';
+    // Displays for the HL7_TIMING_ABBREVIATION codes used by the drug_interval list. A coding's display
+    // must match the code system's.
+    const HL7_TIMING_ABBREVIATION_DISPLAYS = [
+        'AM' => 'AM',
+        'BID' => 'BID',
+        'MO' => 'monthly',
+        'PM' => 'PM',
+        'Q1H' => 'every hour',
+        'Q3H' => 'every 3 hours',
+        'Q4H' => 'Q4H',
+        'Q6H' => 'Q6H',
+        'Q8H' => 'every 8 hours',
+        'QD' => 'QD',
+        'QID' => 'QID',
+        'TID' => 'TID',
+        'WK' => 'weekly',
+    ];
+
+    const HL7_ROLE_CODE = "http://terminology.hl7.org/CodeSystem/role-code";
+
+    const HSOC = "https://www.cdc.gov/nhsn/cdaportal/terminology/codesystem/hsloc.html";
+    const CMS_PLACE_OF_SERVICE = " https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set";
 }

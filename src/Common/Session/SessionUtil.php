@@ -41,6 +41,9 @@
  *     is to use the standard php session locking on code that works on critical session variables during
  *     authorization related scripts and in cases of single process use (such as with command line scripts
  *     and non-local api calls) since there is no performance benefit in single process use.
+ *     This no-lock mechanism (via read_and_close) works for both the native file session handler and
+ *     the predis-sentinel session handler — the read_and_close option causes PHP to call open/read/close
+ *     on the handler immediately, releasing any lock the handler holds.
  *  10. For OpenEMR 6.0.0 added a oauth2 session, which requires following settings:
  *      cookie_samesite = None (In theory, should just need Lax (since just GET requests), however, need None for Smart Apps used
  *                              within OpenEMR to work)
@@ -64,278 +67,164 @@
 
 namespace OpenEMR\Common\Session;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
+use OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage;
+use SessionHandlerInterface;
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 
 class SessionUtil
 {
-    private const CORE_SESSION_ID = "OpenEMR";
-    private const OAUTH_SESSION_ID = 'authserverOpenEMR';
+    public const CORE_SESSION_ID = "OpenEMR";
+    public const OAUTH_SESSION_ID = 'authserverOpenEMR';
 
-    private static $gc_maxlifetime = 14400;
-    private static $use_strict_mode = true;
-    private static $use_cookies = true;
-    private static $use_only_cookies = true;
-    private static $use_cookie_samesite = "Strict";
-    private static $use_cookie_httponly = true;
-    private static $use_cookie_secure = false;
+    public const API_SESSION_ID = 'apiOpenEMR';
 
-    // Following setting have been deprecated in PHP 8.4 and higher
-    // (ie. will remove them when PHP 8.4 is the minimum requirement)
-    private static $sid_bits_per_character = 6;
-    private static $sid_length = 48;
+    public const PORTAL_SESSION_ID = 'PortalOpenEMR';
 
-    public static function sessionStartWrapper(array $settings = []): bool
+    public const SETUP_SESSION_ID = 'setupOpenEMR';
+
+    public const APP_COOKIE_NAME = 'App';
+
+    public const API_WEBROOT = '/apis/';
+
+    public const OAUTH_WEBROOT = '/oauth2/';
+
+    public const DEFAULT_GC_MAXLIFETIME = 14400; // 4 hours
+
+    private static ?SessionHandlerInterface $sessionHandler;
+
+    /**
+     * @param string|array<string, mixed> $session_key_or_array
+     */
+    public static function setSession(string|array $session_key_or_array, $session_value = null): void
     {
-        if (!empty(getenv('SESSION_STORAGE_MODE', true))  && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
-            (new SystemLogger())->debug("SessionUtil: using predis sentinel session storage mode");
-            (new SentinelUtil(self::$gc_maxlifetime))->configure();
-        }
-        return session_start($settings);
-    }
-
-    public static function switchToCoreSession($web_root, $read_only = true): void
-    {
-        session_write_close();
-        session_id($_COOKIE[self::CORE_SESSION_ID] ?? '');
-        self::coreSessionStart($web_root, $read_only);
-        (new SystemLogger())->debug("SessionUtil: switched to core session");
-    }
-
-    public static function coreSessionStart($web_root, $read_only = true): void
-    {
-        // Note there is no system logger here since that class does not
-        //  yet exist in this context.
-        $settings = [
-            'read_and_close' => $read_only,
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => self::$use_cookie_secure,
-            'name' => self::CORE_SESSION_ID,
-            'cookie_httponly' => false,
-            'cookie_path' => ((!empty($web_root)) ? $web_root . '/' : '/'),
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
-        self::sessionStartWrapper($settings);
-        (new SystemLogger())->debug("SessionUtil: started core session");
-    }
-
-    public static function setSession($session_key_or_array, $session_value = null): void
-    {
-        // Since our default is read_and_close the session shouldn't be active here.
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            // ensure the session file is written from a previous
-            // session open for write.
-            session_write_close();
-        }
-        self::coreSessionStart($GLOBALS['webroot'], false);
-        if (is_array($session_key_or_array)) {
-            foreach ($session_key_or_array as $key => $value) {
-                $_SESSION[$key] = $value;
+        self::withWritableSession(static function (SessionInterface $session) use ($session_key_or_array, $session_value): void {
+            if (is_array($session_key_or_array)) {
+                foreach ($session_key_or_array as $key => $value) {
+                    $session->set($key, $value);
+                }
+            } else {
+                $session->set($session_key_or_array, $session_value);
             }
-        } else {
-            $_SESSION[$session_key_or_array] = $session_value;
-        }
-        session_write_close();
-        (new SystemLogger())->debug("SessionUtil: set session value", [
+        });
+
+        ServiceContainer::getLogger()->debug("SessionUtil: set session value", [
             'session_key_or_array' => $session_key_or_array,
             'session_value' => $session_value
         ]);
     }
 
-    public static function unsetSession($session_key_or_array): void
+    /**
+     * @param string|array<int, string> $session_key_or_array
+     */
+    public static function unsetSession(string|array $session_key_or_array): void
     {
-        self::coreSessionStart($GLOBALS['webroot'], false);
-        if (is_array($session_key_or_array)) {
-            foreach ($session_key_or_array as $value) {
-                unset($_SESSION[$value]);
+        self::withWritableSession(static function (SessionInterface $session) use ($session_key_or_array): void {
+            if (is_array($session_key_or_array)) {
+                foreach ($session_key_or_array as $value) {
+                    $session->remove($value);
+                }
+            } else {
+                $session->remove($session_key_or_array);
             }
-        } else {
-            unset($_SESSION[$session_key_or_array]);
-        }
-        session_write_close();
-        (new SystemLogger())->debug("SessionUtil: unset session value", [
+        });
+
+        ServiceContainer::getLogger()->debug("SessionUtil: unset session value", [
             'session_key_or_array' => $session_key_or_array
         ]);
     }
 
-    public static function setUnsetSession($setArray, $unsetArray): void
+    /**
+     * @param array<string, mixed> $setArray
+     * @param array<int, string> $unsetArray
+     */
+    public static function setUnsetSession(array $setArray = [], array $unsetArray = []): void
     {
-        self::coreSessionStart($GLOBALS['webroot'], false);
-        foreach ($setArray as $key => $value) {
-            $_SESSION[$key] = $value;
-        }
-        foreach ($unsetArray as $value) {
-            unset($_SESSION[$value]);
-        }
-        session_write_close();
-        (new SystemLogger())->debug("SessionUtil: set numerous session values", $setArray);
-        (new SystemLogger())->debug("SessionUtil: unset numerous session values", $unsetArray);
+        self::withWritableSession(static function (SessionInterface $session) use ($setArray, $unsetArray): void {
+            foreach ($setArray as $key => $value) {
+                $session->set($key, $value);
+            }
+
+            foreach ($unsetArray as $value) {
+                $session->remove($value);
+            }
+        });
+
+        ServiceContainer::getLogger()->debug("SessionUtil: set numerous session values", $setArray);
+        ServiceContainer::getLogger()->debug("SessionUtil: unset numerous session values", $unsetArray);
     }
 
-    public static function coreSessionDestroy(): void
+    /**
+     * Clears all session variables without destroying the session.
+     * Safe with read_and_close — reopens for writing if needed.
+     */
+    public static function clearSession(): void
     {
-        self::standardSessionCookieDestroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed core session");
+        self::withWritableSession(static function (SessionInterface $session): void {
+            $session->clear();
+        });
+
+        ServiceContainer::getLogger()->debug("SessionUtil: cleared all session variables");
     }
 
-    public static function portalSessionStart(): void
+    /**
+     * Executes the given callback with a writable session. If the session was
+     * opened with read_and_close, it is reopened for writing before the callback
+     * and closed (lock released) immediately after.
+     */
+    private static function withWritableSession(callable $fn): void
     {
-        // Note there is no system logger here since that class does not
-        //  yet exist in this context.
-        $settings = [
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => self::$use_cookie_secure,
-            'name' => 'PortalOpenEMR',
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
+        $factory = SessionWrapperFactory::getInstance();
+        $session = $factory->getActiveSession();
+        $storage = $factory->getActiveStorage();
 
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
+        $needsClose = false;
+        if ($storage instanceof ReadAndCloseNativeSessionStorage && $storage->isClosedByReadAndClose()) {
+            $storage->reopenForWriting();
+            $needsClose = true;
         }
 
-        self::sessionStartWrapper($settings);
-        (new SystemLogger())->debug("SessionUtil: started portal session");
+        try {
+            $fn($session);
+        } finally {
+            if ($needsClose) {
+                $session->save();
+            }
+        }
     }
 
     public static function portalSessionCookieDestroy(): void
     {
-        // Note there is no system logger here since that class does not
-        //  yet exist in this context.
-        self::standardSessionCookieDestroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed portal session");
-    }
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
 
-    public static function apiSessionStart($web_root): void
-    {
-        $settings = [
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => true,
-            'name' => 'apiOpenEMR',
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'cookie_path' => ((!empty($web_root)) ? $web_root . '/apis/' : '/apis/'),
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
-        self::sessionStartWrapper($settings);
-        (new SystemLogger())->debug("SessionUtil: started api session");
-    }
-
-    public static function apiSessionCookieDestroy(): void
-    {
-        self::standardSessionCookieDestroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed api session");
-    }
-
-    public static function switchToOAuthSession($web_root): void
-    {
-        session_write_close();
-        session_id($_COOKIE[self::OAUTH_SESSION_ID] ?? '');
-        self::oauthSessionStart($web_root);
-        (new SystemLogger())->debug("SessionUtil: switched to oauth session");
-    }
-
-    public static function oauthSessionStart($web_root): void
-    {
-        $settings = [
-            'cookie_samesite' => "None",
-            'cookie_secure' => true,
-            'name' => self::OAUTH_SESSION_ID,
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'cookie_path' => ((!empty($web_root)) ? $web_root . '/oauth2/' : '/oauth2/'),
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
-        self::sessionStartWrapper($settings);
-        (new SystemLogger())->debug("SessionUtil: started oauth session");
+        ServiceContainer::getLogger()->debug("SessionUtil: destroyed portal session");
     }
 
     public static function oauthSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed oauth session");
+        ServiceContainer::getLogger()->debug("SessionUtil: destroyed oauth session");
     }
 
     public static function setupScriptSessionStart(): void
     {
-        $settings = [
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => self::$use_cookie_secure,
-            'name' => 'setupOpenEMR',
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
-        self::sessionStartWrapper($settings);
-        (new SystemLogger())->debug("SessionUtil: started setup script session");
+        $settings = SessionConfigurationBuilder::forSetup();
+        $handler = self::getSessionHandler();
+        $storage = new NativeSessionStorage($settings->toSessionStartOptions(), $handler);
+        $session = new Session($storage);
+        $session->start();
+        SessionWrapperFactory::getInstance()->setActiveSession($session);
+        ServiceContainer::getLogger()->debug("SessionUtil: started setup script session");
     }
 
     public static function setupScriptSessionCookieDestroy(): void
     {
-        self::standardSessionCookieDestroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed setup script session");
+        SessionWrapperFactory::getInstance()->destroySetupSession();
+        ServiceContainer::getLogger()->debug("SessionUtil: destroyed setup script session");
     }
 
     private static function standardSessionCookieDestroy(): void
@@ -357,10 +246,50 @@ class SessionUtil
             ]
         );
 
-        // Destroy the session.
-        session_destroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed session and cookie", [
+        // Destroy the session if active.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+        ServiceContainer::getLogger()->debug("SessionUtil: destroyed session and cookie", [
             'session_name' => $sessionName,
         ]);
+    }
+
+    public static function setAppCookie(string $appType): void
+    {
+        setcookie(
+            self::APP_COOKIE_NAME,
+            $appType,
+            [
+                'expires' => time() + 31536000, // 1 year
+                'path' => '/',
+                // This permits the app cookie to work in non-https dev environments. It's not a sensitive value.
+                'secure' => false,
+                'httponly' => true,
+                'samesite' => Cookie::SAMESITE_STRICT
+            ]
+        );
+    }
+
+    public static function getAppCookie(): string
+    {
+        return $_COOKIE['App'] ?? '';
+    }
+
+    /**
+     * Get the session handler based on environment settings.
+     * @return SessionHandlerInterface|null
+     */
+    public static function getSessionHandler(): ?SessionHandlerInterface {
+        if (!isset(self::$sessionHandler)) {
+            // handler defaults to symfony default handler, but if using predis sentinel, then get that handler
+            $handler = null;
+            if (!empty(getenv('SESSION_STORAGE_MODE', true)) && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
+                ServiceContainer::getLogger()->debug("SessionUtil: using predis sentinel session storage mode");
+                $handler = (new SentinelUtil())->configure(self::DEFAULT_GC_MAXLIFETIME);
+            }
+            self::$sessionHandler = $handler;
+        }
+        return self::$sessionHandler;
     }
 }

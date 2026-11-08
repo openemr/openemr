@@ -7,7 +7,7 @@
  * @see \OpenEMR\Services\FormService on how this class is saved in the database.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Discover and Change, Inc. <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -43,7 +43,7 @@ class FormQuestionnaireAssessment extends BaseForm
         $this->lform_response = null;
     }
 
-    public function getFormTableDataForSave()
+    public function getFormTableDataForSave(): array
     {
         $data = [
             'date' => $this->getDate()->format("Y-m-d H:i:s")
@@ -65,7 +65,7 @@ class FormQuestionnaireAssessment extends BaseForm
         return $data;
     }
 
-    public function getFormTableName()
+    public function getFormTableName(): string
     {
         return "form_questionnaire_assessments";
     }
@@ -88,10 +88,7 @@ class FormQuestionnaireAssessment extends BaseForm
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getActivity()
+    public function getActivity(): int
     {
         return $this->activity;
     }

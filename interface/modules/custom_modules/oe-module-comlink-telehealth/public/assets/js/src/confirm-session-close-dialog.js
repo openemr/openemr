@@ -3,7 +3,7 @@
  * and any other final actions that need to occur when a provider ends a session.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -42,8 +42,11 @@ export function ConfirmSessionCloseDialog(translations, pc_eid, scriptLocation, 
     this.sendAppointmentStatusUpdate = function(status)
     {
         console.log("Setting appointment to status ", status);
-        let postData = "action=set_appointment_status&pc_eid=" + encodeURIComponent(pc_eid)
-            + "&status=" + encodeURIComponent(status);
+        const postData = new URLSearchParams({
+            action: 'set_appointment_status',
+            pc_eid: pc_eid,
+            status: status
+        });
         window.top.restoreSession();
         window.fetch(scriptLocation,
             {

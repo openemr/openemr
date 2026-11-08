@@ -14,12 +14,12 @@
 
 class AMC_302j_Denominator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_302j Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         //  (basically needs a transition-in within the report dates,
         //   which are already filtered for, so all the objects are a positive)

@@ -26,4 +26,3 @@ class PositiveEncounterOrder extends EncounterOrder
 
     public $_type = 'QDM::PositiveEncounterOrder';
 }
-

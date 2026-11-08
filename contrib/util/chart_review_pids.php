@@ -21,6 +21,10 @@ if (php_sapi_name() !== 'cli') {
     die;
 }
 
+if (!isset($argv[3])) {
+    throw new RuntimeException("This script requires at least three arguments.");
+}
+
 $_GET['site'] = $argv[1];
 $ignoreAuth = true;
 require_once __DIR__ . "/../../interface/globals.php";
@@ -59,13 +63,13 @@ $encs_result = array_intersect(array_column($policies_by_payer_id, 'pid'), array
 
 // sort and remove duplicate pids from encounters
 asort($encs_result);
-$result = array();
+$result = [];
 foreach ($encs_result as $key => $value) {
     if (!in_array($value, $result)) {
         $result[$key] = $value;
     }
 }
-$output = $output ?? '';
+$output ??= '';
 foreach ($result as $value) {
     $output .= ($value ?? '') . ", ";
 }

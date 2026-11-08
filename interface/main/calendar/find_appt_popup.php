@@ -18,21 +18,20 @@
 */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
-require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Calendar\ConfiguredScheduleHours;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\HolidayService;
 
-?>
+require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
-<?php
- // check access controls
-if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Find Available Appointments")]);
-    exit;
+// check access controls
+if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Find Available Appointments", xl("Find Available Appointments"));
 }
 
 // If the caller is updating an existing event, then get its ID so
@@ -40,12 +39,16 @@ if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
 $eid = empty($_REQUEST['eid']) ? 0 : 0 + $_REQUEST['eid'];
 
 $input_catid = $_REQUEST['catid'];
+$providerid = '';
+$slots = [];
+$prov = [];
+$isProv = false;
 
 // Record an event into the slots array for a specified day.
 function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
-    $udate = strtotime($starttime, $udate);
+    $udate = strtotime((string) $starttime, $udate);
     if ($udate < $slotstime) {
         return;
     }
@@ -90,32 +93,41 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 }
 
 // seconds per time slot
-$slotsecs = $GLOBALS['calendar_interval'] * 60;
+$slotsecs = OEGlobalsBag::getInstance()->getInt('calendar_interval') * 60;
 
+// Clinic day window from Admin -> Config -> Calendar (same as day/week grid).
+// schedule_end is exclusive for slot start/end fitting (Ending Hour 5 PM =>
+// last 30-min start is 4:30).
+[$scheduleStartHour, $scheduleEndHour] = ConfiguredScheduleHours::normalizeWindow(
+    OEGlobalsBag::getInstance()->getInt('schedule_start'),
+    OEGlobalsBag::getInstance()->getInt('schedule_end')
+);
 
 $catslots = 1;
 if ($input_catid) {
-    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", array($input_catid));
+    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", [$input_catid]);
     if ($srow['pc_duration']) {
-        $catslots = ceil($srow['pc_duration'] / $slotsecs);
+        $catslots = (int) ceil($srow['pc_duration'] / $slotsecs);
     }
 }
 
 $info_msg = "";
 
 $searchdays = 7; // default to a 1-week lookahead
-if (!empty($_REQUEST['searchdays'])) {
-    $searchdays = $_REQUEST['searchdays'];
+if (!empty($_REQUEST['searchdays']) && is_numeric($_REQUEST['searchdays'])) {
+    $searchdays = (int) $_REQUEST['searchdays'];
 }
 
 // Get a start date.
 $sdate = ($_REQUEST['startdate']) ? DateToYYYYMMDD($_REQUEST['startdate']) : date("Y-m-d");
 
 // Get an end date - actually the date after the end date.
-preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
+if (!preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $sdate, $matches)) {
+    die(xlt('Invalid start date'));
+}
 $edate = date(
     "Y-m-d",
-    mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])
+    mktime(0, 0, 0, (int) $matches[2], (int) $matches[3] + $searchdays, (int) $matches[1])
 );
 
 // compute starting time slot number and number of slots.
@@ -135,17 +147,17 @@ $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 $evslots = $catslots;
 if (isset($_REQUEST['evdur'])) {
     // bug fix #445 -- Craig Bezuidenhout 09 Aug 2016
-    // if the event duration is less than or equal to zero, use the global calander interval
+    // if the event duration is less than or equal to zero, use the global calendar interval
     // if the global calendar interval is less than or equal to zero, use 10 mins
-    if (intval($_REQUEST['evdur']) <= 0) {
-        if (intval($GLOBALS['calendar_interval']) <= 0) {
-                $_REQUEST['evdur'] = 10;
-        } else {
-            $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']);
+    $evdur = ValidationUtils::validateInt($_REQUEST['evdur'], min: 1);
+    if ($evdur === false) {
+        $evdur = ValidationUtils::validateInt(OEGlobalsBag::getInstance()->get('calendar_interval'), min: 1);
+        if ($evdur === false) {
+            $evdur = 10;
         }
     }
 
-    $evslots = 60 * $_REQUEST['evdur'];
+    $evslots = 60 * $evdur;
     $evslots = (int) (($evslots + $slotsecs - 1) / $slotsecs);
 }
 
@@ -160,9 +172,9 @@ if ($_REQUEST['providerid']) {
     //   bit 2 = reserved
     // So, values may range from 0 to 7.
     //
-    $slots = array_pad(array(), $slotcount, 0);
+    $slots = array_pad([], $slotcount, 0);
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     // Note there is no need to sort the query results.
     $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
@@ -171,12 +183,12 @@ if ($_REQUEST['providerid']) {
         "WHERE pc_aid = ? AND " .
         "pc_eid != ? AND " .
         "((pc_endDate >= ? AND pc_eventDate < ? ) OR " .
-        "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
+        "(pc_endDate IS NULL AND pc_eventDate >= ? AND pc_eventDate < ?))";
 
         array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
     // phyaura whimmel facility filtering
-    if ($_REQUEST['facility'] ?? '' > 0) {
+    if (($_REQUEST['facility'] ?? '') > 0) {
             $facility = $_REQUEST['facility'];
             $query .= " AND pc_facility = ?";
             array_push($sqlBindArray, $facility);
@@ -226,9 +238,10 @@ $ckavail = true;
 // If the requested date is a holiday/closed date we need to alert the user about it and let him choose if he wants to proceed
 //////
 $is_holiday = false;
-$holidays_controller = new Holidays_Controller();
-$holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
-if (in_array($sdate, $holidays)) {
+$holidayService = HolidayService::createForLegacyContext();
+$sdateStr = (string) $sdate;
+$holidays = $holidayService->getHolidaysByDateRange($sdateStr, $edate);
+if (in_array($sdateStr, $holidays, true)) {
     $is_holiday = true;
     $ckavail = true;
 }
@@ -254,8 +267,12 @@ if (in_array($sdate, $holidays)) {
 if (isset($_REQUEST['cktime'])) {
     $cktime = 0 + $_REQUEST['cktime'];
     $ckindex = (int) ($cktime * 60 / $slotsecs);
+    $ckUtime = ($slotbase + $ckindex) * $slotsecs;
+    if (!ConfiguredScheduleHours::containsSlot($ckUtime, $evslots, $slotsecs, $scheduleStartHour, $scheduleEndHour)) {
+        $ckavail = false;
+    }
     for ($j = $ckindex; $j < $ckindex + $evslots; ++$j) {
-        if ($slots[$j] >= 4) {
+        if (($slots[$j] ?? 0) >= 4) {
             $ckavail = false;
             $isProv = false;
             if (isset($prov[$j])) {
@@ -352,7 +369,7 @@ if (isset($_REQUEST['cktime'])) {
             <?php echo xlt('Start date:'); ?>
         <input type='text' class='datepicker input-sm form-control' name='startdate' id='startdate' size='10' value='<?php echo attr(oeFormatShortDate($sdate)); ?>' title='<?php echo xla('Starting date for search'); ?> '/>
             <?php echo xlt('for'); ?>
-        <input type='text' class="input-sm form-control" name='searchdays' size='3' value='<?php echo attr($searchdays) ?>' title='<?php echo xla('Number of days to search from the start date'); ?>' />
+        <input type='text' class="input-sm form-control" name='searchdays' size='3' value='<?php echo attr((string) $searchdays) ?>' title='<?php echo xla('Number of days to search from the start date'); ?>' />
             <?php echo xlt('days'); ?>&nbsp;
         <button type='submit' class='btn btn-primary btn-search'><?php echo xla('Search'); ?></button>
         </form>
@@ -383,6 +400,10 @@ if (isset($_REQUEST['cktime'])) {
                 }
 
                 $utime = ($slotbase + $i) * $slotsecs;
+                // Honor Admin -> Config -> Calendar start/end hours (e.g. no slots after 5 PM).
+                if (!ConfiguredScheduleHours::containsSlot($utime, $evslots, $slotsecs, $scheduleStartHour, $scheduleEndHour)) {
+                    continue;
+                }
                 $thisdate = date("Y-m-d", $utime);
                 if ($thisdate != $lastdate) {
                     // if a new day, start a new row
@@ -407,7 +428,7 @@ if (isset($_REQUEST['cktime'])) {
                 }
 
                 $ampmFlag = $ampm;
-                $hour_format_leading_zeros = ($GLOBALS['time_display_format'] == 0) ? 'h' : 'H';
+                $hour_format_leading_zeros = (OEGlobalsBag::getInstance()->get('time_display_format') == 0) ? 'h' : 'H';
 
                 $atitle = "Choose " . date($hour_format_leading_zeros . ":i a", $utime);
                 $adate = getdate($utime);
@@ -419,7 +440,7 @@ if (isset($_REQUEST['cktime'])) {
                 attr_js($adate['minutes']) . ")'" .
                 " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'" .
                 ">";
-                $hour_format = ($GLOBALS['time_display_format'] == 0) ? 'G' : 'g';
+                $hour_format = (OEGlobalsBag::getInstance()->get('time_display_format') == 0) ? 'G' : 'g';
                 echo (strlen(date($hour_format, $utime)) < 2 ? "<span class='invisible'>0</span>" : "") .
                 $anchor . date($hour_format . ":i", $utime) . "</a> ";
 
@@ -452,7 +473,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -460,12 +481,64 @@ $(function () {
 
 <?php
 if (!$ckavail) {
+    // Shared confirm-branch body: resolve the parent window robustly
+    // (opener can be undefined-at-load if the iframe parses its
+    // include_opener.js before dialog.js's `top.set_opener(winname,
+    // window)` completes -- that's a timing race, not a semantic
+    // guarantee), restore the parent session, submit the parent
+    // form, then unconditionally dlgclose(). The try/catch + always-
+    // close shape mirrors the openemr/openemr#14325 fix on
+    // add_edit_event.php's response path: a null/undefined-opener
+    // throw must not block dlgclose() from firing, because that's
+    // the exact modal-persists symptom the acceptance harness
+    // AppointmentPersistenceAcceptanceTest exists to catch.
+    //
+    // Parent-window resolution: window.opener in dlgopen iframe
+    // context goes through include_opener.js's fallback chain
+    // (`opener = top.get_opener(window.name)` at script-load time).
+    // We ALSO re-resolve via top.get_opener(window.name) at
+    // use-time, inside the try, so a load-time race that left
+    // opener undefined has a second chance to find the real parent.
+    // Both the holiday and the provider-not-available / slot-
+    // already-used branches share this logic -- extracted into a
+    // single $submitParentJs so the three confirm variants only
+    // differ in their prompt string.
+    // CodeRabbit note on this PR: logging the caught error + the
+    // unresolved-parent case to the browser console closes the
+    // diagnostic loop with the PantherAcceptanceTestCase failure-
+    // capture hook added in the same PR (that hook writes the
+    // browser console log to tmp/acceptance-failure-artifacts/
+    // on test failure, so if the opener-chain fallback here
+    // doesn't resolve the real parent, the artifact bundle names
+    // exactly why).
+    $submitParentJs = <<<'JS'
+            try {
+                var _parentWin = (typeof opener !== 'undefined' && opener && opener.document)
+                    ? opener
+                    : ((top && typeof top.get_opener === 'function') ? top.get_opener(window.name) : null);
+                if (_parentWin && _parentWin.top && typeof _parentWin.top.restoreSession === 'function') {
+                    _parentWin.top.restoreSession();
+                }
+                if (_parentWin && _parentWin.document && _parentWin.document.forms[0]) {
+                    _parentWin.document.forms[0].submit();
+                } else if (window.console && typeof window.console.warn === 'function') {
+                    window.console.warn(
+                        'find_appt_popup: parent window could not be resolved; '
+                        + 'confirmed save was NOT propagated to the opener form. '
+                        + 'opener=' + (typeof opener) + ' top.get_opener=' + (typeof (top && top.get_opener))
+                    );
+                }
+            } catch (_e) {
+                if (window.console && typeof window.console.error === 'function') {
+                    window.console.error('find_appt_popup confirm submit failed', _e);
+                }
+            }
+            dlgclose();
+JS;
     if (AclMain::aclCheckCore('patients', 'appt', '', 'write')) {
         if ($is_holiday) { ?>
             if (confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>)) {
-                opener.top.restoreSession();
-                opener.document.forms[0].submit();
-                dlgclose();
+            <?php echo $submitParentJs; ?>
             } <?php
         } else {
             //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
@@ -476,9 +549,7 @@ if (!$ckavail) {
                 if (confirm(<?php echo xlj('This appointment slot is already used, use it anyway?'); ?>)) {
                 <?php
             } ?>
-            opener.top.restoreSession();
-            opener.document.forms[0].submit();
-            dlgclose();
+            <?php echo $submitParentJs; ?>
         }
             <?php
         }

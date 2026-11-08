@@ -18,7 +18,7 @@
  *
  * @package OpenEMR
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class Thumbnail
@@ -28,7 +28,7 @@ class Thumbnail
     public $thumbnail_type = 'jpg';
     /**
      * Enable to set max size of thumbnail
-     * @param (int) $max_size
+     * @param int $max_size
      */
     public function __construct($max_size = null)
     {
@@ -38,24 +38,20 @@ class Thumbnail
             die('Abort. Thumbnail generator error : Missing GD extension');
         }
 
-        if (!is_null($max_size)) {
-            $this->max_size = $max_size;
-        } else {
-            $this->max_size = self::MAX_SIZE;
-        }
+        $this->max_size = $max_size ?? self::MAX_SIZE;
     }
 
     /**
      * Check if system could make thumbnail for current file.
-     * @param (string) path to file
+     * @param string $file path to file
      * @return (boolean)
      */
-    public function file_support_thumbnail($file)
+    public function file_support_thumbnail($file): bool
     {
 
         $info = getimagesize($file);
 
-        $type = isset($info['type']) ? $info['type'] : $info[2];
+        $type = $info['type'] ?? $info[2];
 
         // Check support of file type
         if (!(imagetypes() & $type)) {
@@ -68,32 +64,28 @@ class Thumbnail
 
     /**
      * Create thumbnail (calculate by the size at $this->max_size)
-     * @param (string) path to file
-     * @param (optional) (string) content of file (prevent to get content again)
-     * @return (resource) resource of new file or false if failed.
+     * @param string|null $file path to file
+     * @param string|null $content_file content of file (prevent to get content again)
+     * @return resource|false resource of new file or false if failed.
      */
     public function create_thumbnail($file = null, $content_file = null)
     {
-        if (is_null($file)) {
-            $info = getimagesizefromstring($content_file);
-        } else {
-            $info =  getimagesize($file);
-        }
+        $info = is_null($file) ? getimagesizefromstring($content_file) : getimagesize($file);
 
         if (!$info) {
             error_log("Can't open file " . errorLogEscape($file) . " for generate thumbnail");
             return false;
         }
 
-        $width  = isset($info['width'])  ? $info['width']  : $info[0];
-        $height = isset($info['height']) ? $info['height'] : $info[1];
+        $width  = $info['width'] ?? $info[0];
+        $height = $info['height'] ?? $info[1];
 
         // Calculate aspect ratio
         $wRatio = $this->max_size / $width;
         $hRatio = $this->max_size / $height;
 
         // Using imagecreatefromstring will automatically detect the file type
-        $content_file = is_null($content_file) ? file_get_contents($file) : $content_file;
+        $content_file ??= file_get_contents($file);
         $sourceImage = imagecreatefromstring($content_file);
 
         // Calculate a proportional width and height no larger than the max size.
@@ -126,10 +118,10 @@ class Thumbnail
 
     /**
      * Save the image to a file. Type is determined from the extension.
-     * @param (resource) file resource from create_thumbnail()
-     * @param (string) file name (pull path with wanted name)
-     * @param (optional) (int) quality for 'jpeg' type
-     * @return boolean
+     * @param resource $resource_file file resource from create_thumbnail()
+     * @param string $fileName file name (pull path with wanted name)
+     * @param int $quality quality for 'jpeg' type
+     * @return bool
      */
     public function image_to_file($resource_file, $fileName, $quality = 80)
     {
@@ -144,10 +136,8 @@ class Thumbnail
 
     /**
      * Return content file. Type is determined from the extension.
-     * @param (resource) file resource from create_thumbnail()
-     * @param (string) file name (pull path with wanted name)
-     * @param (optional) (int) quality for 'jpeg' type
-     * @return (string) content file
+     * @param resource $resource_file file resource from create_thumbnail()
+     * @return string content file
      */
     public function get_string_file($resource_file)
     {
@@ -159,33 +149,21 @@ class Thumbnail
     }
 
     /**
-     *  Create new file from resource file with GD functions.
-     *  @param (string) extension of file
-     *  @param (resource) file resource from create_thumbnail()
-     *  @param (optional)(string) file name for saving (pull path with wanted name)
-     *  @param (optional) (int) quality for 'jpeg' type
-     *  @return false if failed
+     * Create new file from resource file with GD functions.
+     *
+     * @param resource $image_resource file resource from create_thumbnail()
+     * @param string|null $file_name file name for saving (full path with wanted name)
+     * @param int $quality quality for 'jpeg' type
+     * @return bool true on success, false on failure
      */
-    private function create_file($image_resource, $file_name = null, $quality = 80)
+    private function create_file($image_resource, $file_name = null, $quality = 80): bool
     {
-        switch ($this->thumbnail_type) {
-            case 'gif':
-                $file = imagegif($image_resource, $file_name);
-                break;
-            case 'jpg':
-            case 'jpeg':
-                $file =  imagejpeg($image_resource, $file_name, $quality);
-                break;
-            case 'png':
-                $file =  imagepng($image_resource, $file_name);
-                break;
-            case 'bmp':
-                $file =  imagewbmp($image_resource, $file_name);
-                break;
-            default:
-                return false;
-        }
-
-        return $file;
+        return match ($this->thumbnail_type) {
+            'gif' => imagegif($image_resource, $file_name),
+            'jpg', 'jpeg' => imagejpeg($image_resource, $file_name, $quality),
+            'png' => imagepng($image_resource, $file_name),
+            'bmp' => imagewbmp($image_resource, $file_name),
+            default => false
+        };
     }
 }

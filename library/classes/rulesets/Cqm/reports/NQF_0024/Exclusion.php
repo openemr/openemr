@@ -9,12 +9,12 @@
 
 class NQF_0024_Exclusion implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Exclusion";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         //Also exclude patients with a diagnosis of pregnancy during the measurement period.
         if (Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::PREGNANCY, $patient, $beginDate, $endDate)) {

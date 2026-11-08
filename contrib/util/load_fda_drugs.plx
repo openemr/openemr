@@ -57,9 +57,9 @@ my $countup  = 0;
 #######################################################################
 
 while (my $line = <STDIN>) {
-    
+
     my ($ingredients, $dosage_route, $tradename, $applicant,
-        $strength, $ndaNum, $prodNum, $teCode, $approvalDate, 
+        $strength, $ndaNum, $prodNum, $teCode, $approvalDate,
         $refDrug, $type, $fullName) = split /~/, $line;
 
     # check for existing record

@@ -155,7 +155,7 @@ class FHIRDeviceSpecialization extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -176,15 +176,13 @@ class FHIRDeviceSpecialization extends FHIRBackboneElement implements \JsonSeria
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceSpecialization xmlns="http://hl7.org/fhir"></DeviceSpecialization>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DeviceSpecialization xmlns="http://hl7.org/fhir"></DeviceSpecialization>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->systemType)) {
             $this->systemType->xmlSerialize(true, $sxe->addChild('systemType'));

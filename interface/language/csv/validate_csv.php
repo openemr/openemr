@@ -2,7 +2,7 @@
 
 /*
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2014 Kevin Yeh <kevin.y@integralemr.com>
@@ -12,9 +12,10 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Ensure this script is not called separately
-if ($langModuleFlag !== true) {
+if (!isset($langModuleFlag) || $langModuleFlag !== true) {
     die(function_exists('xlt') ? xlt('Authentication Error') : 'Authentication Error');
 }
 
@@ -38,12 +39,12 @@ if (!isset($_REQUEST['language_id'])) {
 }
 
 $lang_id = $_REQUEST['language_id'];
-$resLanguage = sqlStatement("select * from lang_languages where  lang_id = ?", array($lang_id));
+$resLanguage = sqlStatement("select * from lang_languages where  lang_id = ?", [$lang_id]);
 $rowLanguage = sqlFetchArray($resLanguage);
 $lang_description = $rowLanguage['lang_description'];
 
 $handle = utf8_fopen_read($_FILES["language_file"]["tmp_name"]);
-$file_contents = array();
+$file_contents = [];
 if ($handle) {
     while (($data = fgetcsv($handle, 1000, ",")) !== false) {
         $file_contents[] = $data;
@@ -230,6 +231,7 @@ if (count($file_contents) === 0) {
                 lang_id: <?php echo json_encode($lang_id);?>
                 ,translations:JSON.stringify(translations)
                 ,preview: true
+                ,csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession())); ?>
             },
             function(data)
             {
@@ -259,6 +261,7 @@ if (count($file_contents) === 0) {
                 lang_id: <?php echo json_encode($lang_id);?>
                 ,translations:JSON.stringify(translations)
                 ,preview: false
+                ,csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession())); ?>
             },
             function(data)
             {

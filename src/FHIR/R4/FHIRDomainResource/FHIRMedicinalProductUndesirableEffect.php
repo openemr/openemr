@@ -255,7 +255,7 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -292,15 +292,13 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductUndesirableEffect xmlns="http://hl7.org/fhir"></MedicinalProductUndesirableEffect>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductUndesirableEffect xmlns="http://hl7.org/fhir"></MedicinalProductUndesirableEffect>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->subject)) {
             foreach ($this->subject as $subject) {

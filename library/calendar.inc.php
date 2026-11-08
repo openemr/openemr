@@ -9,41 +9,41 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
-//Require once the holidays controller for the is_holiday() function
-require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\HolidayService;
 
 // Returns an array of the facility ids and names that the user is allowed to access.
 // Access might be for inventory purposes ($inventory=true) or calendar purposes.
 //
-function getUserFacilities($uID, $orderby = 'id', $inventory = false)
+function getUserFacilities($uID, $orderby = 'id', $inventory = false): array
 {
-    $restrict = $inventory ? $GLOBALS['gbl_fac_warehouse_restrictions'] : $GLOBALS['restrict_user_facility'];
+    $restrict = $inventory ? OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') : OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility');
     if ($restrict) {
         // No entries in this table means the user is not restricted.
         $countrow = sqlQuery(
             "SELECT count(*) AS count FROM users_facility WHERE " .
             "tablename = 'users' AND table_id = ?",
-            array($uID)
+            [$uID]
         );
     }
     if (!$restrict || empty($countrow['count'])) {
         $rez = sqlStatement(
-            "SELECT id, name, color FROM facility " .
+            "SELECT id, name, color, inactive FROM facility " .
             "ORDER BY $orderby"
         );
     } else {
         // This query gets facilities that the user is authorized to access.
         $rez = sqlStatement(
-            "SELECT f.id, f.name, f.color " .
+            "SELECT f.id, f.name, f.color, f.inactive " .
             "FROM facility AS f " .
             "JOIN users AS u ON u.id = ? " .
             "WHERE f.id = u.facility_id OR f.id IN " .
             "(SELECT DISTINCT uf.facility_id FROM users_facility AS uf WHERE uf.tablename = 'users' AND uf.table_id = u.id) " .
             "ORDER BY f.$orderby",
-            array($uID)
+            [$uID]
         );
     }
-    $returnVal = array();
+    $returnVal = [];
     while ($row = sqlFetchArray($rez)) {
         $returnVal[] = $row;
     }
@@ -51,14 +51,14 @@ function getUserFacilities($uID, $orderby = 'id', $inventory = false)
 }
 
 // Returns an array of warehouse IDs for the given user and facility.
-function getUserFacWH($uID, $fID)
+function getUserFacWH($uID, $fID): array
 {
     $res = sqlStatement(
         "SELECT warehouse_id FROM users_facility WHERE tablename = ? " .
         "AND table_id = ? AND facility_id = ?",
-        array('users', $uID, $fID)
+        ['users', $uID, $fID]
     );
-    $returnVal = array();
+    $returnVal = [];
     while ($row = sqlFetchArray($res)) {
         if ($row['warehouse_id'] === '') {
             continue;
@@ -70,13 +70,13 @@ function getUserFacWH($uID, $fID)
 
  /**
  * Check if day is weekend day
- * @param (int) $day
- * @return boolean
+ * @param int $day
+ * @return bool
  */
-function is_weekend_day($day)
+function is_weekend_day($day): bool
 {
 
-    if (in_array($day, $GLOBALS['weekend_days'])) {
+    if (in_array($day, OEGlobalsBag::getInstance()->get('weekend_days'))) {
         return true;
     } else {
         return false;
@@ -84,11 +84,12 @@ function is_weekend_day($day)
 }
 
 /**
- * This function checks if a certain date (YYYY/MM/DD) is a marked as a holiday/closed event in the events table
- * @param (int) $day
- * @return boolean
+ * Returns true when $date (YYYY-MM-DD or YYYY/MM/DD) is a holiday/closed date.
  */
-function is_holiday($date)
+function is_holiday(string $date): bool
 {
-    return Holidays_Controller::is_holiday($date);
+    /** @var HolidayService|null $service */
+    static $service = null;
+    $service ??= HolidayService::createForLegacyContext();
+    return $service->isHoliday($date);
 }

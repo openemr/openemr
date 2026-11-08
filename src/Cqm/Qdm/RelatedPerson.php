@@ -51,4 +51,3 @@ class RelatedPerson extends QDMBaseType
 
     public $_type = 'QDM::RelatedPerson';
 }
-

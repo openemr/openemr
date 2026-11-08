@@ -82,7 +82,7 @@ class FHIRExplanationOfBenefitAddItem extends FHIRBackboneElement implements \Js
     public $detailSequence = [];
 
     /**
-     * The sequence number of the sub-details woithin the details within the claim item which this line is intended to replace.
+     * The sequence number of the sub-details within the details within the claim item which this line is intended to replace.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
     public $subDetailSequence = [];
@@ -236,7 +236,7 @@ class FHIRExplanationOfBenefitAddItem extends FHIRBackboneElement implements \Js
     }
 
     /**
-     * The sequence number of the sub-details woithin the details within the claim item which this line is intended to replace.
+     * The sequence number of the sub-details within the details within the claim item which this line is intended to replace.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
     public function getSubDetailSequence()
@@ -245,7 +245,7 @@ class FHIRExplanationOfBenefitAddItem extends FHIRBackboneElement implements \Js
     }
 
     /**
-     * The sequence number of the sub-details woithin the details within the claim item which this line is intended to replace.
+     * The sequence number of the sub-details within the details within the claim item which this line is intended to replace.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $subDetailSequence
      * @return $this
      */
@@ -751,7 +751,7 @@ class FHIRExplanationOfBenefitAddItem extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -859,15 +859,13 @@ class FHIRExplanationOfBenefitAddItem extends FHIRBackboneElement implements \Js
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitAddItem xmlns="http://hl7.org/fhir"></ExplanationOfBenefitAddItem>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExplanationOfBenefitAddItem xmlns="http://hl7.org/fhir"></ExplanationOfBenefitAddItem>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->itemSequence)) {
             foreach ($this->itemSequence as $itemSequence) {

@@ -32,22 +32,23 @@ class CodeManager
         "WHERE id = ?";
 
 
-    function __construct()
+    public function __construct()
     {
     }
 
     /**
      * Returns an array of Code
      * @param string $searchTerm
+     * @return Code[]
      */
-    function search($searchTerm)
+    public function search($searchTerm): array
     {
         $stmt = sqlStatement(
             self::SQL_SELECT . " " . self::SQL_WHERE_SEARCH,
-            array("%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%")
+            ["%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%"]
         );
 
-        $codes = array();
+        $codes = [];
 
         for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
             $code = new Code($row['id'], $row['code'], $row['code_text'], $row['code_type']);
@@ -60,9 +61,9 @@ class CodeManager
     /**
      * @return Code
      */
-    function get($id)
+    public function get($id)
     {
-        $row = sqlQuery(self::SQL_SELECT . " " . self::SQL_WHERE_GET, array($id));
+        $row = sqlQuery(self::SQL_SELECT . " " . self::SQL_WHERE_GET, [$id]);
         if (!$row) {
             return null;
         }

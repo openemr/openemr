@@ -26,4 +26,3 @@ class NegativeInterventionPerformed extends InterventionPerformed
 
     public $_type = 'QDM::NegativeInterventionPerformed';
 }
-

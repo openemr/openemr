@@ -4,19 +4,23 @@
  * FIDO U2F Support Module
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('../globals.php');
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
 // https is required, and with a proxy the server might not see it.
@@ -24,16 +28,29 @@ $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
 $appId = $scheme . $_SERVER['HTTP_HOST'];
 $u2f = new u2flib_server\U2F($appId);
 
-$userid = $_SESSION['authUserID'];
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$userid = $session->get('authUserID');
 $action = $_REQUEST['action'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
+
+// Validate the reg2 password gate before any HTML output so the redirect-back
+// to reg1 on bad password can send its Location header without depending on
+// output buffering being on.
+if ($action == 'reg2') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    $clearPass = CurrentRequest::get()->request->getString('clearPass', '');
+    if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $clearPass)) {
+        header("Location: mfa_u2f.php?action=reg1&error=auth");
+        exit();
+    }
+}
 ?>
 <html>
 <head>
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('U2F Registration'); ?></title>
-<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/u2f-api.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/u2f-api.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 <script>
 
 function doregister() {
@@ -67,17 +84,17 @@ function docancel() {
 
 </script>
 <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Register Universal 2nd Factor Key') . " - " . xl('U2F'),
         'include_patient_name' => false,
         'expandable' => false,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
@@ -89,19 +106,25 @@ function docancel() {
             </div>
         </div>
         <form method='post' action='mfa_u2f.php' onsubmit='return top.restoreSession()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
         <?php
 
         ///////////////////////////////////////////////////////////////////////
 
         if ($action == 'reg1') {
-            list ($request, $signs) = $u2f->getRegisterData();
+            $error = CurrentRequest::get()->query->getString('error', '');
+            [$request, $signs] = $u2f->getRegisterData();
             ?>
         <div class="row">
             <div class="col-sm-12">
                 <fieldset>
                     <legend><?php echo xlt('Register U2F Key for') . " " . text($user_full_name); ?></legend>
+                    <?php if ($error == "auth") { ?>
+                        <div class="alert alert-danger alert-msg login-failure m-1">
+                            <?php echo xlt('Invalid password'); ?>
+                        </div>
+                    <?php } ?>
                     <div class='col-sm-12'>
                         <p><?php echo xlt("Instructions");?>:
                             <ul>
@@ -118,6 +141,12 @@ function docancel() {
                             <input type='hidden' name='form_request' value='<?php echo attr(json_encode($request)); ?>'>
                             <input type='hidden' name='form_signs'   value='<?php echo attr(json_encode($signs)); ?>'>
                             <input type='hidden' name='form_registration' value=''>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="clearPass" class="col-sm-2 col-form-label"><?php echo xlt('Please enter your OpenEMR login password'); ?></label>
+                        <div class="col-sm-4">
+                            <input type='password' class='form-control' name='clearPass' id='clearPass' autocomplete='current-password'>
                         </div>
                     </div>
 
@@ -142,26 +171,25 @@ function docancel() {
         </div>
             <?php
         } elseif ($action == 'reg2') {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-                CsrfUtils::csrfNotVerified();
-            }
+            // CSRF + password reprompt already validated above the HTML output;
+            // just complete the registration here.
             try {
-                $data = $u2f->doRegister(json_decode($_POST['form_request']), json_decode($_POST['form_registration']));
-            } catch (u2flib_server\Error $e) {
+                $data = $u2f->doRegister(json_decode((string) $_POST['form_request']), json_decode((string) $_POST['form_registration']));
+            } catch (\u2flib_server\Error $e) {
                 die(xlt('Registration error') . ': ' . text($e->getMessage()));
             }
             echo "<script>\n";
             $row = sqlQuery(
                 "SELECT COUNT(*) AS count FROM login_mfa_registrations WHERE " .
                 "`user_id` = ? AND `name` = ?",
-                array($userid, $_POST['form_name'])
+                [$userid, $_POST['form_name']]
             );
             if (empty($row['count'])) {
                 sqlStatement(
                     "INSERT INTO login_mfa_registrations " .
                     "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .
                     "(?, 'U2F', ?, ?, ?)",
-                    array($userid, $_POST['form_name'], json_encode($data), '')
+                    [$userid, $_POST['form_name'], json_encode($data), '']
                 );
             } else {
                 echo " alert(" . xlj('This key name is already in use by you. Try again.') . ");\n";

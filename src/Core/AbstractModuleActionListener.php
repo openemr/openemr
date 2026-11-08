@@ -2,7 +2,7 @@
 
 /**
  * Extended Class to be called from Laminas Module Manager for reporting management actions.
- * Example is if the module is enabled, disabled or unregistered ect.
+ * Example is if the module is enabled, disabled or unregistered etc.
  *
  * The class is in the Laminas "Installer\Controller" namespace.
  * Currently, register isn't supported of which support should be a part of install.
@@ -22,7 +22,7 @@
  * Do not declare a namespace in class extending this abstract class.
  * If you want Laminas manager to set namespace, set it in getModuleNamespace
  * otherwise use below at top of class to register namespace.
- * $classLoader = new \OpenEMR\Core\ModulesClassLoader($GLOBALS['fileroot']);
+ * $classLoader = new \OpenEMR\Core\ModulesClassLoader(OEGlobalsBag::getInstance()->getProjectDir());
  * $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\PortalPlugins\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
  * */
 
@@ -40,7 +40,6 @@ abstract class AbstractModuleActionListener
     private $_post;
     private $_server;
     private $_cookies;
-    private $_session;
 
     public function __construct()
     {
@@ -49,7 +48,6 @@ abstract class AbstractModuleActionListener
         $this->_post = &$_POST;
         $this->_server = &$_SERVER;
         $this->_cookies = &$_COOKIE;
-        $this->_session = &$_SESSION;
     }
 
     /**
@@ -73,7 +71,7 @@ abstract class AbstractModuleActionListener
      * Required method to return this class object,
      * so it is instantiated in Laminas Manager.
      *
-     * @return
+     * @return mixed
      */
     abstract protected static function initListenerSelf();
 
@@ -144,13 +142,13 @@ abstract class AbstractModuleActionListener
      * @param string $col
      * @return array
      */
-    function getModuleRegistry($modId, $col = '*'): array
+    public function getModuleRegistry($modId, $col = '*'): array
     {
         $registry = [];
         $sql = "SELECT $col FROM modules WHERE mod_id = ?";
-        $results = sqlQuery($sql, array($modId));
+        $results = sqlQuery($sql, [$modId]);
         foreach ($results as $k => $v) {
-            $registry[$k] = trim((preg_replace('/\R/', '', $v)));
+            $registry[$k] = trim(((string) preg_replace('/\R/', '', (string) $v)));
         }
 
         return $registry;
@@ -172,6 +170,6 @@ abstract class AbstractModuleActionListener
     {
         // set module state.
         $sql = "UPDATE `modules` SET `mod_active` = ?, `mod_ui_active` = ? WHERE `mod_id` = ? OR `mod_directory` = ?";
-        return sqlQuery($sql, array($flag, $flag_ui, $modId, $modId));
+        return sqlQuery($sql, [$flag, $flag_ui, $modId, $modId]);
     }
 }

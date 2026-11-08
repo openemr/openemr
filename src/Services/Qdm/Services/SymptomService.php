@@ -2,22 +2,22 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\Symptom;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
+use OpenEMR\Cqm\Qdm\Symptom;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
 class SymptomService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT pid, begdate, enddate, `date`, diagnosis
                 FROM lists
@@ -26,15 +26,16 @@ class SymptomService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): Symptom
     {
         $record = $recordObj->getData();
         $qdmModel = new Symptom([
             'prevalencePeriod' => new Interval([
                 'low' => $this->validDateOrNull($record['begdate']),
                 'high' => $this->validDateOrNull($record['enddate']),
-                'lowClosed' => $this->validDateOrNull($record['begdate']) ? true : false,
-                'highClosed' => $this->validDateOrNull($record['enddate']) ? true : false
+                'lowClosed' => (bool) $this->validDateOrNull($record['begdate']),
+                // No end date means ongoing: in CQL a closed null end is unbounded, an open one unknown (#14526)
+                'highClosed' => true
             ])
         ]);
 

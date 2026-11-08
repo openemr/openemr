@@ -284,7 +284,7 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -324,15 +324,13 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductIngredient xmlns="http://hl7.org/fhir"></MedicinalProductIngredient>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductIngredient xmlns="http://hl7.org/fhir"></MedicinalProductIngredient>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {
             $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));

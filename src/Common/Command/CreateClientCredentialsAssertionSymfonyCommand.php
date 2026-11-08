@@ -5,7 +5,7 @@
  * well as print out the Public JSON Web Key Set that can be used for a test System App.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
@@ -19,6 +19,7 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha384;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Command\Runner\CommandContext;
+use OpenEMR\Core\OEGlobalsBag;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -50,7 +51,7 @@ class CreateClientCredentialsAssertionSymfonyCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $rootPath = $GLOBALS['fileroot'];
+        $rootPath = OEGlobalsBag::getInstance()->getProjectDir();
 
         $keyLocation = $rootPath . DIRECTORY_SEPARATOR . "tests" . DIRECTORY_SEPARATOR . "Tests" . DIRECTORY_SEPARATOR
             . "data" . DIRECTORY_SEPARATOR . "Unit" . DIRECTORY_SEPARATOR . "Common" . DIRECTORY_SEPARATOR . "Auth"
@@ -60,7 +61,7 @@ class CreateClientCredentialsAssertionSymfonyCommand extends Command
             $jwks = file_get_contents($keyLocation . "jwk-public-valid.json");
             $output->writeln("JSON Web Key Set (Public Key)");
             $output->writeln("WARNING - THIS IS FOR TESTING PURPOSES ONLY!");
-            $output->writeln("DO NOT USE THIS IN PRODUCTION AS THE PRIVATE KEYS FOR THIS JWKS IS COMMITED TO THE SOURCE CODE\n");
+            $output->writeln("DO NOT USE THIS IN PRODUCTION AS THE PRIVATE KEYS FOR THIS JWKS IS COMMITTED TO THE SOURCE CODE\n");
             $output->writeln($jwks . "\n");
             return Command::SUCCESS;
         }

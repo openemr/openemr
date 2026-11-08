@@ -4,7 +4,7 @@
  * PatientDocumentStoreOffsite
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2024 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,15 +17,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 class PatientDocumentStoreOffsite extends Event
 {
     const REMOTE_STORAGE_LOCATION = 'documents.remote.storage.location';
-    private mixed $data;
     private string $remoteFileName;
     private string $mimeType;
     private mixed $category;
     private mixed $patientId;
 
-    public function __construct($data)
+    public function __construct(private readonly mixed $data)
     {
-        $this->data = $data;
     }
     public function getData()
     {

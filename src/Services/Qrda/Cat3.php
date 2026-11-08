@@ -2,15 +2,14 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qrda;
 
-use OpenEMR\Services\Qdm\IndividualResult;
 use OpenEMR\Services\Qdm\Measure;
 use OpenEMR\Services\Qrda\Helpers\Cat3View;
 use OpenEMR\Services\Qrda\Helpers\Date;
@@ -35,27 +34,22 @@ class Cat3 extends \Mustache_Engine
 
     // version 3.1.8 of qrda-reports uses this template which is what the latest Cypress version uses.
     protected $template = 'qrda3_r21.mustache';
-    protected $measures = [];
-    protected $aggregate_results = [];
     protected $measure_result_hash = [];
     protected $provider;
     protected $submission_program;
     protected $ry2022_submission;
     protected $_qrda_guid; // for extension in root template
 
-    public function __construct($aggregate_results = array(), $measures = array(), $options = array())
+    public function __construct(protected $aggregate_results = [], protected $measures = [], $options = [])
     {
         parent::__construct(
-            array(
+            [
                 'entity_flags' => ENT_QUOTES,
                 'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
-            )
+            ]
         );
 
         $this->_qrda_guid = UuidV4::uuid4();
-
-        $this->aggregate_results = $aggregate_results;
-        $this->measures = $measures;
 
         // Initialize our measure results data structure
         foreach ($this->measures as $measure) {
@@ -84,7 +78,7 @@ class Cat3 extends \Mustache_Engine
             $this->measure_result_hash[$key]['aggregate_count'] = $this->agg_results($key, $hash['measure_data'], $hash['population_sets']);
         }
 
-        $this->provider = $options['provider'];
+        $this->provider = $options['provider'] ?? null;
         // Start and end time properties are in Date helper
         $this->_performance_period_start = $options['start_time'];
         $this->_performance_period_end = $options['end_time'];
@@ -98,7 +92,7 @@ class Cat3 extends \Mustache_Engine
         return $xml;
     }
 
-    protected function agg_results($measure_id, $cache_entries, $population_sets)
+    protected function agg_results($measure_id, $cache_entries, $population_sets): AggregateCount
     {
         $aggregate_count = new AggregateCount($measure_id);
         foreach ($cache_entries as $cache_entry) {
@@ -114,7 +108,7 @@ class Cat3 extends \Mustache_Engine
         return json_decode(json_encode($measure_results));
     }
 
-    public function cpcplus()
+    public function cpcplus(): bool
     {
         return $this->submission_program == 'CPCPLUS';
         /**

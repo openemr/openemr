@@ -41,7 +41,7 @@ list_group_container_class_list with an array of strings representing class name
         <div class="list-group-item p-1">
             <div class="d-flex w-100 justify-content-between">
                 {% set _severity = getListItemTitle('severity_ccda', l.severity_al) %}
-                <div class="flex-fill" title="{{ l.title|attr }} {{ 'Reaction'|xla }}: {{ l.reaction_title|xlListLabel|attr }} - {{ _severity|attr }}">
+                <div class="flex-fill" title="{{ l.title|attr }} {{ 'Reaction'|xla }}: {{ (l.reaction_title ?? '')|xlListLabel|attr }} - {{ _severity|attr }}">
                     {{ l.title|text }} (<span class="{{ classes|attr }}">{{ _severity|text }}</span>)
                 </div>
             </div>

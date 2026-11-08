@@ -18,13 +18,18 @@
  *
  * @package OpenEMR
  * @author  Garden State Health Systems <http://www.gshsys.com/>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
     $result = getProblemData();
     $row = sqlFetchArray($result);
     $pCount = 0;
     //while ($row = sqlFetchArray($result)) {
+
+/**
+ * @var \DOMDocument $ccr (created in createCCR.php)
+ * @var \DOMDocument $e_Problems (created in createCCR.php)
+ */
 
 do {
     $pCount++;

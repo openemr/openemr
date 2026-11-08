@@ -6,7 +6,7 @@
  * the pre install event and post install event.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
@@ -30,19 +30,13 @@ class CodeTypeInstalledEvent extends Event
     const EVENT_INSTALLED_POST = 'external_codes.installed.post';
 
     /**
-     * @var string The code type system that was installed
+     * @param string $code_type The code type system that was installed
+     * @param array<string, mixed> $details Additional details for the specific code type that was installed.
      */
-    private $code_type;
-
-    /**
-     * @var array Additional details for the specific code type that was installed.
-     */
-    private $details;
-
-    public function __construct($code_type, $details)
-    {
-        $this->code_type = $code_type;
-        $this->details = $details;
+    public function __construct(
+        private string $code_type,
+        private array $details
+    ) {
     }
 
     /**
@@ -64,7 +58,7 @@ class CodeTypeInstalledEvent extends Event
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public function getDetails(): array
     {
@@ -72,7 +66,7 @@ class CodeTypeInstalledEvent extends Event
     }
 
     /**
-     * @param array $details
+     * @param array<string, mixed> $details
      * @return CodeTypeInstalledEvent
      */
     public function setDetails(array $details): CodeTypeInstalledEvent

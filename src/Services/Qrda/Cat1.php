@@ -2,10 +2,10 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qrda;
@@ -41,13 +41,13 @@ class Cat1 extends \Mustache_Engine
      */
     protected $_measures;
 
-    public function __construct(Patient $patient, $measures = array(), $options = array())
+    public function __construct(Patient $patient, $measures = [], $options = [])
     {
         parent::__construct(
-            array(
+            [
                 'entity_flags' => ENT_QUOTES,
                 'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
-            )
+            ]
         );
 
         $this->_qrda_guid = UuidV4::uuid4();
@@ -249,7 +249,7 @@ class Cat1 extends \Mustache_Engine
         return json_decode(json_encode($this->patient->get_data_elements('medication', 'order')), true);
     }
 
-    public function patient_care_experience()
+    public function patient_care_experience(): array
     {
         // TODO: @sjpadgett, @adunsulag, @ken.matrix need to implement this method with helper util
         return [];
@@ -301,7 +301,7 @@ class Cat1 extends \Mustache_Engine
         return json_decode(json_encode($this->patient->get_data_elements('participation')), true);
     }
 
-    public function provider_care_experience()
+    public function provider_care_experience(): array
     {
         // TODO: @sjpadgett, @adunsulag, @ken.matrix need to implement this method with helper util
         return [];

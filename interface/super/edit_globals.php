@@ -4,7 +4,7 @@
  * Script for the globals editor.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
@@ -20,24 +20,33 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/globals.inc.php");
-require_once("$srcdir/user.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/globals.inc.php");
 
+/** @var array<string,array<string,array<int,mixed>>> $GLOBALS_METADATA */
+/** @var list<string> $USER_SPECIFIC_GLOBALS */
+/** @var list<string> $USER_SPECIFIC_TABS */
+
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Globals\EncryptedGlobalValue;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Ramsey\Uuid\Uuid;
 
-
 // Set up crypto object
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
 
@@ -45,25 +54,24 @@ if (!$userMode) {
     // Check authorization.
     $thisauth = AclMain::aclCheckCore('admin', 'super');
     if (!$thisauth) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configuration")]);
-        exit;
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Configuration", xl("Configuration"));
     }
 }
 
-function checkCreateCDB()
+function checkCreateCDB(): bool
 {
     $globalsres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
   ('couchdb_host','couchdb_user','couchdb_pass','couchdb_port','couchdb_dbase','document_storage_method')");
-    $options = array();
+    $options = [];
     while ($globalsrow = sqlFetchArray($globalsres)) {
-        $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
+        OEGlobalsBag::getInstance()->set($globalsrow['gl_name'], $globalsrow['gl_value']);
     }
 
     $directory_created = false;
-    if (!empty($GLOBALS['document_storage_method'])) {
+    if (!empty(OEGlobalsBag::getInstance()->get('document_storage_method'))) {
         // /documents/temp/ folder is required for CouchDB
-        if (!is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/')) {
-            $directory_created = mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/', 0777, true);
+        if (!is_dir(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp/')) {
+            $directory_created = mkdir(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp/', 0777, true);
             if (!$directory_created) {
                 echo xlt("Failed to create temporary folder. CouchDB will not work.");
             }
@@ -75,7 +83,7 @@ function checkCreateCDB()
             return false;
         }
 
-        if ($GLOBALS['couchdb_host'] || $GLOBALS['couchdb_port'] || $GLOBALS['couchdb_dbase']) {
+        if (OEGlobalsBag::getInstance()->getString('couchdb_host') || OEGlobalsBag::getInstance()->getString('couchdb_port') || OEGlobalsBag::getInstance()->getString('couchdb_dbase')) {
             $couch->createDB();
         }
     }
@@ -93,7 +101,7 @@ function updateBackgroundService($name, $active, $interval)
     //order important here: next_run change dependent on _old_ value of execute_interval so it comes first
     $sql = 'UPDATE background_services SET active=?, '
         . 'next_run = next_run + INTERVAL (? - execute_interval) MINUTE, execute_interval=? WHERE name=?';
-    return sqlStatement($sql, array($active, $interval, $interval, $name));
+    return sqlStatement($sql, [$active, $interval, $interval, $name]);
 }
 
 /**
@@ -123,12 +131,12 @@ function checkBackgroundServices(): void
         )"
     );
     while ($globalsrow = sqlFetchArray($bgservices)) {
-        $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
+        OEGlobalsBag::getInstance()->set($globalsrow['gl_name'], $globalsrow['gl_value']);
     }
 
     //Set up phimail service
-    $phimail_active = empty($GLOBALS['phimail_enable']) ? '0' : '1';
-    $phimail_interval = max(0, (int)$GLOBALS['phimail_interval']);
+    $phimail_active = !OEGlobalsBag::getInstance()->getBoolean('phimail_enable') ? '0' : '1';
+    $phimail_interval = max(0, OEGlobalsBag::getInstance()->getInt('phimail_interval'));
     updateBackgroundService('phimail', $phimail_active, $phimail_interval);
 
     // When auto SFTP is enabled in globals, set up background task to run every minute
@@ -136,14 +144,28 @@ function checkBackgroundServices(): void
     // See library/billing_sftp_service.php for the entry point to this service.
     // It is very lightweight if there is no work to do, so running every minute should
     // be OK to provider users with the best experience.
-    $auto_sftp_x12 = empty($GLOBALS['auto_sftp_claims_to_x12_partner']) ? '0' : '1';
+    $auto_sftp_x12 = !OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner') ? '0' : '1';
     updateBackgroundService('X12_SFTP', $auto_sftp_x12, 1);
 
     /**
      * Setup background services for Weno when it is enabled
-     * this is to sync the prescription logs
+     * this is to sync the prescription logs.
+     * weno_rx_enable keeps its value when the module is disabled in Module
+     * Manager, so the module state must agree too. Otherwise saving globals
+     * would restart services whose module code is not loaded.
+     * This matches the module's own rule (ModuleService::setModuleState()):
+     * the services run only when mod_active = 1 and mod_ui_active = 0, i.e.
+     * enabled and configured. mod_ui_active = 1 means installed, disabled, or
+     * enabled with setup incomplete.
      */
-    $wenoservices = ($GLOBALS['weno_rx_enable'] ?? '') == 1 ? '1' : '0';
+    $wenoModule = QueryUtils::querySingleRow(
+        "SELECT `mod_active`, `mod_ui_active` FROM `modules` WHERE `mod_directory` = ?",
+        ['oe-module-weno']
+    );
+    $wenoReady = is_array($wenoModule)
+        && ($wenoModule['mod_active'] ?? 0) == 1
+        && ($wenoModule['mod_ui_active'] ?? 1) == 0;
+    $wenoservices = ($wenoReady && OEGlobalsBag::getInstance()->getBoolean('weno_rx_enable')) ? '1' : '0';
     updateBackgroundService('WenoExchange', $wenoservices, 60);
     updateBackgroundService('WenoExchangePharmacies', $wenoservices, 1440);
 }
@@ -156,26 +178,20 @@ function checkBackgroundServices(): void
     // If we are saving user_specific globals.
     //
     if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
-        //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $i = 0;
+        $authUserID = $session->get('authUserID');
         foreach ($GLOBALS_METADATA as $grpname => $grparr) {
             if (in_array($grpname, $USER_SPECIFIC_TABS)) {
                 foreach ($grparr as $fldid => $fldarr) {
                     if (in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
-                        list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                        [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                         $label = "global:" . $fldid;
                         if ($fldtype == "encrypted") {
-                            if (empty(trim($_POST["form_$i"]))) {
-                                $fldvalue = '';
-                            } else {
-                                $fldvalue = $cryptoGen->encryptStandard(trim($_POST["form_$i"]));
-                            }
+                            $fldvalue = empty(trim((string)$_POST["form_$i"])) ? '' : $cryptoGen->encryptForDatabase(trim((string)$_POST["form_$i"]));
                         } elseif ($fldtype == "encrypted_hash") {
-                            $tmpValue = trim($_POST["form_$i"]);
+                            $tmpValue = trim((string)$_POST["form_$i"]);
                             if (empty($tmpValue)) {
                                 $fldvalue = '';
                             } else {
@@ -183,13 +199,22 @@ function checkBackgroundServices(): void
                                     // a new value has been inputted, so create the hash that will then be stored
                                     $tmpValue = (new AuthHash())->passwordHash($tmpValue);
                                 }
-                                $fldvalue = $cryptoGen->encryptStandard($tmpValue);
+                                $fldvalue = $cryptoGen->encryptForDatabase($tmpValue);
                             }
                         } else {
                             $fldvalue = trim($_POST["form_$i"] ?? '');
                         }
-                        setUserSetting($label, $fldvalue, $_SESSION['authUserID'], false);
-                        if ($_POST["toggle_$i"] ?? '' == "YES") {
+                        // An encrypted value that could not be decrypted was shown empty;
+                        // leaving it empty keeps the stored value rather than clearing it.
+                        $keepUndecryptable = EncryptedGlobalValue::keepStoredValue(
+                            $fldtype,
+                            $fldvalue,
+                            CurrentRequest::get()->request->getString(EncryptedGlobalValue::undecryptableFieldName($i))
+                        );
+                        if (!$keepUndecryptable) {
+                            setUserSetting($label, $fldvalue, $authUserID, false);
+                        }
+                        if (($_POST["toggle_$i"] ?? '') == "YES") {
                             removeUserSetting($label);
                         }
 
@@ -218,15 +243,12 @@ function checkBackgroundServices(): void
     // If we are saving main globals.
     //
     if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) {
-        //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         // Aug 22, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
         // Check the current status of Audit Logging
-        $auditLogStatusFieldOld = $GLOBALS['enable_auditlog'];
-        $forceBreakglassLogStatusFieldOld = $GLOBALS['gbl_force_log_breakglass'];
+        $auditLogStatusFieldOld = OEGlobalsBag::getInstance()->getBoolean('enable_auditlog');
+        $forceBreakglassLogStatusFieldOld = OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass');
 
         /*
          * Compare form values with old database values.
@@ -234,82 +256,83 @@ function checkBackgroundServices(): void
          */
 
         // Get all the globals from DB
-        $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', false, true);
-        // start transaction
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        $i = 0;
-        foreach ($GLOBALS_METADATA as $grparr) {
-            foreach ($grparr as $fldid => $fldarr) {
-                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-                /* Multiple choice fields - do not compare , overwrite */
-                if (!is_array($fldtype) && substr($fldtype, 0, 2) == 'm_') {
-                    if (isset($_POST["form_$i"])) {
-                        $fldindex = 0;
+        $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', [], true);
+        $postedGlobals = CurrentRequest::get()->request;
+        QueryUtils::inTransaction(function () use ($GLOBALS_METADATA, $old_globals, $cryptoGen, $postedGlobals): void {
+            $i = 0;
+            foreach ($GLOBALS_METADATA as $grparr) {
+                foreach ($grparr as $fldid => $fldarr) {
+                    [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
+                    /* Multiple choice fields - do not compare , overwrite */
+                    if (!is_array($fldtype) && str_starts_with((string)$fldtype, 'm_')) {
+                        if ($postedGlobals->has("form_$i")) {
+                            $fldindex = 0;
 
-                        sqlStatement("DELETE FROM globals WHERE gl_name = ?", array($fldid));
+                            sqlStatement("DELETE FROM globals WHERE gl_name = ?", [$fldid]);
 
-                        foreach ($_POST["form_$i"] as $fldvalue) {
-                            $fldvalue = trim($fldvalue);
-                            sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', array($fldid, $fldindex, $fldvalue));
-                            ++$fldindex;
-                        }
-                    }
-                } else {
-                    /* check value of single field. Don't update if the database holds the same value */
-                    if (isset($_POST["form_$i"])) {
-                        $fldvalue = trim($_POST["form_$i"]);
-                    } else {
-                        $fldvalue = "";
-                    }
-
-                    if ($fldtype == 'encrypted') {
-                        if (empty(trim($fldvalue))) {
-                            $fldvalue = '';
-                        } else {
-                            $fldvalue = $cryptoGen->encryptStandard($fldvalue);
-                        }
-                    } elseif ($fldtype == 'encrypted_hash') {
-                        $tmpValue = trim($fldvalue);
-                        if (empty($tmpValue)) {
-                            $fldvalue = '';
-                        } else {
-                            if (!AuthHash::hashValid($tmpValue)) {
-                                // a new value has been inputted, so create the hash that will then be stored
-                                $tmpValue = (new AuthHash())->passwordHash($tmpValue);
+                            foreach ($postedGlobals->all("form_$i") as $fldvalue) {
+                                $fldvalue = trim((string)$fldvalue);
+                                sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', [$fldid, $fldindex, $fldvalue]);
+                                ++$fldindex;
                             }
-                            $fldvalue = $cryptoGen->encryptStandard($tmpValue);
                         }
-                    }
-
-                    // We rely on the fact that set of keys in globals.inc.php === set of keys in `globals` table!
-                    if (
-                        !isset($old_globals[$fldid]) // if the key not found in database - update database
-                        ||
-                        (isset($old_globals[$fldid]) && $old_globals[$fldid]['gl_value'] !== $fldvalue) // if the value in database is different
-                    ) {
-                        // special treatment for some vars
-                        switch ($fldid) {
-                            case 'first_day_week':
-                                // update PostCalendar config as well
-                                sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", array($fldvalue));
-                                break;
-                        }
-
-                        // Replace old values
-                        sqlStatement('DELETE FROM `globals` WHERE gl_name = ?', array($fldid));
-                        sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', array($fldid, 0, $fldvalue));
                     } else {
-                        //error_log("No need to update $fldid");
-                    }
-                }
+                        /* check value of single field. Don't update if the database holds the same value */
+                        $fldvalue = trim($postedGlobals->getString("form_$i"));
 
-                ++$i;
+                        if ($fldtype == 'encrypted') {
+                            $fldvalue = empty(trim($fldvalue)) ? '' : $cryptoGen->encryptForDatabase($fldvalue);
+                        } elseif ($fldtype == 'encrypted_hash') {
+                            $tmpValue = trim($fldvalue);
+                            if (empty($tmpValue)) {
+                                $fldvalue = '';
+                            } else {
+                                if (!AuthHash::hashValid($tmpValue)) {
+                                    // a new value has been inputted, so create the hash that will then be stored
+                                    $tmpValue = (new AuthHash())->passwordHash($tmpValue);
+                                }
+                                $fldvalue = $cryptoGen->encryptForDatabase($tmpValue);
+                            }
+                        }
+
+                        // An encrypted value that could not be decrypted was shown empty;
+                        // leaving it empty keeps the stored value rather than clearing it.
+                        $keepUndecryptable = EncryptedGlobalValue::keepStoredValue(
+                            $fldtype,
+                            $fldvalue,
+                            $postedGlobals->getString(EncryptedGlobalValue::undecryptableFieldName($i))
+                        );
+
+                        // We rely on the fact that set of keys in globals.inc.php === set of keys in `globals` table!
+                        if (
+                            !$keepUndecryptable
+                            &&
+                            (
+                                !isset($old_globals[$fldid]) // if the key not found in database - update database
+                                ||
+                                (isset($old_globals[$fldid]) && $old_globals[$fldid]['gl_value'] !== $fldvalue) // if the value in database is different
+                            )
+                        ) {
+                            // special treatment for some vars
+                            switch ($fldid) {
+                                case 'first_day_week':
+                                    // update PostCalendar config as well
+                                    sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", [$fldvalue]);
+                                    break;
+                            }
+
+                            // Replace old values
+                            sqlStatement('DELETE FROM `globals` WHERE gl_name = ?', [$fldid]);
+                            sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', [$fldid, 0, $fldvalue]);
+                        } else {
+                            //error_log("No need to update $fldid");
+                        }
+                    }
+
+                    ++$i;
+                }
             }
-        }
-        // end of transaction
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
+        });
 
         checkCreateCDB();
         checkBackgroundServices();
@@ -319,12 +342,12 @@ function checkBackgroundServices(): void
         $auditLogStatusNew = sqlQuery("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'enable_auditlog'");
         $auditLogStatusFieldNew = $auditLogStatusNew['gl_value'];
         if ($auditLogStatusFieldOld != $auditLogStatusFieldNew) {
-            EventAuditLogger::instance()->auditSQLAuditTamper('enable_auditlog', $auditLogStatusFieldNew);
+            EventAuditLogger::getInstance()->auditSQLAuditTamper('enable_auditlog', $auditLogStatusFieldNew);
         }
         $forceBreakglassLogStatusNew = sqlQuery("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'gbl_force_log_breakglass'");
         $forceBreakglassLogStatusFieldNew = $forceBreakglassLogStatusNew['gl_value'];
         if ($forceBreakglassLogStatusFieldOld != $forceBreakglassLogStatusFieldNew) {
-            EventAuditLogger::instance()->auditSQLAuditTamper('gbl_force_log_breakglass', $forceBreakglassLogStatusFieldNew);
+            EventAuditLogger::getInstance()->auditSQLAuditTamper('gbl_force_log_breakglass', $forceBreakglassLogStatusFieldNew);
         }
 
         echo "<script>";
@@ -363,28 +386,32 @@ function checkBackgroundServices(): void
           width: 100%;
         }
       }
+
+      .striped .row.form-group:nth-child(even) {
+        background: var(--light);
+      }
     </style>
     <?php
     $heading_title = ($userMode) ? xl("Edit User Settings") : xl("Edit Configuration");
 
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => $heading_title,
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => true,
-        'expandable_files' => array("edit_globals_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["edit_globals_xpd"],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     $serverConfig = new ServerConfig();
     $apiUrl = $serverConfig->getInternalBaseApiUrl();
     ?>
-    <script src="edit_globals.js" type="text/javascript"></script>
+    <script src="edit_globals.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/javascript"></script>
     <script>
-        window.oeUI.api.setApiUrlAndCsrfToken(<?php echo js_escape($apiUrl); ?>, <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>);
+        window.oeUI.api.setApiUrlAndCsrfToken(<?php echo js_escape($apiUrl); ?>, <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>);
     </script>
 </head>
 
@@ -398,6 +425,65 @@ function checkBackgroundServices(): void
                 <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
         </div>
+        <?php
+        // A stored secret that cannot be decrypted usually means the site's encryption keys
+        // changed, which is serious and reaches beyond this page. The fields below still render
+        // so a value can be replaced, so say it here where it is seen on every tab, and log it.
+        $encryptedStored = [];
+        // Setting name => its label; the labels in the metadata are already translated.
+        $encryptedTitles = [];
+        foreach ($GLOBALS_METADATA as $grparr) {
+            foreach ($grparr as $fldid => $fldarr) {
+                $isEncrypted = ($fldarr[1] ?? null) === GlobalSetting::DATA_TYPE_ENCRYPTED || ($fldarr[1] ?? null) === GlobalSetting::DATA_TYPE_ENCRYPTED_HASH;
+                if ($isEncrypted && (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS, true))) {
+                    $encryptedStored[$fldid] = null;
+                    $encryptedTitles[$fldid] = is_string($fldarr[0] ?? null) ? $fldarr[0] : $fldid;
+                }
+            }
+        }
+        if ($encryptedStored !== []) {
+            $encryptedNames = array_keys($encryptedStored);
+            $placeholders = implode(',', array_fill(0, count($encryptedNames), '?'));
+            foreach (QueryUtils::fetchRecords("SELECT `gl_name`, `gl_value` FROM `globals` WHERE `gl_index` = 0 AND `gl_name` IN ($placeholders)", $encryptedNames) as $row) {
+                if (is_string($row['gl_name'] ?? null)) {
+                    $encryptedStored[$row['gl_name']] = $row['gl_value'] ?? null;
+                }
+            }
+            if ($userMode) {
+                // A user's own setting is shown in place of the global one.
+                $userLabels = array_map(static fn (string $name): string => 'global:' . $name, $encryptedNames);
+                foreach (QueryUtils::fetchRecords("SELECT `setting_label`, `setting_value` FROM `user_settings` WHERE `setting_user` = ? AND `setting_label` IN ($placeholders)", [$session->get('authUserID'), ...$userLabels]) as $row) {
+                    if (is_string($row['setting_label'] ?? null)) {
+                        $encryptedStored[substr($row['setting_label'], strlen('global:'))] = $row['setting_value'] ?? null;
+                    }
+                }
+            }
+        }
+        $undecryptable = EncryptedGlobalValue::findUndecryptable($cryptoGen, $encryptedStored);
+        if ($undecryptable['failed'] !== []) {
+            $undecryptableCount = count($undecryptable['failed']);
+            ServiceContainer::getLogger()->error('Encrypted settings cannot be decrypted in the Config editor', [
+                'failed' => $undecryptableCount,
+                'stored' => $undecryptable['total'],
+                'settings' => $undecryptable['failed'],
+                'userMode' => $userMode,
+            ]);
+            ?>
+        <div class="row">
+            <div class="col-sm-12 px-0">
+                <div class="alert alert-danger" role="alert" id="undecryptable-alert">
+                    <h5 class="alert-heading"><?php echo xlt('Stored encrypted settings could not be decrypted'); ?>: <?php echo text($undecryptableCount . ' / ' . $undecryptable['total']); ?></h5>
+                    <?php if (EncryptedGlobalValue::keysLikelyChanged($undecryptableCount, $undecryptable['total'])) { ?>
+                    <p class="font-weight-bold"><?php echo xlt('None of the stored encrypted settings can be decrypted. This points to missing or replaced encryption keys, not to a single damaged value.'); ?></p>
+                    <?php } ?>
+                    <p><?php echo xlt('This usually means the encryption keys of this site were changed or were not carried over during an upgrade or migration. Other encrypted data, such as encrypted documents, will then be unreadable too.'); ?></p>
+                    <p><?php echo xlt('Restore the original encryption keys before entering new values. A marked setting that is left empty keeps its stored value, so it works again once the keys are restored. Enter a new value only if the original keys cannot be recovered.'); ?></p>
+                    <p class="mb-0"><?php echo xlt('Affected settings'); ?>:
+                        <?php echo text(implode(', ', array_map(static fn (string $name): string => $encryptedTitles[$name] ?? $name, $undecryptable['failed']))); ?></p>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
         <div class="row">
             <div class="col-sm-12 px-0">
                 <?php if ($userMode) { ?>
@@ -405,18 +491,14 @@ function checkBackgroundServices(): void
                     <?php } else { ?>
                     <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
                         <?php } ?>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                         <div class="clearfix">
                             <div class="btn-group oe-margin-b-10">
                                 <button type='submit' class='btn btn-primary btn-save oe-pull-toward' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                             </div>
                             <div class="input-group col-sm-4 oe-pull-away p-0">
                                 <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
-                                if (!$userMode) {
-                                    $placeholder = xla('Search configuration');
-                                } else {
-                                    $placeholder = xla('Search user settings');
-                                }
+                                $placeholder = !$userMode ? xla('Search configuration') : xla('Search user settings');
                                 ?>
                                 <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='<?php echo $placeholder; ?>' value='<?php echo(!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
                                 <span class="input-group-append">
@@ -428,13 +510,14 @@ function checkBackgroundServices(): void
                         <div id="globals-div">
                             <ul class="tabNav tabWidthWide sticky-top" id="oe-nav-ul">
                                 <?php
-                                $i = 0;
+                                $tabClass = ' class="current"';
                                 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                                     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
-                                        echo " <li" . ($i ? "" : " class='current'") .
-                                            "><a href='#'>" .
-                                            xlt($grpname) . "</a></li>\n";
-                                        ++$i;
+                                        $grpnameStr = is_string($grpname) ? $grpname : '';
+                                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                                        $tabLabel = xlt($grpnameStr);
+                                        printf('<li%s><a href="#">%s</a></li>', $tabClass, $tabLabel);
+                                        $tabClass = '';
                                     }
                                 }
                                 ?>
@@ -443,13 +526,23 @@ function checkBackgroundServices(): void
                                 <?php
                                 $i = 0;
                                 $srch_item = 0;
+                                $authUserID = $session->get('authUserID');
                                 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                                     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
+                                        $grpnameStr = is_string($grpname) ? $grpname : '';
                                         echo " <div class='tab w-100 h-auto" . ($i ? "" : " current") . "' style='font-size: 0.9rem'>\n";
 
-                                        echo "<div class=''>";
+                                        echo '<div class="striped">';
                                         $addendum = $grpname == 'Appearance' ? ' (*' . xl("need to logout/login after changing these settings") . ')' : '';
-                                        echo "<div class='col-sm-12 oe-global-tab-heading'><div class='oe-pull-toward' style='font-size: 1.4rem'>" . xlt($grpname) . " &nbsp;</div><div style='margin-top: 5px'>" . text($addendum) . "</div></div>";
+                                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                                        $tabHeading = xlt($grpnameStr);
+                                        $addendumHtml = text($addendum);
+                                        echo <<<HTML
+                                            <div class="col-sm-12 oe-global-tab-heading">
+                                                <div class="oe-pull-toward" style="font-size: 1.4rem">{$tabHeading} &nbsp;</div>
+                                                <div style="margin-top: 5px">{$addendumHtml}</div>
+                                            </div>
+                                            HTML;
                                         echo "<div class='clearfix'></div>";
                                         if ($userMode) {
                                             echo "<div class='row'>";
@@ -462,7 +555,7 @@ function checkBackgroundServices(): void
 
                                         foreach ($grparr as $fldid => $fldarr) {
                                             if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
-                                                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                                                [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
 
                                                 // if the setting defines field options for our global setting we grab it, otherwise we default empty
                                                 $fldoptions = $fldarr[4] ?? [];
@@ -471,7 +564,7 @@ function checkBackgroundServices(): void
                                                 $srch_cl = '';
                                                 $highlight_search = false;
 
-                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), $_POST['srch_desc']) !== false)) {
+                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), (string)$_POST['srch_desc']) !== false)) {
                                                     $srch_cl = ' srch';
                                                     $srch_item++;
                                                     $highlight_search = true;
@@ -480,8 +573,8 @@ function checkBackgroundServices(): void
                                                 // Most parameters will have a single value, but some will be arrays.
                                                 // Here we cater to both possibilities.
                                                 $glres = sqlStatement("SELECT gl_index, gl_value FROM globals WHERE " .
-                                                    "gl_name = ? ORDER BY gl_index", array($fldid));
-                                                $glarr = array();
+                                                    "gl_name = ? ORDER BY gl_index", [$fldid]);
+                                                $glarr = [];
                                                 while ($glrow = sqlFetchArray($glres)) {
                                                     $glarr[] = $glrow;
                                                 }
@@ -492,8 +585,10 @@ function checkBackgroundServices(): void
                                                 // Collect user specific setting if mode set to user
                                                 $userSetting = "";
                                                 $settingDefault = "checked='checked'";
+                                                $globalValue = '';
+                                                $globalTitle = '';
                                                 if ($userMode) {
-                                                    $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", array($_SESSION['authUserID'], "global:" . $fldid));
+                                                    $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", [$authUserID, "global:" . $fldid]);
                                                     $userSetting = $userSettingArray['setting_value'] ?? '';
                                                     $globalValue = $fldvalue;
                                                     if (!empty($userSettingArray)) {
@@ -538,11 +633,7 @@ function checkBackgroundServices(): void
                                                     echo "  </select>\n";
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_BOOL) {
                                                     if ($userMode) {
-                                                        if ($globalValue == 1) {
-                                                            $globalTitle = xlt('Checked');
-                                                        } else {
-                                                            $globalTitle = xlt('Not Checked');
-                                                        }
+                                                        $globalTitle = $globalValue == 1 ? xlt('Checked') : xlt('Not Checked');
                                                     }
                                                     echo "  <input type='checkbox' class='checkbox' name='form_$i' id='form_$i' value='1'";
                                                     if ($fldvalue) {
@@ -573,29 +664,24 @@ function checkBackgroundServices(): void
                                                     echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                         "maxlength='255' value='" . attr($fldvalue) . "' />\n";
                                                 } elseif (($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED) || ($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED_HASH)) {
-                                                    if (empty($fldvalue)) {
-                                                        // empty value
-                                                        $fldvalueDecrypted = '';
-                                                    } elseif ($cryptoGen->cryptCheckStandard($fldvalue)) {
-                                                        // normal behavior when not empty
-                                                        $fldvalueDecrypted = $cryptoGen->decryptStandard($fldvalue);
-                                                    } else {
-                                                        // this is used when value has not yet been encrypted (only happens once when upgrading)
-                                                        $fldvalueDecrypted = $fldvalue;
-                                                    }
+                                                    // A stored value that cannot be decrypted (for example after the
+                                                    // site's encryption keys changed) must not stop this page from
+                                                    // rendering: this page is the only place the value can be replaced.
+                                                    // Show the field empty with a notice so a new value can be saved.
+                                                    $fldvalueDecrypted = EncryptedGlobalValue::decryptForEdit($cryptoGen, $fldvalue);
+                                                    $decryptFailed = $fldvalueDecrypted === null;
+                                                    $fldvalueDecrypted ??= '';
                                                     echo "  <input type='password' class='form-control' name='form_$i' id='form_$i' " .
                                                         "maxlength='255' value='" . attr($fldvalueDecrypted) . "' />\n";
+                                                    if ($decryptFailed) {
+                                                        // Tells the save handler to keep the stored value if this
+                                                        // field is left empty, instead of overwriting it with ''.
+                                                        echo "  <input type='hidden' name='" . attr(EncryptedGlobalValue::undecryptableFieldName($i)) . "' value='1' />\n";
+                                                        echo "  <small class='form-text text-danger'>" .
+                                                            xlt('The stored value could not be decrypted. Enter a new value and save, or leave it empty to keep the stored value.') . "</small>\n";
+                                                    }
                                                     if ($userMode) {
-                                                        if (empty($globalValue)) {
-                                                            // empty value
-                                                            $globalTitle = '';
-                                                        } elseif ($cryptoGen->cryptCheckStandard($globalValue)) {
-                                                            // normal behavior when not empty
-                                                            $globalTitle = $cryptoGen->decryptStandard($globalValue);
-                                                        } else {
-                                                            // this is used when value has not yet been encrypted (only happens once when upgrading)
-                                                            $globalTitle = $globalValue;
-                                                        }
+                                                        $globalTitle = EncryptedGlobalValue::decryptForEdit($cryptoGen, $globalValue) ?? '';
                                                     }
                                                     $fldvalueDecrypted = '';
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_PASS) {
@@ -608,13 +694,14 @@ function checkBackgroundServices(): void
                                                     $res = sqlStatement("SELECT * FROM lang_languages ORDER BY lang_description");
                                                     echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
                                                     while ($row = sqlFetchArray($res)) {
+                                                        $langDesc = is_string($row['lang_description'] ?? null) ? $row['lang_description'] : '';
                                                         echo "   <option value='" . attr($row['lang_description']) . "'";
                                                         if ($row['lang_description'] == $fldvalue) {
                                                             echo " selected";
                                                         }
 
                                                         echo ">";
-                                                        echo xlt($row['lang_description']);
+                                                        echo text(xl_list_label($langDesc));
                                                         echo "</option>\n";
                                                     }
 
@@ -623,13 +710,14 @@ function checkBackgroundServices(): void
                                                     global $code_types;
                                                     echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
                                                     foreach (array_keys($code_types) as $code_key) {
+                                                        $codeLabel = is_string($code_types[$code_key]['label'] ?? null) ? $code_types[$code_key]['label'] : '';
                                                         echo "   <option value='" . attr($code_key) . "'";
                                                         if ($code_key == $fldvalue) {
                                                             echo " selected";
                                                         }
 
                                                         echo ">";
-                                                        echo xlt($code_types[$code_key]['label']);
+                                                        echo text(xl_list_label($codeLabel));
                                                         echo "</option>\n";
                                                     }
 
@@ -638,6 +726,7 @@ function checkBackgroundServices(): void
                                                     $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
                                                     echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
                                                     while ($row = sqlFetchArray($res)) {
+                                                        $langDesc = is_string($row['lang_description'] ?? null) ? $row['lang_description'] : '';
                                                         echo "   <option value='" . attr($row['lang_description']) . "'";
                                                         foreach ($glarr as $glrow) {
                                                             if ($glrow['gl_value'] == $row['lang_description']) {
@@ -646,7 +735,7 @@ function checkBackgroundServices(): void
                                                             }
                                                         }
                                                         echo ">";
-                                                        echo xlt($row['lang_description']);
+                                                        echo text(xl_list_label($langDesc));
                                                         echo "</option>\n";
                                                     }
                                                     echo "  </select>\n";
@@ -657,20 +746,25 @@ function checkBackgroundServices(): void
                                                         $hiddenList[] = $row['gl_value'];
                                                     }
                                                     // The list of cards to hide. For now add to array new cards.
-                                                    $res = array(
-                                                        ['card_abrev' => '', 'card_name' => xlt('None or Reset')],
-                                                        ['card_abrev' => attr('card_allergies'), 'card_name' => xlt('Allergies')],
-                                                        ['card_abrev' => attr('card_amendments'), 'card_name' => xlt('Amendments')],
-                                                        ['card_abrev' => attr('card_disclosure'), 'card_name' => xlt('Disclosures')],
-                                                        ['card_abrev' => attr('card_insurance'), 'card_name' => xlt('Insurance')],
-                                                        ['card_abrev' => attr('card_lab'), 'card_name' => xlt('Labs')],
-                                                        ['card_abrev' => attr('card_medicalproblems'), 'card_name' => xlt('Medical Problems')],
-                                                        ['card_abrev' => attr('card_medication'), 'card_name' => xlt('Medications')],
+                                                    // Store raw literals; escape via attr() and translate via xlt()
+                                                    // once at output below.
+                                                    $res = [
+                                                        ['card_abrev' => '', 'card_name' => 'None or Reset'],
+                                                        ['card_abrev' => 'card_allergies', 'card_name' => 'Allergies'],
+                                                        ['card_abrev' => 'card_amendments', 'card_name' => 'Amendments'],
+                                                        ['card_abrev' => 'card_disclosure', 'card_name' => 'Disclosures'],
+                                                        ['card_abrev' => 'card_insurance', 'card_name' => 'Insurance'],
+                                                        ['card_abrev' => 'card_lab', 'card_name' => 'Labs'],
+                                                        ['card_abrev' => 'card_medicalproblems', 'card_name' => 'Medical Problems'],
+                                                        ['card_abrev' => 'card_medication', 'card_name' => 'Medications'],
                                                         ['card_abrev' => 'card_prescriptions', 'card_name' => 'Prescriptions'], // For now don't hide because can be disabled as feature.
-                                                        ['card_abrev' => attr('card_vitals'), 'card_name' => xlt('Vitals')],
-                                                        ['card_abrev' => attr('card_care_team'), 'card_name' => xlt('Care Team')]
-                                                    );
-                                                    echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='11'>\n";
+                                                        ['card_abrev' => 'card_vitals', 'card_name' => 'Vitals'],
+                                                        ['card_abrev' => 'card_care_team', 'card_name' => 'Care Team'],
+                                                        ['card_abrev' => 'card_care_experience', 'card_name' => 'Care Experience Preferences'],
+                                                        ['card_abrev' => 'card_treatment_preferences', 'card_name' => 'Treatment Intervention Preferences'],
+                                                        ['card_abrev' => 'card_care_plan', 'card_name' => 'Care Plan'],
+                                                    ];
+                                                    echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='14'>\n";
                                                     foreach ($res as $row) {
                                                         echo "   <option value='" . attr($row['card_abrev']) . "'";
                                                         foreach ($glarr as $glrow) {
@@ -680,6 +774,9 @@ function checkBackgroundServices(): void
                                                             }
                                                         }
                                                         echo ">";
+                                                        // Translate + escape once at output. Card names should always
+                                                        // be translated, not gated on translate_lists. PHPStan infers
+                                                        // literal-string from the array shape above.
                                                         echo xlt($row['card_name']);
                                                         echo "</option>\n";
                                                     }
@@ -688,7 +785,7 @@ function checkBackgroundServices(): void
                                                     if ($userMode) {
                                                         $globalTitle = $globalValue;
                                                     }
-                                                    echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
+                                                    echo "  <input type='text' class='form-control' data-jscolor='' name='form_$i' id='form_$i' " .
                                                         "maxlength='15' value='" . attr($fldvalue) . "' />" .
                                                         "<input type='button' value='" . xla('Default') . "' onclick=\"document.forms[0].form_$i.jscolor.fromString(" . attr_js($flddef) . ")\">\n";
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_VISIT_CATEGORY) {
@@ -705,7 +802,7 @@ function checkBackgroundServices(): void
                                                             continue;
                                                         }
 
-                                                        if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
+                                                        if ($row['pc_cattype'] == 3 && !OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
                                                             continue;
                                                         }
 
@@ -721,11 +818,11 @@ function checkBackgroundServices(): void
                                                     if ($userMode) {
                                                         $globalTitle = $globalValue;
                                                     }
-                                                    $themedir = "$webserver_root/public/themes";
+                                                    $themedir = OEGlobalsBag::getInstance()->getProjectDir() . "/public/themes";
                                                     $dh = opendir($themedir);
                                                     if ($dh) {
                                                         // Collect styles
-                                                        $styleArray = array();
+                                                        $styleArray = [];
                                                         while (false !== ($tfname = readdir($dh))) {
                                                             // Only show files that contain tabs_style_ or style_ as options
                                                             if ($fldtype == 'tabs_css') {
@@ -823,7 +920,16 @@ function checkBackgroundServices(): void
                                         echo "<div class='btn-group oe-margin-b-10'>" .
                                             "<button type='submit' class='btn btn-primary btn-save oe-pull-toward' name='form_save'" .
                                             "value='" . xla('Save') . "'>" . xlt('Save') . "</button></div>";
-                                        echo "<div class='oe-pull-away oe-margin-t-10' style=''>" . xlt($grpname) . " &nbsp;<a href='#' class='text-dark text-decoration-none fa fa-lg fa-arrow-circle-up oe-help-redirect scroll' aria-hidden='true'></a></div><div class='clearfix'></div></div>";
+                                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                                        $tabFooter = xlt($grpnameStr);
+                                        echo <<<HTML
+                                            <div class="oe-pull-away oe-margin-t-10">
+                                                {$tabFooter} &nbsp;
+                                                <a href="#" class="text-dark text-decoration-none fa fa-lg fa-arrow-circle-up oe-help-redirect scroll" aria-hidden="true"></a>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                            </div>
+                                            HTML;
                                         echo " </div>\n";
                                     }
                                 }

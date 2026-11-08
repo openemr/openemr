@@ -2,16 +2,17 @@
 
 /**
  * @package    OpenEMR
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright  Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright  Copyright (c) 2024-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
@@ -20,7 +21,7 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 function getModuleState($modId): bool
 {
     $sql = "SELECT `mod_active` FROM `modules` WHERE `mod_directory` = ?";
-    $flag = sqlQuery($sql, array($modId));
+    $flag = sqlQuery($sql, [$modId]);
 
     return !empty($flag['mod_active']);
 }
@@ -36,7 +37,7 @@ function downloadWenoPharmacy(): void
     }
     $wenoLog = new WenoLogService();
     $wenoValidate = new WenoValidate();
-    $localPharmacyJson = new WenoPharmaciesJson(new CryptoGen());
+    $localPharmacyJson = new WenoPharmaciesJson(ServiceContainer::getCrypto());
 
     $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
     if ((int)$isKey >= 998) {
@@ -51,8 +52,16 @@ function downloadWenoPharmacy(): void
     // The breadwinner!
     $status = $localPharmacyJson->storePharmacyData();
 
-    EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Background Initiated Pharmacy Download Imported:" . text($status) . " Pharmacies");
-    error_log('Background Initiated Weno pharmacies Updated:' . text($status) . " Pharmacies");
+    // storePharmacyData() returns the imported row count, or false on failure.
+    $importedCount = is_numeric($status) ? (string) $status : '';
+    $succeeded = $importedCount !== '';
+    $outcome = $succeeded
+        ? "Background Initiated Pharmacy Download Imported:" . text($importedCount) . " Pharmacies"
+        : "Background Initiated Pharmacy Download failed";
+
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $session->get('authUser'), $session->get('authProvider'), $succeeded ? 1 : 0, $outcome);
+    error_log($outcome);
 }
 
 /**
@@ -81,7 +90,7 @@ function downloadWenoPrescriptionLog(): void
     try {
         $logSync = new LogProperties();
         $rtn = $logSync->logSync('background');
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $rtn = false;
         $wenoLog->insertWenoLog("Sync Report", $e->getMessage());
         error_log('Error syncing log: ' . errorLogEscape($e->getMessage()));
@@ -104,10 +113,11 @@ function downloadWenoPrescriptionLog(): void
  */
 function handleDownloadError(string $errorMessage): void
 {
-    EventAuditLogger::instance()->newEvent(
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    EventAuditLogger::getInstance()->newEvent(
         "pharmacy_background",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
+        $session->get('authUser'),
+        $session->get('authProvider'),
         1,
         ($errorMessage)
     );

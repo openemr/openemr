@@ -56,4 +56,3 @@ class Symptom extends QDMBaseType
 
     public $_type = 'QDM::Symptom';
 }
-

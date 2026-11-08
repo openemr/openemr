@@ -2,10 +2,10 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
@@ -19,12 +19,12 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class SubstanceOrderService extends AbstractCarePlanService implements QdmServiceInterface
 {
-    public function getCarePlanType()
+    public function getCarePlanType(): string
     {
         return AbstractCarePlanService::CARE_PLAN_TYPE_PLANNED_MED_ACTIVITY;
     }
 
-    public function getModelClass()
+    public function getModelClass(): string
     {
         return SubstanceOrder::class;
     }
@@ -42,8 +42,8 @@ class SubstanceOrderService extends AbstractCarePlanService implements QdmServic
             'high' => new DateTime([
                 'date' => $record['date_end']
             ]),
-            'lowClosed' => $record['date'] ? true : false,
-            'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false,
+            'lowClosed' => (bool) $record['date'],
+            'highClosed' => (bool) $this->validDateOrNull($record['date_end']),
         ]);
 
         $model->authorDatetime = new DateTime([

@@ -3,7 +3,7 @@
 /**
  * JWTRepository.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -20,9 +20,8 @@ class JWTRepository
      * for that jti.  If an expiration is provided it will return only jti records that are have not expired within the given time frame.
      * @param $jti string
      * @param int|null $expiration timestamp in milliseconds of when the jti should expire
-     * @return array
      */
-    public function getJwtGrantHistoryForJTI($jti, $expiration = null)
+    public function getJwtGrantHistoryForJTI($jti, $expiration = null): array
     {
         $sql = "select * FROM jwt_grant_history WHERE jti = ?";
         $params = [$jti];

@@ -3,7 +3,7 @@
 /**
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -12,19 +12,18 @@
 
 require_once "../../../../globals.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\Dorn\ConnectorApi;
 
 //this is needed along with setupHeader() to get the pop up to appear
 
 $tab = "routes";
 $pageTitle = xl("DORN - Routes");
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: DORN - Routes", $pageTitle);
 }
 
 if (!empty($_POST)) {
@@ -57,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'delete') {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         });
     });
 
@@ -91,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'delete') {
                         <div class="col">
                             <?php if (empty($datas)) : ?>
                                 <div class="alert alert-info my-3">
-                                    <?php xlt("No routes found") ?>
+                                    <?php echo xlt("No routes found") ?>
                                 </div>
                             <?php else : ?>
                                 <table class="table table-hover table-striped">
@@ -116,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'delete') {
                                             <td scope="row"><?php echo text($data->primaryPhone) ?></td>
                                             <td scope="row">
                                                 <?php if (!empty($data->primaryEmail)) : ?>
-                                                    <a href="mailto:<?php attr($data->primaryEmail) ?>">
+                                                    <a href="mailto:<?php echo attr($data->primaryEmail) ?>">
                                                         <?php echo text($data->primaryEmail) ?>
                                                     </a>
                                                 <?php endif; ?>
@@ -125,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'delete') {
                                             <td scope="row">
                                                 <?php
                                                 // Convert to OpenEMR’s short date format
-                                                $created = oeFormatShortDate(date('Y-m-d', strtotime($data->createdDateTimeUtc)));
+                                                $created = oeFormatShortDate(date('Y-m-d', strtotime((string) $data->createdDateTimeUtc)));
                                                 echo text($created);
                                                 ?>
                                             </td>

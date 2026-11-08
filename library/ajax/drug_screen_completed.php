@@ -14,10 +14,16 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+if (!AclMain::aclCheckCore('patients', 'appt')) {
+    AccessDeniedHelper::deny('ACL check failed for patients/appt: drug_screen_completed');
 }
 
 $drugval = '0';
@@ -29,5 +35,5 @@ $tracker_id = $_POST['trackerid'];
 if ($tracker_id != 0) {
        sqlStatement("UPDATE patient_tracker SET " .
            "drug_screen_completed = ? " .
-           "WHERE id =? ", array($drugval,$tracker_id));
+           "WHERE id =? ", [$drugval,$tracker_id]);
 }

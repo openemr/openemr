@@ -7,13 +7,15 @@
  * @see \OpenEMR\Services\FormService on how this class is saved in the database.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Discover and Change, Inc. <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Forms;
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 abstract class BaseForm
 {
@@ -37,13 +39,10 @@ abstract class BaseForm
         $this->authorized = 0;
         $this->date = new \DateTime();
 
-        if ($attendant_type == 'pid') {
-            $this->therapy_group_id = null;
-        } else {
-            $this->therapy_group_id = $_SESSION['therapy_group'] ?? null;
-        }
-        $this->user = $_SESSION['authUser'] ?? null;
-        $this->groupname = $_SESSION['authProvider'] ?? null;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->therapy_group_id = $attendant_type === 'pid' ? null : $session->get('therapy_group');
+        $this->user = $session->get('authUser');
+        $this->groupname = $session->get('authProvider');
     }
 
     /**

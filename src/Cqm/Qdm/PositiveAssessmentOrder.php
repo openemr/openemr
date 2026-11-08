@@ -26,4 +26,3 @@ class PositiveAssessmentOrder extends AssessmentOrder
 
     public $_type = 'QDM::PositiveAssessmentOrder';
 }
-

@@ -8,6 +8,9 @@
  */
 
 // The required application modules we need to load all the time are listed here.
+
+use OpenEMR\Core\OEGlobalsBag;
+
 $core_modules = [
     'Laminas\Router', // this was separated from the MVC module into it's own module.  Handles the routing layers.
     'Laminas\Validator',  // Handles validations....
@@ -16,17 +19,16 @@ $core_modules = [
     'Application', // Main application module starting point.
     'Installer', // Handles the dynamic adding / removing of modules in the system.
     'Acl', // Handles all of the permission checks in the system.
-    'FHIR', // Handles FHIR mapped uuid population and other FHIR utility functions
-    'CodeTypes', // Handles CodeType mappings and anything else to do with the system of dealing with code types
-    'PatientFlowBoard', // Handle any functionality needed for the patient flow board
 ];
 
 // $zendConfigurationPath is loaded using ModulesApplication.php from globals.php
+/** @var ?string $webRootPath */
+/** @var ?string $zendConfigurationPath */
 $plugin_modules = \OpenEMR\Core\ModulesApplication::oemr_zend_load_modules_from_db(
     $webRootPath ?? '',
     $zendConfigurationPath ?? ''
 );
-$vendor_path = !empty($GLOBALS['vendor_dir']) ? $GLOBALS['vendor_dir'] : (realpath(__DIR__) . '/../vendor');
+$vendor_path = !empty(OEGlobalsBag::getInstance()->getKernel()->getVendorDir()) ? OEGlobalsBag::getInstance()->getKernel()->getVendorDir() : (realpath(__DIR__) . '/../vendor');
 
 return [
     'modules' =>  array_merge($core_modules, $plugin_modules)

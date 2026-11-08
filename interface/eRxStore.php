@@ -1,17 +1,19 @@
 <?php
 
 /**
- * interface/eRxStore.php Functions for interacting with NewCrop database.
+ * interface/eRxStore.php Functions for interacting with Ensora eRx database.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2013-2015 Sam Likins <sam.likins@wsi-services.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../library/api.inc.php");
+use OpenEMR\Common\Database\QueryUtils;
 
 class eRxStore
 {
@@ -56,7 +58,7 @@ class eRxStore
 
     /**
      * Return user information using user Id
-     * @param  integer $id Id of user to return
+     * @param int $id Id of user to return
      * @return array       Specified user information: index [id, username, lname, fname, mname, title, license, federaldrugid, upin, state_license_number, npi, newcrop_user_role]
      */
     public function getUserById($id)
@@ -65,13 +67,13 @@ class eRxStore
             'SELECT id, username, lname, fname, mname, title, federaldrugid, upin, state_license_number, npi, newcrop_user_role
 			FROM users
 			WHERE id = ?;',
-            array($id)
+            [$id]
         );
     }
 
     /**
      * Return user facility business entity
-     * @param  integer $id Id of user to return
+     * @param int $id Id of user to return
      * @return array       User facility business entity
      */
     public function getUserFacility($id)
@@ -81,33 +83,33 @@ class eRxStore
 			FROM users
 				LEFT JOIN facility ON facility.id = users.facility_id
 			WHERE users.id = ?;',
-            array($id)
+            [$id]
         );
     }
 
     /**
      * Return patient information using patient Id
-     * @param  integer $patientId Id of patient
-     * @return array              Specified patient information: index [pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, date_of_birth, sex]
+     * @param int $patientId Id of patient
+     * @return array              Specified patient information: index [pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, phone_cell, date_of_birth, sex]
      */
     public function getPatientByPatientId($patientId)
     {
         return sqlQuery(
-            'SELECT pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, DATE_FORMAT(DOB,\'%Y%m%d\') AS date_of_birth, sex
+            'SELECT pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, phone_cell, DATE_FORMAT(DOB,\'%Y%m%d\') AS date_of_birth, sex
 			FROM patient_data
 			WHERE pid = ?;',
-            array($patientId)
+            [$patientId]
         );
     }
 
-    public function getPatientVitalsByPatientId($patientId)
+    public function getPatientVitalsByPatientId($patientId): array
     {
         $result = sqlQuery(
             "SELECT FORM_VITALS.date, FORM_VITALS.id
             FROM form_vitals AS FORM_VITALS LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id
             WHERE FORM_VITALS.pid=? AND FORMS.deleted != '1'
             ORDER BY FORM_VITALS.date DESC",
-            array($patientId)
+            [$patientId]
         );
 
         $data = formFetch("form_vitals", $result['id']);
@@ -139,7 +141,7 @@ class eRxStore
 				ORDER BY `id`.`date` DESC
 			) AS `ins`
 			GROUP BY `ins`.`type`;',
-            array($patientId)
+            [$patientId]
         );
     }
 
@@ -158,26 +160,29 @@ class eRxStore
 					enddate is NULL
 					OR enddate = \'0000-00-00\'
 				);',
-            array($patientId)
+            [$patientId]
         );
     }
 
     public function getPatientDiagnosisByPatientId($patientId)
     {
-        return sqlStatement(
-            'SELECT diagnosis, begdate, enddate, title, date
+        // Newest onset first: PatientDiagnosisList keeps the first row per code.
+        return QueryUtils::sqlStatementThrowException(
+            <<<'SQL'
+            SELECT diagnosis, begdate, enddate, title, date
             FROM lists
-            WHERE `type` = \'medical_problem\'
+            WHERE `type` = 'medical_problem'
                 AND pid = ?
-                ;',
-            array($patientId)
+            ORDER BY begdate DESC, id DESC
+            SQL,
+            [$patientId]
         );
     }
 
     /**
      * Return TTL timestamp for provided patient Id and process
      * @param  string         $process   SOAP process to check
-     * @param  integer        $patientId Patient Id to check
+     * @param int $patientId Patient Id to check
      * @return string|boolean            TTL timestamp of last SOAP call for provided patient Id and process
      */
     public function getLastSOAP($process, $patientId)
@@ -187,10 +192,10 @@ class eRxStore
 			FROM erx_ttl_touch
 			WHERE patient_id = ?
 				AND process = ?;',
-            array(
+            [
                 $patientId,
                 $process
-            )
+            ]
         );
         if ($return === false) {
             return false;
@@ -202,7 +207,7 @@ class eRxStore
     /**
      * Set TTL timestamp for provided patient Id and process
      * @param  string  $process   SOAP process to update
-     * @param  integer $patientId Patient Id to update
+     * @param int $patientId Patient Id to update
      */
     public function setLastSOAP($process, $patientId)
     {
@@ -211,17 +216,17 @@ class eRxStore
 			SET patient_id = ?,
 				process = ?,
 				updated = NOW();',
-            array(
+            [
                 $patientId,
                 $process
-            )
+            ]
         );
     }
 
     /**
      * Update external sourced prescripts active status for provided patient Id
-     * @param  integer $patientId Patient Id to update
-     * @param  integer $active    Active status to set for provided patient
+     * @param int $patientId Patient Id to update
+     * @param int $active Active status to set for provided patient
      */
     public function updatePrescriptionsActiveByPatientId($patientId, $active = 0)
     {
@@ -230,10 +235,10 @@ class eRxStore
 			SET active = ?
 			WHERE patient_id = ?
 				AND erx_source=\'1\'',
-            array(
+            [
                 ($active == 1 ? 1 : 0),
                 $patientId
-            )
+            ]
         );
     }
 
@@ -245,18 +250,18 @@ class eRxStore
 				active = ?
 			WHERE patient_id = ?
 				AND id = ?;',
-            array(
+            [
                 $upload,
                 $active,
                 $patientId,
                 $prescriptionId
-            )
+            ]
         );
     }
 
     /**
      * Return prescription specified
-     * @param  integer $prescriptionId Id of the prescription to return
+     * @param int $prescriptionId Id of the prescription to return
      * @return array                   Prescription information specified
      */
     public function getPrescriptionById($prescriptionId)
@@ -277,7 +282,7 @@ class eRxStore
 				AND l4.option_id = p.unit
 			WHERE p.drug <> \'\'
 				AND p.id = ?;',
-            array($prescriptionId)
+            [$prescriptionId]
         );
     }
 
@@ -298,11 +303,11 @@ class eRxStore
 					)
 			ORDER BY enddate
 			LIMIT 0, ?;',
-            array(
+            [
                 $patientId,
                 $uploadActive,
                 $limit
-            )
+            ]
         );
     }
 
@@ -317,11 +322,11 @@ class eRxStore
 				AND (? = 0
 					OR active = 1
 				) LIMIT 0, ?;',
-            array(
+            [
                 $patientId,
                 $uploadActive,
                 $limit,
-            )
+            ]
         );
     }
 
@@ -338,10 +343,10 @@ class eRxStore
 			FROM list_options
 			WHERE list_id = ? AND activity = 1
 				AND title = ?;',
-            array(
+            [
                 $listId,
                 $title
-            )
+            ]
         );
 
         if (is_array($return)) {
@@ -354,7 +359,7 @@ class eRxStore
     /**
      * Return highest option Id for provided list Id
      * @param  string $listId  Id of list to reference
-     * @return integer         Highest option Id for provided list Id
+     * @return int Highest option Id for provided list Id
      */
     public function selectOptionIdsByListId($listId)
     {
@@ -364,7 +369,7 @@ class eRxStore
 			WHERE list_id = ? AND activity = 1
 			ORDER BY ABS(option_id) DESC
 			LIMIT 1;',
-            array($listId)
+            [$listId]
         );
 
         if (is_array($return)) {
@@ -377,7 +382,7 @@ class eRxStore
     /**
      * Return user Id by user name
      * @param  string  $name Name of user to reference
-     * @return integer       Id of provided user name
+     * @return int Id of provided user name
      */
     public function selectUserIdByUserName($name)
     {
@@ -385,7 +390,7 @@ class eRxStore
             'SELECT id
 			FROM users
 			WHERE username = ?;',
-            array($name)
+            [$name]
         );
 
         return $return['id'];
@@ -404,19 +409,19 @@ class eRxStore
 				(list_id, option_id, title, seq)
 			VALUES
 				(?, ?, ?, ?);',
-            array(
+            [
                 $listId,
                 $optionId,
                 $title,
                 $optionId
-            )
+            ]
         );
     }
 
     /**
      * Return Id of prescription selected by GUID and patient Id
      * @param  string   $prescriptionGuid GUID of prescription
-     * @param  integer  $patientId        Id of patient
+     * @param int $patientId Id of patient
      * @return resource                   Prescription Id of specified GUID for selected patient, this resource comes from a call to mysql_query()
      */
     public function selectPrescriptionIdByGuidPatientId($prescriptionGuid, $patientId)
@@ -427,24 +432,24 @@ class eRxStore
 			WHERE prescriptionguid = ?
 				AND prescriptionguid IS NOT NULL
 				AND patient_id = ?;',
-            array(
+            [
                 $prescriptionGuid,
                 $patientId
-            )
+            ]
         );
     }
 
     /**
      * Insert new prescription as external sourced
      * @param  array   $prescriptionData Information for creating prescription: [PrescriptionDate, DrugName, DrugID, DrugInfo, DosageNumberDescription, Strength, Refills, PrescriptionNotes, SiteID, rxcui, PrescriptionGuid, ExternalPatientID]
-     * @param  integer $encounter        Id of encounter for prescription
-     * @param  integer $providerId       Id of provider for prescription
+     * @param int $encounter Id of encounter for prescription
+     * @param int $providerId Id of provider for prescription
      * @param  string  $authUserId       Id of user creating prescription
-     * @param  integer $formOptionId     Option Id for prescription form
-     * @param  integer $routeOptionId    Option Id for prescription route
-     * @param  integer $unitsOptionId    Option Id for prescription units
-     * @param  integer $intervalOptionId Option Id for prescription interval
-     * @return integer                   Id of newly created prescription
+     * @param int $formOptionId Option Id for prescription form
+     * @param int $routeOptionId Option Id for prescription route
+     * @param int $unitsOptionId Option Id for prescription units
+     * @param int $intervalOptionId Option Id for prescription interval
+     * @return int Id of newly created prescription
      */
     public function insertPrescriptions($prescriptionData, $encounter, $providerId, $authUserId, $formOptionId, $routeOptionId, $unitsOptionId, $intervalOptionId)
     {
@@ -479,9 +484,9 @@ class eRxStore
 					?, ?, ?, ?, ?, ?, ?, ?,
 					?, ?, ?, ?, ?, ?, ?, ?
 				);',
-            array(
+            [
                 $encounter,
-                substr($prescriptionData['PrescriptionDate'], 0, 10),
+                substr((string) $prescriptionData['PrescriptionDate'], 0, 10),
                 $authUserId,
                 $providerId,
                 $formOptionId,
@@ -499,19 +504,19 @@ class eRxStore
                 $prescriptionData['rxcui'],
                 $prescriptionData['PrescriptionGuid'],
                 $prescriptionData['ExternalPatientID']
-            )
+            ]
         );
     }
 
     /**
      * Update prescription information as external sourced
      * @param  array   $prescriptionData Information for creating prescription: [DrugName, DrugID, DrugInfo, DosageNumberDescription, Strength, Refills, PrescriptionNotes, SiteID, rxcui, PrescriptionGuid, ExternalPatientID]
-     * @param  integer $providerId       Id of provider for prescription
+     * @param int $providerId Id of provider for prescription
      * @param  string  $authUserId       Id of user creating prescription
-     * @param  integer $formOptionId     Option Id for prescription form
-     * @param  integer $routeOptionId    Option Id for prescription route
-     * @param  integer $unitsOptionId    Option Id for prescription units
-     * @param  integer $intervalOptionId Option Id for prescription interval
+     * @param int $formOptionId Option Id for prescription form
+     * @param int $routeOptionId Option Id for prescription route
+     * @param int $unitsOptionId Option Id for prescription units
+     * @param int $intervalOptionId Option Id for prescription interval
      */
     public function updatePrescriptions($prescriptionData, $providerId, $authUserId, $formOptionId, $routeOptionId, $unitsOptionId, $intervalOptionId)
     {
@@ -537,7 +542,7 @@ class eRxStore
 				`rxnorm_drugcode` = ?
 			WHERE prescriptionguid = ?
 				AND patient_id = ?;',
-            array(
+            [
                 $authUserId,
                 $providerId,
                 $formOptionId,
@@ -555,15 +560,15 @@ class eRxStore
                 $prescriptionData['rxcui'],
                 $prescriptionData['PrescriptionGuid'],
                 $prescriptionData['ExternalPatientID']
-            )
+            ]
         );
     }
 
     /**
      * Return eRx source of specified active allergy for selected patient
-     * @param  integer $patientId Id of patient to select
+     * @param int $patientId Id of patient to select
      * @param  string  $name      Name of active allergy to return
-     * @return integer            eRx source flag of specified allergy for selected patient: [0 = OpenEMR, 1 = External]
+     * @return int eRx source flag of specified allergy for selected patient: [0 = OpenEMR, 1 = External]
      */
     public function selectAllergyErxSourceByPatientIdName($patientId, $name)
     {
@@ -577,10 +582,10 @@ class eRxStore
 					enddate IS NULL
 					OR enddate = \'0000-00-00\'
 				);',
-            array(
+            [
                 $patientId,
                 $name
-            )
+            ]
         );
 
         if (is_array($return)) {
@@ -593,10 +598,10 @@ class eRxStore
     /**
      * Insert new allergy as external sourced
      * @param  string  $name       Allergy name to insert
-     * @param  integer $allergyId  External allergy Id
-     * @param  integer $patientId  Patient Id
-     * @param  integer $authUserId User Id
-     * @param  integer $outcome    Allergy option Id
+     * @param int $allergyId External allergy Id
+     * @param int $patientId Patient Id
+     * @param int $authUserId User Id
+     * @param int $outcome Allergy option Id
      */
     public function insertAllergy($name, $allergyId, $patientId, $authUserId, $outcome)
     {
@@ -611,13 +616,13 @@ class eRxStore
 					NOW(), \'allergy\', \'1\', NOW(),
 					?, ?, ?, ?, ?
 				);',
-            array(
+            [
                 $name,
                 $allergyId,
                 $patientId,
                 $authUserId,
                 $outcome
-            )
+            ]
         );
 
         setListTouch($patientId, 'allergy');
@@ -625,9 +630,9 @@ class eRxStore
 
     /**
      * Update allergy outcome and external Id as external sourced using patient Id and allergy name
-     * @param  integer $outcome    Allergy outcome Id to set
-     * @param  integer $externalId External allergy Id to set
-     * @param  integer $patientId  Patient Id to select
+     * @param int $outcome Allergy outcome Id to set
+     * @param int $externalId External allergy Id to set
+     * @param int $patientId Patient Id to select
      * @param  string  $name       Allergy name to select
      */
     public function updateAllergyOutcomeExternalIdByPatientIdName($outcome, $externalId, $patientId, $name)
@@ -639,20 +644,20 @@ class eRxStore
 				external_allergyid = ?
 			WHERE pid = ?
 				AND title = ?;',
-            array(
+            [
                 $outcome,
                 $externalId,
                 $patientId,
                 $name
-            )
+            ]
         );
     }
 
     /**
      * Update external sourced allergy outcome using patient Id, external Id, and allergy name
-     * @param  integer $outcome    Allergy outcome Id to set
-     * @param  integer $patientId  Patient Id to select
-     * @param  integer $externalId External allergy Id to select
+     * @param int $outcome Allergy outcome Id to set
+     * @param int $patientId Patient Id to select
+     * @param int $externalId External allergy Id to select
      * @param  string  $name       Allergy name to select
      */
     public function updateAllergyOutcomeByPatientIdExternalIdName($outcome, $patientId, $externalId, $name)
@@ -664,12 +669,12 @@ class eRxStore
 				AND erx_source = \'1\'
 				AND external_allergyid = ?
 				AND title = ?;',
-            array(
+            [
                 $outcome,
                 $patientId,
                 $externalId,
                 $name
-            )
+            ]
         );
     }
 
@@ -681,17 +686,17 @@ class eRxStore
 			WHERE type = \'allergy\'
 				AND pid = ?
 				AND id = ?;',
-            array(
+            [
                 $uploaded,
                 $patientId,
                 $allergyId
-            )
+            ]
         );
     }
 
     /**
      * Return all external sourced active allergies for patient using patient Id
-     * @param  integer  $patientId Patient Id to select
+     * @param int $patientId Patient Id to select
      * @return resource            Patients active allergies, this resource comes from a call to mysql_query()
      */
     public function selectActiveAllergiesByPatientId($patientId)
@@ -706,14 +711,14 @@ class eRxStore
 					enddate IS NULL
 						OR enddate = \'0000-00-00\'
 				);',
-            array($patientId)
+            [$patientId]
         );
     }
 
     /**
      * Update allergy end date for specified patient Id and list Id
-     * @param  integer $patientId Id of patient to lookup
-     * @param  integer $listId    Id of allergy to update
+     * @param int $patientId Id of patient to lookup
+     * @param int $listId Id of allergy to update
      */
     public function updateAllergyEndDateByPatientIdListId($patientId, $listId)
     {
@@ -723,17 +728,17 @@ class eRxStore
 			WHERE pid = ?
 				AND id = ?
 				AND type = \'allergy\';',
-            array(
+            [
                 $patientId,
                 $listId
-            )
+            ]
         );
     }
 
     /**
      * Update eRx uploaded status using list Id
-     * @param  integer $listId Id of list item
-     * @param  integer $erx    [optional - defaults to 0] Upload status to set: [0 = Pending NewCrop upload, 1 = Uploaded TO NewCrop]
+     * @param int $listId Id of list item
+     * @param int $erx [optional - defaults to 0] Upload status to set: [0 = Pending NewCrop upload, 1 = Uploaded TO NewCrop]
      */
     public function updateErxUploadedByListId($listId, $erx = 0)
     {
@@ -741,17 +746,17 @@ class eRxStore
             'UPDATE lists
 			SET erx_uploaded = ?
 			WHERE id = ?;',
-            array(
+            [
                 $erx,
                 $listId
-            )
+            ]
         );
     }
 
     /**
      * Return patient import status using patient Id
-     * @param  integer $patientId Id of patient
-     * @return integer            Import status for specified patient: [1 = Prescription Press, 2 = Prescription Import, 3 = Allergy Press, 4 = Allergy Import]
+     * @param int $patientId Id of patient
+     * @return int Import status for specified patient: [1 = Prescription Press, 2 = Prescription Import, 3 = Allergy Press, 4 = Allergy Import]
      */
     public function getPatientImportStatusByPatientId($patientId)
     {
@@ -759,15 +764,15 @@ class eRxStore
             'SELECT soap_import_status
 			FROM patient_data
 			WHERE pid = ?;',
-            array($patientId)
+            [$patientId]
         );
         return $return['soap_import_status'];
     }
 
     /**
      * Update patient import status using patient Id
-     * @param  integer $patientId Id of patient to update
-     * @param  integer $status    Import status to update specified patient: [1 = Prescription Press, 2 = Prescription Import, 3 = Allergy Press, 4 = Allergy Import]
+     * @param int $patientId Id of patient to update
+     * @param int $status Import status to update specified patient: [1 = Prescription Press, 2 = Prescription Import, 3 = Allergy Press, 4 = Allergy Import]
      */
     public function updatePatientImportStatusByPatientId($patientId, $status)
     {
@@ -775,10 +780,10 @@ class eRxStore
             'UPDATE patient_data
 			SET soap_import_status = ?
 			WHERE pid = ?;',
-            array(
+            [
                 $status,
                 $patientId
-            )
+            ]
         );
     }
 }

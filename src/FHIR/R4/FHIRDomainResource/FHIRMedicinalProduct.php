@@ -179,7 +179,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
     public $crossReference = [];
 
     /**
-     * An operation applied to the product, for manufacturing or adminsitrative purpose.
+     * An operation applied to the product, for manufacturing or administrative purpose.
      * @var \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductManufacturingBusinessOperation[]
      */
     public $manufacturingBusinessOperation = [];
@@ -556,7 +556,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * An operation applied to the product, for manufacturing or adminsitrative purpose.
+     * An operation applied to the product, for manufacturing or administrative purpose.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductManufacturingBusinessOperation[]
      */
     public function getManufacturingBusinessOperation()
@@ -565,7 +565,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * An operation applied to the product, for manufacturing or adminsitrative purpose.
+     * An operation applied to the product, for manufacturing or administrative purpose.
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductManufacturingBusinessOperation $manufacturingBusinessOperation
      * @return $this
      */
@@ -762,7 +762,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -880,15 +880,13 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProduct xmlns="http://hl7.org/fhir"></MedicinalProduct>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProduct xmlns="http://hl7.org/fhir"></MedicinalProduct>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

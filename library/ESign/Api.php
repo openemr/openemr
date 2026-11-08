@@ -3,41 +3,34 @@
 /**
  * Top-level API and helper functions for the ESign module
  *
- * Copyright (C) 2013 OEMR 501c3 www.oemr.org
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Ken Chapple <ken@mi-squared.com>
- * @author  Medical Information Integration, LLC
- * @link    http://www.open-emr.org
- **/
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Medical Information Integration, LLC
+ * @copyright Copyright (c) 2013 OEMR
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/ESign.php';
-require_once $GLOBALS['srcdir'] . '/ESign/FactoryIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/ConfigurationIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Form/Factory.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Form/Configuration.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Factory.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Configuration.php';
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ESign.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/FactoryIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ConfigurationIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignableIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Factory.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Configuration.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Factory.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Configuration.php';
 
 class Api
 {
     public function lockEncounters()
     {
-        return $GLOBALS['lock_esign_all'];
+        return OEGlobalsBag::getInstance()->getBoolean('lock_esign_all');
     }
 
     public function formConfigToJson()
@@ -46,7 +39,7 @@ class Api
         return $this->configToJson($configuration);
     }
 
-    public function createFormESign($formId, $formDir, $encounterId)
+    public function createFormESign($formId, $formDir, $encounterId): ESign
     {
         $factory = new Form_Factory($formId, $formDir, $encounterId);
         $esign = $this->createESign($factory);
@@ -59,20 +52,41 @@ class Api
         return $this->configToJson($configuration);
     }
 
-    public function createEncounterESign($encounterId)
+    public function createEncounterESign($encounterId): ESign
     {
         $factory = new Encounter_Factory($encounterId);
         $esign = $this->createESign($factory);
         return $esign;
     }
 
-    public function createEncounterSignable($encounterId)
+    /**
+     * Whether a form counts as signed on the patient report: it has a
+     * signature of its own, or it is locked, which includes an encounter
+     * signature locking it ("Lock e-signed encounters"). The encounter is
+     * the one the form row belongs to.
+     */
+    public function isFormSignedForReport(int $formId, string $formDir): bool
+    {
+        $encounter = QueryUtils::fetchSingleValue(
+            'SELECT `encounter` FROM `forms` WHERE `id` = ? AND `formdir` = ? AND `deleted` = 0',
+            'encounter',
+            [$formId, $formDir]
+        );
+        $encounterId = filter_var($encounter, FILTER_VALIDATE_INT);
+        if (!is_int($encounterId)) {
+            return false;
+        }
+        $esign = $this->createFormESign($formId, $formDir, $encounterId);
+        return $esign->isSigned() || $esign->isLocked();
+    }
+
+    public function createEncounterSignable($encounterId): Encounter_Signable
     {
         $signable = new Encounter_Signable($encounterId);
         return $signable;
     }
 
-    public function createESign(FactoryIF $factory)
+    public function createESign(FactoryIF $factory): ESign
     {
         $configuration = $factory->createConfiguration();
         $signable = $factory->createSignable();
@@ -89,13 +103,13 @@ class Api
      */
     public function configToJson(ConfigurationIF $configuration)
     {
-        $params = array(
+        $params = [
             'baseUrl' => $configuration->getBaseUrl(),
             'logViewAction' => $configuration->getLogViewAction(),
             'formViewAction' => $configuration->getFormViewAction(),
             'formSubmitAction' => $configuration->getFormSubmitAction(),
             'module' => $configuration->getModule()
-        );
+        ];
 
         $json = json_encode($params);
         return $json;
@@ -106,7 +120,7 @@ class Api
         try {
             $ret = $signable->sign($userId, $lock, $amendment);
             return $ret;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log(errorLogEscape($e->getMessage()));
             return false;
         }

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Install Code Set</title>
+    <!-- setupHeader stub -->
+
+    <style>
+        .dehead {
+            color: var(--black);
+            font-family: sans-serif;
+            font-size: 0.8125rem;
+            font-weight: bold;
+        }
+        .detail {
+            color: var(--black);
+            font-family: sans-serif;
+            font-size: 0.8125rem;
+            font-weight: normal;
+        }
+    </style>
+
+</head>
+
+<body class="body_top">
+<div class="container">
+        <div class="row">
+        <div class="col">
+                                                <p class="text-success">Code set load successful.</p>
+                                    <p class="text-success">Codes inserted: 12, codes updated: 3</p>
+                                                                <p class="text-danger">The code set could not be imported. Check the system log for details.</p>
+                                    </div>
+    </div>
+        <form method='post' action='load_codes.php' enctype='multipart/form-data'
+          onsubmit='return top.restoreSession()'>
+
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr class="dehead">
+                    <th colspan="2" class='text-center'>Install Code Set</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        Code Type
+                    </td>
+                    <td>
+                        <select name='form_code_type'>
+                                                            <option value='RXCUI'                                 >RXCUI</option>
+                                                            <option value='LOINC' selected="selected"                                >LOINC</option>
+                                                            <option value='ICPC2'                                 >ICPC2</option>
+                                                    </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="detail">
+                        Source File
+                        <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
+                    </td>
+                    <td class="detail">
+                        <input type="file" name="form_file" size="40" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="detail">
+                        Replace entire code set
+                    </td>
+                    <td class="detail">
+                        <input type='checkbox' name='form_replace' value='1'  />
+                    </td>
+                </tr>
+                <tr class="bg-secondary">
+                    <td colspan="2" class="text-center detail">
+                        <input type='submit' class='btn btn-primary' name='bn_upload' value='Upload and Install' />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class='font-weight-bold text-center'>
+            Be patient, some files can take several minutes to process!
+        </p>
+
+        <!-- No translation because this text is long and US-specific and quotes other English-only text. -->
+                <p class='text'>
+            <span class="font-weight-bold">RXCUI codes</span> may be downloaded from
+            <a href='https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' rel="noopener" target='_blank'>
+                www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html</a>.
+            Get the "Current Prescribable Content Monthly Release" zip file, marked "no license required".
+            Then you can upload that file as-is here, or extract the file RXNCONSO.RRF from it and upload just
+            that (zipped or not). You may do the same with the weekly updates, but for those uncheck the
+            "Replace entire code set" checkbox above.
+
+            Note you will need to ensure the RXCUI code type is enabled from the Admin -&gt; Forms -&gt; Lists -&gt; Code Types
+            page before you can upload RXCUI codes.
+        </p>
+                <div class="alert alert-info"><p>
+                <i class="fa fa-circle-info"></i> If your code sets are not loading, verify your php.ini post_max_size value and your upload_max_filesize has been set large enough to handle the file size you are uploading.
+            </p>
+        </div>
+    </form>
+</div>
+</body>
+</html>

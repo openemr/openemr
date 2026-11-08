@@ -5,7 +5,7 @@
  * creation of telehealth services for patients and users are handled here.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,73 +13,65 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 
-use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
-use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\UserVideoRegistrationRequest;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
+use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class TeleHealthRemoteRegistrationService
 {
     /**
-     * @var TelehealthRegistrationCodeService
-     */
-    private $codeService;
-
-    /**
      * API url endpoint to send registration requests to.
-     * @var string
      */
-    private $apiURL;
-
-    /*
-     * UserID for api authentication needed for comlink video service
-     * @var string
-     */
-    private $apiId;
-
-    /*
-     * Password for api authentication needed for comlink video service
-     * @var string
-     */
-    private $apiPassword;
-
-    /*
-     * CMSID for api authentication needed for comlink video service
-     * @var string
-     */
-    private $apiCMSID;
-
+    private readonly string $apiURL;
 
     /**
-     * Client
+     * UserID for api authentication needed for comlink video service
      */
-    private $httpClient;
+    private readonly string $apiId;
+
+    /**
+     * Password for api authentication needed for comlink video service
+     */
+    private readonly string $apiPassword;
+
+    /**
+     * CMSID for api authentication needed for comlink video service
+     */
+    private readonly string $apiCMSID;
+
+    /**
+     * HTTP client for API requests
+     */
+    private Client $httpClient;
 
     /**
      * Unique installation id of the OpenEMR Institution
-     * @var string
      */
-    private $institutionId;
+    private readonly string $institutionId;
 
     /**
      * Name of the OpenEMR institution
-     * @var string
      */
-    private $institutionName;
+    private readonly string $institutionName;
 
     /**
-     * @var SystemLogger
+     * System logger instance
      */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
+    /**
+     * User repository for managing telehealth users
+     */
     private TeleHealthUserRepository $userRepository;
 
-    public function __construct(TelehealthGlobalConfig $config, TelehealthRegistrationCodeService $codeService)
+    public function __construct(TelehealthGlobalConfig $config, private readonly TelehealthRegistrationCodeService $codeService, ?LoggerInterface $logger = null)
     {
         $this->apiURL = $config->getRegistrationAPIURI();
         $this->apiId = $config->getRegistrationAPIUserId();
@@ -89,11 +81,10 @@ class TeleHealthRemoteRegistrationService
         $this->institutionName = $config->getInstitutionName();
         $this->userRepository = new TeleHealthUserRepository();
         $this->httpClient = new Client();
-        $this->logger = new SystemLogger();
-        $this->codeService = $codeService;
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
-    public function createPatientRegistration($patient)
+    public function createPatientRegistration($patient): bool
     {
         $registrationRequest = new UserVideoRegistrationRequest();
         $registrationRequest->setDbRecordId($patient['id']);
@@ -110,7 +101,7 @@ class TeleHealthRemoteRegistrationService
         return !empty($userId);
     }
 
-    public function createUserRegistration($user)
+    public function createUserRegistration($user): bool
     {
         $registrationRequest = new UserVideoRegistrationRequest();
         $registrationRequest->setDbRecordId($user['id']);
@@ -180,12 +171,12 @@ class TeleHealthRemoteRegistrationService
         $response = $this->sendAPIRequest($this->getEndpointUrl("userprovision"), $httpDataRequest);
 
         if ($response['status'] != 200) {
-            (new SystemLogger())->errorLogCaller("Failed to provision user", ['username' => $request->getUsername()
+            ServiceContainer::getLogger()->error("TeleHealthRemoteRegistrationService: Failed to provision user {username}", ['username' => $request->getUsername()
                 , 'response' => $response]);
             return false;
         } else {
+            $userSaveRecord = new TeleHealthUser();
             try {
-                $userSaveRecord = new TeleHealthUser();
                 $userSaveRecord->setIsPatient($request->isPatient());
                 $userSaveRecord->setDbRecordId($request->getDbRecordId());
                 $userSaveRecord->setUsername($request->getUsername());
@@ -196,14 +187,14 @@ class TeleHealthRemoteRegistrationService
                 $userId = $this->userRepository->saveUser($userSaveRecord);
                 $this->logger->debug("Registered user on comlink api ", ['username' => $request->getUsername(), 'id' => $userId]);
             } catch (SqlQueryException $exception) {
-                $this->logger->errorLogCaller("User registered on comlink api but did not save to database", ['record' => $userSaveRecord]);
+                $this->logger->error("User registered on comlink api but did not save to database", ['exception' => $exception, 'record' => $userSaveRecord]);
                 throw $exception;
             }
             return $userId;
         }
     }
 
-    private function getEndpointUrl($endpoint)
+    private function getEndpointUrl($endpoint): string
     {
         return $this->apiURL . $endpoint;
     }
@@ -245,7 +236,7 @@ class TeleHealthRemoteRegistrationService
         $response = $this->sendAPIRequest($this->getEndpointUrl("userupdate"), $httpDataRequest);
 
         if ($response['status'] != 200) {
-            $this->logger->errorLogCaller("Failed to update provisioned user", ['username' => $request->getUsername()
+            $this->logger->error("TeleHealthRemoteRegistrationService: Failed to update provisioned user {username}", ['username' => $request->getUsername()
                 , 'response' => $response]);
             return false;
         } else {
@@ -274,7 +265,7 @@ class TeleHealthRemoteRegistrationService
         unset($httpDataRequest['passwordString']);
 
         if ($response['status'] != 200) {
-            $this->logger->errorLogCaller("Failed to suspend user", ['username' => $username, 'response' => $response]);
+            $this->logger->error("TeleHealthRemoteRegistrationService: Failed to suspend user {username}", ['username' => $username, 'response' => $response]);
             return false;
         } else {
             $this->logger->debug("Suspended user on comlink api ", ['username' => $username]);
@@ -299,7 +290,7 @@ class TeleHealthRemoteRegistrationService
         $response = $this->sendAPIRequest($this->getEndpointUrl("userresume"), $httpDataRequest);
         $httpDataRequest = null; // clear out passwords in memory
         if ($response['status'] != 200) {
-            $this->logger->errorLogCaller("Failed to resume user", ['username' => $username, 'response' => $response]);
+            $this->logger->error("TeleHealthRemoteRegistrationService: Failed to resume user {username}", ['username' => $username, 'response' => $response]);
             return false;
         } else {
             $this->logger->debug("Resumed user on comlink api ", ['username' => $username]);
@@ -309,7 +300,7 @@ class TeleHealthRemoteRegistrationService
         return true;
     }
 
-    public function deactivateUser(string $username, string $password)
+    public function deactivateUser(string $username, string $password): bool
     {
         // first make sure we can do the api request
         $dbUserRecord = $this->userRepository->getUser($username);
@@ -322,7 +313,7 @@ class TeleHealthRemoteRegistrationService
         $response = $this->sendAPIRequest($this->getEndpointUrl("userresume"), $httpDataRequest);
 
         if ($response['status'] != 200) {
-            $this->logger->errorLogCaller("Failed to deactivate user", ['username' => $username, 'response' => $response]);
+            $this->logger->error("TeleHealthRemoteRegistrationService: Failed to deactivate user {username}", ['username' => $username, 'response' => $response]);
             return false;
         } else {
             $this->logger->debug("Deactivated user on comlink api ", ['username' => $username]);
@@ -332,7 +323,7 @@ class TeleHealthRemoteRegistrationService
         return true;
     }
 
-    public function verifyProvisioningServiceIsValid()
+    public function verifyProvisioningServiceIsValid(): array
     {
         $randomUuid = UuidV4::uuid4()->toString();
         $randomPassword = UuidV4::uuid4()->toString();
@@ -342,12 +333,8 @@ class TeleHealthRemoteRegistrationService
         return ['status' => $response['internalStatus'], 'message' => $response['internalError']];
     }
 
-    private function sendAPIRequest($endpointUrl, array $body)
+    private function sendAPIRequest($endpointUrl, array $body): array
     {
-        if (empty($this->httpClient)) {
-            throw new \BadMethodCallException("httpClient must be setup in order to send request");
-        }
-
         // because this could be an already existing event we've tried saving before we decode the json, even though
         // on the first event notification we may be doubling the work
         $client = $this->getHttpClient();
@@ -370,9 +357,9 @@ class TeleHealthRemoteRegistrationService
             $response->getBody()->rewind();
             $bodyResponse = $response->getBody()->getContents();
         } catch (GuzzleException $exception) {
-            $this->logger->errorLogCaller(
-                "Failed to send registration request Exception: " . $exception->getMessage(),
-                ['trace' => $exception->getTraceAsString(), 'endUrl' => $endpointUrl]
+            $this->logger->error(
+                "TeleHealthRemoteRegistrationService: Failed to send registration request to {endUrl}: " . $exception->getMessage(),
+                ['trace' => $exception->getTraceAsString(), 'endUrl' => $endpointUrl, 'exception' => $exception]
             );
             if ($exception->getCode() == 401) { // unauthorized exception meaning the credentials are incorrect
                 $statusCode = 401;

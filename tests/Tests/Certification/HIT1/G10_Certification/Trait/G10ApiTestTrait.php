@@ -2,13 +2,20 @@
 
 namespace OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait;
 
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Tests\Api\ApiTestClient;
 
 trait G10ApiTestTrait
 {
+    /**
+     * @var string The previous FHIR profile version that was used in the globals for the max supported fhir version
+     */
+    static protected string $previousProfileValue;
+
     // Alice Jones (96506861-511f-4f6d-bc97-b65a78cf1995),
     // Jeremy Bates (96891ab2-01ad-49f9-9958-cdad71bd33c1),
     // Happy Child(968944d0-180a-48ac-8049-636ae8ac6127),
@@ -65,6 +72,24 @@ trait G10ApiTestTrait
         if (!self::$sessionId) {
             throw new \Exception("Failed to create test session for Inferno Single Patient API tests");
         }
+        self::$previousProfileValue = QueryUtils::fetchSingleValue("SELECT `gl_value` FROM globals WHERE `gl_name` = ?"
+            , 'gl_value', [GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]) ?? '';
+        self::setupG10ProfileGlobals();
+    }
+
+    protected static function setupG10ProfileGlobals() {
+        QueryUtils::sqlStatementThrowException("UPDATE globals SET `gl_value` = ? WHERE `gl_name` = ?"
+            , ['3.1.1', GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]);
+        $value = QueryUtils::fetchSingleValue("SELECT `gl_value` FROM globals WHERE `gl_name` = ?"
+            , 'gl_value', [GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]) ?? '';
+        if ($value !== '3.1.1') {
+            throw new Exception("Failed to set FHIR US Core Max Supported Profile Version to 3.1.1 for G10 Certification tests");
+        }
+    }
+
+    public static function teardownG10Test() {
+        QueryUtils::sqlStatementThrowException("UPDATE globals SET `gl_value` = ? WHERE `gl_name` = ?"
+            , [self::$previousProfileValue, GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]);
     }
 
     private static function buildIdMap(array $testGroups): void
@@ -84,28 +109,40 @@ trait G10ApiTestTrait
     private static function getDisplayName(string $test_id): string
     {
         if (isset(self::$idMap[$test_id])) {
-            return (self::$idMap[$test_id]['short_id'] ?? '') . '.' . self::$idMap[$test_id]['title'] ?? ' Unknown Test';
+            return (self::$idMap[$test_id]['short_id'] ?? '') . '.' . (self::$idMap[$test_id]['title'] ?? ' Unknown Test');
         }
         return $test_id;
     }
 
 
 
-    protected function getTestSuitePrefix()
+    protected function getTestSuitePrefix(): string
     {
-        if (self::TEST_SUITE === self::TEST_SUITE_US_CORE_V311) {
-            return 'us_core_v311-us_core_v311_fhir_api-us_core_v311_';
-        } elseif (self::TEST_SUITE === self::TEST_SUITE_G10_CERTIFICATION) {
-            return 'g10_certification-';
-        } else {
-            throw new \Exception("Unknown test suite: " . self::TEST_SUITE);
-        }
+        return self::prefixForSuite(self::TEST_SUITE);
     }
-    protected function renderResults(array $results, string $assertMessage, array $testIdsToSkipFailures = array()): void
+
+    /**
+     * Suite-name → id-prefix mapping. Extracted from getTestSuitePrefix() so
+     * the branching runs against a `string` parameter rather than the class-
+     * scoped `self::TEST_SUITE` constant. PHPStan can narrow a constant to a
+     * literal per consuming class, which produces environment-dependent
+     * always-true / always-false diagnostics (the specific class attribution
+     * changes with scan order). A string parameter stays opaque, so no
+     * always-anything report fires.
+     */
+    private static function prefixForSuite(string $suite): string
+    {
+        return match ($suite) {
+            self::TEST_SUITE_US_CORE_V311 => 'us_core_v311-us_core_v311_fhir_api-us_core_v311_',
+            self::TEST_SUITE_G10_CERTIFICATION => 'g10_certification-',
+            default => throw new \Exception("Unknown test suite: $suite"),
+        };
+    }
+    protected function renderResults(array $results, string $assertMessage, array $testIdsToSkipFailures = []): void
     {
         foreach ($results as $result) {
             $failMessage = '';
-            if ($result['result'] === 'skip' || $result['result'] === 'pass' || $result['result'] === 'omit') {
+            if (in_array($result['result'], ['skip', 'pass', 'omit'], true)) {
                 continue; // skip this test if it's skipped
             }
             if (!empty($result['test_id'])) {
@@ -179,7 +216,6 @@ trait G10ApiTestTrait
                     break;
                 }
             } catch (ServerException $exception) {
-                (new SystemLogger())->errorLogCaller("Server exception occurred ", [$exception->getMessage()]);
                 if ($errorCount++ >= $maxErrorRetries) {
                     throw $exception;
                 }

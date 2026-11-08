@@ -4,7 +4,7 @@
  * ConditionRestController
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,9 +12,25 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\ConditionService;
+use OpenApi\Attributes as OA;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\ConditionService;
+use OpenEMR\Services\PatientService;
+use OpenEMR\Validators\ProcessingResult;
 
+#[OA\Schema(
+    schema: 'api_medical_problem_request',
+    description: 'Schema for the medical_problem request',
+    required: ['title', 'begdate'],
+    properties: [
+        new OA\Property(property: 'title', description: 'The title of medical problem.', type: 'string'),
+        new OA\Property(property: 'begdate', description: 'The beginning date of medical problem.', type: 'string'),
+        new OA\Property(property: 'enddate', description: 'The end date of medical problem.', type: 'string'),
+        new OA\Property(property: 'diagnosis', description: 'The diagnosis of medical problem. In format `<codetype>:<code>`', type: 'string'),
+    ],
+    example: ['title' => 'Dermatochalasis', 'begdate' => '2010-10-13', 'enddate' => null, 'diagnosis' => 'ICD10:H02.839']
+)]
 class ConditionRestController
 {
     private $conditionService;
@@ -22,12 +38,12 @@ class ConditionRestController
     /**
      * White list of search/insert fields
      */
-    private const WHITELISTED_FIELDS = array(
+    private const WHITELISTED_FIELDS = [
         'title',
         'begdate',
         'enddate',
         'diagnosis'
-    );
+    ];
 
     public function __construct()
     {
@@ -38,6 +54,26 @@ class ConditionRestController
      * Fetches a single condition resource by id.
      * @param $uuid - The condition uuid identifier in string format.
      */
+    #[OA\Get(
+        path: '/api/medical_problem/{muuid}',
+        description: 'Retrieves a single medical problem by their uuid',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'muuid',
+                in: 'path',
+                description: 'The uuid for the medical problem.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getOne($uuid)
     {
         $processingResult = $this->conditionService->getOne($uuid);
@@ -52,12 +88,143 @@ class ConditionRestController
     /**
      * Returns condition resources which match an optional search criteria.
      */
-    public function getAll($search = array())
+    #[OA\Get(
+        path: '/api/medical_problem',
+        description: 'Retrieves a list of medical problems',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'puuid',
+                in: 'query',
+                description: 'The uuid for the patient.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'condition_uuid',
+                in: 'query',
+                description: 'The uuid for the medical problem.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'title',
+                in: 'query',
+                description: 'The title for the medical problem.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'begdate',
+                in: 'query',
+                description: 'The start date for the medical problem.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'enddate',
+                in: 'query',
+                description: 'The end date for the medical problem.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'diagnosis',
+                in: 'query',
+                description: 'The diagnosis for the medical problem.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    #[OA\Get(
+        path: '/api/patient/{puuid}/medical_problem',
+        description: 'Retrieves all medical problems for a patient',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'puuid',
+                in: 'path',
+                description: 'The uuid for the patient.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    #[OA\Get(
+        path: '/api/patient/{puuid}/medical_problem/{muuid}',
+        description: 'Retrieves a medical problem for a patient',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'puuid',
+                in: 'path',
+                description: 'The uuid for the patient.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'muuid',
+                in: 'path',
+                description: 'The uuid for the medical problem.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function getAll($search = [])
     {
         $processingResult = $this->conditionService->getAll($search);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
     }
 
+    #[OA\Post(
+        path: '/api/patient/{puuid}/medical_problem',
+        description: 'Submits a new medical problem',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'puuid',
+                in: 'path',
+                description: 'The uuid for the patient.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(
+                    ref: '#/components/schemas/api_medical_problem_request'
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function post($puuid, $data)
     {
         $filteredData = $this->conditionService->filterData($data, self::WHITELISTED_FIELDS);
@@ -66,13 +233,99 @@ class ConditionRestController
         return RestControllerHelper::handleProcessingResult($processingResult, 201);
     }
 
+    #[OA\Put(
+        path: '/api/patient/{puuid}/medical_problem/{muuid}',
+        description: 'Edit a medical problem',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'puuid',
+                in: 'path',
+                description: 'The uuid for the patient.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'muuid',
+                in: 'path',
+                description: 'The uuid for the medical problem.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(
+                    ref: '#/components/schemas/api_medical_problem_request'
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function put($puuid, $uuid, $data)
     {
         $filteredData = $this->conditionService->filterData($data, self::WHITELISTED_FIELDS);
-        $processingResult = $this->conditionService->update($uuid, $filteredData);
+        // Resolve the path puuid to a pid and pass it as $expectedPatientId so the
+        // service's compartment check runs: a leaked condition uuid supplied under
+        // one patient's path must not update a row belonging to another patient.
+        // Mirrors how AppointmentRestController::getOneScopedByPatient scopes by pid.
+        $expectedPatientId = null;
+        if (is_string($puuid) && UuidRegistry::isValidStringUUID($puuid)) {
+            $puuidBytes = UuidRegistry::uuidToBytes($puuid);
+            $resolvedPid = (new PatientService())->getPidByUuid($puuidBytes);
+            if (is_numeric($resolvedPid)) {
+                $expectedPatientId = (int) $resolvedPid;
+            }
+        }
+        // Reject at the controller when the path puuid is malformed or names no
+        // existing patient. The service's compartment check only runs when
+        // $expectedPatientId !== null, so passing null here would bind the UPDATE
+        // under the row's own pid and let a crafted path still mutate another
+        // patient's row. Reporting as not-found rather than invalid-uuid matches
+        // the service's shape and does not confirm whether a given puuid exists.
+        if ($expectedPatientId === null) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'Condition not found']);
+        } else {
+            $processingResult = $this->conditionService->update($uuid, $filteredData, $expectedPatientId);
+        }
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
+    #[OA\Delete(
+        path: '/api/patient/{puuid}/medical_problem/{muuid}',
+        description: 'Delete a medical problem',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'puuid',
+                in: 'path',
+                description: 'The uuid for the patient.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'muuid',
+                in: 'path',
+                description: 'The uuid for the medical problem.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function delete($puuid, $uuid)
     {
         $processingResult = $this->conditionService->delete($puuid, $uuid);

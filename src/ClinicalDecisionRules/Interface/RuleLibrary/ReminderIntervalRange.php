@@ -18,16 +18,11 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
  */
 class ReminderIntervalRange
 {
-    var $code;
-    var $lbl;
-
     const Warning = "pre";
     const PastDue = "post";
 
-    function __construct($code, $lbl)
+    public function __construct(public string $code, public string $lbl)
     {
-        $this->lbl = $lbl;
-        $this->code = $code;
     }
 
     /**
@@ -47,12 +42,12 @@ class ReminderIntervalRange
         return array_values($map);
     }
 
-    private static function map()
+    private static function map(): array
     {
-        $map = array(
+        $map = [
             'pre' => new ReminderIntervalType('pre', xl('Warning')),
             'post' => new ReminderIntervalType('post', xl('Past due'))
-        );
+        ];
         return $map;
     }
 }

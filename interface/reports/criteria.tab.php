@@ -5,7 +5,7 @@
  * is included in the billing_report.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Paul Simon K <paul@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -16,25 +16,37 @@
 
 use OpenEMR\Billing\BillingReport;
 
-?>
-
-<?php
+/** @var string                     $EXPORT_INC */
+/** @var string                     $RadioSeperator */
+/** @var string                     $TextSeperator */
+/** @var array<int, string>         $TPSCriteriaDataTypeMaster */
+/** @var array<int, string>         $TPSCriteriaDisplayMaster */
+/** @var array<int, array<string>>  $TPSCriteriaDisplayRadioMaster */
+/** @var array<int, string>         $TPSCriteriaIncludeMaster */
+/** @var string                     $TPSCriteriaKeyMaster */
+/** @var array<int, string>         $TPSCriteriaQueryDropDownMaster */
+/** @var array<int, string>         $TPSCriteriaQueryDropDownMasterDefault */
+/** @var array<int, string>         $TPSCriteriaQueryDropDownMasterDefaultKey */
+/** @var array<int, string>         $TPSCriteriaRadioKeyMaster */
+/** @var bool                       $daysheet */
+/** @var bool                       $daysheet_total */
+/** @var bool                       $provider_run */
 
 // TPS = This Page Search
 
-$TPSCriteriaKey = array();
-$TPSCriteriaDataType = array();
-$TPSCriteriaDisplay = array();
-$TPSCriteriaRadioKey = array();
-$TPSCriteriaDisplayRadio = array();
-$TPSCriteriaQueryDropDown = array();
-$TPSCriteriaQueryDropDownDefault = array();
-$TPSCriteriaQueryDropDownDefaultKey = array();
-$TPSCriteriaInclude = array();
+$TPSCriteriaKey = [];
+$TPSCriteriaDataType = [];
+$TPSCriteriaDisplay = [];
+$TPSCriteriaRadioKey = [];
+$TPSCriteriaDisplayRadio = [];
+$TPSCriteriaQueryDropDown = [];
+$TPSCriteriaQueryDropDownDefault = [];
+$TPSCriteriaQueryDropDownDefaultKey = [];
+$TPSCriteriaInclude = [];
 // Filling the input array.
 $TPSCriteriaDisplay = $TPSCriteriaDisplayMaster;
-$TPSCriteriaKey = explode(',', $TPSCriteriaKeyMaster);
-$TPSCriteriaDataType = explode(',', $TPSCriteriaDataTypeMaster);
+$TPSCriteriaKey = explode(',', (string) $TPSCriteriaKeyMaster);
+$TPSCriteriaDataType = explode(',', (string) $TPSCriteriaDataTypeMaster);
 // --------------------------------------------------------------
 // Filling the input array.
 // --------------------------------------------------------------
@@ -45,7 +57,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
     if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio' || $TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio_like') {
         $NumberOfRadioTPSCriteria++;
         $TPSCriteriaDisplayRadio[$TPSCriteriaIndex] = $TPSCriteriaDisplayRadioMaster[$NumberOfRadioTPSCriteria];
-        $TPSCriteriaRadioKey[$TPSCriteriaIndex] = explode(',', $TPSCriteriaRadioKeyMaster[$NumberOfRadioTPSCriteria]);
+        $TPSCriteriaRadioKey[$TPSCriteriaIndex] = explode(',', (string) $TPSCriteriaRadioKeyMaster[$NumberOfRadioTPSCriteria]);
     }
     if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'query_drop_down') {
         $NumberOfQueryDropDownTPSCriteria++;
@@ -254,7 +266,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
                     <li class="list-group-item bg-light d-flex justify-content-between align-items-center">
                         <a class="link_submit" href="#" onclick="javascript:return SubmitTheScreen();"><strong><?php echo xlt('Update List') ?></strong></a><i id='update-tooltip' class="fa fa-info-circle fa-lg text-primary" aria-hidden="true"></i>
                     </li>
-                    <?php if (file_exists("$webserver_root/custom/BillingExport.php")) { ?>
+                    <?php if (file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('webserver_root') . "/custom/BillingExport.php")) { ?>
                         <li class="list-group-item bg-light">
                             <a class='link_submit' href="#" onclick="javascript:return SubmitTheScreenExportOFX();"><strong><?php echo xlt('Export OFX'); ?></strong></a>
                         </li>
@@ -280,11 +292,11 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
                         <li class="list-group-item bg-light"><a href='#' id="view-log-link" data-toggle="modal" data-target="#myModal" class='link_submit' title='<?php echo xla('See messages from the last set of generated claims'); ?>'><strong><?php echo xlt('View Log'); ?></strong></a>
                         </li>
                     <?php } ?>
-                    <li class="list-group-item bg-light"><a href="<?php echo $webroot ?>/interface/billing/customize_log.php" rel="noopener" target="_blank" onclick="top.restoreSession()"><strong><?php echo xlt('Tab Log') ?></strong></a>
+                    <li class="list-group-item bg-light"><a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/billing/customize_log.php" rel="noopener" target="_blank" onclick="top.restoreSession()"><strong><?php echo xlt('Tab Log') ?></strong></a>
                     </li>
                     <li class="list-group-item bg-light"><a class="link_submit" href="JavaScript:void(0);" onclick="select_all(); return false;"><strong><?php echo xlt('Select All'); ?></strong></a>
                     </li>
-                    <li class="list-group-item bg-light"><a id="clear-log" href="#" title='<?php xla('Clear the log'); ?>'><strong><?php echo xlt('Clear Log') ?></strong></a>
+                    <li class="list-group-item bg-light"><a id="clear-log" href="#" title='<?php echo xla('Clear the log'); ?>'><strong><?php echo xlt('Clear Log') ?></strong></a>
                     </li>
                 </ul>
             </div>

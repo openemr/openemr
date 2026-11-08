@@ -267,7 +267,7 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -310,15 +310,13 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceReferenceInformation xmlns="http://hl7.org/fhir"></SubstanceReferenceInformation>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceReferenceInformation xmlns="http://hl7.org/fhir"></SubstanceReferenceInformation>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->comment)) {
             $this->comment->xmlSerialize(true, $sxe->addChild('comment'));

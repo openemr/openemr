@@ -13,13 +13,16 @@
 namespace OpenEMR\Services;
 
 use Exception;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
-use OpenEMR\FHIR\R4\FHIRElement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
+use OpenEMR\Services\FHIR\Questionnaire\QuestionnaireItemNormalizer;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 
 class QuestionnaireService extends BaseService
 {
@@ -42,17 +45,17 @@ class QuestionnaireService extends BaseService
 
     /**
      * @param      $name
-     * @param null $q_id
-     * @param null $uuid
+     * @param ?string $q_id
+     * @param ?string $uuid
      * @return array
      */
     public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null): array
     {
         $sql = "Select `id`, `uuid`, questionnaire_id, `version` From `questionnaire_repository` Where ((`name` IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?))";
-        $bind = array($name, $q_id);
+        $bind = [$name, $q_id];
         if (!empty($uuid)) {
             $sql = "Select `id`, `uuid`, questionnaire_id, `version` From `questionnaire_repository` Where `uuid` = ?";
-            $bind = array($uuid);
+            $bind = [$uuid];
         }
         $response = sqlQuery($sql, $bind) ?: [];
         if (is_array($response) && !empty($response['uuid'] ?? null)) {
@@ -70,10 +73,10 @@ class QuestionnaireService extends BaseService
     public function fetchQuestionnaireResource($name, $q_id = null, $uuid = null)
     {
         $sql = "Select * From `questionnaire_repository` Where (`name` IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?)";
-        $bind = array($name, $q_id);
+        $bind = [$name, $q_id];
         if (!empty($uuid)) {
             $sql = "Select * From questionnaire_repository Where uuid = ?";
-            $bind = array($uuid);
+            $bind = [$uuid];
         }
         $response = sqlQuery($sql, $bind) ?: [];
         if (is_array($response) && !empty($response['uuid'])) {
@@ -83,18 +86,21 @@ class QuestionnaireService extends BaseService
     }
 
     /**
+     * TODO: There are so many arguments here this should be refactored to use a data object.
      * @param $q
      * @param $name
-     * @param null $q_record_id
+     * @param int|array<string, mixed>|null $q_record_id the `questionnaire_repository` row being updated, either as
+     *                                      the bare row id or as a row array carrying `id` and `version`
      * @param $q_id
      * @param $lform
      * @param $type
+     * @param ?string $category the grouping category of the questionnaire
      * @return false|int|mixed
      * @throws Exception
      */
-    public function saveQuestionnaireResource($q, $name = null, $q_record_id = null, $q_id = null, $lform = null, $type = null)
+    public function saveQuestionnaireResource($q, $name = null, $q_record_id = null, $q_id = null, $lform = null, $type = null, ?string $category = null)
     {
-        $type = $type ?? 'Questionnaire';
+        $type ??= 'Questionnaire';
         $id = 0;
         $fhir_ob = null;
         if (is_string($q)) {
@@ -102,6 +108,16 @@ class QuestionnaireService extends BaseService
             $is_json = json_last_error() === JSON_ERROR_NONE;
             if (!$is_json) {
                 throw new Exception(xlt("Questionnaire json is invalid"));
+            }
+        }
+        if (is_array($q)) {
+            // Repair double-encoded array fields (e.g. enableWhen saved as a JSON
+            // string by some LForms conversions) and reject anything unrepairable,
+            // so malformed item shapes can no longer enter questionnaire_repository.
+            try {
+                [$q] = QuestionnaireItemNormalizer::normalizeQuestionnaire($q, true);
+            } catch (\InvalidArgumentException $exception) {
+                throw new Exception(xlt("Questionnaire json is invalid") . " - " . text($exception->getMessage()));
             }
         }
         $fhir_ob = new FHIRQuestionnaire($q);
@@ -117,12 +133,20 @@ class QuestionnaireService extends BaseService
         if (empty($name)) {
             $name = $q_ob['name'] ?? null;
         }
-        $name = trim($name);
+        $name = trim((string) $name);
         if (empty($q_record_id)) {
             $id = $this->getQuestionnaireIdAndVersion($name, $q_id);
-        } else {
+        } elseif (is_array($q_record_id)) {
+            // already the row shape the update branch below reads
             $id = $q_record_id;
+        } else {
+            // a bare `questionnaire_repository`.`id`: resolve it to the same row shape so the
+            // update branch can read `id` and `version` off it. Without this the update branch
+            // indexes an int and silently writes `WHERE id = NULL`, updating nothing.
+            $id = $this->fetchQuestionnaireById($q_record_id);
         }
+        $q_uuid = null;
+        $q_url = null;
         if (empty($id)) {
             $q_uuid = (new UuidRegistry(['table_name' => 'questionnaire_repository']))->createUuid();
             $q_id = UuidRegistry::uuidToString($q_uuid);
@@ -147,10 +171,11 @@ class QuestionnaireService extends BaseService
         $q_display = $q_ob['code'][0]['display'] ?? null;
 
         $content = $this->jsonSerialize($fhir_ob);
-        $bind = array(
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $bind = [
             $q_uuid,
             $q_id,
-            $_SESSION['authUserID'],
+            $session->get('authUserID'),
             $q_version,
             $q_last_date,
             $name,
@@ -161,16 +186,17 @@ class QuestionnaireService extends BaseService
             $q_code,
             $q_display,
             $content,
-            $lform
-        );
+            $lform,
+            $category
+        ];
 
-        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `lform`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, '1', ?, ?, ?, ?, ?, ?)";
-        $sql_update = "UPDATE `questionnaire_repository` SET `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `type` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `lform` = ? WHERE `questionnaire_repository`.`id` = ?";
+        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `lform`,`category`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, '1', ?, ?, ?, ?, ?, ?,?)";
+        $sql_update = "UPDATE `questionnaire_repository` SET `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `type` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `lform` = ?, `category` = ? WHERE `questionnaire_repository`.`id` = ?";
 
         if (!empty($id)) {
             $version_update = (int)$id['version'] + 1;
-            $bind = array(
-                $_SESSION['authUserID'],
+            $bind = [
+                $session->get('authUserID'),
                 $version_update,
                 date("Y-m-d H:i:s"),
                 $name,
@@ -181,12 +207,20 @@ class QuestionnaireService extends BaseService
                 $q_display,
                 $content,
                 $lform,
+                $category,
                 $id['id']
-            );
+            ];
             sqlInsert($sql_update, $bind);
             $id = $id['id'];
         } else {
             $id = sqlInsert($sql_insert, $bind) ?: 0;
+            // A newly imported questionnaire is offered on the dashboard, which is what
+            // happened before assignments existed. Only new records get this: re-saving an
+            // existing questionnaire must not resurrect an assignment an admin removed.
+            if ($id > 0) {
+                (new QuestionnaireAvailabilityService())
+                    ->assignDefault($id, QuestionnaireSurface::Dashboard);
+            }
         }
 
         return $id;
@@ -199,21 +233,21 @@ class QuestionnaireService extends BaseService
     public function fetchEncounterQuestionnaireForm($name): array
     {
         $sql = "Select `form_foreign_id` From `registry` Where `state` = 1 And `name` = ?";
-        $q_id = sqlQuery($sql, array($name))['form_foreign_id'];
+        $q_id = sqlQuery($sql, [$name])['form_foreign_id'];
 
         return $this->fetchQuestionnaireById($q_id) ?: [];
     }
 
     public function getQuestionnaireList($encounter_exist_delimit = false): array
     {
-        $response = array();
+        $response = [];
         $sql = "Select  `id`, `name`  From `questionnaire_repository` Where (`active` = ?)";
-        $bind = array(1);
+        $bind = [1];
         if ($encounter_exist_delimit) {
             $sql = "Select `id`, `name` From `questionnaire_repository`" .
                 " Where `id` NOT IN (SELECT `form_foreign_id` FROM `registry` Where `form_foreign_id` > 0 And `directory` = ?)" .
                 " And `active` = ?";
-            $bind = array('questionnaire_assessments', 1);
+            $bind = ['questionnaire_assessments', 1];
         }
         $r = sqlStatement($sql, $bind) ?: [];
         while ($row = sqlFetchArray($r)) {
@@ -234,10 +268,10 @@ class QuestionnaireService extends BaseService
     public function fetchQuestionnaireById($id, $uuid = null): array
     {
         $sql = "Select * From `questionnaire_repository` Where (`id` = ?) Or (`uuid` IS NOT NULL And `uuid` = ?)";
-        $bind = array($id, $uuid);
+        $bind = [$id, $uuid];
         if (!empty($uuid)) {
             $sql = "Select * From questionnaire_repository Where uuid = ?";
-            $bind = array($uuid);
+            $bind = [$uuid];
         }
         $response = sqlQuery($sql, $bind) ?: [];
         if (is_array($response) && !empty($response['uuid'])) {
@@ -251,7 +285,7 @@ class QuestionnaireService extends BaseService
      * @return array
      * @throws Exception
      */
-    function createQuestionnaireFormDictionary($questionnaire): array
+    public function createQuestionnaireFormDictionary($questionnaire): array
     {
         $q = $this->parse($questionnaire);
 
@@ -420,9 +454,9 @@ class QuestionnaireService extends BaseService
             $oOption = $this->fhirObjectToArray($option);
             if (count($oOption['extension'] ?? [])) {
                 foreach ($oOption['extension'] as $e) {
-                    if (stripos($e['url'], 'ordinalValue') !== false) {
+                    if (stripos((string) $e['url'], 'ordinalValue') !== false) {
                         foreach ($e as $k => $v) {
-                            if (stripos($k, 'value') !== false) {
+                            if (stripos((string) $k, 'value') !== false) {
                                 $score = $v;
                             }
                         }

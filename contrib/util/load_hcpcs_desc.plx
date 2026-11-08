@@ -19,7 +19,7 @@ use DBI;
 #
 #   ./load_hcpcs_desc.plx < 08anweb.txt
 #
-# To get this input file, download "2008 Alpha-Numeric HCPCS File" from
+# To get this input file, download "2008 alphanumeric HCPCS File" from
 # http://www.cms.hhs.gov/HCPCSReleaseCodeSets/ANHCPCS/list.asp
 # and unzip the resulting file.
 #######################################################################

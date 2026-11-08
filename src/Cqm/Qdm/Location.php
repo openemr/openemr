@@ -31,4 +31,3 @@ class Location extends Entity
 
     public $_type = 'QDM::Location';
 }
-

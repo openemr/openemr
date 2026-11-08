@@ -3,7 +3,7 @@
 /**
  * FhirClinicalNotesService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,27 +11,23 @@
 
 namespace OpenEMR\Services\FHIR\DocumentReference;
 
-use Monolog\Utils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContext;
-use OpenEMR\RestControllers\FHIR\FhirDocumentReferenceRestController;
 use OpenEMR\Services\ClinicalNotesService;
-use OpenEMR\Services\FHIR\a;
+use OpenEMR\Services\FHIR\DocumentReference\Trait\FhirDocumentReferenceTrait;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
-use OpenEMR\Services\FHIR\Indicates;
-use OpenEMR\Services\FHIR\OpenEMR;
-use OpenEMR\Services\FHIR\openEMRSearchParameters;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
@@ -40,16 +36,15 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
-use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
-use Twig\Token;
 
-class FhirClinicalNotesService extends FhirServiceBase
+class FhirClinicalNotesService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
+    use FhirDocumentReferenceTrait;
 
     /**
      * @var ClinicalNotesService
@@ -64,7 +59,7 @@ class FhirClinicalNotesService extends FhirServiceBase
         $this->service = new ClinicalNotesService();
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return $category == self::CATEGORY;
     }
@@ -78,7 +73,7 @@ class FhirClinicalNotesService extends FhirServiceBase
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -95,17 +90,10 @@ class FhirClinicalNotesService extends FhirServiceBase
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDocumentReference
     {
         $docReference = new FHIRDocumentReference();
-        $fhirMeta = new FHIRMeta();
-        $fhirMeta->setVersionId('1');
-        if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
-        } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        }
-        $docReference->setMeta($fhirMeta);
+        $this->populateMetaData($docReference, $dataRecord);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
@@ -116,7 +104,7 @@ class FhirClinicalNotesService extends FhirServiceBase
         $docReference->addIdentifier($identifier);
 
         if (!empty($dataRecord['date'])) {
-            $docReference->setDate(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $docReference->setDate(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
         } else {
             $docReference->setDate(UtilsService::createDataMissingExtension());
         }
@@ -127,7 +115,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             // we currently don't track anything dealing with start and end date for the context
             if (!empty($dataRecord['encounter_date'])) {
                 $period = new FHIRPeriod();
-                $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['encounter_date']));
+                $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['encounter_date'])));
                 $context->setPeriod($period);
             }
             $context->addEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['euuid']));
@@ -139,7 +127,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             $content = new FHIRDocumentReferenceContent();
             $attachment = new FHIRAttachment();
             $attachment->setContentType("text/plain");
-            $attachment->setData(base64_encode($dataRecord['description']));
+            $attachment->setData(base64_encode((string) $dataRecord['description']));
             $content->setAttachment($attachment);
             // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code
             $contentCoding = UtilsService::createCoding(
@@ -195,14 +183,15 @@ class FhirClinicalNotesService extends FhirServiceBase
             $docReference->setType(UtilsService::createNullFlavorUnknownCodeableConcept());
         }
 
+        $this->populateAuthor($docReference, $dataRecord);
+
         return $docReference;
     }
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {

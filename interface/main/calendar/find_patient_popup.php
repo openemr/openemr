@@ -15,10 +15,11 @@
  */
 
 require_once('../../globals.php');
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
 
 $info_msg = "";
 
@@ -27,7 +28,7 @@ $info_msg = "";
 $result = "";
 if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
     $searchby = $_REQUEST['searchby'];
-    $searchparm = trim($_REQUEST['searchparm']);
+    $searchparm = trim((string) $_REQUEST['searchparm']);
 
     if ($searchby == "Last") {
         $result = getPatientLnames("$searchparm", "*");
@@ -46,7 +47,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
 <html>
 <head>
     <?php Header::setupHeader(['common', 'datetime-picker', 'opener']); ?>
-    <title><?php echo text(xl('Patient Finder')); ?></title>
+    <title><?php echo xlt('Patient Finder'); ?></title>
 
     <style>
       form {
@@ -127,9 +128,9 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                 echo "pflag=0";
                                                                                            } ?>'>
                 <div class="form-row">
-                    <label for="searchby" class="col-form-label col-form-label-sm col"><?php echo text(xl('Search by:')); ?></label>
+                    <label for="searchby" class="col-form-label col-form-label-sm col"><?php echo xlt('Search by:'); ?></label>
                     <select name='searchby' id='searchby' class="form-control form-control-sm col">
-                        <option value="Last"><?php echo text(xl('Name')); ?></option>
+                        <option value="Last"><?php echo xlt('Name'); ?></option>
                         <!-- (CHEMED) Search by phone number -->
                         <option value="Phone"<?php if (!empty($searchby) && ($searchby == 'Phone')) {
                             echo ' selected';
@@ -144,36 +145,36 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                             echo ' selected';
                                            } ?>><?php echo xlt('DOB'); ?></option>
                     </select>
-                    <label for="searchparm" class="col-form-label col-form-label-sm col"><?php echo text(xl('for:')); ?></label>
+                    <label for="searchparm" class="col-form-label col-form-label-sm col"><?php echo xlt('for:'); ?></label>
                     <input type='text' class="form-control form-control-sm col" id='searchparm' name='searchparm' size='12' value='<?php echo attr($_REQUEST['searchparm'] ?? ''); ?>' title='<?php echo xla('If name, any part of lastname or lastname,firstname'); ?>' />
                     <div class="col">
                         <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo xla('Search'); ?>' />
-                        <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif" /></div>
+                        <div id="searchspinner"><img src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/pic/ajax-loader.gif" /></div>
                     </div>
                 </div>
             </form>
         </div>
 
         <?php if (!isset($_REQUEST['searchparm'])) : ?>
-            <div id="searchstatus"><?php echo text(xl('Enter your search criteria above')); ?></div>
+            <div id="searchstatus"><?php echo xlt('Enter your search criteria above'); ?></div>
         <?php elseif (!is_countable($result)) : ?>
-            <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo text(xl('No records found. Please expand your search criteria.')); ?>
+            <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo xlt('No records found. Please expand your search criteria.'); ?>
                 <br />
                 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
                 <a class="noresult" href='find_patient_popup.php?res=noresult'
                     <?php
-                    if (isset($_GET['pflag']) || (!AclMain::aclCheckCore('patients', 'demo', '', array('write', 'addonly')))) {
+                    if (isset($_GET['pflag']) || (!AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly']))) {
                         ?> style="display: none;"
                         <?php
                     }
                     ?> >
-                    <?php echo text(xl('Click Here to add a new patient.')); ?>
+                    <?php echo xlt('Click Here to add a new patient.'); ?>
                 </a>
             </div>
         <?php elseif (count($result) >= 100) : ?>
-            <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo text(xl('More than 100 records found. Please narrow your search criteria.')); ?></div>
+            <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo xlt('More than 100 records found. Please narrow your search criteria.'); ?></div>
         <?php elseif (count($result) < 100) : ?>
-            <div id="searchstatus" class="alert alert-success rounded-0"><?php echo text(count($result ?? [])) . ' '; ?><?php echo text(xl('records found.')); ?></div>
+            <div id="searchstatus" class="alert alert-success rounded-0"><?php echo text(count(is_array($result) ? $result : [])) . ' '; ?><?php echo xlt('records found.'); ?></div>
         <?php endif; ?>
 
         <?php if (isset($result)) : ?>
@@ -258,7 +259,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                             <?php $datetimepicker_timepicker = false; ?>
                             <?php $datetimepicker_showseconds = false; ?>
                             <?php $datetimepicker_formatInput = true; ?>
-                            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                         });
                     } else {

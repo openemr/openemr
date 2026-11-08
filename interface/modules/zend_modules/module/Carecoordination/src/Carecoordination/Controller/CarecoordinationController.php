@@ -14,49 +14,60 @@
 
 namespace Carecoordination\Controller;
 
+use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
 use Application\Plugin\CommonPlugin;
-use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
-use Application\Listener\Listener;
-use Documents\Controller\DocumentsController;
 use Carecoordination\Model\CarecoordinationTable;
-use C_Document;
 use Document;
-use CouchDB;
-use OpenEMR\Common\Logging\SystemLogger;
+use Documents\Controller\DocumentsController;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Stdlib\Parameters;
+use Laminas\View\Model\JsonModel;
+use Laminas\View\Model\ViewModel;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
-use xmltoarray_parser_htmlfix;
 
+/**
+ * @method \Application\Plugin\CommonPlugin CommonPlugin()
+ * @method \Documents\Plugin\Documents Documents()
+ * @method \Laminas\Http\Request getRequest()
+ */
 class CarecoordinationController extends AbstractActionController
 {
-    /**
-     * @var Carecoordination\Model\CarecoordinationTable
-     */
-    private $carecoordinationTable;
+    use CarecoordAuthzTrait;
+
+    private readonly Listener $listenerObject;
+
+    private readonly string $date_format;
 
     /**
-     * @var Documents\Controller\DocumentsController
+     * Set to true by uploadAction() when calling importAction() internally
+     * for pre-approval batch imports (one call per unassigned CCDA upload).
+     * The import handler consults this flag — never a request parameter —
+     * to decide whether to skip the CSRF check that external HTTP callers
+     * must pass.
      */
-    private $documentsController;
+    private bool $internalBatchContext = false;
 
     /**
-     * @var Application\Listener\Listener
+     * When uploadAction() invokes importAction() internally for a batch
+     * import, the target document id is handed to the handler through
+     * this property — never through `$_REQUEST`. Laminas populates the
+     * request's query and post bags from `$_GET`/`$_POST` at build time
+     * and does not re-read `$_REQUEST`, so passing the id through the
+     * request globals is both unsafe and (post-refactor) ignored.
      */
-    private $listenerObject;
+    private ?int $internalBatchDocId = null;
 
-    /**
-     * @var string
-     */
-    private $date_format;
-
-    public function __construct(CarecoordinationTable $table, DocumentsController $documentsController)
+    public function __construct(private readonly CarecoordinationTable $carecoordinationTable, private readonly DocumentsController $documentsController)
     {
-        $this->carecoordinationTable = $table;
         $this->listenerObject = new Listener();
-        $this->date_format = ApplicationTable::dateFormat($GLOBALS['date_display_format']);
-        $this->documentsController = $documentsController;
+        $this->date_format = ApplicationTable::dateFormat(OEGlobalsBag::getInstance()->get('date_display_format'));
     }
 
     /**
@@ -69,30 +80,41 @@ class CarecoordinationController extends AbstractActionController
      */
     public function indexAction()
     {
-        return $this->redirect()->toRoute('encountermanager', array('action' => 'index'));
+        return $this->redirect()->toRoute('encountermanager', ['action' => 'index']);
     }
 
     /**
      * delete an audit record
-     *
-     * @return ViewModel
      */
-    public function deleteAuditAction()
+    public function deleteAuditAction(): ViewModel
     {
         $request = $this->getRequest();
-        $amid = $request->getPost('am_id') ?? null;
-        if ($amid) {
-            $this->getCarecoordinationTable()->deleteImportAuditData(array('audit_master_id' => $amid));
+        $rawAmid = $request->getPost('am_id');
+        if ($rawAmid !== null && $rawAmid !== '') {
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+            $amidInt = (int) $rawAmid;
+            if (!$this->isAuditMasterAccessible($amidInt)) {
+                AccessDeniedHelper::deny('CarecoordinationController::deleteAudit: audit_master not accessible by caller');
+            }
+            $this->getCarecoordinationTable()->deleteImportAuditData(['audit_master_id' => $amidInt]);
+            [$authUser, $authProvider] = $this->auditIdentity();
+            EventAuditLogger::getInstance()->newEvent(
+                'carecoord-delete',
+                $authUser,
+                $authProvider,
+                1,
+                "amid=$amidInt"
+            );
         }
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
-        $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
-        $view = new ViewModel(array(
+        $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
+        $view = new ViewModel([
             'records' => $records,
             'category_id' => $category_details[0]['id'],
             'file_location' => basename($_FILES['file']['name'] ?? ''),
             'patient_id' => '00',
             'listenerObject' => $this->listenerObject
-        ));
+        ]);
 
         return $view;
     }
@@ -100,7 +122,7 @@ class CarecoordinationController extends AbstractActionController
     /*
     * Upload CCDA file
     */
-    public function uploadAction()
+    public function uploadAction(): ViewModel
     {
         $request = $this->getRequest();
         $action = $request->getPost('action');
@@ -111,7 +133,7 @@ class CarecoordinationController extends AbstractActionController
             $this->getCarecoordinationTable()->insert_patient($am_id, $document_id);
         }
         if (($request->getPost('chart_all_imports') ?? null) === 'true' && empty($action)) {
-            $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+            $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
             foreach ($records as $record) {
                 if (!empty($record['matched_patient']) && empty($record['is_unstructured_document'])) {
                     // @todo figure out a way to make this auto. $data is array of doc changes.
@@ -123,9 +145,9 @@ class CarecoordinationController extends AbstractActionController
             }
         }
         if (($request->getPost('delete_all_imports') ?? null) === 'true' && empty($action)) {
-            $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+            $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
             foreach ($records as $record) {
-                $this->getCarecoordinationTable()->deleteImportAuditData(array('audit_master_id' => $record['amid']));
+                $this->getCarecoordinationTable()->deleteImportAuditData(['audit_master_id' => $record['amid']]);
             }
         }
 
@@ -139,27 +161,39 @@ class CarecoordinationController extends AbstractActionController
                 $this->importZipUpload($request);
             } else {
                 $cdoc = $obj_doc->uploadAction($request);
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(
-                    array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s'))
+                    ['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
                 );
                 if ($uploaded_documents[0]['id'] > 0) {
-                    $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
-                    $_REQUEST["batch_import"] = 'YES';
-                    $this->importAction();
+                    $this->internalBatchContext = true;
+                    $this->internalBatchDocId = (int) $uploaded_documents[0]['id'];
+                    try {
+                        $this->importAction();
+                    } finally {
+                        $this->internalBatchContext = false;
+                        $this->internalBatchDocId = null;
+                    }
                 }
             }
         } else {
             $result = $this->Documents()->fetchXmlDocuments();
             foreach ($result as $row) {
                 if ($row['doc_type'] == 'CCDA') {
-                    $_REQUEST["document_id"] = $row['doc_id'];
-                    $this->importAction();
+                    $this->internalBatchContext = true;
+                    $this->internalBatchDocId = (int) $row['doc_id'];
+                    try {
+                        $this->importAction();
+                    } finally {
+                        $this->internalBatchContext = false;
+                        $this->internalBatchDocId = null;
+                    }
                     $this->documentsController->getDocumentsTable()->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
             }
         }
 
-        $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+        $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
         foreach ($records as $key => $r) {
             if (!empty($records[$key]['dupl_patient'] ?? null)) {
                 continue;
@@ -185,11 +219,7 @@ class CarecoordinationController extends AbstractActionController
                     $why = xlt('Match DOB');
                 }
                 if ($name == $n && ($f || $r1['race'] == $r['race'] || $r1['ethnicity'] == $r['ethnicity'])) {
-                    if ($f) {
-                        $why = xlt('Matched Demographic and DOB');
-                    } else {
-                        $why = xlt('Matched Demographic');
-                    }
+                    $why = $f ? xlt('Matched Demographic and DOB') : xlt('Matched Demographic');
                     if ($r1['enc_count'] != $r['enc_count'] || $r1['cp_count'] != $r['cp_count'] || $r1['ob_count'] != $r['ob_count']) {
                         $why .= ' ' . xlt('with Mismatched Components');
                     }
@@ -222,13 +252,13 @@ class CarecoordinationController extends AbstractActionController
             }
         }
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'records' => $records,
             'category_id' => $category_details[0]['id'],
             'file_location' => basename($_FILES['file']['name'] ?? ''),
             'patient_id' => '00',
             'listenerObject' => $this->listenerObject
-        ));
+        ]);
         // I haven't a clue why this delay is needed to allow batch to work from fetch.
         if (!empty($upload)) {
             sleep(1);
@@ -240,19 +270,79 @@ class CarecoordinationController extends AbstractActionController
     * Function to import the data CCDA file to audit tables.
     *
     * @param    document_id     integer value
-    * @return \Laminas\View\Model\JsonModel
     */
-    public function importAction()
+    public function importAction(): JsonModel
     {
         $request = $this->getRequest();
-        if ($request->getQuery('document_id')) {
-            $_REQUEST["document_id"] = $request->getQuery('document_id');
-            $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
-            $this->documentsController->getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+        // $internalBatchContext is set by uploadAction() around its own
+        // import loop and is NEVER populated from request data — so the
+        // CSRF skip below cannot be flipped by a cross-site caller
+        // appending ?batch_import=YES.
+        $batchContext = $this->internalBatchContext;
+
+        // Under batchContext the document id arrives via a private property
+        // populated by uploadAction(). External HTTP callers must send it on
+        // the query string or in the body — Laminas's request bags, not
+        // `$_REQUEST`, are the authoritative source for those.
+        $rawDocId = $batchContext
+            ? $this->internalBatchDocId
+            : ($request->getQuery('document_id') ?? $request->getPost('document_id'));
+        if ($rawDocId === null || $rawDocId === '') {
+            AccessDeniedHelper::deny('CarecoordinationController::importAction: document_id required');
+        }
+        $queryId = is_numeric($rawDocId) ? (int) $rawDocId : 0;
+        if ($queryId <= 0) {
+            AccessDeniedHelper::deny('CarecoordinationController::importAction: invalid document_id');
         }
 
-        $document_id = $_REQUEST["document_id"];
-        $this->getCarecoordinationTable()->import($document_id);
+        if (!$batchContext) {
+            $rawCsrf = $request->getQuery('csrf_token_form') ?? $request->getPost('csrf_token_form', '');
+            $csrfToken = is_string($rawCsrf) ? $rawCsrf : '';
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, $session)) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: CSRF token invalid');
+            }
+
+            $document = new Document($queryId);
+            if (!$document->get_id()) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: document not found');
+            }
+            if (!$document->can_access()) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: source document ACL denied');
+            }
+            // Carecoordination's import pipeline is designed to pull unassigned
+            // CCDA/CCR uploads (foreign_id=0) into the per-patient audit tables.
+            // Anything else is already assigned to a patient and must not be
+            // reclassified through this path.
+            if ((int) $document->get_foreign_id() !== 0) {
+                AccessDeniedHelper::deny('CarecoordinationController::importAction: document already assigned to a patient');
+            }
+        }
+
+        $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
+        $ccdaCategoryId = (int) ($category_details[0]['id'] ?? 0);
+        if ($ccdaCategoryId <= 0) {
+            AccessDeniedHelper::deny('CarecoordinationController::importAction: CCDA category missing');
+        }
+
+        $_REQUEST["document_id"] = $queryId;
+
+        // Run the import parse FIRST so a malformed CCDA never reclassifies
+        // the document. Only on parse success do we move the row into the
+        // CCDA category — on failure the document stays in its original
+        // category with no audit trail churn to clean up.
+        $this->getCarecoordinationTable()->import($queryId);
+        $this->documentsController->getDocumentsTable()->updateDocumentCategory($ccdaCategoryId, $queryId);
+
+        [$authUser, $authProvider] = $this->auditIdentity();
+        EventAuditLogger::getInstance()->newEvent(
+            'carecoord-import',
+            $authUser,
+            $authProvider,
+            1,
+            "doc_id=$queryId"
+        );
 
         $view = new JsonModel();
         $view->setTerminal(true);
@@ -262,65 +352,134 @@ class CarecoordinationController extends AbstractActionController
     public function revandapproveAction()
     {
         $request = $this->getRequest();
-        $document_id = $request->getQuery('document_id') ? $request->getQuery('document_id') : $request->getPost('document_id', null);
-        $audit_master_id = $request->getQuery('amid') ? $request->getQuery('amid') : $request->getPost('amid', null);
-        $pid = $request->getQuery('pid') ? $request->getQuery('pid') : $request->getPost('pid', null);
+        $document_id = $request->getQuery('document_id') ?: $request->getPost('document_id', null);
+        $audit_master_id = $request->getQuery('amid') ?: $request->getPost('amid', null);
+        $pid = $request->getQuery('pid') ?: $request->getPost('pid', null);
+        $amidInt = (int) $audit_master_id;
+        $pidInt = (int) $pid;
+        $docIdInt = (int) $document_id;
 
-        if ($request->getPost('setval') == 'approve') {
-            $this->getCarecoordinationTable()->insertApprovedData($request->getPost());
-            return $this->redirect()->toRoute('carecoordination', array(
+        $setval = $request->getPost('setval');
+        if ($setval === 'approve' || $setval === 'discard') {
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        }
+        // Authorize the amid/pid pair on every branch — the view-render path
+        // below also reads cross-patient demographics / problems / allergies
+        // for the request pid, so an attacker who skipped setval could
+        // otherwise disclose a victim's parsed CCDA audit through the GET
+        // response. isAuditMasterAccessible() rejects a claimed pid that
+        // disagrees with the stored row, so the subsequent $pid lookups are
+        // bound to a record the caller is authorized for.
+        if (!$this->isAuditMasterAccessible($amidInt, $pidInt)) {
+            AccessDeniedHelper::deny('CarecoordinationController::revandapprove: audit_master not accessible by caller');
+        }
+
+        // Resolve document_id and the stored pid from the authorized audit
+        // row rather than trusting the request parameters. The write path
+        // in insertApprovedData() runs `UPDATE documents SET foreign_id = ?
+        // WHERE id = ?` and `UPDATE patient_data SET … WHERE pid = ?` using
+        // whatever the POST bag supplies — if either id is not bound to
+        // the authorized amid, the attacker can reassign an unrelated
+        // document, zero out the foreign_id, or write to a pid other than
+        // the one the request authorized against.
+        $verifiedDocId = $this->resolveAuditMasterDocumentId($amidInt);
+        $storedPid = $this->resolveAuditMasterStoredPid($amidInt);
+        // For a bound audit row (storedPid > 0) the write stays on the
+        // audit's own patient. For a pre-approval row (storedPid === 0)
+        // the caller is binding a target pid; isAuditMasterAccessible()
+        // already proved the caller is patient-authorized for pidInt.
+        $writePid = $storedPid > 0 ? $storedPid : $pidInt;
+
+        if ($setval === 'approve') {
+            if ($verifiedDocId <= 0) {
+                AccessDeniedHelper::deny('CarecoordinationController::revandapprove approve: audit_master has no linked document');
+            }
+            if ($writePid <= 0) {
+                AccessDeniedHelper::deny('CarecoordinationController::revandapprove approve: no bound or claimed pid for the write');
+            }
+            // Bind the write-path identifiers to the values we just
+            // authorized. The controller reads amid/pid as GET-first then
+            // POST-fallback, so an attacker could otherwise pass authz
+            // identifiers through the query string and write-path
+            // identifiers through the POST body (insertApprovedData reads
+            // amid/pid/document_id from the POST bag it receives).
+            $post = $request->getPost();
+            $postData = $post instanceof Parameters ? $post->toArray() : [];
+            $postData['amid'] = $amidInt;
+            $postData['pid'] = $writePid;
+            $postData['document_id'] = $verifiedDocId;
+            $this->getCarecoordinationTable()->insertApprovedData($postData);
+            [$authUser, $authProvider] = $this->auditIdentity();
+            EventAuditLogger::getInstance()->newEvent(
+                'carecoord-approve',
+                $authUser,
+                $authProvider,
+                1,
+                "amid=$amidInt doc_id=$verifiedDocId",
+                $writePid
+            );
+            return $this->redirect()->toRoute('carecoordination', [
                 'controller' => 'Carecoordination',
-                'action' => 'upload'));
-        } elseif ($request->getPost('setval') == 'discard') {
-            $this->getCarecoordinationTable()->discardCCDAData(array('audit_master_id' => $audit_master_id));
-            return $this->redirect()->toRoute('carecoordination', array(
+                'action' => 'upload']);
+        } elseif ($setval === 'discard') {
+            $this->getCarecoordinationTable()->discardCCDAData(['audit_master_id' => $amidInt]);
+            [$authUser, $authProvider] = $this->auditIdentity();
+            EventAuditLogger::getInstance()->newEvent(
+                'carecoord-discard',
+                $authUser,
+                $authProvider,
+                1,
+                "amid=$amidInt",
+                $pidInt > 0 ? $pidInt : null
+            );
+            return $this->redirect()->toRoute('carecoordination', [
                 'controller' => 'Carecoordination',
-                'action' => 'upload'));
+                'action' => 'upload']);
         }
 
         $documentationOf = $this->getCarecoordinationTable()->getdocumentationOf($audit_master_id);
-        $demographics = $this->getCarecoordinationTable()->getDemographics(array('audit_master_id' => $audit_master_id));
-        $demographics_old = $this->getCarecoordinationTable()->getDemographicsOld(array('pid' => $pid));
+        $demographics = $this->getCarecoordinationTable()->getDemographics(['audit_master_id' => $audit_master_id]);
+        $demographics_old = $this->getCarecoordinationTable()->getDemographicsOld(['pid' => $pid]);
 
-        $problems = $this->getCarecoordinationTable()->getProblems(array('pid' => $pid));
+        $problems = $this->getCarecoordinationTable()->getProblems(['pid' => $pid]);
         $problems_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists1');
 
-        $allergies = $this->getCarecoordinationTable()->getAllergies(array('pid' => $pid));
+        $allergies = $this->getCarecoordinationTable()->getAllergies(['pid' => $pid]);
         $allergies_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists2');
 
-        $medications = $this->getCarecoordinationTable()->getMedications(array('pid' => $pid));
+        $medications = $this->getCarecoordinationTable()->getMedications(['pid' => $pid]);
         $medications_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists3');
 
-        $immunizations = $this->getCarecoordinationTable()->getImmunizations(array('pid' => $pid));
+        $immunizations = $this->getCarecoordinationTable()->getImmunizations(['pid' => $pid]);
         $immunizations_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'immunization');
 
-        $lab_results = $this->getCarecoordinationTable()->getLabResults(array('pid' => $pid));
+        $lab_results = $this->getCarecoordinationTable()->getLabResults(['pid' => $pid]);
         $lab_results_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'procedure_result');
 
-        $vitals = $this->getCarecoordinationTable()->getVitals(array('pid' => $pid));
+        $vitals = $this->getCarecoordinationTable()->getVitals(['pid' => $pid]);
         $vitals_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'vital_sign');
 
-        $social_history = $this->getCarecoordinationTable()->getSocialHistory(array('pid' => $pid));
+        $social_history = $this->getCarecoordinationTable()->getSocialHistory(['pid' => $pid]);
         $social_history_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'social_history');
 
-        $encounter = $this->getCarecoordinationTable()->getEncounterData(array('pid' => $pid));
+        $encounter = $this->getCarecoordinationTable()->getEncounterData(['pid' => $pid]);
         $encounter_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'encounter');
 
-        $procedure = $this->getCarecoordinationTable()->getProcedure(array('pid' => $pid));
+        $procedure = $this->getCarecoordinationTable()->getProcedure(['pid' => $pid]);
         $procedure_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'procedure');
 
-        $care_plan = $this->getCarecoordinationTable()->getCarePlan(array('pid' => $pid));
+        $care_plan = $this->getCarecoordinationTable()->getCarePlan(['pid' => $pid]);
         $care_plan_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'care_plan');
 
-        $functional_cognitive_status = $this->getCarecoordinationTable()->getFunctionalCognitiveStatus(array('pid' => $pid));
+        $functional_cognitive_status = $this->getCarecoordinationTable()->getFunctionalCognitiveStatus(['pid' => $pid]);
         $functional_cognitive_status_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'functional_cognitive_status');
 
-        $referral = $this->getCarecoordinationTable()->getReferralReason(array('pid' => $pid));
+        $referral = $this->getCarecoordinationTable()->getReferralReason(['pid' => $pid]);
         $referral_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'referral');
 
         $discharge_medication_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'discharge_medication');
 
-        $discharge_summary = array(); // TODO: stephen what happened here?? no discharge summary review?
+        $discharge_summary = []; // TODO: stephen what happened here?? no discharge summary review?
         $discharge_summary_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'discharge_summary');
 
         $gender_list = $this->getCarecoordinationTable()->getList('sex');
@@ -340,7 +499,7 @@ class CarecoordinationController extends AbstractActionController
         $demographics_old[0]['ethnicity'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['ethnicity'], 'ethnicity', '');
         $demographics_old[0]['state'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['state'], 'state', '');
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'carecoordinationTable' => $this->getCarecoordinationTable(),
             'commonplugin' => $this->CommonPlugin(), // this comes from the Application Module
             'demographics' => $demographics,
@@ -385,7 +544,7 @@ class CarecoordinationController extends AbstractActionController
             'state_list' => $state_list,
             'listenerObject' => $this->listenerObject,
             'documentationOf' => $documentationOf,
-        ));
+        ]);
         return $view;
     }
 
@@ -393,7 +552,7 @@ class CarecoordinationController extends AbstractActionController
     {
         $request = $this->getRequest();
         $id = $request->getQuery('id');
-        $arr = explode("-", $id);
+        $arr = explode("-", (string) $id);
         $amid = $arr[0];
         $pid = $arr[1];
         $components = $this->getCarecoordinationTable()->getCCDAComponents(1);
@@ -407,7 +566,7 @@ class CarecoordinationController extends AbstractActionController
             $components['discharge_summary'] = 'Dishcharge Summary';
         }
 
-        $components = array_diff($components, array('instructions' => 'Instructions'));
+        $components = array_diff($components, ['instructions' => 'Instructions']);
 
         $temp = '<table>';
         foreach ($components as $key => $value) {
@@ -452,11 +611,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach ($allergies_audit['lists2'] as $val) {
                         $severity_option_id = $this->getCarecoordinationTable()->getOptionId('severity_ccda', '', 'SNOMED-CT:' . $val['severity_al']);
                         $severity_text = $this->getCarecoordinationTable()->getListTitle($severity_option_id, 'severity_ccda', 'SNOMED-CT:' . $val['severity_al']);
-                        if ($val['enddate'] != 0 && $val['enddate'] != '') {
-                            $status = 'completed';
-                        } else {
-                            $status = 'active';
-                        }
+                        $status = $val['enddate'] != 0 && $val['enddate'] != '' ? 'completed' : 'active';
 
                         $temp .= '<tr class="narr_tr">
             <td>' . CommonPlugin::escape($val['list_code_text']) . '</td>
@@ -485,16 +640,12 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                     foreach ($medications_audit['lists3'] as $val) {
-                        if ($val['enddate'] && $val['enddate'] != 0) {
-                            $active = 'completed';
-                        } else {
-                            $active = 'active';
-                        }
+                        $active = $val['enddate'] && $val['enddate'] != 0 ? 'completed' : 'active';
 
                         $temp .= '<tr class="narr_tr">
                 <td>' . CommonPlugin::escape($val['drug_text']) . '</td>
                 <td>' . CommonPlugin::escape($val['rate'] . " " . $val['rate_unit'] . " " . $val['route_display'] . " " . $val['dose'] . " " . $val['dose_unit']) . '</td>
-                <td>' . ApplicationTable::fixDate(substr($val['begdate'], 0, 4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+                <td>' . ApplicationTable::fixDate(substr((string) $val['begdate'], 0, 4) . "-" . substr((string) $val['begdate'], 4, 2) . "-" . substr((string) $val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
                 <td>' . Listener::z_xlt($active) . '</td>
                 <td>' . CommonPlugin::escape($val['indication']) . '</td>
                 <td>' . CommonPlugin::escape($val['note']) . '</td>
@@ -512,13 +663,9 @@ class CarecoordinationController extends AbstractActionController
                     $temp .= '<div><ul>';
                     $i = 1;
                     foreach ($problems_audit['lists1'] as $val) {
-                        if ($val['enddate'] != 0 && $val['enddate'] != '') {
-                            $status = 'Resolved';
-                        } else {
-                            $status = 'Active';
-                        }
+                        $status = $val['enddate'] != 0 && $val['enddate'] != '' ? 'Resolved' : 'Active';
 
-                        $temp .= '<li>' . $i . '. ' . CommonPlugin::escape($val['list_code_text']) . ',' . substr($val['begdate'], 0, 4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2) . ', ' . Listener::z_xlt('Status') . ' :' . Listener::z_xlt($status) . '</li>';
+                        $temp .= '<li>' . $i . '. ' . CommonPlugin::escape($val['list_code_text']) . ',' . substr((string) $val['begdate'], 0, 4) . "-" . substr((string) $val['begdate'], 4, 2) . "-" . substr((string) $val['begdate'], 6, 2) . ', ' . Listener::z_xlt('Status') . ' :' . Listener::z_xlt($status) . '</li>';
                         $i++;
                     }
 
@@ -540,7 +687,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach ($immunizations_audit['immunization'] as $val) {
                         $temp .= '<tr class="narr_tr">
         <td>' . CommonPlugin::escape($val['cvx_code_text']) . '</td>
-        <td>' . $this->getCarecoordinationTable()->getMonthString(substr($val['administered_date'], 4, 2)) . ' ' . substr($val['administered_date'], 0, 4) . '</td>
+        <td>' . $this->getCarecoordinationTable()->getMonthString(substr((string) $val['administered_date'], 4, 2)) . ' ' . substr((string) $val['administered_date'], 0, 4) . '</td>
         <td>' . Listener::z_xlt('Completed') . '</td>
     </tr>';
                     }
@@ -562,7 +709,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach ($procedure_audit['procedure'] as $val) {
                         $temp .= '<tr class="narr_tr">
         <td>' . CommonPlugin::escape($val['code_text']) . '</td>
-        <td>' . ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+        <td>' . ApplicationTable::fixDate(substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
     </tr>';
                     }
 
@@ -587,7 +734,7 @@ class CarecoordinationController extends AbstractActionController
                             $temp .= '<tr class="narr_tr">
         <td>' . CommonPlugin::escape($val['results_text']) . ($val['results_range'] != "-" ? "(" . CommonPlugin::escape($val['results_range']) . ")" : "") . '</td>
         <td>' . CommonPlugin::escape($val['results_value']) . " " . CommonPlugin::escape($val['results_unit']) . '</td>
-        <td>' . ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+        <td>' . ApplicationTable::fixDate(substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
      </tr>';
                         }
                     }
@@ -609,7 +756,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach ($care_plan_audit['care_plan'] as $val) {
                         $temp .= '<tr class="narr_tr">
     <td>' . CommonPlugin::escape($val['code_text']) . '</td>
-    <td>' . ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+    <td>' . ApplicationTable::fixDate(substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
     </tr>';
                     }
 
@@ -625,7 +772,7 @@ class CarecoordinationController extends AbstractActionController
  <thead><tr class="narr_tr">
  <th class="narr_th" align="right">' . Listener::z_xlt('Date / Time') . ': </th>';
                     foreach ($vitals_audit['vital_sign'] as $val) {
-                        $temp .= '<th class="narr_th">' . ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</th>';
+                        $temp .= '<th class="narr_th">' . ApplicationTable::fixDate(substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</th>';
                     }
 
                     $temp .= '</tr></thead><tbody>
@@ -714,7 +861,8 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                     foreach ($social_history_audit['social_history'] as $val) {
-                        $array_his_tobacco = explode("|", $val['smoking']);
+                        $array_his_tobacco = explode("|", (string) $val['smoking']);
+                        $his_tob_date = '';
                         if ($array_his_tobacco[2] != 0 && $array_his_tobacco[2] != '') {
                             $his_tob_date = substr($array_his_tobacco[2], 0, 4) . "-" . substr($array_his_tobacco[2], 4, 2) . "-" . substr($array_his_tobacco[2], 6, 2);
                         }
@@ -746,13 +894,9 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                     foreach ($encounter_audit['encounter'] as $val) {
-                        if (!empty($val['code_text'])) {
-                            $encounter_activity = 'Active';
-                        } else {
-                            $encounter_activity = '';
-                        }
+                        $encounter_activity = !empty($val['code_text']) ? 'Active' : '';
 
-                        $enc_date = substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2);
+                        $enc_date = substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2);
                         $temp .= '<tr class="narr_tr">
         <td>' . CommonPlugin::escape($val['pc_catname']) . '</td>
         <td>' . CommonPlugin::escape($val['provider_name']) . '</td>
@@ -783,7 +927,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach ($functional_cognitive_status_audit['functional_cognitive_status'] as $val) {
                         $temp .= '<tr class="narr_tr">
         <td>' . CommonPlugin::escape($val['description']) . '</td>
-        <td>' . ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+        <td>' . ApplicationTable::fixDate(substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
         <td>' . Listener::z_xlt('Active') . '</td>
     </tr>';
                     }
@@ -798,7 +942,7 @@ class CarecoordinationController extends AbstractActionController
                 if (count($referral_audit) > 0) {
                     $temp .= '<div>';
                     foreach ($referral_audit['referral'] as $val) {
-                        $referal_data = explode("#$%^&*", $val['body']);
+                        $referal_data = explode("#$%^&*", (string) $val['body']);
                         foreach ($referal_data as $v) {
                             $temp .= '<p>' . CommonPlugin::escape($v) . '</p>';
                         }
@@ -825,16 +969,12 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                 foreach ($discharge_medication_audit['discharge_medication'] as $val) {
-                    if ($val['enddate'] && $val['enddate'] != 0) {
-                        $active = 'completed';
-                    } else {
-                        $active = 'active';
-                    }
+                    $active = $val['enddate'] && $val['enddate'] != 0 ? 'completed' : 'active';
 
                     $temp .= '<tr class="narr_tr">
                 <td>' . CommonPlugin::escape($val['drug_text']) . '</td>
                 <td>' . CommonPlugin::escape($val['rate'] . " " . $val['rate_unit'] . " " . $val['route_display'] . " " . $val['dose'] . " " . $val['dose_unit']) . '</td>
-                <td>' . ApplicationTable::fixDate(substr($val['begdate'], 0, 4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+                <td>' . ApplicationTable::fixDate(substr((string) $val['begdate'], 0, 4) . "-" . substr((string) $val['begdate'], 4, 2) . "-" . substr((string) $val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
                 <td>' . Listener::z_xlt($active) . '</td>
                 <td>' . CommonPlugin::escape($val['indication']) . '</td>
                 <td>' . CommonPlugin::escape($val['note']) . '</td>
@@ -886,7 +1026,6 @@ class CarecoordinationController extends AbstractActionController
         return $audit;
     }
 
-
     private function sanitizeZip($zipLocation)
     {
         // TODO: @adunsulag NOTE that zip files can be in any order... so we can't assume that this is alphabetical
@@ -923,7 +1062,7 @@ class CarecoordinationController extends AbstractActionController
             } elseif ($componentCount == ($patientNameIndex + 1)) {
                 // if they have more than maxDocuments in ccd files we need to break out of someone trying to directory
                 // bomb the file system
-                $patientCountHash[$patientNameIndex] = $patientCountHash[$patientNameIndex] ?? 0;
+                $patientCountHash[$patientNameIndex] ??= 0;
 
                 // let's check for ccda
                 if ($patientCount > $maxPatients) {
@@ -943,7 +1082,7 @@ class CarecoordinationController extends AbstractActionController
                     $patientCountHash[$patientNameIndex];
                 }
             } elseif ($componentCount == ($patientDocumentsIndex + 1)) {
-                if ($patientCountHash[$patientNameIndex] ?? '' > $maxDocuments) {
+                if (($patientCountHash[$patientNameIndex] ?? '') > $maxDocuments) {
                     $shouldDeleteIndex = true;
                 } else {
                     if (!empty($patientCountHash[$patientNameIndex])) {
@@ -972,7 +1111,7 @@ class CarecoordinationController extends AbstractActionController
         $z->open($zipLocation);
         for ($i = 0; $i < $z->numFiles; $i++) {
             $stat = $z->statIndex($i);
-            (new SystemLogger())->error("File in zip is " . $stat['name']);
+            ServiceContainer::getLogger()->error("File in zip is " . $stat['name']);
         }
         $z->close();
     }
@@ -996,6 +1135,13 @@ class CarecoordinationController extends AbstractActionController
         // make sure we only have our documents folder and our ccda file
         $this->sanitizeZip($tmpFileName);
         $z->open($tmpFileName);
+        if (!\OpenEMR\Common\Zip\ZipExtractionGuard::isSafe($z)) {
+            $z->close();
+            ServiceContainer::getLogger()->warning('CCDA import archive exceeds extraction limits', [
+                'archive' => $tmpFileName,
+            ]);
+            return;
+        }
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
         $catId = $category_details[0]['id'] ?? null;
         if (empty($catId)) {

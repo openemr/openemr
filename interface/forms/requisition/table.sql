@@ -8,4 +8,3 @@ CREATE TABLE `requisition` (
   `pid` int(11) NOT NULL,
   `lab_id` bigint(35) NOT NULL
 ) ENGINE=InnoDB;
-

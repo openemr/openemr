@@ -77,7 +77,7 @@ class FHIRBiologicallyDerivedProductProcessing extends FHIRBackboneElement imple
     public $description = null;
 
     /**
-     * Procesing code.
+     * Processing code.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public $procedure = null;
@@ -124,7 +124,7 @@ class FHIRBiologicallyDerivedProductProcessing extends FHIRBackboneElement imple
     }
 
     /**
-     * Procesing code.
+     * Processing code.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public function getProcedure()
@@ -133,7 +133,7 @@ class FHIRBiologicallyDerivedProductProcessing extends FHIRBackboneElement imple
     }
 
     /**
-     * Procesing code.
+     * Processing code.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $procedure
      * @return $this
      */
@@ -237,7 +237,7 @@ class FHIRBiologicallyDerivedProductProcessing extends FHIRBackboneElement imple
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -267,15 +267,13 @@ class FHIRBiologicallyDerivedProductProcessing extends FHIRBackboneElement imple
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<BiologicallyDerivedProductProcessing xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductProcessing>');
-        }
+        $sxe ??= new \SimpleXMLElement('<BiologicallyDerivedProductProcessing xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductProcessing>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));

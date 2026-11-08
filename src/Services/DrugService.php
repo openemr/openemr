@@ -4,27 +4,28 @@
  * DrugService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\ReferenceSearchField;
-use OpenEMR\Services\Search\ReferenceSearchValue;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 
 class DrugService extends BaseService
@@ -50,18 +51,18 @@ class DrugService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Patient uuid to return drug resources that are only visible to the current patient
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         $newSearch = [];
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
-                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
                 $newSearch[$key] = $value;
             }
@@ -82,17 +83,110 @@ class DrugService extends BaseService
      */
     public function getOne($uuid)
     {
-        $search = [
-            'uuid' => new TokenSearchField('uuid', [new TokenSearchValue($uuid, null, false)])
-        ];
-        // so if we have a puuid we need to make sure we only return drugs that are connected to the current patient.
-        if (isset($puuid)) {
-            $search['puuid'] = new ReferenceSearchField('puuid', [new ReferenceSearchValue($puuid, 'Patient', true)]);
+        // The uuid column is binary. TokenSearchValue only converts the string form to
+        // those bytes when the value is flagged as a uuid -- unflagged, the raw string is
+        // compared against a binary column and never matches, so this returned an empty
+        // result for every id. An unparsable uuid stays an empty result rather than the
+        // InvalidArgumentException the flagged constructor would throw.
+        if (!is_string($uuid) || !UuidRegistry::isValidStringUUID($uuid)) {
+            return new ProcessingResult();
         }
+
+        $search = [
+            'uuid' => new TokenSearchField('uuid', [new TokenSearchValue($uuid, null, true)])
+        ];
         return $this->search($search);
     }
 
-    public function search($search, $isAndCondition = true)
+    /**
+     * Inserts a new drugs row (Medication master data). Validates that a `name` is present —
+     * the schema enforces NOT NULL on `name` with no useful default.
+     *
+     * Lot/expiration/manufacturer live on drug_inventory and are not written here.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function insert(array $data): ProcessingResult
+    {
+        $result = new ProcessingResult();
+
+        $name = $data['name'] ?? null;
+        if (!is_string($name) || $name === '') {
+            $result->setValidationMessages(['name' => 'A medication name is required']);
+            return $result;
+        }
+
+        $data['uuid'] = (new UuidRegistry(['table_name' => self::DRUG_TABLE]))->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+
+        /** @var string $setClause */
+        $setClause = $query['set'];
+        /** @var array<int, mixed> $binds */
+        $binds = $query['bind'];
+
+        $sql = "INSERT INTO " . self::DRUG_TABLE . " SET " . $setClause;
+        $newId = QueryUtils::sqlInsert($sql, $binds);
+
+        if ($newId) {
+            $result->addData([
+                'drug_id' => $newId,
+                'uuid' => UuidRegistry::uuidToString($data['uuid']),
+            ]);
+        } else {
+            $result->addInternalError("error processing SQL Insert");
+        }
+
+        return $result;
+    }
+
+    /**
+     * Updates an existing drugs row by uuid.
+     *
+     * @param string $uuid
+     * @param array<string, mixed> $data Column => value pairs. The `uuid` key is ignored.
+     */
+    public function update(string $uuid, array $data): ProcessingResult
+    {
+        $isValid = BaseValidator::validateId('uuid', self::DRUG_TABLE, $uuid, true);
+        if ($isValid instanceof ProcessingResult) {
+            return $isValid;
+        }
+
+        if ($data === []) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['data' => 'No update fields supplied']);
+            return $result;
+        }
+
+        unset($data['uuid']);
+
+        $query = $this->buildUpdateColumns($data);
+
+        /** @var string $setClause */
+        $setClause = $query['set'];
+        /** @var array<int, mixed> $binds */
+        $binds = $query['bind'];
+
+        if ($setClause === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['data' => 'No recognized fields to update']);
+            return $result;
+        }
+
+        $sql = "UPDATE " . self::DRUG_TABLE . " SET " . $setClause . " WHERE uuid = ?";
+        $binds[] = UuidRegistry::uuidToBytes($uuid);
+        QueryUtils::sqlStatementThrowException($sql, $binds);
+
+        // Read the row back through the search path rather than re-selecting the raw
+        // columns. FhirServiceBase::update() feeds this result straight into
+        // parseOpenEMRRecord(), which expects the read-side shape -- in particular
+        // drug_code as the coding array createResultRecordFromDatabaseResult() builds,
+        // not the raw column string.
+        return $this->getOne($uuid);
+    }
+
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT
                 drug_table.drug_id,
@@ -166,10 +260,10 @@ class DrugService extends BaseService
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
 
@@ -184,7 +278,7 @@ class DrugService extends BaseService
             // removed the RXCUI concatenation out of the db query and into the code here
             // some parts of OpenEMR adds the RXCUI designation in the drug_code such as the inventory/dispensary module
             // and this causes the FHIR medication resource to not get the actual RXCUI code.
-            if ($row['drug_code'] == $record['rxnorm_drugcode'] && strpos($row['drug_code'], ':') === false) {
+            if ($row['drug_code'] == $record['rxnorm_drugcode'] && !str_contains((string) $row['drug_code'], ':')) {
                 $codes = $this->addCoding("RXCUI:" . $row['drug_code']);
             } else {
                 $codes = $this->addCoding($row['rxnorm_drugcode']);
@@ -192,8 +286,9 @@ class DrugService extends BaseService
             $updatedCodes = [];
             foreach ($codes as $code => $codeValues) {
                 if (empty($codeValues['description'])) {
-                    // use the drug name if for some reason we have no rxnorm description from the lookup
-                    $codeValues['description'] = $row['drug'];
+                    // use the drug name if for some reason we have no rxnorm description from the
+                    // lookup. The search query selects drug_table.name -- there is no `drug` column.
+                    $codeValues['description'] = $row['name'] ?? '';
                 }
                 $updatedCodes[$code] = $codeValues;
             }

@@ -207,7 +207,7 @@ class FHIRRequestGroupRelatedAction extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -234,15 +234,13 @@ class FHIRRequestGroupRelatedAction extends FHIRBackboneElement implements \Json
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<RequestGroupRelatedAction xmlns="http://hl7.org/fhir"></RequestGroupRelatedAction>');
-        }
+        $sxe ??= new \SimpleXMLElement('<RequestGroupRelatedAction xmlns="http://hl7.org/fhir"></RequestGroupRelatedAction>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->actionId)) {
             $this->actionId->xmlSerialize(true, $sxe->addChild('actionId'));

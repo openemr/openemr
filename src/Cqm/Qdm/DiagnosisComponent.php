@@ -36,4 +36,3 @@ class DiagnosisComponent extends \OpenEMR\Cqm\Qdm\BaseTypes\Any
 
     public $_type = 'QDM::DiagnosisComponent';
 }
-

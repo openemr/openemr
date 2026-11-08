@@ -3,10 +3,11 @@
 namespace OpenEMR\FHIR\SMART;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class ActionUrlBuilder
 {
-    public function __construct(private string $actionURL, private string $csrfTokenName = 'csrf_token')
+    public function __construct(private readonly SessionInterface $session, private readonly string $actionURL, private readonly string $csrfTokenName = 'csrf_token')
     {
     }
 
@@ -18,7 +19,7 @@ class ActionUrlBuilder
         $url = $this->actionURL . "?action=" . urlencode($action) . "&csrf_token=" . urlencode($this->getCSRFToken());
         if (!empty($options['queryParams'])) {
             foreach ($options['queryParams'] as $key => $param) {
-                $url .= "&" . urlencode($key) . "=" . urlencode($param);
+                $url .= "&" . urlencode((string) $key) . "=" . urlencode((string) $param);
             }
         }
 
@@ -28,8 +29,8 @@ class ActionUrlBuilder
 
         return $url;
     }
-    private function getCSRFToken()
+    private function getCSRFToken(): string
     {
-        return CsrfUtils::collectCsrfToken($this->csrfTokenName);
+        return CsrfUtils::collectCsrfToken($this->session, $this->csrfTokenName);
     }
 }

@@ -6,7 +6,7 @@
  * need to handle this use case.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
@@ -31,25 +31,15 @@ class SQLUpgradeEvent extends Event
     const EVENT_UPGRADE_POST = 'core.upgrade.sql.post';
 
     /**
-     * @var string The filename that was executed to upgrade the database
+     * @param string $filename The filename that was executed to upgrade the database
+     * @param string $path The path to the filename that was executed.
+     * @param ISQLUpgradeService $sqlUpgradeService The sql upgrade service object
      */
-    private $filename;
-
-    /**
-     * @var string The path to the filename that was executed.
-     */
-    private $path;
-
-    /**
-     * @var ISQLUpgradeService The sql upgrade service object
-     */
-    private $sqlUpgradeService;
-
-    public function __construct($filename, $path, ISQLUpgradeService $upgradeService)
-    {
-        $this->filename = $filename;
-        $this->path = $path;
-        $this->sqlUpgradeService = $upgradeService;
+    public function __construct(
+        private $filename,
+        private $path,
+        private ISQLUpgradeService $sqlUpgradeService
+    ) {
     }
 
     /**

@@ -13,9 +13,8 @@
  */
 
     require_once("../../../globals.php");
-    require_once("$srcdir/api.inc.php");
-    require_once("$srcdir/forms.inc.php");
-    require_once("$srcdir/patient.inc.php");
+
+    $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 
     $providerID = $_REQUEST['providerID'];
 
@@ -267,10 +266,14 @@ function check_lock(modify) {
 function submit_canvas(zone) {
     var id_here = document.getElementById('myCanvas_'+zone);
     var dataURL = id_here.toDataURL('image/jpeg','1');
+    const params = new URLSearchParams({
+        id: $("#form_id").val(),
+        canvas: zone
+    });
     top.restoreSession();
     $.ajax({
            type: "POST",
-           url: "../../forms/eye_mag/save.php?canvas="+zone+"&id="+$("#form_id").val(),
+           url: "../../forms/eye_mag/save.php?" + params.toString(),
            data: {
            imgBase64     : dataURL,  //this contains the canvas + new strokes, the sketch.js foreground
            'zone'        : zone,
@@ -286,8 +289,6 @@ function submit_canvas(zone) {
  *  Function to update the user's preferences
  */
 function update_PREFS() {
-    var checker = $('#PREFS_TOOLTIPS').val();
-    if (checker > '') {
         var url = "../../forms/eye_mag/save.php";
         var formData = {
             'AJAX_PREFS'            : "1",
@@ -301,6 +302,7 @@ function update_PREFS() {
             'PREFS_ADDITIONAL'      : $('#PREFS_ADDITIONAL').val(),
             'PREFS_VAX'             : $('#PREFS_VAX').val(),
             'PREFS_RXHX'            : $('#PREFS_RXHX').val(),
+            'PREFS_VAHx'            : $('#PREFS_VAHx').val(),
             'PREFS_IOP'             : $('#PREFS_IOP').val(),
             'PREFS_CLINICAL'        : $('#PREFS_CLINICAL').val(),
             'PREFS_EXAM'            : $('#PREFS_EXAM').val(),
@@ -339,7 +341,7 @@ function update_PREFS() {
                url      : url,
                data     : formData
                });
-    }
+
 }
 /*
  *  Function to unlock the form - remove temporary lock at DB level.
@@ -568,8 +570,9 @@ function refresh_GFS() {
     }
 
     config_byday.data.datasets[0].data[indexToUpdate] = $('#ODIOPTARGET').val();
-    config_byday.data.datasets[1].data[indexToUpdate] = ODIOP;
-    config_byday.data.datasets[2].data[indexToUpdate] = OSIOP;
+    config_byday.data.datasets[1].data[indexToUpdate] = $('#OSIOPTARGET').val();
+    config_byday.data.datasets[2].data[indexToUpdate] = ODIOP;
+    config_byday.data.datasets[3].data[indexToUpdate] = OSIOP;
     myLine.update();
 
     var time = $('#IOPTIME').val();
@@ -630,7 +633,7 @@ function populate_form(result) {
  *  To reach a detailed E&M level of documentation the chart
  *  may comment on the status of 3 or more CHRONIC/Inactive problems.
  *  The user can type them into the CHRONIC fields manually, or
- *  we can do it programatically if the user does the following:
+ *  we can do it programmatically if the user does the following:
  *     1.  documenting a PMH diagnosis in the PMSFH area
  *     2.  listing it as "Chronic"
  *     3.  making a comment about it
@@ -924,13 +927,17 @@ function show_PRIORS_section(section,newValue) {
 /**
  *  Function to display a canvas/drawing from a prior visit.
  */
-
 function show_PRIOR_CANVAS_section(section, newValue) {
     var pid    =  $('#pid').val();
     var zone   = section;
-    var result = base+'/controller.php?document&retrieve&patient_id='+pid+'&document_id='+newValue+'&as_file=false';
-    var cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
-    var filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
+    const params = new URLSearchParams({
+        document_id: newValue,
+        patient_id: pid,
+        as_file: 'false'
+    });
+    const result = base + '/controller.php?document&retrieve&' + params;
+    const cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
+    const filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
 
     $("#"+zone+"_canvas").addClass('nodisplay');
     $("#"+zone+"_olddrawing").html(filler);
@@ -1033,11 +1040,13 @@ function editScripts(url) {
     var pid = $('#pid').val();
         var AddScript = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = base + "/controller.php?prescription&edit&id=&pid="+encodeURIComponent(pid)
+            const params = new URLSearchParams({ id: '', pid: pid });
+            iam.location.href = base + "/controller.php?prescription&edit&" + params;
         };
         var ListScripts = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = base + "/controller.php?prescription&list&id="+encodeURIComponent(pid)
+            const params = new URLSearchParams({ id: pid });
+            iam.location.href = base + "/controller.php?prescription&list&" + params;
         };
 
         let title = 'Prescriptions';
@@ -1220,9 +1229,9 @@ function build_DX_list(obj) {
         $.each(obj.Clinical, function(key, value) {
                diagnosis='';
                if (obj.Clinical[key][0].diagnosis > '') { //so we are just showing this first item of each Dx (Eg bilateral, x4 pterygium, only first shows up)
-               diagnosis = "<code class='float-right ICD_CODE'>"+obj.Clinical[key][0].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+jsText(obj.Clinical[key][0].code)+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_Clinical_"+key+"' id='DX_Clinical_"+key+"'>"+obj.Clinical[key][0].title+"</span> "+diagnosis+"</li> ";
+               out += "<li class='ui-widget-content'><span name='DX_Clinical_"+jsAttr(key)+"' id='DX_Clinical_"+jsAttr(key)+"'>"+jsText(obj.Clinical[key][0].title)+"</span> "+diagnosis+"</li> ";
                });
     }
 
@@ -1230,25 +1239,25 @@ function build_DX_list(obj) {
         $.each(obj.PMSFH['POH'], function(key, value) {
                diagnosis='';
                if (obj.PMSFH['POH'][key].diagnosis > '' ) {
-               diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['POH'][key].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+jsText(obj.PMSFH['POH'][key].code)+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_POH_"+key+"' id='DX_POH_"+key+"'>"+obj.PMSFH['POH'][key].title+"</span> "+diagnosis+"</li>";
+               out += "<li class='ui-widget-content'><span name='DX_POH_"+jsAttr(key)+"' id='DX_POH_"+jsAttr(key)+"'>"+jsText(obj.PMSFH['POH'][key].title)+"</span> "+diagnosis+"</li>";
                });
         $.each(obj.PMSFH['POS'], function(key, value) {
                diagnosis='';
                if (obj.PMSFH['POS'][key].diagnosis > '' ) {
-               diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['POS'][key].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+jsText(obj.PMSFH['POS'][key].code)+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_POS_"+key+"' id='DX_POS_"+key+"'>"+obj.PMSFH['POS'][key].title+"</span> "+diagnosis+"</li>";
+               out += "<li class='ui-widget-content'><span name='DX_POS_"+jsAttr(key)+"' id='DX_POS_"+jsAttr(key)+"'>"+jsText(obj.PMSFH['POS'][key].title)+"</span> "+diagnosis+"</li>";
                });
     }
     if ($('#inc_PMH').is(':checked') && obj.PMSFH['PMH']) {
         $.each(obj.PMSFH['PMH'], function(key, value) {
                diagnosis='';
                if (obj.PMSFH['PMH'][key].diagnosis > '') {
-               diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['PMH'][key].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+jsText(obj.PMSFH['PMH'][key].code)+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_PMH_"+key+"' id='DX_PMH_"+key+"'>"+obj.PMSFH['PMH'][key].title+"</span>"+diagnosis+"</li> ";
+               out += "<li class='ui-widget-content'><span name='DX_PMH_"+jsAttr(key)+"' id='DX_PMH_"+jsAttr(key)+"'>"+jsText(obj.PMSFH['PMH'][key].title)+"</span>"+diagnosis+"</li> ";
                });
     }
         //add in inc_FIELDCODES culled from the datafields
@@ -1347,16 +1356,16 @@ function build_IMPPLAN(items,nodisplay) {
                     var TitleArr = value.codedesc.split("\r");//I don't see a second codedesc being adding in for this yet...
                     for (i=0;i < CodeArr.length;i++) {
                       if (CodeArr.length == (TitleArr.length-1)) { //there is a trailing \r but second codedesc should have "\r" also
-                        $('#Coding_DX_Codes').append(count_dx +'. '+CodeArr[i]+': '+TitleArr[i]+'<br />');
+                        $('#Coding_DX_Codes').append(count_dx +'. '+jsText(CodeArr[i])+': '+jsText(TitleArr[i])+'<br />');
 
-                        justify_btn = '<span class="modifier status_on" name="visit_justifier" id="visit_just_'+count_dx+'" value="" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span>';
+                        justify_btn = '<span class="modifier status_on" name="visit_justifier" id="visit_just_'+count_dx+'" value="" data-justcode="'+jsAttr(value.codetype)+'|'+jsAttr(value.code)+'" title="'+jsAttr(value.codedesc)+'">'+count_dx+'</span>';
                         $('#visit_justification').append(justify_btn);
                         visit_justifier.push(value.codetype+'|'+value.code[i]);
                       } else {
                         //just look it up via ajax or tell them to code it manually on the feesheet ;).
-                        $('#Coding_DX_Codes').append(CodeArr[i]+': <?php echo xlt('Manually retrieve description on Fee Sheet'); ?> <br />');
+                        $('#Coding_DX_Codes').append(jsText(CodeArr[i])+': <?php echo xlt('Manually retrieve description on Fee Sheet'); ?> <br />');
 
-                        var justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span>';
+                        var justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+jsAttr(value.codetype)+'|'+jsAttr(value.code)+'" title="'+jsAttr(value.codedesc)+'">'+count_dx+'</span>';
 
                         $('#visit_justification').append(justify_btn);
                         visit_justifier.push(value.codetype+'|'+value.code);
@@ -1373,8 +1382,8 @@ function build_IMPPLAN(items,nodisplay) {
 
                       if (obj.Clinical !== null) {
                         for (i=0; i < obj.Clinical[location].length; i++) {
-                            $('#Coding_DX_Codes').append(count_dx +'. '+obj.Clinical[location][i].code+': '+obj.Clinical[location][i].codedesc+'<br />');
-                            justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+obj.Clinical[location][i].codetype+'|'+obj.Clinical[location][i].code+'" title="'+obj.Clinical[location][i].codedesc+'">'+count_dx+'</span>';
+                            $('#Coding_DX_Codes').append(count_dx +'. '+jsText(obj.Clinical[location][i].code)+': '+jsText(obj.Clinical[location][i].codedesc)+'<br />');
+                            justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+jsAttr(obj.Clinical[location][i].codetype)+'|'+jsAttr(obj.Clinical[location][i].code)+'" title="'+jsAttr(obj.Clinical[location][i].codedesc)+'">'+count_dx+'</span>';
                             count_dx++;
                             $('#visit_justification').append(justify_btn);
 
@@ -1385,9 +1394,9 @@ function build_IMPPLAN(items,nodisplay) {
                   }
                 }
               } else { //all is good, one code only
-                $('#Coding_DX_Codes').append(count_dx +'. '+value.code+': '+value.codedesc+'<br />');
+                $('#Coding_DX_Codes').append(count_dx +'. '+jsText(value.code)+': '+jsText(value.codedesc)+'<br />');
 
-                justify_btn = ' <span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span> ';
+                justify_btn = ' <span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" data-justcode="'+jsAttr(value.codetype)+'|'+jsAttr(value.code)+'" title="'+jsAttr(value.codedesc)+'">'+count_dx+'</span> ';
                 $('#visit_justification').append(justify_btn);
                 //we assume the visit code will use this as a justification in billing so activate that link now.
                 visit_justifier.push(value.codetype+'|'+value.code);
@@ -1399,12 +1408,12 @@ function build_IMPPLAN(items,nodisplay) {
             }
                var title2 = value.title.replace(/(\')/g, '');
                contents_here = "<span class='bold' contenteditable title='<?php echo xla('Click to edit'); ?>' id='IMPRESSION_"+index+"'>" +
-               value.title +"</span>"+
-               " <span contenteditable class='float-right' onclick='sel_diagnosis("+index+",\""+title2+"\");' title='"+value.codetext+"' id='CODE_"+index+"'>"+
-               value.code + "</span>"+
+               jsText(value.title) +"</span>"+
+               " <span contenteditable class='float-right' onclick='sel_diagnosis("+index+","+jsAttr(JSON.stringify(title2))+");' title='"+jsAttr(value.codetext)+"' id='CODE_"+index+"'>"+
+               jsText(value.code) + "</span>"+
                "<br /><textarea id='PLAN_"+index+"' name='PLAN_"+index+
                "' style='width:100%;max-width:100%;height:auto;min-height:3em;overflow-y: hidden;padding-top: 1.1em; '>"+
-               value.plan +"</textarea><br /></li>";
+               jsText(value.plan) +"</textarea><br /></li>";
                $('#IMPPLAN_zone').append('<div id="IMPPLAN_zone_'+index+'" class="IMPPLAN_class">'+
                                          '<i class="float-right fa fa-times" id="BUTTON_IMPPLAN_'+index+'"></i>'+
                                          contents_here+'</div>');
@@ -1802,7 +1811,7 @@ function update_READONLY() {
     $.ajax({
            type   : 'POST',
            dataType : 'json',
-           url      :  "../../forms/eye_mag/save.php?copy=READONLY",
+           url      :  "../../forms/eye_mag/save.php?copy=READONLY&skip_timeout_reset=1",
            data   : data,
            success  : function(result) {
            $.map(result, function(valhere, keyhere) {
@@ -1873,14 +1882,14 @@ function goto_url(url) {
     top.restoreSession();
     location.href = R;
 }
-//is this used anywhere?  Looks like it should be deleted...
-function openImage() {
-    dlgopen(base+'/controller.php?document&retrieve&patient_id=3&document_id=10&as_file=false', '_blank', 600, 475);
-}
 
 // Called to open a document in another tab for this encounter.
 function openDocumentNewTab(doc_id) {
-    var url = '../../interface/patient_file/encounter/view_form.php?formname=' + formdir + '&id=' + formid;
+    const params = new URLSearchParams({
+        id: formid,
+        formname: formdir
+    });
+    const url = '../../interface/patient_file/encounter/view_form.php?' + params.toString();
     if (formdir == 'newpatient' || !parent.twAddFrameTab) {
         top.restoreSession();
         location.href = url;
@@ -1995,11 +2004,16 @@ function update_DOCS() {
  */
 function build_DOCS(DOCS) {
     if (DOCS['pcp']) {
-        $("#pcp_name").html(DOCS['pcp']['name']);
-        $("#pcp_address").html(DOCS['pcp']['address']);
-        $("#pcp_phone").html(DOCS['pcp']['phone']);
-        $("#pcp_phonew2").html(DOCS['pcp']['phone2']);
-        $("#pcp_fax").html(DOCS['pcp']['fax']);
+        $("#pcp_name").text(DOCS['pcp']['name']);
+        // Address is server-assembled with `<br />` separators; render them as
+        // line breaks without HTML-parsing the value (which would re-enable XSS).
+        var pcpAddress = (DOCS['pcp']['address'] || '').replace(/<br\s*\/?>/gi, '\n');
+        $("#pcp_address").text(pcpAddress).css('white-space', 'pre-line');
+        $("#pcp_phone").text(DOCS['pcp']['phone']);
+        $("#pcp_phonew2").text(DOCS['pcp']['phone2']);
+        $("#pcp_fax").text(DOCS['pcp']['fax']);
+        // fax_info is server-assembled trusted HTML (icons/links with `attr()`
+        // escaping applied on user-controlled parts); leave as `.html()`.
         $("#pcp_fax_info").html(DOCS['pcp']['fax_info']);
     } else {
         $("#pcp_name").html('');
@@ -2202,6 +2216,16 @@ function getTimeStamp() {
  * as a previous setting and the next eye form opened will appear the same way.
  */
 function show_by_setting() {
+    // set display functions for Draw panel appearance
+    // for each DRAW area, if the value AREA_DRAW = 1, show it.
+    var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
+    for (index = '0'; index < zones.length; ++index) {
+        if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
+            show_DRAW_section(zones[index]);
+        } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
+            show_QP_section(zones[index],'1');
+        }
+    }
     var tabs_left = $("#setting_tabs_left").val();
     if (typeof tabs_left ==undefined) exit;
     var arrSet = ["HPI","PMH","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
@@ -2230,6 +2254,9 @@ function show_by_setting() {
     } else {
         $("#SDRETINA_right").addClass('nodisplay').removeClass('canvas');
         $("#Draw_SDRETINA").addClass('nodisplay');
+    }
+    if ($("#PREFS_VAHx").val() == '1') {
+        $("#LayerVision_VAHx").removeClass('nodisplay');
     }
 
     return true;
@@ -2276,7 +2303,7 @@ $(function () {
                   });
 
                   $('#tooltips_status').html($('#PREFS_TOOLTIPS').val());
-                  if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('Off'); ?>") {
+                  if ($("#PREFS_TOOLTIPS").val() != "<?php echo xla('On'); ?>") {
                     $('[title]').each(function() {
                         var $this = $(this);
                         $this.data('title',$this.attr('title'));
@@ -2330,12 +2357,7 @@ $(function () {
                   $('.close').on('click', function(){
                                     $('#GFS_accordion .hide').slideUp();
                                     });
-                  $('#ODIOPTARGET').on('change', function() {
-                                           $('#OSIOPTARGET').val($('#ODIOPTARGET').val());
-                                           refresh_GFS();
-                                           });
                   $('#ODIOPAP,#OSIOPAP,#ODIOPTARGET,#ODIOPTPN,#OSIOPTPN,#OSIOPTARGET').on('change', function() {
-                                                             //this is failing if there is no config_by_day variable.
                                                              refresh_GFS();
                                                              });
                   if ($("#PREFS_KB").val() =='1') {
@@ -2886,16 +2908,6 @@ $(function () {
                                             }
                     });
 
-                  // set display functions for Draw panel appearance
-                  // for each DRAW area, if the value AREA_DRAW = 1, show it.
-                  var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
-                  for (index = '0'; index < zones.length; ++index) {
-                    if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
-                        show_DRAW_section(zones[index]);
-                    } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
-                        show_QP_section(zones[index],'1');
-                    }
-                  }
                   $("body").on("click","[name$='_text_view']" , function() {
                                var header = this.id.match(/(.*)_text_view$/)[1];
                                $("#"+header+"_text_list").toggleClass('wide_textarea');
@@ -3318,15 +3330,21 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
                                                   var elem = document.getElementById("PREFS_"+section2);
                                                   $("#PREFS_VA").val('0');
-                                                  if (section2 != "IOP")$("#REFRACTION_sections").removeClass('nodisplay');
+                                                  if ((section2 != "IOP") && (section2 != "VAHx")) {
+                                                        $("#REFRACTION_sections").removeClass('nodisplay');
+                                                  }
                                                   if (elem.value == "0" || elem.value =='') {
                                                   elem.value='1';
                                                   if (section2 =="ADDITIONAL") {
                                                   $("#LayerVision_ADDITIONAL").removeClass('nodisplay');
                                                   }
                                                   if (section2 =="IOP") {
-                                                  $("#LayerVision_IOP").removeClass('nodisplay');
-                                                  //plot_IOPs();
+                                                    $("#LayerVision_IOP").removeClass('nodisplay');
+                                                    //plot_IOPs();
+                                                  }
+                                                  if (section2 =="VAHx") {
+                                                    $("#LayerVision_VAHx").removeClass('nodisplay');
+                                                    //plot_VAHxs();
                                                   }
                                                   $(section).removeClass('nodisplay');
                                                   $(this).addClass("buttonRefraction_selected");
@@ -3338,6 +3356,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   }
                                                   if (section2 =="IOP") {
                                                   $("#LayerVision_IOP").addClass('nodisplay');
+                                                  }
+                                                  if (section2 =="VAHx") {
+                                                    $("#LayerVision_VAHx").addClass('nodisplay');
                                                   }
                                                   $(this).removeClass("buttonRefraction_selected");
                                                   }
@@ -3419,7 +3440,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             <?php
                                             // This query is specific to the provider.
                                             $query  = "select seq from list_options where option_id=?";
-                                            $result = sqlStatement($query, array("Eye_defaults_$providerID"));
+                                            $result = sqlStatement($query, ["Eye_defaults_$providerID"]);
 
                                             $list = sqlFetchArray($result);
                                             $SEQ = $list['seq'] ?? '';
@@ -3433,7 +3454,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 //Copy the Eye_Defaults_for_GENERAL to Eye_defaults_$providerID
                                                 $sql = "SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start = sqlStatement($sql);
-                                                $add_fields = array();
+                                                $add_fields = [];
                                                 $parameters = '';
                                                 while ($val = sqlFetchArray($start)) {
                                                     $parameters .= "(?, ?, ?, ?, ?, ?),";
@@ -3450,34 +3471,43 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                     ('lists', ?, ?, ?, '1', '0', '', '', '')";
                                                 $providerNAME = getProviderName($providerID);
 
-                                                sqlStatement($query, array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
+                                                sqlStatement($query, ["Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq]);
                                                 $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES " . $parameters;
                                                 sqlStatement($query, $add_fields);
                                             }
 
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
 
-                                            $DEFAULT_data = sqlStatement($query, array("Eye_defaults_$providerID"));
+                                            $DEFAULT_data = sqlStatement($query, ["Eye_defaults_$providerID"]);
+                                            $zones = ['EXT' => [], 'ANTSEG' => [], 'RETINA' => [], 'NEURO' => []];
                                             while ($row = sqlFetchArray($DEFAULT_data)) {
                                             //$row['notes'] is the clinical zone (EXT,ANTSEG,RETINA,NEURO)
                                             //$row['option_id'] is the field name
                                             //$row['title'] is the default value to use for this provider
-                                                ${$row['notes']}[$row['option_id']] = $row['title']; //This builds each clinical section into its own array (used below)
-                                                echo '$("#' . $row['option_id'] . '").val("' . $row['title'] . '").css("background-color","beige");
+                                                $zone = $row['notes'];
+                                                $optionId = $row['option_id'];
+                                                $title = $row['title'];
+                                                if (!is_string($zone) || !is_string($optionId) || !is_string($title)) {
+                                                    continue;
+                                                }
+                                                if (isset($zones[$zone])) {
+                                                    $zones[$zone][$optionId] = $title;
+                                                }
+                                                echo '$(' . js_escape('#' . $optionId) . ').val(' . js_escape($title) . ').css("background-color","beige");
                                             ';
                                             }
-                                            function startsWith($str, $needle)
+                                            function startsWith($str, $needle): bool
                                             {
-                                                return substr($str, 0, strlen($needle)) === $needle;
+                                                return str_starts_with((string) $str, (string) $needle);
                                             }
                                             ?>
                                             submit_form("eye_mag");
                                             });
                   $("#EXT_defaults_R").on("click", function() {
                         <?php
-                        foreach ($EXT as $item => $value) {
+                        foreach ($zones['EXT'] as $item => $value) {
                             if (startsWith($item, "R")) {
-                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                 ';
                             }
                         }
@@ -3487,9 +3517,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                         });
                   $("#EXT_defaults_L").on("click", function() {
                         <?php
-                        foreach ($EXT as $item => $value) {
+                        foreach ($zones['EXT'] as $item => $value) {
                             if (startsWith($item, "L")) {
-                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                 ';
                             }
                         }
@@ -3521,9 +3551,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                     });
                     $("#ANTSEG_defaults_OD").on("click", function() {
                     <?php
-                    foreach ($ANTSEG as $item => $value) {
+                    foreach ($zones['ANTSEG'] as $item => $value) {
                         if (startsWith($item, "OD")) {
-                            echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                            echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                                     ';
                         }
                     }
@@ -3533,9 +3563,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                     });
                     $("#ANTSEG_defaults_OS").on("click", function() {
                             <?php
-                            foreach ($ANTSEG as $item => $value) {
+                            foreach ($zones['ANTSEG'] as $item => $value) {
                                 if (startsWith($item, "OS")) {
-                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                    echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                                             ';
                                 }
                             }
@@ -3608,9 +3638,9 @@ $("body").on("click","[name^='old_canvas']", function() {
 
                     $("#RETINA_defaults_OD").on("click", function() {
                             <?php
-                            foreach ($RETINA as $item => $value) {
+                            foreach ($zones['RETINA'] as $item => $value) {
                                 if (startsWith($item, "OD")) {
-                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                    echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                                             ';
                                 }
                             }
@@ -3620,9 +3650,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                             });
                     $("#RETINA_defaults_OS").on("click", function() {
                         <?php
-                        foreach ($RETINA as $item => $value) {
+                        foreach ($zones['RETINA'] as $item => $value) {
                             if (startsWith($item, "OS")) {
-                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                                                                                         ';
                             }
                         }
@@ -3638,8 +3668,8 @@ $("body").on("click","[name^='old_canvas']", function() {
 
                     $("#NEURO_defaults").on("click", function() {
                                                 <?php
-                                                foreach ($NEURO as $item => $value) {
-                                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
+                                                foreach ($zones['NEURO'] as $item => $value) {
+                                                    echo '$(' . js_escape('#' . $item) . ').val(' . js_escape($value) . ').css("background-color","beige");
                                              ';
                                                 }
                                                 ?>
@@ -3725,10 +3755,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  var index   = '0';
                                                  var valued = isNaN($("#"+zone[1]).val());
                                                  if ((zone[2] =='RLSO')||(zone[2] =='LLSO')||(zone[2] =='RRIO')||(zone[2] =='LRIO')) {
-                                                 //find or make a hash tage for "\"
+                                                 //find or make a hash tag for "\"
                                                  var hash_tag = '<i class="fa fa-minus"></i>';
                                                  } else {
-                                                 //find or make a hash tage for "/"
+                                                 //find or make a hash tag for "/"
                                                  var hash_tag = '<i class="fa fa-minus"></i>';
                                                  }
                                                  } else {
@@ -3974,7 +4004,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $("[id^='Blank_']").on("click", function() {
 
                                            var zone = this.id.match(/Blank_Canvas_(.*)/)[1];
-                                           $("#url_"+zone).val("../../forms/eye_mag/images/BLANK_BASE.png");
+                                           $("#url_"+zone).val("../../forms/eye_mag/images/BLANK_BASE.jpg");
                                            //canvas.renderAll();
                                            drawImage(zone);
                                            });

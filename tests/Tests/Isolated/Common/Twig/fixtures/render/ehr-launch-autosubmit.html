@@ -1,0 +1,18 @@
+<html>
+<head>
+    <title>Launching Application</title>
+</head>
+<body>
+<form method="POST" action="/oauth2/launch">
+    </form>
+<script>
+    // grab the launch token and autosubmit it to the launch endpoint
+    (function() {
+        document.addEventListener("DOMContentLoaded", function(event) {
+            var form = document.getElementsByTagName('form')[0];
+            form.submit();
+        });
+    })();
+</script>
+</body>
+</html>

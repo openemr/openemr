@@ -22,7 +22,7 @@
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class Group_Statuses
@@ -31,13 +31,13 @@ class Group_Statuses
 
     /**
      * Gets group appointment statuses
-     * @return ADORecordSet_mysqli
+     * @return list<array<string, mixed>>
      */
-    public function getGroupStatuses()
+    public function getGroupStatuses(): array
     {
         $sql = 'SELECT  option_id, title FROM ' . self::TABLE . ' WHERE list_id = ?;';
-        $result = sqlStatement($sql, array('groupstat'));
-        $final_result = array();
+        $result = sqlStatement($sql, ['groupstat']);
+        $final_result = [];
         while ($row = sqlFetchArray($result)) {
             $final_result[] = $row;
         }
@@ -47,15 +47,15 @@ class Group_Statuses
 
     /**
      * Gets group meeting attendance statuses
-     * @return ADORecordSet_mysqli
+     * @return list<array<string, mixed>>
      */
-    public function getGroupAttendanceStatuses()
+    public function getGroupAttendanceStatuses(): array
     {
         $sql = 'SELECT  option_id, title FROM ' . self::TABLE . ' WHERE list_id = ?;';
-        $result = sqlStatement($sql, array('attendstat'));
-        $final_result = array();
+        $result = sqlStatement($sql, ['attendstat']);
+        $final_result = [];
         while ($row = sqlFetchArray($result)) {
-            $row['title'] = xla(trim($row['title']));
+            $row['title'] = xla(trim((string) $row['title']));
             $final_result[] = $row;
         }
 

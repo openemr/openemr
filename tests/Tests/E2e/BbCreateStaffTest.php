@@ -5,7 +5,7 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @auther    Bartosz Spyrko-Smietanko
+ * @author    Bartosz Spyrko-Smietanko
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Bartosz Spyrko-Smietanko
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
@@ -20,7 +20,6 @@ use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\User\UserAddTrait;
 use Symfony\Component\Panther\PantherTestCase;
-use Symfony\Component\Panther\Client;
 
 class BbCreateStaffTest extends PantherTestCase
 {
@@ -28,12 +27,8 @@ class BbCreateStaffTest extends PantherTestCase
     use LoginTrait;
     use UserAddTrait;
 
-    private $client;
-    private $crawler;
-
     protected function setUp(): void
     {
-        parent::setUp();
         // clean up in case still left over from prior testing
         $this->cleanDatabase();
     }
@@ -48,9 +43,9 @@ class BbCreateStaffTest extends PantherTestCase
     {
         // remove the created user
         $delete = "DELETE FROM users WHERE username = ?";
-        sqlStatement($delete, array('foobar'));
+        sqlStatement($delete, ['foobar']);
 
         $delete = "DELETE FROM users_secure WHERE username = ?";
-        sqlStatement($delete, array('foobar'));
+        sqlStatement($delete, ['foobar']);
     }
 }

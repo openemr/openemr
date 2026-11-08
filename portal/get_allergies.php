@@ -18,7 +18,7 @@
  *
  * @package OpenEMR
  * @author  Cassian LUP <cassi.lup@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  */
 
@@ -26,7 +26,7 @@ require_once("verify_session.php");
 
 $sql = "SELECT * FROM lists WHERE pid = ? AND type = 'allergy' ORDER BY begdate";
 
-$res = sqlStatement($sql, array($pid));
+$res = sqlStatement($sql, [$pid]);
 
 if (sqlNumRows($res) > 0) {
     ?>

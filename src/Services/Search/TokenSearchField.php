@@ -3,7 +3,7 @@
 /**
  * TokenSearchField represents a token data type that contains both a system and a code.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,14 +16,32 @@ use OpenEMR\Services\Search\SearchFieldType;
 class TokenSearchField extends BasicSearchField
 {
     /**
-     * @var boolean True if the token represents a UUID that is a binary field in the database
+     * @param mixed $field
+     * @param mixed $values
+     * @param bool $isUUID True if the token represents a UUID that is a binary field in the database
      */
-    private $isUUID;
-
-    public function __construct($field, $values, $isUUID = false)
-    {
-        $this->isUUID = $isUUID;
+    public function __construct(
+        $field,
+        $values,
+        private $isUUID = false
+    ) {
         parent::__construct($field, SearchFieldType::TOKEN, $field, $values);
+    }
+
+    /**
+     * Builds the field from a comma separated list of system|code values as a FHIR request sends it, escapes
+     * included, so a caller reads the same values as FHIRSearchFieldFactory does.
+     * @throws SearchFieldException if the value is not a string, for example a repeated parameter
+     */
+    public static function fromEscapedFHIRString(string $field, mixed $value): self
+    {
+        if (!is_string($value)) {
+            throw new SearchFieldException($field, $field . ' must be a single string value');
+        }
+        return new self($field, array_map(
+            static fn(string $part): TokenSearchValue => TokenSearchValue::buildFromEscapedFHIRString($part),
+            FhirSearchValueEscape::split($value, ',')
+        ));
     }
 
     public function isUuid()
@@ -38,7 +56,7 @@ class TokenSearchField extends BasicSearchField
         $this->setValues($values);
     }
 
-    public function hasCodeValue($code, $system = null)
+    public function hasCodeValue($code, $system = null): bool
     {
         $checkSystem = $system !== null;
         foreach ($this->getValues() as $tokenValue) {
@@ -85,5 +103,34 @@ class TokenSearchField extends BasicSearchField
         }
 
         return TokenSearchValue::buildFromFHIRString($value, $this->isUUID);
+    }
+
+    /**
+     * Checks if this TokenSearchField contains all of the values of the given TokenSearchField
+     * a token value is considered contained if both system and code match OR if only code matches and the system
+     * of the containedSearchToken is null
+     * @param TokenSearchField $containedSearchToken
+     * @return bool
+     */
+    public function containsSearchToken(TokenSearchField $containedSearchToken): bool
+    {
+        foreach ($containedSearchToken->getValues() as $containedValue) {
+            $found = false;
+            foreach ($this->getValues() as $ownValue) {
+                if ($containedValue instanceof TokenSearchValue && $ownValue instanceof TokenSearchValue) {
+                    if ($containedValue->getCode() === $ownValue->getCode()) {
+                        // codes match, now check system
+                        if ($containedValue->getSystem() === null || $containedValue->getSystem() === $ownValue->getSystem()) {
+                            $found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!$found) {
+                return false;
+            }
+        }
+        return true;
     }
 }

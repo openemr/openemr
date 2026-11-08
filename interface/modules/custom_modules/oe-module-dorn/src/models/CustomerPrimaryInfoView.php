@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
@@ -30,7 +30,7 @@ class CustomerPrimaryInfoView
     {
     }
 
-    public static function loadByPost($postData)
+    public static function loadByPost($postData): CustomerPrimaryInfoView
     {
         $model = new CustomerPrimaryInfoView();
         $model->primaryId = $postData["form_primaryId"];

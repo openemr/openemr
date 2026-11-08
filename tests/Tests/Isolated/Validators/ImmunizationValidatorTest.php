@@ -1,0 +1,133 @@
+<?php
+
+/**
+ * Isolated ImmunizationValidator Test
+ *
+ * Tests ImmunizationValidator validation logic without database dependencies.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Isolated\Validators;
+
+use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ImmunizationValidator;
+use PHPUnit\Framework\TestCase;
+
+class ImmunizationValidatorTest extends TestCase
+{
+    private ImmunizationValidatorStub $validator;
+
+    protected function setUp(): void
+    {
+        $this->validator = new ImmunizationValidatorStub();
+    }
+
+    public function testValidatorInheritsFromBaseValidator(): void
+    {
+        $this->assertInstanceOf(BaseValidator::class, $this->validator);
+    }
+
+    public function testValidatorIsInstantiable(): void
+    {
+        $validator = new ImmunizationValidatorStub();
+        $this->assertInstanceOf(ImmunizationValidator::class, $validator);
+    }
+
+    public function testInsertRequiresPatientId(): void
+    {
+        $result = $this->validator->validate(
+            ['cvx_code' => '197', 'administered_date' => '2024-01-15'],
+            BaseValidator::DATABASE_INSERT_CONTEXT
+        );
+        $this->assertFalse($result->isValid());
+        // Named explicitly so the test still fails for the reason it is named after:
+        // isValid() alone is satisfied by any rule rejecting the payload, so dropping
+        // the patient_id rule would leave this green.
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('patient_id', $messages);
+    }
+
+    public function testInsertRequiresCvxCode(): void
+    {
+        $result = $this->validator->validate(
+            ['patient_id' => 1, 'administered_date' => '2024-01-15'],
+            BaseValidator::DATABASE_INSERT_CONTEXT
+        );
+        $this->assertFalse($result->isValid());
+        // Named explicitly so the test still fails for the reason it is named after:
+        // isValid() alone is satisfied by any rule rejecting the payload, so dropping
+        // the cvx_code rule would leave this green.
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('cvx_code', $messages);
+    }
+
+    public function testInsertRequiresAdministeredDate(): void
+    {
+        $result = $this->validator->validate(
+            ['patient_id' => 1, 'cvx_code' => '197'],
+            BaseValidator::DATABASE_INSERT_CONTEXT
+        );
+        $this->assertFalse($result->isValid());
+        // Named explicitly so the test still fails for the reason it is named after:
+        // isValid() alone is satisfied by any rule rejecting the payload, so dropping
+        // the administered_date rule would leave this green.
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('administered_date', $messages);
+    }
+
+    public function testInsertAcceptsValidData(): void
+    {
+        $result = $this->validator->validate(
+            ['patient_id' => 1, 'cvx_code' => '197', 'administered_date' => '2024-01-15'],
+            BaseValidator::DATABASE_INSERT_CONTEXT
+        );
+        $this->assertTrue($result->isValid());
+    }
+
+    public function testUpdateRequiresUuid(): void
+    {
+        $result = $this->validator->validate(
+            ['cvx_code' => '197'],
+            BaseValidator::DATABASE_UPDATE_CONTEXT
+        );
+        $this->assertFalse($result->isValid());
+        // The key, not just invalidity: any other rule rejecting this payload would otherwise
+        // keep the test green and removing the uuid rule would not fail it.
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('uuid', $messages);
+    }
+
+    public function testValidatorClassExists(): void
+    {
+        $this->assertTrue(class_exists(ImmunizationValidator::class));
+    }
+
+    public function testValidatorHasConfigureValidatorMethod(): void
+    {
+        $this->assertTrue(method_exists($this->validator, 'configureValidator'));
+    }
+}
+
+/**
+ * Test stub that overrides database-dependent methods
+ */
+class ImmunizationValidatorStub extends ImmunizationValidator
+{
+    /**
+     * Override validateId to avoid database calls
+     */
+    public static function validateId($field, $table, $lookupId, $isUuid = false): bool
+    {
+        // For testing purposes, assume all IDs are valid
+        return true;
+    }
+}

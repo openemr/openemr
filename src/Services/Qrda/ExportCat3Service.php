@@ -4,17 +4,18 @@
  * @package    OpenEMR
  * Claude A.I contributed to this file for the QRDA III consolidated report xml generation.
  *
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Ken Chapple <ken@mi-squared.com>
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright  Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
- * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qrda;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Services\Qdm\CqmCalculator;
 use OpenEMR\Services\Qdm\IndividualResult;
@@ -47,8 +48,8 @@ class ExportCat3Service
         $this->builder = $builder;
         $this->calculator = $calculator;
         $this->request = $request;
-        $this->effectiveDate = trim($GLOBALS['cqm_performance_period'] ?? '2022') . '-01-01 00:00:00';
-        $this->effectiveDateEnd = trim($GLOBALS['cqm_performance_period'] ?? '2022') . '-12-31 23:59:59';
+        $this->effectiveDate = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2022') . '-01-01 00:00:00';
+        $this->effectiveDateEnd = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2022') . '-12-31 23:59:59';
     }
 
     public function export($measures, $resultOnly = false)
@@ -57,9 +58,13 @@ class ExportCat3Service
         $measureObjs = [];
         foreach ($measures as $measurePath) {
             $measure_arr = MeasureService::fetchMeasureJson($measurePath);
-            $measure = new Measure($measure_arr);
-            $measure->measure_path = $measurePath;
-            $measureObjs[] = $measure;
+            if (!empty($measure_arr)) {
+                $measure = new Measure($measure_arr);
+                $measure->measure_path = $measurePath;
+                $measureObjs[] = $measure;
+            } else {
+                ServiceContainer::getLogger()->error("Measure JSON not found. Verify measures are installed correctly", ['path' => $measurePath]);
+            }
         }
         // note that much of this function is following the logic in the cypress test suite
         // @see projectcypress/cypress.git lib/cypress/api_measure_evaluator.rb
@@ -115,7 +120,7 @@ class ExportCat3Service
      * @param array $measures Array of measure paths
      * @return string Consolidated QRDA III XML
      */
-    public function exportConsolidated($measures)
+    public function exportConsolidated($measures): string
     {
         // Use your existing measure building logic
         $measureObjs = [];
@@ -155,12 +160,12 @@ class ExportCat3Service
      * @param array $patients    Array of Patient objects
      * @return string Complete QRDA III XML
      */
-    private function generateConsolidatedXml($measureObjs, $results, $patients)
+    private function generateConsolidatedXml($measureObjs, $results, $patients): string
     {
         $organizationInfo = $this->getOrganizationInfo();
         $documentId = $this->generateUuid();
         $currentDateTime = date('YmdHis');
-        $reportingPeriod = trim($GLOBALS['cqm_performance_period'] ?? '2023');
+        $reportingPeriod = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023');
 
         // XML Header
         $xml = <<<XML
@@ -239,9 +244,9 @@ XML;
     /**
      * Generate the measure section containing all measures
      */
-    private function generateConsolidatedMeasureSection($measureObjs, $results, $patients)
+    private function generateConsolidatedMeasureSection($measureObjs, $results, $patients): string
     {
-        $reportingPeriod = trim($GLOBALS['cqm_performance_period'] ?? '2023');
+        $reportingPeriod = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023');
 
         $xml = <<<XML
   <component>
@@ -310,7 +315,7 @@ XML;
     /**
      * Generate individual measure entry for consolidated report
      */
-    private function generateConsolidatedMeasureEntry($measure, $measureResults)
+    private function generateConsolidatedMeasureEntry($measure, $measureResults): string
     {
         $entryId = $this->generateUuid();
 
@@ -352,7 +357,7 @@ XML;
     /**
      * Generate population components for a measure
      */
-    private function generatePopulationComponents($measure, $results)
+    private function generatePopulationComponents($measure, $results): string
     {
         $xml = '';
         $populationKeys = $measure->population_keys();
@@ -395,10 +400,10 @@ XML;
     /**
      * Generate reporting parameters
      */
-    private function generateReportingParameters()
+    private function generateReportingParameters(): string
     {
         $parametersId = $this->generateUuid();
-        $reportingPeriod = trim($GLOBALS['cqm_performance_period'] ?? '2023');
+        $reportingPeriod = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023');
 
         return <<<XML
           <entry>
@@ -419,17 +424,17 @@ XML;
     /**
      * Helper methods
      */
-    private function getOrganizationInfo()
+    private function getOrganizationInfo(): array
     {
         return [
-            'name' => $GLOBALS['openemr_name'] ?? 'OpenEMR Practice',
-            'npi' => $GLOBALS['practice_npi'] ?? '1234567890',
-            'tin' => $GLOBALS['practice_tin'] ?? '123456789',
+            'name' => OEGlobalsBag::getInstance()->getString('openemr_name') ?? 'OpenEMR Practice',
+            'npi' => OEGlobalsBag::getInstance()->get('practice_npi') ?? '1234567890',
+            'tin' => OEGlobalsBag::getInstance()->get('practice_tin') ?? '123456789',
             'address' => [
-                'street' => $GLOBALS['practice_street'] ?? '123 Medical Way',
-                'city' => $GLOBALS['practice_city'] ?? 'Medical City',
-                'state' => $GLOBALS['practice_state'] ?? 'NY',
-                'zip' => $GLOBALS['practice_zip'] ?? '12345',
+                'street' => OEGlobalsBag::getInstance()->get('practice_street') ?? '123 Medical Way',
+                'city' => OEGlobalsBag::getInstance()->get('practice_city') ?? 'Medical City',
+                'state' => OEGlobalsBag::getInstance()->get('practice_state') ?? 'NY',
+                'zip' => OEGlobalsBag::getInstance()->get('practice_zip') ?? '12345',
                 'country' => 'US'
             ]
         ];
@@ -451,7 +456,7 @@ XML;
         return $codes[$popKey] ?? $popKey;
     }
 
-    private function generateUuid()
+    private function generateUuid(): string
     {
         return sprintf(
             '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
@@ -466,9 +471,9 @@ XML;
         );
     }
 
-    private function escapeXml($content)
+    private function escapeXml($content): string
     {
-        return htmlspecialchars($content, ENT_XML1 | ENT_COMPAT, 'UTF-8');
+        return htmlspecialchars((string) $content, ENT_XML1 | ENT_COMPAT, 'UTF-8');
     }
 
     private function do_calculation($patients, $measures)
@@ -482,7 +487,7 @@ XML;
          */
     }
 
-    private function CqmExecutionCalcExecute($patients, $measures)
+    private function CqmExecutionCalcExecute($patients, $measures): array
     {
         $finalResults = [];
         foreach ($measures as $measure) {
@@ -510,10 +515,10 @@ XML;
          */
     }
 
-    private function request_for($patients, Measure $measure)
+    private function request_for($patients, Measure $measure): array
     {
 
-        $results = $this->calculator->calculateMeasure($patients, $measure, $this->effectiveDate, $this->effectiveDateEnd);
+        $results = $this->calculator->calculateMeasure($patients, $measure, $this->effectiveDate);
         $final_results = [];
         foreach ($results as $patient_id => $result) {
             // we will deviate here as we don't need the patient as we aren't saving any data for cypress with the patient
@@ -523,7 +528,7 @@ XML;
         }
 
         // note we aren't saving data to the database and so we are foregoing the hash return here.
-        // Cypress runs a query on all IndividualResults conected to the measure_id && correlation_id which we are
+        // Cypress runs a query on all IndividualResults connected to the measure_id && correlation_id which we are
         // going to skip over and just return an array of all of the results from our aggregation
         // which ends up being our individual results list per measure.
         return $final_results;
@@ -558,10 +563,20 @@ XML;
          */
     }
 
-    private function aggregate_population_results_from_individual_results($individual_results, $patient_id, Measure $measure)
+    /**
+     * @return IndividualResult[]
+     */
+    private function aggregate_population_results_from_individual_results($individual_results, $patient_id, Measure $measure): array
     {
         $results = [];
         foreach ($individual_results as $population_set_key => $individual_result) {
+            if (!is_array($individual_result)) {
+                ServiceContainer::getLogger()->warning('Skipping a malformed calculation result', [
+                    'measure' => $measure->cms_id,
+                    'population_set_key' => $population_set_key,
+                ]);
+                continue;
+            }
             $individual_result['population_set_key'] = $population_set_key;
             $individual_result['patient_id'] = $patient_id;
             $results[] = new IndividualResult($individual_result, $measure);
@@ -570,7 +585,7 @@ XML;
         /**
          * def aggregate_population_results_from_individual_results(individual_results, patient, save, ir_list)
          * individual_results.each_pair do |population_set_key, individual_result|
-         * # store the population_set within the indivdual result
+         * # store the population_set within the individual result
          * individual_result['population_set_key'] = population_set_key
          * # update the patient_id to match the cqm_patient id, not the qdm_patient id
          * individual_result['patient_id'] = patient.id.to_s
@@ -597,7 +612,7 @@ XML;
      */
     private function logCalculationResults($patients, $results)
     {
-        $logger = new SystemLogger();
+        $logger = ServiceContainer::getLogger();
         $patientsById = [];
         foreach ($patients as $patient) {
             $patientsById[$patient->id->value] = $patient;

@@ -12,52 +12,35 @@
 
 namespace Application\Model;
 
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Application\Model\ApplicationTable;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
+use OpenEMR\Common\Database\QueryUtils;
 
-class SendtoTable extends AbstractTableGateway
+class SendtoTable
 {
-    /*
-    * getFacility
-    * @return array facility
-    *
-    **/
-    public function getFacility()
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getFacility(): array
     {
-        $appTable   = new ApplicationTable();
-        $sql        = "SELECT * FROM facility ORDER BY name";
-        $result     = $appTable->zQuery($sql);
-        return $result;
+        $sql = "SELECT * FROM facility ORDER BY name";
+        return QueryUtils::fetchRecords($sql);
     }
 
-
-    /*
-    * getUsers
-    * @param String $type
-    * @return array
-    *
-    **/
-    public function getUsers($type)
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getUsers(string $type): array
     {
-        $appTable   = new ApplicationTable();
-        $sql        = "SELECT * FROM users WHERE abook_type = ?";
-        $result     = $appTable->zQuery($sql, array($type));
-        return $result;
+        $sql = "SELECT * FROM users WHERE abook_type = ?";
+        return QueryUtils::fetchRecords($sql, [$type]);
     }
 
-
-    /*
-    * getFaxRecievers
-    * @return array fax reciever types
-    *
-    **/
-    public function getFaxRecievers()
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getFaxRecievers(): array
     {
-        $appTable   = new ApplicationTable();
-        $sql        = "SELECT option_id, title FROM list_options WHERE list_id = 'abook_type'";
-        $result     = $appTable->zQuery($sql);
-        return $result;
+        $sql = "SELECT option_id, title FROM list_options WHERE list_id = 'abook_type'";
+        return QueryUtils::fetchRecords($sql);
     }
 
     /*
@@ -66,13 +49,13 @@ class SendtoTable extends AbstractTableGateway
     * @param    $type
     * @return   $components     Array of CCDA components
     **/
-    public function getCCDAComponents($type)
+    public function getCCDAComponents($type): array
     {
-        $components = array();
+        $components = [];
         // removed dependency on the ccda_table_mapping table sjp 07/25/25
         if ($type == 0) {
             // sections
-            $components = array(
+            $components = [
                 'progress_note' => 'Progress Notes',
                 'consultation_note' => 'Consultation Note',
                 'continuity_care_document' => 'Continuity Care Document',
@@ -82,10 +65,10 @@ class SendtoTable extends AbstractTableGateway
                 'operative_note' => 'Operative Note',
                 'procedure_note' => 'Procedure Note',
                 'unstructured_document' => 'Unstructured Document',
-            );
+            ];
         } elseif ($type == 1) {
             // entry components
-            $components = array(
+            $components = [
                 'allergies' => 'Allergies',
                 'medications' => 'Medications',
                 'problems' => 'Problems',
@@ -102,7 +85,8 @@ class SendtoTable extends AbstractTableGateway
                 'medical_devices' => 'Medical Devices',
                 'goals' => 'Goals',
                 'payers' => 'Health Insurance Providers',
-            );
+                'advance_directives' => 'Advance Directives',
+            ];
         }
         return $components;
     }

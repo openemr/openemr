@@ -4,23 +4,85 @@
  * PatientSessionUtil refactored from pid.inc.php handles clearing and setting the session for a patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Common\Session;
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use Symfony\Component\HttpFoundation\Request;
 
 class PatientSessionUtil
 {
+    /**
+     * Read the active patient ID from the session, normalized to int.
+     *
+     * Mirrors `interface/globals.php`: missing or non-numeric pid collapses
+     * to 0, signalling "no patient context".
+     */
+    public static function getPid(): int
+    {
+        $raw = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
+        return is_numeric($raw) ? (int) $raw : 0;
+    }
+
+    /**
+     * Read the active user's "authorized" flag from the session, normalized
+     * to int. Mirrors `interface/globals.php`: empty/missing collapses to 0.
+     */
+    public static function getUserAuthorized(): int
+    {
+        $raw = SessionWrapperFactory::getInstance()->getActiveSession()->get('userauthorized');
+        return is_numeric($raw) ? (int) $raw : 0;
+    }
+
+    /**
+     * Whether a link to $requestedPid (and $requestedEncounter, 0 for none)
+     * may change the active chart. Re-opening the current patient and
+     * encounter is always allowed; a switch needs the session's CSRF token.
+     */
+    public static function mayLinkSwitchContext(int $requestedPid, int $requestedEncounter, mixed $csrfToken): bool
+    {
+        $sameChart = $requestedPid === self::getPid()
+            && ($requestedEncounter <= 0 || $requestedEncounter === EncounterSessionUtil::getEncounter());
+        if ($sameChart) {
+            return true;
+        }
+        return is_string($csrfToken)
+            && CsrfUtils::verifyCsrfToken($csrfToken, SessionWrapperFactory::getInstance()->getActiveSession());
+    }
+
+    /**
+     * End the request with a 403 when a GET link would switch the active
+     * patient or encounter without a valid `csrf_token_form`, so a link or
+     * image on another site cannot change whose chart the user is in.
+     */
+    public static function requireCsrfForLinkSwitch(Request $request, int $requestedPid, int $requestedEncounter = 0): void
+    {
+        // Read the raw value: InputBag::get() throws on an array, which
+        // would skip both the 403 and the no-token reopen of the current chart.
+        $token = $request->query->all()['csrf_token_form'] ?? null;
+        if (!self::mayLinkSwitchContext($requestedPid, $requestedEncounter, $token)) {
+            CsrfUtils::csrfNotVerified();
+        }
+    }
+
     public static function setPid($new_pid)
     {
         global $pid, $encounter;
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         // Escape $new_pid by forcing it to an integer to protect from sql injection
         $new_pid_int = intval($new_pid);
@@ -35,21 +97,23 @@ class PatientSessionUtil
         $sessionSetArray = [];
         $sessionUnsetArray = [];
 
+        $sessionPid = $session->get('pid', null);
         // Be careful not to clear the encounter unless the pid is really changing.
-        if (!isset($_SESSION['pid']) || $pid != $new_pid_int || $pid != $_SESSION['pid']) {
+        if ($sessionPid === null || $pid != $new_pid_int || $pid != $sessionPid) {
             $encounter = 0;
             $sessionSetArray['encounter'] = 0;
         }
 
         // unset therapy_group session when set session for patient
-        if (isset($_SESSION['pid']) && ($_SESSION['pid'] != 0) && isset($_SESSION['therapy_group'])) {
+        if ($sessionPid !== null && ($sessionPid != 0) && $session->get('therapy_group') !== null) {
             $sessionUnsetArray[] = 'therapy_group';
         }
 
         // Set pid to the escaped pid and update the session variables
         $sessionSetArray['pid'] = $new_pid_int;
         SessionUtil::setUnsetSession($sessionSetArray, $sessionUnsetArray);
+
         $pid = $new_pid_int;
-        EventAuditLogger::instance()->newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $pid);
+        EventAuditLogger::getInstance()->newEvent("view", $session->get("authUser"), $session->get("authProvider"), 1, '', $pid);
     }
 }

@@ -5,7 +5,7 @@
  * in a Document class object.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,11 +14,10 @@
 namespace OpenEMR\Services\Cda;
 
 use Document;
-use XMLReader;
 
 class CdaValidateDocumentObject
 {
-    public function isCdaDocument(Document $document)
+    public function isCdaDocument(Document $document): bool
     {
 
 //        // we check the mime extension
@@ -37,7 +36,7 @@ class CdaValidateDocumentObject
         return false;
     }
 
-    public function getValidationErrorsForDocument(Document $document)
+    public function getValidationErrorsForDocument(Document $document): array
     {
         $cdaValidateDocuments = new CdaValidateDocuments();
         // TODO: @adunsulag do we need to cache this get_data here?  also need to figure out the doc type
@@ -45,7 +44,7 @@ class CdaValidateDocumentObject
         return $errors;
     }
 
-    private function isZipDocument(Document $document)
+    private function isZipDocument(Document $document): bool
     {
         return in_array($document->get_mimetype(), ['application/zip', 'application/octet-stream']);
     }

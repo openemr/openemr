@@ -5,7 +5,7 @@
  * Only Lab documents for now.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Hema Bandaru <hemab@drcloudemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Harshal Lele <harshallele97@gmail.com>
@@ -16,16 +16,20 @@
  */
 
 require_once('../globals.php');
-require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\LabDocumentQuery;
+
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Lab Documents")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Lab Documents", xl("Lab Documents"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $curdate = date_create(date("Y-m-d"));
 date_sub($curdate, date_interval_create_from_date_string("7 days"));
@@ -35,9 +39,9 @@ $sub_date = date_format($curdate, 'Y-m-d');
 $form_from_doc_date = ($_GET['form_from_doc_date'] ?? oeFormatShortDate($sub_date));
 $form_to_doc_date = ($_GET['form_to_doc_date'] ?? oeFormatShortDate(date("Y-m-d")));
 
-if ($GLOBALS['date_display_format'] == 1) {
+if (OEGlobalsBag::getInstance()->get('date_display_format') == 1) {
     $title_tooltip = "MM/DD/YYYY";
-} elseif ($GLOBALS['date_display_format'] == 2) {
+} elseif (OEGlobalsBag::getInstance()->get('date_display_format') == 2) {
     $title_tooltip = "DD/MM/YYYY";
 } else {
     $title_tooltip = "YYYY-MM-DD";
@@ -50,7 +54,7 @@ $display_div = "style='display:block;'";
 <head>
 <?php
     Header::setupHeader(['datetime-picker', 'common']);
-    require_once("$srcdir/payment_jav.inc.php");
+    require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/payment_jav.inc.php");
 ?>
 
 <script>
@@ -96,7 +100,7 @@ $display_div = "style='display:block;'";
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -110,7 +114,11 @@ $display_div = "style='display:block;'";
                 return false;
             }
         }
-        document.location='<?php echo $GLOBALS['webroot']; ?>/interface/main/display_documents.php?form_from_doc_date=' + encodeURIComponent(frmdate) + '&form_to_doc_date=' + encodeURIComponent(todate);
+        const params = new URLSearchParams({
+            form_from_doc_date: frmdate,
+            form_to_doc_date: todate
+        });
+        document.location='<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/display_documents.php?' + params;
     }
 
 </script>
@@ -165,34 +173,21 @@ $display_div = "style='display:block;'";
 
     <div class='col-12' id='docdiv' <?php echo $display_div; ?>>
         <?php
-        $current_user = $_SESSION['authUserID'];
-        $date_filter = '';
-            $query_array = array();
-        if ($form_from_doc_date) {
-            $form_from_doc_date = DateToYYYYMMDD($form_from_doc_date);
-            $date_filter = " DATE(d.date) >= ? ";
-                    array_push($query_array, $form_from_doc_date);
-        }
-
-        if ($form_to_doc_date) {
-            $form_to_doc_date = DateToYYYYMMDD($form_to_doc_date);
-            $date_filter .= " AND DATE(d.date) <= ? ";
-                    array_push($query_array, $form_to_doc_date);
-        }
+        $current_user = $session->get('authUserID');
+        $fromDate = DateToYYYYMMDD($form_from_doc_date);
+        $toDate = DateToYYYYMMDD($form_to_doc_date);
 
         // Get the category ID for lab reports.
         $query = "SELECT rght FROM categories WHERE name = ?";
-        $catIDRs = sqlQuery($query, array($GLOBALS['lab_results_category_name']));
-        $catID = $catIDRs['rght'];
+        $catIDRs = sqlQuery($query, [OEGlobalsBag::getInstance()->getString('lab_results_category_name')]);
+        $catID = is_array($catIDRs) && is_numeric($catIDRs['rght'] ?? null) ? (int) $catIDRs['rght'] : 0;
 
-        $query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,
-            GROUP_CONCAT(n.date ORDER BY n.date DESC SEPARATOR '|') AS docDates FROM documents d
-            INNER JOIN patient_data pd ON d.foreign_id = pd.pid
-            INNER JOIN categories_to_documents ctd ON d.id = ctd.document_id AND ctd.category_id = ?
-            LEFT JOIN notes n ON d.id = n.foreign_id
-            WHERE " . $date_filter . " GROUP BY d.id ORDER BY date DESC";
-            array_unshift($query_array, $catID);
-        $resultSet = sqlStatement($query, $query_array);
+        $labQuery = (new LabDocumentQuery())->build(
+            $catID,
+            is_string($fromDate) && $fromDate !== '' ? $fromDate : null,
+            is_string($toDate) && $toDate !== '' ? $toDate : null
+        );
+        $resultSet = sqlStatement($labQuery['sql'], $labQuery['binds']);
         ?>
 
         <div class="table-responsive">
@@ -209,23 +204,23 @@ $display_div = "style='display:block;'";
                 <?php
                 if (sqlNumRows($resultSet)) {
                     while ($row = sqlFetchArray($resultSet)) {
-                        $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
+                        $url = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
                         // Get the notes for this document.
-                        $notes = array();
+                        $notes = [];
                         $note = '';
                         if ($row['docNotes']) {
-                            $notes = explode("|", $row['docNotes']);
-                            $dates = explode("|", $row['docDates']);
+                            $notes = explode("|", (string) $row['docNotes']);
+                            $dates = explode("|", (string) $row['docDates']);
                         }
 
                         for ($i = 0; $i < count($notes); $i++) {
-                            $note .= text(oeFormatShortDate(date('Y-m-d', strtotime($dates[$i])))) . " : " . text($notes[$i]) . "<br />";
+                            $note .= text(oeFormatShortDate(date('Y-m-d', strtotime((string) $dates[$i])))) . " : " . text($notes[$i]) . "<br />";
                         }
                         ?>
                         <tr class="text">
-                            <td><?php echo text(oeFormatShortDate(date('Y-m-d', strtotime($row['date'])))); ?> </td>
+                            <td><?php echo text(oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date'])))); ?> </td>
                             <td class="linkcell">
-                                <a id="<?php echo attr($row['id']); ?>" title='<?php echo $url; ?>' onclick='top.restoreSession()'><?php echo text(basename($row['url'])); ?></a>
+                                <a id="<?php echo attr($row['id']); ?>" title='<?php echo $url; ?>' onclick='top.restoreSession()'><?php echo text(basename((string) $row['url'])); ?></a>
                             </td>
                             <td><?php echo text($row['pname']); ?> </td>
                             <td><?php echo $note; ?> &nbsp;</td>

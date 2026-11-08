@@ -3,16 +3,16 @@
 namespace OpenEMR\Validators;
 
 use OpenEMR\Common\Utils\ValidationUtils;
-use Particle\Validator\Validator;
-use Particle\Validator\Exception\InvalidValueException;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use Particle\Validator\Exception\InvalidValueException;
+use Particle\Validator\Validator;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 /**
  * Supports Patient Record Validation.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
@@ -23,17 +23,17 @@ class PatientValidator extends BaseValidator
     /**
      * Validates that a patient UUID exists in the database
      */
-    public function isExistingUuid($uuid)
+    public function isExistingUuid($uuid): bool
     {
         try {
             $uuidLookup = UuidRegistry::uuidToBytes($uuid);
-        } catch (InvalidUuidStringException $e) {
+        } catch (InvalidUuidStringException) {
             return false;
         }
 
         $result = sqlQuery(
             'SELECT uuid AS uuid FROM patient_data WHERE uuid = ?',
-            array($uuidLookup)
+            [$uuidLookup]
         );
 
         $existingUuid = $result['uuid'] ?? null;
@@ -45,7 +45,7 @@ class PatientValidator extends BaseValidator
      * The update use-case is comprised of the same fields as the insert use-case.
      * The update use-case differs from the insert use-case in that fields other than pid are not required.
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
 
@@ -59,14 +59,22 @@ class PatientValidator extends BaseValidator
                 $context->required("DOB", 'Date of Birth')->datetime('Y-m-d');
                 // callback functions are not called for optional parameters unless allowEmpty is false
                 $context->optional("email", "Email")
-                ->required(function ($values) {
-                    return array_key_exists('email', $values) && $values['email'] !== '' && $values['email'] !== null;
-                })
-                ->callback(function ($value) {
+                ->required(fn($values): bool => array_key_exists('email', $values) && $values['email'] !== '' && $values['email'] !== null)
+                ->string()
+                ->callback(function (string $value) {
                     // Validator->email() does not cover unicode characters in the local part so we use
                     // the OpenEMR email validator for this.
                     if (!ValidationUtils::isValidEmail($value)) {
-                        throw new InvalidValueException("Email " . $value . " is not a valid email", "email");
+                        throw new InvalidValueException("Email is not a valid email", "email");
+                    }
+                    return true;
+                });
+                $context->optional("email_direct", "Trusted Email")
+                ->required(fn($values): bool => is_array($values) && array_key_exists('email_direct', $values) && $values['email_direct'] !== '' && $values['email_direct'] !== null)
+                ->string()
+                ->callback(function (string $value) {
+                    if (!ValidationUtils::isValidEmail($value)) {
+                        throw new InvalidValueException("Trusted Email is not a valid email", "email_direct");
                     }
                     return true;
                 });

@@ -1,95 +1,62 @@
 <?php
 
 /**
- * @package Patient
+ * Session bootstrap for portal/patient: uses the portal patient's (or registering visitor's)
+ * session, or else the staff session, which must hold the patientportal/portal ACL. Loads
+ * interface/globals.php, so it has to be required at file scope from portal/patient/index.php.
  *
- * MACHINE-SPECIFIC CONFIGURATION SETTINGS
+ * Began as the Phreeze package's machine configuration; none of that code remains.
  *
- * The configuration settings in this file can be changed to suit the
- * machine on which the app is running (ex. local, staging or production).
- *
- * This file should not be added to version control, rather a template
- * file should be added instead and then copied for each install
- *
- * From phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
- *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/* */
-
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$globalsBag = OEGlobalsBag::getInstance();
 
-if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) || $_SESSION['register'] === true)) {
-    $pid = $_SESSION['pid'];
+if ($session->has('pid') && ($session->has('patient_portal_onsite_two') || $session->get('register') === true)) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
-    GlobalConfig::$PORTAL = 1;
-    if (!isset($_SESSION['portal_init'])) {
-        $_SESSION['portal_init'] = true;
+    if (!$session->has('portal_init')) {
+        SessionUtil::setSession('portal_init', true);
     }
     require_once(__DIR__ . "/../../interface/globals.php");
 } else {
-    SessionUtil::portalSessionCookieDestroy();
-    GlobalConfig::$PORTAL = 0;
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit;
     }
-}
-
-require_once 'verysimple/Phreeze/ConnectionSetting.php';
-require_once("verysimple/HTTP/RequestUtil.php");
-
-/**
- * database connection settings
- */
-GlobalConfig::$CONNECTION_SETTING = new ConnectionSetting();
-GlobalConfig::$CONNECTION_SETTING->ConnectionString = $GLOBALS['host'] . ":" . $GLOBALS['port'];
-GlobalConfig::$CONNECTION_SETTING->DBName = $GLOBALS['dbase'];
-GlobalConfig::$CONNECTION_SETTING->Username = $GLOBALS['login'];
-GlobalConfig::$CONNECTION_SETTING->Password = $GLOBALS['pass'];
-GlobalConfig::$CONNECTION_SETTING->Type = "MySQLi";
-if (!$disable_utf8_flag) {
-    if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-        GlobalConfig::$CONNECTION_SETTING->Charset = "utf8mb4";
-    } else {
-        GlobalConfig::$CONNECTION_SETTING->Charset = "utf8";
+    // Core-user fallback: this branch runs for staff hitting /portal/patient/*
+    // without a portal-patient session (e.g. `Provider.Home` dashboard).
+    // Historically the branch ran with NO acl gate, so any authenticated
+    // staff account could reach portal-scoped controllers (OnsiteDocument
+    // CRUD, etc.) — which use `bootstrap_pid`-only patient binding and
+    // therefore leak data across patients when `bootstrap_pid` is empty.
+    // Require the same `patientportal/portal` ACL that `ProviderController::Home()`
+    // enforces at the template layer, so the gate lives at the bootstrap
+    // choke point and covers every downstream controller uniformly.
+    if (!AclMain::aclCheckCore('patientportal', 'portal')) {
+        // Do not leak whether the section exists; behave the same as an
+        // unauthenticated visitor and bounce to the login landing.
+        SessionWrapperFactory::getInstance()->destroyCoreSession();
+        $landingpage = "index.php";
+        header('Location: ' . $landingpage);
+        exit;
     }
-}
-
-GlobalConfig::$CONNECTION_SETTING->Multibyte = true;
-// Turn off STRICT SQL
-GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone = '" .
-    (new DateTime())->format("P") . "'";
-
-/**
- * the root url of the application with trailing slash, for example http://localhost/patient/
- * default is relative base address
- */
-GlobalConfig::$WEB_ROOT = $GLOBALS['qualified_site_addr'];
-if ($GLOBALS['portal_onsite_two_basepath']) {
-    GlobalConfig::$ROOT_URL = GlobalConfig::$WEB_ROOT . '/portal/patient/';
-} else {
-    GlobalConfig::$ROOT_URL = $GLOBALS['web_root'] . '/portal/patient/';
-}
-
-
-/**
- * timezone
- */
-// date_default_timezone_set("UTC");
-
-// if Multibyte support is specified then we need to check if multibyte functions are available
-// if you receive this error then either install multibyte extensions or set Multibyte to false
-if (GlobalConfig::$CONNECTION_SETTING->Multibyte && !function_exists('mb_strlen')) {
-    die('<html>Multibyte extensions are not installed but Multibyte is set to true in _machine_config.php</html>');
 }

@@ -2,21 +2,19 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
 use OpenEMR\Cqm\Qdm\BaseTypes\Address;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\BaseTypes\Telcom;
-use OpenEMR\Cqm\Qdm\Id;
 use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicBirthdate;
@@ -30,12 +28,12 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class PatientService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'P.pid';
     }
 
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT
                     P.pid,
@@ -69,7 +67,7 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public static function makeQdmIdentifier($namingSystem, $value)
+    public static function makeQdmIdentifier($namingSystem, $value): Identifier
     {
         return new Identifier(
             [
@@ -79,7 +77,7 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         );
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): Patient
     {
         $record = $recordObj->getData();
         // Make a BSON-formatted ID that the CQM-execution service will preserve when results returned
@@ -167,7 +165,7 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                     'date' => $record['payer_eff_date']
                 ]),
                 'high' => null, // TODO We don't have an end-date for insurance?,
-                'lowClosed' => $record['payer_eff_date'] ? true : false,
+                'lowClosed' => (bool) $record['payer_eff_date'],
                 'highClosed' => false
             ]),
             'dataElementCodes' => [

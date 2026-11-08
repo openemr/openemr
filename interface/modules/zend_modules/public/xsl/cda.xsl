@@ -17,7 +17,7 @@
                                                Fixed up the assigned entity formatting
                                                Fixed up the informant
   Revision History: 2015-10-22 Eric Parapini - Fixed a few more things, disabled table of content generation for now
-                                               Removed the timezone offset in date renderings, deemed unecessary.
+                                               Removed the timezone offset in date renderings, deemed unnecessary.
   Revision History: 2015-12-10 Eric Parapini - Removed some of the additional time errors
   Revision History: 2016-02-22 Eric Parapini - Added Logo space, added in some javascript background support for interactive navigation bars
   Revision History: 2016-02-23 Eric Parapini - Added smooth scrolling, making the document easier to navigate
@@ -71,6 +71,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sdtc="urn:hl7-org:sdtc" version="1.0">
+  <!-- Shared allowlist template for narrative-block attribute copying. -->
+  <xsl:import href="_narrative-block-attrs.xsl"/>
+
   <!-- This is where all the styles are loaded -->
   
   
@@ -1719,6 +1722,32 @@ limitations under the License.
       <xsl:variable name="lcSource" select="translate($source, $uc, $lc)"/>
       <xsl:variable name="scrubbedSource" select="translate($source, $simple-sanitizer-match, $simple-sanitizer-replace)"/>
       <xsl:choose>
+        <xsl:when test="not(contains($narrative-block-attr-allowlist,
+                                     concat(' ', $attr-name, ' ')))">
+          <!--
+            Drop any attribute not on the CDA R2 narrative-block allowlist
+            (see $narrative-block-attr-allowlist in
+            _narrative-block-attrs.xsl). Blocks event handlers, style,
+            srcdoc, formaction, and every other non-narrative HTML attribute.
+
+            Ordered first so a non-allowlisted attribute is silently dropped
+            before its value can reach the javascript-terminate check below,
+            which would otherwise abort the whole render on malicious input
+            that would have been safely dropped anyway.
+          -->
+        </xsl:when>
+        <xsl:when test="contains($narrative-block-url-attrs,
+                                 concat(' ', $attr-name, ' '))">
+          <!--
+            URL-bearing attribute (href/...). Delegates to the shared
+            copy-if-safe-url template so the recognized-scheme list
+            lives in one place (_narrative-block-attrs.xsl). Ordered
+            before the scrubbedSource check because legitimate URL
+            characters (`:`, `/`) live on the simple-sanitizer-match
+            list and would otherwise trigger the warning path.
+          -->
+          <xsl:call-template name="copy-if-safe-url"/>
+        </xsl:when>
         <xsl:when test="contains($lcSource, 'javascript')">
           <p>
             <xsl:value-of select="$javascript-injection-warning"/>
@@ -1730,11 +1759,6 @@ limitations under the License.
         <xsl:when test="$attr-name = 'styleCode'">
           <xsl:apply-templates select="."/>
         </xsl:when>
-        <!--<xsl:when
-          test="not(document('')/xsl:stylesheet/xsl:variable[@name = 'table-elem-attrs']/in:tableElems/in:elem[@name = $elem-name]/in:attr[@name = $attr-name])">
-          <xsl:message><xsl:value-of select="$attr-name"/> is not legal in <xsl:value-of
-              select="$elem-name"/></xsl:message>
-        </xsl:when>-->
         <xsl:when test="not($source = $scrubbedSource)">
           <p>
             <xsl:value-of select="$malicious-content-warning"/>
@@ -1773,9 +1797,22 @@ limitations under the License.
   </xsl:template>
 
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" match="n1:linkHtml">
-    <xsl:element name="a">
-      <xsl:copy-of select="@* | text()"/>
-    </xsl:element>
+    <a>
+      <xsl:variable name="href" select="normalize-space(@href)"/>
+      <xsl:choose>
+        <xsl:when test="starts-with($href, 'http://') or starts-with($href, 'https://')">
+          <xsl:attribute name="href">
+            <xsl:value-of select="$href"/>
+          </xsl:attribute>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:attribute name="href">#</xsl:attribute>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:attribute name="rel">noopener noreferrer</xsl:attribute>
+      <xsl:attribute name="target">_blank</xsl:attribute>
+      <xsl:apply-templates/>
+    </a>
   </xsl:template>
 
   <!--   RenderMultiMedia
@@ -2330,7 +2367,7 @@ limitations under the License.
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  <!-- paticipant facility and date -->
+  <!-- participant facility and date -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="facilityAndDates">
     <table class="header_table">
       <tbody>
@@ -3230,7 +3267,7 @@ limitations under the License.
        border-left-style: solid;
        border-left-color: #478B95;
      }
-      /* Re-usable - Section-Title */
+      /* Reusable - Section-Title */
       .cda-render .section-title {
         color:#336b7a;
         font-size:1.09em;
@@ -3238,7 +3275,7 @@ limitations under the License.
         text-transform: uppercase;
       }
 
-      /* Re-usable - Attribute title */
+      /* Reusable - Attribute title */
       .cda-render .attribute-title {
         color:#000000;
         font-weight:bold;

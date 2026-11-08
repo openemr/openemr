@@ -213,7 +213,7 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -240,15 +240,13 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialOrganismGeneral xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialOrganismGeneral>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceSourceMaterialOrganismGeneral xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialOrganismGeneral>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->kingdom)) {
             $this->kingdom->xmlSerialize(true, $sxe->addChild('kingdom'));

@@ -1,0 +1,158 @@
+name: Release Mechanism Smoke Test
+
+# CI-side smoke test for the release-mechanism auth + env plumbing.
+# Runs `openemr:release-prep --scope=rel` end-to-end -- including
+# ChangelogMutator's `gh api` shellout -- against a known shipped
+# rel-branch, and asserts the process completes successfully. Discards
+# the resulting diff.
+#
+# Why this exists: the mutator unit tests (ChangelogMutatorTest,
+# CompatibilityMutatorTest) and fixture regression test
+# (ChangelogGeneratorFixtureTest) exercise the mutator LOGIC in
+# isolation with injected fakes (StubChangelogGenerator, FakeGitHubApi)
+# so they never actually shell out to `gh`. actionlint catches YAML
+# syntax + shellcheck warnings but has no knowledge of runtime env
+# semantics like "`gh` needs GH_TOKEN".
+#
+# The specific failure mode this guards against surfaced in
+# openemr/openemr#12999: release-amendment.yml set `persist-credentials:
+# false` on its checkouts (hardening) but didn't add `GH_TOKEN` to the
+# mutator step's env block. `gh` had no ambient token to fall back on,
+# so it errored immediately when the mutator's PHP tried to walk the
+# release range. Nothing in CI caught it -- only a manual dry-run
+# dispatch surfaced the bug.
+#
+# This job would have caught it: it mirrors release-amendment.yml's
+# hardened checkout shape (persist-credentials: false), so any future
+# hardening of release-prep.yml (or new release-mechanism workflow)
+# that drops or misconfigures GH_TOKEN breaks this smoke test in CI
+# before the change lands.
+
+on:
+  pull_request:
+    paths:
+    # Release-mechanism workflows: any change to their auth / env
+    # plumbing needs to be smoke-tested.
+    - '.github/workflows/release-prep.yml'
+    - '.github/workflows/release-amendment.yml'
+    - '.github/workflows/branch-cut-automation.yml'
+    - '.github/workflows/patch-prep-automation.yml'
+    - '.github/workflows/release-mechanism-smoketest.yml'
+    # Release-mechanism PHP code: mutators + generator + supporting
+    # tooling. Behavioural regressions in these classes would surface
+    # here even before the workflow YAMLs change.
+    - 'src/Common/Command/ReleasePrepCommand.php'
+    - 'src/Common/Command/ReleasePrep/**'
+    - 'tools/release/**'
+    # Shared PHP setup action: a break there would silently affect
+    # every release-mechanism workflow's mutator step.
+    - '.github/actions/setup-php-composer/**'
+  # Re-run on master pushes as a belt-and-suspenders guard: if a PR
+  # lands green but master somehow diverges (out-of-band merge,
+  # branch-protection admin-override), we still notice on the next
+  # push.
+  push:
+    branches:
+    - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoketest:
+    name: openemr:release-prep smoketest against rel-820
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        # Match release-prep.yml + release-amendment.yml: latest stable
+        # PHP, no matrix.
+        php-version:
+        - '8.5'
+    steps:
+    # Deliberately set persist-credentials: false to mirror the most-
+    # hardened workflow shape (release-amendment.yml). If the mutator
+    # step's env block is missing GH_TOKEN, `gh api` will fail here
+    # because there's no ambient token in .git/config to fall back on.
+    # If the hardened variant works, the softer variant (release-prep.yml
+    # with default persist-credentials) will too -- so no matrix job for
+    # the soft variant is needed.
+    - name: Checkout PR head (hardened auth mode)
+      uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+        # Full history so ChangelogMutator can resolve prev/target tags
+        # (v8_1_0 / v8_2_0) via `git tag --sort=-v:refname` and walk
+        # commits locally when needed.
+        fetch-depth: 0
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    - name: Install Composer dependencies
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    - name: Run openemr:release-prep against rel-820 (smoketest)
+      env:
+        # Explicit GH_TOKEN mirrors release-amendment.yml's env-block
+        # pattern. The runner-provided github.token is fine here -- the
+        # smoketest only reads gh api (compare, pulls, security-advisories),
+        # never writes.
+        #
+        # Any future release-mechanism workflow that drops this env line
+        # (or switches to persist-credentials: false without keeping it)
+        # will fail this step because ChangelogMutator shells out to
+        # `gh api` and needs a token.
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        # Target = 8.2.0 / rel-820: a shipped version + rel branch, so
+        # every mutator except ChangelogMutator + CompatibilityMutator
+        # is idempotent no-op. ChangelogMutator will produce a real diff
+        # (regenerates the section from live gh api state); we discard
+        # the diff since we only care that the process completed
+        # successfully. If it did, `gh api` had auth, ChangelogMutator
+        # + CompatibilityMutator + all supporting classes are wired
+        # correctly for the intended env shape.
+        #
+        # Version+branch hardcoded here -- update when we cut a new
+        # release and want to smoke-test against the newer shipped pair.
+        # Not a big deal to leave stale as long as v8_1_0 / v8_2_0 tags
+        # continue to exist.
+        php bin/console openemr:release-prep \
+          --skip-globals \
+          --target-version=8.2.0 \
+          --rel-branch=rel-820 \
+          --scope=rel
+
+    - name: Show diff (informational, does not fail the job)
+      run: |
+        {
+          echo '## release-prep mutator diff (informational)'
+          echo ''
+          echo 'This job only verifies the mutator process completes cleanly.'
+          echo 'Diff below is expected on rel-820 (Security section regen from'
+          echo 'live advisories) -- shown here for eyeball verification but not'
+          echo 'gated. If diff is empty, that is also fine.'
+          echo ''
+          echo '```diff'
+          git diff --stat || true
+          echo ''
+          git diff || true
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Discard smoketest mutations
+      run: |
+        # No commit, no push -- smoke test has zero side effects on the
+        # repo. Restoring here is defensive since the next step doesn't
+        # depend on the working tree, but keeps the run's final state
+        # clean if a future step is added.
+        git checkout -- .

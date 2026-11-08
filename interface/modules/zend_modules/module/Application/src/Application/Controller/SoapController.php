@@ -12,10 +12,9 @@
 
 namespace Application\Controller;
 
-use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
 use Application\Listener\Listener;
 use Carecoordination\Controller\EncounterccdadispatchController;
+use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\Soap\Server;
 
 class SoapController extends AbstractActionController
@@ -41,7 +40,7 @@ class SoapController extends AbstractActionController
         // @see https://framework.zend.com/blog/2017-01-24-zend-soap-server.html for more details
         $server = new Server(
             null,
-            array('uri' => 'http://localhost/index/soap')
+            ['uri' => 'http://localhost/index/soap']
         );
         // set SOAP service class
         // Bind already initialized object to Soap Server

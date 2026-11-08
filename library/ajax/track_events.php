@@ -12,8 +12,9 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\VersionService;
 use OpenEMR\Telemetry\TelemetryRepository;
 use OpenEMR\Telemetry\TelemetryService;
@@ -24,20 +25,21 @@ header("Content-Type: application/json");
  * Main request handler that reads input, verifies the CSRF token, and delegates
  * to the appropriate telemetry service method.
  */
-function handleRequest(): void
+function ajax_handleRequest(): void
 {
     // Read JSON payload.
     $input_json = file_get_contents('php://input');
     $data = json_decode($input_json, true);
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // Verify CSRF token.
-    if (!isset($data["csrf_token_form"]) || !CsrfUtils::verifyCsrfToken($data["csrf_token_form"])) {
+    if (!isset($data["csrf_token_form"]) || !CsrfUtils::verifyCsrfToken($data["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
     $telemetryRepo = new TelemetryRepository();
     $versionService = new VersionService();
-    $logger = new SystemLogger();
+    $logger = ServiceContainer::getLogger();
     $telemetryService = new TelemetryService($telemetryRepo, $versionService, $logger);
 
     $action = $data['action'] ?? '';
@@ -52,4 +54,4 @@ function handleRequest(): void
     }
 }
 
-handleRequest();
+ajax_handleRequest();

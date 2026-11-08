@@ -2,10 +2,10 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
@@ -21,7 +21,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class LaboratoryTestService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT
                     O.patient_id AS pid,
@@ -44,12 +44,12 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
         return $sql;
     }
 
-    public function getPatientIdColumn()
+    public function getPatientIdColumn(): string
     {
         return 'O.patient_id';
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): LaboratoryTestPerformed
     {
         $record = $recordObj->getData();
         $result = 'Negative';
@@ -83,8 +83,8 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
                 'high' => new DateTime([
                     'date' => $record['date_end'] ?: null
                 ]),
-                'lowClosed' => $record['date'] ? true : false,
-                'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false
+                'lowClosed' => (bool) $record['date'],
+                'highClosed' => (bool) $this->validDateOrNull($record['date_end'])
             ]),
             'result' => $result,
             'resultDatetime' => new DateTime([

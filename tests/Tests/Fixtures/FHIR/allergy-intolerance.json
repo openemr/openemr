@@ -1,0 +1,56 @@
+[
+    {
+        "resourceType": "AllergyIntolerance",
+        "clinicalStatus": {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+                    "code": "active",
+                    "display": "Active"
+                }
+            ]
+        },
+        "verificationStatus": {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                    "code": "confirmed",
+                    "display": "Confirmed"
+                }
+            ]
+        },
+        "category": ["medication"],
+        "criticality": "high",
+        "code": {
+            "coding": [
+                {
+                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                    "code": "7980",
+                    "display": "Penicillin G"
+                }
+            ],
+            "text": "Penicillin G"
+        },
+        "reaction": [
+            {
+                "manifestation": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://snomed.info/sct",
+                                "code": "247472004",
+                                "display": "Hives"
+                            }
+                        ],
+                        "text": "Hives"
+                    }
+                ]
+            }
+        ],
+        "note": [
+            {
+                "text": "test-fixture allergy intolerance for penicillin"
+            }
+        ]
+    }
+]

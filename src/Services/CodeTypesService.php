@@ -4,7 +4,7 @@
  * CodeTypesService.php
  *
  * @package   openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Services;
 
+use InvalidArgumentException;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 
 /**
@@ -20,21 +21,39 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 class CodeTypesService
 {
     /**
+     * translates to code_types.ct_key WHERE code_types.external_id is 11 @see code_types.inc.php
      * @const string
      */
     const CODE_TYPE_SNOMED_CT = "SNOMED-CT";
+    // translates to code_types.ct_key WHERE code_types.external_id is 10 @see code_types.inc.php
     const CODE_TYPE_SNOMED = "SNOMED";
+    // translates to code_types.ct_key WHERE code_types.external_id is 12 @see code_types.inc.php
+    const CODE_TYPE_SNOMED_PROCEDURE = "SNOMED-PR";
     const CODE_TYPE_CPT4 = "CPT4";
     const CODE_TYPE_LOINC = "LOINC";
     const CODE_TYPE_NUCC = "NUCC";
     const CODE_TYPE_RXNORM = "RXNORM";
     const CODE_TYPE_RXCUI = "RXCUI";
     const CODE_TYPE_ICD10 = 'ICD10';
+    const CODE_TYPE_ICD9 = 'ICD9';
     const CODE_TYPE_ICD10PCS = 'ICD10PCS';
     const CODE_TYPE_CPT = 'CPT';
     const CODE_TYPE_CVX = 'CVX';
+
+    const CODE_TYPE_NDC = 'NDC';
+
+    const CODE_TYPE_NCI = 'NCI-CONCEPT-ID';
+
+    const CODE_TYPE_DATE_ABSENT_REASON = 'DataAbsentReason';
     const CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY = "2.16.840.1.114222.4.11.1066";
-    const CODE_TYPE_OID = array(
+
+    const CODE_TYPE_HL7_ROLE_CODE = 'RoleCode';
+
+    const CODE_TYPE_HL7_PARTICIPATION_FUNCTION = 'ParticipationFunction';
+
+    const CODE_TYPE_HSOC = 'HSOC';
+
+    const CODE_TYPE_OID = [
         '2.16.840.1.113883.6.96' => self::CODE_TYPE_SNOMED_CT,
         '2.16.840.1.113883.6.12' => self::CODE_TYPE_CPT4,
         '2.16.840.1.113883.6.1' => self::CODE_TYPE_LOINC,
@@ -68,8 +87,10 @@ class CodeTypesService
         '2.16.840.1.113883.6.13' => 'CDT',
         '2.16.840.1.113883.18.2' => 'AdministrativeSex',
         '2.16.840.1.113883.5.1' => 'AdministrativeGender',
+        '2.16.840.1.114222.4.11.7900' => 'IndustryODH',
+        '2.16.840.1.114222.4.11.7901' => 'OccupationODH',
         self::CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY => 'HealthCareProviderTaxonomy'
-    );
+    ];
     /**
      * @var array
      */
@@ -81,6 +102,8 @@ class CodeTypesService
     private $cpt4Installed;
     private $rxnormInstalled;
 
+    protected ListService $listService;
+
     public function __construct()
     {
         // currently, our installed code types are
@@ -90,6 +113,17 @@ class CodeTypesService
         $this->snomedInstalled = isset($code_types[self::CODE_TYPE_SNOMED_CT]);
         $this->cpt4Installed = isset($code_types[self::CODE_TYPE_CPT4]);
         $this->rxnormInstalled = isset($code_types[self::CODE_TYPE_RXNORM]);
+    }
+
+    public function setListService(ListService $listService): void
+    {
+        $this->listService = $listService;
+    }
+
+    public function getListService(): ListService
+    {
+        $this->listService ??= new ListService();
+        return $this->listService;
     }
 
     /**
@@ -150,7 +184,7 @@ class CodeTypesService
 
     /**
      * @param       $code
-     * @param false $useOid
+     * @param bool $useOid
      * @return string|null
      */
     public function getSystemForCode($code, $useOid = false)
@@ -166,11 +200,11 @@ class CodeTypesService
      * @param $code
      * @return array
      */
-    public function parseCode($code)
+    public function parseCode($code): array
     {
         $parsedCode = $code;
         $parsedType = null;
-        if (is_string($code) && strpos($code, ":") !== false) {
+        if (is_string($code) && str_contains($code, ":")) {
             $parts = explode(":", $code);
             $parsedCode = $parts[1];
             $parsedType = $parts[0];
@@ -190,7 +224,7 @@ class CodeTypesService
         if (empty($type) || empty($code)) {
             return "";
         }
-        $tmp = explode(':', $code);
+        $tmp = explode(':', (string) $code);
         if (is_array($tmp) && count($tmp ?? []) === 2) {
             if (!$oe_format) {
                 return $code;
@@ -214,10 +248,49 @@ class CodeTypesService
         $parsedCode = $this->parseCode($code);
         return $parsedCode['code_type'];
     }
+    public function systemHasMultipleCodeTypes(?string $system): bool {
+        if (empty($system)) {
+            return false;
+        }
+        $list = $this->getCodeTypeListForSystem($system);
+        // if we have more than one code type for the system, return true
+        return count($list) > 1;
+    }
+
+    /**
+     * Returns the most appropriate code type for a given system URL.
+     * @param string $system
+     * @return string|null
+     */
+    public function getCodeTypeForSystemUrl(string $system): ?string
+    {
+        // only return the first code type for now to keep with system functionality
+        return $this->getCodeTypeListForSystem($system)[0] ?? null;
+    }
+
+    public function getCodeTypeListForSystem(?string $system): array {
+        $codeType = match ($system) {
+            FhirCodeSystemConstants::SNOMED_CT => [self::CODE_TYPE_SNOMED_CT, self::CODE_TYPE_SNOMED, self::CODE_TYPE_SNOMED_PROCEDURE],
+            FhirCodeSystemConstants::NUCC_PROVIDER => [self::CODE_TYPE_NUCC],
+            FhirCodeSystemConstants::LOINC => [self::CODE_TYPE_LOINC],
+            FhirCodeSystemConstants::RXNORM => [self::CODE_TYPE_RXCUI],
+            FhirCodeSystemConstants::NDC => [self::CODE_TYPE_NDC],
+            FhirCodeSystemConstants::NCI_THESAURUS => [self::CODE_TYPE_NCI],
+            FhirCodeSystemConstants::AMA_CPT => [self::CODE_TYPE_CPT4],
+            FhirCodeSystemConstants::HL7_ICD10, FhirCodeSystemConstants::HL7_ICD10_CM => [self::CODE_TYPE_ICD10],
+            FhirCodeSystemConstants::HL7_ICD9_CM => [self::CODE_TYPE_ICD9],
+            FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM => [self::CODE_TYPE_DATE_ABSENT_REASON],
+            FHIRCodeSystemConstants::HL7_ROLE_CODE => [self::CODE_TYPE_HL7_ROLE_CODE],
+            FHIRCodeSystemConstants::HL7_PARTICIPATION_TYPE => [self::CODE_TYPE_HL7_PARTICIPATION_FUNCTION],
+            FHIRCodeSystemConstants::HSOC => [self::CODE_TYPE_HSOC],
+            default => [],
+        };
+        return $codeType;
+    }
 
     /**
      * @param string $codeType
-     * @param false  $useOid
+     * @param bool  $useOid
      * @return string|null
      */
     public function getSystemForCodeType($codeType, $useOid = false)
@@ -227,7 +300,8 @@ class CodeTypesService
         if ($useOid) {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
                 $system = '2.16.840.1.113883.6.96';
-            } elseif (self::CODE_TYPE_SNOMED == $codeType) {
+            } elseif (self::CODE_TYPE_SNOMED == $codeType || self::CODE_TYPE_SNOMED_PROCEDURE == $codeType) {
+                // SNOMED-PR holds SNOMED CT procedure codes, as getCodeTypeListForSystem() already reads them back.
                 $system = '2.16.840.1.113883.6.96';
             } elseif (self::CODE_TYPE_CPT4 == $codeType) {
                 $system = '2.16.840.1.113883.6.12';
@@ -235,6 +309,9 @@ class CodeTypesService
                 $system = '2.16.840.1.113883.6.1';
             } elseif (self::CODE_TYPE_ICD10 == $codeType) {
                 $system = '2.16.840.1.113883.6.90';
+            } elseif (self::CODE_TYPE_ICD9 == $codeType || 'ICD9-CM' === $codeType) {
+                // Both spellings, for the same reason as the URL branch below.
+                $system = '2.16.840.1.113883.6.103';
             } elseif (self::CODE_TYPE_RXCUI == $codeType || self::CODE_TYPE_RXNORM == $codeType) {
                 $system = '2.16.840.1.113883.6.88';
             } elseif (self::CODE_TYPE_CPT == $codeType) {
@@ -245,17 +322,38 @@ class CodeTypesService
                 $system = '2.16.840.1.113883.6.4';
             }
         } else {
-            if (self::CODE_TYPE_SNOMED_CT == $codeType) {
-                $system = FhirCodeSystemConstants::SNOMED_CT;
-            } elseif (self::CODE_TYPE_SNOMED == $codeType) {
-                $system = FhirCodeSystemConstants::SNOMED_CT;
-            } elseif (self::CODE_TYPE_NUCC == $codeType) {
-                $system = FhirCodeSystemConstants::NUCC_PROVIDER;
-            } elseif (self::CODE_TYPE_LOINC == $codeType) {
-                $system = FhirCodeSystemConstants::LOINC;
-            } elseif (self::CODE_TYPE_RXNORM == $codeType || self::CODE_TYPE_RXCUI == $codeType) {
-                $system = FhirCodeSystemConstants::RXNORM;
-            }
+            $system = match ($codeType) {
+                self::CODE_TYPE_SNOMED_CT => FhirCodeSystemConstants::SNOMED_CT,
+                self::CODE_TYPE_SNOMED, self::CODE_TYPE_SNOMED_PROCEDURE => FhirCodeSystemConstants::SNOMED_CT,
+                self::CODE_TYPE_NUCC => FhirCodeSystemConstants::NUCC_PROVIDER,
+                self::CODE_TYPE_LOINC => FhirCodeSystemConstants::LOINC,
+                self::CODE_TYPE_RXNORM, self::CODE_TYPE_RXCUI => FhirCodeSystemConstants::RXNORM,
+                self::CODE_TYPE_NDC => FhirCodeSystemConstants::NDC,
+                self::CODE_TYPE_NCI => FhirCodeSystemConstants::NCI_THESAURUS,
+                self::CODE_TYPE_CPT4, self::CODE_TYPE_CPT => FhirCodeSystemConstants::AMA_CPT,
+                // ICD-10-CM, not the international ICD-10. getCodeTypeListForSystem() accepts
+                // both system urls into this one stored type, so emitting HL7_ICD10 meant a
+                // diagnosis written as icd-10-cm read back as icd-10. The OID branch of this
+                // same method already answers 2.16.840.1.113883.6.90 for this type, which is
+                // the ICD-10-CM OID (plain ICD-10 is 2.16.840.1.113883.6.3), so the url branch
+                // was the half that disagreed. US Core expects ICD-10-CM for US diagnoses.
+                self::CODE_TYPE_ICD10 => FhirCodeSystemConstants::HL7_ICD10_CM,
+                // The reverse of getCodeTypeListForSystem()'s HL7_ICD9_CM entry. Without it an
+                // ICD9:<code> read back out carried no system at all.
+                //
+                // 'ICD9-CM' is listed alongside it because that is the spelling CODE_TYPE_OID
+                // uses for the same code system (ICD10's entry there is the CODE_TYPE_ICD10
+                // constant, ICD9's is a bare string). Matching only the constant left an
+                // ICD9-CM:<code> record falling through to the OID lookup below and coming back
+                // with the raw OID, so the same code system answered with two different systems
+                // depending on which spelling the row happened to carry.
+                self::CODE_TYPE_ICD9, 'ICD9-CM' => FhirCodeSystemConstants::HL7_ICD9_CM,
+                self::CODE_TYPE_DATE_ABSENT_REASON => FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM,
+                self::CODE_TYPE_HL7_ROLE_CODE => FHIRCodeSystemConstants::HL7_ROLE_CODE,
+                self::CODE_TYPE_HL7_PARTICIPATION_FUNCTION => FHIRCodeSystemConstants::HL7_PARTICIPATION_TYPE,
+                self::CODE_TYPE_HSOC => FHIRCodeSystemConstants::HSOC,
+                default => null,
+            };
         }
         if (empty($system)) {
             foreach (self::CODE_TYPE_OID as $oid => $system_code) {
@@ -302,7 +400,7 @@ class CodeTypesService
                 $type = 'CPT4';
                 break;
             default:
-                if (strpos($type, '2.16.840.1.113883.') !== false) {
+                if (str_contains($type, '2.16.840.1.113883.')) {
                     $type = $this->getCodeSystemNameFromSystem($type);
                 }
         }
@@ -321,13 +419,12 @@ class CodeTypesService
      * @param        $codeType
      * @param string $currentCodeText
      * @param string $codeDescriptionType
-     * @return array
      */
-    public function resolveCode($code, $codeType, $currentCodeText = '', $codeDescriptionType = 'code_text')
+    public function resolveCode($code, $codeType, $currentCodeText = '', $codeDescriptionType = 'code_text'): array
     {
         $valueset = '';
         $valueset_name = '';
-        $default = array(
+        $default = [
             'code' => $code ?? '',
             'formatted_code' => $code . ':' . $codeType,
             'formatted_code_type' => $codeType ?? '',
@@ -335,7 +432,7 @@ class CodeTypesService
             'system_oid' => '',
             'valueset' => '',
             'valueset_name' => ''
-        );
+        ];
         if (empty($code)) {
             $default['formatted_code'] = '';
             return $default;
@@ -350,8 +447,8 @@ class CodeTypesService
 
         // use valueset table if code description not found.
         if (empty($currentCodeText)) {
-            if (strpos($codeType, '2.16.840.1.113883.') !== false) {
-                $oid = trim($codeType);
+            if (str_contains((string) $codeType, '2.16.840.1.113883.')) {
+                $oid = trim((string) $codeType);
                 $codeType = "";
             }
             $value = $this->lookupFromValueset($code, $formatted_type, $oid);
@@ -365,7 +462,7 @@ class CodeTypesService
             $valueset = $value['valueset'] ?? '';
         }
 
-        return array(
+        return [
             'code' => $code ?? "",
             'formatted_code' => $formatted_code ?: $code,
             'formatted_code_type' => $formatted_type ?: $codeType,
@@ -373,7 +470,7 @@ class CodeTypesService
             'system_oid' => $oid ?? "",
             'valueset' => $valueset ?? "",
             'valueset_name' => $valueset_name ?? ""
-        );
+        ];
     }
 
     public function getInstalledCodeTypes()
@@ -386,12 +483,12 @@ class CodeTypesService
         if (empty($codeSystem) && empty($codeType)) {
             $value = sqlQuery(
                 "Select * From valueset Where code = ? LIMIT 1",
-                array($code)
+                [$code]
             );
         } else {
             $value = sqlQuery(
                 "Select * From valueset Where code = ? And (code_type = ? Or code_type LIKE ? Or code_system = ?)",
-                array($code, $codeType, "$codeType%", $codeSystem)
+                [$code, $codeType, "$codeType%", $codeSystem]
             );
         }
         return $value;
@@ -399,21 +496,25 @@ class CodeTypesService
 
     public function dischargeOptionIdFromCode($formatted_code)
     {
-        $listService = new ListService();
-        $ret = $listService->getOptionsByListName('discharge-disposition', ['codes' => $formatted_code]) ?? '';
+        $listService = $this->getListService();
+        $ret = $listService->getOptionsByListName('discharge-disposition', ['codes' => $formatted_code]);
         return $ret[0]['option_id'] ?? '';
     }
 
     public function dischargeCodeFromOptionId($option_id)
     {
-        $listService = new ListService();
+        $listService = $this->getListService();
         return $listService->getListOption('discharge-disposition', $option_id)['codes'] ?? '';
     }
 
-    public function parseCodesIntoCodeableConcepts($codes)
+    public function parseCodesIntoCodeableConcepts($codes): array
     {
+        if (!is_string($codes) || empty(trim($codes))) {
+            return [];
+        }
         $codes = explode(";", $codes);
-        $codeableConcepts = array();
+
+        $codeableConcepts = [];
         foreach ($codes as $codeItem) {
             $parsedCode = $this->parseCode($codeItem);
             $codeType = $parsedCode['code_type'];
@@ -428,5 +529,79 @@ class CodeTypesService
             ];
         }
         return $codeableConcepts;
+    }
+
+    /**
+     * Return listing of pertinent and active code types.
+     *
+     * Function will return listing (ct_key) of pertinent
+     * active code types, such as diagnosis codes or procedure
+     * codes in a chosen format. Supported returned formats include
+     * as 1) an array and as 2) a comma-separated lists that has been
+     * process by urlencode() in order to place into URL  address safely.
+     *
+     * @param  string       $category       category of code types('diagnosis', 'procedure', 'clinical_term', 'active' or 'medical_problem')
+     * @param  string       $return_format  format or returned code types ('array' or 'csv')
+     * @return string|array
+     */
+    public function collectCodeTypes($category, $return_format = "array"): string|array
+    {
+        global $code_types;
+
+        // could turn this into an enum later if desired
+        if (!in_array($return_format, ['array','csv'])) {
+            throw new InvalidArgumentException("Unsupported return format: $return_format");
+        }
+
+        $code_remap = [
+            'active' => 'active',
+            'clinical_term' => 'term',
+            'diagnosis' => 'diag',
+            'drug' => 'drug',
+            'medical_problem' => 'problem',
+            'procedure' => 'proc',
+        ];
+        $cat_code = $code_remap[$category] ?? null;
+        if ($cat_code === null) {
+            throw new InvalidArgumentException("Unsupported code category: $category");
+        }
+
+        $return = array_keys(array_filter($code_types, fn($ct_arr): bool => ($ct_arr['active'] ?? false) && ($ct_arr[$cat_code] ?? false)));
+
+        return $return_format === 'csv' ? csv_like_join($return) : $return;
+    }
+
+    /**
+     * Given a system URL and code, return the first valid OpenEMR formatted code with type prefix if applicable.
+     * @param string|null $system
+     * @param float|bool|int|string $code
+     * @return string
+     */
+    public function getOpenEMRCodeForSystemAndCode(?string $system, float|bool|int|string $code): string
+    {
+        if (!empty($system)) {
+            $codeType = $this->getCodeTypeForSystemUrl($system);
+            if (!empty($codeType)) {
+                return $this->getCodeWithType($code, $codeType);
+            }
+        }
+        return $code;
+    }
+
+    public function getAllOpenEMRCodesForSystemAndCode(?string $system, float|bool|int|string $code): array
+    {
+        $codes = [];
+        if (!empty($system)) {
+            $codeTypeList = $this->getCodeTypeListForSystem($system);
+            if (!empty($codeTypeList)) {
+                foreach ($codeTypeList as $codeType) {
+                    $codes[] = $this->getCodeWithType($code, $codeType);
+                }
+
+            }
+        } else {
+            $codes[] = $code;
+        }
+        return $codes;
     }
 }

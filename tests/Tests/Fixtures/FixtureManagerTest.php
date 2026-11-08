@@ -2,12 +2,12 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -29,11 +29,11 @@ class FixtureManagerTest extends TestCase
     {
         $this->assertNotNull($patientFixture);
 
-        $expectedFields = array("pubpid", "title", "fname", "mname",
+        $expectedFields = ["pubpid", "title", "fname", "mname",
          "lname", "ss", "street", "contact_relationship",
          "postal_code", "city", "state", "phone_contact",
          "phone_home", "phone_biz", "email", "DOB",
-         "sex", "status", "drivers_license");
+         "sex", "status", "drivers_license"];
 
         $message = "Patient is missing";
         foreach ($expectedFields as $expectedField) {
@@ -61,7 +61,7 @@ class FixtureManagerTest extends TestCase
         $actualIdentifiers = $fhirPatientFixture['identifier'];
         $this->assertEquals(2, count($actualIdentifiers));
 
-        $actualIdentifierCodes = array();
+        $actualIdentifierCodes = [];
         foreach ($actualIdentifiers as $actualIdentifier) {
             $actualCode = $actualIdentifier['type']['coding'][0]['code'];
             array_push($actualIdentifierCodes, $actualCode);
@@ -125,7 +125,7 @@ class FixtureManagerTest extends TestCase
         $this->fixtureManager->removePatientFixtures();
 
         $recordCountSql = "SELECT COUNT(*) FROM patient_data WHERE pubpid LIKE ?";
-        $recordCountResult = sqlQueryNoLog($recordCountSql, array("test-fixture%"));
+        $recordCountResult = sqlQueryNoLog($recordCountSql, ["test-fixture%"]);
         $recordCount = array_values($recordCountResult)[0];
 
         $this->assertEquals(0, $recordCount);

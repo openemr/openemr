@@ -155,7 +155,7 @@ class FHIRSubstanceSourceMaterialAuthor extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -176,15 +176,13 @@ class FHIRSubstanceSourceMaterialAuthor extends FHIRBackboneElement implements \
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialAuthor xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialAuthor>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceSourceMaterialAuthor xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialAuthor>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->authorType)) {
             $this->authorType->xmlSerialize(true, $sxe->addChild('authorType'));

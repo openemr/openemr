@@ -213,7 +213,7 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -240,15 +240,13 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExampleScenarioActor xmlns="http://hl7.org/fhir"></ExampleScenarioActor>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExampleScenarioActor xmlns="http://hl7.org/fhir"></ExampleScenarioActor>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->actorId)) {
             $this->actorId->xmlSerialize(true, $sxe->addChild('actorId'));

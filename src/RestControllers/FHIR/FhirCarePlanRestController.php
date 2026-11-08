@@ -3,20 +3,22 @@
 /**
  * FhirCarePlanRestController.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Services\FHIR\FhirCarePlanService;
-use OpenEMR\Services\FHIR\FhirCareTeamService;
-use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\RestControllers\RestControllerHelper;
+use OpenApi\Attributes as OA;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
-use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\FHIR\FhirCarePlanService;
+use OpenEMR\Services\FHIR\FhirResourcesService;
 
 class FhirCarePlanRestController
 {
@@ -39,6 +41,71 @@ class FhirCarePlanRestController
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */
+    #[OA\Get(
+        path: '/fhir/CarePlan/{uuid}',
+        description: 'Returns a single CarePlan resource.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the CarePlan resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Standard Response',
+                content: new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
+                            ),
+                        ],
+                        example: [
+                            'id' => '94682f08-8fbc-451e-b1ec-f922d765c38f_1',
+                            'meta' => [
+                                'versionId' => '1',
+                                'lastUpdated' => '2021-09-16T00:54:18+00:00',
+                            ],
+                            'resourceType' => 'CarePlan',
+                            'text' => [
+                                'status' => 'generated',
+                                'div' => '<div xmlns="http://www.w3.org/1999/xhtml"><p>Treat flu.</p></div>',
+                            ],
+                            'status' => 'active',
+                            'intent' => 'plan',
+                            'category' => [
+                                [
+                                    'coding' => [
+                                        [
+                                            'system' => 'http://hl7.org/fhir/us/core/CodeSystem/careplan-category',
+                                            'code' => 'assess-plan',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'description' => 'Treat flu.',
+                            'subject' => [
+                                'reference' => 'Patient/94682ef5-b0e3-4289-b19a-11b9592e9c92',
+                                'type' => 'Patient',
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getOne($fhirId, $puuidBind = null)
     {
         $processingResult = $this->fhirResourceService->getOne($fhirId, $puuidBind);
@@ -48,15 +115,89 @@ class FhirCarePlanRestController
     /**
      * Queries for FHIR location resources using various search parameters.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return FHIR bundle with query results, if found
+     * @return \Symfony\Component\HttpFoundation\Response FHIR bundle with query results, if found
      */
+    #[OA\Get(
+        path: '/fhir/CarePlan',
+        description: 'Returns a list of CarePlan resources.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: '_id',
+                in: 'query',
+                description: 'The uuid for the CarePlan resource.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: '_lastUpdated',
+                in: 'query',
+                description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'patient',
+                in: 'query',
+                description: 'The uuid for the patient.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'category',
+                in: 'query',
+                description: 'The category of the CarePlan resource.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Standard Response',
+                content: new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
+                            ),
+                        ],
+                        example: [
+                            'meta' => [
+                                'lastUpdated' => '2021-09-14T09:13:51',
+                            ],
+                            'resourceType' => 'Bundle',
+                            'type' => 'collection',
+                            'total' => 0,
+                            'link' => [
+                                [
+                                    'relation' => 'self',
+                                    'url' => 'https://localhost:9300/apis/default/fhir/CarePlan',
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirResourceService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
-                'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
+                'fullUrl' =>  OEGlobalsBag::getInstance()->get('site_addr_oath') . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
@@ -66,4 +207,76 @@ class FhirCarePlanRestController
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
     }
+    /**
+     * Creates a new FHIR CarePlan resource.
+     * Routed via FhirGenericRestController::post(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    // @codeCoverageIgnoreStart
+    #[OA\Post(
+        path: '/fhir/CarePlan',
+        description: 'Creates a new CarePlan resource. The CarePlan must reference an existing encounter; one CarePlan corresponds to one care_plan form on that encounter, with each FHIR activity.detail becoming a form_care_plan row. Note: FHIR R4 marks `intent` as required (1..1) but OpenEMR\'s form_care_plan schema has no column for it; the read side hardcodes intent=\'plan\', so any other intent value is rejected rather than stored and silently downgraded. `activity.reference` is likewise rejected: form_care_plan rows are built from `activity.detail`.',
+        tags: ['fhir'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '201', description: 'CarePlan resource created'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function post(array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::post()
+    }
+
+    /**
+     * Updates an existing FHIR CarePlan resource.
+     * Routed via FhirGenericRestController::put(). This method exists only
+     * to provide OpenAPI documentation via attributes.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    #[OA\Put(
+        path: '/fhir/CarePlan/{uuid}',
+        description: 'Replaces an existing CarePlan resource. The uuid is the surrogate key encounter-uuid + \'-SK-\' + form-id. PUT replaces all activity items on the form (DELETE+INSERT transactional).',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the CarePlan resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(type: 'object')
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', description: 'CarePlan resource updated'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '403', ref: '#/components/responses/forbidden'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function put(string $fhirId, array $fhirJson): void
+    {
+        // Implementation lives in FhirGenericRestController::put()
+    }
+    // @codeCoverageIgnoreEnd
 }

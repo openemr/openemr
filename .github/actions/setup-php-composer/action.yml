@@ -1,0 +1,88 @@
+name: Setup PHP and Composer
+description: Sets up PHP, configures Composer caching, and installs dependencies
+
+inputs:
+  php-version:
+    description: PHP version to install
+    required: true
+  coverage:
+    description: Coverage driver (none, xdebug, pcov)
+    required: false
+    default: none
+  extensions:
+    description: PHP extensions to install (comma-separated)
+    required: false
+    default: ''
+  tools:
+    description: Tools to install (comma-separated, e.g., cs2pr, phpcs)
+    required: false
+    default: ''
+  skip-composer-install:
+    description: Skip Composer cache and install steps
+    required: false
+    default: 'false'
+  working-directory:
+    description: Directory holding the composer.json to install
+    required: false
+    default: '.'
+  no-scripts:
+    description: Pass --no-scripts to composer install
+    required: false
+    default: 'false'
+  no-dev:
+    description: Pass --no-dev to composer install
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+  - name: Setup PHP
+    uses: shivammathur/setup-php@v2
+    with:
+      php-version: ${{ inputs.php-version }}
+      coverage: ${{ inputs.coverage }}
+      extensions: ${{ inputs.extensions }}
+      tools: ${{ inputs.tools }}
+
+  - name: Get composer cache directory and key
+    if: inputs.skip-composer-install != 'true'
+    id: composer-cache
+    shell: bash
+    working-directory: ${{ inputs.working-directory }}
+    env:
+      # Hash the lockfiles now. actions/cache evaluates its inputs again in its
+      # post step, when the job may have left files in the workspace that
+      # hashFiles() cannot read, such as Docker-owned volumes.
+      # A --no-dev install caches fewer packages, so keep it from claiming the full-install key.
+      KEY: ${{ runner.os }}-composer-${{ inputs.php-version }}-${{ inputs.no-dev == 'true' && 'no-dev-' || '' }}${{ hashFiles('**/composer.lock') }}
+    run: |
+      echo "dir=$(composer config --absolute cache-files-dir)" >> "$GITHUB_OUTPUT"
+      echo "key=$KEY" >> "$GITHUB_OUTPUT"
+
+  - name: Cache Composer dependencies
+    if: inputs.skip-composer-install != 'true'
+    uses: actions/cache@v5
+    with:
+      path: ${{ steps.composer-cache.outputs.dir }}
+      key: ${{ steps.composer-cache.outputs.key }}
+      restore-keys: |
+        ${{ runner.os }}-composer-${{ inputs.php-version }}-
+        ${{ runner.os }}-composer-
+
+  - name: Install Composer dependencies
+    if: inputs.skip-composer-install != 'true'
+    shell: bash
+    working-directory: ${{ inputs.working-directory }}
+    env:
+      NO_SCRIPTS: ${{ inputs.no-scripts }}
+      NO_DEV: ${{ inputs.no-dev }}
+    run: |
+      flags=(--prefer-dist --no-progress --no-interaction)
+      if [[ $NO_SCRIPTS = true ]]; then
+        flags+=(--no-scripts)
+      fi
+      if [[ $NO_DEV = true ]]; then
+        flags+=(--no-dev)
+      fi
+      composer install "${flags[@]}"

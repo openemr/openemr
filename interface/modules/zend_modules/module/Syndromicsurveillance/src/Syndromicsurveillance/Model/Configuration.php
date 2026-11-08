@@ -12,15 +12,14 @@
 
 namespace Syndromicsurveillance\Model;
 
-use Laminas\InputFilter\Factory as InputFactory;
+use Laminas\Form\Form;
 use Laminas\InputFilter\InputFilter;
 use Laminas\InputFilter\InputFilterAwareInterface;
 use Laminas\InputFilter\InputFilterInterface;
-use Laminas\Form\Form;
 
 class Configuration extends Form implements InputFilterAwareInterface
 {
-    protected ?InputFilterInterface $inputFilter;
+    protected ?InputFilterInterface $inputFilter = null;
 
     public function __construct()
     {
@@ -52,24 +51,24 @@ class Configuration extends Form implements InputFilterAwareInterface
         return $this->inputFilter;
     }
 
-    public function getHookConfig()
+    public function getHookConfig(): array
     {
-        $hooks    =  array();
+        $hooks    =  [];
         return $hooks;
     }
-    public function getAclConfig()
+    public function getAclConfig(): array
     {
-        $acl = array();
+        $acl = [];
         return $acl;
     }
 
-    public function configSettings()
+    public function configSettings(): array
     {
-        $settings = array();
+        $settings = [];
         return $settings;
     }
 
-    public function getDependedModulesConfig()
+    public function getDependedModulesConfig(): array
     {
         return [];
     }

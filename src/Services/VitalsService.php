@@ -3,7 +3,7 @@
 /**
  * VitalsService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -14,21 +14,19 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
-use OpenEMR\Services\Search\NumberSearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\Traits\ServiceEventTrait;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VitalsService extends BaseService
 {
@@ -42,7 +40,7 @@ class VitalsService extends BaseService
     public const TABLE_VITALS = "form_vitals";
 
     /**
-     * @var boolean whether vital measurement for records retrieved should be converted based upon global settings.
+     * @var bool whether vital measurement for records retrieved should be converted based upon global settings.
      */
     private $shouldConvertVitalMeasurements;
 
@@ -54,24 +52,21 @@ class VitalsService extends BaseService
         parent::__construct(self::TABLE_VITALS);
         UuidRegistry::createMissingUuidsForTables([self::TABLE_VITALS]);
         $this->shouldConvertVitalMeasurements = true;
-        if (isset($units_of_measurement)) {
-            $this->units_of_measurement = $units_of_measurement;
-        } else {
-            $this->units_of_measurement = $GLOBALS['units_of_measurement'];
-        }
-        if (!empty($GLOBALS['kernel'])) {
-            $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->units_of_measurement = $units_of_measurement ?? OEGlobalsBag::getInstance()->get('units_of_measurement');
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
+            $this->dispatcher = $globalsBag->getKernel()->getEventDispatcher();
         } else {
             $this->dispatcher = new EventDispatcher();
         }
     }
 
-    public function setEventDispatcher(EventDispatcher $dispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }
 
-    public function getEventDispatcher(): EventDispatcher
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->dispatcher;
     }
@@ -87,7 +82,7 @@ class VitalsService extends BaseService
         $this->shouldConvertVitalMeasurements = $shouldConvert;
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sqlSelect = "
                     SELECT patients.pid
@@ -249,9 +244,7 @@ class VitalsService extends BaseService
                 return MeasurementUtils::fhToCelsius($val);
             }
         };
-        $identity = function ($val) {
-            return $val;
-        };
+        $identity = (fn($val) => $val);
 
         $convertArrayValue = function ($index, $converter, $unit, &$array): void {
             $array[$index] = $converter($array[$index]);
@@ -338,6 +331,11 @@ class VitalsService extends BaseService
     {
         $vitalsData = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $vitalsData);
 
+        // an empty uuid can't be converted below; treat it as "not sent" so an update keeps the stored one
+        if (($vitalsData['uuid'] ?? null) === '') {
+            unset($vitalsData['uuid']);
+        }
+
         // convert any uuids to their proper format for insertion
         foreach ($this->getUuidFields() as $field) {
             if (isset($vitalsData[$field])) {
@@ -360,6 +358,10 @@ class VitalsService extends BaseService
             $vitalsData['uuid'] = UuidRegistry::getRegistryForTable(self::TABLE_VITALS)->createUuid();
         } else {
             unset($vitalsData['id']);
+            // never blank out an existing row's uuid; FHIR Observation ids hang off it
+            if (!isset($vitalsData['uuid'])) {
+                unset($vitalsData['uuid']);
+            }
         }
         // save in temp vars then clear out encounter and other new form settings
         $eid = $vitalsData['eid'];
@@ -372,9 +374,7 @@ class VitalsService extends BaseService
         // set up save columns and binds
         $keys = array_keys($vitalsData);
         $values = array_values($vitalsData);
-        $fields = array_map(function ($val) {
-            return '`' . $val . '` = ?';
-        }, $keys);
+        $fields = array_map(fn($val): string => '`' . $val . '` = ?', $keys);
         $sqlSet = implode(",", $fields);
         // update or insert query
         $sql = $sqlOperation . self::TABLE_VITALS . " SET " . $sqlSet;
@@ -397,6 +397,8 @@ class VitalsService extends BaseService
                 $vitalsData['id'] = $id;
             }
             QueryUtils::sqlStatementThrowException($sql, $values);
+            $vitalsData['eid'] = $eid;
+            $vitalsData['authorized'] = $authorized;
         }
 
         // now go through and update all of our vital details
@@ -432,6 +434,44 @@ class VitalsService extends BaseService
         // note the uuid here is the uuid_mapping table's uuid since each column in the table has its own distinct uuid
         // in the system.
         return ['puuid', 'euuid', 'uuid', 'user_uuid'];
+    }
+
+    /**
+     * Finds the vitals form row for an encounter taken at a given time.
+     *
+     * `form_vitals` has no encounter column -- the link is through `forms` -- so the
+     * lookup joins there. The date is part of the key because an encounter can legitimately
+     * carry more than one Vitals form (triage then reassessment, pre- and post-op), and
+     * collapsing those onto a single row would overwrite the earlier reading.
+     *
+     * @param int $encounterId The encounter (forms.encounter) the form belongs to.
+     * @param int $pid The patient the encounter belongs to.
+     * @param string $date The vitals date as stored in form_vitals.date (Y-m-d H:i:s).
+     * @return array{id: int, uuid: string}|null The matching row, or null when there is none.
+     */
+    public function getVitalsFormForEncounterDate(int $encounterId, int $pid, string $date): ?array
+    {
+        $sql = "SELECT vitals.`id`, vitals.`uuid`
+                  FROM `" . self::TABLE_VITALS . "` vitals
+                  JOIN `forms` ON `forms`.`form_id` = vitals.`id` AND `forms`.`formdir` = 'vitals'
+                 WHERE `forms`.`encounter` = ? AND `forms`.`pid` = ? AND vitals.`date` = ?
+                   AND (`forms`.`deleted` IS NULL OR `forms`.`deleted` = 0)
+              ORDER BY vitals.`id` ASC
+                 LIMIT 1";
+        $record = QueryUtils::querySingleRow($sql, [$encounterId, $pid, $date]);
+        if (!is_array($record)) {
+            return null;
+        }
+        $id = $record['id'] ?? null;
+        $uuid = $record['uuid'] ?? null;
+        if (!is_numeric($id) || !is_string($uuid) || $uuid === '') {
+            return null;
+        }
+
+        return [
+            'id' => (int) $id,
+            'uuid' => UuidRegistry::uuidToString($uuid),
+        ];
     }
 
     /**
@@ -494,9 +534,7 @@ class VitalsService extends BaseService
         unset($vitalDetails['id']);
         $keys = array_keys($vitalDetails);
         $values = array_values($vitalDetails);
-        $fields = array_map(function ($val) {
-            return '`' . $val . '` = ?';
-        }, $keys);
+        $fields = array_map(fn($val): string => '`' . $val . '` = ?', $keys);
         $sqlSet = implode(",", $fields);
 
         $sql = $sqlOperation . FormVitalDetails::TABLE_NAME . " SET " . $sqlSet;

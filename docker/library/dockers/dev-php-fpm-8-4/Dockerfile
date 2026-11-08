@@ -10,7 +10,7 @@
 # php-fpm Dockerfile build for openemr development docker environment
 # This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.2>
 #
-FROM php:8.4-fpm
+FROM php:8.4.27-fpm
 
 # Add mariadb-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
 # Add imagemagick that is needed for some image processing in OpenEMR
@@ -22,7 +22,7 @@ RUN apt-get update \
                        mariadb-client
 
 # Install correct version nodejs
-RUN curl -sL https://deb.nodesource.com/setup_20.x \
+RUN curl -sL https://deb.nodesource.com/setup_24.x \
   | bash - \
  && apt-get update \
  && apt-get install -y nodejs
@@ -31,13 +31,18 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x \
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod uga+x /usr/local/bin/install-php-extensions \
  && sync \
- && install-php-extensions calendar \
+ && install-php-extensions bcmath \
+                           calendar \
+                           dom \
                            gd \
                            gettext \
+                           imagick \
                            intl \
                            ldap \
                            mysqli \
+                           pcov \
                            pdo_mysql \
+                           redis \
                            soap \
                            sockets \
                            tokenizer \
@@ -48,5 +53,12 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions \
 # Needed to ensure permissions work across shared volumes with openemr, nginx, and php-fpm dockers
 RUN usermod -u 1000 www-data
 
-# Copy over the php.ini conf
-COPY php.ini /usr/local/etc/php/php.ini
+# Copy over the php.ini conf (default: plain; insane bind-mounts php-ini/redis/php.ini
+# for the redis-flavored fpm sidecars to flip session storage to redis)
+COPY php-ini/php.ini /usr/local/etc/php/php.ini
+
+# Copy xdebug installation script for CI coverage support
+# Script is placed at /usr/share/nginx/html/xdebug.sh so CI can call ../xdebug.sh
+# from the OpenEMR directory at /usr/share/nginx/html/openemr
+COPY xdebug.sh /usr/share/nginx/html/xdebug.sh
+RUN chmod +x /usr/share/nginx/html/xdebug.sh

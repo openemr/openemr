@@ -384,7 +384,7 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -432,15 +432,13 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationTarget xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationTarget>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceReferenceInformationTarget xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationTarget>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->target)) {
             $this->target->xmlSerialize(true, $sxe->addChild('target'));
