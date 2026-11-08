@@ -21,9 +21,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\Controllers\Interface\PatientReview;
 
+use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteClientType;
@@ -33,6 +35,7 @@ use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
 use OpenEMR\Services\PatientReview\ReviewType;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -41,6 +44,9 @@ use Twig\Environment;
 final readonly class PatientAppSubmissionsController
 {
     public const TEMPLATE = 'patient_review/patient_app_submissions.html.twig';
+
+    /** Where a decision's outcome waits in the session for the page the browser is sent back to. */
+    public const SESSION_OUTCOME = 'patient_app_submissions_outcome';
 
     public function __construct(
         private ReviewQueueService $queue,
@@ -52,7 +58,8 @@ final readonly class PatientAppSubmissionsController
     }
 
     /**
-     * Renders the list, after applying an approve or deny the page posted.
+     * Renders the list. A posted approve or deny is applied and then redirected back here, so
+     * reloading the page doesn't post the decision again; its outcome is shown once.
      */
     public function dispatchAction(Request $request): Response
     {
@@ -63,14 +70,15 @@ final readonly class PatientAppSubmissionsController
             );
         }
 
-        $notice = null;
-        $error = null;
         if ($request->getMethod() === 'POST') {
             if (!CsrfUtils::verifyCsrfToken($request->request->getString('csrf_token_form'), $this->session)) {
                 CsrfUtils::csrfNotVerified();
             }
-            [$notice, $error] = $this->decide($request);
+            SessionUtil::setSession(self::SESSION_OUTCOME, $this->decide($request));
+
+            return new RedirectResponse($request->getRequestUri(), Response::HTTP_SEE_OTHER);
         }
+        [$notice, $error] = $this->takeOutcome();
 
         $pending = $this->query->pending();
 
@@ -112,12 +120,19 @@ final readonly class PatientAppSubmissionsController
             return [null, xl('Give a reason for denying the submission.')];
         }
 
+        $reviewer = $this->reviewer();
+        if ($reviewer === null) {
+            return [null, xl('Your session has no signed-in user. Sign in again and retry.')];
+        }
+
+        $failed = $action === 'approve'
+            ? xl('The submission could not be added to the chart. It is still waiting for review. See the system log for details.')
+            : xl('The submission could not be denied. It is still waiting for review. See the system log for details.');
         try {
             $held = $this->queue->get($id);
             if ($held->type !== ReviewType::FhirWrite) {
                 return [null, xl('That submission could not be found.')];
             }
-            $reviewer = $this->reviewer();
             if ($action === 'approve') {
                 $this->queue->approve($id, $reviewer, $note === '' ? null : $note);
                 return [xl('The submission was approved and added to the chart.'), null];
@@ -127,27 +142,56 @@ final readonly class PatientAppSubmissionsController
         } catch (ReviewRequestNotFoundException) {
             return [null, xl('That submission could not be found.')];
         } catch (InvalidReviewTransitionException) {
-            return [null, xl('Someone else has already decided that submission.')];
-        } catch (\RuntimeException | \LogicException $e) {
+            return [null, xl('That submission has already been decided.')];
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            // The transaction has rolled back, so the request is still pending.
             $this->logger->error('A patient app submission could not be decided', [
                 'request_id' => $id,
                 'action' => $action,
                 'exception' => $e,
             ]);
-            return [null, xl('The submission could not be added to the chart. It is still waiting for review. See the system log for details.')];
+            return [null, $failed];
+        } catch (\Throwable $e) {
+            // Anything else, an \Error included, is not turned into a message
+            // (openemr.forbiddenCatchType): it is logged here with the request, then goes on to
+            // the global error handler. The transaction has rolled back, so it is still pending.
+            $this->logger->error('A patient app submission could not be decided', [
+                'request_id' => $id,
+                'action' => $action,
+                'exception' => $e,
+            ]);
+            throw $e;
         }
     }
 
     /**
-     * The signed-in user, as the queue records who decided.
+     * The outcome of the decision posted before the redirect, once; nulls when there is none.
+     *
+     * @return array{?string, ?string} notice, error
      */
-    private function reviewer(): ReviewActor
+    private function takeOutcome(): array
+    {
+        $outcome = $this->session->get(self::SESSION_OUTCOME);
+        SessionUtil::unsetSession(self::SESSION_OUTCOME);
+        if (!is_array($outcome)) {
+            return [null, null];
+        }
+        $notice = $outcome[0] ?? null;
+        $error = $outcome[1] ?? null;
+
+        return [is_string($notice) ? $notice : null, is_string($error) ? $error : null];
+    }
+
+    /**
+     * The signed-in user, as the queue records who decided; null when the session has none.
+     */
+    private function reviewer(): ?ReviewActor
     {
         $userId = $this->session->get('authUserID');
         $username = $this->session->get('authUser');
         $userId = is_int($userId) || (is_string($userId) && ctype_digit($userId)) ? intval($userId) : 0;
         if ($userId <= 0 || !is_string($username) || $username === '') {
-            throw new \LogicException('No signed-in user to record as the reviewer');
+            return null;
         }
 
         return ReviewActor::user($userId, $username);

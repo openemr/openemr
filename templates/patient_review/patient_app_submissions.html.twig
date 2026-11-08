@@ -120,19 +120,33 @@
                     </details>
 
                     {% if canDecide %}
-                        <form method="post" action="patient_app_submissions.php" class="form-inline" onsubmit="return top.restoreSession()">
-                            <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
-                            <input type="hidden" name="request_id" value="{{ item.id|attr }}" />
-                            <label class="sr-only" for="note-{{ item.id|attr }}">{{ 'Note'|xlt }}</label>
-                            <input type="text" class="form-control form-control-sm mr-2 mb-2" id="note-{{ item.id|attr }}" name="note" maxlength="255"
-                                   placeholder="{{ 'Note (required to deny)'|xla }}" />
+                        {# Two forms, so pressing Enter in the reason can only deny. #}
+                        <div class="d-flex flex-wrap align-items-start">
                             {% if item.canApprove %}
-                                <button type="submit" name="action" value="approve" class="btn btn-sm btn-primary mr-2 mb-2">{{ 'Approve'|xlt }}</button>
+                                <form method="post" action="patient_app_submissions.php" class="mr-3" onsubmit="return top.restoreSession()">
+                                    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                                    <input type="hidden" name="request_id" value="{{ item.id|attr }}" />
+                                    <button type="submit" name="action" value="approve" class="btn btn-sm btn-primary mb-2">{{ 'Approve'|xlt }}</button>
+                                </form>
                             {% else %}
-                                <span class="text-muted mr-2 mb-2">{{ 'This type cannot be approved in this version.'|xlt }}</span>
+                                <span class="text-muted mr-3 mb-2">
+                                    {% if item.resourceType == 'QuestionnaireResponse' and item.questionnaireName is null %}
+                                        {{ 'It cannot be approved: it does not answer a questionnaire on this server.'|xlt }}
+                                    {% else %}
+                                        {{ 'This type cannot be approved in this version.'|xlt }}
+                                    {% endif %}
+                                </span>
                             {% endif %}
-                            <button type="submit" name="action" value="deny" class="btn btn-sm btn-outline-danger mb-2">{{ 'Deny'|xlt }}</button>
-                        </form>
+                            <form method="post" action="patient_app_submissions.php" class="form-inline" onsubmit="return top.restoreSession()">
+                                <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                                <input type="hidden" name="request_id" value="{{ item.id|attr }}" />
+                                <input type="hidden" name="action" value="deny" />
+                                <label class="sr-only" for="note-{{ item.id|attr }}">{{ 'Reason for denying'|xlt }}</label>
+                                <input type="text" class="form-control form-control-sm mr-2 mb-2" id="note-{{ item.id|attr }}" name="note" maxlength="255"
+                                       required placeholder="{{ 'Reason for denying (required)'|xla }}" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger mb-2">{{ 'Deny'|xlt }}</button>
+                            </form>
+                        </div>
                     {% endif %}
                 </div>
             </div>
