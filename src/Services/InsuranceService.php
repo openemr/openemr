@@ -18,10 +18,14 @@
 
 namespace OpenEMR\Services;
 
+use DateTimeImmutable;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
+use OpenEMR\Services\Insurance\EffectiveInsurance;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRow;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
@@ -495,6 +499,41 @@ class InsuranceService extends BaseService
             }
         }
         return $organizedResults;
+    }
+
+    /**
+     * The policies in force for a patient on a day, at most one per level and
+     * primary first, by the rule in EffectiveInsuranceRule: the claim's rule
+     * (Claim::loadPayerInfo()) with the three differences its docblock lists.
+     * A level with nothing in force is left out and the others are still
+     * returned, so a current secondary behind an ended primary comes back on
+     * its own. Each policy comes with its insurance_data row and its company's
+     * name; an inactive company's name comes back too, since inactive keeps a
+     * company off the pick lists, not off the policies already on file.
+     *
+     * getEffectiveInsurances() in library/patient.inc.php is a wrapper over
+     * this method and returns the rows.
+     *
+     * @param DateTimeImmutable $day the day asked about; its time is ignored
+     * @return list<EffectiveInsuranceRow>
+     */
+    public function getEffectiveInsuranceRows(int $pid, DateTimeImmutable $day): array
+    {
+        $rows = QueryUtils::fetchRecords("SELECT * FROM `insurance_data` WHERE `pid` = ?", [$pid]);
+        $policies = EffectiveInsuranceRule::choose($rows, $day);
+        if ($policies === []) {
+            return [];
+        }
+        $companyIds = array_values(array_unique(array_map(
+            static fn(EffectiveInsurance $policy): int => $policy->companyId,
+            $policies
+        )));
+        $companies = QueryUtils::fetchRecords(
+            "SELECT `id`, `name` FROM `insurance_companies` WHERE `id` IN ("
+                . implode(',', array_fill(0, count($companyIds), '?')) . ")",
+            $companyIds
+        );
+        return EffectiveInsuranceRow::forPolicies($policies, $rows, $companies);
     }
 
     public function swapInsurance($pid, string $targetType, string $insuranceUuid): ProcessingResult
