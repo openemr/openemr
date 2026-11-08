@@ -35,6 +35,7 @@ require_once(__DIR__ . "/appointment_status.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\HcpcsDrugDefaults;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -103,9 +104,6 @@ class FeeSheet
 
         $this->pid = $pid;
         $this->encounter = $encounter;
-        // get provider field for pid's primary insurance from insurance_data to be added to billing row table as payer_id
-        $primary_insurance = getInsuranceData($this->pid);
-        $this->payer_id = $primary_insurance['provider'] ?? null;
 
         // IPPF doesn't want any payments to be made or displayed in the Fee Sheet.
         $this->ALLOW_COPAYS = empty(OEGlobalsBag::getInstance()->get('ippf_specific'));
@@ -127,6 +125,8 @@ class FeeSheet
           "LEFT JOIN facility AS fac ON fac.id = fe.facility_id " .
           "WHERE fe.pid = ? AND fe.encounter = ? LIMIT 1", [$this->pid, $this->encounter]);
         $this->visit_date    = substr((string) $visit_row['date'], 0, 10);
+        // billing.payer_id: the company of the primary policy this visit bills
+        $this->payer_id = $this->primaryPolicy()['provider'] ?? null;
         $this->provider_id   = $visit_row['provider_id'];
         if (empty($this->provider_id)) {
             $this->provider_id = $this->findProvider();
@@ -175,6 +175,23 @@ class FeeSheet
         }
 
         return $age;
+    }
+
+    /**
+     * The insurance_data row of the primary policy this visit bills, or [] when
+     * there is none: billing.payer_id is its company, and the COPAY line
+     * (interface/forms/fee_sheet/new.php) charges its copay. This is the
+     * patient's latest-starting primary.
+     *
+     * @return array<mixed>
+     */
+    public function primaryPolicy(): array
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT * FROM insurance_data WHERE pid = ? AND type = 'primary' ORDER BY date DESC LIMIT 1",
+            [$this->pid]
+        );
+        return is_array($row) ? $row : [];
     }
 
   // Gets the provider from the encounter, logged-in user or patient demographics.
