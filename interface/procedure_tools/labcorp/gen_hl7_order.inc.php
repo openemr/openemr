@@ -350,7 +350,10 @@ function labcorp_gen_hl7_order(int $orderid): Hl7OrderResult
     $setid = 0;
     if ($bill_type == 'T') {
         // only send primary and secondary insurance
-        foreach ($payers as $payer) {
+        foreach ($payers as $level => $payer) {
+            if ($level > 1) {
+                break;
+            }
             $payer_object = $payer['object'];
             $payer_address = $payer_object->get_address();
             $full_address = $payer_address->get_line1();
@@ -384,7 +387,7 @@ function labcorp_gen_hl7_order(int $orderid): Hl7OrderResult
                 $d2 . hl7Zip($payer['data']['subscriber_postal_code']) . // Zip
                 $d1 .
                 $d1 .
-                $d1 . $setid .                                  // 1=Primary, 2=Secondary, 3=Tertiary
+                $d1 . ($level + 1) .                           // 1=Primary, 2=Secondary, 3=Tertiary: the payer's level
                 str_repeat($d1, 8) .                           // IN1-23 to 30 all empty
                 $d1 . hl7Workman($payer['data']['policy_type']) . // Policy Number
                 str_repeat($d1, 4) .                           // IN1-32 to 35 all empty
@@ -398,7 +401,7 @@ function labcorp_gen_hl7_order(int $orderid): Hl7OrderResult
             } else {
                 $P[40] = hl7Text($payer['data']['policy_number']);
             }
-            if ($setid === 2) {
+            if ($level === 1) {
                 $P[43] = hl7Text($payer['company']['cms_id']);
                 $P[44] = hl7Text($payer['company']['name']);
                 $P[45] = hl7Text($full_address);
