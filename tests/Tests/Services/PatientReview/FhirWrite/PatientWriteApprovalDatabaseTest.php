@@ -210,6 +210,25 @@ class PatientWriteApprovalDatabaseTest extends TestCase
     /**
      * A response whose Questionnaire is gone rolls back and leaves no registered id.
      */
+    /**
+     * A response a caregiver answered keeps the caregiver as its source once it is in the chart.
+     */
+    public function testAnApprovedCaregiverResponseReadsBackWithTheCaregiverAsSource(): void
+    {
+        $held = $this->hold(
+            PatientWritableType::QuestionnaireResponse,
+            ['source' => ['reference' => 'RelatedPerson/caregiver-1']] + $this->response('Better')
+        );
+
+        $this->queue->approve($held->id, ReviewActor::user(1, 'admin'));
+
+        $resource = (new FhirQuestionnaireResponseFormService())->getOne($held->uuid)->getFirstDataResult();
+        $this->assertInstanceOf(FHIRQuestionnaireResponse::class, $resource);
+        $json = json_decode((string) json_encode($resource), true);
+        $this->assertIsArray($json);
+        $this->assertSame(['reference' => 'RelatedPerson/caregiver-1'], $json['source'] ?? null);
+    }
+
     public function testAFailedWriteLeavesTheRequestPendingWithNothingWritten(): void
     {
         $held = $this->heldResponse();
