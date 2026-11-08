@@ -18,7 +18,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientReview\FhirWrite;
 
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\FhirPayloadReader;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
@@ -27,8 +26,6 @@ use OpenEMR\Services\PatientReview\ReviewRequest;
 
 final readonly class QuestionnaireResponseWriteApplier implements PatientWriteApplierInterface
 {
-    private const RELATED_PERSON_REFERENCE = '#^RelatedPerson/([0-9a-fA-F-]{36})$#';
-
     public function __construct(
         private FhirQuestionnaireResponseFormService $service,
         private FhirRelatedPersonService $relatedPersons,
@@ -62,8 +59,7 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
         }
         $patientUuid = $parsed['puuid'] ?? null;
 
-        return preg_match(self::RELATED_PERSON_REFERENCE, $source, $match) === 1
-            && UuidRegistry::isValidStringUUID($match[1])
+        return preg_match(FhirQuestionnaireResponseFormService::CAREGIVER_SOURCE_REFERENCE, $source, $match) === 1
             && is_string($patientUuid)
             && $this->relatedPersons->getOne($match[1], $patientUuid)->hasData();
     }

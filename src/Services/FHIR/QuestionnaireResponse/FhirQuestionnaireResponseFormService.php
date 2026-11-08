@@ -59,8 +59,12 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
     IResourceUpdateableService,
     IPatientCompartmentResourceService
 {
-    /** A relative RelatedPerson reference: a caregiver who answered for the patient. */
-    private const RELATED_PERSON_REFERENCE = '#^RelatedPerson/[A-Za-z0-9\-.]{1,64}$#';
+    /**
+     * A caregiver source: a relative reference to a RelatedPerson by its uuid (group 1). A patient
+     * app's response is held only when it names one of the patient's related persons this way,
+     * and read back with that source.
+     */
+    public const CAREGIVER_SOURCE_REFERENCE = '#^RelatedPerson/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$#';
 
     /**
      * If you'd prefer to keep out the empty methods that are doing nothing uncomment the following helper trait
@@ -312,7 +316,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
             // No staff creator: the patient answered, or the caregiver the stored response names
             // (a patient app write may keep a RelatedPerson source), whose attribution is kept.
             $storedSource = FhirPayloadReader::reference(FhirPayloadReader::get($innerData, 'source'));
-            $byCaregiver = $storedSource !== null && preg_match(self::RELATED_PERSON_REFERENCE, $storedSource) === 1;
+            $byCaregiver = $storedSource !== null && preg_match(self::CAREGIVER_SOURCE_REFERENCE, $storedSource) === 1;
             if (empty($dataRecord['creator_user_id']) && !$byCaregiver) {
                 $fhirResource->setSource(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
             }
