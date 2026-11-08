@@ -290,7 +290,7 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -333,15 +333,13 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SpecimenDefinition xmlns="http://hl7.org/fhir"></SpecimenDefinition>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SpecimenDefinition xmlns="http://hl7.org/fhir"></SpecimenDefinition>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {
             $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));

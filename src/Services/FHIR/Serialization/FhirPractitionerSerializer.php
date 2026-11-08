@@ -3,7 +3,7 @@
 /**
  * FhirPractitionerSerializer.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -33,9 +33,8 @@ class FhirPractitionerSerializer
     /**
      * Takes a fhir json representing an organization and returns the populated the resource
      * @param $fhirJson
-     * @return FHIRPractitioner
      */
-    public static function deserialize($fhirJson)
+    public static function deserialize($fhirJson): FHIRPractitioner
     {
         $telecom = $fhirJson['telecom'] ?? [];
         $address = $fhirJson['address'] ?? [];

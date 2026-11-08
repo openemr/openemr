@@ -234,7 +234,7 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -264,15 +264,13 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DataRequirementDateFilter xmlns="http://hl7.org/fhir"></DataRequirementDateFilter>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DataRequirementDateFilter xmlns="http://hl7.org/fhir"></DataRequirementDateFilter>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->path)) {
             $this->path->xmlSerialize(true, $sxe->addChild('path'));

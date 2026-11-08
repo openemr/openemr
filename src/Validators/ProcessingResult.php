@@ -10,11 +10,11 @@ use OpenEMR\Common\Database\QueryPagination;
  * Data contained within a processing result includes:
  * - isValid: indicates if the data provided to the service was valid
  * - validatiomMessages: validation errors, if any, which occurred during processing
- * - internalErrors: system related errors, if any, which occured during processing
+ * - internalErrors: system related errors, if any, which occurred during processing
  * - data: the return value of the operation/process (array)
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
@@ -57,9 +57,9 @@ class ProcessingResult
     }
 
     /**
-     * @return true if the instance does not contain validation messages/errors
+     * @return bool if the instance does not contain validation messages/errors
      */
-    public function isValid()
+    public function isValid(): bool
     {
         return count($this->validationMessages) == 0;
     }
@@ -93,7 +93,27 @@ class ProcessingResult
         array_push($this->internalErrors, $internalError);
     }
 
-    public function hasData()
+    /**
+     * Records one validation message against a field, keeping any already
+     * recorded for it. setValidationMessages() replaces the whole set, so it
+     * cannot be used to add a single message without knowing the others.
+     *
+     * Messages are stored as [field => [message, ...]], which keeps the
+     * [field => [key => message]] shape the validators produce.
+     */
+    public function addValidationError(string $field, string $message): void
+    {
+        // The property is untyped and setValidationMessages() accepts anything,
+        // so narrow to an array rather than assume one.
+        $messages = is_array($this->validationMessages) ? $this->validationMessages : [];
+        if (!isset($messages[$field]) || !is_array($messages[$field])) {
+            $messages[$field] = [];
+        }
+        $messages[$field][] = $message;
+        $this->validationMessages = $messages;
+    }
+
+    public function hasData(): bool
     {
         return !empty($this->data);
     }
@@ -131,9 +151,9 @@ class ProcessingResult
 
     /**
      * Appends a new data item to the current instance.
-     * @param $newData The new data item.
+     * @param mixed $newData The new data item.
      */
-    public function addData($newData)
+    public function addData(mixed $newData)
     {
         $count = count($this->data);
         $limit = max(0, $this->getPagination()->getLimit());
@@ -164,24 +184,24 @@ class ProcessingResult
         $this->internalErrors = array_merge($this->internalErrors, $other->internalErrors);
         $this->validationMessages = array_merge($this->validationMessages, $other->validationMessages);
         if (!empty($other->getPagination())) {
-            $this->pagination->copy($other->getPagination());
+            $this->pagination->copy();
         }
         // make sure to handle our pagination properly by using the setData method
         $this->setData(array_merge($this->data, $other->data));
     }
 
     /**
-     * @return true if the instance has 1 or more internal errors.
+     * @return bool true if the instance has 1 or more internal errors.
      */
-    public function hasInternalErrors()
+    public function hasInternalErrors(): bool
     {
         return count($this->internalErrors) > 0;
     }
 
     /**
-     * @return true if the instance contains either validation or internal errors.
+     * @return bool True if the instance contains either validation or internal errors.
      */
-    public function hasErrors()
+    public function hasErrors(): bool
     {
         return !$this->isValid() || $this->hasInternalErrors();
     }

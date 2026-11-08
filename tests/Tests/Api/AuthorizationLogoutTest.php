@@ -1,0 +1,590 @@
+<?php
+
+/**
+ * OIDC RP-Initiated Logout regression tests
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Api;
+
+use DateTimeImmutable;
+use GuzzleHttp\Client;
+use Lcobucci\JWT\Encoding\ChainedFormatter;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256Signer;
+use Lcobucci\JWT\Token\Builder as JwtTokenBuilder;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+
+class AuthorizationLogoutTest extends TestCase
+{
+    private const LOGOUT_ENDPOINT = '/oauth2/default/logout';
+    private const TEST_CLIENT_ID = 'test_logout_regression_client';
+    private const LOGOUT_URI_ONE = 'https://client1.example';
+    private const LOGOUT_URI_TWO = 'https://client2.example';
+    private const LOGOUT_URI_WITH_QUERY = 'https://has-query.example?extra=1';
+
+    private Client $http;
+    private string $jwtIssuer;
+
+    protected function setUp(): void
+    {
+        $baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
+        $this->http = new Client([
+            'base_uri' => $baseUrl,
+            'verify' => false,
+            'allow_redirects' => false,
+            'http_errors' => false,
+        ]);
+
+        // Hit the DCR endpoint (and discard the result) to force the
+        // server to materialise the OAuth2 keypair under its own
+        // ownership before the signing helper reads the private key
+        // from disk. Discovery is a lighter touch, but on CI's `php -S`
+        // runner it does not reliably route through
+        // AuthorizationController's constructor path, so the keys may
+        // not exist when the signing helper runs. DCR exercises the
+        // path end-to-end.
+        $probe = $this->http->post('/oauth2/default/registration', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'application_type' => 'private',
+                'redirect_uris' => ['https://probe.example/cb'],
+                'client_name' => 'AuthorizationLogoutTest-key-warm-' . bin2hex(random_bytes(3)),
+                'token_endpoint_auth_method' => 'client_secret_post',
+                'contacts' => ['warm@test.example'],
+                'scope' => 'openid',
+            ],
+        ]);
+        $probeData = json_decode((string) $probe->getBody(), true);
+        if (is_array($probeData) && isset($probeData['client_id']) && is_string($probeData['client_id'])) {
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
+                [$probeData['client_id']]
+            );
+        }
+
+        $discovery = json_decode(
+            (string) $this->http->get('/oauth2/default/.well-known/openid-configuration')->getBody(),
+            true
+        );
+        $this->jwtIssuer = (is_array($discovery) && is_string($discovery['issuer'] ?? null))
+            ? $discovery['issuer']
+            : 'https://localhost/oauth2/default';
+
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
+            [self::TEST_CLIENT_ID]
+        );
+        $allowlist = self::LOGOUT_URI_ONE . '|' . self::LOGOUT_URI_TWO . '|' . self::LOGOUT_URI_WITH_QUERY;
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO `oauth_clients` '
+            . '(`client_id`, `client_name`, `client_role`, `client_secret`, `logout_redirect_uris`, `register_date`, `is_enabled`) '
+            . 'VALUES (?, ?, ?, ?, ?, NOW(), 1)',
+            [self::TEST_CLIENT_ID, 'Logout Regression Test', 'users', 'sec', $allowlist]
+        );
+    }
+
+    protected function tearDown(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM `oauth_trusted_user` WHERE `client_id` = ?',
+            [self::TEST_CLIENT_ID]
+        );
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
+            [self::TEST_CLIENT_ID]
+        );
+    }
+
+    #[Test]
+    public function testLogoutRejectsUnregisteredUri(): void
+    {
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt(),
+                'post_logout_redirect_uri' => 'https://evil.example',
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
+    #[Test]
+    public function testLogoutRedirectsToRegisteredUri(): void
+    {
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt(),
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(307, $response->getStatusCode());
+        $this->assertSame(
+            self::LOGOUT_URI_ONE . '?state=abc',
+            $response->getHeaderLine('Location')
+        );
+    }
+
+    #[Test]
+    public function testLogoutMatchesLaterUriInPipeDelimitedAllowlist(): void
+    {
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt(),
+                'post_logout_redirect_uri' => self::LOGOUT_URI_TWO,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(307, $response->getStatusCode());
+        $this->assertSame(
+            self::LOGOUT_URI_TWO . '?state=abc',
+            $response->getHeaderLine('Location')
+        );
+    }
+
+    #[Test]
+    public function testLogoutUsesAmpersandSeparatorWhenUriContainsQueryString(): void
+    {
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt(),
+                'post_logout_redirect_uri' => self::LOGOUT_URI_WITH_QUERY,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(307, $response->getStatusCode());
+        $this->assertSame(
+            self::LOGOUT_URI_WITH_QUERY . '&state=abc',
+            $response->getHeaderLine('Location')
+        );
+    }
+
+    #[Test]
+    public function testLogoutUrlEncodesStateWithSpecialChars(): void
+    {
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt(),
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'foo&bar=baz',
+            ],
+        ]);
+        $this->assertSame(307, $response->getStatusCode());
+        $this->assertSame(
+            self::LOGOUT_URI_ONE . '?state=foo%26bar%3Dbaz',
+            $response->getHeaderLine('Location')
+        );
+    }
+
+    #[Test]
+    public function testLogoutOmitsStateWhenNotProvided(): void
+    {
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt(),
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+            ],
+        ]);
+        $this->assertSame(307, $response->getStatusCode());
+        $this->assertSame(
+            self::LOGOUT_URI_ONE,
+            $response->getHeaderLine('Location')
+        );
+    }
+
+    #[Test]
+    public function testLogoutWithoutRedirectUriNotLoggedInReturns401(): void
+    {
+        // No post_logout_redirect_uri at all, not-logged-in branch.
+        // Covers a common RP shape (id_token_hint only, no redirect target).
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt(),
+            ],
+        ]);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
+    #[Test]
+    public function testLogoutRejectsAudMismatch(): void
+    {
+        // Token claims aud = a client that isn't TEST_CLIENT_ID. The controller
+        // looks up oauth_clients WHERE client_id = <aud from token>; the request
+        // must not resolve LOGOUT_URI_ONE against TEST_CLIENT_ID's allowlist just
+        // because the RP asks for it — the allowlist is scoped to the token's aud.
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt('nobody', '', 'a_different_client_that_does_not_exist'),
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
+    #[Test]
+    public function testLogoutResolvesBothUrisWhenDcrRegistersMultiple(): void
+    {
+        // Verifies that a client whose `logout_redirect_uris` was set via the
+        // real DCR flow (not a hand-crafted DB row like TEST_CLIENT_ID) still
+        // resolves against both registered URIs. This is the coverage gap:
+        // pipe-delimited storage encoding is only tested against a manually
+        // inserted row above, so a mismatch between the DCR write path and the
+        // logout read path would otherwise slip through.
+        $uriA = 'https://dcr-multi-a.example';
+        $uriB = 'https://dcr-multi-b.example';
+
+        $dcrClientId = null;
+        try {
+            $reg = $this->http->post('/oauth2/default/registration', [
+                'headers' => ['Content-Type' => 'application/json'],
+                'body' => (string) json_encode([
+                    'application_type' => 'private',
+                    'redirect_uris' => ['https://dcr-multi.example/cb'],
+                    'post_logout_redirect_uris' => [$uriA, $uriB],
+                    'client_name' => 'DCR multi-URI logout test',
+                    'token_endpoint_auth_method' => 'client_secret_post',
+                    'contacts' => ['multi@test.example'],
+                    'scope' => 'openid',
+                ]),
+            ]);
+            // Capture the client_id best-effort before any assertion, so the
+            // finally cleanup runs even if a response-shape assertion below fails.
+            $clientData = json_decode((string) $reg->getBody(), true);
+            if (is_array($clientData) && isset($clientData['client_id']) && is_string($clientData['client_id'])) {
+                $dcrClientId = $clientData['client_id'];
+            }
+
+            $this->assertSame(200, $reg->getStatusCode(), 'DCR registration should succeed');
+            $this->assertIsArray($clientData);
+            $this->assertArrayHasKey('client_id', $clientData);
+            $this->assertIsString($clientData['client_id']);
+            $verifiedClientId = $clientData['client_id'];
+
+            foreach ([$uriA, $uriB] as $uri) {
+                $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+                    'query' => [
+                        'id_token_hint' => $this->makeUnsignedJwt('nobody', '', $verifiedClientId),
+                        'post_logout_redirect_uri' => $uri,
+                        'state' => 'abc',
+                    ],
+                ]);
+                $this->assertSame(307, $response->getStatusCode(), "URI '$uri' should be accepted");
+                $this->assertSame(
+                    $uri . '?state=abc',
+                    $response->getHeaderLine('Location'),
+                    "URI '$uri' should redirect back with state preserved"
+                );
+            }
+        } finally {
+            if ($dcrClientId !== null) {
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM `oauth_trusted_user` WHERE `client_id` = ?',
+                    [$dcrClientId]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
+                    [$dcrClientId]
+                );
+            }
+        }
+    }
+
+    /**
+     * All the "not-logged-in branch" tests above use `sub = nobody`, so no
+     * matching `oauth_trusted_user` row is found and the controller takes
+     * the not-logged-in branch. The tests below seed a matching trust row
+     * so the controller enters the trusted-user branch — the branch that
+     * actually calls `deleteTrustedUserById`.
+     *
+     * Signature-verification coverage lives below in the
+     * testLogoutRejects* series: the controller now parses the hint via
+     * lcobucci/jwt with a SignedWith + IssuedBy assert before any claim
+     * is trusted.
+     */
+    #[Test]
+    public function testLogoutTrustedUserBranchDeletesTrustRowAndRedirects(): void
+    {
+        $userId = 'test-logout-user-' . bin2hex(random_bytes(4));
+        $this->seedTrustedUser($userId);
+        $this->assertSame(1, $this->countTrustedUsersForTestClient($userId), 'Seeding should succeed');
+
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt($userId),
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(307, $response->getStatusCode());
+        $this->assertSame(
+            self::LOGOUT_URI_ONE . '?state=abc',
+            $response->getHeaderLine('Location')
+        );
+        $this->assertSame(
+            0,
+            $this->countTrustedUsersForTestClient($userId),
+            'Trust row must be deleted after successful logout in the trusted-user branch'
+        );
+    }
+
+    #[Test]
+    public function testLogoutTrustedUserBranchWithoutRedirectUriReturns200AndDeletesTrustRow(): void
+    {
+        // Trusted-user branch when the RP omits post_logout_redirect_uri: server
+        // must still tear down the trust record (the actual security property)
+        // and return a 200 with the signed-out message, not a redirect.
+        $userId = 'test-logout-user-' . bin2hex(random_bytes(4));
+        $this->seedTrustedUser($userId);
+
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt($userId),
+            ],
+        ]);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+        $this->assertStringContainsStringIgnoringCase(
+            'signed out',
+            (string) $response->getBody(),
+            'Response body should carry the "signed out" confirmation'
+        );
+        $this->assertSame(
+            0,
+            $this->countTrustedUsersForTestClient($userId),
+            'Trust row must be deleted even when no redirect URI is provided'
+        );
+    }
+
+    #[Test]
+    public function testLogoutRejectsHintSignedByUnrelatedKey(): void
+    {
+        // A JWT whose claims look right but is signed by a key the server
+        // did not issue must be refused — the whole point of the signature
+        // check. Build a JWT shape by hand with alg=none, which is the
+        // classic forgery form the pre-fix controller accepted.
+        $header = $this->b64url('{"alg":"none","typ":"JWT"}');
+        $payload = $this->b64url((string) json_encode([
+            'iss' => 'https://localhost/oauth2/default',
+            'aud' => self::TEST_CLIENT_ID,
+            'sub' => 'nobody',
+            'nonce' => '',
+        ]));
+        $forged = $header . '.' . $payload . '.not-a-real-signature';
+
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $forged,
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
+    #[Test]
+    public function testLogoutRejectsHintSignedForDifferentIssuer(): void
+    {
+        // A JWT correctly signed by the server's private key but minted
+        // with the wrong `iss` claim must be refused. Protects against a
+        // scenario where an id_token issued by a sibling OAuth2 server
+        // sharing the same key material would otherwise be honored here.
+        [$signer, $privateKey, $_realIssuer] = $this->loadLogoutJwtMaterial();
+        $now = new DateTimeImmutable();
+        $wrongIssuerToken = (new JwtTokenBuilder(new JoseEncoder(), ChainedFormatter::default()))
+            ->issuedBy('https://not-this-server.example/oauth2/default')
+            ->permittedFor(self::TEST_CLIENT_ID)
+            ->relatedTo('nobody')
+            ->issuedAt($now)
+            ->expiresAt($now->modify('+1 hour'))
+            ->withClaim('nonce', '')
+            ->getToken($signer, $privateKey)
+            ->toString();
+
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $wrongIssuerToken,
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
+    #[Test]
+    public function testLogoutRejectsHintThatIsNotAJwt(): void
+    {
+        // A hint that isn't a JWT at all must be refused with a parse
+        // error, not a 500 or a stack trace. Was previously an echo of
+        // whatever the json_decode produced on a bare base64 string.
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => 'this-is-not-a-jwt',
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
+    #[Test]
+    public function testLogoutRejectsHintWithTamperedSignature(): void
+    {
+        // Build a correctly-signed JWT, then flip bytes in the
+        // signature portion. Structurally valid but cryptographically
+        // invalid. The post-#14475 signature-verifying flow must
+        // reject this at the signature check, not fall through to
+        // claim validation.
+        [$signer, $privateKey, $realIssuer] = $this->loadLogoutJwtMaterial();
+        $now = new DateTimeImmutable();
+        $validToken = (new JwtTokenBuilder(new JoseEncoder(), ChainedFormatter::default()))
+            ->issuedBy($realIssuer)
+            ->permittedFor(self::TEST_CLIENT_ID)
+            ->relatedTo('nobody')
+            ->issuedAt($now)
+            ->expiresAt($now->modify('+1 hour'))
+            ->withClaim('nonce', '')
+            ->getToken($signer, $privateKey)
+            ->toString();
+
+        $parts = explode('.', $validToken);
+        $this->assertCount(3, $parts, 'A valid lcobucci JWT has exactly three dot-separated parts');
+        // Flip a middle character so the decoded signature bytes change
+        // while the structural shape and header+payload remain intact.
+        // Mutating a middle base64url character is reliable because
+        // every middle character carries full 6-bit significance;
+        // tail characters can be padding bits that round-trip through
+        // base64 decoding/encoding unchanged, which would leave the
+        // signature valid and the test spuriously green.
+        $sig = $parts[2];
+        $midpoint = intdiv(strlen($sig), 2);
+        $this->assertGreaterThan(0, $midpoint);
+        $originalChar = $sig[$midpoint];
+        // Pick a replacement that is guaranteed different from the
+        // original and still a valid base64url character.
+        $replacement = $originalChar === 'A' ? 'B' : 'A';
+        $sig[$midpoint] = $replacement;
+        $this->assertNotSame($parts[2], $sig, 'Tamper must actually change the signature');
+        $tamperedToken = $parts[0] . '.' . $parts[1] . '.' . $sig;
+
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $tamperedToken,
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
+    private function b64url(string $data): string
+    {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+
+    /**
+     * Mints a JWT signed with the live server's OAuth2 private key and the
+     * same claim shape as a real id_token (issuer matches
+     * site_addr_oath + /oauth2/default, aud = client_id, sub, nonce).
+     *
+     * Called `makeUnsignedJwt` historically; preserved as the common
+     * fixture helper for all happy-path logout tests, now actually signed
+     * so the controller's signature-verification path accepts it.
+     */
+    private function makeUnsignedJwt(string $sub = 'nobody', string $nonce = '', string $aud = self::TEST_CLIENT_ID): string
+    {
+        [$signer, $privateKey, $issuer] = $this->loadLogoutJwtMaterial();
+        $now = new DateTimeImmutable();
+        return (new JwtTokenBuilder(new JoseEncoder(), ChainedFormatter::default()))
+            ->issuedBy($issuer)
+            ->permittedFor($aud)
+            ->relatedTo($sub)
+            ->issuedAt($now)
+            ->expiresAt($now->modify('+1 hour'))
+            ->withClaim('nonce', $nonce)
+            ->getToken($signer, $privateKey)
+            ->toString();
+    }
+
+    /**
+     * Loads the server's OAuth2 signing material and the server-reported
+     * issuer. setUp has already forced the server to materialise the
+     * key pair via a DCR request, so by the time this helper runs the
+     * key file is present and owned by whatever process the server
+     * runs as. We never instantiate OAuth2KeyConfig from test code:
+     * its constructor can rewrite the DB entries + key files if it
+     * decides state is inconsistent, which invalidates any state built
+     * by earlier tests in the same process.
+     *
+     * @return array{0: RsaSha256Signer, 1: InMemory, 2: string}
+     */
+    private function loadLogoutJwtMaterial(): array
+    {
+        $siteDir = $GLOBALS['OE_SITE_DIR']
+            ?? $_SERVER['OE_SITE_DIR']
+            ?? '/var/www/localhost/htdocs/openemr/sites/default';
+        $this->assertIsString($siteDir);
+        $privateKeyPath = rtrim($siteDir, '/') . '/documents/certificates/oaprivate.key';
+        $crypto = ServiceContainer::getCrypto();
+        $encryptedPassphrase = QueryUtils::fetchSingleValue(
+            "SELECT `value` FROM `keys` WHERE `name` = ?",
+            'value',
+            ['oauth2passphrase']
+        );
+        $passphrase = is_string($encryptedPassphrase)
+            ? $crypto->decryptFromDatabase($encryptedPassphrase)
+            : '';
+        $signer = new RsaSha256Signer();
+        $privateKey = InMemory::file($privateKeyPath, $passphrase);
+        return [$signer, $privateKey, $this->jwtIssuer];
+    }
+
+    private function seedTrustedUser(string $userId, string $nonce = ''): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO `oauth_trusted_user` '
+            . '(`user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, `session_cache`, `grant_type`) '
+            . 'VALUES (?, ?, ?, 0, NOW(), ?, ?, ?)',
+            [
+                $userId,
+                self::TEST_CLIENT_ID,
+                'openid',
+                'test-code-' . bin2hex(random_bytes(4)),
+                (string) json_encode(['nonce' => $nonce]),
+                'authorization_code',
+            ]
+        );
+    }
+
+    private function countTrustedUsersForTestClient(string $userId): int
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT COUNT(*) AS n FROM `oauth_trusted_user` WHERE `client_id` = ? AND `user_id` = ?',
+            [self::TEST_CLIENT_ID, $userId]
+        );
+        if (!is_array($row) || !isset($row['n'])) {
+            return 0;
+        }
+        $n = $row['n'];
+        return is_int($n) ? $n : (is_string($n) && ctype_digit($n) ? (int) $n : 0);
+    }
+}

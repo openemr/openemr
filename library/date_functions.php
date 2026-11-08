@@ -1,149 +1,75 @@
 <?php
 
-// ============================================================
-// dateformat
-//
-// return a formated string for date
-// @args:   string (date string), boolean (include day of week)
-//              (it uses $_SESSION['language_choice'] )
-// @return: $date_string (string) - formated string
-// Cristian Navalici lemonsoftware at gmail dot com
-//
-// For Hebrew must be implemented a special calendar functions
-//
-// 10.07.2007 - dateformat accepts now an argument
-// ============================================================
+use OpenEMR\Common\Calendar\DayOfWeek;
+use OpenEMR\Common\Calendar\Month;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-function dateformat($strtime = '', $with_dow = false)
+/**
+ * Format a date string according to the user's language preference.
+ *
+ * Returns a formatted date string based on the user's language choice stored in
+ * the session's 'language_choice' value. The format varies by language and can optionally
+ * include the day of the week.
+ *
+ * @param ?int $timestamp Unix timestamp, defaulting to now
+ * @param bool $with_dow Whether to include the day of the week in the output.
+ * @return string The formatted date string.
+ *
+ * @author Cristian Navalici lemonsoftware at gmail dot com
+ * @note For Hebrew, displays English calendar, NOT Jewish calendar
+ * @note Last modified 10.07.2007 - dateformat accepts now an argument
+ */
+function dateformat(?int $timestamp = null, bool $with_dow = false): string
 {
+    $timestamp ??= time();
 
-// without an argument, display current date
-    if (!$strtime) {
-        $strtime = strtotime('now');
+    // Perf optimization: short-circuit English, see #13497/#13507
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $languageChoice = $session->get('language_choice');
+    // getLanguageTitle() treats an unset choice as language 1, so mirror that.
+    $languageId = is_numeric($languageChoice) ? (int) $languageChoice : 1;
+    if ($languageId === 1) {
+        $dt = date("F j, Y", $timestamp);
+        if ($with_dow) {
+            $dow = DayOfWeek::from((int) date('w', $timestamp))->label();
+            return "$dow, $dt";
+        }
+        return $dt;
     }
 
-// string date is formed by
-// $dow + date(day) + $nom + date(year) or similar
+    // name of the month in different languages
+    $month = (int) date('m', $timestamp);
+    $nom = Month::from($month)->label();
 
-// name the day of the week for different languages
-    $day = date("w", $strtime); // 0 sunday -> 6 saturday
+    $day_num = date("d", $timestamp);
+    $year = date("Y", $timestamp);
 
-    switch ($day) {
-        case 0:
-            $dow = xl('Sunday');
-            break;
-        case 1:
-            $dow = xl('Monday');
-            break;
-        case 2:
-            $dow = xl('Tuesday');
-            break;
-        case 3:
-            $dow = xl('Wednesday');
-            break;
-        case 4:
-            $dow = xl('Thursday');
-            break;
-        case 5:
-            $dow = xl('Friday');
-            break;
-        case 6:
-            $dow = xl('Saturday');
-            break;
-    }
-
-// name of the month in different languages
-    $month = (int) date('m', $strtime);
-
-    switch ($month) {
-        case 1:
-            $nom = xl('January');
-            break;
-        case 2:
-            $nom = xl('February');
-            break;
-        case 3:
-            $nom = xl('March');
-            break;
-        case 4:
-            $nom = xl('April');
-            break;
-        case 5:
-            $nom = xl('May');
-            break;
-        case 6:
-            $nom = xl('June');
-            break;
-        case 7:
-            $nom = xl('July');
-            break;
-        case 8:
-            $nom = xl('August');
-            break;
-        case 9:
-            $nom = xl('September');
-            break;
-        case 10:
-            $nom = xl('October');
-            break;
-        case 11:
-            $nom = xl('November');
-            break;
-        case 12:
-            $nom = xl('December');
-            break;
-    }
-
-// Date string format
-// First, get current language title
-    $languageTitle = getLanguageTitle($_SESSION['language_choice']);
-    switch ($languageTitle) {
+    // Date string format
+    // First, get current language title
+    $languageTitle = getLanguageTitle($languageId);
+    $dt = match ($languageTitle) {
         // standard english first
-        case getLanguageTitle(1):
-            $dt = date("F j, Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow, $dt";
-            }
-            break;
-        case "Swedish":
-            $dt = date("Y", $strtime) . " $nom " . date("d", $strtime);
-            if ($with_dow) {
-                $dt = "$dow $dt";
-            }
-            break;
-        case "Spanish":
-        case "Spanish (Spain)":
-        case "Spanish (Latin American)":
-            $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow $dt";
-            }
-            break;
-        case "German":
-            $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow $dt";
-            }
-            break;
-        case "Dutch":
-            $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow $dt";
-            }
-            break;
-            // hebrew (israel) , display english NOT jewish calendar
-        case "Hebrew":
-            $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow, $dt";
-            }
-            break;
-            // default case
-        default:
-            $dt = "$nom " . date("d", $strtime) . ", " . date("Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow, $dt";
-            }
+        getLanguageTitle(1) => date("F j, Y", $timestamp),
+        "Swedish" => "$year $nom $day_num",
+        "Dutch",
+        "German",
+        "Hebrew",
+        "Spanish",
+        "Spanish (Latin American)",
+        "Spanish (Spain)" => "$day_num $nom $year",
+        default => "$nom $day_num, $year",
+    };
+
+    if ($with_dow) {
+        // name the day of the week for different languages
+        $day = (int) date("w", $timestamp); // 0 sunday -> 6 saturday
+        $dow = DayOfWeek::from($day)->label();
+
+        $separator = match ($languageTitle) {
+            getLanguageTitle(1), "Hebrew" => ", ",
+            default => " ",
+        };
+        $dt = "$dow$separator$dt";
     }
 
     return $dt;

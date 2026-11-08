@@ -26,4 +26,3 @@ class PositiveProcedureOrder extends ProcedureOrder
 
     public $_type = 'QDM::PositiveProcedureOrder';
 }
-

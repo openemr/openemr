@@ -9,7 +9,7 @@
  * the paper form fields if enabled in globals.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,14 +17,15 @@
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
+use OpenEMR\Billing\BillingProcessor\BillingClaim;
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\LoggerInterface;
-use OpenEMR\Billing\BillingProcessor\BillingClaim;
-use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Hcfa1500;
+use OpenEMR\Core\OEGlobalsBag;
 
 class GeneratorHCFA_PDF extends AbstractGenerator implements
     GeneratorInterface,
@@ -70,7 +71,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
     {
         $post = $context['post'];
         $this->pdf = new \Cezpdf('LETTER');
-        $this->pdf->ezSetMargins(trim($post['top_margin']) + 0, 0, trim($post['left_margin']) + 0, 0);
+        $this->pdf->ezSetMargins(trim((string) $post['top_margin']) + 0, 0, trim((string) $post['left_margin']) + 0, 0);
         $this->pdf->selectFont('Courier');
 
         // This is to tell our execute method not to create a new page the first claim
@@ -92,7 +93,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
         // Do the actual claim processing
         $log = 'HCFA PDF ' . $claim->action . ' ';
         $hcfa = new Hcfa1500();
-        $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log);
+        $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log, $claim->getSelectedPayerId());
         $this->appendToLog($log);
         $alines = explode("\014", $lines); // form feeds may separate pages
         foreach ($alines as $tmplines) {
@@ -103,10 +104,10 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
                 $this->createNewPage = true;
             }
             $this->pdf->ezSetY($this->pdf->ez['pageHeight'] - $this->pdf->ez['topMargin']);
-            $this->pdf->ezText($tmplines, 12, array(
+            $this->pdf->ezText($tmplines, 12, [
                 'justification' => 'left',
                 'leading' => 12
-            ));
+            ]);
         }
     }
 
@@ -186,7 +187,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
     public function completeToScreen(array $context)
     {
         // If we are just validating, make a temp file
-        $tmp_claim_file = $GLOBALS['temporary_files_dir'] .
+        $tmp_claim_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') .
             DIRECTORY_SEPARATOR .
             $this->batch->getBatFilename();
         file_put_contents($tmp_claim_file, $this->pdf->ezOutput());
@@ -216,9 +217,9 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
     public function completeToFile(array $context)
     {
         // If a writable edi directory exists (and it should), write the pdf to it.
-        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/{$this->batch->getBatFilename()}", 'a');
+        $fh = @fopen(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/{$this->batch->getBatFilename()}", 'a');
         if ($fh) {
-            fwrite($fh, $this->pdf->ezOutput());
+            fwrite($fh, (string) $this->pdf->ezOutput());
             fclose($fh);
         }
 

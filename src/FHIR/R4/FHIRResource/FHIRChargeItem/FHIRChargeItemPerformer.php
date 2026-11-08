@@ -155,7 +155,7 @@ class FHIRChargeItemPerformer extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -176,15 +176,13 @@ class FHIRChargeItemPerformer extends FHIRBackboneElement implements \JsonSerial
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ChargeItemPerformer xmlns="http://hl7.org/fhir"></ChargeItemPerformer>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ChargeItemPerformer xmlns="http://hl7.org/fhir"></ChargeItemPerformer>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->function)) {
             $this->function->xmlSerialize(true, $sxe->addChild('function'));

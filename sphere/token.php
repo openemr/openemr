@@ -6,29 +6,31 @@
  * Collect a token for Sphere.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\PaymentProcessing;
 use OpenEMR\PaymentProcessing\Sphere\SphereRevert;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"], 'sphere_revert_token')) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, key: 'csrf_token', subject: 'sphere_revert_token', dieOnFail: true);
 
-if ($GLOBALS['payment_gateway'] != 'Sphere') {
+if (OEGlobalsBag::getInstance()->get('payment_gateway') != 'Sphere') {
     die(xlt("Feature not activated"));
 }
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    die("Unauthorized access.");
+    AccessDeniedHelper::deny('Unauthorized access to Sphere token generation');
 }
 
 $confirmPinPost = $_POST['pin_code'] ?? null;
@@ -46,7 +48,7 @@ header('Content-Type: application/json');
 try {
     $token = (new SphereRevert($front))->getToken($action, $transid, $confirmPinPost, $uuidTx);
     echo json_encode(['success' => $token]);
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $errorAudit = [];
     $errorAudit['token_request_error'] = $e->getMessage();
     $errorAudit['get']['front'] = $front;

@@ -210,7 +210,7 @@ class FHIRDeviceRequest extends FHIRDomainResource implements \JsonSerializable
     public $insurance = [];
 
     /**
-     * Additional clinical information about the patient that may influence the request fulfilment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
+     * Additional clinical information about the patient that may influence the request fulfillment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
     public $supportingInfo = [];
@@ -703,7 +703,7 @@ class FHIRDeviceRequest extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * Additional clinical information about the patient that may influence the request fulfilment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
+     * Additional clinical information about the patient that may influence the request fulfillment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
     public function getSupportingInfo()
@@ -712,7 +712,7 @@ class FHIRDeviceRequest extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * Additional clinical information about the patient that may influence the request fulfilment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
+     * Additional clinical information about the patient that may influence the request fulfillment.  For example, this may include where on the subject's body the device will be used (i.e. the target site).
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $supportingInfo
      * @return $this
      */
@@ -938,7 +938,7 @@ class FHIRDeviceRequest extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -1071,15 +1071,13 @@ class FHIRDeviceRequest extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceRequest xmlns="http://hl7.org/fhir"></DeviceRequest>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DeviceRequest xmlns="http://hl7.org/fhir"></DeviceRequest>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

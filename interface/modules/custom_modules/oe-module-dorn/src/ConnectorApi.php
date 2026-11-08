@@ -3,7 +3,7 @@
 /**
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
@@ -13,7 +13,9 @@
 namespace OpenEMR\Modules\Dorn;
 
 use DateTime;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
+use OpenEMR\Modules\ClaimRevConnector\ClaimRevAuthenticationException;
 use OpenEMR\Modules\Dorn\models\AckViewModel;
 use OpenEMR\Modules\Dorn\models\ApiResponseViewModel;
 use OpenEMR\Modules\Dorn\models\CompendiumInstallDateViewModel;
@@ -103,7 +105,7 @@ class ConnectorApi
     {
         $api_server = ConnectorApi::getServerInfo();
         $url = $api_server . "/api/Orders/v1/SendLabOrder";
-        $base64 = base64_encode($hl7);
+        $base64 = base64_encode((string) $hl7);
         $data = new LabOrderViewModel();
         $data->labGuid = $labGuid . '';
         $data->orderNumber = $orderNumber . '';
@@ -211,7 +213,7 @@ class ConnectorApi
         $api_server = ConnectorApi::getServerInfo();
         $url = $api_server . "/api/Customer/v1/GetPrimaryInfoByNpi";
         if ($npi) {
-            $params = array('npi' => $npi);
+            $params = ['npi' => $npi];
             $url = $url . '?' . http_build_query($params);
         }
 
@@ -224,7 +226,7 @@ class ConnectorApi
         $api_server = ConnectorApi::getServerInfo();
         $url = $api_server . "/api/Customer/v1/SearchPrimaryInfo";
         if ($npi) {
-            $params = array('npi' => $npi);
+            $params = ['npi' => $npi];
             $url = $url . '?' . http_build_query($params);
         }
 
@@ -315,13 +317,13 @@ class ConnectorApi
 
     public static function getServerInfo()
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $api_server = $globalsConfig->getApiServer();
         return $api_server;
     }
 
-    public static function buildHeader()
+    public static function buildHeader(): array
     {
         $token = ConnectorApi::getAccessToken();
         $content = 'content-type: application/json';
@@ -334,18 +336,19 @@ class ConnectorApi
     }
 
 
-    public static function canConnectToClaimRev()
+    public static function canConnectToClaimRev(): bool
     {
-        $token = ClaimRevApi::GetAccessToken();
-        if ($token == "") {
-            return "No";
+        try {
+            ClaimRevApi::makeFromGlobals();
+            return true;
+        } catch (ClaimRevAuthenticationException) {
+            return false;
         }
-        return "Yes";
     }
 
     public static function getAccessToken()
     {
-        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
         $authority = $globalsConfig->getClientAuthority();
         $clientId = $globalsConfig->getClientId();

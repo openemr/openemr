@@ -8,7 +8,7 @@
  * processing, or modify insert data.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -26,8 +26,6 @@ class BeforePatientCreatedEvent extends Event
      */
     const EVENT_HANDLE = 'patient.before-created';
 
-    private $patientData;
-
     /**
      * BeforePatientUpdatedEvent constructor takes an array
      * of key/value pairs that represent fields of the patient_data
@@ -35,9 +33,8 @@ class BeforePatientCreatedEvent extends Event
      *
      * @param array $patientData
      */
-    public function __construct(array $patientData)
+    public function __construct(private array $patientData)
     {
-        $this->patientData = $patientData;
     }
 
     /**

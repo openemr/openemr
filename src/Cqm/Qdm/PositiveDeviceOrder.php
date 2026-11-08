@@ -26,4 +26,3 @@ class PositiveDeviceOrder extends DeviceOrder
 
     public $_type = 'QDM::PositiveDeviceOrder';
 }
-

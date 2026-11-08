@@ -1,5 +1,6 @@
 <?php
 
+/** @var bool $aclSetupFlag */
 // Ensure this script is not called separately
 if ($aclSetupFlag !== true) {
     die(function_exists('xlt') ? xlt('Authentication Error') : 'Authentication Error');
@@ -7,7 +8,7 @@ if ($aclSetupFlag !== true) {
 
 use OpenEMR\Common\Acl\AclExtended;
 
-return $ACL_UPGRADE = array(
+return $ACL_UPGRADE = [
 
     '0.2.0' => function (): void {
         $physicians_write = AclExtended::getAclIdNumber('Physicians', 'write');
@@ -29,4 +30,4 @@ return $ACL_UPGRADE = array(
         AclExtended::updateAcl($physicians_write, 'Physicians', 'pfeh', 'Cards', 'cards', 'Cards', 'write');
         AclExtended::updateAcl($accounting_view, 'Accounting', 'pfeh', 'Cards', 'cards', 'Cards', 'write');
     },
-);
+];

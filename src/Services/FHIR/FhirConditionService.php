@@ -2,30 +2,39 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
-use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\BaseService;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ConditionService;
+use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
+use OpenEMR\Services\FHIR\Condition\FhirConditionHealthConcernService;
+use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Condition Service
  *
  * @package            OpenEMR
- * @link               http://www.open-emr.org
+ * @link               https://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService, IPatientCompartmentResourceService
@@ -33,19 +42,48 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
+    use MappedServiceCodeTrait;
+    use SystemLoggerAwareTrait;
 
     /**
      * @var ConditionService
      */
     private $conditionService;
 
-
-    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition';
+    private FhirConditionProblemListItemService $problemListItemService;
 
     public function __construct()
     {
         parent::__construct();
+        $this->problemListItemService = new FhirConditionProblemListItemService();
+        $this->addMappedService(new FhirConditionEncounterDiagnosisService());
+        $this->addMappedService($this->problemListItemService);
+        $this->addMappedService(new FhirConditionHealthConcernService());
         $this->conditionService = new ConditionService();
+    }
+
+    /**
+     * Re-emits a stored row as a FHIR resource. FhirServiceBase::update() calls this to build
+     * the body of a PUT response, so leaving it on the empty trait answers a successful update
+     * with a null body. The write path runs through ConditionService, which only ever writes
+     * `lists` rows of type 'medical_problem', so the problem-list-item mapping is the one that
+     * re-emits them.
+     *
+     * @param array<array-key, mixed> $dataRecord
+     * @param bool $encode
+     */
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    {
+        return $this->problemListItemService->parseOpenEMRRecord($dataRecord, $encode);
+    }
+
+    public function setSystemLogger(LoggerInterface $systemLogger): void
+    {
+        $this->logger = $systemLogger;
+        foreach ($this->getMappedServices() as $service) {
+            $service->setSystemLogger($systemLogger);
+        }
     }
 
     /**
@@ -53,7 +91,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -67,175 +105,223 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated_time']);
     }
 
-    /**
-     * Parses an OpenEMR condition record, returning the equivalent FHIR Condition Resource
-     *
-     * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
-     * @return FHIRCondition
-     */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function getAll($fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
-        $conditionResource = new FHIRCondition();
-
-        $meta = new FHIRMeta();
-        $meta->setVersionId('1');
-        if (!empty($dataRecord['last_updated_time'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time']));
-        } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        }
-        $conditionResource->setMeta($meta);
-
-        $id = new FHIRId();
-        $id->setValue($dataRecord['uuid']);
-        $conditionResource->setId($id);
-
-        // ONC requirements
-        $this->populateClinicalStatus($dataRecord, $conditionResource);
-        $this->populateCategory($dataRecord, $conditionResource);
-        $this->populateVerificationStatus($dataRecord, $conditionResource);
-        $this->populateCode($dataRecord, $conditionResource);
-        $this->populateSubject($dataRecord, $conditionResource);
-
-        // non-ONC requirements
-        $this->populateEncounter($dataRecord, $conditionResource);
-
-
-        if ($encode) {
-            return json_encode($conditionResource);
-        } else {
-            return $conditionResource;
-        }
-    }
-
-    private function populateEncounter($dataRecord, FHIRCondition $conditionResource)
-    {
-        if (isset($dataRecord['encounter_uuid'])) {
-            $encounter = new FHIRReference();
-            $encounter->setReference('Encounter/' . $dataRecord['encounter_uuid']);
-            $conditionResource->setEncounter($encounter);
-        }
-    }
-
-    private function populateSubject($dataRecord, FHIRCondition $conditionResource)
-    {
-        if (isset($dataRecord['puuid'])) {
-            $patient = new FHIRReference();
-            $patient->setReference('Patient/' . $dataRecord['puuid']);
-            $conditionResource->setSubject($patient);
-        }
-    }
-
-    private function populateCode($dataRecord, FHIRCondition $conditionResource)
-    {
-        if (!empty($dataRecord['diagnosis'])) {
-            $diagnosisCoding = new FHIRCoding();
-            $diagnosisCode = new FHIRCodeableConcept();
-            foreach ($dataRecord['diagnosis'] as $code => $codeValues) {
-                if (!is_string($code)) {
-                    $code = "$code"; // FHIR expects a string
-                }
-                $diagnosisCoding->setCode($code);
-                $diagnosisCoding->setDisplay($codeValues['description']);
-                $diagnosisCoding->setSystem($codeValues['system']);
-                $diagnosisCode->addCoding($diagnosisCoding);
+        $fhirSearchResult = new ProcessingResult();
+        try {
+            if (isset($puuidBind)) {
+                $field = $this->getPatientContextSearchField();
+                $fhirSearchParameters[$field->getName()] = $puuidBind;
             }
-            $conditionResource->setCode($diagnosisCode);
+
+            $servicesMap = [];
+            $services = [];
+            if (isset($fhirSearchParameters['category'])) {
+                /**
+                 * @var TokenSearchField
+                 */
+                $category = $fhirSearchParameters['category'];
+
+                $catServices = $this->getServiceListForCategory(
+                    TokenSearchField::fromEscapedFHIRString('category', $category)
+                );
+                foreach ($catServices as $service) {
+                    $servicesMap[$service::class] = $service;
+                }
+                $services = $servicesMap;
+            }
+            if (empty($services)) {
+                $services = $this->getMappedServices();
+            }
+            $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
+        } catch (SearchFieldException $exception) {
+            $systemLogger = $this->getSystemLogger();
+            $systemLogger->error("exception thrown", ['exception' => $exception,
+                'field' => $exception->getField()]);
+            // put our exception information here
+            $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
+        return $fhirSearchResult;
     }
 
-    private function populateVerificationStatus($dataRecord, FHIRCondition $conditionResource)
+    /**
+     * jsonSerialize() keeps typed elements as objects, while client-supplied JSON stays a raw string.
+     * Reduce typed date elements to their string value so both reach the parser the same way.
+     */
+    private static function scalarDateTime(mixed $value): mixed
     {
-        $verificationStatus = new FHIRCodeableConcept();
-        $verificationCoding = array(
-            'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
-            'code' => 'unconfirmed',
-            'display' => 'Unconfirmed',
-        );
-        if (!empty($dataRecord['verification'])) {
-            $verificationCoding = array(
-                'system' => "http://terminology.hl7.org/CodeSystem/condition-ver-status",
-                'code' => $dataRecord['verification'],
-                'display' => $dataRecord['verification_title']
+        return $value instanceof FHIRDateTime ? $value->getValue() : $value;
+    }
+
+    /**
+     * Parses a FHIR Condition resource, returning the equivalent OpenEMR record.
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
+    {
+        if (!($fhirResource instanceof FHIRCondition)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRCondition resource, got ' . $fhirResource::class
             );
         }
-        $verificationStatus->addCoding($verificationCoding);
-        $conditionResource->setVerificationStatus($verificationStatus);
-    }
 
-    private function populateCategory($dataRecord, $conditionResource)
-    {
+        // Use jsonSerialize() to get a normalized array representation since
+        // the FHIR R4 library does not deeply hydrate nested objects
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
 
-        $conditionCategory = new FHIRCodeableConcept();
-        $conditionCategory->addCoding(
-            array(
-                'system' => "http://terminology.hl7.org/CodeSystem/condition-category",
-                'code' => 'problem-list-item',
-                'display' => 'Problem List Item'
-            )
-        );
-        $conditionResource->addCategory($conditionCategory);
-    }
-
-    private function populateClinicalStatus($dataRecord, FHIRCondition $conditionResource)
-    {
-        $clinicalStatus = "inactive";
-        $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/condition-clinical";
-        if (
-            (!isset($dataRecord['enddate']) && isset($dataRecord['begdate']))
-            || isset($dataRecord['enddate']) && strtotime($dataRecord['enddate']) >= strtotime("now")
-        ) {
-            // Active if Only Begin Date isset OR End Date isnot expired
-            $clinicalStatus = "active";
-            if ($dataRecord['occurrence'] == 1 || $dataRecord['outcome'] == 1) {
-                $clinicalStatus = "resolved";
-            } elseif ($dataRecord['occurrence'] > 1) {
-                $clinicalStatus = "recurrence";
-            }
-        } elseif (isset($dataRecord['enddate']) && strtotime($dataRecord['enddate']) < strtotime("now")) {
-            //Inactive if End Date is expired
-            $clinicalStatus = "inactive";
-        } else {
-            $clinicalSysytem = "http://terminology.hl7.org/CodeSystem/data-absent-reason";
-            $clinicalStatus = "unknown";
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
         }
-        $clinical_Status = new FHIRCodeableConcept();
-        $clinical_Status->addCoding(
-            array(
-                'system' => $clinicalSysytem,
-                'code' => $clinicalStatus,
-                'display' => ucwords($clinicalStatus),
-            )
-        );
-        $conditionResource->setClinicalStatus($clinical_Status);
+
+        // Category -> subtype
+        $categories = $json['category'] ?? null;
+        $subtype = FhirPayloadReader::firstConceptCode($categories);
+        if ($subtype !== '') {
+            $data['subtype'] = $subtype;
+        }
+
+        // Subject -> puuid
+        $subjectRef = FhirPayloadReader::reference($json['subject'] ?? null);
+        if ($subjectRef !== null) {
+            $subjectUuid = UtilsService::parseReferenceString($subjectRef, 'Patient')['uuid'] ?? null;
+            if (
+                is_string($subjectUuid) && $subjectUuid !== ''
+                && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($subjectUuid)
+            ) {
+                $data['puuid'] = $subjectUuid;
+            }
+        }
+
+        // Code -> title and diagnosis
+        $code = $json['code'] ?? null;
+        $codeCodings = FhirPayloadReader::codings($code);
+        if ($codeCodings !== []) {
+            $codeTypesService = new CodeTypesService();
+            $diagnosisParts = [];
+            foreach ($codeCodings as $coding) {
+                $systemValue = $coding['system'] ?? null;
+                $system = is_string($systemValue) ? $systemValue : '';
+                $codeValue = $coding['code'] ?? null;
+                if (is_scalar($codeValue) && $codeValue !== '' && $codeValue !== false) {
+                    $diagnosisParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
+                }
+                $display = $coding['display'] ?? null;
+                if (is_string($display) && $display !== '' && !isset($data['title'])) {
+                    $data['title'] = $display;
+                }
+            }
+            if ($diagnosisParts !== []) {
+                $data['diagnosis'] = implode(';', $diagnosisParts);
+            }
+        }
+        $codeText = is_array($code) ? ($code['text'] ?? null) : null;
+        if (!isset($data['title']) && is_string($codeText) && $codeText !== '') {
+            $data['title'] = $codeText;
+        }
+
+        // ClinicalStatus -> outcome and occurrence
+        $clinicalStatus = FhirPayloadReader::firstCodingCode($json['clinicalStatus'] ?? null);
+        if ($clinicalStatus !== '') {
+            $data['outcome'] = match ($clinicalStatus) {
+                'resolved' => '1',
+                'recurrence' => '0',
+                default => '0',
+            };
+            if ($clinicalStatus === 'recurrence') {
+                $data['occurrence'] = '2';
+            }
+        }
+
+        // VerificationStatus -> verification
+        $verification = FhirPayloadReader::firstCodingCode($json['verificationStatus'] ?? null);
+        if ($verification !== '') {
+            $data['verification'] = $verification;
+        }
+
+        // onsetDateTime -> begdate (ConditionValidator expects Y-m-d).
+        // Partial precision (YYYY, YYYY-MM) is rejected rather than widened:
+        // lists.begdate is a DATE column and a year-only onset cannot be stored
+        // faithfully, so the caller gets a 400 instead of a fabricated day.
+        $begdate = FhirDateTimeParser::toDbDate(self::scalarDateTime($json['onsetDateTime'] ?? null), 'Condition.onsetDateTime');
+        if ($begdate !== null) {
+            $data['begdate'] = $begdate;
+        }
+
+        // abatementDateTime -> enddate
+        $enddate = FhirDateTimeParser::toDbDate(self::scalarDateTime($json['abatementDateTime'] ?? null), 'Condition.abatementDateTime');
+        if ($enddate !== null) {
+            $data['enddate'] = $enddate;
+        }
+
+        // Note -> comments. Condition.note is 0..*, and lists.comments is free text, so every
+        // note is joined into it. Keeping only note[0] silently discarded the rest of a
+        // clinician's notes on a request that reported success.
+        $noteTexts = [];
+        foreach (FhirPayloadReader::rows($json['note'] ?? null) as $note) {
+            $noteText = FhirPayloadReader::getString($note, 'text');
+            if ($noteText !== null && $noteText !== '') {
+                $noteTexts[] = $noteText;
+            }
+        }
+        if ($noteTexts !== []) {
+            $data['comments'] = implode("\n\n", $noteTexts);
+        }
+
+        return $data;
     }
 
     /**
-     * Searches for OpenEMR records using OpenEMR search parameters
+     * Inserts an OpenEMR record into the system.
      *
-     * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function insertOpenEMRRecord($openEmrRecord)
     {
-        $result = $this->conditionService->getAll($openEMRSearchParameters, true, $puuidBind);
-        return $result;
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Condition record array');
+        }
+
+        return $this->conditionService->insert($openEmrRecord);
     }
 
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    /**
+     * Updates an existing OpenEMR record.
+     *
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
+     * @param array $updatedOpenEMRRecord The updated OpenEMR record
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
-        if (!($dataRecord instanceof FHIRCondition)) {
-            throw new \BadMethodCallException("Data record should be correct instance class");
+        // The patient the caller asserts has to be the condition's actual owner. parseFhirResource()
+        // sets puuid only when Condition.subject resolves, and without it update() has nothing to
+        // compare the stored row against. Condition.subject is 1..1 in R4, so rejecting the
+        // omission is also what the spec asks for, and it matches AllergyIntolerance,
+        // MedicationRequest and ServiceRequest on this path.
+        $puuid = $updatedOpenEMRRecord['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'subject' => 'Condition.subject is required and must reference a known patient',
+            ]);
+            return $result;
         }
-        $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
+
+        $pid = BaseService::getIdByUuid(UuidRegistry::uuidToBytes($puuid), 'patient_data', 'pid');
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'subject' => 'Patient reference could not be resolved: ' . $puuid,
+            ]);
+            return $result;
         }
+
+        return $this->conditionService->update($fhirResourceId, $updatedOpenEMRRecord, (int) $pid);
     }
 
     /**
@@ -245,9 +331,19 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        $profileSets = [];
+        $profileSets[] = $this->getProfileForVersions(FhirConditionProblemListItemService::USCGI_PROFILE_URI_3_1_1, ['', '3.1.1']);
+        $profileSets[] = $this->getProfileForVersions(FhirConditionEncounterDiagnosisService::USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI, $this->getSupportedVersions());
+        $profileSets[] = $this->getProfileForVersions(FhirConditionProblemListItemService::USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI, $this->getSupportedVersions());
+        $profiles = array_merge(...$profileSets);
+        return $profiles;
+    }
+
+    protected function getSupportedVersions(): array
+    {
+        return ['', '7.0.0', '8.0.0'];
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

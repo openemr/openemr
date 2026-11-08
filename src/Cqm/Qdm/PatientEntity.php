@@ -26,4 +26,3 @@ class PatientEntity extends Entity
 
     public $_type = 'QDM::PatientEntity';
 }
-

@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,15 +23,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
-use Symfony\Component\Panther\Client;
 
 class HhMainMenuLinksTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
-
-    private $client;
-    private $crawler;
 
     #[DataProvider('menuLinkProvider')]
     #[Depends('testLoginAuthorized')]
@@ -46,36 +44,22 @@ class HhMainMenuLinksTest extends PantherTestCase
             $loading = "Loading";
         }
 
-        $counter = 0;
-        $threwSomething = true;
-        // below will basically allow 3 timeouts
-        while ($threwSomething) {
-            $threwSomething = false;
-            $counter++;
-            if ($counter > 1) {
-                echo "\n" . "RE-attempt (" . $menuLink . ") number " . $counter . " of 3" . "\n";
-            }
-            $this->base();
-            try {
-                $this->login(LoginTestData::username, LoginTestData::password);
-                $this->goToMainMenuLink($menuLink);
-                $this->assertActiveTab($expectedTabTitle, $loading);
-            } catch (\Throwable $e) {
-                // Close client
-                $this->client->quit();
-                if ($counter > 2) {
-                    // re-throw since have failed 3 tries
-                    throw $e;
-                } else {
-                    // try again since not yet 3 tries
-                    $threwSomething = true;
-                }
-            }
+        $this->base();
+        try {
+            $this->login(LoginTestData::username, LoginTestData::password);
+            $this->goToMainMenuLink($menuLink);
+            $this->assertActiveTab($expectedTabTitle, $loading);
+        } catch (\Throwable $e) {
             // Close client
             $this->client->quit();
+            // re-throw the exception
+            throw $e;
         }
+        // Close client
+        $this->client->quit();
     }
 
+    /** @codeCoverageIgnore Data providers run before coverage instrumentation starts. */
     public static function menuLinkProvider()
     {
         return [
@@ -114,10 +98,8 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Admin -> Forms -> Layouts menu link' => ['Admin||Forms||Layouts', 'Layout Editor'],
             'Admin -> Forms -> Lists menu link' => ['Admin||Forms||Lists', 'List Editor'],
             'Admin -> Documents -> Document Templates menu link' => ['Admin||Documents||Document Templates', 'Document Template Management'],
-            'Admin -> System -> Backup menu link' => ['Admin||System||Backup', 'Backup'],
             'Admin -> System -> Files menu link' => ['Admin||System||Files', 'File management'],
             'Admin -> System -> Language menu link' => ['Admin||System||Language', 'Multi Language Tool'],
-            'Admin -> System -> Certificates menu link' => ['Admin||System||Certificates', 'SSL Certificate Administration'],
             'Admin -> System -> Logs menu link' => ['Admin||System||Logs', 'Logs Viewer'],
             'Admin -> System -> Audit Log Tamper menu link' => ['Admin||System||Audit Log Tamper', 'Audit Log Tamper Report'],
             'Admin -> System -> Diagnostics menu link' => ['Admin||System||Diagnostics', 'Diagnostics'],
@@ -135,7 +117,7 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Reports -> Clinic -> Report Results menu link' => ['Reports||Clinic||Report Results', 'Report Results/History'],
             'Reports -> Clinic -> Standard Measures menu link' => ['Reports||Clinic||Standard Measures', 'Standard Measures'],
             'Reports -> Clinic -> Automated Measures (AMC) menu link' => ['Reports||Clinic||Automated Measures (AMC)', 'Automated Measure Calculations (AMC)'],
-            'Reports -> Clinic -> 2025 Real World Testing Report menu link' => ['Reports||Clinic||2025 Real World Testing Report', '2025 Real World Testing Report'],
+            'Reports -> Clinic -> 2026 Real World Testing Report menu link' => ['Reports||Clinic||2026 Real World Testing Report', '2026 Real World Testing Report'],
             'Reports -> Clinic -> Alerts Log menu link' => ['Reports||Clinic||Alerts Log', 'Alerts Log'],
             'Reports -> Visits -> Daily Report menu link' => ['Reports||Visits||Daily Report', 'Daily Summary Report'],
             'Reports -> Visits -> Patient Flow Board menu link' => ['Reports||Visits||Patient Flow Board', 'Patient Flow Board Report'],
@@ -164,6 +146,7 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Reports -> Services -> Background Services menu link' => ['Reports||Services||Background Services', 'Background Services'],
             'Reports -> Services -> Direct Message Log menu link' => ['Reports||Services||Direct Message Log', 'Direct Message Log'],
             'Reports -> Services -> IP Tracker menu link' => ['Reports||Services||IP Tracker', 'IP Tracker'],
+            'Reports -> Services -> Portal Lockout Tracker menu link' => ['Reports||Services||Portal Lockout Tracker', 'Portal Lockout Tracker'],
             'Miscellaneous -> Dicom Viewer menu link' => ['Miscellaneous||Dicom Viewer', 'Dicom Viewer'],
             'Miscellaneous -> Patient Education menu link' => ['Miscellaneous||Patient Education', 'Web Search - Patient Education Materials'],
             'Miscellaneous -> Authorizations menu link' => ['Miscellaneous||Authorizations', 'Authorizations (More)'],

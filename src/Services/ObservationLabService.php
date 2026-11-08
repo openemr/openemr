@@ -4,7 +4,7 @@
  * ObservationLabService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -20,7 +20,6 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Ramsey\Uuid\UuidFactory;
 
@@ -43,7 +42,7 @@ class ObservationLabService extends BaseService
         return ['uuid', 'puuid'];
     }
 
-    private function getSampleLaboratoryResults()
+    private function getSampleLaboratoryResults(): ProcessingResult
     {
         $factory = new UuidFactory();
         $uuid = $factory->uuid4()->toString();
@@ -64,21 +63,21 @@ class ObservationLabService extends BaseService
         return $processingResult;
     }
 
-    public function isValidProcedureResultCode($code)
+    public function isValidProcedureResultCode($code): bool
     {
         $sql = "SELECT result_code FROM procedure_result WHERE result_code = ? LIMIT 1";
         $code = QueryUtils::fetchSingleValue($sql, 'result_code', [$code]);
         return !empty($code);
     }
 
-    public function isValidProcedureCode($code)
+    public function isValidProcedureCode($code): bool
     {
         $sql = "SELECT procedure_code FROM procedure_order_code WHERE procedure_code = ? LIMIT 1";
         $code = QueryUtils::fetchSingleValue($sql, 'procedure_code', [$code]);
         return !empty($code);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         // note that these are Laboratory tests & values/results as mapped in USCDI Data elements v1
         // @see https://www.healthit.gov/isa/sites/isa/files/2020-07/USCDI-Version-1-July-2020-Errata-Final.pdf
@@ -161,7 +160,7 @@ class ObservationLabService extends BaseService
     {
         $record = parent::createResultRecordFromDatabaseResult($row);
         if (!empty($record['range'])) {
-            $highlow = preg_split("/[\s,-\--]+/", $record['range']);
+            $highlow = preg_split("/[\s,-\--]+/", (string) $record['range']);
             $low = $highlow[0];
             $high = $highlow[1];
             $record['range_low'] = $low;
@@ -175,13 +174,13 @@ class ObservationLabService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         $searchArgs = [];
         if (isset($puuidBind)) {

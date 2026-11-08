@@ -4,7 +4,6 @@ namespace OpenEMR\Tests\Unit\FHIR\SMART\ExternalClinicalDecisionSupport;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\DecisionSupportInterventionEntity;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\PredictiveDSIServiceEntity;
 use PHPUnit\Framework\TestCase;

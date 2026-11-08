@@ -435,7 +435,7 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -493,15 +493,13 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ProdCharacteristic xmlns="http://hl7.org/fhir"></ProdCharacteristic>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ProdCharacteristic xmlns="http://hl7.org/fhir"></ProdCharacteristic>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->height)) {
             $this->height->xmlSerialize(true, $sxe->addChild('height'));

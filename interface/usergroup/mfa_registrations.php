@@ -4,21 +4,25 @@
  * Multi-Factor Authentication Management
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 function writeRow($method, $name, $allowEdit = false): void
 {
     echo "        <tr><td>&nbsp;";
@@ -40,20 +44,26 @@ function writeRow($method, $name, $allowEdit = false): void
     echo "</td></tr>\n";
 }
 
-$userid = $_SESSION['authUserID'];
+$userid = $session->get('authUserID');
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 $message = '';
 if (!empty($_POST['form_delete_method'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    // Require current-password confirmation before removing an MFA factor so a
+    // hijacked session cannot silently disable the user's second factor.
+    // Mirrors the password reprompt mfa_totp.php `action=reg2` performs for
+    // the register step.
+    $clearPass = CurrentRequest::get()->request->getString('clearPass', '');
+    if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $clearPass)) {
+        $message = xl('Invalid password.');
+    } else {
+        sqlStatement(
+            "DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = ? AND name = ?",
+            [$userid, $_POST['form_delete_method'], $_POST['form_delete_name']]
+        );
+        $message = xl('Delete successful.');
     }
-    // Delete the indicated MFA instance.
-    sqlStatement(
-        "DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = ? AND name = ?",
-        array($userid, $_POST['form_delete_method'], $_POST['form_delete_name'])
-    );
-    $message = xl('Delete successful.');
 }
 ?>
 <!DOCTYPE html>
@@ -65,9 +75,23 @@ if (!empty($_POST['form_delete_method'])) {
 <script>
 
 function delclick(mfamethod, mfaname) {
+    document.getElementById('delete_target_method').value = mfamethod;
+    document.getElementById('delete_target_name').value = mfaname;
+    document.getElementById('delete_target_display').textContent = mfaname;
+    document.getElementById('delete_pass').value = '';
+    $('#deleteConfirmModal').modal('show');
+}
+
+function confirmDelete() {
+    var pass = document.getElementById('delete_pass').value;
+    if (!pass) {
+        return;
+    }
     var f = document.forms[0];
-    f.form_delete_method.value = mfamethod;
-    f.form_delete_name.value = mfaname;
+    f.form_delete_method.value = document.getElementById('delete_target_method').value;
+    f.form_delete_name.value = document.getElementById('delete_target_name').value;
+    f.clearPass.value = pass;
+    $('#deleteConfirmModal').modal('hide');
     top.restoreSession();
     f.submit();
 }
@@ -99,17 +123,17 @@ function addclick(sel) {
 
 </script>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Manage Multi Factor Authentication'),
     'include_patient_name' => false,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "mfa_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
@@ -133,7 +157,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' action='mfa_registrations.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div>
                         <fieldset>
                             <legend><?php echo xlt('Current Authentication Method for') . " " . text($user_full_name); ?></legend>
@@ -145,7 +169,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </tr>
                                 <?php
                                 $res = sqlStatement("SELECT name, method FROM login_mfa_registrations WHERE " .
-                                "user_id = ? ORDER BY method, name", array($userid));
+                                "user_id = ? ORDER BY method, name", [$userid]);
                                 $disableNewTotp = false;
                                 if (sqlNumRows($res)) {
                                     while ($row = sqlFetchArray($res)) {
@@ -179,6 +203,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </div>
                             <input type='hidden' name='form_delete_method' value='' />
                             <input type='hidden' name='form_delete_name' value='' />
+                            <input type='hidden' name='clearPass' value='' />
                         </fieldset>
                     </div>
                 </form>
@@ -186,6 +211,28 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
 
     </div><!--end of container div -->
+
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmModalLabel"><?php echo xlt('Confirm Delete'); ?></h5>
+                </div>
+                <div class="modal-body">
+                    <p><?php echo xlt('Removing authentication factor'); ?>: <strong id="delete_target_display"></strong></p>
+                    <input type="hidden" id="delete_target_method" value="" />
+                    <input type="hidden" id="delete_target_name" value="" />
+                    <label for="delete_pass"><?php echo xlt('Re-enter your OpenEMR login password to confirm'); ?></label>
+                    <input type="password" class="form-control" id="delete_pass" autocomplete="current-password" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()"><?php echo xlt('Delete'); ?></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 </html>

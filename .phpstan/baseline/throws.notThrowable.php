@@ -1,0 +1,10 @@
+<?php declare(strict_types = 1);
+
+$ignoreErrors = [];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @throws with type OpenEMR\\\\Menu\\\\InvalidArgumentException is not subtype of Throwable$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
+];
+
+return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

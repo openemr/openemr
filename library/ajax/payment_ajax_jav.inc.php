@@ -14,7 +14,9 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <script>
 $(function () {
@@ -97,7 +99,7 @@ $(function () {
     insurance_text_ajax: document.getElementById('type_code') ? document.getElementById('type_code').value : '',
     encounter_patient_code:Source=='encounter' ? document.getElementById('hidden_patient_code').value : '',
     submit_or_simple_type:SubmitOrSimple,
-    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
    },
    //async: false,
     success: function(thedata){
@@ -171,7 +173,7 @@ $(function () {
  });
 //==============================================================================================================================================
 //Following functions are needed for other tasks related to ajax.
-//Html retured from the ajax above, contains list of either insurance,patient or encounter.
+//Html returned from the ajax above, contains list of either insurance,patient or encounter.
 //On click or 'enter key' press over any one item the listing vanishes and the clicked one gets listed in the parent page's text box.
 //List of functions starts
 //===========================================================

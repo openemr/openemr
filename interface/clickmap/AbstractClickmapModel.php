@@ -1,6 +1,7 @@
 <?php
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Core\OEGlobalsBag;
 
 /*
  * Copyright Medical Information Integration,LLC info@mi-squared.com
@@ -17,7 +18,7 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /* for $GLOBALS['srcdir','pid'] */
 /* remember that include paths are calculated relative to the including script, not this file. */
-require_once(dirname(__FILE__) . '/../globals.php');
+require_once(__DIR__ . '/../globals.php');
 
 /**
  * @class AbstractClickmapModel
@@ -31,68 +32,42 @@ abstract class AbstractClickmapModel extends ORDataObject
 {
     /**
      * The row to persist information to/from.
-     *
-     * @var id
      */
-    var $id;
+    public $id;
     /**
-     *
      * FIXME: either last modification date OR creation date?
-     *
-     * @var date
      */
-    var $date;
+    public $date;
     /**
-     *
      * The unique identifier of the patient this form belongs to.
-     *
-     * @var pid
      */
-    var $pid;
+    public $pid;
     /**
-     *
      * required field in database table. not used, always defaulted to NULL.
-     *
-     * @var user
      */
-    var $user;
+    public $user;
     /**
-     *
      * required field in database table. not used, always defaulted to NULL.
-     *
-     * @var groupname
      */
-    var $groupname;
+    public $groupname;
     /**
-     *
      * required field in the database table. always defaulted to NULL.
-     *
-     * @var authorized
      */
-    var $authorized;
+    public $authorized;
     /**
-     *
      * required field in the database table. always defaulted to NULL.
-     *
-     * @var activity
      */
-    var $activity;
+    public $activity;
     /**
-     *
      * The contents of our form, in one field.
-     *
-     * @var data
      */
-    var $data;
+    public $data;
 
     /**
      * @brief Initialize a newly created object belonging to this class
      *
-     * @param table
-     *  The sql table to persist form contents from/to.
-     *
-     * @param id
-     *  The index of a row in the given table to initialize form contents from.
+     * @param string $table The sql table to persist form contents from/to.
+     * @param string $id The index of a row in the given table to initialize form contents from.
      */
     public function __construct($table, $id = "")
     {
@@ -108,7 +83,7 @@ abstract class AbstractClickmapModel extends ORDataObject
         $this->date = date("Y-m-d H:i:s");
         $this->_table = $table;
         $this->data = "";
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = OEGlobalsBag::getInstance()->get('pid');
         if ($id != "") {
             $this->populate();
         }
@@ -117,43 +92,25 @@ abstract class AbstractClickmapModel extends ORDataObject
     /**
      * @brief Override this abstract function with your implementation of getTitle.
      *
-     * @return The title of this form.
+     * @return string The title of this form.
      */
-    abstract function getTitle();
+    abstract public function getTitle();
 
     /**
      * @brief Override this abstract function with your implementation of getCode.
      *
-     * @return A string thats a 'code' for this form.
+     * @return string A string that's a 'code' for this form.
      */
-    abstract function getCode();
-
-    /**
-     * @brief Fill in this object's members with the contents from the database representing the stored form.
-     */
-    function populate()
-    {
-        /* Run our parent's implementation. */
-        parent::populate();
-    }
-
-    /**
-     * @brief Store the current structure members representing the form into the database.
-     */
-    function persist()
-    {
-        /* Run our parent's implementation. */
-        parent::persist();
-    }
+    abstract public function getCode();
 
     /* The rest of this object consists of set_ and get_ pairs, for setting and getting the value of variables that are members of this object. */
 
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
 
-    function set_id($id)
+    public function set_id($id)
     {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
@@ -162,12 +119,12 @@ abstract class AbstractClickmapModel extends ORDataObject
         }
     }
 
-    function get_pid()
+    public function get_pid()
     {
         return $this->pid;
     }
 
-    function set_pid($pid)
+    public function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
@@ -176,12 +133,12 @@ abstract class AbstractClickmapModel extends ORDataObject
         }
     }
 
-    function get_activity()
+    public function get_activity()
     {
         return $this->activity;
     }
 
-    function set_activity($tf)
+    public function set_activity($tf)
     {
         if (!empty($tf) && is_numeric($tf)) {
             $this->activity = $tf;
@@ -193,7 +150,7 @@ abstract class AbstractClickmapModel extends ORDataObject
     /* get_date()
      *
      */
-    function get_date()
+    public function get_date()
     {
         return $this->date;
     }
@@ -201,7 +158,7 @@ abstract class AbstractClickmapModel extends ORDataObject
     /* set_date()
      *
      */
-    function set_date($dt)
+    public function set_date($dt)
     {
         if (!empty($dt)) {
             $this->date = $dt;
@@ -210,12 +167,12 @@ abstract class AbstractClickmapModel extends ORDataObject
         }
     }
 
-    function get_user()
+    public function get_user()
     {
         return $this->user;
     }
 
-    function set_user($u)
+    public function set_user($u)
     {
         if (!empty($u)) {
             $this->user = $u;
@@ -224,12 +181,12 @@ abstract class AbstractClickmapModel extends ORDataObject
         }
     }
 
-    function get_data()
+    public function get_data()
     {
         return $this->data;
     }
 
-    function set_data($data)
+    public function set_data($data)
     {
         if (!empty($data)) {
             $this->data = $data;

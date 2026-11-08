@@ -1,0 +1,39 @@
+[
+    {
+        "resourceType": "ServiceRequest",
+        "status": "active",
+        "intent": "order",
+        "category": [
+            {
+                "coding": [
+                    {
+                        "system": "http://snomed.info/sct",
+                        "code": "108252007",
+                        "display": "Laboratory procedure"
+                    }
+                ]
+            }
+        ],
+        "code": {
+            "coding": [
+                {
+                    "system": "http://loinc.org",
+                    "code": "24356-8",
+                    "display": "test-fixture Urinalysis complete panel"
+                }
+            ],
+            "text": "test-fixture Urinalysis complete panel"
+        },
+        "subject": {
+            "reference": "Patient/00000000-0000-0000-0000-000000000000"
+        },
+        "authoredOn": "2024-02-01T09:30:00+00:00",
+        "priority": "routine",
+        "patientInstruction": "test-fixture Fast for 8 hours before collection",
+        "note": [
+            {
+                "text": "test-fixture Patient reports recent UTI symptoms"
+            }
+        ]
+    }
+]

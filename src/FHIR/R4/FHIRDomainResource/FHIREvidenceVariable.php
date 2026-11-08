@@ -191,7 +191,7 @@ class FHIREvidenceVariable extends FHIRDomainResource implements \JsonSerializab
     public $topic = [];
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
     public $author = [];
@@ -638,7 +638,7 @@ class FHIREvidenceVariable extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
     public function getAuthor()
@@ -647,7 +647,7 @@ class FHIREvidenceVariable extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $author
      * @return $this
      */
@@ -953,7 +953,7 @@ class FHIREvidenceVariable extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -1086,15 +1086,13 @@ class FHIREvidenceVariable extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EvidenceVariable xmlns="http://hl7.org/fhir"></EvidenceVariable>');
-        }
+        $sxe ??= new \SimpleXMLElement('<EvidenceVariable xmlns="http://hl7.org/fhir"></EvidenceVariable>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));

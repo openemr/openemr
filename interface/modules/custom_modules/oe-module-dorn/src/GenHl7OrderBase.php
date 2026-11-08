@@ -3,7 +3,7 @@
 /**
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
@@ -27,7 +27,7 @@ class GenHl7OrderBase
     {
         if (is_array($data) && count($data) > 1) {
             // Run each element through $this->hl7Text()
-            $data = array_map(array($this, 'hl7Text'), $data);
+            $data = array_map($this->hl7Text(...), $data);
             return implode($this->componentSeparator, $data);
         } else {
             // Run the single element through $this->hl7Text()
@@ -36,8 +36,9 @@ class GenHl7OrderBase
         }
     }
 
-    public function buildHl7Segment($segmentName, $fields)
+    public function buildHl7Segment($segmentName, $fields): string
     {
+        $segment = '';
         foreach ($fields as $field) {
             $segment .= $this->fieldSeparator . $field;
         }
@@ -69,10 +70,10 @@ class GenHl7OrderBase
 
     public function hl7Zip($s)
     {
-        return $this->hl7Text(preg_replace('/[-\s]*/', '', $s));
+        return $this->hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
     }
 
-    public function hl7DateTime($s)
+    public function hl7DateTime($s): string
     {
         // Attempt to create a DateTime object from the input value
         $date = date_create($s);
@@ -85,7 +86,7 @@ class GenHl7OrderBase
         }
     }
 
-    public function formatTime($t)
+    public function formatTime($t): string
     {
         // Attempt to create a DateTime object from the input value
         $time = date_create($t);
@@ -98,7 +99,7 @@ class GenHl7OrderBase
         }
     }
 
-    public function formatDate($d)
+    public function formatDate($d): string
     {
         // Attempt to create a DateTime object from the input value
         $date = date_create($d);
@@ -113,53 +114,53 @@ class GenHl7OrderBase
 
     public function hl7Date($s)
     {
-        return preg_replace('/[^\d]/', '', $s);
+        return preg_replace('/[^\d]/', '', (string) $s);
     }
 
-    public function hl7Time($s)
+    public function hl7Time($s): string
     {
         if (empty($s)) {
             return '';
         }
-        return date('YmdHi', strtotime($s));
+        return date('YmdHi', strtotime((string) $s));
     }
 
-    public function hl7Sex($s)
+    public function hl7Sex($s): string
     {
-        $s = strtoupper(substr($s, 0, 1));
+        $s = strtoupper(substr((string) $s, 0, 1));
         if ($s !== 'M' && $s !== 'F') {
             $s = 'U';
         }
         return $s;
     }
 
-    public function hl7Phone($s)
+    public function hl7Phone($s): string
     {
-        if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+        if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
             return $tmp[1] . $tmp[2] . $tmp[3];
         }
-        if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+        if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
             return $tmp[1] . $tmp[2];
         }
         return '';
     }
 
-    public function hl7SSN($s)
+    public function hl7SSN($s): string
     {
-        if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+        if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
             return $tmp[1] . $tmp[2] . $tmp[3];
         }
         return '';
     }
 
-    public function hl7Priority($s)
+    public function hl7Priority($s): string
     {
-        return strtoupper(substr($s, 0, 1)) === 'H' ? 'S' : 'R';
+        return strtoupper(substr((string) $s, 0, 1)) === 'H' ? 'S' : 'R';
     }
 
     public function hl7Relation($s)
     {
-        $tmp = strtolower($s);
+        $tmp = strtolower((string) $s);
         if ($tmp == 'self' || $tmp == '') {
             return '1';
         }
@@ -181,7 +182,7 @@ class GenHl7OrderBase
 
     public function hl7Race($s)
     {
-        $tmp = strtolower($s);
+        $tmp = strtolower((string) $s);
         if ($tmp == '') {
             return '';
         } elseif ($tmp == 'asian') {
@@ -205,7 +206,7 @@ class GenHl7OrderBase
         return $s;
     }
 
-    public function hl7Workman($s)
+    public function hl7Workman($s): string
     {
         // $tmp = strtolower($s);
         if ($s == 15) {
@@ -219,22 +220,22 @@ class GenHl7OrderBase
      * Get array of insurance payers for the specified patient as of the specified
      * date. If no date is passed then the current date is used.
      *
-     * @param integer $pid Patient ID.
+     * @param int $pid Patient ID.
      * @param string  $date
      * @return array   Array containing an array of data for each payer.
      */
-    public function loadPayerInfo($pid, $date = '')
+    public function loadPayerInfo($pid, $date = ''): array
     {
         if (empty($date)) {
             $date = date('Y-m-d');
         }
 
-        $payers = array();
-        $dres = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? AND (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC", array($pid, $date));
+        $payers = [];
+        $dres = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? AND (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC", [$pid, $date]);
         $prevtype = '';
         // type is primary, secondary or tertiary
         while ($drow = sqlFetchArray($dres)) {
-            if (strcmp($prevtype, $drow['type']) == 0) {
+            if (strcmp($prevtype, (string) $drow['type']) == 0) {
                 continue;
             }
 
@@ -246,9 +247,9 @@ class GenHl7OrderBase
             }
 
             $ins = count($payers);
-            $crow = sqlQuery("SELECT * FROM insurance_companies WHERE id = ?", array($drow['provider']));
+            $crow = sqlQuery("SELECT * FROM insurance_companies WHERE id = ?", [$drow['provider']]);
             $orow = new InsuranceCompany($drow['provider']);
-            $payers[$ins] = array();
+            $payers[$ins] = [];
             $payers[$ins]['data'] = $drow;
             $payers[$ins]['company'] = $crow;
             $payers[$ins]['object'] = $orow;
@@ -257,17 +258,17 @@ class GenHl7OrderBase
         return $payers;
     }
 
-    public function loadGuarantorInfo($pid, $date = '')
+    public function loadGuarantorInfo($pid, $date = ''): array
     {
         if (empty($date)) {
             $date = date('Y-m-d');
         }
-        $guarantors = array();
-        $gres = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? AND date <= ? ORDER BY type ASC, date DESC LIMIT 1", array($pid, $date));
+        $guarantors = [];
+        $gres = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? AND date <= ? ORDER BY type ASC, date DESC LIMIT 1", [$pid, $date]);
         // type is primary, secondary or tertiary
         while ($drow = sqlFetchArray($gres)) {
             $gnt = count($guarantors);
-            $guarantors[$gnt] = array();
+            $guarantors[$gnt] = [];
             $guarantors[$gnt]['data'] = $drow;
         }
         return $guarantors;

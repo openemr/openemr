@@ -9,14 +9,14 @@
 
 namespace PatientFilter;
 
+use Laminas\ModuleManager\ModuleManager;
+use Laminas\Mvc\MvcEvent;
 use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Laminas\ModuleManager\ModuleManager;
-use Laminas\Mvc\MvcEvent;
 
 /**
  * Module for creating a blacklist on the patient finder, which can restrict certain
@@ -28,19 +28,19 @@ use Laminas\Mvc\MvcEvent;
  */
 class Module
 {
-    public function getAutoloaderConfig()
+    public function getAutoloaderConfig(): array
     {
-        return array(
-            'Laminas\Loader\ClassMapAutoloader' => array(
+        return [
+            \Laminas\Loader\ClassMapAutoloader::class => [
                 __DIR__ . '/autoload_classmap.php',
-            ),
-            'Laminas\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+            ],
+            \Laminas\Loader\StandardAutoloader::class => [
+                'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
 
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     public function getConfig()
@@ -68,25 +68,24 @@ class Module
         $oemrDispatcher = $serviceManager->get(EventDispatcherInterface::class);
 
         // listen for the filter event in the patient finder (hook located in main/finder/dynamic_finder_ajax.php)
-        $oemrDispatcher->addListener(PatientFinderFilterEvent::EVENT_HANDLE, [$this, 'filterPatientFinderByBlacklist']);
+        $oemrDispatcher->addListener(PatientFinderFilterEvent::EVENT_HANDLE, $this->filterPatientFinderByBlacklist(...));
 
         // listen for filter event in the appointments.inc.php library
-        $oemrDispatcher->addListener(AppointmentsFilterEvent::EVENT_HANDLE, [$this, 'filterAppointmentsByBlacklist']);
+        $oemrDispatcher->addListener(AppointmentsFilterEvent::EVENT_HANDLE, $this->filterAppointmentsByBlacklist(...));
 
         // listen for view and update events on the patient demographics screen (hooks located in
         // interface/patient_file/summary/demogrphics.php and
         // interface/patient_file/summary/demogrphics_full.php
-        $oemrDispatcher->addListener(ViewEvent::EVENT_HANDLE, [$this, 'checkBlacklistForViewAuth']);
-        $oemrDispatcher->addListener(UpdateEvent::EVENT_HANDLE, [$this, 'checkBlacklistForUpdateAuth']);
+        $oemrDispatcher->addListener(ViewEvent::EVENT_HANDLE, $this->checkBlacklistForViewAuth(...));
+        $oemrDispatcher->addListener(UpdateEvent::EVENT_HANDLE, $this->checkBlacklistForUpdateAuth(...));
     }
 
     /**
      * @param $username
-     * @return array
      *
      * Load the list of patients that this user cannot access from our blacklist file
      */
-    public function getBlacklist($username)
+    public function getBlacklist($username): array
     {
         $blacklist = include __DIR__ . "/config/blacklist.php";
         $pids = [];
@@ -112,17 +111,19 @@ class Module
     {
         $userService = new UserService();
         $user = $userService->getCurrentlyLoggedInUser();
-        $patientsToHide = $this->getBlacklist($user['username']);
-        if (count($patientsToHide)) {
-            $filterString = "(p.pid IS NULL OR p.pid NOT IN (";
-            foreach ($patientsToHide as $patientToHide) {
-                $filterString .= "?,";
+        if ($user !== false) {
+            $patientsToHide = $this->getBlacklist($user['username']);
+            if (count($patientsToHide)) {
+                $filterString = "(p.pid IS NULL OR p.pid NOT IN (";
+                foreach ($patientsToHide as $patientToHide) {
+                    $filterString .= "?,";
+                }
+                $filterString = rtrim($filterString, ",");
+                $filterString .= "))";
+                $boundFilter = $appointmentsFilterEvent->getBoundFilter();
+                $boundFilter->setFilterClause($filterString);
+                $boundFilter->setBoundValues($patientsToHide);
             }
-            $filterString = rtrim($filterString, ",");
-            $filterString .= "))";
-            $boundFilter = $appointmentsFilterEvent->getBoundFilter();
-            $boundFilter->setFilterClause($filterString);
-            $boundFilter->setBoundValues($patientsToHide);
         }
 
         return $appointmentsFilterEvent;

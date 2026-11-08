@@ -25,43 +25,43 @@ abstract class RuleCriteria
     /**
      * if true, then criteria is optional; required otherwise
      *
-     * @var boolean
+     * @var bool
      */
-    var $optional;
+    public $optional;
 
     /**
      * if true, then criteira is an inclusion; exclusion otherwise
      *
-     * @var boolean
+     * @var bool
      */
-    var $inclusion = true;
+    public $inclusion = true;
 
     /**
      * @var string
      */
-    var $interval;
+    public $interval;
 
     /**
      * @var TimeUnit
      */
-    var $intervalType;
+    public $intervalType;
 
     /**
      * uniquely identifies this criteria
      *
      * @var string
      */
-    var $guid;
+    public $guid;
 
     /**
      *
      * @var RuleCriteriaType
      */
-    var $criteriaType;
+    public $criteriaType;
 
-    var $groupId;
+    public $groupId;
 
-    function getCharacteristics()
+    public function getCharacteristics()
     {
         // HR: reverse this to match logic behavior
         $characteristics = $this->optional ? xl("Required") : xl("Optional");
@@ -71,20 +71,19 @@ abstract class RuleCriteria
         return $characteristics;
     }
 
-    abstract function getRequirements();
+    abstract public function getRequirements();
 
-    abstract function getTitle();
+    abstract public function getTitle();
 
-    abstract function getView();
+    abstract public function getView();
 
-    function getInterval()
+    public function getInterval()
     {
         if (is_null($this->interval) || is_null($this->intervalType)) {
             return null;
         }
 
-        return xl($this->interval) . " x " . " "
-            . xl($this->intervalType->lbl);
+        return $this->interval . " x " . $this->intervalType->lbl;
     }
 
     protected function getLabel($value, $list_id)
@@ -99,34 +98,21 @@ abstract class RuleCriteria
 
     protected function decodeComparator($comparator)
     {
-        switch ($comparator) {
-            case "eq":
-                return "";
-                break;
-            case "ne":
-                return "!=";
-                break;
-            case "gt":
-                return ">";
-                break;
-            case "lt":
-                return "<";
-                break;
-            case "ge":
-                return ">=";
-                break;
-            case "le":
-                return "<=";
-                break;
-        }
-
-        return "";
+        return match ($comparator) {
+            "eq" => "",
+            "ne" => "!=",
+            "gt" => ">",
+            "lt" => "<",
+            "ge" => ">=",
+            "le" => "<=",
+            default => "",
+        };
     }
 
     /**
      * @return RuleCriteriaDbView
      */
-    function getDbView()
+    public function getDbView()
     {
         $dbView = new RuleCriteriaDbView();
         $dbView->inclusion = $this->inclusion;
@@ -137,13 +123,13 @@ abstract class RuleCriteria
         return $dbView;
     }
 
-    function updateFromRequest()
+    public function updateFromRequest()
     {
-        $inclusion = "yes" == Common::post("fld_inclusion");
-        $optional = "yes" == Common::post("fld_optional");
-        $groupId = Common::post("group_id");
-        $interval = Common::post("fld_target_interval");
-        $intervalType = TimeUnit::from(Common::post("fld_target_interval_type"));
+        $inclusion = "yes" === Common::postString("fld_inclusion");
+        $optional = "yes" === Common::postString("fld_optional");
+        $groupId = Common::postString("group_id");
+        $interval = Common::postString("fld_target_interval");
+        $intervalType = TimeUnit::from(Common::postString("fld_target_interval_type"));
 
         $this->groupId = $groupId;
         $this->optional = $optional;

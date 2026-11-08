@@ -11,15 +11,15 @@
 
 class AMC_304f_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304f Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // For all record request need to be completed within three business days
-        $amcResults = sqlStatement("SELECT * FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `date_created`>=? AND `date_created`<=?", array('provide_rec_pat_amc',$patient->id,$beginDate,$endDate));
+        $amcResults = sqlStatement("SELECT * FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `date_created`>=? AND `date_created`<=?", ['provide_rec_pat_amc',$patient->id,$beginDate,$endDate]);
 
         while ($res = sqlFetchArray($amcResults)) {
             if (empty($res['date_completed'])) {
@@ -27,7 +27,7 @@ class AMC_304f_Numerator implements AmcFilterIF
                 return false;
             }
 
-            $businessDaysDifference = businessDaysDifference(date("Y-m-d", strtotime($res['date_created'])), date("Y-m-d", strtotime($res['date_completed'])));
+            $businessDaysDifference = businessDaysDifference(date("Y-m-d", strtotime((string) $res['date_created'])), date("Y-m-d", strtotime((string) $res['date_completed'])));
             if ($businessDaysDifference > 3) {
                 // Records not given within 3 business days of request
                 return false;

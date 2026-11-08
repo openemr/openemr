@@ -4,7 +4,7 @@
  * Billing notes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2007 Rod Roark <rod@sunsetsystems.com>
@@ -14,18 +14,21 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$feid = $_GET['feid'] + 0; // id from form_encounter table
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$request = CurrentRequest::get();
 
-$info_msg = "";
+$feid = $request->query->getInt('feid'); // id from form_encounter table
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Note")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: Billing Note", xl("Billing Note"));
 }
 ?>
 <html>
@@ -35,24 +38,16 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
 
 <body>
     <?php
-    if (!empty($_POST['form_submit']) || !empty($_POST['form_cancel'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-            CsrfUtils::csrfNotVerified();
-        }
+    $submitted = $request->request->getString('form_submit') !== '';
+    if ($submitted || $request->request->getString('form_cancel') !== '') {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-        $fenote = trim($_POST['form_note']);
-        if ($_POST['form_submit']) {
-            sqlStatement("UPDATE form_encounter " .
-            "SET billing_note = ? WHERE id = ?", array($fenote,$feid));
-        } else {
-            $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-            " WHERE id = ?", array($feid));
-            $fenote = $tmp['billing_note'];
+        if ($submitted) {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE form_encounter SET billing_note = ? WHERE id = ?",
+                [trim($request->request->getString('form_note')), $feid]
+            );
         }
-
-        // escape and format note for viewing
-        $fenote = str_replace("\r\n", "<br />", $fenote);
-        $fenote = str_replace("\n", "<br />", $fenote);
 
         echo "<script>\n";
         echo "dlgclose();";
@@ -61,17 +56,25 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         exit();
     }
 
-    $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-    " WHERE id = ?", array($feid));
-    $fenote = $tmp['billing_note'];
+    $fenote = QueryUtils::fetchSingleValue("SELECT billing_note FROM form_encounter WHERE id = ?", 'billing_note', [$feid]);
+    $fenote = is_string($fenote) ? $fenote : '';
+
+    // Size the box to the note on the server: one row per line, plus the rows long
+    // lines wrap to in the small dialog (about 35 characters wide), plus one to type
+    // in. Measuring it in the browser gave 0 when the dialog wasn't laid out yet.
+    $noteRows = 0;
+    foreach (preg_split('/\r\n|\r|\n/', $fenote) ?: [] as $line) {
+        $noteRows += max(1, (int) ceil(mb_strlen($line) / 35));
+    }
+    $noteRows = min(20, max(4, $noteRows + 1));
     ?>
 
     <div class="container">
         <h2><?php echo xlt('Billing Note'); ?></h2>
-        <form method='post' action='edit_billnote.php?feid=<?php echo attr_url($feid); ?>' onsubmit='return top.restoreSession()'>
+        <form method='post' action='edit_billnote.php?feid=<?php echo attr_url((string) $feid); ?>' onsubmit='return top.restoreSession()'>
             <div class="form-group">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <textarea class='form-control' name='form_note'><?php echo text($fenote); ?></textarea>
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
+                <textarea class='form-control' name='form_note' id='form_note' rows='<?php echo $noteRows; ?>'><?php echo text($fenote); ?></textarea>
             </div>
             <div class="form-group">
                 <div class="btn-group btn-group-sm mt-3">
@@ -79,7 +82,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
                         <?php echo xlt('Save'); ?>
                     </button>
                     <button type='submit' class='btn btn-secondary btn-cancel btn-sm' name='form_cancel' value='<?php echo xla('Cancel'); ?>'>
-                        <?php echo xla('Cancel'); ?>
+                        <?php echo xlt('Cancel'); ?>
                     </button>
                 </div>
             </div>

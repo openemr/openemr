@@ -2,10 +2,10 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
@@ -20,7 +20,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 abstract class AbstractMedicationService extends AbstractQdmService implements QdmServiceInterface
 {
-    abstract function getModelClass();
+    abstract public function getModelClass();
 
     public function getSqlStatement()
     {
@@ -71,15 +71,16 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
                 'high' => new DateTime([
                     'date' => $end_date
                 ]),
-                'lowClosed' => $start_date ? true : false,
-                'highClosed' => $this->validDateOrNull($end_date) ? true : false
+                'lowClosed' => (bool) $start_date,
+                // No end date means ongoing: in CQL a closed null end is unbounded, an open one unknown (#14526)
+                'highClosed' => true
             ]),
-            'route' => null // In sample files, route was null, probably doesn't mater for eCQM
+            'route' => null // In sample files, route was null, probably doesn't matter for eCQM
         ]);
 
         if ($record['dosage']) {
             $qdmModel->dosage = new Quantity([
-                'value' => (int)$record['dosage'] ?? null,
+                'value' => (int)$record['dosage'],
                 'unit' => $record['drug_unit'] ?? null,
             ]);
         }

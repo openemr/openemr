@@ -22,7 +22,7 @@
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class BaseController
@@ -35,10 +35,10 @@ class BaseController
      * @param $template view name
      * @param array $data variables for injection into view
      */
-    protected function loadView($template, $data = array())
+    protected function loadView($template, $data = []): never
     {
 
-        $template = dirname(__FILE__) . '/../' . self::VIEW_FOLDER . '/' . $template . '.php';
+        $template = __DIR__ . '/../' . self::VIEW_FOLDER . '/' . $template . '.php';
 
         extract($data);
 
@@ -52,7 +52,7 @@ class BaseController
     protected function loadModel($name)
     {
         if (!isset($this->$name)) {
-            require(dirname(__FILE__) . '/../' . self::MODEL_FOLDER . '/' . strtolower($name) . '_model.php');
+            require(__DIR__ . '/../' . self::MODEL_FOLDER . '/' . strtolower((string) $name) . '_model.php');
             $this->$name = new $name();
         }
 

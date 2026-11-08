@@ -47,7 +47,7 @@ class Medication extends ClinicalType
     const ANTIBIOTIC_FOR_PHARYNGITIS = 'med_antibiotic_pharyngitis';
     const INFLUENZA_VACCINE = 'med_influenza_vaccination';
 
-    public function getListId()
+    public function getListId(): string
     {
         return "Clinical_Rules_Med_Types";
     }
@@ -57,7 +57,7 @@ class Medication extends ClinicalType
         $return = false;
         $listOptions = Codes::lookup($this->getOptionId(), 'CVX');
         if (count($listOptions) > 0) {
-            $sqlQueryBind = array();
+            $sqlQueryBind = [];
             $query = "SELECT * " .
             "FROM immunizations " .
                 "WHERE patient_id = ? AND added_erroneously = '0' " .
@@ -79,7 +79,7 @@ class Medication extends ClinicalType
             $query .= " ) ";
 
             $result = sqlStatement($query, $sqlQueryBind);
-            $rows = array();
+            $rows = [];
             for ($iter = 0; $row = sqlFetchArray($result); $iter++) {
                     $rows[$iter] = $row;
             }

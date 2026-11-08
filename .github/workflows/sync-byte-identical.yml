@@ -1,0 +1,376 @@
+# Auto-syncs the byte-identical file set from master into every rel branch
+# listed in .github/release-targets.yml. Pairs with
+# validate-byte-identical.yml (the drift canary): the canary
+# detects drift, this workflow proactively closes it.
+#
+# Source of truth for the file set is .github/byte-identical.yml,
+# the same config the canary reads. Three triggers:
+#
+#   1. push on master -- fires the moment a master merge changes one
+#      of the byte-identical files. The script self-detects no-op if
+#      nothing in FILES_ALL actually drifted (avoids the maintenance
+#      burden of keeping a paths: filter in sync with the source-of-
+#      truth list).
+#
+#   2. schedule, daily at 09:00 UTC. Picked specifically to land
+#      AFTER the orchestrator-dispatched per-branch builds finish:
+#      orchestrator fires at 06:00 UTC, rel-800 builds take
+#      ~1h, so it's done by ~07:15 UTC. 09:00 gives clear
+#      headroom; opening a sync PR while a build is still in flight
+#      on the same rel branch would queue two concurrent
+#      docker-build-release.yml runs against the same branch.
+#
+#   3. workflow_dispatch -- manual reconciliation when investigating.
+#
+# Five cases the sync script handles for each file in FILES_ALL:
+#
+#   identical    no-op
+#   add          file on master, missing on rel branch -> push to rel
+#   update       on both, content differs               -> push master's content
+#   delete       missing on master, present on rel      -> push deletion
+#   both-missing in FILES_ALL but absent from both      -> warn (config bug)
+#
+# Token: the release App (vars.RELEASE_APP_CLIENT_ID + secrets.RELEASE_APP_PRIVATE_KEY),
+# same as release-prep.yml and build-release.yml. The same App also enrolls
+# each sync PR for auto-merge (squash) right after peter-evans creates or
+# updates it. GitHub waits for the rel branch's configured merge requirements
+# -- required status checks + any required reviews -- before firing, so a
+# genuine CI failure still holds the PR for manual attention. See the "Enable
+# auto-merge on sync PR" step below for the exact enrollment gate + the
+# operator escape hatch (--disable-auto respected until peter-evans pushes
+# new content).
+#
+# Rel-branch inheritance note: future rel branches cut from master will
+# inherit this workflow file (plus the script + tests it references). That
+# is harmless. The push trigger above filters to master only; GitHub
+# Actions' schedule: trigger only fires from the default branch (master);
+# the test workflow that runs the BATS suite only fires on PRs targeting
+# master. The only path that exercises a rel-branch copy is an explicit
+# workflow_dispatch against that branch -- which still does the right
+# thing because the apply step fetches master's copy of the script via
+# `git show master:.github/scripts/sync-byte-identical.sh`. So a manual
+# dispatch against rel-820 syncs rel-820 to master's FILES_ALL using
+# master's logic, regardless of what version of this workflow lives on
+# rel-820. The rel-branch copies are dead weight but never produce
+# unexpected behavior.
+
+name: Sync byte-identical files to rel branches
+
+on:
+  push:
+    branches:
+    - master
+  schedule:
+  - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-byte-identical
+  cancel-in-progress: false
+
+jobs:
+  enumerate-rel-branches:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    outputs:
+      branches: ${{ steps.list.outputs.branches }}
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false   # this job only reads release-targets.yml; no git push
+    - name: Read rel branches from release-targets.yml
+      id: list
+      run: |
+        BRANCHES=$(yq -o=json -I=0 '[.[] | select(.branch != "master") | .branch]' .github/release-targets.yml)
+        echo "Discovered rel branches: $BRANCHES"
+        echo "branches=$BRANCHES" >> "$GITHUB_OUTPUT"
+
+  sync:
+    needs: enumerate-rel-branches
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: ${{ fromJson(needs.enumerate-rel-branches.outputs.branches) }}
+    steps:
+    # Single-checkout pattern: check out the rel branch first (its own
+    # copy of the composite action lives at ./.github/actions/generate-
+    # app-token/ via Phase 10b's byte-identical propagation to every
+    # rel branch INCLUDING rel-800), then mint the App token from that
+    # copy. Rewritten 2026-09-23 (openemr/openemr#TBD) after two prior
+    # designs each carried subtler failure modes:
+    #
+    #   Pre-#14199 (original design): two checkouts at default path
+    #   (./). First was sparse-checkout of just the composite action;
+    #   second was the full rel branch. actions/checkout@v7's second-
+    #   invocation `git sparse-checkout disable` on the same path only
+    #   partially cleared state -- residual sparse config broke:
+    #     * sync run 35502912896 (2026-09-20): peter-evans' `git add`
+    #       staged every FILES_ALL path as literal args, all matched
+    #       "outside sparse-checkout definition" and were dropped
+    #       from the index. Empty-diff sync PRs.
+    #     * sync run 35811755599 (2026-09-23, Item 6 reorg): sync-byte-
+    #       identical.sh's rename-sweep `git rm` hit the same sparse
+    #       constraint. Sync aborted before Items 5+6 propagated.
+    #
+    #   #14199 + #14203 (composite-isolation via path: master-composite,
+    #   no sparse-checkout): eliminated the sparse leak but introduced
+    #   a cosmetic post-cleanup failure: actions/checkout@v7 at path=.
+    #   does its own `Deleting the contents of '<workspace>'` at setup
+    #   (independent of clean: true/false), wiping master-composite/
+    #   before the composite action's post-phase can reload its
+    #   action.yml. Every sync run since #14203 marked the job as
+    #   failure at Post Mint App token even though the actual sync work
+    #   succeeded, firing spurious "Run failed: Sync byte-identical
+    #   files" emails on every trigger. #14216 tried clean: false; the
+    #   deletion happens outside the clean: gate so it didn't help.
+    #
+    # This design: only one checkout. Since Phase 10b propagated the
+    # generate-app-token composite to every rel branch (including
+    # rel-800 per the byte-identical.yml entry), the rel-branch's own
+    # copy is available at ./.github/actions/generate-app-token/ after
+    # the first (and only) checkout. Byte-identical sync keeps that
+    # copy in step with master's, so using it here is master-
+    # authoritative-by-construction. Mint the token from that copy.
+    # No composite-isolation subdir, no leak surface, no post-cleanup
+    # path-not-found. The public-repo default GITHUB_TOKEN is enough
+    # for the checkout itself; the minted App token feeds peter-evans
+    # downstream via its own `token:` input.
+    - name: Checkout rel branch
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ matrix.branch }}
+        # peter-evans takes the token via its own input below; we don't
+        # need git's persisted-credentials to survive into other steps.
+        persist-credentials: false
+        fetch-depth: 0
+
+    - name: Mint App token
+      id: app-token
+      # Rel-branch's own copy of the composite (Phase 10b + byte-
+      # identical sync guarantees it exists at this path on every
+      # rel branch, kept in step with master's copy).
+      uses: ./.github/actions/generate-app-token
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        owner: openemr
+        repositories: openemr
+        # Narrow the minted token to just what this workflow needs (defense
+        # in depth on top of the App's installation-level permissions).
+        # peter-evans/create-pull-request needs contents:write to push the
+        # sync branch and pull-requests:write to open/update the PR.
+        permission-contents: write
+        permission-pull-requests: write
+
+    - name: Guard against inherited sparse-checkout config
+      # Regression canary for the pre-#14199 sparse-checkout leak
+      # (see "Checkout rel branch" step above for the failure history).
+      # The rel-branch checkout at ./ should NEVER have sparse-checkout
+      # active -- if it does, a downstream git op (sync script's
+      # `git rm`, peter-evans's `git add`) will silently drop paths
+      # from the index and either fail or open a nonsense sync PR.
+      # Fire early so the failure names the root cause instead of
+      # surfacing as a misleading downstream error. Kept as defense-
+      # in-depth against a future workflow edit re-introducing
+      # sparse-checkout on this workflow -- the current single-
+      # checkout design has no sparse-checkout at all.
+      run: |
+        if git sparse-checkout list 2>/dev/null | grep -q .; then
+          echo "::error::sparse-checkout is unexpectedly active on the rel-branch checkout at ./. See the Checkout rel branch step comment for the pre-#14199 leak surface this guards against; some future workflow-step change has re-introduced sparse-checkout on this workflow."
+          git sparse-checkout list
+          exit 1
+        fi
+        echo "==> sparse-checkout inactive on rel-branch checkout (expected)"
+
+    - name: Fetch master so we can compare
+      run: git fetch origin master:master
+
+    - name: Apply master's FILES_ALL content to the rel-branch working tree
+      id: apply
+      env:
+        OUTPUT_DIR: ${{ runner.temp }}
+        TARGET_BRANCH: ${{ matrix.branch }}
+      run: |
+        # Classification + apply logic lives in a standalone script so the
+        # 5-case behavior (identical/add/update/delete/both-missing) is
+        # unit-tested by tests/bats/ci-scripts/sync-byte-identical/.
+        #
+        # The script lives on master only (per PR #12578 scope -- not in
+        # FILES_ALL, no need to sync it to rel branches). The current
+        # checkout is the rel branch, which may not have the script at
+        # all. Materialize master's copy into RUNNER_TEMP and run that.
+        #
+        # The script sources .github/scripts/lib/glob-expand.sh at load
+        # time (added in PR #12904 for glob-pattern support). Also
+        # materialize that lib next to the script so the source directive
+        # resolves. The lib IS in FILES_ALL so rel branches carry their
+        # own copy too, but we can't use it because this workflow runs
+        # against master's version of the sync logic + rel branch's
+        # working tree -- reading the lib from the rel branch could
+        # cross wires if the lib has diverged. Master's copy alongside
+        # master's script is the safe pairing.
+        git show master:.github/scripts/sync-byte-identical.sh > "$RUNNER_TEMP/sync-byte-identical.sh"
+        mkdir -p "$RUNNER_TEMP/lib"
+        git show master:.github/scripts/lib/glob-expand.sh > "$RUNNER_TEMP/lib/glob-expand.sh"
+        bash "$RUNNER_TEMP/sync-byte-identical.sh" "$TARGET_BRANCH"
+
+        # Translate the script's structured outputs into GitHub step outputs.
+        echo "master_sha=$(cat "$OUTPUT_DIR/master-sha.txt")" >> "$GITHUB_OUTPUT"
+        if [ -s "$OUTPUT_DIR/changes.txt" ]; then
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "has_changes=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Render PR body
+      if: steps.apply.outputs.has_changes == 'true'
+      run: |
+        cat > "$RUNNER_TEMP/pr-body.md" <<EOF
+        Auto-sync of FILES_ALL changes from master @ \`${{ steps.apply.outputs.master_sha }}\`
+        per the byte-identical invariant declared in
+        [\`.github/byte-identical.yml\`](.github/byte-identical.yml).
+
+        ### Changes
+
+        \`\`\`
+        $(cat "$RUNNER_TEMP/changes.txt")
+        \`\`\`
+
+        ### What to do
+
+        Review the diff -- it should be content already reviewed on master being
+        applied to this rel branch. Merge as-is unless something looks
+        unexpected. Branch protection requires CI green; the byte-identical
+        canary on master will turn green once this merges and re-establishes
+        the invariant.
+
+        ### Why
+
+        The byte-identical drift canary at
+        [\`.github/workflows/validate-byte-identical.yml\`](.github/workflows/validate-byte-identical.yml)
+        requires the files listed in \`.github/byte-identical.yml\` to be
+        character-for-character identical across master and every rel branch
+        (the orchestrator dispatches the same logical build against each branch
+        and expects identical semantics). This PR re-establishes that invariant
+        after a master-side change.
+
+        ---
+
+        Auto-generated by
+        [\`.github/workflows/sync-byte-identical.yml\`](.github/workflows/sync-byte-identical.yml).
+        EOF
+
+    - name: Compute add-paths input for peter-evans
+      id: paths
+      if: steps.apply.outputs.has_changes == 'true'
+      env:
+        TARGET_BRANCH: ${{ matrix.branch }}
+      run: |
+        # Tell peter-evans/create-pull-request to commit only the FILES_ALL
+        # entries, not any other files that happen to be in the workspace
+        # (e.g. composer.lock drift from a running container, or our own
+        # /tmp body file if it ended up here).
+        #
+        # Uses master's copy of list-manifest-paths.sh, which shares the
+        # same manifest-parsing + exclude-branches filtering as the sync
+        # script (via lib/glob-expand.sh's read_manifest_entries +
+        # filter_by_branch). Eliminates the workflow-vs-script yq
+        # duplication that produced #12916 and #12920.
+        #
+        # lib/glob-expand.sh was already materialized to $RUNNER_TEMP/lib/
+        # by the Apply step above; list-manifest-paths.sh source-loads it
+        # by relative path, so RUNNER_TEMP's layout matches master's
+        # (script + sibling lib/).
+        git show master:.github/scripts/list-manifest-paths.sh > "$RUNNER_TEMP/list-manifest-paths.sh"
+        git show master:.github/byte-identical.yml > "$RUNNER_TEMP/manifest.yml"
+        # Two-step invocation (write to file, then mapfile from file)
+        # rather than `mapfile < <(bash ...)` process-substitution: the
+        # latter swallows the script's exit code, so a failure of
+        # list-manifest-paths.sh (missing manifest, missing yq, etc.)
+        # would silently yield an empty paths input to peter-evans,
+        # which would then open a PR with the wrong (or missing) file
+        # set. Splitting into two commands lets `set -e` propagate.
+        bash "$RUNNER_TEMP/list-manifest-paths.sh" "$RUNNER_TEMP/manifest.yml" "$TARGET_BRANCH" > "$RUNNER_TEMP/paths.txt"
+        mapfile -t FILES_ALL < "$RUNNER_TEMP/paths.txt"
+        {
+          echo "paths<<EOF"
+          printf '%s\n' "${FILES_ALL[@]}"
+          echo "EOF"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Open or update sync PR
+      id: pr
+      if: steps.apply.outputs.has_changes == 'true'
+      uses: peter-evans/create-pull-request@v8
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        branch: sync-byte-identical/${{ matrix.branch }}
+        base: ${{ matrix.branch }}
+        title: "ci(docker): sync byte-identical files from master to ${{ matrix.branch }} (auto)"
+        commit-message: |
+          ci(docker): sync byte-identical files from master (${{ steps.apply.outputs.master_sha }})
+
+          Auto-generated by .github/workflows/sync-byte-identical.yml.
+        body-path: ${{ runner.temp }}/pr-body.md
+        add-paths: ${{ steps.paths.outputs.paths }}
+        delete-branch: false
+        labels: auto-sync
+
+    # Enable auto-merge on the sync PR. Sync PRs contain deterministic
+    # master content already reviewed on master, so once CI turns green
+    # there's nothing else worth manually reviewing before merge --
+    # they're purely mechanical propagation of the byte-identical
+    # invariant. Auto-merge waits for required status checks (and any
+    # required reviews the rel branch's protection rules define) before
+    # firing, so a genuine CI failure still holds the PR for manual
+    # attention.
+    #
+    # Uses the release App token (the same token used to open the PR
+    # via peter-evans above). ship-release.yml already exercises this
+    # App for rel-branch PR merges (Conductor + Docs + Finalize), so
+    # its scope + branch-protection bypass are proven for this path.
+    # AUTO_MERGE_APP is deliberately NOT used -- its install scope is
+    # currently only master-branch merges (dependabot's docker-compose
+    # bumps), so widening it would be an extra install surface for no
+    # gain.
+    #
+    # `gh pr merge --auto` is idempotent when the PR is unchanged
+    # since last enrollment. peter-evans force-pushes on a real
+    # content update cancel any prior auto-merge enrollment; this
+    # step re-enables it on the same run, so the loop is self-healing
+    # WHEN new content pushed.
+    #
+    # Escape hatch: an operator wanting to hand-inspect a specific
+    # sync PR can `gh pr merge --disable-auto <PR#>` on that one PR
+    # without touching this workflow. The operator's choice is
+    # respected until peter-evans actually pushes new sync content
+    # -- see the pull-request-operation gate below. A fresh master
+    # change to a byte-identical file force-pushes new content and
+    # re-enrolls auto-merge (which is correct -- newer sync content
+    # should not stay held indefinitely just because an operator
+    # disabled auto-merge on an older revision).
+    #
+    # Gate on pull-request-operation being 'created' or 'updated'
+    # (NOT 'none' or 'closed'). peter-evans returns 'none' when the
+    # sync branch already matches the generated content -- e.g., a
+    # scheduled/manual rerun that finds nothing new to push. In that
+    # case we must NOT re-enable auto-merge (would clobber the
+    # operator's --disable-auto).
+    - name: Enable auto-merge on sync PR
+      if: >-
+        steps.pr.outputs.pull-request-number &&
+        (
+          steps.pr.outputs.pull-request-operation == 'created' ||
+          steps.pr.outputs.pull-request-operation == 'updated'
+        )
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        PR_NUMBER: ${{ steps.pr.outputs.pull-request-number }}
+      run: |
+        set -euo pipefail
+        echo "==> Enabling auto-merge on sync PR #${PR_NUMBER}"
+        gh pr merge --auto --squash "${PR_NUMBER}" --repo "${{ github.repository }}"

@@ -306,7 +306,7 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }
@@ -345,15 +345,13 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesisRiskEstimate xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisRiskEstimate>');
-        }
+        $sxe ??= new \SimpleXMLElement('<RiskEvidenceSynthesisRiskEstimate xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisRiskEstimate>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));

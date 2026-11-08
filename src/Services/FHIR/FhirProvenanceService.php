@@ -3,7 +3,7 @@
 /**
  * FhirProvenanceService handles all data model operations against a FHIR provenance resource.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,39 +11,34 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\System\System;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\FHIR\Export\ExportCannotEncodeException;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportStreamWriter;
 use OpenEMR\FHIR\Export\ExportWillShutdownException;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
-use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ReferenceSearchValue;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\Services\Search\ServiceField;
-use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\SessionAwareInterface;
 use OpenEMR\Validators\ProcessingResult;
-use Exception;
 
 class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
+    use VersionedProfileTrait;
 
     // Note: FHIR 4.0.1 id columns put a constraint on ids such that:
     // Ids can be up to 64 characters long, and contain any combination of upper and lowercase ASCII letters,
@@ -64,21 +59,17 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance';
 
-
     /**
-     * @var FhirServiceLocator
-     */
-    private $serviceLocator;
-
-    /**
-     * @var
+     * @var mixed
      */
     private $accessTokenScopes;
 
-    public function __construct($fhirApiURL = null, $serviceLocator = null)
+    /**
+     * @param FhirServiceLocator $serviceLocator
+     */
+    public function __construct($fhirApiURL = null, private $serviceLocator = null)
     {
         parent::__construct($fhirApiURL);
-        $this->serviceLocator = $serviceLocator;
     }
 
     /**
@@ -124,7 +115,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         } else {
             // we should ALWAYS have a last updated date... but we will log this if we don't
             $fhirProvenance->setRecorded(UtilsService::createDataMissingExtension());
-            (new SystemLogger())->error("Meta element was missing to populate recorded date in " . self::class . "->createProvenanceForDomainResource()", [
+            ServiceContainer::getLogger()->error("Meta element was missing to populate recorded date in " . self::class . "->createProvenanceForDomainResource()", [
                 "resource" => $resource->get_fhirElementName() . "/" . $resource->getId()
             ]);
         }
@@ -133,14 +124,14 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         $primaryBusinessEntity = $fhirOrganizationService->getPrimaryBusinessEntityReference();
         if (empty($primaryBusinessEntity)) {
             if (!empty($userWHO)) {
-                (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() primary business entity not found, attempting to find user organization");
+                ServiceContainer::getLogger()->debug(self::class . "->createProvenanceForDomainResource() primary business entity not found, attempting to find user organization");
                 $primaryBusinessEntity = $fhirOrganizationService->getOrganizationReferenceFromUserReference($userWHO);
             }
         }
 
         if (empty($primaryBusinessEntity)) {
             // see if we can get this from the who if we
-            (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() could not find organization reference");
+            ServiceContainer::getLogger()->debug(self::class . "->createProvenanceForDomainResource() could not find organization reference");
             return null;
         }
 
@@ -162,7 +153,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $fhirProvenance;
     }
 
-    protected function createAgentAuthorForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity, ?FHIRReference $who = null)
+    protected function createAgentAuthorForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity, ?FHIRReference $who = null): FHIRProvenanceAgent
     {
         $agent = new FHIRProvenanceAgent();
         $agentConcept = new FHIRCodeableConcept();
@@ -182,7 +173,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $agent;
     }
 
-    protected function createAgentTransmitterForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity)
+    protected function createAgentTransmitterForResource(FHIRDomainResource $resource, FHIRReference $primaryBusinessEntity): FHIRProvenanceAgent
     {
         // agent:ProvenanceTransmitter - must support
         // agent:provenanceAuthor.type.coding.system=http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type - required
@@ -204,7 +195,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['_id']),
@@ -218,7 +209,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         return $dataRecord; //
     }
@@ -233,8 +224,8 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                 $fhirSearchResult = $this->getAllProvenanceRecordsFromServices($fhirSearchParameters, $puuidBind);
             }
         } catch (SearchFieldException $exception) {
-            $systemLogger = new SystemLogger();
-            $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $systemLogger = ServiceContainer::getLogger();
+            $systemLogger->error(static::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
@@ -242,11 +233,11 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $fhirSearchResult;
     }
 
-    private function getAllProvenanceRecordsFromServices(array $fhirSearchParameters, $puuidBind = null)
+    private function getAllProvenanceRecordsFromServices(array $fhirSearchParameters, $puuidBind = null): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         if (empty($this->serviceLocator)) {
-            (new SystemLogger())->errorLogCaller("class was not properly configured with the service locator");
+            ServiceContainer::getLogger()->error("FhirProvenanceService was not properly configured with the service locator");
         }
 
         $searchParams = $this->filterSupportedSearchParams($fhirSearchParameters);
@@ -262,16 +253,16 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             try {
                 $this->addAllProvenanceRecordsForService($processingResult, $service, $searchParams, $puuidBind);
             } catch (SearchFieldException $ex) {
-                $systemLogger = new SystemLogger();
-                $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $ex->getMessage(),
+                $systemLogger = ServiceContainer::getLogger();
+                $systemLogger->error(static::class . "->getAll() exception thrown", ['message' => $ex->getMessage(),
                     'field' => $ex->getField(), 'trace' => $ex->getTraceAsString()]);
                 // put our exception information here
                 $processingResult->setValidationMessages([$ex->getField() => $ex->getMessage()]);
                 return $processingResult;
-            } catch (Exception $ex) {
-                $systemLogger = new SystemLogger();
+            } catch (\Throwable $ex) {
+                $systemLogger = ServiceContainer::getLogger();
                 $processingResult->addInternalError("Failed to process provenance search");
-                $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $ex->getMessage(),
+                $systemLogger->error(static::class . "->getAll() exception thrown", ['message' => $ex->getMessage(),
                     'trace' => $ex->getTraceAsString()]);
                 return $processingResult;
             }
@@ -279,10 +270,19 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $processingResult;
     }
 
-    private function addAllProvenanceRecordsForService(ProcessingResult $processingResult, $service, array $searchParams, $puuidBind = null)
+    private function addAllProvenanceRecordsForService(ProcessingResult $processingResult, IResourceReadableService $service, array $searchParams, $puuidBind = null): void
     {
         $searchParams['_revinclude'] = 'Provenance:target';
+        if ($service instanceof SessionAwareInterface) {
+            $service->setSession($this->getSession());
+        }
         $serviceResult = $service->getAll($searchParams, $puuidBind);
+        // A _lastUpdated that didn't parse is marked in the service's result; keep the mark, so the search answers
+        // 400 instead of an empty Bundle. A service's other errors are still ignored, as before.
+        if (FhirSearchSyntaxError::find($serviceResult) !== null) {
+            $processingResult->addProcessingResult($serviceResult);
+            return;
+        }
         // now loop through and grab all of our provenance resources
         if ($serviceResult->hasData()) {
             foreach ($serviceResult->getData() as $record) {
@@ -297,9 +297,8 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * Given a provenance record id retrieve the provenance record for the given resource and its uuid
      * @param $id string in the format of <resource>:<uuid>
      * @param $puuidBind string The patient uuid we will bind requests to in order to avoid patient data leaking
-     * @return ProcessingResult
      */
-    private function getProvenanceRecordsForId($id, $puuidBind)
+    private function getProvenanceRecordsForId($id, $puuidBind): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         $idParts = $this->splitSurrogateKeyIntoParts($id);
@@ -313,6 +312,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
 
         try {
             $newServiceClass = new $className();
+            if ($newServiceClass instanceof SessionAwareInterface) {
+                $newServiceClass->setSession($this->getSession());
+            }
             if ($newServiceClass instanceof IResourceReadableService) {
                 $searchParams = [
                     '_id' => $innerId
@@ -329,7 +331,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                     $processingResult->addProcessingResult($results);
                 }
             }
-        } catch (Exception $exception) {
+        } catch (\Throwable) {
             $processingResult->addInternalError("Server error occurred in returning provenance for _id " . $id);
         }
         return $processingResult;
@@ -342,9 +344,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     /**
@@ -352,26 +354,26 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @param array $resource The domain resource
      * @return string The surrogate key.
      */
-    public function getSurrogateKeyForResource(FHIRDomainResource $resource)
+    public function getSurrogateKeyForResource(FHIRDomainResource $resource): string
     {
         $separator = self::SURROGATE_KEY_SEPARATOR_V2;
 
         // lastUpdated is a timesecond instant so we are going to get int value for comparison
         if (empty($resource->getMeta())) {
-            (new SystemLogger())->errorLogCaller(
-                "Resource missing required Meta field",
+            ServiceContainer::getLogger()->error(
+                "Resource {resource} of type {type} missing required Meta field",
                 ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
             );
-        } else if (empty($resource->getMeta()->getLastUpdated())) {
-            (new SystemLogger())->errorLogCaller(
-                "Resource missing required Meta->lastUpdated field",
+        } elseif (empty($resource->getMeta()->getLastUpdated())) {
+            ServiceContainer::getLogger()->error(
+                "Resource {resource} of type {type} missing required Meta->lastUpdated field",
                 ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
             );
         // patients were the only ones who actually were tracking a valid last updated date instead of the most
         // current timestamp for V1 so we need to check for that, everything else is V2 as last updated wasn't really tracked.
-        } else if ($resource->get_fhirElementName() === 'Patient') {
+        } elseif ($resource->get_fhirElementName() === 'Patient') {
             // we use DATE_ATOM to get an ISO8601 compatible date as DATE_ISO8601 does not actually conform to an ISO8601 date for php legacy purposes
-            $lastUpdated = \DateTime::createFromFormat(DATE_ATOM, $resource->getMeta()->getLastUpdated());
+            $lastUpdated = \DateTime::createFromFormat(DATE_ATOM, (string) $resource->getMeta()->getLastUpdated());
 
             if ($lastUpdated !== false && $lastUpdated->getTimestamp() < self::V2_TIMESTAMP) {
                 $separator = self::SURROGATE_KEY_SEPARATOR_V1;
@@ -386,13 +388,13 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
      * @param $key string the key to parse
      * @return array The broken up key parts.
      */
-    public function splitSurrogateKeyIntoParts($key)
+    public function splitSurrogateKeyIntoParts($key): array
     {
         $delimiter = self::SURROGATE_KEY_SEPARATOR_V2;
-        if (strpos($key, self::SURROGATE_KEY_SEPARATOR_V1) !== false) {
+        if (str_contains((string) $key, self::SURROGATE_KEY_SEPARATOR_V1)) {
             $delimiter = self::SURROGATE_KEY_SEPARATOR_V1;
         }
-        $parts = explode($delimiter, $key);
+        $parts = explode($delimiter, (string) $key);
         $key = [
             "resource" => $parts[0] ?? ""
             ,"id" => $parts[1] ?? ""
@@ -436,6 +438,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             $searchParams['_revinclude'] = 'Provenance:target';
             if ($resource != "Provenance" && isset($servicesByResource[$resource]) && $servicesByResource[$resource] instanceof IResourceReadableService) {
                 $service = $servicesByResource[$resource];
+                if ($service instanceof SessionAwareInterface) {
+                    $service->setSession($this->getSession());
+                }
                 if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
                     // service supports filtering by patients so let's do that
                     if ($service instanceof IPatientCompartmentResourceService) {
@@ -474,7 +479,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return null;
     }
 
-    private function filterSupportedSearchParams(array $fhirSearchParameters)
+    private function filterSupportedSearchParams(array $fhirSearchParameters): array
     {
         $supportedParams = [];
         if (isset($fhirSearchParameters['_lastUpdated'])) {

@@ -4,7 +4,7 @@
  * Work/School Note Form save.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Nikolai Vitsyn
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2004-2005 Nikolai Vitsyn
@@ -14,31 +14,39 @@
 
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 /*
  * name of the database table associated with this form
  */
 $table_name = "form_note";
 
-if ($encounter == "") {
-    $encounter = date("Ymd");
-}
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'note');
 
 $_POST['date_of_signature'] = DateToYYYYMMDD($_POST['date_of_signature']);
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit($table_name, $_POST, $_GET["id"] ?? '', $userauthorized);
+    $newid = formSubmit($table_name, $_POST, $formId, $userauthorized);
     addForm($encounter, "Work/School Note", $newid, "note", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    $success = formUpdate($table_name, $_POST, $_GET["id"], $userauthorized);
+    $success = formUpdate($table_name, $_POST, $formId, $userauthorized);
 }
 
 formHeader("Redirecting....");

@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 ?>
 <?php $action = $viewBean->action ?>
@@ -55,34 +55,34 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
         <!-- category -->
         <?php
         $change_link = '<a href="javascript:;" id="change_category" onclick="top.restoreSession();">(' . xlt('Change') . ')</a>';
-        echo RuleTemplateExtension::textfield_row(array("id" => "fld_category_lbl",
+        echo RuleTemplateExtension::textfield_row(["id" => "fld_category_lbl",
             "name" => "fld_category_lbl",
             "title" => xl("Category"),
             "value" => $action->getCategoryLabel(),
-            "render_link" => $change_link)); ?>
+            "render_link" => $change_link]); ?>
         <input type="hidden" id="fld_category" name="fld_category" value="<?php echo attr($action->category); ?>" />
 
         <!-- item -->
         <?php
         $change_link = '<a href="javascript:;" id="change_item" onclick="top.restoreSession();">(' . xlt('Change') . ')</a>';
-        echo RuleTemplateExtension::textfield_row(array("id" => "fld_item_lbl",
+        echo RuleTemplateExtension::textfield_row(["id" => "fld_item_lbl",
             "name" => "fld_item_lbl",
             "title" => xl("Item"),
             "value" => $action->getItemLabel(),
-            "render_link" => $change_link)); ?>
+            "render_link" => $change_link]); ?>
         <input type="hidden" id="fld_item" name="fld_item" value="<?php echo attr($action->item); ?>" />
 
         <!-- reminder link  -->
-        <?php echo RuleTemplateExtension::textfield_row(array("id" => "fld_link",
+        <?php echo RuleTemplateExtension::textfield_row(["id" => "fld_link",
             "name" => "fld_link",
             "title" => xl("Link"),
-            "value" => $action->reminderLink)); ?>
+            "value" => $action->reminderLink]); ?>
 
         <!-- reminder message  -->
-        <?php echo RuleTemplateExtension::textfield_row(array("id" => "fld_message",
+        <?php echo RuleTemplateExtension::textfield_row(["id" => "fld_message",
             "name" => "fld_message",
             "title" => xl("Message"),
-            "value" => $action->reminderMessage)); ?>
+            "value" => $action->reminderMessage]); ?>
 
 
         <!-- custom rules input -->

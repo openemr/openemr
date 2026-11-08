@@ -7,7 +7,7 @@
  * the database list should be updated instead.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2022 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -39,7 +39,7 @@ class IsAcceptedFileFilterEvent extends Event
     const EVENT_FILTER_IS_ACCEPTED_FILE = 'sanitize.isWhiteFile.filterIsAccepted';
 
     /**
-     * @var $array The list of accepted mime types
+     * @var The $array list of accepted mime types
      */
     private $acceptedList;
 
@@ -63,18 +63,11 @@ class IsAcceptedFileFilterEvent extends Event
         $this->setAcceptedList($acceptedList);
     }
 
-    /**
-     * @return This
-     */
     public function getAcceptedList(): array
     {
         return $this->acceptedList;
     }
 
-    /**
-     * @param This $acceptedList
-     * @return IsAcceptedFileFilterEvent
-     */
     public function setAcceptedList(array $acceptedList): IsAcceptedFileFilterEvent
     {
         $this->acceptedList = $acceptedList;

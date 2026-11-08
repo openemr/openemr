@@ -2,30 +2,31 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPerson;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\FHIR\Organization\FhirOrganizationAddressBookService;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationFacilityService;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationInsuranceService;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationProcedureProviderService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
-use OpenEMR\Services\PatientService;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Organization Service
  *
  * @package            OpenEMR
- * @link               http://www.open-emr.org
+ * @link               https://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786@gmail.com>
  * @author             Stephen Nielson <stephen@nielson.org>
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
@@ -37,10 +38,13 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
     use MappedServiceTrait;
+    use SystemLoggerAwareTrait;
+    use VersionedProfileTrait;
 
     const ORGANIZATION_TYPE_INSURANCE = "Ins";
     const ORGANIZATION_TYPE_PAYER = "Pay";
     const ORGANIZATION_TYPE_PROVIDER = "Prov";
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization';
 
     /**
      * @var FhirOrganizationFacilityService
@@ -62,6 +66,19 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         // TODO: ask @brady.miller if we need x12 clearinghouses here for our organization list... eventually yes, but for ONC?
         // TODO: @adunsulag look at adding Pharmacies on here as well... @see C_Pharmacy class
         $this->addMappedService(new FhirOrganizationProcedureProviderService());
+        // External organizations from the address book, such as a referral's recipient (#14710).
+        $this->addMappedService(new FhirOrganizationAddressBookService());
+    }
+
+    public function setSystemLogger(LoggerInterface $systemLogger): void
+    {
+        $mappedServices = $this->getMappedServices();
+        foreach ($mappedServices as $service) {
+            if ($service instanceof FhirServiceBase) {
+                $service->setSystemLogger($systemLogger);
+            }
+        }
+        $this->logger = $systemLogger;
     }
 
     /**
@@ -69,7 +86,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
      *
      * @return array The search parameters
      */
-    public function getSearchParams()
+    public function getSearchParams(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
@@ -101,7 +118,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         try {
             $fhirSearchResult = $this->searchAllServicesWithSupportedFields($fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $this->getSystemLogger()->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
@@ -122,7 +139,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
             //  so will support both the array and the object
             if (is_array($type)) {
                 foreach ($type['coding'] as $coding) {
-                    if ($coding['code'] == self::ORGANIZATION_TYPE_INSURANCE) {
+                    if (self::isInsurerType($coding['code'] ?? null)) {
                         // insert into the insurance
                         return $this->insuranceService->insert($fhirResource);
                     }
@@ -130,7 +147,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
             } else {
                 $codings = $type->getCoding() ?? [];
                 foreach ($codings as $coding) {
-                    if ($coding->getCode() == self::ORGANIZATION_TYPE_INSURANCE) {
+                    if (self::isInsurerType($coding->getCode())) {
                         // insert into the insurance
                         return $this->insuranceService->insert($fhirResource);
                     }
@@ -141,6 +158,23 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         return $this->facilityService->insert($fhirResource);
     }
 
+    /**
+     * Whether an organization type code is the insurer's. HL7's code, and the one an insurer
+     * reads back with, is 'ins'; 'Ins' is accepted as before.
+     */
+    private static function isInsurerType(mixed $code): bool
+    {
+        if ($code instanceof FHIRCode) {
+            $code = $code->getValue();
+        }
+        return is_string($code) && strcasecmp($code, self::ORGANIZATION_TYPE_INSURANCE) === 0;
+    }
+
+    /**
+     * @param $fhirResourceId string
+     * @param $fhirResource FHIROrganization
+     * @return ProcessingResult
+     */
     public function update($fhirResourceId, $fhirResource): ProcessingResult
     {
 
@@ -153,7 +187,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
                 return $service->update($fhirResourceId, $fhirResource);
             }
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['fhirResourceId' => $fhirResourceId, 'trace' => $exception->getTraceAsString()]);
+            $this->getSystemLogger()->error($exception->getMessage(), ['fhirResourceId' => $fhirResourceId, 'trace' => $exception->getTraceAsString()]);
         }
         $processingResult = new ProcessingResult();
         $processingResult->setValidationMessages(['_id' => 'Invalid fhir resource id']);
@@ -199,10 +233,8 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization'
-        ];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

@@ -15,11 +15,11 @@
 require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientNameHistoryService;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $post_items = $_POST;
 if ($post_items['task_name_history'] === 'save') {
@@ -48,7 +48,7 @@ function nameHistorySave($post_items): void
     $is_new = $patientNameService->createPatientNameHistory($post_items['pid'], $post_items);
     $name = $patientNameService->formatPreviousName($post_items);
 
-    $ret = array();
+    $ret = [];
     if (!empty($is_new)) {
         $ret['id'] = $is_new;
         $ret['name'] = $name;

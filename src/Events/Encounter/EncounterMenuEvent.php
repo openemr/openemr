@@ -7,7 +7,7 @@
  *
  * @package    OpenEMR
  * @subpackage Events
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Robert Down <robertdown@live.com>
  * @copyright  Copyright (c) 2021-2023 Robert Down <robertdown@live.com>
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -25,29 +25,26 @@ class EncounterMenuEvent extends Event
      */
     const MENU_RENDER = 'menu.render';
 
-    private $menu;
-
     /**
      * EncounterMenuEvent constructor takes a multidimensional array
      * of menu items.
      *
-     * @param array $menu
+     * @param array<string, mixed> $menu
      */
-    public function __construct(array $menu = [])
+    public function __construct(private array $menu = [])
     {
-        $this->menu = $menu;
     }
 
     /**
-     * @return mixed
+     * @return array<string, mixed>
      */
-    public function getMenuData()
+    public function getMenuData(): array
     {
         return $this->menu;
     }
 
     /**
-     * @param mixed $menu
+     * @param array<string, mixed> $menu
      */
     public function setMenuData(array $menu): void
     {

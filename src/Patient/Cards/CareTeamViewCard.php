@@ -2,10 +2,13 @@
 
 /**
  * @package   OpenEMR Care Team
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -13,24 +16,58 @@ namespace OpenEMR\Patient\Cards;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
+use OpenEMR\Services\CareTeamService;
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Services\ContactService;
+use OpenEMR\Services\ListService;
+use Symfony\Component\HttpFoundation\Request;
 
 class CareTeamViewCard extends CardModel
 {
     private const TEMPLATE_FILE = 'patient/card/manage_care_team.html.twig';
     private const CARD_ID_EXPAND = 'careteam_ps_expand';
     private const CARD_ID = 'care_team';
-    private $pid;
 
-    public function __construct($pid, array $opts = [])
+    /**
+     * @var CareTeamService
+     */
+    private CareTeamService $careTeamService;
+
+    private ListService $listService;
+
+    public function __construct(private $pid, private readonly Request $request, array $opts = [])
     {
-        $this->pid = $pid;
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
 
         // Handle form submission if this is a POST request
         $this->handleFormSubmission();
+    }
+
+    public function getListService(): ListService
+    {
+        $this->listService ??= new ListService();
+        return $this->listService;
+    }
+    public function setListService(ListService $service): void
+    {
+        $this->listService = $service;
+    }
+
+    public function getCareTeamService(): CareTeamService
+    {
+        $this->careTeamService ??= new CareTeamService();
+        return $this->careTeamService;
+    }
+
+    public function setCareTeamService(CareTeamService $service): void
+    {
+        $this->careTeamService = $service;
     }
 
     /**
@@ -59,14 +96,20 @@ class CareTeamViewCard extends CardModel
                 'title' => xl("Care Team"),
                 'id' => self::CARD_ID_EXPAND,
                 'btnLabel' => "Edit",
-                'btnLink' => "javascript:toggleEditMode(true);",
-                'linkMethod' => 'html',
-                'initiallyCollapsed' => $initiallyCollapsed ? true : false,
+                'btnClass' => 'btn-edit-care-team',
+                // card_base emits this as an inline `onclick`; a `javascript:`
+                // href would be stripped by |safe_href. The click itself is
+                // handled by the `.btn-edit-care-team` listener in the card
+                // template, which does not call preventDefault() — so this
+                // must, or the `#` href jumps the page to the top.
+                'btnLink' => 'event.preventDefault();',
+                'linkMethod' => 'javascript',
+                'initiallyCollapsed' => $initiallyCollapsed,
                 'auth' => $authCheck
             ]
         ];
 
-        return $newOpts; //array_merge($opts, $newOpts);
+        return $newOpts;
     }
 
     public function getTemplateVariables(): array
@@ -76,110 +119,34 @@ class CareTeamViewCard extends CardModel
 
         $templateVars['prependedInjection'] = $dispatchResult->getPrependedInjection();
         $templateVars['appendedInjection'] = $dispatchResult->getAppendedInjection();
-        $templateVars['careTeamData'] = $this->getCareTeamData();
-        $templateVars['hasActiveTeam'] = $this->hasActiveCareTeam();
-        $templateVars = array_merge($templateVars, self::getFormManagementData($this->pid));
+        $templateVars['hasActiveTeam'] = $this->getCareTeamService()->hasActiveCareTeam($this->pid);
+        $templateVars = array_merge($templateVars, $this->getFormManagementData($this->pid));
         return $templateVars;
     }
 
     private function handleFormSubmission()
     {
-        if (($_POST['save_care_team'] ?? '') === 'true') {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
-                CsrfUtils::csrfNotVerified();
-            }
-
-            $teamName = trim($_POST['team_name'] ?? '');
-            $team = $_POST['team'] ?? [];
-
-            if (!$this->pid || empty($team)) {
-                die(xlt("Invalid request."));
-            }
-
-            $this->saveCareTeam($teamName, $team);
+        $request = $this->request->request;
+        if ($request->getString('save_care_team') !== 'true') {
+            return;
         }
-    }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-    private function saveCareTeam($teamName, $team)
-    {
-        // Delete existing care team members
-        sqlStatement("DELETE FROM care_teams WHERE pid = ?", [$this->pid]);
+        $teamId = ValidationUtils::validateInt($request->getString('team_id'));
+        $teamId = $teamId === false ? null : $teamId;
+        $teamName = trim($request->getString('team_name'));
+        // `team` is the only field that legitimately arrives as an array
+        // (per-row metadata for each team member). Fall through to
+        // ->all() for that one field.
+        $allPost = $request->all();
+        $team = is_array($allPost['team'] ?? null) ? $allPost['team'] : [];
+        $teamStatus = trim($request->getString('team_status', 'active'));
 
-        // Insert new care team members
-        foreach ($team as $entry) {
-            $userId = intval($entry['user_id'] ?? 0);
-            $role = trim($entry['role'] ?? '');
-            $facilityId = intval($entry['facility_id'] ?? 0);
-            $providerSince = trim($entry['provider_since'] ?? '');
-            $status = trim($entry['status'] ?? 'active');
-            $note = trim($entry['note'] ?? '');
-
-            if ($userId) {
-                sqlInsert(
-                    "INSERT INTO care_teams
-                    (pid, user_id, role, facility_id, provider_since, status, note, team_name)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    [$this->pid, $userId, $role, $facilityId, $providerSince, $status, $note, $teamName]
-                );
-            }
-        }
-    }
-
-    private function getCareTeamData()
-    {
-        $careTeamResult = sqlStatement(
-            "SELECT ct.*, u.fname, u.lname, f.name as facility_name,
-                    lo1.title as role_title, lo2.title as status_title
-             FROM care_teams ct
-             LEFT JOIN users u ON ct.user_id = u.id
-             LEFT JOIN facility f ON ct.facility_id = f.id
-             LEFT JOIN list_options lo1 ON lo1.option_id = ct.role AND lo1.list_id = 'care_team_roles'
-             LEFT JOIN list_options lo2 ON lo2.option_id = ct.status AND lo2.list_id = 'Care_Team_Status'
-             WHERE ct.pid = ?
-             ORDER BY ct.id ASC",
-            [$this->pid]
-        );
-
-        $careTeamMembers = [];
-        $teamName = '';
-
-        while ($member = sqlFetchArray($careTeamResult)) {
-            $careTeamMembers[] = [
-                'id' => $member['id'],
-                'user_id' => $member['user_id'],
-                'user_name' => trim(($member['fname'] ?? '') . ' ' . ($member['lname'] ?? '')),
-                'role' => $member['role'],
-                'role_title' => $member['role_title'] ?? $member['role'],
-                'facility_id' => $member['facility_id'],
-                'facility_name' => $member['facility_name'] ?? '',
-                'provider_since' => $member['provider_since'],
-                'provider_since_formatted' => !empty($member['provider_since']) ? oeFormatShortDate($member['provider_since']) : '',
-                'status' => $member['status'],
-                'status_title' => $member['status_title'] ?? $member['status'],
-                'note' => $member['note'] ?? '',
-                'team_name' => $member['team_name'] ?? ''
-            ];
-
-            if (empty($teamName) && !empty($member['team_name'])) {
-                $teamName = $member['team_name'];
-            }
+        if (!$this->pid) {
+            die(xlt("Invalid request."));
         }
 
-        return [
-            'team_name' => $teamName,
-            'members' => $careTeamMembers,
-            'member_count' => count($careTeamMembers)
-        ];
-    }
-
-    private function hasActiveCareTeam()
-    {
-        $result = sqlQuery(
-            "SELECT COUNT(*) as count FROM care_teams WHERE pid = ? AND status != 'inactive'",
-            [$this->pid]
-        );
-
-        return ($result['count'] ?? 0) > 0;
+        $this->getCareTeamService()->saveCareTeam($this->pid, $teamId, $teamName, $team, $teamStatus);
     }
 
     private function getUserCardSetting($settingName)
@@ -189,113 +156,218 @@ class CareTeamViewCard extends CardModel
 
     /**
      * Static method to get form management data for the care team edit page
+     * Enhanced for USCDI v5 compliance
      */
-    public static function getFormManagementData($pid)
+    public function getFormManagementData($pid): array
     {
-        // Get users
-        $usersResult = sqlStatement("SELECT id, username, fname, lname FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL ORDER BY lname, fname");
-        $templateData['users'] = [];
-        while ($user = sqlFetchArray($usersResult)) {
-            $templateData['users'][] = [
-                'id' => $user['id'],
-                'name' => $user['lname'] . ", " . $user['fname'],
-                'username' => $user['username']
-            ];
-        }
 
-        // Get facilities
-        $facilitiesResult = sqlStatement("SELECT id, name FROM facility ORDER BY name");
-        $templateData['facilities'] = [];
-        while ($facility = sqlFetchArray($facilitiesResult)) {
-            $templateData['facilities'][] = [
-                'id' => $facility['id'],
-                'name' => $facility['name']
-            ];
-        }
-        // Get roles
-        $rolesResult = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'care_team_roles' AND activity = 1 ORDER BY is_default, seq, title");
-        $templateData['roles'] = [];
-        while ($role = sqlFetchArray($rolesResult)) {
-            $templateData['roles'][] = [
-                'id' => $role['option_id'],
-                'title' => $role['title']
-            ];
-        }
-        // Get statuses
-        $statusesResult = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'Care_Team_Status' AND activity = 1 ORDER BY is_default DESC, seq, title");
-        $templateData['statuses'] = [];
-        while ($status = sqlFetchArray($statusesResult)) {
-            $templateData['statuses'][] = [
-                'id' => $status['option_id'],
-                'title' => $status['title']
-            ];
-        }
-        // Get existing care team
-        $careTeamResult = sqlStatement(
-            "SELECT ct.*, u.fname, u.lname FROM care_teams ct
-             LEFT JOIN users u ON ct.user_id = u.id
-             WHERE ct.pid = ?
-             ORDER BY ct.id ASC",
-            [$pid]
-        );
-
+        // Get existing care teams (support multiple teams)
+        $careTeamResult = $this->getCareTeamService()->getCareTeamData($pid);
+        $teamName = $careTeamResult['team_name'] ?? 'default';
         $existingCareTeam = [];
-        $teamName = '';
-        while ($member = sqlFetchArray($careTeamResult)) {
+
+        foreach ($careTeamResult['members'] as $member) {
             $existingCareTeam[] = [
+                'team_name' => $teamName,
+                'member_type' => $member['member_type'] ?? 'user',
                 'user_id' => $member['user_id'],
+                'contact_id' => $member['contact_id'],
                 'role' => $member['role'],
                 'facility_id' => $member['facility_id'],
                 'provider_since' => $member['provider_since'],
                 'status' => $member['status'],
                 'note' => $member['note'],
-                'user_name' => trim(($member['lname'] ?? '') . ", " . ($member['fname'] ?? ''))
+                'user_name' => $member['user_name'],
+                'contact_name' => $member['contact_name'],
+                'contact_relationship' => $member['contact_relationship'],
+                'physician_type' => $member['physician_type'],
+                'physician_type_code' => $member['physician_type_code']
             ];
+        }
 
-            if (empty($teamName) && !empty($member['team_name'])) {
-                $teamName = $member['team_name'];
+        // AI-generated related person integration - Start
+        // Get related persons for this patient
+        $contactService = new ContactService();
+        $relationService = new ContactRelationService();
+
+        $patientContact = $contactService->getOrCreateForEntity('patient_data', $pid);
+        $relatedPersons = [];
+        $hasRelatedPersons = false;
+
+        if ($patientContact && $patientContact->get_id()) {
+            $relatedPersons = $relationService->getRelationshipsWithDetails($patientContact->get_id());
+            $hasRelatedPersons = !empty($relatedPersons);
+        }
+        // AI-generated related person integration - End
+
+        // Get users with physician type information for role mapping
+        $usersResult = QueryUtils::sqlStatementThrowException(
+            "SELECT u.id, u.username, u.fname, u.lname, u.physician_type, lo.codes AS physician_type_code FROM users u LEFT JOIN list_options lo ON lo.list_id='physician_type' AND lo.option_id=u.physician_type WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL
+             ORDER BY lname, fname",
+            []
+        );
+
+        $templateData['users'] = [];
+        while ($user = QueryUtils::fetchArrayFromResultSet($usersResult)) {
+            $templateData['users'][] = [
+                'id' => $user['id'],
+                'name' => $user['lname'] . ", " . $user['fname'],
+                'username' => $user['username'],
+                'physician_type' => $user['physician_type'],
+                'physician_type_code' => $user['physician_type_code']
+            ];
+        }
+
+        // Get facilities with NPI for organization identification
+        $facilitiesResult = QueryUtils::sqlStatementThrowException(
+            "SELECT id, name, facility_npi, facility_taxonomy
+             FROM facility
+             WHERE service_location = 1 OR billing_location = 1
+             ORDER BY name",
+            []
+        );
+
+        $templateData['facilities'] = [];
+        while ($facility = QueryUtils::fetchArrayFromResultSet($facilitiesResult)) {
+            $templateData['facilities'][] = [
+                'id' => $facility['id'],
+                'name' => $facility['name'],
+                'npi' => $facility['facility_npi'],
+                'taxonomy' => $facility['facility_taxonomy']
+            ];
+        }
+
+        // Get roles - ensure we have USCDI v5 compatible roles
+        $roles = $this->getListService()->getOptionsByListName('care_team_roles');
+
+        $templateData['roles'] = [];
+        foreach ($roles as $role) {
+            $templateData['roles'][] = [
+                'id' => $role['option_id'],
+                'title' => $role['title'],
+                'codes' => $role['codes'] // SNOMED CT codes for USCDI v5
+            ];
+        }
+
+        // Get statuses - ensure we have FHIR-compatible statuses
+        $statusesResult = $this->getListService()->getOptionsByListName('Care_Team_Status');
+        $templateData['statuses'] = [];
+        foreach ($statusesResult as $status) {
+            $templateData['statuses'][] = [
+                'id' => $status['option_id'],
+                'title' => $status['title']
+            ];
+        }
+
+        // Build option strings
+        $templateData['user_options'] = "<option value=''></option>";
+        foreach ($templateData['users'] as $user) {
+            $extra = $user['physician_type'] ? " (" . text($user['physician_type']) . ")" : "";
+            $templateData['user_options'] .= "<option value='" . attr($user['id']) . "' "
+                . "data-physician-type='" . attr($user['physician_type']) . "' "
+                . "data-physician-code='" . attr($user['physician_type_code']) . "'>"
+                . text($user['name'] . $extra) . "</option>";
+        }
+
+        // AI-generated related person options - Start
+        $templateData['related_person_options'] = "<option value=''></option>";
+        foreach ($relatedPersons as $person) {
+            $personName = trim(($person['first_name'] ?? '') . ' ' . ($person['last_name'] ?? ''));
+            $relationship = $person['relationship'] ?? '';
+            $displayName = $personName . ($relationship ? " ({$relationship})" : "");
+            $contactId = $person['target_contact_id'] ?? '';
+
+            if ($contactId) {
+                $templateData['related_person_options'] .= "<option value='" . attr($contactId) . "' "
+                    . "data-person-name='" . attr($personName) . "' "
+                    . "data-relationship='" . attr($relationship) . "'>"
+                    . text($displayName) . "</option>";
             }
         }
-
-        $templateData['user_options'] = "<option value=''></option>";
-        foreach ($templateData['users'] as $users) {
-            $templateData['user_options'] .= "<option value='" . attr($users['id']) . "'>" . text($users['name']) . "</option>";
-        }
+        // AI-generated related person options - End
 
         $templateData['facility_options'] = "<option value=''></option>";
-        ;
-        foreach ($templateData['facilities'] as $facilities) {
-            $templateData['facility_options'] .= "<option value='" . attr($facilities['id']) . "'>" . text($facilities['name']) . "</option>";
+        foreach ($templateData['facilities'] as $facility) {
+            $extra = $facility['npi'] ? " (NPI: " . text($facility['npi']) . ")" : "";
+            $templateData['facility_options'] .= "<option value='" . attr($facility['id']) . "' "
+                . "data-npi='" . attr($facility['npi']) . "' "
+                . "data-taxonomy='" . attr($facility['taxonomy']) . "'>"
+                . text($facility['name'] . $extra) . "</option>";
         }
 
-        $templateData['role_options'] = '';
-        foreach ($templateData['roles'] as $roles) {
-            $templateData['role_options'] .= "<option value='" . attr($roles['id']) . "'>" . text($roles['title']) . "</option>";
+        $templateData['role_options'] = "<option value=''></option>";
+        foreach ($templateData['roles'] as $role) {
+            $templateData['role_options'] .= "<option value='" . attr($role['id']) . "' "
+                . "data-codes='" . attr($role['codes']) . "'>"
+                . text($role['title']) . "</option>";
         }
 
         $templateData['status_options'] = '';
-        foreach ($templateData['statuses'] as $statuses) {
-            $templateData['status_options'] .= "<option value='" . attr($statuses['id']) . "'>" . text($statuses['title']) . "</option>";
+        foreach ($templateData['statuses'] as $status) {
+            $selected = ($status['id'] == 'active') ? 'selected' : '';
+            $templateData['status_options'] .= "<option value='" . attr($status['id']) . "' $selected>"
+                . text($status['title']) . "</option>";
         }
 
+        // AI-generated addition - Start
+        // Get team status information
+        $teamStatus = $careTeamResult['team_status'] ?? 'active';
+        $teamStatusDisplay = '';
+        $teamStatusBadgeClass = 'badge-secondary';
+
+        // Get status display information
+        foreach ($templateData['statuses'] as $status) {
+            if ($status['id'] === $teamStatus) {
+                $teamStatusDisplay = $status['title'];
+                // Set badge class based on status
+                $teamStatusBadgeClass = match ($teamStatus) {
+                    'active' => 'badge-success',
+                    'inactive' => 'badge-warning',
+                    'proposed' => 'badge-info',
+                    'entered-in-error' => 'badge-danger',
+                    default => 'badge-secondary',
+                };
+                break;
+            }
+        }
+
+        // Build team status options
+        $templateData['team_status_options'] = '';
+        foreach ($templateData['statuses'] as $status) {
+            $selected = ($status['id'] === $teamStatus) ? 'selected' : '';
+            $templateData['team_status_options'] .= "<option value='" . attr($status['id']) . "' $selected>"
+                . text($status['title']) . "</option>";
+        }
+        // AI-generated addition - End
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return [
+            'team_id' => $careTeamResult['team_id'] ?? null,
             'pid' => $pid,
             'team_name' => $teamName,
+            'team_status' => $teamStatus, // AI-generated addition
+            'team_status_display' => $teamStatusDisplay, // AI-generated addition
+            'team_status_badge_class' => $teamStatusBadgeClass, // AI-generated addition
+            'team_status_options' => $templateData['team_status_options'], // AI-generated addition
             'user_options' => $templateData['user_options'],
+            'related_person_options' => $templateData['related_person_options'], // AI-generated addition
+            'has_related_persons' => $hasRelatedPersons, // AI-generated addition
             'facility_options' => $templateData['facility_options'],
             'role_options' => $templateData['role_options'],
             'status_options' => $templateData['status_options'],
             'existing_care_team' => $existingCareTeam,
-            'csrf_token' => CsrfUtils::collectCsrfToken(),
+            'csrf_token' => CsrfUtils::collectCsrfToken(session: $session),
             'translations' => self::getTranslations()
         ];
     }
 
-    private static function getTranslations()
+    private static function getTranslations(): array
     {
         return [
             'manage_care_team' => xl("Manage Care Team"),
+            'care_team_status' => xl('Care Team Status'), // AI-generated translation
             'care_team_name' => xl("Care Team Name"),
+            'member_type' => xl("Type"), // AI-generated translation
             'member' => xl("Member"),
             'role' => xl("Role"),
             'facility' => xl("Facility"),
@@ -304,9 +376,17 @@ class CareTeamViewCard extends CardModel
             'note' => xl("Note"),
             'remove' => xl("Remove"),
             'add_team_member' => xl("Add Team Member"),
+            'add_related_person' => xl("Add Related Person"), // AI-generated translation
             'save_care_team' => xl("Save Care Team"),
             'save_care_team_confirm' => xl('Save care team?'),
-            'cancel' => xl('Cancel')
+            'cancel' => xl('Cancel'),
+            'physician_type' => xl('Provider Type'),
+            'npi' => xl('NPI'),
+            'active_members' => xl('Active Members'),
+            'inactive_members' => xl('Inactive Members'),
+            'no_related_persons_alert' => xl('No related persons found for this patient. Please add related persons in the Demographics Relations screen first.'), // AI-generated translation
+            'provider_member' => xl('Provider'), // AI-generated translation
+            'related_person_member' => xl('Related Person') // AI-generated translation
         ];
     }
 }

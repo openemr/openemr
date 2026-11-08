@@ -1,11 +1,13 @@
 <?php
 
+/** @var bool $aclSetupFlag */
 // Ensure this script is not called separately
 if ($aclSetupFlag !== true) {
     die(function_exists('xlt') ? xlt('Authentication Error') : 'Authentication Error');
 }
 
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Core\OEGlobalsBag;
 
 AclExtended::addObjectSectionAcl('pfeh', 'PatientFilter');
 
@@ -22,7 +24,7 @@ AclExtended::updateAcl($physicians_write, 'Physicians', 'pfeh', 'Parameters', 'p
 <html>
 <head>
     <title>PatientFilter ACL Setup</title>
-    <link rel=STYLESHEET href="interface/themes/style_blue.css">
+    <link rel=STYLESHEET href="interface/themes/style_blue.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
 </head>
 <body>
 <b>OpenEMR[PatientFilter] ACL Setup</b>
@@ -30,4 +32,3 @@ AclExtended::updateAcl($physicians_write, 'Physicians', 'pfeh', 'Parameters', 'p
 All done configuring and installing access controls (php-GACL)!
 </body>
 </html>
-

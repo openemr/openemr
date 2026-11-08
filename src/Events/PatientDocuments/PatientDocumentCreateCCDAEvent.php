@@ -4,7 +4,7 @@
  * PatientDocumentCreateCCDAEvent is fired when the dispatcher wants to generate a ccda document in the system for a patient.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Events\PatientDocuments;
 
-use OpenEMR\Services\Search\DateSearchField;
 use DateTime;
+use OpenEMR\Services\Search\DateSearchField;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class PatientDocumentCreateCCDAEvent extends Event
@@ -37,7 +37,7 @@ class PatientDocumentCreateCCDAEvent extends Event
 
     /**
      * The output format
-     * @var xml|html|zip
+     * @var string
      */
     private $format;
 
@@ -80,7 +80,7 @@ class PatientDocumentCreateCCDAEvent extends Event
     public function __construct($pid)
     {
         $this->setPid($pid);
-        $this->setComponents(array());
+        $this->setComponents([]);
         $this->setFormat("xml");
         $this->setRecipient("self");
         $this->dateFrom = null;
@@ -128,12 +128,12 @@ class PatientDocumentCreateCCDAEvent extends Event
      */
     public function setComponents(array $components): PatientDocumentCreateCCDAEvent
     {
-        $this->components = array_filter($components, 'is_string');
+        $this->components = array_filter($components, is_string(...));
         return $this;
     }
 
     /**
-     * @return html|xml|zip
+     * @return string
      */
     public function getFormat()
     {
@@ -141,7 +141,7 @@ class PatientDocumentCreateCCDAEvent extends Event
     }
 
     /**
-     * @param html|xml|zip $format
+     * @param string $format
      * @return PatientDocumentCreateCCDAEvent
      */
     public function setFormat($format)
@@ -275,7 +275,7 @@ class PatientDocumentCreateCCDAEvent extends Event
         return $this->getCcdaStringFormat($this->components ?? []);
     }
 
-    private function getCcdaStringFormat(array $arr)
+    private function getCcdaStringFormat(array $arr): string
     {
         return implode("|", $arr);
     }

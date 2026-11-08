@@ -522,7 +522,7 @@ class FHIRCompartmentDefinition extends FHIRDomainResource implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -589,15 +589,13 @@ class FHIRCompartmentDefinition extends FHIRDomainResource implements \JsonSeria
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CompartmentDefinition xmlns="http://hl7.org/fhir"></CompartmentDefinition>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CompartmentDefinition xmlns="http://hl7.org/fhir"></CompartmentDefinition>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));

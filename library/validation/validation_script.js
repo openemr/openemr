@@ -25,16 +25,19 @@
  * @author Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2025 Mountain Valley Health <mvhinspire@mountainvalleyhealthinc.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 window.OeFormValidation = (function(window) {
-    let xl = window.top.xl || function(str) { return str; };
+    // window.top can be momentarily null while a reused tab iframe re-navigates and
+    // the frame tree has not yet reconnected to the top browsing context; fall back to
+    // the current window so loading this module never throws.
+    let xl = (window.top || window).xl || function(str) { return str; };
     function submitme(new_validate,e,form_id, constraints, g_date_format) {
 
         top.restoreSession();
 
         if (!g_date_format) {
-            g_date_format = window.top.jsGlobals.date_display_format || "";
+            g_date_format = ((window.top || window).jsGlobals || {}).date_display_format || "";
         }
 
         //Use the old validation script if no parameter sent (backward compatibility)
@@ -78,7 +81,7 @@ window.OeFormValidation = (function(window) {
                 }
             }
 
-            //get the input value after romoving hide fields
+            //get the input value after removing hide fields
             elements = validate.collectFormValues(form);
             //custom validate for multiple select(failed validate.js)
             //the validate js cannot handle the LBF multiple select fields
@@ -104,7 +107,7 @@ window.OeFormValidation = (function(window) {
                 }
             }
 
-            //error conatins an list of the elements and their errors
+            //error contains an list of the elements and their errors
             //set false full message because the name of the input not can be translated
             var errors = validate(elements, constraints, {fullMessages: false});
             if (typeof  errors !== 'undefined') {

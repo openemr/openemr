@@ -317,7 +317,7 @@ class FHIRRiskAssessmentPrediction extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -356,15 +356,13 @@ class FHIRRiskAssessmentPrediction extends FHIRBackboneElement implements \JsonS
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<RiskAssessmentPrediction xmlns="http://hl7.org/fhir"></RiskAssessmentPrediction>');
-        }
+        $sxe ??= new \SimpleXMLElement('<RiskAssessmentPrediction xmlns="http://hl7.org/fhir"></RiskAssessmentPrediction>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->outcome)) {
             $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));

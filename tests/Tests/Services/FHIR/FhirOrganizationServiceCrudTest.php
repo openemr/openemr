@@ -6,21 +6,21 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Organization Service Crud Tests
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-#[CoversClass(FhirOrganizationService::class)]
 class FhirOrganizationServiceCrudTest extends TestCase
 {
     /**
@@ -40,6 +40,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
         $fixture = (array) $this->fixtureManager->getSingleFhirFacilityFixture();
         $this->fhirOrganizationFixture = FhirOrganizationSerializer::deserialize($fixture);
         $this->fhirOrganizationService = new FhirOrganizationService();
+        $this->fhirOrganizationService->setSystemLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void
@@ -100,5 +101,31 @@ class FhirOrganizationServiceCrudTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
         $this->assertEquals(0, count($actualResult->getInternalErrors()));
         $this->assertEquals(0, count($actualResult->getData()));
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function addressSearchProvider(): array
+    {
+        return [
+            'address' => ['address', 'no-such-street'],
+            'address-postalcode' => ['address-postalcode', '00000'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('addressSearchProvider')]
+    public function testAddressSearchDoesNotError(string $param, string $value): void
+    {
+        // facility and insurance company rows have different address columns
+        $service = $this->fhirOrganizationService;
+        $this->assertInstanceOf(FhirOrganizationService::class, $service);
+        $result = $service->getAll([$param => $value]);
+
+        $this->assertTrue($result->isValid());
+        $this->assertEmpty($result->getInternalErrors());
     }
 }

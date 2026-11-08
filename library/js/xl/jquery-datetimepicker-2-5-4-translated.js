@@ -30,7 +30,7 @@
  * }
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -41,12 +41,16 @@ function datetimepickerTranslated(selector, params) {
     if (typeof selector === 'undefined') {
         selector = '.datetimepicker';
     }
-    if (window.top.xl === 'undefined') {
+    // window.top can be momentarily null while a reused tab iframe re-navigates and
+    // the frame tree has not yet reconnected to the top browsing context. Fall back to
+    // the current window so initializing a datepicker never throws at form load.
+    let topWindow = window.top || window;
+    if (topWindow.xl === 'undefined') {
         throw new Error("Missing xl function");
     }
-    let jsGlobals = window.top.jsGlobals || {};
+    let jsGlobals = topWindow.jsGlobals || {};
     let languageDirection = jsGlobals.languageDirection || 'ltr';
-    let formatters = window.top.oeFormatters || {};
+    let formatters = topWindow.oeFormatters || {};
     let DateFormatRead = formatters.DateFormatRead || function (mode = 'legacy') { return "Y-m-d"; };
     let TimeFormatRead = formatters.TimeFormatRead || function (includeSeconds= true) { return "H:i:s"; };
     if (typeof params === 'undefined') {
@@ -56,7 +60,7 @@ function datetimepickerTranslated(selector, params) {
             , formatInput: false
         };
     }
-    let xl = window.top.xl;
+    let xl = topWindow.xl || function (str) { return str; };
 
     let defaults = {
         i18n: {

@@ -6,15 +6,18 @@
  * table.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Billing\BillingProcessor;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\BaseService;
 use phpseclib3\Net\SFTP;
 
@@ -55,8 +58,12 @@ class X12RemoteTracker extends BaseService
     {
         $remoteTracker = new X12RemoteTracker();
         $x12_remotes = $remoteTracker->fetchByStatus(self::STATUS_WAITING);
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         foreach ($x12_remotes as $x12_remote) {
+            if (!is_array($x12_remote)) {
+                continue;
+            }
+
             // Make sure required parameters are filled in on the X12 partner form, otherwise, log a message
             if (false === $remoteTracker->validateSFTPCredentials($x12_remote)) {
                 // there was a problem, get messages, log them and continue
@@ -70,10 +77,10 @@ class X12RemoteTracker extends BaseService
             }
 
             // Make sure local claim file exists and can we have permission to read it
-            // We try both the SFTP directory and the edi root directry
+            // We try both the SFTP directory and the edi root directory
             $claim_file = $x12_remote['x12_sftp_local_dir'] . $x12_remote['x12_filename'];
             if (!file_exists($claim_file)) {
-                $claim_file = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/" . $x12_remote['x12_filename'];
+                $claim_file = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/" . $x12_remote['x12_filename'];
             }
 
             $claim_file_contents = file_get_contents($claim_file);
@@ -84,13 +91,33 @@ class X12RemoteTracker extends BaseService
                 continue;
             }
 
-            // Attempt to login
-            $sftp = new SFTP($x12_remote['x12_sftp_host'], $x12_remote['x12_sftp_port']);
-            $decrypted_password = $cryptoGen->decryptStandard($x12_remote['x12_sftp_pass']);
-            if (false === $sftp->login($x12_remote['x12_sftp_login'], $decrypted_password)) {
+            // Attempt to login. See SftpConnector for why a thrown exception
+            // and a false return are handled differently.
+            $sftpHost = $x12_remote['x12_sftp_host'];
+            $sftpPort = $x12_remote['x12_sftp_port'];
+            $sftpLogin = $x12_remote['x12_sftp_login'];
+            $decrypted_password = $cryptoGen->decryptFromDatabase(is_string($x12_remote['x12_sftp_pass']) ? $x12_remote['x12_sftp_pass'] : null);
+            $connector = new SftpConnector(logger: ServiceContainer::getLogger());
+            $sftp = $connector->connect(
+                is_string($sftpHost) ? $sftpHost : '',
+                is_numeric($sftpPort) ? (int) $sftpPort : 22,
+                is_string($sftpLogin) ? $sftpLogin : '',
+                $decrypted_password
+            );
+            if ($sftp === null || $connector->credentialsRejected()) {
+                if ($sftp === null) {
+                    $loginFailure = sprintf(
+                        'Could not connect to the SFTP host after %d attempts. See the server log for details.',
+                        $connector->getAttempts()
+                    );
+                    $loginDetails = [];
+                } else {
+                    $loginFailure = "Invalid Username or Password.";
+                    $loginDetails = $sftp->getSFTPErrors();
+                }
                 $x12_remote['status'] = self::STATUS_LOGIN_ERROR;
-                $x12_remote['messages'][] = "Invalid Username or Password.";
-                $x12_remote['messages'] = array_merge($x12_remote['messages'], $sftp->getSFTPErrors());
+                $x12_remote['messages'][] = $loginFailure;
+                $x12_remote['messages'] = array_merge($x12_remote['messages'], $loginDetails);
                 $remoteTracker->update($x12_remote);
                 continue;
             }
@@ -107,21 +134,35 @@ class X12RemoteTracker extends BaseService
             $x12_remote['status'] = self::STATUS_IN_PROGRESS;
             $remoteTracker->update($x12_remote);
 
-            // Upload the file
-            if (false === $sftp->put($x12_remote['x12_filename'], $claim_file_contents)) {
-                $x12_remote['status'] = self::STATUS_UPLOAD_ERRROR;
-                $x12_remote['messages'][] = "Could not upload file.";
-                $x12_remote['messages'] = array_merge($x12_remote['messages'], $sftp->getSFTPErrors());
-                $remoteTracker->update($x12_remote);
-            }
-
-            // Change status from waiting to in-progress
-            $x12_remote['status'] = self::STATUS_SUCCESS;
+            // Upload the file and record the outcome
+            $x12_remote = self::uploadClaimFile($sftp, $x12_remote, $claim_file_contents);
             $remoteTracker->update($x12_remote);
 
             // Disconnect from the remote server
             $sftp->disconnect();
         }
+    }
+
+    /**
+     * Upload a claim file and return the tracker row with the outcome: success,
+     * or upload-error with the SFTP errors added to its messages.
+     *
+     * @param array<mixed> $x12_remote
+     * @return array<mixed>
+     */
+    public static function uploadClaimFile(SFTP $sftp, array $x12_remote, string $claim_file_contents): array
+    {
+        $filename = is_string($x12_remote['x12_filename'] ?? null) ? $x12_remote['x12_filename'] : '';
+        if (false === $sftp->put($filename, $claim_file_contents)) {
+            $messages = is_array($x12_remote['messages'] ?? null) ? $x12_remote['messages'] : [];
+            $messages[] = "Could not upload file.";
+            $x12_remote['status'] = self::STATUS_UPLOAD_ERRROR;
+            $x12_remote['messages'] = array_merge($messages, $sftp->getSFTPErrors());
+            return $x12_remote;
+        }
+
+        $x12_remote['status'] = self::STATUS_SUCCESS;
+        return $x12_remote;
     }
 
     protected function validateSFTPCredentials($credentials)
@@ -139,8 +180,9 @@ class X12RemoteTracker extends BaseService
 
     public static function create($fields)
     {
-        $fields['created_at'] = date('Y-m-d H:i:s');
-        $fields['updated_at'] = date('Y-m-d H:i:s');
+        $now = self::formatTimestamp(time());
+        $fields['created_at'] = $now;
+        $fields['updated_at'] = $now;
         $remoteTracker = new X12RemoteTracker();
         return $remoteTracker->insert($fields);
     }
@@ -164,7 +206,7 @@ class X12RemoteTracker extends BaseService
         if (is_array($fields['messages'])) {
             $fields['messages'] = json_encode($fields['messages']);
         }
-        $fields['updated_at'] = date('Y-m-d h:i:s');
+        $fields['updated_at'] = self::formatTimestamp(time());
         $query = $this->buildUpdateColumns($this->onlyRealFields($fields));
         $sql = "UPDATE x12_remote_tracker SET ";
         $sql .= $query['set'];
@@ -174,7 +216,15 @@ class X12RemoteTracker extends BaseService
         return $results;
     }
 
-    protected function onlyRealFields($passed_in)
+    /**
+     * Format a Unix timestamp for the created_at and updated_at columns, on a 24-hour clock.
+     */
+    private static function formatTimestamp(int $timestamp): string
+    {
+        return date('Y-m-d H:i:s', $timestamp);
+    }
+
+    protected function onlyRealFields($passed_in): array
     {
         $realFields = [];
         foreach ($passed_in as $key => $value) {

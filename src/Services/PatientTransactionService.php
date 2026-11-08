@@ -5,7 +5,7 @@
  * DAL to be used for Transactions
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jonathan Moore <Jdcmoore@aol.com>
  * @copyright Copyright (c) 2022 Jonathan Moore <Jdcmoore@aol.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,16 +13,10 @@
 
 namespace OpenEMR\Services;
 
-use MongoDB\Driver\Query;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\Search\DateSearchField;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Validators\ProcessingResult;
-use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
-use OpenEMR\Validators\BaseValidator;
 
 class PatientTransactionService extends BaseService
 {
@@ -30,12 +24,15 @@ class PatientTransactionService extends BaseService
     const _formPredicate = 'd.form_id';
     const _transactionPredicate = 't.pid';
 
-    public function __construct()
+    /**
+     * @param ReferralTaskService $referralTaskService makes a saved referral's FHIR Task (#14710)
+     */
+    public function __construct(private readonly ReferralTaskService $referralTaskService = new ReferralTaskService(new UserService()))
     {
         parent::__construct(self::TABLE_NAME);
     }
 
-    public function getSelectStatement($predicateColumnName)
+    public function getSelectStatement($predicateColumnName): string
     {
 
         $criteriaItemsWhitelist = [
@@ -107,10 +104,10 @@ class PatientTransactionService extends BaseService
         ";
     }
 
-    private function getOneFromDb($tid)
+    private function getOneFromDb($tid): array
     {
 
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = $this->getSelectStatement(self::_formPredicate);
         array_push($sqlBindArray, $tid);
@@ -120,10 +117,10 @@ class PatientTransactionService extends BaseService
         return $records;
     }
 
-    public function getAll($pid)
+    public function getAll($pid): ProcessingResult
     {
         $processingResult = new ProcessingResult();
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = $this->getSelectStatement(self::_transactionPredicate);
         array_push($sqlBindArray, $pid);
@@ -139,24 +136,47 @@ class PatientTransactionService extends BaseService
 
     public function insert($pid, $data)
     {
-        sqlBeginTrans();
-        $transactionId = $this->insertTransaction($pid, $data);
-        if ($transactionId == false) {
+        try {
+            $saved = QueryUtils::inTransaction(function () use ($pid, $data) {
+                $transactionId = $this->insertTransaction($pid, $data);
+                if ($transactionId == false) {
+                    throw new PatientTransactionInsertFailedException('Failed to insert patient transaction');
+                }
+
+                $lbtDataId = $this->insertTransactionForm($transactionId, $data);
+                if ($lbtDataId == false) {
+                    throw new PatientTransactionInsertFailedException('Failed to insert patient transaction form');
+                }
+
+                return ["id" => $transactionId, "form_id" => $lbtDataId];
+            });
+        } catch (PatientTransactionInsertFailedException) {
             return false;
         }
+        $this->createReferralTask($saved['id']);
+        return $saved;
+    }
 
-
-        $lbtDataId = $this->insertTransactionForm($transactionId, $data);
-        if ($lbtDataId == false) {
-            return false;
+    /**
+     * The referral's FHIR Task and its reply, when the fhir_referral_tasks global is on (#14710), made
+     * by the user of the service's session (setSession()), else of the active one. The referral is
+     * already committed, so a failure here is logged rather than thrown (afterSave()). It passes no
+     * Reply Date the save loaded: the REST API never writes the Reply Date, so its save never undoes
+     * a reply (ReferralTaskService::createForReferral()).
+     */
+    private function createReferralTask(mixed $transactionId): void
+    {
+        if (!is_numeric($transactionId)) {
+            return;
         }
-        sqlCommitTrans();
-        return ["id" => $transactionId, "form_id" => $lbtDataId];
+        $userId = ($this->getSession() ?? SessionWrapperFactory::getInstance()->getActiveSession())->get('authUserID');
+        $this->referralTaskService->afterSave((int)$transactionId, is_numeric($userId) ? (int)$userId : null);
     }
 
     public function insertTransaction($pid, $data)
     {
-        $user = $_SESSION['authUser'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $session->get('authUser');
         $sql =
         "
             INSERT INTO transactions SET
@@ -170,12 +190,12 @@ class PatientTransactionService extends BaseService
 
         $results = sqlInsert(
             $sql,
-            array(
+            [
                 $data["type"],
                 $pid,
                 $data['groupname'],
                 $user
-            )
+            ]
         );
 
         if (!$results) {
@@ -206,31 +226,26 @@ class PatientTransactionService extends BaseService
             (?,  'refer_validThrough', ?)
         ";
 
-        $params = array
-        (
+        $params =
+        [
             $transactionId, $data["body"],
             $transactionId, $data["referralDate"],
             $transactionId, $data["referDiagnosis"],
             $transactionId, $referById,
             $transactionId, $referToId,
-            $transactionId, strtolower($data["riskLevel"]),
+            $transactionId, strtolower((string) $data["riskLevel"]),
             $transactionId, $data["includeVitals"],
             $transactionId, $data["authorization"],
             $transactionId, $data["visits"],
             $transactionId, $data["validFrom"],
             $transactionId, $data["validThrough"],
-        );
+        ];
 
-        $results = sqlInsert(
-            $sql,
-            $params
-        );
+        // lbt_data has no auto increment column, so sqlInsert()'s insert id is always 0.
+        // The rows are keyed by the transaction id; throws on failure.
+        QueryUtils::sqlStatementThrowException($sql, $params);
 
-        if (!$results) {
-            return false;
-        }
-
-        return $results;
+        return $transactionId;
     }
 
     public function update($tid, $data)
@@ -241,26 +256,30 @@ class PatientTransactionService extends BaseService
         $body = $data["body"];
         $referralDate = $data["referralDate"];
         $referralDiagnosis = $data["referDiagnosis"];
-        $riskLevel = strtolower($data["riskLevel"]);
+        $riskLevel = strtolower((string) $data["riskLevel"]);
         $includeVitals = $data["includeVitals"];
         $authorization = $data["authorization"];
         $visits = $data["visits"];
         $validFrom = $data["validFrom"];
         $validThrough = $data["validThrough"];
 
-        sqlBeginTrans();
-        $this->updateTransactionForm($tid, 'refer_from', $referById);
-        $this->updateTransactionForm($tid, 'refer_to', $referToId);
-        $this->updateTransactionForm($tid, 'body', $body);
-        $this->updateTransactionForm($tid, 'refer_date', $referralDate);
-        $this->updateTransactionForm($tid, 'refer_diag', $referralDiagnosis);
-        $this->updateTransactionForm($tid, 'refer_risk_level', $riskLevel);
-        $this->updateTransactionForm($tid, 'refer_vitals', $includeVitals);
-        $this->updateTransactionForm($tid, 'refer_authorization', $authorization);
-        $this->updateTransactionForm($tid, 'refer_visits', $visits);
-        $this->updateTransactionForm($tid, 'refer_validFrom', $validFrom);
-        $this->updateTransactionForm($tid, 'refer_validThrough', $validThrough);
-        sqlCommitTrans();
+        QueryUtils::inTransaction(function () use ($tid, $referById, $referToId, $body, $referralDate, $referralDiagnosis, $riskLevel, $includeVitals, $authorization, $visits, $validFrom, $validThrough): void {
+            // As the Transactions screen does on every save, so that the change shows as the
+            // referral's last update (the FHIR ServiceRequest's meta.lastUpdated and _lastUpdated).
+            QueryUtils::sqlStatementThrowException('UPDATE transactions SET date = NOW() WHERE id = ?', [$tid]);
+            $this->updateTransactionForm($tid, 'refer_from', $referById);
+            $this->updateTransactionForm($tid, 'refer_to', $referToId);
+            $this->updateTransactionForm($tid, 'body', $body);
+            $this->updateTransactionForm($tid, 'refer_date', $referralDate);
+            $this->updateTransactionForm($tid, 'refer_diag', $referralDiagnosis);
+            $this->updateTransactionForm($tid, 'refer_risk_level', $riskLevel);
+            $this->updateTransactionForm($tid, 'refer_vitals', $includeVitals);
+            $this->updateTransactionForm($tid, 'refer_authorization', $authorization);
+            $this->updateTransactionForm($tid, 'refer_visits', $visits);
+            $this->updateTransactionForm($tid, 'refer_validFrom', $validFrom);
+            $this->updateTransactionForm($tid, 'refer_validThrough', $validThrough);
+        });
+        $this->createReferralTask($tid);
 
         return $this->getOneFromDb($tid);
     }
@@ -269,7 +288,7 @@ class PatientTransactionService extends BaseService
     {
         if (empty($value) == false) {
             $sql = "Update lbt_data SET field_value = ? Where field_id = ? and form_id = ?";
-            $params = array($value, $fieldId, $formId);
+            $params = [$value, $fieldId, $formId];
             $res = sqlStatement($sql, $params);
         }
     }
@@ -299,7 +318,7 @@ class PatientTransactionService extends BaseService
     {
         try {
             return QueryUtils::fetchSingleValue('Select id FROM users WHERE npi = ? ', 'id', [$npi]);
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex;
         }
     }

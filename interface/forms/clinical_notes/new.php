@@ -4,7 +4,7 @@
  * Clinical Notes form new.php Borrowed from Care Plan
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -17,28 +17,34 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
-
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Header;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\PatientService;
+
+require_once("../../globals.php");
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+
+require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/options.inc.php");
 
 $returnurl = 'encounter_top.php';
 $formid = (int)($_GET['id'] ?? 0);
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $clinicalNotesService = new ClinicalNotesService();
 $alertMessage = '';
 if (empty($formid)) {
     $sql = "SELECT form_id, encounter FROM `forms` WHERE formdir = 'clinical_notes' AND pid = ? AND encounter = ? AND deleted = 0 LIMIT 1";
-    $formid = sqlQuery($sql, array($_SESSION["pid"], $_SESSION["encounter"]))['form_id'] ?? 0;
+    $formid = sqlQuery($sql, [$session->get('pid'), $session->get('encounter')])['form_id'] ?? 0;
     if (!empty($formid)) {
         $alertMessage = xl("Already a Clinical Notes form for this encounter. Using existing Clinical Notes form.");
     }
@@ -47,9 +53,7 @@ if (empty($formid)) {
 $clinical_notes_type = $clinicalNotesService->getClinicalNoteTypes();
 $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
 $getDefaultValue = function ($items) {
-    $selectedItem = array_filter($items, function ($val) {
-        return $val['selected'];
-    });
+    $selectedItem = array_filter($items, fn($val): mixed => $val['selected']);
     if (empty($selectedItem)) {
         return ''; // default to an empty value if there is no default option
     } else {
@@ -59,7 +63,7 @@ $getDefaultValue = function ($items) {
 $defaultType = $getDefaultValue($clinical_notes_type);
 $defaultCategory = $getDefaultValue($clinical_notes_category);
 if ($formid) {
-    $records = $clinicalNotesService->getClinicalNotesForPatientForm($formid, $_SESSION['pid'], $_SESSION['encounter']) ?? [];
+    $records = $clinicalNotesService->getClinicalNotesForPatientForm($formid, $session->get('pid'), $session->get('encounter')) ?? [];
     $check_res = [];
     foreach ($records as $record) {
         // we are only going to include active clinical notes, but we leave them as historical records in the system
@@ -86,21 +90,26 @@ if ($formid) {
             ,'clinical_notes_type' => $defaultType
             ,'clinical_notes_category' => $defaultCategory
             ,'description' => ''
-            ,'date' => oeFormatShortDate(date('Y-m-d'))
+            ,'date' =>date('Y-m-d')
         ]
     ];
 }
 
-$twig = new TwigContainer(dirname(__DIR__), $GLOBALS['kernel']);
+$patientService = new PatientService();
+$patient = $patientService->findByPid($session->get('pid'));
+$listService = new ListService();
+$resultCategories = $listService->getOptionsByListName('Observation_Types');
+$twig = new TwigContainer(dirname(__DIR__), OEGlobalsBag::getInstance()->getKernel());
 $t = $twig->getTwig();
 $viewArgs = [
     'clinical_notes_type' => $clinical_notes_type
+    ,'patientUuid' => UuidRegistry::uuidToString($patient['uuid'])
     ,'clinical_notes_category' => $clinical_notes_category
     ,'oemrUiSettings' =>  [
         'heading_title' => xl('Clinical Notes Form'),
         'include_patient_name' => false,
         'expandable' => true,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link and back
@@ -109,10 +118,12 @@ $viewArgs = [
     ]
     ,'check_res' => $check_res
     ,'alertMessage' => $alertMessage
-    ,'rootdir' => $GLOBALS['rootdir']
+    ,'rootdir' => OEGlobalsBag::getInstance()->getKernel()->getRootDir()
     ,'formid' => $formid
     ,'defaultType' => $defaultType
     ,'defaultCategory' => $defaultCategory
+    ,'csrfToken' => CsrfUtils::collectCsrfToken($session, 'api')
+    ,'resultCategories' => $resultCategories
 ];
 $templatePageEvent = new TemplatePageEvent(
     'clinical_notes/new.php',
@@ -120,10 +131,7 @@ $templatePageEvent = new TemplatePageEvent(
     'clinical_notes/templates/new.html.twig',
     $viewArgs
 );
-$event = $GLOBALS['kernel']->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
-if (!$event instanceof TemplatePageEvent) {
-    throw new \RuntimeException('Invalid event returned from template page event');
-}
+$event = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
 
 // Render template
 echo $t->render($event->getTwigTemplate(), $event->getTwigVariables());

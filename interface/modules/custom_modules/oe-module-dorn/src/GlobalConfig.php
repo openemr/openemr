@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
@@ -12,7 +12,8 @@
 
  namespace OpenEMR\Modules\Dorn;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Globals\GlobalSetting;
 
 class GlobalConfig
@@ -26,17 +27,12 @@ class GlobalConfig
 
 
     public const CONFIG_ENABLE_MENU = "oe_dorn_config_add_menu_button";
-    private $globalsArray;
 
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
-    public function __construct(array $globalsArray)
+    public function __construct(private array $globalsArray)
     {
-        $this->globalsArray = $globalsArray;
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
     }
 
     /**
@@ -44,7 +40,7 @@ class GlobalConfig
      *
      * @return bool
      */
-    public function isConfigured()
+    public function isConfigured(): bool
     {
         // $keys = [self::CONFIG_OPTION_TEXT, self::CONFIG_OPTION_ENCRYPTED];
         // foreach ($keys as $key) {
@@ -60,13 +56,13 @@ class GlobalConfig
     {
         return $this->getGlobalSetting(self::CONFIG_OPTION_CLIENTID);
     }
-    public function getClientSecret()
+    public function getClientSecret(): string
     {
         $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_CLIENTSECRET);
-        return $this->cryptoGen->decryptStandard($encryptedValue);
+        return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
     }
 
-    public function getClientScope()
+    public function getClientScope(): string
     {
         if ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
             return "https://stagingclaimrevcom.onmicrosoft.com/portal/api/.default";
@@ -76,7 +72,7 @@ class GlobalConfig
         return "https://portalclaimrev.onmicrosoft.com/portal/api/.default";
     }
 
-    public function getClientAuthority()
+    public function getClientAuthority(): string
     {
         if ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
             return "https://stagingclaimrevcom.b2clogin.com/stagingclaimrevcom.onmicrosoft.com/B2C_1_sign-in-service/oauth2/v2.0/token";
@@ -91,29 +87,12 @@ class GlobalConfig
         return $this->getGlobalSetting(self::CONFIG_OPTION_API_URL);
     }
 
-
-    public function getTextOption()
-    {
-        return $this->getGlobalSetting(self::CONFIG_OPTION_TEXT);
-    }
-
-    /**
-     * Returns our decrypted value if we have one, or false if the value could not be decrypted or is empty.
-     *
-     * @return bool|string
-     */
-    public function getEncryptedOption()
-    {
-        $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_ENCRYPTED);
-        return $this->cryptoGen->decryptStandard($encryptedValue);
-    }
-
     public function getGlobalSetting($settingKey)
     {
         return $this->globalsArray[$settingKey] ?? null;
     }
 
-    public function getGlobalSettingSectionConfiguration()
+    public function getGlobalSettingSectionConfiguration(): array
     {
         $settings = [
             self::CONFIG_OPTION_ENVIRONMENT => [

@@ -162,7 +162,7 @@ class FHIRContactDetail extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -186,15 +186,13 @@ class FHIRContactDetail extends FHIRElement implements \JsonSerializable
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContactDetail xmlns="http://hl7.org/fhir"></ContactDetail>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ContactDetail xmlns="http://hl7.org/fhir"></ContactDetail>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));

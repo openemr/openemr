@@ -184,7 +184,7 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }
@@ -211,15 +211,13 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationKnowledgePatientCharacteristics xmlns="http://hl7.org/fhir"></MedicationKnowledgePatientCharacteristics>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicationKnowledgePatientCharacteristics xmlns="http://hl7.org/fhir"></MedicationKnowledgePatientCharacteristics>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->characteristicCodeableConcept)) {
             $this->characteristicCodeableConcept->xmlSerialize(true, $sxe->addChild('characteristicCodeableConcept'));

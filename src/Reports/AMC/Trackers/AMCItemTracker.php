@@ -6,7 +6,7 @@
  * the database operations.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -58,7 +58,7 @@ class AMCItemTracker
      * Our summary result is empty as we don't do summarizing here.
      * @return array
      */
-    public function getSummaryResult()
+    public function getSummaryResult(): array
     {
         return [];
     }

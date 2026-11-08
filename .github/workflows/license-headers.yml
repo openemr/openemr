@@ -1,0 +1,69 @@
+# Checks the @license tag in file headers against .license-headers.yaml.
+#
+# Pull requests check only the files they change and fail on any finding.
+# Their SARIF upload is the PR's own analysis: code scanning compares it with
+# master to annotate the diff, and it never closes master's alerts.
+# The weekly and manual runs scan every tracked file to report, not enforce:
+# they never fail on findings, upload them to code scanning, and write a
+# compliance table to the job summary. Never upload a partial scan for master,
+# because code scanning closes any alert missing from the latest scan of a ref.
+name: License Headers
+
+on:
+  pull_request:
+    branches:
+    - master
+    - rel-*
+  schedule:
+    # Run weekly on Monday at 10am UTC
+  - cron: 0 10 * * 1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  license-headers:
+    name: License Headers
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+      with:
+        # --changed-since needs the merge commit's first parent.
+        fetch-depth: 2
+
+    - name: Setup PHP
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.3'
+
+    - name: Check changed files
+      if: github.event_name == 'pull_request'
+      # The checkout is the PR merged onto the current base branch, so its
+      # first parent is that base. pull_request.base.sha can be older, and
+      # diffing from it pulls in the base branch's own changes.
+      run: >-
+        php bin/console --skip-globals openemr:license-headers
+        --changed-since=HEAD^1
+        --sarif=license-headers.sarif
+
+    - name: Scan every file
+      if: github.event_name != 'pull_request'
+      run: >-
+        php bin/console --skip-globals openemr:license-headers
+        --all --report-only --quiet
+        --sarif=license-headers.sarif
+        --markdown="$GITHUB_STEP_SUMMARY"
+
+    - name: Upload SARIF results
+      if: always() && hashFiles('license-headers.sarif') != ''
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: license-headers.sarif
+        category: license-headers

@@ -4,7 +4,7 @@
  * Handles the retrieval of calendar categories that are specific to TeleHealth
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -23,10 +23,7 @@ class CalendarEventCategoryRepository
     public function getEventCategoryForId($id)
     {
         $categoryEvents = $this->getEventCategories();
-        if (isset($categoryEvents[$id])) {
-            return $categoryEvents[$id];
-        }
-        return null;
+        return $categoryEvents[$id] ?? null;
     }
 
     public function getEventCategories($skipCache = false)

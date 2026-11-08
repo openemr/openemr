@@ -184,7 +184,7 @@ class FHIRCapabilityStatementSoftware extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -208,15 +208,13 @@ class FHIRCapabilityStatementSoftware extends FHIRBackboneElement implements \Js
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CapabilityStatementSoftware xmlns="http://hl7.org/fhir"></CapabilityStatementSoftware>');
-        }
+        $sxe ??= new \SimpleXMLElement('<CapabilityStatementSoftware xmlns="http://hl7.org/fhir"></CapabilityStatementSoftware>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));

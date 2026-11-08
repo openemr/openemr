@@ -22,7 +22,7 @@
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class Users
@@ -32,14 +32,13 @@ class Users
 
     /**
      * Get all users' ids and full names from users table.
-     * @return array
      */
-    public function getAllUsers()
+    public function getAllUsers(): array
     {
 
         $sql = 'SELECT id, fname, lname FROM ' . self::TABLE . ' WHERE active = 1';
 
-        $users = array();
+        $users = [];
         $result = sqlStatement($sql);
         while ($u = sqlFetchArray($result)) {
             $users[] = $u;
@@ -53,11 +52,11 @@ class Users
      * @param $uid
      * @return string
      */
-    public function getUserNameById($uid)
+    public function getUserNameById($uid): string
     {
         $sql = 'SELECT fname, lname FROM ' . self::TABLE . ' WHERE id = ?';
 
-        $user_name = sqlQuery($sql, array($uid));
+        $user_name = sqlQuery($sql, [$uid]);
         $user_full_name = $user_name['fname'] . "   " . $user_name['lname'];
 
         return $user_full_name;
@@ -66,15 +65,15 @@ class Users
     /**
      * Get all providers of event.
      * @param $eid
-     * @return array
      */
-    public function getProvidersOfEvent($eid)
+    public function getProvidersOfEvent($eid): array
     {
 
+        $providers = [];
         $multiple = $this->checkIfMultiple($eid);
         if ($multiple > 0) {
             $sql = "SELECT pc_aid From " . self::EVENTS_TABLE . " WHERE pc_multiple = ?";
-            $result = sqlStatement($sql, array($multiple));
+            $result = sqlStatement($sql, [$multiple]);
             while ($p = sqlFetchArray($result)) {
                 $providers[] = $p['pc_aid'];
             }
@@ -82,7 +81,7 @@ class Users
             return $providers;
         } else {
             $sql = "SELECT pc_aid From " . self::EVENTS_TABLE . " WHERE pc_eid = ?";
-            $result = sqlStatement($sql, array($eid));
+            $result = sqlStatement($sql, [$eid]);
             while ($p = sqlFetchArray($result)) {
                 $providers[] = $p['pc_aid'];
             }
@@ -101,7 +100,7 @@ class Users
     {
 
         $sql = "SELECT pc_multiple FROM " . self::EVENTS_TABLE . " WHERE pc_eid = ?";
-        $result = sqlQuery($sql, array($eid));
+        $result = sqlQuery($sql, [$eid]);
         if ($result['pc_multiple'] == 0) {
             return false;
         }

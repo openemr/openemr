@@ -19,47 +19,33 @@
  */
 namespace Patientvalidation\Controller;
 
-use Patientvalidation\Model\PatientData;
-use Laminas\Json\Server\Exception\ErrorException;
-use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
 use Application\Listener\Listener;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use Patientvalidation\Model\PatientDataTable;
-use Error;
 
 class PatientvalidationController extends BaseController
 {
-    /**
-     * @var PatientDataTable
-     */
-    private $PatientDataTable;
-
-    private Listener $listenerObject;
+    private readonly Listener $listenerObject;
 
     /**
      * PatientvalidationController constructor.
      */
-    public function __construct(PatientDataTable $dataTable)
+    public function __construct(private readonly PatientDataTable $PatientDataTable)
     {
         parent::__construct();
         $this->listenerObject = new Listener();
-        $this->PatientDataTable = $dataTable;
-        //todo add permission of admin
     }
 
     private function getAllRealatedPatients()
     {
         //Collect all of the data received from the new patient form
         $patientParams = $this->getRequestedParamsArray();
-        if (isset($patientParams["closeBeforeOpening"])) {
-            $closeBeforeOpening = $patientParams["closeBeforeOpening"];
-        } else {
-            $closeBeforeOpening = '';
-        }
+        $closeBeforeOpening = $patientParams["closeBeforeOpening"] ?? '';
 
         //clean the mf_
         foreach ($patientParams as $key => $item) {
-                $keyArr = explode("mf_", $key);
+                $keyArr = explode("mf_", (string) $key);
                 $patientParams[$keyArr[1]] = $item;
                 unset($patientParams[$key]);
         }
@@ -71,11 +57,11 @@ class PatientvalidationController extends BaseController
         if (isset($patientData)) {
             foreach ($patientData as $data) {
                 if ($data['pubpid'] == $patientParams['pubpid']) {
-                    return array("status" => "failed","list" => $patientData,"closeBeforeOpening" => $closeBeforeOpening);
+                    return ["status" => "failed","list" => $patientData,"closeBeforeOpening" => $closeBeforeOpening];
                 }
             }
 
-            return array("status" => "ok","list" => $patientData,"closeBeforeOpening" => $closeBeforeOpening);
+            return ["status" => "ok","list" => $patientData,"closeBeforeOpening" => $closeBeforeOpening];
         }
     }
     /**
@@ -84,19 +70,22 @@ class PatientvalidationController extends BaseController
 
     public function indexAction()
     {
+        if (!AclMain::aclCheckCore('patients', 'demo')) {
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Patient validation", $this->listenerObject->z_xlt("Patient validation"));
+        }
 
         $this->getJsFiles();
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
-        $this->layout()->setVariable("title", $this->listenerObject->z_xl("Patient validation"));
+        $this->layout()->setVariable("title", $this->listenerObject->z_xlt("Patient validation"));
         $this->layout()->setVariable("translate", $this->translate);
 
          $relatedPatients =  $this->getAllRealatedPatients();
 
 
 
-        return array("related_patients" => $relatedPatients['list'],"translate" => $this->translate,"closeBeforeOpening" => $relatedPatients['closeBeforeOpening'],"status" => $relatedPatients['status']);
+        return ["related_patients" => $relatedPatients['list'],"translate" => $this->translate,"closeBeforeOpening" => $relatedPatients['closeBeforeOpening'],"status" => $relatedPatients['status']];
     }
     /**
      * get instance of Patientvalidation

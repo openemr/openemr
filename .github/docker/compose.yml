@@ -1,0 +1,110 @@
+# Test harness compose file used by the .github/actions/test-actions-core
+# composite. NOT a docker-compose recipe for end-user "docker compose up"
+# workflows -- see docker/production/, docker/development-easy/, etc. for
+# those.
+#
+# The composite invokes `docker compose config` / `build` / `up` from this
+# file with these env vars set by docker-test-core.yml:
+#   DOCKER_CONTEXT_PATH    -- "release", "flex", or "binary"; selects which
+#                             docker/<variant>/Dockerfile to build against.
+#                             The build context below joins this with
+#                             `../../docker/` so callers keep passing bare
+#                             variant names; the `../../docker/` prefix
+#                             walks from this compose.yml's location
+#                             (`.github/docker/`) back to the repo-root
+#                             `docker/` tree where the Dockerfiles live.
+#   OPENEMR_SERVICE_NAME   -- "openemr", "openemr-dev", "openemr-kcov",
+#                             "openemr-kcov-dev"; selects which service profile
+#                             below to bring up
+#   COMPOSE_PROFILES       -- "prod", "dev", "kcov", or "kcov-dev"
+
+services:
+  mysql:
+    image: mariadb:11.4
+    command:
+    - mariadbd
+    - --character-set-server=utf8mb4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+  openemr:
+    profiles:
+    - prod
+    build:
+      context: ../../docker/${DOCKER_CONTEXT_PATH}
+    ports:
+    - 8080:80
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MANUAL_SETUP: 'yes'
+      MYSQL_HOST: mysql
+      MYSQL_PASS: openemr
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      OE_PASS: pass
+      OE_USER: admin
+      # Pass-through default empty. Flex workflows set this to '1' to emit
+      # phase timing in openemr.sh (openemr-devops#797).
+      OPENEMR_FLEX_TIMING: ${OPENEMR_FLEX_TIMING:-}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -fsSLo/dev/null
+      - http://localhost/
+      start_period: 10m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+  openemr-kcov:
+    extends:
+      service: openemr
+    profiles: !override
+    - kcov
+    build:
+      context: ../../docker/${DOCKER_CONTEXT_PATH}
+      target: kcov
+    volumes:
+    - ./coverage-reports:/var/www/localhost/htdocs/coverage
+  openemr-dev:
+    extends:
+      service: openemr
+    profiles: !override
+    - dev
+    environment:
+      EMPTY: "yes"
+    volumes:
+    # The composite's "Checkout OpenEMR" step (gated on OPENEMR_SERVICE_NAME
+    # matching openemr-dev or openemr-kcov-dev) checks out openemr/openemr
+    # into a subdirectory `openemr/` of the workflow's repo root, regardless
+    # of which repo we're running from. Mount that into the dev container.
+    # This is slightly redundant when we ARE in openemr/openemr (the primary
+    # checkout already has the source), but it keeps the composite +
+    # compose.yml contract identical to devops's setup. `../../openemr`
+    # resolves to the repo-root `openemr/` from this compose.yml at
+    # `.github/docker/compose.yml`.
+    - ../../openemr:/var/www/localhost/htdocs/openemr
+  openemr-kcov-dev:
+    extends:
+      service: openemr-dev
+    profiles: !override
+    - kcov-dev
+    build:
+      context: ../../docker/${DOCKER_CONTEXT_PATH}
+      target: kcov
+    volumes:
+    - ./coverage-reports:/var/www/localhost/htdocs/coverage

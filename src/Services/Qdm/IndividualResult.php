@@ -5,10 +5,10 @@
  * But I believe it should rather be adapted from this project: https://github.com/projecttacoma/cqm-models/blob/master/app/models/cqm/individual_result.rb
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm;
@@ -29,23 +29,47 @@ class IndividualResult extends AbstractType
     public $population_set_key;
 
     /**
-     * @var Measure
+     * Population counts as the calculation engine reports them. Aggregation
+     * reads each one as a property, e.g. $result->IPP.
      */
-    public $measure;
+    public ?int $STRAT = null;
+    public ?int $IPP = null;
+    public ?int $DENOM = null;
+    public ?int $NUMER = null;
+    public ?int $NUMEX = null;
+    public ?int $DENEX = null;
+    public ?int $DENEXCEP = null;
+    public ?int $MSRPOPL = null;
+    public ?int $MSRPOPLEX = null;
+
+    /**
+     * @var list<int|float|null>
+     */
+    public array $observation_values = [];
+
+    /**
+     * The keys of an engine result this class keeps. A result also carries
+     * statement and clause results, relevance maps and ids, which AbstractType
+     * would reject as unknown properties.
+     */
+    private const RESULT_KEYS = [
+        'STRAT', 'IPP', 'DENOM', 'NUMER', 'NUMEX', 'DENEX', 'DENEXCEP', 'MSRPOPL', 'MSRPOPLEX',
+        'observation_values', 'episode_results', 'population_set_key', 'patient_id',
+    ];
 
     protected $_result;
 
     /**
      * IndividualResult constructor.
      *
-     * @param $_result
+     * @param array<mixed> $_result one population set's result from the calculation engine
+     * @param \OpenEMR\Services\Qdm\Measure $measure
      */
-    public function __construct($_result, $measure)
+    public function __construct(array $_result, public $measure)
     {
-        parent::__construct($_result);
+        parent::__construct(array_intersect_key($_result, array_flip(self::RESULT_KEYS)));
         $this->patient_id = PatientService::makeQdmIdentifier('System', PatientService::convertIdFromBSONObjectIdFormat($_result['patient_id'] ?? null));
         $this->_result = $_result;
-        $this->measure = $measure;
     }
 
     public function getInnerResult()
@@ -102,7 +126,7 @@ class IndividualResult extends AbstractType
         calculated_value = calculated.nil? || calculated[pop].nil? ? 0.0 : calculated[pop]
         if pop == 'values'
         pop = 'OBSERV'
-        # the orginal and calculated values should be an array make empty if it doesn't exist
+        # the original and calculated values should be an array. Make it empty if it doesn't exist.
         original_value = [] unless original_value.is_a?(Array)
         calculated_value = [] if calculated_value.nil? || !calculated_value.is_a?(Array)
         end
@@ -131,9 +155,9 @@ class IndividualResult extends AbstractType
      * For the given population set that this individual result represents we add all of our observations for each individual
      * population in the set to the observation_hash array.
      *
-     * @param  array $observation_hash The observations array we are adding addiitonal information to.
+     * @param  array $observation_hash The observations array we are adding additional information to.
      * @param  bool  $agg_results
-     * @return array|void
+     * @return void
      */
     public function collect_observations(&$observation_hash = [], $agg_results = false)
     {
@@ -148,18 +172,14 @@ class IndividualResult extends AbstractType
         $population_set = reset($pop_sets);
         // collect the observation_statements for the population_set. There may be more than one. episode_results are recorded in the same order
         $observation_statements = array_map(
-            function ($obs) {
-                return $obs['observation_parameter']['statement_name'];
-            },
+            fn($obs) => $obs['observation_parameter']['statement_name'],
             $population_set->observations // was this->population_set
         );
         // collect the observation_values from and individual_result
         // a scenario with multiple episodes and multiple observations would look like this [[2], [9, 1]]
         // remove any empty values
         $obs_values_array = $this->get_observ_values($this->episode_results) ?? [];
-        $observation_values = array_filter($obs_values_array, function ($a) {
-            return isset($a);
-        });
+        $observation_values = array_filter($obs_values_array, fn($a): bool => isset($a));
         foreach ($observation_values as $episode_index => $observation_value) {
             foreach ($observation_value as $observation => $index) {
                 $obs_pop = null;
@@ -173,7 +193,6 @@ class IndividualResult extends AbstractType
                 $observation_hash[$key][$obs_pop]['statement_name'][] = $observation_statements[$index];
             }
         }
-        return $observation_hash;
         /*
          *     # adds the observation values found in an individual_result to the observation_hash
         # Set agg_results to true if you are collecting aggregate results for multiple patients
@@ -269,7 +288,7 @@ class IndividualResult extends AbstractType
     public function gather_statement_results($calculated, $statement_name)
     {
         /*
-         *     # Helper method that compiles an array with the orignial and reported value for each result type.
+         *     # Helper method that compiles an array with the original and reported value for each result type.
         def gather_statement_results(calculated, statement_name)
         return [] if statement_results.blank?
 

@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
@@ -28,7 +28,7 @@ class CreateRouteFromPrimaryViewModel
     {
     }
 
-    public static function loadByPost($postData)
+    public static function loadByPost($postData): CreateRouteFromPrimaryViewModel
     {
         $model = new CreateRouteFromPrimaryViewModel();
         $model->customerAccountNumber = $postData["form_customerAcctNumber"] ?? "";

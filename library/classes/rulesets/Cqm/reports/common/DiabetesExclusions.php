@@ -9,14 +9,14 @@
 //
 class DiabetesExclusions implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Exclusions";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
-        $beginMinus2Years = strtotime('-2 year', strtotime($beginDate));
+        $beginMinus2Years = strtotime('-2 year', strtotime((string) $beginDate));
         if (
             ( Helper::checkDiagActive(Diagnosis::POLYCYSTIC_OVARIES, $patient, $patient->dob, $endDate) &&
               !( Helper::checkDiagActive(Diagnosis::DIABETES, $patient, $beginMinus2Years, $endDate) &&

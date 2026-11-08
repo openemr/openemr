@@ -18,7 +18,7 @@ use Laminas\Mvc\Controller\AbstractActionController;
 
 class ModuleconfigController extends AbstractActionController
 {
-    protected ?InputFilterInterface $inputFilter;
+    protected ?InputFilterInterface $inputFilter = null;
 
     public function __construct()
     {
@@ -33,7 +33,7 @@ class ModuleconfigController extends AbstractActionController
         return get_object_vars($this);
     }
 
-    public function setInputFilter(InputFilterInterface $inputFilter)
+    public function setInputFilter(InputFilterInterface $inputFilter): never
     {
         throw new \Exception("Not used");
     }
@@ -48,26 +48,26 @@ class ModuleconfigController extends AbstractActionController
         return $this->inputFilter;
     }
 
-    public function getHookConfig()
+    public function getHookConfig(): array
     {
-        $hooks  =  array();
+        $hooks  =  [];
         return $hooks;
     }
-    public function getAclConfig()
+    public function getAclConfig(): array
     {
-        $acl = array();
+        $acl = [];
         return $acl;
     }
 
-    public function configSettings()
+    public function configSettings(): array
     {
-        $settings = array();
+        $settings = [];
         return $settings;
     }
 
-    public function getDependedModulesConfig()
+    public function getDependedModulesConfig(): array
     {
-        $dependedModules = array();
+        $dependedModules = [];
         return $dependedModules;
     }
 }

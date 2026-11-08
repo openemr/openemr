@@ -9,12 +9,12 @@
 //
 class NQF_0038_Numerator4 implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator 4";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         if (Immunizations::checkHib($patient, $beginDate, $endDate)) {
             return true;

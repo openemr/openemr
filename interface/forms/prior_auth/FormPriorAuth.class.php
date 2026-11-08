@@ -4,19 +4,20 @@
  * prior auth form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * class PriorAuth
  *
  */
-class FormPriorAuth extends ORDataObject
+class FormPriorAuth extends ORDataObject implements \Stringable
 {
     /**
      *
@@ -30,20 +31,20 @@ class FormPriorAuth extends ORDataObject
      * @access private
      */
 
-    var $id;
-    var $pid;
-    var $activity;
-    var $date;
-    var $prior_auth_number;
-    var $comments;
-    var $date_from;
-    var $date_to;
+    public $id;
+    public $pid;
+    public $activity;
+    public $date;
+    public $prior_auth_number;
+    public $comments;
+    public $date_from;
+    public $date_to;
 
     /**
      * Constructor sets all Form attributes to their default value
      */
 
-    function __construct($id = "", $_prefix = "")
+    public function __construct($id = "")
     {
         parent::__construct();
 
@@ -55,7 +56,7 @@ class FormPriorAuth extends ORDataObject
             $id = "";
         }
 
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = OEGlobalsBag::getInstance()->get('pid');
         $this->activity = 1;
         $this->date = date("Y-m-d H:i:s");
         $this->prior_auth_number = "";
@@ -67,85 +68,85 @@ class FormPriorAuth extends ORDataObject
         }
     }
 
-    function __toString()
+    public function __toString(): string
     {
         return "ID: " . $this->id . "\n";
     }
 
-    function set_id($id)
+    public function set_id($id)
     {
         if (!empty($id) && is_numeric($id)) {
             $this->id = $id;
         }
     }
-    function get_id()
+    public function get_id()
     {
         return $this->id;
     }
-    function set_pid($pid)
+    public function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
             $this->pid = $pid;
         }
     }
-    function get_pid()
+    public function get_pid()
     {
         return $this->pid;
     }
-    function set_activity($tf)
+    public function set_activity($tf)
     {
         if (!empty($tf) && is_numeric($tf)) {
             $this->activity = $tf;
         }
     }
-    function get_activity()
+    public function get_activity()
     {
         return $this->activity;
     }
 
 
-    function set_comments($string)
+    public function set_comments($string)
     {
         $this->comments = $string;
     }
 
-    function get_comments()
+    public function get_comments()
     {
         return $this->comments;
     }
 
-    function set_prior_auth_number($string)
+    public function set_prior_auth_number($string)
     {
         $this->prior_auth_number = $string;
     }
 
-    function get_prior_auth_number()
+    public function get_prior_auth_number()
     {
         return $this->prior_auth_number;
     }
 
 
-    function get_date()
+    public function get_date()
     {
         return $this->date;
     }
 
-    function get_date_from()
+    public function get_date_from()
     {
         return $this->date_from;
     }
 
-    function set_date_from($dt)
+    public function set_date_from($dt)
     {
         $this->date_from = $dt;
     }
 
-    function get_date_to()
+    public function get_date_to()
     {
         return $this->date_to;
     }
 
-    function set_date_to($dt)
+    public function set_date_to($dt)
     {
         $this->date_to = $dt;
     }

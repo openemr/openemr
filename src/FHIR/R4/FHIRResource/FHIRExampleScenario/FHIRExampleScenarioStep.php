@@ -225,7 +225,7 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -258,15 +258,13 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExampleScenarioStep xmlns="http://hl7.org/fhir"></ExampleScenarioStep>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExampleScenarioStep xmlns="http://hl7.org/fhir"></ExampleScenarioStep>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->process)) {
             foreach ($this->process as $process) {

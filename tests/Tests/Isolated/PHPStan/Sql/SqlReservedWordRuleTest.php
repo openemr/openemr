@@ -1,0 +1,235 @@
+<?php
+
+/**
+ * Tests for SqlReservedWordRule.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Isolated\PHPStan\Sql;
+
+use OpenEMR\PHPStan\Rules\Sql\ReservedWordRegistry;
+use OpenEMR\PHPStan\Rules\Sql\SchemaColumnRegistry;
+use OpenEMR\PHPStan\Rules\Sql\SqlReservedWordRule;
+use OpenEMR\PHPStan\Rules\Sql\SqlSinkResolver;
+use PHPStan\Rules\Rule;
+use PHPStan\Testing\RuleTestCase;
+
+/**
+ * @extends RuleTestCase<SqlReservedWordRule>
+ */
+final class SqlReservedWordRuleTest extends RuleTestCase
+{
+    protected function getRule(): Rule
+    {
+        return new SqlReservedWordRule(
+            new ReservedWordRegistry(),
+            // cacheEnabled: false keeps tests hermetic across runs.
+            new SchemaColumnRegistry(
+                __DIR__ . '/fixtures/test-schema.sql',
+                cacheEnabled: false,
+            ),
+            new SqlSinkResolver(),
+        );
+    }
+
+    public function testFlagsRankInOrderBy(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/unbacktick_rank_in_order_by.php'],
+            [[$this->expectedMessage('rank'), 4]],
+        );
+    }
+
+    public function testIgnoresBacktickedRank(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/backtick_rank_in_order_by.php'],
+            [],
+        );
+    }
+
+    public function testFlagsRankInUpdateSet(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/update_set_position.php'],
+            [[$this->expectedMessage('rank'), 4]],
+        );
+    }
+
+    public function testFlagsRankInWhere(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/where_position.php'],
+            [[$this->expectedMessage('rank'), 4]],
+        );
+    }
+
+    public function testIgnoresQualifiedReferences(): void
+    {
+        // MySQL accepts reserved words as identifiers after a `.` without
+        // quoting. Qualified references in every position (SELECT, WHERE,
+        // ORDER BY, UPDATE SET, JOIN ON) must be silent.
+        $this->analyse(
+            [__DIR__ . '/data/qualified_references.php'],
+            [],
+        );
+    }
+
+    public function testFlagsReservedWordInGroupBy(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/group_by_reserved.php'],
+            [[$this->expectedMessage('groups'), 4]],
+        );
+    }
+
+    public function testIgnoresReservedWordsInKeywordPositions(): void
+    {
+        // INTERVAL inside DATE_ADD(...) and TABLE in CREATE TABLE are SQL
+        // keywords, not identifier references. Parser-driven detection
+        // distinguishes them positionally and keeps the rule silent.
+        $this->analyse(
+            [__DIR__ . '/data/non_identifier_keyword_positions.php'],
+            [],
+        );
+    }
+
+    public function testIgnoresNonSinkFunctions(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/non_sink_function.php'],
+            [],
+        );
+    }
+
+    public function testIgnoresDynamicSqlSilently(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/dynamic_sql.php'],
+            [],
+        );
+    }
+
+    public function testIgnoresReservedWordsThatAreNotSchemaIdentifiers(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/reserved_not_column.php'],
+            [],
+        );
+    }
+
+    public function testIgnoresReservedWordsInsideStringLiterals(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/string_literal_value.php'],
+            [],
+        );
+    }
+
+    public function testFlagsConcatenatedConstantSql(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/concat_chain.php'],
+            [[$this->expectedMessage('rank'), 8]],
+        );
+    }
+
+    public function testReportsEachUniqueOffenderOncePerCall(): void
+    {
+        // `rank` is referenced twice and `groups` once. Each unique name
+        // should be reported exactly once.
+        $this->analyse(
+            [__DIR__ . '/data/multiple_offenders.php'],
+            [
+                [$this->expectedMessage('groups'), 6],
+                [$this->expectedMessage('rank'), 6],
+            ],
+        );
+    }
+
+    public function testFlagsQueryUtilsStaticSink(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/queryutils_static_sink.php'],
+            [[$this->expectedMessage('rank'), 22]],
+        );
+    }
+
+    public function testFlagsDatabaseQueryTraitMethodSink(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/trait_method_sink.php'],
+            [[$this->expectedMessage('rank'), 29]],
+        );
+    }
+
+    public function testFlagsBareReservedColumnInInsert(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/insert_unbacktick_column.php'],
+            [[$this->expectedMessage('rank'), 4]],
+        );
+    }
+
+    public function testIgnoresBacktickedColumnInInsert(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/insert_backtick_column.php'],
+            [],
+        );
+    }
+
+    public function testIgnoresInsertWithoutColumnList(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/insert_no_column_list.php'],
+            [],
+        );
+    }
+
+    public function testFlagsRankInOnDuplicateKeyInsertColumnList(): void
+    {
+        // The column list is walked normally; the ON DUPLICATE KEY UPDATE
+        // clause that follows is outside the walker's depth==0 exit, so
+        // it's intentionally untouched.
+        $this->analyse(
+            [__DIR__ . '/data/insert_on_duplicate_key_update.php'],
+            [[$this->expectedMessage('rank'), 8]],
+        );
+    }
+
+    public function testIgnoresInsertSelectForm(): void
+    {
+        // INSERT INTO ... SELECT has no column-list parens after the
+        // table. The walker bails at depth 0 and yields nothing.
+        $this->analyse(
+            [__DIR__ . '/data/insert_select_form.php'],
+            [],
+        );
+    }
+
+    public function testFlagsOnlyTheBareOffenderInMixedInsertColumns(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/insert_multiple_columns_one_offender.php'],
+            [[$this->expectedMessage('rank'), 5]],
+        );
+    }
+
+    private function expectedMessage(string $identifier): string
+    {
+        return sprintf(
+            'SQL identifier `%s` is reserved in MySQL 8+ or MariaDB. '
+            . 'Backtick it (`%s`) or rename the column — bare use fails to parse on those engines.',
+            $identifier,
+            $identifier,
+        );
+    }
+}

@@ -2,13 +2,14 @@
 
 namespace OpenEMR\Validators;
 
+use Particle\Validator\Chain;
 use Particle\Validator\Validator;
 
 /**
  * Supports AllergyIntolerance Record Validation.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -20,7 +21,7 @@ class ConditionValidator extends BaseValidator
      * The update use-case is comprised of the same fields as the insert use-case.
      * The update use-case differs from the insert use-case in that fields other than uuid are not required.
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
 
@@ -33,9 +34,7 @@ class ConditionValidator extends BaseValidator
                 $context->optional('diagnosis')->lengthBetween(2, 255);
                 $context->optional('enddate')->datetime('Y-m-d');
                 $context->required("puuid", "Patient UUID")->callback(
-                    function ($value) {
-                        return $this->validateId("uuid", "patient_data", $value, true);
-                    }
+                    fn($value) => $this->validateId("uuid", "patient_data", $value, true)
                 );
             }
         );
@@ -46,16 +45,16 @@ class ConditionValidator extends BaseValidator
             function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules): void {
+                    /** @param array<string, Chain> $rules */
+                    function (array $rules): void {
                         foreach ($rules as $chain) {
+                            /** @var Chain $chain */
                             $chain->required(false);
                         }
                     }
                 );
                 // additional muuid validation
-                $context->required("uuid", "Condition UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "lists", $value, true);
-                })->uuid();
+                $context->required("uuid", "Condition UUID")->callback(fn($value) => $this->validateId("uuid", "lists", $value, true))->uuid();
             }
         );
     }

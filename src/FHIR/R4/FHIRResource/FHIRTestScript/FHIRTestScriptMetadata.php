@@ -167,7 +167,7 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -194,15 +194,13 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestScriptMetadata xmlns="http://hl7.org/fhir"></TestScriptMetadata>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TestScriptMetadata xmlns="http://hl7.org/fhir"></TestScriptMetadata>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->link)) {
             foreach ($this->link as $link) {

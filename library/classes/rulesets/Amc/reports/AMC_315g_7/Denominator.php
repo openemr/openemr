@@ -7,7 +7,7 @@
  * Group (ECG) during the report period.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright 2022 Discover and Change, Inc.
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -23,12 +23,12 @@ class AMC_315g_7_Denominator implements AmcFilterIF, IAmcItemizedReport
         $this->actionData = new AmcItemizedActionData();
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_315g_7 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // this filtering is done in AbstractAmcReport::collectObjects().  See the transitions-out option
 
@@ -64,11 +64,7 @@ class AMC_315g_7_Denominator implements AmcFilterIF, IAmcItemizedReport
         $result = new AmcItemizedActionData();
         foreach ($actionData as $key => $data) {
             if ($key == self::ACTION_LABEL) {
-                if (!empty($data['created'])) {
-                    $details = xl('Referral Date') . ':' . $data['created'];
-                } else {
-                    $details = '';
-                }
+                $details = !empty($data['created']) ? xl('Referral Date') . ':' . $data['created'] : '';
                 $result->addDenominatorActionData($key, $data['value'] ?? false, $details, $label);
             }
         }

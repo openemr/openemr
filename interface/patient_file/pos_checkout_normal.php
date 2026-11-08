@@ -34,7 +34,7 @@
  * </pre>
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
@@ -49,25 +49,42 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\CheckoutDiscountReason;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
 
+
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Checkout")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: Patient Checkout", xl("Patient Checkout"));
 }
 
 $facilityService = new FacilityService();
+$recorder = new Recorder();
 
-$currdecimals = $GLOBALS['currency_decimals'];
+$currdecimals = OEGlobalsBag::getInstance()->get('currency_decimals');
+
+// Adjustment reasons a checkout discount can be recorded under, as on
+// Fees > Posting Payments. Nothing chosen keeps the memo "Discount".
+$discountReasons = CheckoutDiscountReason::choices(QueryUtils::fetchRecords(
+    "SELECT option_id, title FROM list_options WHERE list_id = 'adjreason' AND " .
+    "option_value = ? AND activity = 1 ORDER BY seq, title",
+    [CheckoutDiscountReason::CHARGE_ADJUSTMENT]
+));
 
 $details = empty($_GET['details']) ? 0 : 1;
 
@@ -127,16 +144,22 @@ function receiptPaymentLine($paydate, $amount, $description = ''): void
     echo " </tr>\n";
 }
 
-// Generate a receipt from the last-billed invoice for this patient,
-// or for the encounter specified as a GET parameter.
-//
-function generate_receipt($patient_id, $encounter = 0): void
+/**
+ * Generate a receipt from the last-billed invoice for this patient,
+ * or for the encounter specified as a GET parameter.
+ *
+ * @param int|string $patient_id
+ * @param int|string $encounter
+ */
+function normal_generate_receipt($patient_id, $encounter = 0): void
 {
  //REMEMBER the entire receipt is generated here, have to echo DOC type etc and closing tags to create a valid webpsge
     global $sl_err, $sl_cash_acc, $details, $facilityService;
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
     // Get details for what we guess is the primary facility.
-    $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
+    $frow = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
 
     $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code,providerID');
 
@@ -145,20 +168,20 @@ function generate_receipt($patient_id, $encounter = 0): void
     // Adding a provider check so that their info can be displayed on receipts
     if ($encounter) {
         $ferow = sqlQuery("SELECT id, date, encounter, provider_id FROM form_encounter " .
-        "WHERE pid = ? AND encounter = ?", array($patient_id,$encounter));
+        "WHERE pid = ? AND encounter = ?", [$patient_id,$encounter]);
     } else {
         $ferow = sqlQuery("SELECT id, date, encounter, provider_id FROM form_encounter " .
         "WHERE pid = ? " .
-        "ORDER BY id DESC LIMIT 1", array($patient_id));
+        "ORDER BY id DESC LIMIT 1", [$patient_id]);
     }
     if (empty($ferow)) {
         die(xlt("This patient has no activity."));
     }
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
-    $svcdate = substr($ferow['date'], 0, 10);
+    $svcdate = substr((string) $ferow['date'], 0, 10);
 
-    if ($GLOBALS['receipts_by_provider']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('receipts_by_provider')) {
         if (isset($ferow['provider_id'])) {
             $encprovider = $ferow['provider_id'];
         } elseif (isset($patdata['providerID'])) {
@@ -170,12 +193,12 @@ function generate_receipt($patient_id, $encounter = 0): void
 
     if (!empty($encprovider)) {
         $providerrow = sqlQuery("SELECT fname, mname, lname, title, street, streetb, " .
-        "city, state, zip, phone, fax FROM users WHERE id = ?", array($encprovider));
+        "city, state, zip, phone, fax FROM users WHERE id = ?", [$encprovider]);
     }
 
     // Get invoice reference number.
     $encrow = sqlQuery("SELECT invoice_refno FROM form_encounter WHERE " .
-    "pid = ? AND encounter = ? LIMIT 1", array($patient_id,$encounter));
+    "pid = ? AND encounter = ? LIMIT 1", [$patient_id,$encounter]);
     $invoice_refno = $encrow['invoice_refno'];
     ?>
     <!-- being deliberately echoed to indicate it is part of the php function generate_receipt -->
@@ -187,7 +210,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         <title><?php echo xlt('Receipt for Payment'); ?></title>
         <script>
 
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
         $(function () {
             var win = top.printLogSetup ? top : opener.top;
@@ -200,11 +223,17 @@ function generate_receipt($patient_id, $encounter = 0): void
             divstyle.display = 'none';
         }
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Process click on Delete button.
         function deleteme() {
-            dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id . "." . $encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+            const params = new URLSearchParams({
+                billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
+            });
+            dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
             return false;
         }
+        // AI-generated code end
 
         // Called by the deleteme.php window on a successful delete.
         function imdeleted() {
@@ -235,6 +264,15 @@ function generate_receipt($patient_id, $encounter = 0): void
         padding-left: 20px;
         }
 
+        /* The receipt's shaded cells keep the theme's text color, so the shade is
+           a light tint that reads on any theme's background (the Bootstrap
+           table-active tint). The theme's secondary color, used before, is
+           nearly black in Light and Solar, which made Total Charges and Balance
+           Due unreadable. */
+        :root {
+            --checkout-shade: rgba(0, 0, 0, 0.075);
+        }
+
         .mini_table {
             margin-top: 15px;
             width: 95%;
@@ -242,7 +280,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         }
 
         table.mini_table>tbody>tr>th {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
             text-align: center;
         }
 
@@ -277,11 +315,11 @@ function generate_receipt($patient_id, $encounter = 0): void
         }
 
         body > div:nth-child(2) > div:nth-child(3) > div > table > thead > tr {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
         }
 
         body > div:nth-child(3) > div:nth-child(3) > div > table > thead {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
         }
 
         body > div:nth-child(3) > div:nth-child(3) > div > table:nth-child(1) > tbody > tr:nth-child(3) {
@@ -289,15 +327,15 @@ function generate_receipt($patient_id, $encounter = 0): void
         }
 
         .bg-blue {
-            background-color:var(--secondary);
+            background-color: var(--checkout-shade);
         }
 
         .fac-name {
-            background-color:var(--secondary);
+            background-color: var(--checkout-shade);
             width: 99px;
         }
         .bg-color {
-            background-color: var(--secondary);
+            background-color: var(--checkout-shade);
             padding: 2px; font-weight: 600;
             -webkit-print-color-adjust: exact;
         }
@@ -336,7 +374,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                             // "WHERE s.pid = '$patient_id' AND s.encounter = '$encounter' AND s.fee != 0 " .
                             "WHERE s.pid = ? AND s.encounter = ? " .
                             "ORDER BY s.sale_id",
-                            array($patient_id,$encounter)
+                            [$patient_id,$encounter]
                         );
                         while ($inrow = sqlFetchArray($inres)) {
                             $charges += sprintf('%01.2f', $inrow['fee']);
@@ -355,7 +393,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                             // "code_type != 'COPAY' AND activity = 1 AND fee != 0 " .
                             "code_type != 'COPAY' AND activity = 1 " .
                             "ORDER BY id",
-                            array($patient_id,$encounter)
+                            [$patient_id,$encounter]
                         );
                         while ($inrow = sqlFetchArray($inres)) {
                             $charges += sprintf('%01.2f', $inrow['fee']);
@@ -363,7 +401,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                                 $svcdate,
                                 $inrow['code_text'],
                                 $inrow['fee'],
-                                $inrow['units']
+                                (int) $inrow['units']
                             );
                         }
 
@@ -377,7 +415,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                             "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
                             "a.adj_amount != 0 " .
                             "ORDER BY s.check_date, a.sequence_no",
-                            array($patient_id,$encounter)
+                            [$patient_id,$encounter]
                         );
                         while ($inrow = sqlFetchArray($inres)) {
                             $charges -= sprintf('%01.2f', $inrow['adj_amount']);
@@ -408,7 +446,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                             "pid = ? AND encounter = ?  AND " .
                             "code_type = 'COPAY' AND activity = 1 AND fee != 0 " .
                             "ORDER BY id",
-                            array($patient_id,$encounter)
+                            [$patient_id,$encounter]
                         );
                         while ($inrow = sqlFetchArray($inres)) {
                             $charges += sprintf('%01.2f', $inrow['fee']);
@@ -424,7 +462,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                             "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
                             "a.pay_amount != 0 " .
                             "ORDER BY s.check_date, a.sequence_no",
-                            array($patient_id,$encounter)
+                            [$patient_id,$encounter]
                         );
                         while ($inrow = sqlFetchArray($inres)) {
                             $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
@@ -469,7 +507,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     </body>
     </html>
     <?php // echoing the closing tags for receipts
-} // end function generate_receipt()
+} // end function normal_generate_receipt()
 ?>
     <?php
 
@@ -521,11 +559,11 @@ function generate_receipt($patient_id, $encounter = 0): void
 
     // Create the taxes array.  Key is tax id, value is
     // (description, rate, accumulated total).
-    $taxes = array();
+    $taxes = [];
     $pres = sqlStatement("SELECT option_id, title, option_value " .
       "FROM list_options WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq, title, option_id");
     while ($prow = sqlFetchArray($pres)) {
-        $taxes[$prow['option_id']] = array($prow['title'], $prow['option_value'], 0);
+        $taxes[$prow['option_id']] = [$prow['title'], $prow['option_value'], 0];
     }
 
     // Print receipt header for facility
@@ -539,7 +577,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         "<br />";
     }
 
-    // Pring receipt header for Provider
+    // Print receipt header for Provider
     function printProviderHeader($pvdrow): void
     {
         echo text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " .
@@ -550,38 +588,21 @@ function generate_receipt($patient_id, $encounter = 0): void
         "<br />";
     }
 
-    // Mark the tax rates that are referenced in this invoice.
-    function markTaxes($taxrates): void
-    {
-        global $taxes;
-        $arates = explode(':', $taxrates);
-        if (empty($arates)) {
-            return;
-        }
-        foreach ($arates as $value) {
-            if (!empty($taxes[$value])) {
-                $taxes[$value][2] = '1';
-            }
-        }
-    }
-
-    $payment_methods = array(
+    $payment_methods = [
         'Cash',
         'Check',
         'MC',
         'VISA',
         'AMEX',
         'DISC',
-        'Other');
+        'Other'];
 
     $alertmsg = ''; // anything here pops up in an alert box
 
     // If the Save button was clicked...
     //
     if (!empty($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
       // On a save, do the following:
       // Flag drug_sales and billing items as billed.
@@ -595,7 +616,7 @@ function generate_receipt($patient_id, $encounter = 0): void
 
       // Get the posting date from the form as yyyy-mm-dd.
         $dosdate = substr($this_bill_date, 0, 10);
-        if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $_POST['form_date'], $matches)) {
+        if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $_POST['form_date'], $matches)) {
             $dosdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
         }
 
@@ -608,7 +629,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             $tmp = '';
             while (true) {
                 $ferow = sqlQuery("SELECT id FROM form_encounter WHERE " .
-                "pid = ? AND encounter = ?", array($form_pid, $form_encounter . $tmp));
+                "pid = ? AND encounter = ?", [$form_pid, $form_encounter . $tmp]);
                 if (empty($ferow)) {
                     break;
                 }
@@ -620,7 +641,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         // Delete any TAX rows from billing because they will be recalculated.
         sqlStatement("UPDATE billing SET activity = 0 WHERE " .
           "pid = ? AND encounter = ? AND " .
-          "code_type = 'TAX'", array($form_pid,$form_encounter));
+          "code_type = 'TAX'", [$form_pid,$form_encounter]);
 
         $form_amount = $_POST['form_amount'];
         $lines = $_POST['line'];
@@ -629,7 +650,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             $line = $lines[$lino];
             $code_type = $line['code_type'];
             $id        = $line['id'];
-            $amount    = sprintf('%01.2f', trim($line['amount']));
+            $amount    = sprintf('%01.2f', trim((string) $line['amount']));
 
 
             if ($code_type == 'PROD') {
@@ -637,7 +658,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                 $query = "update drug_sales SET fee = ?, " .
                 "encounter = ?, billed = 1 WHERE " .
                 "sale_id = ?";
-                sqlQuery($query, array($amount,$form_encounter,$id));
+                sqlQuery($query, [$amount,$form_encounter,$id]);
             } elseif ($code_type == 'TAX') {
                 // In the SL case taxes show up on the invoice as line items.
                 // Otherwise we gotta save them somewhere, and in the billing
@@ -665,57 +686,53 @@ function generate_receipt($patient_id, $encounter = 0): void
                 // eliminate billed and bill_date from the billing table!
                 $query = "UPDATE billing SET fee = ?, billed = 1, " .
                 "bill_date = ? WHERE id = ?";
-                sqlQuery($query, array($amount, $this_bill_date, $id));
+                sqlQuery($query, [$amount, $this_bill_date, $id]);
             }
         }
 
       // Post discount.
         if ($_POST['form_discount']) {
-            if ($GLOBALS['discount_by_money']) {
-                $amount  = sprintf('%01.2f', trim($_POST['form_discount']));
+            $amount = '0.00';
+            if (OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) {
+                $amount  = sprintf('%01.2f', trim((string) $_POST['form_discount']));
             } else {
-                $form_discount = trim($_POST['form_discount']) ?? 0;
+                $form_discount = trim((string) $_POST['form_discount']) ?? 0;
                 if ($form_discount < 100) {
                     $total_discount = $form_discount * $form_amount / (100 - $form_discount);
                     $amount = sprintf('%01.2f', $total_discount);
                 }
             }
-            $memo = xl('Discount');
-            sqlBeginTrans();
-            $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $form_encounter));
-            $query = "INSERT INTO ar_activity ( " .
-            "pid, encounter, sequence_no, code, modifier, payer_type, post_user, post_time, " .
-            "session_id, memo, adj_amount " .
-            ") VALUES ( " .
-            "?, " .
-            "?, " .
-            "?, " .
-            "'', " .
-            "'', " .
-            "'0', " .
-            "?, " .
-            "?, " .
-            "'0', " .
-            "?, " .
-            "? " .
-            ")";
-            sqlStatement(
-                $query,
-                array($form_pid, $form_encounter, $sequence_no['increment'], $_SESSION['authUserID'], $this_bill_date, $memo, $amount)
+            $memo = CheckoutDiscountReason::memo(
+                // all(), not get(): get() throws on an array value, and memo() handles any value.
+                CurrentRequest::get()->request->all()['form_discount_reason'] ?? null,
+                $discountReasons,
+                xl('Discount')
             );
-            sqlCommitTrans();
+            $recorder->recordActivity([
+                'patientId' => $form_pid,
+                'encounterId' => $form_encounter,
+                'codeType' => '',
+                'code' => '',
+                'modifier' => '',
+                'payerType' => '0',
+                'postUser' => $session->get('authUserID'),
+                'sessionId' => '0',
+                'memo' => $memo,
+                'payAmount' => '0.0',
+                'adjustmentAmount' => $amount,
+            ]);
         }
 
       // Post payment.
         if ($_POST['form_amount']) {
-            $amount  = sprintf('%01.2f', trim($_POST['form_amount']));
-            $form_source = trim($_POST['form_source']);
-            $paydesc = trim($_POST['form_method']);
+            $amount  = sprintf('%01.2f', trim((string) $_POST['form_amount']));
+            $form_source = trim((string) $_POST['form_source']);
+            $paydesc = trim((string) $_POST['form_method']);
             //Fetching the existing code and modifier
                 $ResultSearchNew = sqlStatement(
                     "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
                     "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
-                    array($form_pid,$form_encounter)
+                    [$form_pid,$form_encounter]
                 );
             if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                               $Codetype = $RowSearch['code_type'];
@@ -730,40 +747,45 @@ function generate_receipt($patient_id, $encounter = 0): void
                   "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                   " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
                   " VALUES ('0',?,?,now(),?,?,'','patient','COPAY',?,?,'patient_payment',now())",
-                  array($_SESSION['authUserID'],$form_source,$dosdate,$amount,$form_pid,$paydesc)
+                  [$session->get('authUserID'),$form_source,$dosdate,$amount,$form_pid,$paydesc]
               );
 
-              sqlBeginTrans();
-              $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $form_encounter));
-              $insrt_id = sqlInsert(
-                  "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
-                  " VALUES (?,?,?,?,?,?,0,?,?,?,?,'PCP')",
-                  array($form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$this_bill_date,$_SESSION['authUserID'],$session_id,$amount)
-              );
-              sqlCommitTrans();
+            $recorder->recordActivity([
+                'patientId' => $form_pid,
+                'encounterId' => $form_encounter,
+                'codeType' => $Codetype,
+                'code' => $Code,
+                'modifier' => $Modifier,
+                'payerType' => '0',
+                'postUser' => $session->get('authUserID'),
+                'sessionId' => $session_id,
+                'payAmount' => $amount,
+                'adjustmentAmount' => '0.0',
+                'accountCode' => 'PCP',
+            ]);
         }
 
       // If applicable, set the invoice reference number.
         $invoice_refno = '';
         if (isset($_POST['form_irnumber'])) {
-            $invoice_refno = trim($_POST['form_irnumber']);
+            $invoice_refno = trim((string) $_POST['form_irnumber']);
         } else {
             $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
         }
         if ($invoice_refno) {
             sqlStatement("UPDATE form_encounter " .
             "SET invoice_refno = ? " .
-            "WHERE pid = ? AND encounter = ?", array($invoice_refno,$form_pid,$form_encounter));
+            "WHERE pid = ? AND encounter = ?", [$invoice_refno,$form_pid,$form_encounter]);
         }
 
-        generate_receipt($form_pid, $form_encounter);
+        normal_generate_receipt($form_pid, $form_encounter);
         exit();
     }
 
     // If an encounter ID was given, then we must generate a receipt.
     //
     if (!empty($_GET['enc'])) {
-        generate_receipt($patient_id, $_GET['enc']);
+        normal_generate_receipt($patient_id, $_GET['enc']);
         exit();
     }
 
@@ -773,7 +795,7 @@ function generate_receipt($patient_id, $encounter = 0): void
       "FROM billing WHERE pid = ? AND activity = 1 AND " .
       "billed = 0 AND code_type != 'TAX' " .
       "ORDER BY encounter DESC, id ASC";
-    $bres = sqlStatement($query, array($patient_id));
+    $bres = sqlStatement($query, [$patient_id]);
 
     // Get the product sales for this patient.
     $query = "SELECT s.sale_id, s.sale_date, s.prescription_id, s.fee, " .
@@ -783,17 +805,17 @@ function generate_receipt($patient_id, $encounter = 0): void
       "LEFT OUTER JOIN prescriptions AS r ON r.id = s.prescription_id " .
       "WHERE s.pid = ? AND s.billed = 0 " .
       "ORDER BY s.encounter DESC, s.sale_id ASC";
-    $dres = sqlStatement($query, array($patient_id));
+    $dres = sqlStatement($query, [$patient_id]);
 
     // If there are none, just redisplay the last receipt and exit.
     //
     if (sqlNumRows($bres) == 0 && sqlNumRows($dres) == 0) {
-        generate_receipt($patient_id);
+        normal_generate_receipt($patient_id);
         exit();
     }
 
     // Get the valid practitioners, including those not active.
-    $arr_users = array();
+    $arr_users = [];
     $ures = sqlStatement("SELECT id, username FROM users WHERE " .
       "( authorized = 1 OR info LIKE '%provider%' ) AND username != ''");
     while ($urow = sqlFetchArray($ures)) {
@@ -813,9 +835,9 @@ function generate_receipt($patient_id, $encounter = 0): void
         <?php Header::setupHeader(['datetime-picker']);?>
 
         <script>
-            var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+            var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
-            <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
             // This clears the tax line items in preparation for recomputing taxes.
             function clearTax(visible) {
@@ -910,7 +932,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                 if (isNaN(discount)) {
                     discount = 0;
                 }
-                <?php if (!$GLOBALS['discount_by_money']) { ?>
+                <?php if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) { ?>
                 // This site discounts by percentage, so convert it to a money amount.
                 if (discount > 100) {
                     discount = 100;
@@ -930,7 +952,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                    <?php $datetimepicker_timepicker = false; ?>
                    <?php $datetimepicker_showseconds = false; ?>
                    <?php $datetimepicker_formatInput = false; ?>
-                   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                   <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -944,17 +966,17 @@ function generate_receipt($patient_id, $encounter = 0): void
         </style>
         <title><?php echo xlt('Patient Checkout'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Patient Checkout'),
         'include_patient_name' => true,// use only in appropriate pages
         'expandable' => false,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
     </head>
@@ -968,7 +990,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             <div class="row">
                 <div class="col-sm-12">
                     <form action='pos_checkout.php' method='post'>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                         <input name='form_pid' type='hidden' value='<?php echo attr($patient_id) ?>' />
                         <fieldset>
                             <legend><?php echo xlt('Item Details'); ?></legend>
@@ -997,13 +1019,13 @@ function generate_receipt($patient_id, $encounter = 0): void
                                             continue;
                                         }
 
-                                        $thisdate = substr($brow['date'], 0, 10);
+                                        $thisdate = substr((string) $brow['date'], 0, 10);
                                         $code_type = $brow['code_type'];
 
                                         // Collect tax rates, related code and provider ID.
                                         $taxrates = '';
                                         $related_code = '';
-                                        $sqlBindArray = array();
+                                        $sqlBindArray = [];
                                         if (!empty($code_types[$code_type]['fee'])) {
                                             $query = "SELECT taxrates, related_code FROM codes WHERE code_type = ? " .
                                             " AND " .
@@ -1041,17 +1063,17 @@ function generate_receipt($patient_id, $encounter = 0): void
                                         }
 
                                         // Custom logic for IPPF to determine if a GCAC issue applies.
-                                        if ($GLOBALS['ippf_specific'] && $related_code) {
-                                            $relcodes = explode(';', $related_code);
+                                        if (OEGlobalsBag::getInstance()->get('ippf_specific') && $related_code) {
+                                            $relcodes = explode(';', (string) $related_code);
                                             foreach ($relcodes as $codestring) {
                                                 if ($codestring === '') {
                                                     continue;
                                                 }
-                                                list($codetype, $code) = explode(':', $codestring);
+                                                [$codetype, $code] = explode(':', $codestring);
                                                 if ($codetype !== 'IPPF') {
                                                     continue;
                                                 }
-                                                if (preg_match('/^25222/', $code)) {
+                                                if (str_starts_with($code, '25222')) {
                                                     $gcac_related_visit = true;
                                                     if (preg_match('/^25222[34]/', $code)) {
                                                         $gcac_service_provided = true;
@@ -1090,7 +1112,7 @@ function generate_receipt($patient_id, $encounter = 0): void
 
                                         // Accumulate taxes for this product.
                                         $tmp = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = ? " .
-                                          " ORDER BY selector LIMIT 1", array($drow['drug_id']));
+                                          " ORDER BY selector LIMIT 1", [$drow['drug_id']]);
                                         // accumTaxes($drow['fee'], $tmp['taxrates']);
                                         $taxrates = $tmp['taxrates'];
                                         markTaxes($taxrates);
@@ -1120,7 +1142,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                                     if ($inv_encounter) {
                                         $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
                                         "pid = ? AND encounter = ? " .
-                                        "ORDER BY id DESC LIMIT 1", array($patient_id,$inv_encounter));
+                                        "ORDER BY id DESC LIMIT 1", [$patient_id,$inv_encounter]);
                                         $inv_provider = $erow['provider_id'] + 0;
                                     }
                                     ?>
@@ -1131,12 +1153,27 @@ function generate_receipt($patient_id, $encounter = 0): void
                             <legend><?php echo xlt('Collect Payment'); ?></legend>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
-                                    <label class="control-label" for="form_discount"><?php echo $GLOBALS['discount_by_money'] ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
+                                    <label class="control-label" for="form_discount"><?php echo OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
                                 </div>
                                 <div class="col-3">
                                     <input maxlength='8' name='form_discount' id='form_discount' onkeyup='computeTotals()' class= 'form-control' type='text' value='' />
                                 </div>
                             </div>
+                            <?php if ($discountReasons !== []) { ?>
+                            <div class="row oe-custom-line">
+                                <div class="col-3 offset-lg-3">
+                                    <label class="control-label" for="form_discount_reason"><?php echo xlt('Discount Reason'); ?>:</label>
+                                </div>
+                                <div class="col-3">
+                                    <select name='form_discount_reason' id='form_discount_reason' class='form-control'>
+                                        <option value=''><?php echo xlt('Discount'); ?></option>
+                                        <?php foreach ($discountReasons as $discountReason) { ?>
+                                        <option value='<?php echo attr($discountReason['id']); ?>'><?php echo text(xl_list_label($discountReason['title'])); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <?php } ?>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
@@ -1145,7 +1182,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                                     <select name='form_method' id='form_method' class='form-control'>
                                         <?php
                                             $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
-                                            $bres1112 = sqlStatement($query1112, array('payment_method'));
+                                            $bres1112 = sqlStatement($query1112, ['payment_method']);
                                         while ($brow1112 = sqlFetchArray($bres1112)) {
                                             if ($brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {
                                                 continue;
@@ -1196,7 +1233,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                                 </div>
                             </div>
                                 <?php
-                            } elseif (!empty($GLOBALS['gbl_mask_invoice_number'])) { // Otherwise if there is an invoice
+                            } elseif (!empty(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))) { // Otherwise if there is an invoice
                                 // reference number mask, ask for the refno.
                                 ?>
                             <div class="row oe-custom-line">
@@ -1204,7 +1241,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                                     <label class="control-label" for="form_irnumber"><?php echo xlt('Invoice Reference Number'); ?>:</label>
                                 </div>
                                 <div class="col-3">
-                                    <input type='text' name='form_irnumber' id='form_irnumber' class='form-control' value='' onkeyup='maskkeyup(this,<?php echo attr_js($GLOBALS['gbl_mask_invoice_number']); ?>)' onblur='maskblur(this,<?php echo attr_js($GLOBALS['gbl_mask_invoice_number']); ?>)' />
+                                    <input type='text' name='form_irnumber' id='form_irnumber' class='form-control' value='' onkeyup='maskkeyup(this,<?php echo attr_js(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>)' onblur='maskblur(this,<?php echo attr_js(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>)' />
                                 </div>
                             </div>
                                 <?php
@@ -1240,11 +1277,11 @@ function generate_receipt($patient_id, $encounter = 0): void
                         // Skip this warning if referral or abortion in TS.
                         $grow = sqlQuery("SELECT COUNT(*) AS count FROM transactions " .
                         "WHERE title = 'Referral' AND refer_date IS NOT NULL AND " .
-                        "refer_date = ? AND pid = ?", array($inv_date,$patient_id));
+                        "refer_date = ? AND pid = ?", [$inv_date,$patient_id]);
                         if (empty($grow['count'])) { // if there is no referral
                             $grow = sqlQuery("SELECT COUNT(*) AS count FROM forms " .
                             "WHERE pid = ? AND encounter = ? AND " .
-                             "deleted = 0 AND formdir = 'LBFgcac'", array($patient_id,$inv_encounter));
+                             "deleted = 0 AND formdir = 'LBFgcac'", [$patient_id,$inv_encounter]);
                             if (empty($grow['count'])) { // if there is no gcac form
                                 echo " alert(" . xlj('This visit will need a GCAC form, referral or procedure service.') . ");\n";
                             }

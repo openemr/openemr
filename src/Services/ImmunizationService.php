@@ -4,15 +4,18 @@
  * ImmunizationService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -26,7 +29,7 @@ class ImmunizationService extends BaseService
 {
     private const IMMUNIZATION_TABLE = "immunizations";
     private const PATIENT_TABLE = "patient_data";
-    private $immunizationValidator;
+    private readonly ImmunizationValidator $immunizationValidator;
 
     /**
      * Default constructor.
@@ -43,13 +46,14 @@ class ImmunizationService extends BaseService
         $record = parent::createResultRecordFromDatabaseResult($row);
 
         $record['primarySource'] = $record['primarySource'] === '1';
-        $record['amount_administered'] = intval($record['amount_administered']);
+        // A float, as the column is: intval() turned the usual 0.5 mL dose into 0.
+        $record['amount_administered'] = is_numeric($record['amount_administered']) ? (float)$record['amount_administered'] : 0.0;
         // TODO: @adunsulag check with @brady.miller and @sjpadgeet on if the OpenEMR and mysql instances always in UTC time?
         $dates = ['create_date', 'administered_date', 'expiration_date', 'education_date'];
 
         foreach ($dates as $date) {
             if (isset($record[$date])) {
-                $record[$date] = date('c', strtotime($record[$date]));
+                $record[$date] = date('c', strtotime((string) $record[$date]));
             }
         }
         return $record;
@@ -57,10 +61,10 @@ class ImmunizationService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'puuid', 'provider_uuid'];
+        return ['uuid', 'puuid', 'provider_uuid', 'euuid', 'facility_uuid', 'facility_location_uuid'];
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT immunizations.id,
                 immunizations.uuid,
@@ -79,6 +83,7 @@ class ImmunizationService extends BaseService
                 update_date,
                 amount_administered,
                 amount_administered_unit,
+                dose_unit.title as amount_administered_unit_title,
                 expiration_date,
                 route,
                 administration_site,
@@ -111,7 +116,10 @@ class ImmunizationService extends BaseService
                     ),
                     TRUE,
                     FALSE
-                ) as primarySource
+                ) as primarySource,
+                enc.euuid,
+                enc.facility_uuid,
+                enc.facility_location_uuid
                 FROM immunizations
                 LEFT JOIN (
                     SELECT uuid AS puuid
@@ -120,6 +128,7 @@ class ImmunizationService extends BaseService
                 ) patient ON immunizations.patient_id = patient.pid
                 LEFT JOIN codes as cvx ON cvx.code = immunizations.cvx_code
                 LEFT JOIN list_options as site ON site.option_id = immunizations.administration_site
+                LEFT JOIN list_options as dose_unit ON dose_unit.list_id = 'drug_units' AND dose_unit.option_id = immunizations.amount_administered_unit
                 LEFT JOIN (
                     select
                         uuid AS provider_uuid
@@ -136,7 +145,23 @@ class ImmunizationService extends BaseService
                            title AS refusal_reason_description
                    FROM list_options
                    WHERE list_id = 'immunization_refusal_reason'
-               ) refusal_reasons ON immunizations.refusal_reason = refusal_reasons.refusal_reason_id";
+               ) refusal_reasons ON immunizations.refusal_reason = refusal_reasons.refusal_reason_id
+               LEFT JOIN (
+                   SELECT
+                       form_encounter.uuid AS euuid
+                        , form_encounter.encounter AS eid
+                        , facility.uuid AS facility_uuid
+                        , uuid_mapping.uuid AS facility_location_uuid
+                   FROM
+                       form_encounter
+                   LEFT JOIN
+                       facility ON form_encounter.facility_id = facility.id
+                   LEFT JOIN
+                       uuid_mapping ON facility.uuid = uuid_mapping.target_uuid
+                   WHERE
+                       uuid_mapping.resource = 'Location'
+               ) enc ON immunizations.encounter_id = enc.eid
+               ";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
@@ -158,13 +183,13 @@ class ImmunizationService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         if (isset($search['patient.uuid'])) {
             $isValidEncounter = $this->immunizationValidator->validateId(
@@ -195,7 +220,7 @@ class ImmunizationService extends BaseService
         $newSearch = [];
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
-                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
                 $newSearch[$key] = $value;
             }
@@ -228,14 +253,63 @@ class ImmunizationService extends BaseService
     /**
      * Inserts a new immunization record.
      *
-     * @param $data The immunization fields (array) to insert.
+     * @param mixed $data The immunization fields (array) to insert.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
     public function insert($data)
     {
-        $processingResult = new ProcessingResult();
-        $processingResult->addInternalError("Method not implemented yet.");
+        if (!is_array($data) || $data === []) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['data' => 'Invalid Data']);
+            return $processingResult;
+        }
+
+        $processingResult = $this->immunizationValidator->validate(
+            $data,
+            ImmunizationValidator::DATABASE_INSERT_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $patientIdRaw = $data['patient_id'] ?? null;
+        if (!is_numeric($patientIdRaw)) {
+            $processingResult->setValidationMessages(['patient_id' => 'This field is required']);
+            return $processingResult;
+        }
+        $encounterError = $this->encounterOwnershipError($data['encounter_id'] ?? null, (int) $patientIdRaw);
+        if ($encounterError !== null) {
+            return $encounterError;
+        }
+
+        // The uuid_registry row and the immunizations row are written together. createUuid()
+        // commits the registry entry on its own, so an insert that failed afterwards left a
+        // registered uuid pointing at no record -- the error path returned cleanly and the
+        // orphan stayed behind on every retry.
+        try {
+            [$uuid, $results] = QueryUtils::inTransaction(function () use ($data): array {
+                $uuid = (new UuidRegistry(['table_name' => self::IMMUNIZATION_TABLE]))->createUuid();
+                $data['uuid'] = $uuid;
+
+                [$set, $bind] = $this->splitColumnQuery($this->buildInsertColumns($data));
+                $sql  = " INSERT INTO immunizations SET";
+                $sql .= "     create_date=NOW(),";
+                $sql .= $set;
+
+                return [$uuid, QueryUtils::sqlInsert($sql, $bind)];
+            });
+        } catch (SqlQueryException) {
+            $processingResult->addInternalError("error processing SQL Insert");
+            return $processingResult;
+        }
+
+        $processingResult->addData([
+            'id' => $results,
+            'uuid' => UuidRegistry::uuidToString($uuid),
+        ]);
+
         return $processingResult;
     }
 
@@ -244,14 +318,131 @@ class ImmunizationService extends BaseService
      * Updates an existing immunization record.
      *
      * @param $uuid - The immunization uuid identifier in string format used for update.
-     * @param $data - The updated immunization data fields
+     * @param mixed $data - The updated immunization data fields
+     * @param int|null $expectedPatientId If provided, the stored immunization's patient_id must
+     *     match -- ownership check so a leaked uuid cannot be used to mutate an immunization
+     *     belonging to a patient other than the caller's resolved subject.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function update($uuid, $data)
+    public function update($uuid, $data, ?int $expectedPatientId = null)
     {
-        $processingResult = new ProcessingResult();
-        $processingResult->addInternalError("Method not implemented yet.");
-        return $processingResult;
+        if (!is_array($data) || $data === []) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['data' => 'Invalid Data']);
+            return $processingResult;
+        }
+
+        $data["uuid"] = $uuid;
+        $processingResult = $this->immunizationValidator->validate(
+            $data,
+            ImmunizationValidator::DATABASE_UPDATE_CONTEXT
+        );
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $rowPatientIdRaw = QueryUtils::fetchSingleValue(
+            "SELECT patient_id FROM " . self::IMMUNIZATION_TABLE . " WHERE uuid = ?",
+            'patient_id',
+            [$uuidBytes]
+        );
+        if (!is_numeric($rowPatientIdRaw)) {
+            $processingResult->setValidationMessages(['uuid' => 'Immunization not found']);
+            return $processingResult;
+        }
+        $rowPatientId = (int) $rowPatientIdRaw;
+
+        if ($expectedPatientId !== null && $rowPatientId !== $expectedPatientId) {
+            // Reported as not-found rather than forbidden so a uuid probe cannot confirm the
+            // existence of another patient's immunization.
+            $processingResult->setValidationMessages(['uuid' => 'Immunization not found']);
+            return $processingResult;
+        }
+
+        $encounterError = $this->encounterOwnershipError($data['encounter_id'] ?? null, $rowPatientId);
+        if ($encounterError !== null) {
+            return $encounterError;
+        }
+
+        // The owning patient is not mutable. BaseService::buildUpdateColumns() skips `pid`, but
+        // this table names its owner column `patient_id`, so it would otherwise pass straight
+        // into the SET clause and move the immunization to another chart.
+        unset($data['patient_id']);
+
+        [$set, $bind] = $this->splitColumnQuery($this->buildUpdateColumns($data));
+        // A payload that maps to nothing updatable -- patient_id removed above, uuid skipped by
+        // buildUpdateColumns() -- would otherwise emit "UPDATE immunizations SET  WHERE ...",
+        // and the resulting SqlQueryException gets reported as an internal error. It is a bad
+        // request, so say so.
+        if (trim($set) === '') {
+            $processingResult->setValidationMessages(
+                ['data' => 'No updatable Immunization fields were supplied']
+            );
+            return $processingResult;
+        }
+        $sql = " UPDATE " . self::IMMUNIZATION_TABLE . " SET ";
+        $sql .= $set;
+        // patient_id is part of the WHERE for belt-and-braces protection if $expectedPatientId
+        // was not supplied by the caller.
+        $sql .= " WHERE `uuid` = ? AND `patient_id` = ?";
+
+        $bind[] = $uuidBytes;
+        $bind[] = $rowPatientId;
+
+        try {
+            QueryUtils::sqlStatementThrowException($sql, $bind);
+        } catch (SqlQueryException) {
+            $processingResult->addInternalError("error processing SQL Update");
+            return $processingResult;
+        }
+
+        return $this->getOne($uuid);
+    }
+
+    /**
+     * Splits the payload BaseService's column builders return into the SET fragment
+     * and its bind list. Those builders are untyped, so the shape is asserted here
+     * rather than assumed at the call sites.
+     *
+     * @param mixed $query
+     * @return array{0: string, 1: list<mixed>}
+     */
+    private function splitColumnQuery($query): array
+    {
+        $set = is_array($query) ? ($query['set'] ?? null) : null;
+        $bind = is_array($query) ? ($query['bind'] ?? null) : null;
+
+        return [
+            is_string($set) ? $set : '',
+            is_array($bind) ? array_values($bind) : [],
+        ];
+    }
+
+    /**
+     * Rejects an encounter reference that belongs to a different patient.
+     *
+     * The FHIR adapters resolve the subject and the encounter independently, so without this
+     * a write could file an immunization for patient A against patient B's visit. Returns null when
+     * there is nothing to check or the encounter checks out.
+     */
+    private function encounterOwnershipError(mixed $encounter, int $patientId): ?ProcessingResult
+    {
+        if (!is_numeric($encounter) || (int) $encounter === 0) {
+            return null;
+        }
+        $encounterPid = QueryUtils::fetchSingleValue(
+            "SELECT pid FROM form_encounter WHERE encounter = ?",
+            'pid',
+            [(int) $encounter]
+        );
+        if (is_numeric($encounterPid) && (int) $encounterPid === $patientId) {
+            return null;
+        }
+        $result = new ProcessingResult();
+        $result->setValidationMessages(['encounter' => 'Encounter reference does not belong to this patient']);
+
+        return $result;
     }
 }

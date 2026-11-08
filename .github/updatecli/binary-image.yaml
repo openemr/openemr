@@ -1,0 +1,97 @@
+# Bump docker/binary's openemr-static-binary-forge pin.
+#
+# The forge publishes one GitHub release per (platform, arch), so "a newer
+# release exists" is not the same question as "we can build against it".
+# tools/release/bin/resolve-binary-forge.php answers the second one: it
+# only reports a pin once both linux arches carry every asset the
+# Dockerfile downloads and the matching openemr/openemr tag still has a
+# tests/ tree. When nothing qualifies it echoes the pin already in the
+# Dockerfile, so every target below is a no-op and no PR is opened.
+#
+# Deliberately no `scms:` / `actions:` block. updatecli's github scm clones
+# into its own working directory, which would have no vendor/ for the
+# resolver to autoload. Instead the workflow checks the repo out, installs
+# dev dependencies, applies these targets in place, and opens the PR with
+# peter-evans/create-pull-request (already this repo's PR-bot of record).
+# The side benefit is that `updatecli diff --config .github/updatecli/` is
+# a working local dry-run with no tokens or scm config.
+#
+# The two sources below resolve independently, because a target's source
+# template renders the raw source value and cannot see a target-level
+# transformer — so the README targets need each field as its own source.
+# (Spelling that template out here would break the manifest: updatecli
+# Go-templates the whole file, comments included, so a bare source action
+# in prose fails to load with "wrong number of args".)
+# That leaves a narrow window where a release finishing publication between
+# the two calls could pair one candidate's version with another's date. The
+# workflow closes it after `apply` with `resolve-binary-forge.php --verify`,
+# a post-condition on the file as written: unless that exact pin is fully
+# published, no PR is opened.
+#
+# See .github/workflows/updatecli-docker-pins.yml.
+
+name: Bump the binary Docker image to the newest published forge release
+pipelineid: docker-binary-forge
+
+sources:
+  forgeOpenemrVersion:
+    name: OpenEMR version of the newest fully published forge release
+    kind: shell
+    spec:
+      command: php tools/release/bin/resolve-binary-forge.php --field=version --explain
+      environments:
+      - name: PATH
+      - name: HOME
+      - name: GH_TOKEN
+
+  forgeReleaseDate:
+    name: Build date of the newest fully published forge release
+    kind: shell
+    spec:
+      command: php tools/release/bin/resolve-binary-forge.php --field=date
+      environments:
+      - name: PATH
+      - name: HOME
+      - name: GH_TOKEN
+
+targets:
+  dockerfileOpenemrVersion:
+    name: 'docker/binary/Dockerfile: ARG OPENEMR_VERSION'
+    kind: dockerfile
+    sourceid: forgeOpenemrVersion
+    spec:
+      file: docker/binary/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: OPENEMR_VERSION
+
+  dockerfileBinaryReleaseDate:
+    name: 'docker/binary/Dockerfile: ARG BINARY_RELEASE_DATE'
+    kind: dockerfile
+    sourceid: forgeReleaseDate
+    spec:
+      file: docker/binary/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: BINARY_RELEASE_DATE
+
+  # The README's documented defaults had already drifted from the
+  # Dockerfile (it advertised BINARY_RELEASE_DATE 12282025 against an
+  # actual 12292025), so they are targets rather than prose.
+  readmeOpenemrVersion:
+    name: 'docker/binary/README.md: documented OPENEMR_VERSION default'
+    kind: file
+    sourceid: forgeOpenemrVersion
+    spec:
+      file: docker/binary/README.md
+      matchpattern: '(`OPENEMR_VERSION`: OpenEMR version \(default: `)[^`]*(`\))'
+      replacepattern: '${1}{{ source "forgeOpenemrVersion" }}${2}'
+
+  readmeBinaryReleaseDate:
+    name: 'docker/binary/README.md: documented BINARY_RELEASE_DATE default'
+    kind: file
+    sourceid: forgeReleaseDate
+    spec:
+      file: docker/binary/README.md
+      matchpattern: '(`BINARY_RELEASE_DATE`: Release date for binary package \(default: `)[^`]*(`\))'
+      replacepattern: '${1}{{ source "forgeReleaseDate" }}${2}'

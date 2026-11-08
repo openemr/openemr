@@ -179,7 +179,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
     public $topic = [];
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
     public $author = [];
@@ -634,7 +634,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
     }
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
     public function getAuthor()
@@ -643,7 +643,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
     }
 
     /**
-     * An individiual or organization primarily involved in the creation and maintenance of the content.
+     * An individual or organization primarily involved in the creation and maintenance of the content.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $author
      * @return $this
      */
@@ -1139,7 +1139,7 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -1296,15 +1296,13 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EffectEvidenceSynthesis xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesis>');
-        }
+        $sxe ??= new \SimpleXMLElement('<EffectEvidenceSynthesis xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesis>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));

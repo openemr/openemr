@@ -6,7 +6,7 @@
  * This class extends ArrayObject and ensures
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2023 Providence Healthtech
@@ -31,7 +31,7 @@ class MenuItems extends \ArrayObject
      * @return void
      * @throws InvalidArgumentException if $entry object does not implement MenuItemInterface
      */
-    public static function validateEntry($entry): void
+    public static function validateEntry(mixed $entry): void
     {
         if (is_array($entry)) {
             if (count($entry) > 0) {
@@ -41,15 +41,15 @@ class MenuItems extends \ArrayObject
             }
         } else {
             if (!($entry instanceof MenuItemInterface)) {
-                $type = (gettype($entry) === "object") ? get_class($entry) : gettype($entry);
+                $type = (gettype($entry) === "object") ? $entry::class : gettype($entry);
                 throw new \InvalidArgumentException("All MenuItems must implement MenuItemInterface, {$type} found.");
             }
         }
     }
 
-    public function offsetSet($key, $value): void
+    public function offsetSet(mixed $key, mixed $value): void
     {
-        $this->validateEntry($value);
+        static::validateEntry($value);
 
         parent::offsetSet($key, $value);
     }

@@ -11,16 +11,16 @@ class AmcReportFactory extends RsReportFactoryAbstract
 {
     public function __construct()
     {
-        foreach (glob(dirname(__FILE__) . "/library/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/library/*.php") as $filename) {
             require_once($filename);
         }
 
-        foreach (glob(dirname(__FILE__) . "/reports/*.php") as $filename) {
+        foreach (glob(__DIR__ . "/reports/*.php") as $filename) {
             require_once($filename);
         }
     }
 
-    public function createReport($className, $rowRule, $patientData, $dateTarget, $options)
+    public function createReport($className, $rowRule, $patientData, $dateTarget, $options): object
     {
         $reportObject = null;
         if (class_exists($className)) {

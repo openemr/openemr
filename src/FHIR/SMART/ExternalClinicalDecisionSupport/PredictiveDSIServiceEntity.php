@@ -12,9 +12,9 @@ class PredictiveDSIServiceEntity extends DecisionSupportInterventionEntity
         parent::__construct(self::TYPE, $clientEntity);
     }
 
-    public function populateServiceWithFhirQuestionnaire(string $questionnaire, ?string $response = null)
+    public function populateServiceWithFhirQuestionnaire(string $questionnaire, ?string $response = null): void
     {
 
-        return $this->populateServiceWithFhirQuestionnaireForType(self::TYPE, $questionnaire, $response);
+        $this->populateServiceWithFhirQuestionnaireForType(self::TYPE, $questionnaire, $response);
     }
 }

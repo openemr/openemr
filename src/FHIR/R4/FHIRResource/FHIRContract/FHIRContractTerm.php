@@ -122,7 +122,7 @@ class FHIRContractTerm extends FHIRBackboneElement implements \JsonSerializable
     public $securityLabel = [];
 
     /**
-     * The matter of concern in the context of this provision of the agrement.
+     * The matter of concern in the context of this provision of the agreement.
      * @var \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractOffer
      */
     public $offer = null;
@@ -327,7 +327,7 @@ class FHIRContractTerm extends FHIRBackboneElement implements \JsonSerializable
     }
 
     /**
-     * The matter of concern in the context of this provision of the agrement.
+     * The matter of concern in the context of this provision of the agreement.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractOffer
      */
     public function getOffer()
@@ -336,7 +336,7 @@ class FHIRContractTerm extends FHIRBackboneElement implements \JsonSerializable
     }
 
     /**
-     * The matter of concern in the context of this provision of the agrement.
+     * The matter of concern in the context of this provision of the agreement.
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractOffer $offer
      * @return $this
      */
@@ -492,7 +492,7 @@ class FHIRContractTerm extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -558,15 +558,13 @@ class FHIRContractTerm extends FHIRBackboneElement implements \JsonSerializable
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContractTerm xmlns="http://hl7.org/fhir"></ContractTerm>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ContractTerm xmlns="http://hl7.org/fhir"></ContractTerm>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {
             $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));

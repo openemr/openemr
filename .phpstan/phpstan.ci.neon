@@ -1,0 +1,9 @@
+# CI-specific config: only report NEW errors, not unmatched baseline entries.
+# Unmatched baseline entries are caught by the baseline stability check.
+includes:
+  - ../phpstan.neon.dist
+
+parameters:
+  # Override: don't fail on unmatched baseline errors. The baseline stability
+  # check handles stale baselines separately with a clearer error message.
+  reportUnmatchedIgnoredErrors: false

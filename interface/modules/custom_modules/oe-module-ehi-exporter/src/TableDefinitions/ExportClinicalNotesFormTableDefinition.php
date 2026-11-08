@@ -6,7 +6,7 @@
  * tables do and instead must be mapped through the forms table.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
@@ -23,7 +23,7 @@ class ExportClinicalNotesFormTableDefinition extends ExportTableDefinition
     const TABLE_NAME = 'form_clinic_note';
     const FORM_DIR = "clinic_note";
 
-    public function getRecords()
+    public function getRecords(): array
     {
         $selectQuery = $this->getSelectClause(); // make sure we only grab the clauses we allow
 

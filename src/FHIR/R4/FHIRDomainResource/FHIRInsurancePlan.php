@@ -107,7 +107,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
     public $period = null;
 
     /**
-     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors comonly referred to as 'payers'.
+     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors commonly referred to as 'payers'.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
     public $ownedBy = null;
@@ -280,7 +280,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors comonly referred to as 'payers'.
+     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors commonly referred to as 'payers'.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
     public function getOwnedBy()
@@ -289,7 +289,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors comonly referred to as 'payers'.
+     * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors commonly referred to as 'payers'.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $ownedBy
      * @return $this
      */
@@ -558,7 +558,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -643,15 +643,13 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<InsurancePlan xmlns="http://hl7.org/fhir"></InsurancePlan>');
-        }
+        $sxe ??= new \SimpleXMLElement('<InsurancePlan xmlns="http://hl7.org/fhir"></InsurancePlan>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

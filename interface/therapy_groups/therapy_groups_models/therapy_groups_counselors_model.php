@@ -22,19 +22,19 @@
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class Therapy_Groups_Counselors
 {
     const TABLE = 'therapy_groups_counselors';
 
-    public function getAllCounselors()
+    public function getAllCounselors(): array
     {
 
         $sql = 'SELECT * FROM ' . self::TABLE;
 
-        $counselors = array();
+        $counselors = [];
         $result = sqlStatement($sql);
         while ($c = sqlFetchArray($result)) {
             $counselors[] = $c;
@@ -43,13 +43,13 @@ class Therapy_Groups_Counselors
         return $counselors;
     }
 
-    public function getCounselors($groupId)
+    public function getCounselors($groupId): array
     {
 
         $sql = 'SELECT user_id FROM ' . self::TABLE . ' WHERE group_id = ?';
 
-        $counselors = array();
-        $result = sqlStatement($sql, array($groupId));
+        $counselors = [];
+        $result = sqlStatement($sql, [$groupId]);
         while ($c = sqlFetchArray($result)) {
             $counselors[] = $c['user_id'];
         }
@@ -62,7 +62,7 @@ class Therapy_Groups_Counselors
     {
 
         $sql = "INSERT INTO " . self::TABLE . " (group_id, user_id) VALUES(?,?)";
-        sqlStatement($sql, array($groupId, $userId));
+        sqlStatement($sql, [$groupId, $userId]);
     }
 
     public function remove($groupId, $userId = null)
@@ -79,12 +79,12 @@ class Therapy_Groups_Counselors
         sqlStatement($sql, $condition);
     }
 
-    public function getAllCounselorsNames($groupId)
+    public function getAllCounselorsNames($groupId): array
     {
 
         $counselors = $this->getCounselors($groupId);
         $userModel = new Users();
-        $result = array();
+        $result = [];
         foreach ($counselors as $counselor) {
             $counselorName = $userModel->getUserNameById($counselor);
             $result[] = $counselorName;

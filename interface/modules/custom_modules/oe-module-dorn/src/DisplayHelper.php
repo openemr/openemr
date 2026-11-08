@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
@@ -12,11 +12,9 @@
 
 namespace OpenEMR\Modules\Dorn;
 
-use OpenEMR\Modules\Dorn\Bootstrap;
-
 class DisplayHelper
 {
-    public static function SelectOption($compareA, $compareB)
+    public static function SelectOption($compareA, $compareB): string
     {
         if ($compareA == $compareB) {
             return 'selected';

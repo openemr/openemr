@@ -3,24 +3,24 @@
 namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirPractitionerService;
 use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Practitioner Service Crud Tests
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-#[CoversClass(FhirPractitionerService::class)]
 class FhirPractitionerServiceCrudTest extends TestCase
 {
     private $fixtureManager;
@@ -42,6 +42,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $fixture = (array) $this->fixtureManager->getSingleFhirPractitionerFixture();
         $this->fhirPractitionerFixture = FhirPractitionerSerializer::deserialize($fixture);
         $this->fhirPractitionerService = new FhirPractitionerService();
+        $this->fhirPractitionerService->setSystemLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void
@@ -102,5 +103,20 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
         $this->assertEquals(0, count($actualResult->getInternalErrors()));
         $this->assertEquals(0, count($actualResult->getData()));
+    }
+
+    #[Test]
+    public function testSearchByName(): void
+    {
+        $this->fhirPractitionerFixture->setId(new FHIRId());
+        $inserted = $this->fhirPractitionerService->insert($this->fhirPractitionerFixture);
+        $this->assertTrue($inserted->isValid());
+        $lname = (string) $this->fhirPractitionerFixture->getName()[0]->getFamily();
+
+        // name spans users.title, which also exists on the joined list_options tables
+        $result = $this->fhirPractitionerService->getAll(['name' => $lname]);
+
+        $this->assertTrue($result->isValid());
+        $this->assertEmpty($result->getInternalErrors());
     }
 }

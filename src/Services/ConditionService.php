@@ -4,9 +4,11 @@
  * ConditionService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -39,7 +41,7 @@ class ConditionService extends BaseService
         $this->conditionValidator = new ConditionValidator();
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT lists.*,
         lists.pid AS patient_id,
@@ -112,21 +114,54 @@ class ConditionService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         $newSearch = [];
+
+        // Validate puuid before converting to TokenSearchField
+        if (isset($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
+            $isValidPatient = $this->conditionValidator->validateId(
+                'uuid',
+                self::PATIENT_TABLE,
+                $search['puuid'],
+                true
+            );
+            if ($isValidPatient !== true) {
+                return $isValidPatient;
+            }
+        }
+
+        // Validate condition_uuid before converting to TokenSearchField
+        if (isset($search['condition_uuid']) && !($search['condition_uuid'] instanceof ISearchField)) {
+            $isValidCondition = $this->conditionValidator->validateId(
+                'uuid',
+                self::CONDITION_TABLE,
+                $search['condition_uuid'],
+                true
+            );
+            if ($isValidCondition !== true) {
+                return $isValidCondition;
+            }
+        }
 
         // override puuid with the token search field
         // standard api will send a string which needs to be a token to be converted to the binary field value
         // FHIR api will send an already populated TokenSearchField
-        if (!empty($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
+        if (isset($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
             $newSearch['puuid'] = new TokenSearchField('puuid', $search['puuid'], true);
+            unset($search['puuid']);
+        }
+
+        // override condition_uuid with token search field for binary comparison
+        if (isset($search['condition_uuid']) && !($search['condition_uuid'] instanceof ISearchField)) {
+            $newSearch['condition_uuid'] = new TokenSearchField('condition_uuid', $search['condition_uuid'], true);
+            unset($search['condition_uuid']);
         }
 
         foreach ($search as $key => $value) {
@@ -196,10 +231,10 @@ class ConditionService extends BaseService
         );
 
         if ($results) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'id' => $results,
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }
@@ -215,7 +250,7 @@ class ConditionService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function update($uuid, $data)
+    public function update($uuid, $data, ?int $expectedPatientId = null)
     {
         if (empty($data)) {
             $processingResult = new ProcessingResult();
@@ -232,14 +267,46 @@ class ConditionService extends BaseService
             return $processingResult;
         }
 
+        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
+
+        // The owning patient is resolved before anything is written. buildUpdateColumns() drops
+        // `puuid` -- a read alias rather than a `lists` column -- and the predicate matched only
+        // uuid and type, so a caller holding one patient's context could name their own patient
+        // as the subject and still mutate a condition uuid belonging to someone else. The
+        // generic compartment check compares only Condition.subject against the token, never the
+        // uuid in the url.
+        $rowPidRaw = QueryUtils::fetchSingleValue(
+            "SELECT pid FROM lists WHERE uuid = ? AND type = 'medical_problem'",
+            'pid',
+            [$uuidBinary]
+        );
+        // A fresh result rather than the validator's: its return type is untyped, so reusing it
+        // here would widen these returns to mixed.
+        if (!is_numeric($rowPidRaw)) {
+            $notFound = new ProcessingResult();
+            $notFound->setValidationMessages(['uuid' => 'Condition not found']);
+            return $notFound;
+        }
+        $rowPid = (int) $rowPidRaw;
+
+        if ($expectedPatientId !== null && $rowPid !== $expectedPatientId) {
+            // Reported as not-found rather than forbidden so a uuid probe cannot confirm the
+            // existence of another patient's condition.
+            $notFound = new ProcessingResult();
+            $notFound->setValidationMessages(['uuid' => 'Condition not found']);
+            return $notFound;
+        }
+
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE lists SET ";
         $sql .= $query['set'];
         $sql .= " WHERE `uuid` = ?";
         $sql .= "       AND `type` = 'medical_problem'";
+        // pid is in the WHERE for belt-and-braces protection if $expectedPatientId was not
+        // supplied, and to close the window between the lookup above and this statement.
+        $sql .= "       AND `pid` = ?";
 
-        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
-        array_push($query['bind'], $uuidBinary);
+        array_push($query['bind'], $uuidBinary, $rowPid);
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if (!$sqlResult) {
@@ -255,10 +322,8 @@ class ConditionService extends BaseService
      *
      * @param $puuid - The patient uuid identifier in string format used for update.
      * @param $uuid - The condition uuid identifier in string format used for update.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
      */
-    public function delete($puuid, $uuid)
+    public function delete($puuid, $uuid): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 
@@ -278,12 +343,12 @@ class ConditionService extends BaseService
         $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
         $sql  = "DELETE FROM lists WHERE pid=? AND uuid=? AND type='medical_problem'";
 
-        $results = sqlStatement($sql, array($pid, $auuid));
+        $results = sqlStatement($sql, [$pid, $auuid]);
 
         if ($results) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'uuid' => $uuid
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }

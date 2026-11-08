@@ -2,8 +2,9 @@
 
 /**
  * SocialHistoryService.php
- * @package openemr
- * @link      http://www.open-emr.org
+ *
+ * @package   openemr
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,9 +14,10 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Forms\Types\SmokingStatusType;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
-use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Traits\ServiceEventTrait;
@@ -27,6 +29,9 @@ class SocialHistoryService extends BaseService
 
     public const TABLE_NAME = "history_data";
 
+    const COLUMN_SMOKING_PACKS_PER_DAY = 'packs_per_day';
+    const COLUMN_SMOKING_STATUS_CODES = 'smoking_status_codes';
+
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
@@ -36,21 +41,23 @@ class SocialHistoryService extends BaseService
     // To prevent sql injection on this function, if a variable is used for $given parameter, then
     // it needs to be escaped via whitelisting prior to using this function; see lines 2020-2121 of
     // library/clinical_rules.php script for example of this.
-    function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
+    public function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
     {
         $where = '';
         if ($given == 'tobacco') {
             $where = 'tobacco is not null and';
         }
 
+        // Rows written in the same second share a date: the later id is the later version, as
+        // getHistoryData() in library/patient.inc.php already takes it.
         if ($dateStart && $dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", array($pid,$dateStart,$dateEnd));
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC, id DESC limit 0,1", [$pid, $dateStart, $dateEnd]);
         } elseif ($dateStart && !$dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC limit 0,1", array($pid,$dateStart));
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC, id DESC limit 0,1", [$pid, $dateStart]);
         } elseif (!$dateStart && $dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC limit 0,1", array($pid,$dateEnd));
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC, id DESC limit 0,1", [$pid, $dateEnd]);
         } else {
-            $res = sqlQuery("select $given from history_data where $where pid=? order by date DESC limit 0,1", array($pid));
+            $res = sqlQuery("select $given from history_data where $where pid=? order by date DESC, id DESC limit 0,1", [$pid]);
         }
 
         return $res;
@@ -70,7 +77,7 @@ class SocialHistoryService extends BaseService
         return [];
     }
 
-    public function search($search, $isAndCondition = true, $limit = null)
+    public function search($search, $isAndCondition = true, $limit = null): ProcessingResult
     {
         // history_data contains a table record for every single insert into the database
         $sql = "
@@ -124,7 +131,7 @@ class SocialHistoryService extends BaseService
         }
 
         $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+        $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
             $resultRecord = $this->createResultRecordFromDatabaseResult($row);
@@ -139,9 +146,18 @@ class SocialHistoryService extends BaseService
         $listService = new ListService();
         $tobaccoColumn = $record['tobacco'] ?? "";
         $tobacco = explode('|', $tobaccoColumn);
-        if (!empty($tobacco[3])) {
-            $listOption = $listService->getListOption('smoking_status', $tobacco[3]) ?? "";
-            $record['smoking_status_codes'] = $this->addCoding($listOption['codes']);
+        if (!empty($tobacco[SmokingStatusType::COLUMN_TOBACCO_INDEX_SMOKING_STATUS])) {
+            $listOption = $listService->getListOption('smoking_status', $tobacco[SmokingStatusType::COLUMN_TOBACCO_INDEX_SMOKING_STATUS]) ?? "";
+            $record[self::COLUMN_SMOKING_STATUS_CODES] = '';
+            if (!empty($listOption['codes'])) {
+                $record[self::COLUMN_SMOKING_STATUS_CODES] = $this->addCoding($listOption['codes']);
+            }
+        }
+        if (!empty($tobacco[SmokingStatusType::COLUMN_TOBACCO_INDEX_SMOKING_PACK_COUNT])) {
+            $record[self::COLUMN_SMOKING_PACKS_PER_DAY] = 0;
+            if (!empty($listOption['codes'])) {
+                $record[self::COLUMN_SMOKING_PACKS_PER_DAY] = intval($tobacco[SmokingStatusType::COLUMN_TOBACCO_INDEX_SMOKING_PACK_COUNT]) ?? 0;
+            }
         }
 
         return $record;
@@ -157,7 +173,8 @@ class SocialHistoryService extends BaseService
 
     private function insertRecord($record)
     {
-        $createdBy = $_SESSION['authUserID']; // we don't let anyone else but the current user be the createdBy
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $createdBy = $session->get('authUserID'); // we don't let anyone else but the current user be the createdBy
         $record['created_by'] = $createdBy;
 
         $record = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $record);
@@ -172,11 +189,30 @@ class SocialHistoryService extends BaseService
         unset($record['pid']);
         unset($record['uuid']);
 
+        // Reject any layout-sourced key that does not resolve to a real column of
+        // history_data. Mirrors the house whitelist pattern used elsewhere for
+        // layout_options.field_id-driven writes. `*` is rejected explicitly
+        // because escape_sql_column_name() short-circuits on it without checking
+        // the schema.
+        foreach (array_keys($record) as $key) {
+            if (!is_string($key) || $key === '' || $key === '*') {
+                unset($record[$key]);
+                continue;
+            }
+            try {
+                escape_sql_column_name($key, [self::TABLE_NAME], false, true);
+            } catch (SqlQueryException) {
+                \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+                    'SocialHistoryService::insertRecord: skipped unknown history_data column',
+                    ['column' => $key]
+                );
+                unset($record[$key]);
+            }
+        }
+
         if (!empty($record)) {
             $arraySqlBind = array_merge($arraySqlBind, array_values($record));
-            $sql .= ", " . implode(", ", array_map(function ($key) {
-                return "`$key` = ?";
-            }, array_keys($record)));
+            $sql .= ", " . implode(", ", array_map(fn($key): string => "`$key` = ?", array_keys($record)));
         }
         $insertId = QueryUtils::sqlInsert($sql, $arraySqlBind);
         // now put everything back.
@@ -187,7 +223,7 @@ class SocialHistoryService extends BaseService
         return $record;
     }
 
-    function getUuidFields(): array
+    public function getUuidFields(): array
     {
         // note the uuid here is the uuid_mapping table's uuid since each column in the table has its own distinct uuid
         // in the system.

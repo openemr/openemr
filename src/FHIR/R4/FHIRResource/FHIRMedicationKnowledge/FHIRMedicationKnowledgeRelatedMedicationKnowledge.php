@@ -161,7 +161,7 @@ class FHIRMedicationKnowledgeRelatedMedicationKnowledge extends FHIRBackboneElem
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -185,15 +185,13 @@ class FHIRMedicationKnowledgeRelatedMedicationKnowledge extends FHIRBackboneElem
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationKnowledgeRelatedMedicationKnowledge xmlns="http://hl7.org/fhir"></MedicationKnowledgeRelatedMedicationKnowledge>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicationKnowledgeRelatedMedicationKnowledge xmlns="http://hl7.org/fhir"></MedicationKnowledgeRelatedMedicationKnowledge>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

@@ -4,7 +4,7 @@
  * disc_fragment.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Visolve <vicareplus_engg@visolve.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) Visolve <vicareplus_engg@visolve.com>
@@ -13,32 +13,27 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 /**
  * Retrieve the recent 'N' disclosures.
  * @param $pid   -  patient id.
- * @param $limit -  certain limit up to which the disclosures are to be displyed.
+ * @param $limit -  certain limit up to which the disclosures are to be displayed.
  */
 function getDisclosureByDate($pid, $limit)
 {
     $discQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
     " LEFT JOIN users u ON u.username = el.user " .
     " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
-    " ORDER BY el.date DESC LIMIT 0, " . escape_limit($limit);
-    $r1 = sqlStatement($discQry, array($pid));
-    $result2 = array();
-    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
-        $result2[$iter] = $frow;
-    }
-
-    return $result2;
+    " ORDER BY el.date DESC LIMIT ?";
+    return QueryUtils::fetchRecords($discQry, [$pid, is_numeric($limit) ? (int) $limit : 0]);
 }
 ?>
 <div id='pnotes' style='margin-top: 3px; margin-left: 10px; margin-right: 10px'><!--outer div-->
@@ -61,7 +56,7 @@ if ($result != null) {
     foreach ($result as $iter) {
         $has_disclosure = 1;
         $app_event = $iter["event"];
-        $event = explode("-", $app_event);
+        $event = explode("-", (string) $app_event);
         $description = $iter["description"];
         //listing the disclosures
         echo "<tr style='border-bottom:1px dashed' class='text'>";
@@ -91,7 +86,7 @@ if ($has_disclosure == 0) { //If there are no disclosures recorded
     <span class='text'>
     <?php
     echo xlt("There are no disclosures recorded for this patient.");
-    if (AclMain::aclCheckCore('patients', 'disclosure', '', array('write', 'addonly'))) {
+    if (AclMain::aclCheckCore('patients', 'disclosure', '', ['write', 'addonly'])) {
         echo " ";
         echo xlt("To record disclosures, please click");
         echo " <a href='disclosure_full.php'>";

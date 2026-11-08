@@ -190,7 +190,7 @@ class FHIREncounterParticipant extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -217,15 +217,13 @@ class FHIREncounterParticipant extends FHIRBackboneElement implements \JsonSeria
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EncounterParticipant xmlns="http://hl7.org/fhir"></EncounterParticipant>');
-        }
+        $sxe ??= new \SimpleXMLElement('<EncounterParticipant xmlns="http://hl7.org/fhir"></EncounterParticipant>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->type)) {
             foreach ($this->type as $type) {

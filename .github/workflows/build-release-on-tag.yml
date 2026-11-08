@@ -1,0 +1,88 @@
+name: Build Release on Tag
+
+# Consumer of the intra-repo `openemr-tag` repository_dispatch. When a
+# release-prep PR merges, the conductor in release-prep.yml's `finalize`
+# job mints an annotated tag on the rel branch and fans out
+# `openemr-tag` to owner repos including this one. This workflow derives
+# the build inputs from the dispatch payload and calls the reusable
+# build-release.yml to produce the distribution packages and GitHub
+# Release that the manual workflow_dispatch path already produces.
+#
+# Migrated from openemr/openemr-devops in workstream 7 Phase 2 (PR 2b).
+# Under the pre-migration shape the dispatch crossed the
+# openemr/openemr → openemr/openemr-devops boundary; the post-migration
+# shape keeps the dispatch (release-prep.yml on merge still sends
+# `openemr-tag`) but targets openemr/openemr, so it fires here. The
+# dispatch shape and consumer semantics are unchanged — the release-me
+# PR's mutator content (CHANGELOG etc.) still lands *before* the tag
+# exists, which is why the dispatch invariant is preserved rather than
+# collapsed to `push: tags: ['v*']` or `workflow_run`.
+
+on:
+  repository_dispatch:
+    types: [openemr-tag]
+
+permissions:
+  contents: read
+
+concurrency:
+  # Distinct from the reusable build-release.yml group on purpose. This
+  # only collapses duplicate openemr-tag dispatches for the same tag.
+  # Serializing the actual build against a manual build-release.yml run
+  # is build-release.yml's own concurrency group's job — both entry
+  # paths run through it. Sharing its group here would deadlock: this
+  # run holds the group while waiting on the called workflow, which
+  # would queue behind it.
+  group: build-release-on-tag-${{ github.event.client_payload.data.tag }}
+  cancel-in-progress: false
+
+jobs:
+  derive:
+    name: Derive build inputs
+    runs-on: ubuntu-24.04
+    # Cap runtime. This job just resolves the tag envelope into
+    # version/branch/release_tag lines (composer install + a single
+    # PHP CLI); anything past a few minutes indicates something wedged.
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.inputs.outputs.version }}
+      version_branch: ${{ steps.inputs.outputs.version_branch }}
+      release_tag: ${{ steps.inputs.outputs.release_tag }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.5'
+
+    - name: Install Taskfile
+      uses: arduino/setup-task@v3
+      with:
+        version: 3.x
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Derive build inputs
+      id: inputs
+      working-directory: tools/release
+      env:
+        CLIENT_PAYLOAD: ${{ toJSON(github.event.client_payload) }}
+      run: |
+        printf '%s' "${CLIENT_PAYLOAD}" \
+            | task derive-build-inputs PAYLOAD_FILE='-' \
+            >> "${GITHUB_OUTPUT}"
+
+  build:
+    name: Build release
+    needs: derive
+    uses: ./.github/workflows/build-release.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.derive.outputs.version }}
+      version_branch: ${{ needs.derive.outputs.version_branch }}
+      release_tag: ${{ needs.derive.outputs.release_tag }}
+      dry_run: false
+      milestone: ''
+      skip_milestone_check: true
+      skip_ghsa_check: false

@@ -4,7 +4,7 @@
  * Standard Services Base class
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -14,37 +14,29 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
-use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
-class BaseService
+class BaseService implements BaseServiceInterface
 {
-    /**
-     * Passed in data should be vetted and fully qualified from calling service class
-     * Expect to see some search helpers here as well.
-     */
-    private $table;
     private $fields;
     private $autoIncrements;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    private const PREFIXES = array(
+    private const PREFIXES = [
         'eq' => "=",
         'ne' => "!=",
         'gt' => ">",
@@ -54,41 +46,56 @@ class BaseService
         'sa' => "",
         'eb' => "",
         'ap' => ""
-    );
+    ];
 
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
     /**
-     * Default constructor.
+     * @var ?SessionInterface For handling session data in the service
      */
-    public function __construct($table)
-    {
-        $this->table = $table;
-        $this->fields = sqlListFields($table);
-        $this->autoIncrements = self::getAutoIncrements($table);
-        $this->setLogger(new SystemLogger());
-        $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    private ?SessionInterface $session = null;
+
+    /**
+     * Default constructor.
+     * @param string $table Passed in data should be vetted and fully qualified from calling service class. Expect to see some search helpers here as well.
+     */
+    public function __construct(
+        private readonly string $table,
+        ?LoggerInterface $logger = null,
+    ) {
+        $this->fields = QueryUtils::listTableFields($table);
+        $this->autoIncrements = self::getAutoIncrements($this->table);
+        $this->logger = $logger ?? ServiceContainer::getLogger();
+        $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
-    public function getEventDispatcher(): EventDispatcher
+    public function setSession(SessionInterface $session): void
+    {
+        $this->session = $session;
+    }
+
+    public function getSession(): ?SessionInterface
+    {
+        return $this->session;
+    }
+
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->eventDispatcher;
     }
 
-    public function setEventDispatcher(EventDispatcher $dispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->eventDispatcher = $dispatcher;
     }
 
     /**
      * Get the name of our base database table
-     *
-     * @return mixed
      */
-    public function getTable()
+    public function getTable(): string
     {
         return $this->table;
     }
@@ -130,6 +137,9 @@ class BaseService
         return $normalizedFields;
     }
 
+    /**
+     * @return string[]
+     */
     public function getUuidFields(): array
     {
         return [];
@@ -159,20 +169,16 @@ class BaseService
      * Build SQL Query for Selecting Fields
      *
      * @param array $map
-     * @return array
+     * @return ?array
      */
     public function queryFields($map = null, $data = null)
     {
-        if ($data == null || $data == "*" || $data == "all") {
-            $value = "*";
-        } else {
-            $value = implode(", ", $data);
-        }
+        $value = in_array($data, [null, "*", "all"]) ? "*" : implode(", ", $data);
         $sql = "SELECT $value from $this->table";
         return $this->selectHelper($sql, $map);
     }
 
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -189,13 +195,12 @@ class BaseService
      * @param array $passed_in
      * @param array $options configuration options for building.
      *                  null_value defines what NULL should be stored as in the table, default is empty string ''
-     * @return array
      */
-    protected function buildInsertColumns($passed_in = array(), $options = array())
+    protected function buildInsertColumns($passed_in = [], $options = []): array
     {
         $keyset = '';
-        $bind = array();
-        $result = array();
+        $bind = [];
+        $result = [];
         $null_value = array_key_exists('null_value', $options) ? $options['null_value'] : '';
 
         foreach ($passed_in as $key => $value) {
@@ -220,7 +225,7 @@ class BaseService
             if (!empty($key)) {
                 $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
                 // for dates which should be saved as null
-                if (empty($value) && (strpos($key, 'date') !== false)) {
+                if (empty($value) && (str_contains((string) $key, 'date'))) {
                     $bind[] = null;
                 } else {
                     $bind[] = ($value === null || $value === false) ? $null_value : $value;
@@ -241,13 +246,12 @@ class BaseService
      * @param array $passed_in
      * @param array $options configuration options for building.
      *                       null_value defines what NULL should be stored as in the table, default is empty string ''
-     * @return array
      */
-    protected function buildUpdateColumns($passed_in = array(), $options = array())
+    protected function buildUpdateColumns($passed_in = [], $options = []): array
     {
         $keyset = '';
-        $bind = array();
-        $result = array();
+        $bind = [];
+        $result = [];
         // can't use ??,empty, or isset as null_value could be NULL.  We have to deal with legacy which defaults to ''
         $null_value = array_key_exists('null_value', $options) ? $options['null_value'] : '';
 
@@ -281,18 +285,14 @@ class BaseService
                     $value === null
                     || $value === false
                 )
-                && (strpos($key, 'date') === false)
+                && (!str_contains((string) $key, 'date'))
             ) {
                 // in case unwanted values passed in.
                 continue;
             }
             if (!empty($key)) {
                 $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-                if (empty($value) && (strpos($key, 'date') !== false)) {
-                    $bind[] = null;
-                } else {
-                    $bind[] = $value;
-                }
+                $bind[] = empty($value) && str_contains((string) $key, 'date') ? null : $value;
             }
         }
 
@@ -306,18 +306,9 @@ class BaseService
      * @param $table
      * @return array
      */
-    private static function getAutoIncrements($table)
+    private static function getAutoIncrements(string $table)
     {
-        $results = array();
-        $rtn = sqlStatementNoLog(
-            "SHOW COLUMNS FROM $table Where extra Like ?",
-            array('%auto_increment%')
-        );
-        while ($row = sqlFetchArray($rtn)) {
-            array_push($results, $row);
-        }
-
-        return $results;
+        return QueryUtils::listAutoIncrementColumns($table);
     }
 
     /**
@@ -325,15 +316,11 @@ class BaseService
      *
      * @param $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
      * @param $map                  - Query information (where clause(s), join clause(s), order, data, etc).
-     * @return array of associative arrays
+     * @return ?array list of associative arrays, or for a limit of 1 the single row (null if none matched)
      */
-    public function selectHelper($sqlUpToFromStatement, $map)
+    public function selectHelper($sqlUpToFromStatement, $map): ?array
     {
-        $records = QueryUtils::selectHelper($sqlUpToFromStatement, $map);
-        if ($records !== null) {
-            $records = is_array($records) ? $records : [$records];
-        }
-        return $records;
+        return QueryUtils::selectHelper($sqlUpToFromStatement, $map);
     }
 
     /**
@@ -343,7 +330,7 @@ class BaseService
      * @param $type                 - Type of Exception
      * @throws InvalidValueException
      */
-    public static function throwException($message, $type = "Error")
+    public static function throwException($message, $type = "Error"): never
     {
         throw new InvalidValueException($message, $type);
     }
@@ -355,9 +342,9 @@ class BaseService
      * @param $dateString              - The Date string which is to be verified
      * @return bool
      */
-    public static function isValidDate($dateString)
+    public static function isValidDate($dateString): bool
     {
-        return (bool) strtotime($dateString);
+        return (bool) strtotime((string) $dateString);
     }
 
     /**
@@ -366,7 +353,7 @@ class BaseService
      * @param $condition              - Boolean to check AND | OR
      * @return string of (AND | OR) Operator
      */
-    public static function sqlCondition($condition)
+    public static function sqlCondition($condition): string
     {
         return (string) $condition ? ' AND ' : ' OR ';
     }
@@ -376,14 +363,14 @@ class BaseService
      * Fetch ID by UUID of Resource
      *
      * @param string $uuid              - UUID of Resource
-     * @param string $table             - Table reffering to the ID field
+     * @param string $table             - Table referring to the ID field
      * @param string $field             - Identifier field
-     * @return false if nothing found otherwise return ID
+     * @return string|false if nothing found return false, otherwise return ID
      */
     public static function getIdByUuid($uuid, $table, $field)
     {
         $sql = "SELECT $field from $table WHERE uuid = ?";
-        $result = sqlQuery($sql, array($uuid));
+        $result = sqlQuery($sql, [$uuid]);
         return $result[$field] ?? false;
     }
 
@@ -391,15 +378,15 @@ class BaseService
      * Fetch UUID by ID of Resource
      *
      * @param string $id                - ID of Resource
-     * @param string $table             - Table reffering to the UUID field
+     * @param string $table             - Table referring to the UUID field
      * @param string $field             - Identifier field
-     * @return false if nothing found otherwise return UUID
+     * @return string|false if nothing found return false, otherwise return UUID string
      */
     public static function getUuidById($id, $table, $field)
     {
         $table = escape_table_name($table);
         $sql = "SELECT uuid from $table WHERE $field = ?";
-        $result = sqlQuery($sql, array($id));
+        $result = sqlQuery($sql, [$id]);
         return $result['uuid'] ?? false;
     }
 
@@ -409,9 +396,9 @@ class BaseService
      * @param string $date             - DateTime String
      * @return array processed prefix with value
      */
-    public static function processDateTime($date)
+    public static function processDateTime($date): array
     {
-        $processedDate = array();
+        $processedDate = [];
         $result = substr($date, 0, 2);
 
         // Assign Default
@@ -435,9 +422,9 @@ class BaseService
      *
      * @param string $idField                   - Name of Primary Id Field
      * @param string $table                     - Name of Table
-     * @return string Generated Id
+     * @return int Generated Id
      */
-    public function getFreshId($idField, $table)
+    public function getFreshId($idField, $table): int
     {
         $resultId = sqlQuery("SELECT MAX($idField)+1 AS $idField FROM $table");
         return $resultId[$idField] === null ? 1 : intval($resultId[$idField]);
@@ -459,9 +446,7 @@ class BaseService
 
         return array_filter(
             $data,
-            function ($key) use ($whitelistedFields) {
-                return in_array($key, $whitelistedFields);
-            },
+            fn($key): bool => in_array($key, $whitelistedFields),
             ARRAY_FILTER_USE_KEY
         );
     }
@@ -477,12 +462,11 @@ class BaseService
      * More complicated searches with various sub unions / intersections can be accomplished
      * through a CompositeSearchField that allows you to combine multiple search clauses on a single search field.
      *
-     * @param ISearchField[] $search Hashmap of string => ISearchField
-     *                                   where the key is the field name of the search field
+     * @param array<string, ISearchField> $search Hashmap of string => ISearchField
+     *                                             where the key is the field name of the search field
      * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
-     * @return ProcessingResult The results of the search.
      */
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         try {
@@ -520,7 +504,8 @@ class BaseService
 
     /**
      * Allows any mapping data conversion or other properties needed by a service to be returned.
-     * @param $row The record returned from the database
+     * @param array<string, mixed> $row The record returned from the database
+     * @return array<string, mixed>
      */
     protected function createResultRecordFromDatabaseResult($row)
     {
@@ -545,14 +530,14 @@ class BaseService
      * @return array Array of Code as Key mapped to an array containing the code,
      *                   code_type, description, and system (URI or OID if found)
      */
-    protected function addCoding($diagnosis)
+    protected function addCoding($diagnosis): array
     {
         if (empty($diagnosis)) {
             return [];
         }
         $codesService = new CodeTypesService();
         $diags = explode(";", $diagnosis);
-        $diagnosis = array();
+        $diagnosis = [];
         foreach ($diags as $diag) {
             $parsedCode = $codesService->parseCode($diag);
             $codeType = $parsedCode['code_type'];
@@ -572,18 +557,18 @@ class BaseService
     /**
      * Split IDs and Process the fields subsequently
      *
-     * @param string $fields                    - All IDs sperated with | sign
+     * @param string $fields                    - All IDs separated with | sign
      * @param string $table                     - Name of the table of targeted ID
      * @param string $primaryId                 - Name of Primary ID field
      * @return array Array UUIDs
      */
-    protected function splitAndProcessMultipleFields($fields, $table, $primaryId = "id")
+    protected function splitAndProcessMultipleFields($fields, $table, $primaryId = "id"): array
     {
         $fields = explode("|", $fields);
-        $result = array();
+        $result = [];
         foreach ($fields as $field) {
             $data = sqlQuery("SELECT uuid
-                    FROM $table WHERE $primaryId = ?", array($field));
+                    FROM $table WHERE $primaryId = ?", [$field]);
             if ($data) {
                 array_push($result, UuidRegistry::uuidToString($data['uuid']));
             }
@@ -591,7 +576,7 @@ class BaseService
         return $result;
     }
 
-    protected function getSelectJoinClauses()
+    protected function getSelectJoinClauses(): string
     {
         $joins = $this->getSelectJoinTables();
         $clause = '';

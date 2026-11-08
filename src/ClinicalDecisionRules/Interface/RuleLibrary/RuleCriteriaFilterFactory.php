@@ -18,7 +18,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaFactory;
  */
 class RuleCriteriaFilterFactory extends RuleCriteriaFactory
 {
-    function modify($criteria, $ruleId)
+    public function modify($criteria, $ruleId)
     {
         // noop
     }

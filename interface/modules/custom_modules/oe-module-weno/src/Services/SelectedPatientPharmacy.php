@@ -18,18 +18,18 @@ class SelectedPatientPharmacy
 
     public function prepSelectedPharmacy(array $data)
     {
-        $newData = array(
+        $newData = [
             "primary_pharmacy" => $_POST['primary_pharmacy'],
             "alternate_pharmacy" => $_POST['alternate_pharmacy']
-        );
-        $persist = array(
+        ];
+        $persist = [
             'all_day' => $data['24hr'] ?? '',
             'weno_only' => $data['weno_only'] ?? '',
             'weno_coverage' => $data['weno_coverage'] ?: 'Local',
             'weno_zipcode' => $data['weno_zipcode'] ?? '',
             'weno_city' => $data['weno_city'] ?? '',
             'weno_state' => $data['weno_state'] ?? '',
-        );
+        ];
         $newData['search_persist'] = json_encode($persist);
 
         $pharmacyService = new PharmacyService();
@@ -38,19 +38,19 @@ class SelectedPatientPharmacy
 
     public function prepForUpdatePharmacy($data)
     {
-        $updateData = array(
+        $updateData = [
             "primary_pharmacy" => $data['primary_pharmacy'],
             "alternate_pharmacy" => $data['alternate_pharmacy']
-        );
+        ];
         // Persist search data with patient pharmacy.
-        $persist = array(
+        $persist = [
             'all_day' => $data['24hr'] ?? '',
             'weno_only' => $data['weno_only'] ?? '',
             'weno_coverage' => $data['weno_coverage'] ?: 'Local',
             'weno_zipcode' => $data['weno_zipcode'] ?? '',
             'weno_city' => $data['weno_city'] ?? '',
             'weno_state' => $data['weno_state'] ?? '',
-        );
+        ];
         $updateData['search_persist'] = json_encode($persist);
 
         $pharmacyService = new PharmacyService();

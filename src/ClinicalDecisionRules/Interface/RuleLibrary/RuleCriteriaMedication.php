@@ -18,12 +18,12 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaSimpleText;
  */
 class RuleCriteriaMedication extends RuleCriteriaSimpleText
 {
-    function __construct($title, $value = '')
+    public function __construct($title, $value = '')
     {
         parent::__construct($title, $value);
     }
 
-    function getDbView()
+    public function getDbView()
     {
         $dbView = parent::getDbView();
 

@@ -9,12 +9,13 @@
  * Purpose:  Translate via xl() and then escape via attr().
  * -------------------------------------------------------------
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-function smarty_modifier_xla($translate)
+function smarty_modifier_xla(?string $translate): string
 {
-    return \xla($translate);
+    // @phpstan-ignore argument.type (Smarty template strings are not statically analyzable as literal-string)
+    return \xla($translate ?? '');
 }

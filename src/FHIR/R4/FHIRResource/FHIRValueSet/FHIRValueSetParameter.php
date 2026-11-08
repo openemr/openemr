@@ -308,7 +308,7 @@ class FHIRValueSetParameter extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -347,15 +347,13 @@ class FHIRValueSetParameter extends FHIRBackboneElement implements \JsonSerializ
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ValueSetParameter xmlns="http://hl7.org/fhir"></ValueSetParameter>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ValueSetParameter xmlns="http://hl7.org/fhir"></ValueSetParameter>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));

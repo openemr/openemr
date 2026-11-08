@@ -5,7 +5,7 @@
  * therapy groups calendar events.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
@@ -21,7 +21,7 @@ class ExportOpenEmrPostCalendarEventsTableDefinition extends ExportTableDefiniti
 {
     const TABLE_NAME = 'openemr_postcalendar_events';
 
-    public function getRecords()
+    public function getRecords(): array
     {
         $records = parent::getRecords();
 

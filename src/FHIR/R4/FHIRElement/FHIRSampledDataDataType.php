@@ -117,7 +117,7 @@ class FHIRSampledDataDataType extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }
@@ -131,15 +131,13 @@ class FHIRSampledDataDataType extends FHIRElement implements \JsonSerializable
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SampledDataDataType xmlns="http://hl7.org/fhir"></SampledDataDataType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SampledDataDataType xmlns="http://hl7.org/fhir"></SampledDataDataType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

@@ -2,14 +2,14 @@
 
 namespace OpenEMR\Tests\Certification\HIT1\G10_Certification;
 
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Api\BulkAPITestClient;
 use OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait\G10ApiTestTrait;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Exception;
-use GuzzleHttp\Exception\GuzzleException;
 
 class BulkPatientExport311APITest extends TestCase
 {
@@ -21,6 +21,8 @@ class BulkPatientExport311APITest extends TestCase
     const ENCRYPTION_ALGORITHM_RS384 = 'RS384';
     const ENCRYPTION_ALGORITHM_ES384 = 'ES384';
 
+    static protected string $previousProfileValue;
+
     /**
      * @return void
      * @throws Exception
@@ -31,6 +33,10 @@ class BulkPatientExport311APITest extends TestCase
         self::setupG10Test();
     }
 
+    public static function tearDownAfterClass(): void
+    {
+        self::teardownG10Test();
+    }
 //    private function getFakeTestGroupResponse() : array {
 //        $response = file_get_contents(__DIR__ . '/../../../data/single_patient_api_test_run_20250624.json');
 //        $response = json_decode($response, true);
@@ -41,15 +47,15 @@ class BulkPatientExport311APITest extends TestCase
      * @return string
      * @throws GuzzleException
      */
-    private function getInfernoJWKS(): string
+    private function getInfernoJWKS(): \stdClass
     {
-            self::$testClient = new BulkAPITestClient(self::$baseUrl);
+        self::$testClient ??= new BulkAPITestClient(self::$baseUrl);
             self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
             $jwksResponse = self::$infernoClient->get('/custom/g10_certification/.well-known/jwks.json');
         if ($jwksResponse->getStatusCode() !== 200) {
             throw new RuntimeException("Failed to retrieve JWKS from Inferno. Status code: " . $jwksResponse->getStatusCode());
         }
-            return json_decode($jwksResponse->getBody());
+            return json_decode($jwksResponse->getBody()->getContents());
     }
 //    #[Test]
 //    public function testPatientIds() {

@@ -70,7 +70,7 @@ trait QuestionnaireTraits
 
     /**
      * @param $item
-     * @return mixed|void
+     * @return mixed|null
      */
     public function getText($item)
     {
@@ -78,6 +78,8 @@ trait QuestionnaireTraits
         if ($text && method_exists($text, "getValue")) {
             return $text->getValue();
         }
+
+        return null;
     }
 
     /**
@@ -109,7 +111,7 @@ trait QuestionnaireTraits
 
     /**
      * @param $item
-     * @return mixed|void|null
+     * @return mixed|null
      */
     public function getType($item)
     {
@@ -117,6 +119,8 @@ trait QuestionnaireTraits
             $type = $this->getValue($item->getType());
             return $type;
         }
+
+        return null;
     }
 
     /**
@@ -211,7 +215,7 @@ trait QuestionnaireTraits
      */
     private function parseAnswer($answer, $display = false)
     {
-        $obv = array();
+        $obv = [];
         $type = key($answer);
         switch ($type) {
             case "valueBoolean":
@@ -247,12 +251,12 @@ trait QuestionnaireTraits
                 $obv['display'] = $answer[$type];
                 break;
             case "valueCoding":
-                $obv = array(
+                $obv = [
                     'type' => 'coding',
                     'system' => $answer[$type]['system'] ?? null,
                     'code' => $answer[$type]['code'],
                     'display' => $answer[$type]['display'],
-                );
+                ];
                 break;
             case "valueQuantity":
                 $obv['type'] = 'quantity';

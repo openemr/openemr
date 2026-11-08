@@ -7,7 +7,7 @@ dwvOemr.gui.info = dwvOemr.gui.info || {};
 /**
  * DICOM Header overlay info controller.
  * @constructor
- * @param {Object} app The assciated app.
+ * @param {Object} app The associated app.
  * @param {String} containerDivId The id of the container div.
  */
 dwvOemr.gui.info.Controller = function (app, containerDivId)
@@ -16,7 +16,7 @@ dwvOemr.gui.info.Controller = function (app, containerDivId)
     var overlayGuis = [];
     // flag to tell if guis have been created
     var guisCreated = false;
-    // flag to tell if data was all laoded
+    // flag to tell if data was all loaded
     var loadEnd = false;
 
     // overlay data

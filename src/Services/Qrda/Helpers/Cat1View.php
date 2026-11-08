@@ -4,7 +4,7 @@
  * Cat1View is a mustache helper trait with helper methods specific to the Cat1 report.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,6 +14,7 @@ namespace OpenEMR\Services\Qrda\Helpers;
 
 use Mustache_Context;
 use OpenEMR\Services\CodeTypesService;
+use Ramsey\Uuid\UuidInterface;
 
 trait Cat1View
 {
@@ -64,7 +65,7 @@ trait Cat1View
         }
     }
 
-    public function code_and_codesystem(Mustache_Context $context)
+    public function code_and_codesystem(Mustache_Context $context): string
     {
         $oid = $context->find('system');
         $code = $context->find('code');
@@ -82,7 +83,7 @@ trait Cat1View
         }
     }
 
-    public function primary_code_and_codesystem(Mustache_Context $context)
+    public function primary_code_and_codesystem(Mustache_Context $context): string
     {
         $codes = $context->find('dataElementCodes');
         $oid = $codes[0]['system'] || $codes[0]['codeSystem'];
@@ -110,13 +111,13 @@ trait Cat1View
         return $translation_list;
     }
 
-    public function value_as_float(Mustache_Context $context)
+    public function value_as_float(Mustache_Context $context): float
     {
         $value = $context->find('value');
         return floatval($value);
     }
 
-    public function dose_quantity_value(Mustache_Context $context)
+    public function dose_quantity_value(Mustache_Context $context): string
     {
         $value = $this->value_as_float($context);
         $unit = $context->find('unit');
@@ -154,7 +155,7 @@ trait Cat1View
         return $result_string;
     }
 
-    public function result_value_as_string($result)
+    public function result_value_as_string($result): string
     {
         // Result could be a code or value, but if we have neither, we return null/UNK
         if (empty($result['code']) && empty($result['value'])) {
@@ -183,7 +184,36 @@ trait Cat1View
         return !empty($authorDateTime) || !empty($dispenserId);
     }
 
-    private function get_code_system_for_oid($oid)
+    /**
+     * The id of an entry another entry's relatedTo can name (an Intervention Order's): the data
+     * element's QDM id, scoped to this document by its guid (random_id()), so the same QDM id in
+     * another patient's document, or another export, is another id; a random one when the element
+     * has no QDM id. related_id() scopes the reference the same way, so the two match.
+     */
+    public function entry_id(Mustache_Context $context): string
+    {
+        $id = $context->find('id');
+        return is_string($id) && $id !== '' ? $this->documentScopedId($id) : $this->object_id();
+    }
+
+    /**
+     * The id a relatedTo item names, inside {{#relatedTo}} (the item is the context's top), scoped to
+     * this document as entry_id() scopes the entry's own.
+     */
+    public function related_id(Mustache_Context $context): string
+    {
+        $id = $context->last();
+        return is_string($id) && $id !== '' ? $this->documentScopedId($id) : '';
+    }
+
+    /** $id prefixed with this document's guid, so an id stays unique across the documents of one export. */
+    private function documentScopedId(string $id): string
+    {
+        $guid = $this->random_id();
+        return ($guid instanceof UuidInterface ? $guid->toString() : (is_string($guid) ? $guid : '')) . '-' . $id;
+    }
+
+    private function get_code_system_for_oid($oid): string
     {
         $codesService = new CodeTypesService();
         return $codesService->getCodeSystemNameFromSystem($oid);

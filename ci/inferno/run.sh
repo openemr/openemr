@@ -70,56 +70,118 @@ initialize_openemr() {
     echo 'Initializing OpenEMR'
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
-    (
-        repo_root="$(git rev-parse --show-toplevel)" || exit 1
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+    cd -P "${repo_root}"
+    # shellcheck source-path=../..
+    . ci/ciLibrary.source
+    composer_install
+    npm_build
+    cd -
+    dockers_env_start
+    install_configure
+    "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2026-10-16-inferno-baseline.tgz
+    "${HOME}/bin/openemr-cmd" rs 2026-10-16-inferno-baseline
+    # Snapshot is from 8.5.0-dev (database 550). Upgrading from 8.4.1 re-runs
+    # 8_4_1-to-8_5_0_upgrade.sql, which picks up schema added since then.
+    docker compose exec -T openemr su-exec apache php "${OPENEMR_DIR}/sql_upgrade.php" --from=8.4.1
+    # (may need to configure api globals here)
+    # Prevent password expiration from blocking OAuth password grant
+    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
+        -e "UPDATE users_secure SET last_update_password = NOW()"
+
+    # Configure coverage after containers are running and OpenEMR is initialized
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        # Set COMPOSE_FILE so docker compose commands work from any directory
+        local compose_file="${repo_root}/ci/inferno/compose.yml"
+        export COMPOSE_FILE="${compose_file}"
+
         cd -P "${repo_root}"
-        # shellcheck source-path=../..
-        . ci/ciLibrary.source
-        main_build
-        ccda_build
-        cd -
-        dockers_env_start
-        install_configure
-        "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
-        "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
-        # configure_coverage
-        echo 'OpenEMR initialized'
-    )
+        configure_coverage
+        setup_e2e_bookends apache
+        # Stay in repo root - we have write permissions here
+        echo "COVERAGE_RAW_TMPDIR=${RUNNER_TEMP:-/tmp}/coverage-inferno-raw"
+    fi
+
+    echo 'OpenEMR initialized'
 }
 run_testsuite() {
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
-    (
-    	repo_root="$(git rev-parse --show-toplevel)" || exit 1
-        cd -P "${repo_root}"
-        # shellcheck source-path=../..
-        . ci/ciLibrary.source
-        cd -
-        phpunit --testsuite certification -c "${OPENEMR_DIR}/phpunit.xml"
-        # merge_coverage
-        echo 'Certification Tests Executed'
-    )
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+
+    # Set COMPOSE_FILE so docker compose commands work from any directory
+    local compose_file="${repo_root}/ci/inferno/compose.yml"
+    export COMPOSE_FILE="${compose_file}"
+
+    cd -P "${repo_root}"
+    # shellcheck source-path=../..
+    . ci/ciLibrary.source
+    # Stay in repo root - we have write permissions here and COMPOSE_FILE is set
+
+    # Run PHPUnit tests with coverage if enabled. main() calls this function
+    # as a condition, which turns off set -e inside it, so a failing phpunit
+    # wouldn't stop it; keep phpunit's exit status and return it.
+    local -a coverage_args=()
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        coverage_args=( --coverage-clover coverage.inferno-phpunit.clover.xml )
+    fi
+    local status=0
+    # shellcheck disable=SC2310  # the status is kept and returned below
+    phpunit --testsuite certification \
+            "${coverage_args[@]}" \
+            --log-junit junit-inferno.xml \
+            -c "${OPENEMR_DIR}/phpunit.xml" || status=$?
+
+    echo "Certification Tests Executed (exit code ${status})"
+    return "${status}"
 }
 
-fix_redis_permissions() {
-     docker run --rm -v "${PWD}/onc-certification-g10-test-kit/data/redis:/data" redis chown -R redis:redis /data
-}
+collect_inferno_coverage() {
+    local -x DOCKER_DIR=inferno
+    local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
 
-cleanup() {
-    echo 'Performing cleanup...'
-    docker compose down -v || true
-    echo 'Cleanup completed'
+    # Set COMPOSE_FILE so docker compose commands work from any directory
+    local compose_file="${repo_root}/ci/inferno/compose.yml"
+    export COMPOSE_FILE="${compose_file}"
+
+    cd -P "${repo_root}"
+    # shellcheck source-path=../..
+    . ci/ciLibrary.source
+    # Stay in repo root - we have write permissions here and COMPOSE_FILE is set
+
+    echo 'Collecting Inferno coverage...'
+
+    # Convert HTTP request coverage to clover.xml format
+    # Run inside the container so file paths resolve correctly
+    convert_coverage /tmp/openemr-coverage/inferno \
+                     /dev/null \
+                     --clover=coverage.inferno-http.clover.xml
+    ls -lah coverage.inferno-http.clover.xml || true
+
+    # Note: Individual coverage files (coverage.inferno-phpunit.clover.xml and
+    # coverage.inferno-http.clover.xml) are uploaded separately to Codecov,
+    # which handles server-side merging. No local merge needed.
+
+    echo 'Inferno coverage collection completed'
 }
 
 main() {
-    # Set up trap for cleanup on exit
-    trap cleanup EXIT
     # Compose Bake will either be ignored or it will make builds faster.
     export COMPOSE_BAKE=1
     # BuildKit accepts platform arguments.
     # The classic Docker builder does not.
     # We need platform arguments.
     export DOCKER_BUILDKIT=1
+    # Source the CI library for with_retry. run.sh runs from ci/inferno, so
+    # resolve the repo root to find it.
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+    # shellcheck source-path=SCRIPTDIR/..
+    . "${repo_root}/ci/ciLibrary.source"
     local use_cloned_files
     # shellcheck disable=SC2310
     if clone_files; then
@@ -128,7 +190,11 @@ main() {
       use_cloned_files=0
     fi
     echo 'Pulling Docker images...'
-    if ! docker compose pull; then
+    # Retry transient registry timeouts (issue #12423). --ignore-buildable
+    # skips locally built services (inferno, worker, terminology_builder),
+    # which the build step below handles.
+    # shellcheck disable=SC2310  # with_retry's own exit status drives the error path here
+    if ! with_retry 4 5 docker compose pull --ignore-buildable; then
         echo 'ERROR: Failed to pull Docker images'
         exit 1
     fi
@@ -150,15 +216,27 @@ main() {
     initialize_inferno
     check_inferno
     initialize_openemr
-    fix_redis_permissions
 
-    # Run the test suite and capture exit code
-    # shellcheck disable=SC2310
-    if ! run_testsuite; then
-        local exit_code=$?
+    # Run the test suite and capture exit code. (After "if ! run_testsuite",
+    # $? is the negated status, 0, so capture it with || instead.)
+    local exit_code=0
+    # shellcheck disable=SC2310  # run_testsuite returns phpunit's status itself
+    run_testsuite || exit_code=$?
+    if (( exit_code != 0 )); then
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
+        # Still try to collect coverage even on failure
+        if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+            # shellcheck disable=SC2310  # best effort; the test failure decides the exit code
+            collect_inferno_coverage || echo "Warning: Coverage collection failed"
+        fi
         exit "${exit_code}"
     fi
+
+    # Collect coverage if enabled
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        collect_inferno_coverage
+    fi
+
     echo 'SUCCESS: All Inferno certification tests completed successfully!'
 }
 

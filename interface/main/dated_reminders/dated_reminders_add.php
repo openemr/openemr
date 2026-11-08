@@ -4,7 +4,7 @@
  * Used for adding dated reminders.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Craig Bezuidenhout <http://www.tajemo.co.za/>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012 tajemo.co.za <http://www.tajemo.co.za/>
@@ -12,12 +12,22 @@
   */
 
 require_once("../../globals.php");
-require_once("$srcdir/dated_reminder_functions.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$dateRanges = array();
+// Dated reminders reference patient notes; gate on patients/notes before the
+// getPatName() call resolves a request-supplied PatientID or the sendReminder()
+// path enqueues a message.
+if (!AclMain::aclCheckCore('patients', 'notes')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/notes: Dated Reminders", xl("Dated Reminders"));
+}
+
+$dateRanges = [];
 // $dateranges = array ( number_period => text to display ) == period is always in the singular
 // eg. $dateRanges['4_week'] = '4 Weeks From Now';
 $dateRanges['1_day'] =  xl('1 Day From Now');
@@ -47,17 +57,17 @@ $dateRanges['2_year'] = xl('2 Years From Now');
 // --- need to add a check to ensure the post is being sent from the correct location ???
 
 // default values for $this_message
-$this_message = array('message' => '','message_priority' => 3,'dueDate' => '');
+$this_message = ['message' => '','message_priority' => 3,'dueDate' => ''];
 $forwarding = false;
 
 // default values for Max words to input in a reminder
 $max_reminder_words = 160;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 // ---------------- FOR FORWARDING MESSAGES ------------->
 if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $forwarding = true;
     $this_message = getReminderById($_GET['mID']);
@@ -68,10 +78,9 @@ if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
 
 
 // --- add reminders
+$ReminderSent = false;
 if ($_POST) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // --- initialize $output as blank
     $output = '';
@@ -79,34 +88,34 @@ if ($_POST) {
  // ------ fills an array with all recipients
     $sendTo = $_POST['sendTo'];
 
-  // for incase of data error, this allows the previously entered data to re-populate the boxes
-    $this_message['message'] = (isset($_POST['message']) ? $_POST['message'] : '');
-    $this_message['priority'] = (isset($_POST['priority']) ? $_POST['priority'] : '');
-    $this_message['dueDate'] = (isset($_POST['dueDate']) ? $_POST['dueDate'] : '');
+  // in case of a data error, this allows the previously entered data to re-populate the boxes
+    $this_message['message'] = ($_POST['message'] ?? '');
+    $this_message['priority'] = ($_POST['priority'] ?? '');
+    $this_message['dueDate'] = ($_POST['dueDate'] ?? '');
 
 
 // --------------------------------------------------------------------------------------------------------------------------
-// --- check for the post, if it is valid, commit to the database, close this window and run opener.Handeler
+// --- check for the post, if it is valid, commit to the database, close this window and run opener.Handler
     if (
 // ------- check sendTo is not empty
         !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-        isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', DateToYYYYMMDD($_POST['dueDate'])) and
+        isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', (string) DateToYYYYMMDD($_POST['dueDate'])) and
 // ------- check priority, only allow 1-3
         isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
 // ------- check message, only up to 160 characters limited by Db
-        isset($_POST['message']) and mb_strlen($_POST['message']) <= $max_reminder_words and mb_strlen($_POST['message']) > 0 and
+        isset($_POST['message']) and mb_strlen((string) $_POST['message']) <= $max_reminder_words and mb_strlen((string) $_POST['message']) > 0 and
 // ------- check if PatientID is set and in numeric
         isset($_POST['PatientID']) and is_numeric($_POST['PatientID'])
     ) {
         $dueDate = DateToYYYYMMDD($_POST['dueDate']);
         $priority = intval($_POST['priority']);
         $message = $_POST['message'];
-        $fromID = $_SESSION['authUserID'];
+        $fromID = $session->get('authUserID');
         $patID = $_POST['PatientID'];
         if (isset($_POST['sendSeperately']) and $_POST['sendSeperately']) {
             foreach ($sendTo as $st) {
-                $ReminderSent = sendReminder(array($st), $fromID, $message, $dueDate, $patID, $priority);
+                $ReminderSent = sendReminder([$st], $fromID, $message, $dueDate, $patID, $priority);
             }
         } else {
       // -------- Send the reminder
@@ -119,12 +128,12 @@ if ($_POST) {
         } else {
       // --------- echo javascript
             echo '<html><body>'
-            . "<script src=\"" . $webroot . "/interface/main/tabs/js/include_opener.js\"></script>"
+            . "<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/tabs/js/include_opener.js\"></script>"
             . '<script>';
       // ------------ 1) refresh parent window this updates if sent to self
             echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';
       // ------------ 2) communicate with user
-            echo '   alert("' . xls('Reminder Sent') . '");';
+            echo '   alert(' . xlj('Reminder Sent') . ');';
       // ------------ 3) close this window
             echo '  dlgclose();';
             echo '</script></body></html>';
@@ -146,10 +155,10 @@ if ($_POST) {
 
 // get current patient, first check if this is a forwarded message, if it is use the original pid
 if (isset($this_message['pid'])) {
-    $patientID = (isset($this_message['pid']) ? $this_message['pid'] : 0);
+    $patientID = ($this_message['pid'] ?? 0);
     $reminder_title = xl("Forward this Reminder");
 } else {
-    $patientID = (isset($pid) ? $pid : 0);
+    $patientID = ($pid ?? 0);
     $reminder_title = xl("Send a Reminder");
 }
 ?>
@@ -254,7 +263,7 @@ if (isset($this_message['pid'])) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
       })
@@ -314,7 +323,7 @@ if (isset($this_message['pid'])) {
                     </div>
                     <div class="card-body">
                         <form id="addDR" class="form-horizontal" method="post" onsubmit="return top.restoreSession()">
-                            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                             <fieldset id='error-info' class='oe-error-modal' style="display: none">
                                 <div class="text-center" id="errorMessage"></div>
@@ -329,8 +338,8 @@ if (isset($this_message['pid'])) {
                                     <?php echo xlt('Link To Patient') ?>:
                                     <i id="link-tooltip" class="fa fa-info-circle text-primary ml-1" aria-hidden="true" data-original-title="" title=""></i>
                                 </label>
-                                <input type='text' id='patientName' name='patientName' class='form-control' value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' title='<?php xla('Click to select patient'); ?>' readonly />
-                                <input type="hidden" name="PatientID" id="PatientID" value="<?php echo (isset($patientID) ? attr($patientID) : 0) ?>" />
+                                <input type='text' id='patientName' name='patientName' class='form-control' value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' readonly />
+                                <input type="hidden" name="PatientID" id="PatientID" value="<?php echo attr($patientID) ?>" />
                                 <button type="button" class="btn btn-sm btn-outline-secondary mt-2" <?php echo ($patientID > 0 ? '' : 'style="display:none"') ?> id="removePatient">
                                     <i class="fa fa-unlink mr-1"></i><?php echo xlt('Unlink Patient') ?>
                                 </button>
@@ -344,9 +353,9 @@ if (isset($this_message['pid'])) {
                                     </small>
                                 </label>
                                 <select class="form-control" id="sendTo" name="sendTo[]" multiple="multiple">
-                                    <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
+                                    <option value="<?php echo attr(intval($session->get('authUserID'))); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php //
-                                    $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
+                                    $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [intval($session->get('authUserID'))]);
                                     for ($i = 2; $uRow = sqlFetchArray($uSQL); $i++) {
                                         echo '<option value="' . attr($uRow['id']) . '">' . text($uRow['fname'] . ' ' . $uRow['mname'] . ' ' . $uRow['lname']) . '</option>';
                                     }
@@ -451,10 +460,10 @@ if (isset($this_message['pid'])) {
                     </div>
                     <div class="card-body p-0">
                         <?php
-                        $_GET['sentBy'] = array($_SESSION['authUserID']);
+                        $_GET['sentBy'] = [$session->get('authUserID')];
                         $_GET['sd'] = oeFormatShortDate();
                         $TempRemindersArray = logRemindersArray();
-                        $remindersArray = array();
+                        $remindersArray = [];
                         foreach ($TempRemindersArray as $RA) {
                             $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
                             $remindersArray[$RA['messageID']]['ToName'] = ((!empty($remindersArray[$RA['messageID']]['ToName'])) ? $remindersArray[$RA['messageID']]['ToName'] . ', ' . ($RA['ToName'] ?? '') : ($RA['ToName'] ?? ''));

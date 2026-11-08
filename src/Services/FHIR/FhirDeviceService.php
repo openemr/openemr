@@ -3,27 +3,37 @@
 /**
  * FhirDeviceService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDevice;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceUdiCarrier;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\DeviceService;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService, IPatientCompartmentResourceService
@@ -31,6 +41,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
     /**
      * @var DeviceService
@@ -49,7 +60,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
         'patient' => $this->getPatientContextSearchField(),
@@ -68,18 +79,17 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
      *
      * @param $dataRecord The source OpenEMR data record
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDevice
     {
         $device = new FHIRDevice();
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         if (!empty($dataRecord['modifydate'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['modifydate']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['modifydate'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $device->setMeta($fhirMeta);
 
@@ -138,13 +148,212 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->deviceService->search($openEMRSearchParameters);
+    }
+
+    /**
+     * Parses a FHIR Device resource into the OpenEMR `lists`-table shape.
+     *
+     * FHIR Device.patient is a Patient reference resolved to pid in insertOpenEMRRecord.
+     * FHIR Device.type SNOMED coding maps to lists.diagnosis with the SNOMED-CT prefix
+     * convention used by the read side. UDI carrier identifier + HRF map to udi_data.di
+     * and lists.udi respectively. Manufacturer / lot / serial / expiration / manufactureDate
+     * land in udi_data.standard_elements to round-trip through the read side.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
+    {
+        if (!($fhirResource instanceof FHIRDevice)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRDevice resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        $resourceId = $json['id'] ?? null;
+        if (is_string($resourceId) && $resourceId !== '') {
+            $data['uuid'] = $resourceId;
+        }
+
+        // patient.reference -> puuid (resolved to pid downstream)
+        $patientRef = FhirPayloadReader::reference($json['patient'] ?? null);
+        if ($patientRef !== null) {
+            $patientUuid = UtilsService::parseReferenceString($patientRef, 'Patient')['uuid'] ?? null;
+            if (is_string($patientUuid) && $patientUuid !== '' && UuidRegistry::isValidStringUUID($patientUuid)) {
+                $data['puuid'] = $patientUuid;
+            }
+        }
+
+        // type.coding -> lists.diagnosis (SNOMED-CT:code) + lists.title (display)
+        $type = $json['type'] ?? null;
+        $typeText = FhirPayloadReader::getString($type, 'text');
+
+        // lists.diagnosis is written with a hardcoded SNOMED-CT: prefix, so only a coding that
+        // actually declares that system may fill it. Taking coding[0] regardless of system
+        // relabels a local or proprietary code as SNOMED and drops the real SNOMED code that
+        // may follow it -- type.coding is 0..* precisely so both can be sent.
+        $snomedCoding = [];
+        foreach (FhirPayloadReader::codings($type) as $coding) {
+            if (FhirPayloadReader::getString($coding, 'system') === FhirCodeSystemConstants::SNOMED_CT) {
+                $snomedCoding = $coding;
+                break;
+            }
+        }
+        if ($snomedCoding !== []) {
+            $code = FhirPayloadReader::getString($snomedCoding, 'code');
+            if ($code !== null) {
+                $data['diagnosis'] = 'SNOMED-CT:' . $code;
+            }
+        }
+
+        // The title is just a human label, so any coding's display will do for it.
+        $display = FhirPayloadReader::getString($snomedCoding, 'display')
+            ?? FhirPayloadReader::getString(FhirPayloadReader::firstCoding($type), 'display')
+            ?? $typeText;
+        if ($display !== null) {
+            $data['title'] = $display;
+        }
+
+        // udiCarrier[0]: deviceIdentifier -> udi_data.standard_elements.di, carrierHRF -> lists.udi
+        $udiCarrier = FhirPayloadReader::get($json['udiCarrier'] ?? null, 0);
+        $standardElements = [];
+        if (is_array($udiCarrier)) {
+            $deviceIdentifier = $udiCarrier['deviceIdentifier'] ?? null;
+            if (is_string($deviceIdentifier) && $deviceIdentifier !== '') {
+                $standardElements['di'] = $deviceIdentifier;
+            }
+            $carrierHRF = $udiCarrier['carrierHRF'] ?? null;
+            if (is_string($carrierHRF) && $carrierHRF !== '') {
+                $data['udi'] = $carrierHRF;
+            }
+        }
+
+        // Remaining standard_elements: companyName, manufacturingDate, expirationDate,
+        // lotNumber, serialNumber, donationId
+        // Both are FHIR dateTime. The read side re-emits whatever is stored, so validate
+        // here rather than letting a malformed value round-trip into the resource.
+        // toDateTimeImmutable() is used instead of toDbDate() so a legal value keeps any
+        // time component it carried; partial precision stays acceptable for a device.
+        $manufactureDate = $json['manufactureDate'] ?? null;
+        if (is_string($manufactureDate) && trim($manufactureDate) !== '') {
+            FhirDateTimeParser::toDateTimeImmutable($manufactureDate, 'Device.manufactureDate', true);
+            $standardElements['manufacturingDate'] = trim($manufactureDate);
+        }
+        $expirationDate = $json['expirationDate'] ?? null;
+        if (is_string($expirationDate) && trim($expirationDate) !== '') {
+            FhirDateTimeParser::toDateTimeImmutable($expirationDate, 'Device.expirationDate', true);
+            $standardElements['expirationDate'] = trim($expirationDate);
+        }
+        $lotNumber = $json['lotNumber'] ?? null;
+        if (is_string($lotNumber) && $lotNumber !== '') {
+            $standardElements['lotNumber'] = $lotNumber;
+        }
+        $serialNumber = $json['serialNumber'] ?? null;
+        if (is_string($serialNumber) && $serialNumber !== '') {
+            $standardElements['serialNumber'] = $serialNumber;
+        }
+        $distinctIdentifier = $json['distinctIdentifier'] ?? null;
+        if (is_string($distinctIdentifier) && $distinctIdentifier !== '') {
+            $standardElements['donationId'] = $distinctIdentifier;
+        }
+        // manufacturer (FHIR Device.manufacturer is a string)
+        $manufacturer = $json['manufacturer'] ?? null;
+        if (is_string($manufacturer) && $manufacturer !== '') {
+            $standardElements['companyName'] = $manufacturer;
+        }
+
+        if ($standardElements !== []) {
+            $data['udi_data'] = ['standard_elements' => $standardElements];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Resolves the FHIR Patient reference to internal pid, then delegates to DeviceService::insert.
+     *
+     * @param mixed $openEmrRecord The parsed record from parseFhirResource()
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        if (!is_array($openEmrRecord)) {
+            throw new \InvalidArgumentException('Expected a parsed OpenEMR Device record array');
+        }
+
+        $resolved = $this->resolvePatientId($openEmrRecord);
+        if ($resolved instanceof ProcessingResult) {
+            return $resolved;
+        }
+        return $this->deviceService->insert(FhirPayloadReader::stringKeyed($openEmrRecord));
+    }
+
+    /**
+     * @param string $fhirResourceId
+     * @param array<array-key, mixed> $updatedOpenEMRRecord
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        // Patient is not mutable on update; drop the resolved pid path so updates only touch fields the FHIR resource carries.
+        unset($updatedOpenEMRRecord['puuid']);
+        $result = $this->deviceService->update(
+            $fhirResourceId,
+            FhirPayloadReader::stringKeyed($updatedOpenEMRRecord)
+        );
+        if ($result->hasErrors() || !$result->hasData()) {
+            return $result;
+        }
+
+        // Read the device back through the search path rather than returning what update() built.
+        // It answers with the raw `lists` columns, and FhirServiceBase::update() feeds that row
+        // straight into parseOpenEMRRecord(), which reads puuid, code and udi_di -- none of which
+        // the raw row carries, because those are derived by
+        // DeviceService::createResultRecordFromDatabaseResult(). A successful PUT therefore came
+        // back as a Device with no patient, no type and no UDI. This is the same lookup the _id
+        // search parameter performs for a GET.
+        return $this->searchForOpenEMRRecords([
+            'uuid' => new TokenSearchField('uuid', [new TokenSearchValue($fhirResourceId, null, true)]),
+        ]);
+    }
+
+    /**
+     * Mutates $record in place: puuid -> pid. Returns a ProcessingResult on failure, null on success.
+     *
+     * @param array<array-key, mixed> $record
+     */
+    private function resolvePatientId(array &$record): ?ProcessingResult
+    {
+        $puuid = $record['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'patient' => 'FHIR Device requires a resolvable Patient reference',
+            ]);
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if (!is_numeric($pid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'patient' => 'Patient reference could not be resolved: ' . $puuid,
+            ]);
+            return $result;
+        }
+        $record['pid'] = (int) $pid;
+        unset($record['puuid']);
+        return null;
     }
 
     /**
@@ -175,9 +384,9 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [self::USCGI_PROFILE_URI];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

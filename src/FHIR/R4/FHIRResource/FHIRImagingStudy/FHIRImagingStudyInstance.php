@@ -213,7 +213,7 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -240,15 +240,13 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImagingStudyInstance xmlns="http://hl7.org/fhir"></ImagingStudyInstance>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ImagingStudyInstance xmlns="http://hl7.org/fhir"></ImagingStudyInstance>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->uid)) {
             $this->uid->xmlSerialize(true, $sxe->addChild('uid'));

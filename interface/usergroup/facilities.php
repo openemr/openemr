@@ -16,21 +16,20 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Facilities")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Facilities", xl("Facilities"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -69,7 +68,8 @@ $columns = [
     "oid" => true,
     "iban" => true,
     "info" => true,
-    "inactive" => true
+    "inactive" => true,
+    "organization_type" => true
 ];
 
 $values = [];
@@ -164,7 +164,7 @@ $(function () {
                             <th scope="col"><?php echo xlt('Name'); ?></th>
                             <th scope="col"><?php echo xlt('Tax ID'); ?></th>
                             <th scope="col"><?php echo xlt('NPI'); ?></th>
-                            <th scope="col"><?php echo xlt('Billing Address'); ?></th>
+                            <th scope="col"><?php echo xlt('Physical Address'); ?></th>
                             <th scope="col"><?php echo xlt('Mailing Address'); ?></th>
                             <th scope="col"><?php echo xlt('Phone'); ?></th>
                         </tr>
@@ -173,8 +173,8 @@ $(function () {
                         <?php
                         $fres = 0;
                         $fres = $facilityService->getAllFacility();
+                        $result2 = [];
                         if ($fres) {
-                            $result2 = array();
                             for ($iter3 = 0; $iter3 < count($fres); $iter3++) {
                                 $result2[$iter3] = $fres[$iter3];
                             }

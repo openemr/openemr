@@ -8,11 +8,13 @@
  * <http://www.nucc.org/index.php?option=com_content&view=article&id=186&Itemid=138>
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
- * @copyright Copyright (C) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (C) 2013 OEMR
+ * @copyright Copyright (C) 2017-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -28,30 +30,30 @@ class MiscBillingOptions
 
     public function __construct()
     {
-        $this->box_14_qualifier_options = array(
-          array(xl("Onset of Current Symptoms or Illness"),"431"),
-          array(xl("Last Menstrual Period"),"484")
-        );
+        $this->box_14_qualifier_options = [
+          [xl("Onset of Current Symptoms or Illness"),"431"],
+          [xl("Last Menstrual Period"),"484"]
+        ];
 
-        $this->box_15_qualifier_options = array(
-          array(xl("Initial Treatment"),"454"),
-          array(xl("Latest Visit or Consultation"),"304"),
-          array(xl("Acute Manifestation of a Chronic Condition"),"453"),
-          array(xl("Accident"),"439"),
-          array(xl("Last X-ray"),"455"),
-          array(xl("Prescription"),"471"),
-          array(xl("Report Start (Assumed Care Date)"),"090"),
-          array(xl("Report End (Relinquished Care Date)"),"091"),
-          array(xl("First Visit or Consultation"),"444")
-        );
+        $this->box_15_qualifier_options = [
+          [xl("Initial Treatment"),"454"],
+          [xl("Latest Visit or Consultation"),"304"],
+          [xl("Acute Manifestation of a Chronic Condition"),"453"],
+          [xl("Accident"),"439"],
+          [xl("Last X-ray"),"455"],
+          [xl("Prescription"),"471"],
+          [xl("Report Start (Assumed Care Date)"),"090"],
+          [xl("Report End (Relinquished Care Date)"),"091"],
+          [xl("First Visit or Consultation"),"444"]
+        ];
 
-        $this->hcfa_date_quals = array(
+        $this->hcfa_date_quals = [
           "box_14_date_qual" => $this->box_14_qualifier_options,
           "box_15_date_qual" => $this->box_15_qualifier_options
-        );
+        ];
     }
 
-    public function generateDateQualifierSelect($name, $options, $obj)
+    public function generateDateQualifierSelect(string $name, array $options, array $obj): void
     {
     /* ai generated code by google-labs-jules starts */
         $current_value = $obj[$name] ?? null;
@@ -61,7 +63,7 @@ class MiscBillingOptions
         if (empty($current_value)) {
             echo " selected";
         }
-        echo ">" . text(xl('-- Select --')) . "</option>";
+        echo ">" . xlt('-- Select --') . "</option>";
 
         for ($idx = 0; $idx < count($options); $idx++) {
             echo "<option value='" . attr($options[$idx][1]) . "'";
@@ -76,13 +78,35 @@ class MiscBillingOptions
         echo     "</select>";
     }
 
-    public function getReferringProviders()
+    /**
+     * The user id held in a provider column, or null when it names no provider.
+     *
+     * `users.id` starts at 1, and the Box 17 select posts an empty string when
+     * nothing is chosen, which an int column stores as 0. So 0, an empty value
+     * and anything non-numeric all mean "no provider".
+     */
+    public static function providerId(mixed $value): ?int
     {
-        $query = "SELECT id, lname, fname,npi FROM users WHERE npi != '' ORDER BY lname, fname";
+        if (is_int($value)) {
+            return $value > 0 ? $value : null;
+        }
+        if (is_string($value) && ctype_digit(trim($value))) {
+            $id = (int) trim($value);
+            return $id > 0 ? $id : null;
+        }
+        return null;
+    }
+
+    /**
+     * @return list<array<mixed>>
+     */
+    public function getReferringProviders(): array
+    {
+        $query = "SELECT id, lname, fname,npi FROM users WHERE npi != '' AND npi IS NOT NULL ORDER BY lname, fname";
         return QueryUtils::fetchRecords($query, []);
     }
 
-    public function genReferringProviderSelect($selname, $toptext, $default = 0, $disabled = false)
+    public function genReferringProviderSelect(string $selname, string $toptext, ?int $default = null, bool $disabled = false): void
     {
         $providers = $this->getReferringProviders();
         echo "<select name='" . attr($selname) . "' id='" . attr($selname) . "' class='form-control'";
@@ -95,7 +119,7 @@ class MiscBillingOptions
         foreach ($providers as $row) {
             $provid = $row['id'];
             echo "<option value='" . attr($provid) . "'";
-            if ($provid == $default) {
+            if ($default !== null && $provid == $default) {
                 echo " selected";
             }
 
@@ -105,13 +129,13 @@ class MiscBillingOptions
         echo "</select>\n";
     }
 
-    public function getOrderingProviders()
+    public function getOrderingProviders(): array
     {
         $query = "SELECT id, lname, fname,npi FROM users WHERE npi != '' ORDER BY lname, fname";
         return QueryUtils::fetchRecords($query, []);
     }
 
-    public function genOrderingProviderSelect($selname, $toptext, $default = 0, $disabled = false)
+    public function genOrderingProviderSelect(string $selname, string $toptext, ?int $default = null, bool $disabled = false): void
     {
         $orderingProviders = $this->getOrderingProviders();
         echo "<select name='" . attr($selname) . "' id='" . attr($selname) . "' class='form-control'";
@@ -124,7 +148,7 @@ class MiscBillingOptions
         foreach ($orderingProviders as $row) {
             $provid = $row['id'];
             echo "<option value='" . attr($provid) . "'";
-            if ($provid == $default) {
+            if ($default !== null && $provid == $default) {
                 echo " selected";
             }
 
@@ -134,9 +158,20 @@ class MiscBillingOptions
         echo "</select>\n";
     }
 
-    public function qual_id_to_description($qual_type, $value)
+    public function qual_id_to_description(string $qual_type, string $value): ?string
     {
+        // Return null if qual_type doesn't exist
+        if (!isset($this->hcfa_date_quals[$qual_type])) {
+            return null;
+        }
+
         $options = $this->hcfa_date_quals[$qual_type];
+
+        // Return null if options is not an array (shouldn't happen, but type-safe)
+        if (!is_array($options)) {
+            return null;
+        }
+
         for ($idx = 0; $idx < count($options); $idx++) {
             if ($options[$idx][1] == $value) {
                 return $options[$idx][0];

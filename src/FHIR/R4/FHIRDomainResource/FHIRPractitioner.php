@@ -120,7 +120,7 @@ Work addresses are not typically entered in this property as they are usually ro
     public $photo = [];
 
     /**
-     * The official certifications, training, and licenses that authorize or otherwise pertain to the provision of care by the practitioner.  For example, a medical license issued by a medical board authorizing the practitioner to practice medicine within a certian locality.
+     * The official certifications, training, and licenses that authorize or otherwise pertain to the provision of care by the practitioner.  For example, a medical license issued by a medical board authorizing the practitioner to practice medicine within a certain locality.
      * @var \OpenEMR\FHIR\R4\FHIRResource\FHIRPractitioner\FHIRPractitionerQualification[]
      */
     public $qualification = [];
@@ -299,7 +299,7 @@ Work addresses are not typically entered in this property as they are usually ro
     }
 
     /**
-     * The official certifications, training, and licenses that authorize or otherwise pertain to the provision of care by the practitioner.  For example, a medical license issued by a medical board authorizing the practitioner to practice medicine within a certian locality.
+     * The official certifications, training, and licenses that authorize or otherwise pertain to the provision of care by the practitioner.  For example, a medical license issued by a medical board authorizing the practitioner to practice medicine within a certain locality.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPractitioner\FHIRPractitionerQualification[]
      */
     public function getQualification()
@@ -308,7 +308,7 @@ Work addresses are not typically entered in this property as they are usually ro
     }
 
     /**
-     * The official certifications, training, and licenses that authorize or otherwise pertain to the provision of care by the practitioner.  For example, a medical license issued by a medical board authorizing the practitioner to practice medicine within a certian locality.
+     * The official certifications, training, and licenses that authorize or otherwise pertain to the provision of care by the practitioner.  For example, a medical license issued by a medical board authorizing the practitioner to practice medicine within a certain locality.
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPractitioner\FHIRPractitionerQualification $qualification
      * @return $this
      */
@@ -433,7 +433,7 @@ Work addresses are not typically entered in this property as they are usually ro
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -500,15 +500,13 @@ Work addresses are not typically entered in this property as they are usually ro
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Practitioner xmlns="http://hl7.org/fhir"></Practitioner>');
-        }
+        $sxe ??= new \SimpleXMLElement('<Practitioner xmlns="http://hl7.org/fhir"></Practitioner>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

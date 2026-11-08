@@ -5,7 +5,7 @@
  * and sort the ccda xml according to the preferences provided.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -35,12 +35,12 @@ class CcdaUserPreferencesTransformer
      * @param int|null $maxSections The maximum number of sections to display, null or 0 for unlimited
      * @param array $sortPreferences map of templateDocumentOids to array of section oids where the order of the array is the sort preference for the document
      */
-    public function __construct($maxSections = null, $sortPreferences = array())
+    public function __construct($maxSections = null, $sortPreferences = [])
     {
         // TODO: @adunsulag remove these defaults
             $this->maxSections = intval($maxSections ?? 0);
 
-        $this->sortPreferences = $sortPreferences ?? array();
+        $this->sortPreferences = $sortPreferences ?? [];
         if (isset($this->sortPreferences['default'])) {
             $this->defaultSortPreferences = $this->sortPreferences['default'] ?? [];
             unset($this->sortPreferences['default']);
@@ -73,11 +73,17 @@ class CcdaUserPreferencesTransformer
         $structuredBodies = $xpath->query($query);
 
         foreach ($structuredBodies as $body) {
+            if (!$body instanceof \DOMElement) {
+                continue;
+            }
             if (!empty($sortedSections)) {
                 foreach ($sortedSections as $section) {
                     $foundSectionNodes = $xpath->query("n1:component[n1:section/n1:templateId/@root = '" . $section . "']", $body);
                     if ($foundSectionNodes !== false && $foundSectionNodes->length > 0) {
                         foreach ($foundSectionNodes as $node) {
+                            if (!$node instanceof \DOMNode) {
+                                continue;
+                            }
                             // if our found node is already the first child we will just leave it alone and skip over.
                             if ($node !== $body->firstChild) {
                                 // if firstChild is empty it will just append
@@ -93,7 +99,11 @@ class CcdaUserPreferencesTransformer
                 // component sections until we get to our max number of nodes
                 if ($body->childElementCount && $body->childElementCount > $maxChildren) {
                     for ($i = $body->childElementCount; $i > $maxChildren; --$i) {
-                        $body->removeChild($body->lastElementChild);
+                        $lastElement = $body->lastElementChild;
+                        if ($lastElement === null) {
+                            break;
+                        }
+                        $body->removeChild($lastElement);
                     }
                 }
             }

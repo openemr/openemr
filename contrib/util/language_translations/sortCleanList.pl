@@ -51,13 +51,13 @@ close(MYINPUTFILE);
 
 # remove blankl lines, windows characters, and chomp it
 my @processInputList1;
-foreach my $var (@inputList) { 
+foreach my $var (@inputList) {
  chomp($var);
  # remove ^M characters (windows line feeds)
  $var =~ s/\r//g;
  # skip blank lines
  if ($var eq "") {
-  next;    
+  next;
  }
  # push into new array
  push(@processInputList1,$var);
@@ -70,7 +70,7 @@ foreach my $var (@processInputList1) {
   print LOGFILE "Redundant variable removed: " . $var . "\n";
  }
  else {
-  push (@processInputList2, $var);   
+  push (@processInputList2, $var);
  }
 }
 

@@ -4,7 +4,7 @@
  * View is a mustache helper trait with various helper methods for dealing with medication frequencies.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -25,13 +25,11 @@ trait View
     {
         // Limit the pollution of the context by only passing the values we need
         return array_map(
-            function ($measure) {
-                return [
-                    'hqmf_id' => $measure['hqmf_id'] ?? null,
-                    'hqmf_set_id' => $measure['hqmf_set_id'] ?? null,
-                    'description' => $measure['description'] ?? null
-                ];
-            },
+            fn($measure): array => [
+                'hqmf_id' => $measure['hqmf_id'] ?? null,
+                'hqmf_set_id' => $measure['hqmf_set_id'] ?? null,
+                'description' => $measure['description'] ?? null
+            ],
             $this->_measures
         );
     }
@@ -46,7 +44,7 @@ trait View
         return $context->get('value');
     }
 
-    public function object_id()
+    public function object_id(): string
     {
         return substr(sha1(random_bytes(512)), -24);
     }

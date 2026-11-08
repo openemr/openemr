@@ -19,19 +19,19 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 // Denominator:
 // Reporting period start and end date
 // Prescription written for drugs requiring a prescription in order to be dispensed(including controlled substance)
 class AMC_304b_1_STG2_Denominator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304b_1_STG2 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         return true;
     }

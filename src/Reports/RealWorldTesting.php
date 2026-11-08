@@ -14,8 +14,8 @@ namespace OpenEMR\Reports;
 
 class RealWorldTesting
 {
-    private string $beginDate;
-    private string $endDate;
+    private readonly string $beginDate;
+    private readonly string $endDate;
 
     public function __construct(string $beginDate, string $endDate)
     {
@@ -123,7 +123,7 @@ class RealWorldTesting
                 $countSuccess++;
                 if (!empty($row['user_id'])) {
                     $countUser++;
-                } else if (!empty($row['patient_id'])) {
+                } elseif (!empty($row['patient_id'])) {
                     $countPatient++;
                 }
                 if (!empty($row['request'])) {

@@ -1,0 +1,85 @@
+##
+# Scheduled nightly test run with full coverage
+#
+# Runs all test configurations daily with coverage enabled for all.
+# This moves coverage collection off PRs to reduce CI time on pull requests.
+#
+# Schedule: 11:23 UTC (6:23am EST / 7:23am EDT)
+#
+# The org shares one pool of concurrent hosted-runner jobs. Merges to master
+# cluster around 05:00-07:00 UTC, and each push runs the full matrix, so the
+# runner queue takes until mid-morning UTC to drain. Starting this 119-job run
+# after the drain keeps it from stacking on that backlog and delaying PRs.
+# The odd minute avoids GitHub's top-of-hour scheduling delays.
+
+name: Test (Scheduled)
+
+on:
+  schedule:
+    # 11:23 UTC = 6:23 AM EST / 7:23 AM EDT
+  - cron: 23 11 * * *
+  workflow_dispatch:
+    inputs:
+      enable_coverage:
+        description: Enable coverage collection for all configurations
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v7
+
+    - name: Check Codecov flags
+      # Every CI config needs its own Codecov flag (see ci/codecov_flags.sh).
+      run: |
+        shopt -s nullglob
+        shopt -s extglob
+        dirs=( ci/!(compose-shared-*)/docker-compose.yml )
+        dirs=( "${dirs[@]%/docker-compose.yml}" )
+        dirs=( "${dirs[@]#ci/}" )
+        ci/parse_docker_dir.sh "${dirs[@]}" | ci/codecov_flags.sh
+
+    - name: Collect Docker Dirs
+      id: docker-dirs
+      ##
+      # Collect the docker directory names from ci subdirectories
+      # and compute display names for each configuration.
+      run: |
+        shopt -s nullglob
+        shopt -s extglob
+        # Remove compose-shared-* from the list
+        dirs=( ci/!(compose-shared-*)/docker-compose.yml )
+        dirs=( "${dirs[@]%/docker-compose.yml}" )
+        dirs=( "${dirs[@]#ci/}" )
+        ci/parse_docker_dir.sh "${dirs[@]}" |
+          jq -rc 'map({
+            docker_dir: .output.docker_dir,
+            php: .output.php,
+            display_name: ("PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)" + (if .output.redis_sentinel_enabled == "true" then (" - Redis Sentinel" + (if (.output.docker_dir | endswith("_mtls")) then " mTLS" elif (.output.docker_dir | endswith("_tls")) then " TLS" else "" end)) else "" end) + (if (.output.docker_dir | endswith("_upgrade")) then " - Upgrade from 5.0.0" else "" end)),
+            save_composer_cache: .output.save_composer_cache,
+            save_node_cache: .output.save_node_cache
+          }) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
+    outputs:
+      configs: ${{ steps.docker-dirs.outputs.configs }}
+  build:
+    name: ${{ matrix.config.display_name }}
+    needs: collect
+    strategy:
+      fail-fast: false
+      matrix:
+        config: ${{ fromJson(needs.collect.outputs.configs) }}
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+    with:
+      docker_dir: ${{ matrix.config.docker_dir }}
+      display_name: ${{ matrix.config.display_name }}
+      enable_coverage: ${{ github.event_name == 'schedule' || inputs.enable_coverage }}
+      save_composer_cache: ${{ matrix.config.save_composer_cache == 'true' }}
+      save_node_cache: ${{ matrix.config.save_node_cache == 'true' }}

@@ -301,7 +301,7 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -349,15 +349,13 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<NutritionOrderOralDiet xmlns="http://hl7.org/fhir"></NutritionOrderOralDiet>');
-        }
+        $sxe ??= new \SimpleXMLElement('<NutritionOrderOralDiet xmlns="http://hl7.org/fhir"></NutritionOrderOralDiet>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->type)) {
             foreach ($this->type as $type) {

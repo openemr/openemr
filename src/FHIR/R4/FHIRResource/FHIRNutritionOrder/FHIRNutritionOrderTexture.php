@@ -155,7 +155,7 @@ class FHIRNutritionOrderTexture extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -176,15 +176,13 @@ class FHIRNutritionOrderTexture extends FHIRBackboneElement implements \JsonSeri
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<NutritionOrderTexture xmlns="http://hl7.org/fhir"></NutritionOrderTexture>');
-        }
+        $sxe ??= new \SimpleXMLElement('<NutritionOrderTexture xmlns="http://hl7.org/fhir"></NutritionOrderTexture>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->modifier)) {
             $this->modifier->xmlSerialize(true, $sxe->addChild('modifier'));

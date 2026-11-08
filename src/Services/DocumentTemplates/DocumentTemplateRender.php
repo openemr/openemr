@@ -7,7 +7,7 @@
  * Greatly expanded from a core feature by Rod Roark for portal.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -21,16 +21,20 @@ namespace OpenEMR\Services\DocumentTemplates;
 
 use HTMLPurifier;
 use HTMLPurifier_Config;
-use RuntimeException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
+use Psr\Log\LoggerInterface;
+use RuntimeException;
 
-require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/appointments.inc.php');
+require_once($srcDir . '/options.inc.php');
 
 class DocumentTemplateRender
 {
-    private $pid;
     private $user;
     private int $nextLocation = 0; // offset to resume scanning
     private mixed $keyLocation = false; // offset of a potential {string} to replace
@@ -48,17 +52,27 @@ class DocumentTemplateRender
     private int $ta_cnt = -1;
     private int $signed_cnt = -1;
     private bool $html_flag = false;
-    private mixed $encounter;
+    private readonly mixed $encounter;
     public $version;
-    private DocumentTemplateService $templateService;
+    private readonly DocumentTemplateService $templateService;
+    private readonly LoggerInterface $logger;
 
-    public function __construct($pid, $user, $encounter = null)
+    /**
+     * The constructor $pid is loosely typed for back-compat with callers that
+     * pass it as a string or null; this is the narrowed int form used for
+     * patient-scoped template lookups.
+     */
+    private readonly int $pidInt;
+
+    public function __construct(private $pid, $user, $encounter = null, ?LoggerInterface $logger = null)
     {
-        $this->pid = $pid;
-        $this->user = $user ?: $_SESSION['authUserID'] ?? 0;
-        $this->encounter = $encounter ?: $GLOBALS['encounter'];
-        $this->version = (new VersionService())->asString();
+        $this->pidInt = is_numeric($pid) ? (int) $pid : 0;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->user = $user ?: $session->get('authUserID', 0);
+        $this->encounter = $encounter ?: OEGlobalsBag::getInstance()->get('encounter');
+        $this->version = (string) (new VersionService())->getSoftwareVersion();
         $this->templateService = new DocumentTemplateService();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**
@@ -73,23 +87,27 @@ class DocumentTemplateRender
     {
         $formData = [];
         // Get patient demographic info. pd.ref_providerID
-        $this->ptrow = sqlQuery("SELECT pd.*, " . "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, ur.title AS ur_title, ur.specialty AS ur_specialty " . "FROM patient_data AS pd " . "LEFT JOIN users AS ur ON ur.id = ? " . "WHERE pd.pid = ?", array($this->user, $this->pid));
+        $this->ptrow = sqlQuery("SELECT pd.*, " . "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, ur.title AS ur_title, ur.specialty AS ur_specialty " . "FROM patient_data AS pd " . "LEFT JOIN users AS ur ON ur.id = ? " . "WHERE pd.pid = ?", [$this->user, $this->pid]);
 
-        $this->hisrow = sqlQuery("SELECT * FROM history_data WHERE pid = ? " . "ORDER BY date DESC LIMIT 1", array(
+        $this->hisrow = sqlQuery("SELECT * FROM history_data WHERE pid = ? " . "ORDER BY date DESC LIMIT 1", [
             $this->pid
-        ));
+        ]);
 
-        $this->enrow = array();
+        $this->enrow = [];
         // Get some info for the currently selected encounter.
         if ($this->encounter) {
-            $this->enrow = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND " . "encounter = ?", array(
+            $this->enrow = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND " . "encounter = ?", [
                 $this->pid,
                 $this->encounter
-            ));
+            ]);
         }
-        // From database
+        // From database — fetch scoped to the renderer's bound patient.
         if (!empty($template_id)) {
-            $template = $this->templateService->fetchTemplate($template_id)['template_content'];
+            $row = $this->templateService->fetchTemplateForPatient($template_id, $this->pidInt);
+            if (!is_array($row)) {
+                throw new RuntimeException(xlt("Template not available for this patient."));
+            }
+            $template = $row['template_content'];
         } elseif (!empty($template_content)) {
             $template = $template_content;
         } else {
@@ -98,7 +116,7 @@ class DocumentTemplateRender
         if ($json_data) {
             // prepare and include data array from form data by javascript
             // of format [{"name":"","value":"","type":""}] for PHP rendering.
-            $jsData = json_decode($json_data, true);
+            $jsData = json_decode((string) $json_data, true);
             foreach ($jsData as $e) {
                 $formData[$e['name']] = $e['value'] ?? '';
             }
@@ -110,16 +128,15 @@ class DocumentTemplateRender
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
-        $purifyTempFile = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
+        $purifyTempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . DIRECTORY_SEPARATOR . 'htmlpurifier';
         if (
-            !file_exists($purifyTempFile) &&
-            !is_dir($purifyTempFile)
+            !is_dir($purifyTempDir)
         ) {
-            if (!mkdir($purifyTempFile)) {
-                (new SystemLogger())->error("Could not create directory ", [$purifyTempFile]);
+            if (!mkdir($purifyTempDir, 0700, true)) {
+                $this->logger->error("Could not create directory ", [$purifyTempDir]);
             }
         }
-        $config->set('Cache.SerializerPath', $purifyTempFile);
+        $config->set('Cache.SerializerPath', $purifyTempDir);
         $config->set('Core.Encoding', 'UTF-8');
         $purify = new HTMLPurifier($config);
         $edata = $purify->purify($template);
@@ -130,7 +147,7 @@ class DocumentTemplateRender
         // do the substitutions (ie. magic)
         $edata = $this->doSubs($edata, $formData);
         if (!$isLegacy) {
-            // ony inserts when a new template is fetched.
+            // only inserts when a new template is fetched.
             $edata .= "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
         }
         if ($this->html_flag) { // return raw minified html template
@@ -154,7 +171,7 @@ class DocumentTemplateRender
         $this->groupLevel = 0;
         $this->groupCount = 0;
 
-        while (($this->keyLocation = strpos($s, '{', $this->nextLocation)) !== false) {
+        while (($this->keyLocation = strpos((string) $s, '{', $this->nextLocation)) !== false) {
             $this->nextLocation = $this->keyLocation + 1;
 
             if ($this->keySearch($s, '{PatientSignature}')) {
@@ -172,25 +189,25 @@ class DocumentTemplateRender
             } elseif ($this->keySearch($s, '{SignaturesRequired}')) {
                 $sigfld = '<script>page.signaturesRequired=true;var signMsg=' . xlj("A signature is required for this document. Please sign document where required") . ';</script>' . "\n";
                 $s = $this->keyReplace($s, $sigfld);
-            } elseif (preg_match('/^{(Questionnaire):(.*)}/', substr($s, $this->keyLocation), $matches)) {
+            } elseif (preg_match('/^{(Questionnaire):(.*)}/', substr((string) $s, $this->keyLocation), $matches)) {
                 $q_id = $matches[2];
                 $this->keyLength = strlen($matches[0]);
                 $src = $formData['encounterForm'] ?? '';
                 $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
-                $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
+                $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($this->sanitizeIframeSrc($src)) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);
-            } elseif (preg_match('/^{(QuestionnaireURLLoinc)\|(.*)\|(.*)\|(.*)}/', substr($s, $this->keyLocation), $matches)) {
+            } elseif (preg_match('/^{(QuestionnaireURLLoinc)\|(.*)\|(.*)\|(.*)}/', substr((string) $s, $this->keyLocation), $matches)) {
                 // deprecated 09/23/2022 Unsure this directive is useful!
                 $q_url = $matches[3];
                 $form_id = $matches[4];
                 $form_name = $matches[2];
                 $this->keyLength = strlen($matches[0]);
                 $src = './../questionnaire_template.php?isPortal=1&type=loinc_form&name=' . urlencode($form_name) . '&url=' . urlencode($q_url) . '&form_code=' . urlencode($form_id);
-                $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
-                $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
+                $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($form_name) . "</script>";
+                $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($this->sanitizeIframeSrc($src)) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);
             }
-            if (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr($s, $this->keyLocation), $matches)) {
+            if (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr((string) $s, $this->keyLocation), $matches)) {
                 $this->keyLength = strlen($matches[0]);
                 $formname = $matches[2];
                 $form_id = null;
@@ -199,8 +216,12 @@ class DocumentTemplateRender
                     $formname = '';
                 }
                 $formtitle = text($formname . ' ' . $matches[3]);
-                $content_fetch = $this->templateService->fetchTemplate($form_id, $formname)['template_content'];
-                $content = 'data:application/pdf;base64,' . base64_encode($content_fetch);
+                $pdfRow = $this->templateService->fetchTemplateForPatient($form_id, $this->pidInt);
+                if (!is_array($pdfRow)) {
+                    throw new RuntimeException(xlt("Template not available for this patient."));
+                }
+                $content_fetch = $pdfRow['template_content'] ?? '';
+                $content = 'data:application/pdf;base64,' . base64_encode((string) $content_fetch);
                 $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
                 $sigfld .= "<div class='d-none' id='showPdf'>\n";
                 $sigfld .= "<object data='$content' name='object_pdf'" . ++$this->obj_cnt . " type='application/pdf' width='100%' height='675em'></object>\n";
@@ -219,14 +240,14 @@ class DocumentTemplateRender
             } elseif ($this->keySearch($s, '{styleBlockEnd}')) {
                 $sigfld = "</style>";
                 $s = $this->keyReplace($s, $sigfld);
-            } elseif (preg_match('/^\{(EncounterForm):(\w+)\}/', substr($s, $this->keyLocation), $matches)) {
+            } elseif (preg_match('/^\{(EncounterForm):(\w+)\}/', substr((string) $s, $this->keyLocation), $matches)) {
                 $formname = $matches[2];
                 $this->keyLength = strlen($matches[0]);
                 $src = $formData['encounterForm'] ?? '';
                 $sigfld = "<script>page.isFrameForm=1;page.encounterFormName=" . js_escape($formname) . "</script>";
-                $sigfld .= "<iframe id='encounterForm' class='lbfFrame' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
+                $sigfld .= "<iframe id='encounterForm' class='lbfFrame' style='height:100vh;width:100%;border:0;' src='" . attr($this->sanitizeIframeSrc($src)) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);
-            } elseif (preg_match('/^\{(TextBox):([0-9][0-9])x([0-9][0-9][0-9])\}/', substr($s, $this->keyLocation), $matches)) {
+            } elseif (preg_match('/^\{(TextBox):([0-9][0-9])x([0-9][0-9][0-9])\}/', substr((string) $s, $this->keyLocation), $matches)) {
                 $rows = $matches[2];
                 $cols = $matches[3];
                 $this->keyLength = strlen($matches[0]);
@@ -250,7 +271,7 @@ class DocumentTemplateRender
                 $sigfld .= '<input class="templateInput" type="text" style="margin:2px 2px;max-width:50px;" name="text_input' . ++$this->inputs_cnt . '"  value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
-            } elseif (preg_match('/^\{(sizedTextInput):(\w+)\}/', substr($s, $this->keyLocation), $matches)) {
+            } elseif (preg_match('/^\{(sizedTextInput):(\w+)\}/', substr((string) $s, $this->keyLocation), $matches)) {
                 $len = $matches[2];
                 $this->keyLength = strlen($matches[0]);
                 $sigfld = '<span class="m-1">';
@@ -305,7 +326,7 @@ class DocumentTemplateRender
                     '</label>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
-            } elseif (preg_match('/^\{(RadioGroup):([\w\s]+)\}/', substr($s, $this->keyLocation), $matches)) {
+            } elseif (preg_match('/^\{(RadioGroup):([\w\s]+)\}/', substr((string) $s, $this->keyLocation), $matches)) {
                 // matches {RadioGroup:caption1_caption2_caption3}
                 $this->keyLength = 3 + strlen($matches[1]) + strlen($matches[2]);
                 $matchesArr = explode('_', $matches[2]);
@@ -321,7 +342,7 @@ class DocumentTemplateRender
                 }
                 $sigfld .= '</div>';
                 $s = $this->keyReplace($s, $sigfld);
-            } elseif (preg_match('/^\{(RadioGroupInline):([\w\s]+)\}/', substr($s, $this->keyLocation), $matches)) {
+            } elseif (preg_match('/^\{(RadioGroupInline):([\w\s]+)\}/', substr((string) $s, $this->keyLocation), $matches)) {
                 // matches {RadioGroupInline:caption1_caption2_caption3}
                 $this->keyLength = 3 + strlen($matches[1]) + strlen($matches[2]);
                 $matchesArr = explode('_', $matches[2]);
@@ -363,20 +384,14 @@ class DocumentTemplateRender
             } elseif ($this->keySearch($s, '{Zip}')) {
                 $s = $this->keyReplace($s, $this->dataFixup($this->ptrow['postal_code'], xl('Postal Code')));
             } elseif ($this->keySearch($s, '{PatientPhone}')) {
-                $ptphone = $this->ptrow['phone_contact'];
-                if (empty($ptphone)) {
-                    $ptphone = $this->ptrow['phone_home'];
-                }
-                if (empty($ptphone)) {
-                    $ptphone = $this->ptrow['phone_cell'];
-                }
-                if (empty($ptphone)) {
-                    $ptphone = $this->ptrow['phone_biz'];
-                }
-                if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $ptphone, $tmp)) {
-                    $ptphone = '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
-                }
-                $s = $this->keyReplace($s, $this->dataFixup($ptphone, xl('Phone')));
+                $ptphone = (string) (
+                    $this->ptrow['phone_contact']
+                    ?: $this->ptrow['phone_home']
+                    ?: $this->ptrow['phone_cell']
+                    ?: $this->ptrow['phone_biz']
+                    ?: ''
+                );
+                $s = $this->keyReplace($s, $this->dataFixup(PhoneNumberService::tryFormatPhone($ptphone), xl('Phone')));
             } elseif ($this->keySearch($s, '{PatientDOB}')) {
                 $s = $this->keyReplace($s, $this->dataFixup(oeFormatShortDate($this->ptrow['DOB']), xl('Birth Date')));
             } elseif ($this->keySearch($s, '{PatientSex}')) {
@@ -391,9 +406,9 @@ class DocumentTemplateRender
                 }
                 $cc = $this->enrow['reason'];
                 $patientid = $this->ptrow['pid'];
-                $DOS = substr($this->enrow['date'], 0, 10);
+                $DOS = substr((string) $this->enrow['date'], 0, 10);
                 // Prefer appointment comment if one is present.
-                $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, array($patientid));
+                $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($patientid)]);
                 foreach ($evlist as $tmp) {
                     if ($tmp['pc_pid'] == $this->pid && !empty($tmp['pc_hometext'])) {
                         $cc = $tmp['pc_hometext'];
@@ -416,10 +431,10 @@ class DocumentTemplateRender
                 }
                 $s = $this->keyReplace($s, $this->dataFixup($tmp, xl('Referer')));
             } elseif ($this->keySearch($s, '{Allergies}')) {
-                $tmp = generate_plaintext_field(array(
+                $tmp = generate_plaintext_field([
                     'data_type' => '24',
                     'list_id' => ''
-                ), '');
+                ], '');
                 $s = $this->keyReplace($s, $this->dataFixup($tmp, xl('Allergies')));
             } elseif ($this->keySearch($s, '{Medications}')) {
                 $s = $this->keyReplace($s, $this->dataFixup($this->getIssues('medication'), xl('Medications')));
@@ -436,14 +451,14 @@ class DocumentTemplateRender
                     --$this->groupLevel;
                 }
                 $s = $this->keyReplace($s, '');
-            } elseif (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr($s, $this->keyLocation), $matches)) {
+            } elseif (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr((string) $s, $this->keyLocation), $matches)) {
                 // This is how we specify the separator between group items in a way that
                 // is independent of the document format. Whatever is between {ITEMSEP} and
                 // {/ITEMSEP} is the separator string. Default is "; ".
                 $itemSeparator = $matches[1];
                 $this->keyLength = strlen($matches[0]);
                 $s = $this->keyReplace($s, '');
-            } elseif (preg_match('/^\{(LBF\w+):(\w+)\}/', substr($s, $this->keyLocation), $matches)) {
+            } elseif (preg_match('/^\{(LBF\w+):(\w+)\}/', substr((string) $s, $this->keyLocation), $matches)) {
                 // This handles keys like {LBFxxx:fieldid} for layout-based encounter forms.
                 $formname = $matches[1];
                 $fieldid = $matches[2];
@@ -451,17 +466,17 @@ class DocumentTemplateRender
                 $data = '';
                 $currvalue = '';
                 $title = '';
-                $frow = sqlQuery("SELECT * FROM layout_options " . "WHERE form_id = ? AND field_id = ? LIMIT 1", array(
+                $frow = sqlQuery("SELECT * FROM layout_options " . "WHERE form_id = ? AND field_id = ? LIMIT 1", [
                     $formname,
                     $fieldid
-                ));
+                ]);
                 if (!empty($frow)) {
-                    $ldrow = sqlQuery("SELECT ld.field_value " . "FROM lbf_data AS ld, forms AS f WHERE " . "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " . "ld.form_id = f.form_id AND ld.field_id = ? " . "ORDER BY f.form_id DESC LIMIT 1", array(
+                    $ldrow = sqlQuery("SELECT ld.field_value " . "FROM lbf_data AS ld, forms AS f WHERE " . "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " . "ld.form_id = f.form_id AND ld.field_id = ? " . "ORDER BY f.form_id DESC LIMIT 1", [
                         $this->pid,
                         $this->encounter,
                         $formname,
                         $fieldid
-                    ));
+                    ]);
                     if (!empty($ldrow)) {
                         $currvalue = $ldrow['field_value'];
                         $title = $frow['title'];
@@ -471,7 +486,7 @@ class DocumentTemplateRender
                     }
                 }
                 $s = $this->keyReplace($s, $this->dataFixup($data, $title));
-            } elseif (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $this->keyLocation), $matches)) {
+            } elseif (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr((string) $s, $this->keyLocation), $matches)) {
                 // This handles keys like {DEM:fieldid} and {HIS:fieldid}.
                 $formname = $matches[1];
                 $fieldid = $matches[2];
@@ -479,10 +494,10 @@ class DocumentTemplateRender
                 $data = '';
                 $currvalue = '';
                 $title = '';
-                $frow = sqlQuery("SELECT * FROM layout_options " . "WHERE form_id = ? AND field_id = ? LIMIT 1", array(
+                $frow = sqlQuery("SELECT * FROM layout_options " . "WHERE form_id = ? AND field_id = ? LIMIT 1", [
                     $formname,
                     $fieldid
-                ));
+                ]);
                 if (!empty($frow)) {
                     $tmprow = $formname == 'DEM' ? $this->ptrow : $this->hisrow;
                     if (isset($tmprow[$fieldid])) {
@@ -494,7 +509,7 @@ class DocumentTemplateRender
                     }
                 }
                 $s = $this->keyReplace($s, $this->dataFixup($data, $title));
-            } elseif (preg_match('/^{(CurrentDate):(.*?)}/', substr($s, $this->keyLocation), $matches)) {
+            } elseif (preg_match('/^{(CurrentDate):(.*?)}/', substr((string) $s, $this->keyLocation), $matches)) {
                 /* defaults to ISO standard date format yyyy-mm-dd
                  * modified by string following ':' as follows
                  * 'global' will use the global date format setting
@@ -512,7 +527,7 @@ class DocumentTemplateRender
                     /* use global setting */
                     $currentdate = oeFormatShortDate(date('Y-m-d'), true);
                 } elseif (
-                    /* there's an overiding format */
+                    /* there's an overriding format */
                     preg_match('/YYYY-MM-DD/i', $matched, $matches)
                 ) {
                     /* nothing to do here as this is the default format */
@@ -545,12 +560,12 @@ class DocumentTemplateRender
      */
     private function keySearch($s, $key): bool
     {
-        $this->keyLength = strlen($key);
+        $this->keyLength = strlen((string) $key);
         if ($this->keyLength == 0) {
             return false;
         }
 
-        return $key == substr($s, $this->keyLocation, $this->keyLength);
+        return $key == substr((string) $s, $this->keyLocation, $this->keyLength);
     }
 
     /**
@@ -563,8 +578,8 @@ class DocumentTemplateRender
      */
     private function keyReplace($s, $data): string
     {
-        $this->nextLocation = $this->keyLocation + strlen($data);
-        return substr($s, 0, $this->keyLocation) . $data . substr($s, $this->keyLocation + $this->keyLength);
+        $this->nextLocation = $this->keyLocation + strlen((string) $data);
+        return substr((string) $s, 0, $this->keyLocation) . $data . substr((string) $s, $this->keyLocation + $this->keyLength);
     }
 
     /**
@@ -606,10 +621,10 @@ class DocumentTemplateRender
     private function getIssues($type): string
     {
         $tmp = '';
-        $lres = sqlStatement("SELECT title, comments FROM lists WHERE " . "pid = ? AND type = ? AND enddate IS NULL " . "ORDER BY begdate", array(
-            $GLOBALS['pid'],
+        $lres = sqlStatement("SELECT title, comments FROM lists WHERE " . "pid = ? AND type = ? AND enddate IS NULL " . "ORDER BY begdate", [
+            OEGlobalsBag::getInstance()->get('pid'),
             $type
-        ));
+        ]);
         while ($lrow = sqlFetchArray($lres)) {
             if ($tmp) {
                 $tmp .= '; ';
@@ -639,7 +654,10 @@ class DocumentTemplateRender
     {
         $isFetchById = is_numeric($template_id);
         if (!empty($template_id) && $source == 'new') {
-            $return = $this->templateService->fetchTemplate($template_id);
+            $return = $this->templateService->fetchTemplateForPatient($template_id, $this->pidInt);
+            if (!is_array($return)) {
+                throw new RuntimeException(xlt("Template not available for this patient."));
+            }
             $template = $return['template_content'];
             if ($render) {
                 $template = $this->doRender(null, $return['template_content']);
@@ -647,10 +665,12 @@ class DocumentTemplateRender
             }
         } elseif (!empty($template_id) && $source == 'exists') {
             if ($isFetchById) {
-                $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `id` = ?', array($template_id));
+                $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `id` = ?', [$template_id]);
             } else { // by name
-                $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `file_name` = ?', array($template_id));
-                $template = $return['full_document'];
+                $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `file_name` = ?', [$template_id]);
+            }
+            if (!is_array($return)) {
+                throw new RuntimeException(xlt("No matching onsite document."));
             }
             if ($render) {
                 $template = $this->doRender(null, $return['file_content'], $return['template_data']);
@@ -661,5 +681,40 @@ class DocumentTemplateRender
         }
 
         return $return;
+    }
+
+    /**
+     * Restrict an iframe `src` to the schemes the renderer actually needs:
+     * same-origin relative paths and explicit http/https URLs. Anything else
+     * returns an empty string. `attr()` HTML-encodes the value but does not
+     * narrow the scheme, so the narrowing happens here before substitution.
+     */
+    private function sanitizeIframeSrc(mixed $src): string
+    {
+        $raw = is_string($src) ? trim($src) : '';
+        if ($raw === '') {
+            return '';
+        }
+        // Control characters (incl. tabs and newlines) can be stripped by
+        // browser URL parsers, turning e.g. "/\t/other.example" into the
+        // protocol-relative "//other.example". Reject them before matching.
+        if (preg_match('/[\x00-\x1F\x7F]/', $raw)) {
+            return '';
+        }
+        // Relative paths starting with `/`, `./`, `../` or a bare segment
+        // stay in the same origin. The lookahead rejects `//host` and
+        // `/\host`, both of which browsers resolve as protocol-relative.
+        if (preg_match('#^(?:/(?![/\\\\])|\./|\.\./)#', $raw)) {
+            return $raw;
+        }
+        if (preg_match('#^[A-Za-z0-9_\-]+(?:\.[A-Za-z0-9_\-]+)*(?:\?.*)?$#', $raw)) {
+            return $raw;
+        }
+        // Fully qualified URLs: accept http(s) only.
+        $scheme = parse_url($raw, PHP_URL_SCHEME);
+        if (is_string($scheme) && in_array(strtolower($scheme), ['http', 'https'], true)) {
+            return $raw;
+        }
+        return '';
     }
 }

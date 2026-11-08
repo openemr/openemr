@@ -184,7 +184,7 @@ class FHIRTestScriptFixture extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -208,15 +208,13 @@ class FHIRTestScriptFixture extends FHIRBackboneElement implements \JsonSerializ
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestScriptFixture xmlns="http://hl7.org/fhir"></TestScriptFixture>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TestScriptFixture xmlns="http://hl7.org/fhir"></TestScriptFixture>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->autocreate)) {
             $this->autocreate->xmlSerialize(true, $sxe->addChild('autocreate'));

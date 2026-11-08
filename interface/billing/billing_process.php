@@ -6,7 +6,7 @@
  * This program processes data for claims generation
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -21,12 +21,21 @@
 require_once("../globals.php");
 
 use OpenEMR\Billing\BillingProcessor\BillingProcessor;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
+if (
+    !AclMain::aclCheckCore('acct', 'eob', '', 'write')
+    && !AclMain::aclCheckCore('acct', 'bill', '', 'write')
+) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // Initialize billing processor with the post variables from the billing manager form
 $billingProcessor = new BillingProcessor($_POST);

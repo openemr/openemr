@@ -676,7 +676,7 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -757,15 +757,13 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ResearchElementDefinitionCharacteristic xmlns="http://hl7.org/fhir"></ResearchElementDefinitionCharacteristic>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ResearchElementDefinitionCharacteristic xmlns="http://hl7.org/fhir"></ResearchElementDefinitionCharacteristic>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->definitionCodeableConcept)) {
             $this->definitionCodeableConcept->xmlSerialize(true, $sxe->addChild('definitionCodeableConcept'));

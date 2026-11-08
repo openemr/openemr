@@ -7,26 +7,11 @@ use Twig\Environment;
 
 class ParticipantListService
 {
-    /**
-     * @var TeleHealthProvisioningService
-     */
-    private $provisioningService;
-
-    private $publicPathFQDN;
-
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    public function __construct(Environment $twig, TeleHealthProvisioningService $provisioningService, $publicPathFQDN)
+    public function __construct(private readonly Environment $twig, private readonly TeleHealthProvisioningService $provisioningService, private $publicPathFQDN)
     {
-        $this->provisioningService = $provisioningService;
-        $this->publicPathFQDN = $publicPathFQDN;
-        $this->twig = $twig;
     }
 
-    public function getParticipantListWithInvitationsForAppointment($user, $session)
+    public function getParticipantListWithInvitationsForAppointment($user, $session): array
     {
         $participants = $this->getParticipantListForAppointment($user, $session);
         $link = $this->getJoinLink($session);
@@ -49,14 +34,14 @@ class ParticipantListService
      * @param $thirdPartyLaunchAction
      * @return string
      */
-    private function getJoinLink($session)
+    private function getJoinLink($session): string
     {
         // the index-portal will redirect the person to login before completing the action
         return $this->publicPathFQDN . "index-portal.php?action=launch_patient_session&pc_eid="
             . intval($session['pc_eid']);
     }
 
-    public function getSparseParticipantListFromSession($session)
+    public function getSparseParticipantListFromSession($session): array
     {
         $participantList = [
             [
@@ -83,7 +68,7 @@ class ParticipantListService
     }
 
 
-    public function getParticipantListForAppointment($user, $session)
+    public function getParticipantListForAppointment($user, $session): array
     {
         $userTelehealthSettings = $this->provisioningService->getOrCreateTelehealthProvider($user);
 
@@ -134,7 +119,7 @@ class ParticipantListService
      * @return string
      * @throws Exception
      */
-    private function sessionUserInRoom($session, $userKey)
+    private function sessionUserInRoom($session, $userKey): string
     {
         if (
             !empty($session[$userKey . '_start_time']) &&

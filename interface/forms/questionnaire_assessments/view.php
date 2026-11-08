@@ -9,6 +9,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Http\CurrentRequest;
+
 $mode = 'update';
-$form_id = $_GET['id'] ?? 0;
+$request = CurrentRequest::get();
+$form_id = $request->query->getInt('id');
 require("questionnaire_assessments.php");

@@ -119,7 +119,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
     public $validityPeriod = null;
 
     /**
-     * A period of time after authorization before generic product applicatiosn can be submitted.
+     * A period of time after authorization before generic product applications can be submitted.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
     public $dataExclusivityPeriod = null;
@@ -332,7 +332,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
     }
 
     /**
-     * A period of time after authorization before generic product applicatiosn can be submitted.
+     * A period of time after authorization before generic product applications can be submitted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
     public function getDataExclusivityPeriod()
@@ -341,7 +341,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
     }
 
     /**
-     * A period of time after authorization before generic product applicatiosn can be submitted.
+     * A period of time after authorization before generic product applications can be submitted.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $dataExclusivityPeriod
      * @return $this
      */
@@ -586,7 +586,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -662,15 +662,13 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductAuthorization xmlns="http://hl7.org/fhir"></MedicinalProductAuthorization>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductAuthorization xmlns="http://hl7.org/fhir"></MedicinalProductAuthorization>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
             foreach ($this->identifier as $identifier) {

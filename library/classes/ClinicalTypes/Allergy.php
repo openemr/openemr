@@ -31,12 +31,12 @@ class Allergy extends ClinicalType
     const INFLUENZA_IMMUN = 'med_allergy_flu_immun';
     const EGGS = 'subst_allergy_eggs';
 
-    public function getListType()
+    public function getListType(): string
     {
         return 'allergy';
     }
 
-    public function getListId()
+    public function getListId(): string
     {
         return 'Clinical_Rules_Allergy_Types';
     }
@@ -49,7 +49,7 @@ class Allergy extends ClinicalType
      *  @param  (date) $beginDate       Lower bound on date to check for allergy
      *  @param  (date) $endDate         Upper bound on date to check for allergy
      */
-    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null): bool
     {
         $data = Codes::lookup($this->getOptionId());
         $type = $this->getListType();

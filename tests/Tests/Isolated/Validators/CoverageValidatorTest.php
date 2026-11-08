@@ -8,7 +8,7 @@
  * complex business logic for subscriber relationships and policy conflicts.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Validators;
 
-use OpenEMR\Validators\CoverageValidator;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\CoverageValidator;
 use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 
@@ -295,7 +295,6 @@ class CoverageValidatorStub extends CoverageValidator
         // Use reflection to access private method
         $reflection = new \ReflectionClass($this);
         $method = $reflection->getMethod('isValidContext');
-        $method->setAccessible(true);
         return $method->invoke($this, $context);
     }
 
@@ -314,7 +313,7 @@ class CoverageValidatorStub extends CoverageValidator
     {
         if ($isUuid) {
             // Simple UUID format check
-            if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $lookupId)) {
+            if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', (string) $lookupId)) {
                 $validationResult = new ProcessingResult();
                 $validationMessages = [
                     $field => ["invalid or nonexisting value" => "value " . $lookupId],
@@ -340,7 +339,7 @@ class CoverageValidatorStub extends CoverageValidator
     /**
      * Override configureValidator to avoid complex database-dependent callbacks
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         // Configure only the basic contexts without calling parent which has database calls
         array_push($this->supportedContexts, self::DATABASE_INSERT_CONTEXT, self::DATABASE_UPDATE_CONTEXT);
@@ -351,7 +350,7 @@ class CoverageValidatorStub extends CoverageValidator
             self::DATABASE_INSERT_CONTEXT,
             function ($context): void {
                 $context->required('pid')->numeric();
-                $context->required('type')->inArray(array('primary', 'secondary', 'tertiary'))
+                $context->required('type')->inArray(['primary', 'secondary', 'tertiary'])
                     ->callback(function ($value) {
                         if ($GLOBALS['insurance_only_one']) {
                             if ($value !== 'primary') {
@@ -402,9 +401,7 @@ class CoverageValidatorStub extends CoverageValidator
                         }
                     }
                 );
-                $context->required("uuid", "Coverage UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "insurance_data", $value, true);
-                })->uuid();
+                $context->required("uuid", "Coverage UUID")->callback(fn($value) => static::validateId("uuid", "insurance_data", $value, true))->uuid();
             }
         );
 
@@ -412,11 +409,9 @@ class CoverageValidatorStub extends CoverageValidator
         $this->validator->context(
             self::DATABASE_SWAP_CONTEXT,
             function ($context): void {
-                $context->required("uuid", "Coverage UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "insurance_data", $value, true);
-                })->uuid();
+                $context->required("uuid", "Coverage UUID")->callback(fn($value) => static::validateId("uuid", "insurance_data", $value, true))->uuid();
                 $context->required("pid", "Patient ID")->numeric();
-                $context->required("type", "Coverage Type")->inArray(array('primary', 'secondary', 'tertiary'));
+                $context->required("type", "Coverage Type")->inArray(['primary', 'secondary', 'tertiary']);
             }
         );
     }

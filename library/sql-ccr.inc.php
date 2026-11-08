@@ -18,8 +18,10 @@
  *
  * @package OpenEMR
  * @author  Garden State Health Systems <http://www.gshsys.com/>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 if ($_POST['ccrAction'] == 'generate') {
     if (isset($_POST['show_date'])) {
@@ -86,7 +88,7 @@ function getMedicationData()
       WHERE `type` = 'medication'
         AND pid = ?
         AND `date` BETWEEN ? AND ?";
-        $result = sqlStatement($sql, array($pid,$start,$end,$pid,$start,$end));
+        $result = sqlStatement($sql, [$pid,$start,$end,$pid,$start,$end]);
     } else {
         $sql = "
       SELECT prescriptions.date_added ,
@@ -131,7 +133,7 @@ function getMedicationData()
         lists
       WHERE `type` = 'medication'
         AND pid = ?";
-        $result = sqlStatement($sql, array($pid,$pid));
+        $result = sqlStatement($sql, [$pid,$pid]);
     }
 
     return $result;
@@ -154,7 +156,7 @@ function getImmunizationData()
     LEFT JOIN code_types ON codes.code_type = code_types.ct_id
     WHERE immunizations.patient_id = ? AND code_types.ct_key = 'CVX' AND immunizations.added_erroneously = 0
     AND create_date BETWEEN ? AND ?" ;
-        $result = sqlStatement($sql, array($pid,$start,$end));
+        $result = sqlStatement($sql, [$pid,$start,$end]);
     } else {
         $sql = "SELECT
       immunizations.administered_date,
@@ -168,7 +170,7 @@ function getImmunizationData()
     LEFT JOIN codes ON immunizations.cvx_code = codes.code
     LEFT JOIN code_types ON codes.code_type = code_types.ct_id
     WHERE immunizations.patient_id = ? AND immunizations.added_erroneously = 0 AND code_types.ct_key = 'CVX'";
-        $result = sqlStatement($sql, array($pid));
+        $result = sqlStatement($sql, [$pid]);
     }
 
     return $result;
@@ -238,7 +240,7 @@ function getProcedureData()
     WHERE po.patient_id = ?
     AND prs.date BETWEEN ? AND ?";
 
-        $result = sqlStatement($sql, array($pid,$start,$end,$pid,$start,$end));
+        $result = sqlStatement($sql, [$pid,$start,$end,$pid,$start,$end]);
     } else {
         $sql = "
     SELECT
@@ -296,7 +298,7 @@ function getProcedureData()
         AND pt.units = lo.option_id AND lo.activity = 1
     WHERE po.patient_id = ? ";
 
-        $result = sqlStatement($sql, array($pid,$pid));
+        $result = sqlStatement($sql, [$pid,$pid]);
     }
 
     return $result;
@@ -308,7 +310,7 @@ function getProblemData()
 
   # Note we are hard-coding (only allowing) problems that have been coded to ICD9. Would
   #  be easy to upgrade this to other codesets in future (ICD10,SNOMED) by using already
-  #  existant flags in the code_types table.
+  #  existent flags in the code_types table.
   # Additionally, only using problems that have one diagnosis code set in diagnosis field.
   #  Note OpenEMR allows multiple codes set per problem, but will limit to showing only
   #  problems with one diagnostic code set in order to maintain previous behavior
@@ -328,7 +330,7 @@ function getProblemData()
     WHERE l.type = 'medical_problem' AND l.pid=? AND l.diagnosis LIKE 'ICD9:%'
     AND l.diagnosis NOT LIKE '%;%'
     AND l.date BETWEEN ? AND ?";
-        $result = sqlStatement($sql, array($pid,$start,$end));
+        $result = sqlStatement($sql, [$pid,$start,$end]);
     } else {
         $sql = "
     SELECT fe.encounter, fe.reason, fe.provider_id, u.title, u.fname, u.lname,
@@ -341,7 +343,7 @@ function getProblemData()
     LEFT JOIN users AS u ON fe.provider_id = u.id
     WHERE l.type = 'medical_problem' AND l.pid=? AND l.diagnosis LIKE 'ICD9:%'
     AND l.diagnosis NOT LIKE '%;%'";
-        $result = sqlStatement($sql, array($pid));
+        $result = sqlStatement($sql, [$pid]);
     }
 
     return $result;
@@ -373,7 +375,7 @@ function getAlertData()
     where l.type = 'allergy' and l.pid=?
     AND l.date BETWEEN ? AND ?";
 
-        $result = sqlStatement($sql, array($pid,$start,$end));
+        $result = sqlStatement($sql, [$pid,$start,$end]);
     } else {
         $sql = "
     select fe.reason, fe.provider_id, fe.facility_id, fe.encounter,
@@ -394,7 +396,7 @@ function getAlertData()
     on cd.code = SUBSTRING(l.diagnosis, LOCATE(':',l.diagnosis)+1)
     where l.type = 'allergy' and l.pid=?";
 
-        $result = sqlStatement($sql, array($pid));
+        $result = sqlStatement($sql, [$pid]);
     }
 
     return $result;
@@ -438,7 +440,7 @@ function getResultData()
       WHERE po.patient_id=?
       AND prs.date BETWEEN ? AND ?";
 
-        $result = sqlStatement($sql, array($pid,$start,$end));
+        $result = sqlStatement($sql, [$pid,$start,$end]);
     } else {
         $sql = "
       SELECT
@@ -471,7 +473,7 @@ function getResultData()
           ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id AND lo.activity = 1
       WHERE po.patient_id=?";
 
-        $result = sqlStatement($sql, array($pid));
+        $result = sqlStatement($sql, [$pid]);
     }
 
     return $result;
@@ -487,12 +489,13 @@ function getActorData()
 	from patient_data
 	where pid=?";
 
-    $result[0] = sqlStatement($sql, array($pid));
+    $result[0] = sqlStatement($sql, [$pid]);
 
     $sql2 = "
 	SELECT * FROM users AS u LEFT JOIN facility AS f ON u.facility_id = f.id WHERE u.id=?";
 
-    $result[1] = sqlStatement($sql2, array($_SESSION['authUserID']));
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $result[1] = sqlStatement($sql2, [$session->get('authUserID')]);
 
     $sql3 = "
   SELECT
@@ -511,13 +514,13 @@ function getActorData()
     AND lo.option_id = 'ord'
     GROUP BY u.ppid";
 
-    $result[2] = sqlStatement($sql3, array($pid));
+    $result[2] = sqlStatement($sql3, [$pid]);
 
     return $result;
 }
 
 
-function getReportFilename()
+function getReportFilename(): string
 {
     global $pid;
 
@@ -526,7 +529,7 @@ function getReportFilename()
     from patient_data
     where pid=?";
 
-    $result = sqlQuery($sql, array($pid));
+    $result = sqlQuery($sql, [$pid]);
     $result_filename = $result['lname'] . "-" . $result['fname'] . "-" . $result['pid'] . "-" . date("mdY", time());
 
     return $result_filename;

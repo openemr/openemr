@@ -4,7 +4,7 @@
  * Represents the export job that is being processed and stored in the database.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
@@ -13,15 +13,15 @@
 
 namespace OpenEMR\Modules\EhiExporter\Models;
 
-use OpenEMR\Services\Utils\DateFormatterUtils;
-use Ramsey\Uuid\Rfc4122\UuidV4;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class EhiExportJob
 {
     public function __construct()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->ehi_export_job_id = null;
-        $this->user_id = $_SESSION['authUserID'];
+        $this->user_id = $session->get('authUserID');
         $this->status = "processing";
         $this->creation_date = date("Y-m-d H:i:s");
         $this->completion_date = date("Y-m-d H:i:s");
@@ -62,7 +62,7 @@ class EhiExportJob
      */
     private int $document_limit_size;
 
-    public function getDocumentLimitSize()
+    public function getDocumentLimitSize(): int
     {
         return $this->document_limit_size;
     }
@@ -82,7 +82,7 @@ class EhiExportJob
         return $this->ehi_export_job_id;
     }
 
-    public function isCompleted()
+    public function isCompleted(): bool
     {
         return $this->status == 'completed';
     }
@@ -119,14 +119,14 @@ class EhiExportJob
     }
     public function addPatientIdList(array $pids)
     {
-        $this->pids = array_map('intval', $pids); // make sure we don't get invalid pids here
+        $this->pids = array_map(intval(...), $pids); // make sure we don't get invalid pids here
     }
     public function getPatientIds()
     {
         return $this->pids;
     }
 
-    public function hasPatientIds()
+    public function hasPatientIds(): bool
     {
         return !empty($this->pids);
     }

@@ -2,7 +2,7 @@
  * This class is responsible for rendering the patient edit insurance policy screen and handling the events for it.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -391,13 +391,15 @@ export class EditPolicyScreenController
 
     #verifyAddress(evt, address) {
         window.top.restoreSession();
-        dlgopen('../../practice/address_verify.php?address1=' + encodeURIComponent(address.street) +
-            '&address2=' + encodeURIComponent(address.street_line_2) +
-            '&city=' + encodeURIComponent(address.city) +
-            '&state=' + encodeURIComponent(address.state) +
-            '&zip5=' + encodeURIComponent(address.postal_code.substring(0,5)) +
-            '&zip4=' + encodeURIComponent(address.postal_code.substring(5,9))
-            , '_blank', 400, 150, '', xl('Address Verify'));
+        const params = new URLSearchParams({
+            address1: address.street,
+            address2: address.street_line_2,
+            city: address.city,
+            state: address.state,
+            zip4: address.postal_code.substring(5, 9),
+            zip5: address.postal_code.substring(0, 5)
+        });
+        dlgopen('../../practice/address_verify.php?' + params, '_blank', 400, 150, '', xl('Address Verify'));
 
         return false;
     }

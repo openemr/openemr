@@ -124,7 +124,7 @@ class FHIRDocumentReferenceStatus extends FHIRElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->getValue();
     }
@@ -138,15 +138,13 @@ class FHIRDocumentReferenceStatus extends FHIRElement implements \JsonSerializab
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DocumentReferenceStatus xmlns="http://hl7.org/fhir"></DocumentReferenceStatus>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DocumentReferenceStatus xmlns="http://hl7.org/fhir"></DocumentReferenceStatus>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

@@ -4,7 +4,7 @@
  * Handles all of the page rendering and api communications for a teleconference room.
  *
  * @package   openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -28,17 +28,18 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\TelehealthAuthUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Validators\TelehealthPatientValidator;
-use Exception;
 use InvalidArgumentException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\ListService;
@@ -66,26 +67,6 @@ class TeleconferenceRoomController
     const LAUNCH_PATIENT_SESSION = 'launch_patient_session';
 
     /**
-     * @var Environment
-     */
-    private Environment $twig;
-
-    /**
-     * @var LoggerInterface
-     */
-    private LoggerInterface $logger;
-
-    /**
-     * @var boolean  Whether we are running as a patient in the portal context
-     */
-    private bool $isPatient;
-
-    /**
-     * @var string The location where the module assets are stored
-     */
-    private string $assetPath;
-
-    /**
      * @var EncounterService
      */
     private EncounterService $encounterService;
@@ -98,69 +79,41 @@ class TeleconferenceRoomController
     /**
      * @var TeleHealthSessionRepository
      */
-    private TeleHealthSessionRepository $sessionRepository;
+    private readonly TeleHealthSessionRepository $sessionRepository;
 
     /**
      * @var TeleHealthUserRepository
      */
-    private TeleHealthUserRepository $telehealthUserRepo;
+    private readonly TeleHealthUserRepository $telehealthUserRepo;
 
     /**
-     * @var TeleHealthVideoRegistrationController
+     * @param Environment $twig
+     * @param LoggerInterface $logger
+     * @param TeleHealthVideoRegistrationController $telehealthRegistrationController
+     * @param TeleHealthParticipantInvitationMailerService $mailerService
+     * @param TeleHealthFrontendSettingsController $settingsController
+     * @param TelehealthGlobalConfig $config
+     * @param TeleHealthProvisioningService $provisioningService
+     * @param ParticipantListService $participantListService
+     * @param string $assetPath The location where the module assets are stored
+     * @param bool $isPatient Whether we are running as a patient in the portal context
      */
-    private TeleHealthVideoRegistrationController $telehealthRegistrationController;
-
-    /**
-     * @var TeleHealthParticipantInvitationMailerService
-     */
-    private TeleHealthParticipantInvitationMailerService $mailerService;
-
-    /**
-     * @var TeleHealthFrontendSettingsController
-     */
-    private TeleHealthFrontendSettingsController $settingsController;
-
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private TelehealthGlobalConfig $config;
-
-    /**
-     * @var TeleHealthProvisioningService
-     */
-    private TeleHealthProvisioningService $provisioningService;
-
-    /**
-     * @var ParticipantListService
-     */
-    private ParticipantListService $participantListService;
-
     public function __construct(
-        Environment $twig,
-        LoggerInterface $logger,
-        TeleHealthVideoRegistrationController $registrationController,
-        TeleHealthParticipantInvitationMailerService $mailerService,
-        TeleHealthFrontendSettingsController $settingsController,
-        TelehealthGlobalConfig $config,
-        TeleHealthProvisioningService $provisioningService,
-        ParticipantListService $participantListService,
-        $assetPath,
-        $isPatient = false
+        private readonly Environment $twig,
+        private readonly LoggerInterface $logger,
+        private readonly TeleHealthVideoRegistrationController $telehealthRegistrationController,
+        private readonly TeleHealthParticipantInvitationMailerService $mailerService,
+        private readonly TeleHealthFrontendSettingsController $settingsController,
+        private readonly TelehealthGlobalConfig $config,
+        private readonly TeleHealthProvisioningService $provisioningService,
+        private readonly ParticipantListService $participantListService,
+        private readonly string $assetPath,
+        private readonly bool $isPatient = false
     ) {
-        $this->assetPath = $assetPath;
-        $this->twig = $twig;
-        $this->logger = $logger;
-        $this->isPatient = $isPatient;
         $this->appointmentService = new AppointmentService();
         $this->encounterService = new EncounterService();
         $this->sessionRepository = new TeleHealthSessionRepository();
-        $this->telehealthRegistrationController = $registrationController;
         $this->telehealthUserRepo = new TeleHealthUserRepository();
-        $this->mailerService = $mailerService;
-        $this->settingsController = $settingsController;
-        $this->config = $config;
-        $this->provisioningService = $provisioningService;
-        $this->participantListService = $participantListService;
     }
 
     /**
@@ -226,7 +179,7 @@ class TeleconferenceRoomController
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(400);
             echo $this->twig->render('error/400.html.twig');
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo $this->twig->render('error/general_http_error.html.twig', ['statusCode' => 500]);
@@ -334,7 +287,7 @@ class TeleconferenceRoomController
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(400);
             echo $this->twig->render('error/400.html.twig');
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo $this->twig->render('error/general_http_error.html.twig', ['statusCode' => 500]);
@@ -353,7 +306,8 @@ class TeleconferenceRoomController
         // verify the patient has the portal setup and a valid email
         try {
             $csrfToken = $queryVars['csrf_token'] ?? null;
-            if (empty($csrfToken) || !CsrfUtils::verifyCsrfToken($csrfToken, 'api')) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            if (empty($csrfToken) || !CsrfUtils::verifyCsrfToken($csrfToken, $session, 'api')) {
                 throw new InvalidArgumentException("csrf_token was missing or invalid in request");
             }
 
@@ -391,7 +345,7 @@ class TeleconferenceRoomController
             http_response_code(400);
             header("Content-type: application/json");
             echo json_encode(['error' => xlt("Improperly formatted request")]);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => xlt("Server error occurred, Check logs.")]);
@@ -422,7 +376,7 @@ class TeleconferenceRoomController
             }
             $session = $this->sessionRepository->getSessionByAppointmentId($pc_eid);
             if (empty($session)) {
-                throw new InvalidArgumentException("session was not found for pc_eid of " + $pc_eid);
+                throw new InvalidArgumentException("session was not found for pc_eid of {$pc_eid}");
             }
             // check to make sure the session user is the same as the logged in user
             $verifiedUser = null;
@@ -469,7 +423,7 @@ class TeleconferenceRoomController
             http_response_code(400);
             header("Content-type: application/json");
             echo json_encode(['error' => xlt("Improperly formatted request")]);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => xlt("Server error occurred, Check logs.")]);
@@ -533,7 +487,7 @@ class TeleconferenceRoomController
             header("Content-type: application/json");
             echo json_encode(['error' => xlt($exception->getMessage())]);
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             http_response_code(500);
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
         }
@@ -547,7 +501,7 @@ class TeleconferenceRoomController
     {
         $patientService = new PatientService();
         $listService = new ListService();
-        // wierd that it goes off the option title instead of the option id here
+        // weird that it goes off the option title instead of the option id here
         $sexOption = $listService->getListOption('sex', 'UNK');
         $yesOption = $listService->getListOption('yesno', 'YES');
         // the validator will scream if we are sending the wrong data
@@ -591,8 +545,11 @@ class TeleconferenceRoomController
         $pwd = $patientAccessService->getRandomPortalPassword();
         $uname = $patientData['fname'] . $patientData['id'];
         $login_uname = $patientAccessService->getUniqueTrustedUsernameForPid($pid);
-        $login_uname = $login_uname ?? $uname;
-        $result = $patientAccessService->saveCredentials($pid, $pwd, $uname, $login_uname);
+        $login_uname ??= $uname;
+        $forcedResetDisable = PatientAccessOnsiteService::forcedResetDisableForPolicy(
+            OEGlobalsBag::getInstance()->getString('portal_force_credential_reset', '0')
+        );
+        $result = $patientAccessService->saveCredentials($pid, $pwd, $uname, $login_uname, $forcedResetDisable);
 
         // TODO: @adunsulag we need to handle if the email credentials don't send, or if we want to bundle all of this
         // into a single email
@@ -667,7 +624,7 @@ class TeleconferenceRoomController
                 // throw error
                 throw new InvalidArgumentException("Cannot update appointment status in a patient context");
             }
-            if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+            if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
                 throw new AccessDeniedException("patients", "appt", "Does not have ACL permission to update appointment status");
             }
 
@@ -692,17 +649,17 @@ class TeleconferenceRoomController
             );
             echo json_encode(['status' => 'success']);
         } catch (InvalidArgumentException $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(400);
             echo json_encode(['error' => 'invalid argument sent.  Check server logs for details']);
         } catch (AccessDeniedException $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(403);
             echo json_encode(['error' => 'Access denied to patient telehealth information.']);
-        } catch (Exception $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+        } catch (\Throwable $exception) {
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
@@ -718,11 +675,7 @@ class TeleconferenceRoomController
         try {
             // grab the settings, grab the waiting room & grab the conference room
             $waitingRoom = $this->renderWaitingRoom($queryVars);
-            if ($this->isPatient) {
-                $settings = $this->getPatientSettings($queryVars);
-            } else {
-                $settings = $this->getProviderSettings($queryVars);
-            }
+            $settings = $this->isPatient ? $this->getPatientSettings($queryVars) : $this->getProviderSettings($queryVars);
             $conferenceRoom = $this->renderConferenceRoom($queryVars);
 
             $result = [
@@ -741,8 +694,8 @@ class TeleconferenceRoomController
             http_response_code(500);
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Telehealth Provisioning Failed', 'code' => $exception->getCode()]);
-        } catch (\Exception $exception) {
-            $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+        } catch (\Throwable $exception) {
+            $this->logger->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             header('Content-Type: application/json');
@@ -800,8 +753,8 @@ class TeleconferenceRoomController
             $participants = $this->participantListService->getSparseParticipantListFromSession($session);
             $escapedParticipants = textArray($participants);
             echo json_encode(['status' => 'success', 'participantList' => $escapedParticipants]);
-        } catch (\Exception $exception) {
-            $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+        } catch (\Throwable $exception) {
+            $this->logger->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
@@ -880,12 +833,12 @@ class TeleconferenceRoomController
             }
             echo json_encode(textArray($result));
         } catch (AccessDeniedException $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(401);
             echo json_encode(['error' => 'Access Denied']);
-        } catch (Exception $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+        } catch (\Throwable $exception) {
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
@@ -914,13 +867,13 @@ class TeleconferenceRoomController
             ]);
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
             echo text($jsonSettings);
-        } catch (TelehealthProviderNotEnrolledException | TeleHealthProviderSuspendedException $exception) {
+        } catch (TelehealthProviderNotEnrolledException | TeleHealthProviderSuspendedException) {
             $jsonSettings = text(json_encode(['errorCode' => self::REGISTRATION_CHECK_REQUIRES_ENROLLMENT_CODE
                 , 'errorMessage' => xl("User has no active TeleHealth enrollment and registration is skipped")]));
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
             echo $jsonSettings;
-        } catch (Exception $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+        } catch (\Throwable $exception) {
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
@@ -932,7 +885,7 @@ class TeleconferenceRoomController
      * @param $userId
      * @return bool
      */
-    public function shouldChangeProvider($appt, $userId)
+    public function shouldChangeProvider($appt, $userId): bool
     {
         if ($appt['pc_aid'] != $userId) {
             return true;
@@ -954,7 +907,7 @@ class TeleconferenceRoomController
         $sql = "UPDATE openemr_postcalendar_events SET pc_aid =? WHERE pc_eid =? ";
         QueryUtils::sqlStatementThrowException($sql, [$userId, $appt['pc_eid']]);
 
-        if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+        if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
             throw new AccessDeniedException("patients", "appt", "No access to change appointments");
         }
 
@@ -996,7 +949,7 @@ class TeleconferenceRoomController
     public function setCurrentAppointmentEncounter($queryVars)
     {
         try {
-            if (!AclMain::aclCheckCore('patients', 'appt', '', array('write', 'wsome'))) {
+            if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
                 throw new AccessDeniedException("patients", "apt", "User does not have access to update current appointment information");
             }
             // grab the appointment and make sure the current user has access to the calendar
@@ -1080,7 +1033,7 @@ class TeleconferenceRoomController
             $jsonData = [
                 'selectedEncounter' => [
                     'id' => $encounter['eid']
-                    , 'dateStr' => date("Y-m-d", strtotime($encounter['date']))
+                    , 'dateStr' => date("Y-m-d", strtotime((string) $encounter['date']))
                 ]
                 , 'encounterList' => $encountersList
                 , 'patient' => [
@@ -1095,12 +1048,12 @@ class TeleconferenceRoomController
             ];
             echo text(json_encode($jsonData));
         } catch (InvalidArgumentException $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(400);
             echo json_encode(['error' => 'invalid argument sent.  Check server logs for details']);
-        } catch (Exception $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+        } catch (\Throwable $exception) {
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
@@ -1138,11 +1091,10 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return mixed
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    public function renderWaitingRoom($queryVars)
+    public function renderWaitingRoom($queryVars): string
     {
         if ($this->isPatient) {
             $this->initalizeAppointmentForTelehealth($queryVars['eid']);
@@ -1200,18 +1152,18 @@ class TeleconferenceRoomController
         if (empty($appointment)) {
             throw new InvalidArgumentException("appointment eid could not be found for " . $pc_eid);
         } else {
-            // TODO: so wierd... why is appointment returning an array list?
+            // TODO: so weird... why is appointment returning an array list?
             $appointment = $appointment[0];
         }
         if ($this->isPendingAppointment($appointment)) { // pending status
-            (new SystemLogger())->errorLogCaller("Telehealth appointment was launched for pending appointment.  This should not happen.", ['pc_eid' => $pc_eid, 'appointment' => $appointment]);
+            ServiceContainer::getLogger()->error("TeleconferenceRoomController: Telehealth appointment was launched for pending appointment pc_eid={pc_eid}. This should not happen.", ['pc_eid' => $pc_eid, 'appointment' => $appointment]);
             throw new InvalidArgumentException("appointment status cannot be initialized as the appointment was not confirmed by the provider" . $pc_eid);
         }
 
         if (!$appointmentService->isCheckInStatus($appointment['pc_apptstatus'])) {
             if ($appointmentService->isCheckOutStatus($appointment['pc_apptstatus'])) {
                 // we need to log this... we shouldn't even be launching a telehealth session if this is a checkout appointment
-                (new SystemLogger())->errorLogCaller("Telehealth appointment was launched for completed appointment", ['pc_eid' => $pc_eid, 'appointment' => $appointment]);
+                ServiceContainer::getLogger()->error("TeleconferenceRoomController: Telehealth appointment was launched for completed appointment pc_eid={pc_eid}", ['pc_eid' => $pc_eid, 'appointment' => $appointment]);
             } else {
                 // need to check them in.
                 // else set appointment to '@'
@@ -1252,17 +1204,12 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return mixed
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    public function renderConferenceRoom($queryVars)
+    public function renderConferenceRoom($queryVars): string
     {
-        if ($this->isPatient) {
-            $data = $this->getPatientSettings($queryVars);
-        } else {
-            $data = $this->getProviderSettings($queryVars);
-        }
+        $data = $this->isPatient ? $this->getPatientSettings($queryVars) : $this->getProviderSettings($queryVars);
 //        $apptRepo = new AppointmentService();
 //        $statuses = $apptRepo->getAppointmentStatuses();
         $statuses = $this->getAppointmentStatuses();
@@ -1295,11 +1242,10 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return array
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    private function getProviderSettings($queryVars)
+    private function getProviderSettings($queryVars): array
     {
         $pid = $queryVars['pid'];
         if (empty($pid)) {
@@ -1370,7 +1316,7 @@ class TeleconferenceRoomController
             ]
             , 'participantList' => $this->participantListService->getParticipantListWithInvitationsForAppointment($user, $session)
             , 'encounter' => $encounter
-            , 'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
+            , 'serviceUrl' => OEGlobalsBag::getInstance()->get(Bootstrap::COMLINK_VIDEO_TELEHEALTH_API)
             , 'sessionId' => $session['id']
             , 'thirdPartyPatient' => $thirdPartyPatient
         ];
@@ -1380,10 +1326,9 @@ class TeleconferenceRoomController
 
     /**
      * @param $queryVars
-     * @return array
      * @throws TelehealthProvisioningServiceRequestException
      */
-    private function getPatientSettings($queryVars)
+    private function getPatientSettings($queryVars): array
     {
         $pid = $queryVars['pid'];
         if (empty($pid)) {
@@ -1445,7 +1390,7 @@ class TeleconferenceRoomController
                 'apptstatus' => $appt['pc_apptstatus']
             ]
             , 'participantList' => $this->getParticipantListForAppointment($user, $session)
-            , 'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
+            , 'serviceUrl' => OEGlobalsBag::getInstance()->get(Bootstrap::COMLINK_VIDEO_TELEHEALTH_API)
         ];
         return $data;
     }
@@ -1455,7 +1400,7 @@ class TeleconferenceRoomController
      * @param $session
      * @return bool
      */
-    private function isPatientPidAuthorizedForSession($pid, $session)
+    private function isPatientPidAuthorizedForSession($pid, $session): bool
     {
         $convertedPid = intval($pid);
         $related_session_pid = intval($session['pid_related'] ?? 0);
@@ -1501,7 +1446,7 @@ class TeleconferenceRoomController
      * @param $password
      * @return string
      */
-    private function getApiKeyForPassword($password)
+    private function getApiKeyForPassword($password): string
     {
         $decrypted = $this->telehealthUserRepo->decryptPassword($password);
         return TelehealthAuthUtils::getFormattedPassword($decrypted);

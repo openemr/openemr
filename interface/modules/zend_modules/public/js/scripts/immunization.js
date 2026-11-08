@@ -154,12 +154,3 @@ function validate_search()
         }
 
 }
-
-
-
-
-
-
-
-
-

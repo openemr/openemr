@@ -5,12 +5,17 @@
  * version 1.0.0  July 2020
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ruth Moulton <moulton ruth@muswell.me.uk>
  * @copyright Copyright (c) 2021 ruth moulton <ruth@muswell.me.uk>
  *
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
 
 // menu strings
 $str_default = xl('Please select an answer');

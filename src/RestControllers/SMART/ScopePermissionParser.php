@@ -1,0 +1,342 @@
+<?php
+
+/**
+ * Scope Permission Parser
+ * TODO: @adunsulag this needs to be consolidated later with ServerScopeListEntity
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    AI Generated - Claude (Anthropic)
+ * @copyright Copyright (c) 2025 - Public Domain for AI generated content
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+// ============================================================================
+// AI-GENERATED CODE START
+// Generated using Claude (Anthropic) on 2025-01-15
+// This helper class parses OAuth scopes and structures them for improved UI display
+// ============================================================================
+
+namespace OpenEMR\RestControllers\SMART;
+
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+
+class ScopePermissionParser
+{
+    // Human-readable labels for restricted scope categories
+    private const RESTRICTION_LABELS = [
+        // Condition categories (ONC Required)
+        'http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern' => 'Health Concerns',
+        'http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis' => 'Encounter Diagnoses',
+        'http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item' => 'Problem List Items',
+
+        // Observation categories (ONC Required)
+        'http://terminology.hl7.org/CodeSystem/observation-category|clinical-test' => 'Clinical Test',
+        'http://terminology.hl7.org/CodeSystem/observation-category|laboratory' => 'Laboratory',
+        'http://terminology.hl7.org/CodeSystem/observation-category|social-history' => 'Social History',
+        'http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh' => 'Social Determinants of Health (SDOH)',
+        'http://terminology.hl7.org/CodeSystem/observation-category|survey' => 'Survey',
+        'http://terminology.hl7.org/CodeSystem/observation-category|vital-signs' => 'Vital Signs',
+
+        // DocumentReference categories
+        'http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category|clinical-note' => 'Clinical Notes',
+    ];
+
+    // ONC Required sub-resource scopes by resource type
+    private const ONC_REQUIRED_RESTRICTIONS = [
+        'Condition' => [
+            'http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis',
+            'http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item',
+            'http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern',
+        ],
+        'Observation' => [
+            'http://terminology.hl7.org/CodeSystem/observation-category|clinical-test',
+            'http://terminology.hl7.org/CodeSystem/observation-category|laboratory',
+            'http://terminology.hl7.org/CodeSystem/observation-category|social-history',
+            'http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh',
+            'http://terminology.hl7.org/CodeSystem/observation-category|survey',
+            'http://terminology.hl7.org/CodeSystem/observation-category|vital-signs',
+        ],
+    ];
+
+    // CRUDS action labels
+    private const ACTION_LABELS = [
+        'c' => 'Create',
+        'r' => 'Read/View',
+        'u' => 'Update/Modify',
+        'd' => 'Delete',
+        's' => 'Search',
+    ];
+
+    public function __construct(private readonly ScopeRepository $scopeRepository)
+    {
+    }
+
+    /**
+     * Parse scopes into a structured format for improved UI display
+     * Per ONC requirements, unrestricted resource scopes for Condition/Observation
+     * must show ALL sub-resource categories for patient authorization.
+     *
+     * @param array $scopes Array of scope strings
+     * @return array Structured scope data organized by resource
+     */
+    public function parseScopes(array $scopes): array
+    {
+        $structuredScopes = [];
+        $serverScopeList = new ServerScopeListEntity();
+
+        // Track which resources have unrestricted scopes
+        $unrestrictedResources = [];
+
+        // Track original requested restrictions per resource
+        $requestedRestrictions = [];
+
+        foreach ($scopes as $scopeString) {
+            $parsed = $this->parseScopeString($scopeString);
+
+            if (!$parsed) {
+                continue;
+            }
+
+            $resource = $parsed['resource'];
+            $context = $parsed['context'];
+            $version = $parsed['version'];
+
+            // Skip non-resource scopes (handled elsewhere)
+            if (empty($resource) || in_array($scopeString, ['openid', 'fhirUser', 'online_access', 'offline_access', 'launch', 'launch/patient', 'api:oemr', 'api:fhir', 'api:port'])) {
+                continue;
+            }
+
+            // Operation scopes (patient/DocumentReference.$docref, system/*.$export, ...) are not
+            // CRUDS permissions and cannot be expressed as card checkboxes. Folding them into a
+            // resource card turned them into a plain `.r` on submit and the operation was lost.
+            // They are rendered as individual "other" permissions by the controller instead.
+            if (isset($parsed['operation'])) {
+                continue;
+            }
+
+            // Group by context AND resource, never by resource alone. A client may legitimately
+            // request the same resource in two contexts -- patient/Patient.read alongside
+            // user/Patient.read and user/Patient.write is an ordinary SMART request. Keyed on the
+            // resource alone those collapse into one entry whose context is whichever scope was
+            // seen first, and the consent form then reconstructs every action under that one
+            // context: the user/ scopes are never emitted and a patient/Patient.write that was
+            // never requested is, which the server drops. The client ends up holding neither.
+            // The key doubles as an HTML id and a CSS selector fragment, so it is joined with a
+            // dash rather than the scope's own slash.
+            $key = $context . '-' . $resource;
+
+            // Initialize resource structure if not exists
+            if (!isset($structuredScopes[$key])) {
+                $structuredScopes[$key] = [
+                    'name' => $resource,
+                    'description' => $serverScopeList->lookupDescriptionForResourceScope($resource, $context),
+                    'context' => $context,
+                    // Informational only. The consent form no longer rebuilds scope strings from
+                    // a per-card version: ScopeConsentResolver intersects each requested scope
+                    // with what the user approved and keeps the client's own spelling.
+                    'version' => $version,
+                    'actions' => [
+                        'c' => ['enabled' => false],
+                        'r' => ['enabled' => false],
+                        'u' => ['enabled' => false],
+                        'd' => ['enabled' => false],
+                        's' => ['enabled' => false],
+                    ],
+                    'restrictions' => [],
+                    'hasRestrictions' => false,
+                    'isUnrestricted' => true,
+                    'requestedRestrictions' => [], // Track which restrictions were in original request
+                ];
+                $requestedRestrictions[$key] = [];
+            }
+
+            // Parse actions - mark them as enabled
+            foreach ($parsed['actions'] as $action) {
+                if (isset($structuredScopes[$key]['actions'][$action])) {
+                    $structuredScopes[$key]['actions'][$action]['enabled'] = true;
+                }
+            }
+
+            // Handle restrictions
+            if (!empty($parsed['restriction'])) {
+                // Specific restriction requested
+                $structuredScopes[$key]['isUnrestricted'] = false;
+                $structuredScopes[$key]['hasRestrictions'] = true;
+                $restrictionKey = $parsed['restriction'];
+                $restrictionLabel = self::RESTRICTION_LABELS[$restrictionKey] ?? $restrictionKey;
+
+                // Track that this restriction was in the original request
+                if (!in_array($restrictionKey, $requestedRestrictions[$key])) {
+                    $requestedRestrictions[$key][] = $restrictionKey;
+                }
+
+                $structuredScopes[$key]['restrictions'][$restrictionKey] ??= [
+                    'label' => $restrictionLabel,
+                    'value' => $restrictionKey,
+                    'selected' => true,
+                    'actions' => $parsed['actions'],
+                ];
+            } else {
+                $unrestrictedResources[$key] ??= $resource;
+            }
+        }
+
+        // ONC Compliance: For unrestricted Condition/Observation scopes,
+        // populate ALL required sub-resource categories
+        foreach ($unrestrictedResources as $key => $resourceName) {
+            if (!isset(self::ONC_REQUIRED_RESTRICTIONS[$resourceName])) {
+                continue;
+            }
+            $structuredScopes[$key]['hasRestrictions'] = true;
+            $enabledActions = array_keys(array_filter(
+                $structuredScopes[$key]['actions'] ?? [],
+                static fn(array $action): bool => $action['enabled']
+            ));
+
+            // Add all ONC required restrictions for this resource
+            foreach (self::ONC_REQUIRED_RESTRICTIONS[$resourceName] as $restrictionUri) {
+                if (!isset($structuredScopes[$key]['restrictions'][$restrictionUri])) {
+                    $restrictionLabel = self::RESTRICTION_LABELS[$restrictionUri];
+
+                    $structuredScopes[$key]['restrictions'][$restrictionUri] = [
+                        'label' => $restrictionLabel,
+                        'value' => $restrictionUri,
+                        'selected' => true, // All selected by default for ONC compliance
+                        'actions' => $enabledActions,
+                    ];
+                }
+            }
+        }
+
+        // Store the requested restrictions for each resource
+        foreach ($requestedRestrictions as $key => $restrictions) {
+            if (isset($structuredScopes[$key])) {
+                $structuredScopes[$key]['requestedRestrictions'] = $restrictions;
+            }
+        }
+
+        // Sort resources alphabetically
+        ksort($structuredScopes);
+
+        return $structuredScopes;
+    }
+
+    /**
+     * Parse a single scope string into components
+     *
+     * @param string $scopeString The scope string to parse
+     * @return array{context: string, resource: string, actions: list<string>, restriction: string|null, version: string, originalFormat?: string, operation?: string}|null
+     *     Parsed scope components or null if invalid
+     */
+    private function parseScopeString(string $scopeString): ?array
+    {
+        // Handle V1 format: patient/Resource.read, user/Resource.write
+        if (preg_match('/^(patient|user|system)\/([^.]+)\.(read|write)$/', $scopeString, $matches)) {
+            return [
+                'context' => $matches[1],
+                'resource' => $matches[2],
+                'actions' => $matches[3] === 'read' ? ['r', 's'] : ['c', 'u', 'd'],
+                'restriction' => null,
+                'version' => 'v1',
+                'originalFormat' => $matches[3], // 'read' or 'write'
+            ];
+        }
+
+        // Handle V2 format with restrictions: patient/Resource.cruds?restriction
+        if (preg_match('/^(patient|user|system)\/([^.]+)\.([cruds]+)(?:\?(.+))?$/', $scopeString, $matches)) {
+            $actions = str_split($matches[3]);
+            $restriction = null;
+
+            if (!empty($matches[4])) {
+                // Only a single category constraint can be shown and toggled on the consent
+                // screen. Any other constraint is not offered (and ScopeConsentResolver never
+                // grants it), rather than being shown under a misleading label.
+                $restriction = ScopeConsentResolver::categoryConstraint($matches[4]);
+                if ($restriction === null) {
+                    return null;
+                }
+            }
+
+            return [
+                'context' => $matches[1],
+                'resource' => $matches[2],
+                'actions' => $actions,
+                'restriction' => $restriction,
+                'version' => 'v2',
+            ];
+        }
+
+        // Handle operations: patient/Resource.$operation
+        if (preg_match('/^(patient|user|system)\/([^.]+)\.(\$[^?]+)(?:\?(.+))?$/', $scopeString, $matches)) {
+            return [
+                'context' => $matches[1],
+                'resource' => $matches[2],
+                'actions' => ['r'], // Operations typically require read
+                'restriction' => null,
+                'operation' => $matches[3],
+                'version' => 'v2',
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * Get human-readable label for an action
+     *
+     * @param string $action Single character action code
+     * @return string Human-readable label
+     */
+    public static function getActionLabel(string $action): string
+    {
+        return self::ACTION_LABELS[$action] ?? $action;
+    }
+
+    /**
+     * Get human-readable label for a restriction
+     *
+     * @param string $restriction Restriction URI
+     * @return string Human-readable label
+     */
+    public static function getRestrictionLabel(string $restriction): string
+    {
+        return self::RESTRICTION_LABELS[$restriction] ?? $restriction;
+    }
+
+    /**
+     * Get all available restrictions for a resource
+     *
+     * @param string $resource Resource name
+     * @return array Available restrictions
+     */
+    public static function getAvailableRestrictions(string $resource): array
+    {
+        $restrictedScopes = [
+            'Condition' => [
+                'http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern',
+                'http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis',
+                'http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item',
+            ],
+            'Observation' => [
+                'http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh',
+                'http://terminology.hl7.org/CodeSystem/observation-category|social-history',
+                'http://terminology.hl7.org/CodeSystem/observation-category|laboratory',
+                'http://terminology.hl7.org/CodeSystem/observation-category|survey',
+                'http://terminology.hl7.org/CodeSystem/observation-category|vital-signs',
+            ],
+            'DocumentReference' => [
+                'http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category|clinical-note',
+            ],
+        ];
+
+        return $restrictedScopes[$resource] ?? [];
+    }
+}
+
+// ============================================================================
+// AI-GENERATED CODE END
+// ============================================================================

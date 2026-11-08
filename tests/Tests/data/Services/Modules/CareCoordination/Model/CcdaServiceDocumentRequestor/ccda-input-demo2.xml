@@ -1,0 +1,759 @@
+<CCDA><serverRoot>/openemr</serverRoot><document_location>/var/www/localhost/htdocs/openemr/sites/default</document_location><username></username><password></password><hie>MyHealth</hie><time_start>20260616003625+0000</time_start><time_end>20260616003625+0000</time_end><client_id></client_id><created_time>20260616003625</created_time><created_time_timezone>20260616003625+0000</created_time_timezone><timezone_local_offset>+0000</timezone_local_offset><send>0</send><doc_type></doc_type><assignedEntity>
+                <streetAddressLine></streetAddressLine>
+                <city></city>
+                <state></state>
+                <postalCode></postalCode>
+                <country></country>
+            </assignedEntity>
+            <telecom use='WP' value=''/>
+            <representedOrganization>
+                <name></name>
+                <telecom use='WP' value=''/>
+                <streetAddressLine></streetAddressLine>
+                <city></city>
+                <state></state>
+                <postalCode></postalCode>
+                <country></country>
+            </representedOrganization><referral_reason><text></text></referral_reason><patient>
+        <author>
+        <time>2014-02-01 21:26:43</time>
+        <id>a208621d-316f-4c53-9553-dd76c516cd33</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi></facility_npi>
+        <facility_name>Great Clinic</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Donna</fname>
+        <lname>Lee</lname>
+        <npi></npi>
+        </author>
+            <id>2</id>
+            <uuid>a208621d-2f4f-4c60-940a-1ebfd6289ef0</uuid>
+            <encounter>8</encounter>
+            <prefix></prefix>
+            <fname>Susan</fname>
+            <mname>Ardmore</mname>
+            <lname>Underwood</lname>
+            <suffix></suffix>
+            <previous_names></previous_names>
+            <birth_fname></birth_fname>
+            <birth_mname></birth_mname>
+            <birth_lname></birth_lname>
+            <use>HP</use>
+            <street>3454 Apple Road</street>
+            <street></street>
+            <city>Longview</city>
+            <state></state>
+            <postalCode>44533</postalCode>
+            <country></country>
+            <previous_addresses></previous_addresses>
+            <ssn>112-33-5544</ssn>
+            <dob>19670208</dob>
+            <gender>Female</gender>
+            <gender_code>F</gender_code>
+            <sex_observation>Female</sex_observation>
+            <status>married</status>
+            <status_code>M</status_code>
+            <phone_home>4443332222</phone_home>
+            <phone_mobile>5554443333</phone_mobile>
+            <phone_work></phone_work>
+            <phone_emergency>4443332222</phone_emergency>
+            <email>nana@invalid.email.com</email>
+            <religion></religion>
+            <religion_code></religion_code>
+            <race>American Indian or Alaska Native</race>
+            <race_code>1002-5</race_code>
+            <race_group></race_group>
+            <race_group_code></race_group_code>
+            <ethnicity>Not Hispanic or Latino</ethnicity>
+            <ethnicity_code>2186-5</ethnicity_code>
+            <language>English</language>
+            <language_code>en</language_code>
+            <tribal_code></tribal_code>
+            <tribal_title></tribal_title>
+            <tribal></tribal>
+            <related_persons></related_persons>
+        </patient>
+        <guardian>
+            <fname>Susan</fname>
+            <lname>Underwood</lname>
+            <code></code>
+            <relation></relation>
+            <display_name></display_name>
+            <street></street>
+            <city></city>
+            <state></state>
+            <postalCode></postalCode>
+            <country></country>
+            <telecom></telecom>
+        </guardian><sdoh_data><disability_code></disability_code><disability></disability><disability_title></disability_title><pregnancy_code></pregnancy_code><pregnancy></pregnancy><pregnancy_title></pregnancy_title></sdoh_data><occupation><start_date>20260616</start_date><industry_start_date>20260616</industry_start_date><occupation_code></occupation_code><occupation_title></occupation_title><industry_code></industry_code><industry_title></industry_title></occupation><encounter_provider>
+                <facility_id>3</facility_id>
+                <facility_npi></facility_npi>
+                <facility_oid></facility_oid>
+                <facility_name>Great Clinic</facility_name>
+                <facility_phone>000-000-0000</facility_phone>
+                <facility_fax>000-000-0000</facility_fax>
+                <facility_street>665 Roadsby Road</facility_street>
+                <facility_city>Longview</facility_city>
+                <facility_state>FL</facility_state>
+                <facility_postal_code>333222</facility_postal_code>
+                <facility_country_code>USA</facility_country_code>
+            </encounter_provider>
+
+        <author>
+        <time>2026-06-16 00:36:25+0000</time>
+        <id>a208621d-316f-4c53-9553-dd76c516cd33</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Donna</fname>
+        <lname>Lee</lname>
+        <npi></npi>
+        </author>
+        <data_enterer>
+            <streetAddressLine></streetAddressLine>
+            <city></city>
+            <state></state>
+            <postalCode></postalCode>
+            <country></country>
+            <telecom>0</telecom>
+            <fname></fname>
+            <lname></lname>
+        </data_enterer><informer>
+            <streetAddressLine></streetAddressLine>
+            <city></city>
+            <state></state>
+            <postalCode></postalCode>
+            <country></country>
+            <telecom>0</telecom>
+            <fname></fname>
+            <lname></lname>
+            <personal_informant></personal_informant>
+        </informer><custodian>
+            <streetAddressLine></streetAddressLine>
+            <city></city>
+            <state></state>
+            <postalCode></postalCode>
+            <country></country>
+            <telecom>0</telecom>
+            <name></name>
+            <organization></organization>
+        </custodian><information_recipient>
+        <fname></fname>
+        <lname></lname>
+        <organization></organization>
+        <street></street>
+        <city></city>
+        <state></state>
+        <zip></zip>
+        <phonew1></phonew1>
+        </information_recipient><legal_authenticator>
+            <streetAddressLine></streetAddressLine>
+            <city></city>
+            <state></state>
+            <postalCode></postalCode>
+            <country></country>
+            <telecom>0</telecom>
+            <fname></fname>
+            <lname></lname>
+        </legal_authenticator><document_participants><participant>
+            <date_time>2026-06-16 00:36:25+0000</date_time>
+            <fname>Donna</fname>
+            <lname>Lee</lname>
+            <organization></organization>
+            <organization_id>a208621a-51bd-4ebe-ac9b-fd56f0497406</organization_id>
+            <organization_npi></organization_npi>
+            <organization_taxonomy></organization_taxonomy>
+            <organization_taxonomy_desc></organization_taxonomy_desc>
+            <street></street>
+            <city></city>
+            <state></state>
+            <postalCode></postalCode>
+            <phonew1></phonew1>
+            <address_use>WP</address_use>
+            <type>REFB</type>
+        </participant></document_participants><authenticator>
+            <streetAddressLine></streetAddressLine>
+            <city></city>
+            <state></state>
+            <postalCode></postalCode>
+            <country></country>
+            <telecom>0</telecom>
+            <fname></fname>
+            <lname></lname>
+        </authenticator> <primary_care_provider>
+                <provider>
+        <author>
+        <time>2014-02-01 21:26:43</time>
+        <id>a208621d-316f-4c53-9553-dd76c516cd33</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi></facility_npi>
+        <facility_name>Great Clinic</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Donna</fname>
+        <lname>Lee</lname>
+        <npi></npi>
+        </author>
+                    <prefix></prefix>
+                    <fname>Donna</fname>
+                    <lname>Lee</lname>
+                    <speciality></speciality>
+                    <organization>Great Clinic</organization>
+                    <telecom></telecom>
+                    <street></street>
+                    <city></city>
+                    <state></state>
+                    <zip></zip>
+                    <table_id>provider-6</table_id>
+                    <npi></npi>
+                    <physician_type></physician_type>
+                    <physician_type_code></physician_type_code>
+                    <taxonomy>207Q00000X</taxonomy>
+                    <taxonomy_description>Family Medicine</taxonomy_description>
+                    <provider_since>2026-06-16 00:36:25+0000</provider_since>
+                    <role_code>primary</role_code>
+                    <role_display>Primary Care Provider</role_display>
+                </provider>
+            </primary_care_provider><care_team>
+        <author>
+        <time>2014-02-01 21:26:43</time>
+        <id>a208621d-316f-4c53-9553-dd76c516cd33</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi></facility_npi>
+        <facility_name>Great Clinic</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Donna</fname>
+        <lname>Lee</lname>
+        <npi></npi>
+        </author><is_active>inactive</is_active></care_team><encounter_list>
+        <encounter>
+        <extension>ZGVmYXVsdDg=</extension>
+        <sha_extension>c09dd3b2-5c74-e536-cfd4-f4961cfe7541</sha_extension>
+        <encounter_id>8</encounter_id>
+        <code></code>
+        <code_type></code_type>
+        <code_description></code_description>
+        <visit_category>New Patient</visit_category>
+        <performer>Billy  Smith</performer>
+        <physician_type_code></physician_type_code>
+        <physician_type></physician_type>
+        <physician_code_type></physician_code_type>
+        <npi></npi>
+        <fname>Billy</fname>
+        <mname></mname>
+        <lname>Smith</lname>
+        <street></street>
+        <city></city>
+        <state></state>
+        <zip></zip>
+        <work_phone></work_phone>
+        <location>Great Clinic</location>
+        <location_details>,665 Roadsby Road,Longview,FL 333222</location_details>
+        <date>2014-02-01 00:00:00+0000</date>
+        <date_formatted>20140201</date_formatted>
+        <facility_extension>ZGVmYXVsdDM=</facility_extension>
+        <facility_sha_extension>ebc04722-0c75-b9e5-f74f-9c52a19bc40b</facility_sha_extension>
+        <facility_npi></facility_npi>
+        <facility_oid></facility_oid>
+        <facility_name>Great Clinic</facility_name>
+        <facility_address>665 Roadsby Road</facility_address>
+        <facility_city>Longview</facility_city>
+        <facility_state>FL</facility_state>
+        <facility_country>USA</facility_country>
+        <facility_zip>333222</facility_zip>
+        <facility_phone>000-000-0000</facility_phone>
+        <encounter_procedures></encounter_procedures>
+        <encounter_problems>
+                <problem>
+                <extension></extension>
+                <code></code>
+                <code_type></code_type>
+                <text></text>
+                <status></status>
+                </problem></encounter_problems>
+
+                <encounter_diagnosis>
+                <extension></extension>
+                <code></code>
+                <code_type></code_type>
+                <text></text>
+                <status></status>
+                </encounter_diagnosis>
+        <encounter_reason>toe pain</encounter_reason>
+        </encounter></encounter_list>
+                <primary_diagnosis>
+                <root></root>
+                <extension></extension>
+                <encounter_date></encounter_date>
+                <encounter_end_date></encounter_end_date>
+                <code></code>
+                <code_type></code_type>
+                <text></text>
+                <status></status>
+                </primary_diagnosis><allergies></allergies><medications><medication>
+        <author>
+        <time>2014-02-01 00:00:00</time>
+        <id>a208621d-3161-44e0-a316-cc907728fe76</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi></facility_npi>
+        <facility_name>Great Clinic</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Billy</fname>
+        <lname>Smith</lname>
+        <npi></npi>
+        </author>
+    <id>11</id>
+    <extension>ZGVmYXVsdDEx</extension>
+    <sha_extension>cdbd33f0-6cde-11db-9fe1-0800200c9a66</sha_extension>
+    <performer_name>Billy  Smith</performer_name>
+    <fname>Billy</fname>
+    <mname></mname>
+    <lname>Smith</lname>
+    <title></title>
+    <npi></npi>
+    <address></address>
+    <city></city>
+    <state></state>
+    <zip></zip>
+    <work_phone></work_phone>
+    <drug>Lisinopril</drug>
+    <direction>20 mg  Per Oris 1 tablet Daily</direction>
+    <dosage>1</dosage>
+    <size>20</size>
+    <unit>mg</unit>
+    <unit_code>NCI-CONCEPT-ID:C28253</unit_code>
+    <form>tablet</form>
+    <form_code>C42998</form_code>
+    <route_code>C38288</route_code>
+    <route>Per Oris</route>
+    <interval>Daily</interval>
+    <start_date>20140201</start_date>
+    <start_date_formatted>2014-02-01</start_date_formatted>
+    <end_date></end_date>
+    <status>active</status>
+    <indications></indications>
+    <indications_code>0</indications_code>
+    <instructions></instructions>
+    <rxnorm>C99A32</rxnorm>
+    <provider_id></provider_id>
+    <provider_name></provider_name>
+    </medication></medications><problem_lists><problem>
+        <author>
+        <time>2026-06-16 00:14:55</time>
+        <id>a208621d-316f-4c53-9553-dd76c516cd33</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi></facility_npi>
+        <facility_name>Great Clinic</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Donna</fname>
+        <lname>Lee</lname>
+        <npi></npi>
+        </author>
+                <problem_id></problem_id>
+                <extension>ZGVmYXVsdDY=</extension>
+                <sha_extension>a208621d-2c6c-4ff1-b537-0ee77c5320dc</sha_extension>
+                <title>diabetes</title>
+                <code></code>
+                <code_type></code_type>
+                <code_text></code_text>
+                <age>59</age>
+                <start_date_table></start_date_table>
+                <start_date>0</start_date>
+                <end_date>0</end_date>
+                <status>active</status>
+                <status_table>Active</status_table>
+                <status_code>55561003</status_code>
+                <observation>Unassigned</observation>
+                <observation_code></observation_code>
+                <diagnosis></diagnosis>
+                </problem></problem_lists><procedures><procedure>
+        <author>
+        <time>2014-02-01 21:28:51</time>
+        <id>a208621d-316f-4c53-9553-dd76c516cd33</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi></facility_npi>
+        <facility_name>Great Clinic</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Donna</fname>
+        <lname>Lee</lname>
+        <npi></npi>
+        </author>
+            <extension>ZGVmYXVsdA==</extension>
+            <sha_extension>d68b7e32-7810-4f5b-9cc2-acd54b0fd85d</sha_extension>
+            <description></description>
+            <code>99205</code>
+            <code_type>CPT4</code_type>
+            <date>2014-02-01</date>
+            <npi></npi>
+            <fname></fname>
+            <mname></mname>
+            <lname></lname>
+            <address></address>
+            <city></city>
+            <state></state>
+            <zip></zip>
+            <work_phone></work_phone>
+            <facility_extension>ZGVmYXVsdDM=</facility_extension>
+            <facility_sha_extension>c2ee9ee9-ae31-4628-a919-fec1cbb58686</facility_sha_extension>
+            <facility_name>Great Clinic</facility_name>
+            <facility_address>665 Roadsby Road</facility_address>
+            <facility_city>Longview</facility_city>
+            <facility_state>FL</facility_state>
+            <facility_country>USA</facility_country>
+            <facility_zip>333222</facility_zip>
+            <facility_phone>000-000-0000</facility_phone>
+            <procedure_date>20140201</procedure_date>
+            </procedure><procedure>
+        <author>
+        <time>2014-02-01 21:29:26</time>
+        <id>a208621d-316f-4c53-9553-dd76c516cd33</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi></facility_npi>
+        <facility_name>Great Clinic</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Donna</fname>
+        <lname>Lee</lname>
+        <npi></npi>
+        </author>
+            <extension>ZGVmYXVsdA==</extension>
+            <sha_extension>d68b7e32-7810-4f5b-9cc2-acd54b0fd85d</sha_extension>
+            <description>Crushing injury of toe(s)</description>
+            <code>928.3</code>
+            <code_type>ICD9</code_type>
+            <date>2014-02-01</date>
+            <npi></npi>
+            <fname></fname>
+            <mname></mname>
+            <lname></lname>
+            <address></address>
+            <city></city>
+            <state></state>
+            <zip></zip>
+            <work_phone></work_phone>
+            <facility_extension>ZGVmYXVsdDM=</facility_extension>
+            <facility_sha_extension>c2ee9ee9-ae31-4628-a919-fec1cbb58686</facility_sha_extension>
+            <facility_name>Great Clinic</facility_name>
+            <facility_address>665 Roadsby Road</facility_address>
+            <facility_city>Longview</facility_city>
+            <facility_state>FL</facility_state>
+            <facility_country>USA</facility_country>
+            <facility_zip>333222</facility_zip>
+            <facility_phone>000-000-0000</facility_phone>
+            <procedure_date>20140201</procedure_date>
+            </procedure></procedures><results></results><immunizations></immunizations><planofcare></planofcare><goals></goals><health_concerns></health_concerns><social_history_sdoh></social_history_sdoh><functional_status></functional_status><mental_status></mental_status><clinical_instruction></clinical_instruction><medical_devices></medical_devices><referral_reason></referral_reason><payers>  <payer>
+    <identifiers>
+      <identifier>a208621d-2a9e-4c0e-b414-93fafe6e1bff</identifier>
+    </identifiers>
+    <policy>
+      <identifiers>
+        <identifier>a208621d-2f4f-4c60-940a-1ebfd6289ef0</identifier>
+         <extension>44</extension>
+      </identifiers>
+      <code code="72" code_system="2.16.840.1.113883.3.221.5" code_system_name="Insurance Type Code" name="PPO" />
+      <plan_name>Rush</plan_name>
+      <insurance>
+        <code code="PAYOR" code_system="2.16.840.1.113883.5.110" code_system_name="RoleCode" name="Invoice Payor" />
+        <performer>
+          <identifiers>
+            <identifier>2.16.840.1.113883.18</identifier>
+          </identifiers>
+          <address>
+            <street_lines>4345 Donkey Road</street_lines>
+            <street_lines2></street_lines2>
+            <city>Longview</city>
+            <state>FL</state>
+            <zip>44433</zip>
+            <country>USA</country>
+            <use>work place</use>
+          </address>
+          <phone>
+            <number>(000)000-0000</number>
+            <type>work place</type>
+          </phone>
+          <organization>
+            <name>Aekna</name>
+            <address>
+              <street_lines>4345 Donkey Road </street_lines>
+              <city>Longview</city>
+              <state>FL</state>
+              <zip>44433</zip>
+              <country>USA</country>
+              <use>work place</use>
+            </address>
+            <phone>
+              <number>(000)000-0000</number>
+              <type>work place</type>
+            </phone>
+          </organization>
+        </performer>
+      </insurance>
+    </policy>
+    <guarantor>
+      <code code="GUAR" code_system_name="HL7 Role" />
+      <identifiers><identifier>a208621d-2f4f-4c60-940a-1ebfd6289ef0</identifier></identifiers>
+      <name>
+        <prefix>Mr.</prefix>
+        <first>Susan</first>
+        <middle>Subscriber</middle>
+        <last>Underwood</last>
+      </name>
+      <address>
+        <street_lines>3454 Apple Road</street_lines>
+        <city>Longview</city>
+        <state></state>
+        <zip>44533</zip>
+        <country>US</country>
+        <use>primary home</use>
+      </address>
+      <phone>
+        <number>4443332222</number>
+        <type>primary home</type>
+      </phone>
+    </guarantor>
+    <participant>
+      <time_low>2012-02-19</time_low>
+      <time_high></time_high>
+      <code name="Self" code="SELF" code_system="2.16.840.1.113883.3.221.5" code_system_name="Insurance Type Code" />
+      <performer>
+        <identifiers>
+          <identifier>a208621d-2f4f-4c60-940a-1ebfd6289ef0</identifier>
+          <extension>5555</extension>
+        </identifiers>
+        <address>
+          <street_lines>3454 Apple Road</street_lines>
+          <city>Longview</city>
+          <state></state>
+          <zip>44533</zip>
+          <country>US</country>
+          <use>primary home</use>
+        </address>
+        <code>
+          <name>Self</name>
+          <code>SELF</code>
+          <code_system>"2.16.840.1.113883.3.221.5"</code_system>
+          <code_system_name>Insurance Type Code</code_system_name>
+        </code>
+      </performer>
+      <name>
+        <first>Susan</first>
+        <middle>Ardmore</middle>
+        <last>Underwood</last>
+      </name>
+    </participant>
+    <policy_holder>
+      <performer>
+        <identifiers>
+          <identifier>2.16.840.1.113883.19</identifier>
+          <extension>5555</extension>
+        </identifiers>
+        <address>
+          <street_lines>3454 Apple Road</street_lines>
+          <city>Longview</city>
+          <state></state>
+          <zip>44533</zip>
+          <country>US</country>
+          <use>primary home</use>
+        </address>
+      </performer>
+    </policy_holder>
+    <authorization>
+        <authorization_code>72</authorization_code>
+        <identifiers><identifier>a208621d-2f4f-4c60-940a-1ebfd6289ef0</identifier></identifiers>
+    </authorization>
+  </payer>
+</payers><advance_directives></advance_directives><clinical_notes></clinical_notes><progressNotes></progressNotes><hospitalCourse><item></item></hospitalCourse><dischargediagnosis><item></item></dischargediagnosis><dischargemedication><item></item></dischargemedication><procedure_notes><complications><age>59</age><item></item></complications><procedure_diagnosis><age>59</age><item></item></procedure_diagnosis><procedure_description><item></item></procedure_description><procedure_indications><item></item></procedure_indications></procedure_notes><operative_notes><anesthesia><item></item></anesthesia><post_operative_diag><item></item></post_operative_diag><pre_operative_diag><item></item></pre_operative_diag><blood_loss><item></item></blood_loss><procedure_findings><item></item><age>59</age></procedure_findings><procedure_specimens><item></item></procedure_specimens></operative_notes><consultation_notes><hp><item></item></hp><physical_exam><item></item></physical_exam></consultation_notes><history_physical><chief_complaint><item></item></chief_complaint><general_status><item></item></general_status><history_past_illness><item></item></history_past_illness><review_of_systems><item></item></review_of_systems><vitals_list><vitals>
+        <author>
+        <time>2014-02-01 21:28:33</time>
+        <id>a208621d-316f-4c53-9553-dd76c516cd33</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi></facility_npi>
+        <facility_name>Great Clinic</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Donna</fname>
+        <lname>Lee</lname>
+        <npi></npi>
+        </author>
+            <extension>ZGVmYXVsdDg=</extension>
+            <sha_extension>c6f88321-67ad-11db-bd13-0800200c9a66</sha_extension>
+            <date>2014-02-01</date>
+            <effectivetime>2014-02-01 21:28:33</effectivetime>
+            <temperature>99</temperature>
+            <unit_temperature>[degF]</unit_temperature>
+            <extension_temperature>ZGVmYXVsdDEwdGVtcGVyYXR1cmU=</extension_temperature>
+            <bpd>80</bpd>
+            <extension_bpd>ZGVmYXVsdDEwYnBk</extension_bpd>
+            <bps>150</bps>
+            <extension_bps>ZGVmYXVsdDEwYnBz</extension_bps>
+            <bp_avg>103.3</bp_avg>
+            <extension_bp_avg>ZGVmYXVsdDEwYnBfYXZn</extension_bp_avg>
+            <avg_systolic>150</avg_systolic>
+            <extension_avg_systolic>ZGVmYXVsdDEwYXZnX3N5c3RvbGlj</extension_avg_systolic>
+            <avg_diastolic>80</avg_diastolic>
+            <extension_avg_diastolic>ZGVmYXVsdDEwYXZnX2RpYXN0b2xpYw==</extension_avg_diastolic>
+
+            <head_circ></head_circ>
+            <extension_head_circ>ZGVmYXVsdDEwaGVhZF9jaXJj</extension_head_circ>
+            <pulse>99</pulse>
+            <extension_pulse>ZGVmYXVsdDEwcHVsc2U=</extension_pulse>
+            <height>60</height>
+            <extension_height>ZGVmYXVsdDEwaGVpZ2h0</extension_height>
+            <unit_height>[in_i]</unit_height>
+            <oxygen_saturation>97</oxygen_saturation>
+            <extension_oxygen_saturation>ZGVmYXVsdDEwb3h5Z2VuX3NhdHVyYXRpb24=</extension_oxygen_saturation>
+            <breath>22</breath>
+            <extension_breath>ZGVmYXVsdDEwYnJlYXRo</extension_breath>
+            <weight>150</weight>
+            <extension_weight>ZGVmYXVsdDEwd2VpZ2h0</extension_weight>
+            <unit_weight>[lb_av]</unit_weight>
+            <BMI>29.3</BMI>
+            <extension_BMI>ZGVmYXVsdDEwQk1J</extension_BMI>
+            <BMI_status>Overweight</BMI_status>
+            <extension_oxygen_flow_rate>ZGVmYXVsdDEwb3h5Z2VuX2Zsb3dfcmF0ZQ==</extension_oxygen_flow_rate>
+            <oxygen_flow_rate></oxygen_flow_rate>
+            <extension_ped_weight_height>ZGVmYXVsdDEwcGVkX3dlaWdodF9oZWlnaHQ=</extension_ped_weight_height>
+            <ped_weight_height></ped_weight_height>
+            <extension_ped_bmi>ZGVmYXVsdDEwcGVkX2JtaQ==</extension_ped_bmi>
+            <ped_bmi></ped_bmi>
+            <extension_ped_head_circ>ZGVmYXVsdDEwcGVkX2hlYWRfY2lyYw==</extension_ped_head_circ>
+            <ped_head_circ></ped_head_circ>
+            <extension_inhaled_oxygen_concentration>ZGVmYXVsdDEwaW5oYWxlZF9veHlnZW5fY29uY2VudHJhdGlvbg==</extension_inhaled_oxygen_concentration>
+            <inhaled_oxygen_concentration></inhaled_oxygen_concentration>
+            </vitals></vitals_list><social_history><history_element>
+        <author>
+        <time>2014-02-01 21:26:43</time>
+        <id>a208621d-316f-4c53-9553-dd76c516cd33</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi></facility_npi>
+        <facility_name>Great Clinic</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Donna</fname>
+        <lname>Lee</lname>
+        <npi></npi>
+        </author>
+                                  <extension>c21va2luZ2RlZmF1bHQy</extension>
+                                  <sha_extension>9b56c25d-9104-45ee-9fa4-e0f3afaa01c1</sha_extension>
+                                  <element>Smoking</element>
+                                  <description></description>
+                                  <status_code></status_code>
+                                  <status></status>
+                                  <date></date>
+                                  <date_formatted></date_formatted>
+                                  <code></code>
+                            </history_element><history_element>
+        <author>
+        <time>2014-02-01 21:26:43</time>
+        <id>a208621d-316f-4c53-9553-dd76c516cd33</id>
+        <physician_type>Family Medicine</physician_type>
+        <physician_type_code>207Q00000X</physician_type_code>
+        <physician_type_system>2.16.840.1.114222.4.11.1066</physician_type_system>
+        <physician_type_system_name>ValueSet Healthcare Provider Taxonomy (HIPAA)</physician_type_system_name>
+        <streetAddressLine></streetAddressLine>
+        <facility_oid>2.16.840.1.113883.4.6</facility_oid>
+        <facility_npi></facility_npi>
+        <facility_name>Great Clinic</facility_name>
+        <city></city>
+        <state></state>
+        <postalCode></postalCode>
+        <country></country>
+        <telecom></telecom>
+        <fname>Donna</fname>
+        <lname>Lee</lname>
+        <npi></npi>
+        </author>
+                                  <extension>YWxjb2hvbGRlZmF1bHQy</extension>
+                                  <sha_extension>37f76c51-6411-4e1d-8a37-957fd49d2cef</sha_extension>
+                                  <element>Alcohol</element>
+                                  <description></description>
+                                  <status_code></status_code>
+                                  <status>completed</status>
+                                  <date></date>
+                                  <date_formatted></date_formatted>
+                                  <code>160573003</code>
+                            </history_element></social_history></history_physical><document></document></CCDA>

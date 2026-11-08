@@ -3,7 +3,7 @@
 /**
  * MedicationPatientIssueService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -20,6 +20,10 @@ class MedicationPatientIssueService extends BaseService
 
     const LIST_OPTION_MEDICATION_REQUEST_INTENT = "medication-request-intent";
     const LIST_OPTION_MEDICATION_USAGE_CATEGORY = "medication-usage-category";
+
+    const LIST_OPTION_MEDICATION_ADHERENCE = "medication_adherence";
+
+    const LIST_OPTION_MEDICATION_ADHERENCE_INFORMATION_SOURCE = "medication_adherence_information_source";
 
     public function __construct()
     {
@@ -73,6 +77,15 @@ class MedicationPatientIssueService extends BaseService
         if (!empty($dataRecord['usage_category'])) {
             $option = $listService->getListOption(self::LIST_OPTION_MEDICATION_USAGE_CATEGORY, $dataRecord['usage_category']);
             $dataRecord['usage_category_title'] = $option['title'] ?? null;
+        }
+        // TODO: investigate why title is used above but not for the other two list options
+        if (!empty($dataRecord['adherence_type'])) {
+            $option = $listService->getListOption(self::LIST_OPTION_MEDICATION_ADHERENCE, $dataRecord['adherence_type']);
+            $dataRecord['adherence_type'] = $option['option_id'] ?? null;
+        }
+        if (!empty($dataRecord['adherence_information_source'])) {
+            $option = $listService->getListOption(self::LIST_OPTION_MEDICATION_ADHERENCE, $dataRecord['adherence_information_source']);
+            $dataRecord['adherence_information_source'] = $option['option_id'] ?? null;
         }
     }
 

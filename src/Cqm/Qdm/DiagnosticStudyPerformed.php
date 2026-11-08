@@ -73,7 +73,7 @@ class DiagnosticStudyPerformed extends QDMBaseType
      * @property array $components
      */
     public $components = [
-        
+
     ];
 
     /**
@@ -85,7 +85,7 @@ class DiagnosticStudyPerformed extends QDMBaseType
      * @property array $relatedTo
      */
     public $relatedTo = [
-        
+
     ];
 
     /**
@@ -115,4 +115,3 @@ class DiagnosticStudyPerformed extends QDMBaseType
 
     public $_type = 'QDM::DiagnosticStudyPerformed';
 }
-

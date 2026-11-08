@@ -107,7 +107,7 @@ class FHIRDocumentManifest extends FHIRDomainResource implements \JsonSerializab
     public $created = null;
 
     /**
-     * Identifies who is the author of the manifest. Manifest author is not necessarly the author of the references included.
+     * Identifies who is the author of the manifest. Manifest author is not necessarily the author of the references included.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
     public $author = [];
@@ -268,7 +268,7 @@ class FHIRDocumentManifest extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * Identifies who is the author of the manifest. Manifest author is not necessarly the author of the references included.
+     * Identifies who is the author of the manifest. Manifest author is not necessarily the author of the references included.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
     public function getAuthor()
@@ -277,7 +277,7 @@ class FHIRDocumentManifest extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * Identifies who is the author of the manifest. Manifest author is not necessarly the author of the references included.
+     * Identifies who is the author of the manifest. Manifest author is not necessarily the author of the references included.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $author
      * @return $this
      */
@@ -476,7 +476,7 @@ class FHIRDocumentManifest extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -543,15 +543,13 @@ class FHIRDocumentManifest extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DocumentManifest xmlns="http://hl7.org/fhir"></DocumentManifest>');
-        }
+        $sxe ??= new \SimpleXMLElement('<DocumentManifest xmlns="http://hl7.org/fhir"></DocumentManifest>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->masterIdentifier)) {
             $this->masterIdentifier->xmlSerialize(true, $sxe->addChild('masterIdentifier'));

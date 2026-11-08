@@ -156,8 +156,8 @@
             window.addEventListener('scroll', resetLogOutTimer, true);
 
             function logoutWarn() {
-                const warnMsg = xl('Your current log on session will expire in 30 seconds.') + '<br />' + xl('Please take action to prevent being logged out!');
-                syncAlertMsg(warnMsg, 28000); // from utility.js
+                const warnMsg = xl('Your current log on session will expire in 30 seconds.') + '\n' + xl('Please take action to prevent being logged out!');
+                asyncAlertMsg(warnMsg, 28000); // from utility.js
             }
 
             function logout() {
@@ -171,7 +171,6 @@
             }
 
             function resetLogOutTimer() {
-                $('#alert_box').remove(); // reset alert if set
                 resetWarnTimer();
                 clearTimeout(timeOut);
                 timeOut = setTimeout(logout, time);
@@ -260,8 +259,21 @@
             });
 
             {% if portal_two_payments %}
-            $("#payment").load("./portal_payment.php", {}, function () {
-            });
+            $("#payment").load(
+                "./portal_payment.php",
+                {
+                    csrf_token_form: {{ csrfPostUtils | js_escape }}
+                },
+                function (response, status, xhr) {
+                    if (status === "error") {
+                        console.error(
+                            "Unable to load payment page:",
+                            xhr.status,
+                            xhr.statusText
+                        );
+                    }
+                }
+            );
             {% endif %}
 
             {% if isEasyPro %}
@@ -659,9 +671,10 @@
                                     , id: "help-go"
                                 } %}
                                 {{ fireEvent(eventNames.dashboardInjectCard) }}
+                                <!-- Infeg: Updated logout URL to point to portal/logout.php -->
                                 {% include "portal/partial/_nav_icon.html.twig"
                                     with {
-                                    url:  webroot ~ "./logout.php"
+                                    url:  "./logout.php"
                                     ,localLink: false
                                     , icon: "right-from-bracket"
                                     , navText: "Logout"|xl
@@ -789,7 +802,7 @@
                 {% if ccdaOk %}
                     {% include "portal/partial/_nav_icon.html.twig"
                         with {
-                        url: web_root ~ "/ccdaservice/ccda_gateway.php?action=view&csrf_token_form=" ~ csrfUtils|attr_url
+                        url: web_root ~ "/portal/ccda_gateway.php?action=view&csrf_token_form=" ~ csrfUtils|attr_url
                         , icon: "notes-medical"
                         , navText: "View Summary of Care"|xl
                         , id: "view-summary-go"
@@ -797,7 +810,7 @@
                     } %}
                     {% include "portal/partial/_nav_icon.html.twig"
                         with {
-                        url: web_root ~ "/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form=" ~ csrfUtils|attr_url
+                        url: web_root ~ "/portal/ccda_gateway.php?action=dl&csrf_token_form=" ~ csrfUtils|attr_url
                         , icon: "download"
                         , navText: "Download Summary of Care"|xl
                         , id: "download-summary-go"

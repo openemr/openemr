@@ -4,7 +4,7 @@
  * InsuranceService - Service class for patient insurance policy (coverage) data
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -19,13 +19,14 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
     FhirSearchWhereClauseBuilder,
+    ISearchField,
     SearchModifier,
     TokenSearchField,
     TokenSearchValue,
@@ -70,19 +71,23 @@ class InsuranceService extends BaseService
     public function getOneByPid($id, $type)
     {
         $sql = "SELECT * FROM insurance_data WHERE pid=? AND type=?";
-        return sqlQuery($sql, array($id, $type));
+        return sqlQuery($sql, [$id, $type]);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         $sql = "SELECT `insurance_data`.*,
                        `puuid`,
-                       `insureruuid`
+                       `insureruuid`,
+                       `ins_type_code`,
+                       `cqm_sop`
                 FROM `insurance_data`
                 LEFT JOIN (
                     SELECT
                     `uuid` AS `insureruuid`,
-                    `id` AS `insurerid`
+                    `id` AS `insurerid`,
+                    `ins_type_code`,
+                    `cqm_sop`
                     FROM `insurance_companies`
                     ) `insurance_company_data` ON `insurance_data`.`provider` = `insurance_company_data`.`insurerid`
                 LEFT JOIN (
@@ -112,7 +117,7 @@ class InsuranceService extends BaseService
         return $processingResult;
     }
 
-    public function getOne($uuid)
+    public function getOne($uuid): ProcessingResult
     {
 
         $processingResult = new ProcessingResult();
@@ -123,7 +128,7 @@ class InsuranceService extends BaseService
         $uuidBytes = UuidRegistry::uuidToBytes($uuid);
         $sql = "SELECT * FROM insurance_data WHERE uuid=? ";
 
-        $sqlResult = sqlQuery($sql, array($uuidBytes));
+        $sqlResult = sqlQuery($sql, [$uuidBytes]);
         if ($sqlResult) {
             $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
             $processingResult->addData($sqlResult);
@@ -133,104 +138,73 @@ class InsuranceService extends BaseService
         return $processingResult;
     }
 
-    /**
-     * @deprecated use search instead
-     * @param $search
-     * @param $isAndCondition
-     * @return ProcessingResult|true
-     */
-    public function getAll($search = array(), $isAndCondition = true)
-    {
-
-        // Validating and Converting Patient UUID to PID
-        // Validating and Converting UUID to ID
-        if (isset($search['pid'])) {
-            $isValidcondition = $this->coverageValidator->validateId(
-                'uuid',
-                self::PATIENT_TABLE,
-                $search['pid'],
-                true
-            );
-            if ($isValidcondition !== true) {
-                return $isValidcondition;
-            }
-            $puuidBytes = UuidRegistry::uuidToBytes($search['pid']);
-            $search['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
-        }
-        // Validating and Converting Payor UUID to provider
-        if (isset($search['provider'])) {
-            $isValidcondition = $this->coverageValidator->validateId(
-                'uuid',
-                self::INSURANCE_TABLE,
-                $search['provider'],
-                true
-            );
-            if ($isValidcondition !== true) {
-                return $isValidcondition;
-            }
-            $uuidBytes = UuidRegistry::uuidToBytes($search['provider']);
-            $search['provider'] = $this->getIdByUuid($uuidBytes, self::INSURANCE_TABLE, "provider");
-        }
-
-        // Validating and Converting UUID to ID
-        if (isset($search['id'])) {
-            $isValidcondition = $this->coverageValidator->validateId(
-                'uuid',
-                self::COVERAGE_TABLE,
-                $search['id'],
-                true
-            );
-            if ($isValidcondition !== true) {
-                return $isValidcondition;
-            }
-            $uuidBytes = UuidRegistry::uuidToBytes($search['id']);
-            $search['id'] = $this->getIdByUuid($uuidBytes, self::COVERAGE_TABLE, "id");
-        }
-        $sqlBindArray = array();
-        $sql = "SELECT * FROM insurance_data ";
-        if (!empty($search)) {
-            $sql .= ' WHERE ';
-            $whereClauses = array();
-            foreach ($search as $fieldName => $fieldValue) {
-                array_push($whereClauses, $fieldName . ' = ?');
-                array_push($sqlBindArray, $fieldValue);
-            }
-            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
-            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
-        }
-        $statementResults = sqlStatement($sql, $sqlBindArray);
-
-        $processingResult = new ProcessingResult();
-        while ($row = sqlFetchArray($statementResults)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
-            $patientuuidBytes = $this->getUuidById($row['pid'], self::PATIENT_TABLE, "id");
-            $row['puuid'] = UuidRegistry::uuidToString($patientuuidBytes);
-            $insureruuidBytes = $this->getUuidById($row['provider'], self::INSURANCE_TABLE, "id");
-            //When No provider data is available
-            if (strlen($insureruuidBytes) > 0) {
-                $row['insureruuid'] = UuidRegistry::uuidToString($insureruuidBytes);
-                $processingResult->addData($row);
-            }
-        }
-        return $processingResult;
-    }
-
     public function doesInsuranceTypeHaveEntry($pid, $type = '')
     {
         if (!empty($type)) {
             return sqlQuery("Select `id` From `insurance_data` Where pid = ? And type = ?", [$pid, $type])['id'] ?? null;
         }
-        return $this->getOne($pid, $type) !== false;
+        return QueryUtils::fetchSingleValue("SELECT `id` FROM `insurance_data` WHERE `pid` = ? LIMIT 1", 'id', [$pid]) !== null;
     }
 
-    public function update($data)
+    public function update($data): ProcessingResult
     {
         $validationResult = $this->coverageValidator->validate($data, CoverageValidator::DATABASE_UPDATE_CONTEXT);
         if (!$validationResult->isValid()) {
             return $validationResult;
         }
+        return $this->writeUpdate($data);
+    }
 
+    /**
+     * Updates a policy from a document import (see insertImported()), checked in the import
+     * context. Like update(), it writes every column, so pass the stored row with the
+     * document's values over it: what the caller leaves out is written as NULL.
+     *
+     * @param array<mixed> $data
+     */
+    public function updateImported(array $data): ProcessingResult
+    {
+        $validationResult = $this->coverageValidator->validate($data, CoverageValidator::DATABASE_IMPORT_CONTEXT);
+        if (!$validationResult->isValid()) {
+            return $validationResult;
+        }
+        if (!is_string($data['uuid'] ?? null)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'Coverage UUID must be provided']);
+            return $processingResult;
+        }
+        return $this->writeUpdate($data);
+    }
+
+    /**
+     * The update statement, for a record the caller has validated.
+     */
+    private function writeUpdate(mixed $data): ProcessingResult
+    {
         $processingResult = new ProcessingResult();
+
+        // When the caller supplied a pid (REST patient-compartment path), confirm
+        // the row keyed by $data['uuid'] actually belongs to that patient before
+        // writing. Without this check a leaked insurance uuid supplied under one
+        // patient's path could update a row on another patient's chart because
+        // the UPDATE below is keyed on uuid alone. Reported as not-found rather
+        // than forbidden so a uuid probe cannot confirm the existence of another
+        // patient's policy.
+        $callerPid = is_array($data) ? ($data['pid'] ?? null) : null;
+        $callerUuid = is_array($data) ? ($data['uuid'] ?? null) : null;
+        if (is_numeric($callerPid) && is_string($callerUuid) && $callerUuid !== '') {
+            $uuidBinaryCheck = UuidRegistry::uuidToBytes($callerUuid);
+            $rowPidRaw = QueryUtils::fetchSingleValue(
+                "SELECT pid FROM insurance_data WHERE uuid = ?",
+                'pid',
+                [$uuidBinaryCheck]
+            );
+            if (!is_numeric($rowPidRaw) || (int) $rowPidRaw !== (int) $callerPid) {
+                $notFound = new ProcessingResult();
+                $notFound->setValidationMessages(['uuid' => 'Insurance policy not found']);
+                return $notFound;
+            }
+        }
 
         $sql = " UPDATE insurance_data SET ";
         $sql .= "   provider=?,";
@@ -271,7 +245,7 @@ class InsuranceService extends BaseService
 
         $results = sqlStatement(
             $sql,
-            array(
+            [
                 $data["provider"],
                 $data["plan_name"],
                 $data["policy_number"],
@@ -302,14 +276,14 @@ class InsuranceService extends BaseService
                 $data["policy_type"],
                 $data['type'],
                 $uuid
-            )
+            ]
         );
         if ($results) {
             $serviceSavePostEvent = new ServiceSaveEvent($this, $data);
             $this->getEventDispatcher()->dispatch($serviceSavePostEvent, ServiceSaveEvent::EVENT_POST_SAVE);
             $processingResult = $this->getOne($data['uuid']);
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
         return $processingResult;
     }
@@ -350,6 +324,7 @@ class InsuranceService extends BaseService
         $sql .= "   subscriber_employer_city=?,";
         $sql .= "   copay=?,";
         $sql .= "   date=?,";
+        $sql .= "   date_end=?,";
         $sql .= "   pid=?,";
         $sql .= "   subscriber_sex=?,";
         $sql .= "   accept_assignment=?,";
@@ -358,10 +333,13 @@ class InsuranceService extends BaseService
         $serviceSaveEvent = new ServiceSaveEvent($this, $data);
         $dispatchedEvent = $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_PRE_SAVE);
         $data = $dispatchedEvent->getSaveData();
+        // as update() writes it: a policy with no end date is open-ended (NULL)
+        $dateEnd = $data['date_end'] ?? null;
+        $dateEnd = is_string($dateEnd) && $dateEnd !== '' ? $dateEnd : null;
 
         $insuranceDataId = sqlInsert(
             $sql,
-            array(
+            [
                 $data['uuid'],
                 $data['type'],
                 $data["provider"],
@@ -388,11 +366,12 @@ class InsuranceService extends BaseService
                 $data["subscriber_employer_city"] ?? '',
                 $data["copay"] ?? '',
                 $data["date"] ?? '',
+                $dateEnd,
                 $data['pid'],
                 $data["subscriber_sex"] ?? '',
                 $data["accept_assignment"] ?? '',
                 $data["policy_type"] ?? ''
-            )
+            ]
         );
         // I prefer exceptions... but we will try to match other service handler formats for consistency
         $processingResult = new ProcessingResult();
@@ -406,10 +385,44 @@ class InsuranceService extends BaseService
             $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_POST_SAVE);
             $processingResult = $this->getOne($stringUuid);
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
 
         return $processingResult;
+    }
+
+    /**
+     * Inserts a policy that a document import brings in, such as a QRDA Category I document's
+     * Patient Characteristic Payer: the patient, the policy type, the payer and its dates.
+     *
+     * Checked in CoverageValidator's import context, which asks only for those. The document has
+     * no policy number, plan name or subscriber, so those columns keep their defaults (NULL)
+     * rather than a value it doesn't state. insert() keeps the full rules for every other caller.
+     *
+     * @param array<mixed> $data pid, type, provider, date (Y-m-d) and date_end (Y-m-d or null; the key is
+     *                           required once there is a date, as in insert())
+     */
+    public function insertImported(array $data): ProcessingResult
+    {
+        $validationResult = $this->coverageValidator->validate($data, CoverageValidator::DATABASE_IMPORT_CONTEXT);
+        if (!$validationResult->isValid()) {
+            return $validationResult;
+        }
+
+        $uuid = UuidRegistry::getRegistryForTable(self::COVERAGE_TABLE)->createUuid();
+        $data['uuid'] = $uuid;
+        $serviceSaveEvent = new ServiceSaveEvent($this, $data);
+        $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_PRE_SAVE);
+        $data = $serviceSaveEvent->getSaveData();
+
+        $dateEnd = $data['date_end'] ?? null;
+        $data['id'] = QueryUtils::sqlInsert(
+            "INSERT INTO `insurance_data` (`uuid`, `pid`, `type`, `provider`, `date`, `date_end`) VALUES (?, ?, ?, ?, ?, ?)",
+            [$uuid, $data['pid'], $data['type'], $data['provider'], $data['date'], $dateEnd === '' ? null : $dateEnd]
+        );
+        $this->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $data), ServiceSaveEvent::EVENT_POST_SAVE);
+
+        return $this->getOne(UuidRegistry::uuidToString($uuid));
     }
 
     /**
@@ -452,16 +465,12 @@ class InsuranceService extends BaseService
                 'date_end' => $compositeDateEnd
             ]
         );
-        if ($insuranceDataResult->hasData()) {
-            $result = $insuranceDataResult->getData();
-        } else {
-            $result = [];
-        }
+        $result = $insuranceDataResult->hasData() ? $insuranceDataResult->getData() : [];
 
         return $result;
     }
 
-    public function getPoliciesOrganizedByTypeForPatientPid($pid)
+    public function getPoliciesOrganizedByTypeForPatientPid($pid): array
     {
         $insurancePolicies = $this->search(['pid' => $pid]);
         $result = [];
@@ -488,7 +497,7 @@ class InsuranceService extends BaseService
         return $organizedResults;
     }
 
-    public function swapInsurance($pid, string $targetType, string $insuranceUuid)
+    public function swapInsurance($pid, string $targetType, string $insuranceUuid): ProcessingResult
     {
         $transactionCommitted = false;
         $validateData = ['pid' => $pid, 'type' => $targetType, 'uuid' => $insuranceUuid];
@@ -555,15 +564,24 @@ class InsuranceService extends BaseService
                 }
             }
 
-            // we have to do this in multiple steps due to the way the db constraing on the type and date are set
+            // we have to do this in multiple steps due to the way the db constraint on the type and date are set
             $srcInsurance['type'] = $targetType;
-            $this->update($srcInsurance);
+            // Checked like the target update above: update() reports a failed
+            // write in its result rather than throwing, so an unchecked result
+            // would let a half-finished swap reach commitTransaction().
+            $srcUpdateResult = $this->update($srcInsurance);
+            if ($srcUpdateResult->hasErrors()) {
+                throw new \InvalidArgumentException("Failed to update insurance policy with uuid: $insuranceUuid");
+            }
 
             if (!empty($targetInsurance)) {
                 if (!empty($resetStartDate)) {
                     $targetInsurance["date"] = $resetStartDate;
                 }
-                $this->update($targetInsurance);
+                $targetDateResult = $this->update($targetInsurance);
+                if ($targetDateResult->hasErrors()) {
+                    throw new \InvalidArgumentException("Failed to update insurance policy with uuid: $insuranceUuid");
+                }
             }
             QueryUtils::commitTransaction();
             $transactionCommitted = true;
@@ -572,17 +590,17 @@ class InsuranceService extends BaseService
                 ,'target' => $targetInsurance
             ];
             $processingResult->addData($result);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $processingResult->addInternalError($e->getMessage());
         } finally {
             try {
                 if (!$transactionCommitted) {
                     QueryUtils::rollbackTransaction();
                 }
-            } catch (\Exception $e) {
-                (new SystemLogger())->errorLogCaller(
+            } catch (\Throwable $e) {
+                ServiceContainer::getLogger()->error(
                     "Failed to rollback transaction " . $e->getMessage(),
-                    ['type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
+                    ['exception' => $e, 'type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
                 );
             }
         }

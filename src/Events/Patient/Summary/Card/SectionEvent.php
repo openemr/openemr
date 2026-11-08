@@ -6,7 +6,7 @@
  * Event that can be used to render a block of Cards.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,8 +15,6 @@
 namespace OpenEMR\Events\Patient\Summary\Card;
 
 use DomainException;
-use LogicException;
-use OpenEMR\Events\PatientDemographics\ViewEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class SectionEvent extends Event
@@ -28,19 +26,17 @@ class SectionEvent extends Event
     const EVENT_HANDLE = 'section.render';
 
     /**
-     * @var string $section The section being rendered
-     */
-    private $section;
-
-    /**
      * @var array $cards Array of CardInterface objects
      */
     private $cards;
 
-    public function __construct(string $section)
-    {
+    /**
+     * @param string $section The section being rendered
+     */
+    public function __construct(
+        private readonly string $section
+    ) {
         $this->cards = [];
-        $this->section = $section;
     }
 
     /**
@@ -84,7 +80,7 @@ class SectionEvent extends Event
         if ($position == null || !is_int($position)) {
             $this->cards[] = $card;
         } else {
-            array_splice($this->cards, $position, 0, array($card));
+            array_splice($this->cards, $position, 0, [$card]);
         }
     }
 
@@ -103,7 +99,7 @@ class SectionEvent extends Event
 
         foreach ($this->cards as $card) {
             if (!$card instanceof CardInterface) {
-                $objtype = get_class($card);
+                $objtype = $card::class;
                 throw new \UnexpectedValueException("Expecting an object implementing CardInterface. Received {$objtype}");
             }
             $_idArr[] = $card->getIdentifier();

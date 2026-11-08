@@ -1,0 +1,68 @@
+{
+    "patients": [
+        {
+            "note": "Major depression with a PHQ-9 of 15 at an office visit in March 2023: initial population.",
+            "birthDatetime": "1979-05-20T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Major Depression Including Remission",
+                    "prevalencePeriod": [
+                        "2023-01-15T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Contact or Office Visit",
+                    "relevantPeriod": [
+                        "2023-03-10T09:00:00.000+00:00",
+                        "2023-03-10T10:00:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "PHQ 9 and PHQ 9M Tools",
+                    "relevantDatetime": "2023-03-10T09:30:00.000+00:00",
+                    "result": 15
+                }
+            ]
+        },
+        {
+            "note": "The same index assessment followed by a PHQ-9 of 3 twelve months later: remission.",
+            "birthDatetime": "1974-09-02T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Major Depression Including Remission",
+                    "prevalencePeriod": [
+                        "2023-01-15T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Contact or Office Visit",
+                    "relevantPeriod": [
+                        "2023-03-10T09:00:00.000+00:00",
+                        "2023-03-10T10:00:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "PHQ 9 and PHQ 9M Tools",
+                    "relevantDatetime": "2023-03-10T09:30:00.000+00:00",
+                    "result": 15
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "PHQ 9 and PHQ 9M Tools",
+                    "relevantDatetime": "2024-03-12T09:30:00.000+00:00",
+                    "result": 3
+                }
+            ]
+        }
+    ]
+}

@@ -2,7 +2,7 @@
 
 /*
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2014 Kevin Yeh <kevin.y@integralemr.com>
@@ -16,6 +16,19 @@ header('Content-Type: application/json');
 
 require_once("../../globals.php");
 require_once("translation_utilities.php");
+
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!AclMain::aclCheckCore('admin', 'language')) {
+    AccessDeniedHelper::deny(
+        'commit_csv: admin/language',
+        format: AccessDeniedResponseFormat::Json
+    );
+}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $errmsg = '';
 
@@ -38,13 +51,13 @@ if (!isset($_REQUEST['preview'])) {
 
 $unchanged = 0;
 $empty = 0;
-$changed = array();
-$created = array();
-$updated = array();
+$changed = [];
+$created = [];
+$updated = [];
 
 if (!$errmsg) {
     $lang_id = $_REQUEST['lang_id'];
-    $translations = json_decode($_REQUEST['translations']);
+    $translations = json_decode((string) $_REQUEST['translations']);
     foreach ($translations as $translation) {
         $result = verify_translation(
             str_replace("\r\n", "\n", $translation[0]),
@@ -54,14 +67,14 @@ if (!$errmsg) {
             "",
             $preview
         );
-        if (strpos($result, '[2]') !== 0) { // Definition Exists
-            if (strpos($result, '[1]') !== 0) { // Empty Definition
+        if (!str_starts_with((string) $result, '[2]')) { // Definition Exists
+            if (!str_starts_with((string) $result, '[1]')) { // Empty Definition
                 if ($result) {
                     array_push($changed, $result);
-                    if (strpos($result, '[3]') === 0) {
-                        array_push($updated, substr($result, 3));
-                    } else if (strpos($result, '[5]') === 0) {
-                        array_push($created, substr($result, 3));
+                    if (str_starts_with((string) $result, '[3]')) {
+                        array_push($updated, substr((string) $result, 3));
+                    } elseif (str_starts_with((string) $result, '[5]')) {
+                        array_push($created, substr((string) $result, 3));
                     }
                 }
             } else {
@@ -77,7 +90,7 @@ if ($errmsg) {
     $created[] = xl('ERROR') . ': ' . $errmsg;
 }
 
-$retval = array();
+$retval = [];
 $retval['changed'] = $changed;
 $retval['unchanged'] = $unchanged;
 $retval['empty'] = $empty;

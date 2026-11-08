@@ -1,127 +1,264 @@
 <?php
 
 /**
+ * Save or register a FHIR Questionnaire encounter assessment.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2022-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/*
- * Save or create an encounter questionnaire from lookup.
- * If admin want to register a new form then one is added to forms registry.
- * If already exists then inform user and redirect back to New Questionnaire form.
-*/
-
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Forms\FormQuestionnaireAssessment;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FormService;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
-// Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
-require_once(__DIR__ . "/../../../vendor/autoload.php");
+require_once(__DIR__ . '/../../../vendor/autoload.php');
 $isPortal = CoreFormToPortalUtility::isPatientPortalSession($_GET);
 if ($isPortal) {
     $ignoreAuth_onsite_portal = true;
 }
 $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
-require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
+require_once(__DIR__ . '/../../globals.php');
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
 
-$formid = $_GET["form_id"] ?? 0;
-$mode = $_GET["mode"] ?? '';
-$form_name = $_POST['form_name'] ?? "";
-$q_json = $_POST['questionnaire'] ?? '';
-$qr_json = $_POST['questionnaire_response'] ?? '';
-$lform_response = $_POST['lform_response'] ?? '';
-$lform = $_POST['lform'] ?? '';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+$nonNegativeInt = static function (mixed $value): ?int {
+    if (is_int($value)) {
+        return $value >= 0 ? $value : null;
+    }
+
+    if (!is_string($value) || $value === '' || !ctype_digit($value)) {
+        return null;
+    }
+
+    $validated = filter_var($value, FILTER_VALIDATE_INT);
+    return is_int($validated) && $validated >= 0 ? $validated : null;
+};
+$formIdInput = filter_input(INPUT_GET, 'form_id', FILTER_VALIDATE_INT);
+$formid = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+$modeInput = filter_input(INPUT_GET, 'mode', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+$mode = is_string($modeInput) ? $modeInput : '';
+$formNameInput = filter_input(INPUT_POST, 'form_name', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+$formName = is_string($formNameInput) ? $formNameInput : '';
+$questionnaireJson = $_POST['questionnaire'] ?? '';
+$questionnaireResponseJson = $_POST['questionnaire_response'] ?? '';
+$responseMetaInput = $_POST['response_meta'] ?? null;
+$responseMeta = is_string($responseMetaInput) ? $responseMetaInput : '';
+$category = $_POST['category'] ?? null;
 $qid = null;
 $qrid = null;
-// so form save will work
+$isRegistering = isset($_POST['save_registry']);
+
 unset($_POST['select_item']);
-// security
-if ($isPortal && $mode == 'update' && !empty($formid)) {
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
+
+if ($isPortal && $mode === 'update' && $formid > 0) {
+    CoreFormToPortalUtility::confirmFormBootstrapPatient(
+        $isPortal,
+        $formid,
+        'questionnaire_assessments',
+        $nonNegativeInt($session->get('pid', 0)) ?? 0
+    );
 }
 if (($_REQUEST['formOrigin'] ?? null) == 2) {
     $encounter = 0;
 }
-
-if ($mode !== 'new' && $mode !== 'new_repository_form') {
-    $service = new QuestionnaireService();
-    $responseService = new QuestionnaireResponseService();
-    try {
-        if (!empty($_POST['response_meta'])) {
-            $qr_json = $responseService->insertResponseMetaData($qr_json, $_POST['response_meta']);
-        }
-        $qrsaveid = $responseService->saveQuestionnaireResponse($qr_json, $pid, $encounter, null, null, $q_json, null, $lform_response, true);
-        $_POST['response_id'] = $qrsaveid['response_id'] ?? null;
-        if (empty($_POST['response_meta']) || $qrsaveid['new']) {
-            $saved = $responseService->fetchQuestionnaireResponseById($qrsaveid['id'], $qrsaveid['response_id']);
-            $_POST['response_meta'] = $responseService->extractResponseMetaData($saved['questionnaire_response'], true);
-            $_POST['response_id'] = $saved['response_id'];
-        }
-    } catch (Exception $e) {
-        // allow exception to pass onward with echoed notification to user.
-        // The form has a backup copy of response and will save with the form.
-        echo("<p>" . xlt("Questionnaire Response save failed because") . '<br />' . text($e->getMessage()) . '<br /><h3>' . xlt("Will attempt to save using backed up answers.") . "</h3></p>");
+// Staff save under the same form ACL the questionnaire page checks.
+if (!$isPortal && !AclMain::aclCheckForm('questionnaire_assessments')) {
+    AccessDeniedHelper::deny('questionnaire_assessments/save.php: questionnaire_assessments form ACL not granted');
+}
+// Every staff save of an existing form is checked. Auditing from the Portal Dashboard (with the
+// portal ACL that dashboard requires): the response and the form row belong to the document's
+// patient and the form's own encounter, not to whichever chart and encounter are open (if any),
+// and the session is left as it is. Otherwise the form must be the session patient's own.
+$auditForm = null;
+if (!$isPortal && $formid > 0) {
+    if ($patientPortalOther && $mode === 'update' && AclMain::aclCheckCore('patientportal', 'portal')) {
+        $auditForm = CoreFormToPortalUtility::questionnaireDocumentForm($formid);
+    }
+    if ($auditForm === null) {
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');
+    } elseif ($auditForm->locked) {
+        AccessDeniedHelper::deny('questionnaire_assessments/save.php: the portal document holding this form is locked');
+    } else {
+        $pid = $auditForm->pid;
+        $encounter = $auditForm->encounter;
     }
 }
-// register new form
-if (isset($_POST['save_registry'])) {
-    unset($_POST['save_registry']);
-    $check = sqlQuery("Select id From registry Where `directory` = ? And `name` = ? And `form_foreign_id` > 0", array("questionnaire_assessments", $form_name));
-    if (empty($check['id'])) {
-        $service = new QuestionnaireService();
-        try {
-            $form_foreign_id = $service->saveQuestionnaireResource($q_json, $form_name, null, null, $lform, 'encounter');
-        } catch (Exception $e) {
-            die(xlt("New Questionnaire insert failed") . '<br />' . text($e->getMessage()));
+
+if ($mode !== 'new' && !$isRegistering) {
+    $responseService = new QuestionnaireResponseService();
+    try {
+        if ($responseMeta !== '') {
+            $questionnaireResponseJson = $responseService->insertResponseMetaData(
+                $questionnaireResponseJson,
+                $responseMeta
+            );
         }
-        $rtn = sqlInsert("Insert Into `registry` Set
-        `name`=?,
-        `state`=?,
-        `directory`=?,
-        `sql_run`=?,
-        `unpackaged`=?,
-        `category`=?,
-        `date`= NOW(),
-        `form_foreign_id`=?
-    ", array($form_name, 1, "questionnaire_assessments", 1, 1, "Questionnaires", $form_foreign_id));
+
+        $savedResponse = $responseService->saveQuestionnaireResponse(
+            $questionnaireResponseJson,
+            $pid,
+            $encounter,
+            null,
+            null,
+            $questionnaireJson,
+            null,
+            null,
+            true
+        );
+        $_POST['response_id'] = $savedResponse['response_id'] ?? null;
+        $qrid = $_POST['response_id'];
+
+        if ($responseMeta === '' || $savedResponse['new']) {
+            $saved = $responseService->fetchQuestionnaireResponseById(
+                $savedResponse['id'],
+                $savedResponse['response_id'] ?? null
+            );
+            $responseMeta = $responseService->extractResponseMetaData(
+                $saved['questionnaire_response'] ?? '',
+                true
+            );
+            $_POST['response_meta'] = $responseMeta;
+            $_POST['response_id'] = $saved['response_id'] ?? $_POST['response_id'];
+            $qrid = $_POST['response_id'];
+        }
+    } catch (\Throwable $e) {
+        ServiceContainer::getLogger()->error(
+            'QuestionnaireResponse save failed; using backed up form answers.',
+            ['exception' => $e]
+        );
+        echo '<p>' . xlt('Questionnaire Response save failed.') . '<br /><h3>'
+            . xlt('Will attempt to save using backed up answers.') . '</h3></p>';
+    }
+}
+
+if ($isRegistering) {
+    unset($_POST['save_registry']);
+    $check = sqlQuery(
+        'SELECT `id` FROM `registry` WHERE `directory` = ? AND `name` = ? AND `form_foreign_id` > 0',
+        ['questionnaire_assessments', $formName]
+    );
+
+    if (empty($check['id'])) {
+        $questionnaireService = new QuestionnaireService();
+        try {
+            $formForeignId = $questionnaireService->saveQuestionnaireResource(
+                $questionnaireJson,
+                $formName,
+                null,
+                null,
+                null,
+                'encounter',
+                is_string($category) ? $category : null
+            );
+            $qid = $formForeignId;
+        } catch (\Throwable $e) {
+            ServiceContainer::getLogger()->error(
+                'Questionnaire registration failed.',
+                ['exception' => $e]
+            );
+            die(xlt('New Questionnaire insert failed.'));
+        }
+
+        $registrySql = 'INSERT INTO `registry` SET '
+            . '`name` = ?, `state` = ?, `directory` = ?, `sql_run` = ?, '
+            . '`unpackaged` = ?, `category` = ?, `date` = NOW(), `form_foreign_id` = ?';
+        sqlInsert(
+            $registrySql,
+            [$formName, 1, 'questionnaire_assessments', 1, 1, 'Questionnaires', $formForeignId]
+        );
+
+        // Registering the form is what makes this questionnaire an encounter form, so it
+        // is also what has to create its encounter assignment. Which questionnaires an
+        // encounter may offer is answered by content_assignments, and saving the resource
+        // only assigns the dashboard surface -- so without this the questionnaire is
+        // registered and then immediately filtered back out of the encounter form menu.
+        $registeredQuestionnaireId = is_numeric($formForeignId) ? (int)$formForeignId : 0;
+        if ($registeredQuestionnaireId > 0) {
+            (new QuestionnaireAvailabilityService())
+                ->assignDefault($registeredQuestionnaireId, QuestionnaireSurface::Encounter);
+        }
     } else {
-        /* TBD TODO do an update form and registry or error back to user for duplicate */
-        $msg = "<br /><br /><div><h3 style='color: red;font-weight: normal;'>" . xlt("Error. Form already registered! Redirecting back to form.") . "</h3></div>";
-        $msg .= "<script>setTimeout(() => {history.back();}, 4000)</script>";
+        $msg = "<br /><br /><div><h3 style='color: red;font-weight: normal;'>"
+            . xlt('Error. Form already registered! Redirecting back to form.')
+            . "</h3></div><script>setTimeout(() => {history.back();}, 4000)</script>";
         die($msg);
     }
-    formHeader("Redirecting....");
+
+    formHeader('Redirecting....');
     formJump();
     formFooter();
 }
 
-if (empty($formid)) {
-    $newid = formSubmit("form_questionnaire_assessments", $_POST, '', $userauthorized);
-    addForm($encounter, $form_name, $newid, "questionnaire_assessments", $pid, $userauthorized);
-    $formid = $newid;
-} elseif (!empty($formid)) {
-    // just to be sure
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
-    $success = formUpdate("form_questionnaire_assessments", $_POST, $formid, $userauthorized);
+if ($formid === 0) {
+    // New encounter form: persist via Stephen's typed BaseForm abstraction
+    // (FormService::saveEncounterForm) instead of the procedural formSubmit() + addForm().
+    // This writes the form_questionnaire_assessments row and the forms registry row in one call.
+    $activityInput = filter_input(INPUT_POST, 'activity', FILTER_VALIDATE_INT);
+    $copyrightInput = $_POST['copyright'] ?? null;
+    $questionnaireIdInput = filter_input(INPUT_POST, 'questionnaire_id', FILTER_VALIDATE_INT);
+
+    $form = new FormQuestionnaireAssessment();
+    $form->setEncounter($encounter);
+    $form->setPid($pid);
+    $form->setAuthorized($userauthorized);
+    $form->setFormName($formName);
+    $form->setResponseId($qrid);
+    $form->setResponseMeta($responseMeta !== '' ? $responseMeta : null);
+    $form->setQuestionnaire(is_string($questionnaireJson) && $questionnaireJson !== '' ? $questionnaireJson : null);
+    $form->setQuestionnaireResponse(is_string($questionnaireResponseJson) && $questionnaireResponseJson !== '' ? $questionnaireResponseJson : null);
+    if (is_int($questionnaireIdInput) && $questionnaireIdInput > 0) {
+        $form->setQuestionnaireId((string) $questionnaireIdInput);
+    }
+    if (is_int($activityInput)) {
+        $form->setActivity($activityInput);
+    }
+    if (is_string($copyrightInput) && $copyrightInput !== '') {
+        $form->setCopyright($copyrightInput);
+    }
+
+    $savedForm = (new FormService())->saveEncounterForm($form);
+    $formid = $nonNegativeInt($savedForm->getFormId()) ?? 0;
+} else {
+    CoreFormToPortalUtility::confirmFormBootstrapPatient(
+        $isPortal,
+        $formid,
+        'questionnaire_assessments',
+        $nonNegativeInt($session->get('pid', 0)) ?? 0
+    );
+    $formUpdateData = filter_input_array(INPUT_POST, FILTER_UNSAFE_RAW);
+    unset($formUpdateData['select_item'], $formUpdateData['save_registry']);
+    $formUpdateData['response_id'] = $qrid;
+    $formUpdateData['response_meta'] = $responseMeta;
+    formUpdate('form_questionnaire_assessments', $formUpdateData, $formid, $userauthorized, $auditForm?->pid);
 }
 
 if ($isPortal || $patientPortalOther) {
     echo CoreFormToPortalUtility::formQuestionnairePortalPostSave($formid, $qid, $qrid, $encounter);
 } else {
-    formHeader("Redirecting....");
+    formHeader('Redirecting....');
     formJump();
     formFooter();
 }

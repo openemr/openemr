@@ -70,7 +70,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement;
 class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSerializable
 {
     /**
-     * Invidual data point representing the GQ (genotype quality) score threshold.
+     * Individual data point representing the GQ (genotype quality) score threshold.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger[]
      */
     public $score = [];
@@ -117,7 +117,7 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
     private $_fhirElementName = 'MolecularSequence.Roc';
 
     /**
-     * Invidual data point representing the GQ (genotype quality) score threshold.
+     * Individual data point representing the GQ (genotype quality) score threshold.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger[]
      */
     public function getScore()
@@ -126,7 +126,7 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
     }
 
     /**
-     * Invidual data point representing the GQ (genotype quality) score threshold.
+     * Individual data point representing the GQ (genotype quality) score threshold.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $score
      * @return $this
      */
@@ -342,7 +342,7 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -399,15 +399,13 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MolecularSequenceRoc xmlns="http://hl7.org/fhir"></MolecularSequenceRoc>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MolecularSequenceRoc xmlns="http://hl7.org/fhir"></MolecularSequenceRoc>');
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->score)) {
             foreach ($this->score as $score) {

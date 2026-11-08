@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS `form_aftercare_plan` (
   `goal_b_emotional_behavioral_conditions_I` text,
   `goal_c_relapse_potential` text,
   `goal_c_relapse_potential_I` text,
-  
+
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-

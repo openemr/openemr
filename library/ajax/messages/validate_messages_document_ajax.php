@@ -6,58 +6,64 @@
  * results in both html or json format.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../../interface/globals.php");
-require_once("$srcdir/pid.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Http\RequestTerminator;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
-use OpenEMR\Common\Logging\SystemLogger;
+use Symfony\Component\HttpFoundation\Response;
 
 $format = $_GET['format'] ?? "html";
 $format = in_array($format, ['json', 'html']) ? $format : "html";
 
+$twig = null;
 try {
-    $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf"])) {
-        http_response_code(403);
-        CsrfUtils::csrfNotVerified(true, true, false);
-        echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
-        exit;
+    $twig = ServiceContainer::getTwig();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf"], session: $session)) {
+        CsrfUtils::csrfNotVerified(toScreen: false, beforeExit: static function () use ($twig, $format): void {
+            echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
+        });
     }
 
 
     if (!AclMain::aclCheckCore('patients', 'notes')) {
-        http_response_code(403);
-        echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]),
+            Response::HTTP_FORBIDDEN,
+        ));
     }
 
     if (empty($_GET['doc'])) {
-        http_response_code(400);
-        echo $twig->render('error/400.' . $format . '.twig', ['errorMessage' => xl("Missing document id")]);
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render('error/400.' . $format . '.twig', ['errorMessage' => xl("Missing document id")]),
+            Response::HTTP_BAD_REQUEST,
+        ));
     }
 
     $docId = intval($_GET['doc']);
     $document = new Document($docId);
     if ($document->get_size() <= 0) {
         // doc not found
-        http_response_code(404);
-        echo $twig->render('error/404.' . $format . '.twig', ['errorMessage' => xl("Missing document id")]);
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render('error/404.' . $format . '.twig', ['errorMessage' => xl("Missing document id")]),
+            Response::HTTP_NOT_FOUND,
+        ));
     }
     if (!$document->can_access($docId)) {
-        http_response_code(403);
-        echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
-        exit;
+        (new RequestTerminator())->respond(new Response(
+            $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]),
+            Response::HTTP_FORBIDDEN,
+        ));
     }
 
     // now we can validate our documents
@@ -68,13 +74,13 @@ try {
     } else {
         echo xlt("No errors found, Document(s) passed Import Validation");
     }
-} catch (Exception $exception) {
-    (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
-    if (isset($twig)) {
-        http_response_code(500);
-        $twig->render('error/general_http_error', ['statusCode' => 500]);
-        exit;
-    } else {
-        echo xlt("Server error occured. Check logs for details");
-    }
+} catch (\Throwable $exception) {
+    ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
+    $display = $twig?->render('error/general_http_error', ['statusCode' => 500])
+        ?? xlt("Server error occurred. Check logs for details");
+
+    (new RequestTerminator())->respond(new Response(
+        $display,
+        Response::HTTP_INTERNAL_SERVER_ERROR,
+    ));
 }

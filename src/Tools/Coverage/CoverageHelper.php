@@ -2,13 +2,13 @@
 
 namespace OpenEMR\Tools\Coverage;
 
+use PHPUnit\Framework\Attributes\Test;
 use ReflectionMethod;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
-use PHPUnit\Framework\Attributes\Test;
 
 use function microtime;
 use function register_shutdown_function;
@@ -16,14 +16,14 @@ use function register_shutdown_function;
 /**
  * Code Coverage Helper responsible for managing php code coverage for the code base.
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
 class CoverageHelper
 {
-    public static function createTargetedCodeCoverage(string $shutdownExportBasePath)
+    public static function createTargetedCodeCoverage(string $shutdownExportBasePath): CodeCoverage
     {
         // empty filter so we want coverage on EVERYTHING
         $filter = new Filter();

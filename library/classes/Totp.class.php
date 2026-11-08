@@ -4,12 +4,12 @@
  * Totp class used to generated MultiFactor App Based 2FA
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Anthony Zullo <anthonykzullo@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Anthony Zullo <anthonykzullo@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use RobThree\Auth\Algorithm;
@@ -25,17 +25,13 @@ class Totp
     private $_secret = false;
     /** @var string - issuer mentioned in the QR App  */
     private $_issuer = "OpenEMR";
-    /** @var  string - user name of user stored in QR App */
-    private $_username;
 
     /**
      * @param bool $secret - user secret or false to generate
-     * @param string $username - username to store in QR App
+     * @param string $_username - username to store in QR App
      */
-    public function __construct($secret = false, $username = '')
+    public function __construct($secret = false, private $_username = '')
     {
-        $this->_username = $username;
-
         if (!empty($secret)) {
             $this->_secret = $secret;
         } else {
@@ -73,13 +69,46 @@ class Totp
      * @param $totp : unencrypted
      * @return bool
      */
-    public function validateCode($totp)
+    public function validateCode($totp): bool
     {
         if (empty($totp) || empty($this->_secret)) {
             return false;
         }
         $tfa = new TwoFactorAuth($this->getQrProvider());
         return $tfa->verifyCode($this->_secret, $totp);
+    }
+
+    /**
+     * Validates a TOTP and returns the RFC 6238 time slice
+     * (floor(unix_ts / period)) that matched, or 0 on no match.
+     *
+     * Used by MfaUtils::checkTOTP for A-B-A replay protection: the
+     * caller stores the returned slice alongside the registration and
+     * rejects any subsequent code whose slice is not strictly greater.
+     * RobThree's verifyCode accepts codes for slices T-1, T, T+1 (with
+     * default $discrepancy = 1) — storing the matched slice and
+     * requiring monotonic-forward progression is the RFC 6238-recommended
+     * replay defense.
+     *
+     * @param $totp : unencrypted
+     * @return int matched slice number, or 0 if the code did not verify
+     */
+    public function validateCodeAndGetSlice($totp): int
+    {
+        if (empty($totp) || empty($this->_secret)) {
+            return 0;
+        }
+        $tfa = new TwoFactorAuth($this->getQrProvider());
+        $slice = 0;
+        // Only return the slice when verifyCode itself returns true.
+        // Current RobThree implementation leaves $slice at 0 on
+        // failure, so this is equivalent today — but treating the
+        // return value as the source of truth (and $slice as a
+        // secondary datum) hardens against any future RobThree API
+        // drift where the by-ref parameter might be populated on
+        // paths that don't match.
+        $ok = $tfa->verifyCode($this->_secret, $totp, 1, null, $slice);
+        return $ok ? $slice : 0;
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * MappedServiceTrait.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,7 +11,6 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
-use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -39,18 +38,18 @@ trait MappedServiceTrait
             if ($service instanceof FhirServiceBase) {
                 $validServices[] = $service;
             } else {
-                throw new \InvalidArgumentException("Expected service of type " . FhirServiceBase::class . " and instead received class of type " . get_class($service));
+                throw new \InvalidArgumentException("Expected service of type " . FhirServiceBase::class . " and instead received class of type " . $service::class);
             }
         }
         $this->services = $validServices;
     }
 
-    public function searchAllServices($fhirSearchParams, $puuidBind)
+    public function searchAllServices($fhirSearchParams, $puuidBind): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 
         /**
-         * @var $service BaseService
+         * @var FhirServiceBase $service
          */
         foreach ($this->getMappedServices() as $service) {
             $innerResult = $service->getAll($fhirSearchParams, $puuidBind);
@@ -64,7 +63,7 @@ trait MappedServiceTrait
         return $processingResult;
     }
 
-    public function searchServices(array $services, $fhirSearchParams, $puuidBind)
+    public function searchServices(array $services, $fhirSearchParams, $puuidBind): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         foreach ($services as $service) {
@@ -79,7 +78,7 @@ trait MappedServiceTrait
         return $processingResult;
     }
 
-    public function searchAllServicesWithSupportedFields($fhirSearchParams, $puuidBind)
+    public function searchAllServicesWithSupportedFields($fhirSearchParams, $puuidBind): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         foreach ($this->getMappedServices() as $service) {

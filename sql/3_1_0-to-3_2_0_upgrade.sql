@@ -1,5 +1,5 @@
 #IfMissingColumn users calendar
-ALTER TABLE `users` 
+ALTER TABLE `users`
   ADD `calendar` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = appears in calendar';
 UPDATE users SET calendar = 1 WHERE authorized = 1 AND ( info IS NULL OR info NOT LIKE '%Nocalendar%' );
 #EndIf
@@ -18,12 +18,12 @@ CREATE TABLE `lbf_data` (
 #EndIf
 
 #IfMissingColumn form_encounter supervisor_id
-ALTER TABLE `form_encounter` 
+ALTER TABLE `form_encounter`
   ADD `supervisor_id` INT(11) DEFAULT '0' COMMENT 'supervising provider, if any, for this visit';
 #EndIf
 
 #IfMissingColumn list_options mapping
-ALTER TABLE `list_options` 
+ALTER TABLE `list_options`
   ADD `mapping` varchar(15) NOT NULL DEFAULT '';
 #EndIf
 
@@ -49,12 +49,12 @@ CREATE TABLE gprelations (
 #EndIf
 
 #IfMissingColumn insurance_companies alt_cms_id
-ALTER TABLE `insurance_companies` 
+ALTER TABLE `insurance_companies`
   ADD `alt_cms_id` varchar(15) NOT NULL DEFAULT '';
 #EndIf
 
 #IfMissingColumn x12_partners x12_isa05
-ALTER TABLE `x12_partners` 
+ALTER TABLE `x12_partners`
   ADD `x12_isa05` char(2)     NOT NULL DEFAULT 'ZZ',
   ADD `x12_isa07` char(2)     NOT NULL DEFAULT 'ZZ',
   ADD `x12_isa14` char(1)     NOT NULL DEFAULT '0',
@@ -62,4 +62,3 @@ ALTER TABLE `x12_partners`
   ADD `x12_gs02`  varchar(15) NOT NULL DEFAULT '',
   ADD `x12_per06` varchar(80) NOT NULL DEFAULT '';
 #EndIf
-

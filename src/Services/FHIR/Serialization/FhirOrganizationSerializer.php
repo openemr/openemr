@@ -3,7 +3,7 @@
 /**
  * FhirOrganizationSerializer.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -32,9 +32,8 @@ class FhirOrganizationSerializer
     /**
      * Takes a fhir json representing an organization and returns the populated FHIROrganization resource
      * @param $fhirJson
-     * @return FHIROrganization
      */
-    public static function deserialize($fhirJson)
+    public static function deserialize($fhirJson): FHIROrganization
     {
         $telecom = $fhirJson['telecom'] ?? [];
         $address = $fhirJson['address'] ?? [];

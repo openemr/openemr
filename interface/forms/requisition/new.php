@@ -4,7 +4,7 @@
  *  Lab Requisition Form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2023 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -13,23 +13,31 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lab.inc.php");
 
+use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+
+require_once("$srcdir/options.inc.php");
 
 formHeader("Form:Lab Requisition");
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 $returnurl = 'encounter_top.php';
 
-$formid = (int) ($_GET['id'] ?? 0);
-$obj = $formid ? formFetch("form_requisition", $formid) : array();
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formid = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'requisition');
+$obj = $formid ? formFetch("form_requisition", $formid) : [];
 
 global $pid ;
 
-$encounter = $_SESSION['encounter'];
+$encounter = $session->get('encounter');
 
 $oid = fetchProcedureId($pid, $encounter);
 
@@ -157,7 +165,7 @@ table, th, td {
                 if (!empty($storeBar)) {
                     $bar = $storeBar['req_id'];
                 } else {
-                    $bar = rand(1000, 999999);
+                    $bar = random_int(1000, 999999);
                     saveBarCode($bar, $pid, $order[0]);
                 }
 
@@ -373,4 +381,3 @@ function printDiv(divname)
 </script>
 </body>
 </html>
-

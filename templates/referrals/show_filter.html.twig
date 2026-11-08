@@ -1,0 +1,11 @@
+{# The Referrals report's filter: all referrals, or the open or overdue ones, whose Referral Date can be before From (#14710). #}
+<td class='col-form-label'>
+    {{ 'Show'|xlt }}:
+</td>
+<td>
+    <select name='form_show' id='form_show' class='form-control'>
+        <option value=''>{{ 'All'|xlt }}</option>
+        <option value='open'{% if show == 'open' %} selected{% endif %}>{{ 'Open, from any date'|xlt }}</option>
+        <option value='overdue'{% if show == 'overdue' %} selected{% endif %}>{{ 'Overdue, from any date'|xlt }}</option>
+    </select>
+</td>

@@ -1,19 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace OpenEMR\Tests\Api;
 
 use Lcobucci\JWT\Signer\Key\InMemory;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Tools\OAuth2\ClientCredentialsAssertionGenerator;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Log\NullLogger;
 
 /**
  * BulkAPITestClient is a test client for the OpenEMR Bulk API.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Stephen Nielson <snielson@discoverandchange.com
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
@@ -21,20 +28,36 @@ class BulkAPITestClient extends ApiTestClient
 {
     protected string $baseUrl;
 
-    public function __construct($baseUrl, $isHttpErrorEnabled = true, $timeOut = 10)
+    private string $scopes = self::SYSTEM_SCOPES;
+
+    public function __construct(string $baseUrl, bool $isHttpErrorEnabled = true, int $timeOut = 10)
     {
         parent::__construct($baseUrl, $isHttpErrorEnabled, $timeOut);
         $this->baseUrl = $baseUrl;
     }
 
     const SYSTEM_SCOPES = 'system/Group.$export system/Binary.read system/*.$bulkdata-status system/Patient.read system/Medication.read system/AllergyIntolerance.read system/CarePlan.read system/CareTeam.read system/Condition.read system/Device.read system/DiagnosticReport.read system/DocumentReference.read system/Encounter.read system/Goal.read system/Immunization.read system/Location.read system/MedicationRequest.read system/Observation.read system/Organization.read system/Practitioner.read system/Procedure.read system/Provenance.read';
+    const SYSTEM_SCOPES_V2 = 'system/Patient.$export system/Group.$export system/*.$bulkdata-status system/*.$export system/Patient.rs system/Group.rs system/Medication.rs system/AllergyIntolerance.rs system/CarePlan.rs system/CareTeam.rs system/Condition.rs system/Device.rs system/DiagnosticReport.rs system/DocumentReference.rs system/Encounter.rs system/Goal.rs system/Immunization.rs system/Location.rs system/MedicationRequest.rs system/Observation.rs system/Organization.rs system/Practitioner.rs system/Procedure.rs system/Provenance.rs system/Binary.rs system/ServiceRequest.rs system/Specimen.rs system/QuestionnaireResponse.rs';
 
-    public function setAuthToken($authURL, $credentials = array(), $client = 'private')
+    public function setScopesForBulkData(string $scopes): void
     {
-        if (!empty($credentials['client_id'])) {
+        $this->scopes = $scopes;
+    }
+
+    /**
+     * @param array<string, mixed> $credentials
+     */
+    public function setAuthToken(string $authURL, array $credentials = [], string $client = 'private'): ResponseInterface
+    {
+        if (($credentials['client_id'] ?? '') !== '') {
+            // @codeCoverageIgnoreStart Defensive guard against malformed credentials input.
+            if (!is_string($credentials['client_id'])) {
+                throw new \InvalidArgumentException('credentials[client_id] must be a string');
+            }
+            // @codeCoverageIgnoreEnd
             $this->client_id = $credentials['client_id'];
         }
-        if (!(empty($credentials['jwks']) && empty($credentials['private_key']) && empty($credentials['public_key']))) {
+        if (!(($credentials['jwks'] ?? null) === null && ($credentials['private_key'] ?? null) === null && ($credentials['public_key'] ?? null) === null)) {
             $privateKey = $credentials['private_key'];
             $publicKey = $credentials['public_key'];
         } else {
@@ -43,19 +66,23 @@ class BulkAPITestClient extends ApiTestClient
             if (!file_exists($jwksFile)) {
                 throw new \RuntimeException("JWKs file not found: " . $jwksFile);
             }
-            $credentials['jwks'] = json_decode(file_get_contents($jwksFile));
+            $credentials['jwks'] = json_decode((string) file_get_contents($jwksFile));
             $privateKey = InMemory::file($keyLocation . "openemr-rsa384-private.key");
             $publicKey = InMemory::file($keyLocation . "openemr-rsa384-public.pem");
         }
 
-        if (empty($this->client_id)) {
-            $client = $this->registerClient($authURL, $credentials['jwks']);
-            $this->client_id = $client->getIdentifier();
+        if ($this->client_id === null || $this->client_id === '') {
+            $clientEntity = $this->registerClient($authURL, $credentials['jwks']);
+            /** @var string $identifier */
+            $identifier = $clientEntity->getIdentifier();
+            $this->client_id = $identifier;
         }
 
         $oauthTokenUrl = $this->baseUrl . $authURL . '/token';
+        /** @var InMemory $privateKey */
         $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
             $privateKey,
+            /** @var InMemory $publicKey */
             $publicKey,
             $oauthTokenUrl,
             $this->client_id
@@ -65,7 +92,7 @@ class BulkAPITestClient extends ApiTestClient
             "client_assertion" => $assertion,
             "grant_type" => "client_credentials",
             "client_id" => $this->client_id,
-            "scope" => self::SYSTEM_SCOPES,
+            "scope" => $this->scopes
         ];
         $this->headers = [
             "Accept" => "application/json",
@@ -77,8 +104,9 @@ class BulkAPITestClient extends ApiTestClient
             "Accept" => "application/json",
             "Content-Type" => "application/json"
         ];
-        if ($authResponse->getStatusCode() == 200) {
-            $responseBody = json_decode($authResponse->getBody());
+        if ($authResponse->getStatusCode() === 200) {
+            /** @var \stdClass&object{access_token: string} $responseBody */
+            $responseBody = json_decode((string) $authResponse->getBody());
             $this->headers[self::AUTHORIZATION_HEADER] = "Bearer " . $responseBody->access_token;
             // credentials grant only has access token
             $this->access_token = $responseBody->access_token;
@@ -87,8 +115,10 @@ class BulkAPITestClient extends ApiTestClient
         return $authResponse;
     }
 
-
-    public function registerClient($authURL, $jwks)
+    /**
+     * @param mixed $jwks
+     */
+    public function registerClient(string $authURL, $jwks): ClientEntity
     {
         $clientBody = [
             "application_type" => 'private',
@@ -103,7 +133,8 @@ class BulkAPITestClient extends ApiTestClient
         if ($clientResponse->getStatusCode() >= 400) {
             throw new \RuntimeException("Client registration failed with status code: " . $clientResponse->getStatusCode());
         }
-        $clientResponseBodyRaw = $clientResponse->getBody();
+        $clientResponseBodyRaw = (string) $clientResponse->getBody();
+        /** @var (\stdClass&object{client_id: string, client_secret: string})|null $clientResponseBody */
         $clientResponseBody = json_decode($clientResponseBodyRaw);
         if ($clientResponseBody === null) {
             throw new \RuntimeException("Client registration response could not be decoded");
@@ -112,8 +143,14 @@ class BulkAPITestClient extends ApiTestClient
         $this->client_secret = $clientResponseBody->client_secret;
         // we need to enable the app otherwise we can't use it.
         $clientRepository = new ClientRepository();
-        $client = $clientRepository->getClientEntity($this->client_id);
-        $clientRepository->saveIsEnabled($client, true);
-        return $client;
+        $clientRepository->setSystemLogger(new NullLogger());
+        $clientEntity = $clientRepository->getClientEntity($this->client_id);
+        // @codeCoverageIgnoreStart Defensive guard against ClientRepository contract drift.
+        if (!$clientEntity instanceof ClientEntity) {
+            throw new \RuntimeException('Expected ' . ClientEntity::class . ' from ClientRepository::getClientEntity');
+        }
+        // @codeCoverageIgnoreEnd
+        $clientRepository->saveIsEnabled($clientEntity, true);
+        return $clientEntity;
     }
 }

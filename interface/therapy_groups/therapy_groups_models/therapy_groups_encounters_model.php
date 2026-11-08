@@ -22,7 +22,7 @@
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class Therapy_Groups_Encounters
@@ -32,12 +32,13 @@ class Therapy_Groups_Encounters
     /**
       * Get all encounters of specified group.
       * @param $gid
-      * @return ADORecordSet_mysqli
+      * @return list<array<string, mixed>>
       */
-    public function getGroupEncounters($gid)
+    public function getGroupEncounters($gid): array
     {
         $sql = "SELECT * FROM " . self::TABLE . " WHERE group_id = ? AND date >= CURDATE();";
-        $result = sqlStatement($sql, array($gid));
+        $result = sqlStatement($sql, [$gid]);
+        $encounters = [];
         while ($row = sqlFetchArray($result)) {
             $encounters[] = $row;
         }

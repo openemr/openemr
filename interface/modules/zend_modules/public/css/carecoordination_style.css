@@ -33,7 +33,7 @@ q:before, q:after {
     content: none; }
 table {
     border-collapse: collapse;
-    border-spacing: 0; 
+    border-spacing: 0;
     width: 100%;
 }
 
@@ -136,8 +136,8 @@ img.scale-with-grid {
     font-size: 12px !important;
 }
 
-.header_wrap { 
-    width: 100%; 
+.header_wrap {
+    width: 100%;
     background: #F1F1F1;
     border-bottom: 1px solid #ccc;
     height: 60px;
@@ -200,7 +200,7 @@ img.scale-with-grid {
 .se_in_4 { float: left ;  }
 .se_in_5 { float: right; background: #fef9db; border:1px solid #c6c6c6; }
 /* first */
-.se_in_5-1 {      background-position: -12px -95px;   } 
+.se_in_5-1 {      background-position: -12px -95px;   }
 .se_in_5-1:hover{ background-position: -53px -95px;   }
 /* prev */
 .se_in_5-2 {       background-position: -14px -156px; }
@@ -682,7 +682,7 @@ ul.main-tab-head{
     background: #f8f8f8;
     display: inline-block;
     line-height: 28px;
-    padding: 0 12px; 
+    padding: 0 12px;
     float: left;
     cursor: pointer;border-bottom: 2px solid #CCC;
     margin-right: 3px;

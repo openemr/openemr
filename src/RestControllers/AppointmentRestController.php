@@ -4,7 +4,7 @@
  * AppointmentRestController
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,11 +12,16 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenApi\Attributes as OA;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Response;
 
 class AppointmentRestController
 {
@@ -27,44 +32,302 @@ class AppointmentRestController
         $this->appointmentService = new AppointmentService();
     }
 
-    public function getOne($eid)
+    /**
+     * Fetches a single appointment resource by eid.
+     * @param $eid - The appointment event id.
+     */
+    #[OA\Get(
+        path: '/api/appointment/{eid}',
+        description: 'Retrieves an appointment',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'eid',
+                in: 'path',
+                description: 'The eid for the appointment.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function getOne($eid): Response
     {
         $serviceResult = $this->appointmentService->getAppointment($eid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
+    /**
+     * Fetches a single appointment scoped by patient pid.
+     *
+     * Shares the service-layer getAppointment($eid) lookup with
+     * getOne(). The patient-compartment check is performed against the
+     * raw service result (not the serialized Response body), so a
+     * payload-wrapping change in RestControllerHelper would not turn
+     * valid requests into 404s. Mirrors the pattern in delete().
+     *
+     * @param string $pid - The patient id (int in string form from the path).
+     * @param $eid - The appointment event id.
+     */
+    #[OA\Get(
+        path: '/api/patient/{pid}/appointment/{eid}',
+        description: 'Retrieves an appointment scoped by patient',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'pid',
+                in: 'path',
+                description: 'The id for the patient.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'eid',
+                in: 'path',
+                description: 'The eid for the appointment.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function getOneScopedByPatient(string $pid, string $eid): Response
+    {
+        $service = $this->appointmentService;
+        assert($service instanceof AppointmentService);
+        $existing = $service->getAppointment($eid);
+        $existingPidRaw = (isset($existing[0]) && is_array($existing[0]))
+            ? ($existing[0]['pid'] ?? null)
+            : null;
+        if (!is_numeric($existingPidRaw) || !is_numeric($pid) || (int) $existingPidRaw !== (int) $pid) {
+            return RestControllerHelper::responseHandler(['message' => 'record not found'], null, 404);
+        }
+        return RestControllerHelper::responseHandler($existing, null, 200);
+    }
+
+    /**
+     * Fetches a single appointment for a patient portal client, keyed
+     * by appointment uuid and the session patient uuid.
+     *
+     * @param $auuid - The appointment uuid.
+     * @param $patientUuid - The patient uuid.
+     */
+    #[OA\Get(
+        path: '/portal/patient/appointment/{auuid}',
+        description: 'Returns a selected appointment by its uuid.',
+        tags: ['standard-patient'],
+        parameters: [
+            new OA\Parameter(
+                name: 'auuid',
+                in: 'path',
+                description: 'The uuid for the appointment.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getOneForPatient($auuid, $patientUuid)
     {
-        $serviceResult = $this->appointmentService->search(['puuid' => $patientUuid, 'pc_uuid' => $auuid]);
+        // TokenSearchValue(..., ..., true) calls UuidRegistry::uuidToBytes
+        // on the value, which throws InvalidArgumentException for a
+        // malformed UUID string. Short-circuit here so a bad path
+        // param resolves to the existing 404-via-empty-array shape
+        // rather than bubbling up to the dispatcher as a 500.
+        if (!UuidRegistry::isValidStringUUID($auuid)) {
+            return RestControllerHelper::responseHandler([], null, 200);
+        }
+        // Wrap uuid parameters as TokenSearchField + TokenSearchValue
+        // with the isUuid flag so the search layer converts them from
+        // the 36-char string form to BINARY(16) before comparison
+        // against pce.uuid and patient_data.uuid. Passing raw strings
+        // (the pre-fix shape) would wrap as StringSearchField with
+        // exact-match semantics and never match a binary column.
+        $serviceResult = $this->appointmentService->search([
+            'puuid' => new TokenSearchField(
+                'puuid',
+                [new TokenSearchValue($patientUuid, null, true)]
+            ),
+            'pc_uuid' => new TokenSearchField(
+                'pc_uuid',
+                [new TokenSearchValue($auuid, null, true)]
+            ),
+        ]);
         $data = ProcessingResult::extractDataArray($serviceResult);
         return RestControllerHelper::responseHandler($data[0] ?? [], null, 200);
     }
 
+    /**
+     * Retrieves all appointments.
+     */
+    #[OA\Get(
+        path: '/api/appointment',
+        description: 'Retrieves all appointments',
+        tags: ['standard'],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getAll()
     {
         $serviceResult = $this->appointmentService->getAppointmentsForPatient(null);
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        return self::listResponse($serviceResult);
     }
 
+    #[OA\Get(
+        path: '/portal/patient/appointment',
+        description: 'Retrieves all appointments for a patient',
+        tags: ['standard-patient'],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getAllForPatientByUuid($puuid)
     {
         $patientService = new PatientService();
         $result = ProcessingResult::extractDataArray($patientService->getOne($puuid));
-        if (!empty($result)) {
-            $serviceResult = $this->appointmentService->getAppointmentsForPatient($result[0]['pid']);
-        } else {
-            $serviceResult = [];
+        if (empty($result)) {
+            // Patient uuid does not resolve — 404 is the correct
+            // response for the parent resource. The empty appointments
+            // branch below only applies when the patient exists.
+            return RestControllerHelper::responseHandler(false, null, 200);
         }
-
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        $serviceResult = $this->appointmentService->getAppointmentsForPatient($result[0]['pid']);
+        return self::listResponse($serviceResult);
     }
 
+    /**
+     * Retrieves all appointments for a patient.
+     * @param $pid - The patient id.
+     */
+    #[OA\Get(
+        path: '/api/patient/{pid}/appointment',
+        description: 'Retrieves all appointments for a patient',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'pid',
+                in: 'path',
+                description: 'The pid for the patient.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getAllForPatient($pid)
     {
         $serviceResult = $this->appointmentService->getAppointmentsForPatient($pid);
+        return self::listResponse($serviceResult);
+    }
+
+    /**
+     * Build the HTTP response for the three list endpoints
+     * (getAll, getAllForPatientByUuid, getAllForPatient). An empty
+     * list is a valid "zero results found" response, not "not found" —
+     * but RestControllerHelper::responseHandler treats a falsy
+     * $serviceResult as 404. Short-circuit around that for list
+     * endpoints only; single-resource lookups continue to use the
+     * 404-on-falsy semantic unchanged.
+     *
+     * Accepts mixed because the private $appointmentService property
+     * is untyped (legacy); AppointmentService's returns are typed to
+     * array, but PHPStan can't follow through the untyped property
+     * access. The internal === [] check still narrows correctly.
+     */
+    private static function listResponse(mixed $serviceResult): Response
+    {
+        if ($serviceResult === []) {
+            return new Response('[]', 200, ['Content-Type' => 'application/json']);
+        }
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
+    /**
+     * Submits a new appointment for a patient.
+     * @param $pid - The patient id.
+     * @param $data - The appointment data.
+     */
+    #[OA\Post(
+        path: '/api/patient/{pid}/appointment',
+        description: 'Submits a new appointment',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'pid',
+                in: 'path',
+                description: 'The id for the patient.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(
+                    required: ['pc_catid', 'pc_title', 'pc_duration', 'pc_hometext', 'pc_apptstatus', 'pc_eventDate', 'pc_startTime', 'pc_facility', 'pc_billing_location'],
+                    properties: [
+                        new OA\Property(property: 'pc_catid', description: 'The category of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_title', description: 'The title of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_duration', description: 'The duration of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_hometext', description: 'Comments for the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_apptstatus', description: 'use an option from resource=/api/list/apptstat', type: 'string'),
+                        new OA\Property(property: 'pc_eventDate', description: 'The date of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_startTime', description: 'The time of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_facility', description: 'The facility id of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_billing_location', description: 'The billinag location id of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_aid', description: 'The provider id for the appointment.', type: 'string'),
+                    ],
+                    example: [
+                        'pc_catid' => '5',
+                        'pc_title' => 'Office Visit',
+                        'pc_duration' => '900',
+                        'pc_hometext' => 'Test',
+                        'pc_apptstatus' => '-',
+                        'pc_eventDate' => '2018-10-19',
+                        'pc_startTime' => '09:00',
+                        'pc_facility' => '9',
+                        'pc_billing_location' => '10',
+                        'pc_aid' => '1',
+                    ]
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function post($pid, $data)
     {
         $data['pid'] = $pid;
@@ -76,16 +339,60 @@ class AppointmentRestController
         }
 
         $serviceResult = $this->appointmentService->insert($pid, $data);
-        return RestControllerHelper::responseHandler(array("id" => $serviceResult), null, 200);
+        return RestControllerHelper::responseHandler(["id" => $serviceResult], null, 200);
     }
 
-    public function delete($eid)
+    /**
+     * Deletes an appointment.
+     * @param $eid - The appointment event id.
+     */
+    #[OA\Delete(
+        path: '/api/patient/{pid}/appointment/{eid}',
+        description: 'Delete a appointment',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'pid',
+                in: 'path',
+                description: 'The id for the patient.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'eid',
+                in: 'path',
+                description: 'The eid for the appointment.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function delete(string $pid, string $eid): Response
     {
         try {
-            $this->appointmentService->deleteAppointmentRecord($eid);
+            // Scope deletion by pid so a leaked eid can't reach another patient's chart.
+            $service = $this->appointmentService;
+            assert($service instanceof AppointmentService);
+            $existing = $service->getAppointment($eid);
+            $existingPidRaw = (isset($existing[0]) && is_array($existing[0]))
+                ? ($existing[0]['pid'] ?? null)
+                : null;
+            if (!is_numeric($existingPidRaw) || !is_numeric($pid) || (int) $existingPidRaw !== (int) $pid) {
+                return RestControllerHelper::responseHandler(['message' => 'record not found'], null, 404);
+            }
+            if (!$service->deleteAppointmentRecord($eid, (int) $pid)) {
+                return RestControllerHelper::responseHandler(['message' => 'record not found'], null, 404);
+            }
             $serviceResult = ['message' => 'record deleted'];
-        } catch (\Exception $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'eid' => $eid]);
+        } catch (\Throwable $exception) {
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception, 'eid' => $eid]);
             return RestControllerHelper::responseHandler(['message' => 'Failed to delete appointment'], null, 500);
         }
         return RestControllerHelper::responseHandler($serviceResult, null, 200);

@@ -76,4 +76,3 @@ class DeviceApplied extends QDMBaseType
 
     public $_type = 'QDM::DeviceApplied';
 }
-

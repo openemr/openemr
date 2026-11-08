@@ -48,7 +48,7 @@
             all of the attributes and elements accepted for T are also
             accepted by this definition.  However, they are NOT allowed
             by the normative description of this type.  Unfortunately,
-            we cannot write a general purpose schematron contraints to
+            we cannot write a general purpose schematron constraints to
             provide that extra validation, thus applications must be
             aware that instance (fragments) that pass validation with
             this might might still not be legal.
@@ -106,7 +106,7 @@
             all of the attributes and elements accepted for T are also
             accepted by this definition.  However, they are NOT allowed
             by the normative description of this type.  Unfortunately,
-            we cannot write a general purpose schematron contraints to
+            we cannot write a general purpose schematron constraints to
             provide that extra validation, thus applications must be
             aware that instance (fragments) that pass validation with
             this might might still not be legal.
@@ -344,7 +344,7 @@
             all of the attributes and elements accepted for T are also
             accepted by this definition.  However, they are NOT allowed
             by the normative description of this type.  Unfortunately,
-            we cannot write a general purpose schematron contraints to
+            we cannot write a general purpose schematron constraints to
             provide that extra validation, thus applications must be
             aware that instance (fragments) that pass validation with
             this might might still not be legal.
@@ -522,7 +522,7 @@
             all of the attributes and elements accepted for T are also
             accepted by this definition.  However, they are NOT allowed
             by the normative description of this type.  Unfortunately,
-            we cannot write a general purpose schematron contraints to
+            we cannot write a general purpose schematron constraints to
             provide that extra validation, thus applications must be
             aware that instance (fragments) that pass validation with
             this might might still not be legal.

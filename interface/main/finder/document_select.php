@@ -15,7 +15,7 @@
  * Note that only documents the currently logged in user has access to via the document category ACOs will be displayed
  * in the search.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -23,31 +23,57 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_REQUEST)) {
-    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
-$searchArray = [];
-$pid = $_REQUEST['pid'] ?? $_SESSION['pid'] ?? null;
-$patientName = "";
-if (!empty($_REQUEST['pid'])) {
-    $pid = intval($_REQUEST['pid']);
-    $patientService = new PatientService();
-    $patientArray = $patientService->findByPid($pid);
-    if (!empty($patientArray)) {
-        // TODO: log the fact that pid is null
-        // note for documents that foreign_id is ALWAYS the pid
-        $searchArray['foreign_id'] = $pid;
-        $patientName = trim(($patientArray['fname'] ?? '') . ' ' . ($patientArray['lname'] ?? ''));
+// Resolve the patient this finder is scoped to. A request `pid` is honored
+// only when it matches the current session patient context, or when the
+// caller holds the `patients/docs` ACL (admin / batch flow). Otherwise the
+// request `pid` would let any logged-in user enumerate another patient's
+// document metadata. Falls back to the session patient when the request
+// omits one. Refuses the search entirely if neither source yields a usable
+// pid.
+$rawRequestPid = $_REQUEST['pid'] ?? null;
+$sessionPid = $session->get('pid') ?? null;
+$sessionPidInt = (int) ($sessionPid ?? 0);
+$pid = null;
+if ($rawRequestPid !== null && $rawRequestPid !== '') {
+    $requestedPid = (int) $rawRequestPid;
+    if ($sessionPidInt > 0 && $sessionPidInt === $requestedPid) {
+        $pid = $requestedPid;
+    } elseif (AclMain::aclCheckCore('patients', 'docs')) {
+        $pid = $requestedPid;
+    } else {
+        AccessDeniedHelper::deny('document_select: requested pid not accessible by caller');
     }
+} elseif ($sessionPidInt > 0) {
+    $pid = $sessionPidInt;
+}
+if ($pid === null || $pid <= 0) {
+    AccessDeniedHelper::deny('document_select: pid required (not in request or session)');
+}
+
+$searchArray = ['foreign_id' => $pid];
+$patientName = "";
+$patientService = new PatientService();
+$patientArray = $patientService->findByPid($pid);
+if (!empty($patientArray)) {
+    $patientName = trim(($patientArray['fname'] ?? '') . ' ' . ($patientArray['lname'] ?? ''));
 }
 $MAX_RECORDS = 25;
 $searchparm = trim($_REQUEST['searchparm'] ?? '');
@@ -155,10 +181,10 @@ foreach ($searchResult as $docResult) {
                        title='<?php echo xla('Any part of the document name'); ?>' />
                 <div class="col">
                     <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>' />
-                    <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif" /></div>
+                    <div id="searchspinner"><img src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/pic/ajax-loader.gif" /></div>
                 </div>
             </div>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         </form>
     </div>
 

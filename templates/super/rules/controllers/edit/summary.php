@@ -13,8 +13,8 @@
  * @license   There are segments of code in this file that have been generated via ChatGPT and are licensed as Public Domain, they are marked with a header and footer.
  */
 
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType;
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType;
 
 $rule = $viewBean->rule ?>
 

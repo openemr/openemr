@@ -1029,7 +1029,7 @@ a:hover.l-btn-disabled {
   padding: 0;
   overflow: auto;
   zoom: 1;
- 
+
 }
 .datagrid-view1 .datagrid-body-inner {
   padding-bottom: 20px;
@@ -2183,7 +2183,7 @@ a.s-btn-plain-active {
 .border1{
   border: 1px solid red;
  }
- 
+
  .icon-lab-order {
     background: url("images/lab_order.png") no-repeat scroll center center transparent;
 }
@@ -2211,7 +2211,5 @@ a.s-btn-plain-active {
    width: 240px;
   overflow: hidden;
    background: url('images/new_arrow.jpg') no-repeat right ;
-   
-   }
-  
 
+   }
