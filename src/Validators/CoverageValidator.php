@@ -308,12 +308,18 @@ class CoverageValidator extends BaseValidator
                             [$values['pid'], $values['type']]
                         );
                         if (empty($srcDate)) {
-                            if (!empty($targetDate) && $this->levelHasPolicyStartingOn($values['pid'], $srcData['type'], $targetDate)) {
+                            if (!empty($targetDate) && $this->levelHasPolicyStartingOn($values['pid'], $srcData[0]['type'], $targetDate)) {
                                 throw new InvalidValueException("Source coverage type already has a policy with an effective date that conflicts with the target policy effective date", "Record::INVALID_SOURCE_POLICY_DATE");
                             }
                         } else {
-                            if (!(empty($targetDate) || $targetDate == $srcDate) && $this->levelHasPolicyStartingOn($values['pid'], $values['type'], $srcDate)) {
+                            $targetStartDiffers = !(empty($targetDate) || $targetDate == $srcDate);
+                            $pid = $values['pid'];
+                            if ($targetStartDiffers && $this->levelHasPolicyStartingOn($pid, $values['type'], $srcDate)) {
                                 throw new InvalidValueException("Target coverage type already has a policy with an effective date that conflicts with the source policy effective date", "Record::INVALID_TARGET_POLICY_DATE");
+                            }
+                            // the target policy moves to the source's level, where another may start on its date
+                            if ($targetStartDiffers && $this->levelHasPolicyStartingOn($pid, $srcData[0]['type'], $targetDate)) {
+                                throw new InvalidValueException("Source coverage type already has a policy with an effective date that conflicts with the target policy effective date", "Record::INVALID_SOURCE_POLICY_DATE");
                             }
                         }
                         return true;
