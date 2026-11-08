@@ -43,14 +43,15 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
  * a start of 2026-05-00 from 2026-05-01. Every date returned is midnight in
  * PHP's default time zone.
  *
- * This is the claim's rule (Claim::loadPayerInfo()), with three differences:
+ * The claim (Claim::loadPayerInfo()) reads this rule. It began as the
+ * claim's own query, which differed in three ways:
  *
- * - a 0000-00-00 end is open here, where the claim compares it as a day in
- *   year 0, so the policy has ended;
- * - between two blank starts the claim takes whichever row the database
- *   returns first;
- * - a company that isn't a whole number ('Acme') is no company here, where
- *   the claim bills it.
+ * - a 0000-00-00 end is open here, where the query compared it as a day in
+ *   year 0, so the policy had ended (the 8.6.0 upgrade clears those ends);
+ * - between two blank starts the query took whichever row the database
+ *   returned first;
+ * - a company that isn't a whole number ('Acme', '12abc') is no company
+ *   here, where the query billed it.
  *
  * getEffectiveInsurances() in library/patient.inc.php is a wrapper over the
  * service, so it follows this rule too; its docblock lists where it differs

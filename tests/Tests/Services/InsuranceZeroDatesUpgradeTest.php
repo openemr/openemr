@@ -2,9 +2,10 @@
 
 /**
  * The upgrade step that clears policies' 0000-00-00 ends (sql/8_5_0-to-8_6_0_upgrade.sql): a stored
- * 0000-00-00 end becomes NULL, so the claim's own query and the coverage rule (#15038) read the policy
- * alike. Before it, the claim read a 0000-00-00 end as ended and the rule reads it as open. A 0000-00-00
- * start, which both read as always, is left as it is.
+ * 0000-00-00 end becomes NULL. The claim's own query read a 0000-00-00 end as ended where the coverage
+ * rule (#15038) reads it as open; the step ran before the claim moved to the rule, and the claim now
+ * reads the rule, so the two agree before and after it. A 0000-00-00 start, which both read as always,
+ * is left as it is.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -66,15 +67,15 @@ final class InsuranceZeroDatesUpgradeTest extends TestCase
     }
 
     /**
-     * A 0000-00-00 end: before the step the claim bills nobody (it reads the policy as ended) while the
-     * coverage rule has the policy in force; after it, both have it in force.
+     * A 0000-00-00 end: the claim and the coverage rule have the policy in force, before the step and
+     * after it.
      */
     #[Test]
-    public function afterTheStepTheClaimAndTheRuleAgreeOnAZeroEnd(): void
+    public function theClaimAndTheRuleAgreeOnAZeroEnd(): void
     {
         $this->addPolicy(self::PID, 'primary', '101', '2020-01-01', '0000-00-00');
 
-        self::assertSame([], $this->claimCompanies(), 'the claim, before');
+        self::assertSame([101], $this->claimCompanies(), 'the claim, before');
         self::assertSame([101], $this->ruleCompanies(), 'the rule, before');
 
         $this->runUpgradeStep();
@@ -112,7 +113,7 @@ final class InsuranceZeroDatesUpgradeTest extends TestCase
     }
 
     /**
-     * The companies the claim bills for a visit on DAY (Claim::loadPayerInfo(), its own query), the claim
+     * The companies the claim bills for a visit on DAY (Claim::loadPayerInfo()), the claim
      * built without its constructor: only the payer choice is under test.
      *
      * @return list<int>

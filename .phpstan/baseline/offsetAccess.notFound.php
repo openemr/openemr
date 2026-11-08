@@ -942,11 +942,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'data\' might not exist on array\\{\\}\\|array\\{data\\: non\\-empty\\-array, company\\?\\: array\\|false, object\\?\\: InsuranceCompany\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'context\' might not exist on array\\{id\\: int, parent\\: int, error\\: int, start_date\\?\\: string, end_date\\?\\: string, context\\?\\: literal\\-string&non\\-falsy\\-string, 1\\?\\: string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
