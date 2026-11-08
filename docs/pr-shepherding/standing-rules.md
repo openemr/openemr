@@ -206,10 +206,18 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
 - Diagnosis footprint: a single failure on `CCDADocRefGenerationTest`, 11 tests / 341
   assertions, expected-vs-actual DOM diff showing exactly the emission change the PR
   made.
-- Fix path: an admin with write access to `openemr/inferno-files` updates the matching
-  XML lines and pushes; the next Inferno CI run on openemr master picks up the new
-  submodule HEAD. **No openemr-side PR needed.** Precedent: PR #14953 merged 2026-11-04,
-  Inferno master-red for 3+ days, tracked as public openemr/openemr issue.
+- Fix path (two steps, both required):
+  1. An admin with write access to `openemr/inferno-files` updates the matching XML
+     lines and pushes to `openemr/inferno-files` master.
+  2. An openemr-side PR bumps the `ci/inferno/inferno-files` **gitlink** in
+     `openemr/openemr` to the new submodule SHA. Without this bump, CI still checks
+     out the old pointer — the Inferno workflow uses `actions/checkout@v7` with
+     `submodules: recursive`, which resolves to the recorded gitlink, and
+     `ci/inferno/run.sh` does `git submodule update` without `--remote`. **Pushing
+     to the private submodule alone leaves CI on the old fixture.**
+- Precedent: PR #14953 merged 2026-11-04, Inferno master-red through 2026-11-08
+  because only step 1 was followed; step 2 (gitlink bump) was the missing action.
+  Tracked as public openemr/openemr issue #15083.
 
 ---
 
@@ -280,6 +288,18 @@ happens to involve a known-risky pattern (IDOR template, injection surface, DoS 
 is still a hygiene follow-up at the register level, with specific details kept in the
 private brief only. See [per-pr-review §13](per-pr-review.md#13-parallel-subagents-for-batch-reviews)
 for the pattern.
+
+**The private brief is not durable tracking by itself.** A scratch file under a
+maintainer's home directory is a session artifact, not a ledger. When a shepherd pass
+surfaces a concern that meets vulnerability severity thresholds (exploitable, not
+pre-existing-and-documented, affects more than the current PR), the handoff isn't
+just "write it in the brief and log the register entry" — the maintainer also opens
+a private GitHub Security Advisory under `.github/SECURITY.md`'s flow, or routes it
+through whatever private-advisory-triage workflow the project maintains, so the
+security team has the finding on a tracked queue regardless of which shepherd
+session surfaced it. The brief + register are the shepherd's record of *where the
+finding came from*; the GHSA draft (or equivalent) is the record of *what happens
+to it next*.
 
 ---
 

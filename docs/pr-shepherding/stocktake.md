@@ -27,10 +27,17 @@ Pull the full open-PR list, filter by subject, sort by `updatedAt desc`.
 ### Pattern
 
 ```bash
-gh pr list --repo openemr/openemr --state open --limit 100 \
+gh pr list --repo openemr/openemr --state open --limit 300 \
   --json number,title,updatedAt,isDraft,author,headRefName \
   --search "sort:updated-desc"
 ```
+
+`--limit 300` is a safety margin — `gh pr list` returns at most `--limit` PRs and
+silently truncates (oldest matches drop first). OpenEMR's open-PR count has been in
+the 90–110 range during 2026-11; bump `--limit` or paginate via `gh api`
+(`/repos/openemr/openemr/pulls?state=open&per_page=100&page=N`) if the count ever
+crosses the limit — a truncated candidate list means an older matching PR silently
+disappears from the snapshot.
 
 Then apply the subject filter in post-processing. For a keyword subject, a case-insensitive
 title regex is enough:
@@ -102,14 +109,27 @@ Store these as a one-line summary per PR; feed into the bucketing step.
 Apply the decision gate from [hub §5](README.md#5-decision-gate--is-this-pr-merge-ready).
 Every PR lands in exactly one bucket.
 
+**Important: Phase 1 metadata alone cannot promote a PR to `✅ Merge-ready`.** Phase 1
+reads what is visible in the GitHub API — draft state, CI rollup, review decision,
+mergeable state. That tells you a PR is a *candidate* for Phase 2 review. It does not
+tell you whether the code is actually ready to merge. A PR with green metadata can
+hide a defect that only shows under a commit walk. Phase 1 therefore classifies PRs
+as `⏳ Awaiting shepherd review` when metadata passes but no brief exists yet; the
+promotion to `✅ Merge-ready` happens only after Phase 2 writes a brief with that
+verdict.
+
 ### Classification buckets
+
+#### ⏳ Awaiting shepherd review (Phase 1 default for candidates)
+
+Every decision-gate metadata row passes (non-draft, CI green, no open maintainer
+`CHANGES_REQUESTED`, mergeable). No brief yet. Feeds Phase 2.
 
 #### ✅ Merge-ready
 
-Every decision-gate row passes. No unresolved rabbit Actionable. No open maintainer
-`CHANGES_REQUESTED`. CI green. Non-draft. Mergeable.
-
-Produces a Phase 2 brief.
+Phase 2 brief exists with verdict `**Approve + merge.**` and the current PR head
+matches the brief's recorded reviewed head. This is a *Phase 2 output*, not a Phase 1
+classification.
 
 #### 🔶 Merge-ready with known residual
 

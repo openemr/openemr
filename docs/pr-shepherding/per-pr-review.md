@@ -30,14 +30,21 @@ git fetch upstream pull/<N>/head:pr-<N>
 (`origin` on the primary repo's remotes is the maintainer's fork, not upstream. Use the
 remote that points at `openemr/openemr`.)
 
-Then compute the merge base for later baseline-integrity checks:
+Then compute the merge base against **the PR's base branch**, not always master —
+a PR targeting `rel-810` has a merge base against `rel-810`, not against today's
+master. Look up the base branch first:
 
 ```bash
-git fetch upstream master
-base=$(git merge-base pr-<N> upstream/master)
+base_branch=$(gh pr view <N> --repo openemr/openemr --json baseRefName --jq .baseRefName)
+git fetch upstream "$base_branch"
+base=$(git merge-base pr-<N> "upstream/$base_branch")
 ```
 
-Keep `$base` handy; every "PR vs master" comparison should use it, not raw
+Most PRs target `master`, so `$base_branch` will typically be `master`. For a
+release-branch PR, computing the merge base against master instead would include
+changes outside the PR in the baseline comparison — the wrong signal entirely.
+
+Keep `$base` handy; every "PR vs base branch" comparison should use it, not raw
 `upstream/master`. See
 [standing-rules §7](standing-rules.md#7-verify-against-the-merge-base-not-upstreammaster).
 
@@ -343,6 +350,22 @@ Phase 2 ends when the brief is written and saved. The brief's verdict goes into 
 workstream doc's bucketed snapshot. Phase 3 then updates the running doc + log + register
 to match. See [deliverables.md](deliverables.md).
 
+**The brief binds the verdict to the reviewed head SHA.** The brief header records the
+exact head commit the review was written against. If the author pushes after the brief
+is written, the recorded head no longer matches the PR's current head — the verdict
+applies to different code, and a fresh review (or at minimum a delta review against
+the new commits) is needed before the maintainer merges.
+
+Before merging on a shepherd verdict, the maintainer (or the agent, when confirming
+`landed <N>` reports) verifies:
+
+1. The brief's recorded head SHA still matches `gh pr view <N> --json commits | ... | last`.
+2. CI is still green (no regression since the brief was written).
+3. No new rabbit Actionable has been posted since the brief.
+4. No new maintainer `CHANGES_REQUESTED` has been filed.
+
+If any of 1-4 moved, refresh the brief before merging.
+
 **Do not post the brief publicly.** The brief lives in the private briefs directory. The
 maintainer decides whether anything in it should land on the PR, and the maintainer does
 the posting. See [standing-rules §1.1](standing-rules.md#11-no-public-pr-comments-without-per-post-approval).
@@ -359,8 +382,10 @@ etc.).
 
 ## 13. Parallel subagents for batch reviews
 
-When Phase 1 hands off a merge-ready list of several PRs that are mutually independent
-(no cross-dependencies between adjacent PRs on the list), dispatch one agent per PR in
+When Phase 1 hands off an awaiting-review list of several PRs that are mutually
+independent across **every pair** (not just adjacent — a transitive dependency where
+A and C depend on each other via a function the intermediate B doesn't touch can still
+break integration if A and C are reviewed in parallel), dispatch one agent per PR in
 parallel. Each agent runs Phase 2 against its PR and writes the brief to disk;
 the parent session integrates the results into Phase 3 deliverables.
 

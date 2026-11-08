@@ -127,8 +127,8 @@ maintainer reports `landed <PR#>`. Update the brief + log entry with the merge S
 | Verify two PRs touching the same files really merge cleanly (overlapping-touch) | [per-pr-review.md §6.6](per-pr-review.md#66-merges-cleanly-on-current-master-overlapping-touch-verification) |
 | Write a review brief, log entry, or follow-up register entry | [deliverables.md](deliverables.md) |
 | Decide whether an action (public comment, branch push, direct code change) is allowed | [standing-rules.md](standing-rules.md) |
-| Interpret a confusing CodeRabbit interaction (incremental review, "already reviewed," paused reviews, typo'd mention) | [standing-rules.md](standing-rules.md#coderabbit-mechanics) |
-| Resolve a stale hold after 24h | [standing-rules.md](standing-rules.md#staleness-and-recheck-cadence) |
+| Interpret a confusing CodeRabbit interaction (incremental review, "already reviewed," paused reviews, typo'd mention) | [standing-rules.md](standing-rules.md#2-coderabbit-mechanics) |
+| Resolve a stale hold after 24h | [standing-rules.md](standing-rules.md#3-staleness-and-recheck-cadence) |
 
 ---
 
@@ -143,12 +143,14 @@ false, the PR goes into the matching held / residual / draft bucket instead.
 - **No unresolved rabbit Actionable.** Every CodeRabbit "Actionable" finding is either
   addressed in a subsequent commit, withdrawn by rabbit, or scoped out by the author with
   rabbit's acknowledgement. "Already-reviewed, no new findings" counts as resolved; see
-  [standing-rules.md](standing-rules.md#coderabbit-mechanics).
+  [standing-rules.md](standing-rules.md#2-coderabbit-mechanics).
 - **No unresolved maintainer `CHANGES_REQUESTED`.** A formal review-state request stays
   open until the requesting maintainer re-reviews. A separate maintainer approving does
   not clear it.
-- **Mergeable state.** GitHub's `mergeable` is `MERGEABLE` (or `UNKNOWN` with no visible
-  conflict markers).
+- **Mergeable state.** GitHub's `mergeable` is `MERGEABLE`. `UNKNOWN` does not count as
+  mergeable (GitHub hasn't finished computing it, or a conflict exists that doesn't show
+  as markers). Either poll until the state refreshes, or run the local merge-compatibility
+  verify ([per-pr-review §6.6](per-pr-review.md#66-merges-cleanly-on-current-master-overlapping-touch-verification)).
 - **Scope confirmed in scope.** The PR falls in the subject-filter bucket, not "outside
   primary scope."
 - **Baseline integrity.** PHPStan baseline: zero new entries. Count reductions are fine
@@ -156,7 +158,11 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   local `upstream/master` (which may have drifted).
 - **No private-submodule dependency is dangling.** If the PR changes CCDA/QRDA/FHIR
   emission, note whether Inferno's private-submodule fixture will need admin updating
-  post-merge. See [standing-rules.md](standing-rules.md#inferno-ccda-fixture-in-private-submodule).
+  post-merge. See [standing-rules.md](standing-rules.md#6-inferno-ccda-fixture-in-private-submodule).
+- **Reviewed head recorded.** The brief records the exact head SHA it was written
+  against. Before merging on a shepherd verdict, confirm the current PR head still
+  matches that SHA — if the author pushed after the brief was written, the verdict
+  applies to different code and a fresh review is needed.
 
 If a PR *passes every row* but surfaces a non-blocking concern (coverage gap, sibling-file
 sweep, pre-existing bug the PR correctly scopes out), place it in **`🔶 merge-ready with
@@ -191,7 +197,7 @@ Full formats live in [deliverables.md](deliverables.md). Every pass produces at 
 
 Pattern-worthy observations (recurring gotchas, rule corrections, new conventions) go to
 **memory** so the next shepherd pass starts with the context already loaded. See
-[standing-rules.md](standing-rules.md#memory-vs-session).
+[standing-rules.md](standing-rules.md#8-memory-vs-session).
 
 ---
 
@@ -201,14 +207,14 @@ Pattern-worthy observations (recurring gotchas, rule corrections, new convention
   history or verifying the fix. Evidence chains are the point of the brief.
 - **Block a PR for a sibling-file pattern it didn't introduce.** A cross-cutting concern
   across N files is a sweep follow-up, not a block on the first PR that touches one of
-  them. See [standing-rules.md](standing-rules.md#sibling-pattern-coverage-sweep-not-block).
+  them. See [standing-rules.md](standing-rules.md#4-sibling-pattern-coverage-sweep-not-block).
 - **Trust rabbit's claim without checking.** Rabbit occasionally cites a raw-github SHA
   that doesn't match any PR commit; verify the finding against current code before
   propagating it into the brief. See
-  [standing-rules.md](standing-rules.md#coderabbit-mechanics).
+  [standing-rules.md](standing-rules.md#2-coderabbit-mechanics).
 - **Carry a stale hold.** A 🔴 hold captured at the morning snapshot can be addressed by
   afternoon on an active contributor's PR. Re-check 24h later. See
-  [standing-rules.md](standing-rules.md#staleness-and-recheck-cadence).
+  [standing-rules.md](standing-rules.md#3-staleness-and-recheck-cadence).
 - **Act outside the standing rules.** No public PR comments without per-post approval; no
   direct pushes to contributor branches; no rebases of contributor PRs without explicit
-  per-PR approval. See [standing-rules.md](standing-rules.md#hard-rules).
+  per-PR approval. See [standing-rules.md](standing-rules.md#1-hard-rules).

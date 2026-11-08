@@ -62,13 +62,18 @@ Outside primary scope (visibility only):
 When the maintainer confirms a merge (`landed <N>`):
 
 1. Pull the merge SHA with `gh pr view <N> --json mergeCommit`.
-2. Move the PR's entry from its bucketed section into the `**Shipped since ...**` list,
-   preserving the bucket emoji + brief path.
-3. Append `(<merge-date> at \`<sha-short>\`)` and `**🚢 SHIPPED.**`.
-4. Commit the doc change with `docs(<area>): move #NNNN from ... to shipped in <subject> workstream`.
+2. **Add** an entry to the `**Shipped since ...**` list — do not delete or edit the PR's
+   entry in the dated `**Open as of ...**` snapshot. The snapshot is a point-in-time
+   record (header says "N PRs" based on the bullets at that date); rewriting it after
+   a merge decorrelates the count from the bullets and destroys history useful for
+   release-note narrative and dormancy audits.
+3. On the `**Shipped since ...**` entry, include `(<merge-date> at \`<sha-short>\`)` and
+   `**🚢 SHIPPED.**`, and preserve the brief path pointer.
+4. Commit with `docs(<area>): add #NNNN to shipped list in <subject> workstream`.
 
-Don't rewrite the "Open as of" snapshot in place; let it age and add a fresh one on the
-next pass. Historical snapshots are useful for release-note narrative.
+**Dated snapshots have a half-life.** Add a fresh "Open as of" on each shepherd pass;
+let the prior snapshot age unchanged. See
+[standing-rules §3.3](standing-rules.md#3-staleness-and-recheck-cadence).
 
 ### 1.4 Follow-up register
 
@@ -156,11 +161,20 @@ historical record — don't rewrite the verdict.
 ```markdown
 # PR #<N> deep review brief — `<title>`
 
-**Author:** <login> · <N> commits, +<adds>/-<dels> across <N> files · base: `master` (merge base `<short-sha>`)
+**Author:** <login> · <N> commits, +<adds>/-<dels> across <N> files · base: `<base-branch>` (merge base `<short-sha>`)
+**Reviewed head:** `<head-sha>` — <date-reviewed>. **Re-verify before merging** that the
+current head still matches this SHA; a push after this brief is written invalidates the
+verdict until a delta review covers the new commits.
 **CI:** <summary — "all green" or "N SUCCESS, M SKIPPED (<reasons>)">.
 **Prior maintainer action:** <e.g. "kojiromike filed CHANGES_REQUESTED 2026-11-05; addressed by commits X + Y">.
 **Previous status:** <prior bucket if applicable — e.g. "🔴 held at 2026-11-04 end-of-day; promoted to ✅ on ...">.
 ```
+
+The `Reviewed head` field binds the verdict to the specific commit SHA the brief was
+written against. Standard shepherd-log entries also carry this SHA so the maintainer
+can confirm "the verdict applies to this exact head" before merging. See
+[per-pr-review §12](per-pr-review.md#12-handoff-to-phase-3) for the pre-merge
+re-verification checklist.
 
 ### 3.3 Commit walk
 
