@@ -992,11 +992,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/QuestionnaireService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'type\' does not exist on non\\-empty\\-list\\<array\\<mixed\\>\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{0\\: \'onKernelRequest\', 1\\?\\: int\\}\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Subscriber/SiteSetupListenerTest.php',
