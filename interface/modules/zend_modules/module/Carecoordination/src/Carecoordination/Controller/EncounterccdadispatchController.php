@@ -102,6 +102,8 @@ class EncounterccdadispatchController extends AbstractActionController
         $this->recipients = $request->getQuery('recipient');
         $this->params = $request->getQuery('param');
         $this->referral_reason = $request->getQuery('referral_reason');
+        $rawReferralId = $request->getQuery('referral_id');
+        $referralId = is_string($rawReferralId) && ctype_digit($rawReferralId) ? (int)$rawReferralId : null;
         $this->components = $request->getQuery('components') ?: $this->params('components');
         $downloadccda = $this->params('downloadccda');
         $downloadqrda = $this->params('downloadqrda');
@@ -240,6 +242,8 @@ class EncounterccdadispatchController extends AbstractActionController
                     AccessDeniedHelper::deny('EncounterccdadispatchController::indexAction: no accessible pids in combination');
                 }
                 $arr = explode('|', $combination);
+                // One choice can't speak for several patients: they each get their most recent referral.
+                $chosenReferral = count($arr) === 1 ? $referralId : null;
                 foreach ($arr as $row) {
                     $arr = explode('_', $row);
                     $this->patient_id = $arr[0];
@@ -263,7 +267,8 @@ class EncounterccdadispatchController extends AbstractActionController
                         $this->params,
                         $this->document_type,
                         $this->referral_reason,
-                        $this->date_options
+                        $this->date_options,
+                        $chosenReferral
                     );
                     $content = $result->getContent();
                     unset($result); // clear out our memory here as $content is a big string
@@ -334,7 +339,8 @@ class EncounterccdadispatchController extends AbstractActionController
                     $this->params,
                     $this->document_type,
                     $this->referral_reason,
-                    $this->date_options
+                    $this->date_options,
+                    $referralId
                 );
                 $content = $result->getContent();
                 unset($result);
