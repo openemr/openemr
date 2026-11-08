@@ -24,6 +24,7 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
     /** Target tables whose rows lockTarget() can hold, with their key column. */
     private const LOCKABLE_TARGETS = [
         'onsite_documents' => 'id',
+        'patient_data' => 'pid',
     ];
 
     public function __construct(private ReviewRequestMapper $mapper)
@@ -85,6 +86,21 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         }
         $rows = QueryUtils::fetchRecords($sql . ' ORDER BY `created_at` DESC, `id` DESC', $binds);
         return array_map($this->mapper->toRequest(...), $rows);
+    }
+
+    /**
+     * Counts pending and awaiting-payment requests the client submitted for the patient.
+     */
+    public function countOpenForClient(int $pid, ReviewType $type, string $clientId): int
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT COUNT(*) AS `total` FROM `patient_review_request` WHERE `pid` = ? AND `type` = ? AND `client_id` = ?'
+            . ' AND `status` IN (?, ?)',
+            [$pid, $type->value, $clientId, ReviewStatus::Pending->value, ReviewStatus::AwaitingPayment->value]
+        );
+        $total = is_array($row) ? ($row['total'] ?? 0) : 0;
+
+        return is_int($total) || (is_string($total) && ctype_digit($total)) ? intval($total) : 0;
     }
 
     public function lockTarget(string $targetTable, string $targetId): void

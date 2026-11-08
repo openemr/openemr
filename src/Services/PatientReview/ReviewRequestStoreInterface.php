@@ -54,6 +54,12 @@ interface ReviewRequestStoreInterface
     public function findOpen(int $pid, ReviewType $type, ?FhirResourceType $resourceType = null): array;
 
     /**
+     * How many open requests of this type one API client has submitted for the patient, across
+     * resource types.
+     */
+    public function countOpenForClient(int $pid, ReviewType $type, string $clientId): int;
+
+    /**
      * Holds the target row until the surrounding transaction ends, so two submissions for the
      * same row cannot both find it without an open request. Call inside transactional().
      *

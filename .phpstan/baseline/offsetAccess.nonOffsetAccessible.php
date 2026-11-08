@@ -41202,32 +41202,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'encounter_uuid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'puuid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'questionnaire\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'questionnaire_id\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'questionnaire_response\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
 ];

@@ -2030,6 +2030,18 @@
                 ]
             },
             {
+                "label": "Patient App Submissions",
+                "menu_id": "pas0",
+                "target": "pas",
+                "url": "/interface/main/patient_app_submissions.php",
+                "children": [],
+                "requirement": 0,
+                "acl_req": [
+                    "patients",
+                    "med"
+                ]
+            },
+            {
                 "label": "Dicom Viewer",
                 "menu_id": "dvwr",
                 "target": "msc",

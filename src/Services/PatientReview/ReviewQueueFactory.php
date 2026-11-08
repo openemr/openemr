@@ -20,7 +20,12 @@ namespace OpenEMR\Services\PatientReview;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FHIR\FhirRelatedPersonService;
+use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
+use OpenEMR\Services\PatientReview\FhirWrite\FhirWriteReviewHandler;
+use OpenEMR\Services\PatientReview\FhirWrite\QuestionnaireResponseWriteApplier;
 use OpenEMR\Services\PatientReview\Migration\LegacyActivityMapping;
 use OpenEMR\Services\PatientReview\Migration\PortalActivityMigrator;
 use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
@@ -38,11 +43,30 @@ final class ReviewQueueFactory
             new ReviewRequestRepository(new ReviewRequestMapper()),
             new EventAuditReviewTrail(EventAuditLogger::getInstance(), $group !== '' ? $group : 'none'),
             ServiceContainer::getClock(),
-            ServiceContainer::getUuidFactory(),
+            UuidRegistry::timestampFirstCombFactory(),
             ServiceContainer::getCrypto(),
             ServiceContainer::getLogger(),
             $handlers,
         );
+    }
+
+    /**
+     * The queue as staff review patient app writes: approving a fhir-write request writes it to
+     * the chart.
+     */
+    public static function withFhirWriteHandler(): ReviewQueueService
+    {
+        return self::create([self::fhirWriteHandler()]);
+    }
+
+    /**
+     * The fhir-write handler with an applier for each resource type that can be approved.
+     */
+    public static function fhirWriteHandler(): FhirWriteReviewHandler
+    {
+        return new FhirWriteReviewHandler([
+            new QuestionnaireResponseWriteApplier(new FhirQuestionnaireResponseFormService(), new FhirRelatedPersonService()),
+        ]);
     }
 
     /**
@@ -53,7 +77,7 @@ final class ReviewQueueFactory
         return new PortalActivityMigrator(
             new LegacyActivityMapping(),
             ServiceContainer::getClock(),
-            ServiceContainer::getUuidFactory(),
+            UuidRegistry::timestampFirstCombFactory(),
             ServiceContainer::getLogger(),
         );
     }
