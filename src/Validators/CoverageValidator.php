@@ -308,31 +308,31 @@ class CoverageValidator extends BaseValidator
                             [$values['pid'], $values['type']]
                         );
                         if (empty($srcDate)) {
-                            if (!empty($targetDate)) {
-                                $srcTypeCanReceiveTarget = QueryUtils::fetchSingleValue(
-                                    "SELECT COUNT(*) AS cnt FROM insurance_data WHERE pid = ? AND type = ? AND date IS NOT NULL AND date = ?",
-                                    'cnt',
-                                    [$values['pid'], $srcData['type'], $targetDate]
-                                );
-                                if ($srcTypeCanReceiveTarget > 0) {
-                                    throw new InvalidValueException("Source coverage type already has a policy with an effective date that conflicts with the target policy effective date", "Record::INVALID_SOURCE_POLICY_DATE");
-                                }
+                            if (!empty($targetDate) && $this->levelHasPolicyStartingOn($values['pid'], $srcData['type'], $targetDate)) {
+                                throw new InvalidValueException("Source coverage type already has a policy with an effective date that conflicts with the target policy effective date", "Record::INVALID_SOURCE_POLICY_DATE");
                             }
                         } else {
-                            if (!(empty($targetDate) || $targetDate == $srcDate)) {
-                                $targetTypeCanReceiveSrc = QueryUtils::fetchSingleValue(
-                                    "SELECT COUNT(*) AS cnt FROM insurance_data WHERE pid = ? AND type = ? AND date IS NOT NULL AND date = ?",
-                                    'cnt',
-                                    [$values['pid'], $values['type'], $srcDate]
-                                );
-                                if ($targetTypeCanReceiveSrc > 0) {
-                                    throw new InvalidValueException("Target coverage type already has a policy with an effective date that conflicts with the source policy effective date", "Record::INVALID_TARGET_POLICY_DATE");
-                                }
+                            if (!(empty($targetDate) || $targetDate == $srcDate) && $this->levelHasPolicyStartingOn($values['pid'], $values['type'], $srcDate)) {
+                                throw new InvalidValueException("Target coverage type already has a policy with an effective date that conflicts with the source policy effective date", "Record::INVALID_TARGET_POLICY_DATE");
                             }
                         }
                         return true;
                     });
             }
         );
+    }
+
+    /**
+     * Whether the patient has a policy at the level that starts on the date: a swap that would move a
+     * second one there breaks the unique key on (pid, type, date).
+     */
+    private function levelHasPolicyStartingOn(mixed $pid, mixed $type, mixed $date): bool
+    {
+        $count = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS cnt FROM insurance_data WHERE pid = ? AND type = ? AND date IS NOT NULL AND date = ?",
+            'cnt',
+            [$pid, $type, $date]
+        );
+        return is_numeric($count) && (int) $count > 0;
     }
 }
