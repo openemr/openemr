@@ -1,0 +1,160 @@
+<?php
+
+/**
+ * PatientFinderDetailService
+ *
+ * The values shown when a Patient Finder row is expanded. What is shown is the
+ * Patient Finder Detail layout ({@see self::LAYOUT_ID}), which an administrator
+ * edits in Administration > Layouts like any other. A field in it is either a
+ * `patient_data` field or one of the combined columns in
+ * {@see PatientFinderBuiltInColumns}; any other field id is left out.
+ *
+ * Only the fields the layout shows are read, and a patient that a
+ * {@see PatientFinderFilterEvent} listener hides from the finder is not found
+ * here either, so expanding a row can never show more than the finder would.
+ *
+ * Values are returned raw. The layout renderer escapes each one when it builds
+ * the HTML.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Services\PatientFinder;
+
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\BoundFilter;
+use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+final class PatientFinderDetailService
+{
+    /**
+     * The layout that decides what an expanded row shows. Not an LBF id on purpose: every
+     * active LBF layout is offered as an encounter form.
+     */
+    public const LAYOUT_ID = 'PTFINDER';
+
+    /** @var callable(string, array<int, string|int>): list<array<mixed>> */
+    private $fetchRecords;
+
+    /** @var callable(): list<string> */
+    private $patientDataFields;
+
+    /**
+     * @param callable(string, array<int, string|int>): list<array<mixed>>|null $fetchRecords
+     * @param callable(): list<string>|null $patientDataFields the patient_data column names
+     */
+    public function __construct(
+        private readonly EventDispatcherInterface $dispatcher,
+        ?callable $fetchRecords = null,
+        ?callable $patientDataFields = null,
+        private ?PatientFinderBuiltInColumns $builtInColumns = null
+    ) {
+        $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
+        $this->patientDataFields = $patientDataFields ?? self::listPatientDataFields(...);
+    }
+
+    /**
+     * Whether the detail layout shows anything; the finder offers to expand a row only then.
+     */
+    public function isEnabled(): bool
+    {
+        return $this->layoutFieldIds() !== [];
+    }
+
+    /**
+     * The layout's values for one patient, keyed by field id, or null when there is no such
+     * patient or the finder would not show them.
+     *
+     * @return array<string, string>|null
+     */
+    public function values(int $pid): ?array
+    {
+        if ($pid <= 0) {
+            return null;
+        }
+
+        $select = ['patient_data.pid'];
+        $patientDataFields = ($this->patientDataFields)();
+        foreach ($this->layoutFieldIds() as $fieldId) {
+            if (PatientFinderBuiltInColumns::has($fieldId)) {
+                $this->builtInColumns ??= PatientFinderBuiltInColumns::fromGlobals(OEGlobalsBag::getInstance());
+                $column = $this->builtInColumns->column($fieldId, $fieldId);
+                if ($column !== null) {
+                    $select[] = $column->selectExpression . ' AS `' . $fieldId . '`';
+                }
+            } elseif (in_array($fieldId, $patientDataFields, true)) {
+                $select[] = 'patient_data.`' . $fieldId . '`';
+            }
+        }
+
+        $filter = $this->finderFilter();
+        $rows = ($this->fetchRecords)(
+            'SELECT ' . implode(', ', $select) . ' FROM patient_data'
+            . ' WHERE patient_data.pid = ? AND (' . $filter->getFilterClause() . ') LIMIT 1',
+            array_merge([$pid], $filter->getBoundValues())
+        );
+        $row = $rows[0] ?? null;
+        if ($row === null) {
+            return null;
+        }
+
+        $values = [];
+        foreach ($row as $key => $value) {
+            if ($key !== 'pid') {
+                $values[(string) $key] = PatientFinderValue::string($value);
+            }
+        }
+        return $values;
+    }
+
+    /**
+     * The field ids the detail layout shows, in its order.
+     *
+     * @return list<string>
+     */
+    private function layoutFieldIds(): array
+    {
+        $rows = ($this->fetchRecords)(
+            'SELECT field_id FROM layout_options WHERE form_id = ? AND uor > 0 ORDER BY group_id, seq',
+            [self::LAYOUT_ID]
+        );
+        $ids = [];
+        foreach ($rows as $row) {
+            $id = PatientFinderValue::string($row['field_id'] ?? null);
+            // A field id is only ever used as a quoted identifier, but keep it to the
+            // characters field ids are made of.
+            if ($id !== '' && preg_match('/^\w+$/', $id) === 1) {
+                $ids[] = $id;
+            }
+        }
+        return $ids;
+    }
+
+    /**
+     * The finder's patient filter, so a patient a module hides from the finder stays hidden.
+     */
+    private function finderFilter(): BoundFilter
+    {
+        $event = new PatientFinderFilterEvent(new BoundFilter(), [], []);
+        $this->dispatcher->dispatch($event, PatientFinderFilterEvent::EVENT_HANDLE);
+        return $event->getBoundFilter();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function listPatientDataFields(): array
+    {
+        return array_values(QueryUtils::listTableFields('patient_data'));
+    }
+}

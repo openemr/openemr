@@ -20,13 +20,78 @@
 
     var cfg = window.finderConfig || {};
     var columns = cfg.columns || [];
+    var detail = cfg.detail || {};
 
-    // Render the Name column cell as a link (DataTables mRender callback).
-    function wrapInLink(data, type) {
-        if (type === 'display') {
-            return '<a href="">' + data + '</a>';
+    function escapeAttr(text) {
+        return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // The button that expands a row to show the Patient Finder Detail layout.
+    function detailToggle() {
+        var label = escapeAttr(detail.showLabel || '');
+        return '<button type="button" class="btn btn-link btn-sm p-0 mr-1 finder-detail-toggle"'
+            + ' aria-expanded="false" title="' + label + '" aria-label="' + label + '">'
+            + '<i class="fa fa-fw fa-caret-right" aria-hidden="true"></i></button>';
+    }
+
+    // DataTables mRender callback for a column: the Name column renders as a link, and the
+    // first column carries the expand button when the detail layout shows anything. Cell
+    // data arrives HTML-escaped from the server.
+    function cellRenderer(column, index) {
+        return function (data, type) {
+            if (type !== 'display') {
+                return data;
+            }
+            var html = column.link ? '<a href="">' + data + '</a>' : data;
+            return index === 0 && detail.enabled ? detailToggle() + html : html;
+        };
+    }
+
+    function setExpanded(button, expanded) {
+        var label = expanded ? detail.hideLabel : detail.showLabel;
+        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        button.setAttribute('title', label || '');
+        button.setAttribute('aria-label', label || '');
+        $(button).find('i').toggleClass('fa-caret-right', !expanded).toggleClass('fa-caret-down', expanded);
+    }
+
+    // Show or hide a row's detail, fetching it the first time. DataTables child rows span
+    // every column, however many the site shows.
+    function toggleDetail(oTable, button) {
+        var tr = $(button).closest('tr');
+        var row = oTable.api().row(tr);
+        if (row.child.isShown()) {
+            row.child.hide();
+            setExpanded(button, false);
+            return;
         }
-        return data;
+        if (row.child() && row.child().length) {
+            row.child.show();
+            setExpanded(button, true);
+            return;
+        }
+        var pid = (tr.attr('id') || '').substring(4);
+        if (pid.length === 0) {
+            return;
+        }
+        top.restoreSession();
+        fetch(detail.url + '?' + new URLSearchParams({pid: pid}), {credentials: 'same-origin'})
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('detail request failed: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(function (body) {
+                row.child('<div class="finder-detail">' + (body.html || '') + '</div>').show();
+                setExpanded(button, true);
+            })
+            .catch(function () {
+                var message = $('<div class="finder-detail text-danger"></div>').text(detail.errorText || '');
+                row.child(message).show();
+                setExpanded(button, true);
+            });
     }
 
     function openNewTopWindow(pid) {
@@ -70,10 +135,10 @@
             // dom invokes ColReorderWithResize and allows inclusion of a custom div
             "dom": 'Rlfrt<"mytopdiv">ip',
             // Column names come over as $_GET['sColumns']; the Name column renders as a link.
-            "columns": columns.map(function (c) {
+            "columns": columns.map(function (c, idx) {
                 var col = {"sName": c.key};
-                if (c.link) {
-                    col.mRender = wrapInLink;
+                if (c.link || (idx === 0 && detail.enabled)) {
+                    col.mRender = cellRenderer(c, idx);
                 }
                 return col;
             }),
@@ -103,6 +168,13 @@
         $('#pt_table').on('mouseleave', 'tbody tr', function () {
             $(this).find('a').css('text-decoration', '');
         });
+        // The expand button shows the row's detail instead of opening the patient.
+        $('#pt_table').on('click', '.finder-detail-toggle', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleDetail(oTable, this);
+        });
+
         // OnClick handler for the rows
         $('#pt_table').on('click', 'tbody tr', function () {
             // ID of a row element is pid_{value}
