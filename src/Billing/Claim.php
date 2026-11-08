@@ -34,6 +34,12 @@ class Claim
     public const X12_VERSION = '005010X222A1';
     public const NOC_CODES = ['J3301']; // not otherwise classified HCPCS/CPT
 
+    /**
+     * The X12 5010 individual relationship codes the 837 sends in SBR02 and PAT01: spouse, self, child,
+     * employee, unknown, organ donor, cadaver donor, life partner, other relationship.
+     */
+    private const X12_RELATIONSHIP_CODES = ['01', '18', '19', '20', '21', '39', '40', '53', 'G8'];
+
     private static ?InsuranceService $insurance = null;
 
     public $procs;             // array of procedure rows from billing table
@@ -1151,11 +1157,11 @@ class Claim
             return '19';
         }
 
-        if (strcmp($tmp, 'other') == 0) {
-            return 'G8';
-        }
-
-        return $tmp; // should not happen
+        // A site's own relationship that is already an X12 individual relationship code (837 SBR02 and PAT01)
+        // goes out as stored; 'other', and any other value (a site's own word, or the new-patient screen's
+        // blank choice), is G8, Other Relationship.
+        $code = strtoupper($tmp);
+        return in_array($code, self::X12_RELATIONSHIP_CODES, true) ? $code : 'G8';
     }
 
     public function insuredTypeCode($ins = 0)
