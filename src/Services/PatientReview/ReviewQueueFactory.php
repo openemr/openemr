@@ -20,6 +20,7 @@ namespace OpenEMR\Services\PatientReview;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
@@ -42,7 +43,7 @@ final class ReviewQueueFactory
             new ReviewRequestRepository(new ReviewRequestMapper()),
             new EventAuditReviewTrail(EventAuditLogger::getInstance(), $group !== '' ? $group : 'none'),
             ServiceContainer::getClock(),
-            ServiceContainer::getUuidFactory(),
+            UuidRegistry::timestampFirstCombFactory(),
             ServiceContainer::getCrypto(),
             ServiceContainer::getLogger(),
             $handlers,
@@ -76,7 +77,7 @@ final class ReviewQueueFactory
         return new PortalActivityMigrator(
             new LegacyActivityMapping(),
             ServiceContainer::getClock(),
-            ServiceContainer::getUuidFactory(),
+            UuidRegistry::timestampFirstCombFactory(),
             ServiceContainer::getLogger(),
         );
     }

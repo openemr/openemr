@@ -169,6 +169,11 @@ class ReviewQueueDatabaseTest extends TestCase
         $this->assertSame('patient_data', $found->targetTable);
         $this->assertSame((string) self::PID, $found->targetId);
         $this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $found->uuid);
+        // A timestamp-first COMB, as UuidRegistry::createUuid() makes: a fhir-write request's
+        // uuid becomes the id of the record approval writes. The first 48 bits are the time
+        // the uuid was made, in units of 0.00001 seconds.
+        $madeAt = hexdec(substr(str_replace('-', '', $found->uuid), 0, 12)) / 100000;
+        $this->assertEqualsWithDelta(microtime(true), $madeAt, 300);
         $this->assertNull($found->reviewedBy);
 
         $history = $service->history($submitted->id);

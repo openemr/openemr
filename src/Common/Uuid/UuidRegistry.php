@@ -589,23 +589,35 @@ class UuidRegistry
 
 
     /**
+     * A uuid factory whose uuid4() makes the timestamp-first COMB uuids OpenEMR uses for its
+     * records: the first part is a timestamp, so they are naturally ordered and can be used for
+     * primary keys; the rest is random, as in a uuid4. createUuid() uses the same factory.
+     *
+     * For an id chosen before its record exists, such as the one the patient review queue
+     * gives a held write (see registerIssuedUuid()).
+     *
+     * @link https://uuid.ramsey.dev/en/latest/customize/timestamp-first-comb-codec.html#customize-timestamp-first-comb-codec
+     */
+    public static function timestampFirstCombFactory(): UuidFactory
+    {
+        $factory = new UuidFactory();
+        $factory->setCodec(new TimestampFirstCombCodec($factory->getUuidBuilder()));
+        $factory->setRandomGenerator(new CombGenerator(
+            $factory->getRandomGenerator(),
+            $factory->getNumberConverter()
+        ));
+
+        return $factory;
+    }
+
+    /**
      * Returns an array of generated unique universal identifiers up to the passed in limit.
      * @param int $limit
      */
     private function getUUIDBatch($limit = 10): array
     {
         $uuids = [];
-        // Create uuid using the Timestamp-first COMB Codec, so can use for primary keys
-        //  (since first part is timestamp, it is naturally ordered; the rest is from uuid4, so is random)
-        //  reference:
-        //    https://uuid.ramsey.dev/en/latest/customize/timestamp-first-comb-codec.html#customize-timestamp-first-comb-codec
-        $factory = new UuidFactory();
-        $codec = new TimestampFirstCombCodec($factory->getUuidBuilder());
-        $factory->setCodec($codec);
-        $factory->setRandomGenerator(new CombGenerator(
-            $factory->getRandomGenerator(),
-            $factory->getNumberConverter()
-        ));
+        $factory = self::timestampFirstCombFactory();
         for ($i = 0; $i < $limit; $i++) {
             $timestampFirstComb = $factory->uuid4();
             $uuids[] = $timestampFirstComb->getBytes();
