@@ -68,6 +68,15 @@ $sqlBindArray = [];
 
 $ids = count($ids) > 0 ? implode(',', $ids) : "'0'";
 $where  = "e.pc_eid in($ids) ";
+// The primary policy each patient's 270 asks about (EDI270::primaryPolicyId()).
+$policyIds = [];
+foreach ($appts as $appt) {
+    $policyId = is_array($appt) && is_numeric($appt['pid'] ?? null) ? EDI270::primaryPolicyId((int) $appt['pid']) : null;
+    if ($policyId !== null) {
+        $policyIds[] = $policyId;
+    }
+}
+$policyIds = count($policyIds) > 0 ? implode(',', $policyIds) : "'0'";
 
 if ($form_facility != "") {
     $where .= " AND f.id = ? ";
@@ -134,9 +143,9 @@ if ($exclude_policy != "") {
         LEFT JOIN users AS d on (e.pc_aid is not null and e.pc_aid = d.id)
         LEFT JOIN facility AS f on (f.id = e.pc_facility)
         LEFT JOIN patient_data AS p ON p.pid = e.pc_pid
-        LEFT JOIN insurance_data AS i ON (i.id =(SELECT id FROM insurance_data AS i WHERE pid = p.pid AND type = 'primary' ORDER BY date DESC LIMIT 1))
+        LEFT JOIN insurance_data AS i ON (i.pid = p.pid AND i.id IN (%s))
         LEFT JOIN insurance_companies as c ON (c.id = i.provider)
-        WHERE %s ", $where);
+        WHERE %s ", $policyIds, $where);
 
     // Run the query
     $rslt = sqlStatement($query, $sqlBindArray);

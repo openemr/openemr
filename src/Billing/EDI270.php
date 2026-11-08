@@ -29,6 +29,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\MultipartStream;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -376,7 +377,28 @@ class EDI270
         echo $PATEDI;
     }
 
-    public static function requestEligibleTransaction($pid = 0, $eFlag = false)
+    /**
+     * The insurance_data id of the primary policy a 270 asks about, or null
+     * when the patient has none: the latest-starting primary.
+     */
+    public static function primaryPolicyId(int $pid): ?int
+    {
+        $id = QueryUtils::fetchSingleValue(
+            "SELECT id FROM insurance_data WHERE pid = ? AND type = 'primary' ORDER BY date DESC LIMIT 1",
+            'id',
+            [$pid]
+        );
+        return is_numeric($id) ? (int) $id : null;
+    }
+
+    /**
+     * The rows a real-time 270 from the insurance card is built from: the
+     * patient, the provider and facility, and the primary policy it asks
+     * about (primaryPolicyId()) with its company.
+     *
+     * @return list<array<mixed>>
+     */
+    public static function realTimeRows(int $pid): array
     {
         $query = "SELECT
             d.facility_id,
@@ -414,14 +436,15 @@ class EDI270
         FROM patient_data AS p
         LEFT JOIN users AS d on (p.providerID = d.id)
         LEFT JOIN facility AS f on (f.id = d.facility_id)
-        LEFT JOIN insurance_data AS i ON (i.id =(SELECT id FROM insurance_data AS i WHERE pid = p.pid AND type = 'primary' ORDER BY date DESC LIMIT 1))
+        LEFT JOIN insurance_data AS i ON (i.id = ?)
         LEFT JOIN insurance_companies as c ON (c.id = i.provider)
         WHERE p.pid = ?";
-        $res = sqlStatement($query, [$pid]);
-        $resArray = [];
-        while ($row = sqlFetchArray($res)) {
-            $resArray[] = $row;
-        }
+        return QueryUtils::fetchRecords($query, [self::primaryPolicyId($pid), $pid]);
+    }
+
+    public static function requestEligibleTransaction($pid = 0, $eFlag = false)
+    {
+        $resArray = self::realTimeRows(is_numeric($pid) ? (int) $pid : 0);
         $details = self::requestRealTimeEligible($resArray, '', "~", ':', true);
         if ($details === false) {
             $details = "Error: Nothing returned from X12 Partner.";
