@@ -653,13 +653,16 @@ if (!empty($_POST['form_refresh'])) {
             $rowmethod = '';
             if ($form_report_by == '1') {
                 if (empty($row['payer_id'])) {
-                    // 'ar_session' is not capturing payer_id when entering payments through invoice or era posting
-                    if ($row['payer_type'] == '1') {
-                        $insurance_id = (new InsuranceService())->getOneByPid($row['pid'], "primary");
-                    } elseif ($row['payer_type'] == '2') {
-                        $insurance_id = (new InsuranceService())->getOneByPid($row['pid'], "secondary");
-                    } elseif ($row['payer_type'] == '3') {
-                        $insurance_id = (new InsuranceService())->getOneByPid($row['pid'], "tertiary");
+                    // 'ar_session' is not capturing payer_id when entering payments through invoice or era posting:
+                    // the policy at the payment's level names the payer
+                    $payerLevel = match (true) {
+                        $row['payer_type'] == '1' => 'primary',
+                        $row['payer_type'] == '2' => 'secondary',
+                        $row['payer_type'] == '3' => 'tertiary',
+                        default => null,
+                    };
+                    if ($payerLevel !== null) {
+                        $insurance_id = (new InsuranceService())->getOneByPid($row['pid'], $payerLevel);
                     } elseif ($row['payer_type'] == '0') {
                         $rowmethod = xl('Personal pay');
                         $rowreference = trim((string) $row['reference']);
