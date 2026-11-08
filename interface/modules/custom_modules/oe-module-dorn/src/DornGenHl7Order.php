@@ -135,7 +135,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         }
 
         // GT1 segment
-        // The guarantor as of the same day, so the message names one plan's people.
+        // The guarantor is the first policy sent, on the same lab day, so the message names one plan's people.
         $guarantors = $this->loadGuarantorInfo($porow['pid'], $labDay);
         foreach ($guarantors as $guarantor) {
             $gType = $bill_type == "C" ? "C" : "P";

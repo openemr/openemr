@@ -619,6 +619,62 @@ class GenHl7OrderIntegrationTest extends TestCase
     }
 
     /**
+     * The guarantor is the first policy sent: with an ended primary and a
+     * current secondary, LabCorp's GT1 and requisition record name the
+     * secondary's subscriber, the plan IN1 bills.
+     */
+    #[Test]
+    public function testLabCorpGuarantorIsTheSentSecondarysSubscriberWhenThePrimaryHasEnded(): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => '2026-03-20', 'date_collected' => '2026-03-20 08:00:00']);
+        $this->addPolicy('primary', self::OLD_PLAN, '2025-01-01', '2026-03-01', 'Oldsubscriber');
+        $this->addPolicy('secondary', self::SECOND_PLAN, '2025-01-01', null, 'Secondsubscriber');
+
+        $result = labcorp_gen_hl7_order($this->orderId);
+        $gt1 = self::onlySegment(self::segments($result->hl7), 'GT1');
+        $patient = self::fields(self::requisitionRecordsByType($result->requisitionData)['P']);
+
+        $this->assertStringStartsWith('Secondsubscriber^', self::fields($gt1)[3]);
+        $this->assertStringStartsWith('SECONDSUBSCRIBER^', $patient[20]);
+    }
+
+    /**
+     * With no lab day there is no guarantor: LabCorp sends no GT1 for a
+     * self-pay order with neither date, where today's plan would be a guess.
+     */
+    #[Test]
+    public function testLabCorpSendsNoGuarantorForAnOrderWithNoDate(): void
+    {
+        $this->setOrderColumns(['billing_type' => 'P', 'date_ordered' => null, 'date_collected' => null]);
+        $this->addPolicy('primary', self::NEW_PLAN, '2025-01-01', null, 'Newsubscriber');
+
+        $result = labcorp_gen_hl7_order($this->orderId);
+
+        $this->assertSame([], self::segmentsOfType(self::segments($result->hl7), 'GT1'));
+        $this->assertSame('', self::fields(self::requisitionRecordsByType($result->requisitionData)['P'])[20]);
+    }
+
+    /**
+     * DORN's guarantor is the first policy in force on the day, the one its
+     * IN1 sends first; with no day there is none.
+     */
+    #[Test]
+    public function testDornGuarantorIsTheFirstPolicyInForce(): void
+    {
+        $this->addPolicy('primary', self::OLD_PLAN, '2025-01-01', '2026-03-01', 'Oldsubscriber');
+        $this->addPolicy('secondary', self::SECOND_PLAN, null, null, 'Secondsubscriber');
+        $dorn = new GenHl7OrderBase();
+
+        $names = [];
+        foreach ($dorn->loadGuarantorInfo($this->orderPatientId(), '2026-03-20') as $guarantor) {
+            $names[] = $guarantor['data']['subscriber_lname'];
+        }
+
+        $this->assertSame(['Secondsubscriber'], $names);
+        $this->assertSame([], $dorn->loadGuarantorInfo($this->orderPatientId(), ''), 'no day, no guarantor');
+    }
+
+    /**
      * A tertiary in force with no secondary goes out at its own level from
      * the default generator (IN1-22 is 3).
      */

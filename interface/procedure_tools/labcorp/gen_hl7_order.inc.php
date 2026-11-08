@@ -121,25 +121,29 @@ function labcorp_loadPayerInfo($pid, $date = ''): array
     return $payers;
 }
 
+/**
+ * The guarantor for the specified patient on the specified date: the subscriber
+ * of the first policy the order sends (the primary in force, else the
+ * secondary), so GT1 names the plan IN1 bills. None when the date can't be read
+ * or neither is in force.
+ *
+ * @return list<array{data: array<mixed>}>
+ */
 function loadGuarantorInfo($pid, $date = ''): array
 {
-    if (empty($date)) {
-        $date = date('Y-m-d');
+    $patientId = EffectiveInsuranceRule::storedId($pid);
+    $day = CoverageDay::fromStored($date);
+    if ($patientId === null || $day === null) {
+        return [];
     }
-    $guarantors = [];
-    $gres = sqlStatement(
-        "SELECT * FROM insurance_data WHERE " .
-        "pid = ? AND date <= ? ORDER BY type ASC, date DESC LIMIT 1",
-        [$pid, $date]
-    );
-    $prevtype = ''; // type is primary, secondary or tertiary
-    while ($drow = sqlFetchArray($gres)) {
-        $gnt = count($guarantors);
-
-        $guarantors[$gnt] = [];
-        $guarantors[$gnt]['data'] = $drow;
+    // One service per request, as labcorp_loadPayerInfo() keeps.
+    static $service = null;
+    if (!$service instanceof InsuranceService) {
+        $service = new InsuranceService();
     }
-    return $guarantors;
+    // The rows come primary first; LabCorp sends only the primary and secondary.
+    $first = $service->getEffectiveInsuranceRows($patientId, $day)[0] ?? null;
+    return $first !== null && $first->policy->level->number() <= 2 ? [['data' => $first->columns]] : [];
 }
 
 /**
@@ -430,7 +434,7 @@ function labcorp_gen_hl7_order(int $orderid): Hl7OrderResult
         $out .= "IN1|$setid||||||||||||||||||||||||||||||||||||||||||||||$bill_type" . $d0;
     }
 
-    // The guarantor as of the same day, so the message names one plan's people.
+    // The guarantor is the first policy sent, on the same lab day, so the message names one plan's people.
     $guarantors = loadGuarantorInfo($porow['pid'], $labDay);
     foreach ($guarantors as $guarantor) {
         if (hl7Text($bill_type) != "C") {
