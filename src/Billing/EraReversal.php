@@ -100,21 +100,16 @@ final readonly class EraReversal
 
     /**
      * The insurance companies covering the patient on the date of service, by
-     * level, as SLEOB::arGetPayerID() finds them (the newest policy of each type
-     * in effect). Levels stop at the first one with no insurance.
+     * level, from SLEOB::arGetPayerID() (the newest policy of each type in
+     * effect). Levels stop at the first one with no insurance.
      *
      * @return array<int, string>
      */
     private function providers(int $pid, string $dateOfService): array
     {
         $providers = [];
-        foreach ([1 => 'primary', 2 => 'secondary', 3 => 'tertiary'] as $level => $type) {
-            $provider = QueryUtils::fetchSingleValue(
-                'SELECT provider FROM insurance_data WHERE pid = ? AND type = ? '
-                . 'AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY date DESC LIMIT 1',
-                'provider',
-                [$pid, $type, $dateOfService, $dateOfService]
-            );
+        foreach ([1, 2, 3] as $level) {
+            $provider = SLEOB::arGetPayerID($pid, $dateOfService, $level);
             if (!is_scalar($provider) || in_array((string) $provider, ['', '0'], true)) {
                 break;
             }
