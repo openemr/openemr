@@ -58,7 +58,7 @@
                             <option value="{{ recipient.uuid|attr }}"{% if recipient.uuid == addressBookUuid %} selected{% endif %}>{{ recipient.name|text }} ({{ recipient.type|xlt }})</option>
                         {% endfor %}
                     </select>
-                    <small class="form-text text-muted">{{ "For an outside organization or practitioner. Whatever its scopes say, a limited client can only read and update the Tasks that entry owns and read the referrals it is the current recipient of. It gets no other patient data."|xlt }}</small>
+                    <small class="form-text text-muted">{{ "For an outside organization or practitioner. Whatever its scopes say, a limited client can only read and update the Tasks that entry owns and read the referrals it is the current recipient of through a referral Task. It gets no other patient data."|xlt }}</small>
                 </div>
                 <button type="submit" class="btn btn-sm btn-primary">{{ "Save Limit"|xlt }}</button>
             </form>

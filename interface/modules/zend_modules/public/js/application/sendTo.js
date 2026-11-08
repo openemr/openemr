@@ -297,6 +297,9 @@ function singleCcdaPid() {
     return selected.length === 1 ? String(selected[0]).split('_')[0] : '';
 }
 
+// Counts referral fetches, so only the latest one may fill or reset the picker.
+var ccdaReferralFetch = 0;
+
 // Offers the selected patient's referrals, so a C-CDA goes with the one staff mean.
 function refreshCcdaReferrals() {
     var pid = singleCcdaPid();
@@ -309,11 +312,12 @@ function refreshCcdaReferrals() {
     picker.find("option:not(:first)").remove();
     picker.val('');
     $("#ccda_referral_row").hide();
+    var fetch = ++ccdaReferralFetch;
     if (pid === '') {
         return;
     }
     $.getJSON(APP_URL + "/encountermanager/referrals?" + new URLSearchParams({pid: pid}), function (referrals) {
-        if (singleCcdaPid() !== pid) {
+        if (fetch !== ccdaReferralFetch || singleCcdaPid() !== pid) {
             return;
         }
         referrals.forEach(function (referral) {
@@ -322,8 +326,8 @@ function refreshCcdaReferrals() {
         $("#ccda_referral_row").toggle(referrals.length > 0);
     }).fail(function (xhr) {
         // No list means the send links the most recent referral; let the next click try again,
-        // unless another patient has been selected since and this failure is not theirs.
-        if (picker.data("pid") === pid) {
+        // unless a later fetch has taken over the picker since.
+        if (fetch === ccdaReferralFetch && picker.data("pid") === pid) {
             picker.removeData("pid");
         }
         console.error("Could not load the patient's referrals", xhr.status);
