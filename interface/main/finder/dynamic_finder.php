@@ -28,6 +28,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Globals\UserSettingsService;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
 use OpenEMR\Services\PatientFinder\PatientFinderDetailService;
 use OpenEMR\Services\PatientFinder\PatientFinderPageService;
@@ -40,7 +41,7 @@ require_once(__DIR__ . "/../../globals.php");
 require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
-$patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
+$patient_finder_exact_search = UserSettingsService::prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
 
 $searchAny = PatientFinderValue::string(empty($_GET['search_any']) ? '' : $_GET['search_any']);
 unset($_GET['search_any']);
