@@ -140,6 +140,38 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
   cleanup cited a SHA that didn't match any PR commit; the current code already does
   the cleanup correctly.
 
+### 2.7 A resolved thread can carry a new finding
+
+- Rabbit resolves threads itself. When the author replies "fixed in X" on an inline
+  finding, rabbit's follow-up reply typically confirms the fix and ends with "Review
+  thread resolved" — and that same reply can add a **new** finding ("Separate security
+  blocker: …"). The thread then shows as resolved in the GitHub UI and in the
+  `reviewThreads.isResolved` GraphQL field, with the new finding inside it.
+- So resolution state is not a signal, in either direction. Before a verdict, read the
+  full text of rabbit's last reply in **every** thread, resolved ones included, and look
+  for a finding that isn't the one the thread started with. The new finding is an inline
+  reply, not a review body, so walking review bodies for "outside diff" comments (§2.5)
+  doesn't surface it either.
+- One call returns every thread with its resolution state and full comment text:
+
+  ```bash
+  gh api graphql -f query='{ repository(owner:"openemr", name:"openemr") {
+    pullRequest(number:<N>) { reviewThreads(first:100) { nodes {
+      isResolved path line
+      comments(first:20) { nodes { author { login } createdAt bodyText } } } } } } }'
+  ```
+
+- Precedent: #15100 at 2026-11-08. Rabbit's 23:01 UTC reply on the `RCFaxClient.php:272`
+  thread confirmed the email fix in `754ed06da9`, added "**Separate security blocker:** if
+  both `isDocuments` and `isContent` are set, the code skips path validation and the
+  authorized document reader…" (a real Major, fixed in `15148379f7`), and resolved the
+  thread. A gate check against resolution state read "no unresolved Actionable" with that
+  finding open.
+- Rabbit's concurrence is weak evidence too. On the same PR it withdrew an outside-diff
+  Minor within a minute of the author's decline comment ("I agree… I withdraw the
+  suggestion"). Record "I agree / I withdraw" as the author's scope-out, verified by the
+  shepherd against the code, not as rabbit having re-checked anything.
+
 ---
 
 ## 3. Staleness and recheck cadence
