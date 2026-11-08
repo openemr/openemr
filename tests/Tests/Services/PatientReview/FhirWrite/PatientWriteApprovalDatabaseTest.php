@@ -232,6 +232,30 @@ class PatientWriteApprovalDatabaseTest extends TestCase
     }
 
     /**
+     * A caregiver removed from the patient's related persons after the response was held can't
+     * be named in the chart: approval fails and the response stays pending.
+     */
+    public function testApprovalFailsOnceTheCaregiverIsNoLongerRelated(): void
+    {
+        $caregiver = $this->relatedPerson();
+        $held = $this->hold(
+            PatientWritableType::QuestionnaireResponse,
+            ['source' => ['reference' => 'RelatedPerson/' . $caregiver]] + $this->response('Better')
+        );
+        (new FixtureManager())->removeRelatedPersonFixtures();
+
+        try {
+            $this->queue->approve($held->id, ReviewActor::user(1, 'admin'));
+            $this->fail('Approval must fail when the caregiver is no longer related');
+        } catch (\RuntimeException) {
+            // expected
+        }
+
+        $this->assertSame(ReviewStatus::Pending, $this->queue->get($held->id)->status);
+        $this->assertSame(0, $this->storedResponseCount());
+    }
+
+    /**
      * A caregiver source must be one of this patient's related persons: anyone else, or an id
      * that names no one, would put an unchecked name on the chart as the one who answered.
      */

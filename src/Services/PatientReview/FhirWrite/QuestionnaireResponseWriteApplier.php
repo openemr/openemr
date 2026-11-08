@@ -53,15 +53,7 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
             return false;
         }
 
-        $source = FhirPayloadReader::reference($resource['source'] ?? null);
-        if ($source === null || !str_starts_with($source, 'RelatedPerson/')) {
-            return true;
-        }
-        $patientUuid = $parsed['puuid'] ?? null;
-
-        return preg_match(FhirQuestionnaireResponseFormService::CAREGIVER_SOURCE_REFERENCE, $source, $match) === 1
-            && is_string($patientUuid)
-            && $this->relatedPersons->getOne($match[1], $patientUuid)->hasData();
+        return $this->sourceIsOnFile($resource, $parsed);
     }
 
     /**
@@ -77,6 +69,11 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
 
         try {
             $parsed = $this->service->parseFhirResource(new FHIRQuestionnaireResponse($json));
+            // Checked again here: the caregiver may have been removed from the patient's related
+            // persons since the screen offered Approve.
+            if (!$this->sourceIsOnFile($json, $parsed)) {
+                throw new \RuntimeException('The caregiver the response names is no longer one of the patient\'s related persons');
+            }
             $result = $this->service->insertOpenEMRRecordWithIssuedId($parsed, $request->uuid, writtenByPatient: true);
         } catch (\InvalidArgumentException $e) {
             // e.g. the Questionnaire it answers has been removed since the write was held
@@ -85,5 +82,25 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
         if ($result->hasErrors()) {
             throw new \RuntimeException('The held QuestionnaireResponse could not be written to the chart');
         }
+    }
+
+    /**
+     * Whether the response's source is the patient, or a caregiver who is one of the patient's
+     * related persons on file.
+     *
+     * @param array<array-key, mixed> $resource
+     * @param array<array-key, mixed> $parsed from parseFhirResource()
+     */
+    private function sourceIsOnFile(array $resource, array $parsed): bool
+    {
+        $source = FhirPayloadReader::reference($resource['source'] ?? null);
+        if ($source === null || !str_starts_with($source, 'RelatedPerson/')) {
+            return true;
+        }
+        $patientUuid = $parsed['puuid'] ?? null;
+
+        return preg_match(FhirQuestionnaireResponseFormService::CAREGIVER_SOURCE_REFERENCE, $source, $match) === 1
+            && is_string($patientUuid)
+            && $this->relatedPersons->getOne($match[1], $patientUuid)->hasData();
     }
 }
