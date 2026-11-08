@@ -299,3 +299,45 @@ UPDATE `notification_log` SET `type` = 'Phone' WHERE `type` = '' AND `smsgateway
 -- Relabel the email rows skipped above. Before 8.6.0 the faxsms writer logged 'EMAIL', which a
 -- binary collation stores as ''. Only email rows carry 'sender|||subject' in smsgateway_info.
 UPDATE `notification_log` SET `type` = 'Email' WHERE `type` = '' AND `smsgateway_info` LIKE '%|||%';
+
+-- Patient Finder combined columns (PatientFinderBuiltInColumns). Added switched off, so a
+-- site's finder only changes once an administrator enables one in Patient List Columns.
+#IfNotRow2D list_options list_id ptlistcols option_id name_first_last
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'name_first_last', 'First Last', 60, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id name_first_last_middle
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'name_first_last_middle', 'First Middle Last', 70, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id city_state
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'city_state', 'City State', 80, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id address_full
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'address_full', 'Address', 90, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id address_full_country
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'address_full_country', 'Address and Country', 100, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id age
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'age', 'Age', 110, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id next_appointment
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'next_appointment', 'Next Appt', 120, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id last_appointment
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'last_appointment', 'Last Appt', 130, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id insurance_primary_provider_name
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'insurance_primary_provider_name', 'Primary Insurance', 140, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id insurance_primary_policy
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'insurance_primary_policy', 'Primary Policy Number', 150, 3, 0);
+#EndIf

@@ -8,7 +8,9 @@
  * (dynamic_finder_ajax.php), so the displayed and queried column sets always
  * agree. It seeds the active `ptlistcols` columns in seq order — carrying each
  * column's configured initial sort direction (its `toggle_setting_1`, resolved
- * through the `Sort_Direction` list) — then dispatches
+ * through the `Sort_Direction` list). An entry whose option id is one of
+ * {@see PatientFinderBuiltInColumns::keys()} is seeded as that combined column
+ * rather than as a `patient_data` field. It then dispatches
  * {@see PatientFinderColumnRegistrationEvent} so modules can add, remove or
  * reorder columns.
  *
@@ -18,7 +20,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2026 Open Plan IT Ltd
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -27,6 +31,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientFinder;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -45,11 +50,14 @@ final class PatientFinderColumnRegistryFactory
      * @param callable(string, array<int, string|int>): list<array<mixed>>|null $fetchRecords
      * @param callable(string): array<array-key, mixed>|null $listMapResolver
      *        Resolves a list id to a value => title map (defaults to generate_list_map()).
+     * @param PatientFinderBuiltInColumns|null $builtInColumns
+     *        The combined columns (defaults to one using the site's date and time formats).
      */
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         ?callable $fetchRecords = null,
-        ?callable $listMapResolver = null
+        ?callable $listMapResolver = null,
+        private ?PatientFinderBuiltInColumns $builtInColumns = null
     ) {
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
         $this->listMapResolver = $listMapResolver;
@@ -72,11 +80,11 @@ final class PatientFinderColumnRegistryFactory
             if (function_exists('xl_list_label')) {
                 $title = PatientFinderValue::string(xl_list_label($title));
             }
-            $registry->add(PatientFinderColumn::fromTable(
-                $key,
-                $title,
-                defaultSortDir: $this->sortDirection(PatientFinderValue::string($row['toggle_setting_1'] ?? null))
-            ));
+            $sortDir = $this->sortDirection(PatientFinderValue::string($row['toggle_setting_1'] ?? null));
+            $registry->add(
+                $this->builtInColumn($key, $title, $sortDir)
+                    ?? PatientFinderColumn::fromTable($key, $title, defaultSortDir: $sortDir)
+            );
         }
 
         $this->dispatcher->dispatch(
@@ -85,6 +93,15 @@ final class PatientFinderColumnRegistryFactory
         );
 
         return $registry;
+    }
+
+    private function builtInColumn(string $key, string $title, string $sortDir): ?PatientFinderColumn
+    {
+        if (!PatientFinderBuiltInColumns::has($key)) {
+            return null;
+        }
+        $this->builtInColumns ??= PatientFinderBuiltInColumns::fromGlobals(OEGlobalsBag::getInstance());
+        return $this->builtInColumns->column($key, $title, $sortDir);
     }
 
     /**

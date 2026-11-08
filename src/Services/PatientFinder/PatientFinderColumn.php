@@ -7,8 +7,9 @@
  * (dynamic_finder.php) and its server-side DataTables endpoint
  * (dynamic_finder_ajax.php).
  *
- * Core seeds one column per active `ptlistcols` entry (all resolving against
- * `patient_data`). Modules may contribute additional columns via
+ * Core seeds one column per active `ptlistcols` entry: a `patient_data` field, or
+ * one of the combined SQL columns in {@see PatientFinderBuiltInColumns}. Modules
+ * may contribute additional columns via
  * {@see \OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent},
  * in one of two flavours:
  *

@@ -25,11 +25,14 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientFinder\PatientFinderBuiltInColumns;
+use OpenEMR\Services\PatientFinder\PatientFinderQueryBuilder;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $language_choice = $session->get('language_choice');
@@ -404,8 +407,38 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
     //New line for hidden input, for update items
     echo "<input type='hidden' name='opt[" . attr($opt_line_no) . "][real_id]' value='" .
         attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
-    echo "<input type='text' name='opt[" . attr($opt_line_no) . "][id]' value='" .
-        attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
+    $id_name = "opt[" . attr($opt_line_no) . "][id]";
+    if ($list_id == 'ptlistcols') {
+        // A Patient Finder column: pick one of the combined columns the finder builds itself
+        // or a patient_data field. An id in neither list, such as one a module added, is kept
+        // as its own choice so saving the list never changes it.
+        $current_id = is_string($option_id) ? $option_id : '';
+        // name (Last, First Middle) is the finder's own column, like the combined ones.
+        $built_in_ids = array_merge([PatientFinderQueryBuilder::NAME_KEY], PatientFinderBuiltInColumns::keys());
+        $field_ids = QueryUtils::listTableFields('patient_data');
+        sort($field_ids);
+        $id_groups = [
+            xl('Combined columns') => $built_in_ids,
+            xl('Patient data fields') => $field_ids,
+        ];
+        if ($current_id !== '' && !in_array($current_id, $built_in_ids, true) && !in_array($current_id, $field_ids, true)) {
+            $id_groups[xl('Other')] = [$current_id];
+        }
+        echo "<select name='" . $id_name . "' class='optin form-control form-control-sm select-dropdown'>";
+        echo "<option value=''></option>";
+        foreach ($id_groups as $group_label => $group_ids) {
+            echo "<optgroup label='" . attr($group_label) . "'>";
+            foreach ($group_ids as $choice_id) {
+                $selected = $choice_id === $current_id ? " selected" : "";
+                echo "<option value='" . attr($choice_id) . "'$selected>" . text($choice_id) . "</option>";
+            }
+            echo "</optgroup>";
+        }
+        echo "</select>";
+    } else {
+        echo "<input type='text' name='" . $id_name . "' value='" .
+            attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
+    }
     echo "</td>\n";
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][title]' value='" .
