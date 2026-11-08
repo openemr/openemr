@@ -37,6 +37,7 @@ use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\UuidFactoryInterface;
 
 final class ReviewQueueService
@@ -46,6 +47,9 @@ final class ReviewQueueService
 
     /** Note written on a request that a newer submission replaced. */
     public const NOTE_SUPERSEDED = 'superseded by a newer submission';
+
+    /** Note written when the submitter replaced what a pending request holds. */
+    public const NOTE_REVISED = 'replaced by the submitter';
 
     /** @var array<string, ReviewHandlerInterface> keyed by ReviewType value */
     private array $handlers = [];
@@ -177,6 +181,59 @@ final class ReviewQueueService
     }
 
     /**
+     * Replaces what a pending request holds, for a submitter correcting it before it is decided.
+     * The request keeps its id and uuid, and the payload it replaced is kept in its history.
+     *
+     * The request row is held while its status is checked, so a reviewer deciding it at the same
+     * moment either sees the replacement or the replacement fails.
+     *
+     * @param array<array-key, mixed> $payload
+     * @throws ReviewRequestNotFoundException
+     * @throws InvalidReviewTransitionException when the request is no longer pending
+     */
+    public function revise(int $id, ReviewActor $actor, string $summary, array $payload): ReviewRequest
+    {
+        return $this->atomically(function () use ($id, $actor, $summary, $payload): ReviewRequest {
+            $request = $this->store->findForUpdate($id) ?? throw ReviewRequestNotFoundException::forId($id);
+            if ($request->status !== ReviewStatus::Pending) {
+                throw InvalidReviewTransitionException::changedConcurrently($id, ReviewStatus::Pending);
+            }
+
+            $now = $this->clock->now();
+            $this->store->replacePayload($id, $summary, $payload, $now);
+            $this->store->appendEvent($id, ReviewStatus::Pending, ReviewStatus::Pending, $actor, $now, self::NOTE_REVISED, $request->payload);
+            $revised = $this->get($id);
+            $this->pendingAudit[] = ['request' => $revised, 'from' => ReviewStatus::Pending, 'actor' => $actor, 'note' => self::NOTE_REVISED];
+
+            return $revised;
+        });
+    }
+
+    /**
+     * Records in the audit log that open requests were shown outside staff review: a patient app
+     * reading back what it submitted. Nothing is recorded for an empty list.
+     *
+     * As with the audit of a change, a failure to write the entry is logged for the operator
+     * rather than failing the read.
+     *
+     * @param list<ReviewRequest> $requests
+     */
+    public function recordAccess(array $requests, ReviewActor $actor): void
+    {
+        if ($requests === []) {
+            return;
+        }
+        try {
+            $this->auditTrail->recordAccess($requests, $actor);
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            $this->logger->error('Review requests were read but the audit log entry could not be written', [
+                'request_ids' => array_map(static fn(ReviewRequest $request): int => $request->id, $requests),
+                'exception' => $e,
+            ]);
+        }
+    }
+
+    /**
      * Approves a pending request and applies it to the chart through the handler for its type.
      * If the handler throws, nothing changes and the request stays pending.
      *
@@ -243,6 +300,32 @@ final class ReviewQueueService
     public function get(int $id): ReviewRequest
     {
         return $this->store->find($id) ?? throw ReviewRequestNotFoundException::forId($id);
+    }
+
+    /**
+     * The request with this uuid, in canonical text form. Null when there is none, or when the
+     * text is not a uuid (an id from a URL can be anything).
+     */
+    public function findByUuid(string $uuid): ?ReviewRequest
+    {
+        try {
+            $bytes = $this->uuidFactory->fromString($uuid)->getBytes();
+        } catch (InvalidUuidStringException) {
+            return null;
+        }
+
+        return $this->store->findByUuid($bytes);
+    }
+
+    /**
+     * The open requests one API client submitted for the patient, of one type and resource type,
+     * oldest first.
+     *
+     * @return list<ReviewRequest>
+     */
+    public function allOpenForClient(int $pid, ReviewType $type, FhirResourceType $resourceType, string $clientId): array
+    {
+        return $this->store->findOpenForClient($pid, $type, $resourceType, $clientId);
     }
 
     /**

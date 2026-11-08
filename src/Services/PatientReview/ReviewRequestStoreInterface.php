@@ -39,6 +39,11 @@ interface ReviewRequestStoreInterface
     public function find(int $id): ?ReviewRequest;
 
     /**
+     * @param string $uuidBytes 16 raw bytes
+     */
+    public function findByUuid(string $uuidBytes): ?ReviewRequest;
+
+    /**
      * Reads the request and holds its row until the surrounding transaction ends, so a decision
      * made on what was read cannot be overtaken by a concurrent state change. Call inside
      * transactional().
@@ -58,6 +63,14 @@ interface ReviewRequestStoreInterface
      * resource types.
      */
     public function countOpenForClient(int $pid, ReviewType $type, string $clientId): int;
+
+    /**
+     * Open requests of one type and resource type that one API client submitted for the
+     * patient, oldest first.
+     *
+     * @return list<ReviewRequest>
+     */
+    public function findOpenForClient(int $pid, ReviewType $type, FhirResourceType $resourceType, string $clientId): array;
 
     /**
      * Holds the target row until the surrounding transaction ends, so two submissions for the
@@ -98,7 +111,27 @@ interface ReviewRequestStoreInterface
      */
     public function updateStatus(int $id, ReviewStatus $from, ReviewStatus $to, DateTimeImmutable $now, ?int $reviewedBy, ?string $note): bool;
 
-    public function appendEvent(int $requestId, ?ReviewStatus $from, ReviewStatus $to, ReviewActor $actor, DateTimeImmutable $now, ?string $note): void;
+    /**
+     * Replaces the summary and payload. Call inside transactional(), holding the row from
+     * findForUpdate(), so the status that allowed the replacement cannot change underneath it.
+     *
+     * @param array<array-key, mixed> $payload
+     */
+    public function replacePayload(int $id, string $summary, array $payload, DateTimeImmutable $now): void;
+
+    /**
+     * @param ?array<array-key, mixed> $previousPayload the payload a replacement overwrote; null
+     *                                                  for a status change
+     */
+    public function appendEvent(
+        int $requestId,
+        ?ReviewStatus $from,
+        ReviewStatus $to,
+        ReviewActor $actor,
+        DateTimeImmutable $now,
+        ?string $note,
+        ?array $previousPayload = null,
+    ): void;
 
     /**
      * Oldest first.

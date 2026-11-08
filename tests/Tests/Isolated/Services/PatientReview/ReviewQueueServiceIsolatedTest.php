@@ -588,6 +588,92 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertSame(1, $this->service()->countPending());
     }
 
+    /**
+     * A revision keeps the request's id and uuid, and its history keeps what it replaced.
+     */
+    public function testReviseReplacesThePayloadAndKeepsThePreviousOneInTheHistory(): void
+    {
+        $service = $this->service();
+        $request = $service->submit($this->profile(), $this->patient());
+
+        $revised = $service->revise($request->id, $this->patient(), 'Patient corrected the demographics change.', ['fname' => 'Anne']);
+
+        $this->assertSame($request->id, $revised->id);
+        $this->assertSame($request->uuid, $revised->uuid);
+        $this->assertSame(ReviewStatus::Pending, $revised->status);
+        $this->assertSame(['fname' => 'Anne'], $revised->payload);
+        $this->assertSame('Patient corrected the demographics change.', $revised->summary);
+
+        $history = $service->history($request->id);
+        $this->assertCount(2, $history);
+        $this->assertNull($history[0]->previousPayload, 'a status change keeps no payload');
+        $this->assertSame(ReviewStatus::Pending, $history[1]->from);
+        $this->assertSame(ReviewStatus::Pending, $history[1]->to);
+        $this->assertSame(ReviewQueueService::NOTE_REVISED, $history[1]->note);
+        $this->assertSame(['fname' => 'Ann'], $history[1]->previousPayload);
+        $this->assertSame(
+            ['id' => $request->id, 'from' => ReviewStatus::Pending, 'to' => ReviewStatus::Pending, 'actor' => 'ann7', 'note' => ReviewQueueService::NOTE_REVISED],
+            $this->trail->entries[1]
+        );
+    }
+
+    public function testOnlyAPendingRequestCanBeRevised(): void
+    {
+        $service = $this->service();
+        $request = $service->submit($this->profile(), $this->patient());
+        $service->deny($request->id, $this->staff(), 'no');
+
+        try {
+            $service->revise($request->id, $this->patient(), 'late', ['fname' => 'Anne']);
+            $this->fail('A denied request cannot be revised');
+        } catch (InvalidReviewTransitionException) {
+            $this->assertSame(['fname' => 'Ann'], $service->get($request->id)->payload);
+            $this->assertCount(2, $service->history($request->id));
+        }
+
+        $this->expectException(ReviewRequestNotFoundException::class);
+        $service->revise(999, $this->patient(), 'none', []);
+    }
+
+    /**
+     * An id from a URL can be any text; only a uuid that the queue issued finds a request.
+     */
+    public function testFindByUuidFindsOnlyAnIssuedUuid(): void
+    {
+        $service = $this->service();
+        $request = $service->submit($this->profile(), $this->patient());
+
+        $this->assertSame($request->id, $service->findByUuid($request->uuid)?->id);
+        $this->assertNull($service->findByUuid('00000000-0000-4000-8000-000000000000'));
+        $this->assertNull($service->findByUuid('not-a-uuid'));
+        $this->assertNull($service->findByUuid(''));
+    }
+
+    public function testReadsAreAuditedOnceForTheRequestsShown(): void
+    {
+        $service = $this->service();
+        $first = $service->submit($this->profile(), $this->patient());
+        $second = $service->submit($this->profile(['fname' => 'Bo']), $this->patient());
+
+        $service->recordAccess([$first, $second], $this->patient());
+        $service->recordAccess([], $this->patient());
+
+        $this->assertSame([['ids' => [$first->id, $second->id], 'actor' => 'ann7']], $this->trail->reads);
+    }
+
+    public function testAReadAuditFailureDoesNotFailTheRead(): void
+    {
+        $service = $this->service();
+        $request = $service->submit($this->profile(), $this->patient());
+        $this->trail->failure = new \RuntimeException('audit database unavailable');
+        $this->logger->expects($this->once())->method('error')->with(
+            $this->stringContains('read but the audit log entry could not be written'),
+            $this->callback(static fn(array $context): bool => ($context['request_ids'] ?? null) === [$request->id])
+        );
+
+        $service->recordAccess([$request], $this->patient());
+    }
+
     public function testAttachSecretToAnUnknownRequest(): void
     {
         $this->expectException(ReviewRequestNotFoundException::class);

@@ -90,6 +90,16 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         return isset($this->requests[$id]) ? $this->mapper->toRequest($this->requests[$id]) : null;
     }
 
+    public function findByUuid(string $uuidBytes): ?ReviewRequest
+    {
+        foreach ($this->requests as $row) {
+            if ($row['uuid'] === $uuidBytes) {
+                return $this->mapper->toRequest($row);
+            }
+        }
+        return null;
+    }
+
     public function findForUpdate(int $id): ?ReviewRequest
     {
         // Nothing runs concurrently in memory, so there is no row to hold.
@@ -126,6 +136,24 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
             }
         }
         return $count;
+    }
+
+    public function findOpenForClient(int $pid, ReviewType $type, FhirResourceType $resourceType, string $clientId): array
+    {
+        $open = [];
+        foreach ($this->requests as $row) {
+            $request = $this->mapper->toRequest($row);
+            if (
+                $request->pid === $pid
+                && $request->type === $type
+                && $request->resourceType?->value === $resourceType->value
+                && $request->clientId === $clientId
+                && $request->status->isOpen()
+            ) {
+                $open[] = $request;
+            }
+        }
+        return $open;
     }
 
     public function lockTarget(string $targetTable, string $targetId): void
@@ -204,9 +232,24 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         return true;
     }
 
-    public function appendEvent(int $requestId, ?ReviewStatus $from, ReviewStatus $to, ReviewActor $actor, DateTimeImmutable $now, ?string $note): void
+    public function replacePayload(int $id, string $summary, array $payload, DateTimeImmutable $now): void
     {
+        $this->requests[$id]['summary'] = $summary;
+        $this->requests[$id]['payload'] = $this->mapper->encodePayload($payload);
+        $this->requests[$id]['updated_at'] = $this->mapper->formatDateTime($now);
+    }
+
+    public function appendEvent(
+        int $requestId,
+        ?ReviewStatus $from,
+        ReviewStatus $to,
+        ReviewActor $actor,
+        DateTimeImmutable $now,
+        ?string $note,
+        ?array $previousPayload = null,
+    ): void {
         $this->events[] = [
+            'payload' => $previousPayload === null ? null : $this->mapper->encodePayload($previousPayload),
             'id' => count($this->events) + 1,
             'request_id' => $requestId,
             'from_status' => $from?->value,

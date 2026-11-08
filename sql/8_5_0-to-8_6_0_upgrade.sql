@@ -304,3 +304,10 @@ UPDATE `notification_log` SET `type` = 'Email' WHERE `type` = '' AND `smsgateway
 #IfMissingColumn oauth_clients address_book_uuid
 ALTER TABLE `oauth_clients` ADD COLUMN `address_book_uuid` binary(16) DEFAULT NULL COMMENT 'users.uuid of the address book entry this client acts for; limits it to that entry''s Tasks and referrals';
 #EndIf
+
+-- A patient app may replace its own write while it waits for review. The request keeps its id,
+-- so the version it replaced is kept on the history row that records the replacement.
+#IfMissingColumn patient_review_event payload
+ALTER TABLE `patient_review_event`
+  ADD COLUMN `payload` longtext COMMENT 'What the request held before its submitter replaced it; NULL for a status change';
+#EndIf

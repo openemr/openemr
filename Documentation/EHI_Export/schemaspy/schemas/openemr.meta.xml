@@ -1890,6 +1890,7 @@
             <column name="request_id" comments="The request the event belongs to">
                 <foreignKey table="patient_review_request" column="id" />
             </column>
+            <column name="payload" comments="What the request held before its submitter replaced it; NULL for a status change"/>
         </table>
         <table name="onsite_portal_activity" comments="Patient portal activity (document submission, and other activities) that requires review before they are accepted into the patient chart">
             <column name="patient_id"  comments="The internal patient identifier">
