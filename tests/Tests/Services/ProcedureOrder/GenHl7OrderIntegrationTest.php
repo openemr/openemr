@@ -17,7 +17,9 @@ namespace OpenEMR\Tests\Services\ProcedureOrder;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderResult;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\Dorn\GenHl7OrderBase;
 use OpenEMR\Tests\Fixtures\ProcedureOrderFixtureManager;
 use OpenEMR\Tests\Fixtures\ProcedureProviderFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -55,6 +57,22 @@ class GenHl7OrderIntegrationTest extends TestCase
     /** Marker on the form_vitals row this test owns, so tearDown can find it. */
     private const string VITALS_MARKER = 'test-fixture-gen-hl7-order-vitals';
 
+    /** Marker on the insurance_data rows this test owns (their plan name), so tearDown can find them. */
+    private const string POLICY_MARKER = 'test-fixture-gen-hl7-order-policy';
+
+    /** Insurance companies this test owns, by id: a plan that ends, the plan that follows it, and a secondary. */
+    private const int OLD_PLAN = 970301;
+
+    private const int NEW_PLAN = 970302;
+
+    private const int SECOND_PLAN = 970303;
+
+    private const array COMPANY_NAMES = [
+        self::OLD_PLAN => 'TEST-FIXTURE OLD MUTUAL',
+        self::NEW_PLAN => 'TEST-FIXTURE NEW MUTUAL',
+        self::SECOND_PLAN => 'TEST-FIXTURE SECOND MUTUAL',
+    ];
+
     /**
      * Procedure codes carried by tests/Tests/Fixtures/procedure-order-codes.php,
      * keyed by code with the procedure name the fixture uses.
@@ -89,6 +107,8 @@ class GenHl7OrderIntegrationTest extends TestCase
         require_once $projectDir . '/interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php';
         require_once $projectDir . '/interface/procedure_tools/labcorp/gen_hl7_order.inc.php';
         require_once $projectDir . '/interface/procedure_tools/quest/gen_hl7_order.inc.php';
+        // DORN's payer loader, which its generator calls; the module's classes aren't autoloaded here.
+        require_once $projectDir . '/interface/modules/custom_modules/oe-module-dorn/src/GenHl7OrderBase.php';
     }
 
     protected function setUp(): void
@@ -130,6 +150,7 @@ class GenHl7OrderIntegrationTest extends TestCase
             unset($_REQUEST['form_specimen_fasting']);
         }
         $this->restoreOrderingProviderNpi();
+        $this->removeInsurance();
         QueryUtils::sqlStatementThrowException(
             'DELETE FROM procedure_type WHERE description = ?',
             [self::PROCEDURE_TYPE_MARKER]
@@ -444,6 +465,260 @@ class GenHl7OrderIntegrationTest extends TestCase
     }
 
     /**
+     * The payers go out as of the specimen's collection day, not the order
+     * date: an order placed under one plan and collected under the next bills
+     * the next.
+     */
+    #[Test]
+    #[DataProvider('payerGeneratorProvider')]
+    public function testInsuranceIsThePlanInForceOnTheCollectionDate(Hl7OrderGenerator $generator): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => '2026-03-10', 'date_collected' => '2026-03-20 08:00:00']);
+        $this->addPolicy('primary', self::OLD_PLAN, '2025-01-01', '2026-03-15');
+        $this->addPolicy('primary', self::NEW_PLAN, '2026-03-16', null);
+
+        $in1 = self::onlySegment(self::segments($generator->generate($this->orderId)->hl7), 'IN1');
+
+        $this->assertStringContainsString(self::COMPANY_NAMES[self::NEW_PLAN], $in1);
+        $this->assertStringNotContainsString(self::COMPANY_NAMES[self::OLD_PLAN], $in1);
+        $this->assertSame('1', self::fields($in1)[22], 'IN1-22: the primary');
+    }
+
+    /**
+     * Without a collection date, the order date is the lab day.
+     */
+    #[Test]
+    #[DataProvider('payerGeneratorProvider')]
+    public function testWithoutACollectionDateTheOrderDateCounts(Hl7OrderGenerator $generator): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => '2026-03-10', 'date_collected' => null]);
+        $this->addPolicy('primary', self::OLD_PLAN, '2025-01-01', '2026-03-15');
+        $this->addPolicy('primary', self::NEW_PLAN, '2026-03-16', null);
+
+        $in1 = self::onlySegment(self::segments($generator->generate($this->orderId)->hl7), 'IN1');
+
+        $this->assertStringContainsString(self::COMPANY_NAMES[self::OLD_PLAN], $in1);
+    }
+
+    /**
+     * A plan that ended before the lab day isn't billed, and the secondary
+     * still in force goes out as the secondary (IN1-22 is 2): not dropped
+     * with the ended primary, and not sent as a primary.
+     */
+    #[Test]
+    #[DataProvider('payerGeneratorProvider')]
+    public function testAnEndedPrimaryIsNotBilledAndTheSecondaryKeepsItsLevel(Hl7OrderGenerator $generator): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => '2026-03-20', 'date_collected' => '2026-03-20 08:00:00']);
+        $this->addPolicy('primary', self::OLD_PLAN, '2025-01-01', '2026-03-01');
+        $this->addPolicy('secondary', self::SECOND_PLAN, '2025-01-01', null);
+
+        $in1 = self::onlySegment(self::segments($generator->generate($this->orderId)->hl7), 'IN1');
+
+        $this->assertStringContainsString(self::COMPANY_NAMES[self::SECOND_PLAN], $in1);
+        $this->assertSame('1', self::fields($in1)[1], 'IN1-1: the first payer sent');
+        $this->assertSame('2', self::fields($in1)[22], 'IN1-22: the secondary');
+    }
+
+    /**
+     * LabCorp's requisition record carries that secondary in its secondary
+     * fields, and leaves the primary's empty.
+     */
+    #[Test]
+    public function testLabCorpRequisitionCarriesASecondaryOnItsOwnAsTheSecondary(): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => '2026-03-20', 'date_collected' => '2026-03-20 08:00:00']);
+        $this->addPolicy('primary', self::OLD_PLAN, '2025-01-01', '2026-03-01');
+        $this->addPolicy('secondary', self::SECOND_PLAN, '2025-01-01', null);
+
+        $patient = self::fields(self::requisitionRecordsByType(labcorp_gen_hl7_order($this->orderId)->requisitionData)['P']);
+
+        $this->assertSame('', $patient[35], 'the primary insurer name');
+        $this->assertSame(self::COMPANY_NAMES[self::SECOND_PLAN], $patient[44], 'the secondary insurer name');
+    }
+
+    /**
+     * A policy with no start date is in force: a blank start means always.
+     */
+    #[Test]
+    #[DataProvider('payerGeneratorProvider')]
+    public function testAnUndatedPolicyIsBilled(Hl7OrderGenerator $generator): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => '2026-03-20', 'date_collected' => '2026-03-20 08:00:00']);
+        $this->addPolicy('primary', self::NEW_PLAN, null, null);
+
+        $in1 = self::onlySegment(self::segments($generator->generate($this->orderId)->hl7), 'IN1');
+
+        $this->assertStringContainsString(self::COMPANY_NAMES[self::NEW_PLAN], $in1);
+    }
+
+    /**
+     * An order with neither a collection date nor an order date has no lab
+     * day, so no payer is sent: the plan in force today may not be the one
+     * that covered the specimen. Generators that need a payer for an
+     * insurance-billed order refuse it.
+     */
+    #[Test]
+    #[DataProvider('insuranceBillingGeneratorProvider')]
+    public function testAnInsuranceBilledOrderWithNoDateIsRefused(Hl7OrderGenerator $generator): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => null, 'date_collected' => null]);
+        $this->addPolicy('primary', self::NEW_PLAN, '2025-01-01', null);
+
+        $this->expectException(Hl7OrderGenerationException::class);
+        $this->expectExceptionMessage('does not have any payers on record');
+        $generator->generate($this->orderId);
+    }
+
+    /**
+     * The default generator sends no IN1 for an order with no date.
+     */
+    #[Test]
+    public function testDefaultGeneratorSendsNoPayerForAnOrderWithNoDate(): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => null, 'date_collected' => null]);
+        $this->addPolicy('primary', self::NEW_PLAN, '2025-01-01', null);
+
+        $segments = self::segments(default_gen_hl7_order($this->orderId)->hl7);
+
+        $this->assertNotSame([], self::segmentsOfType($segments, 'MSH'));
+        $this->assertSame([], self::segmentsOfType($segments, 'IN1'));
+    }
+
+    /**
+     * The generators that refuse an insurance-billed order with no payer
+     * refuse one whose only plan ended between the order date and the
+     * collection date: the lab day is the collection date.
+     */
+    #[Test]
+    #[DataProvider('insuranceBillingGeneratorProvider')]
+    public function testAPlanThatEndedBeforeTheCollectionDateIsNotBilled(Hl7OrderGenerator $generator): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => '2026-03-10', 'date_collected' => '2026-03-20 08:00:00']);
+        $this->addPolicy('primary', self::OLD_PLAN, '2025-01-01', '2026-03-15');
+
+        $this->expectException(Hl7OrderGenerationException::class);
+        $this->expectExceptionMessage('does not have any payers on record');
+        $generator->generate($this->orderId);
+    }
+
+    /**
+     * LabCorp's guarantor (GT1) is read on the same lab day as its payers,
+     * so one message names one plan's subscriber.
+     */
+    #[Test]
+    public function testLabCorpGuarantorIsReadOnTheLabDay(): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => '2026-03-10', 'date_collected' => '2026-03-20 08:00:00']);
+        $this->addPolicy('primary', self::OLD_PLAN, '2025-01-01', '2026-03-15', 'Oldsubscriber');
+        $this->addPolicy('primary', self::NEW_PLAN, '2026-03-16', null, 'Newsubscriber');
+
+        $gt1 = self::onlySegment(self::segments(labcorp_gen_hl7_order($this->orderId)->hl7), 'GT1');
+
+        $this->assertStringStartsWith('Newsubscriber^', self::fields($gt1)[3]);
+    }
+
+    /**
+     * A tertiary in force with no secondary goes out at its own level from
+     * the default generator (IN1-22 is 3).
+     */
+    #[Test]
+    public function testDefaultGeneratorSendsATertiaryAtItsLevel(): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => '2026-03-20', 'date_collected' => '2026-03-20 08:00:00']);
+        $this->addPolicy('primary', self::NEW_PLAN, '2025-01-01', null);
+        $this->addPolicy('tertiary', self::SECOND_PLAN, '2025-01-01', null);
+
+        $in1 = self::segmentsOfType(self::segments(default_gen_hl7_order($this->orderId)->hl7), 'IN1');
+
+        $this->assertCount(2, $in1);
+        $this->assertSame(['1', '3'], [self::fields($in1[0])[22], self::fields($in1[1])[22]]);
+        $this->assertStringContainsString(self::COMPANY_NAMES[self::SECOND_PLAN], $in1[1]);
+    }
+
+    /**
+     * LabCorp sends only the primary and secondary: a tertiary with no
+     * secondary isn't sent as the secondary, and a tertiary alone is no
+     * payer for an insurance-billed order.
+     */
+    #[Test]
+    public function testLabCorpDoesNotSendATertiaryAsTheSecondary(): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => '2026-03-20', 'date_collected' => '2026-03-20 08:00:00']);
+        $this->addPolicy('primary', self::NEW_PLAN, '2025-01-01', null);
+        $this->addPolicy('tertiary', self::SECOND_PLAN, '2025-01-01', null);
+
+        $result = labcorp_gen_hl7_order($this->orderId);
+        $in1 = self::onlySegment(self::segments($result->hl7), 'IN1');
+        $patient = self::fields(self::requisitionRecordsByType($result->requisitionData)['P']);
+
+        $this->assertStringContainsString(self::COMPANY_NAMES[self::NEW_PLAN], $in1);
+        $this->assertSame(self::COMPANY_NAMES[self::NEW_PLAN], $patient[35], 'the primary insurer name');
+        $this->assertSame('', $patient[44], 'the secondary insurer name');
+    }
+
+    /**
+     * A tertiary alone is no payer LabCorp sends.
+     */
+    #[Test]
+    public function testLabCorpRefusesAnOrderWhosePatientHasOnlyATertiary(): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T', 'date_ordered' => '2026-03-20', 'date_collected' => '2026-03-20 08:00:00']);
+        $this->addPolicy('tertiary', self::SECOND_PLAN, '2025-01-01', null);
+
+        $this->expectException(Hl7OrderGenerationException::class);
+        $this->expectExceptionMessage('does not have any payers on record');
+        labcorp_gen_hl7_order($this->orderId);
+    }
+
+    /**
+     * The universal and Quest loaders take the policies in force on the day,
+     * keyed by level: a secondary behind an ended primary is kept, at its
+     * level, and a day that can't be read gives none. (Their generators are
+     * covered through these loaders; see payerGeneratorProvider().)
+     */
+    #[Test]
+    public function testUniversalAndQuestLoadersKeyThePoliciesInForceByLevel(): void
+    {
+        $this->addPolicy('primary', self::OLD_PLAN, '2025-01-01', '2026-03-01');
+        $this->addPolicy('secondary', self::SECOND_PLAN, '2025-01-01', null);
+        $pid = $this->orderPatientId();
+
+        foreach (
+            [
+                'universal' => [universal_loadPayerInfo($pid, '2026-03-20'), universal_loadPayerInfo($pid, '')],
+                'quest' => [quest_loadPayerInfo($pid, '2026-03-20'), quest_loadPayerInfo($pid, '')],
+            ] as $name => [$payers, $noDay]
+        ) {
+            $this->assertSame([1], array_keys($payers), "{$name}: the secondary alone, at its level");
+            $this->assertIsArray($payers[1]['company']);
+            $this->assertSame(self::COMPANY_NAMES[self::SECOND_PLAN], $payers[1]['company']['name']);
+            $this->assertSame([], $noDay, "{$name}: no day, no payers");
+        }
+    }
+
+    /**
+     * DORN's payers are the policies in force on the day, primary first: a
+     * plan that has ended isn't billed.
+     */
+    #[Test]
+    public function testDornPayersAreThePoliciesInForce(): void
+    {
+        $this->addPolicy('primary', self::OLD_PLAN, '2025-01-01', '2026-03-01');
+        $this->addPolicy('secondary', self::SECOND_PLAN, null, null);
+
+        $names = [];
+        foreach ((new GenHl7OrderBase())->loadPayerInfo($this->orderPatientId(), '2026-03-20') as $payer) {
+            $this->assertIsArray($payer);
+            $this->assertIsArray($payer['company']);
+            $names[] = $payer['company']['name'];
+        }
+
+        $this->assertSame([self::COMPANY_NAMES[self::SECOND_PLAN]], $names);
+        $this->assertSame([], (new GenHl7OrderBase())->loadPayerInfo($this->orderPatientId(), ''), 'no day, no payers');
+    }
+
+    /**
      * @return array<string, array{Hl7OrderGenerator}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
@@ -455,6 +730,24 @@ class GenHl7OrderIntegrationTest extends TestCase
             'universal' => [Hl7OrderGenerator::Universal],
             'labcorp' => [Hl7OrderGenerator::LabCorp],
             'quest' => [Hl7OrderGenerator::Quest],
+        ];
+    }
+
+    /**
+     * The generators whose whole message the insurance tests read. The
+     * universal and Quest generators send IN1-3 from a company column that
+     * doesn't exist (`ins_comp_id`), so PHP warns and deprecates whenever
+     * they send a payer; their payers are tested at their loaders instead.
+     *
+     * @return array<string, array{Hl7OrderGenerator}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function payerGeneratorProvider(): array
+    {
+        return [
+            'default' => [Hl7OrderGenerator::DefaultLab],
+            'labcorp' => [Hl7OrderGenerator::LabCorp],
         ];
     }
 
@@ -692,8 +985,93 @@ class GenHl7OrderIntegrationTest extends TestCase
         );
     }
 
+    private function orderPatientId(): int
+    {
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?',
+            'patient_id',
+            [$this->orderId]
+        );
+        $this->assertIsInt($pid);
+        return $pid;
+    }
+
     /**
-     * @param array<string, string> $columns
+     * Add a policy for the order's patient with an insurance company this
+     * test owns, both with uuids so the coverage service's uuid backfill
+     * leaves nothing behind.
+     */
+    private function addPolicy(string $type, int $companyId, ?string $start, ?string $end, string $subscriberLastName = 'Fixture'): void
+    {
+        if (QueryUtils::fetchRecords('SELECT id FROM insurance_companies WHERE id = ?', [$companyId]) === []) {
+            QueryUtils::sqlInsert(
+                'INSERT INTO insurance_companies (id, uuid, name, cms_id, ins_type_code) VALUES (?, ?, ?, ?, ?)',
+                [$companyId, (new UuidRegistry(['table_name' => 'insurance_companies']))->createUuid(), self::COMPANY_NAMES[$companyId], 'TF' . $companyId, 1]
+            );
+        }
+        // Every column the generators send (IN1 and GT1) is filled, as a site's policy screen fills them.
+        $columns = [
+            'uuid' => (new UuidRegistry(['table_name' => 'insurance_data']))->createUuid(),
+            'pid' => $this->orderPatientId(),
+            'type' => $type,
+            'provider' => (string) $companyId,
+            'date' => $start,
+            'date_end' => $end,
+            'plan_name' => self::POLICY_MARKER,
+            'policy_number' => 'TF-' . $companyId,
+            'group_number' => 'G-' . $companyId,
+            'policy_type' => '',
+            'subscriber_relationship' => 'self',
+            'subscriber_lname' => $subscriberLastName,
+            'subscriber_fname' => 'Test',
+            'subscriber_mname' => '',
+            'subscriber_DOB' => '1980-01-01',
+            'subscriber_sex' => 'Female',
+            'subscriber_ss' => '',
+            'subscriber_street' => '1 Main St',
+            'subscriber_city' => 'Springfield',
+            'subscriber_state' => 'CA',
+            'subscriber_postal_code' => '90001',
+            'subscriber_phone' => '',
+        ];
+        QueryUtils::sqlInsert(
+            'INSERT INTO insurance_data (' . implode(', ', array_keys($columns)) . ') VALUES ('
+                . implode(', ', array_fill(0, count($columns), '?')) . ')',
+            array_values($columns)
+        );
+    }
+
+    /**
+     * Remove the policies and companies addPolicy() added, with their uuid registry entries.
+     */
+    private function removeInsurance(): void
+    {
+        foreach (
+            QueryUtils::fetchTableColumn(
+                'SELECT uuid FROM insurance_data WHERE plan_name = ? AND uuid IS NOT NULL',
+                'uuid',
+                [self::POLICY_MARKER]
+            ) as $uuid
+        ) {
+            QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE table_name = 'insurance_data' AND uuid = ?", [$uuid]);
+        }
+        QueryUtils::sqlStatementThrowException('DELETE FROM insurance_data WHERE plan_name = ?', [self::POLICY_MARKER]);
+        foreach (self::COMPANY_NAMES as $id => $name) {
+            foreach (
+                QueryUtils::fetchTableColumn(
+                    'SELECT uuid FROM insurance_companies WHERE id = ? AND name = ? AND uuid IS NOT NULL',
+                    'uuid',
+                    [$id, $name]
+                ) as $uuid
+            ) {
+                QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE table_name = 'insurance_companies' AND uuid = ?", [$uuid]);
+            }
+            QueryUtils::sqlStatementThrowException('DELETE FROM insurance_companies WHERE id = ? AND name = ?', [$id, $name]);
+        }
+    }
+
+    /**
+     * @param array<string, ?string> $columns
      */
     private function setOrderColumns(array $columns): void
     {

@@ -13,6 +13,9 @@
 namespace OpenEMR\Modules\Dorn;
 
 use InsuranceCompany;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\InsuranceService;
 
 class GenHl7OrderBase
 {
@@ -218,7 +221,8 @@ class GenHl7OrderBase
 
     /**
      * Get array of insurance payers for the specified patient as of the specified
-     * date. If no date is passed then the current date is used.
+     * date: the policies in force on that day, primary first, so an ended plan is
+     * not billed. A date that can't be read gives none.
      *
      * @param int $pid Patient ID.
      * @param string  $date
@@ -226,26 +230,20 @@ class GenHl7OrderBase
      */
     public function loadPayerInfo($pid, $date = ''): array
     {
-        if (empty($date)) {
-            $date = date('Y-m-d');
+        $payers = [];
+        $patientId = EffectiveInsuranceRule::storedId($pid);
+        $day = CoverageDay::fromStored($date);
+        if ($patientId === null || $day === null) {
+            return $payers;
         }
 
-        $payers = [];
-        $dres = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? AND (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC", [$pid, $date]);
-        $prevtype = '';
-        // type is primary, secondary or tertiary
-        while ($drow = sqlFetchArray($dres)) {
-            if (strcmp($prevtype, (string) $drow['type']) == 0) {
-                continue;
-            }
-
-            $prevtype = $drow['type'] ?? '';
-            // Very important to check for a missing provider because
-            // that indicates no insurance as of the given date.
-            if (empty($drow['provider'] ?? '')) {
-                continue;
-            }
-
+        // One service per request: its constructor backfills uuids in three tables.
+        static $service = null;
+        if (!$service instanceof InsuranceService) {
+            $service = new InsuranceService();
+        }
+        foreach ($service->getEffectiveInsuranceRows($patientId, $day) as $effective) {
+            $drow = $effective->columns;
             $ins = count($payers);
             $crow = sqlQuery("SELECT * FROM insurance_companies WHERE id = ?", [$drow['provider']]);
             $orow = new InsuranceCompany($drow['provider']);
