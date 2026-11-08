@@ -527,8 +527,8 @@ class InsuranceService extends BaseService
 
     /**
      * The policies in force for a patient on a day, at most one per level and
-     * primary first, by the rule in EffectiveInsuranceRule: the claim's rule
-     * (Claim::loadPayerInfo()) with the three differences its docblock lists.
+     * primary first, by the rule in EffectiveInsuranceRule, which the claim
+     * (Claim::loadPayerInfo()) reads too.
      * A level with nothing in force is left out and the others are still
      * returned, so a current secondary behind an ended primary comes back on
      * its own. Each policy comes with its insurance_data row and its company's
