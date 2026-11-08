@@ -257,6 +257,36 @@ class FaxDocumentSendAuthorizationTest extends TestCase
     }
 
     /**
+     * A document send is read by id whatever else the request claims: with
+     * `isContent` set as well, the `file` value (which skipped the send/ path
+     * check) must not become the fax payload, which the send would otherwise
+     * read as a server path.
+     */
+    public function testRingCentralDocumentSendIgnoresTheContentFlag(): void
+    {
+        $vendor = $this->getMockBuilder(RCFaxClient::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['authenticate', 'readAuthorizedFaxDocument'])
+            ->getMock();
+        $vendor->method('authenticate')->willReturn(1);
+        $vendor->expects($this->once())
+            ->method('readAuthorizedFaxDocument')
+            ->with('94810')
+            ->willThrowException(new FaxDocumentAccessException('refused by the reader'));
+        $this->initialize($vendor, RCFaxClient::class, 'uploadStaging', FaxUploadStaging::create());
+        $this->setRequest($vendor, [
+            'isDocuments' => '1',
+            'isContent' => '1',
+            'docid' => '94810',
+            'file' => __FILE__,
+            'phone' => '5551234567',
+            'email' => '',
+        ]);
+
+        $this->assertSame('refused by the reader', $vendor->sendFax());
+    }
+
+    /**
      * The email copy of a document send carries the authorized document's
      * bytes, never the request's `file` value, which skipped the send/ path
      * check and could name any readable server file.

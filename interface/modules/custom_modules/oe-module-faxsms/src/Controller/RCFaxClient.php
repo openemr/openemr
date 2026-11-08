@@ -319,22 +319,25 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                 $fileName = pathinfo($stagedPath, PATHINFO_BASENAME);
             }
 
-            // Build $content (plaintext bytes for the vendor).
-            if ($isContent) {
+            // Build $content (plaintext bytes for the vendor). A document send
+            // is decided first: it skipped the send/ path check, so its `file`
+            // value must never become the payload, whatever other flags the
+            // request carries.
+            if ($isDocuments) {
+                // Enforce the document ACLs and patient ownership before
+                // reading a request-supplied document id.
+                try {
+                    $document = $this->readAuthorizedFaxDocument($docId);
+                } catch (FaxDocumentAccessException $e) {
+                    return $e->getMessage();
+                }
+                $content = $document['content'];
+                $fileName = $document['name'];
+            } elseif ($isContent) {
                 $content = $file;
                 $file = 'report-' . attr(OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
             } else {
-                if ($isDocuments) {
-                    // Enforce the document ACLs and patient ownership before
-                    // reading a request-supplied document id.
-                    try {
-                        $document = $this->readAuthorizedFaxDocument($docId);
-                    } catch (FaxDocumentAccessException $e) {
-                        return $e->getMessage();
-                    }
-                    $content = $document['content'];
-                    $fileName = $document['name'];
-                } elseif (is_file($file)) {
+                if (is_file($file)) {
                     $content = file_get_contents($file);
                     if ($content === false) {
                         return xlt('Error: No content to send.');
