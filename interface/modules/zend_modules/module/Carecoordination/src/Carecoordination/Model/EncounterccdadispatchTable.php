@@ -4979,6 +4979,26 @@ class EncounterccdadispatchTable
         return $encounters;
     }
 
+    /**
+     * The insurance_data id of the policy the payers section shows at a
+     * level, or null when there is none: the latest-starting one whose
+     * company has an address.
+     */
+    private function payerPolicyId(mixed $pid, string $type): ?int
+    {
+        $id = QueryUtils::fetchSingleValue(
+            "SELECT i.id FROM insurance_data i
+            JOIN insurance_companies c ON i.provider = c.id
+            JOIN addresses a ON c.id = a.foreign_id
+            JOIN patient_data p ON i.pid = p.pid
+            WHERE i.type = ? AND i.pid = ?
+            ORDER BY i.date DESC LIMIT 1",
+            'id',
+            [$type, $pid]
+        );
+        return is_numeric($id) ? (int) $id : null;
+    }
+
     public function getPayers($pid): string
     {
         $xml = "<payers>";
@@ -4986,6 +5006,10 @@ class EncounterccdadispatchTable
         $types = ['primary'];
 
         foreach ($types as $type) {
+            $policyId = $this->payerPolicyId($pid, $type);
+            if ($policyId === null) {
+                continue; // no policy at this level
+            }
             $sql = "
             SELECT i.*, c.name AS company_name,
                    c.uuid as compuuid,
@@ -4999,10 +5023,9 @@ class EncounterccdadispatchTable
             JOIN insurance_companies c ON i.provider = c.id
             JOIN addresses a ON c.id = a.foreign_id
             JOIN patient_data p ON i.pid = p.pid
-            WHERE i.type = ? AND i.pid = ?
-            ORDER BY i.date DESC
+            WHERE i.type = ? AND i.pid = ? AND i.id = ?
         ";
-            $res = sqlStatement($sql, [$type, $pid]);
+            $res = sqlStatement($sql, [$type, $pid, $policyId]);
             $row = sqlFetchArray($res);
             if (!$row) {
                 continue; // no data for this type
