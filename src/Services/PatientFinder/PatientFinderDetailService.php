@@ -136,27 +136,37 @@ final class PatientFinderDetailService
     }
 
     /**
-     * The field ids the detail layout shows, in its order, leaving out NationNotes fields.
+     * The field ids the detail layout shows, in its order, each once. An id is left out
+     * entirely when any active row for it is a NationNotes field: the renderer looks values up
+     * by id, so a second row with the same id would otherwise feed it the value unescaped.
      *
      * @return list<string>
      */
     private function layoutFieldIds(): array
     {
         $rows = ($this->fetchRecords)(
-            'SELECT field_id FROM layout_options WHERE form_id = ? AND uor > 0 AND data_type != ?'
+            'SELECT field_id, data_type FROM layout_options WHERE form_id = ? AND uor > 0'
             . ' ORDER BY group_id, seq',
-            [self::LAYOUT_ID, self::UNESCAPED_DATA_TYPE]
+            [self::LAYOUT_ID]
         );
         $ids = [];
+        $unescaped = [];
         foreach ($rows as $row) {
             $id = PatientFinderValue::string($row['field_id'] ?? null);
             // A field id is only ever used as a quoted identifier, but keep it to the
             // characters field ids are made of.
-            if ($id !== '' && preg_match('/^\w+$/', $id) === 1) {
-                $ids[] = $id;
+            if ($id === '' || preg_match('/^\w+$/', $id) !== 1) {
+                continue;
             }
+            if (PatientFinderValue::int($row['data_type'] ?? null) === self::UNESCAPED_DATA_TYPE) {
+                $unescaped[$id] = true;
+            }
+            $ids[$id] = true;
         }
-        return $ids;
+        return array_values(array_filter(
+            array_keys($ids),
+            static fn(string $id): bool => !isset($unescaped[$id])
+        ));
     }
 
     /**

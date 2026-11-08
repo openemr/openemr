@@ -30,7 +30,8 @@ class PatientFinderDetailServiceTest extends TestCase
     private array $queries = [];
 
     /**
-     * @param list<string>       $layoutFields the detail layout's field ids
+     * @param list<string>       $layoutFields the detail layout's field ids; "id:34" gives a field
+     *                                         that data type instead of text
      * @param list<array<mixed>> $patientRows  what the patient query returns
      */
     private function service(
@@ -42,7 +43,10 @@ class PatientFinderDetailServiceTest extends TestCase
         $fetch = function (string $sql, array $binds) use ($layoutFields, $patientRows): array {
             $this->queries[] = [$sql, $binds];
             if (str_contains($sql, 'FROM layout_options')) {
-                return array_map(static fn(string $id): array => ['field_id' => $id], $layoutFields);
+                return array_map(static function (string $field): array {
+                    [$id, $type] = array_pad(explode(':', $field, 2), 2, '2');
+                    return ['field_id' => $id, 'data_type' => $type];
+                }, $layoutFields);
             }
             return $patientRows;
         };
@@ -134,15 +138,26 @@ class PatientFinderDetailServiceTest extends TestCase
     }
 
     /**
-     * The layout query leaves out NationNotes fields, which the renderer prints unescaped.
+     * A NationNotes field, which the renderer prints unescaped, is never read; nor is a field
+     * whose id a NationNotes row shares, since the renderer looks values up by id.
      */
-    public function testLayoutQueryLeavesOutNationNotesFields(): void
+    public function testNationNotesFieldsAreNeverRead(): void
     {
-        $this->service(['sex'], [])->isEnabled();
-        [$sql, $binds] = $this->queries[0];
+        $this->service(['sex', 'ss:34', 'DOB', 'DOB:34', 'sex'], [['pid' => 7, 'sex' => 'Male']])->values(7);
+        $sql = $this->lastSql();
 
-        $this->assertStringContainsString('AND data_type != ?', $sql);
-        $this->assertSame(['PTFINDER', 34], $binds);
+        $this->assertStringContainsString('patient_data.`sex`', $sql);
+        $this->assertSame(1, substr_count($sql, 'patient_data.`sex`'), 'a repeated id is read once');
+        $this->assertStringNotContainsString('`ss`', $sql);
+        $this->assertStringNotContainsString('`DOB`', $sql, 'an id shared with a NationNotes row is not read');
+    }
+
+    /**
+     * A layout whose only active fields are NationNotes does not offer to expand rows.
+     */
+    public function testOnlyNationNotesFieldsLeaveTheDetailOff(): void
+    {
+        $this->assertFalse($this->service(['ss:34'], [])->isEnabled());
     }
 
     /**
