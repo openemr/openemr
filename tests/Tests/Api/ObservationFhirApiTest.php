@@ -44,6 +44,9 @@ class ObservationFhirApiTest extends TestCase
     private string $encounterUuid;
     private string $observationUuid;
 
+    /**
+     * Seeds a patient, an encounter and a heart rate observation, and gets an API token.
+     */
     protected function setUp(): void
     {
         $this->testClient = new ApiTestClient(self::baseUrl(), false);
@@ -113,6 +116,9 @@ class ObservationFhirApiTest extends TestCase
         $this->observationUuid = $uuid;
     }
 
+    /**
+     * Removes the seeded observation, encounter and patient, then revokes the token.
+     */
     protected function tearDown(): void
     {
         // PHPUnit runs tearDown() even when setUp() fails part way, so every property is
@@ -142,6 +148,9 @@ class ObservationFhirApiTest extends TestCase
         }
     }
 
+    /**
+     * A patient search returns the seeded observation.
+     */
     public function testSearchByPatientIncludesSeededObservation(): void
     {
         $bundle = $this->assertCollectionBundle(
@@ -150,6 +159,9 @@ class ObservationFhirApiTest extends TestCase
         $this->assertBundleContainsSeededObservation($bundle);
     }
 
+    /**
+     * A patient search narrowed to vital signs returns the seeded observation.
+     */
     public function testSearchByPatientAndVitalSignsCategoryIncludesSeededObservation(): void
     {
         $bundle = $this->assertCollectionBundle(
@@ -161,6 +173,9 @@ class ObservationFhirApiTest extends TestCase
         $this->assertBundleContainsSeededObservation($bundle);
     }
 
+    /**
+     * A patient search narrowed to laboratory results leaves the seeded vital sign out.
+     */
     public function testSearchByPatientAndLaboratoryCategoryExcludesSeededObservation(): void
     {
         $bundle = $this->assertCollectionBundle(
@@ -183,6 +198,9 @@ class ObservationFhirApiTest extends TestCase
         }
     }
 
+    /**
+     * An _id search returns exactly the seeded observation.
+     */
     public function testSearchByIdReturnsOnlySeededObservation(): void
     {
         $bundle = $this->assertCollectionBundle(
@@ -198,6 +216,9 @@ class ObservationFhirApiTest extends TestCase
         $this->assertSeededObservation($resource);
     }
 
+    /**
+     * Reading by uuid returns the seeded observation.
+     */
     public function testReadReturnsSeededObservation(): void
     {
         $response = $this->testClient->getOne(self::ENDPOINT, $this->observationUuid);
@@ -205,6 +226,9 @@ class ObservationFhirApiTest extends TestCase
         $this->assertSeededObservation($this->decodeJson($response));
     }
 
+    /**
+     * An _id search for an absent uuid returns an empty collection Bundle.
+     */
     public function testSearchWithNoMatchReturnsEmptyBundle(): void
     {
         $bundle = $this->assertCollectionBundle(
@@ -213,6 +237,9 @@ class ObservationFhirApiTest extends TestCase
         $this->assertSame([], $bundle['entry'] ?? []);
     }
 
+    /**
+     * Reading an absent uuid returns 404 with an empty JSON array.
+     */
     public function testReadAbsentUuidReturnsNotFound(): void
     {
         $response = $this->testClient->getOne(self::ENDPOINT, self::ABSENT_UUID);
@@ -220,19 +247,29 @@ class ObservationFhirApiTest extends TestCase
         $this->assertSame([], $this->decodeJson($response));
     }
 
+    /**
+     * Searching without a token returns 401.
+     */
     public function testSearchWithoutTokenReturnsUnauthorized(): void
     {
         $client = new ApiTestClient(self::baseUrl(), false);
         $this->assertUnauthorized($client->get(self::ENDPOINT));
     }
 
+    /**
+     * Reading without a token returns 401.
+     */
     public function testReadWithoutTokenReturnsUnauthorized(): void
     {
         $client = new ApiTestClient(self::baseUrl(), false);
         $this->assertUnauthorized($client->getOne(self::ENDPOINT, $this->observationUuid));
     }
 
-    /** @param array<array-key, mixed> $bundle */
+    /**
+     * Asserts that the Bundle holds only Observations and includes the seeded one.
+     *
+     * @param array<array-key, mixed> $bundle
+     */
     private function assertBundleContainsSeededObservation(array $bundle): void
     {
         $entries = $bundle['entry'] ?? null;
@@ -251,7 +288,11 @@ class ObservationFhirApiTest extends TestCase
         $this->assertTrue($found, 'The search must include the seeded heart rate observation');
     }
 
-    /** @param array<array-key, mixed> $resource */
+    /**
+     * Asserts the seeded heart rate: id, status, subject, category, LOINC code and value.
+     *
+     * @param array<array-key, mixed> $resource
+     */
     private function assertSeededObservation(array $resource): void
     {
         $this->assertSame('Observation', $resource['resourceType'] ?? null);
@@ -298,7 +339,11 @@ class ObservationFhirApiTest extends TestCase
         $this->assertEqualsWithDelta(72, (float) $value, 0.001);
     }
 
-    /** @return array<array-key, mixed> */
+    /**
+     * Asserts a 200 collection Bundle and returns it decoded.
+     *
+     * @return array<array-key, mixed>
+     */
     private function assertCollectionBundle(ResponseInterface $response): array
     {
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -308,6 +353,9 @@ class ObservationFhirApiTest extends TestCase
         return $bundle;
     }
 
+    /**
+     * Asserts the 401 body the OAuth layer returns, not a FHIR OperationOutcome.
+     */
     private function assertUnauthorized(ResponseInterface $response): void
     {
         $this->assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
@@ -319,7 +367,11 @@ class ObservationFhirApiTest extends TestCase
         $this->assertArrayNotHasKey('resourceType', $body);
     }
 
-    /** @return array<array-key, mixed> */
+    /**
+     * Decodes a JSON response body into an array.
+     *
+     * @return array<array-key, mixed>
+     */
     private function decodeJson(ResponseInterface $response): array
     {
         $body = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
@@ -327,6 +379,9 @@ class ObservationFhirApiTest extends TestCase
         return $body;
     }
 
+    /**
+     * Returns the API base URL from OPENEMR_BASE_URL_API, or https://localhost.
+     */
     private static function baseUrl(): string
     {
         $baseUrl = getenv('OPENEMR_BASE_URL_API', true);
