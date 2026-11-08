@@ -24,6 +24,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\CoverageSegment;
 use OpenEMR\Services\Insurance\EffectiveInsurance;
 use OpenEMR\Services\Insurance\EffectiveInsuranceRow;
 use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
@@ -579,6 +580,22 @@ class InsuranceService extends BaseService
             }
         }
         return null;
+    }
+
+    /**
+     * The runs of days within a range on which each policy heads a level
+     * (EffectiveInsuranceRule::segments()), oldest first: for readers that
+     * report over a period, such as eCQM's payer.
+     *
+     * @return list<CoverageSegment>
+     */
+    public function getCoverageSegments(int $pid, InsuranceLevel $level, DateTimeImmutable $from, DateTimeImmutable $to): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT `id`, `uuid`, `type`, `provider`, `date`, `date_end` FROM `insurance_data` WHERE `pid` = ? AND `type` = ?",
+            [$pid, $level->value]
+        );
+        return EffectiveInsuranceRule::segments($rows, $level, $from, $to);
     }
 
     public function swapInsurance($pid, string $targetType, string $insuranceUuid): ProcessingResult

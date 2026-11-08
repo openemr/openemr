@@ -2,8 +2,9 @@
 
 /**
  * InsuranceService::getEffectiveInsuranceRows(): each policy in force with its stored row and its
- * company's name; getEffectiveInsuranceAt(): the policy in force at one level. Which policies they
- * choose is the comparison test's subject (InsuranceServiceEffectiveInsurancesTest).
+ * company's name; getEffectiveInsuranceAt(): the policy in force at one level; getCoverageSegments():
+ * the runs of days over a range. Which policies they choose is the comparison test's subject
+ * (InsuranceServiceEffectiveInsurancesTest), and the runs' the rule's (EffectiveInsuranceRuleSegmentsTest).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -19,6 +20,7 @@ namespace OpenEMR\Tests\Services;
 use DateTimeImmutable;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Insurance\CoverageSegment;
 use OpenEMR\Services\Insurance\InsuranceLevel;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
@@ -176,5 +178,29 @@ final class InsuranceServiceCoverageReadsTest extends TestCase
             'the same policy, with the same dates, as the rows give'
         );
         self::assertSame(101, $this->service->getEffectiveInsuranceAt($pid, InsuranceLevel::Primary, new DateTimeImmutable('2026-01-31'))?->companyId);
+    }
+
+    /**
+     * The runs come from the patient's own rows at the level, cut to the range.
+     */
+    #[Test]
+    public function runsComeFromThePatientsOwnRowsOverTheRange(): void
+    {
+        [$pid, $other, , $none] = $this->pids;
+        $this->addPolicy($pid, 'primary', '101', '2020-01-01', '2026-03-31');
+        $this->addPolicy($pid, 'primary', '102', '2026-04-01', null);
+        $this->addPolicy($pid, 'secondary', '103', '2026-02-01', null);
+        $this->addPolicy($other, 'primary', '109', '2026-02-01', null);
+
+        $runs = array_map(
+            static fn(CoverageSegment $s): string => $s->from->format('Y-m-d') . '..' . $s->to->format('Y-m-d') . " {$s->policy->companyId}",
+            $this->service->getCoverageSegments($pid, InsuranceLevel::Primary, new DateTimeImmutable('2026-01-01'), new DateTimeImmutable('2026-12-31'))
+        );
+
+        self::assertSame(['2026-01-01..2026-03-31 101', '2026-04-01..2026-12-31 102'], $runs);
+        self::assertSame(
+            [],
+            $this->service->getCoverageSegments($none, InsuranceLevel::Primary, new DateTimeImmutable('2026-01-01'), new DateTimeImmutable('2026-12-31'))
+        );
     }
 }
