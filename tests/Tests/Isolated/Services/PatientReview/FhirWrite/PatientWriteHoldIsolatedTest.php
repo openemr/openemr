@@ -342,6 +342,35 @@ class PatientWriteHoldIsolatedTest extends TestCase
     /**
      * The 51st waiting write from one app is refused with 429.
      */
+    /**
+     * Non-ASCII text under the limit as sent is over it as stored, where it is escaped.
+     */
+    public function testTheSizeLimitIsMeasuredAsTheQueueStoresIt(): void
+    {
+        $resource = $this->vitalSign();
+        // 2 bytes each in UTF-8, 6 bytes each once stored as é.
+        $resource['note'] = [['text' => str_repeat('é', intdiv(PatientWriteHold::MAX_PAYLOAD_BYTES, 4))]];
+        $this->assertLessThan(PatientWriteHold::MAX_PAYLOAD_BYTES, strlen((string) json_encode($resource, JSON_UNESCAPED_UNICODE)));
+
+        $this->assertRefused(
+            PatientWriteRefusalReason::TooLarge,
+            fn(): ReviewRequest => $this->hold()->hold($this->context(), PatientWritableType::VitalSignObservation, $resource)
+        );
+    }
+
+    /**
+     * A large narrative the server drops doesn't count against the limit.
+     */
+    public function testADroppedNarrativeDoesNotCountAgainstTheSizeLimit(): void
+    {
+        $resource = $this->vitalSign();
+        $resource['text'] = ['status' => 'generated', 'div' => str_repeat('a', PatientWriteHold::MAX_PAYLOAD_BYTES)];
+
+        $request = $this->hold()->hold($this->context(), PatientWritableType::VitalSignObservation, $resource);
+
+        $this->assertArrayNotHasKey('text', $request->payload);
+    }
+
     public function testTheAppIsRefusedOnceItHasTheLimitOfWritesWaiting(): void
     {
         $hold = $this->hold();

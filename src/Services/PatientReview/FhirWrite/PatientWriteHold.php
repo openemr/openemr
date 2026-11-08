@@ -6,8 +6,8 @@
  * Every patient app write goes through here, in every mode. In order:
  *
  *  1. The practice's policy must allow this kind of client to write this type (403).
- *  2. The resource must be within the size limit (413).
- *  3. The server-set fields are forced (PatientWriteFields: 400 or 403).
+ *  2. The server-set fields are forced (PatientWriteFields: 400 or 403).
+ *  3. The resource, as the queue stores it, must be within the size limit (413).
  *  4. The app must have fewer than the limit of writes waiting for this patient (429).
  *
  * Then it is a pending fhir-write request. Its uuid is the id the app is given in Location;
@@ -30,13 +30,14 @@ namespace OpenEMR\Services\PatientReview\FhirWrite;
 use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
+use OpenEMR\Services\PatientReview\ReviewRequestMapper;
 use OpenEMR\Services\PatientReview\ReviewSource;
 use OpenEMR\Services\PatientReview\ReviewSubmission;
 use OpenEMR\Services\PatientReview\ReviewType;
 
 final readonly class PatientWriteHold
 {
-    /** The largest resource held, as JSON: 256 KB. */
+    /** The largest resource held, in bytes of the JSON the queue stores: 256 KB. */
     public const MAX_PAYLOAD_BYTES = 262144;
 
     /** Writes one app may have waiting for review for one patient. */
@@ -46,6 +47,7 @@ final readonly class PatientWriteHold
         private ReviewQueueService $queue,
         private PatientWritePolicy $policy,
         private PatientWriteFields $fields = new PatientWriteFields(),
+        private ReviewRequestMapper $mapper = new ReviewRequestMapper(),
     ) {
     }
 
@@ -58,15 +60,18 @@ final readonly class PatientWriteHold
         if (!$this->policy->allowsWrite($context->clientType, $type)) {
             throw new PatientWriteRefusal(PatientWriteRefusalReason::NotAllowed);
         }
-        $encoded = json_encode($resource, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        if ($encoded === false) {
+        $held = $this->fields->force($type, $resource, $context->patientUuid);
+        // Measured as the queue stores it, not as the app sent it: the stored JSON escapes
+        // slashes and non-ASCII text, so the same resource can take several times the bytes.
+        try {
+            $stored = $this->mapper->encodePayload($held);
+        } catch (\JsonException $e) {
             // Decoded request JSON always re-encodes; anything else is not a resource.
-            throw new PatientWriteRefusal(PatientWriteRefusalReason::WrongType);
+            throw new PatientWriteRefusal(PatientWriteRefusalReason::WrongType, $e);
         }
-        if (strlen($encoded) > self::MAX_PAYLOAD_BYTES) {
+        if (strlen($stored) > self::MAX_PAYLOAD_BYTES) {
             throw new PatientWriteRefusal(PatientWriteRefusalReason::TooLarge);
         }
-        $held = $this->fields->force($type, $resource, $context->patientUuid);
 
         $submission = new ReviewSubmission(
             $context->pid(),
