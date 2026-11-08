@@ -24,10 +24,13 @@ $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
 require_once($srcdir . "/appointments.inc.php");
 
-use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\InsuranceService;
 
 
 $facilityService = new FacilityService();
@@ -364,6 +367,7 @@ $logo = is_file(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/$
 // Loop on array of PIDS
 $saved_pages = $pages; //Save calculated page count of a single fee sheet
 $loop_idx = 0; // counter for appt list
+$insuranceService = new InsuranceService();
 
 foreach ($pid_list as $pid) {
     $apptdate = $apptdate_list[$loop_idx] ?? null; // parallel array to pid_list
@@ -483,16 +487,15 @@ foreach ($pid_list as $pid) {
             if (empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                 $html .= xlt('Insurance') . ":";
                 if ($form_fill) {
-                    // The policy printed at each level: the level's latest-starting one.
+                    // The policy printed at each level: the one in force on the appointment's date, or today
+                    // when the sheet has no appointment (InsuranceService).
                     $printedPolicies = [];
-                    foreach (['primary', 'secondary', 'tertiary'] as $instype) {
-                        $row = QueryUtils::querySingleRow(
-                            "SELECT * FROM insurance_data WHERE pid = ? AND type = ? ORDER BY date DESC LIMIT 1",
-                            [$pid, $instype]
-                        );
-                        if (is_array($row)) {
-                            $printedPolicies[$instype] = $row;
-                        }
+                    $firstAppointment = $appointment[0] ?? null;
+                    $printDay = CoverageDay::fromStored(is_array($firstAppointment) ? ($firstAppointment['pc_eventDate'] ?? null) : null)
+                        ?? CoverageDay::today(ServiceContainer::getClock());
+                    $patientId = EffectiveInsuranceRule::storedId($pid);
+                    foreach ($patientId === null ? [] : $insuranceService->getEffectiveInsuranceRows($patientId, $printDay) as $effective) {
+                        $printedPolicies[$effective->policy->level->value] = $effective->columns;
                     }
                     foreach ($printedPolicies as $instype => $row) {
                         if (!empty($row['provider'])) {
