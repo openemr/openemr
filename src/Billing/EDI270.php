@@ -24,6 +24,7 @@
 
 namespace OpenEMR\Billing;
 
+use DateTimeImmutable;
 use edih_271_codes;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\MultipartStream;
@@ -32,6 +33,10 @@ use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\InsuranceLevel;
+use OpenEMR\Services\InsuranceService;
+use Psr\Clock\ClockInterface;
 
 require_once(__DIR__ . "/../../library/edihistory/codes/edih_271_code_class.php");
 
@@ -378,8 +383,33 @@ class EDI270
     }
 
     /**
-     * The insurance_data id of the primary policy a 270 asks about, or null
-     * when the patient has none: the latest-starting primary.
+     * The day a 270 asks about, the day its DTP*291 sends (createDTP()): the
+     * appointment's date when the partner sends appointment dates ('A'),
+     * else today. A partner that sends the subscriber's effective date ('E')
+     * has its policy chosen on today.
+     */
+    public static function eligibilityDay(mixed $appointmentDate, mixed $X12info, ClockInterface $clock): DateTimeImmutable
+    {
+        $appointmentDay = CoverageDay::fromStored($appointmentDate);
+        $sendsAppointment = is_array($X12info) && ($X12info['x12_dtp03'] ?? null) === 'A';
+        return $sendsAppointment && $appointmentDay !== null && $appointmentDay->format('Ymd') > '20010101'
+            ? $appointmentDay
+            : CoverageDay::today($clock);
+    }
+
+    /**
+     * The insurance_data id of the primary policy in force on a day
+     * (InsuranceService), or null when none is.
+     */
+    public static function primaryPolicyIdOn(InsuranceService $insurance, int $pid, DateTimeImmutable $day): ?int
+    {
+        return $insurance->getEffectiveInsuranceAt($pid, InsuranceLevel::Primary, $day)?->id;
+    }
+
+    /**
+     * The insurance_data id of the patient's latest-starting primary, ended
+     * or not, or null when there is none: what the real-time check asks about
+     * when no primary is in force today, so the payer is still asked.
      */
     public static function primaryPolicyId(int $pid): ?int
     {
@@ -394,11 +424,12 @@ class EDI270
     /**
      * The rows a real-time 270 from the insurance card is built from: the
      * patient, the provider and facility, and the primary policy it asks
-     * about (primaryPolicyId()) with its company.
+     * about with its company: the one in force today, else the latest-starting
+     * one (primaryPolicyId()).
      *
      * @return list<array<mixed>>
      */
-    public static function realTimeRows(int $pid): array
+    public static function realTimeRows(int $pid, InsuranceService $insurance, ClockInterface $clock): array
     {
         $query = "SELECT
             d.facility_id,
@@ -439,12 +470,13 @@ class EDI270
         LEFT JOIN insurance_data AS i ON (i.id = ?)
         LEFT JOIN insurance_companies as c ON (c.id = i.provider)
         WHERE p.pid = ?";
-        return QueryUtils::fetchRecords($query, [self::primaryPolicyId($pid), $pid]);
+        $policyId = self::primaryPolicyIdOn($insurance, $pid, CoverageDay::today($clock)) ?? self::primaryPolicyId($pid);
+        return QueryUtils::fetchRecords($query, [$policyId, $pid]);
     }
 
     public static function requestEligibleTransaction($pid = 0, $eFlag = false)
     {
-        $resArray = self::realTimeRows(is_numeric($pid) ? (int) $pid : 0);
+        $resArray = self::realTimeRows(is_numeric($pid) ? (int) $pid : 0, new InsuranceService(), ServiceContainer::getClock());
         $details = self::requestRealTimeEligible($resArray, '', "~", ':', true);
         if ($details === false) {
             $details = "Error: Nothing returned from X12 Partner.";
