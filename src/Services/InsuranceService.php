@@ -27,6 +27,7 @@ use OpenEMR\Services\Insurance\CoverageDay;
 use OpenEMR\Services\Insurance\EffectiveInsurance;
 use OpenEMR\Services\Insurance\EffectiveInsuranceRow;
 use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\Insurance\InsuranceLevel;
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
@@ -556,6 +557,28 @@ class InsuranceService extends BaseService
             $companyIds
         );
         return EffectiveInsuranceRow::forPolicies($policies, $rows, $companies);
+    }
+
+    /**
+     * The policy in force at one level on a day, as getEffectiveInsuranceRows()
+     * chooses it, or null when the level has none: for callers that need only
+     * the policy, such as the 270's primary or a payment's payer at its level.
+     *
+     * @param DateTimeImmutable $day the day asked about; its time is ignored
+     */
+    public function getEffectiveInsuranceAt(int $pid, InsuranceLevel $level, DateTimeImmutable $day): ?EffectiveInsurance
+    {
+        // Levels are chosen independently, so the level's own rows give the rule's answer at that level.
+        $rows = QueryUtils::fetchRecords(
+            "SELECT `id`, `uuid`, `type`, `provider`, `date`, `date_end` FROM `insurance_data` WHERE `pid` = ? AND `type` = ?",
+            [$pid, $level->value]
+        );
+        foreach (EffectiveInsuranceRule::choose($rows, $day) as $policy) {
+            if ($policy->level === $level) {
+                return $policy;
+            }
+        }
+        return null;
     }
 
     public function swapInsurance($pid, string $targetType, string $insuranceUuid): ProcessingResult
