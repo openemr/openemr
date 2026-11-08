@@ -56162,11 +56162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$clientId of method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:setClientId\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$currentServerScopes of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Validators\\\\ScopeValidatorFactory\\:\\:buildScopeValidatorArray\\(\\) expects array\\<OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopeEntity\\|string\\>, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
