@@ -24,7 +24,7 @@ final class LabDocumentQuery
     public function build(int $categoryId, ?string $fromDate, ?string $toDate): array
     {
         $binds = [$categoryId];
-        $conditions = [];
+        $conditions = ['d.deleted = 0'];
         if ($fromDate !== null) {
             $conditions[] = 'DATE(d.date) >= ?';
             $binds[] = $fromDate;
@@ -33,7 +33,7 @@ final class LabDocumentQuery
             $conditions[] = 'DATE(d.date) <= ?';
             $binds[] = $toDate;
         }
-        $where = $conditions === [] ? '' : 'WHERE ' . implode(' AND ', $conditions);
+        $where = 'WHERE ' . implode(' AND ', $conditions);
 
         $sql = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,
             GROUP_CONCAT(n.date ORDER BY n.date DESC SEPARATOR '|') AS docDates FROM documents d
