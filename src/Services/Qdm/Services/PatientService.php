@@ -10,6 +10,8 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
+use DateTimeImmutable;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Cqm\Qdm\BaseTypes\Address;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
@@ -23,11 +25,23 @@ use OpenEMR\Cqm\Qdm\PatientCharacteristicExpired;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicPayer;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicRace;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicSex;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\Insurance\InsuranceLevel;
+use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
 class PatientService extends AbstractQdmService implements QdmServiceInterface
 {
+    /** The first and last days the payer runs are asked over: every day the coverage rule can answer. */
+    private const ALWAYS = '1000-01-01';
+    private const OPEN = '9999-12-31';
+
+    private ?InsuranceService $insurance = null;
+
+    /** @var array<int, ?string> each company's payer code, read once per run */
+    private array $payerCodes = [];
+
     public function getPatientIdColumn(): string
     {
         return 'P.pid';
@@ -54,30 +68,55 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                     P.phone_cell,
                     P.country_code,
                     P.deceased_date,
-                    P.deceased_reason,
-                    INS.date AS payer_eff_date,
-                    INSCO.cqm_sop AS payer_code
+                    P.deceased_reason
             FROM patient_data P
             LEFT JOIN list_options RACE ON RACE.list_id = 'race' AND P.race = RACE.option_id
             LEFT JOIN list_options ETHN ON ETHN.list_id = 'ethnicity' AND P.ethnicity = ETHN.option_id
             LEFT JOIN list_options SEX ON SEX.list_id = 'sex' AND P.sex = SEX.option_id
-            LEFT JOIN insurance_data INS ON P.pid = INS.pid AND INS.type = 'primary'
-            LEFT JOIN insurance_companies INSCO ON INS.provider = INSCO.id
             ";
         return $sql;
     }
 
     /**
-     * The patient's Patient Characteristic Payer elements: the primary policy
-     * on the patient's row (getSqlStatement() joins the primary policies),
-     * from its start, with no stop.
+     * The patient's Patient Characteristic Payer elements: one for each run
+     * of days a primary policy heads its level (InsuranceService), with its
+     * own start and stop; the measure's logic keeps those that overlap its
+     * period. A run that reaches back as far as the rule can answer began
+     * with no start (always), and one that reaches as far forward is open.
+     * A patient with no primary has one payer with no code, as before.
      *
      * @param array<mixed> $record
      * @return list<PatientCharacteristicPayer>
      */
     private function payers(array $record): array
     {
-        return [self::payer($record['payer_eff_date'] ?? null, null, $record['payer_code'] ?? null)];
+        $patientId = EffectiveInsuranceRule::storedId($record['pid'] ?? null);
+        $always = new DateTimeImmutable(self::ALWAYS);
+        $open = new DateTimeImmutable(self::OPEN);
+        $this->insurance ??= new InsuranceService();
+        $segments = $patientId === null ? [] : $this->insurance->getCoverageSegments($patientId, InsuranceLevel::Primary, $always, $open);
+        $payers = [];
+        foreach ($segments as $segment) {
+            $payers[] = self::payer(
+                $segment->from == $always ? null : $segment->from->format('Y-m-d'),
+                $segment->to == $open ? null : $segment->to->format('Y-m-d'),
+                $this->payerCode($segment->policy->companyId)
+            );
+        }
+        return $payers === [] ? [self::payer(null, null, null)] : $payers;
+    }
+
+    /**
+     * A company's Source of Payment Typology code (insurance_companies.cqm_sop), as QDM's Code holds it:
+     * a string, or null when it has none.
+     */
+    private function payerCode(int $companyId): ?string
+    {
+        if (!array_key_exists($companyId, $this->payerCodes)) {
+            $sop = QueryUtils::fetchSingleValue('SELECT cqm_sop FROM insurance_companies WHERE id = ?', 'cqm_sop', [$companyId]);
+            $this->payerCodes[$companyId] = is_int($sop) || (is_string($sop) && $sop !== '') ? (string) $sop : null;
+        }
+        return $this->payerCodes[$companyId];
     }
 
     /**
