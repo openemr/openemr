@@ -69,7 +69,7 @@ enum PatientWriteRefusalReason
             self::WrongType => 'The resource is not the type this endpoint accepts from patient apps',
             self::TooLarge => 'The resource is larger than ' . intdiv(PatientWriteHold::MAX_PAYLOAD_BYTES, 1024) . ' KB',
             self::TooManyOpen => 'This app already has ' . PatientWriteHold::MAX_OPEN_PER_CLIENT . ' writes waiting for review for this patient',
-            self::NotWritable => 'The resource refers to something this server does not have. A QuestionnaireResponse must answer a Questionnaire on this server, at its current version, and any encounter must be this patient\'s.',
+            self::NotWritable => 'The resource refers to something this server does not have. A QuestionnaireResponse must answer a Questionnaire on this server, at its current version, and any encounter or caregiver (RelatedPerson) source must be this patient\'s.',
         };
     }
 }

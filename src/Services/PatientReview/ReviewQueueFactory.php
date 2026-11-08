@@ -21,6 +21,7 @@ namespace OpenEMR\Services\PatientReview;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\PatientReview\FhirWrite\FhirWriteReviewHandler;
 use OpenEMR\Services\PatientReview\FhirWrite\QuestionnaireResponseWriteApplier;
@@ -63,7 +64,7 @@ final class ReviewQueueFactory
     public static function fhirWriteHandler(): FhirWriteReviewHandler
     {
         return new FhirWriteReviewHandler([
-            new QuestionnaireResponseWriteApplier(new FhirQuestionnaireResponseFormService()),
+            new QuestionnaireResponseWriteApplier(new FhirQuestionnaireResponseFormService(), new FhirRelatedPersonService()),
         ]);
     }
 

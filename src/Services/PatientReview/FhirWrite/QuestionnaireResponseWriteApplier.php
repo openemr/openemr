@@ -18,14 +18,21 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientReview\FhirWrite;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
+use OpenEMR\Services\FHIR\FhirPayloadReader;
+use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 
 final readonly class QuestionnaireResponseWriteApplier implements PatientWriteApplierInterface
 {
-    public function __construct(private FhirQuestionnaireResponseFormService $service)
-    {
+    private const RELATED_PERSON_REFERENCE = '#^RelatedPerson/([0-9a-fA-F-]{36})$#';
+
+    public function __construct(
+        private FhirQuestionnaireResponseFormService $service,
+        private FhirRelatedPersonService $relatedPersons,
+    ) {
     }
 
     public function type(): PatientWritableType
@@ -35,19 +42,30 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
 
     /**
      * Runs the parse and the look-ups approval runs: the Questionnaire (at the version the
-     * canonical pins), the patient and any encounter must be on this server, and any source a
-     * reference to this server.
+     * canonical pins), the patient and any encounter must be on this server. A caregiver source
+     * must also be one of the patient's related persons on file, since the chart will show them
+     * as the one who answered.
      */
     public function canWrite(array $resource): bool
     {
         unset($resource['resourceType']);
         try {
-            $this->service->checkInsertable($this->service->parseFhirResource(new FHIRQuestionnaireResponse($resource)));
+            $parsed = $this->service->parseFhirResource(new FHIRQuestionnaireResponse($resource));
+            $this->service->checkInsertable($parsed);
         } catch (\InvalidArgumentException) {
             return false;
         }
 
-        return true;
+        $source = FhirPayloadReader::reference($resource['source'] ?? null);
+        if ($source === null || !str_starts_with($source, 'RelatedPerson/')) {
+            return true;
+        }
+        $patientUuid = $parsed['puuid'] ?? null;
+
+        return preg_match(self::RELATED_PERSON_REFERENCE, $source, $match) === 1
+            && UuidRegistry::isValidStringUUID($match[1])
+            && is_string($patientUuid)
+            && $this->relatedPersons->getOne($match[1], $patientUuid)->hasData();
     }
 
     /**

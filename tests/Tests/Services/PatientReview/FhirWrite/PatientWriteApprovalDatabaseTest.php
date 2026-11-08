@@ -19,6 +19,8 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRRelatedPerson;
+use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWritableType;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteClientType;
@@ -40,6 +42,7 @@ use OpenEMR\Services\PatientReview\ReviewStatus;
 use OpenEMR\Services\PatientReview\ReviewType;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\QuestionnaireService;
+use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\TestCase;
 
 class PatientWriteApprovalDatabaseTest extends TestCase
@@ -90,6 +93,7 @@ class PatientWriteApprovalDatabaseTest extends TestCase
 
     protected function tearDown(): void
     {
+        (new FixtureManager())->removeRelatedPersonFixtures();
         $this->removeTestRows();
         SessionWrapperFactory::getInstance()->getActiveSession()->remove('authUserID');
     }
@@ -212,9 +216,10 @@ class PatientWriteApprovalDatabaseTest extends TestCase
      */
     public function testAnApprovedCaregiverResponseReadsBackWithTheCaregiverAsSource(): void
     {
+        $caregiver = $this->relatedPerson();
         $held = $this->hold(
             PatientWritableType::QuestionnaireResponse,
-            ['source' => ['reference' => 'RelatedPerson/caregiver-1']] + $this->response('Better')
+            ['source' => ['reference' => 'RelatedPerson/' . $caregiver]] + $this->response('Better')
         );
 
         $this->queue->approve($held->id, ReviewActor::user(1, 'admin'));
@@ -223,7 +228,39 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         $this->assertInstanceOf(FHIRQuestionnaireResponse::class, $resource);
         $json = json_decode((string) json_encode($resource), true);
         $this->assertIsArray($json);
-        $this->assertSame(['reference' => 'RelatedPerson/caregiver-1'], $json['source'] ?? null);
+        $this->assertSame(['reference' => 'RelatedPerson/' . $caregiver], $json['source'] ?? null);
+    }
+
+    /**
+     * A caregiver source must be one of this patient's related persons: anyone else, or an id
+     * that names no one, would put an unchecked name on the chart as the one who answered.
+     */
+    public function testACaregiverSourceMustBeThePatientsRelatedPerson(): void
+    {
+        foreach (['00000000-0000-4000-8000-000000000000', 'caregiver-1'] as $id) {
+            try {
+                $this->hold(PatientWritableType::QuestionnaireResponse, ['source' => ['reference' => 'RelatedPerson/' . $id]] + $this->response('Better'));
+                $this->fail('Expected a refusal for RelatedPerson/' . $id);
+            } catch (PatientWriteRefusal $refusal) {
+                $this->assertSame(PatientWriteRefusalReason::NotWritable, $refusal->reason, $id);
+            }
+        }
+    }
+
+    /**
+     * A related person of the test patient, from the shared fixture; returns its FHIR id.
+     */
+    private function relatedPerson(): string
+    {
+        $fixture = (array) (new FixtureManager())->getSingleFhirRelatedPersonFixture();
+        $fixture['patient'] = ['reference' => 'Patient/' . $this->patientUuid];
+        $result = (new FhirRelatedPersonService())->insert(new FHIRRelatedPerson($fixture));
+        $this->assertTrue($result->isValid(), 'test related person');
+        $row = $result->getFirstDataResult();
+        $this->assertIsArray($row);
+        $this->assertIsString($row['uuid'] ?? null);
+
+        return $row['uuid'];
     }
 
     /**
