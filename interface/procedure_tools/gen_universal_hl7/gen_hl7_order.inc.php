@@ -209,7 +209,10 @@ function universal_gen_hl7_order(int $orderid): Hl7OrderResult
     $setid = 0;
     if ($ins_type == 'T') {
         // only send primary and secondary insurance
-        foreach ($payers as $payer) {
+        foreach ($payers as $level => $payer) {
+            if ($level > 1) {
+                break;
+            }
             $payer_object = $payer['object'];
             $payer_address = $payer_object->get_address();
             $out .= "IN1" .
@@ -238,14 +241,11 @@ function universal_gen_hl7_order(int $orderid): Hl7OrderResult
                 $d2 . hl7Zip($payer['data']['subscriber_postal_code']) . // Zip
                 $d1 .
                 $d1 .
-                $d1 . $setid .                                  // 1=Primary, 2=Secondary, 3=Tertiary
+                $d1 . ($level + 1) .                           // 1=Primary, 2=Secondary, 3=Tertiary: the payer's level
                 str_repeat($d1, 13) .                           // IN1-23 to 35 all empty
                 $d1 . hl7Text($payer['data']['policy_number']) . // Policy Number
                 str_repeat($d1, 12) .                           // IN1-37 to 48 all empty
                 $d0;
-            if ($setid === 2) {
-                break;
-            }
         }
         if ($setid === 0) {
             throw new Hl7OrderGenerationException("Insurance is being billed but patient does not have any payers on record!");
