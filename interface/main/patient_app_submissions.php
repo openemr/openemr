@@ -21,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Controllers\Interface\PatientReview\PatientAppSubmissionsController;
+use OpenEMR\Services\Globals\UserSettingsService;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewQuery;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewRequestMapper;
@@ -32,6 +33,9 @@ $controller = new PatientAppSubmissionsController(
     ServiceContainer::getTwig(),
     SessionWrapperFactory::getInstance()->getActiveSession(),
     ServiceContainer::getLogger(),
+    // Saved by the page as '1' or '0'. Expanded until the user collapses all.
+    expanded: UserSettingsService::getUserSetting(PatientAppSubmissionsController::SETTING_EXPANDED) !== '0',
+    sentShown: UserSettingsService::getUserSetting(PatientAppSubmissionsController::SETTING_SENT_SHOWN) === '1',
 );
 
 $controller->dispatchAction(CurrentRequest::get())->send();

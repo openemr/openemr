@@ -49,12 +49,24 @@ final readonly class PatientAppSubmissionsController
     /** Where a decision's outcome waits in the session for the page the browser is sent back to. */
     public const SESSION_OUTCOME = 'patient_app_submissions_outcome';
 
+    /** User setting, '1' or '0': the submissions open expanded. The page saves it on Expand all or Collapse all. */
+    public const SETTING_EXPANDED = 'patient_app_submissions_expand';
+
+    /** User setting, '1' or '0': what the app sent opens shown. The page saves it when the user opens or closes it. */
+    public const SETTING_SENT_SHOWN = 'patient_app_submissions_sent_expand';
+
+    /**
+     * @param bool $expanded the user's saved choice: submissions open expanded
+     * @param bool $sentShown the user's saved choice: what the app sent opens shown
+     */
     public function __construct(
         private ReviewQueueService $queue,
         private PatientWriteReviewQuery $query,
         private Environment $twig,
         private SessionInterface $session,
         private LoggerInterface $logger,
+        private bool $expanded = true,
+        private bool $sentShown = false,
     ) {
     }
 
@@ -91,6 +103,10 @@ final readonly class PatientAppSubmissionsController
                 'notice' => $notice,
                 'error' => $error,
                 'csrfToken' => CsrfUtils::collectCsrfToken($this->session),
+                'expanded' => $this->expanded,
+                'sentShown' => $this->sentShown,
+                'settingExpanded' => self::SETTING_EXPANDED,
+                'settingSentShown' => self::SETTING_SENT_SHOWN,
             ]),
             Response::HTTP_OK,
             ['Content-Type' => 'text/html; charset=utf-8']
