@@ -44,8 +44,12 @@ use OpenEMR\Services\UserService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use ReflectionMethod;
 use ReflectionProperty;
+use RingCentral\SDK\Http\MultipartBuilder;
+use RingCentral\SDK\Platform\Platform;
+use RingCentral\SDK\SDK as RingCentralSdk;
 
 class FaxDocumentSendAuthorizationTest extends TestCase
 {
@@ -320,6 +324,45 @@ class FaxDocumentSendAuthorizationTest extends TestCase
         ]);
 
         $this->assertSame('refused by the reader', $vendor->sendFax());
+    }
+
+    /**
+     * The payload RingCentral receives is the document's bytes even when those
+     * bytes spell an existing server path: a patient document can hold any
+     * text, and the send must not read the file it names.
+     */
+    public function testRingCentralFaxesDocumentBytesThatNameAFile(): void
+    {
+        $vendor = $this->getMockBuilder(RCFaxClient::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['authenticate', 'readAuthorizedFaxDocument'])
+            ->getMock();
+        $vendor->method('authenticate')->willReturn(1);
+        $vendor->method('readAuthorizedFaxDocument')
+            ->willReturn(['content' => __FILE__, 'name' => 'note.txt']);
+
+        $builder = $this->createMock(MultipartBuilder::class);
+        $builder->method('setBody')->willReturnSelf();
+        $builder->expects($this->once())
+            ->method('add')
+            ->with(__FILE__, 'note.txt', ['Content-Type' => 'text/plain'])
+            ->willReturnSelf();
+        $builder->method('request')->willReturn($this->createMock(RequestInterface::class));
+        $sdk = $this->createMock(RingCentralSdk::class);
+        $sdk->method('createMultipartBuilder')->willReturn($builder);
+        $this->initialize($vendor, RCFaxClient::class, 'rcsdk', $sdk);
+        $this->initialize($vendor, RCFaxClient::class, 'platform', $this->createMock(Platform::class));
+        $this->initialize($vendor, RCFaxClient::class, 'crypto', ServiceContainer::getCrypto());
+        $this->initialize($vendor, RCFaxClient::class, 'uploadStaging', FaxUploadStaging::create());
+        $this->setRequest($vendor, [
+            'isDocuments' => '1',
+            'docid' => '84259',
+            'file' => 'file://' . __FILE__,
+            'phone' => '5551234567',
+            'email' => '',
+        ]);
+
+        $this->assertSame('Fax Successfully Sent', $vendor->sendFax());
     }
 
     /**

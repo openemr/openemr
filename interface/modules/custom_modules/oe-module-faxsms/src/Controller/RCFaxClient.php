@@ -422,17 +422,17 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
      */
     private function sendFaxRequest($phone, $content, $fileName = '', $comments = 'No Comment', $name = ''): void
     {
-        // Almost always $content is file content but lets check in case it is a file path
-        if (is_file($content)) {
-            $content = file_get_contents($content);
-        }
+        // $content is the payload bytes: sendFax() read a validated send/ file,
+        // an authorized document or inline content into it. It is never read
+        // as a path, even when it happens to name an existing file (a patient
+        // document can hold any text).
         try {
             $phone = $this->formatPhone($phone);
             $mime = FileUtils::fileGetMimeType($fileName, $content);
             $type = $mime['type'];
             $fileName = $mime['filePath'];
             if (empty($type)) {
-                $type = mime_content_type($content);
+                $type = (new \finfo(FILEINFO_MIME_TYPE))->buffer($content);
             }
             // RingCentral 400s when an attachment's filename extension does not
             // match its Content-Type. Tempnam-derived names (e.g. a Windows
