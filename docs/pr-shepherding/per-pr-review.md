@@ -394,14 +394,24 @@ baseline checks need to re-run against the new base tip).
    recorded base-tip. If it moved, re-run both the merge-compatibility checks (§6.6)
    **and** the baseline-integrity check (§7) against the new tip — a base advance can
    change the merge base, which can expose a baseline violation the old comparison
-   missed (e.g. a preceding PR removed a baseline entry this PR would restore).
+   missed (e.g. a preceding PR removed a baseline entry this PR would restore). The
+   most common cause of base advance mid-pass is **the shepherd's own landing
+   cascade**: when a pass lands multiple PRs, each merge advances the base for every
+   remaining ✅ PR. After each merge, preemptively scan the surviving ✅ queue for
+   file-overlap or baseline-entry-overlap against the just-landed PR, and re-probe
+   the overlapping ones under §6.6 + §7 before acting on their verdicts.
 3. CI is still green.
 4. No new rabbit Actionable has been posted since the brief — including inside a reply
    in a thread rabbit resolved itself (see
    [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding)).
 5. No new maintainer `CHANGES_REQUESTED` has been filed.
+6. No new maintainer inline comment carries a substantive ask on PR-introduced
+   content. A maintainer may post an inline comment with a one-line edit request
+   without opening a formal `CHANGES_REQUESTED` review-state; these are still
+   blockers for the shepherd verdict (observed pattern across multiple passes:
+   several PRs reclassified ✅→🔴 via inline comment with zero formal state change).
 
-If any of 1-5 moved, refresh the brief before merging.
+If any of 1-6 moved, refresh the brief before merging.
 
 **After** merging — when the agent is processing a `landed <N>` report from the
 maintainer — do NOT re-run checks 1-2. The merge itself advances both head (into the
