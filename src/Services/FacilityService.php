@@ -353,7 +353,11 @@ class FacilityService extends BaseService
                     'before' => is_array($loaded) ? $loaded : [],
                 ];
             });
-        } catch (\RuntimeException) {
+        } catch (\RuntimeException $exception) {
+            ServiceContainer::getLogger()->error('Facility save did not finish', [
+                'exception' => $exception,
+            ]);
+
             return false;
         }
 
