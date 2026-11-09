@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-require_once("../globals.php");
+require_once '../globals.php';
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogRepository;

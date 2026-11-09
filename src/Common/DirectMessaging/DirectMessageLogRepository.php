@@ -116,7 +116,7 @@ class DirectMessageLogRepository
             SELECT id, msg_type, create_ts, sender, recipient, status, status_ts FROM direct_message_log
             ORDER BY id DESC LIMIT ?
             SQL;
-        return array_map(self::record(...), QueryUtils::fetchRecords($sql, [$limit]));
+        return array_map(DirectMessageLogRecord::fromRow(...), QueryUtils::fetchRecords($sql, [$limit]));
     }
 
     /**
@@ -131,41 +131,7 @@ class DirectMessageLogRepository
             SELECT id, msg_type, create_ts, sender, recipient, status, status_ts FROM direct_message_log
             WHERE id BETWEEN ? AND ? ORDER BY id DESC
             SQL;
-        return array_map(self::record(...), QueryUtils::fetchRecords($sql, [$lowestId, $highestId]));
-    }
-
-    /**
-     * @param array<mixed> $row
-     */
-    private static function record(array $row): DirectMessageLogRecord
-    {
-        $id = self::nullableId($row['id'] ?? null);
-        $msgType = $row['msg_type'] ?? null;
-        $createdAt = $row['create_ts'] ?? null;
-        $sender = $row['sender'] ?? null;
-        $recipient = $row['recipient'] ?? null;
-        $status = $row['status'] ?? null;
-        $statusChangedAt = $row['status_ts'] ?? null;
-        if (
-            $id === null
-            || !is_string($msgType)
-            || !is_string($createdAt)
-            || !is_string($sender)
-            || !is_string($recipient)
-            || !is_string($status)
-            || ($statusChangedAt !== null && !is_string($statusChangedAt))
-        ) {
-            throw new \UnexpectedValueException('direct_message_log row has a missing or malformed column');
-        }
-        return new DirectMessageLogRecord(
-            id: $id,
-            msgType: $msgType,
-            createdAt: $createdAt,
-            sender: $sender,
-            recipient: $recipient,
-            status: $status,
-            statusChangedAt: $statusChangedAt,
-        );
+        return array_map(DirectMessageLogRecord::fromRow(...), QueryUtils::fetchRecords($sql, [$lowestId, $highestId]));
     }
 
     private static function nullableId(mixed $value): ?int

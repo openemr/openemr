@@ -16,6 +16,8 @@ namespace OpenEMR\Tests\Services\DirectMessaging;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogRepository;
+use OpenEMR\Common\DirectMessaging\DirectMessageLogStatus;
+use OpenEMR\Common\DirectMessaging\DirectMessageType;
 use OpenEMR\Common\DirectMessaging\PhiMailDeliveryStatus;
 use PHPUnit\Framework\TestCase;
 
@@ -126,16 +128,17 @@ final class DirectMessageLogRepositoryTest extends TestCase
         $records = $this->repository->findLatest(2);
 
         self::assertCount(2, $records);
-        self::assertGreaterThan($records[1]->id, $records[0]->id);
-        self::assertSame(['R', 'R', null], [$records[0]->msgType, $records[0]->status, $records[1]->statusChangedAt]);
-        self::assertNotNull($records[0]->statusChangedAt);
-        self::assertSame(['S', 'Q', 'from@direct.example', 'to@direct.example'], [
-            $records[1]->msgType,
-            $records[1]->status,
-            $records[1]->sender,
-            $records[1]->recipient,
-        ]);
-        self::assertNotSame('', $records[1]->createdAt);
+        [$received, $sent] = $records;
+        self::assertGreaterThan($sent->id, $received->id);
+
+        self::assertSame([DirectMessageType::Received, DirectMessageLogStatus::Received], [$received->type, $received->status]);
+        self::assertNotNull($received->statusChangedAt);
+
+        self::assertSame(
+            [DirectMessageType::Sent, DirectMessageLogStatus::Queued, 'from@direct.example', 'to@direct.example', null],
+            [$sent->type, $sent->status, $sent->sender, $sent->recipient, $sent->statusChangedAt],
+        );
+        self::assertNotSame('', $sent->createdAt);
     }
 
     public function testFindsMessagesInAnIdRangeNewestFirst(): void

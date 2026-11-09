@@ -17,19 +17,66 @@ namespace OpenEMR\Common\DirectMessaging;
 final readonly class DirectMessageLogRecord
 {
     /**
-     * @param string $msgType the raw msg_type code: S for sent, R for received
-     * @param string $status the raw status code; the report shows codes it does not know as blank
+     * @param ?DirectMessageType $type null when msg_type holds a code the enum does not know
      * @param string $createdAt create_ts as the database formats it
+     * @param ?DirectMessageLogStatus $status null when status holds a code the enum does not know
      * @param ?string $statusChangedAt status_ts as the database formats it
      */
     public function __construct(
         public int $id,
-        public string $msgType,
+        public ?DirectMessageType $type,
         public string $createdAt,
         public string $sender,
         public string $recipient,
-        public string $status,
+        public ?DirectMessageLogStatus $status,
         public ?string $statusChangedAt,
     ) {
+    }
+
+    /**
+     * @param array<mixed> $row
+     * @throws \UnexpectedValueException when a column is missing or has the wrong type
+     */
+    public static function fromRow(array $row): self
+    {
+        $id = $row['id'] ?? null;
+        $type = $row['msg_type'] ?? null;
+        $createdAt = $row['create_ts'] ?? null;
+        $sender = $row['sender'] ?? null;
+        $recipient = $row['recipient'] ?? null;
+        $status = $row['status'] ?? null;
+        $statusChangedAt = $row['status_ts'] ?? null;
+        if (
+            !(is_int($id) || (is_string($id) && ctype_digit($id)))
+            || !is_string($type)
+            || !is_string($createdAt)
+            || !is_string($sender)
+            || !is_string($recipient)
+            || !is_string($status)
+            || ($statusChangedAt !== null && !is_string($statusChangedAt))
+        ) {
+            throw new \UnexpectedValueException('direct_message_log row has a missing or malformed column');
+        }
+        return new self(
+            id: (int) $id,
+            type: DirectMessageType::tryFrom($type),
+            createdAt: $createdAt,
+            sender: $sender,
+            recipient: $recipient,
+            status: DirectMessageLogStatus::tryFrom($status),
+            statusChangedAt: $statusChangedAt,
+        );
+    }
+
+    /** The type's label, or null for a type the report leaves blank. */
+    public function typeLabel(): ?string
+    {
+        return $this->type?->label();
+    }
+
+    /** The status's label, or null for a status the report leaves blank. */
+    public function statusLabel(): ?string
+    {
+        return $this->status?->label();
     }
 }

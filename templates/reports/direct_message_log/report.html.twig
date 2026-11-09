@@ -89,19 +89,11 @@
                 {%~ for record in records %}
                     <tr>
                         <td align='center'>{{ record.id|text }}</td>
-                        <td align='center'>{% if record.msgType == 'R' %}{{ 'Received'|xlt }}{% elseif record.msgType == 'S' %}{{ 'Sent'|xlt }}{% else %}&nbsp;{% endif %}</td>
+                        <td align='center'>{% if record.typeLabel() is null %}&nbsp;{% else %}{{ record.typeLabel()|text }}{% endif %}</td>
                         <td align='center'>{{ record.createdAt|oeFormatDateTime('global', true)|text }}</td>
                         <td align='center'>{{ record.sender|text }}</td>
                         <td align='center'>{{ record.recipient|text }}</td>
-                        <td align='center'>
-                            {%- if record.status == 'Q' %}{{ 'Queued'|xlt }}
-                            {%- elseif record.status == 'S' %}{{ 'Sent'|xlt }}
-                            {%- elseif record.status == 'D' %}{{ 'Sent - Confirmed'|xlt }}
-                            {%- elseif record.status == 'R' %}{{ 'Received'|xlt }}
-                            {%- elseif record.status == 'F' %}{{ 'Failed'|xlt }}
-                            {%- else %}&nbsp;
-                            {%- endif -%}
-                        </td>
+                        <td align='center'>{% if record.statusLabel() is null %}&nbsp;{% else %}{{ record.statusLabel()|text }}{% endif %}</td>
                         <td align='center'>{{ record.statusChangedAt|text }}</td>
                     </tr>
                 {%~ endfor %}

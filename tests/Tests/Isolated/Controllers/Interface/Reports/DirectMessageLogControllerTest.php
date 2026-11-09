@@ -16,6 +16,8 @@ namespace OpenEMR\Tests\Isolated\Controllers\Interface\Reports;
 
 use OpenEMR\Common\DirectMessaging\DirectMessageLogRecord;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogRepository;
+use OpenEMR\Common\DirectMessaging\DirectMessageLogStatus;
+use OpenEMR\Common\DirectMessaging\DirectMessageType;
 use OpenEMR\Controllers\Interface\Reports\DirectMessageLogController;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -131,11 +133,11 @@ final class DirectMessageLogControllerTest extends TestCase
     {
         return new DirectMessageLogRecord(
             id: $id,
-            msgType: 'S',
+            type: DirectMessageType::Sent,
             createdAt: '2026-01-05 09:00:00',
             sender: 'sender@direct.example',
             recipient: 'recipient@direct.example',
-            status: 'S',
+            status: DirectMessageLogStatus::Sent,
             statusChangedAt: null,
         );
     }
