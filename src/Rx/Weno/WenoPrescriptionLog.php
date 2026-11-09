@@ -20,12 +20,28 @@ namespace OpenEMR\Rx\Weno;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 
-final class WenoPrescriptionLog
+final readonly class WenoPrescriptionLog
 {
     private const COLUMNS = [
         'active', 'date_added', 'patient_id', 'user_id', 'drug', 'quantity', 'refills',
         'substitute', 'note', 'rxnorm_drugcode', 'provider_id',
     ];
+
+    /** @var \Closure(string, list<mixed>): mixed */
+    private \Closure $insertQuery;
+
+    /** @var \Closure(string, list<mixed>): mixed */
+    private \Closure $statementQuery;
+
+    /**
+     * @param ?\Closure(string, list<mixed>): mixed $insertQuery defaults to QueryUtils::sqlInsert()
+     * @param ?\Closure(string, list<mixed>): mixed $statementQuery defaults to QueryUtils::sqlStatementThrowException()
+     */
+    public function __construct(?\Closure $insertQuery = null, ?\Closure $statementQuery = null)
+    {
+        $this->insertQuery = $insertQuery ?? QueryUtils::sqlInsert(...);
+        $this->statementQuery = $statementQuery ?? QueryUtils::sqlStatementThrowException(...);
+    }
 
     /**
      * The prescriptions.substitute code for the log's substitution column:
@@ -47,10 +63,10 @@ final class WenoPrescriptionLog
      * @param array<string, mixed> $row
      * @return true|string true when the row was written, otherwise the database error
      */
-    public static function insert(array $row): true|string
+    public function insert(array $row): true|string
     {
         try {
-            QueryUtils::sqlInsert(
+            ($this->insertQuery)(
                 'INSERT INTO prescriptions SET active = ?, date_added = ?, datetime = NOW(), patient_id = ?,'
                 . ' provider_id = ?, drug = ?, quantity = ?, refills = ?, substitute = ?, note = ?,'
                 . ' rxnorm_drugcode = ?, external_id = ?, indication = ?',
@@ -68,10 +84,10 @@ final class WenoPrescriptionLog
      * @param array<string, mixed> $row
      * @return true|string true when the statement ran, otherwise the database error
      */
-    public static function update(array $row): true|string
+    public function update(array $row): true|string
     {
         try {
-            QueryUtils::sqlStatementThrowException(
+            ($this->statementQuery)(
                 'UPDATE prescriptions SET active = ?, date_added = ?, datetime = NOW(), patient_id = ?,'
                 . ' provider_id = ?, drug = ?, quantity = ?, refills = ?, substitute = ?, note = ?,'
                 . ' rxnorm_drugcode = ?, external_id = ? WHERE indication = ?',

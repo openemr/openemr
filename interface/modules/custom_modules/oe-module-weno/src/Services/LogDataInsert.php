@@ -16,22 +16,28 @@ use OpenEMR\Rx\Weno\WenoPrescriptionLog;
 
 class LogDataInsert
 {
-    public function __construct()
+    private readonly WenoPrescriptionLog $prescriptionLog;
+
+    public function __construct(?WenoPrescriptionLog $prescriptionLog = null)
     {
-    }
-    /**
-     * @return true|string true when the row was written, otherwise the database error
-     */
-    public function insertPrescriptions($insertdata): bool|string
-    {
-        return WenoPrescriptionLog::insert($insertdata);
+        $this->prescriptionLog = $prescriptionLog ?? new WenoPrescriptionLog();
     }
 
     /**
+     * @param array<string, mixed> $insertdata
+     * @return true|string true when the row was written, otherwise the database error
+     */
+    public function insertPrescriptions(array $insertdata): bool|string
+    {
+        return $this->prescriptionLog->insert($insertdata);
+    }
+
+    /**
+     * @param array<string, mixed> $updatedata
      * @return true|string true when the statement ran, otherwise the database error
      */
-    public function updatePrescriptions($updatedata): bool|string
+    public function updatePrescriptions(array $updatedata): bool|string
     {
-        return WenoPrescriptionLog::update($updatedata);
+        return $this->prescriptionLog->update($updatedata);
     }
 }

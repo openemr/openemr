@@ -94,6 +94,8 @@ class LogImportBuild
                     continue;
                 }
                 $is_saved = 0;
+                // This row's own WENO message ID, so a failure is never logged under an earlier row's ID.
+                $rowMessageId = $line[4] ?? '';
                 if (isset($line[4])) {
                     $this->messageid = $line[4];
                     $is_saved = $this->checkMessageId();
@@ -149,10 +151,10 @@ class LogImportBuild
                         ++$failedCnt;
                         $wenoLog->insertWenoLog(
                             "Sync Report",
-                            xl("Prescription not saved") . " " . text($this->messageid) . ": " . text((string) $written)
+                            xl("Prescription not saved") . " " . text($rowMessageId) . ": " . text((string) $written)
                         );
                     } elseif ($is_saved > 0) {
-                        if (trim((string) ($line[7] ?? '')) == 'True') {
+                        if (trim($line[7] ?? '') == 'True') {
                             ++$updateCnt;
                         }
                     } else {
@@ -172,7 +174,7 @@ class LogImportBuild
         } else {
             $status = xl("Synced") . " " . text($rxCnt) . " new " . text($updateCnt) . " " . xl("updated")  . " " . xl("prescriptions.");
             if ($failedCnt > 0) {
-                $status .= " " . text($failedCnt) . " " . xl("could not be saved.");
+                $status .= " " . text((string) $failedCnt) . " " . xl("could not be saved.");
             }
         }
         $wenoLog->insertWenoLog("Sync Report", $status);
