@@ -118,18 +118,25 @@ final readonly class ReferralNoticeSubscriber implements EventSubscriberInterfac
         $deliver = $this->deliver ?? static fn(PhiMailOutgoingMessage $message, PhiMailRequester $requester): PhiMailSendResult
             => PhiMailSender::fromGlobals($globals, ServiceContainer::getCrypto(), ServiceContainer::getLogger(), EventAuditLogger::getInstance())
                 ->deliver($message, $requester, failureEvent: 'transmit-ccd', successEvent: 'transmit-xml');
+        // Built before the send, so a database error here is a notice not sent, not one sent but unlogged.
         try {
-            $result = $deliver(
-                new PhiMailOutgoingMessage(
-                    recipient: $event->directAddress,
-                    text: self::messageText($event->patientId),
-                    attachment: new PhiMailOutgoingAttachment(PhiMailAttachmentType::Cda, self::fileName($ccda->getFilename()), $content),
-                    verifyFinalDelivery: $globals->getBoolean('phimail_verifyrecipientreceived_enable'),
-                    patientId: $event->patientId,
-                    referralId: $event->referralId,
-                ),
-                $requester,
+            $message = new PhiMailOutgoingMessage(
+                recipient: $event->directAddress,
+                text: self::messageText($event->patientId),
+                attachment: new PhiMailOutgoingAttachment(PhiMailAttachmentType::Cda, self::fileName($ccda->getFilename()), $content),
+                verifyFinalDelivery: $globals->getBoolean('phimail_verifyrecipientreceived_enable'),
+                patientId: $event->patientId,
+                referralId: $event->referralId,
             );
+        } catch (SqlQueryException $e) {
+            $this->logger()->error("A referral's Direct notice could not be prepared", ['transaction_id' => $event->referralId, 'exception' => $e]);
+            $event->failed(xl('The Direct notice could not be prepared. See the log.'));
+            return;
+        }
+        // PhiMailSender::deliver() throws SqlQueryException only once the server has queued the message,
+        // when logging it fails.
+        try {
+            $result = $deliver($message, $requester);
         } catch (SqlQueryException $e) {
             // The server queued it before the message log refused it: it went out, and must not be sent again.
             $this->logger()->error('A referral\'s Direct notice was queued but could not be logged', [

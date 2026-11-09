@@ -125,6 +125,8 @@ final class ReferralNoticeSubscriberTest extends TestCase
 
         $this->subscriber()->onReferralDirectNotice($event);
 
+        // Reported unlogged only because the send itself ran and the log refused it afterwards.
+        self::assertCount(1, $this->sent);
         self::assertTrue($event->wasSentUnlogged());
         self::assertNull($event->failure());
         self::assertTrue($event->wasHandled());
