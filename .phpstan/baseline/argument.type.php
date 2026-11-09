@@ -12417,11 +12417,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$finfo of function finfo_close expects finfo, finfo\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/download_template.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$finfo of function finfo_file expects finfo, finfo\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/download_template.php',
@@ -26204,11 +26199,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$finfo of function finfo_buffer expects finfo, finfo\\|false given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/FileUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$finfo of function finfo_close expects finfo, finfo\\|false given\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Utils/FileUtils.php',
 ];
 $ignoreErrors[] = [
@@ -58138,11 +58128,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$filename of function mime_content_type expects resource\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$finfo of function finfo_close expects finfo, finfo\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
