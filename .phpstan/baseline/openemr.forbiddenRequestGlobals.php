@@ -547,16 +547,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_FILES is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 21,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 17,
     'path' => __DIR__ . '/../../interface/billing/sl_receipts_report.php',
