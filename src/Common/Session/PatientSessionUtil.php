@@ -48,14 +48,19 @@ class PatientSessionUtil
     }
 
     /**
-     * Whether a link to $requestedPid (and $requestedEncounter, 0 for none)
-     * may change the active chart. Re-opening the current patient and
-     * encounter is always allowed; a switch needs the session's CSRF token.
+     * Whether a link to $requestedPid (and $requestedEncounter, null when the
+     * page does not set one) may change the active chart. Re-opening the
+     * current patient and encounter is always allowed; a switch needs the
+     * session's CSRF token. setencounter(0) opens today's encounter, so a
+     * zero or negative encounter always counts as a switch.
      */
-    public static function mayLinkSwitchContext(int $requestedPid, int $requestedEncounter, mixed $csrfToken): bool
+    public static function mayLinkSwitchContext(int $requestedPid, ?int $requestedEncounter, mixed $csrfToken): bool
     {
         $sameChart = $requestedPid === self::getPid()
-            && ($requestedEncounter <= 0 || $requestedEncounter === EncounterSessionUtil::getEncounter());
+            && (
+                $requestedEncounter === null
+                || ($requestedEncounter > 0 && $requestedEncounter === EncounterSessionUtil::getEncounter())
+            );
         if ($sameChart) {
             return true;
         }
@@ -68,7 +73,7 @@ class PatientSessionUtil
      * patient or encounter without a valid `csrf_token_form`, so a link or
      * image on another site cannot change whose chart the user is in.
      */
-    public static function requireCsrfForLinkSwitch(Request $request, int $requestedPid, int $requestedEncounter = 0): void
+    public static function requireCsrfForLinkSwitch(Request $request, int $requestedPid, ?int $requestedEncounter = null): void
     {
         // Read the raw value: InputBag::get() throws on an array, which
         // would skip both the 403 and the no-token reopen of the current chart.
