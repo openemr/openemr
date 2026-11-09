@@ -119,6 +119,20 @@ final class DirectMessageLogControllerTest extends TestCase
         self::assertSame('text/html; charset=utf-8', $response->headers->get('Content-Type'));
     }
 
+    /**
+     * Refresh submits the form with lognext still at its empty initial value.
+     */
+    #[Test]
+    public function refreshShowsTheNewestPage(): void
+    {
+        $this->repository->expects(self::once())->method('findLatest')->with(100)->willReturn([self::record(900)]);
+        $this->repository->expects(self::never())->method('findByIdRange');
+
+        $response = $this->controller->render(Request::create('/', 'POST', ['logstart' => '500', 'lognext' => '']));
+
+        self::assertSame('900|1|token', $response->getContent());
+    }
+
     #[Test]
     public function postsZeroAsLogstartForAnEmptyPage(): void
     {

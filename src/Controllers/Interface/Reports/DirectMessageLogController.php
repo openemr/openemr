@@ -24,6 +24,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogRecord;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogRepository;
+use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -69,7 +70,7 @@ class DirectMessageLogController
      */
     public function render(Request $request): Response
     {
-        $records = $this->findPage($request->request->getInt('logstart'), $request->request->getInt('lognext'));
+        $records = $this->findPage(self::postedInt($request->request, 'logstart'), self::postedInt($request->request, 'lognext'));
 
         $view = [
             'csrfToken' => CsrfUtils::collectCsrfToken($this->session),
@@ -102,5 +103,16 @@ class DirectMessageLogController
             return $this->repository->findLatest(self::PAGE_SIZE);
         }
         return $this->repository->findByIdRange($topId - self::PAGE_SIZE + 1, $topId);
+    }
+
+    /**
+     * A posted int, or 0 when the field is absent or empty. The hidden lognext field stays empty
+     * until Older or Newer sets it, so Refresh posts it blank; getInt() rejects an empty string.
+     *
+     * @param InputBag<string> $bag
+     */
+    private static function postedInt(InputBag $bag, string $field): int
+    {
+        return $bag->getString($field) === '' ? 0 : $bag->getInt($field);
     }
 }
