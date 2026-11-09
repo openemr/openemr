@@ -17,11 +17,15 @@ namespace OpenEMR\Tests\Isolated\Rx\Ensora;
 use DOMDocument;
 use GuzzleHttp\Client;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Encryption\Plaintext;
 use OpenEMR\Rx\Ensora\ErxGlobalsInterface;
 use OpenEMR\Rx\Ensora\ErxPage;
+use OpenEMR\Rx\Ensora\ErxStoreInterface;
 use OpenEMR\Rx\Ensora\ErxXmlBuilder;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ErxPageTest extends TestCase
@@ -56,16 +60,16 @@ class ErxPageTest extends TestCase
     {
         $this->assertSame(
             ['Ensora eRx returned an empty response, please contact your systems administrator.'],
-            (new ErxPage($this->builderReturning($page)))->checkError('<NCScript/>'),
+            $this->page($this->builderReturning($page))->checkError('<NCScript/>'),
         );
     }
 
     public function testGetXmlReturnsTheDocumentUnedited(): void
     {
-        $builder = new ErxXmlBuilder(null, null, new Client());
+        $builder = $this->realBuilder();
         $builder->getNCScript()->appendChild($builder->createElementText('sig', 'take "as needed"'));
 
-        $xml = (new ErxPage($builder))->getXML();
+        $xml = $this->page($builder)->getXML();
 
         $this->assertSame($builder->getDocument()->saveXML(), $xml);
         $parsed = new DOMDocument();
@@ -94,79 +98,77 @@ class ErxPageTest extends TestCase
     #[DataProvider('prescriptionIdsProvider')]
     public function testSetPrescriptionIdsSplitsOnColons(string $ids, array $expected): void
     {
-        $this->assertSame($expected, (new ErxPage())->setPrescriptionIds($ids)->getPrescriptionIds());
+        $this->assertSame($expected, $this->page($this->builderReturning(''))->setPrescriptionIds($ids)->getPrescriptionIds());
     }
 
     public function testCheckErrorListsTheValidationErrors(): void
     {
         $page = '<html><textarea rows="4">Error: no NPI Error: no DEA Original XML: <NCScript/></textarea>';
 
-        $this->assertSame([': no NPI ', ': no DEA '], (new ErxPage($this->builderReturning($page)))->checkError('<NCScript/>'));
+        $this->assertSame([': no NPI ', ': no DEA '], $this->page($this->builderReturning($page))->checkError('<NCScript/>'));
     }
 
     public function testCheckErrorIsEmptyWhenThePageHasNoErrors(): void
     {
-        $this->assertSame([], (new ErxPage($this->builderReturning('<html>ok</html>')))->checkError('<NCScript/>'));
+        $this->assertSame([], $this->page($this->builderReturning('<html>ok</html>'))->checkError('<NCScript/>'));
     }
 
     public function testAnErrorLogThatCannotBeWrittenStillReturnsTheErrors(): void
     {
         $page = '<form action="RxEntry.aspx"><textarea>Error: no NPI Original XML:';
 
-        $this->assertSame([': no NPI '], (new ErxPage($this->builderReturning($page)))->checkError('<NCScript/>'));
+        $this->assertSame([': no NPI '], $this->page($this->builderReturning($page))->checkError('<NCScript/>'));
     }
 
     public function testTheErrorLogRedactsThePassword(): void
     {
         $xml = '<NCScript><password>p&amp;ss&lt;1</password></NCScript>';
-        $page = '<form action="RxEntry.aspx"><textarea>Error: bad password Original XML: '
-            . '&lt;password&gt;p&amp;amp;ss&amp;lt;1&lt;/password&gt; raw p&ss<1</textarea>';
+        $page = '<form action="RxEntry.aspx"><textarea>Error: bad password Original XML: &lt;password&gt;p&amp;amp;ss&amp;lt;1&lt;/password&gt; raw p&ss<1</textarea>';
 
-        $log = $this->errorLogFor('p&ss<1', $xml, $page);
+        $log = $this->errorLogFor($xml, $page);
 
         $this->assertStringNotContainsString('ss<1', $log);
         $this->assertStringNotContainsString('ss&lt;1', $log);
         $this->assertStringNotContainsString('ss&amp;lt;1', $log);
+        // The request comes from the builder's redacted copy; the response loses both echoes.
+        $this->assertStringContainsString('<password>[redacted]</password>', $log);
         $this->assertSame(3, substr_count($log, '[redacted]'));
-    }
-
-    public function testTheErrorLogRedactsThePasswordAsTheRequestCleanedIt(): void
-    {
-        $password = 'p' . chr(9) . 'ss<1';
-        $builder = new ErxXmlBuilder(null, null, new Client());
-        $builder->getNCScript()->appendChild($builder->createElementText('password', $password));
-        $xml = (new ErxPage($builder))->getXML();
-        $this->assertStringContainsString('pss&lt;1', $xml);
-
-        $log = $this->errorLogFor($password, $xml, '<form action="RxEntry.aspx"><textarea>Error: bad password Original XML:');
-
-        $this->assertStringNotContainsString('pss&lt;1', $log);
-        $this->assertSame(1, substr_count($log, '[redacted]'));
     }
 
     /**
      * The error log checkError() writes for a failed request.
      */
-    private function errorLogFor(string $password, string $xml, string $page): string
+    private function errorLogFor(string $xml, string $page): string
     {
         $siteDirectory = sys_get_temp_dir() . '/erx-page-test-' . bin2hex(random_bytes(4));
         $globals = $this->createStub(ErxGlobalsInterface::class);
         $globals->method('getOpenEMRSiteDirectory')->willReturn($siteDirectory);
-        $globals->method('getCredentials')->willReturn(['partner', 'account', $password]);
+
+        $builder = $this->builderReturning($page, $globals);
+        $builder->method('getSentPassword')->willReturn(new Plaintext('p&ss<1'));
+        $builder->method('getRedactedXml')->willReturn('<NCScript><password>[redacted]</password></NCScript>');
 
         try {
-            (new ErxPage($this->builderReturning($page, $globals)))->checkError($xml);
-            $log = file_get_contents($siteDirectory . '/documents/erx_error/erx_error-' . date('Y-m-d') . '.log');
+            $this->page($builder)->checkError($xml);
+            $log = (new Filesystem())->readFile($siteDirectory . '/documents/erx_error/erx_error-' . date('Y-m-d') . '.log');
         } finally {
             (new Filesystem())->remove($siteDirectory);
         }
 
-        $this->assertIsString($log);
-
         return $log;
     }
 
-    private function builderReturning(string $page, ?ErxGlobalsInterface $globals = null): ErxXmlBuilder
+    private function page(ErxXmlBuilder $builder): ErxPage
+    {
+        return new ErxPage($builder, new NullLogger());
+    }
+
+    private function realBuilder(): ErxXmlBuilder
+    {
+        return new ErxXmlBuilder($this->createStub(ErxGlobalsInterface::class), $this->createStub(ErxStoreInterface::class), new Client());
+    }
+
+    private function builderReturning(string $page, ?ErxGlobalsInterface $globals = null): ErxXmlBuilder&MockObject
     {
         $builder = $this->createMock(ErxXmlBuilder::class);
         $builder->method('checkError')->willReturn($page);

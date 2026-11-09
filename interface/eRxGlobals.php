@@ -13,7 +13,9 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Encryption\Plaintext;
 use OpenEMR\Rx\Ensora\ErxGlobalsInterface;
+use OpenEMR\Services\VersionService;
 
 class eRxGlobals implements ErxGlobalsInterface
 {
@@ -112,32 +114,33 @@ class eRxGlobals implements ErxGlobalsInterface
     }
 
     /**
-     * Return the Ensora eRx partner name for credentials
-     * @return string Partner name for credentials
+     * Return the Ensora eRx partner name for credentials, or empty when unset
      */
-    public function getPartnerName()
+    public function getPartnerName(): string
     {
-        return $this->getGlobalValue('erx_account_partner_name');
+        $value = $this->getGlobalValue('erx_account_partner_name');
+
+        return is_string($value) ? $value : '';
     }
 
     /**
-     * Return the Ensora eRx account name for credentials
-     * @return string Account name for credentials
+     * Return the Ensora eRx account name for credentials, or empty when unset
      */
-    public function getAccountName()
+    public function getAccountName(): string
     {
-        return $this->getGlobalValue('erx_account_name');
+        $value = $this->getGlobalValue('erx_account_name');
+
+        return is_string($value) ? $value : '';
     }
 
     /**
-     * Return the Ensora eRx password for credentials
-     * @return string Password for credentials
+     * Return the decrypted Ensora eRx password for credentials, or empty when unset
      */
-    public function getAccountPassword(): string
+    public function getAccountPassword(): Plaintext
     {
-        $cryptoGen = ServiceContainer::getCrypto();
         $value = $this->getGlobalValue('erx_account_password');
-        return $cryptoGen->decryptFromDatabase(is_string($value) ? $value : null);
+
+        return new Plaintext(ServiceContainer::getCrypto()->decryptFromDatabase(is_string($value) ? $value : null));
     }
 
     /**
@@ -204,8 +207,16 @@ class eRxGlobals implements ErxGlobalsInterface
         return [
             $this->getPartnerName(),
             $this->getAccountName(),
-            $this->getAccountPassword(),
+            $this->getAccountPassword()->bytes,
         ];
+    }
+
+    /**
+     * Return the OpenEMR version the eRx request reports
+     */
+    public function getProductVersion(): string
+    {
+        return (new VersionService())->getSoftwareVersion()->full;
     }
 
     /**

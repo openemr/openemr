@@ -16,9 +16,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Rx\Ensora;
 
-use LogicException;
-use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Encryption\Plaintext;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
+use SensitiveParameter;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -34,35 +35,17 @@ class ErxPage
     private array $prescriptionIds = [];
     private int $prescriptionCount = 0;
 
-    public function __construct(private ?ErxXmlBuilder $xmlBuilder = null)
-    {
+    public function __construct(
+        private readonly ErxXmlBuilder $xmlBuilder,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
-    /**
-     * Set XMLBuilder to handle eRx XML
-     */
-    public function setXMLBuilder(ErxXmlBuilder $xmlBuilder): static
-    {
-        $this->xmlBuilder = $xmlBuilder;
-
-        return $this;
-    }
-
-    /**
-     * Get XMLBuilder for handling eRx XML
-     */
     public function getXMLBuilder(): ErxXmlBuilder
     {
-        if (!$this->xmlBuilder instanceof ErxXmlBuilder) {
-            throw new LogicException('ErxPage has no ErxXmlBuilder');
-        }
-
         return $this->xmlBuilder;
     }
 
-    /**
-     * Set the Id of the authenticated user
-     */
     public function setAuthUserId(int $userId): static
     {
         $this->authUserId = $userId;
@@ -70,9 +53,6 @@ class ErxPage
         return $this;
     }
 
-    /**
-     * Get the Id of the authenticated user
-     */
     public function getAuthUserId(): int
     {
         return $this->authUserId;
@@ -88,9 +68,6 @@ class ErxPage
         return $this;
     }
 
-    /**
-     * Get the destination for the page request
-     */
     public function getDestination(): string
     {
         return $this->destination;
@@ -106,17 +83,12 @@ class ErxPage
         return $this;
     }
 
-    /**
-     * Get the Patient Id for the page request
-     */
     public function getPatientId(): int
     {
         return $this->patientId;
     }
 
     /**
-     * Set the Prescription Ids to send with page request
-     *
      * @param string $prescriptionIds colon-separated prescription ids
      */
     public function setPrescriptionIds(string $prescriptionIds): static
@@ -132,8 +104,6 @@ class ErxPage
     }
 
     /**
-     * Get the Prescription Ids for the page request
-     *
      * @return list<int>
      */
     public function getPrescriptionIds(): array
@@ -141,9 +111,6 @@ class ErxPage
         return $this->prescriptionIds;
     }
 
-    /**
-     * Set the prescription count for the page request
-     */
     public function setPrescriptionCount(int $count): static
     {
         $this->prescriptionCount = $count;
@@ -151,9 +118,6 @@ class ErxPage
         return $this;
     }
 
-    /**
-     * Get the prescription count for the page request
-     */
     public function getPrescriptionCount(): int
     {
         return $this->prescriptionCount;
@@ -222,24 +186,19 @@ class ErxPage
      */
     public function getXML(): string
     {
-        $xml = $this->getXMLBuilder()->getDocument()->saveXML();
-        if ($xml === false) {
-            throw new RuntimeException('Could not serialize the Ensora eRx request');
-        }
-
-        return $xml;
+        return $this->getXMLBuilder()->getXml();
     }
 
     /**
      * A failed write is logged and dropped, so it never hides the validation
      * errors checkError() returns.
      */
-    protected function errorLog(string $message): void
+    protected function errorLog(#[SensitiveParameter] string $message): void
     {
         $message = $this->redactPassword($message);
         $siteDirectory = $this->getXMLBuilder()->getGlobals()->getOpenEMRSiteDirectory();
         if ($siteDirectory === '') {
-            ServiceContainer::getLogger()->error('Could not write the Ensora eRx error log: no site directory');
+            $this->logger->error('Could not write the Ensora eRx error log: no site directory');
             return;
         }
 
@@ -252,28 +211,26 @@ class ErxPage
                 date('Y-m-d H:i:s') . ' ==========> ' . $message . PHP_EOL,
             );
         } catch (IOExceptionInterface $e) {
-            ServiceContainer::getLogger()->error('Could not write the Ensora eRx error log', ['exception' => $e]);
+            $this->logger->error('Could not write the Ensora eRx error log', ['exception' => $e]);
         }
     }
 
     /**
-     * Replace the account password wherever a logged request or response
-     * carries it: as configured or as the request cleaned it, each raw or
-     * XML-escaped once or twice.
+     * Replace the password the request carried wherever a logged response
+     * echoes it, raw or XML-escaped once or twice. Logged requests come from
+     * ErxXmlBuilder::getRedactedXml(), which never holds it.
      */
-    private function redactPassword(string $message): string
+    private function redactPassword(#[SensitiveParameter] string $message): string
     {
-        $password = $this->getXMLBuilder()->getGlobals()->getCredentials()[2] ?? null;
-        if (!is_string($password) || $password === '') {
+        $sent = $this->getXMLBuilder()->getSentPassword();
+        if (!$sent instanceof Plaintext || $sent->bytes === '') {
             return $message;
         }
 
-        $forms = [];
-        foreach ([$password, ErxXmlBuilder::cleanText($password)] as $value) {
-            $escaped = htmlspecialchars($value, ENT_XML1 | ENT_NOQUOTES | ENT_SUBSTITUTE);
-            array_push($forms, htmlspecialchars($escaped, ENT_XML1 | ENT_NOQUOTES), $escaped, $value);
-        }
-        $forms = array_values(array_unique(array_filter($forms, static fn(string $form): bool => $form !== '')));
+        $password = $sent->bytes;
+
+        $escaped = htmlspecialchars($password, ENT_XML1 | ENT_NOQUOTES);
+        $forms = array_values(array_unique([htmlspecialchars($escaped, ENT_XML1 | ENT_NOQUOTES), $escaped, $password]));
 
         return str_replace($forms, '[redacted]', $message);
     }
@@ -290,7 +247,7 @@ class ErxPage
         // An empty page has no errors to find, but it means the check failed,
         // so the launch must not go ahead. The old curl call stopped on '0' too.
         if (trim($result) === '' || $result === '0') {
-            $this->errorLog($xml);
+            $this->errorLog($XMLBuilder->getRedactedXml());
 
             return [xl('Ensora eRx returned an empty response, please contact your systems administrator.')];
         }
@@ -301,7 +258,7 @@ class ErxPage
         $debugSetting = $XMLBuilder->getGlobals()->getDebugSetting();
 
         if (str_contains($result, 'RxEntry.aspx')) {
-            $this->errorLog($xml);
+            $this->errorLog($XMLBuilder->getRedactedXml());
             $this->errorLog($result);
 
             if ($errorMessages === []) {
@@ -311,7 +268,7 @@ class ErxPage
             $debugString = '( ' . xl('DEBUG OUTPUT') . ' )' . PHP_EOL;
 
             if ($debugSetting & self::DEBUG_XML) {
-                $this->errorLog($debugString . $xml);
+                $this->errorLog($debugString . $XMLBuilder->getRedactedXml());
             }
 
             if ($debugSetting & self::DEBUG_RESULT) {

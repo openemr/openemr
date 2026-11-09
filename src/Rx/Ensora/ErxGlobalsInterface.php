@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Rx\Ensora;
 
+use OpenEMR\Encryption\Plaintext;
+
 interface ErxGlobalsInterface
 {
     /** Empty when unset */
@@ -32,10 +34,15 @@ interface ErxGlobalsInterface
 
     public function getDefaultPatientCountry(): string;
 
-    /**
-     * @return array<mixed> index 0 partner name, 1 account name, 2 password
-     */
-    public function getCredentials(): array;
+    public function getPartnerName(): string;
+
+    public function getAccountName(): string;
+
+    /** Empty when unset */
+    public function getAccountPassword(): Plaintext;
+
+    /** The OpenEMR version the request reports as its productVersion */
+    public function getProductVersion(): string;
 
     /** Debug flags: 1 logs the request XML, 2 logs the response */
     public function getDebugSetting(): int;

@@ -16,6 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Http\CurrentRequest;
@@ -34,6 +35,9 @@ if (!AclMain::aclCheckCore('patients', 'rx')) {
     AccessDeniedHelper::deny('eRx.php: patients/rx not granted');
 }
 
+// The page carries the eRx launch request, credentials included; keep browsers from storing it.
+header('Cache-Control: no-store');
+
 set_time_limit(0);
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -42,8 +46,10 @@ $GLOBALS_REF = $GLOBALS;
 $eRxPage = new ErxPage(
     new ErxXmlBuilder(
         new eRxGlobals($GLOBALS_REF),
-        new eRxStore()
-    )
+        new eRxStore(),
+        ServiceContainer::getGuzzle(),
+    ),
+    ServiceContainer::getLogger(),
 );
 
 $authUserId = $session->get('authUserID');

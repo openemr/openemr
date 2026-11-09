@@ -24,20 +24,17 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
-use LogicException;
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\VersionService;
+use OpenEMR\Encryption\Plaintext;
 use RuntimeException;
-use UConverter;
+use SensitiveParameter;
 use UnexpectedValueException;
 
 class ErxXmlBuilder
 {
-    private readonly ClientInterface $httpClient;
-
     private ?DOMDocument $document = null;
     private ?DOMElement $ncScript = null;
+    private ?Plaintext $sentPassword = null;
 
     /** @var list<int> */
     private array $sentAllergyIds = [];
@@ -54,54 +51,19 @@ class ErxXmlBuilder
     private array $warningMessages = [];
 
     public function __construct(
-        private ?ErxGlobalsInterface $globals = null,
-        private ?ErxStoreInterface $store = null,
-        ?ClientInterface $httpClient = null,
+        private readonly ErxGlobalsInterface $globals,
+        private readonly ErxStoreInterface $store,
+        private readonly ClientInterface $httpClient,
     ) {
-        $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
     }
 
-    /**
-     * Set Globals for retrieving eRx global configurations
-     */
-    public function setGlobals(ErxGlobalsInterface $globals): static
-    {
-        $this->globals = $globals;
-
-        return $this;
-    }
-
-    /**
-     * Get Globals for retrieving eRx global configurations
-     */
     public function getGlobals(): ErxGlobalsInterface
     {
-        if (!$this->globals instanceof ErxGlobalsInterface) {
-            throw new LogicException('ErxXmlBuilder has no eRx settings');
-        }
-
         return $this->globals;
     }
 
-    /**
-     * Set Store to handle eRx cached data
-     */
-    public function setStore(ErxStoreInterface $store): static
-    {
-        $this->store = $store;
-
-        return $this;
-    }
-
-    /**
-     * Get Store for handling eRx cached data
-     */
     public function getStore(): ErxStoreInterface
     {
-        if (!$this->store instanceof ErxStoreInterface) {
-            throw new LogicException('ErxXmlBuilder has no eRx store');
-        }
-
         return $this->store;
     }
 
@@ -179,7 +141,7 @@ class ErxXmlBuilder
         return $this->sentPrescriptionIds;
     }
 
-    public function fieldEmpty(string $value, string $message): void
+    public function fieldEmpty(#[SensitiveParameter] string $value, string $message): void
     {
         if ($value === '') {
             $this->fieldEmptyMessages[] = $message;
@@ -224,7 +186,7 @@ class ErxXmlBuilder
         return $this->warningMessages;
     }
 
-    public function createElementText(string $name, string $value): DOMElement
+    public function createElementText(string $name, #[SensitiveParameter] string $value): DOMElement
     {
         $element = $this->getDocument()->createElement($name);
         $element->appendChild($this->getDocument()->createTextNode(self::cleanText($value)));
@@ -239,17 +201,19 @@ class ErxXmlBuilder
      * control character XML forbids, or invalid UTF-8, as empty, and writes
      * U+FFFE and U+FFFF raw, which XML parsers reject.
      */
-    public static function cleanText(string $value): string
+    public static function cleanText(#[SensitiveParameter] string $value): string
     {
         if (!mb_check_encoding($value, 'UTF-8')) {
-            $value = UConverter::transcode($value, 'UTF-8', 'UTF-8');
+            // ENT_SUBSTITUTE swaps invalid UTF-8 for U+FFFD, and decoding undoes only the escaping.
+            $flags = ENT_XML1 | ENT_NOQUOTES;
+            $value = htmlspecialchars_decode(htmlspecialchars($value, $flags | ENT_SUBSTITUTE), $flags);
         }
 
         // The value is valid UTF-8 here, so \xEF\xBF[\xBE\xBF] is only ever U+FFFE or U+FFFF.
         return self::regexRemove('/[\x00-\x09\x0B-\x1F]|\xEF\xBF[\xBE\xBF]/', $value);
     }
 
-    public function createElementTextFieldEmpty(string $name, string $value, string $validationText): DOMElement
+    public function createElementTextFieldEmpty(string $name, #[SensitiveParameter] string $value, string $validationText): DOMElement
     {
         $this->fieldEmpty($value, $validationText);
 
@@ -283,6 +247,37 @@ class ErxXmlBuilder
         return $this->document;
     }
 
+    public function getXml(): string
+    {
+        return self::serialize($this->getDocument());
+    }
+
+    /**
+     * The password as getCredentials() wrote it into the request, so logs can
+     * redact it without decrypting it again; null until then.
+     */
+    public function getSentPassword(): ?Plaintext
+    {
+        return $this->sentPassword;
+    }
+
+    /**
+     * The request XML with the password element's text replaced, for logging.
+     */
+    public function getRedactedXml(): string
+    {
+        $copy = $this->getDocument()->cloneNode(true);
+        if (!$copy instanceof DOMDocument) {
+            throw new RuntimeException('Could not copy the Ensora eRx request');
+        }
+
+        foreach ($copy->getElementsByTagName('password') as $password) {
+            $password->textContent = '[redacted]';
+        }
+
+        return self::serialize($copy);
+    }
+
     public function getNCScript(): DOMElement
     {
         if ($this->ncScript === null) {
@@ -301,15 +296,16 @@ class ErxXmlBuilder
 
     public function getCredentials(): DOMElement
     {
-        $eRxCredentials = $this->getGlobals()
-            ->getCredentials();
+        $globals = $this->getGlobals();
+        $password = $globals->getAccountPassword();
+        $this->sentPassword = new Plaintext(self::cleanText($password->bytes));
 
         $element = $this->getDocument()->createElement('Credentials');
-        $element->appendChild($this->createElementTextFieldEmpty('partnerName', self::field($eRxCredentials, 0), xl('Ensora eRx Partner Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('name', self::field($eRxCredentials, 1), xl('Ensora eRx Account Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('password', self::field($eRxCredentials, 2), xl('Ensora eRx Password')));
+        $element->appendChild($this->createElementTextFieldEmpty('partnerName', $globals->getPartnerName(), xl('Ensora eRx Partner Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('name', $globals->getAccountName(), xl('Ensora eRx Account Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('password', $password->bytes, xl('Ensora eRx Password')));
         $element->appendChild($this->createElementText('productName', 'OpenEMR'));
-        $element->appendChild($this->createElementText('productVersion', (new VersionService())->getSoftwareVersion()->full));
+        $element->appendChild($this->createElementText('productVersion', $globals->getProductVersion()));
 
         return $element;
     }
@@ -964,7 +960,17 @@ class ErxXmlBuilder
         throw new UnexpectedValueException('Ensora eRx values must be strings or numbers');
     }
 
-    private static function regexRemove(string $pattern, string $subject): string
+    private static function serialize(DOMDocument $document): string
+    {
+        $xml = $document->saveXML();
+        if ($xml === false) {
+            throw new RuntimeException('Could not serialize the Ensora eRx request');
+        }
+
+        return $xml;
+    }
+
+    private static function regexRemove(string $pattern, #[SensitiveParameter] string $subject): string
     {
         $result = preg_replace($pattern, '', $subject);
         if ($result === null) {

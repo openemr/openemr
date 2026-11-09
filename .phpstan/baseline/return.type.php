@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method eRxGlobals\\:\\:getAccountName\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxGlobals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method eRxGlobals\\:\\:getDisplayAllergy\\(\\) should return bool but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxGlobals.php',
@@ -33,11 +28,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method eRxGlobals\\:\\:getImportStatusMessage\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxGlobals.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxGlobals\\:\\:getPartnerName\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxGlobals.php',
 ];
