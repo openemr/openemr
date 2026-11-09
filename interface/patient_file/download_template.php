@@ -393,7 +393,6 @@ if ($ext != 'dotx') {
     if (function_exists('finfo_open')) {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimetype = finfo_file($finfo, $templatepath);
-        finfo_close($finfo);
     } elseif (function_exists('mime_content_type')) {
         $mimetype = mime_content_type($templatepath);
     }
