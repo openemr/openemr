@@ -110,6 +110,9 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->people['pantry'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Reply Pantry']);
     }
 
+    /**
+     * Removes what each test made: notices, Direct log rows, queued emails, documents, Tasks, referrals and people.
+     */
     protected function tearDown(): void
     {
         foreach ($this->movedLayoutFields as [$field, $seq, $group]) {
@@ -1308,6 +1311,43 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertNull($service->completeWithDirectReply($id, $taskUuid, $replyId, null));
         $this->assertSame('rejected', $this->read('Task', $taskUuid)['status'] ?? null);
         $this->assertNull(QueryUtils::fetchSingleValue("SELECT field_value FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", 'field_value', [$id]));
+    }
+
+    /**
+     * The Reply Date goes in before the Task is completed, and comes back out when the Task's update
+     * fails, so a referral never reads as answered while its Task stays open from a confirm.
+     */
+    public function testAConfirmWhoseTaskUpdateFailsLeavesNoReplyDate(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $replyId = $this->receiveDirectReply($id, 'Seen.', []);
+        $taskUuid = (new ReferralTaskService(new UserService()))->confirmableTask($id);
+        $this->assertIsString($taskUuid);
+        $failing = new class extends TaskService {
+            public ?string $replyDateDuringUpdate = null;
+
+            /**
+             * Notes the referral's Reply Date as the Task is updated, then fails.
+             */
+            public function update(string $uuid, array $fields, ?int $userId, ?int $expectedVersion = null, ?array $inputs = null, ?array $outputs = null): bool
+            {
+                $date = QueryUtils::fetchSingleValue("SELECT field_value FROM lbt_data WHERE field_id = 'reply_date' AND form_id = (SELECT id FROM transactions WHERE uuid = (SELECT focus_uuid FROM task WHERE uuid = ?))", 'field_value', [UuidRegistry::uuidToBytes($uuid)]);
+                $this->replyDateDuringUpdate = is_string($date) ? $date : null;
+                throw new \RuntimeException('database went away');
+            }
+        };
+
+        try {
+            (new ReferralTaskService(new UserService(), taskService: $failing))->completeWithDirectReply($id, $taskUuid, $replyId, null);
+            $this->fail('the failure of the update is thrown');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('database went away', $e->getMessage());
+        }
+
+        $this->assertNotNull($failing->replyDateDuringUpdate, 'the Reply Date was in place while the Task was updated');
+        $this->assertNull(QueryUtils::fetchSingleValue("SELECT field_value FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", 'field_value', [$id]));
+        $this->assertSame($taskUuid, (new ReferralTaskService(new UserService()))->confirmableTask($id), 'and confirming can be tried again');
     }
 
     /**

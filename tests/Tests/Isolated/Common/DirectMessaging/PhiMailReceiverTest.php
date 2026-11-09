@@ -435,6 +435,9 @@ final class PhiMailReceiverTest extends TestCase
         );
     }
 
+    /**
+     * A message with attachments stores each as a document.
+     */
     public function testMessageWithAttachmentsStoresEachAsADocument(): void
     {
         $mail = 'MAIL to@direct.example from@direct.example 3 msg-6';

@@ -71,6 +71,9 @@ final class PhiMailSenderTest extends TestCase
         $this->messageLog = $this->createMock(DirectMessageLogRepository::class);
     }
 
+    /**
+     * Sends a message and logs it with no patient or referral.
+     */
     public function testSendsAMessage(): void
     {
         $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-1'));
@@ -89,6 +92,9 @@ final class PhiMailSenderTest extends TestCase
         );
     }
 
+    /**
+     * Sends a document for a patient.
+     */
     public function testSendsADocumentForAPatient(): void
     {
         $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-2'));

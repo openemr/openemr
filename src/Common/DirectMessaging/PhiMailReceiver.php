@@ -237,6 +237,9 @@ final class PhiMailReceiver
         }
     }
 
+    /**
+     * Reads one received message, files its note and documents (to the patient of the sent message it answers, if any), and logs it.
+     */
     private function processMail(PhiMailConnection $connection, PhiMailMailReply $reply): void
     {
         $this->expectOk($connection, 'SHOW 0' . self::LF, 'M3 SHOW 0 failed: ');

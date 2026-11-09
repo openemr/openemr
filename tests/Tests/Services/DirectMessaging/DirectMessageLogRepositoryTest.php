@@ -33,6 +33,9 @@ final class DirectMessageLogRepositoryTest extends TestCase
         $this->repository = new DirectMessageLogRepository();
     }
 
+    /**
+     * Removes the rows each test logged.
+     */
     protected function tearDown(): void
     {
         QueryUtils::sqlStatementThrowException('DELETE FROM direct_message_log WHERE msg_id IN (?, ?, ?)', [$this->messageId, '<' . $this->messageId . '>', $this->messageId . '-other']);

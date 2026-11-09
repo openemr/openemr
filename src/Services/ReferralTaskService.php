@@ -370,9 +370,10 @@ class ReferralTaskService
      *
      * The recipient's Task is completed with REASON_REPLY_RECORDED and the reply's documents as its
      * outputs (Consult note, REPLY_OUTPUT_TYPE): the attachments that came with it, or, for a reply with
-     * only a text body, that text filed in the patient's documents. The referral's Reply Date is then set
-     * to the day the reply came, so the referral reads as answered everywhere, and clearing it undoes the
-     * Task as it would any reply (undoClearedReply()).
+     * only a text body, that text filed in the patient's documents. The referral's Reply Date is set to
+     * the day the reply came, before the Task is completed and taken back out if it isn't, so the
+     * referral reads as answered everywhere, and clearing it undoes the Task as it would any reply
+     * (undoClearedReply()).
      *
      * It happens only if the Task the page showed is still the one to complete: a second click, a stale
      * page or a recipient's change since then all do nothing. It runs under the referral's lock, as a
@@ -417,33 +418,68 @@ class ReferralTaskService
                 return null;
             }
             $recipientUuid = self::text($referral, 'performer_uuid');
-            for ($pass = 0; $pass < self::WRITE_PASSES && $recipientUuid !== null; $pass++) {
-                $task = $this->recipientTask($referralUuid, $recipientUuid);
-                $version = $task['version'] ?? null;
-                if ($task === null || self::text($task, 'uuid') !== $taskUuid || !is_numeric($version)) {
-                    return null;
-                }
-                if (in_array(self::text($task, 'status'), FhirTaskWriteRules::FINAL_STATUSES, true)) {
-                    return null;
-                }
-                $outputs = self::outputRows($task);
-                foreach ($documents as $document) {
-                    $outputs = self::withReply(['outputs' => $outputs], $document);
-                }
-                $completed = ['status' => 'completed', 'status_reason' => self::REASON_REPLY_RECORDED];
-                if ($this->getTaskService()->update($taskUuid, $completed, $userId, (int)$version, null, $outputs)) {
-                    self::storeReplyDate($transactionId, substr($reply['received_at'], 0, 10));
-                    return $taskUuid;
-                }
+            if ($recipientUuid === null) {
+                return null;
             }
-            $this->getLogger()->warning('A referral\'s Direct reply was filed but its Task kept changing, so it was left as the recipient has it', [
-                'transaction_id' => $transactionId,
-                'reply_id' => $replyId,
-            ]);
-            return null;
+            // The Reply Date goes first, so a completed Task always has one: a Task left open with a
+            // Reply Date is completed by the referral's next save (recordReply()), while a completed one
+            // without it would never get one. It's taken back out when the Task isn't completed.
+            self::storeReplyDate($transactionId, substr($reply['received_at'], 0, 10));
+            try {
+                $completed = $this->completeRecipientTask($transactionId, $referralUuid, $recipientUuid, $taskUuid, $replyId, $documents, $userId);
+            } catch (\RuntimeException | \LogicException | DbalException $e) {
+                self::clearReplyDate($transactionId);
+                throw $e;
+            }
+            if ($completed === null) {
+                self::clearReplyDate($transactionId);
+            }
+            return $completed;
         } finally {
             self::unlock($lock);
         }
+    }
+
+    /**
+     * Completes the recipient's Task with a Direct reply's documents as its outputs, reading it again
+     * when the recipient changes it in between, as long as it's still the Task the page showed and open.
+     *
+     * @param list<string> $documents the reply's document uuids
+     * @return ?string the Task's uuid, or null when it wasn't completed
+     */
+    private function completeRecipientTask(int $transactionId, string $referralUuid, string $recipientUuid, string $taskUuid, int $replyId, array $documents, ?int $userId): ?string
+    {
+        for ($pass = 0; $pass < self::WRITE_PASSES; $pass++) {
+            $task = $this->recipientTask($referralUuid, $recipientUuid);
+            $version = $task['version'] ?? null;
+            if ($task === null || self::text($task, 'uuid') !== $taskUuid || !is_numeric($version)) {
+                return null;
+            }
+            if (in_array(self::text($task, 'status'), FhirTaskWriteRules::FINAL_STATUSES, true)) {
+                return null;
+            }
+            $outputs = self::outputRows($task);
+            foreach ($documents as $document) {
+                $outputs = self::withReply(['outputs' => $outputs], $document);
+            }
+            $completed = ['status' => 'completed', 'status_reason' => self::REASON_REPLY_RECORDED];
+            if ($this->getTaskService()->update($taskUuid, $completed, $userId, (int)$version, null, $outputs)) {
+                return $taskUuid;
+            }
+        }
+        $this->getLogger()->warning("A referral's Direct reply was filed but its Task kept changing, so it was left as the recipient has it", [
+            'transaction_id' => $transactionId,
+            'reply_id' => $replyId,
+        ]);
+        return null;
+    }
+
+    /**
+     * Takes the Reply Date that completeWithDirectReply() set back out, when its Task wasn't completed.
+     */
+    private static function clearReplyDate(int $transactionId): void
+    {
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$transactionId]);
     }
 
     /**
