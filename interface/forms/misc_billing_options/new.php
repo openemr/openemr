@@ -10,12 +10,14 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (C) 2007 Bo Huynh
  * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2017-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,6 +25,7 @@ require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
@@ -42,17 +45,20 @@ require_once("$srcdir/options.inc.php");
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (isset($_REQUEST['isBilling'])) {
-    $pid = $_REQUEST['pid'];
-    SessionUtil::setSession('billpid', $pid);
+    // The billing report opens this for any claim's patient and encounter.
+    // Switching to another patient or encounter needs a CSRF token in the link.
+    $request = CurrentRequest::get();
+    $pid = $request->query->getInt('pid');
+    $encounter = $request->query->getInt('enc');
+    PatientSessionUtil::requireCsrfForLinkSwitch($request, $pid, $encounter);
 
-    if ($pid != $session->get('pid')) {
+    SessionUtil::setSession('billpid', $pid);
+    if ($pid !== PatientSessionUtil::getPid()) {
         setpid($pid);
     }
 
-    $encounter = $_REQUEST['enc'];
     SessionUtil::setSession('billencounter', $encounter);
-
-    if ($encounter != $session->get('encounter')) {
+    if ($encounter !== EncounterSessionUtil::getEncounter()) {
         setencounter($encounter);
     }
 } elseif ($session->has('billencounter')) {

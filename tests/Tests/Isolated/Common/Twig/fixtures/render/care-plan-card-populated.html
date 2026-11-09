@@ -50,7 +50,8 @@ Second line</span></td>
                             }
                             const encParams = new URLSearchParams({
                                 pid: 1,
-                                set_encounter: 12
+                                set_encounter: 12,
+                                csrf_token_form: top.csrf_token_js
                             });
                             parent.left_nav.setEncounter("2026-01-05", 12, 'enc');
                             top.restoreSession();

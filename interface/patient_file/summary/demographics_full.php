@@ -27,6 +27,8 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
@@ -38,10 +40,14 @@ $date_init = OEGlobalsBag::getInstance()->get('date_init', '');
 $condition_str = '';
 
 // Session pid must be right or bad things can happen when demographics are saved!
-//
-$set_pid = $_GET["set_pid"] ?? ($_GET["pid"] ?? null);
-if ($set_pid && $set_pid != $session->get("pid")) {
-    setpid($set_pid);
+// Switching to another patient needs a CSRF token in the link.
+$request = CurrentRequest::get();
+$set_pid = $request->query->getInt('set_pid') ?: $request->query->getInt('pid');
+if ($set_pid > 0) {
+    PatientSessionUtil::requireCsrfForLinkSwitch($request, $set_pid);
+    if ($set_pid !== PatientSessionUtil::getPid()) {
+        setpid($set_pid);
+    }
 }
 $pid = $session->get("pid") ?: $set_pid;
 if (!$pid) {

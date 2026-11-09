@@ -159,6 +159,74 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
         $this->assertStringContainsString('setpid($setPid);', $afterGuard);
     }
 
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function guardedPageProvider(): array
+    {
+        return [
+            'encounter_top' => ['interface/patient_file/encounter/encounter_top.php'],
+            'pnotes_full' => ['interface/patient_file/summary/pnotes_full.php'],
+            'pnotes_full_add' => ['interface/patient_file/summary/pnotes_full_add.php'],
+            'orders_results' => ['interface/orders/orders_results.php'],
+            'demographics_full' => ['interface/patient_file/summary/demographics_full.php'],
+            'insurance_edit' => ['interface/patient_file/summary/insurance_edit.php'],
+            'encounters' => ['interface/patient_file/history/encounters.php'],
+            'history_sdoh' => ['interface/patient_file/history/history_sdoh.php'],
+            'history_sdoh_list' => ['interface/patient_file/history/history_sdoh_list.php'],
+            'history_sdoh_health_concerns' => ['interface/patient_file/history/history_sdoh_health_concerns.php'],
+            'eye_mag a_issue' => ['interface/forms/eye_mag/a_issue.php'],
+            'misc_billing_options new' => ['interface/forms/misc_billing_options/new.php'],
+            'ub04_form' => ['interface/billing/ub04_form.php'],
+        ];
+    }
+
+    /**
+     * These pages need the full bootstrap, so check their source: the guard
+     * must run before the first call that writes the session patient or
+     * encounter.
+     */
+    #[DataProvider('guardedPageProvider')]
+    public function testPageChecksTheTokenBeforeSwitching(string $path): void
+    {
+        $source = (new Filesystem())->readFile(dirname(__DIR__, 5) . '/' . $path);
+        $calls = self::functionCalls($source);
+        $guard = array_search('requireCsrfForLinkSwitch', $calls, true);
+        $firstWrite = null;
+        foreach ($calls as $position => $name) {
+            if (in_array(strtolower($name), ['setpid', 'setencounter'], true)) {
+                $firstWrite = $position;
+                break;
+            }
+        }
+
+        $this->assertIsInt($guard, "{$path} should call the guard");
+        $this->assertIsInt($firstWrite, "{$path} should switch the session patient or encounter");
+        $this->assertLessThan($firstWrite, $guard, "{$path} should call the guard before it switches");
+    }
+
+    /**
+     * Names of the functions and methods called in $source, in order.
+     *
+     * @return list<string>
+     */
+    private static function functionCalls(string $source): array
+    {
+        $tokens = array_values(array_filter(
+            \PhpToken::tokenize($source),
+            static fn (\PhpToken $token): bool => !$token->isIgnorable(),
+        ));
+        $calls = [];
+        foreach ($tokens as $index => $token) {
+            if ($token->is(T_STRING) && ($tokens[$index + 1] ?? null)?->text === '(') {
+                $calls[] = $token->text;
+            }
+        }
+        return $calls;
+    }
+
     private function token(string $kind): mixed
     {
         return match ($kind) {

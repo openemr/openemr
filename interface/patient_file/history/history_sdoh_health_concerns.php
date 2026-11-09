@@ -5,7 +5,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -58,6 +60,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
 // chart header and menu render for the same patient (local $pid drives every
 // query below). Early die above already rejects $pid <= 0.
 if ($pid !== PatientSessionUtil::getPid()) {
+    PatientSessionUtil::requireCsrfForLinkSwitch(CurrentRequest::get(), $pid);
     setpid($pid);
 }
 
