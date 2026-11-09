@@ -38,22 +38,35 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderResult;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\InsuranceService;
 
 /**
  * Get array of insurance payers for the specified patient as of the specified
- * date. If no date is passed then the current date is used.
+ * date: the policies in force on that day. A date that can't be read gives none.
  *
  * @param int $pid Patient ID.
  * @param  date    $encounter_date  YYYY-MM-DD date.
- * @return array   Array containing an array of data for each payer.
+ * @return array<int, array<mixed>> Each payer's data, company and object, keyed by its level (0 primary, 1 secondary, 2 tertiary).
  */
 function universal_loadPayerInfo($pid, $date = ''): array
 {
-    if (empty($date)) {
-        $date = date('Y-m-d');
+    // Keyed by level, so a current secondary behind an ended primary still goes out as the secondary (IN1-22).
+    $patientId = EffectiveInsuranceRule::storedId($pid);
+    $day = CoverageDay::fromStored($date);
+    $payers = [];
+    if ($patientId !== null && $day !== null) {
+        // One service per request, as getEffectiveInsurances() keeps: its constructor backfills uuids in
+        // three tables, and a batch transmit generates one order after another.
+        static $service = null;
+        if (!$service instanceof InsuranceService) {
+            $service = new InsuranceService();
+        }
+        foreach ($service->getEffectiveInsuranceRows($patientId, $day) as $effective) {
+            $payers[$effective->policy->level->number() - 1] = $effective->columns;
+        }
     }
-
-    $payers = getEffectiveInsurances($pid, $date);
 
     foreach ($payers as $key => $drow) {
         // Very important to check for a missing provider because
@@ -205,11 +218,18 @@ function universal_gen_hl7_order(int $orderid): Hl7OrderResult
 
   // Insurance stuff.
     $ins_type = trim((string) $porow['billing_type']);
-    $payers = universal_loadPayerInfo($porow['pid'], $porow['date_ordered']);
+    // The payers in force on the collection date, else the order date.
+    $payers = universal_loadPayerInfo(
+        $porow['pid'],
+        CoverageDay::forLabOrder($porow['date_collected'] ?? null, $porow['date_ordered'] ?? null)?->format('Y-m-d') ?? ''
+    );
     $setid = 0;
     if ($ins_type == 'T') {
         // only send primary and secondary insurance
-        foreach ($payers as $payer) {
+        foreach ($payers as $level => $payer) {
+            if ($level > 1) {
+                break;
+            }
             $payer_object = $payer['object'];
             $payer_address = $payer_object->get_address();
             $out .= "IN1" .
@@ -238,14 +258,11 @@ function universal_gen_hl7_order(int $orderid): Hl7OrderResult
                 $d2 . hl7Zip($payer['data']['subscriber_postal_code']) . // Zip
                 $d1 .
                 $d1 .
-                $d1 . $setid .                                  // 1=Primary, 2=Secondary, 3=Tertiary
+                $d1 . ($level + 1) .                           // 1=Primary, 2=Secondary, 3=Tertiary: the payer's level
                 str_repeat($d1, 13) .                           // IN1-23 to 35 all empty
                 $d1 . hl7Text($payer['data']['policy_number']) . // Policy Number
                 str_repeat($d1, 12) .                           // IN1-37 to 48 all empty
                 $d0;
-            if ($setid === 2) {
-                break;
-            }
         }
         if ($setid === 0) {
             throw new Hl7OrderGenerationException("Insurance is being billed but patient does not have any payers on record!");
