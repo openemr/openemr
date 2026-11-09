@@ -44,6 +44,9 @@ final readonly class CollapsedSections
         return new self($collapsed);
     }
 
+    /**
+     * Whether the section with this setting key starts collapsed.
+     */
     public function isCollapsed(string $section): bool
     {
         return in_array($section, $this->collapsed, true);

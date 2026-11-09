@@ -36,6 +36,11 @@ final class QuestionnaireAdminEntryPoint
     private const IMPORT_VIEWS = ['import', 'preview'];
     private const LOINC_NOTE_HIDDEN = '3';
 
+    /**
+     * Build the screen the request asks for and answer it.
+     *
+     * view=import and view=preview go to the importer; anything else is the availability manager.
+     */
     public function handle(Request $request): Response
     {
         $availability = new QuestionnaireAvailabilityService();

@@ -766,6 +766,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
             const importFrame = document.getElementById('questionnaire-import-frame')
             const availableTab = document.getElementById('available-assessments-tab')
             let changed = false
+            // Load an embedded screen the first time its tab is opened.
             function loadOnFirstOpen (tab, frame) {
                 tab?.addEventListener('click', () => {
                     if (frame && !frame.getAttribute('src')) {

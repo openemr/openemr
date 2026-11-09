@@ -74,6 +74,12 @@ class QuestionnaireImportController
     ) {
     }
 
+    /**
+     * Show the importer or the preview page, or answer one of its JSON actions.
+     *
+     * Requires admin/forms; choosing where new questionnaires are offered also needs
+     * admin/super. Every POST needs a valid CSRF token.
+     */
     public function dispatchAction(Request $request): Response
     {
         if (!AclMain::aclCheckCore('admin', 'forms')) {
@@ -273,6 +279,9 @@ class QuestionnaireImportController
         return $parsed;
     }
 
+    /**
+     * A line for the review panel naming a question and what did not convert from LOINC.
+     */
     private static function conversionNote(LhcFormConversionIssue $issue, string $question): string
     {
         $note = match ($issue) {
@@ -285,6 +294,9 @@ class QuestionnaireImportController
         return $question . ': ' . $note;
     }
 
+    /**
+     * The label shown for a surface a questionnaire can be offered on.
+     */
     private static function surfaceLabel(QuestionnaireSurface $surface): string
     {
         return match ($surface) {
@@ -295,6 +307,9 @@ class QuestionnaireImportController
         };
     }
 
+    /**
+     * The message shown when the importer refuses a questionnaire.
+     */
     private static function refusalMessage(QuestionnaireImportRefusal $refusal): string
     {
         return match ($refusal) {

@@ -260,6 +260,9 @@ class QuestionnaireImportServiceTest extends TestCase
         );
     }
 
+    /**
+     * Assert that importing the request is refused for the expected reason.
+     */
     private function assertRefused(QuestionnaireImportRefusal $expected, QuestionnaireImportRequest $request): void
     {
         try {

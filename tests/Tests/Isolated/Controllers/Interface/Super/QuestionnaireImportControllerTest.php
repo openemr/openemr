@@ -58,6 +58,9 @@ class QuestionnaireImportControllerTest extends TestCase
         $this->loinc = new FakeLoincClient();
     }
 
+    /**
+     * Put disable_translation back the way setUp() found it.
+     */
     protected function tearDown(): void
     {
         $globals = OEGlobalsBag::getInstance();
@@ -253,6 +256,11 @@ final class FakeLoincClient extends LoincFormClient
     {
     }
 
+    /**
+     * One canned result, or the failure a test set.
+     *
+     * @return list<array{code: string, name: string}>
+     */
     public function search(string $terms): array
     {
         if ($this->failure !== null) {
@@ -293,6 +301,9 @@ final class FakeQuestionnaireImporter extends QuestionnaireImportService
         return new QuestionnaireImportReview([], 'Reviewed', [], null, null);
     }
 
+    /**
+     * Record the request, or refuse it with the refusal a test set.
+     */
     public function import(QuestionnaireImportRequest $request): QuestionnaireImportResult
     {
         if ($this->refuseWith !== null) {

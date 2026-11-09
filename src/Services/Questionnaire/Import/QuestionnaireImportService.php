@@ -250,6 +250,11 @@ class QuestionnaireImportService
         return null;
     }
 
+    /**
+     * Refuse an import with no category, or one not in the Observation_Types list.
+     *
+     * @throws QuestionnaireImportRefused
+     */
     private function assertCategory(string $category): void
     {
         if ($category === '') {
@@ -260,6 +265,12 @@ class QuestionnaireImportService
         }
     }
 
+    /**
+     * Refuse a portal template category that is not in the template category list.
+     * Null means no portal template was asked for.
+     *
+     * @throws QuestionnaireImportRefused
+     */
     private function assertTemplateCategory(?string $category): void
     {
         if ($category !== null && !array_key_exists($category, $this->templateCategories())) {
@@ -345,6 +356,9 @@ class QuestionnaireImportService
         );
     }
 
+    /**
+     * Add a portal template to the repository that renders the questionnaire.
+     */
     private function createPortalTemplate(int $id, string $name, string $category): void
     {
         $this->templates->insertTemplate(

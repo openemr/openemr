@@ -574,6 +574,7 @@ function renderProfileHtml(): void
         });
         top.restoreSession();
 
+        // Save every profile's template list and options, then reload the opener.
         function submitProfiles() {
             top.restoreSession();
             let target = document.getElementById('edit-profiles');

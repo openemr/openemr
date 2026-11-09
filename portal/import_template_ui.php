@@ -298,10 +298,12 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
         });
 
         // a callback from dlgclose(fn) in the importer, so the repository picker lists the import
+        // Called by the importer dialog when it closes after an import; reloads the template lists.
         function questionnaireImportDone() {
             document.edit_form.submit();
         }
 
+        // Open the questionnaire importer in a dialog, starting on the file or paste source.
         function resolveImport(source = 'file') {
             top.restoreSession();
             const url = '../interface/super/manage_questionnaire_availability.php?view=import&dialog=1'
@@ -363,6 +365,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             return checked;
         }
 
+        // Move a template to the category chosen in its row's list.
         function updateCategory(id) {
             top.restoreSession();
             let url = 'import_template.php';
@@ -387,6 +390,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             });
         }
 
+        // Send the ticked templates and profiles to the selected patients or groups.
         function sendTemplate(mode = 'send', content = '') {
             top.restoreSession();
             let url = 'import_template.php';
@@ -415,6 +419,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             });
         }
 
+        // Make the ticked profiles active in the portal.
         function sendProfiles() {
             top.restoreSession();
             let mode = 'send_profiles'

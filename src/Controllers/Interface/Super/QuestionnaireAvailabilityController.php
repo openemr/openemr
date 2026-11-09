@@ -76,6 +76,11 @@ class QuestionnaireAvailabilityController
     ) {
     }
 
+    /**
+     * Show the availability manager, applying a posted change first.
+     *
+     * Requires admin/super, and a valid CSRF token for any POST.
+     */
     public function dispatchAction(Request $request): Response
     {
         if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -586,6 +591,9 @@ class QuestionnaireAvailabilityController
             : sprintf(xl('%s can be limited by %s.'), $label, implode(', ', $names));
     }
 
+    /**
+     * The message shown for an error code from QuestionnaireAvailabilityService.
+     */
     private static function refusalMessage(mixed $code): string
     {
         return match ($code) {

@@ -105,6 +105,10 @@ final class LhcFormToFhirConverter
         return $assigned;
     }
 
+    /**
+     * A linkId not used yet in this form: the declared one, or the fallback when none is
+     * declared, with _2, _3 ... added when it repeats.
+     */
     private function uniqueLinkId(string $declared, string $fallback): string
     {
         $base = $declared !== '' ? $declared : $fallback;
@@ -581,6 +585,9 @@ final class LhcFormToFhirConverter
         };
     }
 
+    /**
+     * Whether an LHC cardinality allows more than one answer.
+     */
     private static function cardinalityRepeats(mixed $cardinality): bool
     {
         $max = self::arrayOf($cardinality)['max'] ?? null;
@@ -588,6 +595,9 @@ final class LhcFormToFhirConverter
         return $max === '*' || (is_numeric($max) && (int)$max > 1);
     }
 
+    /**
+     * Whether an LHC cardinality requires at least one answer.
+     */
     private static function isRequired(mixed $cardinality): bool
     {
         $min = self::arrayOf($cardinality)['min'] ?? null;
@@ -627,11 +637,17 @@ final class LhcFormToFhirConverter
         return is_array($value) ? array_values(array_filter($value, is_array(...))) : [];
     }
 
+    /**
+     * A trimmed string, or an empty one for anything that is not a string.
+     */
     private static function text(mixed $value): string
     {
         return is_string($value) ? trim($value) : '';
     }
 
+    /**
+     * Like text(), with any HTML tags removed.
+     */
     private static function plain(mixed $value): string
     {
         return trim(strip_tags(self::text($value)));
