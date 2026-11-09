@@ -91,12 +91,7 @@ final class PhiMailReceiverBackgroundServiceTest extends TestCase
     {
         OEGlobalsBag::getInstance()->set('phimail_enable', false);
 
-        try {
-            PhiMailReceiver::runBackgroundService();
-            self::fail('PhiMailReceiver::runBackgroundService() returned normally from a failed connect.');
-        } catch (PhiMailCheckException $e) {
-            self::assertSame('could not connect to server C1', $e->getMessage());
-        }
+        self::assertSame('could not connect to server C1', self::failedCheck()->getMessage());
 
         self::assertSame([[0, 'could not connect to server C1']], $this->auditRows);
     }
@@ -116,12 +111,7 @@ final class PhiMailReceiverBackgroundServiceTest extends TestCase
         // Nothing listens on port 1, so every connect attempt is refused.
         OEGlobalsBag::getInstance()->set('phimail_server_address', 'https://127.0.0.1:1');
 
-        try {
-            PhiMailReceiver::runBackgroundService();
-            self::fail('PhiMailReceiver::runBackgroundService() returned normally from an unreachable server.');
-        } catch (PhiMailCheckException $e) {
-            $reason = $e->getMessage();
-        }
+        $reason = self::failedCheck()->getMessage();
 
         // The C4 detail carries the OS error number, which differs by platform.
         self::assertStringStartsWith('could not connect to server C4 ', $reason);
@@ -150,12 +140,7 @@ final class PhiMailReceiverBackgroundServiceTest extends TestCase
     {
         $server = $this->startServer($replies);
 
-        try {
-            PhiMailReceiver::runBackgroundService();
-            self::fail('PhiMailReceiver::runBackgroundService() returned normally from a failed check.');
-        } catch (PhiMailCheckException $e) {
-            self::assertSame($reason, $e->getMessage());
-        }
+        self::assertSame($reason, self::failedCheck()->getMessage());
 
         self::assertSame([[0, $reason]], $this->auditRows);
         self::assertSame('closed', $this->serverResult($server));
@@ -176,12 +161,7 @@ final class PhiMailReceiverBackgroundServiceTest extends TestCase
             REPLY;
         $server = $this->startServer(['OK', 'OK', 'MAIL to@example.org from@example.org 1 msg-1', $show]);
 
-        try {
-            PhiMailReceiver::runBackgroundService();
-            self::fail('PhiMailReceiver::runBackgroundService() returned normally from a failed download.');
-        } catch (PhiMailCheckException $e) {
-            self::assertSame('M5 attachment mismatch', $e->getMessage());
-        }
+        self::assertSame('M5 attachment mismatch', self::failedCheck()->getMessage());
 
         self::assertSame([[0, 'M5 attachment mismatch']], $this->auditRows);
         self::assertSame('closed', $this->serverResult($server));
@@ -199,12 +179,7 @@ final class PhiMailReceiverBackgroundServiceTest extends TestCase
             REPLY;
         $server = $this->startServer(['OK', 'OK', 'MAIL to@example.org from@example.org 0 msg-1', $show]);
 
-        try {
-            PhiMailReceiver::runBackgroundService();
-            self::fail('PhiMailReceiver::runBackgroundService() returned normally from a malformed body length.');
-        } catch (PhiMailCheckException $e) {
-            self::assertSame('M4 read body failed', $e->getMessage());
-        }
+        self::assertSame('M4 read body failed', self::failedCheck()->getMessage());
 
         self::assertSame([[0, 'M17 invalid blob length'], [0, 'M4 read body failed']], $this->auditRows);
         self::assertSame('closed', $this->serverResult($server));
@@ -223,12 +198,7 @@ final class PhiMailReceiverBackgroundServiceTest extends TestCase
         $server = $this->startServer(['OK', 'OK', 'MAIL to@example.org from@example.org 0 msg-1', $show]);
         $this->auditFailure = new ConnectionException('audit database is down');
 
-        try {
-            PhiMailReceiver::runBackgroundService();
-            self::fail('PhiMailReceiver::runBackgroundService() returned normally from a malformed body length.');
-        } catch (PhiMailCheckException $e) {
-            self::assertSame('M4 read body failed', $e->getMessage());
-        }
+        self::assertSame('M4 read body failed', self::failedCheck()->getMessage());
 
         self::assertSame('closed', $this->serverResult($server));
     }
@@ -239,12 +209,13 @@ final class PhiMailReceiverBackgroundServiceTest extends TestCase
         $auditFailure = new ConnectionException('audit database is down');
         $this->auditFailure = $auditFailure;
 
+        $failure = null;
         try {
             PhiMailReceiver::runBackgroundService();
-            self::fail('PhiMailReceiver::runBackgroundService() hid a failed audit write.');
         } catch (ConnectionException $e) {
-            self::assertSame($auditFailure, $e);
+            $failure = $e;
         }
+        self::assertSame($auditFailure, $failure, 'the check hid a failed audit write');
 
         self::assertSame('closed', $this->serverResult($server));
     }
@@ -257,6 +228,22 @@ final class PhiMailReceiverBackgroundServiceTest extends TestCase
 
         self::assertSame([[1, 'message check completed']], $this->auditRows);
         self::assertSame('closed', $this->serverResult($server));
+    }
+
+    /**
+     * Run the check, which must fail, and return its failure. Catching here
+     * rather than calling fail() after the call keeps every line reachable.
+     */
+    private static function failedCheck(): PhiMailCheckException
+    {
+        $failure = null;
+        try {
+            PhiMailReceiver::runBackgroundService();
+        } catch (PhiMailCheckException $e) {
+            $failure = $e;
+        }
+        self::assertInstanceOf(PhiMailCheckException::class, $failure, 'the check returned normally');
+        return $failure;
     }
 
     /**

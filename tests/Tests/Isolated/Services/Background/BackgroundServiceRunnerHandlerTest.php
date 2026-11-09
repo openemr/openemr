@@ -109,15 +109,17 @@ final class BackgroundServiceRunnerHandlerTest extends TestCase
     {
         $runner = new HandlerRunner(self::service($handler));
 
+        $failure = null;
         try {
             $runner->executeHandler(self::service($handler));
-            self::fail('executeService() accepted an uncallable handler.');
         } catch (\RuntimeException $e) {
-            self::assertSame(
-                sprintf('Background service "svc" is misconfigured: handler "%s" is not callable.', $handler),
-                $e->getMessage(),
-            );
+            $failure = $e;
         }
+        self::assertInstanceOf(\RuntimeException::class, $failure, 'executeService() accepted an uncallable handler');
+        self::assertSame(
+            sprintf('Background service "svc" is misconfigured: handler "%s" is not callable.', $handler),
+            $failure->getMessage(),
+        );
 
         self::assertSame([['name' => 'svc', 'status' => 'error']], $runner->run('svc'));
         self::assertSame([], RecordingBackgroundHandler::$calls);
