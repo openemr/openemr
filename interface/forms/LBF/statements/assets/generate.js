@@ -160,17 +160,6 @@
         });
     });
 
-    const printBtn = document.getElementById('lbf-stmt-print');
-    if (printBtn) {
-        printBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
-                top.restoreSession();
-            }
-            window.open(openFormUrl(printBtn), '_blank');
-        });
-    }
-
     /**
      * Patient-finder callback: store pid and reload the generate screen.
      * @param {string|number} pid
