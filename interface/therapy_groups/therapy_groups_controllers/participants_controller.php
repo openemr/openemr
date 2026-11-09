@@ -5,28 +5,21 @@
  *
  * This is the controller for the groups' participant view.
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
- * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    https://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once __DIR__ . '/base_controller.php';
 require_once __DIR__ . '/therapy_groups_controller.php';
+
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 class ParticipantsController extends BaseController
 {
@@ -37,10 +30,11 @@ class ParticipantsController extends BaseController
         $this->groupModel = $this->loadModel('therapy_groups');
     }
 
-    public function index($groupId, $data = [])
+    public function index(int $groupId, $data = [])
     {
 
         if (isset($_POST['save'])) {
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
             for ($k = 0; $k < count($_POST['pid']); $k++) {
                 $patient['pid'] = $_POST['pid'][$k];
                 $patient['group_patient_status'] = $_POST['group_patient_status'][$k];
@@ -62,6 +56,7 @@ class ParticipantsController extends BaseController
         }
 
         if (isset($_GET['deleteParticipant'])) {
+            CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
             $this->groupParticipantsModel->removeParticipant($_GET['group_id'], $_GET['pid']);
         }
 
@@ -92,10 +87,11 @@ class ParticipantsController extends BaseController
     }
 
 
-    public function add($groupId)
+    public function add(int $groupId)
     {
 
         if (isset($_POST['save_new'])) {
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
             $_POST['group_patient_start'] = DateToYYYYMMDD($_POST['group_patient_start']);
 
             $alreadyRegistered = $this->groupParticipantsModel->isAlreadyRegistered($_POST['pid'], $groupId);

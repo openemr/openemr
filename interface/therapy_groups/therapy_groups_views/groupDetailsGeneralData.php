@@ -18,6 +18,8 @@
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 /** @var array<string,mixed> $groupData */
@@ -25,6 +27,8 @@ use OpenEMR\Core\OEGlobalsBag;
 /** @var string $savingStatus */
 /** @var string $message */
 /** @var array<int,array<string,mixed>> $statuses */
+
+$csrfToken = CsrfUtils::collectCsrfToken(SessionWrapperFactory::getInstance()->getActiveSession());
 
 ?>
 
@@ -66,6 +70,7 @@ use OpenEMR\Core\OEGlobalsBag;
                     <div class="col-md-12">
                         <div id="component-border">
                             <form method="post" id='editGroup' name="editGroup">
+                                <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
                                 <input type="hidden" name="group_id" value="<?php echo isset($groupData['group_id']) ? attr($groupData['group_id']) : '';?>" />
                                 <div class="row group-row">
                                     <div class="col-md-6 col-sm-7">

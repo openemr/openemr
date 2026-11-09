@@ -12742,17 +12742,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/base_controller.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ParticipantsController\\:\\:add\\(\\) has parameter \\$groupId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/participants_controller.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ParticipantsController\\:\\:index\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/participants_controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ParticipantsController\\:\\:index\\(\\) has parameter \\$groupId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/participants_controller.php',
 ];
@@ -12793,11 +12783,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method TherapyGroupsController\\:\\:saveNewGroup\\(\\) has parameter \\$groupData with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method TherapyGroupsController\\:\\:setSession\\(\\) has parameter \\$groupId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
 ];

@@ -5,31 +5,25 @@
  *
  * This is the main controller for the therapy group views and functionality.
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
- * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    https://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once __DIR__ . '/base_controller.php';
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Session\TherapyGroupSessionUtil;
 
 class TherapyGroupsController extends BaseController
 {
@@ -88,7 +82,7 @@ class TherapyGroupsController extends BaseController
      * making validation and saving in the match tables.
      * @param ?int $groupId - must pass when edit group
      */
-    public function index($groupId = null)
+    public function index(?int $groupId = null)
     {
 
         $data = [];
@@ -119,6 +113,7 @@ class TherapyGroupsController extends BaseController
         $_POST['group_end_date'] = DateToYYYYMMDD($_POST['group_end_date']);
 
         if (isset($_POST['save'])) {
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
             $isEdit = !empty($_POST['group_id']);
 
             // for new group - checking if already exist same name
@@ -231,6 +226,7 @@ class TherapyGroupsController extends BaseController
 
         //If deleting a group
         if ($_GET['deleteGroup'] == 1) {
+            CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
             $group_id = $_GET['group_id'];
             $deletion_response = $this->deleteGroup($group_id);
             $data['deletion_try'] = 1;
@@ -405,9 +401,11 @@ class TherapyGroupsController extends BaseController
         return $groupData['group_id'];
     }
 
-    public static function setSession($groupId)
+    public static function setSession(int $groupId): void
     {
-
+        // Opening a group closes the open patient, so a link from another
+        // site must not be able to do it.
+        TherapyGroupSessionUtil::requireCsrfForGroupSwitch(CurrentRequest::get(), $groupId);
         setpid(0);
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($session->get('therapy_group') != $groupId) {

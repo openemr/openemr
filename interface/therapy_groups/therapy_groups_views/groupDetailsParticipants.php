@@ -18,6 +18,8 @@
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 /** @var int|string $groupId */
@@ -28,6 +30,8 @@ use OpenEMR\Core\OEGlobalsBag;
 /** @var string $addStatus */
 /** @var array<int,array<string,mixed>> $providers */
 /** @var array<int,array<string,mixed>> $users */
+
+$csrfToken = CsrfUtils::collectCsrfToken(SessionWrapperFactory::getInstance()->getActiveSession());
 
 ?>
 <?php $edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');?>
@@ -65,7 +69,8 @@ use OpenEMR\Core\OEGlobalsBag;
               <div id="component-border">
                   <div class="row">
                       <form id="add-participant-form" name="add-participant-form" class="<?php echo isset($addStatus) ? 'showAddForm' : '' ?>" action="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=addParticipant&group_id=' . attr_url($groupId)?>" method="post">
-                          <input type="hidden" id="pid" name="pid" value="<?php echo !is_null($participant_data) ? attr($participant_data['pid']) : ''?>">
+                          <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
+                          <input type="hidden" id="pid" name="pid"value="<?php echo !is_null($participant_data) ? attr($participant_data['pid']) : ''?>">
                           <div class="col-md-12">
                               <div class="row">
                                   <div class="col-md-5">
@@ -112,6 +117,7 @@ use OpenEMR\Core\OEGlobalsBag;
                   </div>
                   <form id="updateParticipants" method="post">
                       <input type="hidden" name="group_id" value="<?php echo attr($groupId); ?>" />
+                      <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
                       <?php if ($edit) { ?>
                       <button class="btn btn-primary" id="addParticipant"><?php echo xlt('Add'); ?></button>
                       <?php }?>
@@ -151,7 +157,7 @@ use OpenEMR\Core\OEGlobalsBag;
                                   <td><input type="text" name="group_patient_comment[]" class="w-100" value="<?php echo attr($participant['group_patient_comment']);?>" <?php echo $readonly; ?> /></td>
                                   <?php if ($readonly == '') { ?>
                                       <td class="delete_btn">
-                                          <a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupId) . '&deleteParticipant=1&pid=' . attr_url($participant['pid']); ?>">&times;</a>
+                                          <a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupId) . '&deleteParticipant=1&pid=' . attr_url($participant['pid']) . '&csrf_token_form=' . attr_url($csrfToken); ?>">&times;</a>
                                       </td>
                                   <?php } ?>
                               </tr>

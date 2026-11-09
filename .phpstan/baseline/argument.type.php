@@ -17332,11 +17332,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/templates/globals-address-book.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$groupId of method TherapyGroupsController\\:\\:index\\(\\) expects int\\|null, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/therapy_groups/index.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/participants_controller.php',
