@@ -34,6 +34,7 @@ $authorized = AclMain::aclCheckCore('patients', 'med');
 // so the tab is shown only to administrators; the embedded page enforces the same check.
 $canManageAvailability = $authorized && AclMain::aclCheckCore('admin', 'super');
 $canImport = $authorized && AclMain::aclCheckCore('admin', 'forms');
+$canUseTemplates = $authorized && AclMain::aclCheckCore('patients', 'docs');
 $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
 $container = OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')
     ? 'container'
@@ -358,6 +359,21 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             <?php endif; ?>
                         </a>
                     </li>
+                    <?php if ($canUseTemplates) : ?>
+                    <li class="nav-item" role="presentation">
+                        <a
+                            class="nav-link"
+                            id="document-templates-tab"
+                            data-toggle="tab"
+                            href="#document-templates"
+                            role="tab"
+                            aria-controls="document-templates"
+                            aria-selected="false"
+                        >
+                            <?php echo xlt('Document Templates'); ?>
+                        </a>
+                    </li>
+                    <?php endif; ?>
                     <?php if ($canManageAvailability) : ?>
                     <li class="nav-item" role="presentation">
                         <a
@@ -639,6 +655,22 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             </div>
                         <?php endif; ?>
                     </div>
+                    <?php if ($canUseTemplates) : ?>
+                    <div
+                        class="tab-pane fade"
+                        id="document-templates"
+                        role="tabpanel"
+                        aria-labelledby="document-templates-tab"
+                    >
+                        <iframe
+                            id="document-templates-frame"
+                            title="<?php echo xla('Document Templates'); ?>"
+                            class="w-100 border-0"
+                            style="height: 85vh;"
+                            data-src="<?php echo attr($webRoot . '/portal/patient/onsitedocuments?pid=' . urlencode((string)$pid) . '&is_module=1'); ?>"
+                        ></iframe>
+                    </div>
+                    <?php endif; ?>
                     <?php if ($canManageAvailability) : ?>
                     <div
                         class="tab-pane fade"
@@ -682,7 +714,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
             </div>
         <?php endif; ?>
     </div>
-    <?php if ($canManageAvailability || $canImport) : ?>
+    <?php if ($canManageAvailability || $canImport || $canUseTemplates) : ?>
     <script>
         (function () {
             const availabilityFrame = document.getElementById('questionnaire-availability-frame')
@@ -699,6 +731,10 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
             }
             loadOnFirstOpen(document.getElementById('questionnaire-availability-tab'), availabilityFrame)
             loadOnFirstOpen(document.getElementById('questionnaire-import-tab'), importFrame)
+            loadOnFirstOpen(
+                document.getElementById('document-templates-tab'),
+                document.getElementById('document-templates-frame')
+            )
             // The first load is the screen itself; any later load is the screen coming
             // back from a save, which can change what this patient's dashboard offers.
             let loads = 0
