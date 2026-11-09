@@ -178,6 +178,7 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
             'history_sdoh_list' => ['interface/patient_file/history/history_sdoh_list.php'],
             'history_sdoh_health_concerns' => ['interface/patient_file/history/history_sdoh_health_concerns.php'],
             'eye_mag a_issue' => ['interface/forms/eye_mag/a_issue.php'],
+            'eye_mag new' => ['interface/forms/eye_mag/new.php'],
             'misc_billing_options new' => ['interface/forms/misc_billing_options/new.php'],
             'ub04_form' => ['interface/billing/ub04_form.php'],
         ];
@@ -185,8 +186,7 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
 
     /**
      * These pages need the full bootstrap, so check their source: the guard
-     * must run before the first call that writes the session patient or
-     * encounter.
+     * must run before the first call that writes the session.
      */
     #[DataProvider('guardedPageProvider')]
     public function testPageChecksTheTokenBeforeSwitching(string $path): void
@@ -197,7 +197,7 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
         foreach (self::functionCalls($source) as $position => $name) {
             if ($name === 'requireCsrfForLinkSwitch') {
                 $guard ??= $position;
-            } elseif (in_array(strtolower($name), ['setpid', 'setencounter'], true)) {
+            } elseif (in_array(strtolower($name), ['setpid', 'setencounter', 'setsession'], true)) {
                 $firstWrite ??= $position;
             }
         }
