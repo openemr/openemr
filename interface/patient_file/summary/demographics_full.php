@@ -17,6 +17,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
@@ -27,6 +29,8 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
@@ -38,12 +42,16 @@ $date_init = OEGlobalsBag::getInstance()->get('date_init', '');
 $condition_str = '';
 
 // Session pid must be right or bad things can happen when demographics are saved!
-//
-$set_pid = $_GET["set_pid"] ?? ($_GET["pid"] ?? null);
-if ($set_pid && $set_pid != $session->get("pid")) {
-    setpid($set_pid);
+// Switching to another patient needs a CSRF token in the link.
+$request = CurrentRequest::get();
+$set_pid = $request->query->getInt('set_pid') ?: $request->query->getInt('pid');
+if ($set_pid > 0) {
+    PatientSessionUtil::requireCsrfForLinkSwitch($request, $set_pid);
+    if ($set_pid !== PatientSessionUtil::getPid()) {
+        setpid($set_pid);
+    }
 }
-$pid = $session->get("pid") ?: $set_pid;
+$pid = PatientSessionUtil::getPid() ?: $set_pid;
 if (!$pid) {
     die(xlt('No patient selected.'));
 }
@@ -529,7 +537,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         <?php }?>
 
         <?php if ($set_pid) { ?>
-        parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) . "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",''," . js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD'])) . "," . ((new PatientService())->hasPictureForPid($pid) ? 'true' : 'false'); ?>);
+        parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) . "," . $pid . "," . js_escape($result['pubpid']) . ",''," . js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD'])) . "," . ((new PatientService())->hasPictureForPid($pid) ? 'true' : 'false'); ?>);
         <?php } ?>
 
         <?php echo $date_init; ?>

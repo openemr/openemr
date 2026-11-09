@@ -19,6 +19,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 /*
 TODO: Code cleanup */
 
@@ -84,8 +86,10 @@ if (
 // menu render for the same patient the queries below load. Placed after the
 // ACL check above so an unauthorized caller cannot pollute session pid.
 // Fires on bootstrap (empty session) AND on context switch (bookmark for a
-// different patient while another chart is open).
+// different patient while another chart is open). Both need a CSRF token
+// in the link.
 if ($requestPid > 0 && $requestPid !== PatientSessionUtil::getPid()) {
+    PatientSessionUtil::requireCsrfForLinkSwitch(CurrentRequest::get(), $requestPid);
     setpid($requestPid);
 }
 

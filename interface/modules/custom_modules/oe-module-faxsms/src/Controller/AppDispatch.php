@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018-2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,6 +24,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -837,6 +841,26 @@ abstract class AppDispatch
     protected function index()
     {
         return null;
+    }
+
+    /**
+     * Open the patient named by ?patient_id= when no patient is open yet.
+     * Opening a patient from a link needs a CSRF token in the link.
+     *
+     * @return void
+     */
+    protected function openRequestedPatient(): void
+    {
+        if ($this->getSession('pid', '')) {
+            return;
+        }
+        $request = CurrentRequest::get();
+        $requestPid = $request->query->getInt('patient_id');
+        if ($requestPid <= 0) {
+            return;
+        }
+        PatientSessionUtil::requireCsrfForLinkSwitch($request, $requestPid);
+        $this->setSession('pid', $requestPid);
     }
 
     /**
