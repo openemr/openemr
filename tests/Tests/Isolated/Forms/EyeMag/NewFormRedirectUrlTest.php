@@ -127,11 +127,11 @@ class NewFormRedirectUrlTest extends TestCase
             'new.php must not use date("Ymd") as encounter fallback (the root cause of #10844)'
         );
 
-        // An encounter guard (checking for 0 or empty) must exist before DB queries
+        // An encounter guard (checking for zero, negative, or empty) must exist before DB queries
         $this->assertMatchesRegularExpression(
-            '/if\s*\(.*\$encounter.*===\s*0/',
+            '/if\s*\(.*\$encounter.*<=\s*0/',
             $this->newPhpSource,
-            'new.php must guard against encounter === 0'
+            'new.php must guard against encounter <= 0'
         );
     }
 }

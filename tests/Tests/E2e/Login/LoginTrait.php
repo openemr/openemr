@@ -81,14 +81,23 @@ trait LoginTrait
      */
     private function dashboardUrl(int $pid): string
     {
+        return '/interface/patient_file/summary/demographics.php?' . http_build_query([
+            'set_pid' => $pid,
+            'csrf_token_form' => $this->shellCsrfToken(),
+        ]);
+    }
+
+    /**
+     * The session's CSRF token, read from the app shell's `csrf_token_js`,
+     * so call this while the shell is the current page.
+     */
+    private function shellCsrfToken(): string
+    {
         $token = $this->client->executeScript('return window.csrf_token_js;');
         if (!is_string($token)) {
             throw new \RuntimeException('The app shell did not expose csrf_token_js');
         }
-        return '/interface/patient_file/summary/demographics.php?' . http_build_query([
-            'set_pid' => $pid,
-            'csrf_token_form' => $token,
-        ]);
+        return $token;
     }
 
     /**

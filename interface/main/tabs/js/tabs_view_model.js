@@ -5,8 +5,10 @@
  * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -205,7 +207,8 @@ function chooseEncounterEvent(data,evt)
 
 function goToEncounter(encId)
 {
-    var url=webroot_url+'/interface/patient_file/encounter/encounter_top.php?set_encounter=' + encId;
+    const params = new URLSearchParams({set_encounter: encId, csrf_token_form: csrf_token_js});
+    var url=webroot_url+'/interface/patient_file/encounter/encounter_top.php?' + params;
 
     navigateTab(url,"enc", function () {
         activateTabByName("enc",true);

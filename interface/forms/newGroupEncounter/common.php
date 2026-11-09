@@ -7,11 +7,15 @@
  * @link      https://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/group.inc.php");
@@ -368,7 +372,8 @@ if (!$viewmode) { ?>
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
             parent.left_nav.setEncounter(datestr, enc, window.name);
-            parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc));
+            const params = new URLSearchParams({set_encounter: enc, csrf_token_form: top.csrf_token_js});
+            parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?' + params);
             return;
         }
         // otherwise just continue normally

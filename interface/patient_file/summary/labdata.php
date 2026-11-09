@@ -28,10 +28,14 @@
  * @link      https://www.open-emr.org
  * @author    Joe Slam <trackanything@produnis.de>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2014 Joe Slam <trackanything@produnis.de>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 require_once("../../globals.php");
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
@@ -313,7 +317,8 @@ function checkAll(bx) {
                                 echo "<td class='list_log'>"  . text($myrow['review_status']) . "</td>";
                                 echo "<td class='list_log'>";
                                 if (!$printable) {
-                                    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr_url($myrow['encounter_id']) . "' target='RBot'>";
+                                    $encounterQuery = http_build_query(['set_encounter' => $myrow['encounter_id'], 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]);
+                                    echo "<a href='../../patient_file/encounter/encounter_top.php?" . attr($encounterQuery) . "' target='RBot'>";
                                     echo text($myrow['encounter_id']);
                                     echo "</a>";
                                 } else {

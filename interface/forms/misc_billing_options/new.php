@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This program creates the misc_billing_form
  *
  * @package   OpenEMR
@@ -10,19 +10,24 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (C) 2007 Bo Huynh
  * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2017-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
@@ -40,19 +45,23 @@ $encounter = EncounterSessionUtil::getEncounter();
 require_once("$srcdir/options.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$request = CurrentRequest::get();
+$isBilling = $request->query->has('isBilling');
 
-if (isset($_REQUEST['isBilling'])) {
-    $pid = $_REQUEST['pid'];
+if ($isBilling) {
+    // The billing report opens this for any claim's patient and encounter.
+    // Switching to another patient or encounter needs a CSRF token in the link.
+    $pid = $request->query->getInt('pid');
+    $encounter = $request->query->getInt('enc');
+    PatientSessionUtil::requireCsrfForLinkSwitch($request, $pid, $encounter);
+
     SessionUtil::setSession('billpid', $pid);
-
-    if ($pid != $session->get('pid')) {
+    if ($pid !== PatientSessionUtil::getPid()) {
         setpid($pid);
     }
 
-    $encounter = $_REQUEST['enc'];
     SessionUtil::setSession('billencounter', $encounter);
-
-    if ($encounter != $session->get('encounter')) {
+    if ($encounter !== EncounterSessionUtil::getEncounter()) {
         setencounter($encounter);
     }
 } elseif ($session->has('billencounter')) {
@@ -387,7 +396,7 @@ $obj = is_array($fetched) ? $fetched : [];
     // jQuery stuff to make the page a little easier to use
     $(function () {
         $(".dontsave").click(function () {
-            <?php if (isset($_REQUEST['isBilling'])) { ?>
+            <?php if ($isBilling) { ?>
                 dlgclose();
             <?php } else { ?>
                 parent.closeTab(window.name, false);
