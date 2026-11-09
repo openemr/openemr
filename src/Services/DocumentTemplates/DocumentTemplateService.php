@@ -553,7 +553,6 @@ class DocumentTemplateService extends QuestionnaireService
         if (function_exists('finfo_open')) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mimetype = finfo_file($finfo, $file);
-            finfo_close($finfo);
         } elseif (function_exists('mime_content_type')) {
             $mimetype = mime_content_type($file);
         } else {

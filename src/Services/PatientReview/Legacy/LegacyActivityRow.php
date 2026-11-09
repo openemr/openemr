@@ -111,7 +111,7 @@ final readonly class LegacyActivityRow
     }
 
     /**
-     * Keyed the way the portal's Backbone models name the fields (camelCase).
+     * Keyed the way the portal's page scripts name the fields (camelCase).
      *
      * @return array{id: int, date: string, patientId: int, activity: string, requireAudit: int, pendingAction: string, actionTaken: string, status: string, narrative: string, tableAction: string, tableArgs: string, actionUser: int, actionTakenTime: ?string, checksum: string}
      */

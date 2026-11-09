@@ -35,8 +35,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v7
       with:
-        # --changed-since needs the merge base with the PR's base commit.
-        fetch-depth: 0
+        # --changed-since needs the merge commit's first parent.
+        fetch-depth: 2
 
     - name: Setup PHP
       uses: ./.github/actions/setup-php-composer
@@ -45,11 +45,12 @@ jobs:
 
     - name: Check changed files
       if: github.event_name == 'pull_request'
-      env:
-        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      # The checkout is the PR merged onto the current base branch, so its
+      # first parent is that base. pull_request.base.sha can be older, and
+      # diffing from it pulls in the base branch's own changes.
       run: >-
         php bin/console --skip-globals openemr:license-headers
-        --changed-since="$BASE_SHA"
+        --changed-since=HEAD^1
         --sarif=license-headers.sarif
 
     - name: Scan every file

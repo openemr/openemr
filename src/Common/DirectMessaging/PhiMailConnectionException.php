@@ -28,4 +28,21 @@ final class PhiMailConnectionException extends PhiMailException
     ) {
         parent::__construct('phiMail connection failed: ' . $failure->value, 0, $previous);
     }
+
+    /**
+     * The failure's C-code as it appears in the audit log, with the OS error
+     * for an unreachable server.
+     */
+    public function auditCode(): string
+    {
+        if ($this->failure !== PhiMailConnectionFailure::Unreachable) {
+            return $this->failure->value;
+        }
+        $detail = match (true) {
+            $this->socketErrorCode === 111 => xl('Server may be offline'),
+            $this->socketErrorMessage === '' => xl('Connection error'),
+            default => $this->socketErrorMessage,
+        };
+        return $this->failure->value . ' ' . $this->socketErrorCode . ' (' . $detail . ')';
+    }
 }

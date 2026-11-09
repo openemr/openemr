@@ -4,8 +4,8 @@
  * CSRF check for the patient portal's Phreeze API (portal/patient/index.php).
  *
  * Every request that can change data must carry the session's CSRF token in the
- * X-CSRF-Token header. The portal pages print the token, and scripts/model.js sends it
- * on every Backbone write.
+ * X-CSRF-Token header. The portal pages print the token, and scripts/portal-api.js sends it
+ * on every write.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

@@ -195,11 +195,7 @@
         },
         "classmap": [
             "library/classes",
-            "portal/lib/appsql.class.php",
-            "portal/patient/_global_config.php",
-            "portal/patient/fwk/libs/savant",
-            "portal/patient/fwk/libs/verysimple",
-            "portal/patient/libs"
+            "portal/lib/appsql.class.php"
         ],
         "files": [
             "library/amc.php",
@@ -234,10 +230,7 @@
             "library/transactions.inc.php",
             "library/translation.inc.php",
             "library/user.inc.php",
-            "library/validation/validate_core.php",
-            "portal/patient/fwk/libs/verysimple/Phreeze/FieldMap.php",
-            "portal/patient/fwk/libs/verysimple/Phreeze/IObserver.php",
-            "portal/patient/fwk/libs/verysimple/Phreeze/KeyMap.php"
+            "library/validation/validate_core.php"
         ],
         "exclude-from-classmap": [
             "src/Common/Compatibility/Checker.php",

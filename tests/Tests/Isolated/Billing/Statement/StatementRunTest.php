@@ -133,7 +133,11 @@ class StatementRunTest extends TestCase
 
         $this->assertSame([[1, 'statement 1|'], [2, 'statement 2|']], $this->steps->emailed);
         $this->assertSame(['Ann Credit: Patient email address is invalid'], $result->emailFailures);
-        $this->assertSame(2, $result->statementsWritten);
+        // The statement that couldn't be emailed went nowhere: not saved, not counted, not in the batch.
+        $this->assertSame(1, $result->statementsWritten);
+        $this->assertSame('statement 2|', $result->output);
+        $this->assertSame([[2, 'statement 2|']], $this->steps->saved);
+        $this->assertSame([[21]], $this->steps->recorded);
     }
 
     public function testAnEmptyStatementIsNotEmailed(): void

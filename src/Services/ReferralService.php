@@ -24,8 +24,11 @@ use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\ReferenceSearchField;
+use OpenEMR\Services\Search\SearchComparator;
+use OpenEMR\Services\Search\SearchFieldComparableValue;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
+use OpenEMR\Services\Search\SearchQueryFragment;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -36,8 +39,12 @@ class ReferralService extends BaseService
     /** The referral form's id, in transactions.title. */
     public const FORM_ID = 'LBTref';
 
-    /** The referral's own Tasks, the ones ReferralTaskService makes: code fulfill, not part of another Task. */
-    private const OWN_TASK_SQL = "task.code = 'fulfill' AND task.part_of_uuid IS NULL";
+    /**
+     * The referral's own Tasks, the ones ReferralTaskService makes: code fulfill, not part of another
+     * Task. For a query that names the task table task, as the eCQM reports read too
+     * (Qdm\Services\ConsultantReportService).
+     */
+    public const OWN_TASK_SQL = "task.code = 'fulfill' AND task.part_of_uuid IS NULL";
 
     /** The lbt_data fields read, each as a column of the same name. */
     private const FIELDS = ['refer_date', 'refer_from', 'refer_to', 'body', 'refer_diag', 'refer_related_code', 'reply_date'];
@@ -52,7 +59,7 @@ class ReferralService extends BaseService
      * Search columns that are the transaction's own, by the column each is read from.
      * Filters on them are applied before the fields are grouped, so that a search by
      * patient or id doesn't group every referral first. The last update isn't one: it
-     * moves with the referral's Task too.
+     * moves with the referral's Task too (lastUpdatedAtSource()).
      */
     private const SOURCE_COLUMNS = ['uuid' => 't.uuid', 'puuid' => 'patients.uuid'];
 
@@ -222,6 +229,37 @@ class ReferralService extends BaseService
     }
 
     /**
+     * The address book entries that can be a Task's owner without being a user who logs in: the
+     * External Organizations and practitioners ReferralTaskService can send a referral to.
+     *
+     * @return list<array{uuid: string, name: string, type: string}> by name
+     */
+    public function addressBookRecipients(): array
+    {
+        $name = AddressBookOrganizationService::nameSql('u');
+        $isOrganization = AddressBookOrganizationService::isOrganizationSql('u');
+        $rows = QueryUtils::fetchRecords(
+            "SELECT u.uuid, $isOrganization AS is_organization,
+                    CASE WHEN $isOrganization THEN $name ELSE COALESCE(NULLIF(TRIM(CONCAT_WS(' ', u.fname, u.lname)), ''), u.organization) END AS name
+                FROM users AS u
+                WHERE u.active = 1 AND u.uuid IS NOT NULL AND COALESCE(u.username, '') = ''
+                    AND ($isOrganization OR (COALESCE(u.npi, '') <> '' AND u.abook_type IN (" . self::PRACTITIONER_ABOOK_TYPES . ')))
+                ORDER BY name'
+        );
+        $recipients = [];
+        foreach ($rows as $row) {
+            if (is_string($row['uuid'] ?? null)) {
+                $recipients[] = [
+                    'uuid' => UuidRegistry::uuidToString($row['uuid']),
+                    'name' => is_string($row['name'] ?? null) ? $row['name'] : '',
+                    'type' => in_array($row['is_organization'] ?? null, [1, '1'], true) ? 'Organization' : 'Practitioner',
+                ];
+            }
+        }
+        return $recipients;
+    }
+
+    /**
      * Each referral's Task status as taskStatusSql() finds it, by transaction id, in one query: for a
      * page that lists referrals with their fields already in hand.
      *
@@ -251,8 +289,11 @@ class ReferralService extends BaseService
     /**
      * @param array<string, ISearchField> $search
      * @param mixed $isAndCondition
+     * @param ?string $recipientOnly an address book entry's uuid, for only the referrals it's the current
+     *     recipient of with a Task that counts: once a referral goes elsewhere, its earlier recipient
+     *     no longer reads it
      */
-    public function search(array $search, $isAndCondition = true): ProcessingResult
+    public function search(array $search, $isAndCondition = true, ?string $recipientOnly = null): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         // Fields joined by OR stay together, after grouping.
@@ -260,10 +301,23 @@ class ReferralService extends BaseService
         $grouped = [];
         $sourceFilter = '';
         $sourceValues = [];
+        if ($recipientOnly !== null) {
+            $sourceFilter = " AND EXISTS (SELECT 1 FROM task
+                JOIN lbt_data AS recipient ON recipient.form_id = t.id AND recipient.field_id = 'refer_to'
+                JOIN users AS recipient_user ON recipient_user.id = recipient.field_value
+                WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid AND task.owner_uuid = recipient_user.uuid
+                    AND recipient_user.uuid = ? AND " . self::OWN_TASK_SQL . ' AND ' . self::countsForRecipientSql() . ')';
+            $sourceValues[] = UuidRegistry::uuidToBytes($recipientOnly);
+        }
         // Only turning the fields into SQL can refuse a search: a field or modifier the statement
         // builders don't take. The query and the mapping below don't throw SearchFieldException.
         try {
             foreach ($search as $key => $field) {
+                $lastUpdated = $isAnd ? self::lastUpdatedAtSource($field) : null;
+                if ($lastUpdated !== null) {
+                    $sourceFilter .= ' AND ' . $lastUpdated->getFragment();
+                    $sourceValues = array_merge($sourceValues, $lastUpdated->getBoundValues());
+                }
                 $sourceField = $isAnd ? self::atSource($field) : null;
                 if ($sourceField === null) {
                     $grouped[$key] = $field;
@@ -292,6 +346,43 @@ class ReferralService extends BaseService
             $processingResult->addData($this->createResultRecordFromDatabaseResult($record));
         }
         return $processingResult;
+    }
+
+    /**
+     * A _lastUpdated search's lower bound before the fields are grouped, or null for a search with
+     * none, so that a client asking what changed lately doesn't group every referral first. The last
+     * update is the later of the transaction's date and its own Tasks' last change, so it's after a
+     * date only when one of those is. This narrows what's grouped and decides nothing: the search's
+     * own filter still runs on the grouped last_modified. An upper bound can't narrow it this way,
+     * since either one being before a date says nothing about the other.
+     */
+    public static function lastUpdatedAtSource(ISearchField $field): ?SearchQueryFragment
+    {
+        if (!($field instanceof DateSearchField) || $field->getField() !== 'last_modified') {
+            return null;
+        }
+        $values = $field->getValues();
+        // Alternatives (ge2026-01-01,lt2020-01-01) can each match on their own, so no one of them narrows the search.
+        if (count($values) > 1 && !$field->isAnd()) {
+            return null;
+        }
+        $lowerBounds = array_values(array_filter(
+            $values,
+            static fn(SearchFieldComparableValue $value): bool => in_array($value->getComparator(), [SearchComparator::GREATER_THAN, SearchComparator::GREATER_THAN_OR_EQUAL_TO, SearchComparator::STARTS_AFTER], true)
+        ));
+        if ($lowerBounds === []) {
+            return null;
+        }
+        $transaction = SearchFieldStatementResolver::getStatementForSearchField(new DateSearchField('t.date', $lowerBounds, $field->getDateType(), true));
+        $task = SearchFieldStatementResolver::getStatementForSearchField(new DateSearchField('task.last_modified', $lowerBounds, $field->getDateType(), true));
+        $fragment = new SearchQueryFragment(
+            '(' . $transaction->getFragment() . " OR EXISTS (SELECT 1 FROM task WHERE task.focus_type = 'ServiceRequest' AND task.focus_uuid = t.uuid AND "
+                . self::OWN_TASK_SQL . ' AND ' . $task->getFragment() . '))'
+        );
+        foreach (array_merge($transaction->getBoundValues(), $task->getBoundValues()) as $value) {
+            $fragment->addBoundValue($value);
+        }
+        return $fragment;
     }
 
     /**

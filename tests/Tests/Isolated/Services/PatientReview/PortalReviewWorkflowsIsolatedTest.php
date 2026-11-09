@@ -16,12 +16,17 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Services\PatientReview;
 
 use DateTimeImmutable;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
+use OpenEMR\Services\PatientReview\PayloadFormat;
+use OpenEMR\Services\PatientReview\Portal\PaymentPostingBlock;
 use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
+use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewSource;
 use OpenEMR\Services\PatientReview\ReviewStatus;
 use OpenEMR\Services\PatientReview\ReviewSubmission;
@@ -34,12 +39,17 @@ use Ramsey\Uuid\UuidFactory;
 final class PortalReviewWorkflowsIsolatedTest extends TestCase
 {
     private const PID = 7;
-    private const CARD = '{"cardHolderName":"Ann Lee","cc_type":"Visa","cardNumber":"******** 1111","authCode":"A1","transId":"T1","zip":"12345"}';
+    private const OLD_KEY_SECRET = 'written under replaced keys';
+    private const CARD = '{"cardHolderName":"Ann Lee","cc_type":"Visa","cardNumber":"4111111111111111","month":"12","year":"2030","cardCode":"123","zip":"12345"}';
 
     private InMemoryReviewRequestStore $store;
     private ReviewQueueService $queue;
     private PortalReviewWorkflows $workflows;
+    private RecordingLogger $logger;
 
+    /**
+     * A fresh in-memory queue, with a crypto stub that fails on the old key ciphertext.
+     */
     protected function setUp(): void
     {
         $this->store = new InMemoryReviewRequestStore();
@@ -51,10 +61,17 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         };
         $crypto = $this->createMock(CryptoInterface::class);
         $crypto->method('encryptForDatabase')->willReturnCallback(static fn(?string $value): string => 'enc(' . $value . ')');
-        $crypto->method('decryptFromDatabase')->willReturnCallback(static fn(?string $value): string => substr((string) $value, 4, -1));
+        $crypto->method('decryptFromDatabase')->willReturnCallback(static function (?string $value): string {
+            // A secret written under keys the site no longer has.
+            if ($value === self::OLD_KEY_SECRET) {
+                throw new CryptoGenException('Decryption failed');
+            }
+            return substr((string) $value, 4, -1);
+        });
+        $this->logger = new RecordingLogger();
 
         $this->queue = new ReviewQueueService($this->store, new RecordingReviewAuditTrail(), $clock, new UuidFactory(), $crypto, new NullLogger());
-        $this->workflows = new PortalReviewWorkflows($this->queue);
+        $this->workflows = new PortalReviewWorkflows($this->queue, $this->logger);
     }
 
     private function patient(): ReviewActor
@@ -112,9 +129,150 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
         $this->assertSame([], $this->workflows->paymentCardDetails($posted));
     }
 
+    /**
+     * Undecryptable card details are logged and come back as null, and the patient can submit again.
+     */
+    public function testCardDetailsThatCannotBeDecryptedAreReportedNotThrown(): void
+    {
+        $payment = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $this->store->putSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD, self::OLD_KEY_SECRET, new DateTimeImmutable('2026-10-01 09:30:00'));
+
+        $this->assertNull($this->workflows->paymentCardDetails($payment));
+        $this->assertCount(1, $this->logger->records);
+        $this->assertSame($payment->id, $this->logger->records[0][2]['request_id'] ?? null);
+
+        // The patient can still replace it, and the new payment's card details read normally.
+        $again = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $this->assertSame(ReviewStatus::Cancelled, $this->queue->get($payment->id)->status);
+        $this->assertSame('Ann Lee', $this->workflows->paymentCardDetails($again)['cardHolderName'] ?? null);
+    }
+
+    private function postingBlock(ReviewRequest $payment): ?PaymentPostingBlock
+    {
+        return PortalReviewWorkflows::postingBlock($payment, $this->workflows->paymentCardDetails($payment));
+    }
+
+    public function testAnUnreadableUnchargedPaymentCannotBePosted(): void
+    {
+        $uncharged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $this->assertNull($this->postingBlock($uncharged));
+
+        $this->store->putSecret($uncharged->id, ReviewQueueService::SECRET_PAYMENT_CARD, self::OLD_KEY_SECRET, new DateTimeImmutable('2026-10-01 09:30:00'));
+        $this->assertFalse(PortalReviewWorkflows::isChargedPayment($uncharged));
+        $this->assertSame(PaymentPostingBlock::CardUnreadable, $this->postingBlock($uncharged), 'staff cannot charge a card they cannot read');
+    }
+
+    /**
+     * Stored card details that are empty (a payment from before the rule) block posting.
+     */
+    public function testAnUnchargedPaymentWithNoCardDetailsCannotBePosted(): void
+    {
+        $uncharged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $this->store->putSecret($uncharged->id, ReviewQueueService::SECRET_PAYMENT_CARD, 'enc()', new DateTimeImmutable('2026-10-01 09:30:00'));
+
+        $this->assertSame(PaymentPostingBlock::NoCardDetails, $this->postingBlock($uncharged), 'there is no card to charge');
+    }
+
+    /**
+     * Readable card details that lack a field needed to charge the card block posting.
+     */
+    public function testAnUnchargedPaymentWithIncompleteCardDetailsCannotBePosted(): void
+    {
+        $uncharged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        $this->store->putSecret($uncharged->id, ReviewQueueService::SECRET_PAYMENT_CARD, 'enc({"cardHolderName":"Ann Lee","note":"x"})', new DateTimeImmutable('2026-10-01 09:30:00'));
+
+        $this->assertSame(PaymentPostingBlock::IncompleteCardDetails, $this->postingBlock($uncharged));
+    }
+
+    /**
+     * An uncharged payment is refused at submission unless every card field is there.
+     */
+    public function testAnUnchargedPaymentNeedsUsableCardDetails(): void
+    {
+        $incomplete = json_decode(self::CARD, true, flags: JSON_THROW_ON_ERROR);
+        $incomplete['cardCode'] = ' ';
+        foreach (['', 'not json', '{"note":"x"}', json_encode($incomplete, JSON_THROW_ON_ERROR)] as $card) {
+            try {
+                $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', $card, false, $this->patient());
+                $this->fail('accepted ' . $card);
+            } catch (\InvalidArgumentException) {
+                $this->assertNull($this->workflows->pendingPayment(self::PID), 'nothing recorded for ' . $card);
+            }
+        }
+        $this->assertTrue(PortalReviewWorkflows::isUsableCard(json_decode(self::CARD, true, flags: JSON_THROW_ON_ERROR)));
+        $charged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', '', true, $this->patient());
+        $this->assertSame($charged->id, $this->workflows->pendingPayment(self::PID)?->id, 'a charged payment needs none');
+    }
+
+    public function testAChargedPaymentCanBePostedWithUnreadableOrNoCardDetails(): void
+    {
+        $charged = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, true, $this->patient());
+        $this->store->putSecret($charged->id, ReviewQueueService::SECRET_PAYMENT_CARD, self::OLD_KEY_SECRET, new DateTimeImmutable('2026-10-01 09:30:00'));
+
+        $this->assertTrue(PortalReviewWorkflows::isChargedPayment($charged));
+        $this->assertNull($this->postingBlock($charged), 'the gateway holds the transaction');
+
+        $noCard = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', '', true, $this->patient());
+        $this->assertNull($this->postingBlock($noCard));
+    }
+
+    /**
+     * Every posting block tells staff something.
+     */
+    public function testEachPostingBlockHasAMessage(): void
+    {
+        OEGlobalsBag::getInstance()->set('disable_translation', true);
+        foreach (PaymentPostingBlock::cases() as $block) {
+            $this->assertNotSame('', $block->message());
+        }
+    }
+
+    public function testAnOlderChargedPaymentStillCountsAsOpen(): void
+    {
+        $this->assertFalse($this->workflows->hasOpenChargedPayment(self::PID));
+
+        $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, true, $this->patient());
+        // A later uncharged payment is the newest open one, but the charged one is still open.
+        $newest = $this->workflows->submitPayment(self::PID, '{"1001":"5.00"}', self::CARD, false, $this->patient());
+
+        $this->assertSame($newest->id, $this->workflows->pendingPayment(self::PID)?->id);
+        $this->assertFalse(PortalReviewWorkflows::isChargedPayment($newest));
+        $this->assertTrue($this->workflows->hasOpenChargedPayment(self::PID));
+        $this->assertFalse($this->workflows->hasOpenChargedPayment(self::PID + 1), 'another patient');
+    }
+
+    public function testAPaymentWithNoChargedFlagCountsAsCharged(): void
+    {
+        $payment = $this->workflows->submitPayment(self::PID, '{"1001":"10.00"}', self::CARD, false, $this->patient());
+        // A payment migrated from onsite_portal_activity has no charged flag.
+        $migrated = new ReviewRequest(
+            $payment->id,
+            $payment->uuid,
+            $payment->pid,
+            $payment->type,
+            null,
+            $payment->source,
+            null,
+            $payment->status,
+            $payment->summary,
+            ['value' => '{"1001":"10.00"}'],
+            PayloadFormat::Text,
+            null,
+            null,
+            $payment->createdAt,
+            $payment->updatedAt,
+            null,
+            null,
+            null,
+        );
+
+        $this->assertFalse(PortalReviewWorkflows::isChargedPayment($payment));
+        $this->assertTrue(PortalReviewWorkflows::isChargedPayment($migrated));
+    }
+
     public function testAPaymentWithoutCardDetailsStoresNoSecret(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{}', '', true, $this->patient());
 
         $this->assertNull($this->store->getSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD));
         $this->assertSame([], $this->workflows->paymentCardDetails($payment));
@@ -161,7 +319,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testPaymentLookupChecksTypeAndPatient(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{}', '', true, $this->patient());
         $profile = $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());
 
         $this->assertSame($payment->id, $this->workflows->payment($payment->id)?->id);
@@ -252,7 +410,7 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
 
     public function testDiscardRefusesARequestAlreadyClosed(): void
     {
-        $payment = $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
+        $payment = $this->workflows->submitPayment(self::PID, '{}', '', true, $this->patient());
         $this->workflows->completePayment(self::PID, $this->staff());
 
         $this->expectException(InvalidReviewTransitionException::class);
@@ -281,9 +439,9 @@ final class PortalReviewWorkflowsIsolatedTest extends TestCase
     public function testAlertCountsIncludePaymentsInAudits(): void
     {
         $this->workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $this->patient());
-        $this->workflows->submitPayment(self::PID, '{}', '', false, $this->patient());
+        $this->workflows->submitPayment(self::PID, '{}', '', true, $this->patient());
         $this->workflows->submitDocument(self::PID, 11, 'Consent', $this->patient());
-        $this->workflows->submitPayment(8, '{}', '', false, ReviewActor::patient(8, 'bob8'));
+        $this->workflows->submitPayment(8, '{}', '', true, ReviewActor::patient(8, 'bob8'));
 
         $this->assertSame(['audits' => 4, 'payments' => 2], $this->workflows->alertCounts());
     }
