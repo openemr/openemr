@@ -235,6 +235,7 @@ class C_Document extends Controller
 
             foreach ($_FILES['file']['name'] as $key => $value) {
                 $fname = $value;
+                $nameForError = is_string($fname) ? $fname : '';
                 if ($_FILES['file']['error'][$key] > 0 || empty($fname) || $_FILES['file']['size'][$key] == 0) {
                     $fname = $value;
                     if (empty($fname)) {
@@ -245,7 +246,7 @@ class C_Document extends Controller
                         $error .= xl("The system does not permit uploading files of with size 0.") . "\n";
                     }
                 } elseif (OEGlobalsBag::getInstance()->getBoolean('secure_upload') && !isWhiteFile($_FILES['file']['tmp_name'][$key])) {
-                    $error .= xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . " (" . $fname . ").\n";
+                    $error .= xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . " (" . $nameForError . ").\n";
                 } else {
                     // Test for a zip of DICOM images
                     if (stripos((string) $_FILES['file']['type'][$key], 'zip') !== false) {
@@ -313,7 +314,7 @@ class C_Document extends Controller
                     }
                     // if mimetype still empty, then do not upload the file
                     if (empty($mimetype)) {
-                        $error .= xl("Unable to discover mimetype, so did not upload") . " " . $fname . ".\n";
+                        $error .= xl("Unable to discover mimetype, so did not upload") . " " . $nameForError . ".\n";
                         continue;
                     }
                     $d = new Document();
