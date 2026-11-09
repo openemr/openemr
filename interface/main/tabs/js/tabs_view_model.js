@@ -293,7 +293,8 @@ function loadCurrentPatient()
 
 function loadCurrentTherapyGroup() {
 
-    var url=webroot_url+'/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session';
+    var params = new URLSearchParams({method: 'groupDetails', group_id: 'from_session', csrf_token_form: csrf_token_js});
+    var url=webroot_url+'/interface/therapy_groups/index.php?' + params;
     navigateTab(url,"gdg", function () {
         activateTabByName("gdg",true);
     });

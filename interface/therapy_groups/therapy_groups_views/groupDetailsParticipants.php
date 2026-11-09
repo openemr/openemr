@@ -48,8 +48,8 @@ $csrfToken = CsrfUtils::collectCsrfToken(SessionWrapperFactory::getInstance()->g
                 <div class="row">
                     <div class="col-md-8 col-sm-12">
                         <ul class="tabNav">
-                            <li><a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($groupId); ?>"><?php echo xlt('General data');?></a></li>
-                            <li class="current"><a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupId); ?>"><?php echo xlt('Participants ');?></a></li>
+                            <li><a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($groupId) . '&csrf_token_form=' . attr_url($csrfToken); ?>"><?php echo xlt('General data');?></a></li>
+                            <li class="current"><a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupId) . '&csrf_token_form=' . attr_url($csrfToken); ?>"><?php echo xlt('Participants ');?></a></li>
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
@@ -58,10 +58,10 @@ $csrfToken = CsrfUtils::collectCsrfToken(SessionWrapperFactory::getInstance()->g
                                 <button class="btn btn-primary" onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                             <?php }?>
                             <?php if ($readonly == '') { ?>
-                            <button class="btn btn-secondary" onclick="location.href='<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupId); ?>'"><?php echo xlt('Cancel');?></button>
+                            <button class="btn btn-secondary" onclick="location.href='<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupId) . '&csrf_token_form=' . attr_url($csrfToken); ?>'"><?php echo xlt('Cancel');?></button>
                             <button class="btn btn-primary" id="saveForm"><?php echo xlt('Save');?></button>
                         <?php } else { ?>
-                            <button class="btn btn-primary" onclick="location.href='<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupParticipants&editParticipants=1&group_id=' . attr_url($groupId); ?>'"><?php echo xlt('Update');?></button>
+                            <button class="btn btn-primary" onclick="location.href='<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupParticipants&editParticipants=1&group_id=' . attr_url($groupId) . '&csrf_token_form=' . attr_url($csrfToken); ?>'"><?php echo xlt('Update');?></button>
                         <?php } ?>
                       <?php } ?>
                     </div>
@@ -270,7 +270,7 @@ $csrfToken = CsrfUtils::collectCsrfToken(SessionWrapperFactory::getInstance()->g
 
     function refreshme() {
         top.restoreSession();
-        location.href = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?> + '/interface/therapy_groups/index.php?method=groupParticipants&group_id=' + <?php echo js_url($groupId); ?>;
+        location.href = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?> + '/interface/therapy_groups/index.php?method=groupParticipants&group_id=' + <?php echo js_url($groupId); ?> + '&csrf_token_form=' + <?php echo js_url($csrfToken); ?>;
     }
 
     function newGroup(){
