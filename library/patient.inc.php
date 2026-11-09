@@ -18,6 +18,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
@@ -26,7 +27,12 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EmployerService;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\Insurance\InsuranceLevel;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\InsuranceService;
+use OpenEMR\Services\Patient\DuplicatePatientService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
@@ -1501,23 +1507,23 @@ function dateToDB($date): string
  */
 function getEffectiveInsurances($patient_id, $encdate): array
 {
-    $pid = \OpenEMR\Services\Insurance\EffectiveInsuranceRule::storedId($patient_id);
-    $day = \OpenEMR\Services\Insurance\CoverageDay::fromStored($encdate);
+    $pid = EffectiveInsuranceRule::storedId($patient_id);
+    $day = CoverageDay::fromStored($encdate);
     if ($pid === null || $day === null) {
         return [];
     }
     // One service per request: its constructor backfills missing uuids in three tables, which these
     // rows' callers don't read, and the Billing Manager, balances and ledgers call this once per visit.
     static $service = null;
-    if (!$service instanceof \OpenEMR\Services\InsuranceService) {
-        $service = new \OpenEMR\Services\InsuranceService();
+    if (!$service instanceof InsuranceService) {
+        $service = new InsuranceService();
     }
     $byLevel = [];
     foreach ($service->getEffectiveInsuranceRows($pid, $day) as $row) {
         $byLevel[$row->policy->level->value] = $row->columns;
     }
     $rows = [];
-    foreach (\OpenEMR\Services\Insurance\InsuranceLevel::cases() as $level) {
+    foreach (InsuranceLevel::cases() as $level) {
         if (!isset($byLevel[$level->value])) {
             break;
         }
@@ -1706,8 +1712,8 @@ function is_patient_deceased($pid, $date = '')
  */
 function updateDupScore(int|string $pid): int
 {
-    return (new \OpenEMR\Services\Patient\DuplicatePatientService(
-        \OpenEMR\BC\ServiceContainer::getClock()
+    return (new DuplicatePatientService(
+        ServiceContainer::getClock()
     ))->recalculateScore((int) $pid);
 }
 
