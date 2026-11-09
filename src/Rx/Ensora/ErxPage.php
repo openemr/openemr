@@ -287,6 +287,14 @@ class ErxPage
 
         $result = $XMLBuilder->checkError($xml);
 
+        // An empty page has no errors to find, but it means the check failed,
+        // so the launch must not go ahead. The old curl call stopped on '0' too.
+        if (trim($result) === '' || $result === '0') {
+            $this->errorLog($xml);
+
+            return [xl('Ensora eRx returned an empty response, please contact your systems administrator.')];
+        }
+
         $errorText = self::errorText($result);
         $errorMessages = $errorText === null ? [] : array_slice(explode('Error', $errorText), 1);
 

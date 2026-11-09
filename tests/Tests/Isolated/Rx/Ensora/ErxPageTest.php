@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Isolated\Rx\Ensora;
 
 use DOMDocument;
 use GuzzleHttp\Client;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Rx\Ensora\ErxGlobalsInterface;
 use OpenEMR\Rx\Ensora\ErxPage;
 use OpenEMR\Rx\Ensora\ErxXmlBuilder;
@@ -25,6 +26,40 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class ErxPageTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        // xl() returns its input when translation is disabled
+        OEGlobalsBag::getInstance()->set('disable_translation', true);
+    }
+
+    protected function tearDown(): void
+    {
+        OEGlobalsBag::getInstance()->remove('disable_translation');
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function emptyResponseProvider(): array
+    {
+        return [
+            'empty' => [''],
+            'whitespace' => [' ' . chr(10)],
+            'zero' => ['0'],
+        ];
+    }
+
+    #[DataProvider('emptyResponseProvider')]
+    public function testAnEmptyResponseIsAnError(string $page): void
+    {
+        $this->assertSame(
+            ['Ensora eRx returned an empty response, please contact your systems administrator.'],
+            (new ErxPage($this->builderReturning($page)))->checkError('<NCScript/>'),
+        );
+    }
+
     public function testGetXmlReturnsTheDocumentUnedited(): void
     {
         $builder = new ErxXmlBuilder(null, null, new Client());
