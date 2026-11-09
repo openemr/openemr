@@ -50,6 +50,8 @@ final readonly class ReferralNoticeSubscriber implements EventSubscriberInterfac
      * @param ?\Closure(PhiMailOutgoingMessage, PhiMailRequester): PhiMailSendResult $deliver sends the message;
      *     PhiMailSender::fromGlobals()->deliver() when null
      * @param ?\Closure(): PhiMailRequester $requester who the send is audited as; the signed-in user when null
+     * @param ?\Closure(int): string $patientName the patient's name for the message's text, by pid;
+     *     patient_data's first and last name when null
      */
     public function __construct(
         private CcdaGenerator $generator,
@@ -57,6 +59,7 @@ final readonly class ReferralNoticeSubscriber implements EventSubscriberInterfac
         private ?\Closure $requester = null,
         private ?OEGlobalsBag $globals = null,
         private ?LoggerInterface $logger = null,
+        private ?\Closure $patientName = null,
     ) {
     }
 
@@ -122,7 +125,7 @@ final readonly class ReferralNoticeSubscriber implements EventSubscriberInterfac
         try {
             $message = new PhiMailOutgoingMessage(
                 recipient: $event->directAddress,
-                text: self::messageText($event->patientId),
+                text: $this->messageText($event->patientId),
                 attachment: new PhiMailOutgoingAttachment(PhiMailAttachmentType::Cda, self::fileName($ccda->getFilename()), $content),
                 verifyFinalDelivery: $globals->getBoolean('phimail_verifyrecipientreceived_enable'),
                 patientId: $event->patientId,
@@ -133,16 +136,9 @@ final readonly class ReferralNoticeSubscriber implements EventSubscriberInterfac
             $event->failed(xl('The Direct notice could not be prepared. See the log.'));
             return;
         }
-        // PhiMailSender::deliver() throws SqlQueryException only once the server has queued the message,
-        // when logging it fails.
-        try {
-            $result = $deliver($message, $requester);
-        } catch (SqlQueryException $e) {
-            // The server queued it before the message log refused it: it went out, and must not be sent again.
-            $this->logger()->error('A referral\'s Direct notice was queued but could not be logged', [
-                'transaction_id' => $event->referralId,
-                'exception' => $e,
-            ]);
+        $result = $deliver($message, $requester);
+        if ($result->messageId !== null && !$result->logged) {
+            // The server queued it, but it couldn't be audited or logged: it went out, and must not be sent again.
             $event->sentUnlogged();
             return;
         }
@@ -158,11 +154,19 @@ final readonly class ReferralNoticeSubscriber implements EventSubscriberInterfac
      * The message's text, which names the patient as a C-CDA sent from the send form does: Direct is
      * the secure channel the C-CDA travels on anyway.
      */
-    private static function messageText(int $patientId): string
+    private function messageText(int $patientId): string
+    {
+        $name = trim(($this->patientName ?? self::patientName(...))($patientId));
+        return xl('A referral is attached') . ($name === '' ? '.' : ' ' . xl('for patient') . ' ' . $name . '.');
+    }
+
+    /**
+     * The patient's first and last name, or '' when there's no such patient.
+     */
+    private static function patientName(int $patientId): string
     {
         $row = QueryUtils::querySingleRow('SELECT fname, lname FROM patient_data WHERE pid = ?', [$patientId]);
-        $name = is_array($row) ? trim((is_string($row['fname'] ?? null) ? $row['fname'] : '') . ' ' . (is_string($row['lname'] ?? null) ? $row['lname'] : '')) : '';
-        return xl('A referral is attached') . ($name === '' ? '.' : ' ' . xl('for patient') . ' ' . $name . '.');
+        return is_array($row) ? (is_string($row['fname'] ?? null) ? $row['fname'] : '') . ' ' . (is_string($row['lname'] ?? null) ? $row['lname'] : '') : '';
     }
 
     /**

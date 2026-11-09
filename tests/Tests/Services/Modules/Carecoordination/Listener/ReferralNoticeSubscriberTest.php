@@ -41,7 +41,7 @@ final class ReferralNoticeSubscriberTest extends TestCase
 
     private PhiMailSendResult $result;
 
-    private ?SqlQueryException $logFailure = null;
+    private ?SqlQueryException $nameFailure = null;
 
     /**
      * Sets up the collaborators each test uses.
@@ -120,16 +120,33 @@ final class ReferralNoticeSubscriberTest extends TestCase
     public function testASendQueuedButNotLoggedIsReportedAsSent(): void
     {
         $this->generator->method('generate')->willReturn(new GeneratedCcdaResult(1, 'uuid', 'referral.xml', '<ClinicalDocument/>'));
-        $this->logFailure = new SqlQueryException(sqlStatement: 'INSERT INTO direct_message_log', message: 'database is down');
+        $this->result = PhiMailSendResult::sentUnlogged('msg-1');
         $event = new ReferralDirectNoticeEvent(7, self::PATIENT, 'consult@direct.example', 3);
 
         $this->subscriber()->onReferralDirectNotice($event);
 
-        // Reported unlogged only because the send itself ran and the log refused it afterwards.
+        // Reported unlogged only because the send itself ran, and it was the log that failed afterwards.
         self::assertCount(1, $this->sent);
         self::assertTrue($event->wasSentUnlogged());
         self::assertNull($event->failure());
         self::assertTrue($event->wasHandled());
+    }
+
+    /**
+     * A database error while the message is put together, before anything is sent, is a notice not
+     * sent, not one sent but unlogged.
+     */
+    public function testAFailureBeforeTheSendIsANoticeNotSent(): void
+    {
+        $this->generator->method('generate')->willReturn(new GeneratedCcdaResult(1, 'uuid', 'referral.xml', '<ClinicalDocument/>'));
+        $this->nameFailure = new SqlQueryException(sqlStatement: 'SELECT fname, lname FROM patient_data', message: 'database is down');
+        $event = new ReferralDirectNoticeEvent(7, self::PATIENT, 'consult@direct.example', 3);
+
+        $this->subscriber()->onReferralDirectNotice($event);
+
+        self::assertSame([], $this->sent);
+        self::assertFalse($event->wasSentUnlogged());
+        self::assertSame('The Direct notice could not be prepared. See the log.', $event->failure());
     }
 
     /**
@@ -182,14 +199,17 @@ final class ReferralNoticeSubscriberTest extends TestCase
             generator: $this->generator,
             deliver: function (PhiMailOutgoingMessage $message, PhiMailRequester $requester): PhiMailSendResult {
                 $this->sent[] = $message;
-                if ($this->logFailure !== null) {
-                    throw $this->logFailure;
-                }
                 return $this->result;
             },
             requester: static fn(): PhiMailRequester => new PhiMailRequester('admin', 'Default', 3),
             globals: new OEGlobalsBag(['phimail_enable' => $directEnabled ? '1' : '0', 'phimail_verifyrecipientreceived_enable' => '0']),
             logger: new NullLogger(),
+            patientName: function (int $patientId): string {
+                if ($this->nameFailure !== null) {
+                    throw $this->nameFailure;
+                }
+                return '';
+            },
         );
     }
 }

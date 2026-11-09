@@ -423,9 +423,13 @@ class ReferralTaskService
             }
             // The Reply Date goes first, so a completed Task always has one: a Task left open with a
             // Reply Date is completed by the referral's next save (recordReply()), while a completed one
-            // without it would never get one. It's taken back out when the Task isn't completed.
+            // without it would never get one. It's taken back out when the Task isn't completed. It's only
+            // claimed while the referral has none: a Reply Date a user saved since the page was shown wins,
+            // and the confirm does nothing.
             $replyDate = substr($reply['received_at'], 0, 10);
-            self::storeReplyDate($transactionId, $replyDate);
+            if (!self::claimReplyDate($transactionId, $replyDate)) {
+                return null;
+            }
             try {
                 $completed = $this->completeRecipientTask($transactionId, $referralUuid, $recipientUuid, $taskUuid, $replyId, $documents, $userId);
             } catch (\RuntimeException | \LogicException | DbalException $e) {
@@ -567,14 +571,29 @@ class ReferralTaskService
     }
 
     /**
-     * Sets the referral's Reply Date, as the form would.
+     * Sets the referral's Reply Date only if it has none (no row, or a blank one), so a date a user saved
+     * in the meantime is never written over. The statements skip the SQL log, whose own insert would
+     * otherwise be the row count read here.
+     *
+     * @return bool whether this call set it
      */
-    private static function storeReplyDate(int $transactionId, string $date): void
+    private static function claimReplyDate(int $transactionId, string $date): bool
     {
         QueryUtils::sqlStatementThrowException(
-            "INSERT INTO lbt_data (form_id, field_id, field_value) VALUES (?, 'reply_date', ?) ON DUPLICATE KEY UPDATE field_value = VALUES(field_value)",
-            [$transactionId, $date]
+            "UPDATE lbt_data SET field_value = ? WHERE form_id = ? AND field_id = 'reply_date' AND TRIM(COALESCE(field_value, '')) = ''",
+            [$date, $transactionId],
+            noLog: true
         );
+        $updated = QueryUtils::affectedRows();
+        if ($updated === 1) {
+            return true;
+        }
+        QueryUtils::sqlStatementThrowException(
+            "INSERT IGNORE INTO lbt_data (form_id, field_id, field_value) VALUES (?, 'reply_date', ?)",
+            [$transactionId, $date],
+            noLog: true
+        );
+        return QueryUtils::affectedRows() === 1;
     }
 
     /**

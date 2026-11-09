@@ -1391,6 +1391,26 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A Reply Date a user saved after the page was shown, before the confirm, is theirs: the confirm
+     * writes nothing over it and leaves the Task for that save to complete.
+     */
+    public function testAConfirmAfterAUserSavedAReplyDateChangesNothing(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $replyId = $this->receiveDirectReply($id, 'Seen.', []);
+        $service = new ReferralTaskService(new UserService());
+        $taskUuid = $service->confirmableTask($id);
+        $this->assertIsString($taskUuid);
+        $this->saveFields($id, ['reply_date' => '2026-01-02']);
+
+        $this->assertNull($service->completeWithDirectReply($id, $taskUuid, $replyId, null));
+
+        $this->assertSame('2026-01-02', QueryUtils::fetchSingleValue("SELECT field_value FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", 'field_value', [$id]));
+        $this->assertSame('requested', $this->read('Task', $taskUuid)['status'] ?? null);
+    }
+
+    /**
      * A file in the patient's chart, as PhiMailReceiver stores a matched reply's attachment. It names the
      * referral only so tearDown() removes it with the referral's documents.
      */

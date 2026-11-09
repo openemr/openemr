@@ -34,8 +34,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\DirectMessaging;
 
+use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\SoftwareVersion;
@@ -58,6 +58,9 @@ final readonly class PhiMailSender
     ) {
     }
 
+    /**
+     * A sender for the running site: its phiMail settings, server and message log.
+     */
     public static function fromGlobals(
         OEGlobalsBag $globals,
         CryptoInterface $crypto,
@@ -77,8 +80,8 @@ final readonly class PhiMailSender
     /**
      * @param string $failureEvent the audit event for a refused or unexpected final reply
      * @param string $successEvent the audit event for a queued message
-     * @return string "SUCCESS", or a translated message for the user
-     * @throws SqlQueryException when a queued message cannot be logged
+     * @return string "SUCCESS" once the server queued the message, even if it then couldn't be
+     *     audited or logged (see deliver()), or a translated message for the user
      */
     public function send(
         PhiMailOutgoingMessage $message,
@@ -93,9 +96,12 @@ final readonly class PhiMailSender
      * send(), for a caller that needs the message id the server queued the message under, to
      * follow its delivery status in the message log.
      *
+     * Once the server has queued the message it has gone, so a failure to audit or log it afterwards
+     * is logged and reported as sent but unlogged (PhiMailSendResult::$logged), never thrown: a caller
+     * that saw a failure might send it again.
+     *
      * @param string $failureEvent the audit event for a refused or unexpected final reply
      * @param string $successEvent the audit event for a queued message
-     * @throws SqlQueryException when a queued message cannot be logged
      */
     public function deliver(
         PhiMailOutgoingMessage $message,
@@ -139,8 +145,13 @@ final readonly class PhiMailSender
             return PhiMailSendResult::notSent(xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
         }
 
-        $this->audit($successEvent, $requester, true, $reply, $message->patientId);
-        $this->messageLog->recordSent($fields[2], $this->config->username, $message->recipient, $message->patientId, $requester->userId, $message->referralId);
+        try {
+            $this->audit($successEvent, $requester, true, $reply, $message->patientId);
+            $this->messageLog->recordSent($fields[2], $this->config->username, $message->recipient, $message->patientId, $requester->userId, $message->referralId);
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            $this->logger->error('phiMail queued a message that could not be audited or logged', ['messageId' => $fields[2], 'exception' => $e]);
+            return PhiMailSendResult::sentUnlogged($fields[2]);
+        }
         return PhiMailSendResult::sent($fields[2]);
     }
 

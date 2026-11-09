@@ -19,8 +19,9 @@ final readonly class PhiMailSendResult
     /**
      * @param ?string $messageId the id the server queued the message under, or null when it wasn't sent
      * @param string $message PhiMailSender::SUCCESS when sent, else a message for the user saying why not
+     * @param bool $logged false when the message was sent but couldn't be audited or logged
      */
-    private function __construct(public ?string $messageId, public string $message)
+    private function __construct(public ?string $messageId, public string $message, public bool $logged = true)
     {
     }
 
@@ -30,6 +31,14 @@ final readonly class PhiMailSendResult
     public static function sent(string $messageId): self
     {
         return new self($messageId, PhiMailSender::SUCCESS);
+    }
+
+    /**
+     * A message the server queued under this id that couldn't be audited or logged afterwards.
+     */
+    public static function sentUnlogged(string $messageId): self
+    {
+        return new self($messageId, PhiMailSender::SUCCESS, false);
     }
 
     /**
