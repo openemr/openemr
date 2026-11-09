@@ -203,6 +203,10 @@ final class PhiMailReceiverBackgroundServiceTest extends TestCase
         self::assertSame('closed', $this->serverResult($server));
     }
 
+    /**
+     * A check that worked but could not write its success audit row must
+     * surface the database error, so the run is not recorded as clean.
+     */
     public function testFailedAuditWriteFailsAnOtherwiseSuccessfulCheck(): void
     {
         $server = $this->startServer(['OK', 'OK', 'NONE']);

@@ -34,6 +34,10 @@ final class BackgroundServiceRunnerHandlerTest extends TestCase
 
     private ?string $previousFileroot = null;
 
+    /**
+     * The runner resolves require_once against the project directory, which
+     * falls back to `fileroot` when no kernel is booted, as in isolated tests.
+     */
     protected function setUp(): void
     {
         RecordingBackgroundHandler::$calls = [];
@@ -42,6 +46,10 @@ final class BackgroundServiceRunnerHandlerTest extends TestCase
         $globals->set('fileroot', dirname(__DIR__, 5));
     }
 
+    /**
+     * OEGlobalsBag is one instance for the whole process, so leave `fileroot`
+     * as the next test expects it.
+     */
     protected function tearDown(): void
     {
         $globals = OEGlobalsBag::getInstance();
@@ -104,6 +112,10 @@ final class BackgroundServiceRunnerHandlerTest extends TestCase
         ];
     }
 
+    /**
+     * Checks the refusal twice: executeService() names the bad handler, and
+     * run() turns that into status error without calling anything.
+     */
     #[DataProvider('uncallableHandlerProvider')]
     public function testRefusesAnUncallableHandler(string $handler): void
     {
