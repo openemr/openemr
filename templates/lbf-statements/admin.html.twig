@@ -184,7 +184,7 @@
                                         <option value="{{ fid|attr }}">{{ meta.title|text }} ({{ fid|text }})</option>
                                     {% endfor %}
                                 </select>
-                                <small class="form-text text-muted" id="source2-help-band">{{ "Optional. When set, this field must also have a value."|xlt }}</small>
+                                <small class="form-text text-muted" id="source2-help-band">{{ "Optional. When the first field is blank, the number is read from here."|xlt }}</small>
                                 <small class="form-text text-muted d-none" id="source2-help-ratio">{{ "Required. The ratio is first field ÷ second field."|xlt }}</small>
                             </div>
 
@@ -206,9 +206,11 @@
                             </div>
 
                             <div id="token-fields" class="form-group d-none">
-                                <label for="match_token">{{ "Tokens"|xlt }}</label>
+                                <label for="match_token" id="token-label-text">{{ "Tokens"|xlt }}</label>
+                                <label for="match_token" id="token-label-sex" class="d-none">{{ "Patient sex"|xlt }}</label>
                                 <input class="form-control" id="match_token" name="match_token" placeholder="{{ "mild, moderate"|xla }}" />
-                                <small class="form-text text-muted">{{ "Comma-separated. Matches an option id, a checkbox member, or a whole word."|xlt }}</small>
+                                <small class="form-text text-muted" id="token-help-text">{{ "Comma-separated. Matches an option id, a checkbox member, or a whole word."|xlt }}</small>
+                                <small class="form-text text-muted d-none" id="token-help-sex">{{ "Optional. Limit this band to a patient sex, such as Male or Female. Leave it blank for every patient."|xlt }}</small>
                             </div>
 
                             <div class="form-row">

@@ -48,6 +48,24 @@ class LbfReader
     }
 
     /**
+     * Sex stored for the patient, or an empty string when it is unknown.
+     */
+    public function patientSex(int $pid): string
+    {
+        if ($pid <= 0) {
+            return '';
+        }
+        $row = Values::assocRow($this->sql->querySingleRow(
+            "SELECT sex FROM patient_data WHERE pid = ?",
+            [$pid]
+        ));
+        if ($row === null) {
+            return '';
+        }
+        return trim(Values::rowString($row, 'sex'));
+    }
+
+    /**
      * @param list<string> $formIds
      * @return list<array{form_id:string,instance_id:int,name:string}>
      */
