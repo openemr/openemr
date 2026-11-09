@@ -49,6 +49,7 @@ final readonly class FhirPatientAppWriteController
     /**
      * Search parameters the held writes can be matched on. A search with any other parameter
      * finds only chart records, so a held write is never returned for a search it may not match.
+     * That includes _count: adding held writes could return more than the page size asked for.
      */
     private const HELD_SEARCH_PARAMETERS = ['_id', 'patient', 'subject'];
 
@@ -162,7 +163,8 @@ final readonly class FhirPatientAppWriteController
         }
         foreach (['patient', 'subject'] as $name) {
             $value = $searchParams[$name] ?? null;
-            if (is_string($value) && preg_replace('#^Patient/#', '', $value) !== $context->patientUuid) {
+            // A uuid is the same id in either case; the context's is lower-case.
+            if (is_string($value) && strtolower((string) preg_replace('#^Patient/#', '', $value)) !== $context->patientUuid) {
                 return [];
             }
         }

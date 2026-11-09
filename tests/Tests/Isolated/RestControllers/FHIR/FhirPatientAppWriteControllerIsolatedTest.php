@@ -167,6 +167,8 @@ class FhirPatientAppWriteControllerIsolatedTest extends TestCase
 
         $this->assertCount(2, $controller->searchHeld($request, []));
         $this->assertCount(2, $controller->searchHeld($request, ['patient' => 'Patient/' . self::PATIENT]));
+        $this->assertCount(2, $controller->searchHeld($request, ['subject' => strtoupper(self::PATIENT)]), 'a uuid in upper case');
+        $this->assertSame([], $controller->searchHeld($request, ['_count' => '1']), 'held writes could overflow the page');
         $this->assertSame([$second], array_column($controller->searchHeld($request, ['_id' => $second]), 'id'));
         $this->assertSame([], $controller->searchHeld($request, ['_id' => $first, 'authored' => 'ge2026-01-01']), 'unmatched parameter');
         $this->assertSame([], $controller->searchHeld($request, ['patient' => 'another-patient']));
