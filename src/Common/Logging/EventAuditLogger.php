@@ -656,9 +656,6 @@ class EventAuditLogger implements AuditLoggerInterface
             return null;
         }
         foreach ($matches[1] as $name) {
-            if (!is_string($name)) {
-                continue;
-            }
             $table = strtolower($name);
             if (array_key_exists($table, self::LOG_TABLES)) {
                 if (self::LOG_TABLES[$table] === EventCategory::SecurityAdministration) {

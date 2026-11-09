@@ -803,7 +803,6 @@ class EventAuditLoggerTest extends TestCase
      */
     public function testAUsersReadJoinedToSecurityStaysSecurity(): void
     {
-        $captured = [];
         $sink = $this->createMock(SinkInterface::class);
         $sink->expects($this->never())->method('record');
         $this->session->method('get')
@@ -820,8 +819,6 @@ class EventAuditLoggerTest extends TestCase
             true,
         );
         $logger->flushPendingQuerySummary();
-
-        self::assertSame([], $captured);
     }
 
     public function testAPrescriptionReadKeepsTheOpenPatient(): void
