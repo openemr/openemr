@@ -16,10 +16,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = $session->get('pid', 0);
+$pid = \OpenEMR\Common\Session\PatientSessionUtil::getPid();
 require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
