@@ -76,7 +76,9 @@ function submitme(new_validate,e,form_id, constraints) {
                 somethingChanged = false;
                 f.submit();
             } else { //If there was an error prevent the form submit in order to display them
-                e.preventDefault();
+                if (e && typeof e.preventDefault === 'function') {
+                    e.preventDefault();
+                }
             }
         } else { //If the new validation library is used :
 
@@ -125,7 +127,9 @@ function submitme(new_validate,e,form_id, constraints) {
                         if(constraints[new_key].presence && (elements[key].length == 0 || elements[key][0] == null )) {
 
                             appendError(element, new_key);
-                            e.preventDefault();
+                            if (e && typeof e.preventDefault === 'function') {
+                                e.preventDefault();
+                            }
                             valid = false;
                         }
                     }
