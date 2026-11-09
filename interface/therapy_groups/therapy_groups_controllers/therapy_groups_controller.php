@@ -402,6 +402,10 @@ class TherapyGroupsController extends BaseController
         return $groupData['group_id'];
     }
 
+    /**
+     * Make $groupId the active therapy group, which closes any open patient.
+     * Ends the request with a 403 when this is a switch without the CSRF token.
+     */
     public static function setSession(int $groupId, Request $request): void
     {
         // Opening a group closes the open patient, so a link from another

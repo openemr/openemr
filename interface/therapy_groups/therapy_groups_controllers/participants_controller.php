@@ -34,6 +34,10 @@ class ParticipantsController extends BaseController
         $this->groupModel = $this->loadModel('therapy_groups');
     }
 
+    /**
+     * Show the group's participants after applying a posted update or a
+     * delete link; both writes need the CSRF token. Renders and exits.
+     */
     public function index(int $groupId, $data = [])
     {
 
@@ -91,6 +95,10 @@ class ParticipantsController extends BaseController
     }
 
 
+    /**
+     * Register the posted patient in the group, which needs the CSRF token,
+     * then show the participant list. Renders and exits.
+     */
     public function add(int $groupId)
     {
 

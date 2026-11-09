@@ -22,6 +22,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
+// @codeCoverageIgnoreStart
+// TherapyGroupSessionUtilTest runs this script in a child process, which
+// coverage does not instrument, so none of its lines can register as hit.
 require_once dirname(__DIR__, 6) . '/vendor/autoload.php';
 
 // Keep the real xlt() response path while preventing this isolated
@@ -70,3 +73,4 @@ TherapyGroupSessionUtil::requireCsrfForGroupSwitch($request, $requestedGroupId);
 $session->set('pid', 0);
 $session->set('therapy_group', $requestedGroupId);
 echo 'allowed';
+// @codeCoverageIgnoreEnd

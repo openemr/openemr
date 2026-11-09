@@ -360,6 +360,12 @@ function menuActionClick(data,evt)
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
         }
 
+        // Opening the group closes a patient opened in another browser tab,
+        // which the server allows only with the CSRF token.
+        if (dataurl.startsWith('/interface/therapy_groups/index.php?method=groupDetails&')) {
+            dataurl += '&csrf_token_form=' + encodeURIComponent(csrf_token_js);
+        }
+
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
             // Send telemetry event. This is sent after the tab is activated to ensure the tab is visible.
