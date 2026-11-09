@@ -148,7 +148,7 @@ final readonly class PatientFinderBuiltInColumns
             self::NAME_FIRST_LAST_MIDDLE => self::joined(' ', ['fname', 'mname', 'lname']),
             self::CITY_STATE => self::joined(', ', ['city', 'state']),
             self::ADDRESS_FULL => self::address(),
-            self::ADDRESS_FULL_COUNTRY => 'CONCAT_WS(\', \', ' . self::address() . ', '
+            self::ADDRESS_FULL_COUNTRY => 'CONCAT_WS(\', \', NULLIF(' . self::address() . ', \'\'), '
                 . self::field('country_code') . ')',
             self::AGE => 'CASE WHEN patient_data.DOB IS NULL OR patient_data.DOB = \'0000-00-00\' THEN NULL'
                 . ' ELSE TIMESTAMPDIFF(YEAR, patient_data.DOB, CURDATE()) END',
@@ -181,12 +181,14 @@ final readonly class PatientFinderBuiltInColumns
     /**
      * "street, street line 2, city, state  postal code", leaving out blank parts. Two spaces
      * separate the state from the postal code; with no state the code follows a comma.
+     * CONCAT_WS returns '' rather than NULL when every part is NULL, so a nested one is
+     * wrapped in NULLIF for the outer CONCAT_WS to skip it along with its separator.
      */
     private static function address(): string
     {
         return "CONCAT_WS(', ', " . self::field('street') . ', ' . self::field('street_line_2') . ', '
-            . self::field('city') . ', ' . "CONCAT_WS('  ', " . self::field('state') . ', '
-            . self::field('postal_code') . '))';
+            . self::field('city') . ', ' . "NULLIF(CONCAT_WS('  ', " . self::field('state') . ', '
+            . self::field('postal_code') . "), ''))";
     }
 
     /**
