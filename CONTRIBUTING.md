@@ -817,6 +817,7 @@ Reference configurations:
 | Configuration | Isolation | Host requirements | Guide |
 |---|---|---|---|
 | LXC appliance | Jailed LXC container, NAT networking, own Docker daemon | Linux host with LXC | [Setup guide](Documentation/contributors/claude-appliance-setup.md) |
+| Incus VM appliance | KVM guest with its own kernel (hypervisor boundary), NAT networking, own Docker daemon | Linux host with Incus + KVM (`/dev/kvm`) | [Setup guide](Documentation/contributors/claude-appliance-vm-setup.md) |
 
 Other approaches — devcontainers, full VMs, and remote development hosts — work
 too. These guides are starting points, not requirements.

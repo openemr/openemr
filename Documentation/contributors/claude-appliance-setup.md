@@ -10,6 +10,8 @@
 
 A jailed Ubuntu LXC container running on the host Linux machine, connected to the host's git directory via bind mount (mirrored path). The container uses LXC's default NAT bridge (`lxcbr0`) rather than a separate LAN/host bridge such as `br0`, with a static IP inside the container and a single `/etc/hosts` entry on the host for name resolution.
 
+> **See also:** [`claude-appliance-vm-setup.md`](claude-appliance-vm-setup.md) — an Incus VM sibling of this guide. Same workflow, with a hypervisor boundary between agent and host kernel as defense-in-depth on top of the shared `.git/` path discussed in the threat model below. Costs ~10-20 s boot and virtiofs-speed metadata operations on the shared git path; makes `kind` (and the full `openemr-devops` Kubernetes dev-stack) runnable inside the sandbox. Both appliances can coexist on the same host.
+
 **Key design decisions:**
 - PHP, Composer, and Node for OpenEMR work are **not** installed in the LXC — all PHP/JS/CSS work runs inside the demo stacks via `openemr-cmd` commands (`docker exec`). Node is installed only to run the agent CLI itself (Claude Code).
 - LXC provides the jail — agents cannot reach host Docker, host filesystem outside the bind mount, or host localhost services
