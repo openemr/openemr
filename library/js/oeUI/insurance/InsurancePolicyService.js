@@ -184,32 +184,47 @@ export class InsurancePolicyService
         return 0;
     }
 
-    sortInsurancesByDate(insurances) {
-        let futureDate = new Date();
-        insurances.sort((a, b) => {
-            // since we can add / update policies in JS land, we need to handle the sort order here
-            // need to convert the following mysql order by to js
-            //         . ", (`date_end` is null or `date_end` > NOW()) DESC"
-            //         . ", (`date_end` IS NOT NULL AND `date_end` > NOW()) DESC"
-            //         . ", `date` DESC, `date_end` DESC, `policy_number` ASC";
-            // we want to sort by date_end first so that the most current one is first
-            let dateEndNullA = a.date_end === null;
-            let dateEndNullB = b.date_end === null;
-            let dateEndFutureA = !dateEndNullA && a.date_end > futureDate;
-            let dateEndFutureB = !dateEndNullB && b.date_end > futureDate;
-            let dateEndNullOrFutureA = dateEndNullA || dateEndFutureA ? 1 : 0;
-            let dateEndNullOrFutureB = dateEndNullB || dateEndFutureB ? 1 : 0;
-            let dateEndNotNullAndFutureA = !dateEndNullA && dateEndFutureA ? 1 : 0;
-            let dateEndNotNullAndFutureB = !dateEndNullB && dateEndFutureB ? 1 : 0;
+    /**
+     * Compares two policy ids for a descending sort: the higher id (the later entry) first, and a missing id
+     * (a policy not saved yet) before any.
+     */
+    static compareIdsDesc(a, b) {
+        let missingA = a === null || a === undefined || a === '';
+        let missingB = b === null || b === undefined || b === '';
+        if (missingA || missingB) {
+            return missingA === missingB ? 0 : (missingA ? -1 : 1);
+        }
+        return Number(b) - Number(a);
+    }
 
-            let sortIndex = 0;
-            // b - a for descending order => (`date_end` is null or `date_end` > NOW()) DESC
-            sortIndex += dateEndNullOrFutureB - dateEndNullOrFutureA;
-            if (sortIndex !== 0) {
-                return sortIndex;
-            }
-            // b - a for descending order => (`date_end` IS NOT NULL AND `date_end` > NOW()) DESC
-            sortIndex += dateEndNotNullAndFutureB - dateEndNotNullAndFutureA;
+    /**
+     * How current a policy is, as the server ranks it (InsuranceService::search()): 1 for a policy
+     * in force today (no start, or one on or before today; no end, or one on or after today), else 0.
+     * A higher rank sorts first.
+     */
+    static currentRank(policy, today) {
+        let started = policy.date === null || InsurancePolicyService.dayOf(policy.date) <= today;
+        let notEnded = policy.date_end === null || InsurancePolicyService.dayOf(policy.date_end) >= today;
+        return started && notEnded ? 1 : 0;
+    }
+
+    /**
+     * A policy date's calendar day, at local midnight: a policy added in the editor starts now, with the
+     * time of day, and still starts today.
+     */
+    static dayOf(date) {
+        let day = new Date(date.getTime());
+        day.setHours(0, 0, 0, 0);
+        return day;
+    }
+
+    sortInsurancesByDate(insurances) {
+        let today = new Date();
+        today.setHours(0, 0, 0, 0);
+        insurances.sort((a, b) => {
+            // since we can add / update policies in JS land, we need to handle the sort order here,
+            // as the server orders them (InsuranceService::search()): the current ones first
+            let sortIndex = InsurancePolicyService.currentRank(b, today) - InsurancePolicyService.currentRank(a, today);
             if (sortIndex !== 0) {
                 return sortIndex;
             }
@@ -220,7 +235,13 @@ export class InsurancePolicyService
             if (sortIndex !== 0) {
                 return sortIndex;
             }
-            // `date_end` DESC, same rule
+            // `id` DESC as the server orders it: the later entry, as the coverage rule breaks a tie between
+            // two undated policies. A policy not saved yet has no id and is the latest entry.
+            sortIndex = InsurancePolicyService.compareIdsDesc(a.id, b.id);
+            if (sortIndex !== 0) {
+                return sortIndex;
+            }
+            // `date_end` DESC, same rule (only two policies not saved yet get this far)
             sortIndex = InsurancePolicyService.compareDatesDesc(a.date_end, b.date_end);
             if (sortIndex !== 0) {
                 return sortIndex;
