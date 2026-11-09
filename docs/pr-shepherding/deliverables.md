@@ -305,6 +305,30 @@ indicating source-level fixes.
 decision at a glance>.
 ```
 
+### 3.12 STATE DELTA header (brief maintenance across post-verdict shifts)
+
+When a verdict survives but post-verdict state shifts (maintainer inline comment, base
+advance, post-resume rabbit finding, maintainer-spotted gap, CI regression), prepend a
+dated delta header to the brief rather than rewriting the body. Preserves the
+verified-at-head-X evidence trail while making the current state scannable.
+
+```markdown
+## 🔴/🟡 STATE DELTA — <YYYY-MM-DD>
+
+<One-paragraph note: what changed, what the brief body no longer reflects, which
+sections need re-verification before the verdict applies again. End with the
+re-verification criteria for returning the brief body to authoritative.>
+
+---
+
+<original brief body below, unchanged>
+```
+
+Pattern observed across multiple shepherd passes (4+ uses in one pass alone): used when
+a maintainer inline comment flips ✅→🔴, when a base advance introduces a baseline
+violation the brief predates, when a post-unpause rabbit review adds a Minor, or when
+re-reading under a mid-pass standing-rule change surfaces a reclassification.
+
 ---
 
 ## 4. Follow-up register entry (format)
