@@ -60,6 +60,25 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         }
 
         /**
+         * The editor keeps the note and adds a generated sentence once.
+         */
+        public function testEditorParagraphKeepsTheNoteAndAddsANewSentence(): void
+        {
+            $text = GenerateController::editorParagraph('Mild note.', 'EF is mildly reduced.');
+            $this->assertSame('Mild note. EF is mildly reduced.', $text);
+            $this->assertSame($text, GenerateController::editorParagraph($text, 'EF is mildly reduced.'));
+        }
+
+        /**
+         * No generated sentence leaves the note unchanged.
+         */
+        public function testEditorParagraphLeavesTheNoteWhenNothingWasGenerated(): void
+        {
+            $this->assertSame('Mild note.', GenerateController::editorParagraph('Mild note.', ''));
+            $this->assertSame('EF is normal.', GenerateController::editorParagraph('', 'EF is normal.'));
+        }
+
+        /**
          * A patient with no eligible forms sees an empty list.
          */
         public function testLimitFormsToPatientClearsEverythingWhenThePatientHasNone(): void
