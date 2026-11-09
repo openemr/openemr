@@ -16,12 +16,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\Rx\Ensora;
 
+use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Encryption\Plaintext;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use SensitiveParameter;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use UnexpectedValueException;
 
 class ErxPage
 {
@@ -242,7 +244,17 @@ class ErxPage
     {
         $XMLBuilder = $this->getXMLBuilder();
 
-        $result = $XMLBuilder->checkError($xml);
+        try {
+            $result = $XMLBuilder->checkError($xml);
+        } catch (UnexpectedValueException $e) {
+            $this->logger->error('Ensora eRx request not sent', ['exception' => $e]);
+
+            return [xl('The Ensora eRx path is not configured, please contact your systems administrator.')];
+        } catch (GuzzleException $e) {
+            $this->logger->error('Ensora eRx request failed', ['exception' => $e]);
+
+            return [xl('Ensora eRx could not be reached, please contact your systems administrator.')];
+        }
 
         // An empty page has no errors to find, but it means the check failed,
         // so the launch must not go ahead. The old curl call stopped on '0' too.

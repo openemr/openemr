@@ -16,6 +16,8 @@ namespace OpenEMR\Tests\Isolated\Rx\Ensora;
 
 use DOMDocument;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Psr7\Request;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Encryption\Plaintext;
 use OpenEMR\Rx\Ensora\ErxGlobalsInterface;
@@ -25,8 +27,11 @@ use OpenEMR\Rx\Ensora\ErxXmlBuilder;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
+use Throwable;
+use UnexpectedValueException;
 
 class ErxPageTest extends TestCase
 {
@@ -72,6 +77,36 @@ class ErxPageTest extends TestCase
             ['Ensora eRx returned an empty response, please contact your systems administrator.'],
             $this->page($this->builderReturning($page))->checkError('<NCScript/>'),
         );
+    }
+
+    /**
+     * @return array<string, array{Throwable, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function requestFailureProvider(): array
+    {
+        return [
+            'unreachable' => [
+                new ConnectException('Connection refused', new Request('POST', 'https://erx.example.test/')),
+                'Ensora eRx could not be reached, please contact your systems administrator.',
+            ],
+            'no path' => [
+                new UnexpectedValueException('The Ensora eRx path is not configured'),
+                'The Ensora eRx path is not configured, please contact your systems administrator.',
+            ],
+        ];
+    }
+
+    #[DataProvider('requestFailureProvider')]
+    public function testARequestThatCannotBeSentIsAnError(Throwable $failure, string $message): void
+    {
+        $builder = $this->createMock(ErxXmlBuilder::class);
+        $builder->method('checkError')->willThrowException($failure);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error');
+
+        $this->assertSame([$message], (new ErxPage($builder, $logger))->checkError('<NCScript/>'));
     }
 
     public function testGetXmlReturnsTheDocumentUnedited(): void
