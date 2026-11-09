@@ -10,10 +10,10 @@ reviews:
     - openemr-reserved-word-bot[bot]
     - github-actions[bot]
   pre_merge_checks:
-    # The built-in check counts every touched function against a percentage
-    # and can't exclude tests or self-describing methods, so it asks for
-    # docblocks that only restate a signature. The custom check below asks
-    # only where a doc comment would tell the reader something.
+    # The built-in check scores touched functions against a percentage. It
+    # can't tell a doc comment that explains something from one that restates
+    # the signature, so it rewards the second kind. The custom check below
+    # asks each method to explain whatever its name and signature leave out.
     docstrings:
       mode: "off"
     custom_checks:
@@ -22,17 +22,15 @@ reviews:
       instructions: |
         Pass/fail criteria: consider each function and method added or changed in this PR, in any language.
 
-        A function needs a doc comment when a caller or maintainer can't tell from its name, parameter names, and native types what it requires or does. That includes thrown exceptions, side effects, preconditions, units, ordering or idempotency constraints, and types the native signature can't express (array shapes, generics, narrowing of `mixed`).
+        A method exists because something about it is not the default. Its doc comment should say what that is when a reader can't tell from the name, parameter names, native types, and a plain reading of the body. That includes thrown exceptions, side effects, preconditions, units, ordering or idempotency constraints, and types the native signature can't express (array shapes, generics, narrowing of `mixed`).
 
-        Never count or flag these, with or without a doc comment:
-        - test methods (named `test*`, or marked with a `#[Test]` attribute or `@test` tag)
-        - PHPUnit lifecycle methods: `setUp`, `tearDown`, `setUpBeforeClass`, `tearDownAfterClass`, and any method marked `#[Before]`, `#[After]`, `#[BeforeClass]`, or `#[AfterClass]`
-        - data providers
-        - test doubles, stubs, and fixtures under `tests/` that override or implement a method documented elsewhere
-        - methods that override a parent method or implement an interface method that already has a doc comment
-        - constructors that only assign or promote their parameters
-        - methods whose name and signature already say everything a caller needs
+        Apply this to every kind of method, including tests:
+        - An override, or a test lifecycle method such as `setUp` or `tearDown`, should say what it does differently from the parent and why. Examples are shared or process-wide state it sets or restores, a fixture it builds, or a parent behavior it suppresses.
+        - A test method's name usually states the behavior under test. It needs a doc comment when the scenario, or why the test exists, isn't evident from the name and body.
+        - A test double or stub is covered when its class doc comment already says what it replaces.
 
-        Fail only when a function that needs a doc comment has none, or has one that leaves out the requirement or behavior that made it necessary. A doc comment that only restates the name or signature doesn't count as documentation. Never ask for one.
+        A method needs no doc comment when its name, signature, and body leave nothing for a doc comment to add. Examples are a constructor that only assigns or promotes its parameters, a plain accessor, and a data provider whose cases are labeled.
 
-        For each failure, name the file and function, and say what the doc comment should cover.
+        Fail only when a method has something to explain and no doc comment explains it, or its doc comment leaves that out. A doc comment that only restates the name or signature doesn't count as documentation. Never ask for one.
+
+        For each failure, name the file and method, and say what the doc comment should cover.
