@@ -24,7 +24,6 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Encryption\Plaintext;
 use RuntimeException;
 use SensitiveParameter;
@@ -54,6 +53,8 @@ class ErxXmlBuilder
         private readonly ErxGlobalsInterface $globals,
         private readonly ErxStoreInterface $store,
         private readonly ClientInterface $httpClient,
+        // http_verify_ssl: whether the check request verifies the eRx server's certificate
+        private readonly bool $verifySsl,
     ) {
     }
 
@@ -96,7 +97,7 @@ class ErxXmlBuilder
             RequestOptions::HEADERS => ['User-Agent' => 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'],
             // ErxPage::checkError() reads the page whatever its status.
             RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
+            RequestOptions::VERIFY => $this->verifySsl,
         ]);
 
         return (string) $response->getBody();

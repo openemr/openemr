@@ -108,7 +108,7 @@ class ErxXmlBuilderTest extends TestCase
         $globals->method('getPartnerName')->willReturn('partner');
         $globals->method('getAccountName')->willReturn('account');
         $globals->method('getAccountPassword')->willReturn(new Plaintext('p' . chr(9) . 'ss<1'));
-        $builder = new ErxXmlBuilder($globals, $this->createStub(ErxStoreInterface::class), new Client());
+        $builder = new ErxXmlBuilder($globals, $this->createStub(ErxStoreInterface::class), new Client(), true);
         $builder->getNCScript()->appendChild($builder->getCredentials());
 
         $redacted = $builder->getRedactedXml();
@@ -125,7 +125,7 @@ class ErxXmlBuilderTest extends TestCase
         $history = [];
         $stack = HandlerStack::create(new MockHandler([new Response(200, [], 'eRx page')]));
         $stack->push(Middleware::history($history));
-        $builder = new ErxXmlBuilder($this->globals(self::ERX_URL), $this->createStub(ErxStoreInterface::class), new Client(['handler' => $stack]));
+        $builder = new ErxXmlBuilder($this->globals(self::ERX_URL), $this->createStub(ErxStoreInterface::class), new Client(['handler' => $stack]), true);
         $xml = '<?xml version="1.0"?><a b="1&amp;2">x &lt; y + 50%20 = z</a>';
 
         $this->assertSame('eRx page', $builder->checkError($xml));
@@ -147,14 +147,45 @@ class ErxXmlBuilderTest extends TestCase
     public function testCheckErrorReturnsThePageOfAnErrorStatus(): void
     {
         $client = new Client(['handler' => HandlerStack::create(new MockHandler([new Response(500, [], 'error page')]))]);
-        $builder = new ErxXmlBuilder($this->globals(self::ERX_URL), $this->createStub(ErxStoreInterface::class), $client);
+        $builder = new ErxXmlBuilder($this->globals(self::ERX_URL), $this->createStub(ErxStoreInterface::class), $client, true);
 
         $this->assertSame('error page', $builder->checkError('<NCScript/>'));
     }
 
+    /**
+     * @return array<string, array{bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function verifySslProvider(): array
+    {
+        return [
+            'verified' => [true],
+            'not verified' => [false],
+        ];
+    }
+
+    #[DataProvider('verifySslProvider')]
+    public function testCheckErrorVerifiesTheCertificateAsConfigured(bool $verifySsl): void
+    {
+        $history = [];
+        $stack = HandlerStack::create(new MockHandler([new Response(200, [], 'eRx page')]));
+        $stack->push(Middleware::history($history));
+        $builder = new ErxXmlBuilder($this->globals(self::ERX_URL), $this->createStub(ErxStoreInterface::class), new Client(['handler' => $stack]), $verifySsl);
+
+        $builder->checkError('<NCScript/>');
+
+        $this->assertIsArray($history);
+        $sent = $history[0] ?? null;
+        $this->assertIsArray($sent);
+        $options = $sent['options'] ?? null;
+        $this->assertIsArray($options);
+        $this->assertSame($verifySsl, $options['verify'] ?? null);
+    }
+
     public function testCheckErrorRequiresThePath(): void
     {
-        $builder = new ErxXmlBuilder($this->globals(''), $this->createStub(ErxStoreInterface::class), new Client());
+        $builder = new ErxXmlBuilder($this->globals(''), $this->createStub(ErxStoreInterface::class), new Client(), true);
 
         $this->expectException(UnexpectedValueException::class);
 
@@ -322,6 +353,7 @@ class ErxXmlBuilderTest extends TestCase
             $this->createStub(ErxGlobalsInterface::class),
             $store ?? $this->createStub(ErxStoreInterface::class),
             new Client(),
+            true,
         );
     }
 

@@ -175,7 +175,7 @@ class ErxPageTest extends TestCase
 
     private function realBuilder(): ErxXmlBuilder
     {
-        return new ErxXmlBuilder($this->createStub(ErxGlobalsInterface::class), $this->createStub(ErxStoreInterface::class), new Client());
+        return new ErxXmlBuilder($this->createStub(ErxGlobalsInterface::class), $this->createStub(ErxStoreInterface::class), new Client(), true);
     }
 
     private function builderReturning(string $page, ?ErxGlobalsInterface $globals = null): ErxXmlBuilder&MockObject

@@ -48,6 +48,7 @@ $eRxPage = new ErxPage(
         new eRxGlobals($GLOBALS_REF),
         new eRxStore(),
         ServiceContainer::getGuzzle(),
+        OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
     ),
     ServiceContainer::getLogger(),
 );
