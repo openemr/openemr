@@ -64,6 +64,7 @@ class X125010837P
         'PR',
         'PRI',
         'PUERTORICO',
+        'COMMONWEALTHOFPUERTORICO',
         'GU',
         'GUM',
         'GUAM',
@@ -1735,7 +1736,7 @@ class X125010837P
      */
     private static function foreignPostalLosesLetters(string $country, string $postal): bool
     {
-        if (preg_match('/[A-Za-z]/', $postal) !== 1) {
+        if (preg_match('/\p{L}/u', $postal) !== 1) {
             return false;
         }
         $letters = self::countryLetters($country);
@@ -1748,7 +1749,9 @@ class X125010837P
 
     private static function countryLetters(string $country): string
     {
-        return strtoupper(preg_replace('/[^A-Za-z]/', '', $country) ?? '');
+        $letters = preg_replace('/[^\p{L}]/u', '', $country) ?? '';
+
+        return mb_strtoupper($letters, 'UTF-8');
     }
 
     /**

@@ -119,6 +119,33 @@ class X125010837PZipLogTest extends TestCase
     }
 
     /**
+     * A country written in letters outside ASCII is still a named country.
+     */
+    public function testANonLatinCountryNameIsNotAUsZip(): void
+    {
+        [$claimText, $log] = $this->generateClaim('10101', '20202', '加拿大');
+
+        $this->assertStringNotContainsString('requires a 9-digit ZIP', $log);
+        $this->assertStringNotContainsString('lost letters', $log);
+        $this->assertStringContainsString('*10101~', $claimText);
+        $this->assertStringContainsString('*20202~', $claimText);
+    }
+
+    /**
+     * Full-width letters are letters. Digit reduction drops them, and the log says so.
+     */
+    public function testANonAsciiForeignPostalCodeThatLosesLettersIsLogged(): void
+    {
+        [$claimText, $log] = $this->generateClaim('Ａ1Ｂ2', 'Ｃ3Ｄ4', '加拿大');
+
+        $this->assertStringContainsString('Billing facility postal code lost letters', $log);
+        $this->assertStringContainsString('Service facility postal code lost letters', $log);
+        $this->assertStringNotContainsString('requires a 9-digit ZIP', $log);
+        $this->assertStringContainsString('N4*TESTVILLE*TX*12~', $claimText);
+        $this->assertStringContainsString('N4*TESTVILLE*TX*34~', $claimText);
+    }
+
+    /**
      * A blank country keeps the nine-digit warning when digit reduction leaves a short ZIP.
      */
     public function testABlankCountryKeepsTheNineDigitWarningForALetteredPostalCode(): void
@@ -170,6 +197,7 @@ class X125010837PZipLogTest extends TestCase
     {
         return [
             'Puerto Rico' => ['Puerto Rico'],
+            'Commonwealth of Puerto Rico' => ['Commonwealth of Puerto Rico'],
             'PR' => ['PR'],
             'Guam' => ['Guam'],
             'US Virgin Islands' => ['Virgin Islands (U.S.)'],
