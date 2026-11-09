@@ -154,19 +154,30 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
   different concern, and then an earlier finding in the same thread is still open with
   nothing after it that says so. The new finding is an inline reply, not a review body,
   so walking review bodies for "outside diff" comments (§2.5) doesn't surface it either.
-- One call returns every thread with its resolution state and full comment text. Both
-  connections are paginated: when either `hasNextPage` is true, repeat the call with
-  `after:<endCursor>` on that connection, or the truncation is silent and an open finding
-  can be missed.
+- One call returns every thread with its resolution state and full comment text (`body`,
+  not `bodyText`: `bodyText` drops Markdown link targets, so a reply that links its fix as
+  `[fix](commit URL)` loses the URL that verifies it). Both connections are paginated, and
+  the truncation is silent, so an open finding can be missed: when `reviewThreads`
+  reports `hasNextPage`, repeat the call with `after:<endCursor>` on `reviewThreads`; when
+  a thread's `comments` reports `hasNextPage`, page that one thread by its `id` with the
+  second query, because an `after:` cursor on the `comments` connection of the first query
+  would apply to every thread it returns and skip other threads' comments.
 
   ```bash
   gh api graphql -f query='{ repository(owner:"openemr", name:"openemr") {
     pullRequest(number:<N>) { reviewThreads(first:100) {
       pageInfo { hasNextPage endCursor }
-      nodes { isResolved path line
+      nodes { id isResolved path line
         comments(first:100) {
           pageInfo { hasNextPage endCursor }
-          nodes { author { login } createdAt bodyText } } } } } } }'
+          nodes { author { login } createdAt body } } } } } } }'
+  ```
+
+  ```bash
+  gh api graphql -f query='{ node(id:"<thread id>") { ... on PullRequestReviewThread {
+    comments(first:100, after:"<endCursor>") {
+      pageInfo { hasNextPage endCursor }
+      nodes { author { login } createdAt body } } } } }'
   ```
 
 - Precedent: #15100 at 2026-11-08. Rabbit's 23:01 UTC reply on the `RCFaxClient.php:272`
