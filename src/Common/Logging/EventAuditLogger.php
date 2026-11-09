@@ -645,14 +645,14 @@ class EventAuditLogger implements AuditLoggerInterface
 
 
     /**
-     * The first joined chart, order, lab, or form table, if the statement has one.
+     * The first chart, order, lab, or form table joined to this statement.
      *
-     * Security tables are skipped. The caller uses this only when the table
-     * after FROM is itself a security table.
+     * A JOIN and a comma both count. Security tables are skipped. The caller
+     * uses this only when the table after FROM is itself a security table.
      */
     private function joinedClinicalTable(string $sql): ?string
     {
-        if (preg_match_all('/\bjoin\s+`?([a-z0-9_]+)`?/i', $sql, $matches) < 1) {
+        if (preg_match_all('/(?:\bjoin\s+|,\s*)`?([a-z0-9_]+)`?/i', $sql, $matches) < 1) {
             return null;
         }
         foreach ($matches[1] as $name) {
