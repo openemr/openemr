@@ -68,6 +68,11 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         return is_array($row) && $row !== [] ? $this->mapper->toRequest($row) : null;
     }
 
+    /**
+     * The request issued this uuid, or null; the uuid column is unique.
+     *
+     * @param string $uuidBytes 16 raw bytes, as the queue issued it
+     */
     public function findByUuid(string $uuidBytes): ?ReviewRequest
     {
         $row = QueryUtils::querySingleRow('SELECT * FROM `patient_review_request` WHERE `uuid` = ?', [$uuidBytes]);
@@ -209,6 +214,12 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         );
     }
 
+    /**
+     * Adds one row to the request's history.
+     *
+     * @param ?array<array-key, mixed> $previousPayload the payload a replacement overwrote; stored
+     *                                                  as JSON in patient_review_event.payload
+     */
     public function appendEvent(
         int $requestId,
         ?ReviewStatus $from,

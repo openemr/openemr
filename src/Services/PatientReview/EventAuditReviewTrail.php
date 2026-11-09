@@ -29,6 +29,10 @@ final readonly class EventAuditReviewTrail implements ReviewAuditTrailInterface
     ) {
     }
 
+    /**
+     * One entry for the read, naming every request shown, filed under the patient of the first
+     * (they are all one patient's).
+     */
     public function recordAccess(array $requests, ReviewActor $actor): void
     {
         $first = $requests[0];

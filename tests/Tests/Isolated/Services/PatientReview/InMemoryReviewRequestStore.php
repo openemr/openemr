@@ -90,6 +90,11 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         return isset($this->requests[$id]) ? $this->mapper->toRequest($this->requests[$id]) : null;
     }
 
+    /**
+     * The request issued this uuid, or null.
+     *
+     * @param string $uuidBytes 16 raw bytes, matched as the repository matches the uuid column
+     */
     public function findByUuid(string $uuidBytes): ?ReviewRequest
     {
         foreach ($this->requests as $row) {
@@ -138,6 +143,12 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         return $count;
     }
 
+    /**
+     * Open requests of the type and resource type from the client for the patient, oldest first,
+     * as the repository orders them.
+     *
+     * @return list<ReviewRequest>
+     */
     public function findOpenForClient(int $pid, ReviewType $type, FhirResourceType $resourceType, string $clientId): array
     {
         $open = [];
@@ -239,6 +250,11 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         $this->requests[$id]['updated_at'] = $this->mapper->formatDateTime($now);
     }
 
+    /**
+     * Adds one event to the request's history.
+     *
+     * @param ?array<array-key, mixed> $previousPayload kept on the event, as the repository keeps it
+     */
     public function appendEvent(
         int $requestId,
         ?ReviewStatus $from,

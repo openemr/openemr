@@ -38,6 +38,9 @@ final class RecordingReviewAuditTrail implements ReviewAuditTrailInterface
     /** @var list<array{ids: list<int>, actor: string}> one per recordAccess() call */
     public array $reads = [];
 
+    /**
+     * Records the ids read, or throws the failure a test set.
+     */
     public function recordAccess(array $requests, ReviewActor $actor): void
     {
         if ($this->failure !== null) {

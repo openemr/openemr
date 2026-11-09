@@ -618,6 +618,9 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         );
     }
 
+    /**
+     * A decided request can't be revised, and an unknown id is not found; neither changes anything.
+     */
     public function testOnlyAPendingRequestCanBeRevised(): void
     {
         $service = $this->service();
@@ -725,6 +728,9 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertSame([['ids' => [$first->id, $second->id], 'actor' => 'ann7']], $this->trail->reads);
     }
 
+    /**
+     * A failure to write the read's audit entry is logged with the request ids, not thrown.
+     */
     public function testAReadAuditFailureDoesNotFailTheRead(): void
     {
         $service = $this->service();

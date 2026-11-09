@@ -42,6 +42,9 @@ class PatientWriteReadBackIsolatedTest extends TestCase
         return $this->hold()->hold($this->context($clientId), $type, $this->resourceOf($type));
     }
 
+    /**
+     * The app's own pending write reads back under the id it was given, tagged held-for-review.
+     */
     public function testTheAppReadsItsWaitingWriteUnderItsIdTaggedAsHeld(): void
     {
         $request = $this->held();
@@ -90,6 +93,9 @@ class PatientWriteReadBackIsolatedTest extends TestCase
         $this->assertSame([], $this->trail->reads);
     }
 
+    /**
+     * The app's own denied or withdrawn write reads as Gone (410), not as a chart record.
+     */
     public function testADeniedOrWithdrawnWriteIsGone(): void
     {
         $denied = $this->held();
@@ -118,6 +124,9 @@ class PatientWriteReadBackIsolatedTest extends TestCase
         $this->assertSame(PatientWriteReadOutcome::NotHeld, $read->outcome);
     }
 
+    /**
+     * A replaced write reads back as replaced, with meta.lastUpdated the time of the replacement.
+     */
     public function testAReplacedWriteShowsWhenItWasReplaced(): void
     {
         $request = $this->held();

@@ -74,6 +74,9 @@ class PatientWriteUpdateIsolatedTest extends TestCase
         $this->assertSame($request->status, $now->status);
     }
 
+    /**
+     * An update of the app's own pending write replaces what is held and keeps the id.
+     */
     public function testTheAppReplacesItsWaitingWriteUnderTheSameId(): void
     {
         $request = $this->held();
@@ -237,6 +240,9 @@ class PatientWriteUpdateIsolatedTest extends TestCase
         $this->assertSame($request->payload, $this->queue->get($request->id)->payload);
     }
 
+    /**
+     * The app's own denied or withdrawn write can't be updated: Gone (410), and it stays closed.
+     */
     public function testAnUpdateOfADeniedOrWithdrawnWriteIsGone(): void
     {
         $denied = $this->held();
