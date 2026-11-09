@@ -292,21 +292,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/display.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function substr expects string, string\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function trim expects string, string\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#5 \\$comments of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:newEvent\\(\\) expects string, string\\|false given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$name of static method Monolog\\\\Level\\:\\:fromName\\(\\) expects \'ALERT\'\\|\'Alert\'\\|\'alert\'\\|\'CRITICAL\'\\|\'Critical\'\\|\'critical\'\\|\'DEBUG\'\\|\'Debug\'\\|\'debug\'\\|\'EMERGENCY\'\\|\'Emergency\'\\|\'emergency\'\\|\'ERROR\'\\|\'Error\'\\|\'error\'\\|\'INFO\'\\|\'Info\'\\|\'info\'\\|\'NOTICE\'\\|\'Notice\'\\|\'notice\'\\|\'WARNING\'\\|\'Warning\'\\|\'warning\', mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../config/services.php',

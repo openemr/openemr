@@ -28,39 +28,9 @@
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\DirectMessaging\PhiMailCheckException;
-use OpenEMR\Common\DirectMessaging\PhiMailConnection;
-use OpenEMR\Common\DirectMessaging\PhiMailConnectionException;
 use OpenEMR\Common\DirectMessaging\PhiMailReceiver;
-use OpenEMR\Common\DirectMessaging\PhiMailServer;
-use OpenEMR\Common\DirectMessaging\PhiMailStreamException;
-use OpenEMR\Common\DirectMessaging\PhiMailUnexpectedResponseException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\SoftwareVersion;
-
-/**
- * Connect to a phiMail Direct Messaging server
- *
- * @param ?string $phimail_error
- * @param-out ?string $phimail_error the C-code of a failure; untouched on success
- * @return resource|false
- */
-function phimail_connect(&$phimail_error)
-{
-    $globals = OEGlobalsBag::getInstance();
-    $logger = ServiceContainer::getLogger();
-    $server = PhiMailServer::fromGlobals($globals);
-    $version = SoftwareVersion::fromGlobals($globals);
-    try {
-        $connection = PhiMailConnection::open($server, $version, $logger);
-    } catch (PhiMailConnectionException $e) {
-        $phimail_error = $e->auditCode();
-        $logger->error('phimail_connect failed to connect', ['error' => $phimail_error, 'exception' => $e]);
-        return false;
-    }
-
-    return $connection->stream();
-}
 
 /**
  * Connect to a phiMail Direct Messaging server and check for any incoming status
@@ -78,47 +48,4 @@ function phimail_check(): void
         ServiceContainer::getLogger(),
         EventAuditLogger::getInstance(),
     )->check();
-}
-
-/**
- * Helper functions
- */
-
-/**
- * @param resource $fp
- * @param string $text
- */
-function phimail_write($fp, $text): void
-{
-    try {
-        (new PhiMailConnection($fp))->write($text);
-    } catch (PhiMailStreamException) {
-        // Callers expect a failed write to pass silently; their next read reports it.
-    }
-}
-
-/**
- * @param resource $fp
- * @param string $text
- * @return true|string|false true on OK, otherwise the server's reply, or false if there was none
- */
-function phimail_write_expect_OK($fp, $text): bool|string
-{
-    try {
-        (new PhiMailConnection($fp))->expectOk($text);
-    } catch (PhiMailUnexpectedResponseException $e) {
-        return $e->response;
-    } catch (PhiMailStreamException) {
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * @param resource $fp
- */
-function phimail_close($fp): void
-{
-    (new PhiMailConnection($fp))->close();
 }
