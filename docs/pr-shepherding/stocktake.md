@@ -99,6 +99,8 @@ Collect the following signals per PR:
 - Any `FAILURE` outside `codecov/*` → `FAIL` (codecov/patch and codecov/project are advisory and don't fail the aggregator — a solo codecov FAILURE with green aggregator is OK)
 - Many `CANCELLED` + no `FAILURE` → `CRED` (concurrency-redeemed; usually in-flight
   re-run — recheck in 5-10m)
+- Lanes `IN_PROGRESS` > 24 h on a non-dormant PR with aggregator NULL → `STALE` → 🔴
+  held (CI isn't going to resolve itself; something upstream is stuck)
 
 Store these as a one-line summary per PR; feed into the bucketing step.
 
