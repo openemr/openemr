@@ -44,14 +44,25 @@ final class ReferralNoticeServiceTest extends TestCase
 
     private EventDispatcher $dispatcher;
 
+    private bool $translationBefore = false;
+
     /**
      * Sets up the collaborators each test uses.
      */
     protected function setUp(): void
     {
         // The notice's texts are translated, and xl() reaches for the translation tables unless this is set.
+        $this->translationBefore = OEGlobalsBag::getInstance()->getBoolean('disable_translation');
         OEGlobalsBag::getInstance()->set('disable_translation', true);
         $this->dispatcher = new EventDispatcher();
+    }
+
+    /**
+     * Puts the translation setting back as the test found it.
+     */
+    protected function tearDown(): void
+    {
+        OEGlobalsBag::getInstance()->set('disable_translation', $this->translationBefore);
     }
 
     /**

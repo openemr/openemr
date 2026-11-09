@@ -424,15 +424,16 @@ class ReferralTaskService
             // The Reply Date goes first, so a completed Task always has one: a Task left open with a
             // Reply Date is completed by the referral's next save (recordReply()), while a completed one
             // without it would never get one. It's taken back out when the Task isn't completed.
-            self::storeReplyDate($transactionId, substr($reply['received_at'], 0, 10));
+            $replyDate = substr($reply['received_at'], 0, 10);
+            self::storeReplyDate($transactionId, $replyDate);
             try {
                 $completed = $this->completeRecipientTask($transactionId, $referralUuid, $recipientUuid, $taskUuid, $replyId, $documents, $userId);
             } catch (\RuntimeException | \LogicException | DbalException $e) {
-                self::clearReplyDate($transactionId);
+                self::clearReplyDate($transactionId, $replyDate);
                 throw $e;
             }
             if ($completed === null) {
-                self::clearReplyDate($transactionId);
+                self::clearReplyDate($transactionId, $replyDate);
             }
             return $completed;
         } finally {
@@ -476,10 +477,12 @@ class ReferralTaskService
 
     /**
      * Takes the Reply Date that completeWithDirectReply() set back out, when its Task wasn't completed.
+     * Only that date: the Transactions screen writes lbt_data before it takes the referral's lock, so a
+     * Reply Date a user saved in between is theirs, and stays.
      */
-    private static function clearReplyDate(int $transactionId): void
+    private static function clearReplyDate(int $transactionId, string $date): void
     {
-        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", [$transactionId]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date' AND field_value = ?", [$transactionId, $date]);
     }
 
     /**

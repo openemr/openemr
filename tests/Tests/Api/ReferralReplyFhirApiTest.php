@@ -1351,6 +1351,46 @@ class ReferralReplyFhirApiTest extends TestCase
     }
 
     /**
+     * A Reply Date a user saves while a confirm is under way is theirs: the confirm's failure takes out
+     * only the date it wrote.
+     */
+    public function testAFailedConfirmKeepsAReplyDateAUserSavedMeanwhile(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $replyId = $this->receiveDirectReply($id, 'Seen.', []);
+        $taskUuid = (new ReferralTaskService(new UserService()))->confirmableTask($id);
+        $this->assertIsString($taskUuid);
+        $failing = new class ($id) extends TaskService {
+            /**
+             * Keeps the referral whose Reply Date the user saves.
+             */
+            public function __construct(private readonly int $referralId)
+            {
+                parent::__construct();
+            }
+
+            /**
+             * Saves a Reply Date as a user on the Transactions screen would, then fails.
+             */
+            public function update(string $uuid, array $fields, ?int $userId, ?int $expectedVersion = null, ?array $inputs = null, ?array $outputs = null): bool
+            {
+                QueryUtils::sqlStatementThrowException("REPLACE INTO lbt_data SET form_id = ?, field_id = 'reply_date', field_value = '2026-01-02'", [$this->referralId]);
+                throw new \RuntimeException('database went away');
+            }
+        };
+
+        try {
+            (new ReferralTaskService(new UserService(), taskService: $failing))->completeWithDirectReply($id, $taskUuid, $replyId, null);
+            $this->fail('the failure of the update is thrown');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('database went away', $e->getMessage());
+        }
+
+        $this->assertSame('2026-01-02', QueryUtils::fetchSingleValue("SELECT field_value FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", 'field_value', [$id]));
+    }
+
+    /**
      * A file in the patient's chart, as PhiMailReceiver stores a matched reply's attachment. It names the
      * referral only so tearDown() removes it with the referral's documents.
      */
