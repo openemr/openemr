@@ -23,9 +23,12 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\CoverageSegment;
 use OpenEMR\Services\Insurance\EffectiveInsurance;
 use OpenEMR\Services\Insurance\EffectiveInsuranceRow;
 use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\Insurance\InsuranceLevel;
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
@@ -103,11 +106,15 @@ class InsuranceService extends BaseService
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
+        // By level, the policies in force today first (started on or before today, or undated, and ending
+        // today or later, or not at all; a 0000-00-00 end is open, as EffectiveInsuranceRule reads it), then
+        // the latest start, then the later entry, as the rule breaks a tie between two undated policies (a
+        // level can't hold two with one start date). The policy editor sorts the same way
+        // (InsurancePolicyService.currentRank()).
         $orderClause = " ORDER BY `patient_data_pid` ASC,`type` ASC"
-            // sort by 1 first then 0
-        . ", (`date_end` is null or `date_end` > NOW()) DESC"
-        . ", (`date_end` IS NOT NULL AND `date_end` > NOW()) DESC"
-        . ", `date` DESC, `date_end` DESC, `policy_number` ASC";
+        . ", CASE WHEN (`date` IS NULL OR `date` <= CURDATE())"
+        . " AND (`date_end` IS NULL OR `date_end` = '0000-00-00' OR `date_end` >= CURDATE()) THEN 1 ELSE 0 END DESC"
+        . ", `date` DESC, `insurance_data`.`id` DESC";
 
         $sql .= $whereClause->getFragment() . $orderClause;
         $sqlBindArray = $whereClause->getBoundValues();
@@ -485,9 +492,26 @@ class InsuranceService extends BaseService
             }
             $result[$insurancePolicy['type']][] = $insurancePolicy;
         }
+        // Each level's current policy is the one in force today, as EffectiveInsuranceRule chooses it; the
+        // others keep search()'s order. A level with nothing in force keeps search()'s first policy.
+        $inForce = [];
+        $patientId = EffectiveInsuranceRule::storedId($pid);
+        if ($patientId !== null) {
+            $today = CoverageDay::today(ServiceContainer::getClock());
+            foreach ($this->getEffectiveInsuranceRows($patientId, $today) as $effective) {
+                $inForce[$effective->policy->level->value] = $effective->policy->id;
+            }
+        }
         $organizedResults = [];
         foreach ($result as $key => $policies) {
             if (count($policies) > 0) {
+                foreach ($policies as $i => $policy) {
+                    $policyId = is_array($policy) ? EffectiveInsuranceRule::storedId($policy['id'] ?? null) : null;
+                    if (isset($inForce[$key]) && $policyId === $inForce[$key]) {
+                        array_unshift($policies, ...array_splice($policies, $i, 1));
+                        break;
+                    }
+                }
                 reset($policies);
                 $current = current($policies);
                 $history = array_splice($policies, 1);
@@ -534,6 +558,44 @@ class InsuranceService extends BaseService
             $companyIds
         );
         return EffectiveInsuranceRow::forPolicies($policies, $rows, $companies);
+    }
+
+    /**
+     * The policy in force at one level on a day, as getEffectiveInsuranceRows()
+     * chooses it, or null when the level has none: for callers that need only
+     * the policy, such as the 270's primary or a payment's payer at its level.
+     *
+     * @param DateTimeImmutable $day the day asked about; its time is ignored
+     */
+    public function getEffectiveInsuranceAt(int $pid, InsuranceLevel $level, DateTimeImmutable $day): ?EffectiveInsurance
+    {
+        // Levels are chosen independently, so the level's own rows give the rule's answer at that level.
+        $rows = QueryUtils::fetchRecords(
+            "SELECT `id`, `uuid`, `type`, `provider`, `date`, `date_end` FROM `insurance_data` WHERE `pid` = ? AND `type` = ?",
+            [$pid, $level->value]
+        );
+        foreach (EffectiveInsuranceRule::choose($rows, $day) as $policy) {
+            if ($policy->level === $level) {
+                return $policy;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * The runs of days within a range on which each policy heads a level
+     * (EffectiveInsuranceRule::segments()), oldest first: for readers that
+     * report over a period, such as eCQM's payer.
+     *
+     * @return list<CoverageSegment>
+     */
+    public function getCoverageSegments(int $pid, InsuranceLevel $level, DateTimeImmutable $from, DateTimeImmutable $to): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT `id`, `uuid`, `type`, `provider`, `date`, `date_end` FROM `insurance_data` WHERE `pid` = ? AND `type` = ?",
+            [$pid, $level->value]
+        );
+        return EffectiveInsuranceRule::segments($rows, $level, $from, $to);
     }
 
     public function swapInsurance($pid, string $targetType, string $insuranceUuid): ProcessingResult
