@@ -38,15 +38,25 @@ class ErxXmlBuilderTest extends TestCase
 {
     private const ERX_URL = 'https://erx.example.test/RxEntry.aspx';
 
+    private bool $hadDisableTranslation = false;
+    private mixed $previousDisableTranslation = null;
+
     protected function setUp(): void
     {
-        // xl() returns its input when translation is disabled
+        // xl() returns its input when translation is disabled. OEGlobalsBag
+        // writes through to $GLOBALS, so tearDown() restores $GLOBALS itself.
+        $this->hadDisableTranslation = array_key_exists('disable_translation', $GLOBALS);
+        $this->previousDisableTranslation = $GLOBALS['disable_translation'] ?? null;
         OEGlobalsBag::getInstance()->set('disable_translation', true);
     }
 
     protected function tearDown(): void
     {
-        OEGlobalsBag::getInstance()->remove('disable_translation');
+        if ($this->hadDisableTranslation) {
+            $GLOBALS['disable_translation'] = $this->previousDisableTranslation;
+        } else {
+            unset($GLOBALS['disable_translation']);
+        }
     }
 
     /**
