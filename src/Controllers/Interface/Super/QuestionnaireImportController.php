@@ -21,9 +21,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\Controllers\Interface\Super;
 
+use InvalidArgumentException;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\FHIR\Questionnaire\LhcFormConversionIssue;
+use OpenEMR\Services\FHIR\Questionnaire\LhcFormToFhirConverter;
+use OpenEMR\Services\Questionnaire\Import\LoincFormClient;
+use OpenEMR\Services\Questionnaire\Import\LoincFormUnavailable;
 use OpenEMR\Services\Questionnaire\Import\QuestionnaireImportRefusal;
 use OpenEMR\Services\Questionnaire\Import\QuestionnaireImportRefused;
 use OpenEMR\Services\Questionnaire\Import\QuestionnaireImportRequest;
@@ -48,11 +53,14 @@ class QuestionnaireImportController
      */
     public function __construct(
         private readonly QuestionnaireImportService $importer,
+        private readonly LoincFormClient $loinc,
+        private readonly LhcFormToFhirConverter $converter,
         private readonly Environment $twig,
         private readonly SessionInterface $session,
         private readonly LoggerInterface $logger,
         private readonly array $runtime,
         private readonly bool $portalEnabled,
+        private readonly bool $showLoincNote,
     ) {
     }
 
@@ -95,13 +103,40 @@ class QuestionnaireImportController
                     $post->getString('name') !== '' ? $post->getString('name') : null
                 ))),
                 'import' => $this->import($post, $canAssign),
+                'loinc_search' => new JsonResponse(['results' => $this->loinc->search($post->getString('terms'))]),
+                'loinc_fetch' => $this->loincForm($post->getString('loinc_number')),
                 default => new JsonResponse(['error' => xl('Unknown action.')], Response::HTTP_BAD_REQUEST),
             };
         } catch (QuestionnaireImportRefused $e) {
             $this->logger->info('Questionnaire import refused', ['refusal' => $e->refusal->name, 'exception' => $e]);
 
             return new JsonResponse(['error' => self::refusalMessage($e->refusal)], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (LoincFormUnavailable | InvalidArgumentException $e) {
+            // NLM being down, or a form it has no usable definition for, leaves the rest of
+            // the screen working; the file and paste sources do not depend on it.
+            $this->logger->warning('LOINC form request failed', ['exception' => $e]);
+
+            return new JsonResponse(
+                ['error' => xl('That LOINC form could not be loaded. Try again, or import it from a file.')],
+                Response::HTTP_BAD_GATEWAY
+            );
         }
+    }
+
+    /**
+     * Fetch a LOINC form and hand it back ready to review like any other source.
+     */
+    private function loincForm(string $loincNumber): JsonResponse
+    {
+        $conversion = $this->converter->convert($this->loinc->fetch($loincNumber));
+        $json = json_encode($conversion->questionnaire, JSON_THROW_ON_ERROR);
+
+        $notes = [];
+        foreach ($conversion->issues as $issue) {
+            $notes[] = self::conversionNote($issue['issue'], $issue['question']);
+        }
+
+        return new JsonResponse(['json' => $json, 'notes' => $notes]);
     }
 
     /**
@@ -162,6 +197,7 @@ class QuestionnaireImportController
             'surfaces' => $surfaces,
             'canAssign' => $canAssign,
             'portalEnabled' => $this->portalEnabled,
+            'showLoincNote' => $this->showLoincNote,
             'templateCategories' => $this->portalEnabled ? $this->importer->templateCategories() : [],
             'templateCategory' => $query->getString('template_category'),
             'isDialog' => $query->getBoolean('dialog'),
@@ -224,6 +260,18 @@ class QuestionnaireImportController
         }
 
         return $parsed;
+    }
+
+    private static function conversionNote(LhcFormConversionIssue $issue, string $question): string
+    {
+        $note = match ($issue) {
+            LhcFormConversionIssue::UnknownDataType => xl('Unknown answer type, shown as text'),
+            LhcFormConversionIssue::SkipLogicDropped => xl('Condition for showing this item could not be converted, so it always shows'),
+            LhcFormConversionIssue::ScoreDropped => xl('Calculated score could not be converted'),
+            LhcFormConversionIssue::RestrictionDropped => xl('An answer restriction could not be converted'),
+        };
+
+        return $question . ': ' . $note;
     }
 
     private static function surfaceLabel(QuestionnaireSurface $surface): string

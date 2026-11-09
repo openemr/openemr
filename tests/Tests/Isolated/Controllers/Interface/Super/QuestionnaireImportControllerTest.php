@@ -16,6 +16,9 @@ namespace OpenEMR\Tests\Isolated\Controllers\Interface\Super;
 
 use OpenEMR\Controllers\Interface\Super\QuestionnaireImportController;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FHIR\Questionnaire\LhcFormToFhirConverter;
+use OpenEMR\Services\Questionnaire\Import\LoincFormClient;
+use OpenEMR\Services\Questionnaire\Import\LoincFormUnavailable;
 use OpenEMR\Services\Questionnaire\Import\QuestionnaireImportRefusal;
 use OpenEMR\Services\Questionnaire\Import\QuestionnaireImportRefused;
 use OpenEMR\Services\Questionnaire\Import\QuestionnaireImportRequest;
@@ -38,6 +41,7 @@ use Twig\Loader\ArrayLoader;
 class QuestionnaireImportControllerTest extends TestCase
 {
     private FakeQuestionnaireImporter $importer;
+    private FakeLoincClient $loinc;
 
     /** @var array{present: bool, value: bool} */
     private array $translationSetting;
@@ -51,6 +55,7 @@ class QuestionnaireImportControllerTest extends TestCase
         ];
         $globals->set('disable_translation', true);
         $this->importer = new FakeQuestionnaireImporter();
+        $this->loinc = new FakeLoincClient();
     }
 
     protected function tearDown(): void
@@ -131,6 +136,36 @@ class QuestionnaireImportControllerTest extends TestCase
         $this->assertSame(['error' => 'Choose a category.'], self::decode($response));
     }
 
+    public function testLoincSearchReturnsTheResults(): void
+    {
+        $response = $this->controller()->handlePost(self::post(['action' => 'loinc_search', 'terms' => 'phq']), true);
+
+        $this->assertSame('phq', $this->loinc->searched);
+        $this->assertSame(['results' => [['code' => '44249-1', 'name' => 'PHQ-9']]], self::decode($response));
+    }
+
+    public function testLoincFormComesBackAsFhirWithItsConversionNotes(): void
+    {
+        $response = $this->controller()->handlePost(self::post(['action' => 'loinc_fetch', 'loinc_number' => '44249-1']), true);
+
+        $payload = self::decode($response);
+        $this->assertIsString($payload['json']);
+        $questionnaire = json_decode($payload['json'], true);
+        $this->assertIsArray($questionnaire);
+        $this->assertSame('Questionnaire', $questionnaire['resourceType']);
+        $this->assertSame(['Odd: Unknown answer type, shown as text'], $payload['notes']);
+    }
+
+    public function testNlmBeingDownIsReportedInWords(): void
+    {
+        $this->loinc->failure = new LoincFormUnavailable('internal detail');
+
+        $response = $this->controller()->handlePost(self::post(['action' => 'loinc_search', 'terms' => 'phq']), true);
+
+        $this->assertSame(502, $response->getStatusCode());
+        $this->assertStringNotContainsString('internal detail', (string)$response->getContent());
+    }
+
     public function testAnUnknownActionIsRejected(): void
     {
         $this->assertSame(400, $this->controller()->handlePost(self::post(['action' => 'bogus']), true)->getStatusCode());
@@ -169,11 +204,14 @@ class QuestionnaireImportControllerTest extends TestCase
 
         return new QuestionnaireImportController(
             $this->importer,
+            $this->loinc,
+            new LhcFormToFhirConverter(),
             new Environment(new ArrayLoader()),
             $session,
             new NullLogger(),
             ['stylesheet' => 's.css', 'script' => 'r.js', 'version' => '1', 'strings' => '{}'],
             $portalEnabled,
+            true,
         );
     }
 
@@ -203,6 +241,35 @@ class QuestionnaireImportControllerTest extends TestCase
         self::assertIsArray($decoded);
 
         return $decoded;
+    }
+}
+
+final class FakeLoincClient extends LoincFormClient
+{
+    public string $searched = '';
+    public ?LoincFormUnavailable $failure = null;
+
+    public function __construct()
+    {
+    }
+
+    public function search(string $terms): array
+    {
+        if ($this->failure !== null) {
+            throw $this->failure;
+        }
+        $this->searched = $terms;
+
+        return [['code' => '44249-1', 'name' => 'PHQ-9']];
+    }
+
+    public function fetch(string $loincNumber): array
+    {
+        return [
+            'name' => 'Form',
+            'code' => $loincNumber,
+            'items' => [['questionCode' => '1-1', 'question' => 'Odd', 'dataType' => 'WHAT']],
+        ];
     }
 }
 

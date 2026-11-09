@@ -40,6 +40,7 @@
                     <ul class="nav nav-pills nav-fill mb-3" role="tablist">
                         <li class="nav-item"><a class="nav-link active" data-toggle="pill" href="#source-file" role="tab">{{ 'File'|xlt }}</a></li>
                         <li class="nav-item"><a class="nav-link" id="source-paste-tab" data-toggle="pill" href="#source-paste" role="tab">{{ 'Paste'|xlt }}</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#source-loinc" role="tab">{{ 'LOINC'|xlt }}</a></li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="source-file" role="tabpanel">
@@ -50,6 +51,18 @@
                             <label for="paste">{{ 'FHIR Questionnaire JSON'|xlt }}</label>
                             <textarea id="paste" class="form-control" rows="8"></textarea>
                             <button type="button" id="paste-add" class="btn btn-sm btn-primary mt-2">{{ 'Add to review'|xlt }}</button>
+                        </div>
+                        <div class="tab-pane fade" id="source-loinc" role="tabpanel">
+                            <label for="loinc-terms">{{ 'Search LOINC forms'|xlt }}</label>
+                            <input type="search" id="loinc-terms" class="form-control" autocomplete="off" placeholder="{{ 'Type a form name or LOINC code'|xla }}" />
+                            <div id="loinc-results" class="list-group mt-2" style="max-height: 16rem; overflow-y: auto;"></div>
+                            <small id="loinc-status" class="form-text text-muted"></small>
+                            {% if showLoincNote %}
+                                <small class="form-text text-muted">
+                                    {{ 'LOINC form definitions are subject to the LOINC'|xlt }}
+                                    <a href="https://loinc.org/terms-of-use" target="_blank" rel="noopener">{{ 'terms of use.'|xlt }}</a>
+                                </small>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -76,7 +89,7 @@
                     </div>
                     {% if canAssign %}
                         <fieldset class="form-group">
-                            <legend class="col-form-label pt-0">{{ 'Offer new questionnaires on'|xlt }}</legend>
+                            <legend class="col-form-label pt-0 bg-transparent">{{ 'Offer new questionnaires on'|xlt }}</legend>
                             {% for surface in surfaces %}
                                 <div class="form-check">
                                     <input class="form-check-input import-surface" type="checkbox" id="surface-{{ surface.value|attr }}" value="{{ surface.value|attr }}" {{ surface.checked ? 'checked' : '' }} />
@@ -128,6 +141,10 @@
                                 <input type="text" id="tags" class="form-control" placeholder="{{ 'Separate with commas'|xla }}" />
                             </div>
                         </div>
+                        <div id="conversion-notes" class="alert alert-info d-none">
+                            <div class="font-weight-bold">{{ 'Check these items. They did not convert fully from LOINC:'|xlt }}</div>
+                            <ul class="mb-0" id="conversion-list"></ul>
+                        </div>
                         <div id="clash" class="alert alert-warning d-none">
                             <div id="clash-text"></div>
                             <div class="form-check mt-2">
@@ -165,7 +182,9 @@
             needReview: {{ 'Review every questionnaire before importing.'|xlj }},
             needItems: {{ 'Add a questionnaire to import.'|xlj }},
             clash: {{ '"{0}" (version {1}) is already in the repository. Importing replaces it, and the repository keeps no earlier version.'|xlj }},
-            done: {{ 'Imported {0} of {1}.'|xlj }}
+            done: {{ 'Imported {0} of {1}.'|xlj }},
+            searching: {{ 'Searching...'|xlj }},
+            noResults: {{ 'No forms found.'|xlj }}
         }
 
         const element = (id) => document.getElementById(id)
@@ -218,8 +237,8 @@
             }
         }
 
-        async function addItem (label, json) {
-            const item = { id: nextId++, label, json, name: '', tags: null, existing: null, replace: false, reviewed: false, status: 'pending', error: '' }
+        async function addItem (label, json, notes = []) {
+            const item = { id: nextId++, label, json, notes, name: '', tags: null, existing: null, replace: false, reviewed: false, status: 'pending', error: '' }
             items.push(item)
             try {
                 applyReview(item, await post({ action: 'review', questionnaire: json }))
@@ -362,6 +381,16 @@
             }
         }
 
+        function showNotes (item) {
+            const list = element('conversion-list')
+            list.replaceChildren(...(item.notes ?? []).map((note) => {
+                const entry = document.createElement('li')
+                entry.textContent = note
+                return entry
+            }))
+            element('conversion-notes').classList.toggle('d-none', list.children.length === 0)
+        }
+
         function selectItem (item) {
             current = item
             element('review-empty').classList.add('d-none')
@@ -371,6 +400,7 @@
             element('name').value = item.name
             element('tags').value = item.tags ?? ''
             showClash(item)
+            showNotes(item)
 
             const container = element('form-container')
             container.replaceChildren()
@@ -471,6 +501,63 @@
             }
             showAlert('', '')
             addItem({{ 'Pasted questionnaire'|xlj }}, text).then(() => { element('paste').value = '' })
+        })
+        let searchTimer = null
+        let searchNumber = 0
+
+        function renderLoincResults (results) {
+            element('loinc-results').replaceChildren(...results.map((form) => {
+                const row = document.createElement('button')
+                row.type = 'button'
+                row.className = 'list-group-item list-group-item-action p-2'
+                const code = document.createElement('small')
+                code.className = 'text-muted ml-1'
+                code.textContent = form.code
+                row.append(document.createTextNode(form.name), code)
+                row.addEventListener('click', () => addLoincForm(form, row))
+                return row
+            }))
+            element('loinc-status').textContent = results.length === 0 ? words.noResults : ''
+        }
+
+        async function searchLoinc (terms) {
+            const number = ++searchNumber
+            element('loinc-status').textContent = words.searching
+            try {
+                const payload = await post({ action: 'loinc_search', terms })
+                if (number === searchNumber) {
+                    renderLoincResults(payload.results)
+                }
+            } catch (error) {
+                if (number === searchNumber) {
+                    element('loinc-results').replaceChildren()
+                    element('loinc-status').textContent = error.message
+                }
+            }
+        }
+
+        async function addLoincForm (form, row) {
+            row.disabled = true
+            showAlert('', '')
+            try {
+                const payload = await post({ action: 'loinc_fetch', loinc_number: form.code })
+                await addItem(form.name, payload.json, payload.notes)
+            } catch (error) {
+                showAlert(error.message, 'danger')
+            }
+            row.disabled = false
+        }
+
+        element('loinc-terms').addEventListener('input', (event) => {
+            clearTimeout(searchTimer)
+            const terms = event.target.value.trim()
+            if (terms.length < 2) {
+                searchNumber++
+                element('loinc-results').replaceChildren()
+                element('loinc-status').textContent = ''
+                return
+            }
+            searchTimer = setTimeout(() => searchLoinc(terms), 300)
         })
         element('name').addEventListener('change', renameCurrent)
         element('tags').addEventListener('input', () => {

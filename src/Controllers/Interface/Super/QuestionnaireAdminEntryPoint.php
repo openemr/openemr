@@ -14,11 +14,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\Controllers\Interface\Super;
 
+use GuzzleHttp\Client;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+use OpenEMR\Services\FHIR\Questionnaire\LhcFormToFhirConverter;
+use OpenEMR\Services\Questionnaire\Import\LoincFormClient;
 use OpenEMR\Services\Questionnaire\Import\QuestionnaireImportService;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityLookups;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
@@ -30,6 +33,7 @@ use Symfony\Component\HttpFoundation\Response;
 final class QuestionnaireAdminEntryPoint
 {
     private const IMPORT_VIEWS = ['import', 'preview'];
+    private const LOINC_NOTE_HIDDEN = '3';
 
     public function handle(Request $request): Response
     {
@@ -48,11 +52,14 @@ final class QuestionnaireAdminEntryPoint
 
         return (new QuestionnaireImportController(
             new QuestionnaireImportService(new QuestionnaireService(), $availability, $lookups, new DocumentTemplateService()),
+            new LoincFormClient(new Client()),
+            new LhcFormToFhirConverter(),
             $twig,
             $session,
             $logger,
             (new QuestionnaireRuntimeAssets($globals))->describe(),
             $globals->getBoolean('portal_onsite_two_enable'),
+            $globals->getString('questionnaire_display_LOINCnote') !== self::LOINC_NOTE_HIDDEN,
         ))->dispatchAction($request);
     }
 }
