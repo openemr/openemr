@@ -186,9 +186,6 @@ assets:
   purecss:
     basePath: '%assets_static_relative%/purecss/build/'
     link: pure-min.css
-  backbone:
-    basePath: '%assets_static_relative%/backbone/'
-    script: backbone-min.js
   summernote:
     basePath: '%assets_static_relative%/summernote/dist/'
     script: summernote-bs4.min.js
@@ -196,9 +193,6 @@ assets:
   summernote-ext-nugget:
     basePath: '%assets_static_relative%/summernote-nugget/plugins/nugget/'
     script: summernote-ext-nugget.js
-  underscore:
-    basePath: '%assets_static_relative%/underscore/'
-    script: underscore-min.js
   ckeditor:
     basePath: '%assets_static_relative%/ckeditor5/dist/browser/'
     script: ckeditor5.umd.js

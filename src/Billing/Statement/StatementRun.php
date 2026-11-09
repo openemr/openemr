@@ -23,10 +23,11 @@ use Psr\Log\LoggerInterface;
  * amount due nets them. A Due Pt run sends nothing to a patient left with
  * nothing due, and no run sends a statement the site's print rules leave
  * empty (a total at or under the minimum amount to print); those are logged
- * and listed in the result. Statements go to the portal, or into one batch to
- * print or download, each also saved to the patient's documents and, for an
- * email run, emailed. Invoices are counted as statemented only for statements
- * that went out, and only when the run records (not Without Update).
+ * and listed in the result. Statements go to the portal, by email, or into one
+ * batch to print or download, each also saved to the patient's documents; an
+ * email that can't be sent is listed in the result and the statement goes
+ * nowhere. Invoices are counted as statemented only for statements that went
+ * out, and only when the run records (not Without Update).
  */
 final readonly class StatementRun
 {
@@ -107,15 +108,18 @@ final readonly class StatementRun
                 ]);
                 continue;
             }
-            if ($toRecord !== []) {
-                $this->steps->recordStatementRun($toRecord);
-            }
             if ($delivery === StatementDelivery::Email) {
                 try {
                     $this->steps->email($pid, $statement);
                 } catch (\RuntimeException | \InvalidArgumentException $e) {
+                    // Nothing went out: the statement isn't saved and its invoices aren't counted.
+                    // StatementEmail's messages are written for the biller.
                     $emailFailures[] = $patient . ': ' . $e->getMessage();
+                    continue;
                 }
+            }
+            if ($toRecord !== []) {
+                $this->steps->recordStatementRun($toRecord);
             }
             $output .= $statement;
             $written++;

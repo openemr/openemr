@@ -62,7 +62,7 @@ class PortalAlertCountsTest extends TestCase
         $patient = ReviewActor::patient(self::PID, 'phpunit-portal-alert-counts');
         $staff = ReviewActor::user(1, 'admin');
 
-        $workflows->submitPayment(self::PID, '{}', '', false, $patient);
+        $workflows->submitPayment(self::PID, '{}', '', true, $patient);
         $workflows->submitProfileChange(self::PID, ['fname' => 'Ann'], $patient);
         // An invoice waits on the patient, not on staff: not counted.
         $workflows->requestInvoicePayment(self::PID, [], $staff);

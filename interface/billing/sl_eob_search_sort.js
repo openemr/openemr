@@ -1,6 +1,6 @@
 /**
  * Click-to-sort headers for the invoice list on EOB Posting - Search
- * (sl_eob_search.php). A header with data-sort ("text", "number" or "date")
+ * (sl_eob_search.php) and Patient Statements (patient_statements.php). A header with data-sort ("text", "number" or "date")
  * becomes a button; clicking it sorts the rows by that column, ascending
  * first, then descending. A cell's data-sort-value, when present, is what
  * sorts (dates as YYYY-MM-DD, amounts unformatted, the invoice as pid:encounter);

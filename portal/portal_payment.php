@@ -21,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -30,6 +31,8 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
+use OpenEMR\Services\PatientReview\Portal\PortalPaymentAmount;
+use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewStatus;
@@ -75,6 +78,30 @@ require_once("$srcdir/encounter_events.inc.php");
 $twig = ServiceContainer::getTwig();
 
 $cryptoGen = ServiceContainer::getCrypto();
+
+// The keys the card gateway's browser script needs. A key that cannot be decrypted (the site's
+// keys were replaced after it was saved) is logged and left empty, so the page still opens for
+// staff review and for a payment already pending; the gateway's script is then not loaded and
+// the patient is not offered a card payment that cannot work.
+$cardGateway = $globalsBag->getString('payment_gateway');
+$gatewayPublicKey = '';
+$gatewayApiKey = '';
+$gatewayKeysReadable = true;
+if ($cardGateway === 'AuthorizeNet' || $cardGateway === 'Stripe') {
+    try {
+        $gatewayPublicKey = $cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'));
+        if ($cardGateway === 'AuthorizeNet') {
+            $gatewayApiKey = $cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'));
+        }
+    } catch (CryptoGenException $e) {
+        $gatewayKeysReadable = false;
+        $gatewayPublicKey = '';
+        ServiceContainer::getLogger()->error('Payment gateway keys could not be decrypted', [
+            'gateway' => $cardGateway,
+            'exception' => $e,
+        ]);
+    }
+}
 
 $recorder = new Recorder();
 
@@ -136,6 +163,22 @@ if ($session->get('authUserID', '')) {
 // only open their own.
 $sessionPid = is_numeric($pid) ? intval($pid) : 0;
 
+// Sphere's patient script carries its decrypted credentials. It is built before the page so
+// credentials that cannot be read are handled as unreadable gateway keys are: logged, with no
+// card payment offered, rather than failing the page.
+$sphereScript = '';
+if ($cardGateway === 'Sphere' && $session->has('patient_portal_onsite_two')) {
+    try {
+        $sphereScript = (new SpherePayment('patient', $sessionPid))->renderSphereJs();
+    } catch (\RuntimeException $e) {
+        $gatewayKeysReadable = false;
+        ServiceContainer::getLogger()->error('Payment gateway keys could not be decrypted', [
+            'gateway' => $cardGateway,
+            'exception' => $e,
+        ]);
+    }
+}
+
 // The portal payment request a staff save closes once it is posted. From the chart (no recid)
 // it is the patient's pending payment, if any, read again under the patient's posting lock: a
 // payment posted or replaced while this save waited is refused before writing to the ledger, and
@@ -156,6 +199,17 @@ if ($isStaffSave && !$recid) {
     }
     $postingRequestId = $pendingUnderLock->id ?? 0;
 }
+if ($isStaffSave && $postingRequestId) {
+    $postingRequest = $reviewWorkflows->payment($postingRequestId, $sessionPid);
+    $postingBlock = $postingRequest === null
+        ? null
+        : PortalReviewWorkflows::postingBlock($postingRequest, $reviewWorkflows->paymentCardDetails($postingRequest));
+    if ($postingBlock !== null) {
+        // Nothing is written; the posting lock is released on shutdown.
+        echo "<!DOCTYPE html><html><body><p>" . text($postingBlock->message()) . "</p></body></html>";
+        exit;
+    }
+}
 
 $payment = $recid
     ? $reviewWorkflows->payment($recid, $isPortal ? $sessionPid : null)
@@ -164,9 +218,18 @@ $payment = $recid
 $pendingSince = $payment?->createdAt->format('Y-m-d H:i:s') ?? '';
 $ccdata = [];
 $invdata = [];
+$cardUnreadable = false;
+$paymentCharged = $payment !== null && PortalReviewWorkflows::isChargedPayment($payment);
+// Why staff cannot post this open payment, if they cannot.
+$postingBlock = null;
 if ($payment !== null) {
     // Readable only while the payment waits to be posted; deleted once it is.
-    $ccdata = $reviewWorkflows->paymentCardDetails($payment);
+    $cardDetails = $reviewWorkflows->paymentCardDetails($payment);
+    $cardUnreadable = $cardDetails === null;
+    if ($payment->status->isOpen()) {
+        $postingBlock = PortalReviewWorkflows::postingBlock($payment, $cardDetails);
+    }
+    $ccdata = $cardDetails ?? [];
     $invoiceValues = $reviewWorkflows->paymentInvoiceValues($payment);
     $invdata = json_decode($invoiceValues, true);
     echo "<script>var jsondata=" . js_escape($invoiceValues) . ";</script>";
@@ -199,7 +262,11 @@ if ($_POST['form_save'] ?? '') {
     $paymentRecorded = false;
 
     if ($radio_type_of_payment == 'pre_payment') {
-        $prepayment = ValidationUtils::parsePositiveAmount(filter_input(INPUT_POST, 'form_prepayment'));
+        // At most two decimals, as the payment page allows: the amount posted is the amount charged.
+        $prepaymentInput = trim(CurrentRequest::get()->request->getString('form_prepayment'));
+        $prepayment = preg_match('/^\d+(\.\d{1,2})?$/', $prepaymentInput) === 1
+            ? ValidationUtils::parsePositiveAmount($prepaymentInput)
+            : null;
         if ($prepayment === null) {
             $alertmsg = xl('Prepayment amount must be a positive number.');
         } else {
@@ -570,7 +637,11 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'))); ?>;
+        var publicKey = <?php echo json_encode($gatewayPublicKey); ?>;
+
+        function isPrepaymentAmount(value) {
+            return /^\d+(\.\d{1,2})?$/.test(value);
+        }
 
         function calctotal() {
             var flag = 0;
@@ -585,6 +656,13 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                         if (total < 0) flag = 1;
                     }
                 }
+            }
+            if (document.getElementById('radio_type_of_payment4').checked) {
+                // A prepayment is not paid against invoice lines; its amount is the total. Only a
+                // plain amount (at most two decimals) counts, so the amount charged is exactly
+                // the amount posted.
+                const prepayment = f.form_prepayment.value.trim();
+                total = isPrepaymentAmount(prepayment) ? Number(prepayment) : 0;
             }
             f.form_paytotal.value = Number(total).toFixed(2);
             if (flag) {
@@ -699,15 +777,29 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             }
         });
 
-        $('#openPayModal').on('show.bs.modal', function () {
-            let total = $("#form_paytotal").val();
-            if(Number(total) < 1) {
-                let error = <?php echo json_encode("Please enter a payment amount"); ?>;
-                alert(error);
-                return false;
-            }
-            $("#payTotal").text(total);
-            $("#paymentAmount").val(total);
+        // The card dialog opens from here, not from a data-toggle button: the portal page loads
+        // Bootstrap more than once, and each copy would open the dialog even when this check fails.
+        $(function () {
+            $('#paynowbutton').on('click', function (e) {
+                calctotal();
+                let total = $("#form_paytotal").val();
+                const prepayment = document.getElementById('form_prepayment').value.trim();
+                if (document.getElementById('radio_type_of_payment4').checked && prepayment !== '' && !isPrepaymentAmount(prepayment)) {
+                    alert(<?php echo xlj("Enter the prepayment as an amount such as 50.00"); ?>);
+                    return;
+                }
+                if (!Number.isFinite(Number(total)) || Number(total) < 1) {
+                    alert(<?php echo xlj("Please enter a payment amount"); ?>);
+                    return;
+                }
+                $("#payTotal").text(total);
+                $("#paymentAmount").val(total);
+                // A gateway that starts its payment from this button (Rainforest) runs only now.
+                if (typeof window.portalGatewayPay === 'function') {
+                    window.portalGatewayPay.call(this, e);
+                }
+                $('#openPayModal').modal('show');
+            });
         });
 
         // Posting records the payment and closes the portal payment request in one request
@@ -816,11 +908,11 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 </td>
                 <td class='text' colspan="2">
                     <input type="radio" name="radio_type_of_coverage" id="radio_type_of_coverage1"
-                           value="self" onClick="make_visible_radio();make_self();"/>
+                           value="self" onClick="make_visible_radio();make_self();calctotal();"/>
                     <?php echo xlt('Self'); ?>
                     <input type="radio" name="radio_type_of_coverage" id="radio_type_of_coverag2" value="insurance"
                            checked="checked"
-                           onClick="make_hide_radio();make_insurance();"/>
+                           onClick="make_hide_radio();make_insurance();calctotal();"/>
                     <?php echo xlt('Insurance'); ?>
                 </td>
             </tr>
@@ -834,7 +926,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 </td>
                 <td class='text' colspan="2">
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment_self1"
-                           value="cash" onClick="make_visible_row();make_it_hide_enc_pay();cursor_pointer();"/>
+                           value="cash" onClick="make_visible_row();make_it_hide_enc_pay();cursor_pointer();calctotal();"/>
                     <?php echo xlt('Encounter Payment'); ?>
                 </td>
             </tr>
@@ -843,11 +935,19 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 <td class='text' valign="top"><?php echo xlt('Payment against'); ?>:</td>
                 <td class='text' colspan="2">
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment1" class="<?php echo $hide ?: ''; ?>"
-                           value="copay" onClick="make_visible_row();cursor_pointer();"/><?php echo !$hide ? xlt('Co Pay') : ''; ?>
+                           value="copay" onClick="make_visible_row();cursor_pointer();calctotal();"/><?php echo !$hide ? xlt('Co Pay') : ''; ?>
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment2" checked="checked"
-                           value="invoice_balance" onClick="make_visible_row();"/><?php echo xlt('Invoice Balance'); ?>
+                           value="invoice_balance" onClick="make_visible_row();calctotal();"/><?php echo xlt('Invoice Balance'); ?>
+                    <?php if ($globalsBag->getString('payment_gateway') === 'Rainforest' && !$session->has('authUserID')) {
+                        // A patient paying through Rainforest, which charges against invoice
+                        // encounters, cannot prepay; staff still can. The radio stays (disabled)
+                        // for the scripts that look it up.
+                        ?>
+                        <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment4" value="pre_payment" class="d-none" disabled />
+                    <?php } else { ?>
                     <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment4" value="pre_payment"
-                           onClick="make_hide_row();"/><?php echo xlt('Pre Pay'); ?>
+                           onClick="make_hide_row();calctotal();"/><?php echo xlt('Pre Pay'); ?>
+                    <?php } ?>
                 </td>
             </tr>
             <tr height="15">
@@ -857,7 +957,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         <table width="20%" border="0" cellspacing="0" cellpadding="0" id="table_display_prepayment" style="margin-bottom: 10px; display: none">
             <tr>
                 <td class='detail'><?php echo xlt('Pre Payment'); ?></td>
-                <td><input class="form-control" type='text' id= 'form_prepayment' name='form_prepayment' style=''/></td>
+                <td><input class="form-control" type='text' id='form_prepayment' name='form_prepayment' oninput="calctotal()" /></td>
             </tr>
         </table>
         <table id="table_display" style="background: #eee;" class="table table-sm table-striped table-bordered w-100">
@@ -1130,23 +1230,50 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
                 <span class="font-weight-bold"><?php echo xlt('Authorization'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["authCode"] ?? '') ?></span><br />
         <?php } ?>
         <span class="font-weight-bold"><?php echo xlt('Charge Total'); ?>:  </span><span id="ct"><?php echo text($invdata["form_paytotal"] ?? '') ?></span><br />
+        <?php
+        // Staff only: what the gateway's callback reported, which OpenEMR has not confirmed with it.
+        $amountMismatch = ($ccdata[PortalPaymentAmount::MISMATCH] ?? false) === true;
+        $amountUnverified = ($ccdata[PortalPaymentAmount::UNVERIFIED] ?? false) === true;
+        if ($session->has('authUserID') && ($amountMismatch || $amountUnverified)) { ?>
+            <span class="font-weight-bold"><?php echo xlt('Amount Reported by Gateway'); ?>:  </span><span id="ca"><?php echo text(is_string($ccdata['amount'] ?? null) ? $ccdata['amount'] : '') ?></span><br />
+            <?php if ($amountMismatch) { ?>
+            <div class="alert alert-warning"><?php echo xlt('The amount the gateway reported does not match this invoice selection, or could not be checked. Check the transaction at the gateway and correct the amounts before posting.'); ?></div>
+            <?php } else { ?>
+            <div class="alert alert-info"><?php echo xlt('The gateway does not confirm this amount to OpenEMR. Check the transaction amount at the gateway before posting.'); ?></div>
+            <?php } ?>
+        <?php } ?>
         </div>
         </div>
         </div>
         <div>
         <?php
         if (!$session->has('authUserID')) {
-            if (!isset($ccdata["cardHolderName"])) {
-                if ($globalsBag->get('payment_gateway') === 'Sphere') {
+            // A charged payment stays locked even when its card details cannot be read: paying
+            // again would charge the card a second time.
+            // No new payment while one is pending with card details, or while any open payment was
+            // already charged (paying again would charge the card a second time).
+            // A pending payment staff cannot post (its card details are missing or incomplete) is
+            // not locked: paying again replaces it.
+            if ((!isset($ccdata["cardHolderName"]) || $postingBlock !== null) && !$reviewWorkflows->hasOpenChargedPayment($sessionPid)) {
+                if (!$gatewayKeysReadable) {
+                    echo '<div class="alert alert-warning">' . xlt('Card payments are not available right now. Please contact the clinic.') . '</div>';
+                } elseif ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
                 } else {
-                    echo '<button type="button" id="paynowbutton" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
+                    echo '<button type="button" id="paynowbutton" class="btn btn-primary">' . xlt("Pay Invoice") . '</button>';
                 }
             } else {
                 echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
             }
         } else {
-            echo "<button type='submit' class='btn btn-success' form='invoiceForm'>" . xlt('Post Payment') . "</button>";
+            if ($postingBlock !== null) {
+                echo '<div class="alert alert-warning">' . text($postingBlock->message()) . '</div>';
+            } else {
+                if ($cardUnreadable && $paymentCharged) {
+                    echo '<div class="alert alert-warning">' . xlt('The card details of this payment could not be read. The card was charged by the payment gateway: check the transaction there before posting.') . '</div>';
+                }
+                echo "<button type='submit' class='btn btn-success' form='invoiceForm'>" . xlt('Post Payment') . "</button>";
+            }
         }
         ?>
         </div>
@@ -1157,6 +1284,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
     <script>
         if (typeof jsondata !== 'undefined') {
             formRepopulate(jsondata);
+        }
+        if (document.getElementById('radio_type_of_payment4').checked) {
+            make_hide_row();
         }
         calctotal();
     </script>
@@ -1329,7 +1459,7 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         }
     </script>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && $session->has('patient_portal_onsite_two')) {
+    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && $gatewayKeysReadable && $session->has('patient_portal_onsite_two')) {
         // Include Authorize.Net dependency to tokenize card.
         // Will return a token to use for payment request keeping
         // credit info off the server.
@@ -1337,18 +1467,18 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
         // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
         ?>
         <script>
-            var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
+            var apiLoginID = <?php echo json_encode($gatewayApiKey); ?>;
         </script>
         <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.authorizenet.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php }  // end authorize.net ?>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
+    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $gatewayKeysReadable && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
         <script src="<?php echo attr($portalAssetRoot); ?>/portal_payment.stripe.js?v=<?php echo attr_url($globalsBag->getString('v_js_includes')); ?>"></script>
     <?php } ?>
 
     <?php
     if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
-        echo (new SpherePayment('patient', $pid))->renderSphereJs();
+        echo $sphereScript;
     }
     if ($globalsBag->get('payment_gateway') === 'Rainforest' && $session->has('patient_portal_onsite_two')) {
         if ($globalsBag->getBoolean('gateway_mode_production')) {
@@ -1361,6 +1491,9 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET
             'csrf' => CsrfUtils::collectCsrfToken($session, 'rainforest'),
             'endpoint' => 'portal_payment.rainforest.php',
         ]);
+        // Rainforest starts its payment from the Pay Invoice button. Hand that to the button's
+        // own handler, so it runs only after the amount is checked.
+        echo "\n(function () { const button = document.getElementById('paynowbutton'); if (button) { window.portalGatewayPay = button.onclick; button.onclick = null; } })();\n";
         echo '</script>';
     }
     ?>

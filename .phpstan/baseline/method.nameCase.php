@@ -59,36 +59,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addReplyTo\\(\\) with incorrect case\\: AddReplyTo$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:isHTML\\(\\) with incorrect case\\: IsHTML$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:msgHTML\\(\\) with incorrect case\\: MsgHTML$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:send\\(\\) with incorrect case\\: Send$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:setFrom\\(\\) with incorrect case\\: SetFrom$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
 ];
 $ignoreErrors[] = [
@@ -285,16 +255,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:send\\(\\) with incorrect case\\: Send$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:send\\(\\) with incorrect case\\: Send$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',

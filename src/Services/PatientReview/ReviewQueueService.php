@@ -29,9 +29,11 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientReview;
 
 use Doctrine\DBAL\Exception as DbalException;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewHandlerMissingException;
+use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
@@ -85,6 +87,38 @@ final class ReviewQueueService
     public function submit(ReviewSubmission $submission, ReviewActor $actor, array $secrets = []): ReviewRequest
     {
         return $this->atomically(fn(): ReviewRequest => $this->create($submission, $actor, $secrets));
+    }
+
+    /**
+     * Adds a request unless the submitting API client already has $maxOpenForClient open
+     * requests of this type for the patient. Like submit(), it leaves the open ones alone: a
+     * patient app's second reading is a second request, not a replacement for the first.
+     *
+     * The patient row is held for the count, so concurrent submissions for the patient take
+     * turns and cannot both pass it.
+     *
+     * @throws \DomainException when the submission has no client, or the limit is below 1
+     * @throws \RuntimeException when the patient does not exist (nothing is created)
+     * @throws ReviewLimitReachedException when the client is at the limit (nothing is created)
+     */
+    public function submitWithinLimit(ReviewSubmission $submission, ReviewActor $actor, int $maxOpenForClient): ReviewRequest
+    {
+        $clientId = $submission->clientId;
+        if ($clientId === null) {
+            throw new \DomainException('Only a submission from an API client has a per-client limit');
+        }
+        if ($maxOpenForClient < 1) {
+            throw new \DomainException('The open request limit must be at least 1');
+        }
+
+        return $this->atomically(function () use ($submission, $actor, $clientId, $maxOpenForClient): ReviewRequest {
+            $this->store->lockTarget('patient_data', (string) $submission->pid);
+            if ($this->store->countOpenForClient($submission->pid, $submission->type, $clientId) >= $maxOpenForClient) {
+                throw ReviewLimitReachedException::forClient($maxOpenForClient);
+            }
+
+            return $this->create($submission, $actor, []);
+        });
     }
 
     /**
@@ -221,6 +255,18 @@ final class ReviewQueueService
     }
 
     /**
+     * Every open request of this type (and, for FHIR writes, resource type) for the patient,
+     * newest first. Usually one, but some types (a charged payment) never replace an open
+     * request.
+     *
+     * @return list<ReviewRequest>
+     */
+    public function allOpenFor(int $pid, ReviewType $type, ?FhirResourceType $resourceType = null): array
+    {
+        return $this->store->findOpen($pid, $type, $resourceType);
+    }
+
+    /**
      * The open request for one target row (a portal document), if any.
      */
     public function openForTarget(int $pid, ReviewType $type, string $targetTable, string $targetId): ?ReviewRequest
@@ -288,6 +334,8 @@ final class ReviewQueueService
     /**
      * The decrypted secret, or null when the request has been decided or has none. It stays
      * readable while the request is approved, so the handler applying it can use it.
+     *
+     * @throws CryptoGenException when the stored secret cannot be decrypted
      */
     public function readSecret(int $id, string $kind): ?string
     {

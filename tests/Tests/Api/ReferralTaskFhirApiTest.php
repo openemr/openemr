@@ -247,6 +247,121 @@ class ReferralTaskFhirApiTest extends TestCase
     }
 
     /**
+     * @return array<string, array{string, ?string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function recipientAnswers(): array
+    {
+        // the recipient Task's status, its reason => whether the referral can be re-sent
+        return [
+            'rejected' => ['rejected', 'Not taking new patients', true],
+            'failed' => ['failed', null, true],
+            'cancelled by the recipient' => ['cancelled', 'Moved away', true],
+            'cancelled by this service' => ['cancelled', ReferralTaskService::REASON_NO_RECIPIENT, false],
+            'still requested' => ['requested', null, false],
+            'accepted' => ['accepted', null, false],
+            'completed' => ['completed', null, false],
+            'entered in error' => ['entered-in-error', null, false],
+        ];
+    }
+
+    /**
+     * A Task this service set aside isn't the recipient's answer, and only their refusal can be re-sent.
+     */
+    #[DataProvider('recipientAnswers')]
+    public function testOnlyTheRecipientsOwnRefusalCanBeReSent(string $status, ?string $reason, bool $resendable): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $task = $this->createTask($id);
+        $this->assertIsString($task);
+        (new TaskService())->update($task, ['status' => $status, 'status_reason' => $reason], null);
+
+        $this->assertSame($resendable ? $task : null, $this->service()->resendableTask($id));
+    }
+
+    public function testAReSendIsANewTaskThatReopensTheReferralAndKeepsTheOldOne(): void
+    {
+        $id = $this->saveReferral(['refer_date' => '2026-01-05', 'refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $rejected = $this->createTask($id);
+        $this->assertIsString($rejected);
+        (new TaskService())->update($rejected, ['status' => 'rejected'], null);
+        $this->assertNull($this->createTask($id), 'a save alone never re-sends');
+
+        $new = $this->service()->resend($id, $rejected, null);
+
+        $this->assertIsString($new);
+        $this->assertNotSame($rejected, $new);
+        $this->assertSame(2, $this->taskCount());
+        $this->assertSame('rejected', $this->read('Task', $rejected)['status'] ?? null, 'the old Task stays as the record');
+        $task = $this->read('Task', $new);
+        $this->assertSame('requested', $task['status'] ?? null);
+        $this->assertSame('Organization/' . $this->people['pantry']['uuid'], self::at($task, 'owner', 'reference'));
+        $this->assertSame('Practitioner/' . $this->people['doctor']['uuid'], self::at($task, 'requester', 'reference'));
+        $this->assertSame('ServiceRequest/' . $this->referralUuid($id), self::at($task, 'focus', 'reference'));
+        $referral = (new ReferralService(createMissingUuids: false))->getReferral($id);
+        $this->assertIsArray($referral);
+        $this->assertSame('requested', $referral['task_status'] ?? null);
+        $this->assertTrue(ReferralStatus::ofReferral($referral, new \DateTimeImmutable('2026-01-06'), 14)->isOpen());
+        $this->assertNull($this->service()->resendableTask($id), 'there is nothing to re-send now');
+        $this->assertNull($this->createTask($id), 'and the next save adds no other Task');
+        $this->assertSame(2, $this->taskCount());
+    }
+
+    /**
+     * Two clicks, or a page left open while someone else re-sent, make one new Task.
+     */
+    public function testASecondReSendFromTheSamePageMakesNothing(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $rejected = $this->createTask($id);
+        $this->assertIsString($rejected);
+        (new TaskService())->update($rejected, ['status' => 'rejected'], null);
+        $new = $this->service()->resend($id, $rejected, null);
+        $this->assertIsString($new);
+
+        $this->assertNull($this->service()->resend($id, $rejected, null), 'the page showed the old Task');
+        $this->assertNull($this->service()->resend($id, $new, null), 'the new Task is still requested');
+        $this->assertSame(2, $this->taskCount());
+    }
+
+    public function testAnotherReferralsTaskIsNotReSent(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $other = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'y']);
+        $rejected = $this->createTask($id);
+        $otherRejected = $this->createTask($other);
+        $this->assertIsString($rejected);
+        $this->assertIsString($otherRejected);
+        (new TaskService())->update($rejected, ['status' => 'rejected'], null);
+        (new TaskService())->update($otherRejected, ['status' => 'rejected'], null);
+
+        $this->assertNull($this->service()->resend($id, $otherRejected, null));
+        $this->assertSame(2, $this->taskCount());
+    }
+
+    public function testNoReSendOnceAnsweredWithoutARecipientOrWithTheGlobalOff(): void
+    {
+        $answered = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $task = $this->createTask($answered);
+        $this->assertIsString($task);
+        (new TaskService())->update($task, ['status' => 'rejected'], null);
+        $this->assertSame($task, $this->service()->resendableTask($answered));
+        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, '0');
+        $this->assertNull($this->service()->resendableTask($answered), 'the global off');
+        $this->assertNull($this->service()->resend($answered, $task, null), 'the global off');
+        OEGlobalsBag::getInstance()->set(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value, '1');
+
+        QueryUtils::sqlStatementThrowException("INSERT INTO lbt_data (form_id, field_id, field_value) VALUES (?, 'reply_date', '2026-10-18')", [$answered]);
+        $this->assertNull($this->service()->resendableTask($answered), 'a Reply Date');
+        $this->assertNull($this->service()->resend($answered, $task, null), 'a Reply Date');
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id IN ('reply_date', 'refer_to')", [$answered]);
+        $this->assertNull($this->service()->resendableTask($answered), 'no Refer To');
+        $this->assertNull($this->service()->resend($answered, $task, null), 'no Refer To');
+        $this->assertSame(1, $this->taskCount());
+    }
+
+    /**
      * As the Transactions screen clears a field: its lbt_data row is deleted.
      */
     public function testClearingTheRecipientCancelsTheOpenTask(): void
@@ -513,6 +628,39 @@ class ReferralTaskFhirApiTest extends TestCase
         $this->assertSame([$referral], self::ids($this->search('ServiceRequest', ['patient' => $this->patient['uuid'], '_lastUpdated' => 'gt2026-06-01'])));
     }
 
+    /**
+     * A lower bound narrows the referrals before they're grouped, by the transaction's date or its
+     * Tasks' last change, and has to find just what the last update itself would.
+     */
+    public function testASearchByLastUpdateFindsWhatEitherDateMoved(): void
+    {
+        $patient = ['patient' => $this->patient['uuid']];
+        $byTask = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'by its Task']);
+        $task = $this->createTask($byTask);
+        $this->assertIsString($task);
+        $byDate = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'body' => 'by its date']);
+        $this->assertNull($this->createTask($byDate), 'it has no recipient, but gets its uuid');
+        $neither = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'neither']);
+        $old = $this->createTask($neither);
+        $this->assertIsString($old);
+        $sql = 'UPDATE task SET last_modified = ? WHERE uuid = ?';
+        QueryUtils::sqlStatementThrowException($sql, ['2026-02-01 09:00:00', UuidRegistry::uuidToBytes($old)]);
+        QueryUtils::sqlStatementThrowException($sql, ['2026-08-01 09:00:00', UuidRegistry::uuidToBytes($task)]);
+        QueryUtils::sqlStatementThrowException('UPDATE transactions SET date = ? WHERE id IN (?, ?)', ['2026-01-05 09:00:00', $byTask, $neither]);
+        QueryUtils::sqlStatementThrowException('UPDATE transactions SET date = ? WHERE id = ?', ['2026-08-01 09:00:00', $byDate]);
+        $recent = [$this->referralUuid($byTask), $this->referralUuid($byDate)];
+        $all = [...$recent, $this->referralUuid($neither)];
+
+        foreach (['gt', 'ge', 'sa'] as $comparator) {
+            $this->assertSame($recent, self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => $comparator . '2026-06-01'])), $comparator);
+            $this->assertSame([], self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => $comparator . '2026-09-01'])), $comparator);
+            $this->assertSame($all, self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => $comparator . '2026-01-01'])), $comparator);
+        }
+        $this->assertSame([$this->referralUuid($neither)], self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => 'lt2026-06-01'])), 'an upper bound');
+        $this->assertSame($recent, self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => 'eq2026-08-01'])), 'an exact day');
+        $this->assertSame($all, self::ids($this->search('ServiceRequest', $patient + ['_lastUpdated' => 'lt2026-06-01,gt2026-06-01'])), 'alternatives');
+    }
+
     public function testDeletingAReferralCancelsItsOpenTask(): void
     {
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'Food insecurity']);
@@ -613,6 +761,11 @@ class ReferralTaskFhirApiTest extends TestCase
     private function createTask(int $transactionId): ?string
     {
         return (new ReferralTaskService(new UserService()))->createForReferral($transactionId, null);
+    }
+
+    private function service(): ReferralTaskService
+    {
+        return new ReferralTaskService(new UserService());
     }
 
     /**

@@ -130,10 +130,11 @@ class TaskService extends BaseService
     }
 
     /**
-     * What a write needs to know about a stored task: its patient, status, parent and version.
-     * Null for no such task, including an id that isn't a uuid at all.
+     * What a write needs to know about a stored task: its patient, status, parent and version, and
+     * the code, focus and owner a referral's Task keeps. Null for no such task, including an id that
+     * isn't a uuid at all.
      *
-     * @return ?array{id: int, patient_id: ?int, status: string, part_of_uuid: ?string, version: int}
+     * @return ?array{id: int, patient_id: ?int, status: string, part_of_uuid: ?string, version: int, code: ?string, focus_type: ?string, focus_uuid: ?string, owner_type: ?string, owner_uuid: ?string}
      */
     public function getForWrite(string $uuid): ?array
     {
@@ -141,19 +142,25 @@ class TaskService extends BaseService
             return null;
         }
         $row = QueryUtils::querySingleRow(
-            'SELECT id, patient_id, status, part_of_uuid, version FROM task WHERE uuid = ?',
+            'SELECT id, patient_id, status, part_of_uuid, version, code, focus_type, focus_uuid, owner_type, owner_uuid FROM task WHERE uuid = ?',
             [UuidRegistry::uuidToBytes($uuid)]
         );
         if (!is_array($row) || !is_numeric($row['id'] ?? null)) {
             return null;
         }
-        $parent = $row['part_of_uuid'] ?? null;
+        $text = static fn(mixed $value): ?string => is_string($value) && $value !== '' ? $value : null;
+        $uuid = static fn(mixed $value): ?string => is_string($value) && $value !== '' ? UuidRegistry::uuidToString($value) : null;
         return [
             'id' => (int)$row['id'],
             'patient_id' => is_numeric($row['patient_id'] ?? null) ? (int)$row['patient_id'] : null,
             'status' => is_string($row['status'] ?? null) ? $row['status'] : '',
-            'part_of_uuid' => is_string($parent) && $parent !== '' ? UuidRegistry::uuidToString($parent) : null,
+            'part_of_uuid' => $uuid($row['part_of_uuid'] ?? null),
             'version' => is_numeric($row['version'] ?? null) ? (int)$row['version'] : 1,
+            'code' => $text($row['code'] ?? null),
+            'focus_type' => $text($row['focus_type'] ?? null),
+            'focus_uuid' => $uuid($row['focus_uuid'] ?? null),
+            'owner_type' => $text($row['owner_type'] ?? null),
+            'owner_uuid' => $uuid($row['owner_uuid'] ?? null),
         ];
     }
 

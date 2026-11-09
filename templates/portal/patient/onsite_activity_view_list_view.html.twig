@@ -1,0 +1,85 @@
+{#
+ # The staff review list (Portal > Review Audits).
+ #
+ # Variables: cuser (the staff username), and the shared portal page context.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+{% include 'portal/patient/_forms_header.html.twig' with {title: 'Portal'|xl ~ ' | ' ~ 'Activity'|xl} %}
+<script>var cuser={{ cuser|js_escape }};</script>
+<script>
+    let csrfToken = {{ csrfTokenRaw()|js_url }};
+</script>
+<script src="{{ web_root }}/portal/patient/scripts/app/onsiteactivityviews.js?v={{ v_js_includes|attr_url }}"></script>
+<script>
+    $(function () {
+        actpage.init();
+    });
+</script>
+
+<div class="container mt-5">
+
+<h3>
+    <i class="icon-th-list"></i>{{ 'Onsite Patient Activities'|xlt }}
+    <span id="loader" class="loader progress progress-striped active"><span class="progress-bar"></span></span>
+    <div class="col-sm-3 col-md-3 float-right">
+        <form class="navbar-form" role="search">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="{{ 'Search'|xla }}" name="srch-term" id="srch-term" />
+            <div class="input-group-append">
+                <button class="btn btn-secondary" type="submit"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        </form>
+    </div>
+</h3>
+    <!-- the review list; onsiteactivityviews.js adds a row per activity -->
+    <template id="onsiteActivityViewCollectionTemplate">
+        <table class="collection table table-sm table-bordered table-hover">
+        <thead>
+            <tr>
+                <th id="header_Id">{{ 'Id'|xlt }}</th>
+                <th id="header_Date">{{ 'Date'|xlt }}</th>
+                <th id="header_PatientId">{{ 'Patient Id'|xlt }}</th>
+                <th id="header_Fname">{{ 'First{{Name}}'|xlt }}</th>
+                <th id="header_Mname">{{ 'Middle{{Name}}'|xlt }}</th>
+                <th id="header_Lname">{{ 'Last{{Name}}'|xlt }}</th>
+                <th id="header_Narrative">{{ 'Narrative'|xlt }}</th>
+                <th id="header_Activity">{{ 'Activity'|xlt }}</th>
+                <th id="header_TableArgs">{{ 'Amount'|xlt }}</th>
+                <th id="header_PendingAction">{{ 'Pending Action'|xlt }}</th>
+                <th id="header_Status">{{ 'Status'|xlt }}</th>
+                <th>{{ 'Action'|xlt }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        </table>
+    </template>
+    <template id="onsiteActivityViewRowTemplate">
+        <tr>
+            <td data-field="id"></td>
+            <td data-field="date"></td>
+            <td data-field="patientId"></td>
+            <td data-field="fname"></td>
+            <td data-field="mname"></td>
+            <td data-field="lname"></td>
+            <td data-field="narrative"></td>
+            <td data-field="activity"></td>
+            <td data-field="amount"></td>
+            <td data-field="pendingAction"></td>
+            <td data-field="status"></td>
+            <td><button class="delete-button btn btn-sm btn-link"><i class="fa fa-trash text-danger"></i></button></td>
+        </tr>
+    </template>
+    <div id="collectionAlert"></div>
+    <div id="onsiteActivityViewCollectionContainer" class="collectionContainer"></div>
+    <p id="returnButtonContainer" class="buttonContainer">
+        <button id="returnHome" class="btn btn-primary">{{ 'Home'|xlt }}</button>
+    </p>
+</div> <!-- /container -->
+{% include 'portal/patient/_footer.html.twig' %}

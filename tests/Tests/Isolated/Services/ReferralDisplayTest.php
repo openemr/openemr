@@ -99,6 +99,62 @@ class ReferralDisplayTest extends TestCase
         $this->assertSame([42], $asked);
     }
 
+    public function testTheStatusBlockShowsTheReSendButtonOnlyWhenAsked(): void
+    {
+        $display = $this->display([42 => ['task_status' => 'rejected', 'reply_date' => null, 'refer_date' => '2026-10-10']]);
+
+        $this->assertStringNotContainsString('referral_resend_form', $display->forTransactionPage('LBTref', 42));
+        $this->assertSame(
+            '<div class="col-sm-12 mt-3" id="referral_status"><strong>Status:</strong> Rejected <button type="submit" form="referral_resend_form" class="btn btn-secondary btn-sm ml-2">Re-send</button></div>',
+            self::squeeze($display->forTransactionPage('LBTref', 42, true))
+        );
+    }
+
+    public function testTheReSendFormPostsWhatTheEntryPointReads(): void
+    {
+        $this->assertSame(
+            '<form id="referral_resend_form" method="post" action="resend_referral.php" onsubmit="return top.restoreSession()">'
+                . '<input type="hidden" name="csrf_token_form" value="a&quot;token" />'
+                . '<input type="hidden" name="transid" value="42" />'
+                . '<input type="hidden" name="task" value="task-uuid" />'
+                . '</form>',
+            self::squeeze($this->display()->resendForm(42, 'task-uuid', 'a"token'))
+        );
+    }
+
+    /**
+     * @return array<string, array{mixed, mixed, ?string, list<int>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function resendLookups(): array
+    {
+        return [
+            'a saved referral' => ['LBTref', 42, 'task-uuid', [42]],
+            'its id as text' => ['LBTref', '42', 'task-uuid', [42]],
+            'a referral with nothing to re-send' => ['LBTref', 43, null, [43]],
+            'another transaction type' => ['LBTptreq', 42, null, []],
+            'a new referral, not saved yet' => ['LBTref', 0, null, []],
+        ];
+    }
+
+    /**
+     * @param list<int> $expectedAsked
+     */
+    #[DataProvider('resendLookups')]
+    public function testOnlyASavedReferralIsAskedAboutAReSend(mixed $formId, mixed $transactionId, ?string $expected, array $expectedAsked): void
+    {
+        $asked = [];
+        $find = static function (int $id) use (&$asked): ?string {
+            $asked[] = $id;
+            return $id === 42 ? 'task-uuid' : null;
+        };
+        $display = new ReferralDisplay(self::twig(), clock: new FrozenClock(new \DateTimeImmutable(self::TODAY)), overdueDays: 14, findResendableTask: $find);
+
+        $this->assertSame($expected, $display->resendableTask($formId, $transactionId));
+        $this->assertSame($expectedAsked, $asked);
+    }
+
     /**
      * @return array<string, array{mixed, mixed}>
      */
