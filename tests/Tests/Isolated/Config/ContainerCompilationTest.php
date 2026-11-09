@@ -37,7 +37,7 @@ class ContainerCompilationTest extends TestCase
     public function testConfigCompiles(): void
     {
         $compiler = new Compiler($this->outputPath);
-        $compiler->addDirectory(dirname(__DIR__, 4) . '/config');
+        $compiler->addDirectory(__DIR__ . '/../../../../config');
         $container = $compiler->build();
 
         self::assertFileExists($this->outputPath, 'compiling should write the container to disk');
