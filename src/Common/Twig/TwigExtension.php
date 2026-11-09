@@ -30,7 +30,9 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\EventDispatcher\GenericEvent;
+use Twig\Environment;
 use Twig\Extension\AbstractExtension;
+use Twig\Extension\CoreExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -293,6 +295,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getFilters(): array
     {
         return [
+            new TwigFilter('date', $this->formatTwigDate(...), ['needs_environment' => true]),
             new TwigFilter('text', text(...)),
             new TwigFilter('attr', attr(...)),
             new TwigFilter('js_escape', js_escape(...)),
@@ -326,5 +329,35 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 CacheUtils::addAssetCacheParamToPath(...)
             )
         ];
+    }
+
+    /**
+     * Use a date-only default for date strings, while preserving the configured
+     * date and time default for datetime values and non-string inputs.
+     */
+    private function formatTwigDate(
+        Environment $environment,
+        \DateTimeInterface|\DateInterval|string|int|null $date,
+        ?string $format = null,
+        \DateTimeZone|string|false|null $timezone = null,
+    ): string {
+        if ($format === null && !($date instanceof \DateInterval)) {
+            $format = DateFormatterUtils::getShortDateFormat();
+            $dateHasTime = false;
+            if (is_string($date)) {
+                $dateString = trim($date);
+                $dateHasTime = $dateString === ''
+                    || strtolower($dateString) === 'now'
+                    || date_parse($dateString)['hour'] !== false;
+            }
+            if (
+                !is_string($date)
+                || $dateHasTime
+            ) {
+                $format .= ' ' . DateFormatterUtils::getTimeFormat();
+            }
+        }
+
+        return CoreExtension::dateConverter($environment, $date, $format, $timezone);
     }
 }
