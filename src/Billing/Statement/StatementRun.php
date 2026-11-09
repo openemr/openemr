@@ -23,10 +23,15 @@ use Psr\Log\LoggerInterface;
  * amount due nets them. A Due Pt run sends nothing to a patient left with
  * nothing due, and no run sends a statement the site's print rules leave
  * empty (a total at or under the minimum amount to print); those are logged
- * and listed in the result. Statements go to the portal, or into one batch to
- * print or download, each also saved to the patient's documents and, for an
- * email run, emailed. Invoices are counted as statemented only for statements
- * that went out, and only when the run records (not Without Update).
+ * and listed in the result. A module may leave an encounter off a statement
+ * (StatementEncounterEvent, through StatementLines::append()): that invoice
+ * isn't counted as statemented and doesn't set the due date, the portal's
+ * copy leaves it out, and a patient whose every checked invoice was left off
+ * gets no statement, which is logged and listed in the result too.
+ * Statements go to the portal, or into one batch to print or download, each
+ * also saved to the patient's documents and, for an email run, emailed.
+ * Invoices are counted as statemented only for statements that went out, and
+ * only when the run records (not Without Update).
  */
 final readonly class StatementRun
 {
@@ -56,6 +61,7 @@ final readonly class StatementRun
         $written = 0;
         $skipped = [];
         $belowMinimum = [];
+        $leftOff = [];
         $emailFailures = [];
 
         foreach (self::byPatient($invoices) as $pid => $patientInvoices) {
@@ -67,16 +73,31 @@ final readonly class StatementRun
                 $delivery === StatementDelivery::Portal
             );
             $patient = is_string($stmt['patient'] ?? null) ? $stmt['patient'] : '';
+            $leftOffEncounters = array_column(StatementLines::excluded($stmt), 'encounter');
+            if ($leftOffEncounters !== []) {
+                // Invoices a module left off this statement aren't counted as statemented. With
+                // every checked invoice left off nothing goes out, not even the patient's credits.
+                [$stmt, $encounterIds, $snapshots] = self::withoutLeftOff($stmt, $patientInvoices, $snapshots, $leftOffEncounters, $today);
+                if ($encounterIds === []) {
+                    $leftOff[] = $patient;
+                    $this->logger->info('Statement not sent: a module left every invoice off', [
+                        'pid' => $pid,
+                        'encounters' => array_map(static fn(array $invoice): int => self::int($invoice, 'id'), $patientInvoices),
+                        'delivery' => $delivery->name,
+                    ]);
+                    continue;
+                }
+            }
             $toRecord = $recordRun ? $encounterIds : [];
 
             if ($delivery === StatementDelivery::Portal) {
                 if (!$this->steps->isPortalAuthorized($pid)) {
-                    return $this->result($output, $written, $skipped, $belowMinimum, $emailFailures, StatementRunResult::PORTAL_NOT_AUTHORIZED, $invoices);
+                    return $this->result($output, $written, $skipped, $belowMinimum, $leftOff, $emailFailures, StatementRunResult::PORTAL_NOT_AUTHORIZED, $invoices);
                 }
                 $statement = $this->steps->buildStatement($stmt);
                 $invoiceId = $pid . '-' . self::string($stmt, 'encounter');
                 if (!$this->steps->notifyPortal($pid, $snapshots, $statement, $invoiceId)) {
-                    return $this->result($output, $written, $skipped, $belowMinimum, $emailFailures, StatementRunResult::PORTAL_FAILED, $invoices);
+                    return $this->result($output, $written, $skipped, $belowMinimum, $leftOff, $emailFailures, StatementRunResult::PORTAL_FAILED, $invoices);
                 }
                 // Count the invoices as statemented only once the portal has the statement.
                 if ($toRecord !== []) {
@@ -122,7 +143,7 @@ final readonly class StatementRun
             $this->steps->saveDocument($pid, $statement);
         }
 
-        return $this->result($output, $written, $skipped, $belowMinimum, $emailFailures, null, $invoices);
+        return $this->result($output, $written, $skipped, $belowMinimum, $leftOff, $emailFailures, null, $invoices);
     }
 
     /**
@@ -190,6 +211,42 @@ final readonly class StatementRun
     }
 
     /**
+     * The statement without the checked invoices a module left off: the invoices it
+     * covers, the due date and age from the oldest invoice still on it (credits don't
+     * set them, as in buildPatientStatement()), and for the portal the statement after
+     * each invoice still on it, without what was left off.
+     *
+     * @param array<string, mixed> $stmt
+     * @param non-empty-list<array<string, mixed>> $invoices
+     * @param list<array<string, mixed>> $snapshots one per invoice, in order (portal runs only)
+     * @param list<int> $leftOffEncounters encounter numbers
+     * @param string $today Y-m-d
+     * @return array{array<string, mixed>, list<int>, list<array<string, mixed>>}
+     */
+    private static function withoutLeftOff(array $stmt, array $invoices, array $snapshots, array $leftOffEncounters, string $today): array
+    {
+        $encounterIds = [];
+        $kept = [];
+        $dueDate = '';
+        foreach ($invoices as $i => $invoice) {
+            if (in_array(self::int($invoice, 'encounter'), $leftOffEncounters, true)) {
+                continue;
+            }
+            $encounterIds[] = self::int($invoice, 'id');
+            $serviceDate = substr(self::string($invoice, 'date'), 0, 10);
+            $dueDate = $dueDate === '' || $serviceDate < $dueDate ? $serviceDate : $dueDate;
+            if (isset($snapshots[$i])) {
+                $kept[] = array_diff_key($snapshots[$i], ['excluded' => true]);
+            }
+        }
+        if ($dueDate !== '') {
+            $stmt['duedate'] = $dueDate;
+            $stmt['age'] = round((strtotime($today) - strtotime($dueDate)) / (24 * 60 * 60));
+        }
+        return [$stmt, $encounterIds, $kept];
+    }
+
+    /**
      * The invoices grouped by patient, in the order they came (each patient's
      * invoices are together in StatementInvoices::forRun()).
      *
@@ -208,17 +265,18 @@ final readonly class StatementRun
     /**
      * @param list<string> $skipped
      * @param list<string> $belowMinimum
+     * @param list<string> $leftOff
      * @param list<string> $emailFailures
      * @param list<array<string, mixed>> $invoices
      */
-    private function result(string $output, int $written, array $skipped, array $belowMinimum, array $emailFailures, ?string $portalError, array $invoices): StatementRunResult
+    private function result(string $output, int $written, array $skipped, array $belowMinimum, array $leftOff, array $emailFailures, ?string $portalError, array $invoices): StatementRunResult
     {
         $pids = array_unique(array_map(static fn(array $invoice): int => self::int($invoice, 'pid'), $invoices));
         $onlyPatient = null;
         if (count($pids) === 1 && $invoices !== []) {
             $onlyPatient = ['firstName' => self::string($invoices[0], 'fname'), 'pid' => self::int($invoices[0], 'pid')];
         }
-        return new StatementRunResult($output, $written, $skipped, $belowMinimum, $emailFailures, $portalError, $onlyPatient);
+        return new StatementRunResult($output, $written, $skipped, $belowMinimum, $leftOff, $emailFailures, $portalError, $onlyPatient);
     }
 
     /**
