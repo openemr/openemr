@@ -16,9 +16,15 @@ namespace OpenEMR\Billing;
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\PaymentProcessing\Recorder;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\Insurance\InsuranceLevel;
+use OpenEMR\Services\InsuranceService;
 
 class SLEOB
 {
+    private static ?InsuranceService $insurance = null;
+
     // Try to figure out our invoice number (pid.encounter) from the
     // claim ID and other stuff in the ERA.  This should be straightforward
     // except that some payers mangle the claim ID that we give them.
@@ -247,23 +253,25 @@ class SLEOB
         ]);
     }
 
-    public static function arGetPayerID($patient_id, $date_of_service, $payer_type)
+    /**
+     * The insurance company at a level (1 primary, 2 secondary, 3 tertiary)
+     * on the date of service: the company of the policy InsuranceService has
+     * in force at that level, or 0 when the level has none, the level isn't
+     * 1 to 3, or the date can't be read.
+     */
+    public static function arGetPayerID($patient_id, $date_of_service, $payer_type): int
     {
-        if ($payer_type < 1 || $payer_type > 3) {
+        $level = is_int($payer_type) || is_string($payer_type)
+            ? ([1 => InsuranceLevel::Primary, 2 => InsuranceLevel::Secondary, 3 => InsuranceLevel::Tertiary][$payer_type] ?? null)
+            : null;
+        $patientId = EffectiveInsuranceRule::storedId($patient_id);
+        $day = CoverageDay::fromStored($date_of_service);
+        if ($level === null || $patientId === null || $day === null) {
             return 0;
         }
-
-        $tmp = [1 => 'primary', 2 => 'secondary', 3 => 'tertiary'];
-        $value = $tmp[$payer_type];
-        $query = "SELECT provider FROM insurance_data WHERE " .
-            "pid = ? AND type = ? AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) " .
-            "ORDER BY date DESC LIMIT 1";
-        $nprow = sqlQuery($query, [$patient_id, $value, $date_of_service, $date_of_service]);
-        if (empty($nprow)) {
-            return 0;
-        }
-
-        return $nprow['provider'];
+        // One service per request: posting asks this for every claim on an ERA.
+        self::$insurance ??= new InsuranceService();
+        return self::$insurance->getEffectiveInsuranceAt($patientId, $level, $day)->companyId ?? 0;
     }
 
     /**
