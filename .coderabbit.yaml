@@ -9,3 +9,30 @@ reviews:
     - openemr-release-bot[bot]
     - openemr-reserved-word-bot[bot]
     - github-actions[bot]
+  pre_merge_checks:
+    # The built-in check counts every touched function against a percentage
+    # and can't exclude tests or self-describing methods, so it asks for
+    # docblocks that only restate a signature. The custom check below asks
+    # only where a doc comment would tell the reader something.
+    docstrings:
+      mode: "off"
+    custom_checks:
+    - name: "Doc comments where needed"
+      mode: "warning"
+      instructions: |
+        Pass/fail criteria: consider each function and method added or changed in this PR, in any language.
+
+        A function needs a doc comment when a caller or maintainer can't tell from its name, parameter names, and native types what it requires or does. That includes thrown exceptions, side effects, preconditions, units, ordering or idempotency constraints, and types the native signature can't express (array shapes, generics, narrowing of `mixed`).
+
+        Never count or flag these, with or without a doc comment:
+        - test methods (named `test*`, or marked with a `#[Test]` attribute or `@test` tag)
+        - PHPUnit lifecycle methods: `setUp`, `tearDown`, `setUpBeforeClass`, `tearDownAfterClass`, and any method marked `#[Before]`, `#[After]`, `#[BeforeClass]`, or `#[AfterClass]`
+        - data providers
+        - test doubles, stubs, and fixtures under `tests/` that override or implement a method documented elsewhere
+        - methods that override a parent method or implement an interface method that already has a doc comment
+        - constructors that only assign or promote their parameters
+        - methods whose name and signature already say everything a caller needs
+
+        Fail only when a function that needs a doc comment has none, or has one that leaves out the requirement or behavior that made it necessary. A doc comment that only restates the name or signature doesn't count as documentation. Never ask for one.
+
+        For each failure, name the file and function, and say what the doc comment should cover.
