@@ -1420,14 +1420,14 @@ return [
         // controller had documented but commented out; the controller
         // continues to branch on isPatientRequest() to bind the patient
         // compartment for patient-scope tokens.
-        // A patient app also sees what it wrote that is still held for staff review.
-        $held = [];
-        if ($request->isPatientRequest()) {
-            $held = FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag)
-                ->searchHeld($request, $request->getQueryParams());
-        } else {
+        if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "patients", "med");
         }
+        // A patient app also sees what it wrote that is still held for staff review.
+        $held = $request->isPatientRequest()
+            ? FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag)
+                ->searchHeld($request, $request->getQueryParams())
+            : [];
         $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
         $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
         $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->list($request, $held);
@@ -1435,15 +1435,15 @@ return [
     },
     "GET /fhir/QuestionnaireResponse/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         // See sibling list route above — same ACL rationale.
-        if ($request->isPatientRequest()) {
-            // The app's own write held for review, or 410 once it was denied or withdrawn.
-            $held = FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag)
-                ->read($request, $uuid);
-            if ($held !== null) {
-                return $held;
-            }
-        } else {
+        if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "patients", "med");
+        }
+        // A patient app's own write held for review, or 410 once it was denied or withdrawn.
+        $held = $request->isPatientRequest()
+            ? FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag)->read($request, $uuid)
+            : null;
+        if ($held !== null) {
+            return $held;
         }
         $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
         $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
