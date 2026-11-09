@@ -122,11 +122,14 @@ For every rabbit Actionable or Major on the PR:
    practice — fires on some findings and not others on the same PR, so don't require
    it. Read the commit diff against the raised line and confirm the specific concern
    is addressed.
-3. **Confirmed.** Either rabbit's follow-up acknowledgement ("Review thread resolved" /
-   "I withdraw the request" / "This addresses the finding") **or** verified-by-diff
-   inspection against the raised line. A finding without rabbit's ack but with a commit
-   that demonstrably addresses the raised concern counts as confirmed; record the SHA
-   and the specific lines.
+3. **Confirmed.** Either rabbit's follow-up acknowledgement ("I withdraw the request" /
+   "This addresses the finding") **or** verified-by-diff inspection against the raised
+   line. A finding without rabbit's ack but with a commit that demonstrably addresses the
+   raised concern counts as confirmed; record the SHA and the specific lines. Read the
+   whole acknowledgement: "Review thread resolved" at its end says nothing about what else
+   the reply carries, and rabbit can raise a new finding in the same reply it resolves the
+   thread with — see [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding).
+   A new finding there starts its own raised → addressed → confirmed row.
 4. **Scoped-out.** The author legitimately pushed back ("that's pre-existing", "that's
    out of scope") and rabbit accepted. Record as a `🔶 residual` with follow-up register
    entry. For an author who doesn't reply inline, Scoped-out can be reached via rabbit's
@@ -393,7 +396,9 @@ baseline checks need to re-run against the new base tip).
    change the merge base, which can expose a baseline violation the old comparison
    missed (e.g. a preceding PR removed a baseline entry this PR would restore).
 3. CI is still green.
-4. No new rabbit Actionable has been posted since the brief.
+4. No new rabbit Actionable has been posted since the brief — including inside a reply
+   in a thread rabbit resolved itself (see
+   [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding)).
 5. No new maintainer `CHANGES_REQUESTED` has been filed.
 
 If any of 1-5 moved, refresh the brief before merging.
