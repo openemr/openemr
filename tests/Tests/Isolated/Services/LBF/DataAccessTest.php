@@ -264,12 +264,19 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         public function testEnsureParagraphFieldInsertsWhenMissing(): void
         {
             $catalog = new LayoutCatalog($this->sql);
-            $this->sql->queue[] = null;
+            // A leading null is the inactive-layout answer. The missing
+            // paragraph is an empty field id, then the group the insert uses.
+            $this->sql->queue[] = ['field_id' => ''];
             $this->sql->queue[] = ['grp_group_id' => '2'];
             $this->sql->queue[] = [
                 ['field_id' => 'stmt_paragraph', 'data_type' => 3, 'title' => 'Generated statements', 'list_id' => '', 'seq' => 1, 'group_id' => '2'],
             ];
             $this->assertSame('stmt_paragraph', $catalog->ensureParagraphField('LBFecho'));
+            $inserts = array_values(array_filter(
+                $this->sql->calls,
+                static fn (array $call): bool => $call['op'] === 'exec' && str_contains($call['sql'], 'INSERT INTO layout_options')
+            ));
+            $this->assertSame(['LBFecho', '2'], $inserts[0]['binds'] ?? null);
         }
 
         /**
