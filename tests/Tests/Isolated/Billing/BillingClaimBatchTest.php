@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Isolated tests for the claim batch file name.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Simon Quigley <squigley@altispeed.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Tests\Isolated\Billing;
 
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
