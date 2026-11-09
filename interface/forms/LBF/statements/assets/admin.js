@@ -52,6 +52,10 @@
         const source2 = document.getElementById('source2-wrap');
         const helpBand = document.getElementById('source2-help-band');
         const helpRatio = document.getElementById('source2-help-ratio');
+        const tokenLabelText = document.getElementById('token-label-text');
+        const tokenLabelSex = document.getElementById('token-label-sex');
+        const tokenHelpText = document.getElementById('token-help-text');
+        const tokenHelpSex = document.getElementById('token-help-sex');
         const isBand = op === 'band';
         const isRatio = op === 'ratio_lt' || op === 'ratio_gt';
         const isToken = op === 'parse_severity';
@@ -59,7 +63,19 @@
             band.classList.toggle('d-none', !isBand && !isRatio);
         }
         if (token) {
-            token.classList.toggle('d-none', !isToken);
+            token.classList.toggle('d-none', !isToken && !isBand);
+        }
+        if (tokenLabelText) {
+            tokenLabelText.classList.toggle('d-none', !isToken);
+        }
+        if (tokenLabelSex) {
+            tokenLabelSex.classList.toggle('d-none', !isBand);
+        }
+        if (tokenHelpText) {
+            tokenHelpText.classList.toggle('d-none', !isToken);
+        }
+        if (tokenHelpSex) {
+            tokenHelpSex.classList.toggle('d-none', !isBand);
         }
         if (source2) {
             source2.classList.toggle('d-none', isToken);

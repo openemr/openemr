@@ -146,7 +146,7 @@ class GenerateController
                     $paragraphTitle = $meta[$paragraphField]['title'] ?? $paragraphField;
                     $paragraphCurrent = $values[$paragraphField] ?? '';
                     $rules = $repo->rulesForForm($formId, true);
-                    $actions = $engine->evaluate($formId, $values, $rules);
+                    $actions = $engine->evaluate($formId, $values, $rules, $reader->patientSex($pid));
                 }
             }
         } elseif (!$layoutWrite) {
