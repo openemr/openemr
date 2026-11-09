@@ -20,15 +20,18 @@ use OpenEMR\Common\Database\QueryUtils;
 final class InvoiceList
 {
     /**
-     * Each encounter's charges and its patient payments, copays (stored in
-     * ar_activity with account code PCP) and adjustments. Paid-up encounters are
-     * left for InvoiceListRow to drop.
+     * Each encounter's charges (services and product sales, as the statement
+     * sums them) and its patient payments, copays (stored in ar_activity with
+     * account code PCP) and adjustments. Paid-up encounters are left for
+     * InvoiceListRow to drop.
      */
     private const QUERY = 'SELECT f.id, f.pid, f.encounter, f.date, '
         . 'f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, f.in_collection, '
         . 'p.fname, p.mname, p.lname, p.pubpid, p.billing_note, '
-        . '( SELECT SUM(b.fee) FROM billing AS b WHERE '
-        . "b.pid = f.pid AND b.encounter = f.encounter AND b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, "
+        . '( COALESCE(( SELECT SUM(b.fee) FROM billing AS b WHERE '
+        . "b.pid = f.pid AND b.encounter = f.encounter AND b.activity = 1 AND b.code_type != 'COPAY' ), 0) "
+        . '+ COALESCE(( SELECT SUM(s.fee) FROM drug_sales AS s WHERE '
+        . 's.pid = f.pid AND s.encounter = f.encounter ), 0) ) AS charges, '
         . '( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE '
         . "a.pid = f.pid AND a.encounter = f.encounter AND a.deleted IS NULL AND a.payer_type = 0 AND a.account_code = 'PCP')*-1 AS copays, "
         . '( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE '

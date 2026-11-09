@@ -72,17 +72,21 @@ final readonly class StatementPortal
     }
 
     /**
-     * The patient's portal user name, or null when they may not use the portal.
+     * The user name of the patient's portal account, which the portal reads their
+     * mail by, or null when they may not use the portal or have no account.
      */
     private static function portalUser(int $pid): ?string
     {
-        $patient = QueryUtils::querySingleRow('SELECT id, allow_patient_portal, fname FROM `patient_data` WHERE `pid` = ?', [$pid]);
+        $patient = QueryUtils::querySingleRow(
+            'SELECT p.allow_patient_portal, a.portal_username FROM `patient_data` AS p '
+            . 'LEFT JOIN `patient_access_onsite` AS a ON a.pid = p.pid WHERE p.pid = ?',
+            [$pid]
+        );
         if (!is_array($patient) || ($patient['allow_patient_portal'] ?? '') !== 'YES') {
             return null;
         }
-        $fname = is_string($patient['fname'] ?? null) ? $patient['fname'] : '';
-        $id = is_numeric($patient['id'] ?? null) ? (string) $patient['id'] : '';
-        return strtolower($fname) . $id;
+        $username = $patient['portal_username'] ?? null;
+        return is_string($username) && $username !== '' ? $username : null;
     }
 
     /**
