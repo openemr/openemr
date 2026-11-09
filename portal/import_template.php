@@ -41,6 +41,7 @@ $patient = json_decode($_POST['upload_pid'] ?? '');
 $template_content = null;
 
 if (($_POST['mode'] ?? null) === 'save_profiles') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-profiles', dieOnFail: true);
     $profiles = json_decode((string)$_POST['profiles'], true);
     $rtn = $templateService->saveAllProfileTemplates($profiles);
     if ($rtn) {
@@ -76,6 +77,7 @@ if (($_POST['mode'] ?? null) === 'get') {
 }
 
 if (($_POST['mode'] ?? null) === 'send_profiles') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-send', dieOnFail: true);
     if (!empty($_POST['checked'])) {
         $profiles = json_decode((string)$_POST['checked']) ?: [];
         $last_id = $templateService->setProfileActiveStatus($profiles);
@@ -90,6 +92,7 @@ if (($_POST['mode'] ?? null) === 'send_profiles') {
 }
 
 if (($_POST['mode'] ?? null) === 'send') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-send', dieOnFail: true);
     if (!empty($_POST['docid'])) {
         $pids_array = json_decode((string)$_POST['docid']) ?: ['0'];
         // profiles are in an array with flag to indicate a group of template id's
@@ -143,6 +146,7 @@ if (($_POST['mode'] ?? null) === 'save') {
     }
     die(xlt('Invalid File'));
 } elseif (($_POST['mode'] ?? null) === 'update_category') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-send', dieOnFail: true);
     if ($_POST['docid']) {
         $template = $templateService->updateTemplateCategory($_POST['docid'], $_POST['category']);
         echo xlt('Template Category successfully changed to new Category') . ' ' . text($_POST['category']);
@@ -485,6 +489,7 @@ function renderEditorHtml($template_id, $content): void
 function renderProfileHtml(): void
 {
     global $templateService, $globalsBag;
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     $category_list = $templateService->fetchDefaultCategories();
     $profile_list = $templateService->fetchDefaultProfiles();
@@ -595,6 +600,7 @@ function renderProfileHtml(): void
             const data = new FormData();
             data.append('profiles', JSON.stringify(profileArray));
             data.append('mode', 'save_profiles');
+            data.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'import-template-profiles')); ?>);
             fetch('./import_template.php', {
                 method: 'POST',
                 body: data,

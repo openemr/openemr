@@ -371,6 +371,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             data.append('docid', id);
             data.append('category', category);
             data.append('mode', 'update_category');
+            data.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'import-template-send')); ?>);
             fetch(url, {
                 method: 'POST',
                 body: data,
@@ -398,6 +399,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             data.append('checked', JSON.stringify(checked));
             data.append('mode', mode);
             data.append('content', content);
+            data.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'import-template-send')); ?>);
             fetch(url, {
                 method: 'POST',
                 body: data,
@@ -421,6 +423,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             const data = new FormData();
             data.append('checked', JSON.stringify(checked));
             data.append('mode', mode);
+            data.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'import-template-send')); ?>);
             fetch(url, {
                 method: 'POST',
                 body: data,
