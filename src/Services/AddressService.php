@@ -58,11 +58,20 @@ class AddressService extends BaseService
      * Insert a new address record.
      *
      * @return int|false The new address ID, or false on failure
+     * @throws \RuntimeException when the sequences counter gives no id
      */
     public function insert(AddressData $data, int $foreignId): int|false
     {
-        /** @var int $freshId */
-        $freshId = $this->getFreshId("id", "addresses");
+        // The id comes from the sequences counter, as the Address object
+        // (insurance company and pharmacy screens, patient addresses) takes
+        // it. MAX(id)+1 here could be above the counter, and that object's
+        // save, an INSERT ... ON DUPLICATE KEY UPDATE, would later overwrite
+        // the row with another owner's address.
+        $freshId = QueryUtils::generateId();
+        // GenID() gives 0 (or false) when it cannot update the counter.
+        if ($freshId <= 0) {
+            throw new \RuntimeException('addresses id allocation failed: the sequences counter gave no id');
+        }
 
         $addressesSql  = " INSERT INTO addresses SET";
         $addressesSql .= "     id=?,";
