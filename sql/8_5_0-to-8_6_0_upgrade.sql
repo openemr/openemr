@@ -304,3 +304,11 @@ UPDATE `notification_log` SET `type` = 'Email' WHERE `type` = '' AND `smsgateway
 #IfMissingColumn oauth_clients address_book_uuid
 ALTER TABLE `oauth_clients` ADD COLUMN `address_book_uuid` binary(16) DEFAULT NULL COMMENT 'users.uuid of the address book entry this client acts for; limits it to that entry''s Tasks and referrals';
 #EndIf
+
+-- A policy's end stored as 0000-00-00 (what sql_mode '' saves for a mistyped date) becomes no end, so
+-- the policy is open, as the coverage rule (#15038) reads it; the claim's own query read it as ended. A
+-- 0000-00-00 start is left: both read it as always.
+-- It changes stored policy dates: back up first. Safe to rerun; once no zero end is left it does nothing.
+#IfRow insurance_data date_end 0000-00-00
+UPDATE `insurance_data` SET `date_end` = NULL WHERE `date_end` = '0000-00-00';
+#EndIf
