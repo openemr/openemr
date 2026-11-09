@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Guards the therapy group context switch made by GET links.
+ * CSRF guards for the therapy groups module: opening a group and its writes.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -21,12 +21,38 @@ final class TherapyGroupSessionUtil
 {
     /**
      * Read the active therapy group ID from the session; null when no group
-     * is open or the stored value is not numeric.
+     * is open or the stored value is not a whole number.
      */
     public static function getGroupId(): ?int
     {
         $raw = SessionWrapperFactory::getInstance()->getActiveSession()->get('therapy_group');
-        return is_numeric($raw) ? (int) $raw : null;
+        if (is_int($raw)) {
+            return $raw;
+        }
+        return is_string($raw) && ctype_digit($raw) ? (int) $raw : null;
+    }
+
+    /**
+     * The `csrf_token_form` sent in the query or the posted form; null when
+     * neither carries a string.
+     */
+    public static function csrfTokenFrom(Request $request): ?string
+    {
+        // Read the raw values: InputBag::get() throws on an array.
+        $token = $request->query->all()['csrf_token_form']
+            ?? $request->request->all()['csrf_token_form']
+            ?? null;
+        return is_string($token) ? $token : null;
+    }
+
+    /**
+     * End the request with a 403 unless it carries the session's CSRF token.
+     */
+    public static function requireCsrfToken(Request $request): void
+    {
+        if (!self::hasValidToken(self::csrfTokenFrom($request))) {
+            CsrfUtils::csrfNotVerified();
+        }
     }
 
     /**
@@ -34,14 +60,10 @@ final class TherapyGroupSessionUtil
      * Opening a group closes the open patient, so reopening the current
      * group needs no token only while no patient is open.
      */
-    public static function mayLinkSwitchGroup(int $requestedGroupId, mixed $csrfToken): bool
+    public static function mayLinkSwitchGroup(int $requestedGroupId, ?string $csrfToken): bool
     {
         $sameGroup = $requestedGroupId === self::getGroupId() && PatientSessionUtil::getPid() === 0;
-        if ($sameGroup) {
-            return true;
-        }
-        return is_string($csrfToken)
-            && CsrfUtils::verifyCsrfToken($csrfToken, SessionWrapperFactory::getInstance()->getActiveSession());
+        return $sameGroup || self::hasValidToken($csrfToken);
     }
 
     /**
@@ -50,12 +72,14 @@ final class TherapyGroupSessionUtil
      */
     public static function requireCsrfForGroupSwitch(Request $request, int $requestedGroupId): void
     {
-        // Read the raw values: InputBag::get() throws on an array.
-        $token = $request->query->all()['csrf_token_form']
-            ?? $request->request->all()['csrf_token_form']
-            ?? null;
-        if (!self::mayLinkSwitchGroup($requestedGroupId, $token)) {
+        if (!self::mayLinkSwitchGroup($requestedGroupId, self::csrfTokenFrom($request))) {
             CsrfUtils::csrfNotVerified();
         }
+    }
+
+    private static function hasValidToken(?string $csrfToken): bool
+    {
+        return $csrfToken !== null
+            && CsrfUtils::verifyCsrfToken($csrfToken, SessionWrapperFactory::getInstance()->getActiveSession());
     }
 }

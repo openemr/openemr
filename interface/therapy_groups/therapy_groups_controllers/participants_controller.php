@@ -16,15 +16,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/base_controller.php';
 require_once __DIR__ . '/therapy_groups_controller.php';
 
-use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\TherapyGroupSessionUtil;
+use Symfony\Component\HttpFoundation\Request;
 
 class ParticipantsController extends BaseController
 {
-    public function __construct()
+    public function __construct(Request $request)
     {
+        parent::__construct($request);
         $this->groupParticipantsModel = $this->loadModel('therapy_groups_participants');
         $this->groupEventsModel = $this->loadModel('Therapy_Groups_Events');
         $this->groupModel = $this->loadModel('therapy_groups');
@@ -34,7 +38,7 @@ class ParticipantsController extends BaseController
     {
 
         if (isset($_POST['save'])) {
-            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+            TherapyGroupSessionUtil::requireCsrfToken($this->request);
             for ($k = 0; $k < count($_POST['pid']); $k++) {
                 $patient['pid'] = $_POST['pid'][$k];
                 $patient['group_patient_status'] = $_POST['group_patient_status'][$k];
@@ -56,7 +60,7 @@ class ParticipantsController extends BaseController
         }
 
         if (isset($_GET['deleteParticipant'])) {
-            CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+            TherapyGroupSessionUtil::requireCsrfToken($this->request);
             $this->groupParticipantsModel->removeParticipant($_GET['group_id'], $_GET['pid']);
         }
 
@@ -81,7 +85,7 @@ class ParticipantsController extends BaseController
             $data['readonly'] = '';
         }
 
-        TherapyGroupsController::setSession($groupId);
+        TherapyGroupsController::setSession($groupId, $this->request);
 
         $this->loadView('groupDetailsParticipants', $data);
     }
@@ -91,7 +95,7 @@ class ParticipantsController extends BaseController
     {
 
         if (isset($_POST['save_new'])) {
-            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+            TherapyGroupSessionUtil::requireCsrfToken($this->request);
             $_POST['group_patient_start'] = DateToYYYYMMDD($_POST['group_patient_start']);
 
             $alreadyRegistered = $this->groupParticipantsModel->isAlreadyRegistered($_POST['pid'], $groupId);

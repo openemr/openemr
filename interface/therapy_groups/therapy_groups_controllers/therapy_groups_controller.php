@@ -16,14 +16,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/base_controller.php';
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Session\TherapyGroupSessionUtil;
+use Symfony\Component\HttpFoundation\Request;
 
 class TherapyGroupsController extends BaseController
 {
@@ -87,7 +88,7 @@ class TherapyGroupsController extends BaseController
 
         $data = [];
         if ($groupId) {
-            self::setSession($groupId);
+            self::setSession($groupId, $this->request);
         }
 
         //Load models
@@ -113,7 +114,7 @@ class TherapyGroupsController extends BaseController
         $_POST['group_end_date'] = DateToYYYYMMDD($_POST['group_end_date']);
 
         if (isset($_POST['save'])) {
-            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+            TherapyGroupSessionUtil::requireCsrfToken($this->request);
             $isEdit = !empty($_POST['group_id']);
 
             // for new group - checking if already exist same name
@@ -156,7 +157,7 @@ class TherapyGroupsController extends BaseController
                     $data['groupData']['group_id'] = $id;
                     $data['message'] = xlt('New group was saved successfully') . '.';
                     $data['savingStatus'] = 'success';
-                    self::setSession($id);
+                    self::setSession($id, $this->request);
                     $events = $eventsModel->getGroupEvents($id);
                     $data['events'] = $events;
                     $data['readonly'] = 'disabled';
@@ -226,7 +227,7 @@ class TherapyGroupsController extends BaseController
 
         //If deleting a group
         if ($_GET['deleteGroup'] == 1) {
-            CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+            TherapyGroupSessionUtil::requireCsrfToken($this->request);
             $group_id = $_GET['group_id'];
             $deletion_response = $this->deleteGroup($group_id);
             $data['deletion_try'] = 1;
@@ -401,11 +402,11 @@ class TherapyGroupsController extends BaseController
         return $groupData['group_id'];
     }
 
-    public static function setSession(int $groupId): void
+    public static function setSession(int $groupId, Request $request): void
     {
         // Opening a group closes the open patient, so a link from another
         // site must not be able to do it.
-        TherapyGroupSessionUtil::requireCsrfForGroupSwitch(CurrentRequest::get(), $groupId);
+        TherapyGroupSessionUtil::requireCsrfForGroupSwitch($request, $groupId);
         setpid(0);
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($session->get('therapy_group') != $groupId) {

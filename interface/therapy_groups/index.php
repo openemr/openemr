@@ -16,6 +16,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../globals.php';
 require_once __DIR__ . '/therapy_groups_controllers/therapy_groups_controller.php';
 require_once __DIR__ . '/therapy_groups_controllers/participants_controller.php';
@@ -28,12 +30,12 @@ $method = $request->query->getString('method');
 
 switch ($method) {
     case 'addGroup':
-        $controller = new TherapyGroupsController();
+        $controller = new TherapyGroupsController($request);
         $controller->index();
         break;
 
     case 'listGroups':
-        $controller = new TherapyGroupsController();
+        $controller = new TherapyGroupsController($request);
         $controller->listGroups();
         break;
 
@@ -45,7 +47,7 @@ switch ($method) {
         $groupId = $request->query->getString('group_id') === 'from_session'
             ? TherapyGroupSessionUtil::getGroupId()
             : $request->query->getInt('group_id');
-        $controller = new TherapyGroupsController();
+        $controller = new TherapyGroupsController($request);
         $controller->index($groupId);
         break;
     case 'groupParticipants':
@@ -53,11 +55,15 @@ switch ($method) {
             die('Missing group ID');
         }
 
-        $controller = new ParticipantsController();
+        $controller = new ParticipantsController($request);
         $controller->index($request->query->getInt('group_id'));
         break;
     case 'addParticipant':
-        $controller = new ParticipantsController();
+        if (!$request->query->has('group_id')) {
+            die('Missing group ID');
+        }
+
+        $controller = new ParticipantsController($request);
         $controller->add($request->query->getInt('group_id'));
         break;
 }

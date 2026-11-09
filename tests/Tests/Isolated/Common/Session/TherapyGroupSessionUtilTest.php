@@ -28,7 +28,7 @@ use Symfony\Component\Process\Process;
 
 final class TherapyGroupSessionUtilTest extends TestCase
 {
-    private const FIXTURE = __DIR__ . '/fixtures/therapy-group-switch-denial.php';
+    private const FIXTURE = __DIR__ . '/fixtures/therapy-group-guard-denial.php';
     private const CONTROLLERS = '/interface/therapy_groups/therapy_groups_controllers/';
     private const SESSION_GROUP = 7;
 
@@ -63,9 +63,11 @@ final class TherapyGroupSessionUtilTest extends TestCase
     {
         return [
             'int' => [7, 7],
-            'numeric string from a GET link' => ['7', 7],
+            'digit string from an older session' => ['7', 7],
             'missing' => [null, null],
-            'not numeric' => ['from_session', null],
+            'not a number' => ['from_session', null],
+            'not a whole number' => ['7.5', null],
+            'exponent' => ['1e1', null],
         ];
     }
 
@@ -75,6 +77,34 @@ final class TherapyGroupSessionUtilTest extends TestCase
         $this->session->set('therapy_group', $stored);
 
         $this->assertSame($expected, TherapyGroupSessionUtil::getGroupId());
+    }
+
+    /**
+     * @return array<string, array{array<string, mixed>, array<string, mixed>, ?string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function tokenSourceProvider(): array
+    {
+        return [
+            'query' => [['csrf_token_form' => 'from-query'], [], 'from-query'],
+            'posted form' => [[], ['csrf_token_form' => 'from-form'], 'from-form'],
+            'query ahead of posted form' => [['csrf_token_form' => 'from-query'], ['csrf_token_form' => 'from-form'], 'from-query'],
+            'array' => [['csrf_token_form' => ['not', 'a', 'string']], [], null],
+            'none' => [[], [], null],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $query
+     * @param array<string, mixed> $form
+     */
+    #[DataProvider('tokenSourceProvider')]
+    public function testCsrfTokenFrom(array $query, array $form, ?string $expected): void
+    {
+        $request = new Request($query, $form);
+
+        $this->assertSame($expected, TherapyGroupSessionUtil::csrfTokenFrom($request));
     }
 
     /**
@@ -88,7 +118,6 @@ final class TherapyGroupSessionUtilTest extends TestCase
             'current group, no token' => [self::SESSION_GROUP, 0, 'none', true],
             'other group, no token' => [8, 0, 'none', false],
             'other group, wrong token' => [8, 0, 'wrong', false],
-            'other group, non-string token' => [8, 0, 'array', false],
             'other group, valid token' => [8, 0, 'valid', true],
             'current group over an open patient, no token' => [self::SESSION_GROUP, 11, 'none', false],
             'current group over an open patient, valid token' => [self::SESSION_GROUP, 11, 'valid', true],
@@ -130,18 +159,7 @@ final class TherapyGroupSessionUtilTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testRequireCsrfReadsTheTokenFromTheQuery(): void
-    {
-        $request = Request::create('/therapy_groups/index.php', 'GET', [
-            'group_id' => '8',
-            'csrf_token_form' => CsrfUtils::collectCsrfToken($this->session),
-        ]);
-
-        TherapyGroupSessionUtil::requireCsrfForGroupSwitch($request, 8);
-        $this->addToAssertionCount(1);
-    }
-
-    public function testRequireCsrfReadsTheTokenFromThePostedForm(): void
+    public function testRequireCsrfForGroupSwitchAcceptsAPostedToken(): void
     {
         $request = Request::create('/therapy_groups/index.php?method=addGroup', 'POST', [
             'save' => 'save',
@@ -149,6 +167,18 @@ final class TherapyGroupSessionUtilTest extends TestCase
         ]);
 
         TherapyGroupSessionUtil::requireCsrfForGroupSwitch($request, 8);
+        $this->addToAssertionCount(1);
+    }
+
+    public function testRequireCsrfTokenAcceptsAValidToken(): void
+    {
+        $request = Request::create('/therapy_groups/index.php', 'GET', [
+            'method' => 'groupParticipants',
+            'deleteParticipant' => '1',
+            'csrf_token_form' => CsrfUtils::collectCsrfToken($this->session),
+        ]);
+
+        TherapyGroupSessionUtil::requireCsrfToken($request);
         $this->addToAssertionCount(1);
     }
 
@@ -160,9 +190,12 @@ final class TherapyGroupSessionUtilTest extends TestCase
     public static function childProcessProvider(): array
     {
         return [
-            'forged switch is refused and keeps the open chart' => [['8'], 'Authentication Error pid=11 group=none'],
-            'array token is refused like a missing one' => [['8', 'array-token'], 'Authentication Error pid=11 group=none'],
-            'token-bearing switch continues' => [['8', 'with-token'], 'allowed pid=0 group=8'],
+            'forged switch is refused and keeps the open chart' => [['switch', '8'], 'Authentication Error pid=11 group=none'],
+            'array token is refused like a missing one' => [['switch', '8', 'array-token'], 'Authentication Error pid=11 group=none'],
+            'token-bearing switch continues' => [['switch', '8', 'with-token'], 'allowed pid=0 group=8'],
+            'forged write is refused' => [['write', '8'], 'Authentication Error pid=11 group=none'],
+            'write with an array token is refused' => [['write', '8', 'array-token'], 'Authentication Error pid=11 group=none'],
+            'token-bearing write continues' => [['write', '8', 'with-token'], 'allowed pid=11 group=none'],
         ];
     }
 
@@ -170,7 +203,7 @@ final class TherapyGroupSessionUtilTest extends TestCase
      * @param list<string> $arguments
      */
     #[DataProvider('childProcessProvider')]
-    public function testSwitchInAChildProcess(array $arguments, string $output): void
+    public function testGuardInAChildProcess(array $arguments, string $output): void
     {
         $process = new Process([PHP_BINARY, self::FIXTURE, ...$arguments]);
         $process->run();
@@ -186,20 +219,59 @@ final class TherapyGroupSessionUtilTest extends TestCase
      */
     public static function guardedWriteProvider(): array
     {
-        $post = 'CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);';
-        $get = 'CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);';
+        $guard = 'TherapyGroupSessionUtil::requireCsrfToken($this->request);';
         return [
             'group switch' => [
                 'therapy_groups_controller.php',
-                "public static function setSession(int \$groupId): void\n    {",
-                'TherapyGroupSessionUtil::requireCsrfForGroupSwitch(CurrentRequest::get(), $groupId);',
+                <<<'PHP'
+                public static function setSession(int $groupId, Request $request): void
+                    {
+                        // Opening a group closes the open patient, so a link from another
+                        // site must not be able to do it.
+                PHP,
+                'TherapyGroupSessionUtil::requireCsrfForGroupSwitch($request, $groupId);',
                 'setpid(0);',
             ],
-            'group save' => ['therapy_groups_controller.php', "if (isset(\$_POST['save'])) {", $post, '$this->saveNewGroup('],
-            'group delete' => ['therapy_groups_controller.php', "if (\$_GET['deleteGroup'] == 1) {", $get, '$this->deleteGroup('],
-            'participant save' => ['participants_controller.php', "if (isset(\$_POST['save'])) {", $post, '->updateParticipant('],
-            'participant delete' => ['participants_controller.php', "if (isset(\$_GET['deleteParticipant'])) {", $get, '->removeParticipant('],
-            'participant add' => ['participants_controller.php', "if (isset(\$_POST['save_new'])) {", $post, '->saveParticipant('],
+            'group save' => [
+                'therapy_groups_controller.php',
+                <<<'PHP'
+                if (isset($_POST['save'])) {
+                PHP,
+                $guard,
+                '$this->saveNewGroup(',
+            ],
+            'group delete' => [
+                'therapy_groups_controller.php',
+                <<<'PHP'
+                if ($_GET['deleteGroup'] == 1) {
+                PHP,
+                $guard,
+                '$this->deleteGroup(',
+            ],
+            'participant save' => [
+                'participants_controller.php',
+                <<<'PHP'
+                if (isset($_POST['save'])) {
+                PHP,
+                $guard,
+                '->updateParticipant(',
+            ],
+            'participant delete' => [
+                'participants_controller.php',
+                <<<'PHP'
+                if (isset($_GET['deleteParticipant'])) {
+                PHP,
+                $guard,
+                '->removeParticipant(',
+            ],
+            'participant add' => [
+                'participants_controller.php',
+                <<<'PHP'
+                if (isset($_POST['save_new'])) {
+                PHP,
+                $guard,
+                '->saveParticipant(',
+            ],
         ];
     }
 
@@ -218,20 +290,15 @@ final class TherapyGroupSessionUtilTest extends TestCase
         $parts = explode($condition, $source);
         $this->assertCount(2, $parts, "{$file} should contain the condition exactly once");
         $afterCondition = ltrim($parts[1]);
-        // Skip line comments between the condition and the guard.
-        while (str_starts_with($afterCondition, '//')) {
-            $afterCondition = ltrim(explode("\n", $afterCondition, 2)[1] ?? '');
-        }
         $this->assertStringStartsWith($guard, $afterCondition);
         $this->assertStringContainsString($write, substr($afterCondition, strlen($guard)));
     }
 
-    private function token(string $kind): mixed
+    private function token(string $kind): ?string
     {
         return match ($kind) {
             'none' => null,
             'wrong' => 'not-the-session-token',
-            'array' => ['not', 'a', 'string'],
             'valid' => CsrfUtils::collectCsrfToken($this->session),
             default => throw new \InvalidArgumentException('Unknown token kind'),
         };

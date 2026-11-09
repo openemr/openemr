@@ -1,7 +1,10 @@
 <?php
 
 /**
- * Child-process fixture for TherapyGroupSessionUtil::requireCsrfForGroupSwitch().
+ * Child-process fixture for the TherapyGroupSessionUtil guards, which exit.
+ *
+ * Arguments: the guard (`switch` or `write`), the requested group ID, and
+ * the token to send (`with-token`, `array-token`, or none).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -25,7 +28,11 @@ require_once dirname(__DIR__, 6) . '/vendor/autoload.php';
 // child process from attempting a translation database lookup.
 $GLOBALS['disable_translation'] = true;
 
-$requestedGroupArg = $argv[1] ?? null;
+$guard = $argv[1] ?? null;
+if ($guard !== 'switch' && $guard !== 'write') {
+    throw new InvalidArgumentException('Expected the guard to run: switch or write');
+}
+$requestedGroupArg = $argv[2] ?? null;
 if (!is_string($requestedGroupArg) || !ctype_digit($requestedGroupArg)) {
     throw new InvalidArgumentException('Expected the requested group ID');
 }
@@ -37,21 +44,28 @@ CsrfUtils::setupCsrfKey($session);
 SessionWrapperFactory::getInstance()->setActiveSession($session);
 
 $query = ['method' => 'groupDetails', 'group_id' => $requestedGroupId];
-$query['csrf_token_form'] = match ($argv[2] ?? '') {
+$query['csrf_token_form'] = match ($argv[3] ?? '') {
     'with-token' => CsrfUtils::collectCsrfToken($session),
     'array-token' => [CsrfUtils::collectCsrfToken($session)],
     default => null,
 };
+$request = Request::create('/therapy_groups/index.php', 'GET', $query);
 
 // Report the session patient and group after the guard, even when it
-// exits, so the test can see that a refused switch left the chart open.
+// exits, so the test can see that a refused request changed nothing.
 register_shutdown_function(static function () use ($session): void {
     $pid = $session->get('pid');
     $group = $session->get('therapy_group');
     echo ' pid=' . (is_int($pid) ? $pid : 'none') . ' group=' . (is_int($group) ? $group : 'none');
 });
 
-TherapyGroupSessionUtil::requireCsrfForGroupSwitch(Request::create('/therapy_groups/index.php', 'GET', $query), $requestedGroupId);
+if ($guard === 'write') {
+    TherapyGroupSessionUtil::requireCsrfToken($request);
+    echo 'allowed';
+    exit;
+}
+
+TherapyGroupSessionUtil::requireCsrfForGroupSwitch($request, $requestedGroupId);
 // Stand in for TherapyGroupsController::setSession() once the guard lets it through.
 $session->set('pid', 0);
 $session->set('therapy_group', $requestedGroupId);
