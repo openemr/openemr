@@ -44,6 +44,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormRegistry;
 use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -84,14 +85,18 @@ SessionUtil::setSession('disablePreviousNameAdds', 0);
 
 $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 
-// Set session for pid (via setpid). Also set session for encounter (if applicable)
-if (isset($_GET['set_pid'])) {
-    setpid($_GET['set_pid']);
+// Set session for pid (via setpid). Also set session for encounter (if applicable).
+// Switching to another patient or encounter needs a CSRF token in the link.
+if ($request->query->has('set_pid')) {
+    $setPid = $request->query->getInt('set_pid');
+    $setEncounterId = $request->query->getInt('set_encounterid');
+    PatientSessionUtil::requireCsrfForLinkSwitch($request, $setPid, $setEncounterId);
+    setpid($setPid);
     $ptService = new PatientService();
     $newPatient = $ptService->findByPid($pid);
     $ptService->touchRecentPatientList($newPatient);
-    if (isset($_GET['set_encounterid']) && ((int)$_GET['set_encounterid'] > 0)) {
-        $encounter = (int)$_GET['set_encounterid'];
+    if ($setEncounterId > 0) {
+        $encounter = $setEncounterId;
         SessionUtil::setSession('encounter', $encounter);
     }
 }

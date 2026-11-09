@@ -17,11 +17,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between 0 and 0 will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between 1 and 1 will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/clinic_note/report.php',

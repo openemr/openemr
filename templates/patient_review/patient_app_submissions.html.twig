@@ -1,0 +1,157 @@
+{#
+  Patient App Submissions: FHIR writes from patient apps held for staff review. Rendered by
+  OpenEMR\Controllers\Interface\PatientReview\PatientAppSubmissionsController.
+
+  Everything but the ids came from the patient or the app. Autoescape is off in OpenEMR, so
+  every value goes through |text, |attr or a translation filter.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<html>
+<head>
+    <title>{{ 'Patient App Submissions'|xlt }}</title>
+    {{ setupHeader() }}
+</head>
+<body class="body_top">
+<div class="container-fluid">
+    <h2 class="mt-3">{{ 'Patient App Submissions'|xlt }}</h2>
+    <p class="text-muted mb-3">
+        {{ 'Data a patient sent from an app is held here until you approve it. Approving adds it to the chart; denying keeps a record of it but adds nothing. Until then only the app that sent it can see it.'|xlt }}
+    </p>
+
+    {% if notice is not null %}
+        <div class="alert alert-success">{{ notice|text }}</div>
+    {% endif %}
+    {% if error is not null %}
+        <div class="alert alert-danger">{{ error|text }}</div>
+    {% endif %}
+
+    {% if items is empty %}
+        <div class="alert alert-info">{{ 'No patient app submissions are waiting for review.'|xlt }}</div>
+    {% else %}
+        {% if total > items|length %}
+            <p class="text-muted">{{ 'Showing the oldest'|xlt }} {{ items|length|text }} {{ 'of'|xlt }} {{ total|text }}.</p>
+        {% endif %}
+        {% for item in items %}
+            <div class="card mb-3" id="submission-{{ item.id|attr }}">
+                <div class="card-header d-flex flex-wrap justify-content-between">
+                    <div>
+                        <strong>{{ item.summary|text }}</strong>
+                        <span class="text-muted ml-2">#{{ item.id|text }}</span>
+                    </div>
+                    <div class="text-muted">{{ 'Received'|xlt }} {{ item.received|text }}</div>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-2">
+                        <dt class="col-sm-2">{{ 'Patient'|xlt }}</dt>
+                        <dd class="col-sm-10">{{ item.patientName|text }}{% if item.pubpid != '' %} ({{ item.pubpid|text }}){% endif %}</dd>
+                        <dt class="col-sm-2">{{ 'App'|xlt }}</dt>
+                        <dd class="col-sm-10">
+                            {% if item.appName is null %}
+                                <span class="text-muted">{{ 'This app is no longer registered'|xlt }}</span>
+                            {% else %}
+                                {{ item.appName|text }}
+                                {% if item.clientType == 'confidential' %}
+                                    <span class="badge badge-info ml-1" title="{{ 'The app proved its identity with a secret or key.'|xla }}">{{ 'Confidential app'|xlt }}</span>
+                                {% else %}
+                                    <span class="badge badge-warning ml-1" title="{{ 'The app has no secret, so the server cannot confirm which app sent this.'|xla }}">{{ 'Public app'|xlt }}</span>
+                                {% endif %}
+                            {% endif %}
+                        </dd>
+                        <dt class="col-sm-2">{{ 'Type'|xlt }}</dt>
+                        <dd class="col-sm-10">{{ item.resourceType|text }}</dd>
+                        {% if item.resourceType == 'QuestionnaireResponse' %}
+                            <dt class="col-sm-2">{{ 'Questionnaire'|xlt }}</dt>
+                            <dd class="col-sm-10">
+                                {% if item.questionnaireName is null %}
+                                    <span class="text-danger">{{ 'Not a questionnaire on this server; this response cannot be added to the chart.'|xlt }}</span>
+                                {% else %}
+                                    {{ item.questionnaireName|text }}
+                                {% endif %}
+                            </dd>
+                        {% endif %}
+                    </dl>
+
+                    {% if item.duplicateOf is not null %}
+                        <div class="alert alert-warning py-2">
+                            {{ 'Possible duplicate: the same content is already waiting as'|xlt }}
+                            <a href="#submission-{{ item.duplicateOf|attr_url }}">#{{ item.duplicateOf|text }}</a>.
+                        </div>
+                    {% endif %}
+
+                    {% if item.answers is not empty %}
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                            <tr>
+                                <th>{{ 'Question'|xlt }}</th>
+                                <th>{{ 'Answer'|xlt }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in item.answers %}
+                                <tr>
+                                    <td>{{ row.question|text }}</td>
+                                    <td>
+                                        {{ row.answers|join(', ')|text }}
+                                        {% if row.unshown > 0 %}
+                                            <span class="text-danger">{{ row.answers is empty ? '' : '+ '|text }}{{ row.unshown|text }} {{ 'answer not shown here; see what the app sent'|xlt }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                    {% if item.answersTooDeep > 0 %}
+                        <div class="alert alert-warning py-2">
+                            {{ item.answersTooDeep|text }} {{ 'answers are nested too deeply to show here. Open what the app sent before deciding.'|xlt }}
+                        </div>
+                    {% endif %}
+
+                    {# Opened when the table can't show everything, so nothing is decided unseen. #}
+                    {% set partlyShown = item.answersTooDeep > 0 or item.answers|filter(row => row.unshown > 0) is not empty %}
+                    <details class="mb-3"{% if partlyShown %} open{% endif %}>
+                        <summary>{{ 'Show what the app sent'|xlt }}</summary>
+                        <pre class="bg-light p-2 mt-2">{{ item.resourceJson|text }}</pre>
+                    </details>
+
+                    {% if canDecide %}
+                        {# Two forms, so pressing Enter in the reason can only deny. #}
+                        <div class="d-flex flex-wrap align-items-start">
+                            {% if item.canApprove %}
+                                <form method="post" action="patient_app_submissions.php" class="mr-3" onsubmit="return top.restoreSession()">
+                                    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                                    <input type="hidden" name="request_id" value="{{ item.id|attr }}" />
+                                    <button type="submit" name="action" value="approve" class="btn btn-sm btn-primary mb-2">{{ 'Approve'|xlt }}</button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted mr-3 mb-2">
+                                    {% if item.resourceType == 'QuestionnaireResponse' and item.questionnaireName is null %}
+                                        {{ 'It cannot be approved: it does not answer a questionnaire on this server.'|xlt }}
+                                    {% else %}
+                                        {{ 'This type cannot be approved in this version.'|xlt }}
+                                    {% endif %}
+                                </span>
+                            {% endif %}
+                            <form method="post" action="patient_app_submissions.php" class="form-inline" onsubmit="return top.restoreSession()">
+                                <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                                <input type="hidden" name="request_id" value="{{ item.id|attr }}" />
+                                <input type="hidden" name="action" value="deny" />
+                                <label class="sr-only" for="note-{{ item.id|attr }}">{{ 'Reason for denying'|xlt }}</label>
+                                <input type="text" class="form-control form-control-sm mr-2 mb-2" id="note-{{ item.id|attr }}" name="note" maxlength="255"
+                                       required placeholder="{{ 'Reason for denying (required)'|xla }}" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger mb-2">{{ 'Deny'|xlt }}</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+</body>
+</html>

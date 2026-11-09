@@ -292,26 +292,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/display.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function fgets expects resource, mixed given\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function substr expects string, string\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function trim expects string, string\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#5 \\$comments of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:newEvent\\(\\) expects string, string\\|false given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$name of static method Monolog\\\\Level\\:\\:fromName\\(\\) expects \'ALERT\'\\|\'Alert\'\\|\'alert\'\\|\'CRITICAL\'\\|\'Critical\'\\|\'critical\'\\|\'DEBUG\'\\|\'Debug\'\\|\'debug\'\\|\'EMERGENCY\'\\|\'Emergency\'\\|\'emergency\'\\|\'ERROR\'\\|\'Error\'\\|\'error\'\\|\'INFO\'\\|\'Info\'\\|\'info\'\\|\'NOTICE\'\\|\'Notice\'\\|\'notice\'\\|\'WARNING\'\\|\'Warning\'\\|\'warning\', mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../config/services.php',
@@ -494,11 +474,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$from of function move_uploaded_file expects string, mixed given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$haystack of function str_contains expects string, string\\|false given\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
@@ -1742,11 +1717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/billing_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$patient_id of function getEffectiveInsurances expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$pid of function getPatientData expects int, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/billing_report.php',
@@ -2482,98 +2452,18 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$address of method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$email of static method OpenEMR\\\\Common\\\\Utils\\\\ValidationUtils\\:\\:isValidEmail\\(\\) expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function file_get_contents expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function file_put_contents expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function filesize expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function fopen expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function readfile expects string, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$haystack of function stristr expects string, string\\|false given\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function feof expects resource, resource\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function fgets expects resource, resource\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, Prior given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr_js expects string, mixed given\\.$#',
-    'count' => 3,
+    'count' => 9,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of method Cezpdf\\:\\:ezText\\(\\) expects string, string\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$category_id of method Document\\:\\:createDocument\\(\\) expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$use_include_path of function readfile expects bool, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$subject of function str_replace expects array\\<string\\>\\|string, string\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#5 \\$data of method Document\\:\\:createDocument\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
@@ -6158,7 +6048,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr_url expects string, int given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/authorizations/authorizations.php',
 ];
 $ignoreErrors[] = [
@@ -7144,11 +7034,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, string\\|false given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/main_screen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr_url expects string, int given\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
 ];
 $ignoreErrors[] = [
@@ -9302,11 +9187,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$id of class Document constructor expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$number of method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\AppDispatch\\:\\:formatPhone\\(\\) expects string, mixed given\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
@@ -9503,7 +9383,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$filename of function file_get_contents expects string, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -9513,7 +9393,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$filename of function is_file expects string, mixed given\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -9697,18 +9577,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$id of class Document constructor expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$number of method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\AppDispatch\\:\\:formatPhone\\(\\) expects string, mixed given\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$path of function realpath expects string, mixed given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
 ];
 $ignoreErrors[] = [
@@ -12450,11 +12320,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#4 \\$binds of function deleter_row_modify expects list\\<bool\\|float\\|int\\|string\\>, array\\{int, mixed, mixed\\} given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$finfo of function finfo_close expects finfo, finfo\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/download_template.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$finfo of function finfo_file expects finfo, finfo\\|false given\\.$#',
@@ -16739,11 +16604,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$dt of function PrintEncHeader expects string, mixed given\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$patient_id of function getEffectiveInsurances expects int, mixed given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
 ];
 $ignoreErrors[] = [
@@ -21057,121 +20917,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/dicom_frame.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function filesize expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function unlink expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$haystack of function str_starts_with expects string, string\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$name of function addNewDocument expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$pid of function addPnote expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function fclose expects resource, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function feof expects resource, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function fflush expects resource, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function fgets expects resource, mixed given\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function fread expects resource, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function fwrite expects resource, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function trim expects string, array\\|string\\|false given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function trim expects string, string\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$length of function fread expects int\\<1, max\\>, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$string of function explode expects string, string\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$type of function addNewDocument expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$subject of function str_ireplace expects array\\<string\\>\\|string, string\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$tmp_name of function addNewDocument expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#4 \\$error of function addNewDocument expects string, int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#5 \\$comments of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:newEvent\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#5 \\$size of function addNewDocument expects string, int\\<0, max\\>\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#6 \\$owner of function addNewDocument expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#6 \\$patient_id of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:newEvent\\(\\) expects int\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$key of function xla expects literal\\-string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/display_help_icon_inc.php',
@@ -23692,861 +23437,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/messaging/messages.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$observer of class Phreezer constructor expects Observable\\|null, ObserveToSmarty given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_global_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function array_unshift expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$buffer of method Savant3\\:\\:applyFilters\\(\\) expects string, string\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function file_exists expects string, string\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function is_readable expects string, string\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$flag of method Savant3\\:\\:setAutoload\\(\\) expects bool, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$flag of method Savant3\\:\\:setExceptions\\(\\) expects bool, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$flag of method Savant3\\:\\:setExtract\\(\\) expects bool, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$obj of method Savant3\\:\\:isError\\(\\) expects object, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$obj of method Savant3\\:\\:isError\\(\\) expects object, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$path of function realpath expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$template of method Savant3\\:\\:setTemplate\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of method Savant3\\:\\:setErrorText\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$tpl of method Savant3\\:\\:fetch\\(\\) expects string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$tpl of method Savant3\\:\\:template\\(\\) expects string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$type of method Savant3\\:\\:findFile\\(\\) expects array, string given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\.\\.\\.\\$arrays of function array_merge expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function array_key_exists expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$autoload of function class_exists expects bool, mixed given\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$config of method Savant3\\:\\:setPluginConf\\(\\) expects array\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$file of method Savant3\\:\\:findFile\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$path of method Savant3\\:\\:setPath\\(\\) expects array\\|string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$path of method Savant3\\:\\:setPath\\(\\) expects array\\|string, null given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$message of method Exception\\:\\:__construct\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Authentication/AuthenticationException.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$code of method Exception\\:\\:__construct\\(\\) expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Authentication/AuthenticationException.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$data of function unserialize expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Authentication/Authenticator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$mysql of function mysqli_affected_rows expects mysqli, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$mysql of function mysqli_close expects mysqli, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$mysql of function mysqli_error expects mysqli, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$mysql of function mysqli_insert_id expects mysqli, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$mysql of function mysqli_ping expects mysqli, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$mysql of function mysqli_query expects mysqli, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$phreezer of method ISqlFunction\\:\\:GetQuotedSql\\(\\) expects Phreezer, \\$this\\(DataDriverMySQLi\\) given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$result of function mysqli_fetch_assoc expects mysqli_result, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$result of function mysqli_free_result expects mysqli_result, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search of function str_replace expects array\\<string\\>\\|string, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$val of method DataDriverMySQLi\\:\\:Escape\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$replace of function str_replace expects array\\<string\\>\\|string, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$message of method Exception\\:\\:__construct\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DatabaseException.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$code of method Exception\\:\\:__construct\\(\\) expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DatabaseException.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$data of function unserialize expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/Context.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function fclose expects resource, resource\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function fwrite expects resource, resource\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$datetime of function strtotime expects string, array\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function filesize expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function fopen expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$filename of function is_uploaded_file expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function fclose expects resource, resource\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function fread expects resource, resource\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of static method VerySimpleStringUtil\\:\\:EncodeToHTML\\(\\) expects string, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$length of function fread expects int\\<1, max\\>, int\\<0, max\\>\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$escape of static method RequestUtil\\:\\:Get\\(\\) expects bool, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$length of function substr expects int\\|null, int\\<0, max\\>\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$subject of function str_replace expects array\\<string\\>\\|string, array\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$params of method ActionRouter\\:\\:GetUrl\\(\\) expects array, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/UrlWriter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$code of class IncludeException constructor expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/IO/Includer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$appRoot of static method RequestUtil\\:\\:GetUrlParts\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$fieldname of static method RequestUtil\\:\\:Get\\(\\) expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$default of static method RequestUtil\\:\\:Get\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$replace of function str_replace expects array\\<string\\>\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$subject of function str_replace expects array\\<string\\>\\|string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function array_keys expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheRam.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$object_or_class of function is_a expects object, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$objectclass of method Criteria\\:\\:IncludeMap\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function strlen expects string, mixed given\\.$#',
-    'count' => 13,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$val of method Criteria\\:\\:GetQuotedSql\\(\\) expects string, mixed given\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$val of static method DataAdapter\\:\\:Escape\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$listener of method DataAdapter\\:\\:AttachObserver\\(\\) expects IObserver, Observable given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$listener of method DataAdapter\\:\\:AttachObserver\\(\\) expects IObserver, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function current expects array\\|object, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function key expects array\\|object, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function next expects array\\|object, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function reset expects array\\|object, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$row of method DataSet\\:\\:_getObject\\(\\) expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$val_prop of method DataSet\\:\\:GetLabelArray\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$label_prop of method DataSet\\:\\:GetLabelArray\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$fieldname of static method RequestUtil\\:\\:Get\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key of function array_key_exists expects int\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function array_key_exists expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, array\\<mixed, mixed\\> given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$return of function print_r expects bool, int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToBrowser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$return of function print_r expects bool, int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToSmarty.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$datetime of function strtotime expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key of function array_key_exists expects int\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$object_or_class of function class_parents expects object\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$object_or_class of function property_exists expects object\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$prop of method Phreezable\\:\\:AddValidationError\\(\\) expects string, mixed given\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of callable \'mb_strlen\'\\|\'strlen\' expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function array_key_exists expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function implode expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$haystack of function in_array expects array, array\\<string, class\\-string\\>\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$haystack of function in_array expects array, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$haystack of function in_array expects array, these given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$observer of method Observable\\:\\:AttachObserver\\(\\) expects IObserver, Observable given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function strlen expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$val of method Phreezer\\:\\:Escape\\(\\) expects string, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$val of method Phreezer\\:\\:GetQuotedSql\\(\\) expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$classpath of static method Includer\\:\\:RequireClass\\(\\) expects string, array\\<int, string\\> given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$criteria of method Phreezer\\:\\:Query\\(\\) expects Criteria\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$id of method Phreezer\\:\\:DeleteCache\\(\\) expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$id of method Phreezer\\:\\:Get\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$_sql of class DataSet constructor expects string, array\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$val of method Phreezer\\:\\:SetCache\\(\\) expects Phreezable, Preezable given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#4 \\$includeCacheLevel2 of method Phreezer\\:\\:SetCache\\(\\) expects bool, int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$haystack of function strpos expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$object of function get_object_vars expects object, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$username of method IAuthenticatable\\:\\:Login\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$password of method IAuthenticatable\\:\\:Login\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$return of function print_r expects bool, int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$string of function explode expects string, true given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function array_keys expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function array_values expects array\\<T\\>, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$fm of method QueryBuilder\\:\\:AddFieldMap\\(\\) expects FieldMap, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$sql of method QueryBuilder\\:\\:RemoveWherePrefix\\(\\) expects string, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$typename of method QueryBuilder\\:\\:RecurseFieldMaps\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function array_key_exists expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, list given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$row of method Reporter\\:\\:Load\\(\\) expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$haystack of function in_array expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$haystack of function in_array expects array, these given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$c of static method VerySimpleStringUtil\\:\\:unicode_entity_replace\\(\\) expects char, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$character of function ord expects string, mixed given\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$code of method VerySimpleStringUtil\\:\\:chr_utf8\\(\\) expects int, float\\|int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$code of method VerySimpleStringUtil\\:\\:chr_utf8\\(\\) expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$numericEncodingOnly of static method VerySimpleStringUtil\\:\\:EncodeToHTML\\(\\) expects bool, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$replace_pairs of function strtr expects array, associative given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$replace_pairs of function strtr expects array, characters given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$replace_pairs of function strtr expects array, common given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$to_encoding of function mb_convert_encoding expects string, string\\|the given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$from_encoding of function mb_convert_encoding expects array\\|string\\|null, the given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$length of function substr expects int\\|null, int\\<0, max\\>\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$path of function basename expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/ExceptionFormatter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$callback of function set_error_handler expects \\(callable\\(int, string, string, int\\)\\: bool\\)\\|null, array\\{\'ExceptionThrower\', \'HandleError\'\\} given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/ExceptionThrower.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$code of class Exception constructor expects int, string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/ExceptionThrower.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$callback of method PortalController\\:\\:RenderJSON\\(\\) expects string, array\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$html of method HTMLPurifier\\:\\:purify\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$json of method AppBasePortalController\\:\\:SafeGetVal\\(\\) expects stdClass, mixed given\\.$#',
-    'count' => 41,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$phreezer of class OnsiteDocument constructor expects Phreezer, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$property of method Criteria\\:\\:SetOrder\\(\\) expects string, array\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$errors of method AppBasePortalController\\:\\:RenderErrorJSON\\(\\) expects array\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$default of method AppBasePortalController\\:\\:SafeGetVal\\(\\) expects string, mixed given\\.$#',
-    'count' => 18,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$default of method AppBasePortalController\\:\\:SafeGetVal\\(\\) expects string, null given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$json of method AppBasePortalController\\:\\:SafeGetVal\\(\\) expects stdClass, mixed given\\.$#',
-    'count' => 93,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$message of method AppBasePortalController\\:\\:RenderErrorJSON\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$phreezer of class Patient constructor expects Phreezer, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$property of method Criteria\\:\\:SetOrder\\(\\) expects string, array\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$default of method AppBasePortalController\\:\\:SafeGetVal\\(\\) expects string, int given\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$json of method AppBasePortalController\\:\\:SafeGetVal\\(\\) expects stdClass, mixed given\\.$#',
-    'count' => 51,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$default of method AppBasePortalController\\:\\:SafeGetVal\\(\\) expects string, int given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$default of method AppBasePortalController\\:\\:SafeGetVal\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/OnsiteDocument.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/Patient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/OnsiteDocumentListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr_url expects string, mixed given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/templates/OnsiteDocumentListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function js_escape expects string, int given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/templates/OnsiteDocumentListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function js_escape expects string, mixed given\\.$#',
-    'count' => 16,
-    'path' => __DIR__ . '/../../portal/patient/templates/OnsiteDocumentListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/OnsiteDocumentListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../portal/patient/templates/PatientListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function js_escape expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/templates/PatientListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/templates/ProviderHome.tpl.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$constant of function xl_list_label expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
@@ -24584,11 +23474,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$amount of function calcTaxes expects float, mixed given\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$patientIdCc of class OpenEMR\\\\PaymentProcessing\\\\Sphere\\\\SpherePayment constructor expects int, mixed given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
@@ -27219,11 +26104,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$finfo of function finfo_buffer expects finfo, finfo\\|false given\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/FileUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$finfo of function finfo_close expects finfo, finfo\\|false given\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Utils/FileUtils.php',
 ];
 $ignoreErrors[] = [
@@ -57147,11 +56027,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$clientId of method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:setClientId\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$currentServerScopes of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Validators\\\\ScopeValidatorFactory\\:\\:buildScopeValidatorArray\\(\\) expects array\\<OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopeEntity\\|string\\>, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
@@ -58518,7 +57393,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$key of function array_key_exists expects int\\|string, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -59158,11 +58033,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$filename of function mime_content_type expects resource\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$finfo of function finfo_close expects finfo, finfo\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
@@ -60648,7 +59518,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$code of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCoding\\:\\:setCode\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode, string given\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
@@ -60658,7 +59528,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$display of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCoding\\:\\:setDisplay\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRString, string given\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
@@ -60687,23 +59557,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$relationship of method OpenEMR\\\\Services\\\\FHIR\\\\FhirCoverageService\\:\\:mapRelationship\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$status of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCoverage\\:\\:setStatus\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRFinancialResourceStatusCodes, OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function strtolower expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$system of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCoding\\:\\:setSystem\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRUri, string given\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
@@ -67718,22 +66578,22 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$stream of function fclose expects resource, resource\\|false given\\.$#',
-    'count' => 6,
+    'count' => 8,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$string of function strlen expects string, mixed given\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$array of function implode expects array\\<string\\>, list given\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$haystack of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, mixed given\\.$#',
-    'count' => 49,
+    'count' => 50,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [
@@ -68444,11 +67304,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$haystack of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|null given\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$clientRepo of class OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController@anonymous/tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest\\.php\\:424 constructor expects OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest.php',
 ];
 $ignoreErrors[] = [

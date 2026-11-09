@@ -98,24 +98,71 @@ function tagProcedure() {
 }
 </script>
 
-<table class="w-100 align-top">
+<style>
+.doc-view-outer {
+    table-layout: fixed;
+    max-width: 100%;
+}
+.doc-view-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem 0.75rem;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 3px solid var(--gray);
+}
+.doc-view-title {
+    display: flex;
+    flex: 1 1 18rem;
+    align-items: center;
+    min-width: 0;
+    gap: 0.5rem;
+}
+.doc-view-name {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: 1rem;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.doc-view-title .btn-toggle {
+    flex: 0 0 auto;
+}
+.doc-view-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+}
+.doc-view-actions .btn {
+    padding: 0.2rem 0.55rem;
+    font-size: 0.82rem;
+}
+</style>
+<table class="w-100 align-top doc-view-outer">
     <tr>
         <td>
-            <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 3px solid var(--gray);">
-            <h4>{$file->get_name()|text}
-              <div class="btn-group btn-toggle">
-                <button class="btn btn-sm btn-secondary properties">{xlt t='Properties'}</button>
-                <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
+            <div class="doc-view-head">
+              <div class="doc-view-title">
+                <h4 class="doc-view-name" title="{$file->get_name()|attr}">{$file->get_name()|text}</h4>
+                <div class="btn-group btn-toggle">
+                  <button class="btn btn-sm btn-secondary properties">{xlt t='Properties'}</button>
+                  <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
+                </div>
               </div>
-            <span class="float-right">
-            <script>var file = {$file->get_url()|js_escape};var mime = {$file->get_mimetype()|js_escape};var docid = {$file->get_id()|js_escape};</script>
-            {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
-            <a class="btn btn-primary" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
-            <a class="btn btn-primary" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()">{xlt t='Download'}</a>
-            <a class="btn btn-primary" href='' onclick='return showpnotes({$file->get_id()|attr_js})'>{xlt t='Show Notes'}</a>
-            {$delete_string}
-            </span>
-            </h4>
+              <div class="doc-view-actions">
+                <script>var file = {$file->get_url()|js_escape};var mime = {$file->get_mimetype()|js_escape};var docid = {$file->get_id()|js_escape};</script>
+                {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
+                <a class="btn btn-primary" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
+                <a class="btn btn-primary" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()">{xlt t='Download'}</a>
+                <a class="btn btn-primary" href='' onclick='return showpnotes({$file->get_id()|attr_js})'>{xlt t='Show Notes'}</a>
+                {$delete_string}
+              </div>
             </div>
         </td>
     </tr>
@@ -234,19 +281,19 @@ function tagProcedure() {
 	<tr id="DocContents" class="h-100">
 		<td>
       {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
-			<embed  style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
+			<embed  class="w-100 doc-viewer-frame" style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or
 			 $file->get_mimetype() eq "image/jpg" or
 			 $file->get_mimetype() eq "image/jpeg" or
 			 $file->get_mimetype() eq "image/gif" or
 			 $file->get_mimetype() eq "application/pdf" }
-			<iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
+			<iframe class="w-100 doc-viewer-frame" style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
       {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
-      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?csrf_token_form={$csrf_token_form|attr_url}&web_path={$web_path|attr}as_file=false"></iframe>
+      <iframe class="w-100 doc-viewer-frame" style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?csrf_token_form={$csrf_token_form|attr_url}&web_path={$web_path|attr}as_file=false"></iframe>
       {elseif $file->get_mimetype() eq "audio/ogg" or $file->get_mimetype() eq "audio/wav" or $file->get_mimetype() eq "audio/mpeg"}
       <audio class="w-100" preload="metadata" controls="true" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false">{xlt t='Your browser does not support HTML5 audio'}</audio>
       {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
-      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
+      <iframe class="w-100 doc-viewer-frame" style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
 			{/if}
 		</td>
 	</tr>
@@ -264,5 +311,41 @@ $('.btn-toggle').click(function() {
     var show_prop = ($(this).find('.properties.active').length > 0 ? 'block':'none');
     $("#DocProperties").css('display', show_prop);
 });
+
+// Size the viewer frame to the space left in the window, so the page itself does not scroll
+// below it. The inline 84vh stays as the fallback when scripting is unavailable.
+(function () {
+    var minimumHeight = 320;
+    var bottomGap = 16;
+
+    function fitViewerFrames() {
+        var root = document.documentElement;
+        var frames = document.querySelectorAll('.doc-viewer-frame');
+        for (var i = 0; i < frames.length; i++) {
+            var frame = frames[i];
+            frame.style.height = Math.max(minimumHeight, Math.floor(window.innerHeight - frame.getBoundingClientRect().top - bottomGap)) + 'px';
+            // The margins below the frame can still make the page scroll. Take that overflow off the
+            // frame, but only when the frame is what causes it: a folder tree beside the viewer may
+            // be taller than the window, and shrinking the viewer would not help then.
+            var before = root.scrollHeight;
+            var overflow = before - window.innerHeight;
+            var current = frame.getBoundingClientRect().height;
+            var shrink = Math.floor(Math.min(overflow, current - minimumHeight));
+            if (shrink > 0) {
+                frame.style.height = (current - shrink) + 'px';
+                if (root.scrollHeight > before - shrink + 1) {
+                    frame.style.height = current + 'px';
+                }
+            }
+        }
+    }
+
+    window.addEventListener('resize', fitViewerFrames);
+    window.addEventListener('load', fitViewerFrames);
+    $('.btn-toggle').on('click', function () {
+        window.setTimeout(fitViewerFrames, 0);
+    });
+    fitViewerFrames();
+})();
 
 </script>

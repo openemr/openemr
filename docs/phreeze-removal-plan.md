@@ -1,6 +1,7 @@
 # Removing Phreeze from the patient portal
 
-Status: plan. Branch `remove-phreeze`, based on master `3b309e05ac` (2026-11-03).
+Status: PR 1 (#15021) and PR 2 (#15020) merged; PR 3 built on branch `replace-phreeze`. See
+[Outcome of PR 3](#outcome-of-pr-3) for how it differs from the plan below.
 
 Phreeze is the LGPL PHP framework that serves everything under `/portal/patient/`. It provides the
 routing (`Dispatcher`, `GenericRouter`), the controller base (`PortalController`), the ORM
@@ -216,10 +217,9 @@ for callers.
 Before any code moves, the first commits add the tests every later commit is checked against.
 
 **Commit 1: tests that record today's behaviour**
-- E2E smoke tests: portal document fill and submit, staff review of a document, portal profile
-  edit, and staff "Commit to Chart". None exist today.
-- DB tests that record the JSON from `api/onsitedocuments`, `api/onsitedocument/{id}` (read,
+- HTTP contract tests in the `webui` suite (no E2E) that record the JSON from `api/onsitedocuments`, `api/onsitedocument/{id}` (read,
   create, update, delete), `api/patientdata`, `api/patient/{id}` and `api/portalpatient/{id}`.
+  The pages and the Backbone front end are checked by hand at the end (see Checks for PR 3).
 
 **Commit 2: documents off the ORM**
 - Add `src/Services/PortalDocuments/` with an `OnsiteDocumentRepository` built on `QueryUtils`
@@ -228,9 +228,8 @@ Before any code moves, the first commits add the tests every later commit is che
 - The search is a fixed method with whitelisted columns and sort order; no request key reaches SQL.
   Replace `OnsiteDocumentCriteriaSqlInjectionTest` with tests of that method, keeping its "request
   input cannot choose the operator" intent.
-- `OnsiteDocumentController` keeps its routes and JSON and calls the repository. Add
-  `PortalPatientAccessGuard` read and write checks for staff (bug 3), and add tests for document
-  ownership (none exist today).
+- `OnsiteDocumentController` keeps its routes and JSON and calls the repository. It keeps the
+  `PortalPatientAccessGuard` document checks added in #15023 (bug 3), and their tests.
 - Delete `OnsiteDocument`, `OnsiteDocumentDAO`, `OnsiteDocumentMap`, `OnsiteDocumentCriteria` and
   `OnsiteDocumentCriteriaDAO`.
 
@@ -286,10 +285,10 @@ Before any code moves, the first commits add the tests every later commit is che
   `AppBasePortalController`, `RequestUtil`, `Context`, the Auth classes, `_global_config.php` and
   `_app_config.php`.
 
-**Commit 6: CSRF on the API**
-- Check a CSRF token on POST, PUT and DELETE (bug 4). The pages print the token, and `model.js`
-  sends it as a header on every Backbone sync. It is a separate commit so it can be reviewed, or
-  split out, on its own.
+**Commit 6: keep the CSRF check (bug 4)**
+- The check shipped on its own in #15033: `PortalApiCsrfGuard`, called from `index.php`, and the
+  token `model.js` sends. The new router keeps calling `PortalApiCsrfGuard` before it dispatches,
+  using the real HTTP method, and `PortalApiCsrfTest` moves over to the new entry point.
 
 **Commit 7: templates to Twig**
 - Move the four live pages (`ProviderHome`, `PatientListView`, `OnsiteDocumentListView` and
@@ -309,15 +308,57 @@ Before any code moves, the first commits add the tests every later commit is che
   its attribution.
 - Add a CHANGELOG entry, and remove every baseline entry for the deleted files.
 
-**Checks for PR 3**: the commit 1 E2E and DB tests pass after every commit. Also run PHPStan, the
+**Checks for PR 3**: the commit 1 contract tests pass after every commit. Also run PHPStan, the
 isolated tests and the Twig fixtures, and click through by hand: portal profile and documents,
 registration, staff review list, document review and "Commit to Chart", module mode from Patient
 Documents, and the Portal Dashboard.
 
-## Open decisions
+## Decisions
 
-1. CSRF (commit 6): keep it in PR 3, or move it to its own PR after PR 3 merges?
-2. Templates: Twig (recommended, with render tests), or keep plain PHP templates rendered by a
-   small helper?
-3. Replacing the Backbone front end: out of scope for this project (recommended), or a later
-   project?
+Decided on 2026-11-04:
+
+1. CSRF ships on its own, before PR 3 (#15033). PR 3 carries the check into the new router.
+2. Templates move to Twig, with render tests.
+3. Commit 1 adds HTTP contract tests (`webui` suite) and no E2E. The pages are checked by hand at the end.
+4. Replacing the Backbone front end stays out of scope, as the plan proposed. This one was not
+   asked separately; raise it if it should change.
+
+## Outcome of PR 3
+
+PR 3 was built as planned, with these differences:
+
+- **Commit 1** is HTTP contract tests in the `webui` suite (`PortalPatientApiContractTest`), run as
+  staff against the live app. A capture of every page and API response before and after each step
+  (a local script, not committed) confirmed the output matched, apart from the changes below.
+- **Commit 6** has no commit of its own. The CSRF check shipped in #15033, which PR 3 builds on;
+  commit 5 keeps it in the new entry point and moves its test.
+- **`_machine_config.php`** stays a script rather than becoming a class: it loads
+  `interface/globals.php`, which has to run at file scope.
+- **No CHANGELOG entry.** The CHANGELOG is written by the release tooling.
+- **`UnserializeAllowedClassesTest`**, which only tested `ConnectionSetting`, is deleted in commit 8
+  rather than commit 4.
+
+Behaviour changes in PR 3:
+
+- The documents list's free-text filter works; it crashed on master.
+- Other `*_Equals` request keys no longer filter the documents list. The pages never sent them.
+- Paging figures in the documents list are numbers instead of strings.
+- Self-registration creates the chart through `PatientService::databaseInsert` (uuid, events) and
+  stores the pid it returns in `verify_email.pid_holder` after the insert.
+- Registration's empty profile is one row of empty fields, not one row per `patient_data` column.
+- Commit to Chart saves through `PatientService::databaseUpdate` (update stamp, events).
+- Refused and failed API calls send their JSON error as `application/json`; JSONP is gone.
+- Escaping fixes (bug 5): `cuser` and `webRoot` JS values, the provider select values and the
+  documents page's `csrf_token_form` inputs.
+
+## After PR 3: the front end
+
+Decision 4 was revisited after PR 3: the Backbone front end is replaced in a follow-up PR (#15065).
+
+- `scripts/portal-api.js` replaces `model.js`: records and lists with the same model names and the
+  same JSON requests, built on `fetch`, with the CSRF header on writes.
+- `scripts/portal-page.js` replaces `app.js` and `view.js`: alerts, progress, escaping and the pager,
+  without underscore.
+- The underscore templates are `<template>` elements, filled with `textContent` or, for the profile
+  form, by setting input values. The element ids and the inline globals stay.
+- Plain `<script>` tags replace LAB.js. `backbone` and `underscore` are removed from `package.json`.

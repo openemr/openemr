@@ -147,16 +147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between 0\\|0\\.0\\|array\\{\\}\\|string\\|false\\|null and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and \' OR \' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\-\\=" between 0 and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_receipts_report.php',
@@ -1257,11 +1247,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/csv_like_join.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\-\\=" between mixed and int\\<0, max\\> results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
@@ -1470,56 +1455,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between array\\|non\\-empty\\-string and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 19,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and string results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToBrowser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and string results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and \'\\<input id\\=\\\\\'portal…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between "select\\\\n\\\\t\\\\t\\\\t `patient…" and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \'select count\\(1\\) as…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between 0\\|float and mixed results in an error\\.$#',

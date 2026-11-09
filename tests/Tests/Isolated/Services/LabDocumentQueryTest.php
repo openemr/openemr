@@ -30,12 +30,12 @@ class LabDocumentQueryTest extends TestCase
         return [
             'both dates' => [
                 '2026-10-01', '2026-10-31',
-                ['DATE(d.date) >= ?', 'DATE(d.date) <= ?'],
+                ['d.deleted = 0', 'DATE(d.date) >= ?', 'DATE(d.date) <= ?'],
                 [7, '2026-10-01', '2026-10-31'],
             ],
-            'from only' => ['2026-10-01', null, ['DATE(d.date) >= ?'], [7, '2026-10-01']],
-            'to only' => [null, '2026-10-31', ['DATE(d.date) <= ?'], [7, '2026-10-31']],
-            'neither' => [null, null, [], [7]],
+            'from only' => ['2026-10-01', null, ['d.deleted = 0', 'DATE(d.date) >= ?'], [7, '2026-10-01']],
+            'to only' => [null, '2026-10-31', ['d.deleted = 0', 'DATE(d.date) <= ?'], [7, '2026-10-31']],
+            'neither' => [null, null, ['d.deleted = 0'], [7]],
         ];
     }
 
@@ -58,10 +58,6 @@ class LabDocumentQueryTest extends TestCase
         foreach ($expectedConditions as $condition) {
             $this->assertStringContainsString($condition, $query['sql']);
         }
-        $this->assertSame(
-            $expectedConditions === [],
-            !str_contains($query['sql'], 'WHERE'),
-            'WHERE appears only when there is a condition'
-        );
+        $this->assertStringContainsString('WHERE d.deleted = 0', $query['sql'], 'deleted documents are never listed');
     }
 }

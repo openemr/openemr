@@ -15,10 +15,14 @@
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientReview\Portal\PaymentPostingLock;
+use OpenEMR\Services\PatientReview\Portal\PortalChargeGate;
+use OpenEMR\Services\PatientReview\Portal\PortalInvoiceLines;
+use OpenEMR\Services\PatientReview\Portal\PortalPaymentAmount;
 use OpenEMR\Services\PatientReview\Portal\SessionReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
@@ -93,8 +97,36 @@ if ($_POST['mode'] === 'Sphere') {
         'cc_type' => $paymentResult['ccBrand'] ?? '',
         'zip' => '',
     ];
+    $invoice = CurrentRequest::get()->request->getString('invValues');
+    // Sphere has already charged the card, so the payment is recorded whatever the amount. When
+    // the amount charged is not the invoice selection's total, staff are warned before posting.
+    $sphereAmount = $paymentResult['amount'] ?? '';
+    $cc['amount'] = is_string($sphereAmount) ? $sphereAmount : '';
+    // The amount comes from Sphere's redirect through the browser, not from Sphere itself, so a
+    // match proves nothing: staff are always asked to check it at Sphere.
+    $cc[PortalPaymentAmount::UNVERIFIED] = true;
+    $patientId = filter_var($form_pid, FILTER_VALIDATE_INT);
+    try {
+        $invoiceLines = is_int($patientId) ? (new PortalInvoiceLines())->encounters($patientId) : [];
+        $amountMatches = PortalPaymentAmount::matchesInvoice($cc['amount'], $invoice, $invoiceLines);
+    } catch (\RuntimeException $lookupError) {
+        // The card is already charged and the Sphere result is gone from the session, so the
+        // payment is still recorded; staff check it instead.
+        ServiceContainer::getLogger()->error('Could not check a Sphere payment against its invoice selection', [
+            'pid' => $patientId,
+            'transid' => $cc['transId'],
+            'exception' => $lookupError,
+        ]);
+        $amountMatches = false;
+    }
+    if (!$amountMatches) {
+        $cc[PortalPaymentAmount::MISMATCH] = true;
+        ServiceContainer::getLogger()->warning('Sphere payment flagged: its amount does not match the invoice selection, or could not be checked', [
+            'pid' => $patientId,
+            'transid' => $cc['transId'],
+        ]);
+    }
     $ccaudit = json_encode($cc);
-    $invoice = $_POST['invValues'] ?? '';
 
     SessionUtil::setSession('whereto', '#paymentcard');
 
@@ -108,6 +140,21 @@ if ($_POST['mode'] == 'AuthorizeNet') {
     $form_pid = $_POST['form_pid'];
     if ($isPortal) {
         PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
+    }
+    // The amount charged must be the amount the payment is saved with, which staff post.
+    // Checked before the charge gate so a mismatch is refused without taking the payment lock.
+    $chargeRequest = CurrentRequest::get()->request;
+    $invoiceLines = (new PortalInvoiceLines())->encounters($chargeRequest->getInt('form_pid'));
+    if (!PortalPaymentAmount::matchesInvoice($chargeRequest->getString('payment'), $chargeRequest->getString('invValues'), $invoiceLines)) {
+        echo xlt('The payment amount does not match the invoice. Reload the page and try again.');
+        exit();
+    }
+    // Refuse a second charge while a charged payment is open (a page loaded before the first
+    // one can still submit), holding the patient's payment lock from the check through the charge.
+    $chargeRefusal = (new PortalChargeGate(ReviewQueueFactory::portalWorkflows()))->open($form_pid, new PaymentPostingLock());
+    if ($chargeRefusal !== null) {
+        echo text($chargeRefusal->message());
+        exit();
     }
     $pay = new PaymentGateway("AuthorizeNetApi_Api");
     $transaction['amount'] = $_POST['payment'];
@@ -150,6 +197,21 @@ if ($_POST['mode'] == 'Stripe') {
     $form_pid = $_POST['form_pid'];
     if ($isPortal) {
         PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
+    }
+    // The amount charged must be the amount the payment is saved with, which staff post.
+    // Checked before the charge gate so a mismatch is refused without taking the payment lock.
+    $chargeRequest = CurrentRequest::get()->request;
+    $invoiceLines = (new PortalInvoiceLines())->encounters($chargeRequest->getInt('form_pid'));
+    if (!PortalPaymentAmount::matchesInvoice($chargeRequest->getString('payment'), $chargeRequest->getString('invValues'), $invoiceLines)) {
+        echo xlt('The payment amount does not match the invoice. Reload the page and try again.');
+        exit();
+    }
+    // Refuse a second charge while a charged payment is open (a page loaded before the first
+    // one can still submit), holding the patient's payment lock from the check through the charge.
+    $chargeRefusal = (new PortalChargeGate(ReviewQueueFactory::portalWorkflows()))->open($form_pid, new PaymentPostingLock());
+    if ($chargeRefusal !== null) {
+        echo text($chargeRefusal->message());
+        exit();
     }
     $pay = new PaymentGateway("Stripe");
     $transaction['amount'] = $_POST['payment'];

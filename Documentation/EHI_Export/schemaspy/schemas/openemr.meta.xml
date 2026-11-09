@@ -1875,6 +1875,22 @@
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
+        <table name="patient_review_request" comments="Patient-submitted data awaiting staff review, one row per submission, including denied and cancelled submissions">
+            <column name="pid" comments="The patient the submission belongs to">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="reviewed_by" comments="The user who decided the request">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="legacy_activity_id" comments="The onsite_portal_activity row this request was migrated from">
+                <foreignKey table="onsite_portal_activity" column="id" />
+            </column>
+        </table>
+        <table name="patient_review_event" comments="Append-only history of patient_review_request state changes">
+            <column name="request_id" comments="The request the event belongs to">
+                <foreignKey table="patient_review_request" column="id" />
+            </column>
+        </table>
         <table name="onsite_portal_activity" comments="Patient portal activity (document submission, and other activities) that requires review before they are accepted into the patient chart">
             <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />

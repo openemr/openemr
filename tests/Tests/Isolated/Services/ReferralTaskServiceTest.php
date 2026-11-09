@@ -91,6 +91,81 @@ class ReferralTaskServiceTest extends TestCase
     }
 
     /**
+     * @return array<string, array{array<string, ?string>, list<string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function putsToAReferralsTask(): array
+    {
+        // what the PUT changes => the elements it's refused for
+        return [
+            'nothing it keeps' => [['status' => 'accepted', 'description' => 'Seen'], []],
+            'the same uuids in capitals' => [['focus_uuid' => 'AAAAAAAA-0000-4000-8000-000000000001', 'owner_uuid' => 'BBBBBBBB-0000-4000-8000-000000000002'], []],
+            'another owner' => [['owner_uuid' => 'cccccccc-0000-4000-8000-000000000003'], ['owner']],
+            'an owner of another type' => [['owner_type' => 'PractitionerRole'], ['owner']],
+            'the owner dropped' => [['owner_type' => null, 'owner_uuid' => null], ['owner']],
+            'another code' => [['code' => 'approve'], ['code']],
+            'the code dropped' => [['code' => null], ['code']],
+            'another focus' => [['focus_uuid' => 'cccccccc-0000-4000-8000-000000000003'], ['focus']],
+            'the focus dropped' => [['focus_type' => null, 'focus_uuid' => null], ['focus']],
+            'a parent' => [['part_of_uuid' => 'cccccccc-0000-4000-8000-000000000003'], ['partOf']],
+            'everything' => [['code' => 'approve', 'focus_uuid' => 'cccccccc-0000-4000-8000-000000000003', 'owner_uuid' => 'cccccccc-0000-4000-8000-000000000003', 'part_of_uuid' => 'cccccccc-0000-4000-8000-000000000003'], ['code', 'focus', 'owner', 'partOf']],
+        ];
+    }
+
+    /**
+     * @param array<string, ?string> $changes
+     * @param list<string> $refused
+     */
+    #[DataProvider('putsToAReferralsTask')]
+    public function testAReferralsTaskKeepsWhatMakesItTheReferrals(array $changes, array $refused): void
+    {
+        $stored = [
+            'code' => 'fulfill',
+            'focus_type' => 'ServiceRequest',
+            'focus_uuid' => 'aaaaaaaa-0000-4000-8000-000000000001',
+            'owner_type' => 'Organization',
+            'owner_uuid' => 'bbbbbbbb-0000-4000-8000-000000000002',
+            'part_of_uuid' => null,
+        ];
+
+        $this->assertSame($refused, array_keys(ReferralTaskService::lockedChanges($stored, $changes + $stored)));
+    }
+
+    public function testAnOwnerTheTaskNeverHadCanBeSet(): void
+    {
+        $stored = ['code' => 'fulfill', 'focus_type' => 'ServiceRequest', 'focus_uuid' => 'aaaaaaaa-0000-4000-8000-000000000001', 'owner_type' => null, 'owner_uuid' => null];
+
+        $this->assertSame([], ReferralTaskService::lockedChanges($stored, ['owner_type' => 'Organization', 'owner_uuid' => 'bbbbbbbb-0000-4000-8000-000000000002'] + $stored));
+    }
+
+    /**
+     * Only a Task of the referral's own kind is looked at, so a sub-task or a questionnaire's costs
+     * no lookup and keeps its freedom, whatever the PUT changes.
+     *
+     * @return array<string, array{array<string, ?string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function otherKindsOfTask(): array
+    {
+        return [
+            'a sub-task' => [['code' => 'fulfill', 'part_of_uuid' => 'cccccccc-0000-4000-8000-000000000003', 'focus_type' => 'ServiceRequest', 'focus_uuid' => 'aaaaaaaa-0000-4000-8000-000000000001']],
+            'a questionnaire assignment' => [['code' => 'complete-questionnaire', 'focus_type' => 'Questionnaire', 'focus_uuid' => 'aaaaaaaa-0000-4000-8000-000000000001']],
+            'fulfilling something that is not a ServiceRequest' => [['code' => 'fulfill', 'focus_type' => 'Questionnaire', 'focus_uuid' => 'aaaaaaaa-0000-4000-8000-000000000001']],
+        ];
+    }
+
+    /**
+     * @param array<string, ?string> $stored
+     */
+    #[DataProvider('otherKindsOfTask')]
+    public function testOtherKindsOfTaskAreNotLocked(array $stored): void
+    {
+        $this->assertSame([], (new ReferralTaskService(new UserService()))->writeProblems($stored, ['code' => 'approve', 'owner_uuid' => 'cccccccc-0000-4000-8000-000000000003']));
+    }
+
+    /**
      * @return array<string, array{array<string, string>, ?array{bool, ?int}}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.

@@ -222,46 +222,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/smtp/sasl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:IsTerminated\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:GetPrimaryKeyValue\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:GetPrimaryKeyName\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:OnBeforeDelete\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:OnDelete\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:OnInsert\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:OnSave\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:OnUpdate\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Omnipay\\\\Common\\\\GatewayInterface\\:\\:setApiKey\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/PaymentGateway.php',
@@ -578,7 +538,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:quick_install\\(\\)\\.$#',
-    'count' => 3,
+    'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [
@@ -608,7 +568,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:write_configuration_file\\(\\)\\.$#',
-    'count' => 7,
+    'count' => 9,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [

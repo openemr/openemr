@@ -123,7 +123,8 @@ class SpherePayment
                 let oForm = document.forms['payment-form'];
                 oForm.elements['mode'].value = 'Sphere';
 
-                let inv_values = JSON.stringify(getFormObj('invoiceForm'));
+                // The invoice selection as it was when the card was charged, not as it is now.
+                let inv_values = window.sphereInvoiceValues || JSON.stringify(getFormObj('invoiceForm'));
                 document.getElementById('invValues').value = inv_values;
 
                 // Submit payment to server (payment data is in server session, keyed by ticket)
@@ -185,15 +186,33 @@ class SpherePayment
                 return result;
             }
             function paySphere(front) {
-                let total = document.querySelector(\"[name='form_paytotal']\").value;
-                let prepay = document.getElementById('form_prepayment').value;
+                // The amount charged is the amount posted: the prepayment when Pre Pay is selected,
+                // otherwise the invoice total. The other field is ignored, even when it still holds
+                // something from before the payment type changed.
+                const prepaying = document.getElementById('radio_type_of_payment4')?.checked === true;
+                const total = prepaying
+                    ? document.getElementById('form_prepayment').value.trim()
+                    : document.querySelector(\"[name='form_paytotal']\").value.trim();
+                // Only a plain amount (at most two decimals).
+                if (total !== '' && !/^\\d+(\\.\\d{1,2})?$/.test(total)) {
+                    alert(" . xlj('Enter each amount as a number such as 50.00') . ");
+                    return false;
+                }
                 if (Number(total) < 1) {
-                    if (Number(prepay) < 1) {
-                        let error = " . xlj('Please enter a payment amount') . "
-                        alert(error);
-                        return false;
-                    }
-                    total = prepay;
+                    alert(" . xlj('Please enter a payment amount') . ");
+                    return false;
+                }
+                // Every invoice line too: a negative or malformed line would make the total
+                // charged differ from the lines staff post. Cents only (\".50\") is a line amount
+                // posting accepts.
+                const lines = prepaying ? [] : [...document.querySelectorAll('input[name^=\"form_upay[\"]')];
+                if (lines.some((line) => line.value.trim() !== '' && !/^(\\d+(\\.\\d{1,2})?|\\.\\d{1,2})$/.test(line.value.trim()))) {
+                    alert(" . xlj('Enter each amount as a number such as 50.00') . ");
+                    return false;
+                }
+                // Keep the selection being charged, so the payment is recorded with exactly it.
+                if (front === 'patient' && typeof getFormObj === 'function') {
+                    window.sphereInvoiceValues = JSON.stringify(getFormObj('invoiceForm'));
                 }
                 document.getElementById('form_method').value = 'credit_card';
                 // In case the javascript random generator breaks (ideally use the javascript value in case

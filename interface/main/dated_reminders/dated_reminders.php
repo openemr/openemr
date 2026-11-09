@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Craig Bezuidenhout <http://www.tajemo.co.za/>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2012 tajemo.co.za <http://www.tajemo.co.za/>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -159,8 +161,11 @@ function openLogScreen(){
 
 function goPid(pid) {
   top.restoreSession();
-  <?php echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
-      "+ '?set_pid=' + pid;\n"; ?>
+  const params = new URLSearchParams({
+    set_pid: pid,
+    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
+  });
+  top.RTop.location = '../../patient_file/summary/demographics.php?' + params;
 }
 
 </script>
