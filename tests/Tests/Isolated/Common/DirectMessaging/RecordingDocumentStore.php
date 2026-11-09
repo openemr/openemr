@@ -35,6 +35,9 @@ final class RecordingDocumentStore implements PhiMailDocumentStore
 
     private int $nextId = 101;
 
+    /**
+     * Stores a received document, in the patient's chart when one is given.
+     */
     public function store(string $name, string $mimeType, string $path, int $ownerId, ?int $patientId = null): ?PhiMailStoredDocument
     {
         if ($this->failure instanceof PhiMailDocumentException) {

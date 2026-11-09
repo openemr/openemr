@@ -51,6 +51,9 @@ final class DirectReplyHeadersTest extends TestCase
         self::assertSame($expected, DirectReplyHeaders::referencedMessageIds($headers));
     }
 
+    /**
+     * A message answers at most so many ids.
+     */
     public function testAMessageAnswersAtMostSoManyIds(): void
     {
         $ids = array_map(static fn(int $n): string => '<id' . $n . '@x>', range(1, 30));

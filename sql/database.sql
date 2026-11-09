@@ -12862,6 +12862,7 @@ CREATE TABLE `ccda` (
   `emr_transfer` tinyint(4) NOT NULL DEFAULT '0',
   `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
   `transaction_id` BIGINT(20) COMMENT 'fk to transaction referral record',
+  `transaction_chosen` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 when staff chose transaction_id for this C-CDA, 0 when it is the patient''s most recent referral',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY `unique_key` (`pid`,`encounter`,`time`)

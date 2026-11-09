@@ -24,16 +24,25 @@ final readonly class PhiMailSendResult
     {
     }
 
+    /**
+     * A message the server queued under this id.
+     */
     public static function sent(string $messageId): self
     {
         return new self($messageId, PhiMailSender::SUCCESS);
     }
 
+    /**
+     * A message that wasn't sent, with the reason for the user.
+     */
     public static function notSent(string $message): self
     {
         return new self(null, $message);
     }
 
+    /**
+     * Whether the server queued the message.
+     */
     public function wasSent(): bool
     {
         return $this->messageId !== null;

@@ -4007,8 +4007,10 @@ class EncounterccdadispatchTable
             $encrypted = $document->is_encrypted();
             $referralId = $this->referralForCcda(is_numeric($pid) ? (int)$pid : 0, $chosenReferralId);
 
-            $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $moduleInsertId = QueryUtils::sqlInsert($query, [$binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId]);
+            // Whether the link is the referral staff chose, not the guess at the most recent one.
+            $chosen = $chosenReferralId !== null && $referralId !== null ? 1 : 0;
+            $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`, `transaction_chosen`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $moduleInsertId = QueryUtils::sqlInsert($query, [$binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId, $chosen]);
 
             // now let's go ahead and log our amc actions for this behavior
             if (!empty($emr_transfer)) {

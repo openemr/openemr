@@ -323,6 +323,11 @@ ALTER TABLE `patient_review_event`
 ALTER TABLE `direct_message_log` ADD COLUMN `referral_id` bigint(20) DEFAULT NULL COMMENT 'transactions.id of the referral a sent message carried, or a received reply was matched to', ADD KEY `referral_id` (`referral_id`);
 #EndIf
 
+-- Whether staff chose a C-CDA's referral, so only a chosen one is sent with a Direct message (#15137).
+#IfMissingColumn ccda transaction_chosen
+ALTER TABLE `ccda` ADD COLUMN `transaction_chosen` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 when staff chose transaction_id for this C-CDA, 0 when it is the patient''s most recent referral';
+#EndIf
+
 #IfMissingColumn direct_message_log note_id
 ALTER TABLE `direct_message_log` ADD COLUMN `note_id` bigint(20) DEFAULT NULL COMMENT 'pnotes.id of the note a received message was filed as';
 #EndIf

@@ -75,6 +75,9 @@ class Module
         }, 100);
     }
 
+    /**
+     * Subscribes the module's listeners to the OpenEMR event dispatcher.
+     */
     public function onBootstrap(MvcEvent $e): void
     {
         // we grab the OpenEMR event listener (which is injected as Laminas has its own dispatcher)

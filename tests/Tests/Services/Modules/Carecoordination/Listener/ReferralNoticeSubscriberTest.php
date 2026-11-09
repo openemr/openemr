@@ -18,6 +18,7 @@ namespace OpenEMR\Tests\Services\Modules\Carecoordination\Listener;
 use Carecoordination\Listener\ReferralNoticeSubscriber;
 use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\GeneratedCcdaResult;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\DirectMessaging\PhiMailAttachmentType;
 use OpenEMR\Common\DirectMessaging\PhiMailOutgoingMessage;
 use OpenEMR\Common\DirectMessaging\PhiMailRequester;
@@ -40,17 +41,28 @@ final class ReferralNoticeSubscriberTest extends TestCase
 
     private PhiMailSendResult $result;
 
+    private ?SqlQueryException $logFailure = null;
+
+    /**
+     * Sets up the collaborators each test uses.
+     */
     protected function setUp(): void
     {
         $this->generator = $this->createMock(CcdaGenerator::class);
         $this->result = PhiMailSendResult::sent('msg-1');
     }
 
+    /**
+     * Listens for the notice.
+     */
     public function testListensForTheNotice(): void
     {
         self::assertSame([ReferralDirectNoticeEvent::EVENT_NAME => 'onReferralDirectNotice'], ReferralNoticeSubscriber::getSubscribedEvents());
     }
 
+    /**
+     * Sends the referral's own C-CDA with the referral sections only.
+     */
     public function testSendsTheReferralsOwnCcdaWithTheReferralSectionsOnly(): void
     {
         $this->generator->expects(self::once())->method('generate')
@@ -87,6 +99,9 @@ final class ReferralNoticeSubscriberTest extends TestCase
         );
     }
 
+    /**
+     * A send that fails says why.
+     */
     public function testASendThatFailsSaysWhy(): void
     {
         $this->generator->method('generate')->willReturn(new GeneratedCcdaResult(1, 'uuid', 'referral.xml', '<ClinicalDocument/>'));
@@ -99,6 +114,25 @@ final class ReferralNoticeSubscriberTest extends TestCase
         self::assertSame('Recipient not allowed', $event->failure());
     }
 
+    /**
+     * A send queued but not logged is reported as sent.
+     */
+    public function testASendQueuedButNotLoggedIsReportedAsSent(): void
+    {
+        $this->generator->method('generate')->willReturn(new GeneratedCcdaResult(1, 'uuid', 'referral.xml', '<ClinicalDocument/>'));
+        $this->logFailure = new SqlQueryException(sqlStatement: 'INSERT INTO direct_message_log', message: 'database is down');
+        $event = new ReferralDirectNoticeEvent(7, self::PATIENT, 'consult@direct.example', 3);
+
+        $this->subscriber()->onReferralDirectNotice($event);
+
+        self::assertTrue($event->wasSentUnlogged());
+        self::assertNull($event->failure());
+        self::assertTrue($event->wasHandled());
+    }
+
+    /**
+     * A C-CDA that can not be made is not sent.
+     */
     public function testACcdaThatCanNotBeMadeIsNotSent(): void
     {
         $this->generator->method('generate')->willThrowException(new \RuntimeException('no template'));
@@ -110,6 +144,9 @@ final class ReferralNoticeSubscriberTest extends TestCase
         self::assertSame('The Referral C-CDA could not be made. See the log.', $event->failure());
     }
 
+    /**
+     * An error in place of the C-CDA is not sent.
+     */
     public function testAnErrorInPlaceOfTheCcdaIsNotSent(): void
     {
         $this->generator->method('generate')->willReturn(new GeneratedCcdaResult(1, 'uuid', 'referral.xml', 'ERROR: no data'));
@@ -121,6 +158,9 @@ final class ReferralNoticeSubscriberTest extends TestCase
         self::assertNotNull($event->failure());
     }
 
+    /**
+     * With Direct off the notice is left for core to report.
+     */
     public function testWithDirectOffTheNoticeIsLeftForCoreToReport(): void
     {
         $this->generator->expects(self::never())->method('generate');
@@ -131,12 +171,18 @@ final class ReferralNoticeSubscriberTest extends TestCase
         self::assertFalse($event->wasHandled());
     }
 
+    /**
+     * The listener under test, with a recording sender.
+     */
     private function subscriber(bool $directEnabled = true): ReferralNoticeSubscriber
     {
         return new ReferralNoticeSubscriber(
             generator: $this->generator,
             deliver: function (PhiMailOutgoingMessage $message, PhiMailRequester $requester): PhiMailSendResult {
                 $this->sent[] = $message;
+                if ($this->logFailure !== null) {
+                    throw $this->logFailure;
+                }
                 return $this->result;
             },
             requester: static fn(): PhiMailRequester => new PhiMailRequester('admin', 'Default', 3),

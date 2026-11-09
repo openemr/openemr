@@ -19,6 +19,7 @@ use Carecoordination\Model\CcdaGenerator;
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\DirectMessaging\PhiMailAttachmentType;
 use OpenEMR\Common\DirectMessaging\PhiMailOutgoingAttachment;
 use OpenEMR\Common\DirectMessaging\PhiMailOutgoingMessage;
@@ -117,17 +118,27 @@ final readonly class ReferralNoticeSubscriber implements EventSubscriberInterfac
         $deliver = $this->deliver ?? static fn(PhiMailOutgoingMessage $message, PhiMailRequester $requester): PhiMailSendResult
             => PhiMailSender::fromGlobals($globals, ServiceContainer::getCrypto(), ServiceContainer::getLogger(), EventAuditLogger::getInstance())
                 ->deliver($message, $requester, failureEvent: 'transmit-ccd', successEvent: 'transmit-xml');
-        $result = $deliver(
-            new PhiMailOutgoingMessage(
-                recipient: $event->directAddress,
-                text: self::messageText($event->patientId),
-                attachment: new PhiMailOutgoingAttachment(PhiMailAttachmentType::Cda, self::fileName($ccda->getFilename()), $content),
-                verifyFinalDelivery: $globals->getBoolean('phimail_verifyrecipientreceived_enable'),
-                patientId: $event->patientId,
-                referralId: $event->referralId,
-            ),
-            $requester,
-        );
+        try {
+            $result = $deliver(
+                new PhiMailOutgoingMessage(
+                    recipient: $event->directAddress,
+                    text: self::messageText($event->patientId),
+                    attachment: new PhiMailOutgoingAttachment(PhiMailAttachmentType::Cda, self::fileName($ccda->getFilename()), $content),
+                    verifyFinalDelivery: $globals->getBoolean('phimail_verifyrecipientreceived_enable'),
+                    patientId: $event->patientId,
+                    referralId: $event->referralId,
+                ),
+                $requester,
+            );
+        } catch (SqlQueryException $e) {
+            // The server queued it before the message log refused it: it went out, and must not be sent again.
+            $this->logger()->error('A referral\'s Direct notice was queued but could not be logged', [
+                'transaction_id' => $event->referralId,
+                'exception' => $e,
+            ]);
+            $event->sentUnlogged();
+            return;
+        }
         $messageId = $result->messageId;
         if ($messageId !== null) {
             $event->sent($messageId);
@@ -156,6 +167,9 @@ final readonly class ReferralNoticeSubscriber implements EventSubscriberInterfac
         return $name === '' ? 'referral.xml' : $name;
     }
 
+    /**
+     * The logger, the container's unless one was given.
+     */
     private function logger(): LoggerInterface
     {
         return $this->logger ?? ServiceContainer::getLogger();

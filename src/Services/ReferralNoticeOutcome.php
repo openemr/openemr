@@ -19,6 +19,8 @@ enum ReferralNoticeOutcome: string
 {
     /** The Referral C-CDA went to the entry's Direct address; the message log carries its delivery. */
     case DirectSent = 'direct_sent';
+    /** The Referral C-CDA was queued by Direct, but couldn't be logged, so its delivery can't be followed here. */
+    case DirectSentUnlogged = 'direct_unlogged';
     /** The entry has a Direct address, but the notice couldn't be sent to it. */
     case DirectFailed = 'direct_failed';
     /** The entry has a Direct address, but nothing here sends Direct. */
@@ -36,7 +38,7 @@ enum ReferralNoticeOutcome: string
     public function needsStaff(): bool
     {
         return match ($this) {
-            self::DirectSent, self::EmailQueued => false,
+            self::DirectSent, self::DirectSentUnlogged, self::EmailQueued => false,
             self::DirectFailed, self::DirectUnavailable, self::EmailFailed, self::NoAddress => true,
         };
     }
@@ -48,6 +50,7 @@ enum ReferralNoticeOutcome: string
     {
         return match ($this) {
             self::DirectSent => xl('Recipient sent the referral by Direct'),
+            self::DirectSentUnlogged => xl('Recipient sent the referral by Direct, but the send could not be logged, so its delivery is not shown here. Do not send it again.'),
             self::DirectFailed => xl('Recipient could not be sent the referral by Direct'),
             self::DirectUnavailable => xl('Recipient has a Direct address, but Direct messaging is not available'),
             self::EmailQueued => xl('Recipient emailed that a referral was sent'),

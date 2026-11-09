@@ -44,6 +44,9 @@ final class ReferralNoticeServiceTest extends TestCase
 
     private EventDispatcher $dispatcher;
 
+    /**
+     * Sets up the collaborators each test uses.
+     */
     protected function setUp(): void
     {
         // The notice's texts are translated, and xl() reaches for the translation tables unless this is set.
@@ -61,6 +64,9 @@ final class ReferralNoticeServiceTest extends TestCase
         return ['tracking off' => ['0', '1'], 'notices off' => ['1', '0'], 'both off' => ['0', '0']];
     }
 
+    /**
+     * Nobody is told unless both globals are on.
+     */
     #[DataProvider('offProvider')]
     public function testNobodyIsToldUnlessBothGlobalsAreOn(string $tracking, string $notify): void
     {
@@ -71,6 +77,9 @@ final class ReferralNoticeServiceTest extends TestCase
         self::assertSame([], $this->emails);
     }
 
+    /**
+     * A referral that names no one tells no one.
+     */
     public function testAReferralThatNamesNoOneTellsNoOne(): void
     {
         $this->recipient = null;
@@ -79,6 +88,9 @@ final class ReferralNoticeServiceTest extends TestCase
         self::assertSame([], $this->recorded);
     }
 
+    /**
+     * A Direct address gets the referral by Direct.
+     */
     public function testADirectAddressGetsTheReferralByDirect(): void
     {
         $this->recipient = ['patient_id' => 42, 'direct' => 'consult@direct.example', 'email' => 'intake@clinic.example'];
@@ -96,6 +108,9 @@ final class ReferralNoticeServiceTest extends TestCase
         self::assertSame([], $this->emails);
     }
 
+    /**
+     * A Direct notice that could not be sent says why.
+     */
     public function testADirectNoticeThatCouldNotBeSentSaysWhy(): void
     {
         $this->recipient = ['patient_id' => 42, 'direct' => 'consult@direct.example', 'email' => ''];
@@ -108,6 +123,24 @@ final class ReferralNoticeServiceTest extends TestCase
         self::assertNull($this->recorded[0][4]);
     }
 
+    /**
+     * A Direct notice queued but not logged is not for staff to resend.
+     */
+    public function testADirectNoticeQueuedButNotLoggedIsNotForStaffToResend(): void
+    {
+        $this->recipient = ['patient_id' => 42, 'direct' => 'consult@direct.example', 'email' => ''];
+        $this->dispatcher->addListener(ReferralDirectNoticeEvent::EVENT_NAME, static function (ReferralDirectNoticeEvent $event): void {
+            $event->sentUnlogged();
+        });
+
+        self::assertSame(ReferralNoticeOutcome::DirectSentUnlogged, $this->service()->notify(7, self::TASK, 3));
+        self::assertFalse(ReferralNoticeOutcome::DirectSentUnlogged->needsStaff());
+        self::assertSame([null, null], [$this->recorded[0][4], $this->recorded[0][5]]);
+    }
+
+    /**
+     * A Direct listener that throws is a failed notice not a failed save.
+     */
     public function testADirectListenerThatThrowsIsAFailedNoticeNotAFailedSave(): void
     {
         $this->recipient = ['patient_id' => 42, 'direct' => 'consult@direct.example', 'email' => ''];
@@ -119,6 +152,9 @@ final class ReferralNoticeServiceTest extends TestCase
         self::assertSame('The Direct notice could not be sent. See the log.', $this->recorded[0][5]);
     }
 
+    /**
+     * With nothing to send Direct the recipient is shown as not told.
+     */
     public function testWithNothingToSendDirectTheRecipientIsShownAsNotTold(): void
     {
         $this->recipient = ['patient_id' => 42, 'direct' => 'consult@direct.example', 'email' => 'intake@clinic.example'];
@@ -129,6 +165,9 @@ final class ReferralNoticeServiceTest extends TestCase
         self::assertTrue(ReferralNoticeOutcome::DirectUnavailable->needsStaff());
     }
 
+    /**
+     * An email address gets a plain email with no patient details.
+     */
     public function testAnEmailAddressGetsAPlainEmailWithNoPatientDetails(): void
     {
         $this->recipient = ['patient_id' => 42, 'direct' => '', 'email' => 'intake@clinic.example'];
@@ -161,6 +200,9 @@ final class ReferralNoticeServiceTest extends TestCase
         ];
     }
 
+    /**
+     * An email that could not be queued says why.
+     */
     #[DataProvider('emailFailureProvider')]
     public function testAnEmailThatCouldNotBeQueuedSaysWhy(string $address, string $sender, bool $queues, string $why): void
     {
@@ -171,6 +213,9 @@ final class ReferralNoticeServiceTest extends TestCase
         self::assertSame($why, $this->recorded[0][5]);
     }
 
+    /**
+     * No address is recorded for staff.
+     */
     public function testNoAddressIsRecordedForStaff(): void
     {
         self::assertSame(ReferralNoticeOutcome::NoAddress, $this->service()->notify(7, self::TASK, null));
@@ -178,14 +223,23 @@ final class ReferralNoticeServiceTest extends TestCase
         self::assertSame([], $this->emails);
     }
 
+    /**
+     * The service under test, with the recorded collaborators and these globals.
+     */
     private function service(string $tracking = '1', string $notify = '1', string $sender = 'front@practice.example', bool $withDispatcher = true): ReferralNoticeService
     {
         $test = $this;
         $notices = new class ($test) extends ReferralNoticeRepository {
+            /**
+             * Keeps the test, which records what the repository is given.
+             */
             public function __construct(private readonly ReferralNoticeServiceTest $test)
             {
             }
 
+            /**
+             * Records the notice on the test instead of in the database.
+             */
             public function record(
                 int $referralId,
                 string $taskUuid,
@@ -199,6 +253,9 @@ final class ReferralNoticeServiceTest extends TestCase
                 $this->test->recordNotice([$referralId, $taskUuid, $outcome, $address, $messageId, $detail, $userId, $at->format('Y-m-d H:i:s')]);
             }
 
+            /**
+             * The recipient the test set.
+             */
             public function recipientAddresses(int $referralId): ?array
             {
                 return $this->test->recipient();

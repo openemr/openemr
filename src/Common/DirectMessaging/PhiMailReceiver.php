@@ -244,7 +244,7 @@ final class PhiMailReceiver
         // A reply to a message sent from here about a patient is filed to that patient, and to the
         // referral the sent message carried; anything else stays unassigned.
         try {
-            $target = $this->messageLog->findReplyTarget(DirectReplyHeaders::referencedMessageIds($headers));
+            $target = $this->messageLog->findReplyTarget(DirectReplyHeaders::referencedMessageIds($headers), $reply->sender);
         } catch (SqlQueryException $e) {
             $this->fail('database problem matching reply: ' . $reply->messageId, $e);
         }

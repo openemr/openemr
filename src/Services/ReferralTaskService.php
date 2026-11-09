@@ -99,6 +99,9 @@ class ReferralTaskService
     ) {
     }
 
+    /**
+     * The service that tells a recipient about their Task, made the first time it's needed.
+     */
     private function getNoticeService(): ReferralNoticeService
     {
         return $this->noticeService ??= new ReferralNoticeService();

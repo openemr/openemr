@@ -479,6 +479,9 @@ final class PhiMailReceiverTest extends TestCase
         $this->assertTempDirIsEmpty();
     }
 
+    /**
+     * A reply to a message sent with a referral is filed with it.
+     */
     public function testAReplyToAMessageSentWithAReferralIsFiledWithIt(): void
     {
         $mail = 'MAIL to@direct.example from@direct.example 1 msg-7';
@@ -501,7 +504,7 @@ final class PhiMailReceiverTest extends TestCase
             . self::lines('OK', 'NONE'),
         );
         $this->messageLog->expects(self::once())->method('findReplyTarget')
-            ->with(['sent-2@direct.example', 'sent-1@direct.example'])
+            ->with(['sent-2@direct.example', 'sent-1@direct.example'], 'from@direct.example')
             ->willReturn(new DirectReplyTarget('sent-2@direct.example', 42, 7));
         $this->messageLog->expects(self::once())->method('recordReceived')
             ->with('msg-7', 'from@direct.example', 'to@direct.example', self::SERVICE_USER_ID, 42, 7, 501);
@@ -518,6 +521,9 @@ final class PhiMailReceiverTest extends TestCase
         self::assertSame([[1, $mail . self::LF, 42], [1, 'message check completed', 0]], $this->auditRows);
     }
 
+    /**
+     * A message that answers nothing sent stays unassigned.
+     */
     public function testAMessageThatAnswersNothingSentStaysUnassigned(): void
     {
         $this->reply(
@@ -534,6 +540,9 @@ final class PhiMailReceiverTest extends TestCase
         self::assertStringStartsWith('Direct Message Received.' . self::LF, $this->notes->notes[0]['text']);
     }
 
+    /**
+     * Reply lookup failure.
+     */
     public function testReplyLookupFailure(): void
     {
         $this->reply(self::lines('OK', 'MAIL to@direct.example from@direct.example 0 msg-9', 'OK', 'Subject: hello', ''));

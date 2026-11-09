@@ -58,6 +58,9 @@ final readonly class LegacyPhiMailDocumentStore implements PhiMailDocumentStore
         $this->allowAnyFileTypeListener = $this->allowAnyFileType(...);
     }
 
+    /**
+     * Stores a received document, in the patient's chart when one is given.
+     */
     public function store(string $name, string $mimeType, string $path, int $ownerId, ?int $patientId = null): ?PhiMailStoredDocument
     {
         // Allow every file type while this document is stored, then stop.
@@ -96,6 +99,9 @@ final readonly class LegacyPhiMailDocumentStore implements PhiMailDocumentStore
         return $event->setAllowedFile(true);
     }
 
+    /**
+     * Stores the file through library/documents.php addNewDocument().
+     */
     private static function addNewDocument(string $name, string $mimeType, string $path, int $size, int $ownerId, ?int $patientId): mixed
     {
         require_once dirname(__DIR__, 3) . '/library/documents.php';

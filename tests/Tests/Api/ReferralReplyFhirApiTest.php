@@ -1138,6 +1138,9 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertArrayNotHasKey('output', $other);
     }
 
+    /**
+     * A new Task tells the recipient by email without patient details.
+     */
     public function testANewTaskTellsTheRecipientByEmailWithoutPatientDetails(): void
     {
         $this->people['clinic'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Notice Clinic', 'email' => 'intake@zq-clinic.example']);
@@ -1178,6 +1181,9 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertCount(1, QueryUtils::fetchRecords('SELECT id FROM referral_notice WHERE transaction_id = ?', [$id]));
     }
 
+    /**
+     * A recipient who can not be told is shown to staff.
+     */
     public function testARecipientWhoCanNotBeToldIsShownToStaff(): void
     {
         $this->setGlobal(GlobalConnectorsEnum::FHIR_REFERRAL_NOTIFY_RECIPIENT->value, '1');
@@ -1191,6 +1197,9 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertStringContainsString('Please contact the recipient.', $block);
     }
 
+    /**
+     * A re-send tells the recipient again.
+     */
     public function testAReSendTellsTheRecipientAgain(): void
     {
         $this->setGlobal(GlobalConnectorsEnum::FHIR_REFERRAL_NOTIFY_RECIPIENT->value, '1');
@@ -1210,6 +1219,9 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertSame($new, UuidRegistry::uuidToString($told[1]['task_uuid']));
     }
 
+    /**
+     * With notices off the recipient is not told.
+     */
     public function testWithNoticesOffTheRecipientIsNotTold(): void
     {
         $this->setGlobal(GlobalConnectorsEnum::FHIR_REFERRAL_NOTIFY_RECIPIENT->value, '0');
@@ -1221,6 +1233,9 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertSame('', (new ReferralDisplay())->communicationForTransactionPage('LBTref', $id));
     }
 
+    /**
+     * A confirmed Direct reply completes the Task with its documents.
+     */
     public function testAConfirmedDirectReplyCompletesTheTaskWithItsDocuments(): void
     {
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
@@ -1250,6 +1265,9 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertNull($service->completeWithDirectReply($id, $taskUuid, $replyId, null));
     }
 
+    /**
+     * A confirmed text-only Direct reply is filed as a document.
+     */
     public function testAConfirmedTextOnlyDirectReplyIsFiledAsADocument(): void
     {
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
@@ -1269,6 +1287,9 @@ class ReferralReplyFhirApiTest extends TestCase
         $this->assertSame('completed', $this->read('Task', $taskUuid)['status'] ?? null);
     }
 
+    /**
+     * A stale confirm changes nothing.
+     */
     public function testAStaleConfirmChangesNothing(): void
     {
         $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);

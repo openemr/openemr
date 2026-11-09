@@ -26,6 +26,7 @@ final class ReferralDirectNoticeEvent extends Event
 
     private ?string $messageId = null;
     private ?string $failure = null;
+    private bool $unlogged = false;
 
     /**
      * @param int $referralId the referral (transactions.id)
@@ -48,7 +49,28 @@ final class ReferralDirectNoticeEvent extends Event
     {
         $this->messageId = $messageId;
         $this->failure = null;
+        $this->unlogged = false;
         $this->stopPropagation();
+    }
+
+    /**
+     * The Direct server queued the notice, but it couldn't be logged, so its id and delivery are
+     * unknown here. It went out: staff must not send it again.
+     */
+    public function sentUnlogged(): void
+    {
+        $this->messageId = null;
+        $this->failure = null;
+        $this->unlogged = true;
+        $this->stopPropagation();
+    }
+
+    /**
+     * Whether the notice was queued but couldn't be logged.
+     */
+    public function wasSentUnlogged(): bool
+    {
+        return $this->unlogged;
     }
 
     /**
@@ -58,14 +80,21 @@ final class ReferralDirectNoticeEvent extends Event
     {
         $this->messageId = null;
         $this->failure = $reason;
+        $this->unlogged = false;
         $this->stopPropagation();
     }
 
+    /**
+     * The id the Direct server queued the notice under, once sent.
+     */
     public function messageId(): ?string
     {
         return $this->messageId;
     }
 
+    /**
+     * Why the notice couldn't be sent, once it failed.
+     */
     public function failure(): ?string
     {
         return $this->failure;
@@ -76,6 +105,6 @@ final class ReferralDirectNoticeEvent extends Event
      */
     public function wasHandled(): bool
     {
-        return $this->messageId !== null || $this->failure !== null;
+        return $this->messageId !== null || $this->failure !== null || $this->unlogged;
     }
 }

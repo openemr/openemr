@@ -81,6 +81,9 @@ final class ReferralResendEndpointTest extends TestCase
         return ['re-send' => [self::RESEND], 'confirm a Direct reply' => [self::CONFIRM_REPLY]];
     }
 
+    /**
+     * A link changes nothing.
+     */
     #[Test]
     #[DataProvider('endpointProvider')]
     public function aLinkChangesNothing(string $path): void
@@ -90,6 +93,9 @@ final class ReferralResendEndpointTest extends TestCase
         $this->assertSame(403, $response->getStatusCode());
     }
 
+    /**
+     * A post without the token is refused.
+     */
     #[Test]
     #[DataProvider('endpointProvider')]
     public function aPostWithoutTheTokenIsRefused(string $path): void

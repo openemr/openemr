@@ -126,6 +126,29 @@ class CcdaReferralChoiceTest extends TestCase
         $this->assertIsInt($ccdaId);
         try {
             $this->assertEquals($older, QueryUtils::fetchSingleValue('SELECT transaction_id FROM ccda WHERE id = ?', 'transaction_id', [$ccdaId]));
+            $this->assertEquals(1, QueryUtils::fetchSingleValue('SELECT transaction_chosen FROM ccda WHERE id = ?', 'transaction_chosen', [$ccdaId]));
+        } finally {
+            $this->removeCcda($ccdaId);
+        }
+    }
+
+    /**
+     * With no choice the C-CDA still links the most recent referral, but marked as a guess, so a Direct
+     * send doesn't carry it and a reply isn't filed by it.
+     */
+    #[Test]
+    public function aGuessedReferralIsMarkedAsNotChosen(): void
+    {
+        $newest = $this->saveTransaction(self::PATIENT, 'LBTref');
+        $document = base64_encode('<ClinicalDocument/>');
+
+        $guessed = $this->table->logCCDA(self::PATIENT, null, $document, date('Y-m-d H:i:s'), 0, 1, 'referral');
+
+        $ccdaId = $guessed->getId();
+        $this->assertIsInt($ccdaId);
+        try {
+            $row = QueryUtils::querySingleRow('SELECT transaction_id, transaction_chosen FROM ccda WHERE id = ?', [$ccdaId]);
+            $this->assertEquals(['transaction_id' => $newest, 'transaction_chosen' => 0], $row);
         } finally {
             $this->removeCcda($ccdaId);
         }
@@ -149,6 +172,9 @@ class CcdaReferralChoiceTest extends TestCase
         $this->assertStringNotContainsString('Zq newer reason', $chosen);
     }
 
+    /**
+     * Another patient's referral gives the section no reason.
+     */
     #[Test]
     public function anotherPatientsReferralGivesTheSectionNoReason(): void
     {

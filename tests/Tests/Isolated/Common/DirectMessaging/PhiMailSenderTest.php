@@ -111,6 +111,9 @@ final class PhiMailSenderTest extends TestCase
         self::assertSame([['sent', 'sender', 'Default', 1, 'QUEUED to@direct.example msg-2' . self::LF, 42]], $this->auditRows);
     }
 
+    /**
+     * Logs the referral a message carries and gives its id.
+     */
     public function testLogsTheReferralAMessageCarriesAndGivesItsId(): void
     {
         $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-3'));
@@ -128,6 +131,9 @@ final class PhiMailSenderTest extends TestCase
         self::assertSame(PhiMailSender::SUCCESS, $result->message);
     }
 
+    /**
+     * An unsent message has no id and says why.
+     */
     public function testAnUnsentMessageHasNoIdAndSaysWhy(): void
     {
         $connections = $this->createMock(PhiMailConnectionFactory::class);

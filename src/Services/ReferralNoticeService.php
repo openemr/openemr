@@ -116,6 +116,7 @@ final class ReferralNoticeService
         $messageId = $event->messageId();
         return match (true) {
             $messageId !== null => [ReferralNoticeOutcome::DirectSent, $address, $messageId, null],
+            $event->wasSentUnlogged() => [ReferralNoticeOutcome::DirectSentUnlogged, $address, null, null],
             $event->failure() !== null => [ReferralNoticeOutcome::DirectFailed, $address, null, $event->failure()],
             default => [ReferralNoticeOutcome::DirectUnavailable, $address, null, null],
         };
@@ -162,11 +163,17 @@ final class ReferralNoticeService
         return ['name' => $name === '' ? xl('Your referring practice') : $name, 'phone' => $phone];
     }
 
+    /**
+     * The notice records, made the first time they're needed.
+     */
     private function notices(): ReferralNoticeRepository
     {
         return $this->notices ??= new ReferralNoticeRepository();
     }
 
+    /**
+     * The event dispatcher: the given one, else the kernel's, else none.
+     */
     private function dispatcher(): ?EventDispatcherInterface
     {
         if ($this->dispatcher === null && $this->globals()->hasKernel()) {
@@ -175,16 +182,25 @@ final class ReferralNoticeService
         return $this->dispatcher;
     }
 
+    /**
+     * The globals, the given ones or the running site's.
+     */
     private function globals(): OEGlobalsBag
     {
         return $this->globals ??= OEGlobalsBag::getInstance();
     }
 
+    /**
+     * The clock, the container's unless one was given.
+     */
     private function clock(): ClockInterface
     {
         return $this->clock ??= ServiceContainer::getClock();
     }
 
+    /**
+     * The logger, the container's unless one was given.
+     */
     private function logger(): LoggerInterface
     {
         return $this->logger ??= ServiceContainer::getLogger();

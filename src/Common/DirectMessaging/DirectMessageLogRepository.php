@@ -117,15 +117,18 @@ class DirectMessageLogRepository
 
     /**
      * The sent message a received one answers, by the ids its In-Reply-To and References name
-     * (DirectReplyHeaders), nearest first: the first that was sent from here about a patient. An id is
-     * looked up as it came and in angle brackets, since the server's id may be logged either way.
+     * (DirectReplyHeaders), nearest first: the first that was sent from here about a patient, to the
+     * address the reply comes from. Message ids aren't secret, so a message from anyone else that
+     * names one isn't filed in the patient's chart. An id is looked up as it came and in angle
+     * brackets, since the server's id may be logged either way.
      *
      * @param list<string> $messageIds without their angle brackets
+     * @param string $sender the received message's sender, compared with the sent message's recipient ignoring case
      * @throws SqlQueryException
      */
-    public function findReplyTarget(array $messageIds): ?DirectReplyTarget
+    public function findReplyTarget(array $messageIds, string $sender): ?DirectReplyTarget
     {
-        if ($messageIds === []) {
+        if ($messageIds === [] || trim($sender) === '') {
             return null;
         }
         $forms = [];
@@ -135,8 +138,9 @@ class DirectMessageLogRepository
         }
         $rows = QueryUtils::fetchRecordsNoLog(
             "SELECT msg_id, patient_id, referral_id FROM direct_message_log
-                WHERE msg_type = 'S' AND patient_id IS NOT NULL AND msg_id IN (" . implode(',', array_fill(0, count($forms), '?')) . ')',
-            $forms,
+                WHERE msg_type = 'S' AND patient_id IS NOT NULL AND LOWER(recipient) = ?
+                    AND msg_id IN (" . implode(',', array_fill(0, count($forms), '?')) . ')',
+            array_merge([strtolower(trim($sender))], $forms),
         );
         $found = [];
         foreach ($rows as $row) {
