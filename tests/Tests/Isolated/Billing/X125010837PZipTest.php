@@ -985,6 +985,25 @@ class X125010837PZipTest extends TestCase
     }
 
     /**
+     * Whether mode 0555 actually stopped this process from writing.
+     *
+     * Root and Windows can still write after that mode. The publisher
+     * uses is_writable(), so a directory it can still write is not the case.
+     */
+    private function directoryStaysReadOnly(string $directory): bool
+    {
+        chmod($directory, 0555);
+        clearstatcache(true, $directory);
+        if (!is_writable($directory)) {
+            return true;
+        }
+
+        chmod($directory, 0755);
+
+        return false;
+    }
+
+    /**
      * Remove a temporary batch directory.
      */
     private function removeDirectory(string $directory): void
@@ -1014,16 +1033,17 @@ class X125010837PZipTest extends TestCase
             file_put_contents($final, 'GS~');
             file_put_contents($final . '.complete', (string) filesize($final));
             file_put_contents($final . '.publishing', '1');
-            chmod($directory, 0555);
-            try {
-                $this->assertTrue(BatchFilePublisher::isPublished($directory, $name));
-                $this->assertFalse(BatchFilePublisher::downloadAllowed($directory, $name));
-                $this->assertFalse(BatchFilePublisher::discard($directory, $name));
-                $this->assertFileExists($final);
-                $this->assertFileExists($final . '.publishing');
-                $this->assertFileExists($final . '.complete');
-            } finally {
-                chmod($directory, 0755);
+            if ($this->directoryStaysReadOnly($directory)) {
+                try {
+                    $this->assertTrue(BatchFilePublisher::isPublished($directory, $name));
+                    $this->assertFalse(BatchFilePublisher::downloadAllowed($directory, $name));
+                    $this->assertFalse(BatchFilePublisher::discard($directory, $name));
+                    $this->assertFileExists($final);
+                    $this->assertFileExists($final . '.publishing');
+                    $this->assertFileExists($final . '.complete');
+                } finally {
+                    chmod($directory, 0755);
+                }
             }
 
             $this->assertTrue(BatchFilePublisher::downloadAllowed($directory, $name));
@@ -1031,23 +1051,24 @@ class X125010837PZipTest extends TestCase
             $this->assertTrue(BatchFilePublisher::isPublished($directory, $name));
 
             file_put_contents($final . '.publishing', '1');
-            chmod($directory, 0555);
-            try {
-                $probe = $this->versionProbe();
-                $probe->openUnbilled = 4;
-                $probe->storedFile = $name;
-                $probe->useBatch($this->ownedBatch($directory));
-                $claim = $this->versionClaim();
-                (new \ReflectionMethod(VersionHoldProbe::class, 'holdGeneration'))->invoke($probe, $claim);
-                $batch = (new \ReflectionProperty(GeneratorX12::class, 'batch'))->getValue($probe);
-                $decision = (new \ReflectionMethod(VersionHoldProbe::class, 'previousFileDecision'))
-                    ->invoke($probe, $claim, $batch);
+            if ($this->directoryStaysReadOnly($directory)) {
+                try {
+                    $probe = $this->versionProbe();
+                    $probe->openUnbilled = 4;
+                    $probe->storedFile = $name;
+                    $probe->useBatch($this->ownedBatch($directory));
+                    $claim = $this->versionClaim();
+                    (new \ReflectionMethod(VersionHoldProbe::class, 'holdGeneration'))->invoke($probe, $claim);
+                    $batch = (new \ReflectionProperty(GeneratorX12::class, 'batch'))->getValue($probe);
+                    $decision = (new \ReflectionMethod(VersionHoldProbe::class, 'previousFileDecision'))
+                        ->invoke($probe, $claim, $batch);
 
-                $this->assertSame(UnbilledFileDecision::Busy, $decision);
-                $this->assertSame([], $probe->cleared);
-                $this->assertFileExists($final);
-            } finally {
-                chmod($directory, 0755);
+                    $this->assertSame(UnbilledFileDecision::Busy, $decision);
+                    $this->assertSame([], $probe->cleared);
+                    $this->assertFileExists($final);
+                } finally {
+                    chmod($directory, 0755);
+                }
             }
         } finally {
             chmod($directory, 0755);
