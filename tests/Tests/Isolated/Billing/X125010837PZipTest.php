@@ -30,24 +30,26 @@ use PHPUnit\Framework\TestCase;
 class X125010837PZipTest extends TestCase
 {
     /**
-     * A short ZIP is still sent. Billing names the 277CA. Service names that edit and MA114.
+     * A short ZIP is still sent. The line names the loop and says a payer may reject it.
      */
-    public function testLogNamesMedicareConsequenceForEachLoop(): void
+    public function testLogNamesTheLoopForEachShortZip(): void
     {
         $billing = X125010837P::BILLING_ZIP_LOG;
-        $this->assertStringContainsString('9 digits', $billing);
-        $this->assertStringContainsString('277CA', $billing);
-        $this->assertStringContainsString('CSC 500', $billing);
-        $this->assertStringContainsString('country code', $billing);
+        $this->assertStringContainsString('2010AA', $billing);
+        $this->assertStringContainsString('9-digit ZIP', $billing);
+        $this->assertStringContainsString('payers may reject', $billing);
+        $this->assertStringNotContainsString('277CA', $billing);
+        $this->assertStringNotContainsString('CSC 500', $billing);
         $this->assertStringNotContainsString('MA114', $billing);
         $this->assertStringNotContainsString('Rejecting claim', $billing);
 
         $service = X125010837P::SERVICE_ZIP_LOG;
-        $this->assertStringContainsString('9 digits', $service);
-        $this->assertStringContainsString('277CA', $service);
-        $this->assertStringContainsString('CSC 500', $service);
-        $this->assertStringContainsString('MA114', $service);
-        $this->assertStringContainsString('country code', $service);
+        $this->assertStringContainsString('2310C', $service);
+        $this->assertStringContainsString('9-digit ZIP', $service);
+        $this->assertStringContainsString('payers may reject', $service);
+        $this->assertStringNotContainsString('277CA', $service);
+        $this->assertStringNotContainsString('CSC 500', $service);
+        $this->assertStringNotContainsString('MA114', $service);
         $this->assertStringNotContainsString('Rejecting claim', $service);
     }
 
@@ -90,7 +92,7 @@ class X125010837PZipTest extends TestCase
 
             $this->assertSame(['bind'], $checked->probe->calls);
             $this->assertSame([], $checked->batch->getClaims());
-            $this->assertStringContainsString('MA114', $screen);
+            $this->assertStringContainsString(X125010837P::SERVICE_ZIP_LOG, $screen);
             $this->assertStringNotContainsString('Successfully', $screen);
 
             $validated = $this->generator(X125010837P::BILLING_ZIP_LOG);
