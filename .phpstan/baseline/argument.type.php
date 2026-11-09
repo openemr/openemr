@@ -9282,11 +9282,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$id of class Document constructor expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$number of method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\AppDispatch\\:\\:formatPhone\\(\\) expects string, mixed given\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
@@ -9483,7 +9478,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$filename of function file_get_contents expects string, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -9493,7 +9488,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$filename of function is_file expects string, mixed given\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -9677,18 +9672,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$id of class Document constructor expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$number of method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\AppDispatch\\:\\:formatPhone\\(\\) expects string, mixed given\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$path of function realpath expects string, mixed given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
 ];
 $ignoreErrors[] = [
