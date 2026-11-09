@@ -66,6 +66,25 @@ class PatientFinderBuiltInColumnsTest extends TestCase
     }
 
     /**
+     * CONCAT_WS returns '' when every part is NULL, and an outer CONCAT_WS keeps '' with its
+     * separator, so each nested CONCAT_WS has to become NULL when it is blank.
+     */
+    public function testBlankAddressPartsLeaveNoStraySeparator(): void
+    {
+        $columns = new PatientFinderBuiltInColumns();
+        $address = $columns->column('address_full', 'Address');
+        $withCountry = $columns->column('address_full_country', 'Address');
+        $this->assertNotNull($address);
+        $this->assertNotNull($withCountry);
+
+        $this->assertStringContainsString("NULLIF(CONCAT_WS('  ', ", (string) $address->selectExpression);
+        $this->assertStringStartsWith(
+            "CONCAT_WS(', ', NULLIF(" . $address->selectExpression . ", ''), ",
+            (string) $withCountry->selectExpression
+        );
+    }
+
+    /**
      * A patient_data field is not mistaken for a combined column.
      */
     public function testUnknownKeyIsNotABuiltInColumn(): void
