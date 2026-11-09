@@ -196,10 +196,12 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
 - When rabbit never ran on a PR (OSS rate-limit hit before initial review), the
   `CodeRabbit` check conclusion is `NEUTRAL` and no Actionables are ever posted. The
   decision-gate's "no unresolved rabbit Actionable" row passes vacuously — the shepherd
-  has no signal from rabbit, not a clean signal. Flag it in the brief's rabbit-coverage
-  section and trigger `@coderabbitai full review` before merging on the gate. In
-  observed passes, this surfaced findings that would otherwise have shipped with no
-  rabbit signal recorded.
+  has no signal from rabbit, not a clean signal.
+- Trigger `@coderabbitai full review` as a **Phase 1 action**, independent of whether
+  the PR ever reaches Phase 2. The request is a prerequisite for the gate, not a
+  Phase 2 brief-writing step — if the PR is held in Phase 1 for any other reason, the
+  trigger still has to fire so rabbit coverage is available when the other block
+  clears. Flag `NEUTRAL` in the stock-take snapshot and the shepherd log.
 
 ### 2.9 Rebase invalidates rabbit's commit-SHA citations
 

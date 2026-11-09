@@ -165,7 +165,12 @@ Separate from rabbit, pull every formal review on the PR:
   `CHANGES_REQUESTED` from a different reviewer.
 - `CHANGES_REQUESTED` — hard block. Stays open until the requesting maintainer
   re-reviews.
-- `COMMENTED` — informational, not blocking.
+- `COMMENTED` — informational on the review-state level, but **check the inline
+  comments the review carries.** A `COMMENTED` review can contain inline requests
+  with substantive asks on PR-introduced content (a one-line edit request, a specific
+  concern on a specific line); those are blockers even without a formal
+  `CHANGES_REQUESTED` state. The §12 pre-merge item 6 catches *new* inline comments
+  posted after the brief; this step catches *outstanding* ones that predate the brief.
 - `DISMISSED` — the author or admin dismissed a stale review.
 
 If the PR state is `CHANGES_REQUESTED`, identify the requesting maintainer and the
@@ -262,6 +267,25 @@ git -c user.email=t@t -c user.name=t merge pr-<N> --no-ff --no-commit
 The merge either (a) succeeds with both PRs' semantics preserved — approve without a
 rebase, (b) succeeds but silently drops one side's intent — request a rebase, or
 (c) fails with conflicts — request a rebase.
+
+**Baseline check against the merged result.** A clean three-way merge can still
+produce a baseline-stability violation that neither PR's §7 catches on its own. If two
+PRs independently reduce the same baseline count from 2 to 1, git merges both cleanly
+and the combined count is 1 — but the baseline entry should have been deleted entirely
+(both reductions removed the last two occurrences). §7 compares each PR to its own
+merge base and sees a valid 2→1, so both ship with a baseline that fails the stability
+check after merge. Regenerate and check the baseline against the throwaway-merge
+result when the merge touches `.phpstan/baseline/`:
+
+```bash
+# in the merge-test clone, with pr-<N> already merged into upstream-base:
+composer install --quiet
+composer phpstan-baseline
+git diff --exit-code -- .phpstan/baseline/
+```
+
+A non-empty diff means the merged baseline doesn't match what the combined code
+produces — the PR needs a rebase so §7 runs against the real merge base.
 
 ---
 
@@ -475,7 +499,10 @@ history. Minimum prompt fields:
   parent had to re-audit already-returned briefs that used the pre-change mental
   model), note the rule explicitly in the prompt so the subagent doesn't apply a
   stale model. The subagent reads `standing-rules.md` from disk, but the parent
-  session holds the state-of-active-changes context across the pass.
+  session holds the state-of-active-changes context across the pass. When a rule
+  changes mid-pass, the parent also **re-audits affected completed briefs and any
+  in-flight subagent work** under the new rule — forward-looking prompt updates
+  don't catch findings missed under the prior rule.
 
 ### Security-adjacent findings in subagent briefs
 

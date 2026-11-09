@@ -100,7 +100,9 @@ Collect the following signals per PR:
 - Many `CANCELLED` + no `FAILURE` → `CRED` (concurrency-redeemed; usually in-flight
   re-run — recheck in 5-10m)
 - Lanes `IN_PROGRESS` > 24 h on a non-dormant PR with aggregator NULL → `STALE` → 🔴
-  held (CI isn't going to resolve itself; something upstream is stuck)
+  held (CI isn't going to resolve itself; something upstream is stuck). **STALE takes
+  precedence over CRED** when both match (many CANCELLED + no FAILURE + an IN_PROGRESS
+  lane older than 24 h) — a stuck lane doesn't resolve by rechecking.
 
 Store these as a one-line summary per PR; feed into the bucketing step.
 
