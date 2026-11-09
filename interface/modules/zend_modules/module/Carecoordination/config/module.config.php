@@ -24,6 +24,7 @@ use Carecoordination\Factory\EncounterccdadispatchControllerFactory;
 use Carecoordination\Factory\SetupControllerFactory;
 use Carecoordination\Form\ModuleconfigForm;
 use Carecoordination\Listener\CCDAEventsSubscriber;
+use Carecoordination\Listener\ReferralNoticeSubscriber;
 use Carecoordination\Model\CarecoordinationTable;
 use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\CcdTable;
@@ -153,6 +154,13 @@ return [
             SetupController::class => SetupControllerFactory::class,
             EncounterccdadispatchController::class => EncounterccdadispatchControllerFactory::class,
             CCDAEventsSubscriber::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Listener\CCDAEventsSubscriber => new CCDAEventsSubscriber($container->get(CcdaGenerator::class)),
+            ReferralNoticeSubscriber::class => static function (ContainerInterface $container): ReferralNoticeSubscriber {
+                $generator = $container->get(CcdaGenerator::class);
+                if (!$generator instanceof CcdaGenerator) {
+                    throw new \LogicException('The service manager has no CcdaGenerator');
+                }
+                return new ReferralNoticeSubscriber($generator);
+            },
             CcdaGenerator::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CcdaGenerator => new CcdaGenerator($container->get(EncounterccdadispatchTable::class))
         ],
     ]

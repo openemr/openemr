@@ -1,0 +1,147 @@
+<?php
+
+/**
+ * The Carecoordination module sends a referral's recipient its Referral C-CDA by Direct when core
+ * asks (#15137), and says how it went.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Services\Modules\Carecoordination\Listener;
+
+use Carecoordination\Listener\ReferralNoticeSubscriber;
+use Carecoordination\Model\CcdaGenerator;
+use Carecoordination\Model\GeneratedCcdaResult;
+use OpenEMR\Common\DirectMessaging\PhiMailAttachmentType;
+use OpenEMR\Common\DirectMessaging\PhiMailOutgoingMessage;
+use OpenEMR\Common\DirectMessaging\PhiMailRequester;
+use OpenEMR\Common\DirectMessaging\PhiMailSendResult;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Referral\ReferralDirectNoticeEvent;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+
+final class ReferralNoticeSubscriberTest extends TestCase
+{
+    /** No patient has this id, so the message names none. */
+    private const PATIENT = 990081;
+
+    private CcdaGenerator&MockObject $generator;
+
+    /** @var list<PhiMailOutgoingMessage> */
+    private array $sent = [];
+
+    private PhiMailSendResult $result;
+
+    protected function setUp(): void
+    {
+        $this->generator = $this->createMock(CcdaGenerator::class);
+        $this->result = PhiMailSendResult::sent('msg-1');
+    }
+
+    public function testListensForTheNotice(): void
+    {
+        self::assertSame([ReferralDirectNoticeEvent::EVENT_NAME => 'onReferralDirectNotice'], ReferralNoticeSubscriber::getSubscribedEvents());
+    }
+
+    public function testSendsTheReferralsOwnCcdaWithTheReferralSectionsOnly(): void
+    {
+        $this->generator->expects(self::once())->method('generate')
+            ->with(
+                self::PATIENT,
+                null,
+                '',
+                false,
+                false,
+                false,
+                'allergies|medications|problems|plan_of_care|referral',
+                'continuity_care_document',
+                '',
+                [],
+                'referral',
+                '',
+                [],
+                7,
+            )
+            ->willReturn(new GeneratedCcdaResult(1, 'uuid', 'Referral Doe Jane.xml', '<ClinicalDocument/>'));
+        $event = new ReferralDirectNoticeEvent(7, self::PATIENT, 'consult@direct.example', 3);
+
+        $this->subscriber()->onReferralDirectNotice($event);
+
+        self::assertSame('msg-1', $event->messageId());
+        self::assertCount(1, $this->sent);
+        $message = $this->sent[0];
+        self::assertSame(['consult@direct.example', self::PATIENT, 7, false], [$message->recipient, $message->patientId, $message->referralId, $message->verifyFinalDelivery]);
+        self::assertSame('A referral is attached.', $message->text);
+        self::assertNotNull($message->attachment);
+        self::assertSame(
+            [PhiMailAttachmentType::Cda, 'Referral_Doe_Jane.xml', '<ClinicalDocument/>'],
+            [$message->attachment->type, $message->attachment->fileName, $message->attachment->content],
+        );
+    }
+
+    public function testASendThatFailsSaysWhy(): void
+    {
+        $this->generator->method('generate')->willReturn(new GeneratedCcdaResult(1, 'uuid', 'referral.xml', '<ClinicalDocument/>'));
+        $this->result = PhiMailSendResult::notSent('Recipient not allowed');
+        $event = new ReferralDirectNoticeEvent(7, self::PATIENT, 'consult@direct.example', 3);
+
+        $this->subscriber()->onReferralDirectNotice($event);
+
+        self::assertNull($event->messageId());
+        self::assertSame('Recipient not allowed', $event->failure());
+    }
+
+    public function testACcdaThatCanNotBeMadeIsNotSent(): void
+    {
+        $this->generator->method('generate')->willThrowException(new \RuntimeException('no template'));
+        $event = new ReferralDirectNoticeEvent(7, self::PATIENT, 'consult@direct.example', 3);
+
+        $this->subscriber()->onReferralDirectNotice($event);
+
+        self::assertSame([], $this->sent);
+        self::assertSame('The Referral C-CDA could not be made. See the log.', $event->failure());
+    }
+
+    public function testAnErrorInPlaceOfTheCcdaIsNotSent(): void
+    {
+        $this->generator->method('generate')->willReturn(new GeneratedCcdaResult(1, 'uuid', 'referral.xml', 'ERROR: no data'));
+        $event = new ReferralDirectNoticeEvent(7, self::PATIENT, 'consult@direct.example', 3);
+
+        $this->subscriber()->onReferralDirectNotice($event);
+
+        self::assertSame([], $this->sent);
+        self::assertNotNull($event->failure());
+    }
+
+    public function testWithDirectOffTheNoticeIsLeftForCoreToReport(): void
+    {
+        $this->generator->expects(self::never())->method('generate');
+        $event = new ReferralDirectNoticeEvent(7, self::PATIENT, 'consult@direct.example', 3);
+
+        $this->subscriber(directEnabled: false)->onReferralDirectNotice($event);
+
+        self::assertFalse($event->wasHandled());
+    }
+
+    private function subscriber(bool $directEnabled = true): ReferralNoticeSubscriber
+    {
+        return new ReferralNoticeSubscriber(
+            generator: $this->generator,
+            deliver: function (PhiMailOutgoingMessage $message, PhiMailRequester $requester): PhiMailSendResult {
+                $this->sent[] = $message;
+                return $this->result;
+            },
+            requester: static fn(): PhiMailRequester => new PhiMailRequester('admin', 'Default', 3),
+            globals: new OEGlobalsBag(['phimail_enable' => $directEnabled ? '1' : '0', 'phimail_verifyrecipientreceived_enable' => '0']),
+            logger: new NullLogger(),
+        );
+    }
+}
