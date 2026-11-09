@@ -63,6 +63,8 @@ class ErxXmlBuilderTest extends TestCase
             'markup characters kept' => ['HTN & HLD <2>', 'HTN & HLD <2>'],
             'other control characters dropped' => ['a' . chr(11) . 'b' . chr(27) . 'c', 'abc'],
             'invalid UTF-8 replaced' => ['bad' . chr(255) . 'byte', 'bad' . mb_chr(0xFFFD) . 'byte'],
+            'noncharacters U+FFFE and U+FFFF dropped' => ['a' . mb_chr(0xFFFE) . 'b' . mb_chr(0xFFFF) . 'c', 'abc'],
+            'other characters in the same block kept' => ['a' . mb_chr(0xFFFD) . mb_chr(0xFFEE) . 'b', 'a' . mb_chr(0xFFFD) . mb_chr(0xFFEE) . 'b'],
             'empty' => ['', ''],
         ];
     }

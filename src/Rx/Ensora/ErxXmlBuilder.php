@@ -234,9 +234,10 @@ class ErxXmlBuilder
 
     /**
      * Drop carriage returns, tabs and the other control characters except line
-     * feeds, and replace invalid UTF-8 with U+FFFD whatever the mbstring
-     * substitution setting. DOM writes a value holding a control character XML
-     * forbids, or invalid UTF-8, as empty.
+     * feeds, drop U+FFFE and U+FFFF, and replace invalid UTF-8 with U+FFFD
+     * whatever the mbstring substitution setting. DOM writes a value holding a
+     * control character XML forbids, or invalid UTF-8, as empty, and writes
+     * U+FFFE and U+FFFF raw, which XML parsers reject.
      */
     public static function cleanText(string $value): string
     {
@@ -244,7 +245,8 @@ class ErxXmlBuilder
             $value = UConverter::transcode($value, 'UTF-8', 'UTF-8');
         }
 
-        return self::regexRemove('/[\x00-\x09\x0B-\x1F]/', $value);
+        // The value is valid UTF-8 here, so \xEF\xBF[\xBE\xBF] is only ever U+FFFE or U+FFFF.
+        return self::regexRemove('/[\x00-\x09\x0B-\x1F]|\xEF\xBF[\xBE\xBF]/', $value);
     }
 
     public function createElementTextFieldEmpty(string $name, string $value, string $validationText): DOMElement
