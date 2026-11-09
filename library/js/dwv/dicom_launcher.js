@@ -298,6 +298,8 @@ function startApp() {
             }
         }
     };
+    // the Image button shows the dialog again: refit then, a resize while it was hidden was skipped
+    dwvOemr.fitLayerContainer = fitLayerContainer;
     // The 'load' event is not fired when one item of a multi file load (for example a zip with a file
     // that cannot be read) failed, so the first image that was loaded counts as well.
     oemrApp.addEventListener('load-item', function (event) {

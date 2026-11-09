@@ -76,6 +76,8 @@
         margin: .625rem;
         width: 512px;
         height: 512px;
+        /* a canvas that is still larger than the fitted container must not count as page overflow */
+        overflow: hidden;
     }
 
     .imageLayer {
