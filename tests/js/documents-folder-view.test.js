@@ -592,6 +592,64 @@ describe('page wiring', () => {
         expect(document.getElementById('docFileNames').textContent).toBe('1 file(s) selected');
     });
 
+    test('an upload reply without the uploader (expired session) counts as a failure and keeps the file', async () => {
+        setUp();
+        await flush();
+        window.fetch = jest.fn((url) => {
+            if (String(url).indexOf('document&upload') !== -1) {
+                return Promise.resolve({ ok: true, text: () => Promise.resolve('<script>top.location="login.php"</script>') });
+            }
+            return Promise.resolve({ ok: true, json: () => Promise.resolve({ categories, documents }) });
+        });
+        const input = document.getElementById('docFileInput');
+        Object.defineProperty(input, 'files', { configurable: true, value: [new File(['x'], 'a.pdf')] });
+        input.dispatchEvent(new Event('change'));
+        document.getElementById('docUploadFolder').value = '3';
+        document.getElementById('docUploadSubmit').click();
+        for (let i = 0; i < 10; i++) {
+            await flush();
+        }
+        const status = document.getElementById('docUploadStatus');
+        expect(status.textContent).toContain('Upload failed');
+        expect(status.className).toContain('text-danger');
+        expect(document.getElementById('docFileNames').textContent).toBe('1 file(s) selected');
+    });
+
+    test('the destination field is sent only with DICOM uploads', async () => {
+        setUp();
+        await flush();
+        const bodies = [];
+        window.fetch = jest.fn((url, options) => {
+            if (String(url).indexOf('document&upload') !== -1) {
+                bodies.push(options.body);
+                return Promise.resolve({ ok: true, text: () => Promise.resolve('<div id="documents_actions"></div>') });
+            }
+            return Promise.resolve({ ok: true, json: () => Promise.resolve({ categories, documents }) });
+        });
+        document.getElementById('docDestination').value = 'Study A';
+        const input = document.getElementById('docFileInput');
+        Object.defineProperty(input, 'files', { configurable: true, value: [new File(['x'], 'a.pdf')] });
+        input.dispatchEvent(new Event('change'));
+        document.getElementById('docUploadFolder').value = '3';
+        document.getElementById('docUploadSubmit').click();
+        for (let i = 0; i < 10; i++) {
+            await flush();
+        }
+        expect(bodies.length).toBe(1);
+        expect(bodies[0].has('destination')).toBe(false);
+
+        document.getElementById('docDestination').value = 'Study A'; // the form clears it after a successful upload
+        const dicom = document.getElementById('docDicomInput');
+        Object.defineProperty(dicom, 'files', { configurable: true, value: [new File(['d'], 'IM1.dcm')] });
+        document.getElementById('docUploadFolder').value = '3';
+        document.getElementById('docUploadSubmit').click();
+        for (let i = 0; i < 10; i++) {
+            await flush();
+        }
+        const dicomBody = bodies[bodies.length - 1];
+        expect(dicomBody.get('destination')).toBe('Study A');
+    });
+
     test('no folder is preselected for an upload: the user is asked', async () => {
         setUp();
         await flush();

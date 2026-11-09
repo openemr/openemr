@@ -919,7 +919,10 @@
             for (var i = 0; i < dicomFiles.length; i++) {
                 form.append('dicom_folder[]', dicomFiles[i], dicomFiles[i].name);
             }
-            form.append('destination', up.destination.value);
+            // the destination field is the study name of a DICOM zip; sent with ordinary files it would rename them
+            if (dicomFiles.length > 0) {
+                form.append('destination', up.destination.value);
+            }
             if (up.encrypted && up.encrypted.checked) {
                 form.append('encrypted', 'on');
                 form.append('passphrase', up.passphrase.value);
@@ -935,6 +938,10 @@
                 .then(function (html) {
                     // The upload page shows a failure as the heading of its upload form.
                     var parsed = new root.DOMParser().parseFromString(html, 'text/html');
+                    // A reply without the uploader (for example the login redirect of an expired session) is no success.
+                    if (!parsed.querySelector('#documents_actions')) {
+                        return i18n.uploadFailed;
+                    }
                     var heading = parsed.querySelector('#documents_actions h3');
                     return heading ? heading.textContent.trim() : '';
                 })
