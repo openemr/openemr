@@ -1,3 +1,13 @@
+/**
+ * Generate a layout form statement into the paragraph.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Simon Quigley <squigley@altispeed.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 (function () {
     const input = document.getElementById('patient_display');
     const finderUrl = (input && input.getAttribute('data-finder-url')) || '';
