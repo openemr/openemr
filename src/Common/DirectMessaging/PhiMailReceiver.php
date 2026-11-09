@@ -34,6 +34,7 @@ declare(strict_types=1);
 namespace OpenEMR\Common\DirectMessaging;
 
 use Doctrine\DBAL\Exception as DbalException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -73,6 +74,23 @@ final class PhiMailReceiver
         private readonly string $tempDir,
         private readonly Filesystem $filesystem = new Filesystem(),
     ) {
+    }
+
+    /**
+     * The phimail background_services row names this method. The runner
+     * calls it with no arguments, so it builds the receiver from globals.
+     *
+     * @throws PhiMailCheckException when the check fails, after writing its audit row
+     * @throws DbalException when an audit row cannot be written on a path that is not already failing
+     */
+    public static function runBackgroundService(): void
+    {
+        self::fromGlobals(
+            OEGlobalsBag::getInstance(),
+            ServiceContainer::getCrypto(),
+            ServiceContainer::getLogger(),
+            EventAuditLogger::getInstance(),
+        )->check();
     }
 
     public static function fromGlobals(

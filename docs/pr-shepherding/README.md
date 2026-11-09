@@ -151,7 +151,13 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   [per-pr-review §4](per-pr-review.md#4-walk-rabbit-history) step 4). Rabbit's
   "already reviewed the last commit" no-op response does **not** confirm earlier
   findings are fixed — see
-  [standing-rules.md](standing-rules.md#2-coderabbit-mechanics) §2.1.
+  [standing-rules.md](standing-rules.md#2-coderabbit-mechanics) §2.1. A thread's
+  resolved state does **not** mean nothing is open in it: rabbit resolves threads
+  itself and can raise a new finding in the same reply, so this row is checked
+  against the full text of every rabbit reply in every thread, resolved ones included,
+  with each finding tracked on its own (a later no-op reply does not close an earlier
+  one) — see
+  [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding).
 - **No unresolved maintainer `CHANGES_REQUESTED`.** A formal review-state request stays
   open until the requesting maintainer re-reviews. A separate maintainer approving does
   not clear it.

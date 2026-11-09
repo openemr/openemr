@@ -55,27 +55,30 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
     }
 
     /**
-     * @return array<string, array{int, int, string, bool}>
+     * @return array<string, array{int, ?int, string, bool}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function linkProvider(): array
     {
         return [
-            'current patient, no token' => [self::SESSION_PID, 0, 'none', true],
+            'current patient, no token' => [self::SESSION_PID, null, 'none', true],
             'current patient and encounter, no token' => [self::SESSION_PID, self::SESSION_ENCOUNTER, 'none', true],
-            'other patient, no token' => [22, 0, 'none', false],
-            'other patient, wrong token' => [22, 0, 'wrong', false],
-            'other patient, non-string token' => [22, 0, 'array', false],
-            'other patient, valid token' => [22, 0, 'valid', true],
+            'other patient, no token' => [22, null, 'none', false],
+            'other patient, wrong token' => [22, null, 'wrong', false],
+            'other patient, non-string token' => [22, null, 'array', false],
+            'other patient, valid token' => [22, null, 'valid', true],
             'other encounter, no token' => [self::SESSION_PID, 501, 'none', false],
             'other encounter, valid token' => [self::SESSION_PID, 501, 'valid', true],
+            'zero encounter, no token' => [self::SESSION_PID, 0, 'none', false],
+            'zero encounter, valid token' => [self::SESSION_PID, 0, 'valid', true],
+            'negative encounter, no token' => [self::SESSION_PID, -1, 'none', false],
             'other patient and encounter, valid token' => [22, 900, 'valid', true],
         ];
     }
 
     #[DataProvider('linkProvider')]
-    public function testMayLinkSwitchContext(int $pid, int $encounter, string $token, bool $allowed): void
+    public function testMayLinkSwitchContext(int $pid, ?int $encounter, string $token, bool $allowed): void
     {
         $this->assertSame($allowed, PatientSessionUtil::mayLinkSwitchContext($pid, $encounter, $this->token($token)));
     }
@@ -84,8 +87,8 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
     {
         $this->session->remove('pid');
 
-        $this->assertFalse(PatientSessionUtil::mayLinkSwitchContext(22, 0, null));
-        $this->assertTrue(PatientSessionUtil::mayLinkSwitchContext(22, 0, $this->token('valid')));
+        $this->assertFalse(PatientSessionUtil::mayLinkSwitchContext(22, null, null));
+        $this->assertTrue(PatientSessionUtil::mayLinkSwitchContext(22, null, $this->token('valid')));
     }
 
     public function testRequireCsrfLetsTheCurrentChartReopen(): void
@@ -152,11 +155,79 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
     public function testDemographicsChecksTheTokenBeforeSwitching(): void
     {
         $source = (new Filesystem())->readFile(dirname(__DIR__, 5) . '/interface/patient_file/summary/demographics.php');
-        $parts = explode('PatientSessionUtil::requireCsrfForLinkSwitch($request, $setPid, $setEncounterId);', $source);
+        $parts = explode('PatientSessionUtil::requireCsrfForLinkSwitch($request, $setPid, $setEncounterId > 0 ? $setEncounterId : null);', $source);
         $this->assertCount(2, $parts, 'demographics.php should call the guard exactly once');
         [$beforeGuard, $afterGuard] = $parts;
         $this->assertStringNotContainsString('setpid($setPid);', $beforeGuard);
         $this->assertStringContainsString('setpid($setPid);', $afterGuard);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function guardedPageProvider(): array
+    {
+        return [
+            'encounter_top' => ['interface/patient_file/encounter/encounter_top.php'],
+            'pnotes_full' => ['interface/patient_file/summary/pnotes_full.php'],
+            'pnotes_full_add' => ['interface/patient_file/summary/pnotes_full_add.php'],
+            'orders_results' => ['interface/orders/orders_results.php'],
+            'demographics_full' => ['interface/patient_file/summary/demographics_full.php'],
+            'insurance_edit' => ['interface/patient_file/summary/insurance_edit.php'],
+            'encounters' => ['interface/patient_file/history/encounters.php'],
+            'history_sdoh' => ['interface/patient_file/history/history_sdoh.php'],
+            'history_sdoh_list' => ['interface/patient_file/history/history_sdoh_list.php'],
+            'history_sdoh_health_concerns' => ['interface/patient_file/history/history_sdoh_health_concerns.php'],
+            'eye_mag a_issue' => ['interface/forms/eye_mag/a_issue.php'],
+            'eye_mag new' => ['interface/forms/eye_mag/new.php'],
+            'misc_billing_options new' => ['interface/forms/misc_billing_options/new.php'],
+            'ub04_form' => ['interface/billing/ub04_form.php'],
+        ];
+    }
+
+    /**
+     * These pages need the full bootstrap, so check their source: the guard
+     * must run before the first call that writes the session.
+     */
+    #[DataProvider('guardedPageProvider')]
+    public function testPageChecksTheTokenBeforeSwitching(string $path): void
+    {
+        $source = (new Filesystem())->readFile(dirname(__DIR__, 5) . '/' . $path);
+        $guard = null;
+        $firstWrite = null;
+        foreach (self::functionCalls($source) as $position => $name) {
+            if ($name === 'requireCsrfForLinkSwitch') {
+                $guard ??= $position;
+            } elseif (in_array(strtolower($name), ['setpid', 'setencounter', 'setsession'], true)) {
+                $firstWrite ??= $position;
+            }
+        }
+
+        $this->assertIsInt($guard, "{$path} should call the guard");
+        $this->assertIsInt($firstWrite, "{$path} should switch the session patient or encounter");
+        $this->assertLessThan($firstWrite, $guard, "{$path} should call the guard before it switches");
+    }
+
+    /**
+     * Names of the functions and methods called in $source, in order.
+     *
+     * @return list<string>
+     */
+    private static function functionCalls(string $source): array
+    {
+        $tokens = array_values(array_filter(
+            \PhpToken::tokenize($source),
+            static fn (\PhpToken $token): bool => !$token->isIgnorable(),
+        ));
+        $calls = [];
+        foreach ($tokens as $index => $token) {
+            if ($token->is(T_STRING) && ($tokens[$index + 1] ?? null)?->text === '(') {
+                $calls[] = $token->text;
+            }
+        }
+        return $calls;
     }
 
     private function token(string $kind): mixed

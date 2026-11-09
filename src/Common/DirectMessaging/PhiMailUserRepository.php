@@ -33,9 +33,10 @@ use OpenEMR\Common\Database\SqlQueryException;
 
 class PhiMailUserRepository
 {
+    public const PORTAL_USERNAME = 'portal-user';
     private const SERVICE_USERNAME = 'phimail-service';
-    // Owner of received documents and messages when no phimail-service user exists.
-    private const DEFAULT_SERVICE_USER_ID = 1;
+    // Stands in for a service user that does not exist.
+    private const DEFAULT_USER_ID = 1;
 
     /**
      * @throws SqlQueryException
@@ -57,12 +58,30 @@ class PhiMailUserRepository
      */
     public function serviceUserId(): int
     {
-        $rows = QueryUtils::fetchRecordsNoLog('SELECT id FROM users WHERE username = ?', [self::SERVICE_USERNAME]);
+        return $this->userIdOrDefault(self::SERVICE_USERNAME);
+    }
+
+    /**
+     * The ID of the portal-user user, which sends messages patients request.
+     *
+     * @throws SqlQueryException
+     */
+    public function portalUserId(): int
+    {
+        return $this->userIdOrDefault(self::PORTAL_USERNAME);
+    }
+
+    /**
+     * @throws SqlQueryException
+     */
+    private function userIdOrDefault(string $username): int
+    {
+        $rows = QueryUtils::fetchRecordsNoLog('SELECT id FROM users WHERE username = ?', [$username]);
         $id = $rows[0]['id'] ?? null;
         return match (true) {
             is_int($id) => $id,
             is_string($id) && ctype_digit($id) => (int) $id,
-            default => self::DEFAULT_SERVICE_USER_ID,
+            default => self::DEFAULT_USER_ID,
         };
     }
 }

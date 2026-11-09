@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018-2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,6 +23,9 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -28,6 +33,7 @@ use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
+use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentAccessException;
 use OpenEMR\Modules\FaxSMS\Service\CredentialsRepository;
 use OpenEMR\Modules\FaxSMS\Service\ServiceFactory;
 use OpenEMR\Services\PatientPortalService;
@@ -838,6 +844,26 @@ abstract class AppDispatch
     }
 
     /**
+     * Open the patient named by ?patient_id= when no patient is open yet.
+     * Opening a patient from a link needs a CSRF token in the link.
+     *
+     * @return void
+     */
+    protected function openRequestedPatient(): void
+    {
+        if ($this->getSession('pid', '')) {
+            return;
+        }
+        $request = CurrentRequest::get();
+        $requestPid = $request->query->getInt('patient_id');
+        if ($requestPid <= 0) {
+            return;
+        }
+        PatientSessionUtil::requireCsrfForLinkSwitch($request, $requestPid);
+        $this->setSession('pid', $requestPid);
+    }
+
+    /**
      * @return string
      */
     public function getNotificationLog(): string
@@ -887,43 +913,87 @@ abstract class AppDispatch
     }
 
     /**
-     * Resolve and return the decrypted bytes of a stored document for the
-     * fax/email send path, enforcing access control first.
+     * Resolve a request-supplied patient document id for the fax/email send
+     * path and return its decrypted bytes and file name, enforcing access
+     * control first.
      *
-     * The send path accepts a request-supplied document id; without a gate any
-     * user holding the coarse patients/demo ACL could fax or email an arbitrary
-     * document by iterating ids. This requires the patients/docs ACL and that
-     * the document resolves to a real patient via its foreign_id, blocking
-     * orphaned or cross-patient ids from reaching this path.
+     * Every vendor's send path takes the document id from the request; without
+     * this gate any user who can reach the send action could fax or email an
+     * arbitrary document by iterating ids. The user needs the patients/docs
+     * ACL and access to every category the document is filed in (the same
+     * check the document viewer makes), and the document must belong to the
+     * patient open in the session, so an id from another chart is refused.
      *
-     * @param int $docId
-     * @return string Decrypted document bytes.
-     * @throws RuntimeException When the id is invalid, unauthorized, or unresolved.
+     * @return array{content: string, name: string}
+     * @throws FaxDocumentAccessException When the id is invalid, the user may not
+     *         read the document, or it can't be loaded. The message is safe to show.
      */
-    protected function readAuthorizedFaxDocument(int $docId): string
+    protected function readAuthorizedFaxDocument(mixed $docId): array
     {
-        if ($docId <= 0) {
-            throw new RuntimeException(xlt('Error: Invalid document reference'));
+        $id = is_int($docId) || (is_string($docId) && ctype_digit($docId)) ? (int) $docId : 0;
+        if ($id <= 0) {
+            throw new FaxDocumentAccessException(xlt('Error: Invalid document reference'));
         }
-        if (!AclMain::aclCheckCore('patients', 'docs')) {
-            throw new RuntimeException(xlt('Error: Not authorised to access documents'));
+        if (!$this->userHasDocumentsAcl()) {
+            throw new FaxDocumentAccessException(xlt('Error: Not authorized to access documents'));
         }
-        // Resolve the owning patient straight from the row so the check does
-        // not depend on a particular Document accessor name.
-        $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", [$docId]);
-        $pid = (int)($row['foreign_id'] ?? 0);
-        if ($pid <= 0) {
-            throw new RuntimeException(xlt('Error: Document is not associated with a patient'));
+        $row = QueryUtils::querySingleRow(
+            'SELECT d.`foreign_id` FROM `documents` d JOIN `patient_data` p ON p.`pid` = d.`foreign_id` WHERE d.`id` = ?',
+            [$id]
+        );
+        if (!is_array($row)) {
+            throw new FaxDocumentAccessException(xlt('Error: Document is not associated with a patient'));
         }
-        $patient = sqlQuery("SELECT pid FROM patient_data WHERE pid = ?", [$pid]);
-        if (empty($patient)) {
-            throw new RuntimeException(xlt('Error: Document patient not found'));
+        $activePid = $this->activePatientId();
+        if ($activePid === 0 || !is_numeric($row['foreign_id']) || (int) $row['foreign_id'] !== $activePid) {
+            throw new FaxDocumentAccessException(xlt('Error: The document does not belong to the current patient'));
         }
-        $data = (new \Document($docId))->get_data();
+        $document = new \Document($id);
+        if (!$this->userCanAccessDocument($document)) {
+            throw new FaxDocumentAccessException(xlt('Error: Not authorized to access this document'));
+        }
+        try {
+            $data = $document->get_data();
+        } catch (Throwable $e) {
+            // Deleted, expired, missing on disk or failed to decrypt; the detail
+            // (which can include a file path) goes to the log, not the user.
+            ServiceContainer::getLogger()->error('Fax send: the document could not be read', [
+                'documentId' => $id,
+                'exception' => $e,
+            ]);
+            throw new FaxDocumentAccessException(xlt('Error: The document could not be read'), 0, $e);
+        }
         if (!is_string($data) || $data === '') {
-            throw new RuntimeException(xlt('Error: No content to send.'));
+            throw new FaxDocumentAccessException(xlt('Error: No content to send.'));
         }
+        $name = $document->get_name();
 
-        return $data;
+        return ['content' => $data, 'name' => is_string($name) && $name !== '' ? $name : 'document'];
+    }
+
+    /**
+     * The patient open in the session, or 0 when there is none.
+     */
+    protected function activePatientId(): int
+    {
+        $pid = $this->getSession('pid');
+
+        return is_int($pid) || (is_string($pid) && ctype_digit($pid)) ? (int) $pid : 0;
+    }
+
+    /**
+     * The coarse patients/docs ACL for the current user.
+     */
+    protected function userHasDocumentsAcl(): bool
+    {
+        return AclMain::aclCheckCore('patients', 'docs');
+    }
+
+    /**
+     * Category ACLs: the user must be allowed every category the document is in.
+     */
+    protected function userCanAccessDocument(\Document $document): bool
+    {
+        return $document->can_access();
     }
 }

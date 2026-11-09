@@ -32,8 +32,17 @@ on:
 permissions:
   contents: read
 
+##
+# One group per PR and one per pushed branch.
+# - PRs: a new push cancels the run in progress.
+# - Pushes to master/rel-*: runs never cancel each other, so each run that
+#   starts finishes. GitHub keeps at most one more run pending per group, and a
+#   newer push replaces it. A burst of merges therefore runs the full matrix
+#   for the first and the latest commit, not for every commit in between,
+#   which keeps the shared runner pool free for PRs. A red run covers every
+#   commit since the last completed one.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || 'push' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:

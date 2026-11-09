@@ -305,6 +305,12 @@ UPDATE `notification_log` SET `type` = 'Email' WHERE `type` = '' AND `smsgateway
 ALTER TABLE `oauth_clients` ADD COLUMN `address_book_uuid` binary(16) DEFAULT NULL COMMENT 'users.uuid of the address book entry this client acts for; limits it to that entry''s Tasks and referrals';
 #EndIf
 
+-- The background service runner can call a class method, so the phimail service names the receiver
+-- directly. library/direct_message_check.inc.php, which held phimail_check(), is deleted.
+-- Unguarded so a rerun from before 7.0.1 also clears the require_once that upgrade sets back.
+UPDATE `background_services` SET `function` = 'OpenEMR\\Common\\DirectMessaging\\PhiMailReceiver::runBackgroundService', `require_once` = NULL
+WHERE `name` = 'phimail' AND (`function` = 'phimail_check' OR `require_once` = '/library/direct_message_check.inc.php');
+
 -- A patient app may replace its own write while it waits for review. The request keeps its id,
 -- so the version it replaced is kept on the history row that records the replacement.
 #IfMissingColumn patient_review_event payload

@@ -19,7 +19,11 @@
 
 namespace OpenEMR\Tests\Isolated\Common\Twig;
 
+use OpenEMR\Common\DirectMessaging\DirectMessageLogRecord;
+use OpenEMR\Common\DirectMessaging\DirectMessageLogStatus;
+use OpenEMR\Common\DirectMessaging\DirectMessageType;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Interface\Reports\DirectMessageLogController;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\PostOutcome;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailabilityController;
 use OpenEMR\Core\OEGlobalsBag;
@@ -748,6 +752,41 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/portal-lockout-tracker-populated.html',
         ];
 
+        yield 'reports/direct_message_log empty' => [
+            DirectMessageLogController::TEMPLATE,
+            [
+                'csrfToken' => 'test-csrf-token',
+                'records' => [],
+                'logstart' => 0,
+            ],
+            $fixtureDir . '/direct-message-log-empty.html',
+        ];
+
+        // One row per type and status label. Unknown, and codes the enums do not know (null),
+        // render blank.
+        yield 'reports/direct_message_log populated' => [
+            DirectMessageLogController::TEMPLATE,
+            [
+                'csrfToken' => 'test-csrf-token',
+                'records' => [
+                    self::directMessageLogRecord(id: 208, type: DirectMessageType::Sent, status: null),
+                    self::directMessageLogRecord(id: 207, type: null, status: DirectMessageLogStatus::Unknown, statusChangedAt: null),
+                    self::directMessageLogRecord(id: 206, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Failed),
+                    self::directMessageLogRecord(
+                        id: 205,
+                        type: DirectMessageType::Received,
+                        status: DirectMessageLogStatus::Received,
+                        sender: '<b>sender</b>@direct.example',
+                    ),
+                    self::directMessageLogRecord(id: 204, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Dispatched),
+                    self::directMessageLogRecord(id: 203, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Sent),
+                    self::directMessageLogRecord(id: 202, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Queued),
+                ],
+                'logstart' => 208,
+            ],
+            $fixtureDir . '/direct-message-log-populated.html',
+        ];
+
         yield 'forms/care_plan report' => [
             '/forms/care_plan/templates/care_plan_report.html.twig',
             [
@@ -912,6 +951,27 @@ class TwigTemplateRenderTest extends TestCase
             'regdate' => '2020-04-01',
             'street' => '12 Elm St',
         ], $overrides);
+    }
+
+    /**
+     * @codeCoverageIgnore Only reached from the data provider, which runs before instrumentation.
+     */
+    private static function directMessageLogRecord(
+        int $id,
+        ?DirectMessageType $type,
+        ?DirectMessageLogStatus $status,
+        string $sender = 'sender@direct.example',
+        ?string $statusChangedAt = '2026-01-05 09:30:00',
+    ): DirectMessageLogRecord {
+        return new DirectMessageLogRecord(
+            id: $id,
+            type: $type,
+            createdAt: '2026-01-05 09:00:00',
+            sender: $sender,
+            recipient: 'recipient@direct.example',
+            status: $status,
+            statusChangedAt: $statusChangedAt,
+        );
     }
 
     /**

@@ -8,12 +8,18 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ray Magauran <magauran@MedFetch.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once("../../globals.php");
 
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -23,16 +29,22 @@ $form_name = "Eye Exam";
 $table_name = "form_eye_base";
 $form_folder = "eye_mag";
 include_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
+
+$request = CurrentRequest::get();
+$requestPid = $request->query->getInt('pid');
+if ($requestPid > 0) {
+    // load_form.php takes the encounter from the same link as the pid.
+    // Switching to another patient or encounter needs a CSRF token in the link.
+    // A missing or zero encounter stops below before anything is written.
+    PatientSessionUtil::requireCsrfForLinkSwitch($request, $requestPid, $request->query->getInt('encounter') ?: null);
+    $pid = $requestPid;
+    SessionUtil::setSession('pid', $pid);
+} else {
+    $pid = $session->get('pid');
+}
+
 formHeader("Form: " . $form_name);
 $returnurl = 'encounter_top.php';
-
-$pid = $_REQUEST['pid'] ?? null;
-
-if (!$pid) {
-    $pid = $session->get('pid');
-} else {
-    SessionUtil::setSession('pid', $pid);
-}
 
 if (empty($user)) {
     $user = $session->get('authUser');
@@ -44,7 +56,7 @@ if (empty($group)) {
 
 // $encounter is already in scope from globals.php / load_form.php.
 // Guard against missing encounter (the scenario that caused #10844):
-if (!isset($encounter) || (int) $encounter === 0) { // @phpstan-ignore cast.int ($encounter comes from global scope)
+if (!isset($encounter) || (int) $encounter <= 0) { // @phpstan-ignore cast.int ($encounter comes from global scope)
     formHeader(xlt('Error'));
     echo '<div class="alert alert-danger">' .
         xlt('No active encounter. Please select or create an encounter first.') .

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Child-process fixture: a scripted phiMail server for DirectMessageCheckTest.
+ * Child-process fixture: a scripted phiMail server for PhiMailReceiverBackgroundServiceTest.
  *
  * Listens on a free local port and prints "port <n>". For each argument, reads
  * one command line from the client and answers with the argument. Then prints

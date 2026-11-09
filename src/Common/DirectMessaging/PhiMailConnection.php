@@ -120,17 +120,6 @@ final readonly class PhiMailConnection
     }
 
     /**
-     * Expose the underlying stream for the procedural helpers in
-     * library/direct_message_check.inc.php.
-     *
-     * @return resource
-     */
-    public function stream()
-    {
-        return $this->stream;
-    }
-
-    /**
      * @throws PhiMailStreamException
      */
     public function write(string $data): void

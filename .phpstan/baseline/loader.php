@@ -91,7 +91,6 @@ return ['includes' => [
     __DIR__ . '/new.deprecatedClass.php',
     __DIR__ . '/notEqual.alwaysFalse.php',
     __DIR__ . '/notEqual.alwaysTrue.php',
-    __DIR__ . '/notEqual.invalid.php',
     __DIR__ . '/notIdentical.alwaysFalse.php',
     __DIR__ . '/notIdentical.alwaysTrue.php',
     __DIR__ . '/nullCoalesce.expr.php',

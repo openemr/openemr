@@ -269,7 +269,8 @@ var EditNote = function(note) {
     const params = new URLSearchParams({
         active: '1',
         noteid: parts[1],
-        set_pid: parts[0]
+        set_pid: parts[0],
+        csrf_token_form: top.csrf_token_js
     });
     location.href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/pnotes_full.php?" + params;
 <?php else : ?>

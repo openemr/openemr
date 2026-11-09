@@ -59,6 +59,15 @@ final class PhiMailUserRepositoryTest extends TestCase
         self::assertSame($id, $this->users->serviceUserId());
     }
 
+    public function testFindsThePortalUser(): void
+    {
+        // The installer creates portal-user.
+        $id = QueryUtils::fetchSingleValue('SELECT id FROM users WHERE username = ?', 'id', ['portal-user']);
+        self::assertIsNumeric($id);
+
+        self::assertEquals($id, $this->users->portalUserId());
+    }
+
     private function deleteServiceUser(): void
     {
         QueryUtils::sqlStatementThrowException("DELETE FROM users WHERE username = 'phimail-service'");

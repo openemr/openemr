@@ -77,6 +77,20 @@ class DirectMessageLogRepository
     }
 
     /**
+     * Log a message the server accepted for delivery.
+     *
+     * @throws SqlQueryException
+     */
+    public function recordSent(string $messageId, string $sender, string $recipient, ?int $patientId, ?int $userId): void
+    {
+        $sql = <<<'SQL'
+            INSERT INTO direct_message_log (msg_type, msg_id, sender, recipient, status, status_ts, patient_id, user_id)
+            VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)
+            SQL;
+        QueryUtils::sqlStatementThrowException($sql, [$messageId, $sender, $recipient, $patientId, $userId], noLog: true);
+    }
+
+    /**
      * Log a message received from the server.
      *
      * @throws SqlQueryException
@@ -88,6 +102,36 @@ class DirectMessageLogRepository
             VALUES ('R', ?, ?, ?, 'R', NOW(), ?)
             SQL;
         QueryUtils::sqlStatementThrowException($sql, [$messageId, $sender, $recipient, $userId], noLog: true);
+    }
+
+    /**
+     * The most recent messages, newest first.
+     *
+     * @return list<DirectMessageLogRecord>
+     * @throws SqlQueryException
+     */
+    public function findLatest(int $limit): array
+    {
+        $sql = <<<'SQL'
+            SELECT id, msg_type, create_ts, sender, recipient, status, status_ts FROM direct_message_log
+            ORDER BY id DESC LIMIT ?
+            SQL;
+        return array_map(DirectMessageLogRecord::fromRow(...), QueryUtils::fetchRecords($sql, [$limit]));
+    }
+
+    /**
+     * The messages whose ids fall in this inclusive range, newest first.
+     *
+     * @return list<DirectMessageLogRecord>
+     * @throws SqlQueryException
+     */
+    public function findByIdRange(int $lowestId, int $highestId): array
+    {
+        $sql = <<<'SQL'
+            SELECT id, msg_type, create_ts, sender, recipient, status, status_ts FROM direct_message_log
+            WHERE id BETWEEN ? AND ? ORDER BY id DESC
+            SQL;
+        return array_map(DirectMessageLogRecord::fromRow(...), QueryUtils::fetchRecords($sql, [$lowestId, $highestId]));
     }
 
     private static function nullableId(mixed $value): ?int
