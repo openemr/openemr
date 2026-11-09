@@ -61,7 +61,6 @@
             </label>
             {foreach from=$file item=onefile}
             <p>
-                {if $error}<i>{$error|text|nl2br}</i><br />{/if}
                 {xlt t='Name'}: {$onefile->get_name()|text}<br /><br />
             </p>
             {/foreach}

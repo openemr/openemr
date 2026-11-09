@@ -245,7 +245,7 @@ class C_Document extends Controller
                         $error .= xl("The system does not permit uploading files of with size 0.") . "\n";
                     }
                 } elseif (OEGlobalsBag::getInstance()->getBoolean('secure_upload') && !isWhiteFile($_FILES['file']['tmp_name'][$key])) {
-                    $error .= xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
+                    $error .= xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . " (" . $fname . ").\n";
                 } else {
                     // Test for a zip of DICOM images
                     if (stripos((string) $_FILES['file']['type'][$key], 'zip') !== false) {
@@ -313,7 +313,7 @@ class C_Document extends Controller
                     }
                     // if mimetype still empty, then do not upload the file
                     if (empty($mimetype)) {
-                        $error .= xl("Unable to discover mimetype, so did not upload " . $_FILES['file']['tmp_name'][$key]) . ".\n";
+                        $error .= xl("Unable to discover mimetype, so did not upload") . " " . $fname . ".\n";
                         continue;
                     }
                     $d = new Document();
