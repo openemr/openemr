@@ -819,7 +819,9 @@ class ErxXmlBuilder
             }
 
             $quantity = self::field($prescription, 'quantity');
-            $sig = substr($quantity, 1, 1) . self::field($prescription, 'size') . ' ' . self::field($prescription, 'title4') . ' '
+            // Like eRx_xml.php, prefix the size with only the text after the quantity's leading digits, such as a unit.
+            $quantityText = is_numeric($quantity) ? '' : self::regexRemove('/^[0-9]+/', $quantity);
+            $sig = $quantityText . self::field($prescription, 'size') . ' ' . self::field($prescription, 'title4') . ' '
                 . self::field($prescription, 'dosage') . ' In ' . self::field($prescription, 'title1') . ' '
                 . self::field($prescription, 'title2') . ' ' . self::field($prescription, 'title3');
 

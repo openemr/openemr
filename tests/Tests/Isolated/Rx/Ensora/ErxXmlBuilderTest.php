@@ -268,7 +268,21 @@ class ErxXmlBuilderTest extends TestCase
         $this->assertSame(['allergyName' => 'Latex'], $this->children($elements[1]));
     }
 
-    public function testPrescriptionsAreSentAsOutsidePrescriptions(): void
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function prescriptionQuantityProvider(): array
+    {
+        return [
+            'number' => ['30', '500 mg 1 In tablet by mouth twice daily'],
+            'number and text' => ['30x', 'x500 mg 1 In tablet by mouth twice daily'],
+        ];
+    }
+
+    #[DataProvider('prescriptionQuantityProvider')]
+    public function testPrescriptionsAreSentAsOutsidePrescriptions(string $quantity, string $sig): void
     {
         $store = $this->createMock(ErxStoreInterface::class);
         $store->method('getPrescriptionById')->with(12, 42)->willReturn([
@@ -276,7 +290,7 @@ class ErxXmlBuilderTest extends TestCase
             'date_added' => '20260102',
             'docname' => 'Dr Who',
             'drug' => 'Amoxicillin',
-            'quantity' => '30',
+            'quantity' => $quantity,
             'size' => '500',
             'title4' => 'mg',
             'dosage' => '1',
@@ -296,7 +310,7 @@ class ErxXmlBuilderTest extends TestCase
             'doctorName' => 'Dr Who',
             'drug' => 'Amoxicillin',
             'dispenseNumber' => '30',
-            'sig' => '0500 mg 1 In tablet by mouth twice daily',
+            'sig' => $sig,
             'refillCount' => '2',
             'prescriptionType' => 'reconcile',
         ], $this->children($elements[0]));

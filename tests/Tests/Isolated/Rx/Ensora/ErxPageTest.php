@@ -170,7 +170,7 @@ class ErxPageTest extends TestCase
         $xml = '<NCScript><password>p&amp;ss&lt;1</password></NCScript>';
         $page = '<form action="RxEntry.aspx"><textarea>Error: bad password Original XML: &lt;password&gt;p&amp;amp;ss&amp;lt;1&lt;/password&gt; raw p&ss<1</textarea>';
 
-        $log = $this->errorLogFor($xml, $page);
+        $log = $this->errorLogFor($xml, $page, 'p&ss<1');
 
         $this->assertStringNotContainsString('ss<1', $log);
         $this->assertStringNotContainsString('ss&lt;1', $log);
@@ -180,17 +180,30 @@ class ErxPageTest extends TestCase
         $this->assertSame(3, substr_count($log, '[redacted]'));
     }
 
+    public function testTheErrorLogRedactsAPasswordWithQuotes(): void
+    {
+        $page = '<form action="RxEntry.aspx"><textarea>Error: bad password Original XML: p&quot;s&#039;1 p&quot;s&#39;1 p&quot;s&apos;1 p&amp;quot;s&amp;#039;1 p"s\'1</textarea>';
+
+        $log = $this->errorLogFor('<NCScript/>', $page, 'p"s\'1');
+
+        $this->assertStringNotContainsString('s&#', $log);
+        $this->assertStringNotContainsString('s&apos;', $log);
+        $this->assertStringNotContainsString('s&amp;#', $log);
+        $this->assertStringNotContainsString('"s\'', $log);
+        $this->assertSame(6, substr_count($log, '[redacted]'));
+    }
+
     /**
      * The error log checkError() writes for a failed request.
      */
-    private function errorLogFor(string $xml, string $page): string
+    private function errorLogFor(string $xml, string $page, string $password): string
     {
         $siteDirectory = sys_get_temp_dir() . '/erx-page-test-' . bin2hex(random_bytes(4));
         $globals = $this->createStub(ErxGlobalsInterface::class);
         $globals->method('getOpenEMRSiteDirectory')->willReturn($siteDirectory);
 
         $builder = $this->builderReturning($page, $globals);
-        $builder->method('getSentPassword')->willReturn(new Plaintext('p&ss<1'));
+        $builder->method('getSentPassword')->willReturn(new Plaintext($password));
         $builder->method('getRedactedXml')->willReturn('<NCScript><password>[redacted]</password></NCScript>');
 
         try {

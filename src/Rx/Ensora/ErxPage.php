@@ -231,8 +231,16 @@ class ErxPage
 
         $password = $sent->bytes;
 
-        $escaped = htmlspecialchars($password, ENT_XML1 | ENT_NOQUOTES);
-        $forms = array_values(array_unique([htmlspecialchars($escaped, ENT_XML1 | ENT_NOQUOTES), $escaped, $password]));
+        // Cover the password as sent and as a page may echo it, escaped once or twice, quotes included.
+        $forms = [$password];
+        foreach ([ENT_XML1 | ENT_NOQUOTES, ENT_XML1 | ENT_QUOTES, ENT_HTML401 | ENT_QUOTES] as $flags) {
+            $once = htmlspecialchars($password, $flags);
+            $short = str_replace('&#039;', '&#39;', $once);
+            array_push($forms, $once, $short, htmlspecialchars($once, $flags), htmlspecialchars($short, $flags));
+        }
+        $forms = array_values(array_unique($forms));
+        // Replace longer forms first so a shorter one can't split a longer one.
+        usort($forms, static fn(string $a, string $b): int => strlen($b) <=> strlen($a));
 
         return str_replace($forms, '[redacted]', $message);
     }
