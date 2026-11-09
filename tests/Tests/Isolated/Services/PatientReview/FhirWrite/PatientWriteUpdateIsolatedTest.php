@@ -167,6 +167,22 @@ class PatientWriteUpdateIsolatedTest extends TestCase
     }
 
     /**
+     * A withdrawal is checked for its resourceType as a replacement is: entered-in-error on
+     * another kind of resource doesn't cancel the write.
+     */
+    public function testAWithdrawalOfAnotherResourceTypeIsRefused(): void
+    {
+        $request = $this->held();
+        $resource = self::withId(['resourceType' => 'Patient', 'status' => 'entered-in-error'], $request->uuid);
+
+        $this->assertRefused(
+            PatientWriteRefusalReason::WrongType,
+            $request,
+            fn(): ReviewRequest => $this->hold()->replace($this->context(), PatientWritableType::VitalSignObservation, $request->uuid, $resource)
+        );
+    }
+
+    /**
      * FHIR update requires the resource to carry the id it is sent to.
      */
     public function testTheResourceIdMustMatchTheIdItIsSentTo(): void

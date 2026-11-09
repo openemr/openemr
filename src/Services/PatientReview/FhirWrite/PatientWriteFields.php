@@ -42,9 +42,7 @@ final class PatientWriteFields
      */
     public function force(PatientWritableType $type, array $resource, string $patientUuid): array
     {
-        if (($resource['resourceType'] ?? null) !== $type->fhirResourceType()->value) {
-            throw new PatientWriteRefusal(PatientWriteRefusalReason::WrongType);
-        }
+        self::refuseUnlessOfType($type, $resource);
         unset($resource['id'], $resource['meta'], $resource['text']);
 
         $patientField = match ($type) {
@@ -68,16 +66,33 @@ final class PatientWriteFields
      * QuestionnaireResponse and Observation say so in status; AllergyIntolerance and Condition
      * in verificationStatus.
      *
+     * The resourceType is checked first, as force() checks it: a withdrawal changes the held
+     * write as much as a replacement does.
+     *
      * @param array<array-key, mixed> $resource decoded FHIR JSON
+     * @throws PatientWriteRefusal when the resource is not of the type
      */
     public function withdraws(PatientWritableType $type, array $resource): bool
     {
+        self::refuseUnlessOfType($type, $resource);
+
         return match ($type) {
             PatientWritableType::QuestionnaireResponse,
             PatientWritableType::VitalSignObservation => ($resource['status'] ?? null) === 'entered-in-error',
             PatientWritableType::AllergyIntolerance => $this->verifiedAs($resource, self::ALLERGY_VERIFICATION_SYSTEM, 'entered-in-error'),
             PatientWritableType::Condition => $this->verifiedAs($resource, self::CONDITION_VERIFICATION_SYSTEM, 'entered-in-error'),
         };
+    }
+
+    /**
+     * @param array<array-key, mixed> $resource
+     * @throws PatientWriteRefusal when the resourceType is not the type's
+     */
+    private static function refuseUnlessOfType(PatientWritableType $type, array $resource): void
+    {
+        if (($resource['resourceType'] ?? null) !== $type->fhirResourceType()->value) {
+            throw new PatientWriteRefusal(PatientWriteRefusalReason::WrongType);
+        }
     }
 
     /**
