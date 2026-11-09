@@ -196,6 +196,10 @@ until composer install --no-dev --optimize-autoloader; do
     sleep 15
 done
 composer dump-autoload --optimize --apcu
+# Older OPENEMR_VERSION refs predate the script.
+if [ -f bin/compile-container.php ]; then
+    php bin/compile-container.php
+fi
 EOF
 
 # Stage 3: Build frontend assets (npm)
