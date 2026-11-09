@@ -858,6 +858,8 @@ class TwigTemplateRenderTest extends TestCase
                 'templateCategory' => 'questionnaire',
                 'isDialog' => false,
                 'source' => '',
+                // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+                'webroot' => '',
                 'sections' => new CollapsedSections(),
             ],
             $fixtureDir . '/questionnaire-import-tab.html',
@@ -878,6 +880,8 @@ class TwigTemplateRenderTest extends TestCase
                 'isDialog' => true,
                 'source' => 'paste',
                 // A user who folded the review away earlier.
+                // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+                'webroot' => '',
                 'sections' => new CollapsedSections(['questionnaire_import_review_expand']),
             ],
             $fixtureDir . '/questionnaire-import-dialog.html',
@@ -918,7 +922,8 @@ class TwigTemplateRenderTest extends TestCase
             new CollapsedSections($selectedId !== null ? ['questionnaire_availability_category_rules_expand'] : []),
         );
 
-        return $controller->buildView($selectedId, $editId, $outcome);
+        // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+        return [...$controller->buildView($selectedId, $editId, $outcome), 'webroot' => ''];
     }
 
     /**
