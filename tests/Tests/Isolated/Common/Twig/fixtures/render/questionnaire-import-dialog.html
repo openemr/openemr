@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Import Questionnaires</title>
+    <!-- setupHeader stub -->
+    <link href="/q.css" media="screen" rel="stylesheet" />
+<script src="/q.js" data-openemr-version="8.5.0" data-openemr-strings="{}"></script>
+</head>
+<body class="body_top">
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <h2 class="h4 mb-0">Import Questionnaires</h2>
+                    <button type="button" id="close-dialog" class="btn btn-sm btn-secondary">Close</button>
+            </div>
+    <p class="text-muted">Add one or more FHIR Questionnaires, review each one, then choose a category and import.</p>
+
+    <div id="page-alert" class="d-none" role="alert"></div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-header font-weight-bold">1. Add questionnaires</div>
+                <div class="card-body">
+                    <ul class="nav nav-pills nav-fill mb-3" role="tablist">
+                        <li class="nav-item"><a class="nav-link active" data-toggle="pill" href="#source-file" role="tab">File</a></li>
+                        <li class="nav-item"><a class="nav-link" id="source-paste-tab" data-toggle="pill" href="#source-paste" role="tab">Paste</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="source-file" role="tabpanel">
+                            <label for="files">FHIR Questionnaire JSON files</label>
+                            <input type="file" id="files" class="form-control-file" accept=".json,application/json,application/fhir+json" multiple />
+                        </div>
+                        <div class="tab-pane fade" id="source-paste" role="tabpanel">
+                            <label for="paste">FHIR Questionnaire JSON</label>
+                            <textarea id="paste" class="form-control" rows="8"></textarea>
+                            <button type="button" id="paste-add" class="btn btn-sm btn-primary mt-2">Add to review</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header font-weight-bold">To review</div>
+                <div id="queue" class="list-group list-group-flush"></div>
+                <div id="queue-empty" class="card-body text-muted small">Nothing added yet.</div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header font-weight-bold">3. Choose where it goes</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="category">Category <span class="text-danger" title="Required">*</span></label>
+                        <select id="category" class="form-control" required>
+                            <option value="">Choose a category</option>
+                                                            <option value="survey">Survey</option>
+                                                    </select>
+                        <small class="form-text text-muted">Applies to everything in this import.</small>
+                    </div>
+                                                            <button type="button" id="import" class="btn btn-primary btn-block mt-3" disabled>Import</button>
+                    <small id="import-hint" class="form-text text-muted"></small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="font-weight-bold">2. Review</span>
+                    <div class="btn-group btn-group-sm d-none" id="review-actions">
+                        <button type="button" id="view-response" class="btn btn-outline-primary">View Response</button>
+                        <button type="button" id="review-next" class="btn btn-primary">Next</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p id="review-empty" class="text-muted mb-0">Add a questionnaire to see it here exactly as staff will.</p>
+                    <div id="review-panel" class="d-none">
+                        <div class="form-row">
+                            <div class="form-group col-md-7">
+                                <label for="name">Name</label>
+                                <input type="text" id="name" class="form-control" maxlength="255" />
+                            </div>
+                            <div class="form-group col-md-5">
+                                <label for="tags">Tags (optional)</label>
+                                <input type="text" id="tags" class="form-control" placeholder="Separate with commas" />
+                            </div>
+                        </div>
+                        <div id="clash" class="alert alert-warning d-none">
+                            <div id="clash-text"></div>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="replace" />
+                                <label class="form-check-label" for="replace">Replace the existing questionnaire</label>
+                            </div>
+                        </div>
+                        <div id="form-container"></div>
+                        <pre id="response" class="d-none border p-2 mt-3 small"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+        const endpoint = 'manage_questionnaire_availability.php?view=import'
+        const csrfToken = "token"
+        const isDialog = true
+        const words = {
+            failed: "Something went wrong. See the error log for details.",
+            unreadable: "This file could not be read.",
+            enterJson: "Paste FHIR Questionnaire JSON first.",
+            newItem: "New",
+            replaces: "Replaces existing",
+            skipped: "Already exists",
+            invalid: "Not importable",
+            imported: "Imported",
+            notReviewed: "Not reviewed",
+            remove: "Remove",
+            importOne: "Import",
+            importMany: "Import {0} questionnaires",
+            needCategory: "Choose a category to continue.",
+            needReview: "Review every questionnaire before importing.",
+            needItems: "Add a questionnaire to import.",
+            clash: "`{0}` (version {1}) is already in the repository. Importing replaces it, and the repository keeps no earlier version.",
+            done: "Imported {0} of {1}."
+        }
+
+        const element = (id) => document.getElementById(id)
+        const items = []
+        let current = null
+        let runtime = null
+        let nextId = 1
+        let importedCount = 0
+
+        function fill (template, ...values) {
+            return values.reduce((text, value, index) => text.replace('{' + index + '}', value), template)
+        }
+
+        function showAlert (message, type) {
+            const alert = element('page-alert')
+            alert.className = message ? 'alert alert-' + type : 'd-none'
+            alert.textContent = message
+        }
+
+        async function post (fields) {
+            top.restoreSession()
+            const body = new FormData()
+            body.append('csrf_token_form', csrfToken)
+            Object.entries(fields).forEach(([key, value]) => body.append(key, value))
+            const response = await fetch(endpoint, { method: 'POST', body })
+            let payload = null
+            try {
+                payload = await response.json()
+            } catch (error) {
+                throw new Error(words.failed)
+            }
+            if (!response.ok) {
+                throw new Error(payload.error || words.failed)
+            }
+            return payload
+        }
+
+        function applyReview (item, review) {
+            item.json = JSON.stringify(review.questionnaire)
+            item.questionnaire = review.questionnaire
+            item.name = review.name
+            item.existing = review.existing
+            item.replace = false
+            if (item.tags === null) {
+                item.tags = review.tags.join(', ')
+            }
+            const category = element('category')
+            if (category.value === '' && review.suggestedCategory) {
+                category.value = review.suggestedCategory
+            }
+        }
+
+        async function addItem (label, json) {
+            const item = { id: nextId++, label, json, name: '', tags: null, existing: null, replace: false, reviewed: false, status: 'pending', error: '' }
+            items.push(item)
+            try {
+                applyReview(item, await post({ action: 'review', questionnaire: json }))
+                item.label = item.name || label
+            } catch (error) {
+                item.status = 'invalid'
+                item.error = error.message
+            }
+            if (current === null && item.status === 'pending') {
+                selectItem(item)
+            }
+            render()
+        }
+
+        function isImportable (item) {
+            return item.status === 'pending' && (item.existing === null || item.replace)
+        }
+
+        function badgeFor (item) {
+            if (item.status === 'invalid') {
+                return ['badge-danger', words.invalid]
+            }
+            if (item.status === 'imported') {
+                return ['badge-success', words.imported]
+            }
+            if (item.existing !== null) {
+                return item.replace ? ['badge-warning', words.replaces] : ['badge-secondary', words.skipped]
+            }
+            return item.reviewed ? ['badge-info', words.newItem] : ['badge-light border', words.notReviewed]
+        }
+
+        function renderQueue () {
+            const queue = element('queue')
+            queue.replaceChildren()
+            element('queue-empty').classList.toggle('d-none', items.length > 0)
+            items.forEach((item) => {
+                const row = document.createElement('div')
+                row.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center p-2'
+                    + (current === item ? ' active' : '')
+                row.setAttribute('role', 'button')
+                row.tabIndex = 0
+
+                const text = document.createElement('div')
+                text.className = 'text-truncate mr-2'
+                text.textContent = item.label
+                if (item.error) {
+                    const detail = document.createElement('div')
+                    detail.className = 'small text-danger text-wrap'
+                    detail.textContent = item.error
+                    text.appendChild(detail)
+                }
+
+                const side = document.createElement('div')
+                side.className = 'text-nowrap'
+                const [badgeClass, badgeText] = badgeFor(item)
+                const badge = document.createElement('span')
+                badge.className = 'badge ' + badgeClass
+                badge.textContent = badgeText
+                side.appendChild(badge)
+
+                const remove = document.createElement('button')
+                remove.type = 'button'
+                remove.className = 'close ml-2 float-none'
+                remove.title = words.remove
+                remove.setAttribute('aria-label', words.remove)
+                remove.textContent = '×'
+                remove.addEventListener('click', (event) => {
+                    event.stopPropagation()
+                    removeItem(item)
+                })
+                side.appendChild(remove)
+
+                row.append(text, side)
+                if (item.status !== 'invalid') {
+                    row.addEventListener('click', () => selectItem(item))
+                    row.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter') {
+                            selectItem(item)
+                        }
+                    })
+                }
+                queue.appendChild(row)
+            })
+        }
+
+        function renderImportButton () {
+            const button = element('import')
+            const ready = items.filter(isImportable)
+            let hint = ''
+            if (ready.length === 0) {
+                hint = words.needItems
+            } else if (element('category').value === '') {
+                hint = words.needCategory
+            } else if (ready.some((item) => !item.reviewed)) {
+                hint = words.needReview
+            }
+            button.disabled = hint !== ''
+            button.textContent = ready.length > 1 ? fill(words.importMany, ready.length) : words.importOne
+            element('import-hint').textContent = hint
+        }
+
+        function render () {
+            renderQueue()
+            renderImportButton()
+            element('review-next').classList.toggle('d-none', nextUnreviewed() === null)
+        }
+
+        function nextUnreviewed () {
+            return items.find((item) => item.status === 'pending' && !item.reviewed && item !== current) ?? null
+        }
+
+        function removeItem (item) {
+            items.splice(items.indexOf(item), 1)
+            if (current === item) {
+                current = null
+                const next = items.find((candidate) => candidate.status === 'pending')
+                if (next) {
+                    selectItem(next)
+                } else {
+                    clearReview()
+                }
+            }
+            render()
+        }
+
+        function clearReview () {
+            runtime = null
+            element('form-container').replaceChildren()
+            element('review-panel').classList.add('d-none')
+            element('review-actions').classList.add('d-none')
+            element('review-empty').classList.remove('d-none')
+        }
+
+        function showClash (item) {
+            const hasClash = item.existing !== null
+            element('clash').classList.toggle('d-none', !hasClash)
+            element('replace').checked = item.replace
+            if (hasClash) {
+                element('clash-text').textContent = fill(words.clash, item.existing.name, item.existing.version)
+            }
+        }
+
+        function selectItem (item) {
+            current = item
+            element('review-empty').classList.add('d-none')
+            element('review-panel').classList.remove('d-none')
+            element('review-actions').classList.remove('d-none')
+            element('response').classList.add('d-none')
+            element('name').value = item.name
+            element('tags').value = item.tags ?? ''
+            showClash(item)
+
+            const container = element('form-container')
+            container.replaceChildren()
+            try {
+                runtime = OpenEMRQuestionnaire.mount({
+                    questionnaire: item.questionnaire,
+                    container,
+                    options: { questionLayout: 'vertical' }
+                })
+                item.reviewed = true
+            } catch (error) {
+                runtime = null
+                item.status = 'invalid'
+                item.error = error.message
+                clearReview()
+            }
+            render()
+        }
+
+        async function renameCurrent () {
+            const item = current
+            const name = element('name').value.trim()
+            if (!item || name === item.name || name === '') {
+                return
+            }
+            try {
+                applyReview(item, await post({ action: 'review', questionnaire: item.json, name }))
+                item.name = name
+                item.label = name
+                if (current === item) {
+                    showClash(item)
+                }
+                render()
+            } catch (error) {
+                showAlert(error.message, 'danger')
+            }
+        }
+
+        async function readFiles (files) {
+            for (const file of Array.from(files)) {
+                let text
+                try {
+                    text = await file.text()
+                } catch (error) {
+                    items.push({ id: nextId++, label: file.name, json: '', name: '', tags: '', existing: null, replace: false, reviewed: false, status: 'invalid', error: words.unreadable })
+                    render()
+                    continue
+                }
+                await addItem(file.name, text)
+            }
+        }
+
+        async function importAll () {
+            const button = element('import')
+            const ready = items.filter(isImportable)
+            const surfaces = Array.from(document.querySelectorAll('.import-surface:checked')).map((box) => box.value)
+            const createTemplate = element('create-template')?.checked === true
+            button.disabled = true
+            showAlert('', '')
+            let done = 0
+            for (const item of ready) {
+                try {
+                    await post({
+                        action: 'import',
+                        questionnaire: item.json,
+                        name: item.name,
+                        category: element('category').value,
+                        tags: item.tags ?? '',
+                        replace_existing: item.replace ? '1' : '0',
+                        surfaces: surfaces.join(','),
+                        create_template: createTemplate ? '1' : '0',
+                        template_category: element('template-category')?.value ?? ''
+                    })
+                    item.status = 'imported'
+                    item.error = ''
+                    done++
+                } catch (error) {
+                    item.error = error.message
+                }
+                render()
+            }
+            importedCount += done
+            showAlert(fill(words.done, done, ready.length), done === ready.length ? 'success' : 'warning')
+            if (done > 0 && window.parent !== window) {
+                window.parent.postMessage({ questionnaireImported: true }, window.location.origin)
+            }
+            render()
+        }
+
+        element('files').addEventListener('change', (event) => {
+            readFiles(event.target.files).then(() => { event.target.value = '' })
+        })
+        element('paste-add').addEventListener('click', () => {
+            const text = element('paste').value.trim()
+            if (text === '') {
+                showAlert(words.enterJson, 'danger')
+                return
+            }
+            showAlert('', '')
+            addItem("Pasted questionnaire", text).then(() => { element('paste').value = '' })
+        })
+        element('name').addEventListener('change', renameCurrent)
+        element('tags').addEventListener('input', () => {
+            if (current) {
+                current.tags = element('tags').value
+            }
+        })
+        element('replace').addEventListener('change', () => {
+            if (current) {
+                current.replace = element('replace').checked
+                render()
+            }
+        })
+        element('category').addEventListener('change', renderImportButton)
+        element('import').addEventListener('click', importAll)
+        element('review-next').addEventListener('click', () => {
+            const next = nextUnreviewed()
+            if (next) {
+                selectItem(next)
+            }
+        })
+        element('view-response').addEventListener('click', () => {
+            if (runtime) {
+                const output = element('response')
+                output.textContent = JSON.stringify(runtime.getQuestionnaireResponse(), null, 2)
+                output.classList.remove('d-none')
+            }
+        })
+        element('create-template')?.addEventListener('change', (event) => {
+            element('template-category-group').classList.toggle('d-none', !event.target.checked)
+        })
+
+        if (isDialog) {
+            element('close-dialog').addEventListener('click', () => {
+                importedCount > 0 ? dlgclose('questionnaireImportDone') : dlgclose()
+            })
+            const source = "paste"
+            if (source === 'paste') {
+                $('#source-paste-tab').tab('show')
+            } else {
+                const picked = opener?.document?.getElementById('fetch_files')?.files
+                if (picked?.length) {
+                    readFiles(picked)
+                }
+            }
+        }
+        render()
+    })()
+</script>
+</body>
+</html>

@@ -547,7 +547,7 @@ class DocumentTemplateService extends QuestionnaireService
      * @return int
      * @throws Exception
      */
-    public function uploadTemplate($template_name, $category, $file, $pids = [], $q_only = false): int
+    public function uploadTemplate($template_name, $category, $file, $pids = []): int
     {
         $mimetype = null;
         if (function_exists('finfo_open')) {
@@ -565,26 +565,8 @@ class DocumentTemplateService extends QuestionnaireService
         $content = file_get_contents($file);
 
         $id = 0;
-        $q_ob = json_decode($content, true); // only pass array
-        $is_json = json_last_error() === JSON_ERROR_NONE;
-        if ($is_json) {
-            if (($q_ob['resourceType'] ?? '') != 'Questionnaire') {
-                throw new Exception(xlt("Not a valid Questionnaire resource!"));
-            }
-            if (empty($category)) {
-                $category = 'questionnaire';
-            }
-            $template_name = $template_name ?: $q_ob['title'] ?? $q_ob['name'];
-            $q_id = null;
-            $content = "{Questionnaire:$template_name}" . "\n";
-            $mimetype = 'application/text';
-            $service = new QuestionnaireService();
-            $id = $service->saveQuestionnaireResource(json_encode($q_ob), $template_name, null, $q_id, null);
-            if (empty($id)) {
-                return $id;
-            } elseif ($q_only) {
-                return $id;
-            }
+        if (is_array(json_decode($content, true))) {
+            throw new Exception(xlt('JSON files are not templates. Use Import Questionnaires for a FHIR Questionnaire.'));
         }
         foreach ($pids as $pid) {
             $id = $this->insertTemplate($pid, $category, $template_name, $content, $mimetype);

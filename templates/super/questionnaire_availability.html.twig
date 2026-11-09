@@ -6,6 +6,12 @@
   offered), the limits panel for one questionnaire (only at / for ..., and who may see it),
   and category rules (every questionnaire in a category). Autoescape is off in OpenEMR, so
   every value goes through |text, |attr or a translation filter.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
 {% macro rule_row(rule, selectedId, anchor, csrfToken) %}
     <tr class="{{ rule.highlighted ? 'table-active' : '' }}">
@@ -212,6 +218,7 @@
                                 </td>
                             {% endfor %}
                             <td class="text-right text-nowrap">
+                                <a class="btn btn-sm btn-outline-secondary" href="manage_questionnaire_availability.php?view=preview&amp;id={{ row.id|attr_url }}" onclick="top.restoreSession()">{{ 'Preview'|xlt }}</a>
                                 <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q={{ row.id|attr_url }}#limits" onclick="top.restoreSession()">
                                     {{ 'Limits'|xlt }}
                                     {% if row.extraRules > 0 %}

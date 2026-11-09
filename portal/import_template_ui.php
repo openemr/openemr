@@ -226,22 +226,12 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             });
 
             $('#fetch_files').change(function (e) {
-                const file = document.getElementById("fetch_files").files.item(0);
-                const fileName = file.name;
-                let howManyFiles = document.getElementById("fetch_files").files.length;
-                $('#upload_submit').removeClass('d-none');
-                if (howManyFiles === 1 && document.getElementById("upload_scope").checked) {
-                    if (fileName.toLowerCase().indexOf('.json') > 0 || file.type === 'application/json') {
-                        $('#upload_submit_questionnaire').removeClass('d-none');
-                        resolveImport();
-                    }
-                } else {
-                    if (fileName.toLowerCase().indexOf('.json') > 0 || file.type === 'application/json') {
-                        document.getElementById("upload_submit_questionnaire").type = 'submit';
-                        document.getElementById("upload_submit_questionnaire").removeAttribute("onclick");
-                        document.getElementById("upload_submit_questionnaire").innerText = xl("Questionnaires Repository All")
-                        $('#upload_submit_questionnaire').removeClass('d-none');
-                    }
+                const files = Array.from(document.getElementById("fetch_files").files);
+                const isJson = (file) => file.name.toLowerCase().endsWith('.json') || file.type === 'application/json';
+                $('#upload_submit').toggleClass('d-none', files.every(isJson));
+                $('#upload_submit_questionnaire').toggleClass('d-none', !files.some(isJson));
+                if (files.length > 0 && files.every(isJson)) {
+                    resolveImport('file');
                 }
                 return false;
             });
@@ -307,34 +297,22 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             $('#upload_scope_category').empty().append(' ' + xl('For Category') + ': ' + selCat);
         });
 
-        // a callback from dlgclose(fn) in render form
-        function doImportSubmit() {
-            // todo add message to user
-            top.restoreSession();
-            document.getElementById('form_upload').submit();
-            return false;
+        // a callback from dlgclose(fn) in the importer, so the repository picker lists the import
+        function questionnaireImportDone() {
+            document.edit_form.submit();
         }
 
-        function resolveImport(mode = 'render_import') {
-            if (mode === 'render_import') {
-                const file = document.getElementById("fetch_files").files.item(0);
-                if (file.name.toLowerCase().indexOf('.json') === -1 && file.type !== 'application/json') {
-                    return false;
-                }
-            }
+        function resolveImport(source = 'file') {
             top.restoreSession();
-            let callBack = '';
-            let url = './questionnaire_render.php?mode=' + encodeURIComponent(mode);
-            dlgopen(url, 'pop-questionnaire', 'modal-lg', 850, '', '', {
+            const url = '../interface/super/manage_questionnaire_availability.php?view=import&dialog=1'
+                + '&source=' + encodeURIComponent(source)
+                + '&template_category=' + encodeURIComponent($('#template_category').val());
+            dlgopen(url, 'pop-questionnaire', 'modal-xl', 850, '', '', {
                 allowDrag: true,
                 allowResize: true,
                 sizeHeight: 'full',
-                resolvePromiseOn: 'close',
-            }).then(() => {
-                // set callBackCmd from iframe then eval here
-                // currently using callback from dlgclose();
-                return false;
             });
+            return false;
         }
 
         let questionnaireViewCurrent = function (encounter, flag = '') {
@@ -684,19 +662,15 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             <hr />
                             <div class='col'>
                                 <div id='upload_scope_category'></div>
-                                <div class="input-group">
-                                    <label class="form-check"><?php echo xlt('If questionnaire import, use Questionnaire tool'); ?>
-                                        <input type="checkbox" class='form-check-inline ml-1' id='upload_scope' checked>
-                                </div>
                             </div>
                             <div class='form-group col'>
                                 <input type='file' class='btn btn-outline-info mr-1 mt-1' id="fetch_files" name='template_files[]' multiple />
                                 <div class="mt-1">
-                                    <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xla("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>">
+                                    <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xla("Import a template file."); ?>">
                                         <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Templates"); ?></button>
-                                    <button class='btn btn-outline-success d-none' type='button' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xla("Import to the questionnaire repository for later use in encounters or FHIR API"); ?>" onclick="return resolveImport();">
-                                        <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Questionnaires Repository"); ?></button>
-                                    <button type='button' id='render-nav-button' name='render-nav-button' class='btn btn-save btn-outline-primary' onclick="return resolveImport('render_import_manual');" title="<?php echo xla('Used to cut and paste Questionnaire or LHC Form json. Will then convert and import to questionnaire repository.') ?>"><?php echo xlt('Manual Questionnaire') ?></button>
+                                    <button class='btn btn-outline-success d-none' type='button' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xla("Review and import to the questionnaire repository. Can also create a portal template."); ?>" onclick="return resolveImport('file');">
+                                        <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Import Questionnaires"); ?></button>
+                                    <button type='button' id='render-nav-button' name='render-nav-button' class='btn btn-save btn-outline-primary' onclick="return resolveImport('paste');" title="<?php echo xla('Paste FHIR Questionnaire JSON to review and import to the questionnaire repository.') ?>"><?php echo xlt('Manual Questionnaire') ?></button>
                                     <button type='submit' id='blank-nav-button' name='blank-nav-button' class='btn btn-save btn-outline-primary' onclick="return createBlankTemplate();" title="<?php echo xla('Use this to create a new empty template for use with built in editor.') ?>"><?php echo xlt('New Empty Template') ?></button>
                                 </div>
                             </div>
@@ -725,9 +699,6 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             <input type='hidden' name='upload_pid' value='<?php echo attr(json_encode([-1])); ?>' />
                             <input type='hidden' name="template_category" value='<?php echo attr($category); ?>' />
                             <input type='hidden' name='upload_name' id='upload_name' value='<?php echo attr(json_encode([-1])); ?>' />
-                            <input type="hidden" id="q_mode" name="q_mode" value="" />
-                            <input type="hidden" id="lform" name="lform" value="" />
-                            <input type="hidden" id="questionnaire" name="questionnaire" value="" />
                         </form>
                     <?php } else { ?>
                         <div class="alert alert-danger"><?php echo xlt("Not Authorized to Upload Templates") ?></div>

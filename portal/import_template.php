@@ -20,7 +20,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
-use OpenEMR\Services\QuestionnaireService;
 
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
@@ -179,32 +178,6 @@ if (isset($_POST['blank-nav-button'])) {
     die();
 }
 
-if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
-    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
-    $id = 0;
-    $q = $_POST['questionnaire'] ?? '';
-    $l = $_POST['lform'] ?? '';
-    if (!empty($q)) {
-        $service = new QuestionnaireService();
-        try {
-            $id = $service->saveQuestionnaireResource($q, null, null, null, $l);
-        } catch (\Throwable $e) {
-            header('refresh:3;url= import_template_ui.php');
-            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
-                text($e->getMessage()) . '</h4>';
-            exit;
-        }
-        if (empty($id)) {
-            header('refresh:3;url= import_template_ui.php');
-            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
-                xlt("Import failed to save.") . '</h4>';
-            exit;
-        }
-    }
-    header("location: " . $_SERVER['HTTP_REFERER']);
-    die();
-}
-
 // templates file import
 if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['template_files']['name'][0] ?? '')) {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
@@ -230,7 +203,7 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
         }
         // get em and dispose
         try {
-            $success = $templateService->uploadTemplate($name, $_POST['template_category'], $_FILES['template_files']['tmp_name'][$i], $patient, isset($_POST['upload_submit_questionnaire']));
+            $success = $templateService->uploadTemplate($name, $_POST['template_category'], $_FILES['template_files']['tmp_name'][$i], $patient);
             if (!$success) {
                 echo "<p>" . xlt("Unable to save files. Use back button!") . "</p>";
                 exit;

@@ -33,6 +33,7 @@ $authorized = AclMain::aclCheckCore('patients', 'med');
 // Managing where questionnaires are offered changes it for every patient and every user,
 // so the tab is shown only to administrators; the embedded page enforces the same check.
 $canManageAvailability = $authorized && AclMain::aclCheckCore('admin', 'super');
+$canImport = $authorized && AclMain::aclCheckCore('admin', 'forms');
 $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
 $container = OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')
     ? 'container'
@@ -372,6 +373,21 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         </a>
                     </li>
                     <?php endif; ?>
+                    <?php if ($canImport) : ?>
+                    <li class="nav-item" role="presentation">
+                        <a
+                            class="nav-link"
+                            id="questionnaire-import-tab"
+                            data-toggle="tab"
+                            href="#questionnaire-import"
+                            role="tab"
+                            aria-controls="questionnaire-import"
+                            aria-selected="false"
+                        >
+                            <?php echo xlt('Import'); ?>
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
                 <div class="tab-content border-left border-right border-bottom p-3 bg-light" id="assessment-tabs-content">
                     <div
@@ -646,33 +662,61 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         ></iframe>
                     </div>
                     <?php endif; ?>
+                    <?php if ($canImport) : ?>
+                    <div
+                        class="tab-pane fade"
+                        id="questionnaire-import"
+                        role="tabpanel"
+                        aria-labelledby="questionnaire-import-tab"
+                    >
+                        <iframe
+                            id="questionnaire-import-frame"
+                            title="<?php echo xla('Import Questionnaires'); ?>"
+                            class="w-100 border-0"
+                            style="height: 85vh;"
+                            data-src="<?php echo attr($webRoot . '/interface/super/manage_questionnaire_availability.php?view=import'); ?>"
+                        ></iframe>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endif; ?>
     </div>
-    <?php if ($canManageAvailability) : ?>
+    <?php if ($canManageAvailability || $canImport) : ?>
     <script>
         (function () {
-            const tab = document.getElementById('questionnaire-availability-tab')
-            const frame = document.getElementById('questionnaire-availability-frame')
+            const availabilityFrame = document.getElementById('questionnaire-availability-frame')
+            const importFrame = document.getElementById('questionnaire-import-frame')
             const availableTab = document.getElementById('available-assessments-tab')
-            if (!tab || !frame) {
-                return
+            let changed = false
+            function loadOnFirstOpen (tab, frame) {
+                tab?.addEventListener('click', () => {
+                    if (frame && !frame.getAttribute('src')) {
+                        top.restoreSession()
+                        frame.setAttribute('src', frame.dataset.src)
+                    }
+                })
             }
+            loadOnFirstOpen(document.getElementById('questionnaire-availability-tab'), availabilityFrame)
+            loadOnFirstOpen(document.getElementById('questionnaire-import-tab'), importFrame)
             // The first load is the screen itself; any later load is the screen coming
             // back from a save, which can change what this patient's dashboard offers.
             let loads = 0
-            let changed = false
-            frame.addEventListener('load', () => {
+            availabilityFrame?.addEventListener('load', () => {
                 loads++
                 if (loads > 1) {
                     changed = true
                 }
             })
-            tab.addEventListener('click', () => {
-                if (!frame.getAttribute('src')) {
-                    top.restoreSession()
-                    frame.setAttribute('src', frame.dataset.src)
+            window.addEventListener('message', (event) => {
+                if (event.origin !== window.location.origin || event.source !== importFrame?.contentWindow) {
+                    return
+                }
+                if (event.data?.questionnaireImported === true) {
+                    changed = true
+                    if (availabilityFrame?.getAttribute('src')) {
+                        availabilityFrame.contentWindow.location.reload()
+                    }
                 }
             })
             // The Available list was rendered before the change, so refresh it rather than

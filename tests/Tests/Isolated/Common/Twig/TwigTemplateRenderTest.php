@@ -838,6 +838,56 @@ class TwigTemplateRenderTest extends TestCase
             self::availabilityView(null, null, new PostOutcome(), new FakeAvailabilityService()),
             $fixtureDir . '/questionnaire-availability-empty.html',
         ];
+
+        $importRuntime = ['stylesheet' => '/q.css', 'script' => '/q.js', 'version' => '8.5.0', 'strings' => '{}'];
+        yield 'super/questionnaire_import administrator in the dashboard tab' => [
+            'super/questionnaire_import.html.twig',
+            [
+                'csrfToken' => 'token',
+                'runtime' => $importRuntime,
+                'categories' => ['survey' => 'Survey', 'sdoh' => 'Social Determinants'],
+                'surfaces' => [
+                    ['value' => 'dashboard', 'label' => 'Patient dashboard', 'checked' => true],
+                    ['value' => 'smart', 'label' => 'SMART launch', 'checked' => false],
+                ],
+                'canAssign' => true,
+                'portalEnabled' => true,
+                'templateCategories' => ['' => 'General', 'questionnaire' => 'Questionnaire'],
+                'templateCategory' => 'questionnaire',
+                'isDialog' => false,
+                'source' => '',
+            ],
+            $fixtureDir . '/questionnaire-import-tab.html',
+        ];
+
+        yield 'super/questionnaire_import forms administrator in the portal dialog' => [
+            'super/questionnaire_import.html.twig',
+            [
+                'csrfToken' => 'token',
+                'runtime' => $importRuntime,
+                'categories' => ['survey' => 'Survey'],
+                'surfaces' => [],
+                'canAssign' => false,
+                'portalEnabled' => false,
+                'templateCategories' => [],
+                'templateCategory' => '',
+                'isDialog' => true,
+                'source' => 'paste',
+            ],
+            $fixtureDir . '/questionnaire-import-dialog.html',
+        ];
+
+        yield 'super/questionnaire_preview active questionnaire' => [
+            'super/questionnaire_preview.html.twig',
+            ['runtime' => $importRuntime, 'name' => 'PHQ-9', 'questionnaireJson' => '{"resourceType":"Questionnaire"}'],
+            $fixtureDir . '/questionnaire-preview.html',
+        ];
+
+        yield 'super/questionnaire_preview unavailable' => [
+            'super/questionnaire_preview.html.twig',
+            ['runtime' => $importRuntime, 'name' => '', 'questionnaireJson' => ''],
+            $fixtureDir . '/questionnaire-preview-unavailable.html',
+        ];
     }
 
     /**
