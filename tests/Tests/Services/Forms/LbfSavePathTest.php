@@ -231,6 +231,51 @@ class LbfSavePathTest extends TestCase
     }
 
     /**
+     * A patient occupation field is mirrored, and industry stays put.
+     *
+     * An empty occupation still clears that column.
+     */
+    #[Test]
+    public function testAPatientOccupationIsMirroredOntoEmployerData(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO employer_data (pid, occupation, industry, date) VALUES (?, ?, ?, DATE_SUB(NOW(), INTERVAL 1 DAY))',
+            [self::PID, 'old', 'ZZ mill']
+        );
+        $this->layoutField('occupation', 'D', 72, 2, '');
+        $this->postForm([
+            'form_occupation' => 'ZZ nurse',
+            'bn_save' => 'Save',
+        ]);
+
+        $row = QueryUtils::querySingleRow(
+            'SELECT occupation, industry FROM employer_data WHERE pid = ? ORDER BY date DESC, id DESC LIMIT 1',
+            [self::PID]
+        );
+        $this->assertIsArray($row);
+        $this->assertSame('ZZ nurse', $row['occupation']);
+        $this->assertSame('ZZ mill', $row['industry']);
+        $patient = QueryUtils::querySingleRow(
+            'SELECT occupation FROM patient_data WHERE pid = ?',
+            [self::PID]
+        );
+        $this->assertIsArray($patient);
+        $this->assertSame('ZZ nurse', $patient['occupation']);
+
+        $this->postForm([
+            'form_occupation' => '',
+            'bn_save' => 'Save',
+        ]);
+        $cleared = QueryUtils::querySingleRow(
+            'SELECT occupation, industry FROM employer_data WHERE pid = ? ORDER BY date DESC, id DESC LIMIT 1',
+            [self::PID]
+        );
+        $this->assertIsArray($cleared);
+        $this->assertSame('', $cleared['occupation']);
+        $this->assertSame('ZZ mill', $cleared['industry']);
+    }
+
+    /**
      * A shared layout value is stored and read back.
      */
     #[Test]
