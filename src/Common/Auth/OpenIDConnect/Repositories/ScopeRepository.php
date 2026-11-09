@@ -95,14 +95,23 @@ class ScopeRepository implements ScopeRepositoryInterface
         if ($scope->getContext() !== 'patient' || !$scope->isResourcePermissionScope()) {
             return true;
         }
+        // Only a scope that is nothing but create and update, on a type patient apps can write,
+        // is dropped: a scope can't be granted in part, and dropping one that also reads would
+        // take away the app's read access. The hold refuses the write on every request anyway.
         $permissions = $scope->getPermissions()->getPermissionsAsArray();
-        if (!$permissions['create'] && !$permissions['update']) {
+        $writesOnly = ($permissions['create'] || $permissions['update'])
+            && !$permissions['read'] && !$permissions['search'] && !$permissions['delete'];
+        $writableResources = array_map(
+            static fn (PatientWritableType $type): string => $type->fhirResourceType()->value,
+            PatientWritableType::cases(),
+        );
+        if (!$writesOnly || !in_array($scope->getResource(), $writableResources, true)) {
             return true;
         }
         $clientType = in_array($client->isConfidential(), [true, 1, '1'], true)
             ? PatientWriteClientType::Confidential
             : PatientWriteClientType::Public;
-        return $policy->grantsWriteScope($clientType, $scope->getResource() ?? '');
+        return $policy->grantsWriteScope($clientType, $scope->getResource());
     }
 
 

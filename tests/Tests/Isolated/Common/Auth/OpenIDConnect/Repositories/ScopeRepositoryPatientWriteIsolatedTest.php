@@ -91,6 +91,27 @@ class ScopeRepositoryPatientWriteIsolatedTest extends TestCase
         $this->assertSame(['patient/QuestionnaireResponse.rs'], $this->finalized(false));
     }
 
+    /**
+     * A scope can't be granted in part, so one that also reads is kept: dropping it would take
+     * away the app's read access. The hold still refuses the write on every request.
+     */
+    public function testAScopeThatAlsoReadsIsNeverDropped(): void
+    {
+        $this->siteSettings(PatientWriteMode::Off);
+        $client = new ClientEntity();
+        $client->setIdentifier('app');
+        $client->setIsConfidential(false);
+        $client->setScopes(['patient/QuestionnaireResponse.cruds']);
+
+        $scopes = (new ScopeRepository())->finalizeScopes(
+            [ScopeEntity::createFromString('patient/QuestionnaireResponse.crus')],
+            'authorization_code',
+            $client,
+        );
+
+        $this->assertSame(['patient/QuestionnaireResponse.crus'], array_map(static fn ($scope): string => $scope->getIdentifier(), $scopes));
+    }
+
     public function testBothKindsOfAppGetTheWriteScopeWhenTheModeAllowsBoth(): void
     {
         $this->siteSettings(PatientWriteMode::ConfidentialAndPublic);
