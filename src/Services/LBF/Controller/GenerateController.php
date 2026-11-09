@@ -228,6 +228,10 @@ class GenerateController
                     $paragraphCurrent = $values[$paragraphField] ?? '';
                     $instances = $reader->instancesForPatient($formId, $pid);
                     $message = xl('Saved.');
+                    $after = $this->stringParam($request, 'after');
+                    if ($after === 'print' || $after === 'form') {
+                        $this->redirectAfterSave($formId, $pid, $instanceId, $after);
+                    }
                 }
             }
         }
@@ -242,6 +246,7 @@ class GenerateController
         }
 
         $paragraphProposed = StatementParagraph::fromActions($actions);
+        $paragraphEditor = self::editorParagraph($paragraphCurrent, $paragraphProposed);
         $measurements = [];
         $traces = [];
         if ($values !== [] && $rules !== []) {
@@ -321,6 +326,7 @@ class GenerateController
             'paragraphTitle' => $paragraphTitle,
             'paragraphCurrent' => $paragraphCurrent,
             'paragraphProposed' => $paragraphProposed,
+            'paragraphEditor' => $paragraphEditor,
             'measurements' => $measurements,
             'traces' => $traces,
             'message' => $message,
@@ -336,6 +342,46 @@ class GenerateController
             'adminUrl' => $this->bootstrap->getPublicUrl() . 'admin.php',
             'assetBase' => $this->bootstrap->getPublicUrl() . 'assets/',
         ]);
+    }
+
+    /**
+     * Text stored on the form: the note already there, plus generated
+     * sentences that are not already in it.
+     */
+    public static function editorParagraph(string $current, string $proposed): string
+    {
+        if ($proposed === '') {
+            return $current;
+        }
+        $merged = (new StatementApplier())->apply(
+            ['summary' => $current],
+            [],
+            'append',
+            'summary',
+            $proposed
+        );
+        return $merged['summary'] ?? $current;
+    }
+
+    /**
+     * After a save, open the printed form or the encounter that shows it.
+     */
+    private function redirectAfterSave(string $formId, int $pid, int $instanceId, string $dest): never
+    {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $token = '';
+        try {
+            $token = CsrfUtils::collectCsrfToken($session);
+        } catch (\RuntimeException) {
+            $token = '';
+        }
+        $url = $this->bootstrap->getPublicUrl() . 'open_form.php?form_id=' . rawurlencode($formId)
+            . '&pid=' . $pid
+            . '&instance_id=' . $instanceId
+            . '&dest=' . rawurlencode($dest)
+            . '&csrf_token_form=' . rawurlencode($token);
+        header('Location: ' . $url, true, 302);
+        exit;
     }
 
     /**

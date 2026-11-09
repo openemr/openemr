@@ -193,35 +193,15 @@
                 <input type="hidden" name="generate" value="1" />
                 <div class="form-group">
                     <label for="paragraph_text">{% if paragraphTitle %}{{ paragraphTitle|text }}{% else %}{{ "Paragraph"|xlt }}{% endif %}</label>
-                    <textarea class="form-control" id="paragraph_text" name="paragraph_text" rows="8">{% if paragraphCurrent %}{{ paragraphCurrent|text }}{% else %}{{ paragraphProposed|text }}{% endif %}</textarea>
+                    <textarea class="form-control" id="paragraph_text" name="paragraph_text" rows="8">{{ paragraphEditor|text }}</textarea>
+                    <small class="form-text text-muted">{{ "Saving writes this text on the form. The encounter and the printed form show that same text."|xlt }}</small>
                 </div>
-                <button type="submit" class="btn btn-primary">{{ "Save"|xlt }}</button>
+                <button type="submit" class="btn btn-primary" name="after" value="">{{ "Save"|xlt }}</button>
+                <button type="submit" class="btn btn-outline-secondary" name="after" value="form">{{ "Open encounter"|xlt }}</button>
+                <button type="submit" class="btn btn-outline-secondary" id="lbf-stmt-print" name="after" value="print">{{ "Print"|xlt }}</button>
             </form>
-
-            {% if formUrl %}
-                <a class="btn btn-outline-secondary" id="lbf-stmt-open-form"
-                   href="open_form.php?form_id={{ form_id|attr_url }}&amp;pid={{ pid|attr_url }}&amp;instance_id={{ instance_id|attr_url }}&amp;dest=form&amp;csrf_token_form={{ csrfTokenValue|attr_url }}"
-                   data-dest="form"
-                   data-form-id="{{ form_id|attr }}"
-                   data-pid="{{ pid|attr }}"
-                   data-instance-id="{{ instance_id|attr }}"
-                   data-csrf="{{ csrfTokenValue|attr }}"
-                   data-fallback-url="{{ formUrl|attr }}"
-                   {% if patientSetUrl %}data-tabs-url="{{ patientSetUrl|attr }}"{% endif %}
-                   onclick="if (typeof openEncounterTab === 'function') { openEncounterTab(event); return false; }">{{ "Open encounter"|xlt }}</a>
-            {% endif %}
-            {% if printUrl %}
-                <a class="btn btn-outline-secondary" id="lbf-stmt-print"
-                   href="open_form.php?form_id={{ form_id|attr_url }}&amp;pid={{ pid|attr_url }}&amp;instance_id={{ instance_id|attr_url }}&amp;dest=print&amp;csrf_token_form={{ csrfTokenValue|attr_url }}"
-                   data-dest="print"
-                   data-form-id="{{ form_id|attr }}"
-                   data-pid="{{ pid|attr }}"
-                   data-instance-id="{{ instance_id|attr }}"
-                   data-csrf="{{ csrfTokenValue|attr }}"
-                   target="_blank">{{ "Print"|xlt }}</a>
-            {% endif %}
         {% endif %}
     </div>
-    <script src="{{ assetBase|attr }}generate.js?v=0.1.2"></script>
+    <script src="{{ assetBase|attr }}generate.js?v=0.1.3"></script>
 </body>
 </html>
