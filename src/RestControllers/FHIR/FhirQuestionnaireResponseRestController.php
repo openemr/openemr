@@ -21,6 +21,8 @@ use OpenApi\Attributes as OA;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -58,6 +60,8 @@ class FhirQuestionnaireResponseRestController
      * is run in the patient context (as a logged in patient) it restricts the search to just that patient.
      *
      * @param  HttpRestRequest $request
+     * @param  list<array<array-key, mixed>> $held the patient app's own writes held for review that
+     *                                             the search matches, listed after the chart's records
      * @return ResponseInterface
      */
     #[OA\Get(
@@ -109,11 +113,11 @@ class FhirQuestionnaireResponseRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function list(HttpRestRequest $request): ResponseInterface
+    public function list(HttpRestRequest $request, array $held = []): ResponseInterface
     {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $result = $this->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+            $result = $this->getAll($request->getQueryParams(), $request->getPatientUUIDString(), $held);
         } else {
             // Non-patient ACL enforcement (`patients/med`) lives at the FHIR
             // route callback for GET /fhir/QuestionnaireResponse so it runs
@@ -200,9 +204,10 @@ class FhirQuestionnaireResponseRestController
      * - date {gt|lt|ge|le}
      *
      * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param  list<array<array-key, mixed>> $held held patient app writes to list after the chart's records
      * @return false|FHIRBundle|ResponseInterface FHIR bundle with query results, or a 400 OperationOutcome for a search value that didn't parse
      */
-    private function getAll($searchParams, $puuidBind = null): FHIRBundle|ResponseInterface|false
+    private function getAll($searchParams, $puuidBind = null, array $held = []): FHIRBundle|ResponseInterface|false
     {
         $processingResult = $this->resourceService->getAll($searchParams, $puuidBind);
         $searchError = RestControllerHelper::getFhirSearchErrorPsrResponse($processingResult);
@@ -217,6 +222,14 @@ class FhirQuestionnaireResponseRestController
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
             $bundleEntries[] = $fhirBundleEntry;
+        }
+        $fhirUrl = (new ServerConfig())->getFhirUrl();
+        foreach ($held as $resource) {
+            $id = $resource['id'] ?? null;
+            $bundleEntries[] = new FHIRBundleEntry([
+                'fullUrl' => $fhirUrl . '/QuestionnaireResponse/' . (is_string($id) ? $id : ''),
+                'resource' => new FHIRQuestionnaireResponse($resource),
+            ]);
         }
         return $this->fhirService->createBundle('Questionnaire', $bundleEntries, false);
     }

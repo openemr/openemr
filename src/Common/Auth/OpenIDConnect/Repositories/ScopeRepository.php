@@ -26,6 +26,9 @@ use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWritableType;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteClientType;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWritePolicy;
 use OpenIDConnectServer\Repositories\ClaimSetRepositoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -66,8 +69,40 @@ class ScopeRepository implements ScopeRepositoryInterface
     {
         if (empty($this->serverScopeList)) {
             $this->serverScopeList = new ServerScopeListEntity();
+            $this->serverScopeList->setPatientWriteResources(array_map(
+                static fn (PatientWritableType $type): string => $type->fhirResourceType()->value,
+                $this->getPatientWritePolicy()->advertisedTypes(),
+            ));
         }
         return $this->serverScopeList;
+    }
+
+    /**
+     * Which patient app writes the site accepts, read each time so a change applies at once.
+     */
+    private function getPatientWritePolicy(): PatientWritePolicy
+    {
+        return PatientWritePolicy::fromGlobals(OEGlobalsBag::getInstance());
+    }
+
+    /**
+     * A patient write scope (patient/<Resource>.c or .u) is issued only to a kind of client the
+     * site's mode allows to write that type. The hold checks again on every request, so a token
+     * issued before the mode was turned down still can't write.
+     */
+    private function grantsPatientWriteScope(ScopeEntity $scope, ClientEntity $client, PatientWritePolicy $policy): bool
+    {
+        if ($scope->getContext() !== 'patient' || !$scope->isResourcePermissionScope()) {
+            return true;
+        }
+        $permissions = $scope->getPermissions()->getPermissionsAsArray();
+        if (!$permissions['create'] && !$permissions['update']) {
+            return true;
+        }
+        $clientType = in_array($client->isConfidential(), [true, 1, '1'], true)
+            ? PatientWriteClientType::Confidential
+            : PatientWriteClientType::Public;
+        return $policy->grantsWriteScope($clientType, $scope->getResource() ?? '');
     }
 
 
@@ -156,6 +191,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             $clientScopes = is_array($registeredScopes) ? array_values(array_filter($registeredScopes, is_string(...))) : [];
             $clientValidatorArray = $this->buildScopeValidatorArray($clientScopes);
             $grantTypePolicy = new ClientGrantTypePolicy();
+            $patientWritePolicy = $this->getPatientWritePolicy();
             foreach ($scopes as $scope) {
                 $scopeListNames[] = $scope->getIdentifier();
                 $lookupKey = $scope->getScopeLookupKey();
@@ -163,6 +199,7 @@ class ScopeRepository implements ScopeRepositoryInterface
                     isset($clientValidatorArray[$lookupKey])
                     && $clientValidatorArray[$lookupKey]->grantsScope($scope)
                     && $grantTypePolicy->grantAllowsScope($grantType, $scope)
+                    && $this->grantsPatientWriteScope($scope, $clientEntity, $patientWritePolicy)
                 ) {
                     $finalizedScopes[] = $scope;
                     $finalizedScopeNames[] = $scope->getIdentifier();

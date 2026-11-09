@@ -3345,7 +3345,7 @@ $GLOBALS_METADATA = [
                 PatientWriteMode::ConfidentialAndPublic->value => xl('Confidential and public apps'),
             ],
             PatientWriteMode::Off->value,
-            xl('Which patient apps may submit data through the FHIR API. Every submission is held for staff review and stays out of the chart until it is approved. Not active yet: patient app writes are still refused in this version.')
+            xl('Which patient apps may submit data through the FHIR API. Every submission is held for staff review and stays out of the chart until it is approved. Only QuestionnaireResponse is accepted in this version; the other types are refused whatever their setting.')
         ],
         GlobalConnectorsEnum::FHIR_PATIENT_WRITE_QUESTIONNAIRE_RESPONSE->value => [
             xl('Patient App FHIR Writes: QuestionnaireResponse'),
@@ -3357,19 +3357,19 @@ $GLOBALS_METADATA = [
             xl('Patient App FHIR Writes: Vital Signs'),
             'bool',
             '0',
-            xl('Accept vital sign Observations from patient apps, held for staff review.')
+            xl('Accept vital sign Observations from patient apps, held for staff review. Not accepted yet in this version.')
         ],
         GlobalConnectorsEnum::FHIR_PATIENT_WRITE_ALLERGY_INTOLERANCE->value => [
             xl('Patient App FHIR Writes: AllergyIntolerance'),
             'bool',
             '0',
-            xl('Accept allergies from patient apps, held for staff review.')
+            xl('Accept allergies from patient apps, held for staff review. Not accepted yet in this version.')
         ],
         GlobalConnectorsEnum::FHIR_PATIENT_WRITE_CONDITION->value => [
             xl('Patient App FHIR Writes: Condition'),
             'bool',
             '0',
-            xl('Accept conditions from patient apps, held for staff review.')
+            xl('Accept conditions from patient apps, held for staff review. Not accepted yet in this version.')
         ],
         GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value => [
             xl('Maximum supported version for US Core FHIR Implementation Guide -- note if a resource/profile is forwards compatible it will still be supported'),
