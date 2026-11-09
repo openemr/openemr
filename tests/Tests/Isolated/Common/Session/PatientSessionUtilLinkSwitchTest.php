@@ -192,13 +192,13 @@ final class PatientSessionUtilLinkSwitchTest extends TestCase
     public function testPageChecksTheTokenBeforeSwitching(string $path): void
     {
         $source = (new Filesystem())->readFile(dirname(__DIR__, 5) . '/' . $path);
-        $calls = self::functionCalls($source);
-        $guard = array_search('requireCsrfForLinkSwitch', $calls, true);
+        $guard = null;
         $firstWrite = null;
-        foreach ($calls as $position => $name) {
-            if (in_array(strtolower($name), ['setpid', 'setencounter'], true)) {
-                $firstWrite = $position;
-                break;
+        foreach (self::functionCalls($source) as $position => $name) {
+            if ($name === 'requireCsrfForLinkSwitch') {
+                $guard ??= $position;
+            } elseif (in_array(strtolower($name), ['setpid', 'setencounter'], true)) {
+                $firstWrite ??= $position;
             }
         }
 

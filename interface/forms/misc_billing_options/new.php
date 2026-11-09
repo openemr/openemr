@@ -43,11 +43,12 @@ $encounter = EncounterSessionUtil::getEncounter();
 require_once("$srcdir/options.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$request = CurrentRequest::get();
+$isBilling = $request->query->has('isBilling');
 
-if (isset($_REQUEST['isBilling'])) {
+if ($isBilling) {
     // The billing report opens this for any claim's patient and encounter.
     // Switching to another patient or encounter needs a CSRF token in the link.
-    $request = CurrentRequest::get();
     $pid = $request->query->getInt('pid');
     $encounter = $request->query->getInt('enc');
     PatientSessionUtil::requireCsrfForLinkSwitch($request, $pid, $encounter);
@@ -393,7 +394,7 @@ $obj = is_array($fetched) ? $fetched : [];
     // jQuery stuff to make the page a little easier to use
     $(function () {
         $(".dontsave").click(function () {
-            <?php if (isset($_REQUEST['isBilling'])) { ?>
+            <?php if ($isBilling) { ?>
                 dlgclose();
             <?php } else { ?>
                 parent.closeTab(window.name, false);
