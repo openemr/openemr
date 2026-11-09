@@ -470,6 +470,12 @@ history. Minimum prompt fields:
 - **Return-format expectations.** A `<250-word` summary with verdict, 3–5 key findings,
   follow-ups surfaced. Explicitly note that the summary is a preview — the brief is
   authoritative.
+- **Standing-rules state at dispatch time.** If a standing rule has landed or changed
+  mid-pass (e.g. §2.7 "resolved-thread" rule shipped mid-pass in 2026-11 and the
+  parent had to re-audit already-returned briefs that used the pre-change mental
+  model), note the rule explicitly in the prompt so the subagent doesn't apply a
+  stale model. The subagent reads `standing-rules.md` from disk, but the parent
+  session holds the state-of-active-changes context across the pass.
 
 ### Security-adjacent findings in subagent briefs
 
