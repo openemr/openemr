@@ -234,51 +234,95 @@ class FhirSearchModifierMatrixApiTest extends TestCase
     /**
      * `:missing=true` on a string param — FHIR R4 §3.1.1.5.5.3 says
      * the server should return resources whose referenced element is
-     * absent / null. Current server behavior: the modifier passes
-     * StringSearchField's whitelist but
-     * SearchFieldStatementResolver::resolveStringSearchField has no
-     * match arm for SearchModifier::MISSING, so `$result` is null and
-     * SearchQueryFragment::setFragment(null) throws a TypeError. The
-     * route returns HTTP 500 with no body (ExceptionHandlerListener
-     * strips exception detail from the response).
-     *
-     * This is a drift surfaced during this audit — a request-induced
-     * 500 is a lower-grade reliability bug but a real one. Locked
-     * here so a future fix flips the assertion from 500 to a Bundle
-     * response.
+     * absent / null. Current server behavior: implemented.
+     * SearchFieldStatementResolver::resolveStringSearchField emits
+     * `(lname IS NULL OR lname = '')`, so a patient with an empty
+     * family name is in the Bundle and the three fixtures are not.
      */
     #[Test]
-    public function testStringMissingTrueCurrentlyReturns500(): void
+    public function testStringMissingTrueMatchesOnlyAbsentValues(): void
     {
-        $resp = $this->buildClient()->get(
-            $this->baseUrl . '/apis/default/fhir/Patient?family:missing=true',
-            ['headers' => $this->authHeaders()],
+        $noFamily = $this->installPatientFixture('', self::DOB_1);
+        $bundle = $this->getBundle('/apis/default/fhir/Patient?family:missing=true');
+        self::assertContains(
+            $noFamily['uuid'],
+            $this->extractEntryIds($bundle),
+            'family:missing=true must return a patient without a family name',
         );
         self::assertSame(
-            500,
-            $resp->getStatusCode(),
-            'Drift surfaced during item 3 audit — StringSearchField admits the '
-            . ':missing modifier but resolveStringSearchField has no match arm '
-            . 'for it, so the server crashes on a well-formed FHIR R4 request. '
-            . 'When fixed, flip this to assert a 200 Bundle response.',
+            [],
+            $this->extractFixtureFamilies($bundle),
+            'family:missing=true must not return a patient that has a family name',
         );
     }
 
     /**
-     * `:missing=false` same drift as `:missing=true` — the resolver's
-     * match arm is missing for either value.
+     * `:missing=false` on a string param — the complement of
+     * `:missing=true`. Current server behavior: implemented. The
+     * resolver emits `(lname IS NOT NULL AND lname != '')`, so every
+     * fixture patient is in the Bundle.
      */
     #[Test]
-    public function testStringMissingFalseCurrentlyReturns500(): void
+    public function testStringMissingFalseMatchesPresentValues(): void
     {
-        $resp = $this->buildClient()->get(
-            $this->baseUrl . '/apis/default/fhir/Patient?family:missing=false',
-            ['headers' => $this->authHeaders()],
+        $bundle = $this->getBundle('/apis/default/fhir/Patient?family:missing=false');
+        $families = $this->extractFixtureFamilies($bundle);
+        sort($families);
+        $expected = [self::FAMILY_ALPHA, self::FAMILY_BRAVO, self::FAMILY_CHARLIE];
+        sort($expected);
+        self::assertSame(
+            $expected,
+            $families,
+            'family:missing=false must return every patient that has a family name',
+        );
+    }
+
+    /**
+     * `:missing=true` on a token param. FhirPatientService capitalises
+     * gender codes before the search, so this goes through that path.
+     * The resolver emits `sex IS NULL` or empty, so a patient without a
+     * gender is in the Bundle and the three fixtures are not.
+     */
+    #[Test]
+    public function testTokenMissingTrueMatchesOnlyAbsentValues(): void
+    {
+        $noGender = $this->installPatientFixture(self::FAMILY_PREFIX . 'NoGender', self::DOB_1, '');
+        $bundle = $this->getBundle('/apis/default/fhir/Patient?gender:missing=true');
+        self::assertContains(
+            $noGender['uuid'],
+            $this->extractEntryIds($bundle),
+            'gender:missing=true must return a patient without a gender',
         );
         self::assertSame(
-            500,
-            $resp->getStatusCode(),
-            'See testStringMissingTrueCurrentlyReturns500 — same drift.',
+            [],
+            $this->extractFixtureFamilies($bundle),
+            'gender:missing=true must not return a patient that has a gender',
+        );
+    }
+
+    /**
+     * `:missing=false` on a token param, the complement of
+     * `:missing=true`: every fixture is in the Bundle and the patient
+     * without a gender is not.
+     */
+    #[Test]
+    public function testTokenMissingFalseMatchesPresentValues(): void
+    {
+        $noGender = $this->installPatientFixture(self::FAMILY_PREFIX . 'NoGender', self::DOB_1, '');
+        $bundle = $this->getBundle('/apis/default/fhir/Patient?gender:missing=false');
+        self::assertNotContains(
+            $noGender['uuid'],
+            $this->extractEntryIds($bundle),
+            'gender:missing=false must not return a patient without a gender',
+        );
+        $families = $this->extractFixtureFamilies($bundle);
+        sort($families);
+        $expected = [self::FAMILY_ALPHA, self::FAMILY_BRAVO, self::FAMILY_CHARLIE];
+        sort($expected);
+        self::assertSame(
+            $expected,
+            $families,
+            'gender:missing=false must return every patient that has a gender',
         );
     }
 
@@ -540,6 +584,25 @@ class FhirSearchModifierMatrixApiTest extends TestCase
 
     /**
      * @param array<mixed> $bundle
+     * @return list<string>
+     */
+    private function extractEntryIds(array $bundle): array
+    {
+        $entries = $bundle['entry'] ?? [];
+        self::assertIsArray($entries);
+        $ids = [];
+        foreach ($entries as $entry) {
+            $resource = is_array($entry) ? ($entry['resource'] ?? null) : null;
+            $id = is_array($resource) ? ($resource['id'] ?? null) : null;
+            if (is_string($id)) {
+                $ids[] = $id;
+            }
+        }
+        return $ids;
+    }
+
+    /**
+     * @param array<mixed> $bundle
      *
      * @return list<string>
      */
@@ -611,7 +674,7 @@ class FhirSearchModifierMatrixApiTest extends TestCase
     /**
      * @return array{pid: int, uuid: string, family: string, dob: string}
      */
-    private function installPatientFixture(string $family, string $dob): array
+    private function installPatientFixture(string $family, string $dob, string $sex = 'Male'): array
     {
         $registry = new UuidRegistry(['table_name' => 'patient_data']);
         $uuidBytes = $registry->createUuid();
@@ -632,7 +695,7 @@ class FhirSearchModifierMatrixApiTest extends TestCase
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO patient_data (pid, uuid, fname, lname, DOB, sex, pubpid) '
             . 'VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [$pid, $uuidBytes, 'Testfirst', $family, $dob, 'Male', 'TEST-' . $pid],
+            [$pid, $uuidBytes, 'Testfirst', $family, $dob, $sex, 'TEST-' . $pid],
         );
         $this->createdPatientPids[] = $pid;
 

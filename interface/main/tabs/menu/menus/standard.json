@@ -455,6 +455,20 @@
                 ]
             },
             {
+                "label": "Patient Statements",
+                "menu_id": "stmt",
+                "target": "stm",
+                "url": "/interface/billing/patient_statements.php",
+                "children": [],
+                "requirement": 0,
+                "global_req": "enable_posting",
+                "acl_req": [
+                    "acct",
+                    "eob",
+                    "write"
+                ]
+            },
+            {
                 "label": "EDI History",
                 "menu_id": "edi0",
                 "target": "edi",
@@ -2027,6 +2041,18 @@
                 "acl_req": [
                     "patientportal",
                     "portal"
+                ]
+            },
+            {
+                "label": "Patient App Submissions",
+                "menu_id": "pas0",
+                "target": "pas",
+                "url": "/interface/main/patient_app_submissions.php",
+                "children": [],
+                "requirement": 0,
+                "acl_req": [
+                    "patients",
+                    "med"
                 ]
             },
             {

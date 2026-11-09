@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientReview\Portal;
 
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\ReviewActor;
@@ -28,6 +29,7 @@ use OpenEMR\Services\PatientReview\ReviewQueueService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewSubmission;
 use OpenEMR\Services\PatientReview\ReviewType;
+use Psr\Log\LoggerInterface;
 
 final readonly class PortalReviewWorkflows
 {
@@ -45,6 +47,11 @@ final readonly class PortalReviewWorkflows
     public const PAYMENT_INVOICE_VALUES = 'value';
     /** Payload key: whether the gateway had already charged the card when the payment was recorded. */
     public const PAYMENT_CHARGED = 'charged';
+    /**
+     * The card fields staff need to charge an uncharged payment, as the payment page's card
+     * form posts them (and requires them before submitting).
+     */
+    public const CARD_FIELDS = ['cardHolderName', 'cardNumber', 'month', 'year', 'cardCode'];
     /** Payload key holding the encounters a biller asked the patient to pay. */
     public const INVOICE_ENCOUNTERS = 'invoices';
 
@@ -54,7 +61,7 @@ final readonly class PortalReviewWorkflows
     /** The portal request types that wait on staff review (an invoice waits on the patient). */
     public const REVIEW_TYPES = [ReviewType::Profile, ReviewType::Payment, ReviewType::Document];
 
-    public function __construct(private ReviewQueueService $queue)
+    public function __construct(private ReviewQueueService $queue, private LoggerInterface $logger)
     {
     }
 
@@ -110,9 +117,11 @@ final readonly class PortalReviewWorkflows
      * @param string $invoiceValues the invoice selection, as the payment page posts it
      * @param string $cardDetails JSON from the payment page; empty when there are none
      * @param bool $charged whether the gateway has already charged the card
+     * @throws \InvalidArgumentException when an uncharged payment has no usable card details
      */
     public function submitPayment(int $pid, string $invoiceValues, string $cardDetails, bool $charged, ReviewActor $actor): ReviewRequest
     {
+        self::assertChargeable($cardDetails, $charged);
         $submission = self::paymentSubmission($pid, $invoiceValues, $charged);
         if ($charged) {
             return $this->queue->submit($submission, $actor, self::paymentSecrets($cardDetails));
@@ -122,8 +131,76 @@ final readonly class PortalReviewWorkflows
             $submission,
             $actor,
             self::paymentSecrets($cardDetails),
-            static fn(ReviewRequest $open): bool => ($open->payload[self::PAYMENT_CHARGED] ?? true) === false,
+            static fn(ReviewRequest $open): bool => !self::isChargedPayment($open),
         );
+    }
+
+    /**
+     * Whether the gateway had already charged the card when the payment was recorded. A
+     * request with no charged flag (from before it was recorded) counts as charged.
+     */
+    public static function isChargedPayment(ReviewRequest $payment): bool
+    {
+        return ($payment->payload[self::PAYMENT_CHARGED] ?? true) !== false;
+    }
+
+    /**
+     * Whether card details hold every field staff need to charge the card (CARD_FIELDS), each a
+     * non-empty string.
+     *
+     * @param array<array-key, mixed> $cardDetails
+     */
+    public static function isUsableCard(array $cardDetails): bool
+    {
+        foreach (self::CARD_FIELDS as $field) {
+            $value = $cardDetails[$field] ?? null;
+            if (!is_string($value) || trim($value) === '') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * An uncharged payment is charged by staff from its card details, so it is refused without
+     * usable ones. A charged payment's details only describe the gateway's transaction.
+     *
+     * @throws \InvalidArgumentException
+     */
+    private static function assertChargeable(string $cardDetails, bool $charged): void
+    {
+        if ($charged) {
+            return;
+        }
+        $decoded = json_decode($cardDetails, true);
+        if (!is_array($decoded) || !self::isUsableCard($decoded)) {
+            throw new \InvalidArgumentException('An uncharged payment needs the card details to charge');
+        }
+    }
+
+    /**
+     * Why staff cannot post this open payment, or null when they can. An uncharged payment
+     * (staff charge the card) needs card details they can read, with every field to charge it;
+     * the patient submits it again otherwise. A charged one can always be posted: the gateway
+     * holds the transaction.
+     *
+     * @param ?array<array-key, mixed> $cardDetails the payment's card details, as
+     *                                              paymentCardDetails() returns them
+     */
+    public static function postingBlock(ReviewRequest $payment, ?array $cardDetails): ?PaymentPostingBlock
+    {
+        if (self::isChargedPayment($payment)) {
+            return null;
+        }
+        if ($cardDetails === null) {
+            return PaymentPostingBlock::CardUnreadable;
+        }
+        if ($cardDetails === []) {
+            return PaymentPostingBlock::NoCardDetails;
+        }
+
+        return self::isUsableCard($cardDetails) ? null : PaymentPostingBlock::IncompleteCardDetails;
     }
 
     /**
@@ -132,6 +209,7 @@ final readonly class PortalReviewWorkflows
      */
     public function submitAdditionalPayment(int $pid, string $invoiceValues, string $cardDetails, bool $charged, ReviewActor $actor): ReviewRequest
     {
+        self::assertChargeable($cardDetails, $charged);
         return $this->queue->submit(self::paymentSubmission($pid, $invoiceValues, $charged), $actor, self::paymentSecrets($cardDetails));
     }
 
@@ -156,6 +234,21 @@ final readonly class PortalReviewWorkflows
     public function pendingPayment(int $pid): ?ReviewRequest
     {
         return $this->queue->openFor($pid, ReviewType::Payment);
+    }
+
+    /**
+     * Whether any open payment of the patient's was already charged by the gateway, not only the
+     * newest one: while one is, the patient is not offered another payment.
+     */
+    public function hasOpenChargedPayment(int $pid): bool
+    {
+        foreach ($this->queue->allOpenFor($pid, ReviewType::Payment) as $payment) {
+            if (self::isChargedPayment($payment)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -184,11 +277,24 @@ final readonly class PortalReviewWorkflows
     /**
      * The card details of a payment still waiting to be posted.
      *
-     * @return array<array-key, mixed> empty once the payment is posted or when there were none
+     * Card details that cannot be decrypted (the site's keys were replaced after the payment
+     * was submitted) come back as null rather than throwing, so the payment page still opens:
+     * the patient can submit the payment again and staff can see it needs that.
+     *
+     * @return ?array<array-key, mixed> empty once the payment is posted or when there were none;
+     *                                  null when they are stored but cannot be read
      */
-    public function paymentCardDetails(ReviewRequest $payment): array
+    public function paymentCardDetails(ReviewRequest $payment): ?array
     {
-        $json = $this->queue->readSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD);
+        try {
+            $json = $this->queue->readSecret($payment->id, ReviewQueueService::SECRET_PAYMENT_CARD);
+        } catch (CryptoGenException $e) {
+            $this->logger->error('Card details of a portal payment could not be decrypted', [
+                'request_id' => $payment->id,
+                'exception' => $e,
+            ]);
+            return null;
+        }
         if ($json === null || $json === '') {
             return [];
         }

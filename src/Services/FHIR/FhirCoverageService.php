@@ -24,6 +24,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageClass;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageCostToBeneficiary;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\FHIR\Enum\CoverageTypeActCode;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -35,6 +36,7 @@ use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -66,28 +68,41 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      */
     private $coverageService;
 
-    // Insurance type code to FHIR ActCode mapping (from insurance_companies.ins_type_code)
+    // insurance_companies.ins_type_code to the ActCode coverage type, for an insurer with no CQM
+    // Source of Payment. The keys are the ids of the insurance_type_codes table, and each comment is
+    // that row's type. Public programs are PUBLICPOL, workers' compensation WCBPOL (FECA is the
+    // federal employees'), automobile AUTOPOL and disability DIS. Self Pay (8) is no plan: it is sent
+    // as its Source of Payment, 81. The rest keep the HIP every type had before.
     private const INS_TYPE_CODE_MAP = [
-        1 => 'PUBLICPOL',      // Medicare
-        2 => 'PUBLICPOL',      // Medicaid
-        3 => 'HIP',            // Commercial/Other
-        4 => 'HIP',            // Workers Comp
-        5 => 'PUBLICPOL',      // TRICARE
-        6 => 'PUBLICPOL',      // CHAMPVA
-        7 => 'HIP',            // Group Health Plan
-        8 => 'HIP',            // FECA
-        9 => 'PUBLICPOL',      // Other Federal
-        10 => 'HIP',           // Self-pay
-        11 => 'HIP',           // Central Certification
-        12 => 'HIP',           // Other Non-Federal
-        13 => 'HIP',           // Preferred Provider Org
-        14 => 'HIP',           // Point of Service
-        15 => 'HIP',           // Exclusive Provider Org
-        16 => 'HIP',           // Indemnity Insurance
-        17 => 'HIP'            // HMO Medicare Risk
+        1 => CoverageTypeActCode::HealthInsurancePlan,      // Other HCFA
+        2 => CoverageTypeActCode::PublicHealthcare,         // Medicare Part B
+        3 => CoverageTypeActCode::PublicHealthcare,         // Medicaid
+        4 => CoverageTypeActCode::PublicHealthcare,         // ChampUSVA
+        5 => CoverageTypeActCode::PublicHealthcare,         // ChampUS
+        6 => CoverageTypeActCode::HealthInsurancePlan,      // Blue Cross Blue Shield
+        7 => CoverageTypeActCode::WorkersCompensation,      // FECA
+        9 => CoverageTypeActCode::HealthInsurancePlan,      // Central Certification
+        10 => CoverageTypeActCode::HealthInsurancePlan,     // Other Non-Federal Programs
+        11 => CoverageTypeActCode::HealthInsurancePlan,     // Preferred Provider Organization (PPO)
+        12 => CoverageTypeActCode::HealthInsurancePlan,     // Point of Service (POS)
+        13 => CoverageTypeActCode::HealthInsurancePlan,     // Exclusive Provider Organization (EPO)
+        14 => CoverageTypeActCode::HealthInsurancePlan,     // Indemnity Insurance
+        15 => CoverageTypeActCode::PublicHealthcare,        // Health Maintenance Organization (HMO) Medicare Risk
+        16 => CoverageTypeActCode::Automobile,              // Automobile Medical
+        17 => CoverageTypeActCode::HealthInsurancePlan,     // Commercial Insurance Co.
+        18 => CoverageTypeActCode::Disability,              // Disability
+        19 => CoverageTypeActCode::HealthInsurancePlan,     // Health Maintenance Organization
+        20 => CoverageTypeActCode::HealthInsurancePlan,     // Liability
+        21 => CoverageTypeActCode::HealthInsurancePlan,     // Liability Medical
+        22 => CoverageTypeActCode::PublicHealthcare,        // Other Federal Program
+        23 => CoverageTypeActCode::PublicHealthcare,        // Title V
+        24 => CoverageTypeActCode::PublicHealthcare,        // Veterans Administration Plan
+        25 => CoverageTypeActCode::WorkersCompensation,     // Workers Compensation Health Plan
+        26 => CoverageTypeActCode::HealthInsurancePlan,     // Mutually Defined
     ];
 
-    private const DEFAULT_COVERAGE_TYPE = 'HIP';
+    private const SELF_PAY_INSURANCE_TYPE = 8;
+    private const SELF_PAY_SOURCE_OF_PAYMENT = 81;
 
     public function __construct()
     {
@@ -145,19 +160,23 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         $id->setValue($dataRecord['uuid']);
         $coverageResource->setId($id);
 
-        // Identifier (Must Support) - Policy Number with Member type
+        // Identifier (Must Support) - Policy Number with Member type. US Core requires a member id
+        // or a subscriber id (us-core-15), so a policy stored without a number (a document import
+        // brings in none) says the member id is unknown.
+        $identifier = new FHIRIdentifier();
+        $identifierType = new FHIRCodeableConcept();
+        $identifierTypeCoding = new FHIRCoding();
+        $identifierTypeCoding->setSystem("http://terminology.hl7.org/CodeSystem/v2-0203");
+        $identifierTypeCoding->setCode("MB");
+        $identifierTypeCoding->setDisplay("Member Number");
+        $identifierType->addCoding($identifierTypeCoding);
+        $identifier->setType($identifierType);
         if (!empty($dataRecord['policy_number'])) {
-            $identifier = new FHIRIdentifier();
-            $identifierType = new FHIRCodeableConcept();
-            $identifierTypeCoding = new FHIRCoding();
-            $identifierTypeCoding->setSystem("http://terminology.hl7.org/CodeSystem/v2-0203");
-            $identifierTypeCoding->setCode("MB");
-            $identifierTypeCoding->setDisplay("Member Number");
-            $identifierType->addCoding($identifierTypeCoding);
-            $identifier->setType($identifierType);
             $identifier->setValue($dataRecord['policy_number']);
-            $coverageResource->addIdentifier($identifier);
+        } else {
+            $identifier->addExtension(UtilsService::createDataAbsentReasonExtension());
         }
+        $coverageResource->addIdentifier($identifier);
 
         // Policy Type as additional identifier if present
         if (!empty($dataRecord['policy_type'])) {
@@ -173,7 +192,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         $status->setValue($statusValue);
         $coverageResource->setStatus($status);
 
-        // Type (Required) - uses ins_type_code from insurance_companies
+        // Type (Required) - from the insurer's cqm_sop or ins_type_code
         $coverageType = $this->mapCoverageType($dataRecord);
         $coverageResource->setType($coverageType);
 
@@ -191,20 +210,28 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             $coverageResource->setBeneficiary($patient);
         }
 
+        // A blank relationship (the legacy forms and the XML import store '' for none) is none, as NULL is.
+        $subscriberRelationship = $dataRecord['subscriber_relationship'] ?? null;
+        $hasRelationship = is_string($subscriberRelationship) && $subscriberRelationship !== '';
+
         // Dependent (Must Support) - for non-self relationships
-        if (
-            isset($dataRecord['subscriber_relationship']) &&
-            strtolower($dataRecord['subscriber_relationship']) !== 'self'
-        ) {
+        if ($hasRelationship && strtolower($subscriberRelationship) !== 'self') {
             $dependent = new FHIRString();
             $dependent->setValue('1');
             $coverageResource->setDependent($dependent);
         }
 
-        // Relationship (Must Support) - relationship to subscriber
-        if (isset($dataRecord['subscriber_relationship'])) {
-            $relationship = $this->mapRelationship($dataRecord['subscriber_relationship']);
+        // Relationship (Must Support) - relationship to subscriber, which US Core requires (1..1).
+        // A policy stored without one (a document import names no subscriber) says it is unknown.
+        if ($hasRelationship) {
+            $relationship = $this->mapRelationship($subscriberRelationship);
             $coverageResource->setRelationship($relationship);
+        } else {
+            // UtilsService declares no return type here; it builds a FHIRCodeableConcept
+            $unknownRelationship = UtilsService::createDataAbsentUnknownCodeableConcept();
+            if ($unknownRelationship instanceof FHIRCodeableConcept) {
+                $coverageResource->setRelationship($unknownRelationship);
+            }
         }
 
         // Period (Must Support) - coverage effective dates
@@ -347,8 +374,12 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
     }
 
     /**
-     * Map insurance type code to FHIR Coverage type CodeableConcept
-     * Uses ins_type_code from insurance_companies table
+     * Map the insurer's type codes to the FHIR Coverage type CodeableConcept.
+     *
+     * US Core binds Coverage.type to the Payer Type value set, the Source of Payment Typology, of
+     * which the insurer's CQM Source of Payment (insurance_companies.cqm_sop) is a code: when it is
+     * set, it is the type's one coding. Otherwise insurance_companies.ins_type_code gives an ActCode
+     * coding, or, for Self Pay, the Source of Payment for self-pay.
      *
      * @param array $dataRecord
      * @return FHIRCodeableConcept
@@ -356,26 +387,30 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
     private function mapCoverageType($dataRecord): FHIRCodeableConcept
     {
         $coverageType = new FHIRCodeableConcept();
-        $coding = new FHIRCoding();
-        $coding->setSystem("http://terminology.hl7.org/CodeSystem/v3-ActCode");
 
-        // Use ins_type_code from insurance_companies if available
-        $code = self::DEFAULT_COVERAGE_TYPE;
-        if (isset($dataRecord['ins_type_code']) && isset(self::INS_TYPE_CODE_MAP[$dataRecord['ins_type_code']])) {
-            $code = self::INS_TYPE_CODE_MAP[$dataRecord['ins_type_code']];
+        $sourceOfPayment = ValidationUtils::validateInt($dataRecord['cqm_sop'] ?? null, 1);
+        $insuranceTypeCode = ValidationUtils::validateInt($dataRecord['ins_type_code'] ?? null, 1);
+        if ($sourceOfPayment === false && $insuranceTypeCode === self::SELF_PAY_INSURANCE_TYPE) {
+            $sourceOfPayment = self::SELF_PAY_SOURCE_OF_PAYMENT;
         }
 
-        $coding->setCode($code);
+        if ($sourceOfPayment !== false) {
+            $coverageType->addCoding(UtilsService::createCoding(
+                (string) $sourceOfPayment,
+                null,
+                FhirCodeSystemConstants::SOURCE_OF_PAYMENT_TYPOLOGY
+            ));
+            return $coverageType;
+        }
 
-        // Set display text
-        $displayMap = [
-            'HIP' => 'health insurance plan number',
-            'PUBLICPOL' => 'public healthcare',
-            'EHCPOL' => 'extended healthcare',
-        ];
-
-        $coding->setDisplay($displayMap[$code] ?? 'health insurance plan number');
-        $coverageType->addCoding($coding);
+        $actCode = $insuranceTypeCode === false
+            ? CoverageTypeActCode::HealthInsurancePlan
+            : (self::INS_TYPE_CODE_MAP[$insuranceTypeCode] ?? CoverageTypeActCode::HealthInsurancePlan);
+        $coverageType->addCoding(UtilsService::createCoding(
+            $actCode->value,
+            $actCode->display(),
+            FhirCodeSystemConstants::HL7_V3_ACT_CODE
+        ));
 
         return $coverageType;
     }
@@ -510,7 +545,8 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
 
         // period -> date / date_end. Coverage periods are routinely quoted to
         // month precision ("cover starts 2024-01"), so partial values are
-        // widened to the first day of the period rather than rejected.
+        // widened rather than rejected: the start to the first day of its
+        // period, and the end, which is inclusive, to the last.
         $period = $json['period'] ?? null;
         $periodStart = FhirDateTimeParser::toDbDate(
             is_array($period) ? ($period['start'] ?? null) : null,
@@ -520,12 +556,15 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         if ($periodStart !== null) {
             $data['date'] = $periodStart;
         }
-        $periodEnd = FhirDateTimeParser::toDbDate(
+        $periodEnd = FhirDateTimeParser::toDbPeriodEndDate(
             is_array($period) ? ($period['end'] ?? null) : null,
-            'Coverage.period.end',
-            true
+            'Coverage.period.end'
         );
-        if ($periodEnd !== null) {
+        // A period with no end is open-ended ("a missing end date means the coverage is
+        // continuing to be in force"): a NULL date_end, which CoverageValidator asks a create
+        // to give, and which clears a stored end on an update. A resource with no period at all
+        // leaves an update's stored dates as they are.
+        if (is_array($period)) {
             $data['date_end'] = $periodEnd;
         }
 
@@ -660,7 +699,14 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
 
         $this->applyDefaults($updatedOpenEMRRecord);
 
-        return $this->coverageService->update($updatedOpenEMRRecord);
+        $updated = $this->coverageService->update($updatedOpenEMRRecord);
+        if ($updated->hasErrors()) {
+            return $updated;
+        }
+
+        // update() answers with the bare insurance_data row. The read's search() adds the patient,
+        // the insurer and its type codes, so the response says what a read of the Coverage says.
+        return $this->coverageService->search(['uuid' => new TokenSearchField('uuid', [$fhirResourceId], true)]);
     }
 
     /**

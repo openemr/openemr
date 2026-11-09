@@ -284,3 +284,23 @@ ALTER TABLE `patient_review_request`
 
 #IfPatientReviewMigrationNeeded
 #EndIf
+
+-- Phone reminders log with type 'Phone', which the enum never allowed, so MySQL stored ''.
+#IfNotColumnType notification_log type enum('SMS','Email','Phone')
+ALTER TABLE `notification_log` MODIFY `type` enum('SMS','Email','Phone') NOT NULL;
+#EndIf
+
+-- Relabel those rows. An empty type alone is not proof: under a binary collation the faxsms
+-- writer's 'EMAIL' is stored as '' too. Email rows always carry 'sender|||subject' in
+-- smsgateway_info, and phone rows carry the gateway URL, so skip rows containing '|||'.
+-- Unguarded so a rerun still relabels if a previous run stopped after the ALTER.
+UPDATE `notification_log` SET `type` = 'Phone' WHERE `type` = '' AND `smsgateway_info` NOT LIKE '%|||%';
+
+-- Relabel the email rows skipped above. Before 8.6.0 the faxsms writer logged 'EMAIL', which a
+-- binary collation stores as ''. Only email rows carry 'sender|||subject' in smsgateway_info.
+UPDATE `notification_log` SET `type` = 'Email' WHERE `type` = '' AND `smsgateway_info` LIKE '%|||%';
+
+-- An outside organization's or practitioner's OAuth client, limited to that address book entry's Tasks and referrals.
+#IfMissingColumn oauth_clients address_book_uuid
+ALTER TABLE `oauth_clients` ADD COLUMN `address_book_uuid` binary(16) DEFAULT NULL COMMENT 'users.uuid of the address book entry this client acts for; limits it to that entry''s Tasks and referrals';
+#EndIf

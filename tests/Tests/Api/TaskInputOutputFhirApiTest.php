@@ -300,6 +300,10 @@ class TaskInputOutputFhirApiTest extends TestCase
         [$status, $result] = $this->create($this->questionnaireTask($referral));
         $this->assertSame(Response::HTTP_CREATED, $status, (string)json_encode($result));
         $this->assertSame('ServiceRequest/' . $this->serviceRequestUuid, self::at($result, 'focus', 'reference'));
+        // Only a referral's Task keeps its owner (#15137): this one is on a lab order.
+        $this->assertNotNull($this->references);
+        [$status, $moved] = $this->update(self::text(self::at($result, 'id')), $this->questionnaireTask(['owner' => ['reference' => 'Organization/' . $this->references->organization()]] + $referral));
+        $this->assertSame(Response::HTTP_OK, $status, (string)json_encode($moved));
         $forOther = ['for' => ['reference' => 'Patient/' . $this->otherPatientUuid], 'owner' => ['reference' => 'Patient/' . $this->otherPatientUuid]];
         [$status, $result] = $this->create($this->questionnaireTask($forOther + ['requester' => ['reference' => 'Patient/' . $this->otherPatientUuid]] + $referral));
         $this->assertSame(Response::HTTP_BAD_REQUEST, $status, 'the other patient\'s task with this patient\'s order');

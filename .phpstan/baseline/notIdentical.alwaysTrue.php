@@ -87,11 +87,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between Phreezable and false will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between int and false will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',

@@ -135,6 +135,26 @@ class VitalSignsServiceDatabaseTest extends TestCase
             'blood pressure and weight are the imported exams\' copies; the BMI is only in the Vitals form');
     }
 
+    public function testAnExamInMetricUnitsMatchesItsConvertedVitalsCopy(): void
+    {
+        // The import stores 70.3 kg as 154.98497 lb and 172.5 cm as 67.913386 in in the Vitals form. Copies
+        // imported before it converted (70.30 for 70.3 kg) still match, in testAQrdaImportedExamIsCountedOnce.
+        $this->observation(self::PID, '2026-03-02 00:00:00', '29463-7', '70.3', 'kg');
+        $this->observation(self::PID, '2026-03-02 00:00:00', '8302-2', '172.5', 'cm');
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['weight' => '154.98497', 'height' => '67.913386']);
+
+        $this->assertSame([], $this->read(new QdmRequestOne((string)self::PID)));
+    }
+
+    public function testAnExamInMetricUnitsDoesNotHideADifferentReading(): void
+    {
+        // 68 kg is 149.914338 lb: a Vitals form reading of 160 lb the same day is another weighing.
+        $this->observation(self::PID, '2026-03-02 00:00:00', '29463-7', '68', 'kg');
+        $this->vitals(self::PID, '2026-03-02 09:00:00', ['weight' => '160']);
+
+        $this->assertSame([[self::PID, 'LOINC:29463-7', 160.0]], $this->read(new QdmRequestOne((string)self::PID)));
+    }
+
     public function testADeletedExamDoesNotHideItsVitalsCopy(): void
     {
         // The measures leave a deleted exam out, so its Vitals copy is the reading left: deleted in

@@ -89,8 +89,11 @@ class PatientInsuranceApiTest extends TestCase
     /**
      * @return array{uuid: string}
      */
-    private function postFixturePolicy(string $type = 'primary', string $date = '2026-01-01'): array
-    {
+    private function postFixturePolicy(
+        string $type = 'primary',
+        string $date = '2026-01-01',
+        ?string $dateEnd = null
+    ): array {
         $response = $this->testClient->post($this->listEndpoint(), [
             'type' => $type,
             'provider' => (string) $this->fixtureInsurerId,
@@ -106,7 +109,7 @@ class PatientInsuranceApiTest extends TestCase
             'subscriber_sex' => 'Male',
             'accept_assignment' => 'TRUE',
             'date' => $date,
-            'date_end' => null,
+            'date_end' => $dateEnd,
         ]);
         $this->assertEquals(200, $response->getStatusCode(), 'POST should 200. Body: ' . (string) $response->getBody());
         $body = json_decode((string) $response->getBody(), true);
@@ -127,6 +130,24 @@ class PatientInsuranceApiTest extends TestCase
             '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
             $created['uuid']
         );
+    }
+
+    /**
+     * #7676: a policy created with an end date keeps it, as an update already does.
+     */
+    #[Test]
+    public function testPostStoresTheEndDate(): void
+    {
+        $created = $this->postFixturePolicy('primary', '2024-09-01', '2026-09-01');
+
+        $response = $this->testClient->getOne($this->listEndpoint(), $created['uuid']);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $data = $body['data'];
+        $this->assertIsArray($data);
+        $this->assertSame('2024-09-01', $data['date'] ?? null);
+        $this->assertSame('2026-09-01', $data['date_end'] ?? null);
     }
 
     #[Test]

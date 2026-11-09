@@ -2,46 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Static property RequestUtil\\:\\:\\$bodyCache \\(body\\) does not accept default value of type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property RequestUtil\\:\\:\\$bodyCacheIsReady \\(true\\) does not accept default value of type false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property ConnectionSetting\\:\\:\\$MasterConnectionDelegate \\(ConnectionSetting\\) does not accept default value of type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property DataAdapter\\:\\:\\$_num_retries \\(used\\) does not accept default value of type int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property Phreezable\\:\\:\\$NoCacheProperties \\(these\\) does not accept default value of type array\\<int, string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Phreezer\\:\\:\\$CacheQueryObjectLevel2 \\(set\\) does not accept default value of type false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property Reporter\\:\\:\\$NoCacheProperties \\(these\\) does not accept default value of type array\\<int, string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property VerySimpleStringUtil\\:\\:\\$DEFAULT_CHARACTER_SET \\(the\\) does not accept default value of type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Static property OpenEMR\\\\RestControllers\\\\Config\\\\RestConfig\\:\\:\\$localCall \\(OpenEMR\\\\RestControllers\\\\Config\\\\set\\) does not accept default value of type false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',

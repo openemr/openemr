@@ -32,11 +32,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/createCCRActor.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$err \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$our_code \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/billing/load_fee_schedule.php',
@@ -250,16 +245,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$rmk \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$aPatFName \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$aPatID \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$encounter_id \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -1682,11 +1667,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/daysheet.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$idnum \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$code \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/codes/edih_271_code_class.php',
@@ -2150,41 +2130,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$search \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../portal/lib/portal_mail.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$code \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/IO/Includer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$propname \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$this\\-\\>_label \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 24,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$rKey \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$urlPiece \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$prop \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$s_line \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/ExceptionFormatter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$OE_SITE_DIR \\(mixed\\) of encapsed string cannot be cast to string\\.$#',

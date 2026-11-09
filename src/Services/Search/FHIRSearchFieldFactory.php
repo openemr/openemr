@@ -248,7 +248,8 @@ class FHIRSearchFieldFactory
      */
     private function createTokenSearchField(string $fieldName, array $fhirSearchValues, ?string $modifier, bool $isUUID): TokenSearchField
     {
-        $token = new TokenSearchField($fieldName, $fhirSearchValues, $isUUID);
+        // a :missing value is true or false, not a uuid
+        $token = new TokenSearchField($fieldName, $fhirSearchValues, $isUUID && $modifier !== SearchModifier::MISSING);
         if (!empty($modifier)) {
             $token->setModifier($modifier);
         }
@@ -309,8 +310,13 @@ class FHIRSearchFieldFactory
         $isAnd = false; // when we are building our composite field here we want the UNION of values since the internal
         // we want to search across all of the mapped OpenEMR columns which is an intersection(logical OR) rather than
         // the logical AND of everything.
-        $composite = new CompositeSearchField($definition->getName(), $fhirSearchValues, $isAnd);
         $modifiers = $this->extractFieldModifiers($fhirSearchField);
+        if (in_array(SearchModifier::MISSING, $modifiers, true)) {
+            // :missing=true means that none of the mapped columns has a value
+            $missingValue = reset($fhirSearchValues);
+            $isAnd = SearchFieldStatementResolver::isMissingRequested($definition->getName(), $missingValue);
+        }
+        $composite = new CompositeSearchField($definition->getName(), $fhirSearchValues, $isAnd);
         foreach ($definition->getMappedFields() as $field) {
             // for token types we want to make if we have a system we are only going to the key
 
