@@ -2838,11 +2838,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/reports/direct_message_log.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 18,
     'path' => __DIR__ . '/../../interface/reports/encounters_report.php',
 ];

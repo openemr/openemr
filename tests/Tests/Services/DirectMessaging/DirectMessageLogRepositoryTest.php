@@ -16,6 +16,8 @@ namespace OpenEMR\Tests\Services\DirectMessaging;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogRepository;
+use OpenEMR\Common\DirectMessaging\DirectMessageLogStatus;
+use OpenEMR\Common\DirectMessaging\DirectMessageType;
 use OpenEMR\Common\DirectMessaging\PhiMailDeliveryStatus;
 use PHPUnit\Framework\TestCase;
 
@@ -116,6 +118,54 @@ final class DirectMessageLogRepositoryTest extends TestCase
         self::assertNotNull($entry);
         self::assertNull($entry->patientId);
         self::assertNull($entry->userId);
+    }
+
+    public function testFindsTheLatestMessagesNewestFirst(): void
+    {
+        $this->insertSent(patientId: null, userId: null);
+        $this->repository->recordReceived($this->messageId, 'from@direct.example', 'to@direct.example', 7);
+
+        $records = $this->repository->findLatest(2);
+
+        self::assertCount(2, $records);
+        [$received, $sent] = $records;
+        self::assertGreaterThan($sent->id, $received->id);
+
+        self::assertSame([DirectMessageType::Received, DirectMessageLogStatus::Received], [$received->type, $received->status]);
+        self::assertNotNull($received->statusChangedAt);
+
+        self::assertSame(
+            [DirectMessageType::Sent, DirectMessageLogStatus::Queued, 'from@direct.example', 'to@direct.example', null],
+            [$sent->type, $sent->status, $sent->sender, $sent->recipient, $sent->statusChangedAt],
+        );
+        self::assertNotSame('', $sent->createdAt);
+    }
+
+    public function testFindsMessagesInAnIdRangeNewestFirst(): void
+    {
+        $this->insertSent(patientId: null, userId: null);
+        $this->insertSent(patientId: null, userId: null);
+        $this->insertSent(patientId: null, userId: null);
+        $ids = $this->insertedIds();
+
+        $records = $this->repository->findByIdRange($ids[0], $ids[1]);
+
+        self::assertSame([$ids[1], $ids[0]], array_map(static fn ($record): int => $record->id, $records));
+    }
+
+    /**
+     * @return list<int> the ids of this test's rows, oldest first
+     */
+    private function insertedIds(): array
+    {
+        $rows = QueryUtils::fetchRecords('SELECT id FROM direct_message_log WHERE msg_id = ? ORDER BY id', [$this->messageId]);
+        $ids = [];
+        foreach ($rows as $row) {
+            $id = $row['id'] ?? null;
+            self::assertIsNumeric($id);
+            $ids[] = (int) $id;
+        }
+        return $ids;
     }
 
     private function insertSent(?int $patientId, ?int $userId): void

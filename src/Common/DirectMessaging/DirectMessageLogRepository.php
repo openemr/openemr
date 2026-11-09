@@ -104,6 +104,36 @@ class DirectMessageLogRepository
         QueryUtils::sqlStatementThrowException($sql, [$messageId, $sender, $recipient, $userId], noLog: true);
     }
 
+    /**
+     * The most recent messages, newest first.
+     *
+     * @return list<DirectMessageLogRecord>
+     * @throws SqlQueryException
+     */
+    public function findLatest(int $limit): array
+    {
+        $sql = <<<'SQL'
+            SELECT id, msg_type, create_ts, sender, recipient, status, status_ts FROM direct_message_log
+            ORDER BY id DESC LIMIT ?
+            SQL;
+        return array_map(DirectMessageLogRecord::fromRow(...), QueryUtils::fetchRecords($sql, [$limit]));
+    }
+
+    /**
+     * The messages whose ids fall in this inclusive range, newest first.
+     *
+     * @return list<DirectMessageLogRecord>
+     * @throws SqlQueryException
+     */
+    public function findByIdRange(int $lowestId, int $highestId): array
+    {
+        $sql = <<<'SQL'
+            SELECT id, msg_type, create_ts, sender, recipient, status, status_ts FROM direct_message_log
+            WHERE id BETWEEN ? AND ? ORDER BY id DESC
+            SQL;
+        return array_map(DirectMessageLogRecord::fromRow(...), QueryUtils::fetchRecords($sql, [$lowestId, $highestId]));
+    }
+
     private static function nullableId(mixed $value): ?int
     {
         return match (true) {
