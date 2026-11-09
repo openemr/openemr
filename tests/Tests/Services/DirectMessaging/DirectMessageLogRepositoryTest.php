@@ -35,7 +35,62 @@ final class DirectMessageLogRepositoryTest extends TestCase
 
     protected function tearDown(): void
     {
-        QueryUtils::sqlStatementThrowException('DELETE FROM direct_message_log WHERE msg_id = ?', [$this->messageId]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM direct_message_log WHERE msg_id IN (?, ?, ?)', [$this->messageId, '<' . $this->messageId . '>', $this->messageId . '-other']);
+    }
+
+    public function testRecordsTheReferralASentMessageCarries(): void
+    {
+        $this->repository->recordSent($this->messageId, 'from@direct.example', 'to@direct.example', 42, 3, 7);
+
+        self::assertEquals(7, QueryUtils::fetchSingleValue('SELECT referral_id FROM direct_message_log WHERE msg_id = ?', 'referral_id', [$this->messageId]));
+    }
+
+    public function testRecordsWhereAReceivedReplyWasFiled(): void
+    {
+        $this->repository->recordReceived($this->messageId, 'from@direct.example', 'to@direct.example', 7, 42, 9, 501);
+
+        $row = QueryUtils::querySingleRow('SELECT patient_id, referral_id, note_id FROM direct_message_log WHERE msg_id = ?', [$this->messageId]);
+        self::assertEquals(['patient_id' => 42, 'referral_id' => 9, 'note_id' => 501], $row);
+    }
+
+    public function testAReplyIsMatchedToTheSentMessageItAnswers(): void
+    {
+        $this->repository->recordSent($this->messageId, 'from@direct.example', 'to@direct.example', 42, 3, 7);
+
+        $target = $this->repository->findReplyTarget(['unknown@direct.example', $this->messageId]);
+
+        self::assertNotNull($target);
+        self::assertSame([$this->messageId, 42, 7], [$target->messageId, $target->patientId, $target->referralId]);
+    }
+
+    public function testAnIdLoggedInAngleBracketsStillMatches(): void
+    {
+        $this->repository->recordSent('<' . $this->messageId . '>', 'from@direct.example', 'to@direct.example', 42, 3, null);
+
+        $target = $this->repository->findReplyTarget([$this->messageId]);
+
+        self::assertNotNull($target);
+        self::assertSame(['<' . $this->messageId . '>', 42, null], [$target->messageId, $target->patientId, $target->referralId]);
+    }
+
+    public function testTheNearestIdWins(): void
+    {
+        $this->repository->recordSent($this->messageId, 'from@direct.example', 'to@direct.example', 42, 3, 7);
+        $this->repository->recordSent($this->messageId . '-other', 'from@direct.example', 'to@direct.example', 43, 3, 8);
+
+        $target = $this->repository->findReplyTarget([$this->messageId . '-other', $this->messageId]);
+
+        self::assertNotNull($target);
+        self::assertSame(43, $target->patientId);
+    }
+
+    public function testOnlyAMessageSentAboutAPatientIsAReplysTarget(): void
+    {
+        $this->repository->recordSent($this->messageId, 'from@direct.example', 'to@direct.example', null, 3);
+        $this->repository->recordReceived($this->messageId . '-other', 'from@direct.example', 'to@direct.example', 7, 42, 9, 501);
+
+        self::assertNull($this->repository->findReplyTarget([$this->messageId, $this->messageId . '-other']));
+        self::assertNull($this->repository->findReplyTarget([]));
     }
 
     public function testFindsASentMessage(): void

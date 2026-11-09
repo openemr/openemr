@@ -241,6 +241,14 @@ final class PhiMailReceiver
     {
         $this->expectOk($connection, 'SHOW 0' . self::LF, 'M3 SHOW 0 failed: ');
         $headers = $this->readHeaders($connection);
+        // A reply to a message sent from here about a patient is filed to that patient, and to the
+        // referral the sent message carried; anything else stays unassigned.
+        try {
+            $target = $this->messageLog->findReplyTarget(DirectReplyHeaders::referencedMessageIds($headers));
+        } catch (SqlQueryException $e) {
+            $this->fail('database problem matching reply: ' . $reply->messageId, $e);
+        }
+        $patientId = $target?->patientId;
         try {
             $mimeType = self::mainMimeType($connection->readLine());
         } catch (PhiMailStreamException $e) {
@@ -274,7 +282,7 @@ final class PhiMailReceiver
                 $this->filesystem->remove($body);
             } else {
                 $name = uniqid('dm-message-') . self::extension($mimeType);
-                $document = $this->store($name, $mimeType, $body, 'M7 store non-text body failed');
+                $document = $this->store($name, $mimeType, $body, 'M7 store non-text body failed', $patientId);
                 if ($document->url === null) {
                     $this->fail('M7 store non-text body returned non-string url');
                 }
@@ -318,7 +326,7 @@ final class PhiMailReceiver
             $name = $attachment->name === ''
                 ? uniqid('dm-attachment-') . self::extension($attachment->mimeType)
                 : 'dm-' . $attachment->name;
-            $document = $this->store($name, $attachment->mimeType, $file, 'M11 store attachment ' . $number . ' failed');
+            $document = $this->store($name, $attachment->mimeType, $file, 'M11 store attachment ' . $number . ' failed', $patientId);
             $documentIds[] = $document->id;
             $details .= self::LF . sprintf(
                 '%s %d ("%s"; %s; %d bytes) %s',
@@ -347,9 +355,9 @@ final class PhiMailReceiver
         } catch (IOException $e) {
             $this->fail('problem reading received message body: ' . $reply->messageId, $e);
         }
-        $note = xl('Direct Message Received.') . self::LF . $headers . self::LF . $content . $details;
+        $note = xl('Direct Message Received.') . self::replyLine($target) . self::LF . $headers . self::LF . $content . $details;
         try {
-            $noteId = $this->notes->addNote(0, $note, $this->config->notifyUsername);
+            $noteId = $this->notes->addNote($patientId ?? 0, $note, $this->config->notifyUsername);
             foreach ($documentIds as $documentId) {
                 $this->notes->linkDocument($documentId, $noteId);
             }
@@ -363,12 +371,20 @@ final class PhiMailReceiver
         }
 
         try {
-            $this->messageLog->recordReceived($reply->messageId, $reply->sender, $reply->recipient, $this->users->serviceUserId());
+            $this->messageLog->recordReceived(
+                $reply->messageId,
+                $reply->sender,
+                $reply->recipient,
+                $this->users->serviceUserId(),
+                $patientId,
+                $target?->referralId,
+                $noteId,
+            );
         } catch (SqlQueryException $e) {
             $this->fail('database problem logging received message: ' . $reply->messageId, $e);
         }
 
-        $this->audit->record(true, $reply->line);
+        $this->audit->record(true, $reply->line, $patientId ?? 0);
 
         if ($doneFailure !== null) {
             $this->fail('M12 DONE failed: ' . $doneFailure);
@@ -442,10 +458,10 @@ final class PhiMailReceiver
     /**
      * Store a downloaded part as a document. The downloaded file is removed either way.
      */
-    private function store(string $name, string $mimeType, string $path, string $failure): PhiMailStoredDocument
+    private function store(string $name, string $mimeType, string $path, string $failure, ?int $patientId): PhiMailStoredDocument
     {
         try {
-            $document = $this->documents->store($name, $mimeType, $path, $this->users->serviceUserId());
+            $document = $this->documents->store($name, $mimeType, $path, $this->users->serviceUserId(), $patientId);
         } catch (SqlQueryException | PhiMailDocumentException $e) {
             $this->logger->error('phiMail could not store a received document', ['exception' => $e, 'mimeType' => $mimeType]);
             $this->audit->record(false, 'problem storing attachment in OpenEMR', failing: true);
@@ -516,6 +532,19 @@ final class PhiMailReceiver
     /**
      * @return ?int the byte count on the next line, or null when the line is missing or not a count
      */
+    /**
+     * What the note says about the sent message a reply answers, if any.
+     */
+    private static function replyLine(?DirectReplyTarget $target): string
+    {
+        if ($target === null) {
+            return '';
+        }
+        return ' ' . ($target->referralId === null
+            ? xl('It answers a message sent about this patient.')
+            : xl('It answers a message sent with referral') . ' #' . $target->referralId . ' ' . xl('for this patient') . '.');
+    }
+
     private static function readLength(PhiMailConnection $connection): ?int
     {
         try {

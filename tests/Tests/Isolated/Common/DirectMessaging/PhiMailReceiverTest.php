@@ -18,6 +18,7 @@ use Doctrine\DBAL\ConnectionException;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogEntry;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogRepository;
+use OpenEMR\Common\DirectMessaging\DirectReplyTarget;
 use OpenEMR\Common\DirectMessaging\PhiMailAuditLog;
 use OpenEMR\Common\DirectMessaging\PhiMailCheckException;
 use OpenEMR\Common\DirectMessaging\PhiMailConfig;
@@ -476,6 +477,69 @@ final class PhiMailReceiverTest extends TestCase
             $this->sentCommands(),
         );
         $this->assertTempDirIsEmpty();
+    }
+
+    public function testAReplyToAMessageSentWithAReferralIsFiledWithIt(): void
+    {
+        $mail = 'MAIL to@direct.example from@direct.example 1 msg-7';
+        $this->reply(
+            self::lines(
+                'OK',
+                $mail,
+                'OK',
+                'Subject: Re: referral',
+                'In-Reply-To: <sent-2@direct.example>',
+                'References: <sent-1@direct.example>',
+                ' <sent-2@direct.example>',
+                '',
+                'text/plain',
+                '6',
+            )
+            . 'Seen.' . self::LF
+            . self::lines('1', 'consult.xml', 'text/xml', 'Consult note')
+            . self::lines('OK', 'consult.xml', 'text/xml', '6') . '<xml/>'
+            . self::lines('OK', 'NONE'),
+        );
+        $this->messageLog->expects(self::once())->method('findReplyTarget')
+            ->with(['sent-2@direct.example', 'sent-1@direct.example'])
+            ->willReturn(new DirectReplyTarget('sent-2@direct.example', 42, 7));
+        $this->messageLog->expects(self::once())->method('recordReceived')
+            ->with('msg-7', 'from@direct.example', 'to@direct.example', self::SERVICE_USER_ID, 42, 7, 501);
+
+        $this->receiver()->check();
+
+        self::assertSame([42], array_column($this->documents->stored, 'patientId'));
+        self::assertSame(42, $this->notes->notes[0]['patientId']);
+        self::assertStringStartsWith(
+            'Direct Message Received. It answers a message sent with referral #7 for this patient.' . self::LF . 'Subject: Re: referral',
+            $this->notes->notes[0]['text'],
+        );
+        self::assertSame([[101, 501]], $this->notes->links);
+        self::assertSame([[1, $mail . self::LF, 42], [1, 'message check completed', 0]], $this->auditRows);
+    }
+
+    public function testAMessageThatAnswersNothingSentStaysUnassigned(): void
+    {
+        $this->reply(
+            self::lines('OK', 'MAIL to@direct.example from@direct.example 0 msg-8', 'OK', 'In-Reply-To: <elsewhere@direct.example>', '', 'text/plain', '2')
+            . 'hi' . self::lines('0', 'OK', 'NONE'),
+        );
+        $this->messageLog->method('findReplyTarget')->willReturn(null);
+        $this->messageLog->expects(self::once())->method('recordReceived')
+            ->with('msg-8', 'from@direct.example', 'to@direct.example', self::SERVICE_USER_ID, null, null, 501);
+
+        $this->receiver()->check();
+
+        self::assertSame(0, $this->notes->notes[0]['patientId']);
+        self::assertStringStartsWith('Direct Message Received.' . self::LF, $this->notes->notes[0]['text']);
+    }
+
+    public function testReplyLookupFailure(): void
+    {
+        $this->reply(self::lines('OK', 'MAIL to@direct.example from@direct.example 0 msg-9', 'OK', 'Subject: hello', ''));
+        $this->messageLog->method('findReplyTarget')->willThrowException(self::sqlFailure());
+
+        $this->assertCheckFails('database problem matching reply: msg-9');
     }
 
     public function testEmptyNonTextBodyIsNotStored(): void

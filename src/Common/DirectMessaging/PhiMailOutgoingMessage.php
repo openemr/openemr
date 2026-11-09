@@ -21,6 +21,8 @@ final readonly class PhiMailOutgoingMessage
      * @param bool $verifyFinalDelivery whether to ask the recipient's system to confirm delivery,
      *     which fails the delivery when that system does not support it
      * @param ?int $patientId the patient the message is about, for the audit and message logs
+     * @param ?int $referralId the referral (transactions.id) the message carries, for the message log,
+     *     so a reply to it can be filed with that referral
      */
     public function __construct(
         public string $recipient,
@@ -28,6 +30,7 @@ final readonly class PhiMailOutgoingMessage
         public ?PhiMailOutgoingAttachment $attachment = null,
         public bool $verifyFinalDelivery = false,
         public ?int $patientId = null,
+        public ?int $referralId = null,
     ) {
     }
 }

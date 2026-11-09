@@ -304,7 +304,9 @@ class EncountermanagerTable
 
                     // there is no way currently to specify this came from the patient so we force to clinician.
                     // Default xml type is CCD  (ie Continuity of Care Document)
-                    $result = transmitCCD($value, $ccda_file, $recipient, 'clinician', "CCD", $xml_type, '', $fileName, $verifyMessageReceivedChecked);
+                    // The referral the C-CDA was made for, so a reply to it can be filed with that referral.
+                    $referralId = is_numeric($trans_id) ? (int)$trans_id : null;
+                    $result = transmitCCD($value, $ccda_file, $recipient, 'clinician', "CCD", $xml_type, '', $fileName, $verifyMessageReceivedChecked, $referralId);
                     if ($result !== "SUCCESS") {
                         $d_Address .= ' ' . $recipient . "(" . $result . ")";
                     }

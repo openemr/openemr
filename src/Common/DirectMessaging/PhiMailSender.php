@@ -86,45 +86,62 @@ final readonly class PhiMailSender
         string $failureEvent,
         string $successEvent,
     ): string {
+        return $this->deliver($message, $requester, $failureEvent, $successEvent)->message;
+    }
+
+    /**
+     * send(), for a caller that needs the message id the server queued the message under, to
+     * follow its delivery status in the message log.
+     *
+     * @param string $failureEvent the audit event for a refused or unexpected final reply
+     * @param string $successEvent the audit event for a queued message
+     * @throws SqlQueryException when a queued message cannot be logged
+     */
+    public function deliver(
+        PhiMailOutgoingMessage $message,
+        PhiMailRequester $requester,
+        string $failureEvent,
+        string $successEvent,
+    ): PhiMailSendResult {
         $configError = xl(ErrorConstants::MESSAGING_DISABLED) . ' ' . ErrorConstants::ERROR_CODE_ABBREVIATION . ':';
         if (!$this->config->server->enabled) {
-            return $configError . ' ' . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED;
+            return PhiMailSendResult::notSent($configError . ' ' . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
         }
         $refusal = $this->lineBreakRefusal($message, $configError);
         if ($refusal !== null) {
-            return $refusal;
+            return PhiMailSendResult::notSent($refusal);
         }
 
         try {
             $connection = $this->connections->open();
         } catch (PhiMailConnectionException $e) {
             $this->logger->error('phiMail send could not connect', ['error' => $e->auditCode(), 'exception' => $e]);
-            return $configError . ' ' . $e->auditCode();
+            return PhiMailSendResult::notSent($configError . ' ' . $e->auditCode());
         }
 
         try {
             $reply = $this->transmit($connection, $message, $configError);
         } catch (PhiMailSendException $e) {
-            return $e->userMessage;
+            return PhiMailSendResult::notSent($e->userMessage);
         } finally {
             $connection->close();
         }
 
         if (str_starts_with($reply, 'ERROR')) {
             $this->audit($failureEvent, $requester, false, $reply, $message->patientId);
-            return xl(ErrorConstants::ERROR_MESSAGE_FILE_SEND_FAILED);
+            return PhiMailSendResult::notSent(xl(ErrorConstants::ERROR_MESSAGE_FILE_SEND_FAILED));
         }
 
         // The server accepts a message with "QUEUED recipient message-id".
         $fields = explode(' ', trim($reply), 4);
         if ($fields[0] !== 'QUEUED' || !isset($fields[2])) {
             $this->audit($failureEvent, $requester, false, 'UNEXPECTED RESPONSE: ' . $reply, $message->patientId);
-            return xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE);
+            return PhiMailSendResult::notSent(xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
         }
 
         $this->audit($successEvent, $requester, true, $reply, $message->patientId);
-        $this->messageLog->recordSent($fields[2], $this->config->username, $message->recipient, $message->patientId, $requester->userId);
-        return self::SUCCESS;
+        $this->messageLog->recordSent($fields[2], $this->config->username, $message->recipient, $message->patientId, $requester->userId, $message->referralId);
+        return PhiMailSendResult::sent($fields[2]);
     }
 
     /**

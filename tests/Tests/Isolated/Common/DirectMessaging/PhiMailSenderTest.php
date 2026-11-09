@@ -74,7 +74,7 @@ final class PhiMailSenderTest extends TestCase
     public function testSendsAMessage(): void
     {
         $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-1'));
-        $this->messageLog->expects(self::once())->method('recordSent')->with('msg-1', 'test-user', 'to@direct.example', null, 3);
+        $this->messageLog->expects(self::once())->method('recordSent')->with('msg-1', 'test-user', 'to@direct.example', null, 3, null);
 
         $result = $this->send(new PhiMailOutgoingMessage('to@direct.example', 'hello'));
 
@@ -92,7 +92,7 @@ final class PhiMailSenderTest extends TestCase
     public function testSendsADocumentForAPatient(): void
     {
         $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-2'));
-        $this->messageLog->expects(self::once())->method('recordSent')->with('msg-2', 'test-user', 'to@direct.example', 42, 3);
+        $this->messageLog->expects(self::once())->method('recordSent')->with('msg-2', 'test-user', 'to@direct.example', 42, 3, null);
 
         $result = $this->send(new PhiMailOutgoingMessage(
             recipient: 'to@direct.example',
@@ -109,6 +109,40 @@ final class PhiMailSenderTest extends TestCase
             $this->sentCommands(),
         );
         self::assertSame([['sent', 'sender', 'Default', 1, 'QUEUED to@direct.example msg-2' . self::LF, 42]], $this->auditRows);
+    }
+
+    public function testLogsTheReferralAMessageCarriesAndGivesItsId(): void
+    {
+        $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-3'));
+        $this->messageLog->expects(self::once())->method('recordSent')->with('msg-3', 'test-user', 'to@direct.example', 42, 3, 7);
+
+        $result = $this->sender()->deliver(
+            new PhiMailOutgoingMessage(recipient: 'to@direct.example', text: 'hello', patientId: 42, referralId: 7),
+            new PhiMailRequester('sender', 'Default', 3),
+            failureEvent: 'failed',
+            successEvent: 'sent',
+        );
+
+        self::assertTrue($result->wasSent());
+        self::assertSame('msg-3', $result->messageId);
+        self::assertSame(PhiMailSender::SUCCESS, $result->message);
+    }
+
+    public function testAnUnsentMessageHasNoIdAndSaysWhy(): void
+    {
+        $connections = $this->createMock(PhiMailConnectionFactory::class);
+        $connections->expects(self::never())->method('open');
+
+        $result = $this->sender($connections, enabled: false)->deliver(
+            new PhiMailOutgoingMessage('to@direct.example', 'hello'),
+            new PhiMailRequester('sender', 'Default', 3),
+            failureEvent: 'failed',
+            successEvent: 'sent',
+        );
+
+        self::assertFalse($result->wasSent());
+        self::assertNull($result->messageId);
+        self::assertSame(self::CONFIG_ERROR . ' 1', $result->message);
     }
 
     public function testDisabledMessagingDoesNotConnect(): void
