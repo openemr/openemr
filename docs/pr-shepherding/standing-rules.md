@@ -158,7 +158,7 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
   not `bodyText`: `bodyText` drops Markdown link targets, so a reply that links its fix as
   `[fix](commit URL)` loses the URL that verifies it). Both connections are paginated, and
   the truncation is silent, so an open finding can be missed: when `reviewThreads`
-  reports `hasNextPage`, repeat the call with `after:<endCursor>` on `reviewThreads`; when
+  reports `hasNextPage`, repeat the call with `after:"<endCursor>"` on `reviewThreads`; when
   a thread's `comments` reports `hasNextPage`, page that one thread by its `id` with the
   second query, because an `after:` cursor on the `comments` connection of the first query
   would apply to every thread it returns and skip other threads' comments.
