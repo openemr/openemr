@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'date\' on non\\-empty\\-list in empty\\(\\) does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'diagnosis\' on array\\{id\\: non\\-falsy\\-string, title\\: mixed, diagnosis\\: non\\-falsy\\-string, comments\\: mixed, date\\: mixed, author_id\\: mixed\\} in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
