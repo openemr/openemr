@@ -1,3 +1,13 @@
+/**
+ * Statement rule editor for a layout form.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Simon Quigley <squigley@altispeed.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 (function () {
     const modalEl = document.getElementById('ruleModal');
     if (!modalEl || typeof $ === 'undefined' || !$.fn.modal) {

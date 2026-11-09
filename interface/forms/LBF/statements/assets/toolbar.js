@@ -1,3 +1,13 @@
+/**
+ * Open the layout statement from an encounter.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Simon Quigley <squigley@altispeed.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 (function () {
   var cfg = window.lbfStatementsToolbar;
   if (!cfg || !Array.isArray(cfg.items)) {
