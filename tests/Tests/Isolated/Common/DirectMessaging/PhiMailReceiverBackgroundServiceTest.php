@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Isolated tests for phimail_check() failure reporting.
+ * Isolated tests for PhiMailReceiver::runBackgroundService() failure reporting.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -12,12 +12,13 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Isolated\library;
+namespace OpenEMR\Tests\Isolated\Common\DirectMessaging;
 
 use Doctrine\DBAL\ConnectionException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\DirectMessaging\PhiMailCheckException;
+use OpenEMR\Common\DirectMessaging\PhiMailReceiver;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\Attributes\BackupGlobals;
@@ -29,7 +30,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 
 #[BackupGlobals(true)]
-final class DirectMessageCheckTest extends TestCase
+final class PhiMailReceiverBackgroundServiceTest extends TestCase
 {
     private const SERVER = __DIR__ . '/fixtures/phimail-server.php';
 
@@ -39,15 +40,14 @@ final class DirectMessageCheckTest extends TestCase
     /** Thrown by the audit logger in place of writing a row, when set */
     private ?\Throwable $auditFailure = null;
 
-    /** Where phimail_read_blob() downloads message bodies and attachments */
+    /** Where the receiver downloads message bodies and attachments */
     private string $tempDir;
 
     public static function setUpBeforeClass(): void
     {
-        $projectDir = dirname(__DIR__, 4);
+        $projectDir = dirname(__DIR__, 5);
         OEGlobalsBag::getInstance()->set('fileroot', $projectDir);
         require_once $projectDir . '/library/translation.inc.php';
-        require_once $projectDir . '/library/direct_message_check.inc.php';
     }
 
     protected function setUp(): void
@@ -92,8 +92,8 @@ final class DirectMessageCheckTest extends TestCase
         OEGlobalsBag::getInstance()->set('phimail_enable', false);
 
         try {
-            phimail_check();
-            self::fail('phimail_check() returned normally from a failed connect.');
+            PhiMailReceiver::runBackgroundService();
+            self::fail('PhiMailReceiver::runBackgroundService() returned normally from a failed connect.');
         } catch (PhiMailCheckException $e) {
             self::assertSame('could not connect to server C1', $e->getMessage());
         }
@@ -108,7 +108,7 @@ final class DirectMessageCheckTest extends TestCase
 
         $this->expectException(PhiMailCheckException::class);
         $this->expectExceptionMessage('could not connect to server C1');
-        phimail_check();
+        PhiMailReceiver::runBackgroundService();
     }
 
     public function testUnreachableServerFailsAfterAuditing(): void
@@ -117,8 +117,8 @@ final class DirectMessageCheckTest extends TestCase
         OEGlobalsBag::getInstance()->set('phimail_server_address', 'https://127.0.0.1:1');
 
         try {
-            phimail_check();
-            self::fail('phimail_check() returned normally from an unreachable server.');
+            PhiMailReceiver::runBackgroundService();
+            self::fail('PhiMailReceiver::runBackgroundService() returned normally from an unreachable server.');
         } catch (PhiMailCheckException $e) {
             $reason = $e->getMessage();
         }
@@ -151,8 +151,8 @@ final class DirectMessageCheckTest extends TestCase
         $server = $this->startServer($replies);
 
         try {
-            phimail_check();
-            self::fail('phimail_check() returned normally from a failed check.');
+            PhiMailReceiver::runBackgroundService();
+            self::fail('PhiMailReceiver::runBackgroundService() returned normally from a failed check.');
         } catch (PhiMailCheckException $e) {
             self::assertSame($reason, $e->getMessage());
         }
@@ -177,8 +177,8 @@ final class DirectMessageCheckTest extends TestCase
         $server = $this->startServer(['OK', 'OK', 'MAIL to@example.org from@example.org 1 msg-1', $show]);
 
         try {
-            phimail_check();
-            self::fail('phimail_check() returned normally from a failed download.');
+            PhiMailReceiver::runBackgroundService();
+            self::fail('PhiMailReceiver::runBackgroundService() returned normally from a failed download.');
         } catch (PhiMailCheckException $e) {
             self::assertSame('M5 attachment mismatch', $e->getMessage());
         }
@@ -200,8 +200,8 @@ final class DirectMessageCheckTest extends TestCase
         $server = $this->startServer(['OK', 'OK', 'MAIL to@example.org from@example.org 0 msg-1', $show]);
 
         try {
-            phimail_check();
-            self::fail('phimail_check() returned normally from a malformed body length.');
+            PhiMailReceiver::runBackgroundService();
+            self::fail('PhiMailReceiver::runBackgroundService() returned normally from a malformed body length.');
         } catch (PhiMailCheckException $e) {
             self::assertSame('M4 read body failed', $e->getMessage());
         }
@@ -224,8 +224,8 @@ final class DirectMessageCheckTest extends TestCase
         $this->auditFailure = new ConnectionException('audit database is down');
 
         try {
-            phimail_check();
-            self::fail('phimail_check() returned normally from a malformed body length.');
+            PhiMailReceiver::runBackgroundService();
+            self::fail('PhiMailReceiver::runBackgroundService() returned normally from a malformed body length.');
         } catch (PhiMailCheckException $e) {
             self::assertSame('M4 read body failed', $e->getMessage());
         }
@@ -240,8 +240,8 @@ final class DirectMessageCheckTest extends TestCase
         $this->auditFailure = $auditFailure;
 
         try {
-            phimail_check();
-            self::fail('phimail_check() hid a failed audit write.');
+            PhiMailReceiver::runBackgroundService();
+            self::fail('PhiMailReceiver::runBackgroundService() hid a failed audit write.');
         } catch (ConnectionException $e) {
             self::assertSame($auditFailure, $e);
         }
@@ -253,7 +253,7 @@ final class DirectMessageCheckTest extends TestCase
     {
         $server = $this->startServer(['OK', 'OK', 'NONE']);
 
-        phimail_check();
+        PhiMailReceiver::runBackgroundService();
 
         self::assertSame([[1, 'message check completed']], $this->auditRows);
         self::assertSame('closed', $this->serverResult($server));
@@ -287,7 +287,7 @@ final class DirectMessageCheckTest extends TestCase
 
     /**
      * Wait for the fake server to exit and return its last line: "closed" when
-     * phimail_check() closed the connection.
+     * PhiMailReceiver::runBackgroundService() closed the connection.
      */
     private function serverResult(Process $server): string
     {

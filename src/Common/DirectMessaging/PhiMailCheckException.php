@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Thrown by phimail_check() when a Direct message check fails, so the
+ * Thrown by PhiMailReceiver when a Direct message check fails, so the
  * background service runner reports the run as an error instead of success.
  *
  * @package   OpenEMR
