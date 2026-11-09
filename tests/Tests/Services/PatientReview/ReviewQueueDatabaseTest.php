@@ -22,6 +22,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Services\PatientReview\EventAuditReviewTrail;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
+use OpenEMR\Services\PatientReview\Exception\ReviewRequestChangedException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewActorType;
@@ -291,6 +292,28 @@ class ReviewQueueDatabaseTest extends TestCase
         $this->assertNull($history[0]->previousPayload);
         $this->assertSame(ReviewQueueService::NOTE_REVISED, $history[1]->note);
         $this->assertSame(['resourceType' => 'Observation'], $history[1]->previousPayload);
+    }
+
+    /**
+     * A reviewer's decision names the version they were shown; once the app has replaced it,
+     * the decision is refused and the replacement waits for review.
+     */
+    public function testADecisionOnAReplacedVersionIsRefused(): void
+    {
+        $this->insertPatient();
+        $service = ReviewQueueFactory::create();
+        $request = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 5);
+        $service->revise($request->id, $this->patient(), 'Patient app Observation write, corrected', ['resourceType' => 'Observation', 'status' => 'preliminary']);
+
+        try {
+            $service->deny($request->id, $this->staff(), 'no', $request->revision());
+            $this->fail('A denial of the replaced version should be refused');
+        } catch (ReviewRequestChangedException) {
+            $this->assertSame(ReviewStatus::Pending, $service->get($request->id)->status);
+        }
+
+        $denied = $service->deny($request->id, $this->staff(), 'no', $service->get($request->id)->revision());
+        $this->assertSame(ReviewStatus::Denied, $denied->status);
     }
 
     /**

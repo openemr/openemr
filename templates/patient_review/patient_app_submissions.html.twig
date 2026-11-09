@@ -126,6 +126,7 @@
                                 <form method="post" action="patient_app_submissions.php" class="mr-3" onsubmit="return top.restoreSession()">
                                     <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
                                     <input type="hidden" name="request_id" value="{{ item.id|attr }}" />
+                                    <input type="hidden" name="revision" value="{{ item.revision|attr }}" />
                                     <button type="submit" name="action" value="approve" class="btn btn-sm btn-primary mb-2">{{ 'Approve'|xlt }}</button>
                                 </form>
                             {% else %}
@@ -140,6 +141,7 @@
                             <form method="post" action="patient_app_submissions.php" class="form-inline" onsubmit="return top.restoreSession()">
                                 <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
                                 <input type="hidden" name="request_id" value="{{ item.id|attr }}" />
+                                <input type="hidden" name="revision" value="{{ item.revision|attr }}" />
                                 <input type="hidden" name="action" value="deny" />
                                 <label class="sr-only" for="note-{{ item.id|attr }}">{{ 'Reason for denying'|xlt }}</label>
                                 <input type="text" class="form-control form-control-sm mr-2 mb-2" id="note-{{ item.id|attr }}" name="note" maxlength="255"

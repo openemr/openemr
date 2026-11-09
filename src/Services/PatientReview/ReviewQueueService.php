@@ -34,6 +34,7 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewHandlerMissingException;
 use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
+use OpenEMR\Services\PatientReview\Exception\ReviewRequestChangedException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
@@ -237,12 +238,15 @@ final class ReviewQueueService
      * Approves a pending request and applies it to the chart through the handler for its type.
      * If the handler throws, nothing changes and the request stays pending.
      *
+     * @param ?string $reviewedRevision the revision() the reviewer was shown; required for a
+     *                                  request its submitter can replace (see revise())
      * @throws ReviewHandlerMissingException when no handler is registered for the type
+     * @throws ReviewRequestChangedException when the request was replaced since that revision
      */
-    public function approve(int $id, ReviewActor $reviewer, ?string $note = null): ReviewRequest
+    public function approve(int $id, ReviewActor $reviewer, ?string $note = null, ?string $reviewedRevision = null): ReviewRequest
     {
-        return $this->atomically(function () use ($id, $reviewer, $note): ReviewRequest {
-            $request = $this->get($id);
+        return $this->atomically(function () use ($id, $reviewer, $note, $reviewedRevision): ReviewRequest {
+            $request = $this->forDecision($id, $reviewedRevision);
             $handler = $this->handlers[$request->type->value]
                 ?? throw ReviewHandlerMissingException::forType($request->type);
 
@@ -253,9 +257,15 @@ final class ReviewQueueService
         });
     }
 
-    public function deny(int $id, ReviewActor $reviewer, ?string $note = null): ReviewRequest
+    /**
+     * @param ?string $reviewedRevision as for approve()
+     * @throws ReviewRequestChangedException when the request was replaced since that revision
+     */
+    public function deny(int $id, ReviewActor $reviewer, ?string $note = null, ?string $reviewedRevision = null): ReviewRequest
     {
-        return $this->change($id, ReviewStatus::Denied, $reviewer, $note);
+        return $this->atomically(
+            fn(): ReviewRequest => $this->transition($this->forDecision($id, $reviewedRevision), ReviewStatus::Denied, $reviewer, $note)
+        );
     }
 
     public function cancel(int $id, ReviewActor $actor, ?string $note = null): ReviewRequest
@@ -516,6 +526,30 @@ final class ReviewQueueService
         $this->pendingAudit = [];
 
         return $entries;
+    }
+
+    /**
+     * The request a reviewer is deciding. Given the revision they were shown, the row is held
+     * until the decision commits, so revise() cannot replace the content between this check and
+     * the change of status; a pending request no longer at that revision is refused. One that
+     * is no longer pending is left to transition() to refuse.
+     *
+     * Call inside atomically().
+     *
+     * @throws ReviewRequestNotFoundException
+     * @throws ReviewRequestChangedException
+     */
+    private function forDecision(int $id, ?string $reviewedRevision): ReviewRequest
+    {
+        if ($reviewedRevision === null) {
+            return $this->get($id);
+        }
+        $request = $this->store->findForUpdate($id) ?? throw ReviewRequestNotFoundException::forId($id);
+        if ($request->status === ReviewStatus::Pending && !hash_equals($request->revision(), $reviewedRevision)) {
+            throw ReviewRequestChangedException::sinceReviewed($id);
+        }
+
+        return $request;
     }
 
     private function change(int $id, ReviewStatus $to, ReviewActor $actor, ?string $note): ReviewRequest

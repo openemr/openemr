@@ -19,6 +19,7 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewHandlerMissingException;
 use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
+use OpenEMR\Services\PatientReview\Exception\ReviewRequestChangedException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\ReviewActor;
@@ -633,6 +634,69 @@ class ReviewQueueServiceIsolatedTest extends TestCase
 
         $this->expectException(ReviewRequestNotFoundException::class);
         $service->revise(999, $this->patient(), 'none', []);
+    }
+
+    /**
+     * The revision names the content: it changes when the payload is replaced, not otherwise.
+     */
+    public function testTheRevisionChangesOnlyWithThePayload(): void
+    {
+        $service = $this->service();
+        $request = $service->submit($this->profile(), $this->patient());
+
+        $this->assertSame($request->revision(), $service->get($request->id)->revision());
+        $revised = $service->revise($request->id, $this->patient(), 'corrected', ['fname' => 'Anne']);
+        $this->assertNotSame($request->revision(), $revised->revision());
+        $back = $service->revise($request->id, $this->patient(), 'corrected back', ['fname' => 'Ann']);
+        $this->assertSame($request->revision(), $back->revision(), 'the same content is the same revision');
+    }
+
+    /**
+     * Staff decide the version they were shown: a request replaced since is neither approved
+     * nor denied, and stays pending with the replacement.
+     */
+    public function testADecisionOnAReplacedVersionIsRefused(): void
+    {
+        $handler = new RecordingReviewHandler(ReviewType::Profile);
+        $service = $this->service([$handler]);
+        $request = $service->submit($this->profile(), $this->patient());
+        $shown = $request->revision();
+        $service->revise($request->id, $this->patient(), 'corrected', ['fname' => 'Anne']);
+
+        foreach (
+            [
+                'approve' => fn(): ReviewRequest => $service->approve($request->id, $this->staff(), null, $shown),
+                'deny' => fn(): ReviewRequest => $service->deny($request->id, $this->staff(), 'no', $shown),
+            ] as $decision => $decide
+        ) {
+            try {
+                $decide();
+                $this->fail('A ' . $decision . ' of a replaced version should be refused');
+            } catch (ReviewRequestChangedException) {
+                $now = $service->get($request->id);
+                $this->assertSame(ReviewStatus::Pending, $now->status, $decision);
+                $this->assertSame(['fname' => 'Anne'], $now->payload, $decision);
+            }
+        }
+        $this->assertSame([], $handler->applied, 'nothing was applied');
+        $this->assertCount(2, $service->history($request->id), 'submitted and revised only');
+
+        $approved = $service->approve($request->id, $this->staff(), null, $service->get($request->id)->revision());
+        $this->assertSame(ReviewStatus::Completed, $approved->status);
+        $this->assertSame([$request->id], $handler->applied);
+    }
+
+    /**
+     * A request already decided is refused as decided, whatever revision the reviewer saw.
+     */
+    public function testADecisionOnADecidedRequestIsRefusedAsDecided(): void
+    {
+        $service = $this->service();
+        $request = $service->submit($this->profile(), $this->patient());
+        $service->deny($request->id, $this->staff(), 'no', $request->revision());
+
+        $this->expectException(InvalidReviewTransitionException::class);
+        $service->deny($request->id, $this->staff(), 'again', 'a revision from an older page');
     }
 
     /**

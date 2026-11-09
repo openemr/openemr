@@ -27,6 +27,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
+use OpenEMR\Services\PatientReview\Exception\ReviewRequestChangedException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteClientType;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewItem;
@@ -113,6 +114,8 @@ final readonly class PatientAppSubmissionsController
         $id = filter_var($post->getString('request_id'), FILTER_VALIDATE_INT);
         $action = $post->getString('action');
         $note = trim($post->getString('note'));
+        // The version of the submission the page showed; an app may replace it while it waits.
+        $revision = $post->getString('revision');
         if (!is_int($id) || $id <= 0 || !in_array($action, ['approve', 'deny'], true)) {
             return [null, xl('That submission could not be found.')];
         }
@@ -134,15 +137,17 @@ final readonly class PatientAppSubmissionsController
                 return [null, xl('That submission could not be found.')];
             }
             if ($action === 'approve') {
-                $this->queue->approve($id, $reviewer, $note === '' ? null : $note);
+                $this->queue->approve($id, $reviewer, $note === '' ? null : $note, $revision);
                 return [xl('The submission was approved and added to the chart.'), null];
             }
-            $this->queue->deny($id, $reviewer, $note);
+            $this->queue->deny($id, $reviewer, $note, $revision);
             return [xl('The submission was denied. Nothing was added to the chart.'), null];
         } catch (ReviewRequestNotFoundException) {
             return [null, xl('That submission could not be found.')];
         } catch (InvalidReviewTransitionException) {
             return [null, xl('That submission has already been decided.')];
+        } catch (ReviewRequestChangedException) {
+            return [null, xl('The app replaced that submission after this page was loaded. Nothing was decided. Review the new version below.')];
         } catch (\RuntimeException | \LogicException | DbalException $e) {
             // The transaction has rolled back, so the request is still pending.
             $this->logger->error('A patient app submission could not be decided', [
@@ -209,6 +214,7 @@ final readonly class PatientAppSubmissionsController
     {
         return [
             'id' => $item->request->id,
+            'revision' => $item->request->revision(),
             'received' => $item->request->createdAt->format('Y-m-d H:i'),
             'patientName' => $item->patientName,
             'pubpid' => $item->pubpid,
