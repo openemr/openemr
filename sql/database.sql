@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 561
+-- v_database: 569
 --
 
 --
@@ -275,7 +275,8 @@ CREATE TABLE `billing` (
   `revenue_code` varchar(6) NOT NULL default '' COMMENT 'Item revenue code',
   `chargecat` varchar(31) default '' COMMENT 'Charge category or customer',
   PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
+  KEY `pid` (`pid`),
+  KEY `date` (`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -8318,6 +8319,7 @@ CREATE TABLE `openemr_postcalendar_events` (
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`),
   KEY `pc_eventDate` (`pc_eventDate`),
+  KEY `pc_pid` (`pc_pid`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7;
 
@@ -8566,6 +8568,78 @@ CREATE TABLE `patient_reminders` (
   KEY `pid` (`pid`),
   KEY (`category`,`item`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `patient_review_event`
+--
+
+DROP TABLE IF EXISTS `patient_review_event`;
+CREATE TABLE `patient_review_event` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `request_id` bigint(20) NOT NULL COMMENT 'patient_review_request.id',
+  `from_status` varchar(24) DEFAULT NULL COMMENT 'NULL for the event that created the request',
+  `to_status` varchar(24) NOT NULL,
+  `actor_type` varchar(16) NOT NULL COMMENT 'patient, user or system',
+  `actor_id` bigint(20) DEFAULT NULL COMMENT 'pid for a patient, users.id for a user',
+  `created_at` datetime NOT NULL,
+  `note` text,
+  PRIMARY KEY (`id`),
+  KEY `request_id` (`request_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 COMMENT='Append-only history of patient_review_request state changes';
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `patient_review_request`
+--
+
+DROP TABLE IF EXISTS `patient_review_request`;
+CREATE TABLE `patient_review_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) NOT NULL,
+  `pid` bigint(20) NOT NULL COMMENT 'pid from patient_data table',
+  `type` varchar(32) NOT NULL COMMENT 'profile, payment, document, invoice, fhir-write',
+  `resource_type` varchar(64) DEFAULT NULL COMMENT 'FHIR resource type when type is fhir-write, e.g. Condition; NULL otherwise',
+  `source` varchar(16) NOT NULL DEFAULT 'portal' COMMENT 'portal or api',
+  `client_id` varchar(80) DEFAULT NULL COMMENT 'oauth_clients.client_id when source is api',
+  `status` varchar(24) NOT NULL DEFAULT 'pending' COMMENT 'pending, awaiting_payment, approved, denied, cancelled, completed',
+  `summary` varchar(255) NOT NULL DEFAULT '' COMMENT 'Staff-facing description of the request',
+  `payload` longtext COMMENT 'The submitted data',
+  `payload_format` varchar(16) NOT NULL DEFAULT 'json' COMMENT 'json; php-serialized or text only for rows migrated from onsite_portal_activity',
+  `target_table` varchar(64) DEFAULT NULL COMMENT 'Table the request applies to, when known',
+  `target_id` varchar(64) DEFAULT NULL COMMENT 'Row id or uuid in target_table',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `reviewed_by` bigint(20) DEFAULT NULL COMMENT 'users.id of the staff user who decided the request',
+  `reviewed_at` datetime DEFAULT NULL,
+  `review_note` text,
+  `legacy_activity_id` bigint(20) DEFAULT NULL COMMENT 'onsite_portal_activity.id this request was migrated from',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  UNIQUE KEY `legacy_activity_id` (`legacy_activity_id`),
+  KEY `status_type` (`status`,`type`),
+  KEY `pid_type_status` (`pid`,`type`,`status`),
+  KEY `created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 COMMENT='Patient-submitted data awaiting staff review; one row per submission';
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `patient_review_secret`
+--
+
+DROP TABLE IF EXISTS `patient_review_secret`;
+CREATE TABLE `patient_review_secret` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `request_id` bigint(20) NOT NULL COMMENT 'patient_review_request.id',
+  `kind` varchar(32) NOT NULL COMMENT 'payment-card',
+  `ciphertext` longtext NOT NULL COMMENT 'Encrypted per the database_encryption setting; deleted when the request is no longer open',
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `request_kind` (`request_id`,`kind`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 COMMENT='Sensitive data held only while a patient_review_request is open';
 
 -- --------------------------------------------------------
 
@@ -9793,6 +9867,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 DROP TABLE IF EXISTS `transactions`;
 CREATE TABLE `transactions` (
   `id`                      bigint(20)   NOT NULL auto_increment,
+  `uuid`                    binary(16)   DEFAULT NULL,
   `date`                    datetime     default NULL,
   `title`                   varchar(255) NOT NULL DEFAULT '',
   `pid`                     bigint(20)   default NULL,
@@ -9800,6 +9875,7 @@ CREATE TABLE `transactions` (
   `groupname`               varchar(255) NOT NULL DEFAULT '',
   `authorized`              tinyint(4)   default NULL,
   PRIMARY KEY  (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
@@ -10128,7 +10204,7 @@ CREATE TABLE `notification_log` (
   `message` text,
   `email_sender` varchar(255) NOT NULL,
   `email_subject` varchar(255) NOT NULL,
-  `type` enum('SMS','Email') NOT NULL,
+  `type` enum('SMS','Email','Phone') NOT NULL,
   `patient_info` text,
   `pc_eventDate` date NOT NULL,
   `pc_endDate` date NOT NULL,
@@ -14157,6 +14233,7 @@ CREATE TABLE `oauth_clients` (
 `is_enabled` tinyint(1) NOT NULL DEFAULT '0',
 `skip_ehr_launch_authorization_flow` tinyint(1) NOT NULL DEFAULT '0',
 `dsi_type` TINYINT UNSIGNED NOT NULL DEFAULT '1' COMMENT '0=none, 1=evidence-based,2=predictive',
+`address_book_uuid` binary(16) DEFAULT NULL COMMENT 'users.uuid of the address book entry this client acts for; limits it to that entry''s Tasks and referrals',
 PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB;
 
@@ -14418,7 +14495,8 @@ CREATE TABLE `task` (
   `business_status` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.businessStatus, as text',
   `intent` varchar(31) NOT NULL DEFAULT 'order' COMMENT 'FHIR Task.intent code',
   `priority` varchar(31) DEFAULT NULL COMMENT 'FHIR Task.priority code',
-  `code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.code, from http://hl7.org/fhir/CodeSystem/task-code',
+  `code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.code: the code',
+  `code_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.code: its system, such as http://hl7.org/fhir/CodeSystem/task-code',
   `description` text,
   `patient_id` bigint(20) DEFAULT NULL COMMENT 'FHIR Task.for: patient_data.pid',
   `focus_type` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.focus: resource type',
@@ -14440,6 +14518,54 @@ CREATE TABLE `task` (
   KEY `focus_uuid` (`focus_uuid`),
   KEY `owner_uuid` (`owner_uuid`),
   KEY `part_of_uuid` (`part_of_uuid`)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `task_input`
+--
+
+DROP TABLE IF EXISTS `task_input`;
+CREATE TABLE `task_input` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `task_id` bigint(20) NOT NULL COMMENT 'task.id',
+  `seq` int(11) NOT NULL DEFAULT 0 COMMENT 'position in Task.input',
+  `type_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding system',
+  `type_code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding code',
+  `type_display` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: coding display',
+  `type_text` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.input.type: text',
+  `value_element` varchar(31) NOT NULL COMMENT 'which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept',
+  `value_type` varchar(63) DEFAULT NULL COMMENT 'valueReference: resource type',
+  `value_uuid` binary(16) DEFAULT NULL COMMENT 'valueReference: resource id',
+  `value_system` varchar(255) DEFAULT NULL COMMENT 'valueCodeableConcept: coding system',
+  `value_code` varchar(63) DEFAULT NULL COMMENT 'valueCodeableConcept: coding code',
+  `value_display` varchar(255) DEFAULT NULL COMMENT 'valueReference: its display; valueCodeableConcept: the display of its coding',
+  `value_text` text COMMENT 'the canonical, url, string or markdown; valueCodeableConcept: its text',
+  PRIMARY KEY (`id`),
+  KEY `task_id` (`task_id`, `seq`)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `task_output`
+--
+
+DROP TABLE IF EXISTS `task_output`;
+CREATE TABLE `task_output` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `task_id` bigint(20) NOT NULL COMMENT 'task.id',
+  `seq` int(11) NOT NULL DEFAULT 0 COMMENT 'position in Task.output',
+  `type_system` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding system',
+  `type_code` varchar(63) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding code',
+  `type_display` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: coding display',
+  `type_text` varchar(255) DEFAULT NULL COMMENT 'FHIR Task.output.type: text',
+  `value_element` varchar(31) NOT NULL COMMENT 'which value[x] it is: valueReference, valueCanonical, valueUrl, valueString, valueMarkdown or valueCodeableConcept',
+  `value_type` varchar(63) DEFAULT NULL COMMENT 'valueReference: resource type',
+  `value_uuid` binary(16) DEFAULT NULL COMMENT 'valueReference: resource id',
+  `value_system` varchar(255) DEFAULT NULL COMMENT 'valueCodeableConcept: coding system',
+  `value_code` varchar(63) DEFAULT NULL COMMENT 'valueCodeableConcept: coding code',
+  `value_display` varchar(255) DEFAULT NULL COMMENT 'valueReference: its display; valueCodeableConcept: the display of its coding',
+  `value_text` text COMMENT 'the canonical, url, string or markdown; valueCodeableConcept: its text',
+  PRIMARY KEY (`id`),
+  KEY `task_id` (`task_id`, `seq`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `form_questionnaire_assessments`;

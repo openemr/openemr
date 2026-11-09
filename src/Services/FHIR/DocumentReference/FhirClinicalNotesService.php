@@ -13,8 +13,10 @@ namespace OpenEMR\Services\FHIR\DocumentReference;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent;
@@ -102,7 +104,7 @@ class FhirClinicalNotesService extends FhirServiceBase implements IPatientCompar
         $docReference->addIdentifier($identifier);
 
         if (!empty($dataRecord['date'])) {
-            $docReference->setDate(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $docReference->setDate(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
         } else {
             $docReference->setDate(UtilsService::createDataMissingExtension());
         }
@@ -113,7 +115,7 @@ class FhirClinicalNotesService extends FhirServiceBase implements IPatientCompar
             // we currently don't track anything dealing with start and end date for the context
             if (!empty($dataRecord['encounter_date'])) {
                 $period = new FHIRPeriod();
-                $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['encounter_date']));
+                $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['encounter_date'])));
                 $context->setPeriod($period);
             }
             $context->addEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['euuid']));
@@ -193,7 +195,11 @@ class FhirClinicalNotesService extends FhirServiceBase implements IPatientCompar
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        if (isset($openEMRSearchParameters['code']) && $openEMRSearchParameters['code'] instanceof TokenSearchField) {
+        if (
+            isset($openEMRSearchParameters['code'])
+            && $openEMRSearchParameters['code'] instanceof TokenSearchField
+            && $openEMRSearchParameters['code']->getModifier() !== SearchModifier::MISSING
+        ) {
             $openEMRSearchParameters['code']->transformValues(function (TokenSearchValue $val) {
                 // TODO: @adunsulag I don't like this, is there a way we can mark the code system we are using that will prefix the value
                 // automatically?

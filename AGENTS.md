@@ -746,6 +746,13 @@ When modifying PHP files, ensure proper docblock:
 
 Preserve existing authors/copyrights when editing files.
 
+The `License Headers` check and its pre-commit hook run
+`php bin/console --skip-globals openemr:license-headers` on every PHP, JS,
+CSS, SCSS, and Twig file a change touches. Each needs a `@license` tag whose
+value `.license-headers.yaml` allows for its path; JS, CSS, and SCSS use the
+same `/** */` header, and Twig uses `{# #}`. Third-party and generated code is
+exempt there instead: never add a GPL tag to code the project does not own.
+
 ## Common Gotchas
 
 - Multiple template engines: check extension (.twig, .html, .php)
@@ -779,3 +786,4 @@ Preserve existing authors/copyrights when editing files.
 - `API_README.md` - REST API docs
 - `FHIR_README.md` - FHIR implementation
 - `tests/Tests/README.md` - Testing guide
+- `docs/pr-shepherding/` - Reviewing a batch of open PRs on a chosen subject (area, author, milestone)

@@ -682,7 +682,9 @@ class InstallerTest extends TestCase
 
         // Mock configuration and setup methods
         $mockInstaller->expects($this->once())->method('load_dumpfiles')->willReturn("Creating Main Database tables...\n<span class='text-success'><b>OK</b></span>.<br>\nCreating Language Translations tables...\n<span class='text-success'><b>OK</b></span>.<br>\n");
-        $mockInstaller->expects($this->once())->method('write_configuration_file')->willReturn(true);
+        // Two-phase write: once with $configured=false before install_gacl,
+        // once with $configured=true after all seeding commits.
+        $mockInstaller->expects($this->exactly(2))->method('write_configuration_file')->willReturn(true);
         $mockInstaller->expects($this->once())->method('add_version_info')->willReturn(true);
         $mockInstaller->expects($this->once())->method('insert_globals')->willReturn(true);
         $mockInstaller->expects($this->once())->method('add_initial_user')->willReturn(true);
@@ -693,6 +695,122 @@ class InstallerTest extends TestCase
         $result = $mockInstaller->quick_install();
 
         $this->assertTrue($result);
+    }
+
+    /**
+     * quick_install() writes sites/default/sqlconf.php in two phases:
+     *
+     *   Phase 1 — before install_gacl(): write_configuration_file(false)
+     *     persists connection credentials with $config = 0 so GaclApi
+     *     (which reads sqlconf.php on construct to open its own DB
+     *     connection) can find them.
+     *
+     *   Phase 2 — after every seeding step commits:
+     *     write_configuration_file(true) flips $config to 1, committing
+     *     the install.
+     *
+     * The flex / release entrypoint reads $config to decide whether
+     * auto_configure.php needs to run. If the $config = 1 commit fires
+     * before install_gacl() / add_initial_user() and the container is
+     * killed in between (e.g. a Kubernetes startup-probe timeout), the
+     * restarted container sees $config = 1, skips auto_configure, and
+     * signals Ready on top of a half-seeded database where admin exists
+     * in `users` but no row maps admin to the Administrators group in
+     * gacl_groups_aro_map. aclCheckCore('patients', 'demo', 'admin')
+     * then returns false and AclMainTest flakes.
+     */
+    public function testQuickInstallCommitsConfigurationFileOnlyAfterAllSeedingSteps(): void
+    {
+        $mockInstaller = $this->createMockInstaller([], [
+            'add_initial_user',
+            'add_version_info',
+            'create_database',
+            'create_database_user',
+            'disconnect',
+            'grant_privileges',
+            'igroup_is_valid',
+            'install_additional_users',
+            'install_gacl',
+            'insert_globals',
+            'iuser_is_valid',
+            'load_dumpfiles',
+            'login_is_valid',
+            'on_care_coordination',
+            'password_is_valid',
+            'root_database_connection',
+            'user_database_connection',
+            'user_password_is_valid',
+            'write_configuration_file',
+        ]);
+
+        $mockInstaller->method('login_is_valid')->willReturn(true);
+        $mockInstaller->method('iuser_is_valid')->willReturn(true);
+        $mockInstaller->method('user_password_is_valid')->willReturn(true);
+        $mockInstaller->method('igroup_is_valid')->willReturn(true);
+        $mockInstaller->method('password_is_valid')->willReturn(true);
+        $mockInstaller->method('root_database_connection')->willReturn(true);
+        $mockInstaller->method('user_database_connection')->willReturnOnConsecutiveCalls(false, true);
+        $mockInstaller->method('disconnect')->willReturn(true);
+        $mockInstaller->method('create_database')->willReturn(true);
+        $mockInstaller->method('create_database_user')->willReturn(true);
+        $mockInstaller->method('grant_privileges')->willReturn(true);
+
+        $callOrder = [];
+        $track = static function (string $name) use (&$callOrder): bool {
+            $callOrder[] = $name;
+            return true;
+        };
+        $mockInstaller->method('load_dumpfiles')->willReturnCallback(static function () use ($track): string {
+            $track('load_dumpfiles');
+            return "ok";
+        });
+        $mockInstaller->method('add_version_info')->willReturnCallback(static fn(): bool => $track('add_version_info'));
+        $mockInstaller->method('insert_globals')->willReturnCallback(static fn(): bool => $track('insert_globals'));
+        $mockInstaller->method('add_initial_user')->willReturnCallback(static fn(): bool => $track('add_initial_user'));
+        $mockInstaller->method('install_gacl')->willReturnCallback(static fn(): bool => $track('install_gacl'));
+        $mockInstaller->method('install_additional_users')->willReturnCallback(static fn(): bool => $track('install_additional_users'));
+        $mockInstaller->method('on_care_coordination')->willReturnCallback(static fn(): bool => $track('on_care_coordination'));
+        $mockInstaller->method('write_configuration_file')->willReturnCallback(
+            static function (bool $configured = true) use (&$callOrder): bool {
+                $callOrder[] = $configured
+                    ? 'write_configuration_file(configured=true)'
+                    : 'write_configuration_file(configured=false)';
+                return true;
+            }
+        );
+
+        $this->assertTrue($mockInstaller->quick_install());
+
+        $uncommittedIndex = array_search('write_configuration_file(configured=false)', $callOrder, true);
+        $committedIndex = array_search('write_configuration_file(configured=true)', $callOrder, true);
+        $installGaclIndex = array_search('install_gacl', $callOrder, true);
+
+        $this->assertNotFalse($uncommittedIndex, 'write_configuration_file(configured=false) was not invoked');
+        $this->assertNotFalse($committedIndex, 'write_configuration_file(configured=true) was not invoked');
+        $this->assertNotFalse($installGaclIndex, 'install_gacl was not invoked');
+
+        // Phase 1: sqlconf.php must exist before install_gacl — Gacl's
+        // constructor reads it to open its own DB connection.
+        $this->assertLessThan(
+            $installGaclIndex,
+            $uncommittedIndex,
+            'write_configuration_file(configured=false) must run before install_gacl — Gacl reads sqlconf.php on construct'
+        );
+
+        // Phase 2: the $config = 1 commit must come after every seeding
+        // step. This is the invariant that prevents the Kubernetes
+        // AclMain flake — a container killed between any seeding step
+        // and this commit restarts with $config = 0, and the entrypoint
+        // re-runs the install cleanly.
+        foreach (['load_dumpfiles', 'add_version_info', 'insert_globals', 'add_initial_user', 'install_gacl', 'install_additional_users', 'on_care_coordination'] as $seedingStep) {
+            $seedIndex = array_search($seedingStep, $callOrder, true);
+            $this->assertNotFalse($seedIndex, "$seedingStep was not invoked");
+            $this->assertGreaterThan(
+                $seedIndex,
+                $committedIndex,
+                "write_configuration_file(configured=true) must run after $seedingStep — otherwise a container killed between $seedingStep and the commit leaves sqlconf.php advertising 'configured' on top of a half-seeded database"
+            );
+        }
     }
 
     public function testQuickInstallFailsOnLoginValidation(): void
@@ -746,7 +864,11 @@ class InstallerTest extends TestCase
         $mockInstaller->expects($this->once())->method('create_database_user')->willReturn(true);
         $mockInstaller->expects($this->once())->method('grant_privileges')->willReturn(true);
         $mockInstaller->expects($this->once())->method('load_dumpfiles')->willReturn("a string");
-        $mockInstaller->expects($this->once())->method('write_configuration_file')->willReturn(true);
+        // Two-phase write runs regardless of clone_database: phase 1
+        // (configured=false) before the seeding block, phase 2
+        // (configured=true) after. The seeding block itself is skipped
+        // when clone_database is set.
+        $mockInstaller->expects($this->exactly(2))->method('write_configuration_file')->willReturn(true);
 
         // Should not call these methods when cloning
         $mockInstaller->expects($this->never())->method('add_version_info');
@@ -2263,10 +2385,12 @@ class InstallerTest extends TestCase
             ->with('/test/site/dir/sqlconf.php', 'w')
             ->willReturn($mockFileHandle);
 
-        // All writeToFile calls should succeed
+        // All writeToFile calls should succeed. Return strlen($data) so
+        // the short-write check in write_configuration_file registers
+        // each call as a full write.
         $mockInstaller->expects($this->exactly(7))
             ->method('writeToFile')
-            ->willReturn(10); // Simulate successful writes
+            ->willReturnCallback(fn($h, string $d): int => strlen($d));
 
         // closeFile should succeed
         $mockInstaller->expects($this->once())
@@ -2301,7 +2425,7 @@ class InstallerTest extends TestCase
         $mockInstaller->method('touchFile')->willReturn(true);
         $mockFileHandle = fopen('php://memory', 'w+');
         $mockInstaller->method('openFile')->willReturn($mockFileHandle);
-        $mockInstaller->method('writeToFile')->willReturn(10);
+        $mockInstaller->method('writeToFile')->willReturnCallback(fn($h, string $d): int => strlen($d));
         $mockInstaller->method('closeFile')->willReturn(true);
 
         $result = $mockInstaller->write_configuration_file();
@@ -2353,14 +2477,16 @@ class InstallerTest extends TestCase
         $mockFileHandle = fopen('php://memory', 'w+');
         $mockInstaller->method('openFile')->willReturn($mockFileHandle);
 
-        // Simulate some write failures - return false for some calls
+        // Simulate some write failures — return false for some calls.
+        // Successful calls return strlen($data) so the short-write
+        // check in write_configuration_file registers them as full writes.
         $writeCallCount = 0;
         $mockInstaller->expects($this->exactly(7))
             ->method('writeToFile')
-            ->willReturnCallback(function () use (&$writeCallCount) {
+            ->willReturnCallback(function ($h, string $d) use (&$writeCallCount) {
                 $writeCallCount++;
                 // Fail on calls 3 and 5 to simulate partial write failures
-                return ($writeCallCount === 3 || $writeCallCount === 5) ? false : 10;
+                return ($writeCallCount === 3 || $writeCallCount === 5) ? false : strlen($d);
             });
 
         $mockInstaller->method('closeFile')->willReturn(false); // Also fail closeFile
@@ -2422,6 +2548,85 @@ class InstallerTest extends TestCase
         fclose($mockFileHandle);
     }
 
+    /**
+     * Phase 1 of the two-phase write (see quick_install()): when called
+     * with $configured=false the serialized output must contain
+     * $config = 0, not $config = 1. A writer that silently ignored its
+     * argument would pass the call-order mock test in
+     * testQuickInstallCommitsConfigurationFileOnlyAfterAllSeedingSteps,
+     * so this test captures the real generated content.
+     */
+    public function testWriteConfigurationFileSerializesConfigZeroWhenUnconfigured(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $GLOBALS['OE_SITE_DIR'] = '/test/site/dir';
+        $mockInstaller->conffile = '/test/site/dir/sqlconf.php';
+
+        $mockInstaller->method('fileExists')->willReturn(true);
+        $mockInstaller->method('touchFile')->willReturn(true);
+
+        $mockFileHandle = fopen('php://memory', 'w+');
+        $mockInstaller->method('openFile')->willReturn($mockFileHandle);
+
+        $writtenContent = [];
+        $mockInstaller->expects($this->exactly(7))
+            ->method('writeToFile')
+            ->willReturnCallback(function ($handle, $data) use (&$writtenContent) {
+                $writtenContent[] = $data;
+                return strlen($data);
+            });
+
+        $mockInstaller->method('closeFile')->willReturn(true);
+
+        $result = $mockInstaller->write_configuration_file(configured: false);
+
+        $this->assertTrue($result);
+
+        $allContent = implode('', $writtenContent);
+        $this->assertStringContainsString('$config = 0', $allContent);
+        $this->assertStringNotContainsString('$config = 1', $allContent);
+
+        fclose($mockFileHandle);
+    }
+
+    /**
+     * writeToFile returns int|false — bytes written, or false on error.
+     * A SHORT write (fwrite returning fewer bytes than requested, e.g.
+     * disk full mid-write) used to be silently accepted because the
+     * prior `writeToFile(...) or $it_died++` idiom only treated false
+     * and zero as failure. Lock in the stricter behavior: any return
+     * value shorter than strlen($data) must count as a failed write.
+     */
+    public function testWriteConfigurationFileDetectsShortWrite(): void
+    {
+        $mockInstaller = $this->createMockInstaller();
+        $GLOBALS['OE_SITE_DIR'] = '/test/site/dir';
+        $mockInstaller->conffile = '/test/site/dir/sqlconf.php';
+
+        $mockInstaller->method('fileExists')->willReturn(true);
+        $mockInstaller->method('touchFile')->willReturn(true);
+
+        $mockFileHandle = fopen('php://memory', 'w+');
+        $mockInstaller->method('openFile')->willReturn($mockFileHandle);
+
+        // Return (strlen - 1) on every write — a short write by one byte.
+        // Pre-fix: this returned truthy int and $it_died stayed 0 →
+        // write_configuration_file returned true. Post-fix: $it_died
+        // increments for every short write and the function returns
+        // false with the "Couldn't write N lines" error.
+        $mockInstaller->method('writeToFile')
+            ->willReturnCallback(fn($h, string $d): int => max(0, strlen($d) - 1));
+
+        $mockInstaller->method('closeFile')->willReturn(true);
+
+        $result = $mockInstaller->write_configuration_file();
+
+        $this->assertFalse($result);
+        $this->assertStringContainsString("Couldn't write", $mockInstaller->error_message);
+
+        fclose($mockFileHandle);
+    }
+
     public function testWriteConfigurationFileHandlesSpecialCharactersInConfig(): void
     {
         $config = [
@@ -2477,13 +2682,15 @@ class InstallerTest extends TestCase
         $mockFileHandle = fopen('php://memory', 'w+');
         $mockInstaller->method('openFile')->willReturn($mockFileHandle);
 
-        // Simulate exactly 3 write failures (every even call out of 7 total)
+        // Simulate exactly 3 write failures (every even call out of 7 total).
+        // Successful calls return strlen($data) so the short-write check
+        // in write_configuration_file registers them as full writes.
         $writeCallCount = 0;
         $mockInstaller->method('writeToFile')
-            ->willReturnCallback(function () use (&$writeCallCount) {
+            ->willReturnCallback(function ($h, string $d) use (&$writeCallCount) {
                 $writeCallCount++;
                 // Fail on calls 2, 4, 6
-                return ($writeCallCount % 2 === 0) ? false : 10;
+                return ($writeCallCount % 2 === 0) ? false : strlen($d);
             });
 
         $mockInstaller->method('closeFile')->willReturn(true);

@@ -339,7 +339,8 @@ class DocumentTemplateService extends QuestionnaireService
 
     /**
      * Fetch a template row scoped to the given patient context. A row with
-     * `pid = 0` is a shared/profile template every caller may read; a row
+     * `pid = 0` (shared) or `pid = -1` (Repository, assigned through
+     * profiles) is a template every caller may read; a row
      * with a positive `pid` is returned only when `$patientId` matches.
      * Used by the portal and shared renderers; admin/profile flows that
      * already know the owner call `fetchTemplate()` directly.
@@ -353,7 +354,8 @@ class DocumentTemplateService extends QuestionnaireService
             return $return;
         }
         $rowPid = isset($return['pid']) && is_numeric($return['pid']) ? (int) $return['pid'] : 0;
-        if ($rowPid !== 0 && $rowPid !== $patientId) {
+        // 0 (all patients) and -1 (Repository, delivered through profiles) hold no patient's data.
+        if ($rowPid > 0 && $rowPid !== $patientId) {
             return null;
         }
         return $return;
@@ -551,7 +553,6 @@ class DocumentTemplateService extends QuestionnaireService
         if (function_exists('finfo_open')) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mimetype = finfo_file($finfo, $file);
-            finfo_close($finfo);
         } elseif (function_exists('mime_content_type')) {
             $mimetype = mime_content_type($file);
         } else {
@@ -608,10 +609,11 @@ class DocumentTemplateService extends QuestionnaireService
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         $name = null;
-        if (!empty($pid)) {
-            $name = sqlQuery("SELECT `pid`, Concat_Ws(', ', `lname`, `fname`) as name FROM `patient_data` WHERE `pid` = ?", [$pid])['name'] ?? '';
-        } elseif ($pid == -1) {
+        // Check -1 (the template repository) first: !empty(-1) is true
+        if ($pid == -1) {
             $name = 'Repository';
+        } elseif (!empty($pid)) {
+            $name = sqlQuery("SELECT `pid`, Concat_Ws(', ', `lname`, `fname`) as name FROM `patient_data` WHERE `pid` = ?", [$pid])['name'] ?? '';
         }
 
         $sql = "INSERT INTO `document_templates`
@@ -899,8 +901,10 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function fetchPatientDocumentStatus($pid, $name, bool $return_content = false): bool|array|null
     {
-        $sql = "SELECT od.id AS audit_id, od.pid, od.create_date, od.doc_type, od.*, oa.* FROM onsite_documents as od" .
-            " LEFT JOIN `onsite_portal_activity` AS oa ON od.id = oa.id AND od.doc_type = oa.narrative" .
+        // The document's own row only. This used to join onsite_portal_activity on
+        // od.id = oa.id, which matched an unrelated activity row (or none); callers read only
+        // the document's columns and audit_id (the document id).
+        $sql = "SELECT od.id AS audit_id, od.* FROM onsite_documents as od" .
             " WHERE od.pid = ? AND od.file_path = ? ORDER BY od.create_date DESC LIMIT 1";
 
         $q = sqlQuery($sql, [$pid, $name]);

@@ -124,7 +124,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
-        $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['pc_time']));
+        $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['pc_time'])));
         $appt->setMeta($fhirMeta);
 
         $id = new FHIRId();

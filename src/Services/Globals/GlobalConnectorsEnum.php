@@ -26,6 +26,12 @@ enum GlobalConnectorsEnum: string
     case FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION = 'fhir_us_core_profile_version';
     case CCDA_ALT_SERVICE_ENABLE = 'ccda_alt_service_enable';
     case SMART_TEST_LAUNCHES_ENABLE = 'smart_context_test_launches';
+    case FHIR_REFERRAL_TASKS = 'fhir_referral_tasks';
+    case FHIR_PATIENT_WRITE_MODE = 'fhir_patient_write_mode';
+    case FHIR_PATIENT_WRITE_QUESTIONNAIRE_RESPONSE = 'fhir_patient_write_questionnaire_response';
+    case FHIR_PATIENT_WRITE_VITAL_SIGNS = 'fhir_patient_write_vital_signs';
+    case FHIR_PATIENT_WRITE_ALLERGY_INTOLERANCE = 'fhir_patient_write_allergy_intolerance';
+    case FHIR_PATIENT_WRITE_CONDITION = 'fhir_patient_write_condition';
     // TODO: move the rest of the Connectors settings from globals.inc.php into this file
 
     // TODO: add methods for handling things like the descriptions and supported data types if needed

@@ -11,8 +11,11 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormQuestionnaireAssessment;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
@@ -80,6 +83,28 @@ if ($isPortal && $mode === 'update' && $formid > 0) {
 }
 if (($_REQUEST['formOrigin'] ?? null) == 2) {
     $encounter = 0;
+}
+// Staff save under the same form ACL the questionnaire page checks.
+if (!$isPortal && !AclMain::aclCheckForm('questionnaire_assessments')) {
+    AccessDeniedHelper::deny('questionnaire_assessments/save.php: questionnaire_assessments form ACL not granted');
+}
+// Every staff save of an existing form is checked. Auditing from the Portal Dashboard (with the
+// portal ACL that dashboard requires): the response and the form row belong to the document's
+// patient and the form's own encounter, not to whichever chart and encounter are open (if any),
+// and the session is left as it is. Otherwise the form must be the session patient's own.
+$auditForm = null;
+if (!$isPortal && $formid > 0) {
+    if ($patientPortalOther && $mode === 'update' && AclMain::aclCheckCore('patientportal', 'portal')) {
+        $auditForm = CoreFormToPortalUtility::questionnaireDocumentForm($formid);
+    }
+    if ($auditForm === null) {
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');
+    } elseif ($auditForm->locked) {
+        AccessDeniedHelper::deny('questionnaire_assessments/save.php: the portal document holding this form is locked');
+    } else {
+        $pid = $auditForm->pid;
+        $encounter = $auditForm->encounter;
+    }
 }
 
 if ($mode !== 'new' && !$isRegistering) {
@@ -227,7 +252,7 @@ if ($formid === 0) {
     unset($formUpdateData['select_item'], $formUpdateData['save_registry']);
     $formUpdateData['response_id'] = $qrid;
     $formUpdateData['response_meta'] = $responseMeta;
-    formUpdate('form_questionnaire_assessments', $formUpdateData, $formid, $userauthorized);
+    formUpdate('form_questionnaire_assessments', $formUpdateData, $formid, $userauthorized, $auditForm?->pid);
 }
 
 if ($isPortal || $patientPortalOther) {

@@ -13,6 +13,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRImmunizationStatusCodes;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
@@ -101,9 +102,9 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['update_date'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['update_date']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['update_date'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $immunizationResource->setMeta($meta);
 

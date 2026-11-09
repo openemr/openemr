@@ -1457,6 +1457,27 @@
                 <foreignKey table="questionnaire_repository" column="id" />
             </column>
         </table>
+        <table name="task" comments="FHIR Tasks: work asked of someone for the patient, such as a referral or a questionnaire to complete">
+            <column name="patient_id" comments="FHIR Task.for: the patient the task is for">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="created_by" comments="The user who created the task">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The user who last updated the task">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+        <table name="task_input" comments="FHIR Task.input: what the task needs, one row per input">
+            <column name="task_id" comments="The task the input belongs to">
+                <foreignKey table="task" column="id" />
+            </column>
+        </table>
+        <table name="task_output" comments="FHIR Task.output: what the task produced, one row per output">
+            <column name="task_id" comments="The task the output belongs to">
+                <foreignKey table="task" column="id" />
+            </column>
+        </table>
 
         <table name="questionnaire_repository" comments="Holds questionnaires that providers or patients fill out for healthcare information collection and/or assessment.">
             <column name="id" comments="Unique identifier for the questionnaire record"/>
@@ -1852,6 +1873,22 @@
             <column name="portal_onetime" comments="One time login key.  Empty for export." exclude="true"/>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="patient_review_request" comments="Patient-submitted data awaiting staff review, one row per submission, including denied and cancelled submissions">
+            <column name="pid" comments="The patient the submission belongs to">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="reviewed_by" comments="The user who decided the request">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="legacy_activity_id" comments="The onsite_portal_activity row this request was migrated from">
+                <foreignKey table="onsite_portal_activity" column="id" />
+            </column>
+        </table>
+        <table name="patient_review_event" comments="Append-only history of patient_review_request state changes">
+            <column name="request_id" comments="The request the event belongs to">
+                <foreignKey table="patient_review_request" column="id" />
             </column>
         </table>
         <table name="onsite_portal_activity" comments="Patient portal activity (document submission, and other activities) that requires review before they are accepted into the patient chart">

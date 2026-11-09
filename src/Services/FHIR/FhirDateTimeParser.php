@@ -117,6 +117,35 @@ final class FhirDateTimeParser
     }
 
     /**
+     * Parses the end of a FHIR Period into an OpenEMR `Y-m-d` string.
+     *
+     * A Period's end is inclusive ("The end value includes any matching
+     * date/time"), so a partial value stands for the last day it covers:
+     * `2024` is 2024-12-31 and `2024-02` is 2024-02-29.  A full date or a
+     * dateTime is parsed as toDbDate() parses it.
+     *
+     * @see https://hl7.org/fhir/R4/datatypes.html#Period
+     *
+     * @param mixed  $value       The raw value taken from the FHIR JSON.
+     * @param string $elementPath FHIR element path for diagnostics, e.g. "Coverage.period.end".
+     * @return string|null Null only when the element is absent/empty.
+     * @throws \InvalidArgumentException When the value is present but unusable.
+     */
+    public static function toDbPeriodEndDate(mixed $value, string $elementPath): ?string
+    {
+        $parsed = self::toDateTimeImmutable($value, $elementPath, true);
+        if ($parsed === null) {
+            return null;
+        }
+
+        return match (is_string($value) ? self::precision($value) : null) {
+            self::PRECISION_YEAR => $parsed->format('Y') . '-12-31',
+            self::PRECISION_MONTH => $parsed->format('Y-m-t'),
+            default => $parsed->format(self::DB_DATE_FORMAT),
+        };
+    }
+
+    /**
      * Parses a FHIR date/dateTime into an OpenEMR `Y-m-d H:i:s` string in the
      * server's timezone.
      *

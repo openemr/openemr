@@ -50,6 +50,7 @@ class FhirSearchSyntaxErrorApiTest extends TestCase
             'Observation date (mapped resource)' => ['/apis/default/fhir/Observation', ['date' => 'not-a-date'], 'date'],
             'Encounter date' => ['/apis/default/fhir/Encounter', ['date' => 'not-a-date'], 'date'],
             'ServiceRequest authored' => ['/apis/default/fhir/ServiceRequest', ['authored' => 'not-a-date'], 'authored'],
+            'ServiceRequest authored, referral category' => ['/apis/default/fhir/ServiceRequest', ['category' => 'http://snomed.info/sct|3457005', 'authored' => 'not-a-date'], 'authored'],
             'Provenance _lastUpdated (searches every US Core service)' => ['/apis/default/fhir/Provenance', ['_lastUpdated' => 'not-a-date'], '_lastUpdated'],
         ];
     }

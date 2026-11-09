@@ -69,5 +69,15 @@ namespace {
     SessionWrapperFactory::getInstance()->setActiveSession($session);
     OEGlobalsBag::getInstance()->set('bootstrap_pid', $sessionPid);
 
-    PortalPatientAccessGuard::assertCanRead($requestedPid);
+    $check = $argv[3] ?? 'assertCanRead';
+    match ($check) {
+        'assertCanRead' => PortalPatientAccessGuard::assertCanRead($requestedPid),
+        'assertCanReadDocuments' => PortalPatientAccessGuard::assertCanReadDocuments($requestedPid),
+        'assertCanAddDocument' => PortalPatientAccessGuard::assertCanAddDocument($requestedPid),
+        'assertCanWriteDocuments' => PortalPatientAccessGuard::assertCanWriteDocuments($requestedPid),
+        default => (static function () use ($check): never {
+            fwrite(STDERR, "Unknown guard check: {$check}\n");
+            exit(2);
+        })(),
+    };
 }

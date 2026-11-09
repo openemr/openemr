@@ -36,7 +36,7 @@ use OpenEMR\Core\OEGlobalsBag;
 // at the specified location
 $filename = DIRECTORY_SEPARATOR . $argv[2];
 $filepath = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
-$reader = Reader::createFromPath($filepath . $filename);
+$reader = Reader::from($filepath . $filename);
 $reader->setDelimiter("\t");
 
 $start_record = $argv[3];

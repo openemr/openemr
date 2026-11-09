@@ -45,11 +45,12 @@ class SearchFieldComparableValue implements \Stringable
 
     public function __toString(): string
     {
-        $value = $this->getValue() || "";
+        $value = $this->getValue();
         if (is_object($value)) {
             $value = method_exists($value, '__toString') ? $value->__toString() : $value::class;
         }
-        return "(value=" . $value . ",comparator=" . $this->getComparator() ?? "" . ")";
+        $valueString = is_scalar($value) || $value === null ? (string) $value : get_debug_type($value);
+        return "(value=" . $valueString . ",comparator=" . $this->getComparator() . ")";
     }
 
     public function __clone()

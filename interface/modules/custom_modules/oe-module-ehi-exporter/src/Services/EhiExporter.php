@@ -56,8 +56,22 @@ class EhiExporter
      */
     const EHI_DOCUMENT_FOLDER = 'system-ehi-export';
 
+    // A task's inputs and outputs are its children (task_input.task_id, task_output.task_id), and a review request's
+    // history is its child (patient_review_event.request_id), so they are only reached by following child keys.
     const PARENT_FK_TABLES_TRAVERSAL = ['patient_data', 'insurance_data', 'eligibility_verification', 'form_vitals'
-        , 'lbt_data',  'lbf_data', 'patient_tracker', 'documents', 'form_track_anything', 'contact'];
+        , 'lbt_data',  'lbf_data', 'patient_tracker', 'documents', 'form_track_anything', 'contact', 'task'
+        , 'patient_review_request'];
+    /**
+     * Binary uuids that the uuid registry doesn't cover: written to the CSV as uuid strings, as `uuid` is. That's the
+     * task tables' references and a review request's own uuid, which the queue issues. Other tables' binary columns
+     * (documents.drive_uuid, form_vitals_calculation_*.fvc_uuid) are written as stored.
+     */
+    private const BINARY_UUID_COLUMNS = [
+        'patient_review_request' => ['uuid'],
+        'task' => ['focus_uuid', 'requester_uuid', 'owner_uuid', 'part_of_uuid'],
+        'task_input' => ['value_uuid'],
+        'task_output' => ['value_uuid'],
+    ];
     const ZIP_MIME_TYPE = "application/zip";
     const PATIENT_TASK_BATCH_FETCH_LIMIT = 5000;
     const CYCLE_MAX_ITERATIONS_LIMIT = 1500;
@@ -662,9 +676,10 @@ class EhiExporter
         $csvFile = fopen("php://memory", 'r+');
         fputcsv($csvFile, $columns);
         $recordCount = 0;
+        $csvTable = is_string($tableName) ? $tableName : '';
         foreach ($records as $record) {
-            if ($convertUuid && !empty($record['uuid'])) {
-                $record['uuid'] = UuidRegistry::uuidToString($record['uuid']);
+            if (is_array($record)) {
+                $record = self::csvRecord($csvTable, $record, $convertUuid);
             }
             fputcsv($csvFile, $record);
             $recordCount++;
@@ -683,6 +698,28 @@ class EhiExporter
         }
 
         return $recordCount;
+    }
+
+    /**
+     * A record as its CSV row: `uuid`, when the table is in the uuid registry, and the columns in
+     * BINARY_UUID_COLUMNS, as uuid strings.
+     *
+     * @param array<mixed> $record
+     * @return array<mixed>
+     */
+    public static function csvRecord(string $tableName, array $record, bool $convertUuid): array
+    {
+        $columns = self::BINARY_UUID_COLUMNS[$tableName] ?? [];
+        if ($convertUuid) {
+            $columns[] = 'uuid';
+        }
+        foreach ($columns as $column) {
+            $value = $record[$column] ?? null;
+            if (is_string($value) && $value !== '') {
+                $record[$column] = UuidRegistry::uuidToString($value);
+            }
+        }
+        return $record;
     }
 
     private function addPatientDocuments(ExportState $exportState, ExportResult $exportedResult, \ZipArchive $zip, array $patientPids)

@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Common\Forms;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
@@ -53,6 +54,74 @@ class CoreFormToPortalUtility
         } else {
             return false;
         }
+    }
+
+    /**
+     * The portal questionnaire document's form, with its patient and encounter, if a document holds it.
+     *
+     * Staff open a portal document's questionnaire from the Portal Dashboard to audit it, often
+     * with no chart (or another patient's chart) open, so the session-patient check would refuse
+     * it. A document keeps its embedded form's id in onsite_documents.encounter, but not which
+     * form table that id is from; each form table numbers its own rows. What the document itself
+     * saved says so: its template_data records the embedded frame's src (the encounterForm
+     * entry), written with the document, so a later edit of its template does not change it.
+     * The form must also be live and of the same patient. Every matching document then has the
+     * form's patient; if any of them is locked (charted history), the form is reported locked.
+     */
+    public static function questionnaireDocumentForm(int $formId): ?QuestionnaireDocumentForm
+    {
+        if ($formId <= 0) {
+            return null;
+        }
+        $rows = QueryUtils::fetchRecords(
+            'SELECT od.pid, od.template_data, od.denial_reason, f.encounter FROM `onsite_documents` AS od'
+            . " JOIN `forms` AS f ON f.form_id = od.encounter AND f.formdir = 'questionnaire_assessments'"
+            . ' AND f.pid = od.pid AND f.deleted = 0'
+            . ' WHERE od.encounter = ?',
+            [$formId]
+        );
+        $found = null;
+        $locked = false;
+        foreach ($rows as $row) {
+            $pid = self::positiveInt($row['pid'] ?? null);
+            if ($pid === null || !self::embedsQuestionnaireForm($row['template_data'] ?? null)) {
+                continue;
+            }
+            $found ??= ['pid' => $pid, 'encounter' => self::positiveInt($row['encounter'] ?? null) ?? 0];
+            $locked = $locked || ($row['denial_reason'] ?? null) === DocumentTemplateService::DENIAL_STATUS_LOCKED;
+        }
+        return $found === null ? null : new QuestionnaireDocumentForm($found['pid'], $found['encounter'], $locked);
+    }
+
+    /** A positive integer column value (an int, or a digit string from the driver), else null. */
+    private static function positiveInt(mixed $value): ?int
+    {
+        $int = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        return is_int($int) ? $int : null;
+    }
+
+    /**
+     * Did the document save a questionnaire_assessments frame? template_data is the JSON list of
+     * {name, value} elements the document page saves; encounterForm is its embedded frame's src.
+     */
+    private static function embedsQuestionnaireForm(mixed $templateData): bool
+    {
+        if (!is_string($templateData) || $templateData === '') {
+            return false;
+        }
+        $elements = json_decode($templateData, true);
+        if (!is_array($elements)) {
+            return false;
+        }
+        foreach ($elements as $element) {
+            if (!is_array($element) || ($element['name'] ?? null) !== 'encounterForm' || !is_string($element['value'] ?? null)) {
+                continue;
+            }
+            $path = parse_url($element['value'], PHP_URL_PATH);
+            return is_string($path)
+                && str_ends_with($path, '/interface/forms/questionnaire_assessments/questionnaire_assessments.php');
+        }
+        return false;
     }
 
     /**

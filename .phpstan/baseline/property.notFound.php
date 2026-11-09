@@ -212,71 +212,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property CacheMemCache\\:\\:\\$LastServerError\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property DataSet\\:\\:\\$_total\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property MockRouter\\:\\:\\$delim\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property MockRouter\\:\\:\\$stripApi\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property PHPRenderEngine\\:\\:\\$templatePath\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PHPRenderEngine.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property KeyMap\\:\\:\\$ColumnName\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property KeyMap\\:\\:\\$TableName\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property Savant3\\:\\:\\$url\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/SavantRenderEngine.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$Encounter\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$FullDocument\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$Pid\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$Provider\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property Criteria\\:\\:\\$Pid_Equals\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property BaseController\\:\\:\\$viewBean\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ActionRouter.php',
@@ -373,7 +308,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:\\$conffile\\.$#',
-    'count' => 7,
+    'count' => 9,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [
@@ -388,7 +323,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:\\$error_message\\.$#',
-    'count' => 43,
+    'count' => 44,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [

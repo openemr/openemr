@@ -28,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\Services\Questionnaire\QuestionnaireAnswerText;
 use OpenEMR\Services\Questionnaire\QuestionnaireCanonical;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
@@ -342,6 +343,11 @@ class QuestionnaireResponseService extends BaseService
      * @param ?string  $form_response
      * @param bool  $add_report
      * @param array $scores
+     * @param ?string $issuedUuid the uuid a new response is created under, when it was issued
+     *                            before the response existed (a patient app write held for
+     *                            review); a new uuid is created when null. Never for an update.
+     * @param bool $writtenByPatient the patient wrote the response, so it has no creating user
+     *                               (a staff approver is recorded by the review queue instead)
      * @return array{
      *   id: mixed,
      *   response_id: mixed,
@@ -359,7 +365,9 @@ class QuestionnaireResponseService extends BaseService
         $q_id = null,
         $form_response = null,
         $add_report = false,
-        $scores = []
+        $scores = [],
+        ?string $issuedUuid = null,
+        bool $writtenByPatient = false
     ): array {
         $q_content = null;
         $q_title = null;
@@ -425,7 +433,18 @@ class QuestionnaireResponseService extends BaseService
         } else {
             $qr_id = $this->getValue($fhirResponseOb->id);
         }
-        if (empty($qr_id)) {
+        if ($issuedUuid !== null && $qr_id !== null && $qr_id !== '') {
+            throw new Exception(xlt("An issued uuid is only for a new questionnaire response"));
+        }
+        if ($issuedUuid !== null) {
+            if (!UuidRegistry::isValidStringUUID($issuedUuid)) {
+                throw new Exception(xlt("Questionnaire response uuid is invalid"));
+            }
+            $qr_uuid = UuidRegistry::uuidToBytes($issuedUuid);
+            (new UuidRegistry(['table_name' => 'questionnaire_response']))->registerIssuedUuid($qr_uuid);
+            $qr_id = UuidRegistry::uuidToString($qr_uuid);
+            $update_flag = false;
+        } elseif (empty($qr_id)) {
             $qr_uuid = (new UuidRegistry(['table_name' => 'questionnaire_response']))->createUuid();
             // unique id for this set of answers
             $qr_id = UuidRegistry::uuidToString($qr_uuid);
@@ -479,7 +498,7 @@ class QuestionnaireResponseService extends BaseService
             , 'questionnaire_name' => $q_title
             // if its created by a patient we won't have an authUserID
             , 'audit_user_id' => $update_flag ? $session->get('authUserID') : null
-            , 'creator_user_id' => $session->get('authUserID')
+            , 'creator_user_id' => $writtenByPatient ? null : $session->get('authUserID')
             , 'version' => $update_flag ? (int)$id['version'] + 1 : 1
             , 'last_updated' => date("Y-m-d H:i:s")
             , 'patient_id' => $pid
@@ -722,52 +741,13 @@ class QuestionnaireResponseService extends BaseService
     }
 
     /**
-     * The text the encounter view shows for one answer, for each FHIR R4 answer type. A date, dateTime
-     * or time is shown as saved; a Coding by its display, else its code.
+     * The text the encounter view shows for one answer; see QuestionnaireAnswerText.
      *
      * @param array<mixed> $answer
      */
     public static function answerText(array $answer): string
     {
-        $text = self::firstText($answer, 'valueString', 'valueDate', 'valueDateTime', 'valueTime', 'valueUri');
-        if ($text !== null) {
-            return $text;
-        }
-        if (isset($answer['valueBoolean'])) {
-            return $answer['valueBoolean'] ? 'Yes' : 'No';
-        }
-        foreach (['valueInteger', 'valueDecimal'] as $key) {
-            $number = $answer[$key] ?? null;
-            if (is_int($number) || is_float($number)) {
-                return (string)$number;
-            }
-        }
-        $quantity = $answer['valueQuantity'] ?? null;
-        if (is_array($quantity) && (is_int($quantity['value'] ?? null) || is_float($quantity['value'] ?? null))) {
-            return trim($quantity['value'] . ' ' . (self::firstText($quantity, 'unit', 'code') ?? ''));
-        }
-        foreach (['valueCoding' => ['display', 'code'], 'valueReference' => ['display', 'reference'], 'valueAttachment' => ['title', 'url']] as $key => $fields) {
-            $value = $answer[$key] ?? null;
-            if (is_array($value)) {
-                return self::firstText($value, ...$fields) ?? ($key === 'valueAttachment' ? 'Attachment' : 'N/A');
-            }
-        }
-        return 'N/A';
-    }
-
-    /**
-     * The first of the keys whose value is a non-empty string.
-     *
-     * @param array<mixed> $values
-     */
-    private static function firstText(array $values, string ...$keys): ?string
-    {
-        foreach ($keys as $key) {
-            if (isset($values[$key]) && is_string($values[$key]) && $values[$key] !== '') {
-                return $values[$key];
-            }
-        }
-        return null;
+        return QuestionnaireAnswerText::of($answer);
     }
 
 

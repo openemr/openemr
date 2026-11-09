@@ -6,15 +6,13 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 var page = {
     onsiteDocuments: new model.OnsiteDocumentCollection(),
-    collectionView: null,
     onsiteDocument: null,
-    modelView: null,
     isInitialized: false,
     isInitializing: false,
     isSaved: true,
@@ -37,6 +35,9 @@ var page = {
     isFlattened: false,
     version: '',
     currentName: '',
+    /**
+     * Sets up the document page once: the list or dashboard view, the editor, and their handlers.
+     */
     init: function () {
         // ensure initialization only occurs once
         if (page.isInitialized || page.isInitializing) {
@@ -49,10 +50,6 @@ var page = {
             page.fetchParams.recid = recid;
         }
 
-        if (!$.isReady && console) {
-            console.warn('page was initialized before dom is ready.  views may not render properly.');
-        }
-
         if (isModule) {
             $("#sendTemplate").hide();
             $("#saveTemplate").hide();
@@ -63,13 +60,6 @@ var page = {
             page.showDetailDialog();
         });
 
-        // initialize the collection view
-        this.collectionView = new view.CollectionView({
-            el: $("#onsiteDocumentCollectionContainer"),
-            templateEl: $("#onsiteDocumentCollectionTemplate"),
-            collection: page.onsiteDocuments
-        });
-
         // initialize the search filter
         $('#filter').change(function (obj) {
             page.fetchParams.filter = $('#filter').val();
@@ -77,8 +67,10 @@ var page = {
             page.fetchOnsiteDocuments(page.fetchParams);
         });
 
-        // make the rows clickable ('rendered' is a custom event, not a standard backbone event)
-        this.collectionView.on('rendered', function () {
+        /**
+         * Once the list is drawn, makes each row open its document.
+         */
+        page.onCollectionRendered = function () {
             if (page.isDashboard) {
                 $("#topNav").hide();
             }
@@ -130,23 +122,17 @@ var page = {
             if (page.isDashboard) {
                 $('table.collection tbody tr:first').click();
             }
-        });
+        };
 // ---------  Get Collection ------------------------//
         const showActive = localStorage.getItem('showActive') === 'true';
         $('#active-checkbox').prop('checked', showActive);
         page.fetchParams.showActive = showActive;
         this.fetchOnsiteDocuments(page.fetchParams);
 
-        // initialize the model view
-        this.modelView = new view.ModelView({
-            el: $("#onsiteDocumentModelContainer")
-        });
-
-        // tell the model view where it's template is located
-        this.modelView.templateEl = $("#onsiteDocumentModelTemplate");
-
-        // template rendered ready
-        this.modelView.on('rendered', function () {
+        /**
+         * Once the editor is drawn, sets up its date pickers and editing handlers.
+         */
+        page.onModelRendered = function () {
             $('#templatecontent').on('focus', ".datepicker:not(.hasDatepicker)", function () {
                 $(".datepicker").datetimepicker({
                     i18n: {
@@ -514,7 +500,9 @@ var page = {
                             return false;
                         }
                         // cool it just in case then save history to chart.
-                        setTimeout("page.chartHistory();", 1000);
+                        setTimeout(function () {
+                            page.chartHistory();
+                        }, 1000);
                     });
                     // post to submit
                     formFrame.contentWindow.postMessage({submitForm: true}, window.location.origin);
@@ -532,7 +520,7 @@ var page = {
                     "We appreciate your patience."
                 )
             }
-        });
+        };
         // These are set on init for save alerts
         page.isFlattened = false;
         page.isSaved = true;
@@ -646,20 +634,53 @@ var page = {
             app.showProgress('loader');
         }
 
-        page.onsiteDocuments.fetch({
-            data: params,
-            success: function () {
-                if (page.onsiteDocuments.collectionHasChanged) {
-                }
-                app.hideProgress('loader');
-                page.fetchInProgress = false;
-            },
-            error: function (m, r) {
-                app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'collectionAlert');
-                app.hideProgress('loader');
-                page.fetchInProgress = false;
+        page.onsiteDocuments.fetch(params).then(function () {
+            app.hideProgress('loader');
+            page.fetchInProgress = false;
+            page.renderCollection();
+        }, function (error) {
+            app.appendAlert(app.getErrorMessage(error), 'alert-error', 0, 'collectionAlert');
+            app.hideProgress('loader');
+            page.fetchInProgress = false;
+        });
+    },
+
+    /**
+     * Draw the history table from the last fetch: the pagers, the active filter, the sort arrow
+     * and a row per document.
+     */
+    renderCollection: function () {
+        const list = page.onsiteDocuments;
+        const container = view.renderTemplate('onsiteDocumentCollectionTemplate', 'onsiteDocumentCollectionContainer');
+        container.querySelector('[data-slot="pager-top"]').replaceChildren(view.pagination(list, true));
+        container.querySelector('[data-slot="active-filter"]').replaceChildren(view.activeFilter(false));
+        container.querySelectorAll('thead th[id^="header_"]').forEach(function (th) {
+            if (list.orderBy && th.id === 'header_' + list.orderBy) {
+                const arrow = document.createElement('i');
+                arrow.className = (th.id === 'header_Id' ? 'icon-arrow-' : 'fa fa-arrow-') + (list.orderDesc ? 'up' : 'down');
+                th.append(' ', arrow);
             }
         });
+        const tbody = container.querySelector('tbody');
+        list.forEach(function (item) {
+            const row = view.copyTemplate('onsiteDocumentRowTemplate').firstElementChild;
+            const cell = (field) => row.querySelector('[data-field="' + field + '"]');
+            /**
+             * The date in a field, or Pending when it was never set.
+             */
+            const dated = (field) => (item.get(field) > '1969-12-31 24' ? item.get(field) : 'Pending');
+            row.id = item.get('id') ?? '';
+            cell('id').textContent = item.get('id') || '';
+            cell('docType').textContent = item.get('docType') || '';
+            cell('createDate').textContent = item.get('createDate') ? item.get('createDate') : 'NULL';
+            cell('reviewDate').textContent = dated('reviewDate');
+            cell('denialReason').textContent = item.get('denialReason') || 'Pending';
+            cell('patientSignedStatus').textContent = String(item.get('patientSignedStatus')) === '1' ? 'Yes' : 'No';
+            cell('patientSignedTime').textContent = dated('patientSignedTime');
+            tbody.append(row);
+        });
+        container.querySelector('.table-responsive').append(view.pagination(list));
+        page.onCollectionRendered();
     },
 
     newDocument: function (pid, user, templateName, template_id) {
@@ -860,27 +881,23 @@ var page = {
      */
     showDetailDialog: function (m) {
         page.onsiteDocument = m ? m : new model.OnsiteDocumentModel();
-        page.modelView.model = page.onsiteDocument;
         page.dialogIsOpen = true;
         if (page.onsiteDocument.id === null || page.onsiteDocument.id === '') {
             page.renderModelView(false);
         } else {
-            page.onsiteDocument.fetch({
-                success: function () {
-                    if (page.isDashboard || page.onsiteDocument.get('denialReason') === 'Locked') {
-                        if (page.isDashboard || isModule) {
-                            page.renderModelView(true); // allow admin to delete
-                        } else {
-                            page.renderModelView(false);
-                        }
+            page.onsiteDocument.fetch().then(function () {
+                if (page.isDashboard || page.onsiteDocument.get('denialReason') === 'Locked') {
+                    if (page.isDashboard || isModule) {
+                        page.renderModelView(true); // allow admin to delete
                     } else {
-                        page.renderModelView(true);
+                        page.renderModelView(false);
                     }
-                    page.version = $("#portal_version").val() ? $("#portal_version").val() : 'Legacy';
-                },
-                error: function (m, r) {
-                    app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'modelAlert');
+                } else {
+                    page.renderModelView(true);
                 }
+                page.version = $("#portal_version").val() ? $("#portal_version").val() : 'Legacy';
+            }, function (error) {
+                app.appendAlert(app.getErrorMessage(error), 'alert-error', 0, 'modelAlert');
             });
         }
     },
@@ -889,7 +906,8 @@ var page = {
      * @param showDeleteButton
      */
     renderModelView: function (showDeleteButton) {
-        page.modelView.render();
+        view.renderTemplate('onsiteDocumentModelTemplate', 'onsiteDocumentModelContainer');
+        page.onModelRendered();
         app.hideProgress('modelLoader');
         // initialize any special controls
         if (showDeleteButton) {
@@ -992,54 +1010,54 @@ var page = {
             'templateData': data,
             'version': page.version,
             'type': page.isFlattened ? 'flattened' : saveType // just being sure!
-        }, {
-            wait: true,
-            success: function () {
-                app.hideProgress('modelLoader');
-                if (page.isCharted) {
-                    pageAudit.onsitePortalActivity.set('status', 'closed');
-                    pageAudit.onsitePortalActivity.set('pendingAction', 'completed');
-                    pageAudit.onsitePortalActivity.set('actionUser', cuser);
-                }
-                pageAudit.onsitePortalActivity.set('date', page.onsiteDocument.get('createDate'));
-                pageAudit.onsitePortalActivity.set('activity', 'document');
-                pageAudit.onsitePortalActivity.set('patientId', cpid);
-                pageAudit.onsitePortalActivity.set('tableAction', 'update');
-                pageAudit.onsitePortalActivity.set('tableArgs', page.onsiteDocument.get('id'));
-                pageAudit.onsitePortalActivity.set('narrative', page.onsiteDocument.get('docType'));
-                pageAudit.onsitePortalActivity.set('actionTakenTime', new Date());
-                pageAudit.updateModel();
-                if (isNew || autoRender > 0) {
-                    $('#confirmDeleteOnsiteDocumentContainer').hide('fast');
-                    $('#deleteOnsiteDocumentButtonContainer').show();
-                    if (isPortal) {
-                        $("#submitTemplate").show();
-                        $("#sendTemplate").show();
-                    } else {
-                        $("#submitTemplate").hide();
-                        $("#sendTemplate").hide();
-                    }
-                    page.isNewDoc = false;
-                    page.onsiteDocuments.add(page.onsiteDocument)
-                }
-                if (model.reloadCollectionOnModelUpdate) {
-                    page.fetchOnsiteDocuments(page.fetchParams, true);
-                    page.showDetailDialog(page.onsiteDocument);
-                }
-                asyncAlertMsg(msgSuccess, 2000, 'success');
-                if (page.isCharted && isModule) {
-                    $("#a_docReturn").click();
-                    return;
-                }
-                page.isSaved = true;
-                if (reload) {
-                    setTimeout("location.reload(true);", 3000);
-                }
-            },
-            error: function (model, response, scope) {
-                app.hideProgress('modelLoader');
-                app.appendAlert(app.getErrorMessage(response), 'alert-error', 0, 'modelAlert');
+        }).then(function () {
+            app.hideProgress('modelLoader');
+            if (page.isCharted) {
+                pageAudit.onsitePortalActivity.set('status', 'closed');
+                pageAudit.onsitePortalActivity.set('pendingAction', 'completed');
+                pageAudit.onsitePortalActivity.set('actionUser', cuser);
             }
+            pageAudit.onsitePortalActivity.set('date', page.onsiteDocument.get('createDate'));
+            pageAudit.onsitePortalActivity.set('activity', 'document');
+            pageAudit.onsitePortalActivity.set('patientId', cpid);
+            pageAudit.onsitePortalActivity.set('tableAction', 'update');
+            pageAudit.onsitePortalActivity.set('tableArgs', page.onsiteDocument.get('id'));
+            pageAudit.onsitePortalActivity.set('narrative', page.onsiteDocument.get('docType'));
+            pageAudit.onsitePortalActivity.set('actionTakenTime', new Date());
+            pageAudit.updateModel();
+            if (isNew || autoRender > 0) {
+                $('#confirmDeleteOnsiteDocumentContainer').hide('fast');
+                $('#deleteOnsiteDocumentButtonContainer').show();
+                if (isPortal) {
+                    $("#submitTemplate").show();
+                    $("#sendTemplate").show();
+                } else {
+                    $("#submitTemplate").hide();
+                    $("#sendTemplate").hide();
+                }
+                page.isNewDoc = false;
+                if (page.onsiteDocuments.add(page.onsiteDocument)) {
+                    page.renderCollection();
+                }
+            }
+            if (model.reloadCollectionOnModelUpdate) {
+                page.fetchOnsiteDocuments(page.fetchParams, true);
+                page.showDetailDialog(page.onsiteDocument);
+            }
+            asyncAlertMsg(msgSuccess, 2000, 'success');
+            if (page.isCharted && isModule) {
+                $("#a_docReturn").click();
+                return;
+            }
+            page.isSaved = true;
+            if (reload) {
+                setTimeout(function () {
+                    location.reload();
+                }, 3000);
+            }
+        }, function (error) {
+            app.hideProgress('modelLoader');
+            app.appendAlert(app.getErrorMessage(error), 'alert-error', 0, 'modelAlert');
         });
     },
     /**
@@ -1051,32 +1069,33 @@ var page = {
 
         app.showProgress('modelLoader');
 
-        page.onsiteDocument.destroy({
-            wait: true,
-            success: function () {
-                asyncAlertMsg(msgDelete, 2000, 'success');
-                app.hideProgress('modelLoader');
-                pageAudit.onsitePortalActivity.set('status', 'deleted');
-                pageAudit.onsitePortalActivity.set('pendingAction', 'none');
-                pageAudit.onsitePortalActivity.set('activity', 'document');
-
-                pageAudit.onsitePortalActivity.set('pid', cpid);
-                pageAudit.onsitePortalActivity.set('tableAction', 'delete');
-                pageAudit.onsitePortalActivity.set('tableArgs', page.onsiteDocument.get('id'));
-                pageAudit.onsitePortalActivity.set('narrative', 'Patient deleted un-charted template');
-                pageAudit.updateModel()
-
-                if (model.reloadCollectionOnModelUpdate) {
-                    // re-fetch and render the collection after the model has been updated
-                    page.fetchOnsiteDocuments(page.fetchParams, true);
-                    page.isSaved = true;
-                    setTimeout("location.reload(true);", 3000);
-                }
-            },
-            error: function (model, response, scope) {
-                app.appendAlert(app.getErrorMessage(response), 'alert-error', 0, 'modelAlert');
-                app.hideProgress('modelLoader');
+        page.onsiteDocument.destroy().then(function () {
+            if (page.onsiteDocuments.remove(page.onsiteDocument)) {
+                page.renderCollection();
             }
+            asyncAlertMsg(msgDelete, 2000, 'success');
+            app.hideProgress('modelLoader');
+            pageAudit.onsitePortalActivity.set('status', 'deleted');
+            pageAudit.onsitePortalActivity.set('pendingAction', 'none');
+            pageAudit.onsitePortalActivity.set('activity', 'document');
+
+            pageAudit.onsitePortalActivity.set('pid', cpid);
+            pageAudit.onsitePortalActivity.set('tableAction', 'delete');
+            pageAudit.onsitePortalActivity.set('tableArgs', page.onsiteDocument.get('id'));
+            pageAudit.onsitePortalActivity.set('narrative', 'Patient deleted un-charted template');
+            pageAudit.updateModel()
+
+            if (model.reloadCollectionOnModelUpdate) {
+                // re-fetch and render the collection after the model has been updated
+                page.fetchOnsiteDocuments(page.fetchParams, true);
+                page.isSaved = true;
+                setTimeout(function () {
+                    location.reload();
+                }, 3000);
+            }
+        }, function (error) {
+            app.appendAlert(app.getErrorMessage(error), 'alert-error', 0, 'modelAlert');
+            app.hideProgress('modelLoader');
         });
     },
     /**
