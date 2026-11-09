@@ -1,0 +1,71 @@
+{#
+  Collapsible sections that remember their state per user, the way the patient dashboard
+  cards do. Import the toggle macro for each section header, give the section body
+  class "collapse", the setting key as its id and data-persist-collapse, then include this
+  file once with csrfToken (default subject) for the script.
+
+  A section with no saved setting starts open. Linking to a section's anchor, such as
+  #category-rules after Edit, opens it without changing the saved choice.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% macro toggle(section, title, collapsed) %}
+    <a class="text-reset font-weight-bold" href="#{{ section|attr }}" role="button" data-toggle="collapse" data-target="#{{ section|attr }}" aria-expanded="{{ collapsed ? 'false' : 'true' }}" aria-controls="{{ section|attr }}">{{ title|text }}<i class="ml-1 fa fa-fw {{ collapsed ? 'fa-expand' : 'fa-compress' }}" aria-hidden="true"></i></a>
+{% endmacro %}
+{% if csrfToken is defined %}
+<script>
+    (function () {
+        const settingsUrl = {{ (webroot ~ '/library/ajax/user_settings.php')|js_escape }}
+        const csrfToken = {{ csrfToken|js_escape }}
+
+        function save (section, open) {
+            const body = new FormData()
+            body.append('csrf_token_form', csrfToken)
+            body.append('target', section)
+            body.append('mode', open ? '1' : '0')
+            top.restoreSession()
+            fetch(settingsUrl, { method: 'POST', credentials: 'same-origin', body })
+                .catch((error) => console.error('Section state not saved', error))
+        }
+
+        function showIcon (panel, open) {
+            document.querySelectorAll('[data-target="#' + panel.id + '"]').forEach((toggle) => {
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false')
+                const icon = toggle.querySelector('.fa')
+                icon?.classList.toggle('fa-compress', open)
+                icon?.classList.toggle('fa-expand', !open)
+            })
+        }
+
+        $(document).on('shown.bs.collapse hidden.bs.collapse', '[data-persist-collapse]', function (event) {
+            if (event.target !== this) {
+                return
+            }
+            const open = event.type === 'shown'
+            showIcon(this, open)
+            if (this.dataset.keepSaved === '1') {
+                delete this.dataset.keepSaved
+                return
+            }
+            save(this.id, open)
+        })
+
+        // Open a section for the moment, as when a page needs to show it, without saving.
+        window.openSectionForNow = function (panel) {
+            if (panel && !panel.classList.contains('show')) {
+                panel.dataset.keepSaved = '1'
+                $(panel).collapse('show')
+            }
+        }
+
+        if (location.hash.length > 1) {
+            const anchor = document.getElementById(location.hash.slice(1))
+            window.openSectionForNow(anchor?.querySelector('[data-persist-collapse]'))
+        }
+    })()
+</script>
+{% endif %}

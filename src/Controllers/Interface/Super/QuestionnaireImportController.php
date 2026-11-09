@@ -27,6 +27,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FHIR\Questionnaire\LhcFormConversionIssue;
 use OpenEMR\Services\FHIR\Questionnaire\LhcFormToFhirConverter;
+use OpenEMR\Services\Globals\CollapsedSections;
 use OpenEMR\Services\Questionnaire\Import\LoincFormClient;
 use OpenEMR\Services\Questionnaire\Import\LoincFormUnavailable;
 use OpenEMR\Services\Questionnaire\Import\QuestionnaireImportRefusal;
@@ -48,6 +49,14 @@ class QuestionnaireImportController
     public const TEMPLATE = 'super/questionnaire_import.html.twig';
     public const PREVIEW_TEMPLATE = 'super/questionnaire_preview.html.twig';
 
+    /** Cards that fold away and stay that way for the user. */
+    public const SECTIONS = [
+        'questionnaire_import_add_expand',
+        'questionnaire_import_queue_expand',
+        'questionnaire_import_destination_expand',
+        'questionnaire_import_review_expand',
+    ];
+
     /**
      * @param array{stylesheet: string, script: string, version: string, strings: string} $runtime
      */
@@ -61,6 +70,7 @@ class QuestionnaireImportController
         private readonly array $runtime,
         private readonly bool $portalEnabled,
         private readonly bool $showLoincNote,
+        private readonly CollapsedSections $sections = new CollapsedSections(),
     ) {
     }
 
@@ -202,6 +212,7 @@ class QuestionnaireImportController
             'templateCategory' => $query->getString('template_category'),
             'isDialog' => $query->getBoolean('dialog'),
             'source' => $query->getString('source'),
+            'sections' => $this->sections,
         ];
     }
 

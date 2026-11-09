@@ -21,6 +21,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\FHIR\Questionnaire\LhcFormToFhirConverter;
+use OpenEMR\Services\Globals\CollapsedSections;
 use OpenEMR\Services\Questionnaire\Import\LoincFormClient;
 use OpenEMR\Services\Questionnaire\Import\QuestionnaireImportService;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityLookups;
@@ -44,8 +45,14 @@ final class QuestionnaireAdminEntryPoint
         $logger = ServiceContainer::getLogger();
 
         if (!in_array($request->query->getString('view'), self::IMPORT_VIEWS, true)) {
-            return (new QuestionnaireAvailabilityController($availability, $lookups, $twig, $session, $logger))
-                ->dispatchAction($request);
+            return (new QuestionnaireAvailabilityController(
+                $availability,
+                $lookups,
+                $twig,
+                $session,
+                $logger,
+                CollapsedSections::forCurrentUser(QuestionnaireAvailabilityController::SECTIONS),
+            ))->dispatchAction($request);
         }
 
         $globals = OEGlobalsBag::getInstance();
@@ -60,6 +67,7 @@ final class QuestionnaireAdminEntryPoint
             (new QuestionnaireRuntimeAssets($globals))->describe(),
             $globals->getBoolean('portal_onsite_two_enable'),
             $globals->getString('questionnaire_display_LOINCnote') !== self::LOINC_NOTE_HIDDEN,
+            CollapsedSections::forCurrentUser(QuestionnaireImportController::SECTIONS),
         ))->dispatchAction($request);
     }
 }

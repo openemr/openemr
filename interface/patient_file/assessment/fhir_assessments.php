@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 require_once(dirname(__FILE__, 3) . "/globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -24,6 +25,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Services\Globals\CollapsedSections;
 use OpenEMR\Services\Questionnaire\AvailabilityContext;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
 use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
@@ -121,6 +123,9 @@ $assessmentStatusClass = (static fn(string $status): string => match ($status) {
 });
 
 $questionnairesByCategory = [];
+// category title => the user setting that remembers whether its group is folded away
+$categorySections = [];
+$smartLaunchesSection = 'questionnaire_smart_launches_expand';
 // questionnaire id => the SMART apps it may be launched into. Empty unless a SMART
 // availability rule reaches the questionnaire, so the launch menu is offered only for
 // questionnaires an administrator selected, not for every assessment.
@@ -155,6 +160,10 @@ if ($authorized && $pid > 0) {
         }
 
         $questionnairesByCategory[$categoryTitle][] = $questionnaireRecord;
+        // Keyed by the list option, not the title, so the choice survives a language change.
+        $categorySections[$categoryTitle] ??= 'questionnaire_category_'
+            . (preg_replace('/[^a-z0-9]+/', '_', strtolower($category)) ?: 'unassigned')
+            . '_expand';
     }
 
     $assessmentHistory = QueryUtils::fetchRecordsNoLog(
@@ -206,6 +215,8 @@ if ($authorized && $pid > 0) {
         }
     }
 }
+
+$collapsedSections = CollapsedSections::forCurrentUser([$smartLaunchesSection, ...array_values($categorySections)]);
 
 $nativeQuestionnaireUrl = $webRoot . '/interface/forms/questionnaire_assessments/native_questionnaire.php';
 $smartLaunchUrl = $webRoot . '/interface/smart/ehr-launch-client.php';
@@ -259,10 +270,24 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
             </div>
 
             <?php if ($showSmartContextTestLaunches && $smartAssessmentClients !== []) : ?>
+                <?php $smartLaunchesCollapsed = $collapsedSections->isCollapsed($smartLaunchesSection); ?>
                 <div class="card my-3">
                     <div class="card-header">
-                        <strong><?php echo xlt('SMART Context Test Launches'); ?></strong>
+                        <a
+                            class="text-reset font-weight-bold"
+                            href="#<?php echo attr($smartLaunchesSection); ?>"
+                            role="button"
+                            data-toggle="collapse"
+                            data-target="#<?php echo attr($smartLaunchesSection); ?>"
+                            aria-expanded="<?php echo $smartLaunchesCollapsed ? 'false' : 'true'; ?>"
+                            aria-controls="<?php echo attr($smartLaunchesSection); ?>"
+                        ><?php echo xlt('SMART Context Test Launches'); ?><i class="ml-1 fa fa-fw <?php echo $smartLaunchesCollapsed ? 'fa-expand' : 'fa-compress'; ?>" aria-hidden="true"></i></a>
                     </div>
+                    <div
+                        id="<?php echo attr($smartLaunchesSection); ?>"
+                        class="collapse<?php echo $smartLaunchesCollapsed ? '' : ' show'; ?>"
+                        data-persist-collapse
+                    >
                     <div class="card-body">
                         <div class="small text-muted mb-3">
                             <?php echo xlt('Launch a registered SMART app with standard OpenEMR patient, encounter, main-tab, or appointment context.'); ?>
@@ -324,6 +349,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                 </div>
                             </div>
                         <?php endforeach; ?>
+                    </div>
                     </div>
                 </div>
             <?php endif; ?>
@@ -425,8 +451,27 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             <div class="text-muted"><?php echo xlt('No active FHIR Questionnaires are available.'); ?></div>
                         <?php else : ?>
                             <?php foreach ($questionnairesByCategory as $categoryTitle => $questionnaires) : ?>
-                                <h5 class="mt-2 mb-3"><?php echo text($categoryTitle); ?></h5>
-                                <div class="row">
+                                <?php
+                                $categorySection = $categorySections[$categoryTitle];
+                                $categoryCollapsed = $collapsedSections->isCollapsed($categorySection);
+                                ?>
+                                <h5 class="mt-2 mb-3">
+                                    <a
+                                        class="text-reset"
+                                        href="#<?php echo attr($categorySection); ?>"
+                                        role="button"
+                                        data-toggle="collapse"
+                                        data-target="#<?php echo attr($categorySection); ?>"
+                                        aria-expanded="<?php echo $categoryCollapsed ? 'false' : 'true'; ?>"
+                                        aria-controls="<?php echo attr($categorySection); ?>"
+                                    ><?php echo text((string)$categoryTitle); ?><i class="ml-1 fa fa-fw <?php echo $categoryCollapsed ? 'fa-expand' : 'fa-compress'; ?>" aria-hidden="true"></i></a>
+                                    <span class="badge badge-light ml-1"><?php echo text((string)count($questionnaires)); ?></span>
+                                </h5>
+                                <div
+                                    id="<?php echo attr($categorySection); ?>"
+                                    class="row collapse<?php echo $categoryCollapsed ? '' : ' show'; ?>"
+                                    data-persist-collapse
+                                >
                                     <?php foreach ($questionnaires as $questionnaire) : ?>
                                         <?php
                                         $questionnaireId = $assessmentPositiveInt($questionnaire['id']);
@@ -665,7 +710,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         <iframe
                             id="document-templates-frame"
                             title="<?php echo xla('Document Templates'); ?>"
-                            class="w-100 border-0"
+                            class="w-100 border-0 assessment-tab-frame"
                             style="height: 85vh;"
                             data-src="<?php echo attr($webRoot . '/portal/patient/onsitedocuments?pid=' . urlencode((string)$pid) . '&is_module=1'); ?>"
                         ></iframe>
@@ -688,7 +733,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         <iframe
                             id="questionnaire-availability-frame"
                             title="<?php echo xla('Questionnaire Availability'); ?>"
-                            class="w-100 border-0"
+                            class="w-100 border-0 assessment-tab-frame"
                             style="height: 75vh;"
                             data-src="<?php echo attr($webRoot . '/interface/super/manage_questionnaire_availability.php'); ?>"
                         ></iframe>
@@ -704,7 +749,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         <iframe
                             id="questionnaire-import-frame"
                             title="<?php echo xla('Import Questionnaires'); ?>"
-                            class="w-100 border-0"
+                            class="w-100 border-0 assessment-tab-frame"
                             style="height: 85vh;"
                             data-src="<?php echo attr($webRoot . '/interface/super/manage_questionnaire_availability.php?view=import'); ?>"
                         ></iframe>
@@ -735,6 +780,26 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 document.getElementById('document-templates-tab'),
                 document.getElementById('document-templates-frame')
             )
+            // An embedded screen fills the window below the tabs and scrolls inside itself,
+            // so this page does not scroll as well.
+            function fitFrames () {
+                document.querySelectorAll('.assessment-tab-frame').forEach((frame) => {
+                    if (frame.offsetParent === null) {
+                        return
+                    }
+                    const top = frame.getBoundingClientRect().top + window.scrollY
+                    let height = window.innerHeight - top - 24
+                    frame.style.height = Math.max(400, height) + 'px'
+                    // Take back whatever padding below still makes the page taller than the window.
+                    const over = document.documentElement.scrollHeight - window.innerHeight
+                    if (over > 0) {
+                        height -= over
+                        frame.style.height = Math.max(400, height) + 'px'
+                    }
+                })
+            }
+            $('#assessment-tabs a[data-toggle="tab"]').on('shown.bs.tab', fitFrames)
+            window.addEventListener('resize', fitFrames)
             // The first load is the screen itself; any later load is the screen coming
             // back from a save, which can change what this patient's dashboard offers.
             let loads = 0
@@ -770,6 +835,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
     <?php endif; ?>
 
     <?php if ($authorized && $pid > 0) : ?>
+        <?php echo ServiceContainer::getTwig()->render('super/_collapse_persist.html.twig', ['csrfToken' => $smartLaunchCsrfToken]); ?>
         <script>
             const assessmentWorkspace = document.getElementById('assessment-workspace')
             const assessmentCatalog = document.getElementById('assessment-catalog')

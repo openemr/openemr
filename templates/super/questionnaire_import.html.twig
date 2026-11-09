@@ -2,8 +2,9 @@
   Questionnaire import. Rendered by
   OpenEMR\Controllers\Interface\Super\QuestionnaireImportController.
 
-  Three steps down the page: add questionnaires to a queue, review each one in the real
-  runtime, then file them under a category. Nothing can be imported until it has been
+  Three steps: add questionnaires to a queue, review each one in the real runtime, then
+  file them under a category. Steps 1 and 3 sit in the left column and the review in the
+  right; each card folds away and remembers it per user. Nothing can be imported until it has been
   reviewed. Autoescape is off in OpenEMR, so every value goes through a filter, and queue
   text is written with textContent.
 
@@ -17,149 +18,174 @@
 <html>
 <head>
     <title>{{ 'Import Questionnaires'|xlt }}</title>
-    {{ setupHeader(isDialog ? ['opener'] : []) }}
+    {{ setupHeader(isDialog ? ['opener'] : [], false) }}
     {% include 'super/_questionnaire_runtime_assets.html.twig' %}
 </head>
-<body class="body_top">
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mt-3">
-        <h2 class="h4 mb-0">{{ 'Import Questionnaires'|xlt }}</h2>
+<body class="body_top questionnaire-import">
+{% import 'super/_collapse_persist.html.twig' as collapse %}
+{# On wide screens the page fits the window and each column scrolls on its own, so a long
+   questionnaire under review never pushes the import controls out of reach. Narrow screens
+   stack the columns and scroll as one page. #}
+<style>
+    @media (min-width: 992px) {
+        html, body.questionnaire-import { height: 100%; overflow: hidden; }
+        body.questionnaire-import { margin: 0; padding-top: 0; padding-bottom: 0; }
+        .questionnaire-import .import-page { display: flex; flex-direction: column; height: 100%; }
+        .questionnaire-import .import-columns { flex: 1 1 auto; min-height: 0; }
+        .questionnaire-import .import-column { height: 100%; overflow-y: auto; }
+    }
+</style>
+<div class="container-fluid import-page">
+    <div class="d-flex justify-content-between align-items-center mt-2">
+        <h2 class="h5 mb-0">{{ 'Import Questionnaires'|xlt }}</h2>
         {% if isDialog %}
             <button type="button" id="close-dialog" class="btn btn-sm btn-secondary">{{ 'Close'|xlt }}</button>
         {% endif %}
     </div>
-    <p class="text-muted">{{ 'Add one or more FHIR Questionnaires, review each one, then choose a category and import.'|xlt }}</p>
+    <p class="text-muted small mb-2">{{ 'Add one or more FHIR Questionnaires, review each one, then choose a category and import.'|xlt }}</p>
 
     <div id="page-alert" class="d-none" role="alert"></div>
 
-    <div class="row">
-        <div class="col-lg-4">
+    <div class="row import-columns">
+        <div class="col-lg-4 import-column" id="steps-column">
             <div class="card mb-3">
-                <div class="card-header font-weight-bold">{{ '1. Add questionnaires'|xlt }}</div>
-                <div class="card-body">
-                    <ul class="nav nav-pills nav-fill mb-3" role="tablist">
-                        <li class="nav-item"><a class="nav-link active" data-toggle="pill" href="#source-file" role="tab">{{ 'File'|xlt }}</a></li>
-                        <li class="nav-item"><a class="nav-link" id="source-paste-tab" data-toggle="pill" href="#source-paste" role="tab">{{ 'Paste'|xlt }}</a></li>
-                        <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#source-loinc" role="tab">{{ 'LOINC'|xlt }}</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="source-file" role="tabpanel">
-                            <label for="files">{{ 'FHIR Questionnaire JSON files'|xlt }}</label>
-                            <input type="file" id="files" class="form-control-file" accept=".json,application/json,application/fhir+json" multiple />
-                        </div>
-                        <div class="tab-pane fade" id="source-paste" role="tabpanel">
-                            <label for="paste">{{ 'FHIR Questionnaire JSON'|xlt }}</label>
-                            <textarea id="paste" class="form-control" rows="8"></textarea>
-                            <button type="button" id="paste-add" class="btn btn-sm btn-primary mt-2">{{ 'Add to review'|xlt }}</button>
-                        </div>
-                        <div class="tab-pane fade" id="source-loinc" role="tabpanel">
-                            <label for="loinc-terms">{{ 'Search LOINC forms'|xlt }}</label>
-                            <input type="search" id="loinc-terms" class="form-control" autocomplete="off" placeholder="{{ 'Type a form name or LOINC code'|xla }}" />
-                            <div id="loinc-results" class="list-group mt-2" style="max-height: 16rem; overflow-y: auto;"></div>
-                            <small id="loinc-status" class="form-text text-muted"></small>
-                            {% if showLoincNote %}
-                                <small class="form-text text-muted">
-                                    {{ 'LOINC form definitions are subject to the LOINC'|xlt }}
-                                    <a href="https://loinc.org/terms-of-use" target="_blank" rel="noopener">{{ 'terms of use.'|xlt }}</a>
-                                </small>
-                            {% endif %}
+                <div class="card-header">{{ collapse.toggle('questionnaire_import_add_expand', '1. Add questionnaires'|xl, sections.isCollapsed('questionnaire_import_add_expand')) }}</div>
+                <div id="questionnaire_import_add_expand" class="collapse{{ sections.isCollapsed('questionnaire_import_add_expand') ? '' : ' show' }}" data-persist-collapse>
+                    <div class="card-body">
+                        <ul class="nav nav-pills nav-fill mb-3" role="tablist">
+                            <li class="nav-item"><a class="nav-link active" data-toggle="pill" href="#source-file" role="tab">{{ 'File'|xlt }}</a></li>
+                            <li class="nav-item"><a class="nav-link" id="source-paste-tab" data-toggle="pill" href="#source-paste" role="tab">{{ 'Paste'|xlt }}</a></li>
+                            <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#source-loinc" role="tab">{{ 'LOINC'|xlt }}</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="source-file" role="tabpanel">
+                                <label for="files">{{ 'FHIR Questionnaire JSON files'|xlt }}</label>
+                                <input type="file" id="files" class="form-control-file" accept=".json,application/json,application/fhir+json" multiple />
+                            </div>
+                            <div class="tab-pane fade" id="source-paste" role="tabpanel">
+                                <label for="paste">{{ 'FHIR Questionnaire JSON'|xlt }}</label>
+                                <textarea id="paste" class="form-control" rows="8"></textarea>
+                                <button type="button" id="paste-add" class="btn btn-sm btn-primary mt-2">{{ 'Add to review'|xlt }}</button>
+                            </div>
+                            <div class="tab-pane fade" id="source-loinc" role="tabpanel">
+                                <label for="loinc-terms">{{ 'Search LOINC forms'|xlt }}</label>
+                                <input type="search" id="loinc-terms" class="form-control" autocomplete="off" placeholder="{{ 'Type a form name or LOINC code'|xla }}" />
+                                <div id="loinc-results" class="list-group mt-2" style="max-height: 16rem; overflow-y: auto;"></div>
+                                <small id="loinc-status" class="form-text text-muted"></small>
+                                {% if showLoincNote %}
+                                    <small class="form-text text-muted">
+                                        {{ 'LOINC form definitions are subject to the LOINC'|xlt }}
+                                        <a href="https://loinc.org/terms-of-use" target="_blank" rel="noopener">{{ 'terms of use.'|xlt }}</a>
+                                    </small>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="card mb-3">
-                <div class="card-header font-weight-bold">{{ 'To review'|xlt }}</div>
-                <div id="queue" class="list-group list-group-flush"></div>
-                <div id="queue-empty" class="card-body text-muted small">{{ 'Nothing added yet.'|xlt }}</div>
+                <div class="card-header">{{ collapse.toggle('questionnaire_import_queue_expand', 'To review'|xl, sections.isCollapsed('questionnaire_import_queue_expand')) }}</div>
+                <div id="questionnaire_import_queue_expand" class="collapse{{ sections.isCollapsed('questionnaire_import_queue_expand') ? '' : ' show' }}" data-persist-collapse>
+                    <div id="queue" class="list-group list-group-flush"></div>
+                    <div id="queue-empty" class="card-body text-muted small">{{ 'Nothing added yet.'|xlt }}</div>
+                </div>
             </div>
 
             <div class="card mb-3">
-                <div class="card-header font-weight-bold">{{ '3. Choose where it goes'|xlt }}</div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="category">{{ 'Category'|xlt }} <span class="text-danger" title="{{ 'Required'|xla }}">*</span></label>
-                        <select id="category" class="form-control" required>
-                            <option value="">{{ 'Choose a category'|xlt }}</option>
-                            {% for optionId, title in categories %}
-                                <option value="{{ optionId|attr }}">{{ title|text }}</option>
-                            {% endfor %}
-                        </select>
-                        <small class="form-text text-muted">{{ 'Applies to everything in this import.'|xlt }}</small>
-                    </div>
-                    {% if canAssign %}
-                        <fieldset class="form-group">
-                            <legend class="col-form-label pt-0 bg-transparent">{{ 'Offer new questionnaires on'|xlt }}</legend>
-                            {% for surface in surfaces %}
-                                <div class="form-check">
-                                    <input class="form-check-input import-surface" type="checkbox" id="surface-{{ surface.value|attr }}" value="{{ surface.value|attr }}" {{ surface.checked ? 'checked' : '' }} />
-                                    <label class="form-check-label" for="surface-{{ surface.value|attr }}">{{ surface.label|text }}</label>
-                                </div>
-                            {% endfor %}
-                            <small class="form-text text-muted">{{ 'A replaced questionnaire keeps the availability it already has.'|xlt }}</small>
-                        </fieldset>
-                    {% endif %}
-                    {% if portalEnabled %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="create-template" />
-                            <label class="form-check-label" for="create-template">{{ 'Also create a portal template'|xlt }}</label>
-                        </div>
-                        <div class="form-group mt-2 d-none" id="template-category-group">
-                            <label for="template-category">{{ 'Portal template category'|xlt }}</label>
-                            <select id="template-category" class="form-control">
-                                {% for optionId, title in templateCategories %}
-                                    <option value="{{ optionId|attr }}" {{ optionId == templateCategory ? 'selected' : '' }}>{{ title|text }}</option>
+                <div class="card-header">{{ collapse.toggle('questionnaire_import_destination_expand', '3. Choose where it goes'|xl, sections.isCollapsed('questionnaire_import_destination_expand')) }}</div>
+                <div id="questionnaire_import_destination_expand" class="collapse{{ sections.isCollapsed('questionnaire_import_destination_expand') ? '' : ' show' }}" data-persist-collapse>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="category">{{ 'Category'|xlt }} <span class="text-danger" title="{{ 'Required'|xla }}">*</span></label>
+                            <select id="category" class="form-control" required>
+                                <option value="">{{ 'Choose a category'|xlt }}</option>
+                                {% for optionId, title in categories %}
+                                    <option value="{{ optionId|attr }}">{{ title|text }}</option>
                                 {% endfor %}
                             </select>
+                            <small class="form-text text-muted">{{ 'Applies to everything in this import.'|xlt }}</small>
                         </div>
-                    {% endif %}
-                    <button type="button" id="import" class="btn btn-primary btn-block mt-3" disabled>{{ 'Import'|xlt }}</button>
+                        {% if canAssign %}
+                            <fieldset class="form-group">
+                                <legend class="col-form-label pt-0 bg-transparent">{{ 'Offer new questionnaires on'|xlt }}</legend>
+                                {% for surface in surfaces %}
+                                    <div class="form-check">
+                                        <input class="form-check-input import-surface" type="checkbox" id="surface-{{ surface.value|attr }}" value="{{ surface.value|attr }}" {{ surface.checked ? 'checked' : '' }} />
+                                        <label class="form-check-label" for="surface-{{ surface.value|attr }}">{{ surface.label|text }}</label>
+                                    </div>
+                                {% endfor %}
+                                <small class="form-text text-muted">{{ 'A replaced questionnaire keeps the availability it already has.'|xlt }}</small>
+                            </fieldset>
+                        {% endif %}
+                        {% if portalEnabled %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="create-template" />
+                                <label class="form-check-label" for="create-template">{{ 'Also create a portal template'|xlt }}</label>
+                            </div>
+                            <div class="form-group mt-2 d-none" id="template-category-group">
+                                <label for="template-category">{{ 'Portal template category'|xlt }}</label>
+                                <select id="template-category" class="form-control">
+                                    {% for optionId, title in templateCategories %}
+                                        <option value="{{ optionId|attr }}" {{ optionId == templateCategory ? 'selected' : '' }}>{{ title|text }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {# Outside the collapsing part, so Import stays in reach with the step folded away. #}
+                <div class="card-footer">
+                    <button type="button" id="import" class="btn btn-primary btn-block" disabled>{{ 'Import'|xlt }}</button>
                     <small id="import-hint" class="form-text text-muted"></small>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-8">
+        <div class="col-lg-8 import-column" id="review-column">
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="font-weight-bold">{{ '2. Review'|xlt }}</span>
+                    {{ collapse.toggle('questionnaire_import_review_expand', '2. Review'|xl, sections.isCollapsed('questionnaire_import_review_expand')) }}
                     <div class="btn-group btn-group-sm d-none" id="review-actions">
                         <button type="button" id="view-response" class="btn btn-outline-primary">{{ 'View Response'|xlt }}</button>
                         <button type="button" id="review-next" class="btn btn-primary">{{ 'Next'|xlt }}</button>
                     </div>
                 </div>
-                <div class="card-body">
-                    <p id="review-empty" class="text-muted mb-0">{{ 'Add a questionnaire to see it here exactly as staff will.'|xlt }}</p>
-                    <div id="review-panel" class="d-none">
-                        <div class="form-row">
-                            <div class="form-group col-md-7">
-                                <label for="name">{{ 'Name'|xlt }}</label>
-                                <input type="text" id="name" class="form-control" maxlength="255" />
+                <div id="questionnaire_import_review_expand" class="collapse{{ sections.isCollapsed('questionnaire_import_review_expand') ? '' : ' show' }}" data-persist-collapse>
+                    <div class="card-body">
+                        <p id="review-empty" class="text-muted mb-0">{{ 'Add a questionnaire to see it here exactly as staff will.'|xlt }}</p>
+                        <div id="review-panel" class="d-none">
+                            <div class="form-row">
+                                <div class="form-group col-md-7">
+                                    <label for="name">{{ 'Name'|xlt }}</label>
+                                    <input type="text" id="name" class="form-control" maxlength="255" />
+                                </div>
+                                <div class="form-group col-md-5">
+                                    <label for="tags">{{ 'Tags (optional)'|xlt }}</label>
+                                    <input type="text" id="tags" class="form-control" placeholder="{{ 'Separate with commas'|xla }}" />
+                                </div>
                             </div>
-                            <div class="form-group col-md-5">
-                                <label for="tags">{{ 'Tags (optional)'|xlt }}</label>
-                                <input type="text" id="tags" class="form-control" placeholder="{{ 'Separate with commas'|xla }}" />
+                            <div id="conversion-notes" class="alert alert-info d-none">
+                                <div class="font-weight-bold">{{ 'Check these items. They did not convert fully from LOINC:'|xlt }}</div>
+                                <ul class="mb-0" id="conversion-list"></ul>
                             </div>
-                        </div>
-                        <div id="conversion-notes" class="alert alert-info d-none">
-                            <div class="font-weight-bold">{{ 'Check these items. They did not convert fully from LOINC:'|xlt }}</div>
-                            <ul class="mb-0" id="conversion-list"></ul>
-                        </div>
-                        <div id="clash" class="alert alert-warning d-none">
-                            <div id="clash-text"></div>
-                            <div class="form-check mt-2">
-                                <input class="form-check-input" type="checkbox" id="replace" />
-                                <label class="form-check-label" for="replace">{{ 'Replace the existing questionnaire'|xlt }}</label>
+                            <div id="clash" class="alert alert-warning d-none">
+                                <div id="clash-text"></div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="replace" />
+                                    <label class="form-check-label" for="replace">{{ 'Replace the existing questionnaire'|xlt }}</label>
+                                </div>
                             </div>
+                            <div id="form-container"></div>
+                            <pre id="response" class="d-none border p-2 mt-3 small"></pre>
                         </div>
-                        <div id="form-container"></div>
-                        <pre id="response" class="d-none border p-2 mt-3 small"></pre>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% include 'super/_collapse_persist.html.twig' %}
 <script>
     (function () {
         const endpoint = 'manage_questionnaire_availability.php?view=import'
@@ -393,6 +419,9 @@
 
         function selectItem (item) {
             current = item
+            // Choosing something to review shows it, even with the step folded away.
+            window.openSectionForNow(element('questionnaire_import_review_expand'))
+            element('review-column').scrollTop = 0
             element('review-empty').classList.add('d-none')
             element('review-panel').classList.remove('d-none')
             element('review-actions').classList.remove('d-none')
@@ -584,6 +613,7 @@
                 const output = element('response')
                 output.textContent = JSON.stringify(runtime.getQuestionnaireResponse(), null, 2)
                 output.classList.remove('d-none')
+                output.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
             }
         })
         element('create-template')?.addEventListener('change', (event) => {

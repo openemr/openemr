@@ -6,110 +6,184 @@
     <link href="/q.css" media="screen" rel="stylesheet" />
 <script src="/q.js" data-openemr-version="8.5.0" data-openemr-strings="{}"></script>
 </head>
-<body class="body_top">
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mt-3">
-        <h2 class="h4 mb-0">Import Questionnaires</h2>
+<body class="body_top questionnaire-import">
+<style>
+    @media (min-width: 992px) {
+        html, body.questionnaire-import { height: 100%; overflow: hidden; }
+        body.questionnaire-import { margin: 0; padding-top: 0; padding-bottom: 0; }
+        .questionnaire-import .import-page { display: flex; flex-direction: column; height: 100%; }
+        .questionnaire-import .import-columns { flex: 1 1 auto; min-height: 0; }
+        .questionnaire-import .import-column { height: 100%; overflow-y: auto; }
+    }
+</style>
+<div class="container-fluid import-page">
+    <div class="d-flex justify-content-between align-items-center mt-2">
+        <h2 class="h5 mb-0">Import Questionnaires</h2>
                     <button type="button" id="close-dialog" class="btn btn-sm btn-secondary">Close</button>
             </div>
-    <p class="text-muted">Add one or more FHIR Questionnaires, review each one, then choose a category and import.</p>
+    <p class="text-muted small mb-2">Add one or more FHIR Questionnaires, review each one, then choose a category and import.</p>
 
     <div id="page-alert" class="d-none" role="alert"></div>
 
-    <div class="row">
-        <div class="col-lg-4">
+    <div class="row import-columns">
+        <div class="col-lg-4 import-column" id="steps-column">
             <div class="card mb-3">
-                <div class="card-header font-weight-bold">1. Add questionnaires</div>
-                <div class="card-body">
-                    <ul class="nav nav-pills nav-fill mb-3" role="tablist">
-                        <li class="nav-item"><a class="nav-link active" data-toggle="pill" href="#source-file" role="tab">File</a></li>
-                        <li class="nav-item"><a class="nav-link" id="source-paste-tab" data-toggle="pill" href="#source-paste" role="tab">Paste</a></li>
-                        <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#source-loinc" role="tab">LOINC</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="source-file" role="tabpanel">
-                            <label for="files">FHIR Questionnaire JSON files</label>
-                            <input type="file" id="files" class="form-control-file" accept=".json,application/json,application/fhir+json" multiple />
+                <div class="card-header">    <a class="text-reset font-weight-bold" href="#questionnaire_import_add_expand" role="button" data-toggle="collapse" data-target="#questionnaire_import_add_expand" aria-expanded="true" aria-controls="questionnaire_import_add_expand">1. Add questionnaires<i class="ml-1 fa fa-fw fa-compress" aria-hidden="true"></i></a>
+</div>
+                <div id="questionnaire_import_add_expand" class="collapse show" data-persist-collapse>
+                    <div class="card-body">
+                        <ul class="nav nav-pills nav-fill mb-3" role="tablist">
+                            <li class="nav-item"><a class="nav-link active" data-toggle="pill" href="#source-file" role="tab">File</a></li>
+                            <li class="nav-item"><a class="nav-link" id="source-paste-tab" data-toggle="pill" href="#source-paste" role="tab">Paste</a></li>
+                            <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#source-loinc" role="tab">LOINC</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="source-file" role="tabpanel">
+                                <label for="files">FHIR Questionnaire JSON files</label>
+                                <input type="file" id="files" class="form-control-file" accept=".json,application/json,application/fhir+json" multiple />
+                            </div>
+                            <div class="tab-pane fade" id="source-paste" role="tabpanel">
+                                <label for="paste">FHIR Questionnaire JSON</label>
+                                <textarea id="paste" class="form-control" rows="8"></textarea>
+                                <button type="button" id="paste-add" class="btn btn-sm btn-primary mt-2">Add to review</button>
+                            </div>
+                            <div class="tab-pane fade" id="source-loinc" role="tabpanel">
+                                <label for="loinc-terms">Search LOINC forms</label>
+                                <input type="search" id="loinc-terms" class="form-control" autocomplete="off" placeholder="Type a form name or LOINC code" />
+                                <div id="loinc-results" class="list-group mt-2" style="max-height: 16rem; overflow-y: auto;"></div>
+                                <small id="loinc-status" class="form-text text-muted"></small>
+                                                            </div>
                         </div>
-                        <div class="tab-pane fade" id="source-paste" role="tabpanel">
-                            <label for="paste">FHIR Questionnaire JSON</label>
-                            <textarea id="paste" class="form-control" rows="8"></textarea>
-                            <button type="button" id="paste-add" class="btn btn-sm btn-primary mt-2">Add to review</button>
-                        </div>
-                        <div class="tab-pane fade" id="source-loinc" role="tabpanel">
-                            <label for="loinc-terms">Search LOINC forms</label>
-                            <input type="search" id="loinc-terms" class="form-control" autocomplete="off" placeholder="Type a form name or LOINC code" />
-                            <div id="loinc-results" class="list-group mt-2" style="max-height: 16rem; overflow-y: auto;"></div>
-                            <small id="loinc-status" class="form-text text-muted"></small>
-                                                    </div>
                     </div>
                 </div>
             </div>
 
             <div class="card mb-3">
-                <div class="card-header font-weight-bold">To review</div>
-                <div id="queue" class="list-group list-group-flush"></div>
-                <div id="queue-empty" class="card-body text-muted small">Nothing added yet.</div>
+                <div class="card-header">    <a class="text-reset font-weight-bold" href="#questionnaire_import_queue_expand" role="button" data-toggle="collapse" data-target="#questionnaire_import_queue_expand" aria-expanded="true" aria-controls="questionnaire_import_queue_expand">To review<i class="ml-1 fa fa-fw fa-compress" aria-hidden="true"></i></a>
+</div>
+                <div id="questionnaire_import_queue_expand" class="collapse show" data-persist-collapse>
+                    <div id="queue" class="list-group list-group-flush"></div>
+                    <div id="queue-empty" class="card-body text-muted small">Nothing added yet.</div>
+                </div>
             </div>
 
             <div class="card mb-3">
-                <div class="card-header font-weight-bold">3. Choose where it goes</div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="category">Category <span class="text-danger" title="Required">*</span></label>
-                        <select id="category" class="form-control" required>
-                            <option value="">Choose a category</option>
-                                                            <option value="survey">Survey</option>
-                                                    </select>
-                        <small class="form-text text-muted">Applies to everything in this import.</small>
-                    </div>
-                                                            <button type="button" id="import" class="btn btn-primary btn-block mt-3" disabled>Import</button>
+                <div class="card-header">    <a class="text-reset font-weight-bold" href="#questionnaire_import_destination_expand" role="button" data-toggle="collapse" data-target="#questionnaire_import_destination_expand" aria-expanded="true" aria-controls="questionnaire_import_destination_expand">3. Choose where it goes<i class="ml-1 fa fa-fw fa-compress" aria-hidden="true"></i></a>
+</div>
+                <div id="questionnaire_import_destination_expand" class="collapse show" data-persist-collapse>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="category">Category <span class="text-danger" title="Required">*</span></label>
+                            <select id="category" class="form-control" required>
+                                <option value="">Choose a category</option>
+                                                                    <option value="survey">Survey</option>
+                                                            </select>
+                            <small class="form-text text-muted">Applies to everything in this import.</small>
+                        </div>
+                                                                    </div>
+                </div>
+                                <div class="card-footer">
+                    <button type="button" id="import" class="btn btn-primary btn-block" disabled>Import</button>
                     <small id="import-hint" class="form-text text-muted"></small>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-8">
+        <div class="col-lg-8 import-column" id="review-column">
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="font-weight-bold">2. Review</span>
+                        <a class="text-reset font-weight-bold" href="#questionnaire_import_review_expand" role="button" data-toggle="collapse" data-target="#questionnaire_import_review_expand" aria-expanded="false" aria-controls="questionnaire_import_review_expand">2. Review<i class="ml-1 fa fa-fw fa-expand" aria-hidden="true"></i></a>
+
                     <div class="btn-group btn-group-sm d-none" id="review-actions">
                         <button type="button" id="view-response" class="btn btn-outline-primary">View Response</button>
                         <button type="button" id="review-next" class="btn btn-primary">Next</button>
                     </div>
                 </div>
-                <div class="card-body">
-                    <p id="review-empty" class="text-muted mb-0">Add a questionnaire to see it here exactly as staff will.</p>
-                    <div id="review-panel" class="d-none">
-                        <div class="form-row">
-                            <div class="form-group col-md-7">
-                                <label for="name">Name</label>
-                                <input type="text" id="name" class="form-control" maxlength="255" />
+                <div id="questionnaire_import_review_expand" class="collapse" data-persist-collapse>
+                    <div class="card-body">
+                        <p id="review-empty" class="text-muted mb-0">Add a questionnaire to see it here exactly as staff will.</p>
+                        <div id="review-panel" class="d-none">
+                            <div class="form-row">
+                                <div class="form-group col-md-7">
+                                    <label for="name">Name</label>
+                                    <input type="text" id="name" class="form-control" maxlength="255" />
+                                </div>
+                                <div class="form-group col-md-5">
+                                    <label for="tags">Tags (optional)</label>
+                                    <input type="text" id="tags" class="form-control" placeholder="Separate with commas" />
+                                </div>
                             </div>
-                            <div class="form-group col-md-5">
-                                <label for="tags">Tags (optional)</label>
-                                <input type="text" id="tags" class="form-control" placeholder="Separate with commas" />
+                            <div id="conversion-notes" class="alert alert-info d-none">
+                                <div class="font-weight-bold">Check these items. They did not convert fully from LOINC:</div>
+                                <ul class="mb-0" id="conversion-list"></ul>
                             </div>
-                        </div>
-                        <div id="conversion-notes" class="alert alert-info d-none">
-                            <div class="font-weight-bold">Check these items. They did not convert fully from LOINC:</div>
-                            <ul class="mb-0" id="conversion-list"></ul>
-                        </div>
-                        <div id="clash" class="alert alert-warning d-none">
-                            <div id="clash-text"></div>
-                            <div class="form-check mt-2">
-                                <input class="form-check-input" type="checkbox" id="replace" />
-                                <label class="form-check-label" for="replace">Replace the existing questionnaire</label>
+                            <div id="clash" class="alert alert-warning d-none">
+                                <div id="clash-text"></div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="replace" />
+                                    <label class="form-check-label" for="replace">Replace the existing questionnaire</label>
+                                </div>
                             </div>
+                            <div id="form-container"></div>
+                            <pre id="response" class="d-none border p-2 mt-3 small"></pre>
                         </div>
-                        <div id="form-container"></div>
-                        <pre id="response" class="d-none border p-2 mt-3 small"></pre>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        const settingsUrl = "\/library\/ajax\/user_settings.php"
+        const csrfToken = "token"
+
+        function save (section, open) {
+            const body = new FormData()
+            body.append('csrf_token_form', csrfToken)
+            body.append('target', section)
+            body.append('mode', open ? '1' : '0')
+            top.restoreSession()
+            fetch(settingsUrl, { method: 'POST', credentials: 'same-origin', body })
+                .catch((error) => console.error('Section state not saved', error))
+        }
+
+        function showIcon (panel, open) {
+            document.querySelectorAll('[data-target="#' + panel.id + '"]').forEach((toggle) => {
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false')
+                const icon = toggle.querySelector('.fa')
+                icon?.classList.toggle('fa-compress', open)
+                icon?.classList.toggle('fa-expand', !open)
+            })
+        }
+
+        $(document).on('shown.bs.collapse hidden.bs.collapse', '[data-persist-collapse]', function (event) {
+            if (event.target !== this) {
+                return
+            }
+            const open = event.type === 'shown'
+            showIcon(this, open)
+            if (this.dataset.keepSaved === '1') {
+                delete this.dataset.keepSaved
+                return
+            }
+            save(this.id, open)
+        })
+
+        // Open a section for the moment, as when a page needs to show it, without saving.
+        window.openSectionForNow = function (panel) {
+            if (panel && !panel.classList.contains('show')) {
+                panel.dataset.keepSaved = '1'
+                $(panel).collapse('show')
+            }
+        }
+
+        if (location.hash.length > 1) {
+            const anchor = document.getElementById(location.hash.slice(1))
+            window.openSectionForNow(anchor?.querySelector('[data-persist-collapse]'))
+        }
+    })()
+</script>
 <script>
     (function () {
         const endpoint = 'manage_questionnaire_availability.php?view=import'
@@ -343,6 +417,9 @@
 
         function selectItem (item) {
             current = item
+            // Choosing something to review shows it, even with the step folded away.
+            window.openSectionForNow(element('questionnaire_import_review_expand'))
+            element('review-column').scrollTop = 0
             element('review-empty').classList.add('d-none')
             element('review-panel').classList.remove('d-none')
             element('review-actions').classList.remove('d-none')
@@ -534,6 +611,7 @@
                 const output = element('response')
                 output.textContent = JSON.stringify(runtime.getQuestionnaireResponse(), null, 2)
                 output.classList.remove('d-none')
+                output.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
             }
         })
         element('create-template')?.addEventListener('change', (event) => {

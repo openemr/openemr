@@ -24,6 +24,7 @@ use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\PostOutcome;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailabilityController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\PostCalendarTwigExtension;
+use OpenEMR\Services\Globals\CollapsedSections;
 use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
 use OpenEMR\Services\Patient\DuplicatePatientRow;
@@ -857,6 +858,7 @@ class TwigTemplateRenderTest extends TestCase
                 'templateCategory' => 'questionnaire',
                 'isDialog' => false,
                 'source' => '',
+                'sections' => new CollapsedSections(),
             ],
             $fixtureDir . '/questionnaire-import-tab.html',
         ];
@@ -875,6 +877,8 @@ class TwigTemplateRenderTest extends TestCase
                 'templateCategory' => '',
                 'isDialog' => true,
                 'source' => 'paste',
+                // A user who folded the review away earlier.
+                'sections' => new CollapsedSections(['questionnaire_import_review_expand']),
             ],
             $fixtureDir . '/questionnaire-import-dialog.html',
         ];
@@ -911,6 +915,7 @@ class TwigTemplateRenderTest extends TestCase
             new Environment(new ArrayLoader()),
             $session,
             new NullLogger(),
+            new CollapsedSections($selectedId !== null ? ['questionnaire_availability_category_rules_expand'] : []),
         );
 
         return $controller->buildView($selectedId, $editId, $outcome);
