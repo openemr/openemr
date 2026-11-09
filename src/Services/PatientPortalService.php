@@ -87,7 +87,7 @@ class PatientPortalService
         if (!empty($content)) {
             $message = xl("Comment from provider") . ": " . $content . "\n";
         }
-        $message = $message . self::oneTimeDocumentLine($name, $period);
+        $message .= self::oneTimeDocumentLine($name, $period);
 
         $statusMsg = xl("Notification requests are being sent!");
         $event_data = [
@@ -125,7 +125,7 @@ class PatientPortalService
         }
         try {
             $interval = new \DateInterval($period);
-        } catch (\Throwable) {
+        } catch (\DateMalformedIntervalStringException) {
             return xl("a limited time");
         }
         $units = [
