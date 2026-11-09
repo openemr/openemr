@@ -20,6 +20,7 @@ namespace OpenEMR\Tests\Api;
 use Document;
 use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\DirectMessaging\DirectMessageLogRepository;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Translation\TranslationCache;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -27,7 +28,9 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRTask;
 use OpenEMR\Services\FHIR\FhirTaskService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
+use OpenEMR\Services\ReferralDisplay;
 use OpenEMR\Services\ReferralFormLoaded;
+use OpenEMR\Services\ReferralNoticeOutcome;
 use OpenEMR\Services\ReferralService;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\TaskService;
@@ -64,6 +67,12 @@ class ReferralReplyFhirApiTest extends TestCase
 
     /** @var list<int> transaction ids */
     private array $transactions = [];
+
+    /** @var list<int> documents a test filed as a Direct reply's; tearDown() removes their links, and them with the referral's */
+    private array $directDocuments = [];
+
+    /** @var list<string> addresses a test's notices emailed, whose queued emails tearDown() removes */
+    private array $emailsQueuedTo = [];
 
     /** @var list<string> the fields a test added to the referral's layout */
     private array $layoutFields = [];
@@ -135,6 +144,16 @@ class ReferralReplyFhirApiTest extends TestCase
             } else {
                 QueryUtils::sqlStatementThrowException('DELETE FROM globals WHERE gl_name = ? AND gl_index = 0', [$name]);
             }
+        }
+        foreach ($this->transactions as $id) {
+            QueryUtils::sqlStatementThrowException('DELETE FROM referral_notice WHERE transaction_id = ?', [$id]);
+            QueryUtils::sqlStatementThrowException('DELETE FROM direct_message_log WHERE referral_id = ?', [$id]);
+        }
+        foreach ($this->directDocuments as $documentId) {
+            QueryUtils::sqlStatementThrowException('DELETE FROM gprelations WHERE type1 = 1 AND id1 = ?', [$documentId]);
+        }
+        foreach ($this->emailsQueuedTo as $address) {
+            QueryUtils::sqlStatementThrowException('DELETE FROM email_queue WHERE recipient = ?', [$address]);
         }
         foreach ($this->transactions as $id) {
             foreach (QueryUtils::fetchRecords("SELECT id FROM documents WHERE foreign_reference_table = 'transactions' AND foreign_reference_id = ?", [$id]) as $row) {
@@ -1117,6 +1136,196 @@ class ReferralReplyFhirApiTest extends TestCase
         $other = $this->read('Task', $theirs);
         $this->assertNotSame('completed', $other['status'] ?? null);
         $this->assertArrayNotHasKey('output', $other);
+    }
+
+    public function testANewTaskTellsTheRecipientByEmailWithoutPatientDetails(): void
+    {
+        $this->people['clinic'] = $this->insertPerson(['abook_type' => 'external_org', 'organization' => 'Zq Notice Clinic', 'email' => 'intake@zq-clinic.example']);
+        $this->emailsQueuedTo[] = 'intake@zq-clinic.example';
+        $this->setGlobal(GlobalConnectorsEnum::FHIR_REFERRAL_NOTIFY_RECIPIENT->value, '1');
+        $this->setGlobal('patient_reminder_sender_email', 'front@zq-practice.example');
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['clinic']['id'], 'body' => 'Zq private reason']);
+
+        $this->afterSave($id);
+
+        $notice = QueryUtils::querySingleRow('SELECT outcome, address, task_uuid FROM referral_notice WHERE transaction_id = ?', [$id]);
+        $this->assertIsArray($notice);
+        $this->assertSame(ReferralNoticeOutcome::EmailQueued->value, $notice['outcome'] ?? null);
+        $this->assertSame('intake@zq-clinic.example', $notice['address'] ?? null);
+        $this->assertIsString($notice['task_uuid'] ?? null);
+        $this->assertSame($this->taskOf($id, 'clinic')['id'] ?? null, UuidRegistry::uuidToString($notice['task_uuid']));
+        $emails = QueryUtils::fetchRecords('SELECT sender, subject, body FROM email_queue WHERE recipient = ?', ['intake@zq-clinic.example']);
+        $this->assertCount(1, $emails);
+        $this->assertSame('front@zq-practice.example', $emails[0]['sender'] ?? null);
+        $subject = $emails[0]['subject'] ?? null;
+        $body = $emails[0]['body'] ?? null;
+        $this->assertIsString($subject);
+        $this->assertIsString($body);
+        $email = $subject . ' ' . $body;
+        $this->assertStringContainsString('has sent you a referral', $email);
+        // Nothing of the patient or the referral goes by plain email.
+        $patient = QueryUtils::querySingleRow('SELECT fname, lname FROM patient_data WHERE pid = ?', [$this->patient['pid']]);
+        $this->assertIsArray($patient);
+        foreach ([$patient['fname'] ?? '', $patient['lname'] ?? '', 'Zq private reason'] as $detail) {
+            $this->assertIsString($detail);
+            if ($detail !== '') {
+                $this->assertStringNotContainsString($detail, $email);
+            }
+        }
+
+        // A later save makes no new Task, so no new notice.
+        $this->afterSave($id);
+        $this->assertCount(1, QueryUtils::fetchRecords('SELECT id FROM referral_notice WHERE transaction_id = ?', [$id]));
+    }
+
+    public function testARecipientWhoCanNotBeToldIsShownToStaff(): void
+    {
+        $this->setGlobal(GlobalConnectorsEnum::FHIR_REFERRAL_NOTIFY_RECIPIENT->value, '1');
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+
+        $this->afterSave($id);
+
+        $this->assertSame(ReferralNoticeOutcome::NoAddress->value, QueryUtils::fetchSingleValue('SELECT outcome FROM referral_notice WHERE transaction_id = ?', 'outcome', [$id]));
+        $block = (new ReferralDisplay())->communicationForTransactionPage('LBTref', $id);
+        $this->assertStringContainsString('Recipient could not be notified', $block);
+        $this->assertStringContainsString('Please contact the recipient.', $block);
+    }
+
+    public function testAReSendTellsTheRecipientAgain(): void
+    {
+        $this->setGlobal(GlobalConnectorsEnum::FHIR_REFERRAL_NOTIFY_RECIPIENT->value, '1');
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $rejected = $this->taskOf($id, 'pantry');
+        $rejectedUuid = $rejected['id'] ?? null;
+        $this->assertIsString($rejectedUuid);
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($rejected, 'rejected'));
+
+        $new = (new ReferralTaskService(new UserService()))->resend($id, $rejectedUuid, null);
+
+        $this->assertIsString($new);
+        $told = QueryUtils::fetchRecords('SELECT task_uuid FROM referral_notice WHERE transaction_id = ? ORDER BY id', [$id]);
+        $this->assertCount(2, $told);
+        $this->assertIsString($told[1]['task_uuid'] ?? null);
+        $this->assertSame($new, UuidRegistry::uuidToString($told[1]['task_uuid']));
+    }
+
+    public function testWithNoticesOffTheRecipientIsNotTold(): void
+    {
+        $this->setGlobal(GlobalConnectorsEnum::FHIR_REFERRAL_NOTIFY_RECIPIENT->value, '0');
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+
+        $this->afterSave($id);
+
+        $this->assertSame([], QueryUtils::fetchRecords('SELECT id FROM referral_notice WHERE transaction_id = ?', [$id]));
+        $this->assertSame('', (new ReferralDisplay())->communicationForTransactionPage('LBTref', $id));
+    }
+
+    public function testAConfirmedDirectReplyCompletesTheTaskWithItsDocuments(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $documentId = $this->fileInChart($id, 'consult.xml', '<ClinicalDocument/>');
+        $replyId = $this->receiveDirectReply($id, 'Consult attached.', [$documentId]);
+        $service = new ReferralTaskService(new UserService());
+        $taskUuid = $service->confirmableTask($id);
+        $this->assertSame($this->taskOf($id, 'pantry')['id'] ?? null, $taskUuid);
+        $this->assertIsString($taskUuid);
+        $this->assertStringContainsString('Confirm it completes the referral', (new ReferralDisplay())->communicationForTransactionPage('LBTref', $id, true));
+
+        $this->assertSame($taskUuid, $service->completeWithDirectReply($id, $taskUuid, $replyId, null));
+
+        $task = $this->read('Task', $taskUuid);
+        $this->assertSame('completed', $task['status'] ?? null);
+        $this->assertSame(ReferralTaskService::REPLY_OUTPUT_TYPE['type_text'], self::at($task, 'output', 0, 'type', 'text'));
+        $documentUuid = QueryUtils::fetchSingleValue('SELECT uuid FROM documents WHERE id = ?', 'uuid', [$documentId]);
+        $this->assertIsString($documentUuid);
+        $this->assertSame('DocumentReference/' . UuidRegistry::uuidToString($documentUuid), self::at($task, 'output', 0, 'valueReference', 'reference'));
+        // The referral reads as answered, on the day the reply came.
+        $received = QueryUtils::fetchSingleValue('SELECT create_ts FROM direct_message_log WHERE id = ?', 'create_ts', [$replyId]);
+        $this->assertIsString($received);
+        $this->assertSame(substr($received, 0, 10), QueryUtils::fetchSingleValue("SELECT field_value FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", 'field_value', [$id]));
+        $this->assertNull($service->confirmableTask($id));
+        // A second click does nothing.
+        $this->assertNull($service->completeWithDirectReply($id, $taskUuid, $replyId, null));
+    }
+
+    public function testAConfirmedTextOnlyDirectReplyIsFiledAsADocument(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $replyId = $this->receiveDirectReply($id, 'Seen today, plan to follow up.', []);
+        $service = new ReferralTaskService(new UserService());
+        $taskUuid = $service->confirmableTask($id);
+        $this->assertIsString($taskUuid);
+
+        $this->assertSame($taskUuid, $service->completeWithDirectReply($id, $taskUuid, $replyId, null));
+
+        $documents = QueryUtils::fetchRecords("SELECT id, name FROM documents WHERE foreign_reference_table = 'transactions' AND foreign_reference_id = ?", [$id]);
+        $this->assertCount(1, $documents);
+        $this->assertSame('direct-reply-' . $replyId . '.txt', $documents[0]['name'] ?? null);
+        $this->assertIsNumeric($documents[0]['id'] ?? null);
+        $this->assertStringContainsString('Seen today, plan to follow up.', (string)(new Document((int)$documents[0]['id']))->get_data());
+        $this->assertSame('completed', $this->read('Task', $taskUuid)['status'] ?? null);
+    }
+
+    public function testAStaleConfirmChangesNothing(): void
+    {
+        $id = $this->saveReferral(['refer_from' => $this->people['doctor']['id'], 'refer_to' => $this->people['pantry']['id'], 'body' => 'x']);
+        $this->afterSave($id);
+        $replyId = $this->receiveDirectReply($id, 'Seen.', []);
+        $service = new ReferralTaskService(new UserService());
+        $task = $this->taskOf($id, 'pantry');
+        $taskUuid = $task['id'] ?? null;
+        $this->assertIsString($taskUuid);
+
+        // A Task id the page didn't show, and a reply filed with another referral, both do nothing.
+        $this->assertNull($service->completeWithDirectReply($id, '00000000-0000-4000-8000-000000000000', $replyId, null));
+        $this->assertNull($service->completeWithDirectReply($id, $taskUuid, $replyId + 1000000, null));
+        // Nor does a Task the recipient has since rejected.
+        $this->assertSame(Response::HTTP_OK, $this->putStatus($task, 'rejected'));
+        $this->assertNull($service->completeWithDirectReply($id, $taskUuid, $replyId, null));
+        $this->assertSame('rejected', $this->read('Task', $taskUuid)['status'] ?? null);
+        $this->assertNull(QueryUtils::fetchSingleValue("SELECT field_value FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date'", 'field_value', [$id]));
+    }
+
+    /**
+     * A file in the patient's chart, as PhiMailReceiver stores a matched reply's attachment. It names the
+     * referral only so tearDown() removes it with the referral's documents.
+     */
+    private function fileInChart(int $transactionId, string $name, string $content): int
+    {
+        $category = QueryUtils::fetchSingleValue("SELECT id FROM categories WHERE name = 'Medical Record' ORDER BY id LIMIT 1", 'id', []);
+        $this->assertIsNumeric($category);
+        $document = new Document();
+        $this->assertSame('', $document->createDocument((string)$this->patient['pid'], (int)$category, $name, 'text/xml', $content, '', 1, 1, null, null, (string)$transactionId, 'transactions'));
+        $id = $document->get_id();
+        $this->assertIsNumeric($id);
+        $this->directDocuments[] = (int)$id;
+        return (int)$id;
+    }
+
+    /**
+     * A Direct reply as PhiMailReceiver files one it matched to a message sent with the referral: a note
+     * in the patient's chart linked to its documents, logged with the referral.
+     *
+     * @param list<int> $documentIds
+     * @return int its direct_message_log id
+     */
+    private function receiveDirectReply(int $transactionId, string $text, array $documentIds): int
+    {
+        $noteId = (int)QueryUtils::sqlInsert(
+            "INSERT INTO pnotes (date, body, pid, user, groupname, activity, authorized, title, assigned_to, deleted, message_status) VALUES (NOW(), ?, ?, 'phimail-service', 'Default', 1, 0, 'Unassigned', 'admin', 0, 'New')",
+            [$text, $this->patient['pid']]
+        );
+        foreach ($documentIds as $documentId) {
+            QueryUtils::sqlStatementThrowException('INSERT INTO gprelations (type1, id1, type2, id2) VALUES (1, ?, 6, ?)', [$documentId, $noteId]);
+        }
+        $messageId = 'zq-reply-' . uniqid('', true);
+        (new DirectMessageLogRepository())->recordReceived($messageId, 'consult@zq-clinic.example', 'practice@direct.example', 1, $this->patient['pid'], $transactionId, $noteId);
+        $id = QueryUtils::fetchSingleValue("SELECT id FROM direct_message_log WHERE msg_type = 'R' AND msg_id = ?", 'id', [$messageId]);
+        $this->assertIsNumeric($id);
+        return (int)$id;
     }
 
     /**
