@@ -210,24 +210,9 @@ curl -fsSL https://get.docker.com | sh
 systemctl enable docker
 systemctl start docker
 
-# kubectl
-# Note: this fetches the current stable release. Pin to a specific version
-# and verify the published .sha256 file if you want stricter supply-chain guarantees.
-curl -fsSL https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl \
-  -o /usr/local/bin/kubectl
-chmod +x /usr/local/bin/kubectl
-
-# kind (Kubernetes IN Docker — for openemr-devops kubernetes work)
-# Note: this fetches the latest release. Pin to a specific version and verify the
-# SHA from https://github.com/kubernetes-sigs/kind/releases for stricter supply-chain guarantees.
-curl -fsSL https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64 \
-  -o /usr/local/bin/kind
-chmod +x /usr/local/bin/kind
-
-# helm (used by kub-up to install cert-manager and NFS provisioner)
-# Note: piping a remote install script to a shell is convenient but trusts the upstream;
-# pin a specific Helm release if you want stricter supply-chain guarantees.
-curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+# No kubectl/kind/helm — the k8s dev-stack (kind-based) does not run inside
+# the LXC appliance (documented in openemr-devops/kubernetes/README.md).
+# Use the Incus VM appliance for Kubernetes work — see claude-appliance-vm-setup.md.
 
 # openemr-cmd (clone openemr-devops into the bind-mounted git dir if not already present)
 if [ ! -d "<git-dir>/openemr-devops" ]; then
