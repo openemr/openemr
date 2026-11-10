@@ -36,6 +36,9 @@ ARG PHP_MIN_VERSION=8.5.12
 ARG PHP_VERSION_ABBR=${PHP_VERSION//./}
 ENV PHP_VERSION_ABBR=${PHP_VERSION_ABBR}
 
+# Any non-dev value makes bootstrap.php use a compiled DI container.
+ENV ENVIRONMENT=production
+
 # ============================================================================
 # SYSTEM PACKAGE INSTALLATION
 # ============================================================================
@@ -200,7 +203,7 @@ composer dump-autoload --optimize --apcu
 # is only a placeholder until there's a real check to run. Older
 # OPENEMR_VERSION refs predate ./cli.
 if [ -f cli ]; then
-    ENVIRONMENT=production ./cli list
+    ./cli list
 fi
 EOF
 
