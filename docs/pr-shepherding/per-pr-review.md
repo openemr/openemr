@@ -342,12 +342,13 @@ Not every green rollup is cleanly green. Call out explicitly:
     The aggregator is still a required merge check, so merge itself needs it to clear.
     Three resolution paths, in preferred order: the healer workflow
     (`.github/workflows/rerun-stale-all-checks.yml`) picks it up automatically when it
-    fires on a heavy-workflow rerun; manual rerun of the aggregator job; **admin merge
-    override** when the aggregator is genuinely stuck despite clean underlying lanes
-    (the healer only triggers on four heavy workflows, and GitHub's checks API can
-    stay red through multiple reruns). Note state + expected path in the brief
-    ("aggregator stuck; underlying lanes clean; expect manual rerun / admin merge
-    override").
+    fires on a heavy-workflow rerun, capped at 5 rerun attempts per aggregator run;
+    manual rerun of the aggregator job when the healer can't or won't (triggering
+    workflow not in the healer's list of four, cap reached, or GitHub's checks API is
+    stuck through multiple reruns); **admin merge override** when the aggregator is
+    genuinely stuck despite clean underlying lanes. Note state + expected path in the
+    brief ("aggregator stuck; underlying lanes clean; expect manual rerun / admin
+    merge override").
   - A single FAILURE lane clearly outside the PR's changed-file surface (e.g., an e2e
     lane on an unrelated feature), or a lane known-flaky on master, may be a flake.
     Request a rerun; cleared on rerun → record "flake, cleared on rerun" in the brief
@@ -409,8 +410,9 @@ Some patterns that should move a verdict from `✅ Merge-ready` to `🔶 residua
 - Open rabbit Actionable that isn't withdrawn or addressed.
 - Open maintainer `CHANGES_REQUESTED` with no evidence of substantive resolution.
 - CI FAILURE in any lane that isn't title-lint-superseded, advisory codecov/*, or a
-  solo `All Checks Passed` aggregator with every other underlying lane SUCCESS or
-  SKIPPED (see §8 for the aggregator exception and its resolution paths).
+  solo `All Checks Passed` aggregator (or aggregator + codecov/* only) with every
+  other underlying lane SUCCESS or SKIPPED (see §8 for the aggregator exception and
+  its resolution paths).
 - Baseline entries added (not removed).
 - A convention violation flagged by `AGENTS.md` that would land `mixed`, cast, or
   un-ignored data provider.

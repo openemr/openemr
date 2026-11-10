@@ -150,9 +150,11 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   primary — but the aggregator is a required merge check, so merge needs it cleared.
   Three resolution paths, in preferred order: the healer workflow
   (`.github/workflows/rerun-stale-all-checks.yml`) picks it up automatically on a
-  heavy-workflow rerun; manual rerun of the aggregator job; **admin merge override**
-  when the aggregator is genuinely stuck despite clean underlying lanes. The brief
-  names which path the merger is expected to use.
+  heavy-workflow rerun, capped at 5 rerun attempts per aggregator run; manual rerun of
+  the aggregator job when the healer can't or won't (triggering workflow not in the
+  healer's list, cap reached); **admin merge override** when the aggregator is
+  genuinely stuck despite clean underlying lanes. The brief names which path the
+  merger is expected to use.
 - **No unresolved rabbit Actionable.** Every CodeRabbit "Actionable" finding needs its
   own finding-specific evidence of resolution: addressed in a subsequent commit
   (confirmed by rabbit's auto-ack **or** by the shepherd's diff inspection against the

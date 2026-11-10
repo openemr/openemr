@@ -86,7 +86,7 @@ Collect the following signals per PR:
 | `isDraft` | `view.isDraft` | Draft vs non-draft |
 | `reviewDecision` | `view.reviewDecision` | `CHANGES_REQUESTED` → held |
 | `mergeable` | `view.mergeable` | `CONFLICTING` → held |
-| CI rollup | `statusCheckRollup` | Any `FAILURE` outside `codecov/*` and the `All Checks Passed` aggregator → held. `codecov/*` are advisory; the `All Checks Passed` aggregator fails occasionally when every *other* underlying lane is SUCCESS or SKIPPED — underlying lanes are the primary health signal, aggregator is a required merge check cleared by healer / manual rerun / admin merge override (see per-pr-review §8) |
+| CI rollup | `statusCheckRollup` | Any `FAILURE` outside `codecov/*` and the `All Checks Passed` aggregator → held, unless the FAILURE matches the flake exception (single scope-unrelated or known-flaky lane; see per-pr-review §8). `codecov/*` are advisory; the `All Checks Passed` aggregator fails occasionally when every *other* underlying lane is SUCCESS or SKIPPED — underlying lanes are the primary health signal, aggregator is a required merge check cleared by healer / manual rerun / admin merge override (see per-pr-review §8) |
 | CANCELLED lanes | `statusCheckRollup` | Investigate; see §3 |
 | Author activity | `commits[-N:].authoredDate` | Dormant vs active |
 | Last update | `updatedAt` | Freshness, dormancy check |
@@ -96,8 +96,8 @@ Collect the following signals per PR:
 **CI rollup quick-classify:**
 
 - All `SUCCESS` or `SKIPPED` (+ at most 1 `CANCELLED` that's title-lint-superseded) → `OK`
-- Any `FAILURE` outside `codecov/*` and `All Checks Passed` → `FAIL`. Both are advisory *for the health classification*: `codecov/patch` + `codecov/project` don't fail the aggregator (a solo codecov FAILURE with green aggregator is OK); and a solo `All Checks Passed` aggregator FAILURE (or aggregator + codecov/* only) with every *other* underlying lane SUCCESS or SKIPPED is also OK for health — treat the same as codecov-only. The aggregator is still a required merge check; see per-pr-review §8 for resolution paths (healer / manual rerun / admin merge override).
-- A single `FAILURE` lane that may be a flake (scope-unrelated to the PR's changed-file surface, or known-flaky on master) → don't auto-bucket as `FAIL`. Push to Phase 2 for the rerun-based triage per per-pr-review §8.
+- Any `FAILURE` outside `codecov/*` and `All Checks Passed` → `FAIL`, **except** when it matches the flake exception in the next bullet. Both are advisory *for the health classification*: `codecov/patch` + `codecov/project` don't fail the aggregator (a solo codecov FAILURE with green aggregator is OK); and a solo `All Checks Passed` aggregator FAILURE (or aggregator + codecov/* only) with every *other* underlying lane SUCCESS or SKIPPED is also OK for health — treat the same as codecov-only. The aggregator is still a required merge check; see per-pr-review §8 for resolution paths (healer / manual rerun / admin merge override).
+- A single `FAILURE` lane that may be a flake (scope-unrelated to the PR's changed-file surface, or known-flaky on master) → classify as `FAIL?` pending, don't auto-bucket as `FAIL`. Push to Phase 2 for the rerun-based triage per per-pr-review §8; final bucket depends on rerun outcome.
 - Many `CANCELLED` + no `FAILURE` → `CRED` (concurrency-redeemed; usually in-flight
   re-run — recheck in 5-10m)
 - Lanes `IN_PROGRESS` > 24 h on a non-dormant PR with aggregator NULL → `STALE` → 🔴
