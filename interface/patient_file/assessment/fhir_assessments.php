@@ -163,9 +163,10 @@ if ($authorized && $pid > 0) {
         }
 
         $questionnairesByCategory[$categoryTitle][] = $questionnaireRecord;
-        // Keyed by the list option, not the title, so the choice survives a language change.
+        // Keyed by a hash of the whole list option id, not the title, so the choice survives a
+        // language change and ids that differ only in punctuation keep separate states.
         $categorySections[$categoryTitle] ??= 'questionnaire_category_'
-            . (preg_replace('/[^a-z0-9]+/', '_', strtolower($category)) ?: 'unassigned')
+            . ($category !== '' ? hash('xxh3', $category) : 'unassigned')
             . '_expand';
     }
 
