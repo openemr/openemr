@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Carecoordination\Listener;
 
 use Carecoordination\Model\CcdaGenerator;
+use Carecoordination\Model\CcdaServiceConnectionException;
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
@@ -98,7 +99,7 @@ final readonly class ReferralNoticeSubscriber implements EventSubscriberInterfac
                 [],
                 $event->referralId
             );
-        } catch (\RuntimeException | \LogicException | DbalException $e) {
+        } catch (\RuntimeException | \LogicException | DbalException | CcdaServiceConnectionException $e) {
             $this->logger()->error('The Referral C-CDA for a referral\'s Direct notice could not be made', [
                 'transaction_id' => $event->referralId,
                 'exception' => $e,

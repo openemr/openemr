@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Services\Modules\Carecoordination\Listener;
 
 use Carecoordination\Listener\ReferralNoticeSubscriber;
 use Carecoordination\Model\CcdaGenerator;
+use Carecoordination\Model\CcdaServiceConnectionException;
 use Carecoordination\Model\GeneratedCcdaResult;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\DirectMessaging\PhiMailAttachmentType;
@@ -155,6 +156,20 @@ final class ReferralNoticeSubscriberTest extends TestCase
     public function testACcdaThatCanNotBeMadeIsNotSent(): void
     {
         $this->generator->method('generate')->willThrowException(new \RuntimeException('no template'));
+        $event = new ReferralDirectNoticeEvent(7, self::PATIENT, 'consult@direct.example', 3);
+
+        $this->subscriber()->onReferralDirectNotice($event);
+
+        self::assertSame([], $this->sent);
+        self::assertSame('The Referral C-CDA could not be made. See the log.', $event->failure());
+    }
+
+    /**
+     * A C-CDA service that is turned off or can not be reached fails the notice, the same way.
+     */
+    public function testACcdaServiceThatCanNotBeReachedIsANoticeNotSent(): void
+    {
+        $this->generator->method('generate')->willThrowException(new CcdaServiceConnectionException('service is down'));
         $event = new ReferralDirectNoticeEvent(7, self::PATIENT, 'consult@direct.example', 3);
 
         $this->subscriber()->onReferralDirectNotice($event);
