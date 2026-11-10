@@ -30,6 +30,13 @@ if (!AclMain::aclCheckCore('admin', 'practice')) {
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    // The page-level check above accepts any admin/practice grant including
+    // the read-only `view` return value. The save and delete branches below
+    // mutate provider identity and routing data (NPI, tax ID, Direct address,
+    // taxonomy); require the `write` return mode here to match the UI intent.
+    if (!AclMain::aclCheckCore('admin', 'practice', '', ['write'])) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/practice write: Address Book", xl("Address Book"));
+    }
 }
 
 // Collect user id if editing entry
