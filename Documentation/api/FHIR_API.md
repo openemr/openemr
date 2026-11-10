@@ -912,7 +912,7 @@ it stands. See [Referral Workflows](../REFERRAL_WORKFLOWS.md) for the workflows 
 
 ```bash
 # A patient's referrals
-curl -X GET 'https://localhost:9300/apis/default/fhir/ServiceRequest?patient=123&category=3457005' \
+curl -X GET 'https://localhost:9300/apis/default/fhir/ServiceRequest?patient=<patient-uuid>&category=3457005' \
   -H 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...'
 ```
 
@@ -933,9 +933,13 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/ServiceRequest?patient=123
 - `for` (the patient) never changes.
 - `focus` is a ServiceRequest or a Questionnaire. `owner` is an Organization, Practitioner,
   PractitionerRole, Patient or RelatedPerson.
-- `input` and `output` references must be on this server and in the same patient's chart.
-  `output` takes a QuestionnaireResponse, Observation, Procedure or DocumentReference, or text,
-  or a code.
+- `input` and `output` references must be on this server. A reference into a chart (a
+  DocumentReference, QuestionnaireResponse, Observation or Procedure) must be in the same
+  patient's chart. A Questionnaire, Organization, Practitioner or PractitionerRole is not any one
+  patient's.
+- `input` takes a Questionnaire, DocumentReference, Organization, Practitioner or
+  PractitionerRole, or a canonical, url, text or code. `output` takes a QuestionnaireResponse,
+  Observation, Procedure or DocumentReference, or text, or a code.
 - completed, rejected, failed and cancelled are final. A final Task can only become
   `entered-in-error`.
 - `meta.versionId` counts updates. Send `If-Match: W/"<version>"` to update only if nobody
@@ -947,8 +951,14 @@ With the **Track Referrals with FHIR Tasks** global on, saving a referral makes 
 `requested`, `intent` order, `code` fulfill, `focus` the referral, `owner` Refer To,
 `requester` Refer By.
 
+- No Task is made when FHIR cannot serve Refer To as a Practitioner or an Organization (a
+  provider or address book practitioner without an NPI, for example), or when the referral
+  already has a Reply Date. That referral never appears in a recipient's Task search. See
+  [who can own a Task](../REFERRAL_WORKFLOWS.md#setup).
 - A `PUT` cannot change its `focus`, `owner`, `code` or `partOf`; that gets `400` naming the field.
 - Marking it accepted, rejected, completed, failed or cancelled sends Refer By an inbox message.
+  No message is sent when Refer By is no longer an active user, or when the tracking global is
+  off.
 - Do not `POST` a Task with code `fulfill`, no `partOf` and a referral as `focus` for testing.
   OpenEMR treats it as that referral's own Task.
 

@@ -608,15 +608,19 @@ Whatever scopes the client holds, it can then only call:
 |---|---|
 | `GET /fhir/Task`, `GET /fhir/Task/{id}` | Tasks the entry owns. Any other reads as `404`. |
 | `PUT /fhir/Task/{id}` | The same Tasks. It cannot give a Task to anyone else. |
-| `GET /fhir/ServiceRequest`, `GET /fhir/ServiceRequest/{id}` | Referrals the entry is the current recipient of. No orders. |
+| `GET /fhir/ServiceRequest`, `GET /fhir/ServiceRequest/{id}` | Referrals the entry is the current recipient of **and** holds a Task for. No orders. |
 | Anything else | `403`, including Patient, Practitioner, Organization and DocumentReference. |
 
 - Give it `Task` read and update scopes and `ServiceRequest` read scopes, in the user or system
   context.
 - The limit is read on every request, so setting or removing it takes effect at once, for
   tokens already issued too.
-- A referral sent to someone else stops being readable. The earlier recipient keeps its own
-  cancelled Task as a record.
+- A referral is readable only while the entry is Refer To and has a Task for it. A referral saved
+  before tracking was on, or to a recipient that cannot own a Task, has none: save it again with
+  **Track Referrals with FHIR Tasks** on to create one. See
+  [who can own a Task](../REFERRAL_WORKFLOWS.md#setup).
+- A referral sent to someone else stops being readable. The earlier recipient's open Task is
+  cancelled and kept as a record; a Task it had already finished keeps its status.
 
 See [Referral Workflows](../REFERRAL_WORKFLOWS.md#5-outside-recipient-connected-through-the-fhir-api).
 

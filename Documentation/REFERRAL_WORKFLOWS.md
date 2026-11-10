@@ -107,7 +107,7 @@ status.
 | Shown | Means | Counts as |
 |---|---|---|
 | Open | No Task (tracking off, or Refer To can't own one) and no reply | Open |
-| Requested, Received, Accepted, In Progress, On Hold | The recipient's Task status | Open |
+| Draft, Requested, Received, Accepted, Ready, In Progress, On Hold | The recipient's Task status | Open |
 | Replied | A Reply Date is recorded | Completed |
 | Completed | The Task is completed | Completed |
 | Rejected, Failed, Cancelled, Entered in Error | The recipient's answer, or a correction | Closed |
@@ -118,7 +118,8 @@ status.
 - **Through FHIR**, the ServiceRequest reads `active`, `completed`, `revoked` (Task
   cancelled) or `entered-in-error`.
 - **The referrer is told.** When a Task is marked accepted, rejected, completed, failed or
-  cancelled through the API, Refer By gets a message in their inbox, type Referral.
+  cancelled through the API, Refer By gets a message in their inbox, type Referral. Not when
+  Refer By is no longer an active user.
 
 ## Workflows
 
@@ -230,7 +231,7 @@ A limited client can only do this, whatever scopes it holds:
 |---|---|
 | `GET /fhir/Task`, `GET /fhir/Task/{id}` | Tasks the entry owns. Others read as 404. |
 | `PUT /fhir/Task/{id}` | The same Tasks. It cannot give one to anyone else. |
-| `GET /fhir/ServiceRequest`, `GET /fhir/ServiceRequest/{id}` | Referrals it is the current recipient of. No procedure orders. |
+| `GET /fhir/ServiceRequest`, `GET /fhir/ServiceRequest/{id}` | Referrals it is the current recipient of and holds a Task for. No procedure orders. |
 | Anything else | 403. That includes Patient, Practitioner, Organization and DocumentReference. |
 
 **Example.** A dermatology clinic works its queue.
@@ -341,12 +342,13 @@ referral has no Reply Date.
 
 1. The first recipient's open Task is cancelled with the reason "The referral was sent to
    another recipient." It leaves their queue, and their limited client can no longer read the
-   referral.
+   referral. A Task they had already completed, rejected, failed or cancelled keeps its status.
 2. The new recipient gets a Task.
 
 **Reply entered by mistake.** Clear the Reply Date and save. The Task the reply completed is
 marked entered-in-error, and the recipient gets a new one. The filed reply stays in the
-patient's documents.
+patient's documents. A Task the recipient completed itself, through the API, is not undone: that
+referral still shows Completed.
 
 **Referral or patient deleted.** Open Tasks are cancelled with the reason.
 
