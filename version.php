@@ -6,6 +6,7 @@
  * @package OpenEMR
  * @link https://www.open-emr.org/wiki
  * @author Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2026 OpenEMR Foundation
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
