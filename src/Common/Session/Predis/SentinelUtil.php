@@ -21,6 +21,23 @@ use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
 
 class SentinelUtil
 {
+    /**
+     * Redis socket read timeout (seconds) used across every connection path
+     * (sentinel discovery + master connect). Any per-command timeout that
+     * blocks on reading a reply (notably WAIT) must stay strictly below this
+     * or phpredis will tear the socket down with a RedisException before the
+     * command's own timeout fires — the longer command timeout is silently
+     * ignored.
+     */
+    public const REDIS_READ_TIMEOUT_SECONDS = 3.0;
+
+    /**
+     * Safe ceiling (milliseconds) for any per-command WAIT timeout, with a
+     * 500 ms margin below the socket read timeout to let the WAIT reply
+     * reach the client before the socket read times out.
+     */
+    public const WAIT_TIMEOUT_CEILING_MS = (int) (self::REDIS_READ_TIMEOUT_SECONDS * 1000) - 500;
+
     private static string $sentinelCa = 'redis-sentinel-ca';
     private static string $sentinelCert = 'redis-sentinel-cert';
     private static string $sentinelKey = 'redis-sentinel-key';
@@ -166,11 +183,23 @@ class SentinelUtil
             : LockingRedisSessionHandler::DEFAULT_WAIT_REPLICAS;
 
         // optional: per-call timeout (milliseconds) for the WAIT command.
-        // Only consulted when waitReplicas > 0.
+        // Only consulted when waitReplicas > 0. Clamped at WAIT_TIMEOUT_CEILING_MS
+        // so the WAIT reply arrives before the socket read timeout (see
+        // REDIS_READ_TIMEOUT_SECONDS) tears the connection down — otherwise
+        // phpredis throws RedisException before WAIT's own timeout fires and
+        // the longer user-configured value is silently ineffective.
         $redisSessionWaitTimeoutMs = getenv('REDIS_SESSION_WAIT_TIMEOUT_MS', true);
-        $this->redisSessionWaitTimeoutMs = ($redisSessionWaitTimeoutMs !== false && ctype_digit($redisSessionWaitTimeoutMs) && (int) $redisSessionWaitTimeoutMs > 0)
+        $requestedWaitTimeoutMs = ($redisSessionWaitTimeoutMs !== false && ctype_digit($redisSessionWaitTimeoutMs) && (int) $redisSessionWaitTimeoutMs > 0)
             ? (int) $redisSessionWaitTimeoutMs
             : LockingRedisSessionHandler::DEFAULT_WAIT_TIMEOUT_MS;
+        if ($requestedWaitTimeoutMs > self::WAIT_TIMEOUT_CEILING_MS) {
+            $this->logger->warning('REDIS_SESSION_WAIT_TIMEOUT_MS clamped to the socket-read-timeout ceiling', [
+                'requested_ms' => $requestedWaitTimeoutMs,
+                'ceiling_ms' => self::WAIT_TIMEOUT_CEILING_MS,
+                'socket_read_timeout_seconds' => self::REDIS_READ_TIMEOUT_SECONDS,
+            ]);
+        }
+        $this->redisSessionWaitTimeoutMs = min($requestedWaitTimeoutMs, self::WAIT_TIMEOUT_CEILING_MS);
 
         $this->logger->debug("Predis Sentinel constructor initialized successfully.", [
             'predisSentinels' => $this->predisSentinels,
@@ -224,10 +253,10 @@ class SentinelUtil
         $connected = $redis->connect(
             $host,
             $masterPort,
-            3.0,   // connectTimeout
+            self::REDIS_READ_TIMEOUT_SECONDS,   // connectTimeout
             null,  // persistentId
             0,     // retryInterval
-            3.0,   // readTimeout
+            self::REDIS_READ_TIMEOUT_SECONDS,   // readTimeout
             $options,
         );
 
@@ -279,8 +308,8 @@ class SentinelUtil
                 $sentinel = new \RedisSentinel([
                     'host'           => $host,
                     'port'           => 26379,
-                    'connectTimeout' => 3.0,
-                    'readTimeout'    => 3.0,
+                    'connectTimeout' => self::REDIS_READ_TIMEOUT_SECONDS,
+                    'readTimeout'    => self::REDIS_READ_TIMEOUT_SECONDS,
                 ] + $this->buildSentinelAuthOptions() + $this->buildSentinelSslOptions());
 
                 $masterInfo = $sentinel->getMasterAddrByName($this->predisMaster);
