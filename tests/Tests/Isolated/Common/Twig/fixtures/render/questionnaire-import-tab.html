@@ -291,6 +291,8 @@
         async function addItem (label, json, notes = []) {
             const item = { id: nextId++, label, json, notes, name: '', tags: null, existing: null, replace: false, reviewed: false, status: 'pending', error: '' }
             items.push(item)
+            // The new item is unreviewed, so Import must stop offering itself until it is.
+            renderImportButton()
             try {
                 applyReview(item, await post({ action: 'review', questionnaire: json }))
                 item.label = item.name || label
@@ -510,6 +512,11 @@
         async function importAll () {
             const button = element('import')
             const ready = items.filter(isImportable)
+            // Check again at the click: an item can arrive between the last render and now.
+            if (ready.length === 0 || element('category').value === '' || ready.some((item) => !item.reviewed)) {
+                renderImportButton()
+                return
+            }
             const surfaces = Array.from(document.querySelectorAll('.import-surface:checked')).map((box) => box.value)
             const createTemplate = element('create-template')?.checked === true
             button.disabled = true

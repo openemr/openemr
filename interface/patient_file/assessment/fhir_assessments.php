@@ -36,7 +36,10 @@ $authorized = AclMain::aclCheckCore('patients', 'med');
 // so the tab is shown only to administrators; the embedded page enforces the same check.
 $canManageAvailability = $authorized && AclMain::aclCheckCore('admin', 'super');
 $canImport = $authorized && AclMain::aclCheckCore('admin', 'forms');
-$canUseTemplates = $authorized && AclMain::aclCheckCore('patients', 'docs');
+// The embedded document page is the portal's, which admits staff only with the portal ACL.
+$canUseTemplates = $authorized
+    && AclMain::aclCheckCore('patients', 'docs')
+    && AclMain::aclCheckCore('patientportal', 'portal');
 $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
 $container = OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')
     ? 'container'
@@ -788,8 +791,8 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                     if (frame.offsetParent === null) {
                         return
                     }
-                    const top = frame.getBoundingClientRect().top + window.scrollY
-                    let height = window.innerHeight - top - 24
+                    const frameTop = frame.getBoundingClientRect().top + window.scrollY
+                    let height = window.innerHeight - frameTop - 24
                     frame.style.height = Math.max(400, height) + 'px'
                     // Take back whatever padding below still makes the page taller than the window.
                     const over = document.documentElement.scrollHeight - window.innerHeight

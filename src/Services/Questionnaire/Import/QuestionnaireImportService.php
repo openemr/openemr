@@ -98,16 +98,22 @@ class QuestionnaireImportService
         $questionnaire = self::withTags($questionnaire, $request->tags);
         $questionnaire['status'] ??= 'active';
 
-        $id = $this->save($questionnaire, $name, $request->category, $existing);
+        // One transaction, so a failure in a follow-up write does not leave the questionnaire
+        // saved without the availability or portal template that was asked for.
+        $id = QueryUtils::inTransaction(function () use ($questionnaire, $name, $request, $existing): int {
+            $id = $this->save($questionnaire, $name, $request->category, $existing);
 
-        // Availability belongs to the first import. Replacing a questionnaire must leave alone
-        // whatever an administrator has decided about it since.
-        if ($existing === null && $request->surfaces !== null) {
-            $this->applySurfaces($id, $name, $request->surfaces);
-        }
-        if ($request->portalTemplateCategory !== null) {
-            $this->createPortalTemplate($id, $name, $request->portalTemplateCategory);
-        }
+            // Availability belongs to the first import. Replacing a questionnaire must leave
+            // alone whatever an administrator has decided about it since.
+            if ($existing === null && $request->surfaces !== null) {
+                $this->applySurfaces($id, $name, $request->surfaces);
+            }
+            if ($request->portalTemplateCategory !== null) {
+                $this->createPortalTemplate($id, $name, $request->portalTemplateCategory);
+            }
+
+            return $id;
+        });
 
         return new QuestionnaireImportResult($id, $existing !== null);
     }
