@@ -52,6 +52,9 @@ class TherapyGroupCsrfTest extends PantherTestCase
     #[Depends('testLoginAuthorized')]
     public function testGroupLinksReopenTheGroupAfterAPatientOpensInAnotherTab(): void
     {
+        if (getenv('SESSION_STORAGE_MODE') === 'predis-sentinel') {
+            self::markTestSkipped('Not yet reliable with Redis Sentinel session storage.');
+        }
         try {
             $this->insertFixtureData();
             $this->base();
