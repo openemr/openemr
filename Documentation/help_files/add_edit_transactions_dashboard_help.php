@@ -109,7 +109,7 @@ require_once("../../interface/globals.php");
 
                     <p><?php echo xlt("It therefore stands to reason that you cannot create a Counter-Referral by itself");?>.</p>
 
-                    <p><?php echo xlt("With referral tracking turned on, saving a Reply Date files the reply in the patient's documents as a consult note and completes the referral");?>.</p>
+                    <p><?php echo xlt("With referral tracking turned on, saving a Reply Date while the recipient's task is still open files the reply in the patient's documents as a consult note and completes the task. If the recipient had already completed, rejected, failed or cancelled the task, or there is no task, the reply is kept on this page only and no document is filed");?>.</p>
                     <p><?php echo xlt("Clearing a Reply Date that was saved by mistake reopens the referral when that reply is what completed it. A referral the recipient had already completed, rejected, failed or cancelled keeps showing that status");?>.</p>
                     <p><?php echo xlt("A reply received by Direct message is listed on this page with a Confirm it completes the referral button");?>.</p>
                     <p><?php echo xlt("Read the reply first, as it may be a question or a refusal, then confirm");?>.</p>

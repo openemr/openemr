@@ -617,9 +617,10 @@ Whatever scopes the client holds, it can then only call:
   tokens already issued too.
 - A referral is readable only while the entry is Refer To and has a Task for it. A referral saved
   before tracking was on, or to a recipient that could not own a Task, has none. To create one,
-  first make the recipient able to own a Task (add its missing NPI, for example), then save the
-  referral with **Track Referrals with FHIR Tasks** on. A referral that already has a Reply Date
-  never gets a Task, so a limited client cannot read it. See
+  first make the recipient able to own a Task (add a practitioner's missing NPI, or an External
+  Organization's missing name), then save the referral with **Track Referrals with FHIR Tasks** on. A Reply Date only stops a new Task
+  being made: a referral answered before it ever had a Task cannot be read by a limited client,
+  while one that had a Task before it was answered stays readable. See
   [when a Task is made](../REFERRAL_WORKFLOWS.md#setup).
 - A referral sent to someone else stops being readable. The earlier recipient's open Task is
   cancelled and kept as a record; a Task it had already finished keeps its status.

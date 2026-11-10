@@ -954,7 +954,9 @@ With the **Track Referrals with FHIR Tasks** global on, saving a referral makes 
 - No Task is made when FHIR cannot serve Refer To as a Practitioner or an Organization (a
   provider or address book practitioner without an NPI, for example), or when the referral
   already has a Reply Date when it is saved. A referral that never got a Task does not appear in
-  a recipient's Task search. One that got a Task and was answered later keeps it, completed. See
+  a recipient's Task search. One that got a Task and was answered later keeps it: the reply
+  completes a Task that is still open, while tracking is on, and a Task already final keeps its
+  status. See
   [when a Task is made](../REFERRAL_WORKFLOWS.md#setup).
 - A `PUT` cannot change its `focus`, `owner`, `code` or `partOf`; that gets `400` naming the field.
 - Marking it accepted, rejected, completed, failed or cancelled sends Refer By an inbox message.

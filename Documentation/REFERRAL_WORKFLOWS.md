@@ -95,7 +95,10 @@ Saving a referral makes a Task for Refer To only when all of these are true:
 - Refer To does not already have a Task for this referral that still counts, whatever its status.
 
 A referral that missed its Task gets one the next time it is saved with all four true. For a
-recipient that could not own one, fix the recipient first (add the NPI), then save the referral.
+recipient that could not own one, fix the recipient first, then save the referral:
+
+- A provider or address book practitioner: add the NPI.
+- An External Organization: add the Organization name, or a contact name.
 
 **Who can own a Task**
 
@@ -125,6 +128,10 @@ status.
 | Rejected, Failed, Cancelled, Entered in Error | The recipient's answer, or a correction | Closed |
 
 - **Overdue** is added to an open referral past the overdue days.
+- **A reply closes an open Task.** With tracking on, saving a Reply Date files the reply as a
+  Consult note and completes the recipient's Task if it is still open. A Task the recipient
+  already completed, rejected, failed or cancelled keeps its status, and no document is filed;
+  the reply stays on the referral. The referral shows Replied either way.
 - **Only the current recipient's latest Task counts.** If Refer To changes, the earlier
   recipient's Task is cancelled and kept as a record.
 - **Through FHIR**, the ServiceRequest reads `active`, `completed`, `revoked` (Task
