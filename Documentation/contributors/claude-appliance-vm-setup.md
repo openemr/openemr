@@ -1,5 +1,11 @@
 # Claude Code Multi-Agent Incus VM Appliance Setup
 
+## Architecture
+
+![Claude Code multi-agent Incus VM appliance architecture](../images/claude-appliance-vm-architecture.svg)
+
+---
+
 ## Overview
 
 A jailed Ubuntu VM running under Incus on the host Linux machine, connected to the host's git directory via a virtiofs share at the mirrored path. The VM uses Incus's default NAT bridge (`incusbr0`) rather than a separate LAN/host bridge, with a static IP assigned by Incus's host-side DHCP reservation and a single `/etc/hosts` entry on the host for name resolution.
@@ -496,9 +502,11 @@ The LXC appliance and the Incus VM appliance can run on the same host simultaneo
 
 - **Hostnames and `/etc/hosts` entries are distinct.** LXC uses `claude-appliance.local`; VM uses `claude-vm.local`. Both entries coexist in `/etc/hosts`.
 - **Subnets are distinct by default.** `lxcbr0` is `10.0.3.0/24`; Incus picks a random RFC1918 `/24` for `incusbr0` at `incus admin init`.
-- **The virtiofs share and the LXC bind mount point at the same host directory.** This is intentional — both appliances work against the same git-dir on the host, which is also where you edit from the host. They do *not* share worktree *stacks* though: each appliance has its own Docker daemon (inside its own guest), so a worktree you `up`-ped inside the LXC appliance is unreachable from the VM and vice versa.
-- **`openemr-cmd` state is per-appliance.** `openemr-cmd worktree list`'s state file lives inside each guest's filesystem (under the agent user's home), not on the shared git-dir. Running the same worktree in both appliances at once is not supported — port offsets would collide and the two Docker daemons would fight over bound host ports if the same offset was picked.
-- **Choose one appliance as "primary" per worktree.** In practice: use the LXC appliance for day-to-day work (fast boot, bind-mount I/O speed) and spin up the VM when you specifically need the Kubernetes dev-stack or the stronger isolation. Keep worktrees pinned to one appliance to avoid confusion.
+- **The virtiofs share and the LXC bind mount point at the same host directory.** This is intentional — both appliances work against the same git-dir on the host, which is also where you edit from the host.
+- **`openemr-cmd`'s state file is shared.** `.worktrees.json` lives in `<git-dir>/openemr/` (the primary repo root), on the shared surface both appliances see. Offset allocation is therefore coordinated across appliances — each worktree gets a single distinct offset regardless of which appliance registered it, and `openemr-cmd worktree list` from either appliance shows the same set of entries.
+- **Docker daemons are *not* shared.** Each appliance has its own `dockerd` inside its own guest. A worktree's Docker stack lives in exactly one appliance — whichever one ran `worktree add` or `worktree up`. The other appliance can see the state entry but cannot `exec`/`stop` the stack. Don't `worktree remove` from the appliance that is not running the stack — the state entry gets deleted but the stack is orphaned in the other guest's `dockerd` with no way to clean it up through `openemr-cmd`.
+- **Ports do not collide.** Each guest's Docker stacks bind to that guest's own IP, not to the host's loopback. `claude-appliance.local:9301` and `claude-vm.local:9301` are different endpoints even though they share the port number, because the two `.local` names resolve to different guest IPs.
+- **Choose one appliance as "primary" per worktree.** In practice: use the LXC appliance for day-to-day work (fast boot, bind-mount I/O speed) and spin up the VM when you specifically need the Kubernetes dev-stack or the stronger isolation. Keep worktrees pinned to the appliance that created them to avoid the orphan-stack trap above.
 - **Host firewall rules do not conflict.** The Step 1 ufw rules reference `incusbr0` by name and the LXC guide's rules reference `lxcbr0` — separate interface names, separate rules, no overlap.
 
 ---
