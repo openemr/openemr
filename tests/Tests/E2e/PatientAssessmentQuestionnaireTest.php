@@ -53,8 +53,9 @@ class PatientAssessmentQuestionnaireTest extends PantherTestCase
     #[Depends('testLoginAuthorized')]
     public function testANewAssessmentIsSavedThenEditedInPlace(): void
     {
-        $this->insertFixtureData();
+        // Inside the try, so a setup that fails part way is still cleaned up.
         try {
+            $this->insertFixtureData();
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
             // Built while the app shell is loaded: it carries the shell's CSRF token.
