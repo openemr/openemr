@@ -125,7 +125,9 @@ maintainer reports `landed <PR#>`. Update the brief + log entry with the merge S
 | Deep-review one merge-ready PR | [per-pr-review.md](per-pr-review.md) |
 | Review a batch of 3+ independent PRs via parallel subagents | [per-pr-review.md §13](per-pr-review.md#13-parallel-subagents-for-batch-reviews) |
 | Verify two PRs touching the same files really merge cleanly (overlapping-touch) | [per-pr-review.md §6.6](per-pr-review.md#66-probe-an-unknown-mergeable-state) |
+| Just merged a PR — re-probe surviving ✅ queue for landing-cascade base-advance effects | [per-pr-review.md §12](per-pr-review.md#12-handoff-to-phase-3) |
 | Write a review brief, log entry, or follow-up register entry | [deliverables.md](deliverables.md) |
+| Post-verdict state shift (head moved, maintainer inline comment, base advance, new rabbit finding) — maintain the brief | [deliverables.md §3.12](deliverables.md#312-state-delta-header-brief-maintenance-across-post-verdict-shifts) |
 | Decide whether an action (public comment, branch push, direct code change) is allowed | [standing-rules.md](standing-rules.md) |
 | Interpret a confusing CodeRabbit interaction (incremental review, "already reviewed," paused reviews, typo'd mention) | [standing-rules.md](standing-rules.md#2-coderabbit-mechanics) |
 | Resolve a stale hold after 24h | [standing-rules.md](standing-rules.md#3-staleness-and-recheck-cadence) |
