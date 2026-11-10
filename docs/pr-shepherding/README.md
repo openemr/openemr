@@ -144,11 +144,15 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   cancellation is a title-lint-superseded-by-next-commit case; note it explicitly.
   `codecov/patch` and `codecov/project` are advisory status checks — they don't fail the
   "All Checks Passed" aggregator, so a solo codecov FAILURE with green aggregator is OK.
-  The `All Checks Passed` aggregator itself occasionally shows FAILURE when every
-  underlying lane is clean (a known GitHub aggregator-glitch where a dependent check
-  didn't register SUCCESS but no real lane failed); a solo aggregator FAILURE, or
-  aggregator + codecov/* FAILURE only, is also OK — the primary signal is the
-  underlying lanes, not the aggregator.
+  The `All Checks Passed` aggregator itself occasionally shows FAILURE when every other
+  underlying lane is SUCCESS or SKIPPED (a dependent check didn't register SUCCESS but
+  no real lane failed). The PR's *health signal* is still green — underlying lanes are
+  primary — but the aggregator is a required merge check, so merge needs it cleared.
+  Three resolution paths, in preferred order: the healer workflow
+  (`.github/workflows/rerun-stale-all-checks.yml`) picks it up automatically on a
+  heavy-workflow rerun; manual rerun of the aggregator job; **admin merge override**
+  when the aggregator is genuinely stuck despite clean underlying lanes. The brief
+  names which path the merger is expected to use.
 - **No unresolved rabbit Actionable.** Every CodeRabbit "Actionable" finding needs its
   own finding-specific evidence of resolution: addressed in a subsequent commit
   (confirmed by rabbit's auto-ack **or** by the shepherd's diff inspection against the

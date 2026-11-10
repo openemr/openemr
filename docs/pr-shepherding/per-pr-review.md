@@ -325,18 +325,27 @@ Not every green rollup is cleanly green. Call out explicitly:
 - **SKIPPED lanes.** Inferno is often SKIPPED on forks (expected); other skips may be
   conditional on label.
 - **FAILURE lanes** — the PR is held; name the lane in the brief. Two exceptions, both
-  advisory:
+  advisory *for the health classification* (the PR's lane breakdown doesn't block the
+  review itself):
   - A solo `codecov/patch` or `codecov/project` FAILURE with a green "All Checks Passed"
     aggregator is OK; those are advisory status checks.
   - A solo `All Checks Passed` aggregator FAILURE (or aggregator + codecov/* FAILURE
-    only) with every underlying lane SUCCESS or SKIPPED is OK — a known GitHub
-    aggregator-glitch where a dependent check didn't register SUCCESS but no real lane
-    failed. Note it explicitly in the brief ("aggregator glitch; underlying lanes clean").
+    only) with every *other* underlying lane SUCCESS or SKIPPED is OK for health
+    classification — a dependent check didn't register SUCCESS but no real lane failed.
+    The aggregator is still a required merge check, so merge itself needs it to clear.
+    Three resolution paths, in preferred order: the healer workflow
+    (`.github/workflows/rerun-stale-all-checks.yml`) picks it up automatically when it
+    fires on a heavy-workflow rerun; manual rerun of the aggregator job; **admin merge
+    override** when the aggregator is genuinely stuck despite clean underlying lanes
+    (the healer only triggers on four heavy workflows, and GitHub's checks API can
+    stay red through multiple reruns). Note state + expected path in the brief
+    ("aggregator stuck; underlying lanes clean; expect manual rerun / admin merge
+    override").
 
 A common masking pattern: "All Checks Passed" job shows FAILURE because it depends on a
 preceding CANCELLED or FAILURE. The underlying lane is what matters; the aggregator is
 derivative — true whether the dependency is real (in which case the underlying lane is
-the stopper) or spurious (the glitch case above).
+the stopper) or spurious (the aggregator-stuck case above).
 
 ---
 
@@ -387,7 +396,9 @@ Some patterns that should move a verdict from `✅ Merge-ready` to `🔶 residua
 
 - Open rabbit Actionable that isn't withdrawn or addressed.
 - Open maintainer `CHANGES_REQUESTED` with no evidence of substantive resolution.
-- CI FAILURE in any lane that isn't title-lint-superseded or advisory codecov/*.
+- CI FAILURE in any lane that isn't title-lint-superseded, advisory codecov/*, or a
+  solo `All Checks Passed` aggregator with every other underlying lane SUCCESS or
+  SKIPPED (see §8 for the aggregator exception and its resolution paths).
 - Baseline entries added (not removed).
 - A convention violation flagged by `AGENTS.md` that would land `mixed`, cast, or
   un-ignored data provider.
