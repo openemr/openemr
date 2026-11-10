@@ -614,8 +614,6 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      *
      * doseQuantity is prescriptions.size + unit_title as a decimal (FHIR
      * Quantity.value), not intval(), so 0.5 mg stays 0.5 (#14703).
-     *
-     * @param array<string, mixed> $dataRecord
      */
     public function populateDosageInstruction(FHIRMedicationRequest $medRequestResource, array $dataRecord): void
     {
