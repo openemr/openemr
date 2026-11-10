@@ -125,9 +125,12 @@ $assessmentStatusClass = (static fn(string $status): string => match ($status) {
     default => 'badge-info',
 });
 
+// Grouped by category id, not title: two ids can share a title (a fallback title, or two list
+// options named alike), and each group keeps its own fold state. The key is the user setting
+// that remembers whether the group is folded away.
 $questionnairesByCategory = [];
-// category title => the user setting that remembers whether its group is folded away
-$categorySections = [];
+// the same keys => the heading shown for the group
+$categoryTitles = [];
 $smartLaunchesSection = 'questionnaire_smart_launches_expand';
 // questionnaire id => the SMART apps it may be launched into. Empty unless a SMART
 // availability rule reaches the questionnaire, so the launch menu is offered only for
@@ -162,12 +165,13 @@ if ($authorized && $pid > 0) {
                 : xl('Unassigned');
         }
 
-        $questionnairesByCategory[$categoryTitle][] = $questionnaireRecord;
-        // Keyed by a hash of the whole list option id, not the title, so the choice survives a
-        // language change and ids that differ only in punctuation keep separate states.
-        $categorySections[$categoryTitle] ??= 'questionnaire_category_'
+        // A hash of the whole list option id, so the choice survives a language change and ids
+        // that differ only in punctuation keep separate states.
+        $categorySection = 'questionnaire_category_'
             . ($category !== '' ? hash('xxh3', $category) : 'unassigned')
             . '_expand';
+        $questionnairesByCategory[$categorySection][] = $questionnaireRecord;
+        $categoryTitles[$categorySection] ??= $categoryTitle;
     }
 
     $assessmentHistory = QueryUtils::fetchRecordsNoLog(
@@ -220,7 +224,7 @@ if ($authorized && $pid > 0) {
     }
 }
 
-$collapsedSections = CollapsedSections::forCurrentUser([$smartLaunchesSection, ...array_values($categorySections)]);
+$collapsedSections = CollapsedSections::forCurrentUser([$smartLaunchesSection, ...array_keys($questionnairesByCategory)]);
 
 $nativeQuestionnaireUrl = $webRoot . '/interface/forms/questionnaire_assessments/native_questionnaire.php';
 $smartLaunchUrl = $webRoot . '/interface/smart/ehr-launch-client.php';
@@ -454,9 +458,9 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         <?php if ($questionnairesByCategory === []) : ?>
                             <div class="text-muted"><?php echo xlt('No active FHIR Questionnaires are available.'); ?></div>
                         <?php else : ?>
-                            <?php foreach ($questionnairesByCategory as $categoryTitle => $questionnaires) : ?>
+                            <?php foreach ($questionnairesByCategory as $categorySection => $questionnaires) : ?>
                                 <?php
-                                $categorySection = $categorySections[$categoryTitle];
+                                $categoryTitle = $categoryTitles[$categorySection];
                                 $categoryCollapsed = $collapsedSections->isCollapsed($categorySection);
                                 ?>
                                 <h5 class="mt-2 mb-3">
