@@ -16,10 +16,12 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
@@ -188,6 +190,16 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
     // so it is a template file import. create record(s).
     $import_files = $_FILES["template_files"];
     $total = count($_FILES['template_files']['name']);
+    // Check every file before saving any, so a JSON file in the selection refuses it whole
+    // rather than leaving the templates before it saved and the ones after it not.
+    foreach (CurrentRequest::get()->files->all('template_files') as $upload) {
+        if ($upload instanceof UploadedFile && DocumentTemplateService::isJsonFile($upload->getPathname())) {
+            header('refresh:3;url= import_template_ui.php');
+            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
+                xlt('JSON files are not templates. Use Import Questionnaires for a FHIR Questionnaire.') . '</h4>';
+            exit;
+        }
+    }
     for ($i = 0; $i < $total; $i++) {
         if ($_FILES['template_files']['error'][$i] !== UPLOAD_ERR_OK) {
             header('refresh:3;url= import_template_ui.php');

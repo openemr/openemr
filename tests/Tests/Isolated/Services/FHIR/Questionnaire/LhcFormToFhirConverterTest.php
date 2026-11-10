@@ -312,6 +312,7 @@ class LhcFormToFhirConverterTest extends TestCase
         return [
             'hide action' => [['action' => 'hide', 'conditions' => [['source' => '/src', 'trigger' => ['value' => ['code' => 'A']]]]]],
             'unknown source' => [['conditions' => [['source' => '/missing', 'trigger' => ['value' => ['code' => 'A']]]]]],
+            'range with both bounds' => [['conditions' => [['source' => '/src', 'trigger' => ['minInclusive' => 5, 'maxExclusive' => 10]]]]],
         ];
     }
 

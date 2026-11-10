@@ -119,7 +119,7 @@ class QuestionnaireImportController
                     $post->getString('name') !== '' ? $post->getString('name') : null
                 ))),
                 'import' => $this->import($post, $canAssign),
-                'loinc_search' => new JsonResponse(['results' => $this->loinc->search($post->getString('terms'))]),
+                'loinc_search' => $this->loincSearch($post->getString('terms')),
                 'loinc_fetch' => $this->loincForm($post->getString('loinc_number')),
                 default => new JsonResponse(['error' => xl('Unknown action.')], Response::HTTP_BAD_REQUEST),
             };
@@ -127,15 +127,27 @@ class QuestionnaireImportController
             $this->logger->info('Questionnaire import refused', ['refusal' => $e->refusal->name, 'exception' => $e]);
 
             return new JsonResponse(['error' => self::refusalMessage($e->refusal)], Response::HTTP_UNPROCESSABLE_ENTITY);
-        } catch (LoincFormUnavailable | InvalidArgumentException $e) {
-            // NLM being down, or a form it has no usable definition for, leaves the rest of
-            // the screen working; the file and paste sources do not depend on it.
-            $this->logger->warning('LOINC form request failed', ['exception' => $e]);
+        } catch (InvalidArgumentException $e) {
+            // A reviewed or imported resource with a field the FHIR model rejects. The LOINC
+            // actions handle their own failures, so this is always the file or paste source.
+            $this->logger->info('Questionnaire import refused', ['refusal' => QuestionnaireImportRefusal::InvalidJson->name, 'exception' => $e]);
 
             return new JsonResponse(
-                ['error' => xl('That LOINC form could not be loaded. Try again, or import it from a file.')],
-                Response::HTTP_BAD_GATEWAY
+                ['error' => self::refusalMessage(QuestionnaireImportRefusal::InvalidJson)],
+                Response::HTTP_UNPROCESSABLE_ENTITY
             );
+        }
+    }
+
+    /**
+     * Search NLM's LOINC forms by name or code.
+     */
+    private function loincSearch(string $terms): JsonResponse
+    {
+        try {
+            return new JsonResponse(['results' => $this->loinc->search($terms)]);
+        } catch (LoincFormUnavailable $e) {
+            return $this->loincUnavailable($e);
         }
     }
 
@@ -144,7 +156,11 @@ class QuestionnaireImportController
      */
     private function loincForm(string $loincNumber): JsonResponse
     {
-        $conversion = $this->converter->convert($this->loinc->fetch($loincNumber));
+        try {
+            $conversion = $this->converter->convert($this->loinc->fetch($loincNumber));
+        } catch (LoincFormUnavailable | InvalidArgumentException $e) {
+            return $this->loincUnavailable($e);
+        }
         $json = json_encode($conversion->questionnaire, JSON_THROW_ON_ERROR);
 
         $notes = [];
@@ -153,6 +169,20 @@ class QuestionnaireImportController
         }
 
         return new JsonResponse(['json' => $json, 'notes' => $notes]);
+    }
+
+    /**
+     * NLM being down, or a form it has no usable definition for, leaves the rest of the
+     * screen working; the file and paste sources do not depend on it.
+     */
+    private function loincUnavailable(LoincFormUnavailable | InvalidArgumentException $e): JsonResponse
+    {
+        $this->logger->warning('LOINC form request failed', ['exception' => $e]);
+
+        return new JsonResponse(
+            ['error' => xl('That LOINC form could not be loaded. Try again, or import it from a file.')],
+            Response::HTTP_BAD_GATEWAY
+        );
     }
 
     /**

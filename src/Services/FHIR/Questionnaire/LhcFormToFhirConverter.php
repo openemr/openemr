@@ -492,6 +492,12 @@ final class LhcFormToFhirConverter
         if (array_key_exists('exists', $trigger) && is_bool($trigger['exists'])) {
             return $base + ['operator' => 'exists', 'answerBoolean' => $trigger['exists']];
         }
+        // One trigger can hold both ends of a range, which a single enableWhen cannot. Report
+        // it rather than keep one bound and show the item where the source form hides it.
+        $bounds = array_intersect_key($trigger, self::RANGE_OPERATORS);
+        if (count($bounds) > 1) {
+            return null;
+        }
         foreach (self::RANGE_OPERATORS as $key => $operator) {
             if (array_key_exists($key, $trigger)) {
                 $answer = self::conditionAnswer($trigger[$key], $source['type']);

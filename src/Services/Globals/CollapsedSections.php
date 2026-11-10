@@ -5,7 +5,7 @@
  *
  * Uses the same per-user settings as the patient dashboard cards: library/ajax/user_settings.php
  * stores "0" under a key ending in _expand when a section is collapsed and "1" when it is
- * opened again. A section with no setting starts open.
+ * opened again. A section the user never set starts open.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -30,13 +30,23 @@ final readonly class CollapsedSections
     }
 
     /**
+     * Read the current user's own choices.
+     *
+     * Only the user's own row counts. Saving a setting also stores the first user's choice
+     * as a default for everyone, and taking that would fold sections, such as the import
+     * controls, for users who never chose to.
+     *
      * @param list<string> $sections setting keys, each ending in _expand
      */
     public static function forCurrentUser(array $sections): self
     {
+        $user = filter_var(UserSettingsService::effectiveUser(null), FILTER_VALIDATE_INT);
+        if ($user === false) {
+            return new self();
+        }
         $collapsed = [];
         foreach ($sections as $section) {
-            if (UserSettingsService::getUserSetting($section) === self::COLLAPSED) {
+            if (UserSettingsService::getUserSetting($section, $user, $user) === self::COLLAPSED) {
                 $collapsed[] = $section;
             }
         }

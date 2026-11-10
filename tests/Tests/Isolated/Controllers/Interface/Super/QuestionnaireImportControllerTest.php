@@ -129,6 +129,16 @@ class QuestionnaireImportControllerTest extends TestCase
         $this->assertSame('Reviewed', self::decode($response)['name']);
     }
 
+    public function testAFileTheFhirModelRejectsIsInvalidJsonNotALoincFailure(): void
+    {
+        $this->importer->rejectByModel = true;
+
+        $response = $this->controller()->handlePost(self::post(['action' => 'import']), true);
+
+        $this->assertSame(422, $response->getStatusCode());
+        $this->assertSame(['error' => 'This is not valid FHIR Questionnaire JSON.'], self::decode($response));
+    }
+
     public function testARefusalIsReportedInWordsNotTheExceptionMessage(): void
     {
         $this->importer->refuseWith = QuestionnaireImportRefusal::MissingCategory;
@@ -286,6 +296,7 @@ final class FakeQuestionnaireImporter extends QuestionnaireImportService
     public ?QuestionnaireImportRequest $received = null;
     public ?string $reviewedName = 'not called';
     public ?QuestionnaireImportRefusal $refuseWith = null;
+    public bool $rejectByModel = false;
 
     /** @var ?array{name: string, json: string} */
     public ?array $preview = null;
@@ -308,6 +319,9 @@ final class FakeQuestionnaireImporter extends QuestionnaireImportService
     {
         if ($this->refuseWith !== null) {
             throw new QuestionnaireImportRefused($this->refuseWith);
+        }
+        if ($this->rejectByModel) {
+            throw new \InvalidArgumentException('Invalid value for FHIRQuestionnaire field');
         }
         $this->received = $request;
 

@@ -540,6 +540,16 @@ class DocumentTemplateService extends QuestionnaireService
     }
 
     /**
+     * Whether an uploaded file holds JSON, such as a FHIR Questionnaire, rather than a template.
+     */
+    public static function isJsonFile(string $path): bool
+    {
+        $content = is_file($path) ? file_get_contents($path) : false;
+
+        return is_string($content) && is_array(json_decode($content, true));
+    }
+
+    /**
      * @param       $template_name
      * @param       $category
      * @param       $file
@@ -565,7 +575,7 @@ class DocumentTemplateService extends QuestionnaireService
         $content = file_get_contents($file);
 
         $id = 0;
-        if (is_array(json_decode($content, true))) {
+        if (is_string($file) && self::isJsonFile($file)) {
             throw new Exception(xlt('JSON files are not templates. Use Import Questionnaires for a FHIR Questionnaire.'));
         }
         foreach ($pids as $pid) {
