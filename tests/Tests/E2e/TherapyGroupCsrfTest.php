@@ -225,7 +225,7 @@ class TherapyGroupCsrfTest extends PantherTestCase
      */
     private function openPatientInAnotherTab(): void
     {
-        $this->client->switchTo()->defaultContent();
+        $this->waitForPageLoadsToFinish();
         $status = $this->client->executeAsyncScript(
             <<<'JS'
             const done = arguments[arguments.length - 1];
@@ -240,12 +240,43 @@ class TherapyGroupCsrfTest extends PantherTestCase
     }
 
     /**
+     * Wait until the app shell and every frame in it have finished loading,
+     * with no jQuery request pending. Opening a group loads the list,
+     * details, and encounter tabs at once; a request still running when the
+     * patient opens can write its older session back over the open patient.
+     */
+    private function waitForPageLoadsToFinish(): void
+    {
+        $this->client->switchTo()->defaultContent();
+        $this->client->wait(30)->until(
+            fn(): bool => $this->client->executeScript(
+                <<<'JS'
+                function settled(win) {
+                    if (win.document.readyState !== 'complete' || (win.jQuery && win.jQuery.active > 0)) {
+                        return false;
+                    }
+                    for (let i = 0; i < win.frames.length; i++) {
+                        if (!settled(win.frames[i])) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return settled(window);
+                JS
+            ) === true,
+            'The app shell and its frames did not finish loading'
+        );
+    }
+
+    /**
      * Opening the group again without the token is allowed only when it is
      * already the open group and no patient is open, so a 200 shows that the
      * link reopened the group and closed the patient.
      */
     private function assertGroupReopened(string $link): void
     {
+        $this->waitForPageLoadsToFinish();
         $this->assertSame(200, $this->groupDetailsStatusWithoutToken(), $link . ' should reopen the group and close the patient');
     }
 
