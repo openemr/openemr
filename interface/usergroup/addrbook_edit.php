@@ -894,7 +894,7 @@ if ($type) { // note this only happens when its new
         <label for="form_country_code2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Country'); ?>:</label>
     </div>
     <div class="col">
-        <?php echo generate_select_list('form_country_code2', 'country', ($row['country_code'] ?? null), '', 'Unassigned', 'form-control-sm'); ?>
+        <?php echo generate_select_list('form_country_code2', 'country', ($row['country_code2'] ?? null), '', 'Unassigned', 'form-control-sm'); ?>
     </div>
 </div>
 
