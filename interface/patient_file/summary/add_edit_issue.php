@@ -353,6 +353,7 @@ function getCodeText($code)
 <html>
 <head>
 <?php Header::setupHeader(['common', 'datetime-picker', 'select2']); ?>
+<script src="<?php echo $webroot ?>/library/js/issue_medication_search.js?v=<?php echo $v_js_includes; ?>"></script>
 <title><?php echo ($issue) ? xlt('Edit Issue') : xlt('Add New Issue'); ?></title>
 
 <style>
@@ -629,66 +630,6 @@ function getCodeText($code)
         issueMedicationSearchRequest = null;
     }
 
-    function parseIssueMedicationResult(row) {
-        if (!row || typeof row.DT_RowId !== 'string' || row.DT_RowId.indexOf('CID|') !== 0) {
-            return null;
-        }
-
-        let payload = null;
-        try {
-            payload = JSON.parse(row.DT_RowId.substring(4));
-        } catch (error) {
-            console.error('Unable to parse OpenEMR code-search result', error);
-            return null;
-        }
-
-        if (payload === null || typeof payload !== 'object' || Array.isArray(payload)) {
-            return null;
-        }
-
-        const code = payload.code !== undefined ? String(payload.code).split('|')[0] : '';
-        const description = payload.description !== undefined ? String(payload.description) : '';
-        const codeType = payload.codetype ? String(payload.codetype) : '';
-
-        if (!code || !description || !codeType) {
-            return null;
-        }
-
-        return {
-            code: code,
-            codeType: codeType,
-            description: description
-        };
-    }
-
-    function scoreIssueMedicationResult(item, term) {
-        const description = item.description.toLowerCase();
-        const query = term.trim().toLowerCase();
-
-        if (!query) {
-            return 0;
-        }
-        if (description === query) {
-            return 1000;
-        }
-        if (description.startsWith(query)) {
-            return 950;
-        }
-        if (description.includes('[' + query) || description.includes('(' + query)) {
-            return 925;
-        }
-
-        const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const boundary = new RegExp('(^|[^a-z0-9])' + escaped, 'i');
-        if (boundary.test(description)) {
-            return 900;
-        }
-        if (description.includes(query)) {
-            return 500;
-        }
-        return 0;
-    }
-
     function renderIssueMedicationResults(items, term) {
         const results = document.getElementById('issue_medication_search_results');
         if (!results) {
@@ -840,33 +781,9 @@ function getCodeText($code)
             }
 
             const rows = data && Array.isArray(data.aaData) ? data.aaData : [];
-            const seen = new Set();
+            const items = issueMedicationSearch.rankResults(rows, term, 25);
 
-            let items = rows
-                .map((row) => parseIssueMedicationResult(row))
-                .filter((item) => item !== null)
-                .filter(function(item) {
-                    const key = item.codeType + ':' + item.code;
-                    if (seen.has(key)) {
-                        return false;
-                    }
-                    seen.add(key);
-                    return true;
-                });
-
-            items.sort(function(a, b) {
-                const scoreDifference =
-                    scoreIssueMedicationResult(b, term) -
-                    scoreIssueMedicationResult(a, term);
-
-                if (scoreDifference !== 0) {
-                    return scoreDifference;
-                }
-
-                return a.description.localeCompare(b.description);
-            });
-
-            renderIssueMedicationResults(items.slice(0, 25), term);
+            renderIssueMedicationResults(items, term);
         }).fail(function(xhr, status) {
             if (status !== 'abort') {
                 console.error('Medication search failed', status);
