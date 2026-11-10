@@ -150,13 +150,14 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   primary — but the aggregator is a required merge check, so merge needs it cleared.
   Three resolution paths, in preferred order: the healer workflow
   (`.github/workflows/rerun-stale-all-checks.yml`) reruns the aggregator
-  automatically after a heavy-workflow rerun, and may give up after multiple
-  attempts (cap lives in the workflow file); a **maintainer manually reruns** the
-  aggregator job via the GitHub UI's "Re-run jobs" button when the healer can't
-  (triggering workflow not in its list) or has given up; an **admin uses merge
-  override** when the aggregator is genuinely stuck despite clean underlying lanes.
-  The shepherd *observes* and names the expected path in the brief — the shepherd
-  doesn't trigger any of these itself.
+  automatically after a heavy-workflow rerun, and may leave it red for any
+  mechanical reason (cap reached, out-of-scope trigger, in-progress sibling,
+  etc. — specifics live in the workflow file); a **maintainer manually reruns**
+  the aggregator job via the GitHub UI's "Re-run jobs" button when the healer
+  leaves it red; an **admin uses merge override** when the aggregator is
+  genuinely stuck despite clean underlying lanes. The shepherd *observes* and
+  names the expected path in the brief — the shepherd doesn't trigger any of
+  these itself.
 - **No unresolved rabbit Actionable.** Every CodeRabbit "Actionable" finding needs its
   own finding-specific evidence of resolution: addressed in a subsequent commit
   (confirmed by rabbit's auto-ack **or** by the shepherd's diff inspection against the

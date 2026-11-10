@@ -97,7 +97,7 @@ Collect the following signals per PR:
 
 - All `SUCCESS` or `SKIPPED` (+ at most 1 `CANCELLED` that's title-lint-superseded) → `OK`
 - Any `FAILURE` outside `codecov/*` and `All Checks Passed` → `FAIL`, **except** when it matches the flake exception in the next bullet. Both are advisory *for the health classification*: `codecov/patch` + `codecov/project` don't fail the aggregator (a solo codecov FAILURE with green aggregator is OK); and a solo `All Checks Passed` aggregator FAILURE (or aggregator + codecov/* only) with every *other* underlying lane SUCCESS or SKIPPED is also OK for health — treat the same as codecov-only. The aggregator is still a required merge check; see per-pr-review §8 for resolution paths (healer / manual rerun / admin merge override).
-- A single `FAILURE` lane that may be a flake (scope-unrelated to the PR's changed-file surface, or known-flaky on master) → classify as `FAIL?` pending. Place in ⏳ awaiting shepherd review with a "flake candidate, rerun pending" note; Phase 2 runs the rerun-based triage per per-pr-review §8. Rerun clears → treat as `OK` for the brief (advances to ✅ or 🔶). Rerun still red, or failure is scope-related → promote to 🔴 held.
+- A single `FAILURE` lane **scope-unrelated** to the PR's changed-file surface (test file not in the PR's changed files and not transitively reached) → classify as `FAIL?` pending. A known-flaky-on-master lane qualifies only when also scope-unrelated; a scope-related failure never qualifies as a flake candidate regardless of flakiness history. Place in ⏳ awaiting shepherd review with a "flake candidate, rerun pending" note (only when the other metadata gates pass — draft, `CHANGES_REQUESTED`, mergeable still rule); Phase 2 runs the rerun-based triage per per-pr-review §8. Rerun clears → treat as `OK` for the brief (advances to ✅ or 🔶). Rerun still red → promote to 🔴 held.
 - Many `CANCELLED` + no `FAILURE` → `CRED` (concurrency-redeemed; usually in-flight
   re-run — recheck in 5-10m)
 - Lanes `IN_PROGRESS` > 24 h on a non-dormant PR with aggregator NULL → `STALE` → 🔴
@@ -131,9 +131,13 @@ Every decision-gate metadata row passes (non-draft, CI green, no open maintainer
 `CHANGES_REQUESTED`, mergeable). No brief yet, OR the brief's recorded head/base-tip
 no longer matches (author pushed, or base branch advanced). Feeds Phase 2.
 
-`FAIL?` flake candidates (see §2) also enter this bucket with a "flake candidate,
-rerun pending" flag so Phase 2 can run the rerun triage before committing to a
-final bucket; they resolve to ✅ / 🔶 on rerun-clear or 🔴 on rerun-still-red.
+`FAIL?` flake candidates (see §2) enter this bucket **only when the other
+metadata gates pass** (non-draft, no open maintainer `CHANGES_REQUESTED`,
+mergeable); a draft / `CHANGES_REQUESTED` / conflicting PR with a `FAIL?` lane
+stays in its existing bucket with the flake note recorded in that bucket's log
+entry. When routed to ⏳, flag as "flake candidate, rerun pending" so Phase 2
+can run the rerun triage — a cleared rerun advances to ✅ / 🔶 once the brief
+is written; a still-red rerun promotes to 🔴 held.
 
 #### ✅ Merge-ready
 
