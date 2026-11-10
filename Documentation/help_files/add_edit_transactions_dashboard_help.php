@@ -83,11 +83,11 @@ require_once("../../interface/globals.php");
 
                     <div class="alert alert-info">
                     <h4><?php echo xlt("Referral Tracking With Tasks"); ?></h4>
-                    <p><?php echo xlt("When Track Referrals with FHIR Tasks is turned on in the Connectors settings, saving a referral creates a task for the Refer To recipient");?>.</p>
+                    <p><?php echo xlt("When Track Referrals with FHIR Tasks is turned on in the Connectors settings, saving a referral that has no Reply Date creates a task for the Refer To recipient");?>.</p>
                     <p><?php echo xlt("The recipient must have an NPI, or be an External Organization in the Address Book");?>.</p>
                     <p><?php echo xlt("The referral then shows the status of that task: Draft, Requested, Received, Accepted, Ready, In Progress, On Hold, Completed, Rejected, Failed, Cancelled or Entered in Error");?>.</p>
                     <p><?php echo xlt("A recipient connected through the API changes this status, and the Refer By provider gets a message when the referral is accepted, rejected, completed, failed or cancelled");?>.</p>
-                    <p><?php echo xlt("Changing Refer To and saving cancels the first recipient's task if it is still open, and creates one for the new recipient");?>.</p>
+                    <p><?php echo xlt("Changing Refer To and saving cancels the first recipient's task if it is still open. The new recipient gets a task only when the referral has no Reply Date and the new recipient has an NPI or is an External Organization");?>.</p>
                     </div>
 
                     <p><?php echo xlt("Re-send appears when the recipient rejected, failed or cancelled the referral and no reply is recorded");?>.</p>
@@ -110,7 +110,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("It therefore stands to reason that you cannot create a Counter-Referral by itself");?>.</p>
 
                     <p><?php echo xlt("With referral tracking turned on, saving a Reply Date files the reply in the patient's documents as a consult note and completes the referral");?>.</p>
-                    <p><?php echo xlt("Clearing a Reply Date that was saved by mistake reopens the referral, unless the recipient had already completed it through the API");?>.</p>
+                    <p><?php echo xlt("Clearing a Reply Date that was saved by mistake reopens the referral when that reply is what completed it. A referral the recipient had already completed, rejected, failed or cancelled keeps showing that status");?>.</p>
                     <p><?php echo xlt("A reply received by Direct message is listed on this page with a Confirm it completes the referral button");?>.</p>
                     <p><?php echo xlt("Read the reply first, as it may be a question or a refusal, then confirm");?>.</p>
 

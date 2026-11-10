@@ -164,7 +164,9 @@ Accept: application/json
 - Refer By and Refer To are found by NPI (`referByNpi`, `referToNpi`).
 - With the **Track Referrals with FHIR Tasks** global on, the referral gets a FHIR Task for its
   recipient, and is readable as a FHIR ServiceRequest. No Task is made when FHIR cannot serve
-  Refer To as a Practitioner or an Organization, such as a practitioner without an NPI.
+  Refer To as a Practitioner or an Organization, such as a practitioner without an NPI, or when
+  the referral already has a Reply Date. A `PUT` of an answered referral therefore creates none.
+  See [when a Task is made](../REFERRAL_WORKFLOWS.md#setup).
 - The API does not write the Reply Date, so it cannot close a referral.
 - `authorization`, `visits`, `validFrom` and `validThrough` are stored, but the stock referral
   form has no fields for them.

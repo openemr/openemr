@@ -85,9 +85,21 @@ Reply: consult note (LOINC 11488-4), services delivered, results
 | Notify Referral Recipients (`fhir_referral_notify_recipient`) | Config > Connectors | Off | Tells the recipient about a new Task, by Direct or email. Needs the global above. |
 | Referrals Overdue After (Days) (`referral_overdue_days`) | Config > Report | 14 | An open referral shows as overdue this many days after its Referral Date. 0 turns it off. |
 
+**When a Task is made**
+
+Saving a referral makes a Task for Refer To only when all of these are true:
+
+- Task tracking is on.
+- The referral has no Reply Date. An answered referral never gets a new Task.
+- Refer To can own a Task (the table below).
+- Refer To does not already have a Task for this referral that still counts, whatever its status.
+
+A referral that missed its Task gets one the next time it is saved with all four true. For a
+recipient that could not own one, fix the recipient first (add the NPI), then save the referral.
+
 **Who can own a Task**
 
-A Task is only made when FHIR serves Refer To as a Practitioner or an Organization:
+FHIR must serve Refer To as a Practitioner or an Organization:
 
 | Refer To is | Needs | Served as |
 |---|---|---|
@@ -343,12 +355,13 @@ referral has no Reply Date.
 1. The first recipient's open Task is cancelled with the reason "The referral was sent to
    another recipient." It leaves their queue, and their limited client can no longer read the
    referral. A Task they had already completed, rejected, failed or cancelled keeps its status.
-2. The new recipient gets a Task.
+2. The new recipient gets a Task, under the conditions in [Setup](#setup). If the referral
+   already has a Reply Date, or the new recipient cannot own a Task, there is none.
 
 **Reply entered by mistake.** Clear the Reply Date and save. The Task the reply completed is
 marked entered-in-error, and the recipient gets a new one. The filed reply stays in the
-patient's documents. A Task the recipient completed itself, through the API, is not undone: that
-referral still shows Completed.
+patient's documents. A Task the recipient finished itself through the API is not undone: a referral
+the recipient completed, rejected, failed or cancelled keeps showing that status.
 
 **Referral or patient deleted.** Open Tasks are cancelled with the reason.
 

@@ -616,9 +616,11 @@ Whatever scopes the client holds, it can then only call:
 - The limit is read on every request, so setting or removing it takes effect at once, for
   tokens already issued too.
 - A referral is readable only while the entry is Refer To and has a Task for it. A referral saved
-  before tracking was on, or to a recipient that cannot own a Task, has none: save it again with
-  **Track Referrals with FHIR Tasks** on to create one. See
-  [who can own a Task](../REFERRAL_WORKFLOWS.md#setup).
+  before tracking was on, or to a recipient that could not own a Task, has none. To create one,
+  first make the recipient able to own a Task (add its missing NPI, for example), then save the
+  referral with **Track Referrals with FHIR Tasks** on. A referral that already has a Reply Date
+  never gets a Task, so a limited client cannot read it. See
+  [when a Task is made](../REFERRAL_WORKFLOWS.md#setup).
 - A referral sent to someone else stops being readable. The earlier recipient's open Task is
   cancelled and kept as a record; a Task it had already finished keeps its status.
 
