@@ -49,8 +49,15 @@ Do **not** open this document when you are writing a PR of your own (consult
 
 **Reviewing a single PR outside a batch** skips Phase 1: read
 [standing-rules.md](standing-rules.md), then run [per-pr-review.md](per-pr-review.md) on
-that PR and save the brief. The decision gate (§5) applies as written. The workstream doc
-and shepherd log are optional for a one-off review.
+that PR and save the brief. The decision gate (§5) applies as written. In place of the
+Phase 1 output that per-pr-review expects, write the PR's one-line scope summary yourself
+and check the gate's metadata rows first (draft state, CI, mergeable, review decision);
+if one fails, the PR is held and gets a note naming the blocker, not a deep review.
+
+The workstream doc and shepherd log are optional for a one-off review. A non-blocking
+residual still needs a follow-up register entry: add it to the area's workstream doc when
+one exists; otherwise the brief's "Follow-ups to track" section is the record, and the
+maintainer decides whether it becomes an issue.
 
 ---
 

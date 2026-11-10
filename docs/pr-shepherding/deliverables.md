@@ -127,9 +127,9 @@ Standing rules:
 
 ## Legend
 
-Same emojis and meanings as [standing-rules §9](standing-rules.md#9-classification-emoji-legend):
+Same emojis and meanings as standing-rules §9 (`docs/pr-shepherding/standing-rules.md` in the repo):
 
-- ⏳ **Awaiting shepherd review** — metadata passes; no brief yet
+- ⏳ **Awaiting shepherd review** — metadata passes; no brief yet, or the brief's reviewed head or base tip no longer matches
 - ✅ **Merge-ready** — brief with approve verdict; decision gate passes
 - 🔶 **Merge-ready with known residual** — as ✅; the brief captures one non-blocking concern
 - 🔴 **Held** — a decision-gate row fails; the entry names the blocker and its owner
