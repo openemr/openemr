@@ -7032,36 +7032,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/procedure_order/procedure_order_save_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'ob_reason_text\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/templates/procedure_reason_row.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'reason_code\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/templates/procedure_reason_row.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'reason_date_high\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/templates/procedure_reason_row.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'reason_date_low\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/templates/procedure_reason_row.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'reason_status\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/templates/procedure_reason_row.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'reason_text\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/templates/procedure_reason_row.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'accession_identifier\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/procedure_order/templates/procedure_specimen_row.php',
