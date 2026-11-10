@@ -23,4 +23,17 @@ enum InsuranceLevel: string
     case Primary = 'primary';
     case Secondary = 'secondary';
     case Tertiary = 'tertiary';
+
+    /**
+     * The level's number, 1 to 3, as HL7 IN1-22 (coordination of benefits
+     * priority) sends it: 1 primary, 2 secondary, 3 tertiary.
+     */
+    public function number(): int
+    {
+        return match ($this) {
+            self::Primary => 1,
+            self::Secondary => 2,
+            self::Tertiary => 3,
+        };
+    }
 }
