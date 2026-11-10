@@ -373,6 +373,11 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
                 [$pid]
             );
         }
+        // Saving the questionnaire also assigned it to the dashboard; that row goes first.
+        $questionnaires = QueryUtils::fetchTableColumn('SELECT id FROM questionnaire_repository WHERE name LIKE ?', 'id', [self::FIXTURE_MARKER . ' %']);
+        foreach ($questionnaires as $id) {
+            QueryUtils::sqlStatementThrowException("DELETE FROM content_assignments WHERE resource_type = 'questionnaire' AND resource_id = ?", [$id]);
+        }
         QueryUtils::sqlStatementThrowException(
             'DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM questionnaire_repository WHERE name LIKE ?)',
             [self::FIXTURE_MARKER . ' %']
