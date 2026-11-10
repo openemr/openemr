@@ -35,8 +35,15 @@ class SentinelUtil
      * Safe ceiling (milliseconds) for any per-command WAIT timeout, with a
      * 500 ms margin below the socket read timeout to let the WAIT reply
      * reach the client before the socket read times out.
+     *
+     * Hardcoded to 2500 (= REDIS_READ_TIMEOUT_SECONDS * 1000 - 500 margin)
+     * because PHP 8.3 constant expressions disallow casts, and the float-
+     * math form (3.0 * 1000 - 500 = 2500.0) resolves to a float which the
+     * declared `int` property type on $redisSessionWaitTimeoutMs would
+     * silently coerce via min(). Keeping the const an int keeps the
+     * invariant visible. Update alongside REDIS_READ_TIMEOUT_SECONDS.
      */
-    public const WAIT_TIMEOUT_CEILING_MS = (int) (self::REDIS_READ_TIMEOUT_SECONDS * 1000) - 500;
+    public const WAIT_TIMEOUT_CEILING_MS = 2500;
 
     private static string $sentinelCa = 'redis-sentinel-ca';
     private static string $sentinelCert = 'redis-sentinel-cert';
