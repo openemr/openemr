@@ -341,14 +341,15 @@ Not every green rollup is cleanly green. Call out explicitly:
     classification — a dependent check didn't register SUCCESS but no real lane failed.
     The aggregator is still a required merge check, so merge itself needs it to clear.
     Three resolution paths, in preferred order: the healer workflow
-    (`.github/workflows/rerun-stale-all-checks.yml`) picks it up automatically when it
-    fires on a heavy-workflow rerun, capped at 5 rerun attempts per aggregator run;
-    manual rerun of the aggregator job when the healer can't or won't (triggering
-    workflow not in the healer's list of four, cap reached, or GitHub's checks API is
-    stuck through multiple reruns); **admin merge override** when the aggregator is
-    genuinely stuck despite clean underlying lanes. Note state + expected path in the
-    brief ("aggregator stuck; underlying lanes clean; expect manual rerun / admin
-    merge override").
+    (`.github/workflows/rerun-stale-all-checks.yml`) reruns the aggregator
+    automatically after a heavy-workflow rerun, and may give up after multiple
+    attempts (cap lives in the workflow file); a **maintainer manually reruns** the
+    aggregator job via the GitHub UI's "Re-run jobs" button when the healer can't
+    (triggering workflow not in its list) or has given up; an **admin uses merge
+    override** when the aggregator is genuinely stuck despite clean underlying lanes.
+    The shepherd *observes* and names the expected path in the brief ("aggregator
+    stuck; underlying lanes clean; expect manual rerun by maintainer / admin merge
+    override") — the shepherd doesn't trigger any of these itself.
   - A single FAILURE lane clearly outside the PR's changed-file surface (e.g., an e2e
     lane on an unrelated feature), or a lane known-flaky on master, may be a flake.
     Request a rerun; cleared on rerun → record "flake, cleared on rerun" in the brief
