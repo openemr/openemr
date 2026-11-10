@@ -35,4 +35,16 @@ final class CoverageDay
         $ymd = is_string($value) ? DateFormatterUtils::dbDateToYmd(substr($value, 0, 10)) : null;
         return $ymd === null ? null : new DateTimeImmutable($ymd);
     }
+
+    /**
+     * A lab order's bill-to day (the HL7 order's IN1, the requisition): the
+     * specimen's collection date, else the order date. With neither readable
+     * there is no day, and the caller decides, rather than billing the plan in
+     * force today. A lab test's date of service is its collection date
+     * (42 CFR 414.510(a)).
+     */
+    public static function forLabOrder(mixed $collected, mixed $ordered): ?DateTimeImmutable
+    {
+        return self::fromStored($collected) ?? self::fromStored($ordered);
+    }
 }
