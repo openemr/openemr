@@ -533,9 +533,6 @@ final class PhiMailReceiver
     }
 
     /**
-     * @return ?int the byte count on the next line, or null when the line is missing or not a count
-     */
-    /**
      * What the note says about the sent message a reply answers, if any.
      */
     private static function replyLine(?DirectReplyTarget $target): string
@@ -548,6 +545,9 @@ final class PhiMailReceiver
             : xl('It answers a message sent with referral') . ' #' . $target->referralId . ' ' . xl('for this patient') . '.');
     }
 
+    /**
+     * @return ?int the byte count on the next line, or null when the line is missing or not a count
+     */
     private static function readLength(PhiMailConnection $connection): ?int
     {
         try {
