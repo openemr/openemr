@@ -331,7 +331,7 @@ Not every green rollup is cleanly green. Call out explicitly:
   lint. Verify the next job passed.
 - **SKIPPED lanes.** Inferno is often SKIPPED on forks (expected); other skips may be
   conditional on label.
-- **FAILURE lanes** — the PR is held; name the lane in the brief. Two exceptions, both
+- **FAILURE lanes** — the PR is held; name the lane in the brief. Three exceptions, all
   advisory *for the health classification* (the PR's lane breakdown doesn't block the
   review itself):
   - A solo `codecov/patch` or `codecov/project` FAILURE with a green "All Checks Passed"
@@ -348,6 +348,11 @@ Not every green rollup is cleanly green. Call out explicitly:
     stay red through multiple reruns). Note state + expected path in the brief
     ("aggregator stuck; underlying lanes clean; expect manual rerun / admin merge
     override").
+  - A single FAILURE lane clearly outside the PR's changed-file surface (e.g., an e2e
+    lane on an unrelated feature), or a lane known-flaky on master, may be a flake.
+    Request a rerun; cleared on rerun → record "flake, cleared on rerun" in the brief
+    and don't hold. Rerun still red, or failure is scope-related (test file overlaps
+    or is transitively reached) → real FAIL regardless of rerun history.
 
 A common masking pattern: "All Checks Passed" job shows FAILURE because it depends on a
 preceding CANCELLED or FAILURE. The underlying lane is what matters; the aggregator is

@@ -97,6 +97,7 @@ Collect the following signals per PR:
 
 - All `SUCCESS` or `SKIPPED` (+ at most 1 `CANCELLED` that's title-lint-superseded) → `OK`
 - Any `FAILURE` outside `codecov/*` and `All Checks Passed` → `FAIL`. Both are advisory *for the health classification*: `codecov/patch` + `codecov/project` don't fail the aggregator (a solo codecov FAILURE with green aggregator is OK); and a solo `All Checks Passed` aggregator FAILURE (or aggregator + codecov/* only) with every *other* underlying lane SUCCESS or SKIPPED is also OK for health — treat the same as codecov-only. The aggregator is still a required merge check; see per-pr-review §8 for resolution paths (healer / manual rerun / admin merge override).
+- A single `FAILURE` lane that may be a flake (scope-unrelated to the PR's changed-file surface, or known-flaky on master) → don't auto-bucket as `FAIL`. Push to Phase 2 for the rerun-based triage per per-pr-review §8.
 - Many `CANCELLED` + no `FAILURE` → `CRED` (concurrency-redeemed; usually in-flight
   re-run — recheck in 5-10m)
 - Lanes `IN_PROGRESS` > 24 h on a non-dormant PR with aggregator NULL → `STALE` → 🔴
