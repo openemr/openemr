@@ -3,7 +3,7 @@
 Return to the [hub](README.md).
 
 **Purpose.** Produce a snapshot of every open PR matching the subject filter, classified
-into one of the five buckets, with change-since-last-snapshot deltas called out. The
+into one of the six buckets, with change-since-last-snapshot deltas called out. The
 output is a workstream-doc section update + a shepherd-log index that drives Phase 2.
 
 **Prerequisites.**
@@ -207,7 +207,7 @@ Changes since the <prior-date> snapshot:
 - Resurfaced from dormancy: #NNNN (<author> <scope>, last touched <date>)
 
 ✅ Shepherd-reviewed, merge-ready:
-- #NNNN — <title> — <author>. <one-sentence verdict>. Brief: `/path/to/brief.md`.
+- #NNNN — <title> — <author>. <one-sentence verdict>. Brief: `pr-NNNN-review-brief.md`.
 
 🔶 Shepherd-reviewed, merge-ready with known residual:
 - ...
