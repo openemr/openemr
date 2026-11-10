@@ -218,9 +218,10 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
   had pushed back on, with no independent verification.
 - Record "I agree / I withdraw" as the **author's** scope-out, verified by the
   shepherd against the code, not as rabbit having re-checked anything. The scope-out
-  path in §4 step 4 applies: shepherd confirms by diff inspection + files a `🔶`
-  residual with a follow-up register entry, rather than treating rabbit's agreement
-  as the final word.
+  path in [per-pr-review.md §4 step 4](per-pr-review.md#4-walk-rabbit-history) applies:
+  shepherd confirms by diff inspection, then splits by what the inspection shows —
+  verified out-of-scope → `🔶` residual + follow-up; verified false positive → record
+  and move on, no residual. Rabbit's agreement is not the final word in either case.
 
 ---
 

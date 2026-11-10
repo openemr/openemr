@@ -130,9 +130,16 @@ For every rabbit Actionable or Major on the PR:
    the reply carries, and rabbit can raise a new finding in the same reply it resolves the
    thread with — see [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding).
    A new finding there starts its own raised → addressed → confirmed row.
-4. **Scoped-out.** The author legitimately pushed back ("that's pre-existing", "that's
-   out of scope") and rabbit accepted. Record as a `🔶 residual` with follow-up register
-   entry. For an author who doesn't reply inline, Scoped-out can be reached via rabbit's
+4. **Scoped-out.** The author pushed back ("that's pre-existing", "that's out of
+   scope", "the code already handles that") and rabbit accepted. Verify against the
+   code and split by what the inspection shows:
+   - **Verified out-of-scope** — the concern is real but the author legitimately scoped
+     it out. Record as a `🔶 residual` with a follow-up register entry.
+   - **Verified false positive** — code inspection shows the reported case is already
+     handled. Record the finding-and-verification in the brief, no residual, no
+     follow-up — a non-issue doesn't need a hygiene sweep.
+
+   For an author who doesn't reply inline, Scoped-out can still be reached via rabbit's
    own withdrawal or the shepherd's verdict based on the diff — don't block waiting for
    an author reply that may not come.
 
