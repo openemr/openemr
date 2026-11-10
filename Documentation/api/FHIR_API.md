@@ -960,8 +960,8 @@ With the **Track Referrals with FHIR Tasks** global on, saving a referral makes 
   [when a Task is made](../REFERRAL_WORKFLOWS.md#setup).
 - A `PUT` cannot change its `focus`, `owner`, `code` or `partOf`; that gets `400` naming the field.
 - Marking it accepted, rejected, completed, failed or cancelled sends Refer By an inbox message.
-  No message is sent when Refer By is no longer an active user, or when the tracking global is
-  off.
+  No message is sent when the tracking global is off, or when Refer By is inactive or has no
+  username.
 - Do not `POST` a Task with code `fulfill`, no `partOf` and a referral as `focus` for testing.
   OpenEMR treats it as that referral's own Task.
 

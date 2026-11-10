@@ -236,6 +236,11 @@ be a question or a refusal. On the referral's page, each reply has a "Confirm it
 referral" button. Confirming files the reply's documents as the referral's consult note, sets the
 Reply Date and completes the recipient's Task.
 
+The button is shown only while the recipient's Task is still open. If the recipient has already
+completed, rejected, failed or cancelled the Task, there is no button, and a button on a page that
+was opened before the Task became final does nothing. In both cases the reply stays in the
+patient's chart, but it is not added to the Task and the Reply Date is not set.
+
 Limitations: This is modeled on IHE 360X but is not 360X conformant; there is no XDM packaging
 and no HL7 v2 status messages. Reply matching depends on the recipient's system returning the
 message id of the message it answers, and has not been tested against a production HISP.

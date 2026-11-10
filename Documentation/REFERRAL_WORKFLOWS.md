@@ -133,13 +133,18 @@ status.
   already completed, rejected, failed or cancelled keeps its status, and no document is filed;
   the reply stays on the referral. The referral then shows Replied, or Completed if the
   recipient had completed the Task.
+- **If the reply cannot be filed, the Task stays open.** That happens when the Documents
+  category **Medical Record** is missing, or the document cannot be saved. The Reply Date is
+  still saved, so the referral shows Replied while the recipient's Task is still open. The
+  failure is in the application log. Fix the cause, then save the referral again while the Task
+  is open; that save files the reply and completes the Task.
 - **Only the current recipient's latest Task counts.** If Refer To changes, the earlier
   recipient's Task is cancelled and kept as a record.
 - **Through FHIR**, the ServiceRequest reads `active`, `completed`, `revoked` (Task
   cancelled) or `entered-in-error`.
 - **The referrer is told.** When a Task is marked accepted, rejected, completed, failed or
-  cancelled through the API, Refer By gets a message in their inbox, type Referral. Not when
-  Refer By is no longer an active user.
+  cancelled through the API, Refer By gets a message in their inbox, type Referral. No message
+  is sent when tracking is off, or when Refer By is inactive or has no username.
 
 ## Workflows
 
