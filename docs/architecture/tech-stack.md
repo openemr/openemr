@@ -25,7 +25,7 @@ the source of truth.
 | PHP | `>= 8.3` (`composer.json`) | Application language | **Upgrade** — track 8.4+ (native `#[\Deprecated]` needs 8.4) |
 | MariaDB | `mariadb:12.3.x` (docker dev/CI) | Primary RDBMS in dev/CI | **Keep** |
 | MySQL | via `ext-mysqli` / `ext-pdo_mysql` | Supported alternative RDBMS | **Keep** — maintain parity |
-| Doctrine DBAL | `^4.4` | DB abstraction under the ADODB-shaped surface | **Keep / grow** (see [layers.md](layers.md#data-access-layer)) |
+| Doctrine DBAL | `^4.4` | **Intended** DB layer; dependency present, **not yet** beneath `QueryUtils`/ADODB traffic (the live connection is ADODB `mysqli_log` via `sql.inc.php`’s `DatabaseConnectionFactory::createAdodb()`) | **Keep / grow** (see [layers.md](layers.md#data-access-layer)) |
 | CouchDB | optional docker service | Offsite document store (see [subsystems.md](subsystems.md#document-management)) | **Freeze** — fold behind Flysystem adapters |
 
 **MySQL vs MariaDB.** Support both. MariaDB is the containerized dev/CI default; MySQL

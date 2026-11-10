@@ -320,9 +320,9 @@ priorities, in rough order:
 ## 12. Portal technology stack and deprecation
 
 The portal shares the core stack and its direction — see
-[tech-stack.md](tech-stack.md) for PHP, MariaDB/MySQL,
-Twig/Smarty, Node-for-C-CDA, and the jQuery/Knockout/vanilla-JS plan. The table below is the
-**portal-specific** surface on top of that. (Status legend as in `README.md` §12.)
+[tech-stack.md](tech-stack.md) for PHP, MariaDB/MySQL, Twig/Smarty, the C-CDA/CQM move to PHP,
+and the jQuery/Knockout/vanilla-JS plan. The table below is the **portal-specific** surface on
+top of that. (Status legend as in [`tech-stack.md`](tech-stack.md).)
 
 | Technology | Where | Role | Status |
 |---|---|---|---|

@@ -125,11 +125,24 @@ function legacy_do_thing(int $pid, string $type): array
 
 - **Use the project's deprecation mechanism**, `OpenEMR\BC\Deprecation::emit()`, not a bare
   `trigger_error`. It is runtime-configurable: `DeprecationMode::Warning` logs an
-  `E_USER_DEPRECATED` in production, while `DeprecationMode::Error` *throws* — which is how
-  dev and test environments turn an overlooked deprecated call into an immediate, visible
-  failure (`interface/globals.php` sets `Error` mode in development). On PHP 8.4+ the native
-  `#[\Deprecated]` attribute is an option too, but `Deprecation::emit()` is the portable
-  path today and can be placed on specific branches, not just whole symbols.
+  `E_USER_DEPRECATED`, while `DeprecationMode::Error` *throws* — turning an overlooked
+  deprecated call into an immediate, visible failure. On PHP 8.4+ the native `#[\Deprecated]`
+  attribute is an option too, but `Deprecation::emit()` is the portable path today and can be
+  placed on specific branches, not just whole symbols.
+
+  > **Caveat — the mode is not uniform, and it bites the facade promise.** The two bootstraps
+  > set the mode differently: `interface/globals.php` uses `Warning` **unless**
+  > `OPENEMR_DEPRECATION_MODE=error` is set (so legacy-routed requests *log* by default, and a
+  > facade keeps every caller working), **but `public/index.php` unconditionally sets
+  > `DeprecationMode::Error`** (`public/index.php:25`). So a request served through the **front
+  > controller** — the architecture these docs recommend ([front-controller.md](front-controller.md))
+  > — currently **throws** on a deprecated call rather than logging, which breaks the "every
+  > existing caller keeps working unchanged" promise of the facade step. This is tracked as
+  > **[openemr/openemr#15217](https://github.com/openemr/openemr/issues/15217)**: the intended
+  > resolution is for `public/index.php` to **log in production and throw only in
+  > development/test** (honoring `OPENEMR_DEPRECATION_MODE`, as `interface/globals.php` does).
+  > Until that lands, treat front-controller deprecation behavior as an open issue, not settled
+  > guidance.
 - **Always pair the runtime notice with a `@deprecated` docblock** that names the
   replacement *and* the earliest removal version, so the migration path and the clock are
   discoverable from the source and from IDE tooling.

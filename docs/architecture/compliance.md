@@ -61,7 +61,7 @@ standard, not just CI.
 | **(a)(5)** — Demographics | USCDI demographic data | `patient_data`, `src/Services/PatientService.php` |
 | **(a)(12)** — Family health history | Structured family history | the family-history form |
 | **(a)(14)** — Implantable device list | Record device UDIs, parse via GUDID | `src/Services/DeviceService.php` + **AccessGUDID v2** (relied-upon) |
-| **(b)(1)** — Transitions of care | Create / send / receive / view a conformant **C-CDA** | `src/Services/Cda/`, `ccdaservice/`, the `Carecoordination` module; Direct (**(h)(1)**) + **EMR Direct** (relied-upon) |
+| **(b)(1)** — Transitions of care | Create / send / receive / view a conformant **C-CDA** | `src/Services/Cda/` (PHP), the `Carecoordination` module; Direct (**(h)(1)**) + **EMR Direct** (relied-upon) |
 | **(b)(10)** — EHI export | Export all electronic health information | the `oe-module-ehi-exporter` module; schema map `Documentation/EHI_Export/` (+ `openemr.meta.xml`, [layers.md](layers.md#database-schema-design-and-governance)) |
 | **(b)(11)** — Decision support interventions (DSI) | Evidence-based + predictive DSIs (HTI-1; replaced the former CDS (a)(9)) | `library/clinical_rules.php`, `src/ClinicalDecisionRules/` |
 | **(c)(1)–(c)(3)** — CQM record / import / report | Capture, import/calculate, and report CQMs as **QRDA I / III** | `src/Cqm/`, `src/Cqm/QrdaControllers/QrdaReportController.php` |
@@ -69,7 +69,7 @@ standard, not just CI.
 | **(g)(6)** — C-CDA creation performance | More than Schematron validity: generated C-CDA must also match the **reference files**, conform to the **document templates**, and meet performance outcomes — Schematron success alone is **not** sufficient (see the ONC test procedure) | PHP C-CDA code `src/Services/Cda/` + PHP Schematron validation (`Schematron/SchematronValidator.php`) |
 | **(g)(7)** — App access: patient selection | API returns a patient context to an app | the REST/FHIR API (`src/RestControllers/`, `src/FHIR/`) |
 | **(g)(9)** — App access: all data request | API returns all USCDI data for a patient | the REST/FHIR API, `src/FHIR/` |
-| **(g)(10)** — Standardized API (FHIR) | **FHIR R4 + US Core**, **SMART App Launch**, **Bulk Data**, client registration + **manual app approval** | `src/FHIR/`, `src/FHIR/SMART/` + `src/RestControllers/SMART/` (incl. `ClientAdminController` approve/enable/revoke; `interface/smart/register-app.php`), `src/FHIR/Export/` (`$export`), OAuth2 (`src/RestControllers/AuthorizationController.php`) |
+| **(g)(10)** — Standardized API (FHIR) | **FHIR R4 + US Core**, **SMART App Launch**, **Bulk Data**, client registration + **manual app approval** | `src/FHIR/` (incl. `src/FHIR/SMART/ClientAdminController.php` — approve/enable/revoke) and `src/RestControllers/SMART/`, `interface/smart/register-app.php`, `src/FHIR/Export/` (`$export`), OAuth2 (`src/RestControllers/AuthorizationController.php`) |
 | **(h)(1)** — Direct Project transport | Direct secure, trusted exchange of clinical documents | EMR Direct **phiMail**: `interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php`, `library/direct_message_check.inc.php`, trust certs `public/certs/phimail/` + **EMR Direct** (relied-upon) |
 | **(d)(1)–(d)(9), (d)(12), (d)(13)** — Privacy & security | Auth, access control, audit, encryption, trusted connections | ACL ([subsystems.md](subsystems.md#permissions-and-authorization)), OAuth2 ([subsystems.md](subsystems.md#oauth2-scopes-and-api-authorization)), encryption ([subsystems.md](subsystems.md#security-encryption-keys-and-api-authorization)), audit logging |
 | **(e)(3)** — Patient health information capture | Patient-entered / -uploaded health data (questionnaires, PRO, document upload) captured and shared with the provider | the patient portal ([portal.md](portal.md)). *(Note: **(e)(1)** View/Download/Transmit and **(e)(2)** secure messaging are **not** part of this certification.)* |
@@ -106,8 +106,8 @@ require — among them **ICD-10-CM/PCS**, **SNOMED CT**, **LOINC**, **RxNorm**, 
 regulated output above (C-CDA, FHIR, QRDA), so their identifiers and mappings are
 compliance-sensitive.
 
-- **Where they live:** the `code_types` table, `library/code_types.inc.php` /
-  `custom/code_types.inc.php`, and `src/Services/CodeTypesService.php` (plus the importers
+- **Where they live:** the `code_types` table, `custom/code_types.inc.php`, and
+  `src/Services/CodeTypesService.php` (plus the importers
   under `src/Services/CodeTypes/`). CQM value sets are expressed as OIDs
   (`src/Cqm/oids_qdm_*.json`).
 - **How coded values are encoded in the data.** Throughout the schema a coded value is stored

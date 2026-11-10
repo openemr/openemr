@@ -47,11 +47,11 @@ monolith.
 OpenEMR began as procedural PHP: a URL maps directly to a `.php` file under `interface/`,
 and that file does everything — reads `$_GET`/`$_POST`/`$_SESSION` directly, opens the
 database inline, embeds business rules in the middle of HTML, and echoes markup as it
-goes. There are still tens of thousands of such files:
+goes. Roughly 1,400 such files remain in the core tree:
 
-| Tree          | Rough PHP file count | Role today                         | Direction |
+| Tree          | Tracked PHP files    | Role today                         | Direction |
 |---------------|----------------------|------------------------------------|-----------|
-| `interface/`  | ~27,000              | Procedural web UI + inline SQL     | Shrink → thin entry points, then routes |
+| `interface/`  | ~930                 | Procedural web UI + inline SQL     | Shrink → thin entry points, then routes |
 | `library/`    | ~500                 | Legacy procedural helpers          | Migrate into `src/` services |
 | `src/`        | ~2,200               | Modern `OpenEMR\` PSR-4 code       | Grow — the destination |
 

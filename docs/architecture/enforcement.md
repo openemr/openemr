@@ -49,9 +49,10 @@ These doc rules already fail CI. No new work — cited so the docs and the check
 
 | Rule (from the docs) | Enforced by |
 |---|---|
-| No `$_GET`/`$_POST`/`$_REQUEST`/`$_SERVER`/`$_COOKIE`/`$_FILES` in logic; **no `filter_input()`** | `ForbiddenRequestGlobalsRule`, `ForbiddenGlobalsAccessRule` |
+| No `$_GET`/`$_POST`/`$_REQUEST`/`$_SERVER`/`$_COOKIE`/`$_FILES` in logic | `ForbiddenRequestGlobalsRule` |
 | No raw `$_SESSION` read or write | `ForbiddenSessionSuperglobalRule`, `ForbidDirectSessionWriteRule` |
-| No `global` keyword; no `$GLOBALS` | `ForbiddenGlobalKeywordRule`, `ForbiddenGlobalNamespaceRule` |
+| No `global` keyword; no `$GLOBALS` | `ForbiddenGlobalKeywordRule`, `ForbiddenGlobalsAccessRule` |
+| No new functions defined in the global namespace | `ForbiddenGlobalNamespaceRule` |
 | Use `OEGlobalsBag` typed getters, not `get()` + cast | `OEGlobalsBagTypedGetterRule` |
 | Catch `\Throwable`, not `\Exception`; no exit in catch/finally | `ForbiddenCatchTypeRule`, `ForbiddenExitInCatchFinallyRule` |
 | No raw `sqlStatement()`/`sqlQuery()` in `src/` (use `QueryUtils`) | scoped forbidden-functions rule (`.phpstan/extension.neon`) |
@@ -60,6 +61,7 @@ These doc rules already fail CI. No new work — cited so the docs and the check
 | Dynamic (non-literal) value passed to `xl()` | the `literal-string` parameter type (PHPStan native) |
 | Undeclared dependencies / some core↔module leaks | `composer-require-checker` |
 | PSR-12 / PER-CS style, import hygiene, file headers | phpcs + Slevomat (`phpcs.xml.dist`) |
+| Calls to `@deprecated` symbols flagged | `phpstan/phpstan-deprecation-rules` (required in `composer.json`, auto-loaded via `phpstan/extension-installer`) |
 
 ## 2. Candidate — high value, low effort (reuse an existing pattern)
 
@@ -69,7 +71,7 @@ These doc rules already fail CI. No new work — cited so the docs and the check
 | **No hand-rolled crypto** (`openssl_*`, `sodium_*`, `hash_hmac`) outside `Common\Crypto` | extend `ForbiddenFunctionsRule` with a path allowlist | **S** | Pushes code to `CryptoInterface`/`CryptoGen`. |
 | **No new Smarty templates** | CI diff gate failing on an added `*.tpl` / new Smarty usage | **S** | Simple check on the PR diff; Smarty is frozen. |
 | **Deprecated front-end libs** (jQuery `$`/`jQuery`, `ko.`, `angular.`, `moment(`) in new JS | ESLint `no-restricted-globals` / `no-restricted-imports` | **S** | ESLint is already wired (`npm run lint:js`); the natural home. |
-| **Calls to `@deprecated` symbols** flagged | enable/confirm `phpstan/phpstan-deprecation-rules` | **S** | Makes the deprecation clock ([migration.md](migration.md)) self-enforcing. Config, not code. |
+| **Flag `filter_input()`** — no rule covers it today; the request-globals rule only names it as a non-target in its *tip* text | new PHPStan rule, or extend `ForbiddenRequestGlobalsRule` to also match the `filter_input` call | **S** | Closes the gap where converting a superglobal to `filter_input()` silences the existing rule without a replacement. |
 
 ## 3. Candidate — medium effort (custom tooling, high value)
 
