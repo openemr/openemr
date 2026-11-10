@@ -234,15 +234,17 @@ final class PatientFinderQueryService
 
     /**
      * In search_any mode, build the wider set of searchable columns from the DEM
-     * layout fields (matching the legacy script's any-column search). Returns
-     * null in normal mode, so the global search targets the displayed columns.
+     * layout fields (matching the legacy script's any-column search). Otherwise
+     * the search mode decides: the name or ZIP columns, or null so the global
+     * search targets the displayed columns.
      *
      * @return array<int, PatientFinderColumn>|null
      */
     private function buildGlobalSearchColumns(PatientFinderRequest $request): ?array
     {
         if (!$request->anySearch) {
-            return null;
+            // The dropdown next to the search box can narrow it to the name or the ZIP.
+            return $request->searchMode->globalSearchColumns();
         }
         $rows = ($this->fetchRecords)(
             "SELECT field_id FROM layout_options WHERE form_id = 'DEM' "

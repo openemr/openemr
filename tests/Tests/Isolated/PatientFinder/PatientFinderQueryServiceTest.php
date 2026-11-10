@@ -210,4 +210,60 @@ class PatientFinderQueryServiceTest extends TestCase
             ],
         ], $out['aaData']);
     }
+
+    /**
+     * The data query the service runs for one global search in the given mode.
+     */
+    private function dataSqlForSearchMode(string $mode): string
+    {
+        $dataSql = '';
+        $fetch = static function (string $sql, array $binds) use (&$dataSql): array {
+            if (str_contains($sql, 'ptlistcols')) {
+                return [['option_id' => 'name', 'title' => 'Name'], ['option_id' => 'DOB', 'title' => 'DOB']];
+            }
+            if (str_contains($sql, 'FROM patient_data')) {
+                $dataSql = $sql;
+            }
+            return [];
+        };
+        $builder = new PatientFinderQueryBuilder(
+            static fn(string $col, array $tables): string => '`' . $col . '`',
+            static fn(string $term): string => $term
+        );
+        $service = new PatientFinderQueryService(
+            $this->dispatcher(),
+            $builder,
+            $fetch,
+            static fn(string $sql, array $binds): array => ['count' => 0],
+            static fn(mixed $v): string => PatientFinderValue::string($v)
+        );
+        $service->handle(['sColumns' => 'name,DOB', 'sSearch' => '021', 'searchMode' => $mode]);
+        return $dataSql;
+    }
+
+    public function testSearchAllModeMatchesTheDisplayedColumns(): void
+    {
+        $sql = $this->dataSqlForSearchMode('all');
+
+        $this->assertStringContainsString('lname LIKE ?', $sql);
+        $this->assertStringContainsString('`DOB` LIKE ?', $sql);
+        $this->assertStringNotContainsString('postal_code', $sql);
+    }
+
+    public function testSearchNameModeMatchesOnlyTheName(): void
+    {
+        $sql = $this->dataSqlForSearchMode('name');
+
+        $this->assertStringContainsString('lname LIKE ? OR fname LIKE ? OR mname LIKE ?', $sql);
+        $this->assertStringNotContainsString('`DOB` LIKE ?', $sql);
+    }
+
+    public function testSearchZipModeMatchesOnlyThePostalCode(): void
+    {
+        $sql = $this->dataSqlForSearchMode('zip');
+
+        $this->assertStringContainsString('( `postal_code` LIKE ? )', $sql);
+        $this->assertStringNotContainsString('lname LIKE ?', $sql);
+        $this->assertStringNotContainsString('`DOB` LIKE ?', $sql);
+    }
 }

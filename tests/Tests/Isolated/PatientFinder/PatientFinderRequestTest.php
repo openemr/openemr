@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\PatientFinder;
 
 use OpenEMR\Services\PatientFinder\PatientFinderRequest;
+use OpenEMR\Services\PatientFinder\PatientFinderSearchMode;
 use PHPUnit\Framework\TestCase;
 
 class PatientFinderRequestTest extends TestCase
@@ -95,6 +96,27 @@ class PatientFinderRequestTest extends TestCase
         $both = PatientFinderRequest::fromArray(['search_any' => 'jones', 'sSearch' => 'smith']);
         $this->assertFalse($both->anySearch);
         $this->assertSame('smith', $both->globalSearch);
+    }
+
+    public function testSearchModeParsesTheDropdownChoice(): void
+    {
+        $this->assertSame(
+            PatientFinderSearchMode::Name,
+            PatientFinderRequest::fromArray(['searchMode' => 'name'])->searchMode
+        );
+        $this->assertSame(
+            PatientFinderSearchMode::Zip,
+            PatientFinderRequest::fromArray(['searchMode' => 'zip'])->searchMode
+        );
+    }
+
+    public function testMissingOrUnknownSearchModeSearchesEverything(): void
+    {
+        $this->assertSame(PatientFinderSearchMode::All, PatientFinderRequest::fromArray([])->searchMode);
+        $this->assertSame(
+            PatientFinderSearchMode::All,
+            PatientFinderRequest::fromArray(['searchMode' => 'ssn'])->searchMode
+        );
     }
 
     public function testSortOnlyIncludesSortableColumns(): void

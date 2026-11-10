@@ -10,7 +10,8 @@
  * `bSearchable_N`/`sSearch_N` filters, the `iSortCol_N`/`sSortDir_N`/
  * `bSortable_N` sort instructions, the client-side column order in `sColumns`
  * (which may differ from the server's because of ColReorder), the exact-vs-like
- * `searchType` toggle, and the `search_any` any-column mode — as typed PHP so the
+ * `searchType` toggle, the `searchMode` dropdown choice, and the `search_any`
+ * any-column mode — as typed PHP so the
  * query builder and tests never touch `$_GET` directly.
  *
  * Parsing only; it performs no SQL and no database access.
@@ -18,7 +19,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2026 Open Plan IT Ltd
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -38,6 +41,7 @@ final readonly class PatientFinderRequest
      * @param array<int, string>       $columnKeys    Column keys in the client's order (from sColumns).
      * @param array<int, array{index: int, dir: string}> $sortColumns Sort instructions (column index + ASC|DESC).
      * @param array<int, string>       $columnSearches Per-column search terms, keyed by client column index.
+     * @param PatientFinderSearchMode  $searchMode    Which fields the global search term matches.
      */
     public function __construct(
         public int $echo,
@@ -48,7 +52,8 @@ final readonly class PatientFinderRequest
         public bool $anySearch,
         public array $columnKeys,
         public array $sortColumns,
-        public array $columnSearches
+        public array $columnSearches,
+        public PatientFinderSearchMode $searchMode = PatientFinderSearchMode::All
     ) {
     }
 
@@ -86,7 +91,8 @@ final readonly class PatientFinderRequest
             $anySearch,
             $columnKeys,
             self::parseSort($get),
-            self::parseColumnSearches($get, count($columnKeys))
+            self::parseColumnSearches($get, count($columnKeys)),
+            PatientFinderSearchMode::fromRequestValue(PatientFinderValue::string($get['searchMode'] ?? null))
         );
     }
 
