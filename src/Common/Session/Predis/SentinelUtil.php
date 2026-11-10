@@ -46,6 +46,8 @@ class SentinelUtil
 
     private readonly int $redisSessionLockTtl;
     private readonly int $redisSessionLockMaxWait;
+    private readonly int $redisSessionWaitReplicas;
+    private readonly int $redisSessionWaitTimeoutMs;
 
     private readonly LoggerInterface $logger;
 
@@ -150,6 +152,26 @@ class SentinelUtil
             ? (int) $redisSessionLockMaxWait
             : LockingRedisSessionHandler::DEFAULT_LOCK_MAX_WAIT_SECONDS;
 
+        // optional: number of Redis replicas that must ACK each session
+        // write before the request returns. 0 (default) disables the WAIT
+        // step entirely — legacy behavior: write-then-return as soon as
+        // the primary has stored the value. Set to 1 on a Sentinel-managed
+        // cluster to eliminate the session-loss window where the primary
+        // crashes with writes that have not yet replicated. Non-zero only
+        // makes sense with Redis replication configured (which this stack
+        // provides via the sentinel/redis StatefulSets).
+        $redisSessionWaitReplicas = getenv('REDIS_SESSION_WAIT_REPLICAS', true);
+        $this->redisSessionWaitReplicas = ($redisSessionWaitReplicas !== false && ctype_digit($redisSessionWaitReplicas) && (int) $redisSessionWaitReplicas >= 0)
+            ? (int) $redisSessionWaitReplicas
+            : LockingRedisSessionHandler::DEFAULT_WAIT_REPLICAS;
+
+        // optional: per-call timeout (milliseconds) for the WAIT command.
+        // Only consulted when waitReplicas > 0.
+        $redisSessionWaitTimeoutMs = getenv('REDIS_SESSION_WAIT_TIMEOUT_MS', true);
+        $this->redisSessionWaitTimeoutMs = ($redisSessionWaitTimeoutMs !== false && ctype_digit($redisSessionWaitTimeoutMs) && (int) $redisSessionWaitTimeoutMs > 0)
+            ? (int) $redisSessionWaitTimeoutMs
+            : LockingRedisSessionHandler::DEFAULT_WAIT_TIMEOUT_MS;
+
         $this->logger->debug("Predis Sentinel constructor initialized successfully.", [
             'predisSentinels' => $this->predisSentinels,
             'predisMaster' => $this->predisMaster,
@@ -165,6 +187,8 @@ class SentinelUtil
             'masterKeyFile' => $this->masterKeyFile,
             'redisSessionLockTtl' => $this->redisSessionLockTtl,
             'redisSessionLockMaxWait' => $this->redisSessionLockMaxWait,
+            'redisSessionWaitReplicas' => $this->redisSessionWaitReplicas,
+            'redisSessionWaitTimeoutMs' => $this->redisSessionWaitTimeoutMs,
         ]);
     }
 
@@ -226,7 +250,14 @@ class SentinelUtil
     {
         $redis = $this->configureClient();
         $inner = new RedisSessionHandler($redis, ['ttl' => $ttl]);
-        return new LockingRedisSessionHandler($redis, $inner, $this->redisSessionLockTtl, $this->redisSessionLockMaxWait);
+        return new LockingRedisSessionHandler(
+            $redis,
+            $inner,
+            $this->redisSessionLockTtl,
+            $this->redisSessionLockMaxWait,
+            $this->redisSessionWaitReplicas,
+            $this->redisSessionWaitTimeoutMs,
+        );
     }
 
     /**

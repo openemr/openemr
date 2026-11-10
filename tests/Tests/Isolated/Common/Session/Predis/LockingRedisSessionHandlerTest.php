@@ -443,4 +443,149 @@ class LockingRedisSessionHandlerTest extends TestCase
 
         $this->assertNotEmpty($result, 'session ID should not be empty');
     }
+
+    // =========================================================================
+    // WAIT replica-sync semantics (optional, opt-in via waitReplicas > 0)
+    // =========================================================================
+
+    /**
+     * Construct a handler with WAIT enabled (waitReplicas > 0) — all other
+     * tests use the setUp() handler which has waitReplicas: 0 (disabled),
+     * matching legacy behavior.
+     */
+    private function handlerWithWait(int $waitReplicas = 1, int $waitTimeoutMs = 500): LockingRedisSessionHandler
+    {
+        return new LockingRedisSessionHandler(
+            $this->redis,
+            $this->inner,
+            lockTtlSeconds: 30,
+            maxLockWaitSeconds: 5,
+            waitReplicas: $waitReplicas,
+            waitTimeoutMs: $waitTimeoutMs,
+            logger: new NullLogger(),
+        );
+    }
+
+    public function testWriteDoesNotCallWaitWhenWaitReplicasIsZero(): void
+    {
+        /** @var list<array{cmd: string, args: list<mixed>}> $calls */
+        $calls = [];
+        $this->configureRedisTracking($calls);
+        $this->redis->expects($this->never())->method('wait');
+        $this->inner->method('write')->willReturn(true);
+
+        $this->handler->read('sess123');
+        $this->handler->write('sess123', 'data');
+    }
+
+    public function testWriteCallsWaitAfterInnerWriteWhenEnabled(): void
+    {
+        /** @var list<array{cmd: string, args: list<mixed>}> $calls */
+        $calls = [];
+        $this->configureRedisTracking($calls);
+        $this->redis->expects($this->once())
+            ->method('wait')
+            ->with(1, 500)
+            ->willReturn(1);
+        $this->inner->method('write')->willReturn(true);
+
+        $handler = $this->handlerWithWait(1, 500);
+        $handler->read('sess123');
+        $this->assertTrue($handler->write('sess123', 'data'));
+    }
+
+    public function testUpdateTimestampCallsWaitWhenEnabled(): void
+    {
+        /** @var list<array{cmd: string, args: list<mixed>}> $calls */
+        $calls = [];
+        $this->configureRedisTracking($calls);
+        $this->redis->expects($this->once())->method('wait')->with(1, 500)->willReturn(1);
+        $this->inner->method('updateTimestamp')->willReturn(true);
+
+        $handler = $this->handlerWithWait(1, 500);
+        $handler->read('sess123');
+        $handler->updateTimestamp('sess123', 'data');
+    }
+
+    public function testDestroyCallsWaitWhenEnabled(): void
+    {
+        /** @var list<array{cmd: string, args: list<mixed>}> $calls */
+        $calls = [];
+        $this->configureRedisTracking($calls);
+        $this->redis->expects($this->once())->method('wait')->with(1, 500)->willReturn(1);
+        $this->inner->method('destroy')->willReturn(true);
+
+        $handler = $this->handlerWithWait(1, 500);
+        $handler->read('sess123');
+        $handler->destroy('sess123');
+    }
+
+    public function testWriteDoesNotCallWaitWhenInnerWriteReturnsFalse(): void
+    {
+        // If the inner write failed, there's nothing to replicate — calling
+        // WAIT would block for a timeout waiting for a write that never
+        // happened on the primary. Skip the WAIT step in that case.
+        /** @var list<array{cmd: string, args: list<mixed>}> $calls */
+        $calls = [];
+        $this->configureRedisTracking($calls);
+        $this->redis->expects($this->never())->method('wait');
+        $this->inner->method('write')->willReturn(false);
+
+        $handler = $this->handlerWithWait(1, 500);
+        $handler->read('sess123');
+        $this->assertFalse($handler->write('sess123', 'data'));
+    }
+
+    public function testWaitFailureDoesNotPropagateToWrite(): void
+    {
+        // The WAIT step is a durability hardening, not a correctness
+        // guarantee. Failures (including a thrown exception from the
+        // redis client, or the timeout expiring before the required
+        // replica count ACKs) must NOT fail the request path — losing
+        // availability on transient replication blips is a worse UX
+        // than occasionally losing an in-flight session on failover.
+        /** @var list<array{cmd: string, args: list<mixed>}> $calls */
+        $calls = [];
+        $this->configureRedisTracking($calls);
+        $this->redis->method('wait')->willThrowException(new \RedisException('WAIT failed'));
+        $this->inner->method('write')->willReturn(true);
+
+        $handler = $this->handlerWithWait(1, 500);
+        $handler->read('sess123');
+        $this->assertTrue($handler->write('sess123', 'data'), 'WAIT throwing must not propagate to the caller');
+    }
+
+    public function testWaitShortfallDoesNotFailWrite(): void
+    {
+        // WAIT returning fewer acks than requested (e.g. 0 when we asked
+        // for 1) is a shortfall but not a hard error — same rationale as
+        // the exception case: log and continue.
+        /** @var list<array{cmd: string, args: list<mixed>}> $calls */
+        $calls = [];
+        $this->configureRedisTracking($calls);
+        $this->redis->method('wait')->willReturn(0);
+        $this->inner->method('write')->willReturn(true);
+
+        $handler = $this->handlerWithWait(1, 500);
+        $handler->read('sess123');
+        $this->assertTrue($handler->write('sess123', 'data'));
+    }
+
+    public function testWriteStillReleasesLockWhenWaitThrows(): void
+    {
+        // The lock release must run regardless of WAIT outcome — a
+        // leaked lock blocks every subsequent request for this session
+        // until TTL expiry.
+        /** @var list<array{cmd: string, args: list<mixed>}> $calls */
+        $calls = [];
+        $this->configureRedisTracking($calls);
+        $this->redis->method('wait')->willThrowException(new \RedisException('WAIT failed'));
+        $this->inner->method('write')->willReturn(true);
+
+        $handler = $this->handlerWithWait(1, 500);
+        $handler->read('sess123');
+        $handler->write('sess123', 'data');
+
+        $this->assertCount(1, $this->callsFor($calls, 'eval'), 'Lock must be released even when WAIT throws');
+    }
 }
