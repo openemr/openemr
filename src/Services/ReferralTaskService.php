@@ -95,7 +95,16 @@ class ReferralTaskService
         private ?ClockInterface $clock = null,
         private ?LoggerInterface $logger = null,
         private readonly ?\Closure $documentFactory = null,
+        private ?ReferralNoticeService $noticeService = null,
     ) {
+    }
+
+    /**
+     * The service that tells a recipient about their Task, made the first time it's needed.
+     */
+    private function getNoticeService(): ReferralNoticeService
+    {
+        return $this->noticeService ??= new ReferralNoticeService();
     }
 
     private function getReferralService(): ReferralService
@@ -150,9 +159,24 @@ class ReferralTaskService
      *     the Reply Date's field (ReferralFormLoaded::fromRequest()); null from a caller with no form
      *     (the REST API, which never writes the Reply Date) or a form that didn't post the field, so
      *     its save never undoes a reply
+     * With the fhir_referral_notify_recipient global on, the recipient is told about a new Task
+     * (notifyRecipient()), once the referral's lock is released.
+     *
      * @return ?string the new Task's uuid
      */
     public function createForReferral(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded = null): ?string
+    {
+        $uuid = $this->createTaskForReferral($transactionId, $userId, $loaded);
+        if ($uuid !== null) {
+            $this->notifyRecipient($transactionId, $uuid, $userId);
+        }
+        return $uuid;
+    }
+
+    /**
+     * createForReferral() without the notice.
+     */
+    private function createTaskForReferral(int $transactionId, ?int $userId, ?ReferralFormLoaded $loaded): ?string
     {
         $tracking = OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value);
         if (!$tracking && !self::hasOpenTasks($transactionId)) {
@@ -275,10 +299,24 @@ class ReferralTaskService
      * a stale page, or a recipient's change since then all make nothing new. It runs under the
      * referral's lock, as a save does.
      *
+     * As with a new Task, the recipient is told about it (notifyRecipient()).
+     *
      * @param string $taskUuid what resendableTask() found when the page was shown
      * @return ?string the new Task's uuid
      */
     public function resend(int $transactionId, string $taskUuid, ?int $userId): ?string
+    {
+        $uuid = $this->resendTask($transactionId, $taskUuid, $userId);
+        if ($uuid !== null) {
+            $this->notifyRecipient($transactionId, $uuid, $userId);
+        }
+        return $uuid;
+    }
+
+    /**
+     * resend() without the notice.
+     */
+    private function resendTask(int $transactionId, string $taskUuid, ?int $userId): ?string
     {
         if (!OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)) {
             return null;
@@ -307,6 +345,272 @@ class ReferralTaskService
             return $this->insertTask($referral, $referralUuid, $owner, (int)$patientId, $userId);
         } finally {
             self::unlock($lock);
+        }
+    }
+
+    /**
+     * The uuid of the recipient's Task a Direct reply can complete (completeWithDirectReply()), which
+     * the referral page's Confirm button posts, or null when there's none to complete: the global is
+     * off, the referral already records a reply or has no recipient, or the recipient's Task is final.
+     */
+    public function confirmableTask(int $transactionId): ?string
+    {
+        if (!OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)) {
+            return null;
+        }
+        $referralUuid = $this->getReferralService()->getReferralUuid($transactionId);
+        $referral = $referralUuid === null ? null : $this->getReferralService()->getReferral($transactionId);
+        return $referralUuid === null || $referral === null ? null : $this->confirmableTaskOf($referral, $referralUuid);
+    }
+
+    /**
+     * Staff confirm that a Direct reply filed with the referral (PhiMailReceiver matched it to a
+     * message sent with it) answers it. A reply can be a question or a refusal, so it never completes
+     * the Task on its own: this is the one click that does, as recording a Reply Date on the form does.
+     *
+     * The recipient's Task is completed with REASON_REPLY_RECORDED and the reply's documents as its
+     * outputs (Consult note, REPLY_OUTPUT_TYPE): the attachments that came with it, or, for a reply with
+     * only a text body, that text filed in the patient's documents. The referral's Reply Date is set to
+     * the day the reply came, before the Task is completed and taken back out if it isn't, so the
+     * referral reads as answered everywhere, and clearing it undoes the Task as it would any reply
+     * (undoClearedReply()).
+     *
+     * It happens only if the Task the page showed is still the one to complete: a second click, a stale
+     * page or a recipient's change since then all do nothing. It runs under the referral's lock, as a
+     * save does.
+     *
+     * @param string $taskUuid what confirmableTask() found when the page was shown
+     * @param int $replyId the reply's direct_message_log id
+     * @return ?string the completed Task's uuid
+     */
+    public function completeWithDirectReply(int $transactionId, string $taskUuid, int $replyId, ?int $userId): ?string
+    {
+        if (!OEGlobalsBag::getInstance()->getBoolean(GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value)) {
+            return null;
+        }
+        $reply = self::directReply($transactionId, $replyId);
+        $referralUuid = $this->getReferralService()->getReferralUuid($transactionId);
+        if ($reply === null || $referralUuid === null) {
+            return null;
+        }
+        $lock = self::LOCK_PREFIX . $referralUuid;
+        $locked = self::lock($lock);
+        if ($locked !== true) {
+            $this->getLogger()->warning('A referral\'s Direct reply was not confirmed: its lock was not acquired', [
+                'transaction_id' => $transactionId,
+                'referral_uuid' => $referralUuid,
+                'reason' => $locked === false ? 'another save held it past the wait' : 'GET_LOCK failed',
+            ]);
+            return null;
+        }
+        try {
+            $referral = $this->getReferralService()->getReferral($transactionId);
+            $patientId = $referral['patient_id'] ?? null;
+            if ($referral === null || !is_numeric($patientId) || $this->confirmableTaskOf($referral, $referralUuid) !== $taskUuid) {
+                return null;
+            }
+            $documents = $this->directReplyDocuments($transactionId, (int)$patientId, $replyId, $reply['note_id'], $userId);
+            if ($documents === null) {
+                $this->getLogger()->warning('A referral\'s Direct reply could not be filed, so its Task was left open', [
+                    'transaction_id' => $transactionId,
+                    'reply_id' => $replyId,
+                ]);
+                return null;
+            }
+            $recipientUuid = self::text($referral, 'performer_uuid');
+            if ($recipientUuid === null) {
+                return null;
+            }
+            // The Reply Date goes first, so a completed Task always has one: a Task left open with a
+            // Reply Date is completed by the referral's next save (recordReply()), while a completed one
+            // without it would never get one. It's taken back out when the Task isn't completed. It's only
+            // claimed while the referral has none: a Reply Date a user saved since the page was shown wins,
+            // and the confirm does nothing.
+            $replyDate = substr($reply['received_at'], 0, 10);
+            if (!self::claimReplyDate($transactionId, $replyDate)) {
+                return null;
+            }
+            try {
+                $completed = $this->completeRecipientTask($transactionId, $referralUuid, $recipientUuid, $taskUuid, $replyId, $documents, $userId);
+            } catch (\RuntimeException | \LogicException | DbalException $e) {
+                self::clearReplyDate($transactionId, $replyDate);
+                throw $e;
+            }
+            if ($completed === null) {
+                self::clearReplyDate($transactionId, $replyDate);
+            }
+            return $completed;
+        } finally {
+            self::unlock($lock);
+        }
+    }
+
+    /**
+     * Completes the recipient's Task with a Direct reply's documents as its outputs, reading it again
+     * when the recipient changes it in between, as long as it's still the Task the page showed and open.
+     *
+     * @param list<string> $documents the reply's document uuids
+     * @return ?string the Task's uuid, or null when it wasn't completed
+     */
+    private function completeRecipientTask(int $transactionId, string $referralUuid, string $recipientUuid, string $taskUuid, int $replyId, array $documents, ?int $userId): ?string
+    {
+        for ($pass = 0; $pass < self::WRITE_PASSES; $pass++) {
+            $task = $this->recipientTask($referralUuid, $recipientUuid);
+            $version = $task['version'] ?? null;
+            if ($task === null || self::text($task, 'uuid') !== $taskUuid || !is_numeric($version)) {
+                return null;
+            }
+            if (in_array(self::text($task, 'status'), FhirTaskWriteRules::FINAL_STATUSES, true)) {
+                return null;
+            }
+            $outputs = self::outputRows($task);
+            foreach ($documents as $document) {
+                $outputs = self::withReply(['outputs' => $outputs], $document);
+            }
+            $completed = ['status' => 'completed', 'status_reason' => self::REASON_REPLY_RECORDED];
+            if ($this->getTaskService()->update($taskUuid, $completed, $userId, (int)$version, null, $outputs)) {
+                return $taskUuid;
+            }
+        }
+        $this->getLogger()->warning("A referral's Direct reply was filed but its Task kept changing, so it was left as the recipient has it", [
+            'transaction_id' => $transactionId,
+            'reply_id' => $replyId,
+        ]);
+        return null;
+    }
+
+    /**
+     * Takes the Reply Date that completeWithDirectReply() set back out, when its Task wasn't completed.
+     * Only that date: the Transactions screen writes lbt_data before it takes the referral's lock, so a
+     * Reply Date a user saved in between is theirs, and stays.
+     */
+    private static function clearReplyDate(int $transactionId, string $date): void
+    {
+        QueryUtils::sqlStatementThrowException("DELETE FROM lbt_data WHERE form_id = ? AND field_id = 'reply_date' AND field_value = ?", [$transactionId, $date]);
+    }
+
+    /**
+     * @param array<string, mixed> $referral as ReferralService::getReferral() reads it
+     */
+    private function confirmableTaskOf(array $referral, string $referralUuid): ?string
+    {
+        $recipientUuid = self::text($referral, 'performer_uuid');
+        if ($recipientUuid === null || self::text($referral, 'reply_date') !== null) {
+            return null;
+        }
+        $task = $this->recipientTask($referralUuid, $recipientUuid);
+        $status = $task === null ? null : self::text($task, 'status');
+        return $task !== null && $status !== null && !in_array($status, FhirTaskWriteRules::FINAL_STATUSES, true) ? self::text($task, 'uuid') : null;
+    }
+
+    /**
+     * A Direct reply filed with this referral, by its log id.
+     *
+     * @return ?array{received_at: string, note_id: ?int}
+     */
+    private static function directReply(int $transactionId, int $replyId): ?array
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT create_ts, note_id FROM direct_message_log WHERE id = ? AND msg_type = 'R' AND referral_id = ?",
+            [$replyId, $transactionId]
+        );
+        if (!is_array($row) || !is_string($row['create_ts'] ?? null)) {
+            return null;
+        }
+        return ['received_at' => $row['create_ts'], 'note_id' => is_numeric($row['note_id'] ?? null) ? (int)$row['note_id'] : null];
+    }
+
+    /**
+     * The uuids of a Direct reply's documents in the patient's chart: those its note links to, or, with
+     * none, its note's text filed as a document (once, by its name). Empty when an offsite store took
+     * that text; null when it couldn't be filed.
+     *
+     * @return ?list<string>
+     */
+    private function directReplyDocuments(int $transactionId, int $patientId, int $replyId, ?int $noteId, ?int $userId): ?array
+    {
+        if ($noteId === null) {
+            return null;
+        }
+        $rows = QueryUtils::fetchRecords(
+            'SELECT d.id, d.uuid FROM gprelations AS g JOIN documents AS d ON d.id = g.id1
+                WHERE g.type1 = 1 AND g.type2 = 6 AND g.id2 = ? AND d.foreign_id = ? AND d.deleted = 0 ORDER BY d.id',
+            [$noteId, $patientId]
+        );
+        $documents = [];
+        foreach ($rows as $row) {
+            if (!is_numeric($row['id'] ?? null)) {
+                continue;
+            }
+            if (!is_string($row['uuid'] ?? null)) {
+                UuidRegistry::createMissingUuidForRow('documents', 'id', (int)$row['id']);
+                $row['uuid'] = QueryUtils::fetchSingleValue('SELECT uuid FROM documents WHERE id = ?', 'uuid', [(int)$row['id']]);
+            }
+            if (is_string($row['uuid'])) {
+                $documents[] = UuidRegistry::uuidToString($row['uuid']);
+            }
+        }
+        if ($documents !== []) {
+            return $documents;
+        }
+        $name = 'direct-reply-' . $replyId . '.txt';
+        $filed = $this->filedReply($transactionId, $patientId, $name);
+        if ($filed !== null) {
+            return [$filed];
+        }
+        $body = QueryUtils::fetchSingleValue('SELECT body FROM pnotes WHERE id = ? AND pid = ?', 'body', [$noteId, $patientId]);
+        if (!is_string($body) || trim($body) === '') {
+            return null;
+        }
+        $document = $this->fileReply($transactionId, $patientId, $name, $body, $userId);
+        return match (true) {
+            is_string($document) => [$document],
+            $document === false => [],
+            default => null,
+        };
+    }
+
+    /**
+     * Sets the referral's Reply Date only if it has none (no row, or a blank one), so a date a user saved
+     * in the meantime is never written over. The statements skip the SQL log, whose own insert would
+     * otherwise be the row count read here.
+     *
+     * @return bool whether this call set it
+     */
+    private static function claimReplyDate(int $transactionId, string $date): bool
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE lbt_data SET field_value = ? WHERE form_id = ? AND field_id = 'reply_date' AND TRIM(COALESCE(field_value, '')) = ''",
+            [$date, $transactionId],
+            noLog: true
+        );
+        $updated = QueryUtils::affectedRows();
+        if ($updated === 1) {
+            return true;
+        }
+        QueryUtils::sqlStatementThrowException(
+            "INSERT IGNORE INTO lbt_data (form_id, field_id, field_value) VALUES (?, 'reply_date', ?)",
+            [$transactionId, $date],
+            noLog: true
+        );
+        return QueryUtils::affectedRows() === 1;
+    }
+
+    /**
+     * Tells the recipient about the Task just made for them (ReferralNoticeService), which records how
+     * it went for the referral's page. The Task is made either way: a notice that fails is logged and
+     * recorded, never thrown, so a REST client's save doesn't answer with an error and get retried.
+     */
+    private function notifyRecipient(int $transactionId, string $taskUuid, ?int $userId): void
+    {
+        try {
+            $this->getNoticeService()->notify($transactionId, $taskUuid, $userId);
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            $this->getLogger()->error("A referral's Task was made but its recipient's notice failed", [
+                'transaction_id' => $transactionId,
+                'task_uuid' => $taskUuid,
+                'exception' => $e,
+            ]);
         }
     }
 

@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 571
+-- v_database: 572
 --
 
 --
@@ -1378,9 +1378,12 @@ CREATE TABLE `direct_message_log` (
   `status_ts` timestamp NULL default NULL,
   `patient_id` bigint(20) default NULL,
   `user_id` bigint(20) default NULL,
+  `referral_id` bigint(20) default NULL COMMENT 'transactions.id of the referral a sent message carried, or a received reply was matched to',
+  `note_id` bigint(20) default NULL COMMENT 'pnotes.id of the note a received message was filed as',
   PRIMARY KEY  (`id`),
   KEY `msg_id` (`msg_id`),
-  KEY `patient_id` (`patient_id`)
+  KEY `patient_id` (`patient_id`),
+  KEY `referral_id` (`referral_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -8885,6 +8888,27 @@ CREATE TABLE `pro_assessments` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `referral_notice`
+--
+
+DROP TABLE IF EXISTS `referral_notice`;
+CREATE TABLE `referral_notice` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `transaction_id` bigint(20) NOT NULL COMMENT 'transactions.id of the referral',
+  `task_uuid` binary(16) NOT NULL COMMENT 'task.uuid of the Task the recipient was told about',
+  `outcome` varchar(31) NOT NULL COMMENT 'ReferralNoticeOutcome: how the recipient was told, or why they were not',
+  `address` varchar(255) DEFAULT NULL COMMENT 'the Direct or email address the notice went to',
+  `msg_id` varchar(127) DEFAULT NULL COMMENT 'direct_message_log.msg_id of a Direct notice, which carries its delivery status',
+  `detail` varchar(511) DEFAULT NULL COMMENT 'why a notice could not be sent',
+  `user_id` bigint(20) DEFAULT NULL COMMENT 'users.id of who saved the referral',
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `transaction_id` (`transaction_id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `registry`
 --
 
@@ -12838,6 +12862,7 @@ CREATE TABLE `ccda` (
   `emr_transfer` tinyint(4) NOT NULL DEFAULT '0',
   `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
   `transaction_id` BIGINT(20) COMMENT 'fk to transaction referral record',
+  `transaction_chosen` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 when staff chose transaction_id for this C-CDA, 0 when it is the patient''s most recent referral',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY `unique_key` (`pid`,`encounter`,`time`)

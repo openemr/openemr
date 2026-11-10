@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\DirectMessaging;
 
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogRepository;
 use OpenEMR\Common\DirectMessaging\PhiMailAttachmentType;
 use OpenEMR\Common\DirectMessaging\PhiMailConfig;
@@ -26,6 +27,7 @@ use OpenEMR\Common\DirectMessaging\PhiMailOutgoingAttachment;
 use OpenEMR\Common\DirectMessaging\PhiMailOutgoingMessage;
 use OpenEMR\Common\DirectMessaging\PhiMailRequester;
 use OpenEMR\Common\DirectMessaging\PhiMailSender;
+use OpenEMR\Common\DirectMessaging\PhiMailSendResult;
 use OpenEMR\Common\DirectMessaging\PhiMailServer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
@@ -50,6 +52,9 @@ final class PhiMailSenderTest extends TestCase
     /** @var list<array{string, ?string, ?string, int, string, ?int}> event, user, group, success flag, comments, and patient of each audit row */
     private array $auditRows = [];
 
+    /** Thrown by the audit log in place of writing, when set */
+    private ?\RuntimeException $auditFailure = null;
+
     private DirectMessageLogRepository&MockObject $messageLog;
 
     protected function setUp(): void
@@ -71,10 +76,13 @@ final class PhiMailSenderTest extends TestCase
         $this->messageLog = $this->createMock(DirectMessageLogRepository::class);
     }
 
+    /**
+     * Sends a message and logs it with no patient or referral.
+     */
     public function testSendsAMessage(): void
     {
         $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-1'));
-        $this->messageLog->expects(self::once())->method('recordSent')->with('msg-1', 'test-user', 'to@direct.example', null, 3);
+        $this->messageLog->expects(self::once())->method('recordSent')->with('msg-1', 'test-user', 'to@direct.example', null, 3, null);
 
         $result = $this->send(new PhiMailOutgoingMessage('to@direct.example', 'hello'));
 
@@ -89,10 +97,13 @@ final class PhiMailSenderTest extends TestCase
         );
     }
 
+    /**
+     * Sends a document for a patient.
+     */
     public function testSendsADocumentForAPatient(): void
     {
         $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-2'));
-        $this->messageLog->expects(self::once())->method('recordSent')->with('msg-2', 'test-user', 'to@direct.example', 42, 3);
+        $this->messageLog->expects(self::once())->method('recordSent')->with('msg-2', 'test-user', 'to@direct.example', 42, 3, null);
 
         $result = $this->send(new PhiMailOutgoingMessage(
             recipient: 'to@direct.example',
@@ -109,6 +120,74 @@ final class PhiMailSenderTest extends TestCase
             $this->sentCommands(),
         );
         self::assertSame([['sent', 'sender', 'Default', 1, 'QUEUED to@direct.example msg-2' . self::LF, 42]], $this->auditRows);
+    }
+
+    /**
+     * Logs the referral a message carries and gives its id.
+     */
+    public function testLogsTheReferralAMessageCarriesAndGivesItsId(): void
+    {
+        $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-3'));
+        $this->messageLog->expects(self::once())->method('recordSent')->with('msg-3', 'test-user', 'to@direct.example', 42, 3, 7);
+
+        $result = $this->sender()->deliver(
+            new PhiMailOutgoingMessage(recipient: 'to@direct.example', text: 'hello', patientId: 42, referralId: 7),
+            new PhiMailRequester('sender', 'Default', 3),
+            failureEvent: 'failed',
+            successEvent: 'sent',
+        );
+
+        self::assertTrue($result->wasSent());
+        self::assertSame('msg-3', $result->messageId);
+        self::assertSame(PhiMailSender::SUCCESS, $result->message);
+    }
+
+    /**
+     * Once the server queued a message it has gone: a log that then fails makes it sent but unlogged,
+     * not an error, so nobody sends it again.
+     */
+    public function testAQueuedMessageTheLogRefusesIsSentButUnlogged(): void
+    {
+        $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-4'));
+        $this->messageLog->method('recordSent')->willThrowException(new SqlQueryException(sqlStatement: 'INSERT INTO direct_message_log', message: 'database is down'));
+
+        $result = $this->deliver(new PhiMailOutgoingMessage('to@direct.example', 'hello'));
+
+        self::assertSame(['msg-4', PhiMailSender::SUCCESS, false], [$result->messageId, $result->message, $result->logged]);
+    }
+
+    /**
+     * The same when it's the success audit, written before the log, that fails.
+     */
+    public function testAQueuedMessageTheAuditRefusesIsSentButUnlogged(): void
+    {
+        $this->reply(self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-5'));
+        $this->auditFailure = new \RuntimeException('audit table is gone');
+        $this->messageLog->expects(self::never())->method('recordSent');
+
+        $result = $this->deliver(new PhiMailOutgoingMessage('to@direct.example', 'hello'));
+
+        self::assertSame(['msg-5', PhiMailSender::SUCCESS, false], [$result->messageId, $result->message, $result->logged]);
+    }
+
+    /**
+     * An unsent message has no id and says why.
+     */
+    public function testAnUnsentMessageHasNoIdAndSaysWhy(): void
+    {
+        $connections = $this->createMock(PhiMailConnectionFactory::class);
+        $connections->expects(self::never())->method('open');
+
+        $result = $this->sender($connections, enabled: false)->deliver(
+            new PhiMailOutgoingMessage('to@direct.example', 'hello'),
+            new PhiMailRequester('sender', 'Default', 3),
+            failureEvent: 'failed',
+            successEvent: 'sent',
+        );
+
+        self::assertFalse($result->wasSent());
+        self::assertNull($result->messageId);
+        self::assertSame(self::CONFIG_ERROR . ' 1', $result->message);
     }
 
     public function testDisabledMessagingDoesNotConnect(): void
@@ -285,6 +364,9 @@ final class PhiMailSenderTest extends TestCase
         $this->sentCommands();
     }
 
+    /**
+     * A lost acknowledgment keeps the queued message.
+     */
     public function testLostAcknowledgmentKeepsTheQueuedMessage(): void
     {
         HangUpAfterSendStream::$replies = self::lines('OK', 'OK', 'recipient info', 'BEGIN', 'OK', 'OK', 'QUEUED to@direct.example msg-3');
@@ -306,6 +388,14 @@ final class PhiMailSenderTest extends TestCase
         self::assertSame([['sent', 'sender', 'Default', 1, 'QUEUED to@direct.example msg-3' . self::LF, null]], $this->auditRows);
     }
 
+    /**
+     * deliver() as the referral notice calls it.
+     */
+    private function deliver(PhiMailOutgoingMessage $message): PhiMailSendResult
+    {
+        return $this->sender()->deliver($message, new PhiMailRequester('sender', 'Default', 3), failureEvent: 'failed', successEvent: 'sent');
+    }
+
     private function send(PhiMailOutgoingMessage $message, ?PhiMailSender $sender = null): string
     {
         return ($sender ?? $this->sender())->send(
@@ -316,6 +406,9 @@ final class PhiMailSenderTest extends TestCase
         );
     }
 
+    /**
+     * A sender on the test connection, recording what it audits.
+     */
     private function sender(
         ?PhiMailConnectionFactory $connections = null,
         bool $enabled = true,
@@ -327,6 +420,9 @@ final class PhiMailSenderTest extends TestCase
         $auditLogger = $this->createMock(EventAuditLogger::class);
         $auditLogger->method('newEvent')->willReturnCallback(
             function (string $event, ?string $user, ?string $group, int $success, string $comments, ?int $patientId): void {
+                if ($this->auditFailure !== null) {
+                    throw $this->auditFailure;
+                }
                 $this->auditRows[] = [$event, $user, $group, $success, $comments, $patientId];
             }
         );

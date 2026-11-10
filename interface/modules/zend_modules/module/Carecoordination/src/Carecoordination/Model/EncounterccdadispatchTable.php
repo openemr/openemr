@@ -66,6 +66,8 @@ class EncounterccdadispatchTable
     public $searchToDate;
     public $searchFiltered = false;
     private $encounterFilterList = [];
+    /** The referral (transactions.id) the Reason for Referral section is about, or null for the patient's most recent. */
+    private ?int $contentReferralId = null;
 
     private readonly SessionInterface $session;
 
@@ -4005,8 +4007,10 @@ class EncounterccdadispatchTable
             $encrypted = $document->is_encrypted();
             $referralId = $this->referralForCcda(is_numeric($pid) ? (int)$pid : 0, $chosenReferralId);
 
-            $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $moduleInsertId = QueryUtils::sqlInsert($query, [$binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId]);
+            // Whether the link is the referral staff chose, not the guess at the most recent one.
+            $chosen = $chosenReferralId !== null && $referralId !== null ? 1 : 0;
+            $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`, `transaction_chosen`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $moduleInsertId = QueryUtils::sqlInsert($query, [$binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId, $chosen]);
 
             // now let's go ahead and log our amc actions for this behavior
             if (!empty($emr_transfer)) {
@@ -4854,12 +4858,26 @@ class EncounterccdadispatchTable
     }
 
     /**
+     * Makes the Reason for Referral section of the C-CDAs generated from here on about this referral,
+     * or, with null, the patient's most recent one. A referral that isn't the patient's gives the
+     * section nothing, rather than another referral's reason.
+     */
+    public function setContentReferral(?int $referralId): void
+    {
+        $this->contentReferralId = $referralId;
+    }
+
+    /**
      * @param $pid
      */
     private function getReferralRecords($pid): array
     {
         $wherCon = '';
         $sqlBindArray = [$pid];
+        if ($this->contentReferralId !== null) {
+            $wherCon .= "AND t.id = ? ";
+            $sqlBindArray[] = $this->contentReferralId;
+        }
         $wherCon .= "ORDER BY date DESC";
 
         $query = "SELECT ref_body.field_value AS body, ref_to.field_value AS refer_to

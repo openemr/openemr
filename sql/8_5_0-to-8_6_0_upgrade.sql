@@ -317,3 +317,34 @@ WHERE `name` = 'phimail' AND (`function` = 'phimail_check' OR `require_once` = '
 ALTER TABLE `patient_review_event`
   ADD COLUMN `payload` longtext COMMENT 'What the request held before its submitter replaced it; NULL for a status change';
 #EndIf
+
+-- A Direct message's referral: the one a sent message carried, or the one a reply was matched to (#15137).
+#IfMissingColumn direct_message_log referral_id
+ALTER TABLE `direct_message_log` ADD COLUMN `referral_id` bigint(20) DEFAULT NULL COMMENT 'transactions.id of the referral a sent message carried, or a received reply was matched to', ADD KEY `referral_id` (`referral_id`);
+#EndIf
+
+-- Whether staff chose a C-CDA's referral, so only a chosen one is sent with a Direct message (#15137).
+#IfMissingColumn ccda transaction_chosen
+ALTER TABLE `ccda` ADD COLUMN `transaction_chosen` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 when staff chose transaction_id for this C-CDA, 0 when it is the patient''s most recent referral';
+#EndIf
+
+#IfMissingColumn direct_message_log note_id
+ALTER TABLE `direct_message_log` ADD COLUMN `note_id` bigint(20) DEFAULT NULL COMMENT 'pnotes.id of the note a received message was filed as';
+#EndIf
+
+-- How a referral's recipient was told about their Task, or why they weren't (#15137).
+#IfNotTable referral_notice
+CREATE TABLE `referral_notice` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `transaction_id` bigint(20) NOT NULL COMMENT 'transactions.id of the referral',
+  `task_uuid` binary(16) NOT NULL COMMENT 'task.uuid of the Task the recipient was told about',
+  `outcome` varchar(31) NOT NULL COMMENT 'ReferralNoticeOutcome: how the recipient was told, or why they were not',
+  `address` varchar(255) DEFAULT NULL COMMENT 'the Direct or email address the notice went to',
+  `msg_id` varchar(127) DEFAULT NULL COMMENT 'direct_message_log.msg_id of a Direct notice, which carries its delivery status',
+  `detail` varchar(511) DEFAULT NULL COMMENT 'why a notice could not be sent',
+  `user_id` bigint(20) DEFAULT NULL COMMENT 'users.id of who saved the referral',
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `transaction_id` (`transaction_id`)
+) ENGINE=InnoDB;
+#EndIf
