@@ -145,27 +145,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
                 // Dose: {value} {unit} {timing} {route} {additionalInstructions}
                 $instructions = [];
                 foreach ($fhirResource->getDosageInstruction() as $fhirDosage) {
-                    $dosageText = $fhirDosage->getText();
-                    if ($dosageText !== null) {
-                        $dosageText = 'Dose: ';
-                        $doseQuantity = $fhirDosage->getDoseAndRate()[0]->getDoseQuantity();
-                        if ($doseQuantity) {
-                            $dosageText .= $doseQuantity->getValue() . ' ' . $doseQuantity->getUnit() . ' ';
-                        }
-                        $timing = $fhirDosage->getTiming();
-                        if ($timing !== null) {
-                            $dosageText .= ' ' . $timing->getCode()->getText() . ' ';
-                        }
-                        $route = $fhirDosage->getRoute();
-                        if ($route) {
-                            $dosageText .= ' via ' . $route->getCoding()[0]->getDisplay() . ' ';
-                        }
-                        $additionalInstructions = $fhirDosage->getAdditionalInstruction();
-                        if ($additionalInstructions) {
-                            $dosageText .= ' ' . $additionalInstructions[0]->getText() . ' ';
-                        }
-                    }
-                    $instructions[] = trim($dosageText);
+                    $instructions[] = $this->narrativeForDosageInstruction($fhirDosage);
                 }
 
                 $medicationName = $fhirResource->getMedicationCodeableConcept()->getText() ?? xl("Unknown Medication");
@@ -430,6 +410,41 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
         ];
 
         return $displays[$code] ?? 'First Fille';
+    }
+
+    /**
+     * Encounter-summary line for one Dosage. Keep a free-text SIG when there is
+     * no doseAndRate (a SIG is not a quantity, #14703).
+     */
+    private function narrativeForDosageInstruction(FHIRDosage $fhirDosage): string
+    {
+        $dosageText = $fhirDosage->getText();
+        if ($dosageText !== null) {
+            $rates = $fhirDosage->getDoseAndRate();
+            if (isset($rates[0])) {
+                $dosageText = 'Dose: ';
+                $doseQuantity = $rates[0]->getDoseQuantity();
+                if ($doseQuantity) {
+                    $dosageText .= $doseQuantity->getValue() . ' ' . $doseQuantity->getUnit() . ' ';
+                }
+                $timing = $fhirDosage->getTiming();
+                if ($timing !== null) {
+                    $dosageText .= ' ' . $timing->getCode()->getText() . ' ';
+                }
+                $route = $fhirDosage->getRoute();
+                if ($route) {
+                    $coding = $route->getCoding();
+                    if (isset($coding[0])) {
+                        $dosageText .= ' via ' . $coding[0]->getDisplay() . ' ';
+                    }
+                }
+                $additionalInstructions = $fhirDosage->getAdditionalInstruction();
+                if (isset($additionalInstructions[0])) {
+                    $dosageText .= ' ' . $additionalInstructions[0]->getText() . ' ';
+                }
+            }
+        }
+        return trim((string)$dosageText);
     }
 
     /**

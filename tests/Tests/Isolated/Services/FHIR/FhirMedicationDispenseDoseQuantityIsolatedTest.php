@@ -49,4 +49,25 @@ class FhirMedicationDispenseDoseQuantityIsolatedTest extends TestCase
         $this->assertNotEquals(50, $json['value'] ?? null);
         $this->assertSame('tablet', $json['unit'] ?? null);
     }
+
+    /**
+     * A free-text SIG has no doseAndRate; the encounter summary must keep the SIG
+     * instead of indexing an empty doseAndRate list.
+     */
+    public function testEncounterSummaryKeepsASigWhenDoseAndRateIsEmpty(): void
+    {
+        $map = new ReflectionMethod(FhirMedicationDispenseLocalDispensaryService::class, 'mapDosageInstruction');
+        $narrative = new ReflectionMethod(FhirMedicationDispenseLocalDispensaryService::class, 'narrativeForDosageInstruction');
+        $service = (new ReflectionClass(FhirMedicationDispenseLocalDispensaryService::class))->newInstanceWithoutConstructor();
+        $dosage = $map->invoke($service, [
+            'dosage' => 'Take 1 tablet daily',
+            'prescription_form_title' => 'tablet',
+            'prescription_drug_size' => '50',
+            'unit_title' => 'mg',
+            'route_title' => 'Oral',
+        ]);
+        $this->assertInstanceOf(FHIRDosage::class, $dosage);
+        $this->assertSame([], $dosage->getDoseAndRate());
+        $this->assertSame('Take 1 tablet daily', $narrative->invoke($service, $dosage));
+    }
 }
