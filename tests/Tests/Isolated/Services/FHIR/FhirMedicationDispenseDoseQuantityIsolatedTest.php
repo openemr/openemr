@@ -1,7 +1,8 @@
 <?php
 
 /**
- * MedicationDispense doseQuantity keeps fractional strengths (#14703).
+ * MedicationDispense doseQuantity is prescriptions.dosage + form as a decimal,
+ * matching MedicationRequest (#14703).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -25,15 +26,16 @@ use ReflectionMethod;
 class FhirMedicationDispenseDoseQuantityIsolatedTest extends TestCase
 {
     /**
-     * MedicationDispense doseQuantity must keep 0.5 mg, not intval() 0.
+     * MedicationDispense doseQuantity must keep 0.5 tablet, not size 50 mg or intval() 0.
      */
-    public function testDoseQuantityKeepsHalfAMilligram(): void
+    public function testDoseQuantityKeepsHalfATablet(): void
     {
         $method = new ReflectionMethod(FhirMedicationDispenseLocalDispensaryService::class, 'mapDosageInstruction');
         $service = (new ReflectionClass(FhirMedicationDispenseLocalDispensaryService::class))->newInstanceWithoutConstructor();
         $dosage = $method->invoke($service, [
-            'dosage' => '1',
-            'prescription_drug_size' => '0.5',
+            'dosage' => '0.5',
+            'prescription_form_title' => 'tablet',
+            'prescription_drug_size' => '50',
             'unit_title' => 'mg',
             'route_title' => 'Oral',
         ]);
@@ -44,6 +46,7 @@ class FhirMedicationDispenseDoseQuantityIsolatedTest extends TestCase
         $this->assertIsArray($json);
         $this->assertEquals(0.5, $json['value'] ?? null);
         $this->assertNotEquals(0, $json['value'] ?? null);
-        $this->assertSame('mg', $json['unit'] ?? null);
+        $this->assertNotEquals(50, $json['value'] ?? null);
+        $this->assertSame('tablet', $json['unit'] ?? null);
     }
 }

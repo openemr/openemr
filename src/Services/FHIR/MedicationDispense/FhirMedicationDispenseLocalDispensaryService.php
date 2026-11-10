@@ -435,8 +435,8 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
     /**
      * Map SIG, timing, route, and doseQuantity onto a FHIR Dosage.
      *
-     * doseQuantity is prescriptions.size + unit_title as a decimal, matching
-     * MedicationRequest; intval() would send 0 mg for 0.5 (#14703).
+     * doseQuantity is prescriptions.dosage + form as a decimal, matching
+     * MedicationRequest; intval() would send 0 for 0.5 tablet (#14703).
      */
     private function mapDosageInstruction(array $dataRecord): ?FHIRDosage
     {
@@ -475,10 +475,10 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             $dosage->setTiming($fhirTiming);
         }
 
-        // Same mapping as MedicationRequest: size + unit as a decimal, not intval (#14703).
-        $quantity = UtilsService::decimalQuantityValue($dataRecord['prescription_drug_size'] ?? null);
+        // Same mapping as MedicationRequest: dosage + form as a decimal, not intval (#14703).
+        $quantity = UtilsService::decimalQuantityValue($dataRecord['dosage'] ?? null);
         if ($quantity !== null) {
-            $unit = $dataRecord['unit_title'] ?? '';
+            $unit = $dataRecord['prescription_form_title'] ?? $dataRecord['drug_form_title'] ?? '';
             $doseQuantity = UtilsService::createQuantity($quantity, $unit, $unit);
             $doseAndRate = new FHIRDosageDoseAndRate();
             $doseAndRate->setDoseQuantity($doseQuantity);

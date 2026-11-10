@@ -612,8 +612,8 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     /**
      * Map prescription SIG, timing, route, and doseQuantity onto the MedicationRequest.
      *
-     * doseQuantity is prescriptions.size + unit_title as a decimal (FHIR
-     * Quantity.value), not intval(), so 0.5 mg stays 0.5 (#14703).
+     * doseQuantity is prescriptions.dosage + form_title as a decimal (FHIR
+     * Quantity.value), matching QDM; intval() would send 0 for 0.5 tablet (#14703).
      */
     public function populateDosageInstruction(FHIRMedicationRequest $medRequestResource, array $dataRecord): void
     {
@@ -655,12 +655,12 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $dosage->setTiming($fhirTiming);
         }
 
-        // Medicine Units (prescriptions.size + unit) is the structured strength pair.
-        // Keep that mapping for doseQuantity — it matches CDA and US Core tests — but do
-        // not truncate: FHIR Quantity.value is decimal, so 0.5 mg must stay 0.5 (#14703).
-        $quantity = UtilsService::decimalQuantityValue($dataRecord['prescription_drug_size'] ?? null);
+        // dosage is the per-dose count (0.5 tablet); form_title is that count's unit.
+        // prescriptions.size + unit_title is strength (50 mg) and belongs elsewhere.
+        // Do not truncate: FHIR Quantity.value is decimal, so 0.5 tablet stays 0.5 (#14703).
+        $quantity = UtilsService::decimalQuantityValue($dataRecord['dosage'] ?? null);
         if ($quantity !== null) {
-            $unit = $dataRecord['unit_title'] ?? '';
+            $unit = $dataRecord['form_title'] ?? '';
             $doseQuantity = UtilsService::createQuantity($quantity, $unit, $unit);
             $doseAndRate = new FHIRDosageDoseAndRate();
             $doseAndRate->setDoseQuantity($doseQuantity);

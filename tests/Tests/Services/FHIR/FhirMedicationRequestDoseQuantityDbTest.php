@@ -1,9 +1,8 @@
 <?php
 
 /**
- * Prescriptions.size 0.5 must stay 0.5 mg through the FHIR search SQL, and
- * prescriptions.dosage 0.5 must stay 0.5 tablet through the QDM medication SQL
- * (#14703).
+ * Prescriptions.dosage 0.5 must stay 0.5 tablet through FHIR search SQL and
+ * QDM medication SQL (#14703). Strength (size + unit) must not become doseQuantity.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -70,10 +69,10 @@ class FhirMedicationRequestDoseQuantityDbTest extends TestCase
     }
 
     /**
-     * FHIR search SQL must keep prescriptions.size 0.5 as 0.5 mg, not intval() 0.
+     * FHIR search SQL must keep prescriptions.dosage 0.5 as 0.5 tablet, not size 50 mg.
      */
     #[Test]
-    public function testSearchKeepsAHalfMilligramDoseQuantity(): void
+    public function testSearchKeepsAHalfTabletDoseQuantity(): void
     {
         $uuid = $this->insertFractionalPrescription();
         $result = $this->fhirMedicationRequestService->getOne($uuid, $this->patientUuid);
@@ -90,8 +89,10 @@ class FhirMedicationRequestDoseQuantityDbTest extends TestCase
         $json = json_decode((string)json_encode($rates[0]->getDoseQuantity()), true);
         $this->assertIsArray($json);
         $this->assertEquals(0.5, $json['value'] ?? null);
-        $this->assertNotEquals(0, $json['value'] ?? null, 'intval() would have sent 0 mg');
-        $this->assertSame('mg', $json['unit'] ?? null);
+        $this->assertNotEquals(0, $json['value'] ?? null, 'intval() would have sent 0');
+        $this->assertNotEquals(50, $json['value'] ?? null, 'strength size is not doseQuantity');
+        $this->assertSame('tablet', $json['unit'] ?? null);
+        $this->assertNotSame('mg', $json['unit']);
     }
 
     /**
@@ -121,7 +122,7 @@ class FhirMedicationRequestDoseQuantityDbTest extends TestCase
     }
 
     /**
-     * Seed a 0.5 mg / 0.5 tablet prescription for the fixture patient.
+     * Seed a 0.5 tablet of a 50 mg strength for the fixture patient.
      */
     private function insertFractionalPrescription(): string
     {
@@ -135,14 +136,14 @@ class FhirMedicationRequestDoseQuantityDbTest extends TestCase
             [
                 $uuid,
                 $this->patientId,
-                'Levothyroxine 0.5 MG Oral Tablet',
+                'Levothyroxine 50 MG Oral Tablet',
                 '966247',
                 1,
                 '2024-01-15 10:30:00',
                 '2024-01-15',
                 '2024-01-15',
                 '0.5',
-                '0.5',
+                '50',
                 1,
                 2,
                 'Home/Community',

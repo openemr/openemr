@@ -1,8 +1,8 @@
 <?php
 
 /**
- * MedicationRequest doseQuantity keeps fractional strengths and the unit that
- * describes prescriptions.size (#14703).
+ * MedicationRequest doseQuantity is prescriptions.dosage + form_title as a
+ * decimal, matching QDM (#14703). Strength (size + unit_title) is not this field.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -29,58 +29,82 @@ class FhirMedicationRequestDoseQuantityIsolatedTest extends TestCase
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
-    public static function fractionalStrengths(): array
+    public static function fractionalDosages(): array
     {
         return [
-            'half a milligram' => ['0.5', 'mg', 0.5, 'mg'],
-            'two and a half milligrams' => [2.5, 'mg', 2.5, 'mg'],
-            'one capsule' => [1, 'capsule', 1.0, 'capsule'],
+            'half a tablet' => ['0.5', 'tablet', 0.5, 'tablet'],
+            'two and a half capsules' => [2.5, 'capsule', 2.5, 'capsule'],
+            'one tablet' => [1, 'tablet', 1.0, 'tablet'],
         ];
     }
 
     /**
-     * Fractional prescriptions.size values must stay decimal with the strength unit.
+     * Fractional prescriptions.dosage values must stay decimal with the form unit.
      *
-     * @param mixed $size
-     * @param mixed $unit
+     * @param mixed $dosage
+     * @param mixed $form
      */
-    #[DataProvider('fractionalStrengths')]
-    public function testDoseQuantityKeepsFractionalStrengths(mixed $size, mixed $unit, float $expectedValue, string $expectedUnit): void
+    #[DataProvider('fractionalDosages')]
+    public function testDoseQuantityKeepsFractionalDosages(mixed $dosage, mixed $form, float $expectedValue, string $expectedUnit): void
     {
         $json = $this->doseQuantity([
             'drug_dosage_instructions' => 'Take as directed',
-            'prescription_drug_size' => $size,
-            'unit_title' => $unit,
+            'dosage' => $dosage,
+            'form_title' => $form,
+            'prescription_drug_size' => '50',
+            'unit_title' => 'mg',
         ]);
 
         $this->assertEquals($expectedValue, $json['value'] ?? null);
         $this->assertSame($expectedUnit, $json['unit'] ?? null);
+        $this->assertNotSame('mg', $json['unit']);
     }
 
     /**
-     * 0.5 mg must not become 0 mg the way intval() used to.
+     * 0.5 tablet must not become 0 the way intval() used to, and must not use size (mg).
      */
-    public function testATruncatingCastWouldHaveSentZeroMilligrams(): void
+    public function testATruncatingCastWouldHaveSentZeroTablets(): void
     {
         $json = $this->doseQuantity([
             'drug_dosage_instructions' => 'Take as directed',
-            'prescription_drug_size' => '0.5',
+            'dosage' => '0.5',
+            'form_title' => 'tablet',
+            'prescription_drug_size' => '50',
             'unit_title' => 'mg',
         ]);
 
         $this->assertEquals(0.5, $json['value'] ?? null);
         $this->assertNotEquals(0, $json['value'] ?? null);
-        $this->assertSame('mg', $json['unit'] ?? null);
+        $this->assertNotEquals(50, $json['value'] ?? null);
+        $this->assertSame('tablet', $json['unit'] ?? null);
     }
 
     /**
-     * No prescriptions.size means no doseAndRate, matching the prior omit-empty rule.
+     * A free-text SIG in dosage is not numeric, so doseAndRate is omitted.
      */
-    public function testAMissingSizeOmitsDoseQuantity(): void
+    public function testASigOmitsDoseQuantity(): void
     {
         $resource = new FHIRMedicationRequest();
         $this->service()->populateDosageInstruction($resource, [
             'drug_dosage_instructions' => 'Take as directed',
+            'dosage' => 'Take 1 tablet daily',
+            'form_title' => 'tablet',
+        ]);
+        $instructions = $resource->getDosageInstruction();
+        $this->assertNotEmpty($instructions);
+        $this->assertSame([], $instructions[0]->getDoseAndRate());
+    }
+
+    /**
+     * No numeric dosage means no doseAndRate, matching the omit-empty rule.
+     */
+    public function testAMissingDosageOmitsDoseQuantity(): void
+    {
+        $resource = new FHIRMedicationRequest();
+        $this->service()->populateDosageInstruction($resource, [
+            'drug_dosage_instructions' => 'Take as directed',
+            'prescription_drug_size' => '50',
+            'unit_title' => 'mg',
         ]);
         $instructions = $resource->getDosageInstruction();
         $this->assertNotEmpty($instructions);

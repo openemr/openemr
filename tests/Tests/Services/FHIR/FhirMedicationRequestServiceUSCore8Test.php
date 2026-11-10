@@ -79,7 +79,9 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             'drug_dosage_instructions' => 'Take 1 capsule by mouth twice daily',
             'interval_codes' => 'BID',
             'interval_notes' => 'Twice a day',
-            'prescription_drug_size' => 1,
+            'dosage' => 1,
+            'form_title' => 'capsule',
+            'prescription_drug_size' => 500,
             'route' => 'PO',
             'route_id' => '26643006',
             'route_title' => 'Oral route',
@@ -434,7 +436,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
                     if ($doseQuantity !== null) {
                         $this->assertInstanceOf(FHIRQuantity::class, $doseQuantity);
                         $this->assertNotNull($doseQuantity->getValue(), 'DoseQuantity must have value');
-                        $this->assertEquals($this->compliantMedicationRequestData['prescription_drug_size'], $doseQuantity->getValue(), "DoseQuantity value must match input data");
+                        $this->assertEquals($this->compliantMedicationRequestData['dosage'], $doseQuantity->getValue(), "DoseQuantity value must match the per-dose count");
                     }
                 }
             }
@@ -449,14 +451,14 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
     }
 
     /**
-     * US Core parse must keep prescription_drug_size 0.5 as 0.5 mg, not intval() 0.
+     * US Core parse must keep dosage 0.5 as 0.5 tablet, not intval() 0 or size 500 mg.
      */
     #[Test]
     public function testFractionalDoseQuantityIsNotTruncated(): void
     {
         $requestData = $this->compliantMedicationRequestData;
-        $requestData['prescription_drug_size'] = '0.5';
-        $requestData['unit_title'] = 'mg';
+        $requestData['dosage'] = '0.5';
+        $requestData['form_title'] = 'tablet';
         $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($requestData);
         $this->assertInstanceOf(FHIRMedicationRequest::class, $medicationRequest);
         $dosageInstructions = $medicationRequest->getDosageInstruction();
@@ -465,8 +467,9 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         $this->assertNotEmpty($rates);
         $doseQuantity = $rates[0]->getDoseQuantity();
         $this->assertEquals(0.5, $doseQuantity->getValue());
-        $this->assertNotEquals(0, $doseQuantity->getValue(), 'intval() would have sent 0 mg');
-        $this->assertEquals('mg', $doseQuantity->getUnit()->getValue());
+        $this->assertNotEquals(0, $doseQuantity->getValue(), 'intval() would have sent 0');
+        $this->assertNotEquals(500, $doseQuantity->getValue(), 'strength size is not doseQuantity');
+        $this->assertEquals('tablet', $doseQuantity->getUnit()->getValue());
     }
 
     #[Test]
