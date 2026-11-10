@@ -186,10 +186,6 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
   authorized document reader…" (a real Major, fixed in `15148379f7`), and resolved the
   thread. A gate check against resolution state read "no unresolved Actionable" with that
   finding open.
-- Rabbit's concurrence is weak evidence too. On the same PR it withdrew an outside-diff
-  Minor within a minute of the author's decline comment ("I agree… I withdraw the
-  suggestion"). Record "I agree / I withdraw" as the author's scope-out, verified by the
-  shepherd against the code, not as rabbit having re-checked anything.
 
 ### 2.8 Rate-limit → no coverage, not clean coverage
 
@@ -213,6 +209,18 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
 - The mechanic is already handled in practice: §4 step 3 verified-by-diff on the
   current head doesn't require the cited SHA to resolve. But naming it explicitly keeps
   a new shepherd from blocking on an unresolvable citation.
+
+### 2.10 Rabbit's concurrence is weak evidence
+
+- Rabbit will often withdraw a finding within a minute of the author declining it
+  ("I agree… I withdraw the suggestion") without re-reading the code. On the same
+  #15100 session that drove §2.7, rabbit withdrew an outside-diff Minor the author
+  had pushed back on, with no independent verification.
+- Record "I agree / I withdraw" as the **author's** scope-out, verified by the
+  shepherd against the code, not as rabbit having re-checked anything. The scope-out
+  path in §4 step 4 applies: shepherd confirms by diff inspection + files a `🔶`
+  residual with a follow-up register entry, rather than treating rabbit's agreement
+  as the final word.
 
 ---
 
