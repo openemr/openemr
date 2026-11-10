@@ -228,6 +228,9 @@
         let runtime = null
         let nextId = 1
         let importedCount = 0
+        // True while an import is running. Other actions re-render the queue meanwhile, so the
+        // Import button is left to the import until it finishes.
+        let importing = false
 
         function fill (template, ...values) {
             return values.reduce((text, value, index) => text.replace('{' + index + '}', value), template)
@@ -412,6 +415,9 @@
         }
 
         function renderImportButton () {
+            if (importing) {
+                return
+            }
             const button = element('import')
             const ready = items.filter(isImportable)
             let hint = ''
@@ -551,6 +557,9 @@
         }
 
         async function importAll () {
+            if (importing) {
+                return
+            }
             const button = element('import')
             const ready = items.filter(isImportable)
             // Check again at the click: an item can arrive between the last render and now.
@@ -561,35 +570,40 @@
             const surfaces = Array.from(document.querySelectorAll('.import-surface:checked')).map((box) => box.value)
             const createTemplate = element('create-template')?.checked === true
             showAlert('', '')
+            importing = true
             let done = 0
             let restore = busyButton(button, words.importing)
-            for (const [index, item] of ready.entries()) {
-                restore()
-                restore = busyButton(button, fill(words.importingProgress, index + 1, ready.length))
-                item.busy = words.importing
-                renderQueue()
-                try {
-                    await post({
-                        action: 'import',
-                        questionnaire: item.json,
-                        name: item.name,
-                        category: element('category').value,
-                        tags: item.tags ?? '',
-                        replace_existing: item.replace ? '1' : '0',
-                        surfaces: surfaces.join(','),
-                        create_template: createTemplate ? '1' : '0',
-                        template_category: element('template-category')?.value ?? ''
-                    })
-                    item.status = 'imported'
-                    item.error = ''
-                    done++
-                } catch (error) {
-                    item.error = error.message
+            try {
+                for (const [index, item] of ready.entries()) {
+                    restore()
+                    restore = busyButton(button, fill(words.importingProgress, index + 1, ready.length))
+                    item.busy = words.importing
+                    renderQueue()
+                    try {
+                        await post({
+                            action: 'import',
+                            questionnaire: item.json,
+                            name: item.name,
+                            category: element('category').value,
+                            tags: item.tags ?? '',
+                            replace_existing: item.replace ? '1' : '0',
+                            surfaces: surfaces.join(','),
+                            create_template: createTemplate ? '1' : '0',
+                            template_category: element('template-category')?.value ?? ''
+                        })
+                        item.status = 'imported'
+                        item.error = ''
+                        done++
+                    } catch (error) {
+                        item.error = error.message
+                    }
+                    item.busy = null
+                    renderQueue()
                 }
-                item.busy = null
-                renderQueue()
+            } finally {
+                restore()
+                importing = false
             }
-            restore()
             importedCount += done
             const failed = ready.filter((item) => item.status !== 'imported').map((item) => item.label)
             showAlert(
