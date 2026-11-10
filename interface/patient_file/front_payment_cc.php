@@ -62,11 +62,8 @@ if ($_POST['mode'] == 'AuthorizeNet') {
 
 if ($_POST['mode'] == 'Stripe') {
     $pd = sqlQuery("SELECT " .
-        "p.fname, p.mname, p.lname, p.pubpid, p.pid, i.copay " .
-        "FROM patient_data AS p " .
-        "LEFT OUTER JOIN insurance_data AS i ON " .
-        "i.pid = p.pid AND i.type = 'primary' " .
-        "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", [$pid]);
+        "p.fname, p.mname, p.lname, p.pubpid, p.pid " .
+        "FROM patient_data AS p WHERE p.pid = ?", [$pid]);
     $pay = new PaymentGateway("Stripe");
     $transaction['amount'] = $_POST['payment'];
     $transaction['currency'] = "USD";
@@ -178,11 +175,8 @@ if ($_GET['mode'] == 'terminal_create') {
         $json_str = file_get_contents('php://input');
         $json_obj = json_decode($json_str);
         $pd = sqlQuery("SELECT " .
-            "p.fname, p.mname, p.lname, p.pubpid,p.pid, p.email, i.copay " .
-            "FROM patient_data AS p " .
-            "LEFT OUTER JOIN insurance_data AS i ON " .
-            "i.pid = p.pid AND i.type = 'primary' " .
-            "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", [$pid]);
+            "p.fname, p.mname, p.lname, p.pubpid,p.pid, p.email " .
+            "FROM patient_data AS p WHERE p.pid = ?", [$pid]);
 
         $intent = PaymentIntent::create([
             'amount' => $json_obj->amount,

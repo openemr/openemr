@@ -28,6 +28,7 @@ require_once($srcdir . "/encounter_events.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\CheckoutPatientBalance;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -90,11 +91,8 @@ $today = date('Y-m-d', $now);
 $timestamp = date('Y-m-d H:i:s', $now);
 
 $patdata = sqlQuery("SELECT " .
-    "p.fname, p.mname, p.lname, p.pubpid,p.pid, i.copay " .
-    "FROM patient_data AS p " .
-    "LEFT OUTER JOIN insurance_data AS i ON " .
-    "i.pid = p.pid AND i.type = 'primary' " .
-    "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", [$pid]);
+    "p.fname, p.mname, p.lname, p.pubpid,p.pid " .
+    "FROM patient_data AS p WHERE p.pid = ?", [$pid]);
 
 $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
 
@@ -1424,6 +1422,7 @@ function make_insurance() {
 
                                 $gottoday = false;
                                 $idx = 1; // Starts at 1 to reduce testing scope w/ previous impl; should *not* matter in practice
+                                $checkoutBalance = new CheckoutPatientBalance();
                                 foreach ($encs as $value) {
                                     $idx++;
                                     $enc = $value['encounter'];
@@ -1458,14 +1457,8 @@ function make_insurance() {
                                     $dpayment_pat = $drow['payments'];
 
                                     //------------------------------------------------------------------------------------
-                                    //NumberOfInsurance
-                                    $ResultNumberOfInsurance = sqlStatement("SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM `insurance_data`
-                                    where pid = ? and provider>0 ", [$pid]);
-                                    $RowNumberOfInsurance = sqlFetchArray($ResultNumberOfInsurance);
-                                    $NumberOfInsurance = $RowNumberOfInsurance['NumberOfInsurance'] * 1;
-                                    //------------------------------------------------------------------------------------
                                     $duept = 0;
-                                    if ((($NumberOfInsurance == 0 || $value['last_level_closed'] == 4 || $NumberOfInsurance == $value['last_level_closed']))) {//Patient balance
+                                    if ($checkoutBalance->isDue($pid, $dispdate, $value['last_level_closed'])) {//Patient balance
                                         $brow = sqlQuery("SELECT SUM(fee) AS amount FROM `billing` WHERE " .
                                             "pid = ? and encounter = ? AND activity = 1", [$pid, $enc]);
                                         $srow = sqlQuery("SELECT SUM(fee) AS amount FROM `drug_sales` WHERE " .
