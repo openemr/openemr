@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Questionnaire;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\UserSettingsService;
@@ -27,6 +28,35 @@ final class AssessmentPageLayout
 {
     /** The user setting OemrUI keeps the width in; its _xpd suffix is OemrUI's convention. */
     public const EXPAND_SETTING = 'fhir_assessments_xpd';
+
+    /** The user setting that remembers whether the SMART test launches card is folded. */
+    public const SMART_LAUNCHES_SECTION = 'questionnaire_smart_launches_expand';
+
+    /**
+     * Which administration tabs the user may open, and where each screen lives.
+     *
+     * Each tab shows only with the permission its embedded screen also enforces. Managing where
+     * questionnaires are offered changes it for every patient and every user, so Availability
+     * needs admin/super. The document page is the portal's, which admits staff only with the
+     * portal ACL.
+     *
+     * @return array{canUseTemplates: bool, canManageAvailability: bool, canImport: bool, templatesUrl: string, availabilityUrl: string, importUrl: string}
+     */
+    public static function adminTabs(bool $authorized, int $pid, string $webRoot): array
+    {
+        $manager = $webRoot . '/interface/super/manage_questionnaire_availability.php';
+
+        return [
+            'canUseTemplates' => $authorized
+                && AclMain::aclCheckCore('patients', 'docs')
+                && AclMain::aclCheckCore('patientportal', 'portal'),
+            'canManageAvailability' => $authorized && AclMain::aclCheckCore('admin', 'super'),
+            'canImport' => $authorized && AclMain::aclCheckCore('admin', 'forms'),
+            'templatesUrl' => $webRoot . '/portal/patient/onsitedocuments?' . http_build_query(['pid' => $pid, 'is_module' => 1]),
+            'availabilityUrl' => $manager,
+            'importUrl' => $manager . '?view=import',
+        ];
+    }
 
     /**
      * Build the page's OemrUI, seeding the user's width from the questionnaire global the

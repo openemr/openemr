@@ -26,6 +26,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\Globals\CollapsedSections;
+use OpenEMR\Services\Questionnaire\AssessmentCategoryGroups;
 use OpenEMR\Services\Questionnaire\AssessmentPageLayout;
 use OpenEMR\Services\Questionnaire\AvailabilityContext;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
@@ -33,14 +34,6 @@ use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 
 $pid = PatientSessionUtil::getPid();
 $authorized = AclMain::aclCheckCore('patients', 'med');
-// Managing where questionnaires are offered changes it for every patient and every user,
-// so the tab is shown only to administrators; the embedded page enforces the same check.
-$canManageAvailability = $authorized && AclMain::aclCheckCore('admin', 'super');
-$canImport = $authorized && AclMain::aclCheckCore('admin', 'forms');
-// The embedded document page is the portal's, which admits staff only with the portal ACL.
-$canUseTemplates = $authorized
-    && AclMain::aclCheckCore('patients', 'docs')
-    && AclMain::aclCheckCore('patientportal', 'portal');
 $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
 $pageLayout = AssessmentPageLayout::create(OEGlobalsBag::getInstance());
 $showSmartContextTestLaunches = OEGlobalsBag::getInstance()->getBoolean(
@@ -124,13 +117,8 @@ $assessmentStatusClass = (static fn(string $status): string => match ($status) {
     default => 'badge-info',
 });
 
-// Grouped by category id, not title: two ids can share a title (a fallback title, or two list
-// options named alike), and each group keeps its own fold state. The key is the user setting
-// that remembers whether the group is folded away.
 $questionnairesByCategory = [];
-// the same keys => the heading shown for the group
-$categoryTitles = [];
-$smartLaunchesSection = 'questionnaire_smart_launches_expand';
+$smartLaunchesSection = AssessmentPageLayout::SMART_LAUNCHES_SECTION;
 // questionnaire id => the SMART apps it may be launched into. Empty unless a SMART
 // availability rule reaches the questionnaire, so the launch menu is offered only for
 // questionnaires an administrator selected, not for every assessment.
@@ -150,24 +138,7 @@ if ($authorized && $pid > 0) {
         )
     );
 
-    foreach ($questionnaireRecords as $questionnaireRecord) {
-        $questionnaireId = $assessmentPositiveInt($questionnaireRecord['id']);
-        if ($questionnaireId === null) {
-            continue;
-        }
-
-        $categoryTitle = $assessmentString($questionnaireRecord['category_title'] ?? null);
-        $category = $assessmentString($questionnaireRecord['category'] ?? null);
-        if ($categoryTitle === '') {
-            $categoryTitle = $category !== ''
-                ? ucwords(str_replace(['_', '-'], ' ', $category))
-                : xl('Unassigned');
-        }
-
-        $categorySection = CollapsedSections::categoryKey($category);
-        $questionnairesByCategory[$categorySection][] = $questionnaireRecord;
-        $categoryTitles[$categorySection] ??= $categoryTitle;
-    }
+    $questionnairesByCategory = AssessmentCategoryGroups::fromRecords($questionnaireRecords, xl('Unassigned'));
 
     $assessmentHistory = QueryUtils::fetchRecordsNoLog(
         "SELECT
@@ -222,14 +193,7 @@ if ($authorized && $pid > 0) {
 $collapsedSections = CollapsedSections::forCurrentUser([$smartLaunchesSection, ...array_keys($questionnairesByCategory)]);
 
 $twig = ServiceContainer::getTwig();
-$adminTabs = [
-    'canUseTemplates' => $canUseTemplates,
-    'canManageAvailability' => $canManageAvailability,
-    'canImport' => $canImport,
-    'templatesUrl' => $webRoot . '/portal/patient/onsitedocuments?pid=' . urlencode((string)$pid) . '&is_module=1',
-    'availabilityUrl' => $webRoot . '/interface/super/manage_questionnaire_availability.php',
-    'importUrl' => $webRoot . '/interface/super/manage_questionnaire_availability.php?view=import',
-];
+$adminTabs = AssessmentPageLayout::adminTabs($authorized, $pid, $webRoot);
 
 $nativeQuestionnaireUrl = $webRoot . '/interface/forms/questionnaire_assessments/native_questionnaire.php';
 $smartLaunchUrl = $webRoot . '/interface/smart/ehr-launch-client.php';
@@ -411,9 +375,10 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         <?php if ($questionnairesByCategory === []) : ?>
                             <div class="text-muted"><?php echo xlt('No active FHIR Questionnaires are available.'); ?></div>
                         <?php else : ?>
-                            <?php foreach ($questionnairesByCategory as $categorySection => $questionnaires) : ?>
+                            <?php foreach ($questionnairesByCategory as $categorySection => $categoryGroup) : ?>
                                 <?php
-                                $categoryTitle = $categoryTitles[$categorySection];
+                                $categoryTitle = $categoryGroup['title'];
+                                $questionnaires = $categoryGroup['records'];
                                 $categoryCollapsed = $collapsedSections->isCollapsed($categorySection);
                                 ?>
                                 <h5 class="mt-2 mb-3">

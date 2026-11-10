@@ -567,8 +567,15 @@
                 renderImportButton()
                 return
             }
+            // Read where it goes once, and lock those fields until the import ends, so every
+            // questionnaire in this run is filed the same way.
+            const category = element('category').value
+            const templateCategory = element('template-category')?.value ?? ''
             const surfaces = Array.from(document.querySelectorAll('.import-surface:checked')).map((box) => box.value)
             const createTemplate = element('create-template')?.checked === true
+            const destination = Array.from(element('questionnaire_import_destination_expand').querySelectorAll('input, select'))
+                .filter((field) => !field.disabled)
+            destination.forEach((field) => { field.disabled = true })
             showAlert('', '')
             importing = true
             let done = 0
@@ -584,12 +591,12 @@
                             action: 'import',
                             questionnaire: item.json,
                             name: item.name,
-                            category: element('category').value,
+                            category,
                             tags: item.tags ?? '',
                             replace_existing: item.replace ? '1' : '0',
                             surfaces: surfaces.join(','),
                             create_template: createTemplate ? '1' : '0',
-                            template_category: element('template-category')?.value ?? ''
+                            template_category: templateCategory
                         })
                         item.status = 'imported'
                         item.error = ''
@@ -602,6 +609,7 @@
                 }
             } finally {
                 restore()
+                destination.forEach((field) => { field.disabled = false })
                 importing = false
             }
             importedCount += done
