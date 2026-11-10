@@ -166,8 +166,11 @@ jobs:
             return 1
         }
 
-        if ! green_runs=$(retry gh api "repos/${REPO}/actions/workflows/all-checks-passed.yml/runs?head_sha=${SHA}&per_page=20" \
-            --jq '.workflow_runs[] | select(.conclusion == "success") | .id'); then
+        # Read every page: an older run that the approval turned green can sit
+        # behind any number of newer failed ones. A retry after a failed later
+        # page prints the earlier pages again, so drop the repeats.
+        if ! green_runs=$(retry gh api --paginate "repos/${REPO}/actions/workflows/all-checks-passed.yml/runs?head_sha=${SHA}&per_page=100" \
+            --jq '.workflow_runs[] | select(.conclusion == "success") | .id' | sort -u); then
             echo '::error::Could not list All Checks Passed runs for the commit; rerun the aggregate by hand.'
             exit 1
         fi
