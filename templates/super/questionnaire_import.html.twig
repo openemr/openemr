@@ -111,7 +111,7 @@
                                 <legend class="col-form-label pt-0 bg-transparent">{{ 'Offer new questionnaires on'|xlt }}</legend>
                                 {% for surface in surfaces %}
                                     <div class="form-check">
-                                        <input class="form-check-input import-surface" type="checkbox" id="surface-{{ surface.value|attr }}" value="{{ surface.value|attr }}" {{ surface.checked ? 'checked' : '' }} />
+                                        <input class="form-check-input import-surface" type="checkbox" id="surface-{{ surface.value|attr }}" value="{{ surface.value|attr }}" {% if surface.checked %}checked{% endif %} />
                                         <label class="form-check-label" for="surface-{{ surface.value|attr }}">{{ surface.label|text }}</label>
                                     </div>
                                 {% endfor %}
@@ -127,7 +127,7 @@
                                 <label for="template-category">{{ 'Portal template category'|xlt }}</label>
                                 <select id="template-category" class="form-control">
                                     {% for optionId, title in templateCategories %}
-                                        <option value="{{ optionId|attr }}" {{ optionId == templateCategory ? 'selected' : '' }}>{{ title|text }}</option>
+                                        <option value="{{ optionId|attr }}" {% if optionId == templateCategory %}selected{% endif %}>{{ title|text }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
