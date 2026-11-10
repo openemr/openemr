@@ -525,9 +525,24 @@ function getCodeText($code)
 
     // Medication issues use the configured drug and clinical terminology code systems.
     <?php
-    $allCodeTypes = OEGlobalsBag::getInstance()->get('code_types', []);
-    if (!is_array($allCodeTypes)) {
-        $allCodeTypes = [];
+    // Reduce the global registry to the three facts used below, so the rest of the page works on typed data.
+    /** @var array<string, array{active: bool, label: string, selectable: bool}> $allCodeTypes */
+    $allCodeTypes = [];
+    $globalCodeTypes = OEGlobalsBag::getInstance()->get('code_types', []);
+    if (is_array($globalCodeTypes)) {
+        foreach ($globalCodeTypes as $codeTypeKey => $codeTypeConfig) {
+            if (!is_array($codeTypeConfig)) {
+                continue;
+            }
+            $codeTypeKey = (string)$codeTypeKey;
+            $allCodeTypes[$codeTypeKey] = [
+                'active' => (bool)($codeTypeConfig['active'] ?? false),
+                'label' => is_string($codeTypeConfig['label'] ?? null) ? $codeTypeConfig['label'] : $codeTypeKey,
+                'selectable' => (bool)($codeTypeConfig['diag'] ?? false)
+                    || (bool)($codeTypeConfig['drug'] ?? false)
+                    || (bool)($codeTypeConfig['term'] ?? false),
+            ];
+        }
     }
 
     // The global registry contains active code types only. Query configuration
@@ -538,18 +553,17 @@ function getCodeText($code)
         "SELECT ct_key FROM code_types WHERE ct_drug = 1 OR ct_term = 1 ORDER BY ct_seq, ct_key"
     );
     foreach ($medicationCodeTypeRows as $medicationCodeTypeRow) {
-        $allMedicationCodeTypes[] = $medicationCodeTypeRow['ct_key'];
+        if (is_string($medicationCodeTypeRow['ct_key'] ?? null)) {
+            $allMedicationCodeTypes[] = $medicationCodeTypeRow['ct_key'];
+        }
     }
 
     $medicationCodeTypes = array_values(array_filter(
         $allMedicationCodeTypes,
-        static fn ($codeType): bool => !empty($allCodeTypes[$codeType]['active'])
+        static fn (string $codeType): bool => $allCodeTypes[$codeType]['active'] ?? false
     ));
 
-    if (
-        !empty($allCodeTypes['RXCUI']) &&
-        !empty($allCodeTypes['RXCUI']['active'])
-    ) {
+    if ($allCodeTypes['RXCUI']['active'] ?? false) {
         $medicationCodeTypes = array_values(array_filter(
             $medicationCodeTypes,
             static fn ($codeType): bool => $codeType !== 'RXCUI'
@@ -561,10 +575,7 @@ function getCodeText($code)
     // used by the stock workflow: diagnosis plus drug/clinical terminology.
     $allSelectableCodeTypes = [];
     foreach ($allCodeTypes as $codeTypeKey => $codeTypeConfig) {
-        if (
-            !empty($codeTypeConfig['active']) &&
-            (!empty($codeTypeConfig['diag']) || !empty($codeTypeConfig['drug']) || !empty($codeTypeConfig['term']))
-        ) {
+        if ($codeTypeConfig['active'] && $codeTypeConfig['selectable']) {
             $allSelectableCodeTypes[] = $codeTypeKey;
         }
     }
