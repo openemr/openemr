@@ -2,13 +2,15 @@
 #
 # Runs the script against a mock `gh` (see helpers.bash + gh-mock.sh).
 # Covers:
-#   - admin approval of the head commit -> exit 0, prints the login
-#   - approval by a non-admin, or of an older commit -> exit 1
+#   - admin approval -> exit 0, prints the login, whatever commit it was on
+#   - approval by a non-admin -> exit 1
 #   - a later request-changes or dismissal supersedes the approval
 #   - a later plain comment does not
 #   - reviews spread across pages
-#   - unreadable reviews or permissions -> exit 1 with a warning
+#   - unreadable reviews or permissions -> exit 1 with a warning on stderr
 #   - missing required env -> error
+
+bats_require_minimum_version 1.5.0
 
 load 'helpers'
 
@@ -37,9 +39,10 @@ teardown() {
     [[ ${status} -eq 1 ]]
 }
 
-@test "admin approved an older commit -> exit 1" {
+@test "admin approved an older commit -> exit 0, the approval stands" {
     MOCK_REVIEWS="[[$(review root APPROVED "${OLD}")]]" run bash "${ADMIN_APPROVAL_SCRIPT}"
-    [[ ${status} -eq 1 ]]
+    [[ ${status} -eq 0 ]]
+    [[ ${output} = root ]]
 }
 
 @test "later request for changes supersedes the approval -> exit 1" {
@@ -73,15 +76,26 @@ teardown() {
     [[ ${output} == *'Could not read the repository permission of stranger'* ]]
 }
 
-@test "reviews unreadable -> exit 1 with a warning annotation" {
-    GITHUB_ACTIONS=true MOCK_REVIEWS_EXIT=1 run bash "${ADMIN_APPROVAL_SCRIPT}"
-    [[ ${status} -eq 1 ]]
-    [[ ${output} == *'::warning::Could not read the reviews of pull request #42.'* ]]
+# The action captures stdout as the approver's login, so in Actions the
+# warning for an earlier approver must not land there.
+@test "unreadable permission before an admin approval -> stdout is only the login" {
+    MOCK_REVIEWS="[[$(review stranger APPROVED "${HEAD}"),$(review root APPROVED "${HEAD}")]]" \
+        GITHUB_ACTIONS=true run --separate-stderr bash "${ADMIN_APPROVAL_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    [[ ${output} = root ]]
+    [[ ${stderr} == *'::warning::Could not read the repository permission of stranger.'* ]]
 }
 
-@test "missing HEAD_SHA -> error" {
-    unset HEAD_SHA
+@test "reviews unreadable -> exit 1 with a warning annotation on stderr" {
+    GITHUB_ACTIONS=true MOCK_REVIEWS_EXIT=1 run --separate-stderr bash "${ADMIN_APPROVAL_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ -z ${output} ]]
+    [[ ${stderr} == *'::warning::Could not read the reviews of pull request #42.'* ]]
+}
+
+@test "missing PR_NUMBER -> error" {
+    unset PR_NUMBER
     run bash "${ADMIN_APPROVAL_SCRIPT}"
     [[ ${status} -ne 0 ]]
-    [[ ${output} == *'HEAD_SHA must be set'* ]]
+    [[ ${output} == *'PR_NUMBER must be set'* ]]
 }

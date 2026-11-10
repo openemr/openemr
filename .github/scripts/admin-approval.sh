@@ -1,30 +1,31 @@
 #!/usr/bin/env bash
 #
-# Report whether a repository admin approved a pull request at its head commit.
+# Report whether a repository admin approved a pull request.
 #
 # Policy gates (the legacy-directory checks of openemr/openemr#14764) pass
 # when a repository admin has approved the pull request, so a bugfix that
 # can't follow the policy can still land. Only each reviewer's latest
-# approve, request-changes or dismissed review counts, and an approval of an
-# earlier commit does not: a push after the approval needs a new one.
+# approve, request-changes or dismissed review counts. An approval stands
+# after later pushes, as it does for merging.
 #
 # Inputs (env)
 #   REPO       owner/name of the repository
 #   PR_NUMBER  pull request number
-#   HEAD_SHA   the pull request's current head commit
 #   GH_TOKEN   read by gh; needs pull-requests: read
 #
 # Output: the approving admin's login on stdout.
 #
 # Exit codes
-#   0  an admin approved HEAD_SHA
-#   1  no admin approval of HEAD_SHA, or the reviews could not be read
+#   0  an admin approved the pull request
+#   1  no admin approval, or the reviews could not be read
 
 set -euo pipefail
 
+# Write warnings to stderr in both modes: callers capture stdout as the
+# approver's login, and the runner reads annotations from either stream.
 warn() {
     if [[ ${GITHUB_ACTIONS:-} = true ]]; then
-        printf '::warning::%s\n' "$1"
+        printf '::warning::%s\n' "$1" >&2
     else
         printf 'warning: %s\n' "$1" >&2
     fi
@@ -33,17 +34,15 @@ warn() {
 main() {
     local repo=${REPO:?REPO must be set (owner/name)}
     local pr_number=${PR_NUMBER:?PR_NUMBER must be set}
-    local head_sha=${HEAD_SHA:?HEAD_SHA must be set}
     local approvers login permission
 
-    # Keep each reviewer's latest deciding review, then the ones approving
-    # the head commit.
+    # Keep each reviewer's latest deciding review, then the approvals.
     if ! approvers=$(gh api --paginate --slurp "repos/${repo}/pulls/${pr_number}/reviews" \
-        | jq -r --arg sha "${head_sha}" '
+        | jq -r '
             reduce (.[][] | select(.state != "COMMENTED" and .state != "PENDING")) as $r
                 ({}; .[$r.user.login] = $r)
             | .[]
-            | select(.state == "APPROVED" and .commit_id == $sha)
+            | select(.state == "APPROVED")
             | .user.login'); then
         warn "Could not read the reviews of pull request #${pr_number}."
         exit 1

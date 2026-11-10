@@ -21,7 +21,6 @@ setup_test_dir() {
     unset GITHUB_ACTIONS
     export REPO='openemr/openemr'
     export PR_NUMBER='42'
-    export HEAD_SHA="${HEAD}"
     export MOCK_PERMISSIONS='root=admin dev=write'
     unset MOCK_REVIEWS MOCK_REVIEWS_EXIT
 }
@@ -30,7 +29,7 @@ teardown_test_dir() {
     cd / || exit 1
     export PATH="${PATH#"${CWD}/.mocks":}"
     rm -rf "${CWD}"
-    unset REPO PR_NUMBER HEAD_SHA MOCK_PERMISSIONS MOCK_REVIEWS MOCK_REVIEWS_EXIT
+    unset REPO PR_NUMBER MOCK_PERMISSIONS MOCK_REVIEWS MOCK_REVIEWS_EXIT
 }
 
 # Print one review object: review <login> <state> <commit>.
