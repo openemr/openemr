@@ -148,26 +148,41 @@ jobs:
         set -euo pipefail
 
         # The aggregate keeps only the latest check run of each name, so a
-        # rerun sees the failed gate and goes red. Warn instead of failing
-        # on API errors, for the same reason as the job above.
-        if ! green_runs=$(gh api "repos/${REPO}/actions/workflows/all-checks-passed.yml/runs?head_sha=${SHA}&per_page=20" \
-            --jq '.workflow_runs[] | select(.conclusion == "success") | "\(.id) \(.run_attempt)"'); then
-            echo '::warning::Could not list All Checks Passed runs for the commit; skipping this evaluation.'
-            exit 0
+        # rerun sees the failed gate and goes red. Unlike the job above, fail
+        # loudly when the API keeps failing: a green aggregate beside a
+        # revoked override is the state this job exists to prevent. There is
+        # no attempt cap either: each rerun answers one review, so it cannot
+        # cycle on its own.
+        retry() {
+            local try
+            for try in 1 2 3; do
+                if "$@"; then
+                    return 0
+                fi
+                if (( try < 3 )); then
+                    sleep $(( try * 10 ))
+                fi
+            done
+            return 1
+        }
+
+        if ! green_runs=$(retry gh api "repos/${REPO}/actions/workflows/all-checks-passed.yml/runs?head_sha=${SHA}&per_page=20" \
+            --jq '.workflow_runs[] | select(.conclusion == "success") | .id'); then
+            echo '::error::Could not list All Checks Passed runs for the commit; rerun the aggregate by hand.'
+            exit 1
         fi
         if [[ -z "${green_runs}" ]]; then
             echo 'No green All Checks Passed run on this commit; nothing to do.'
             exit 0
         fi
 
-        while read -r run_id attempt; do
-            if (( attempt >= 5 )); then
-                echo "::warning::Aggregate run ${run_id} has already been attempted ${attempt} times; leaving it for a human."
-                continue
-            fi
-            if gh api -X POST "repos/${REPO}/actions/runs/${run_id}/rerun" > /dev/null; then
+        failed=0
+        while read -r run_id; do
+            if retry gh api -X POST "repos/${REPO}/actions/runs/${run_id}/rerun" > /dev/null; then
                 echo "Reran All Checks Passed run ${run_id} after the legacy-directory override was revoked."
             else
-                echo "::warning::Could not rerun aggregate run ${run_id}; it may already be running."
+                echo "::error::Could not rerun aggregate run ${run_id}; rerun it by hand."
+                failed=1
             fi
         done <<< "${green_runs}"
+        exit "${failed}"
