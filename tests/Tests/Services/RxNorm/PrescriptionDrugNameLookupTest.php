@@ -133,12 +133,12 @@ class PrescriptionDrugNameLookupTest extends TestCase
     private function storedTableName(): ?string
     {
         $existing = QueryUtils::querySingleRow(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'RXNCONSO'"
+            "SELECT table_name AS stored_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'RXNCONSO'"
         );
         if (!is_array($existing)) {
             return null;
         }
-        $name = $existing['table_name'] ?? null;
+        $name = $existing['stored_name'] ?? null;
 
         return is_string($name) ? $name : null;
     }
