@@ -10,7 +10,9 @@
  * @link      https://www.open-emr.org
  * @copyright Elements marked with AI GENERATED CODE - are in the public domain
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -444,6 +446,24 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             $this->assertEquals('26643006', $route->getCoding()[0]->getCode(), "Route code must match input data");
             $this->assertEquals(FhirCodeSystemConstants::SNOMED_CT, $route->getCoding()[0]->getSystem(), "Route system must match SNOMED-CT");
         }
+    }
+
+    #[Test]
+    public function testFractionalDoseQuantityIsNotTruncated(): void
+    {
+        $requestData = $this->compliantMedicationRequestData;
+        $requestData['prescription_drug_size'] = '0.5';
+        $requestData['unit_title'] = 'mg';
+        $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($requestData);
+        $this->assertInstanceOf(FHIRMedicationRequest::class, $medicationRequest);
+        $dosageInstructions = $medicationRequest->getDosageInstruction();
+        $this->assertNotEmpty($dosageInstructions);
+        $rates = $dosageInstructions[0]->getDoseAndRate();
+        $this->assertNotEmpty($rates);
+        $doseQuantity = $rates[0]->getDoseQuantity();
+        $this->assertEquals(0.5, $doseQuantity->getValue());
+        $this->assertNotEquals(0, $doseQuantity->getValue(), 'intval() would have sent 0 mg');
+        $this->assertEquals('mg', $doseQuantity->getUnit()->getValue());
     }
 
     #[Test]

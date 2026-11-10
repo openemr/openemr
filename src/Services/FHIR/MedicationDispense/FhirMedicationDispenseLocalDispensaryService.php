@@ -5,7 +5,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -470,9 +472,11 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             $dosage->setTiming($fhirTiming);
         }
 
-        if (!empty($dataRecord['prescription_drug_size']) && is_numeric($dataRecord['prescription_drug_size'])) {
-            $quantity = intval($dataRecord['prescription_drug_size']); // should be an integer value for dosage
-            $doseQuantity = UtilsService::createQuantity($quantity, $dataRecord['unit_title'] ?? '', $dataRecord['unit_title'] ?? '');
+        // Same mapping as MedicationRequest: size + unit as a decimal, not intval (#14703).
+        $quantity = UtilsService::decimalQuantityValue($dataRecord['prescription_drug_size'] ?? null);
+        if ($quantity !== null) {
+            $unit = $dataRecord['unit_title'] ?? '';
+            $doseQuantity = UtilsService::createQuantity($quantity, $unit, $unit);
             $doseAndRate = new FHIRDosageDoseAndRate();
             $doseAndRate->setDoseQuantity($doseQuantity);
             $dosage->addDoseAndRate($doseAndRate);

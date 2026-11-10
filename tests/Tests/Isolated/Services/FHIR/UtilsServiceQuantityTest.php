@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    anun333 <anun333@posteo.net>
+ * @author    Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @copyright Copyright (c) 2026 anun333 <anun333@posteo.net>
+ * @copyright Copyright (c) 2026 Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -96,5 +98,39 @@ class UtilsServiceQuantityTest extends TestCase
         $this->assertSame(['value' => 5], json_decode((string)json_encode(UtilsService::createQuantity(5, '  ', '  ')), true), 'a blank unit');
         $this->assertSame(['value' => 5], json_decode((string)json_encode(UtilsService::createQuantity(5, null, null)), true), 'no unit at all');
         $this->assertSame(['value' => 5], json_decode((string)json_encode(UtilsService::createQuantity(5, '0', '0')), true), 'a unit of 0, left off as before');
+    }
+
+    /**
+     * @return array<string, array{mixed, ?float}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function decimalValues(): array
+    {
+        return [
+            'half a milligram as a string' => ['0.5', 0.5],
+            'two and a half as a float' => [2.5, 2.5],
+            'an integer tablet count' => [1, 1.0],
+            'zero is omitted as before' => [0, null],
+            'zero as a string' => ['0', null],
+            'a SIG is not a quantity' => ['Take 1 tablet daily', null],
+            'nothing' => [null, null],
+            'blank' => ['', null],
+        ];
+    }
+
+    #[DataProvider('decimalValues')]
+    public function testDecimalQuantityValue(mixed $value, ?float $expected): void
+    {
+        $this->assertSame($expected, UtilsService::decimalQuantityValue($value));
+    }
+
+    public function testCreateQuantityKeepsAFractionalValue(): void
+    {
+        $json = json_decode((string)json_encode(UtilsService::createQuantity(0.5, 'mg', 'mg')), true);
+        $this->assertIsArray($json);
+        $this->assertSame(0.5, $json['value']);
+        $this->assertSame('mg', $json['unit']);
+        $this->assertSame('mg', $json['code']);
     }
 }

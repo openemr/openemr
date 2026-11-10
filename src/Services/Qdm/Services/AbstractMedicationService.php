@@ -4,7 +4,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2026 Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,7 +24,7 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
 {
     abstract public function getModelClass();
 
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT
                     patient_id AS pid,
@@ -34,6 +36,7 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
                     RL.title AS drug_route,
                     UL.title AS drug_unit,
                     FL.title AS drug_interval,
+                    DF.title AS drug_form,
                     date_added,
                     start_date,
                     end_date
@@ -41,6 +44,7 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
                 LEFT JOIN list_options UL ON P.unit = UL.option_id AND UL.list_id = 'drug_units'
                 LEFT JOIN list_options RL ON P.route = RL.option_id AND RL.list_id = 'drug_routes'
                 LEFT JOIN list_options FL ON P.interval = FL.option_id AND FL.list_id = 'drug_intervals'
+                LEFT JOIN list_options DF ON P.form = DF.option_id AND DF.list_id = 'drug_form'
                 ";
 
         return $sql;
@@ -73,10 +77,14 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
             'route' => null // In sample files, route was null, probably doesn't matter for eCQM
         ]);
 
-        if ($record['dosage']) {
+        // dosage is the per-dose count (1 tablet); drug_form is that count's unit.
+        // Pairing it with drug_unit (mg) made "1 tablet" into "1 mg". Do not
+        // truncate: (int)0.5 was 0 (#14703).
+        $dosage = $record['dosage'] ?? null;
+        if (is_numeric($dosage) && (float)$dosage != 0.0) {
             $qdmModel->dosage = new Quantity([
-                'value' => (int)$record['dosage'],
-                'unit' => $record['drug_unit'] ?? null,
+                'value' => (float)$dosage,
+                'unit' => $record['drug_form'] ?? null,
             ]);
         }
 
