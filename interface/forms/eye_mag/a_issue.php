@@ -515,7 +515,7 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
             }
             //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
             if (rbutton != "") {
-                if (code_options_js[rbutton] != "")
+                if (code_options_js[rbutton])
                     $("#smoke_code").html(" ( " + code_options_js[rbutton] + " )");
                 else
                     $("#smoke_code").html("");

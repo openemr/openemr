@@ -291,7 +291,11 @@ function generate_select_list(
       */
     if (!$got_selected && strlen($currvalue ?? '') > 0) {
         $_sql = "SELECT * FROM list_options WHERE list_id = ? AND activity = 0 AND option_id = ? ORDER BY seq, title";
-        $lres_inactive = sqlStatement($_sql, [$list_id, $currvalue]);
+        // A list with comment (data type 46) stores a comment option as "comment_...|comment": look up the option.
+        $inactiveId = !$multiple && is_string($currvalue) && str_starts_with($currvalue, 'comment_')
+            ? explode('|', $currvalue)[0]
+            : $currvalue;
+        $lres_inactive = sqlStatement($_sql, [$list_id, $inactiveId]);
         $lrow_inactive = sqlFetchArray($lres_inactive);
         if (!empty($lrow_inactive['option_id'])) {
             $optionValue = htmlspecialchars((string) $lrow_inactive['option_id'], ENT_QUOTES);
@@ -311,12 +315,12 @@ function generate_select_list(
 
         $_options[] = [
             'value' => attr($currvalue),
-            'selected' => true,
+            'isSelected' => true,
             'label' => ($lrow > 0 && !empty($backup_list)) ? text(xl_list_label($lrow['title'])) : text($currvalue),
         ];
-        if (empty($lrow) && empty($backup_list)) {
-            $metadata['error'] = [
-                'title' => xlt('Please choose a valid selection from the list.'),
+        if (empty($lrow) || empty($backup_list)) {
+            $_metadata['error'] = [
+                'title' => xla('Please choose a valid selection from the list.'),
                 'text' => xlt('Fix this'),
             ];
         }
@@ -353,7 +357,7 @@ function generate_select_list(
             }
 
             $_metadata['error'] = [
-                'title' => xlt('Please choose a valid selection from the list.'),
+                'title' => xla('Please choose a valid selection from the list.'),
                 'text' => xlt('Fix this'),
             ];
         }
@@ -391,7 +395,7 @@ function generate_select_list(
     $output[] = $_selectString;
 
     if (array_key_exists('error', $_metadata)) {
-        $_errorString = sprintf("<span title=\"%s\">%s</span>", $_metadata['error']['title'], $_metadata['error']['text']);
+        $_errorString = sprintf("<span class=\"text-danger\" title=\"%s\">%s!</span>", $_metadata['error']['title'], $_metadata['error']['text']);
         $output[] = $_errorString;
     }
 
@@ -4291,6 +4295,8 @@ function get_layout_form_value($frow, $prefix = 'form_')
         } elseif ($data_type == 46) {
             $reslist = trim((string) $_POST["$prefix$field_id"]);
             if (str_starts_with($reslist, 'comment_')) {
+                // The choice alone: a kept value no longer in the list comes back with its old comment.
+                $reslist = explode('|', $reslist)[0];
                 $res_comment = str_replace('|', ' ', $_POST["{$prefix}text_$field_id"]);
                 $value = $reslist . "|" . $res_comment;
             } else {
