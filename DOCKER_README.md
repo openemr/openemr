@@ -27,6 +27,14 @@ minutes to complete.
 ### Production example for Raspberry Pi
 The production example above ([docker/production/docker-compose.yml](docker/production/docker-compose.yml)) will also work on Raspberry Pi (arm64).
 
+### Easypanel
+[Easypanel](https://easypanel.io) is a self-hosted Docker deployment platform, and it has a one-click deployment template for OpenEMR:
+
+[![Deploy on Easypanel][easypanel-btn]][easypanel-deploy]
+
+[easypanel-btn]: https://easypanel.io/img/deploy-on-easypanel-40.svg
+[easypanel-deploy]: https://easypanel.io/templates/openemr
+
 ## Development Dockers
 Development dockers are meant for development and testing and can be found on
 [dockerhub](https://hub.docker.com/r/openemr/openemr/).
