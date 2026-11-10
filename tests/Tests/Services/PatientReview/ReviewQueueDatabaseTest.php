@@ -22,6 +22,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Services\PatientReview\EventAuditReviewTrail;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
+use OpenEMR\Services\PatientReview\Exception\ReviewRequestChangedException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewActorType;
@@ -266,6 +267,72 @@ class ReviewQueueDatabaseTest extends TestCase
 
         $service->deny($first->id, $this->staff(), 'duplicate reading');
         $this->assertSame(1, $repository->countOpenForClient(self::PID, ReviewType::FhirWrite, 'client-a'));
+    }
+
+    /**
+     * A revision keeps the request's uuid, and the history row that records it keeps the
+     * payload it replaced.
+     */
+    public function testReviseKeepsTheReplacedPayloadOnItsHistoryRow(): void
+    {
+        $this->insertPatient();
+        $service = ReviewQueueFactory::create();
+        $request = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 5);
+
+        $service->revise($request->id, $this->patient(), 'Patient app Observation write, corrected', ['resourceType' => 'Observation', 'status' => 'preliminary']);
+
+        $found = $service->findByUuid($request->uuid);
+        $this->assertNotNull($found);
+        $this->assertSame($request->id, $found->id);
+        $this->assertSame(['resourceType' => 'Observation', 'status' => 'preliminary'], $found->payload);
+        $this->assertSame('Patient app Observation write, corrected', $found->summary);
+
+        $history = $service->history($request->id);
+        $this->assertCount(2, $history);
+        $this->assertNull($history[0]->previousPayload);
+        $this->assertSame(ReviewQueueService::NOTE_REVISED, $history[1]->note);
+        $this->assertSame(['resourceType' => 'Observation'], $history[1]->previousPayload);
+    }
+
+    /**
+     * A reviewer's decision names the version they were shown; once the app has replaced it,
+     * the decision is refused and the replacement waits for review.
+     */
+    public function testADecisionOnAReplacedVersionIsRefused(): void
+    {
+        $this->insertPatient();
+        $service = ReviewQueueFactory::create();
+        $request = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 5);
+        $service->revise($request->id, $this->patient(), 'Patient app Observation write, corrected', ['resourceType' => 'Observation', 'status' => 'preliminary']);
+
+        try {
+            $service->deny($request->id, $this->staff(), 'no', $request->revision());
+            $this->fail('A denial of the replaced version should be refused');
+        } catch (ReviewRequestChangedException) {
+            $this->assertSame(ReviewStatus::Pending, $service->get($request->id)->status);
+        }
+
+        $denied = $service->deny($request->id, $this->staff(), 'no', $service->get($request->id)->revision());
+        $this->assertSame(ReviewStatus::Denied, $denied->status);
+    }
+
+    /**
+     * Read-back finds the client's own open requests of one resource type, oldest first.
+     */
+    public function testFindOpenForClientIsScopedToTheClientAndTypeOldestFirst(): void
+    {
+        $this->insertPatient();
+        $service = ReviewQueueFactory::create();
+        $first = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 5);
+        $service->submitWithinLimit($this->appWrite('client-a', 'Condition'), $this->patient(), 5);
+        $service->submitWithinLimit($this->appWrite('client-b', 'Observation'), $this->patient(), 5);
+        $denied = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 5);
+        $service->deny($denied->id, $this->staff(), 'duplicate reading');
+        $second = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 5);
+
+        $found = $service->allOpenForClient(self::PID, ReviewType::FhirWrite, new FhirResourceType('Observation'), 'client-a');
+
+        $this->assertSame([$first->id, $second->id], array_map(static fn(ReviewRequest $request): int => $request->id, $found));
     }
 
     /**

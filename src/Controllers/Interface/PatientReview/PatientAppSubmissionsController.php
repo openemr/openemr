@@ -27,6 +27,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
+use OpenEMR\Services\PatientReview\Exception\ReviewRequestChangedException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteClientType;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewItem;
@@ -48,12 +49,24 @@ final readonly class PatientAppSubmissionsController
     /** Where a decision's outcome waits in the session for the page the browser is sent back to. */
     public const SESSION_OUTCOME = 'patient_app_submissions_outcome';
 
+    /** User setting, '1' or '0': the submissions open expanded. The page saves it on Expand all or Collapse all. */
+    public const SETTING_EXPANDED = 'patient_app_submissions_expand';
+
+    /** User setting, '1' or '0': what the app sent opens shown. The page saves it when the user opens or closes it. */
+    public const SETTING_SENT_SHOWN = 'patient_app_submissions_sent_expand';
+
+    /**
+     * @param bool $expanded the user's saved choice: submissions open expanded
+     * @param bool $sentShown the user's saved choice: what the app sent opens shown
+     */
     public function __construct(
         private ReviewQueueService $queue,
         private PatientWriteReviewQuery $query,
         private Environment $twig,
         private SessionInterface $session,
         private LoggerInterface $logger,
+        private bool $expanded = true,
+        private bool $sentShown = false,
     ) {
     }
 
@@ -90,6 +103,10 @@ final readonly class PatientAppSubmissionsController
                 'notice' => $notice,
                 'error' => $error,
                 'csrfToken' => CsrfUtils::collectCsrfToken($this->session),
+                'expanded' => $this->expanded,
+                'sentShown' => $this->sentShown,
+                'settingExpanded' => self::SETTING_EXPANDED,
+                'settingSentShown' => self::SETTING_SENT_SHOWN,
             ]),
             Response::HTTP_OK,
             ['Content-Type' => 'text/html; charset=utf-8']
@@ -113,6 +130,8 @@ final readonly class PatientAppSubmissionsController
         $id = filter_var($post->getString('request_id'), FILTER_VALIDATE_INT);
         $action = $post->getString('action');
         $note = trim($post->getString('note'));
+        // The version of the submission the page showed; an app may replace it while it waits.
+        $revision = $post->getString('revision');
         if (!is_int($id) || $id <= 0 || !in_array($action, ['approve', 'deny'], true)) {
             return [null, xl('That submission could not be found.')];
         }
@@ -134,15 +153,17 @@ final readonly class PatientAppSubmissionsController
                 return [null, xl('That submission could not be found.')];
             }
             if ($action === 'approve') {
-                $this->queue->approve($id, $reviewer, $note === '' ? null : $note);
+                $this->queue->approve($id, $reviewer, $note === '' ? null : $note, $revision);
                 return [xl('The submission was approved and added to the chart.'), null];
             }
-            $this->queue->deny($id, $reviewer, $note);
+            $this->queue->deny($id, $reviewer, $note, $revision);
             return [xl('The submission was denied. Nothing was added to the chart.'), null];
         } catch (ReviewRequestNotFoundException) {
             return [null, xl('That submission could not be found.')];
         } catch (InvalidReviewTransitionException) {
             return [null, xl('That submission has already been decided.')];
+        } catch (ReviewRequestChangedException) {
+            return [null, xl('The app replaced that submission after this page was loaded. Nothing was decided. Review the new version below.')];
         } catch (\RuntimeException | \LogicException | DbalException $e) {
             // The transaction has rolled back, so the request is still pending.
             $this->logger->error('A patient app submission could not be decided', [
@@ -209,6 +230,7 @@ final readonly class PatientAppSubmissionsController
     {
         return [
             'id' => $item->request->id,
+            'revision' => $item->request->revision(),
             'received' => $item->request->createdAt->format('Y-m-d H:i'),
             'patientName' => $item->patientName,
             'pubpid' => $item->pubpid,

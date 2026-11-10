@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 570
+-- v_database: 571
 --
 
 --
@@ -8585,6 +8585,7 @@ CREATE TABLE `patient_review_event` (
   `actor_id` bigint(20) DEFAULT NULL COMMENT 'pid for a patient, users.id for a user',
   `created_at` datetime NOT NULL,
   `note` text,
+  `payload` longtext COMMENT 'What the request held before its submitter replaced it; NULL for a status change',
   PRIMARY KEY (`id`),
   KEY `request_id` (`request_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 COMMENT='Append-only history of patient_review_request state changes';

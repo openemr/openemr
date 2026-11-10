@@ -21,4 +21,9 @@ final class ReviewLimitReachedException extends \RuntimeException
     {
         return new self('The client already has ' . $limit . ' open review requests for this patient');
     }
+
+    public static function forRevisions(int $limit): self
+    {
+        return new self('The request has already been replaced ' . $limit . ' times');
+    }
 }

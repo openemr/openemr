@@ -34,6 +34,7 @@ use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteRefusalReason;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewItem;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewQuery;
 use OpenEMR\Services\PatientReview\ReviewActor;
+use OpenEMR\Services\PatientReview\ReviewEvent;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
@@ -131,19 +132,26 @@ class PatientWriteApprovalDatabaseTest extends TestCase
      */
     private function hold(PatientWritableType $type, array $resource): ReviewRequest
     {
-        $hold = new PatientWriteHold(
+        return $this->writeHold()->hold($this->context(), $type, $resource);
+    }
+
+    private function writeHold(): PatientWriteHold
+    {
+        return new PatientWriteHold(
             $this->queue,
             new PatientWritePolicy(PatientWriteMode::ConfidentialAndPublic, PatientWritableType::cases()),
             ReviewQueueFactory::fhirWriteHandler(),
         );
-        $context = new PatientWriteContext(
+    }
+
+    private function context(): PatientWriteContext
+    {
+        return new PatientWriteContext(
             $this->patientUuid,
             self::CLIENT,
             PatientWriteClientType::Public,
             ReviewActor::patient($this->pid, 'held-write-patient'),
         );
-
-        return $hold->hold($context, $type, $resource);
     }
 
     private function heldResponse(): ReviewRequest
@@ -174,6 +182,21 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         $count = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS c FROM `questionnaire_response` WHERE `patient_id` = ?', 'c', [$this->pid]);
 
         return is_numeric($count) ? (int) $count : -1;
+    }
+
+    /**
+     * The value at a path into decoded FHIR JSON, or null where the path doesn't lead.
+     */
+    private static function dig(mixed $value, int|string ...$path): mixed
+    {
+        foreach ($path as $key) {
+            if (!is_array($value) || !array_key_exists($key, $value)) {
+                return null;
+            }
+            $value = $value[$key];
+        }
+
+        return $value;
     }
 
     private function registered(string $uuid): bool
@@ -285,6 +308,37 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         $this->assertIsString($row['uuid'] ?? null);
 
         return $row['uuid'];
+    }
+
+    /**
+     * The app corrects its answers before staff look; approval writes the corrected version
+     * under the same id, and the first version stays in the request's history.
+     */
+    public function testApprovalOfAReplacedResponseWritesTheReplacement(): void
+    {
+        $held = $this->heldResponse();
+        $this->writeHold()->replace(
+            $this->context(),
+            PatientWritableType::QuestionnaireResponse,
+            $held->uuid,
+            ['id' => $held->uuid] + $this->response('Much better')
+        );
+
+        $this->queue->approve($held->id, ReviewActor::user(1, 'admin'));
+
+        $resource = (new FhirQuestionnaireResponseFormService())->getOne($held->uuid)->getFirstDataResult();
+        $this->assertInstanceOf(FHIRQuestionnaireResponse::class, $resource);
+        $json = json_decode((string) json_encode($resource), true);
+        $this->assertIsArray($json);
+        $this->assertSame('Much better', self::dig($json, 'item', 0, 'answer', 0, 'valueString'));
+        $this->assertSame(1, $this->storedResponseCount());
+
+        $replaced = array_values(array_filter(
+            $this->queue->history($held->id),
+            static fn(ReviewEvent $event): bool => $event->previousPayload !== null
+        ));
+        $this->assertCount(1, $replaced);
+        $this->assertSame('Better', self::dig($replaced[0]->previousPayload, 'item', 0, 'answer', 0, 'valueString'));
     }
 
     /**
