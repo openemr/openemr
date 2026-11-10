@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 require_once(dirname(__FILE__, 3) . "/globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -24,19 +25,17 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Services\Globals\CollapsedSections;
+use OpenEMR\Services\Questionnaire\AssessmentCategoryGroups;
+use OpenEMR\Services\Questionnaire\AssessmentPageLayout;
 use OpenEMR\Services\Questionnaire\AvailabilityContext;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
 use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 
 $pid = PatientSessionUtil::getPid();
 $authorized = AclMain::aclCheckCore('patients', 'med');
-// Managing where questionnaires are offered changes it for every patient and every user,
-// so the tab is shown only to administrators; the embedded page enforces the same check.
-$canManageAvailability = $authorized && AclMain::aclCheckCore('admin', 'super');
 $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
-$container = OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')
-    ? 'container'
-    : 'container-fluid';
+$pageLayout = AssessmentPageLayout::create(OEGlobalsBag::getInstance());
 $showSmartContextTestLaunches = OEGlobalsBag::getInstance()->getBoolean(
     'smart_context_test_launches'
 );
@@ -119,6 +118,7 @@ $assessmentStatusClass = (static fn(string $status): string => match ($status) {
 });
 
 $questionnairesByCategory = [];
+$smartLaunchesSection = AssessmentPageLayout::SMART_LAUNCHES_SECTION;
 // questionnaire id => the SMART apps it may be launched into. Empty unless a SMART
 // availability rule reaches the questionnaire, so the launch menu is offered only for
 // questionnaires an administrator selected, not for every assessment.
@@ -138,22 +138,7 @@ if ($authorized && $pid > 0) {
         )
     );
 
-    foreach ($questionnaireRecords as $questionnaireRecord) {
-        $questionnaireId = $assessmentPositiveInt($questionnaireRecord['id']);
-        if ($questionnaireId === null) {
-            continue;
-        }
-
-        $categoryTitle = $assessmentString($questionnaireRecord['category_title'] ?? null);
-        $category = $assessmentString($questionnaireRecord['category'] ?? null);
-        if ($categoryTitle === '') {
-            $categoryTitle = $category !== ''
-                ? ucwords(str_replace(['_', '-'], ' ', $category))
-                : xl('Unassigned');
-        }
-
-        $questionnairesByCategory[$categoryTitle][] = $questionnaireRecord;
-    }
+    $questionnairesByCategory = AssessmentCategoryGroups::fromRecords($questionnaireRecords, xl('Unassigned'));
 
     $assessmentHistory = QueryUtils::fetchRecordsNoLog(
         "SELECT
@@ -205,6 +190,11 @@ if ($authorized && $pid > 0) {
     }
 }
 
+$collapsedSections = CollapsedSections::forCurrentUser([$smartLaunchesSection, ...array_keys($questionnairesByCategory)]);
+
+$twig = ServiceContainer::getTwig();
+$adminTabs = AssessmentPageLayout::adminTabs($authorized, $pid, $webRoot);
+
 $nativeQuestionnaireUrl = $webRoot . '/interface/forms/questionnaire_assessments/native_questionnaire.php';
 $smartLaunchUrl = $webRoot . '/interface/smart/ehr-launch-client.php';
 $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
@@ -223,8 +213,8 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
     </style>
 </head>
 <body class="body_top">
-    <div class="<?php echo attr($container); ?> mt-3">
-        <h4><?php echo xlt('Questionnaire Assessments'); ?></h4>
+    <div id="container_div" class="<?php echo attr($pageLayout->oeContainer()); ?> mt-3">
+        <?php echo $pageLayout->pageHeading(); ?>
         <div class="row">
             <div class="col-sm-12">
                 <?php
@@ -257,10 +247,16 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
             </div>
 
             <?php if ($showSmartContextTestLaunches && $smartAssessmentClients !== []) : ?>
+                <?php $smartLaunchesCollapsed = $collapsedSections->isCollapsed($smartLaunchesSection); ?>
                 <div class="card my-3">
                     <div class="card-header">
-                        <strong><?php echo xlt('SMART Context Test Launches'); ?></strong>
+                        <?php echo $twig->render('patient/assessment/section_toggle.html.twig', ['section' => $smartLaunchesSection, 'title' => xl('SMART Context Test Launches'), 'collapsed' => $smartLaunchesCollapsed]); ?>
                     </div>
+                    <div
+                        id="<?php echo attr($smartLaunchesSection); ?>"
+                        class="collapse<?php echo $smartLaunchesCollapsed ? '' : ' show'; ?>"
+                        data-persist-collapse
+                    >
                     <div class="card-body">
                         <div class="small text-muted mb-3">
                             <?php echo xlt('Launch a registered SMART app with standard OpenEMR patient, encounter, main-tab, or appointment context.'); ?>
@@ -323,6 +319,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             </div>
                         <?php endforeach; ?>
                     </div>
+                    </div>
                 </div>
             <?php endif; ?>
 
@@ -357,21 +354,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             <?php endif; ?>
                         </a>
                     </li>
-                    <?php if ($canManageAvailability) : ?>
-                    <li class="nav-item" role="presentation">
-                        <a
-                            class="nav-link"
-                            id="questionnaire-availability-tab"
-                            data-toggle="tab"
-                            href="#questionnaire-availability"
-                            role="tab"
-                            aria-controls="questionnaire-availability"
-                            aria-selected="false"
-                        >
-                            <?php echo xlt('Availability'); ?>
-                        </a>
-                    </li>
-                    <?php endif; ?>
+                    <?php echo $twig->render('patient/assessment/admin_tab_nav.html.twig', $adminTabs); ?>
                 </ul>
                 <div class="tab-content border-left border-right border-bottom p-3 bg-light" id="assessment-tabs-content">
                     <div
@@ -392,9 +375,21 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         <?php if ($questionnairesByCategory === []) : ?>
                             <div class="text-muted"><?php echo xlt('No active FHIR Questionnaires are available.'); ?></div>
                         <?php else : ?>
-                            <?php foreach ($questionnairesByCategory as $categoryTitle => $questionnaires) : ?>
-                                <h5 class="mt-2 mb-3"><?php echo text($categoryTitle); ?></h5>
-                                <div class="row">
+                            <?php foreach ($questionnairesByCategory as $categorySection => $categoryGroup) : ?>
+                                <?php
+                                $categoryTitle = $categoryGroup['title'];
+                                $questionnaires = $categoryGroup['records'];
+                                $categoryCollapsed = $collapsedSections->isCollapsed($categorySection);
+                                ?>
+                                <h5 class="mt-2 mb-3">
+                                    <?php echo $twig->render('patient/assessment/section_toggle.html.twig', ['section' => $categorySection, 'title' => $categoryTitle, 'collapsed' => $categoryCollapsed]); ?>
+                                    <span class="badge badge-light ml-1"><?php echo text((string)count($questionnaires)); ?></span>
+                                </h5>
+                                <div
+                                    id="<?php echo attr($categorySection); ?>"
+                                    class="row collapse<?php echo $categoryCollapsed ? '' : ' show'; ?>"
+                                    data-persist-collapse
+                                >
                                     <?php foreach ($questionnaires as $questionnaire) : ?>
                                         <?php
                                         $questionnaireId = $assessmentPositiveInt($questionnaire['id']);
@@ -623,73 +618,15 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             </div>
                         <?php endif; ?>
                     </div>
-                    <?php if ($canManageAvailability) : ?>
-                    <div
-                        class="tab-pane fade"
-                        id="questionnaire-availability"
-                        role="tabpanel"
-                        aria-labelledby="questionnaire-availability-tab"
-                    >
-                        <!--
-                            Embedded rather than merged into this page: the management screen
-                            has its own forms, CSRF tokens and POST handling, and keeping it a
-                            separate document means neither page's submit can reach the
-                            other's handler. Loaded on first open so ordinary dashboard
-                            visits pay nothing for it.
-                        -->
-                        <iframe
-                            id="questionnaire-availability-frame"
-                            title="<?php echo xla('Questionnaire Availability'); ?>"
-                            class="w-100 border-0"
-                            style="height: 75vh;"
-                            data-src="<?php echo attr($webRoot . '/interface/super/manage_questionnaire_availability.php'); ?>"
-                        ></iframe>
-                    </div>
-                    <?php endif; ?>
+                    <?php echo $twig->render('patient/assessment/admin_tab_panes.html.twig', $adminTabs); ?>
                 </div>
             </div>
         <?php endif; ?>
     </div>
-    <?php if ($canManageAvailability) : ?>
-    <script>
-        (function () {
-            const tab = document.getElementById('questionnaire-availability-tab')
-            const frame = document.getElementById('questionnaire-availability-frame')
-            const availableTab = document.getElementById('available-assessments-tab')
-            if (!tab || !frame) {
-                return
-            }
-            // The first load is the screen itself; any later load is the screen coming
-            // back from a save, which can change what this patient's dashboard offers.
-            let loads = 0
-            let changed = false
-            frame.addEventListener('load', () => {
-                loads++
-                if (loads > 1) {
-                    changed = true
-                }
-            })
-            tab.addEventListener('click', () => {
-                if (!frame.getAttribute('src')) {
-                    top.restoreSession()
-                    frame.setAttribute('src', frame.dataset.src)
-                }
-            })
-            // The Available list was rendered before the change, so refresh it rather than
-            // show a list that no longer matches the rules just saved.
-            if (availableTab) {
-                availableTab.addEventListener('click', () => {
-                    if (changed) {
-                        top.restoreSession()
-                        window.location.reload()
-                    }
-                })
-            }
-        })()
-    </script>
-    <?php endif; ?>
-
+    <?php $pageLayout->oeBelowContainerDiv(); ?>
     <?php if ($authorized && $pid > 0) : ?>
+        <?php echo $twig->render('super/_collapse_persist.html.twig', ['csrfToken' => $smartLaunchCsrfToken]); ?>
+        <?php echo $twig->render('patient/assessment/assessment_feedback.html.twig', ['launcherUrl' => $selfUrl]); ?>
         <script>
             const assessmentWorkspace = document.getElementById('assessment-workspace')
             const assessmentCatalog = document.getElementById('assessment-catalog')
@@ -707,17 +644,19 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
             function openAssessment (url, title) {
                 top.restoreSession()
                 assessmentSavePending = false
-                assessmentSaveButton.disabled = false
+                assessmentFeedback.saving(false)
                 assessmentTitle.textContent = title
                 assessmentCatalog.classList.add('d-none')
                 assessmentWorkspace.classList.remove('d-none')
+                assessmentFeedback.loading(true)
                 assessmentFrame.src = url
                 window.scrollTo({ top: 0, behavior: 'smooth' })
             }
 
             function closeAssessment () {
                 assessmentSavePending = false
-                assessmentSaveButton.disabled = false
+                assessmentFeedback.saving(false)
+                assessmentFeedback.loading(false)
                 assessmentFrame.src = 'about:blank'
                 assessmentWorkspace.classList.add('d-none')
                 assessmentCatalog.classList.remove('d-none')
@@ -818,7 +757,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 }
                 top.restoreSession()
                 assessmentSavePending = true
-                assessmentSaveButton.disabled = true
+                assessmentFeedback.saving(true)
                 assessmentFrame.contentWindow.postMessage({ submitForm: true }, window.location.origin)
             })
 
@@ -830,13 +769,13 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 }
 
                 if (event.data?.assessmentSaved === true) {
-                    window.location.href = assessmentLauncherUrl
+                    window.location.href = assessmentFeedback.savedUrl
                     return
                 }
 
                 if (event.data?.assessmentValidationFailed === true || event.data?.assessmentSaveFailed === true) {
                     assessmentSavePending = false
-                    assessmentSaveButton.disabled = false
+                    assessmentFeedback.saving(false)
                 }
             })
         </script>
