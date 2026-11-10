@@ -13127,11 +13127,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function text expects string, int\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
     'count' => 31,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
@@ -13194,11 +13189,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#5 \\$charge of function ippfReceiptDetailLine expects float, mixed given\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#6 \\$aTotals of function ippfReceiptDetailLine expects string, array\\<int, int\\>\\|string given\\.$#',
-    'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
@@ -15989,16 +15979,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
     'count' => 29,
-    'path' => __DIR__ . '/../../interface/reports/inventory_activity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$warehouse_id of function inventoryActivityLineItem expects int, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/reports/inventory_activity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$warehouse_id of function inventoryActivityLineItem expects int, string given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/inventory_activity.php',
 ];
 $ignoreErrors[] = [

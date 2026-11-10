@@ -16,10 +16,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Parameter &\\$aTotals by\\-ref type of function ippfReceiptDetailLine\\(\\) expects string, mixed given\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
