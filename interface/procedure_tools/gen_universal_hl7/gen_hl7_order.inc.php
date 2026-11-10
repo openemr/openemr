@@ -212,11 +212,12 @@ function universal_gen_hl7_order(int $orderid): Hl7OrderResult
         foreach ($payers as $payer) {
             $payer_object = $payer['object'];
             $payer_address = $payer_object->get_address();
+            $payer_company = is_array($payer['company']) ? $payer['company'] : [];
             $out .= "IN1" .
                 $d1 . ++$setid .                                // Set ID
                 $d1 .                                           // Insurance Plan Identifier ??
-                $d1 . hl7Text($payer['company']['ins_comp_id']) .  // Insurance Company ID
-                $d1 . hl7Text($payer['company']['name']) .    // Insurance Company Name
+                $d1 . hl7Text($payer_company['id']) .           // Insurance Company ID
+                $d1 . hl7Text($payer_company['name']) .         // Insurance Company Name
                 $d1 . hl7Text($payer_address->get_line1()) .    // Street Address
                 $d2 .
                 $d2 . hl7Text($payer_address->get_city()) .   // City
