@@ -144,7 +144,7 @@ Accept: application/json
 | Patient Employers                | rs          | Read-only access to patient employers (`employers` table).                                             |
 | Patient Insurance                | crus        | Manage patient insurance information (`patient_insurance` table).                                      |
 | Patient Messages                 | cud         | Create patient messages (`patient_messages` table).                                                    |
-| Patient Referrals (transactions) | cruds       | Manage patient referrals (`lbt_data` table).                                                           |
+| Patient Referrals (transactions) | cruds       | Manage patient referrals (`transactions` and `lbt_data` tables). See the note below.                    |
 |Patient Immunizations| rs| Read-only access to patient immunizations (`immunizations` table).                                     |
 |Patient Procedures| rs| Read-only access to patient procedures (`procedure_order`,`procedure_report`,`procedure_result` table). |
 |Drugs| rs| Read-only access to drugs (`drugs` table).                                                               |
@@ -157,6 +157,18 @@ Accept: application/json
 | u           | Update resource                      |
 | d           | Delete resource                      |
 | s           | Search/List resources                |
+
+**Patient referrals.** A referral saved with `POST /api/patient/:pid/transaction` (type `LBTref`) or
+`PUT /api/transaction/:tid` is the same record as one saved on the Transactions screen:
+
+- Refer By and Refer To are found by NPI (`referByNpi`, `referToNpi`).
+- With the **Track Referrals with FHIR Tasks** global on, the referral gets a FHIR Task for its
+  recipient, and is readable as a FHIR ServiceRequest.
+- The API does not write the Reply Date, so it cannot close a referral.
+- `authorization`, `visits`, `validFrom` and `validThrough` are stored, but the stock referral
+  form has no fields for them.
+
+See [Referral Workflows](../REFERRAL_WORKFLOWS.md).
 
 ## Patient Portal API ([swagger](https://demo.openemr.io/openemr/swagger/#/standard-patient))
 

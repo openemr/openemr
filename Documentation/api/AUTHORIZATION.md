@@ -18,6 +18,7 @@ Complete guide to OpenEMR API scopes, permissions, and access control.
 - [Standard API Scopes (api:oemr)](#standard-api-scopes-apioemr)
 - [Patient Portal Scopes (api:port)](#patient-portal-scopes-apiport)
 - [Special Scopes](#special-scopes)
+    - [Client Limited to an Address Book Entry](#client-limited-to-an-address-book-entry)
 - [Revoking Access](#revoking-access)
     - [Revoke Clients](#revoke-clients)
     - [Revoke Users](#revoke-users)
@@ -387,8 +388,9 @@ patient/Procedure.rs
 patient/Provenance.rs          # Read/search only
 patient/MedicationDispense.rs    # Pharmacy dispensing records
 patient/RelatedPerson.rs         # Patient relationships
-patient/ServiceRequest.rs        # Lab/procedure orders
+patient/ServiceRequest.rs        # Lab/procedure orders, referrals
 patient/Specimen.rs              # Laboratory specimens
+patient/Task.rs                  # Referral and questionnaire tasks (read-only for patient apps)
 ```
 
 #### Supporting Resources
@@ -433,6 +435,8 @@ user/MedicationDispense.rs
 user/RelatedPerson.rs
 user/ServiceRequest.rs
 user/Specimen.rs
+user/Task.rs
+user/Task.cud                    # Create and update tasks (Task has no delete route)
 ```
 
 #### Supporting Resources
@@ -477,6 +481,8 @@ system/MedicationDispense.rs
 system/RelatedPerson.rs
 system/ServiceRequest.rs
 system/Specimen.rs
+system/Task.rs
+system/Task.cud
 ```
 
 #### Supporting Resources
@@ -589,6 +595,30 @@ email                               # User email address
 online_access                       # Session-based access
 offline_access                      # Refresh token access
 ```
+
+### Client Limited to an Address Book Entry
+
+An outside organization or practitioner that receives referrals can be given a client that
+reaches only its own referral work. An administrator sets **Limit to Address Book Entry** on the
+client's admin page (Admin > System > API Clients). Dynamic registration cannot set it.
+
+Whatever scopes the client holds, it can then only call:
+
+| Call | Reaches |
+|---|---|
+| `GET /fhir/Task`, `GET /fhir/Task/{id}` | Tasks the entry owns. Any other reads as `404`. |
+| `PUT /fhir/Task/{id}` | The same Tasks. It cannot give a Task to anyone else. |
+| `GET /fhir/ServiceRequest`, `GET /fhir/ServiceRequest/{id}` | Referrals the entry is the current recipient of. No orders. |
+| Anything else | `403`, including Patient, Practitioner, Organization and DocumentReference. |
+
+- Give it `Task` read and update scopes and `ServiceRequest` read scopes, in the user or system
+  context.
+- The limit is read on every request, so setting or removing it takes effect at once, for
+  tokens already issued too.
+- A referral sent to someone else stops being readable. The earlier recipient keeps its own
+  cancelled Task as a record.
+
+See [Referral Workflows](../REFERRAL_WORKFLOWS.md#5-outside-recipient-connected-through-the-fhir-api).
 
 ## Revoking Access
 

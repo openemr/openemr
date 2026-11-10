@@ -73,6 +73,29 @@ require_once("../../interface/globals.php");
                         <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
                     </p>
 
+                    <h3><?php echo xlt("TRACK A REFERRAL"); ?> :</h3>
+                    <hr />
+
+                    <p><?php echo xlt("A saved referral shows where it stands on this page, on the Transactions list and in the Referrals report");?>.</p>
+                    <p><?php echo xlt("Open means no reply has been recorded");?>.</p>
+                    <p><?php echo xlt("Replied or Completed means the referral has been answered");?>.</p>
+                    <p><?php echo xlt("Overdue is added to an open referral once it is older than the number of days set in Referrals Overdue After (Days) in the Report settings");?>.</p>
+
+                    <div class="alert alert-info">
+                    <h4><?php echo xlt("Referral Tracking With Tasks"); ?></h4>
+                    <p><?php echo xlt("When Track Referrals with FHIR Tasks is turned on in the Connectors settings, saving a referral creates a task for the Refer To recipient");?>.</p>
+                    <p><?php echo xlt("The recipient must have an NPI, or be an External Organization in the Address Book");?>.</p>
+                    <p><?php echo xlt("The referral then shows the status of that task: Requested, Received, Accepted, In Progress, On Hold, Completed, Rejected, Failed or Cancelled");?>.</p>
+                    <p><?php echo xlt("A recipient connected through the API changes this status, and the Refer By provider gets a message when the referral is accepted, rejected, completed, failed or cancelled");?>.</p>
+                    <p><?php echo xlt("Changing Refer To and saving cancels the first recipient's task and creates one for the new recipient");?>.</p>
+                    </div>
+
+                    <p><?php echo xlt("Re-send appears when the recipient rejected, failed or cancelled the referral and no reply is recorded");?>.</p>
+                    <p><?php echo xlt("It sends the referral to the same recipient again and reopens it");?>.</p>
+                    <p><?php echo xlt("Saving the referral never re-sends it");?>.</p>
+                    <p><?php echo xlt("When Notify Referral Recipients is also turned on, the recipient is told about a new referral: by Direct message if their Address Book entry has a Trusted Email (Direct address), otherwise by a plain email with no patient details");?>.</p>
+                    <p><?php echo xlt("This page shows how the recipient was told, or that they could not be told");?>.</p>
+
                     <h3><?php echo xlt("CREATE A COUNTER-REFERRAL"); ?> :</h3>
                     <hr />
 
@@ -85,6 +108,11 @@ require_once("../../interface/globals.php");
                     </p>
 
                     <p><?php echo xlt("It therefore stands to reason that you cannot create a Counter-Referral by itself");?>.</p>
+
+                    <p><?php echo xlt("With referral tracking turned on, saving a Reply Date files the reply in the patient's documents as a consult note and completes the referral");?>.</p>
+                    <p><?php echo xlt("Clearing a Reply Date that was saved by mistake reopens the referral");?>.</p>
+                    <p><?php echo xlt("A reply received by Direct message is listed on this page with a Confirm it completes the referral button");?>.</p>
+                    <p><?php echo xlt("Read the reply first, as it may be a question or a refusal, then confirm");?>.</p>
 
                     <h3><?php echo xlt("CREATE A SIMPLE TRANSACTION TYPE"); ?> :</h3>
                     <hr />

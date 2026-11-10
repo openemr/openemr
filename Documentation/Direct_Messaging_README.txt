@@ -210,6 +210,36 @@ the specified document is opened, the user can optionally categorize the documen
 appropriate, assign the document to a specific patient using the "Move to Patient #" feature in the
 Documents interface.
 
+K. Referrals (added in OpenEMR 8.6.0):
+
+Direct messages can be tied to a referral saved on a patient's Transactions screen. This needs the
+Care Coordination module. See Documentation/REFERRAL_WORKFLOWS.md for the full workflow.
+
+1. Telling the recipient: With the "Track Referrals with FHIR Tasks" and "Notify Referral
+Recipients" settings on (Connectors tab of the Global Settings), saving a referral sends its
+recipient the Referral C-CDA by Direct when the recipient's address book entry has a Direct
+address. That address is the "Trusted Email" field of the address book entry. The C-CDA carries
+the referral sections only: allergies, medications, problems, plan of care and reason for referral.
+An entry with only a regular email address gets a plain email with no patient details. The
+referral's page shows how the recipient was told, and a Direct send whose delivery failed.
+
+2. Sending by hand: The Direct section of the Care Coordination send form offers the selected
+patient's referrals, so the C-CDA is linked to the referral it is sent for. It defaults to the
+patient's most recent referral. With several patients selected, each keeps their most recent.
+
+3. Replies: A received message that answers a message sent from here about a patient (matched by
+its In-Reply-To or References header) is filed to that patient and referral instead of being left
+unassigned. A message that answers nothing sent is processed as described in section J.2.
+
+4. Completing the referral: A matched reply never completes the referral on its own, since it may
+be a question or a refusal. On the referral's page, each reply has a "Confirm it completes the
+referral" button. Confirming files the reply's documents as the referral's consult note, sets the
+Reply Date and completes the recipient's Task.
+
+Limitations: This is modeled on IHE 360X but is not 360X conformant; there is no XDM packaging
+and no HL7 v2 status messages. Reply matching depends on the recipient's system returning the
+message id of the message it answers, and has not been tested against a production HISP.
+
 
 Trademark Notice: phiMail is a registered trademark of EMR Direct.
 
