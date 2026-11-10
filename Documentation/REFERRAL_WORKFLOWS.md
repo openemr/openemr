@@ -131,7 +131,8 @@ status.
 - **A reply closes an open Task.** With tracking on, saving a Reply Date files the reply as a
   Consult note and completes the recipient's Task if it is still open. A Task the recipient
   already completed, rejected, failed or cancelled keeps its status, and no document is filed;
-  the reply stays on the referral. The referral shows Replied either way.
+  the reply stays on the referral. The referral then shows Replied, or Completed if the
+  recipient had completed the Task.
 - **Only the current recipient's latest Task counts.** If Refer To changes, the earlier
   recipient's Task is cancelled and kept as a record.
 - **Through FHIR**, the ServiceRequest reads `active`, `completed`, `revoked` (Task
