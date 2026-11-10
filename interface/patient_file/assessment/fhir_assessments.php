@@ -260,6 +260,10 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
         <?php elseif ($pid < 1) : ?>
             <div class="alert alert-info mt-3"><?php echo xlt('No patient selected.'); ?></div>
         <?php else : ?>
+            <div id="assessment-saved" class="alert alert-success alert-dismissible fade show mt-3 d-none" role="status">
+                <?php echo xlt('Assessment saved.'); ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="<?php echo xla('Dismiss'); ?>">&times;</button>
+            </div>
             <div id="assessment-workspace" class="card my-3 d-none">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span id="assessment-title" class="font-weight-bold"></span>
@@ -273,6 +277,9 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                     </div>
                 </div>
                 <div class="card-body p-0">
+                    <div id="assessment-loading" class="text-center text-muted py-5 d-none" role="status">
+                        <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span><?php echo xlt('Loading...'); ?>
+                    </div>
                     <iframe id="assessment-frame" title="<?php echo xla('Questionnaire Assessment'); ?>"></iframe>
                 </div>
             </div>
@@ -715,6 +722,9 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         role="tabpanel"
                         aria-labelledby="document-templates-tab"
                     >
+                        <div class="text-center text-muted py-5 d-none frame-loading" data-frame="document-templates-frame" role="status">
+                            <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span><?php echo xlt('Loading...'); ?>
+                        </div>
                         <iframe
                             id="document-templates-frame"
                             title="<?php echo xla('Document Templates'); ?>"
@@ -738,6 +748,9 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             other's handler. Loaded on first open so ordinary dashboard
                             visits pay nothing for it.
                         -->
+                        <div class="text-center text-muted py-5 d-none frame-loading" data-frame="questionnaire-availability-frame" role="status">
+                            <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span><?php echo xlt('Loading...'); ?>
+                        </div>
                         <iframe
                             id="questionnaire-availability-frame"
                             title="<?php echo xla('Questionnaire Availability'); ?>"
@@ -754,6 +767,9 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         role="tabpanel"
                         aria-labelledby="questionnaire-import-tab"
                     >
+                        <div class="text-center text-muted py-5 d-none frame-loading" data-frame="questionnaire-import-frame" role="status">
+                            <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span><?php echo xlt('Loading...'); ?>
+                        </div>
                         <iframe
                             id="questionnaire-import-frame"
                             title="<?php echo xla('Import Questionnaires'); ?>"
@@ -779,6 +795,12 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 tab?.addEventListener('click', () => {
                     if (frame && !frame.getAttribute('src')) {
                         top.restoreSession()
+                        // Show a loading line until the screen arrives.
+                        const loader = document.querySelector('.frame-loading[data-frame="' + frame.id + '"]')
+                        if (loader) {
+                            loader.classList.remove('d-none')
+                            frame.addEventListener('load', () => loader.classList.add('d-none'), { once: true })
+                        }
                         frame.setAttribute('src', frame.dataset.src)
                     }
                 })
@@ -858,21 +880,50 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 \OpenEMR\FHIR\SMART\SMARTLaunchToken::INTENT_QUESTIONNAIRE_ASSESSMENT
                                       ); ?>;
             let assessmentSavePending = false
+            const assessmentSaveLabel = assessmentSaveButton.textContent.trim()
+            const assessmentLoading = document.getElementById('assessment-loading')
+
+            // Save shows a spinner while the assessment is on its way, and goes back to normal
+            // if validation or the save fails so the user can correct it and try again.
+            function showSaving (saving) {
+                assessmentSavePending = saving
+                assessmentSaveButton.disabled = saving
+                if (saving) {
+                    const spin = document.createElement('span')
+                    spin.className = 'spinner-border spinner-border-sm mr-1'
+                    spin.setAttribute('aria-hidden', 'true')
+                    assessmentSaveButton.replaceChildren(spin, document.createTextNode(<?php echo xlj('Saving...'); ?>))
+                } else {
+                    assessmentSaveButton.textContent = assessmentSaveLabel
+                }
+            }
+
+            assessmentFrame.addEventListener('load', () => {
+                assessmentLoading.classList.add('d-none')
+            })
+
+            // Back from a save: confirm it once, and drop the flag so a refresh does not repeat it.
+            if (new URLSearchParams(window.location.search).get('saved') === '1') {
+                const savedAlert = document.getElementById('assessment-saved')
+                savedAlert.classList.remove('d-none')
+                setTimeout(() => $(savedAlert).alert('close'), 6000)
+                window.history.replaceState(null, '', assessmentLauncherUrl)
+            }
 
             function openAssessment (url, title) {
                 top.restoreSession()
-                assessmentSavePending = false
-                assessmentSaveButton.disabled = false
+                showSaving(false)
                 assessmentTitle.textContent = title
                 assessmentCatalog.classList.add('d-none')
                 assessmentWorkspace.classList.remove('d-none')
+                assessmentLoading.classList.remove('d-none')
                 assessmentFrame.src = url
                 window.scrollTo({ top: 0, behavior: 'smooth' })
             }
 
             function closeAssessment () {
-                assessmentSavePending = false
-                assessmentSaveButton.disabled = false
+                showSaving(false)
+                assessmentLoading.classList.add('d-none')
                 assessmentFrame.src = 'about:blank'
                 assessmentWorkspace.classList.add('d-none')
                 assessmentCatalog.classList.remove('d-none')
@@ -972,8 +1023,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                     return
                 }
                 top.restoreSession()
-                assessmentSavePending = true
-                assessmentSaveButton.disabled = true
+                showSaving(true)
                 assessmentFrame.contentWindow.postMessage({ submitForm: true }, window.location.origin)
             })
 
@@ -985,13 +1035,13 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 }
 
                 if (event.data?.assessmentSaved === true) {
-                    window.location.href = assessmentLauncherUrl
+                    // Reload so history and the latest status show the save, and say it worked.
+                    window.location.href = assessmentLauncherUrl + '?saved=1'
                     return
                 }
 
                 if (event.data?.assessmentValidationFailed === true || event.data?.assessmentSaveFailed === true) {
-                    assessmentSavePending = false
-                    assessmentSaveButton.disabled = false
+                    showSaving(false)
                 }
             })
         </script>

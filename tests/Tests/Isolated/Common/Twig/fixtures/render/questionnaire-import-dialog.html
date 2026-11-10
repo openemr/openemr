@@ -208,7 +208,16 @@
             clash: "`{0}` (version {1}) is already in the repository. Importing replaces it, and the repository keeps no earlier version.",
             done: "Imported {0} of {1}.",
             searching: "Searching...",
-            noResults: "No forms found."
+            noResults: "No forms found.",
+            checking: "Checking...",
+            importing: "Importing...",
+            importingProgress: "Importing {0} of {1}...",
+            loading: "Loading...",
+            added: "{0} is ready to review.",
+            notAdded: "{0} could not be added: {1}",
+            notImported: "Not imported: {0}",
+            renamed: "Name checked.",
+            dismiss: "Dismiss"
         }
 
         const element = (id) => document.getElementById(id)
@@ -222,10 +231,52 @@
             return values.reduce((text, value, index) => text.replace('{' + index + '}', value), template)
         }
 
+        let alertTimer = null
+
+        // One message at the top of the page. Success notes fade on their own; warnings and
+        // errors stay until dismissed or replaced, so they are not missed.
         function showAlert (message, type) {
             const alert = element('page-alert')
-            alert.className = message ? 'alert alert-' + type : 'd-none'
-            alert.textContent = message
+            clearTimeout(alertTimer)
+            if (!message) {
+                alert.className = 'd-none'
+                alert.replaceChildren()
+                return
+            }
+            alert.className = 'alert alert-dismissible alert-' + type
+            const close = document.createElement('button')
+            close.type = 'button'
+            close.className = 'close'
+            close.setAttribute('aria-label', words.dismiss)
+            close.textContent = '×'
+            close.addEventListener('click', () => showAlert('', ''))
+            alert.replaceChildren(document.createTextNode(message), close)
+            if (type === 'success' || type === 'info') {
+                alertTimer = setTimeout(() => showAlert('', ''), 6000)
+            }
+        }
+
+        function spinner () {
+            const spin = document.createElement('span')
+            spin.className = 'spinner-border spinner-border-sm mr-1'
+            spin.setAttribute('role', 'status')
+            spin.setAttribute('aria-hidden', 'true')
+            return spin
+        }
+
+        // Disable a button and show a spinner with working text; returns a function that puts
+        // the button back as it was.
+        function busyButton (button, text) {
+            const before = Array.from(button.childNodes)
+            const wasDisabled = button.disabled
+            button.disabled = true
+            button.setAttribute('aria-busy', 'true')
+            button.replaceChildren(spinner(), document.createTextNode(text))
+            return () => {
+                button.replaceChildren(...before)
+                button.disabled = wasDisabled
+                button.removeAttribute('aria-busy')
+            }
         }
 
         async function post (fields) {
@@ -262,17 +313,20 @@
         }
 
         async function addItem (label, json, notes = []) {
-            const item = { id: nextId++, label, json, notes, name: '', tags: null, existing: null, replace: false, reviewed: false, status: 'pending', error: '' }
+            const item = { id: nextId++, label, json, notes, name: '', tags: null, existing: null, replace: false, reviewed: false, status: 'pending', error: '', busy: words.checking }
             items.push(item)
             // The new item is unreviewed, so Import must stop offering itself until it is.
-            renderImportButton()
+            render()
             try {
                 applyReview(item, await post({ action: 'review', questionnaire: json }))
                 item.label = item.name || label
+                showAlert(fill(words.added, item.label), 'success')
             } catch (error) {
                 item.status = 'invalid'
                 item.error = error.message
+                showAlert(fill(words.notAdded, label, error.message), 'danger')
             }
+            item.busy = null
             if (current === null && item.status === 'pending') {
                 selectItem(item)
             }
@@ -319,10 +373,15 @@
 
                 const side = document.createElement('div')
                 side.className = 'text-nowrap'
-                const [badgeClass, badgeText] = badgeFor(item)
                 const badge = document.createElement('span')
-                badge.className = 'badge ' + badgeClass
-                badge.textContent = badgeText
+                if (item.busy) {
+                    badge.className = 'badge badge-light border'
+                    badge.append(spinner(), document.createTextNode(item.busy))
+                } else {
+                    const [badgeClass, badgeText] = badgeFor(item)
+                    badge.className = 'badge ' + badgeClass
+                    badge.textContent = badgeText
+                }
                 side.appendChild(badge)
 
                 const remove = document.createElement('button')
@@ -455,6 +514,10 @@
             if (!item || name === item.name || name === '') {
                 return
             }
+            const field = element('name')
+            field.readOnly = true
+            item.busy = words.checking
+            render()
             try {
                 applyReview(item, await post({ action: 'review', questionnaire: item.json, name }))
                 item.name = name
@@ -462,10 +525,13 @@
                 if (current === item) {
                     showClash(item)
                 }
-                render()
+                showAlert(words.renamed, 'success')
             } catch (error) {
                 showAlert(error.message, 'danger')
             }
+            item.busy = null
+            field.readOnly = false
+            render()
         }
 
         async function readFiles (files) {
@@ -492,10 +558,14 @@
             }
             const surfaces = Array.from(document.querySelectorAll('.import-surface:checked')).map((box) => box.value)
             const createTemplate = element('create-template')?.checked === true
-            button.disabled = true
             showAlert('', '')
             let done = 0
-            for (const item of ready) {
+            let restore = busyButton(button, words.importing)
+            for (const [index, item] of ready.entries()) {
+                restore()
+                restore = busyButton(button, fill(words.importingProgress, index + 1, ready.length))
+                item.busy = words.importing
+                renderQueue()
                 try {
                     await post({
                         action: 'import',
@@ -514,10 +584,16 @@
                 } catch (error) {
                     item.error = error.message
                 }
-                render()
+                item.busy = null
+                renderQueue()
             }
+            restore()
             importedCount += done
-            showAlert(fill(words.done, done, ready.length), done === ready.length ? 'success' : 'warning')
+            const failed = ready.filter((item) => item.status !== 'imported').map((item) => item.label)
+            showAlert(
+                fill(words.done, done, ready.length) + (failed.length > 0 ? ' ' + fill(words.notImported, failed.join(', ')) : ''),
+                done === ready.length ? 'success' : (done === 0 ? 'danger' : 'warning')
+            )
             if (done > 0 && window.parent !== window) {
                 window.parent.postMessage({ questionnaireImported: true }, window.location.origin)
             }
@@ -525,7 +601,11 @@
         }
 
         element('files').addEventListener('change', (event) => {
-            readFiles(event.target.files).then(() => { event.target.value = '' })
+            event.target.disabled = true
+            readFiles(event.target.files).then(() => {
+                event.target.value = ''
+                event.target.disabled = false
+            })
         })
         element('paste-add').addEventListener('click', () => {
             const text = element('paste').value.trim()
@@ -534,7 +614,11 @@
                 return
             }
             showAlert('', '')
-            addItem("Pasted questionnaire", text).then(() => { element('paste').value = '' })
+            const restore = busyButton(element('paste-add'), words.checking)
+            addItem("Pasted questionnaire", text).then(() => {
+                element('paste').value = ''
+                restore()
+            })
         })
         let searchTimer = null
         let searchNumber = 0
@@ -556,7 +640,7 @@
 
         async function searchLoinc (terms) {
             const number = ++searchNumber
-            element('loinc-status').textContent = words.searching
+            element('loinc-status').replaceChildren(spinner(), document.createTextNode(words.searching))
             try {
                 const payload = await post({ action: 'loinc_search', terms })
                 if (number === searchNumber) {
@@ -565,21 +649,22 @@
             } catch (error) {
                 if (number === searchNumber) {
                     element('loinc-results').replaceChildren()
-                    element('loinc-status').textContent = error.message
+                    element('loinc-status').replaceChildren()
+                    showAlert(error.message, 'danger')
                 }
             }
         }
 
         async function addLoincForm (form, row) {
-            row.disabled = true
             showAlert('', '')
+            const restore = busyButton(row, words.loading + ' ' + form.name)
             try {
                 const payload = await post({ action: 'loinc_fetch', loinc_number: form.code })
                 await addItem(form.name, payload.json, payload.notes)
             } catch (error) {
                 showAlert(error.message, 'danger')
             }
-            row.disabled = false
+            restore()
         }
 
         element('loinc-terms').addEventListener('input', (event) => {

@@ -12,7 +12,10 @@
         Tick where each questionnaire is offered. Open Limits to offer one only at a facility, for a provider, for a kind of visit or for one SMART app, or to change who may see it.
     </p>
 
-            <div class="alert alert-success">Saved 2 change(s)</div>
+            <div class="alert alert-success alert-dismissible fade show" role="status">
+            Saved 2 change(s)
+            <button type="button" class="close" data-dismiss="alert" aria-label="Dismiss">&times;</button>
+        </div>
 
             <div class="card" id="grid">
             <div class="card-header">    <a class="text-reset font-weight-bold" href="#questionnaire_availability_grid_expand" role="button" data-toggle="collapse" data-target="#questionnaire_availability_grid_expand" aria-expanded="true" aria-controls="questionnaire_availability_grid_expand">Questionnaires<i class="ml-1 fa fa-fw fa-compress" aria-hidden="true"></i></a>
@@ -434,6 +437,31 @@
             if (!window.confirm(form.dataset.confirm)) {
                 event.preventDefault();
             }
+        });
+    });
+
+    // While a save is on its way, show it on the button that sent it and stop a second click
+    // posting it again. A submit the confirm above cancelled is left alone.
+    const savingText = "Saving...";
+    document.querySelectorAll('form[method="post"]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (event.defaultPrevented) {
+                return;
+            }
+            const button = event.submitter || form.querySelector('[type="submit"]');
+            if (!button) {
+                return;
+            }
+            const spin = document.createElement('span');
+            spin.className = 'spinner-border spinner-border-sm mr-1';
+            spin.setAttribute('role', 'status');
+            spin.setAttribute('aria-hidden', 'true');
+            button.replaceChildren(spin, document.createTextNode(savingText));
+            // Disabled after the submit is under way, so the button's own name and value
+            // still reach the server.
+            setTimeout(function () {
+                button.disabled = true;
+            }, 0);
         });
     });
 

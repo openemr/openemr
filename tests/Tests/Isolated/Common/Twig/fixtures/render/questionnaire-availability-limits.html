@@ -695,6 +695,31 @@
         });
     });
 
+    // While a save is on its way, show it on the button that sent it and stop a second click
+    // posting it again. A submit the confirm above cancelled is left alone.
+    const savingText = "Saving...";
+    document.querySelectorAll('form[method="post"]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (event.defaultPrevented) {
+                return;
+            }
+            const button = event.submitter || form.querySelector('[type="submit"]');
+            if (!button) {
+                return;
+            }
+            const spin = document.createElement('span');
+            spin.className = 'spinner-border spinner-border-sm mr-1';
+            spin.setAttribute('role', 'status');
+            spin.setAttribute('aria-hidden', 'true');
+            button.replaceChildren(spin, document.createTextNode(savingText));
+            // Disabled after the submit is under way, so the button's own name and value
+            // still reach the server.
+            setTimeout(function () {
+                button.disabled = true;
+            }, 0);
+        });
+    });
+
     const dirty = document.getElementById('grid-dirty');
     document.querySelectorAll('.js-grid-box').forEach(function (box) {
         box.addEventListener('change', function () {
