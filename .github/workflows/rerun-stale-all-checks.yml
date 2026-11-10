@@ -15,7 +15,10 @@
 # The legacy-directory gates heal the same way: an admin's approval re-runs
 # Legacy Directories on pull_request_review, which adds a passing check run
 # next to the failed one. Like the aggregate, this counts only the latest
-# check run of each name.
+# check run of each name. Revoking the override (a dismissal, or a later
+# request for changes) re-runs the gate red, but leaves green an aggregate
+# that the approval had turned green, so a second job reruns that aggregate
+# to let it fail.
 name: Rerun Stale All Checks Passed
 
 on:
@@ -64,7 +67,7 @@ jobs:
         # This job's own check run is in_progress while it evaluates, and the
         # aggregate itself ignores the codecov contexts, so neither may count
         # as a blocker. Keep this list in sync with all-checks-passed.yml.
-        IGNORED_CHECKS: 'Rerun stale All Checks Passed,All Checks Passed,codecov/project,codecov/patch'
+        IGNORED_CHECKS: 'Rerun stale All Checks Passed,Rerun All Checks Passed after a revoked override,All Checks Passed,codecov/project,codecov/patch'
       shell: bash
       run: |
         set -euo pipefail
@@ -123,3 +126,48 @@ jobs:
                 echo "::warning::Could not rerun aggregate run ${run_id}; it may already be running."
             fi
         done <<< "${stale_runs}"
+
+  rerun-revoked-aggregate:
+    name: Rerun All Checks Passed after a revoked override
+    runs-on: ubuntu-24.04
+    # Only a review can revoke an admin override, so only a failed
+    # review-triggered gate run can leave a green aggregate stale.
+    if: >-
+      github.event_name == 'workflow_run'
+      && github.event.workflow_run.name == 'Legacy Directories'
+      && github.event.workflow_run.event == 'pull_request_review'
+      && github.event.workflow_run.conclusion == 'failure'
+    steps:
+    - name: Rerun green aggregate runs for the commit
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        SHA: ${{ github.event.workflow_run.head_sha }}
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        # The aggregate keeps only the latest check run of each name, so a
+        # rerun sees the failed gate and goes red. Warn instead of failing
+        # on API errors, for the same reason as the job above.
+        if ! green_runs=$(gh api "repos/${REPO}/actions/workflows/all-checks-passed.yml/runs?head_sha=${SHA}&per_page=20" \
+            --jq '.workflow_runs[] | select(.conclusion == "success") | "\(.id) \(.run_attempt)"'); then
+            echo '::warning::Could not list All Checks Passed runs for the commit; skipping this evaluation.'
+            exit 0
+        fi
+        if [[ -z "${green_runs}" ]]; then
+            echo 'No green All Checks Passed run on this commit; nothing to do.'
+            exit 0
+        fi
+
+        while read -r run_id attempt; do
+            if (( attempt >= 5 )); then
+                echo "::warning::Aggregate run ${run_id} has already been attempted ${attempt} times; leaving it for a human."
+                continue
+            fi
+            if gh api -X POST "repos/${REPO}/actions/runs/${run_id}/rerun" > /dev/null; then
+                echo "Reran All Checks Passed run ${run_id} after the legacy-directory override was revoked."
+            else
+                echo "::warning::Could not rerun aggregate run ${run_id}; it may already be running."
+            fi
+        done <<< "${green_runs}"
