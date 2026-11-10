@@ -26,6 +26,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\Globals\CollapsedSections;
+use OpenEMR\Services\Questionnaire\AssessmentPageLayout;
 use OpenEMR\Services\Questionnaire\AvailabilityContext;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
 use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
@@ -41,9 +42,7 @@ $canUseTemplates = $authorized
     && AclMain::aclCheckCore('patients', 'docs')
     && AclMain::aclCheckCore('patientportal', 'portal');
 $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
-$container = OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')
-    ? 'container'
-    : 'container-fluid';
+$pageLayout = AssessmentPageLayout::create(OEGlobalsBag::getInstance());
 $showSmartContextTestLaunches = OEGlobalsBag::getInstance()->getBoolean(
     'smart_context_test_launches'
 );
@@ -165,11 +164,7 @@ if ($authorized && $pid > 0) {
                 : xl('Unassigned');
         }
 
-        // A hash of the whole list option id, so the choice survives a language change and ids
-        // that differ only in punctuation keep separate states.
-        $categorySection = 'questionnaire_category_'
-            . ($category !== '' ? hash('xxh3', $category) : 'unassigned')
-            . '_expand';
+        $categorySection = CollapsedSections::categoryKey($category);
         $questionnairesByCategory[$categorySection][] = $questionnaireRecord;
         $categoryTitles[$categorySection] ??= $categoryTitle;
     }
@@ -226,6 +221,16 @@ if ($authorized && $pid > 0) {
 
 $collapsedSections = CollapsedSections::forCurrentUser([$smartLaunchesSection, ...array_keys($questionnairesByCategory)]);
 
+$twig = ServiceContainer::getTwig();
+$adminTabs = [
+    'canUseTemplates' => $canUseTemplates,
+    'canManageAvailability' => $canManageAvailability,
+    'canImport' => $canImport,
+    'templatesUrl' => $webRoot . '/portal/patient/onsitedocuments?pid=' . urlencode((string)$pid) . '&is_module=1',
+    'availabilityUrl' => $webRoot . '/interface/super/manage_questionnaire_availability.php',
+    'importUrl' => $webRoot . '/interface/super/manage_questionnaire_availability.php?view=import',
+];
+
 $nativeQuestionnaireUrl = $webRoot . '/interface/forms/questionnaire_assessments/native_questionnaire.php';
 $smartLaunchUrl = $webRoot . '/interface/smart/ehr-launch-client.php';
 $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
@@ -244,8 +249,8 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
     </style>
 </head>
 <body class="body_top">
-    <div class="<?php echo attr($container); ?> mt-3">
-        <h4><?php echo xlt('Questionnaire Assessments'); ?></h4>
+    <div id="container_div" class="<?php echo attr($pageLayout->oeContainer()); ?> mt-3">
+        <?php echo $pageLayout->pageHeading(); ?>
         <div class="row">
             <div class="col-sm-12">
                 <?php
@@ -260,10 +265,6 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
         <?php elseif ($pid < 1) : ?>
             <div class="alert alert-info mt-3"><?php echo xlt('No patient selected.'); ?></div>
         <?php else : ?>
-            <div id="assessment-saved" class="alert alert-success alert-dismissible fade show mt-3 d-none" role="status">
-                <?php echo xlt('Assessment saved.'); ?>
-                <button type="button" class="close" data-dismiss="alert" aria-label="<?php echo xla('Dismiss'); ?>">&times;</button>
-            </div>
             <div id="assessment-workspace" class="card my-3 d-none">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span id="assessment-title" class="font-weight-bold"></span>
@@ -277,9 +278,6 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <div id="assessment-loading" class="text-center text-muted py-5 d-none" role="status">
-                        <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span><?php echo xlt('Loading...'); ?>
-                    </div>
                     <iframe id="assessment-frame" title="<?php echo xla('Questionnaire Assessment'); ?>"></iframe>
                 </div>
             </div>
@@ -288,15 +286,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 <?php $smartLaunchesCollapsed = $collapsedSections->isCollapsed($smartLaunchesSection); ?>
                 <div class="card my-3">
                     <div class="card-header">
-                        <a
-                            class="text-reset font-weight-bold"
-                            href="#<?php echo attr($smartLaunchesSection); ?>"
-                            role="button"
-                            data-toggle="collapse"
-                            data-target="#<?php echo attr($smartLaunchesSection); ?>"
-                            aria-expanded="<?php echo $smartLaunchesCollapsed ? 'false' : 'true'; ?>"
-                            aria-controls="<?php echo attr($smartLaunchesSection); ?>"
-                        ><?php echo xlt('SMART Context Test Launches'); ?><i class="ml-1 fa fa-fw <?php echo $smartLaunchesCollapsed ? 'fa-expand' : 'fa-compress'; ?>" aria-hidden="true"></i></a>
+                        <?php echo $twig->render('patient/assessment/section_toggle.html.twig', ['section' => $smartLaunchesSection, 'title' => xl('SMART Context Test Launches'), 'collapsed' => $smartLaunchesCollapsed]); ?>
                     </div>
                     <div
                         id="<?php echo attr($smartLaunchesSection); ?>"
@@ -400,51 +390,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             <?php endif; ?>
                         </a>
                     </li>
-                    <?php if ($canUseTemplates) : ?>
-                    <li class="nav-item" role="presentation">
-                        <a
-                            class="nav-link"
-                            id="document-templates-tab"
-                            data-toggle="tab"
-                            href="#document-templates"
-                            role="tab"
-                            aria-controls="document-templates"
-                            aria-selected="false"
-                        >
-                            <?php echo xlt('Document Templates'); ?>
-                        </a>
-                    </li>
-                    <?php endif; ?>
-                    <?php if ($canManageAvailability) : ?>
-                    <li class="nav-item" role="presentation">
-                        <a
-                            class="nav-link"
-                            id="questionnaire-availability-tab"
-                            data-toggle="tab"
-                            href="#questionnaire-availability"
-                            role="tab"
-                            aria-controls="questionnaire-availability"
-                            aria-selected="false"
-                        >
-                            <?php echo xlt('Availability'); ?>
-                        </a>
-                    </li>
-                    <?php endif; ?>
-                    <?php if ($canImport) : ?>
-                    <li class="nav-item" role="presentation">
-                        <a
-                            class="nav-link"
-                            id="questionnaire-import-tab"
-                            data-toggle="tab"
-                            href="#questionnaire-import"
-                            role="tab"
-                            aria-controls="questionnaire-import"
-                            aria-selected="false"
-                        >
-                            <?php echo xlt('Import'); ?>
-                        </a>
-                    </li>
-                    <?php endif; ?>
+                    <?php echo $twig->render('patient/assessment/admin_tab_nav.html.twig', $adminTabs); ?>
                 </ul>
                 <div class="tab-content border-left border-right border-bottom p-3 bg-light" id="assessment-tabs-content">
                     <div
@@ -471,15 +417,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                 $categoryCollapsed = $collapsedSections->isCollapsed($categorySection);
                                 ?>
                                 <h5 class="mt-2 mb-3">
-                                    <a
-                                        class="text-reset"
-                                        href="#<?php echo attr($categorySection); ?>"
-                                        role="button"
-                                        data-toggle="collapse"
-                                        data-target="#<?php echo attr($categorySection); ?>"
-                                        aria-expanded="<?php echo $categoryCollapsed ? 'false' : 'true'; ?>"
-                                        aria-controls="<?php echo attr($categorySection); ?>"
-                                    ><?php echo text((string)$categoryTitle); ?><i class="ml-1 fa fa-fw <?php echo $categoryCollapsed ? 'fa-expand' : 'fa-compress'; ?>" aria-hidden="true"></i></a>
+                                    <?php echo $twig->render('patient/assessment/section_toggle.html.twig', ['section' => $categorySection, 'title' => $categoryTitle, 'collapsed' => $categoryCollapsed]); ?>
                                     <span class="badge badge-light ml-1"><?php echo text((string)count($questionnaires)); ?></span>
                                 </h5>
                                 <div
@@ -715,158 +653,15 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             </div>
                         <?php endif; ?>
                     </div>
-                    <?php if ($canUseTemplates) : ?>
-                    <div
-                        class="tab-pane fade"
-                        id="document-templates"
-                        role="tabpanel"
-                        aria-labelledby="document-templates-tab"
-                    >
-                        <div class="text-center text-muted py-5 d-none frame-loading" data-frame="document-templates-frame" role="status">
-                            <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span><?php echo xlt('Loading...'); ?>
-                        </div>
-                        <iframe
-                            id="document-templates-frame"
-                            title="<?php echo xla('Document Templates'); ?>"
-                            class="w-100 border-0 assessment-tab-frame"
-                            style="height: 85vh;"
-                            data-src="<?php echo attr($webRoot . '/portal/patient/onsitedocuments?pid=' . urlencode((string)$pid) . '&is_module=1'); ?>"
-                        ></iframe>
-                    </div>
-                    <?php endif; ?>
-                    <?php if ($canManageAvailability) : ?>
-                    <div
-                        class="tab-pane fade"
-                        id="questionnaire-availability"
-                        role="tabpanel"
-                        aria-labelledby="questionnaire-availability-tab"
-                    >
-                        <!--
-                            Embedded rather than merged into this page: the management screen
-                            has its own forms, CSRF tokens and POST handling, and keeping it a
-                            separate document means neither page's submit can reach the
-                            other's handler. Loaded on first open so ordinary dashboard
-                            visits pay nothing for it.
-                        -->
-                        <div class="text-center text-muted py-5 d-none frame-loading" data-frame="questionnaire-availability-frame" role="status">
-                            <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span><?php echo xlt('Loading...'); ?>
-                        </div>
-                        <iframe
-                            id="questionnaire-availability-frame"
-                            title="<?php echo xla('Questionnaire Availability'); ?>"
-                            class="w-100 border-0 assessment-tab-frame"
-                            style="height: 75vh;"
-                            data-src="<?php echo attr($webRoot . '/interface/super/manage_questionnaire_availability.php'); ?>"
-                        ></iframe>
-                    </div>
-                    <?php endif; ?>
-                    <?php if ($canImport) : ?>
-                    <div
-                        class="tab-pane fade"
-                        id="questionnaire-import"
-                        role="tabpanel"
-                        aria-labelledby="questionnaire-import-tab"
-                    >
-                        <div class="text-center text-muted py-5 d-none frame-loading" data-frame="questionnaire-import-frame" role="status">
-                            <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span><?php echo xlt('Loading...'); ?>
-                        </div>
-                        <iframe
-                            id="questionnaire-import-frame"
-                            title="<?php echo xla('Import Questionnaires'); ?>"
-                            class="w-100 border-0 assessment-tab-frame"
-                            style="height: 85vh;"
-                            data-src="<?php echo attr($webRoot . '/interface/super/manage_questionnaire_availability.php?view=import'); ?>"
-                        ></iframe>
-                    </div>
-                    <?php endif; ?>
+                    <?php echo $twig->render('patient/assessment/admin_tab_panes.html.twig', $adminTabs); ?>
                 </div>
             </div>
         <?php endif; ?>
     </div>
-    <?php if ($canManageAvailability || $canImport || $canUseTemplates) : ?>
-    <script>
-        (function () {
-            const availabilityFrame = document.getElementById('questionnaire-availability-frame')
-            const importFrame = document.getElementById('questionnaire-import-frame')
-            const availableTab = document.getElementById('available-assessments-tab')
-            let changed = false
-            // Load an embedded screen the first time its tab is opened.
-            function loadOnFirstOpen (tab, frame) {
-                tab?.addEventListener('click', () => {
-                    if (frame && !frame.getAttribute('src')) {
-                        top.restoreSession()
-                        // Show a loading line until the screen arrives.
-                        const loader = document.querySelector('.frame-loading[data-frame="' + frame.id + '"]')
-                        if (loader) {
-                            loader.classList.remove('d-none')
-                            frame.addEventListener('load', () => loader.classList.add('d-none'), { once: true })
-                        }
-                        frame.setAttribute('src', frame.dataset.src)
-                    }
-                })
-            }
-            loadOnFirstOpen(document.getElementById('questionnaire-availability-tab'), availabilityFrame)
-            loadOnFirstOpen(document.getElementById('questionnaire-import-tab'), importFrame)
-            loadOnFirstOpen(
-                document.getElementById('document-templates-tab'),
-                document.getElementById('document-templates-frame')
-            )
-            // An embedded screen fills the window below the tabs and scrolls inside itself,
-            // so this page does not scroll as well.
-            function fitFrames () {
-                document.querySelectorAll('.assessment-tab-frame').forEach((frame) => {
-                    if (frame.offsetParent === null) {
-                        return
-                    }
-                    const frameTop = frame.getBoundingClientRect().top + window.scrollY
-                    let height = window.innerHeight - frameTop - 24
-                    frame.style.height = Math.max(400, height) + 'px'
-                    // Take back whatever padding below still makes the page taller than the window.
-                    const over = document.documentElement.scrollHeight - window.innerHeight
-                    if (over > 0) {
-                        height -= over
-                        frame.style.height = Math.max(400, height) + 'px'
-                    }
-                })
-            }
-            $('#assessment-tabs a[data-toggle="tab"]').on('shown.bs.tab', fitFrames)
-            window.addEventListener('resize', fitFrames)
-            // The first load is the screen itself; any later load is the screen coming
-            // back from a save, which can change what this patient's dashboard offers.
-            let loads = 0
-            availabilityFrame?.addEventListener('load', () => {
-                loads++
-                if (loads > 1) {
-                    changed = true
-                }
-            })
-            window.addEventListener('message', (event) => {
-                if (event.origin !== window.location.origin || event.source !== importFrame?.contentWindow) {
-                    return
-                }
-                if (event.data?.questionnaireImported === true) {
-                    changed = true
-                    if (availabilityFrame?.getAttribute('src')) {
-                        availabilityFrame.contentWindow.location.reload()
-                    }
-                }
-            })
-            // The Available list was rendered before the change, so refresh it rather than
-            // show a list that no longer matches the rules just saved.
-            if (availableTab) {
-                availableTab.addEventListener('click', () => {
-                    if (changed) {
-                        top.restoreSession()
-                        window.location.reload()
-                    }
-                })
-            }
-        })()
-    </script>
-    <?php endif; ?>
-
+    <?php $pageLayout->oeBelowContainerDiv(); ?>
     <?php if ($authorized && $pid > 0) : ?>
-        <?php echo ServiceContainer::getTwig()->render('super/_collapse_persist.html.twig', ['csrfToken' => $smartLaunchCsrfToken]); ?>
+        <?php echo $twig->render('super/_collapse_persist.html.twig', ['csrfToken' => $smartLaunchCsrfToken]); ?>
+        <?php echo $twig->render('patient/assessment/assessment_feedback.html.twig', ['launcherUrl' => $selfUrl]); ?>
         <script>
             const assessmentWorkspace = document.getElementById('assessment-workspace')
             const assessmentCatalog = document.getElementById('assessment-catalog')
@@ -880,50 +675,23 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 \OpenEMR\FHIR\SMART\SMARTLaunchToken::INTENT_QUESTIONNAIRE_ASSESSMENT
                                       ); ?>;
             let assessmentSavePending = false
-            const assessmentSaveLabel = assessmentSaveButton.textContent.trim()
-            const assessmentLoading = document.getElementById('assessment-loading')
-
-            // Save shows a spinner while the assessment is on its way, and goes back to normal
-            // if validation or the save fails so the user can correct it and try again.
-            function showSaving (saving) {
-                assessmentSavePending = saving
-                assessmentSaveButton.disabled = saving
-                if (saving) {
-                    const spin = document.createElement('span')
-                    spin.className = 'spinner-border spinner-border-sm mr-1'
-                    spin.setAttribute('aria-hidden', 'true')
-                    assessmentSaveButton.replaceChildren(spin, document.createTextNode(<?php echo xlj('Saving...'); ?>))
-                } else {
-                    assessmentSaveButton.textContent = assessmentSaveLabel
-                }
-            }
-
-            assessmentFrame.addEventListener('load', () => {
-                assessmentLoading.classList.add('d-none')
-            })
-
-            // Back from a save: confirm it once, and drop the flag so a refresh does not repeat it.
-            if (new URLSearchParams(window.location.search).get('saved') === '1') {
-                const savedAlert = document.getElementById('assessment-saved')
-                savedAlert.classList.remove('d-none')
-                setTimeout(() => $(savedAlert).alert('close'), 6000)
-                window.history.replaceState(null, '', assessmentLauncherUrl)
-            }
 
             function openAssessment (url, title) {
                 top.restoreSession()
-                showSaving(false)
+                assessmentSavePending = false
+                assessmentFeedback.saving(false)
                 assessmentTitle.textContent = title
                 assessmentCatalog.classList.add('d-none')
                 assessmentWorkspace.classList.remove('d-none')
-                assessmentLoading.classList.remove('d-none')
+                assessmentFeedback.loading(true)
                 assessmentFrame.src = url
                 window.scrollTo({ top: 0, behavior: 'smooth' })
             }
 
             function closeAssessment () {
-                showSaving(false)
-                assessmentLoading.classList.add('d-none')
+                assessmentSavePending = false
+                assessmentFeedback.saving(false)
+                assessmentFeedback.loading(false)
                 assessmentFrame.src = 'about:blank'
                 assessmentWorkspace.classList.add('d-none')
                 assessmentCatalog.classList.remove('d-none')
@@ -1023,7 +791,8 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                     return
                 }
                 top.restoreSession()
-                showSaving(true)
+                assessmentSavePending = true
+                assessmentFeedback.saving(true)
                 assessmentFrame.contentWindow.postMessage({ submitForm: true }, window.location.origin)
             })
 
@@ -1035,13 +804,13 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 }
 
                 if (event.data?.assessmentSaved === true) {
-                    // Reload so history and the latest status show the save, and say it worked.
-                    window.location.href = assessmentLauncherUrl + '?saved=1'
+                    window.location.href = assessmentFeedback.savedUrl
                     return
                 }
 
                 if (event.data?.assessmentValidationFailed === true || event.data?.assessmentSaveFailed === true) {
-                    showSaving(false)
+                    assessmentSavePending = false
+                    assessmentFeedback.saving(false)
                 }
             })
         </script>

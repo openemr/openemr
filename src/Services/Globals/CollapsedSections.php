@@ -55,6 +55,19 @@ final readonly class CollapsedSections
     }
 
     /**
+     * The setting key for a group of questionnaires in one category.
+     *
+     * A hash of the whole list option id: the choice survives a change of language, and ids
+     * that differ only in punctuation, such as a-b and a_b, keep separate states.
+     */
+    public static function categoryKey(string $category): string
+    {
+        return 'questionnaire_category_'
+            . ($category !== '' ? hash('xxh3', $category) : 'unassigned')
+            . '_expand';
+    }
+
+    /**
      * Whether the section with this setting key starts collapsed.
      */
     public function isCollapsed(string $section): bool
