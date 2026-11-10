@@ -155,10 +155,9 @@ final readonly class PackageAssembler
         // Drop node_modules and regenerate the optimized production autoloader.
         $this->run(['rm', '-rf', "{$stageDir}/node_modules"]);
         $this->run(['composer', 'dump-autoload', '--optimize', '--no-dev'], $stageDir);
-        // This file is shared with rel branches whose source predates the script.
-        if (is_file("{$stageDir}/bin/compile-container.php")) {
-            $this->run(['php', 'bin/compile-container.php'], $stageDir);
-        }
+        // Pre-flight check: loading bootstrap.php compiles the DI container.
+        // `list` is only a placeholder until there's a real check to run.
+        $this->run(['./cli', 'list'], $stageDir, ['ENVIRONMENT' => 'production']);
 
         // Standardize permissions; make the install-writable paths writable.
         $this->run(['chmod', '-R', 'u+w', $stageDir]);
