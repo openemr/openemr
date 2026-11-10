@@ -165,7 +165,12 @@ Separate from rabbit, pull every formal review on the PR:
   `CHANGES_REQUESTED` from a different reviewer.
 - `CHANGES_REQUESTED` — hard block. Stays open until the requesting maintainer
   re-reviews.
-- `COMMENTED` — informational, not blocking.
+- `COMMENTED` — informational on the review-state level, but **check the inline
+  comments the review carries.** A `COMMENTED` review can contain inline requests
+  with substantive asks on PR-introduced content (a one-line edit request, a specific
+  concern on a specific line); those are blockers even without a formal
+  `CHANGES_REQUESTED` state. The §12 pre-merge item 6 catches *new* inline comments
+  posted after the brief; this step catches *outstanding* ones that predate the brief.
 - `DISMISSED` — the author or admin dismissed a stale review.
 
 If the PR state is `CHANGES_REQUESTED`, identify the requesting maintainer and the
@@ -262,6 +267,30 @@ git -c user.email=t@t -c user.name=t merge pr-<N> --no-ff --no-commit
 The merge either (a) succeeds with both PRs' semantics preserved — approve without a
 rebase, (b) succeeds but silently drops one side's intent — request a rebase, or
 (c) fails with conflicts — request a rebase.
+
+**Baseline check against the merged result.** A clean three-way merge can still
+produce a baseline-stability violation that neither PR's §7 catches on its own. If two
+PRs independently reduce the same baseline count from 2 to 1, git merges both cleanly
+and the combined count is 1 — but the baseline entry should have been deleted entirely
+(both reductions removed the last two occurrences). §7 compares each PR to its own
+merge base and sees a valid 2→1, so both ship with a baseline that fails the stability
+check after merge.
+
+**When the throwaway-merge touches `.phpstan/baseline/`, check CI's baseline-stability
+check** on the PR's current head against the current base. If it has already run and
+passed, the integration is tested and no rebase is needed — a PR that legitimately
+touches baseline (as all baseline fixes do) will keep touching baseline in the
+throwaway merge after any rebase, and requesting one every time creates a no-op
+rebase cycle. Trust the CI signal: if the baseline-stability check is green on the
+current head + base, it's satisfied. If the check hasn't run since the last relevant
+base advance (stale CI), request a rebase to trigger a fresh CI run.
+
+Do not run `composer install` or `composer phpstan-baseline` against the merged
+PR-controlled code on the shepherd's host: a PR can change Composer scripts or
+PHPStan bootstrap files, and the throwaway git clone shares the shepherd's
+credentials (`$HOME/.config/gh/`, `$HOME/.ssh/`, env vars, maintainer-level push
+access). CI runs in a credential-free sandbox for exactly this reason; the rebase
+delegates the baseline-regen there.
 
 ---
 
@@ -394,14 +423,24 @@ baseline checks need to re-run against the new base tip).
    recorded base-tip. If it moved, re-run both the merge-compatibility checks (§6.6)
    **and** the baseline-integrity check (§7) against the new tip — a base advance can
    change the merge base, which can expose a baseline violation the old comparison
-   missed (e.g. a preceding PR removed a baseline entry this PR would restore).
+   missed (e.g. a preceding PR removed a baseline entry this PR would restore). The
+   most common cause of base advance mid-pass is **the shepherd's own landing
+   cascade**: when a pass lands multiple PRs, each merge advances the base for every
+   remaining ✅ PR. After each merge, preemptively scan the surviving ✅ queue for
+   file-overlap or baseline-entry-overlap against the just-landed PR, and re-probe
+   the overlapping ones under §6.6 + §7 before acting on their verdicts.
 3. CI is still green.
 4. No new rabbit Actionable has been posted since the brief — including inside a reply
    in a thread rabbit resolved itself (see
    [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding)).
 5. No new maintainer `CHANGES_REQUESTED` has been filed.
+6. No new maintainer inline comment carries a substantive ask on PR-introduced
+   content. A maintainer may post an inline comment with a one-line edit request
+   without opening a formal `CHANGES_REQUESTED` review-state; these are still
+   blockers for the shepherd verdict (observed pattern across multiple passes:
+   several PRs reclassified ✅→🔴 via inline comment with zero formal state change).
 
-If any of 1-5 moved, refresh the brief before merging.
+If any of 1-6 moved, refresh the brief before merging.
 
 **After** merging — when the agent is processing a `landed <N>` report from the
 maintainer — do NOT re-run checks 1-2. The merge itself advances both head (into the
@@ -460,6 +499,18 @@ history. Minimum prompt fields:
 - **Return-format expectations.** A `<250-word` summary with verdict, 3–5 key findings,
   follow-ups surfaced. Explicitly note that the summary is a preview — the brief is
   authoritative.
+- **Standing-rules state at dispatch time.** If a standing rule has landed or changed
+  mid-pass (e.g. §2.7 "resolved-thread" rule shipped mid-pass in 2026-11 and the
+  parent had to re-audit already-returned briefs that used the pre-change mental
+  model), note the rule explicitly in the prompt so the subagent doesn't apply a
+  stale model. The subagent reads `standing-rules.md` from disk, but the parent
+  session holds the state-of-active-changes context across the pass. When a rule
+  changes mid-pass:
+  - **Completed briefs:** the parent re-audits each under the new rule.
+  - **In-flight subagents:** the parent either (a) restarts the agent with the new
+    rule in the prompt, or (b) re-audits the agent's final brief after it returns.
+    **Mid-execution audit alone is insufficient** — the agent can continue under the
+    pre-change mental model for material reviewed after the audit.
 
 ### Security-adjacent findings in subagent briefs
 

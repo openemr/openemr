@@ -305,6 +305,53 @@ indicating source-level fixes.
 decision at a glance>.
 ```
 
+### 3.12 STATE DELTA header (brief maintenance across post-verdict shifts)
+
+When post-verdict state shifts — whether the verdict survives (maintainer inline
+comment resolved by re-read, base advance that re-clears the merge-compatibility
+([per-pr-review §6.6](per-pr-review.md#66-probe-an-unknown-mergeable-state)) and
+baseline-integrity ([per-pr-review §7](per-pr-review.md#7-check-baseline-integrity))
+checks, post-resume rabbit finding scoped out) or the verdict changes (✅→🔴 from a
+maintainer-spotted gap, 🔴→✅ after a block is cleared) — prepend a dated delta
+header to the brief rather than rewriting the body. Preserves the
+verified-at-head-X evidence trail while making the current state scannable.
+
+```markdown
+## 🔴/🟡 STATE DELTA — <YYYY-MM-DD>
+
+**Current verdict:** <new verdict if changed, or "unchanged ✅/🔶/🔴" if preserved>.
+**Observed head:** `<new-head-sha>` (set when head moved; mark "re-verified" once
+checks run against it).
+**Observed base-tip:** `<new-base-tip-sha>` (same convention).
+
+<One-paragraph note: what changed, what the brief body no longer reflects, which
+sections need re-verification before the verdict applies again. End with the
+re-verification criteria for the delta.>
+
+---
+
+<original brief body below, unchanged>
+```
+
+Record the observed head + base-tip SHAs whenever either moved, even on an
+"unchanged verdict" delta — without them, a reader can't tell which revisions
+are under re-verification. Promote to "re-verified" once the checks finish
+against the observed SHAs; those SHAs then supersede the §3.2 header.
+
+**Delta authority.** The delta is authoritative for any fact it records as changed —
+re-verifying one finding doesn't make an unrelated stale statement in the brief body
+accurate again. When successive deltas accumulate (verdict changes twice), the newest
+delta supersedes earlier deltas for the specific facts it updates; earlier deltas
+remain authoritative for unrelated facts they recorded. The brief body returns to
+fully authoritative only when it's updated to reflect the changed facts while
+preserving the original evidence (e.g. "Updated 2026-11-09: X finding now addressed,
+see commit Y; original pre-fix evidence in the delta above").
+
+Pattern observed across multiple shepherd passes (4+ uses in one pass alone): used when
+a maintainer inline comment flips ✅→🔴, when a base advance introduces a baseline
+violation the brief predates, when a post-unpause rabbit review adds a Minor, or when
+re-reading under a mid-pass standing-rule change surfaces a reclassification.
+
 ---
 
 ## 4. Follow-up register entry (format)

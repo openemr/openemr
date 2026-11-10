@@ -191,6 +191,29 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
   suggestion"). Record "I agree / I withdraw" as the author's scope-out, verified by the
   shepherd against the code, not as rabbit having re-checked anything.
 
+### 2.8 Rate-limit → no coverage, not clean coverage
+
+- When rabbit never ran on a PR (OSS rate-limit hit before initial review), the
+  `CodeRabbit` check conclusion is `NEUTRAL` and no Actionables are ever posted. The
+  decision-gate's "no unresolved rabbit Actionable" row passes vacuously — the shepherd
+  has no signal from rabbit, not a clean signal.
+- Trigger `@coderabbitai full review` as a **Phase 1 action**, independent of whether
+  the PR ever reaches Phase 2. The request is a prerequisite for the gate, not a
+  Phase 2 brief-writing step — if the PR is held in Phase 1 for any other reason, the
+  trigger still has to fire so rabbit coverage is available when the other block
+  clears. Flag `NEUTRAL` in the stock-take snapshot and the shepherd log.
+
+### 2.9 Rebase invalidates rabbit's commit-SHA citations
+
+- A force-push rebase on an in-review PR replaces the branch's commit history. Rabbit's
+  walkthrough banner still shows the pre-rebase `Last reviewed: X`, but X is no longer
+  in the current linear history and the commit-SHA citations in its earlier findings
+  point at commits that don't resolve. Detect by comparing the walkthrough banner's
+  `Last reviewed` SHA to `git log pr-<N>` — if absent, the PR was rebased.
+- The mechanic is already handled in practice: §4 step 3 verified-by-diff on the
+  current head doesn't require the cited SHA to resolve. But naming it explicitly keeps
+  a new shepherd from blocking on an unresolvable citation.
+
 ---
 
 ## 3. Staleness and recheck cadence
