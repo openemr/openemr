@@ -324,13 +324,19 @@ Not every green rollup is cleanly green. Call out explicitly:
   lint. Verify the next job passed.
 - **SKIPPED lanes.** Inferno is often SKIPPED on forks (expected); other skips may be
   conditional on label.
-- **FAILURE lanes** — the PR is held; name the lane in the brief. Exception: a solo
-  `codecov/patch` or `codecov/project` FAILURE with a green "All Checks Passed"
-  aggregator is OK; those are advisory status checks.
+- **FAILURE lanes** — the PR is held; name the lane in the brief. Two exceptions, both
+  advisory:
+  - A solo `codecov/patch` or `codecov/project` FAILURE with a green "All Checks Passed"
+    aggregator is OK; those are advisory status checks.
+  - A solo `All Checks Passed` aggregator FAILURE (or aggregator + codecov/* FAILURE
+    only) with every underlying lane SUCCESS or SKIPPED is OK — a known GitHub
+    aggregator-glitch where a dependent check didn't register SUCCESS but no real lane
+    failed. Note it explicitly in the brief ("aggregator glitch; underlying lanes clean").
 
 A common masking pattern: "All Checks Passed" job shows FAILURE because it depends on a
 preceding CANCELLED or FAILURE. The underlying lane is what matters; the aggregator is
-derivative.
+derivative — true whether the dependency is real (in which case the underlying lane is
+the stopper) or spurious (the glitch case above).
 
 ---
 

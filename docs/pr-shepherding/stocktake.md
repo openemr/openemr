@@ -86,7 +86,7 @@ Collect the following signals per PR:
 | `isDraft` | `view.isDraft` | Draft vs non-draft |
 | `reviewDecision` | `view.reviewDecision` | `CHANGES_REQUESTED` → held |
 | `mergeable` | `view.mergeable` | `CONFLICTING` → held |
-| CI rollup | `statusCheckRollup` | Any `FAILURE` outside `codecov/*` → held (`codecov/patch` and `codecov/project` are advisory; don't fail the aggregator) |
+| CI rollup | `statusCheckRollup` | Any `FAILURE` outside `codecov/*` and the `All Checks Passed` aggregator → held. `codecov/*` are advisory; the `All Checks Passed` aggregator occasionally fails while every underlying lane is clean (GitHub glitch) — the underlying lanes are primary |
 | CANCELLED lanes | `statusCheckRollup` | Investigate; see §3 |
 | Author activity | `commits[-N:].authoredDate` | Dormant vs active |
 | Last update | `updatedAt` | Freshness, dormancy check |
@@ -96,7 +96,7 @@ Collect the following signals per PR:
 **CI rollup quick-classify:**
 
 - All `SUCCESS` or `SKIPPED` (+ at most 1 `CANCELLED` that's title-lint-superseded) → `OK`
-- Any `FAILURE` outside `codecov/*` → `FAIL` (codecov/patch and codecov/project are advisory and don't fail the aggregator — a solo codecov FAILURE with green aggregator is OK)
+- Any `FAILURE` outside `codecov/*` and `All Checks Passed` → `FAIL`. Both are advisory: `codecov/patch` + `codecov/project` don't fail the aggregator (a solo codecov FAILURE with green aggregator is OK); and the `All Checks Passed` aggregator itself sometimes shows FAILURE when every underlying lane is clean (known GitHub glitch) — treat a solo aggregator FAILURE, or aggregator + codecov/* only, the same as codecov-only.
 - Many `CANCELLED` + no `FAILURE` → `CRED` (concurrency-redeemed; usually in-flight
   re-run — recheck in 5-10m)
 - Lanes `IN_PROGRESS` > 24 h on a non-dormant PR with aggregator NULL → `STALE` → 🔴
