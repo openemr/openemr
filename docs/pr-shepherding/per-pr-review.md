@@ -276,13 +276,21 @@ and the combined count is 1 — but the baseline entry should have been deleted 
 merge base and sees a valid 2→1, so both ship with a baseline that fails the stability
 check after merge.
 
-**When the throwaway-merge touches `.phpstan/baseline/`, request a rebase** so the
-author's branch runs CI's baseline-stability check against the real merge base. Do not
-run `composer install` or `composer phpstan-baseline` against the merged PR-controlled
-code on the shepherd's host: a PR can change Composer scripts or PHPStan bootstrap
-files, and the throwaway git clone shares the shepherd's credentials (`$HOME/.config/gh/`,
-`$HOME/.ssh/`, env vars, maintainer-level push access). CI runs in a credential-free
-sandbox for exactly this reason; the rebase delegates the baseline-regen there.
+**When the throwaway-merge touches `.phpstan/baseline/`, check CI's baseline-stability
+check** on the PR's current head against the current base. If it has already run and
+passed, the integration is tested and no rebase is needed — a PR that legitimately
+touches baseline (as all baseline fixes do) will keep touching baseline in the
+throwaway merge after any rebase, and requesting one every time creates a no-op
+rebase cycle. Trust the CI signal: if the baseline-stability check is green on the
+current head + base, it's satisfied. If the check hasn't run since the last relevant
+base advance (stale CI), request a rebase to trigger a fresh CI run.
+
+Do not run `composer install` or `composer phpstan-baseline` against the merged
+PR-controlled code on the shepherd's host: a PR can change Composer scripts or
+PHPStan bootstrap files, and the throwaway git clone shares the shepherd's
+credentials (`$HOME/.config/gh/`, `$HOME/.ssh/`, env vars, maintainer-level push
+access). CI runs in a credential-free sandbox for exactly this reason; the rebase
+delegates the baseline-regen there.
 
 ---
 
@@ -497,9 +505,12 @@ history. Minimum prompt fields:
   model), note the rule explicitly in the prompt so the subagent doesn't apply a
   stale model. The subagent reads `standing-rules.md` from disk, but the parent
   session holds the state-of-active-changes context across the pass. When a rule
-  changes mid-pass, the parent also **re-audits affected completed briefs and any
-  in-flight subagent work** under the new rule — forward-looking prompt updates
-  don't catch findings missed under the prior rule.
+  changes mid-pass:
+  - **Completed briefs:** the parent re-audits each under the new rule.
+  - **In-flight subagents:** the parent either (a) restarts the agent with the new
+    rule in the prompt, or (b) re-audits the agent's final brief after it returns.
+    **Mid-execution audit alone is insufficient** — the agent can continue under the
+    pre-change mental model for material reviewed after the audit.
 
 ### Security-adjacent findings in subagent briefs
 
