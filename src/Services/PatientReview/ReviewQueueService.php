@@ -188,16 +188,24 @@ final class ReviewQueueService
      * The request row is held while its status is checked, so a reviewer deciding it at the same
      * moment either sees the replacement or the replacement fails.
      *
+     * Each replacement keeps the payload it overwrote, so $maxRevisions bounds how much history
+     * one request can grow while it waits; null leaves it unbounded.
+     *
      * @param array<array-key, mixed> $payload
      * @throws ReviewRequestNotFoundException
      * @throws InvalidReviewTransitionException when the request is no longer pending
+     * @throws ReviewLimitReachedException when the request has been replaced $maxRevisions times (nothing changes)
      */
-    public function revise(int $id, ReviewActor $actor, string $summary, array $payload): ReviewRequest
+    public function revise(int $id, ReviewActor $actor, string $summary, array $payload, ?int $maxRevisions = null): ReviewRequest
     {
-        return $this->atomically(function () use ($id, $actor, $summary, $payload): ReviewRequest {
+        return $this->atomically(function () use ($id, $actor, $summary, $payload, $maxRevisions): ReviewRequest {
             $request = $this->store->findForUpdate($id) ?? throw ReviewRequestNotFoundException::forId($id);
             if ($request->status !== ReviewStatus::Pending) {
                 throw InvalidReviewTransitionException::changedConcurrently($id, ReviewStatus::Pending);
+            }
+
+            if ($maxRevisions !== null && $this->store->countRevisions($id) >= $maxRevisions) {
+                throw ReviewLimitReachedException::forRevisions($maxRevisions);
             }
 
             $now = $this->clock->now();

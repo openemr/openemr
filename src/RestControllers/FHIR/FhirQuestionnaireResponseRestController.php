@@ -224,6 +224,12 @@ class FhirQuestionnaireResponseRestController
             $bundleEntries[] = $fhirBundleEntry;
         }
         $fhirUrl = (new ServerConfig())->getFhirUrl();
+        // Held writes go after the chart's records and only while the bundle has room under
+        // _count: a server must not return more than the client asked for.
+        $count = is_array($searchParams) ? ($searchParams['_count'] ?? null) : null;
+        if (is_string($count) && ctype_digit($count)) {
+            $held = array_slice($held, 0, max(0, intval($count) - count($bundleEntries)));
+        }
         foreach ($held as $resource) {
             $id = $resource['id'] ?? null;
             $bundleEntries[] = new FHIRBundleEntry([

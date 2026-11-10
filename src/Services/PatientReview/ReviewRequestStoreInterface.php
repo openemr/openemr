@@ -65,6 +65,12 @@ interface ReviewRequestStoreInterface
     public function countOpenForClient(int $pid, ReviewType $type, string $clientId): int;
 
     /**
+     * How many times the request's payload has been replaced: its history rows that keep a
+     * replaced payload.
+     */
+    public function countRevisions(int $requestId): int;
+
+    /**
      * Open requests of one type and resource type that one API client submitted for the
      * patient, oldest first.
      *

@@ -36,6 +36,7 @@ class FhirPatientAppWriteControllerIsolatedTest extends TestCase
 
     private const FHIR_URL = 'https://ehr.example.org/apis/default/fhir';
     private const PUBLIC_CLIENT = 'client-public';
+    private const PORTAL_USERNAME = 'ann.seven';
 
     protected function setUp(): void
     {
@@ -54,6 +55,7 @@ class FhirPatientAppWriteControllerIsolatedTest extends TestCase
                 default => null,
             },
             self::FHIR_URL,
+            static fn (int $pid): ?string => $pid === self::PID ? self::PORTAL_USERNAME : null,
         );
     }
 
@@ -100,6 +102,22 @@ class FhirPatientAppWriteControllerIsolatedTest extends TestCase
         $this->assertSame(['reference' => 'Patient/' . self::PATIENT], $body['subject']);
         $this->assertStringContainsString(PatientWriteReadBack::HELD_TAG_CODE, (string) $response->getContent());
         $this->assertSame(ReviewStatus::Pending, $this->queue->findByUuid($body['id'])?->status);
+        $this->assertSame(self::PORTAL_USERNAME, array_slice($this->trail->entries, -1)[0]['actor'], 'audited by portal login, not display name');
+    }
+
+    public function testAPatientWithoutAPortalLoginIsAuditedByUuid(): void
+    {
+        $controller = new FhirPatientAppWriteController(
+            PatientWritableType::QuestionnaireResponse,
+            new PatientWriteHold($this->queue, new PatientWritePolicy(PatientWriteMode::ConfidentialAndPublic, [PatientWritableType::QuestionnaireResponse]), new FhirWriteReviewHandler([])),
+            new PatientWriteReadBack($this->queue),
+            static fn (string $clientId): ?PatientWriteClientType => PatientWriteClientType::Confidential,
+            self::FHIR_URL,
+            static fn (int $pid): ?string => null,
+        );
+
+        $this->assertSame(201, $controller->create($this->patientRequest(), $this->resourceOf(PatientWritableType::QuestionnaireResponse))->getStatusCode());
+        $this->assertSame(self::PATIENT, array_slice($this->trail->entries, -1)[0]['actor']);
     }
 
     public function testAPublicAppIsRefusedWhenTheModeAllowsOnlyConfidentialApps(): void
@@ -168,7 +186,7 @@ class FhirPatientAppWriteControllerIsolatedTest extends TestCase
         $this->assertCount(2, $controller->searchHeld($request, []));
         $this->assertCount(2, $controller->searchHeld($request, ['patient' => 'Patient/' . self::PATIENT]));
         $this->assertCount(2, $controller->searchHeld($request, ['subject' => strtoupper(self::PATIENT)]), 'a uuid in upper case');
-        $this->assertSame([], $controller->searchHeld($request, ['_count' => '1']), 'held writes could overflow the page');
+        $this->assertCount(2, $controller->searchHeld($request, ['_count' => '1']), 'the bundle trims them to _count');
         $this->assertSame([$second], array_column($controller->searchHeld($request, ['_id' => $second]), 'id'));
         $this->assertSame([], $controller->searchHeld($request, ['_id' => $first, 'authored' => 'ge2026-01-01']), 'unmatched parameter');
         $this->assertSame([], $controller->searchHeld($request, ['patient' => 'another-patient']));

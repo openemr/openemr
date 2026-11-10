@@ -255,6 +255,14 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
      *
      * @param ?array<array-key, mixed> $previousPayload kept on the event, as the repository keeps it
      */
+    public function countRevisions(int $requestId): int
+    {
+        return count(array_filter(
+            $this->events,
+            static fn(array $event): bool => $event['request_id'] === $requestId && $event['payload'] !== null,
+        ));
+    }
+
     public function appendEvent(
         int $requestId,
         ?ReviewStatus $from,

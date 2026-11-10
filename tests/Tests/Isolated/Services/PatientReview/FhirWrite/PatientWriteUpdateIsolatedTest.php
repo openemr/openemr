@@ -102,6 +102,36 @@ class PatientWriteUpdateIsolatedTest extends TestCase
         $this->assertSame(['value' => 70, 'unit' => 'kg'], $last->previousPayload['valueQuantity'] ?? null, 'the earlier version is kept');
     }
 
+    /**
+     * Each replacement keeps what it overwrote, so the app may replace one write only so often.
+     * It can still withdraw it.
+     */
+    public function testAWriteCanBeReplacedOnlyUpToTheLimit(): void
+    {
+        $request = $this->held();
+        $replace = fn(int $weight): ReviewRequest => $this->hold()->replace(
+            $this->context(),
+            PatientWritableType::VitalSignObservation,
+            $request->uuid,
+            self::withId($this->vitalSign($weight), $request->uuid)
+        );
+        for ($i = 1; $i <= PatientWriteHold::MAX_REVISIONS; $i++) {
+            $replace(70 + $i);
+        }
+        $atLimit = $this->queue->get($request->id);
+
+        $this->assertRefused(PatientWriteRefusalReason::TooManyRevisions, $atLimit, static fn() => $replace(99));
+        $this->assertSame(PatientWriteHold::MAX_REVISIONS, $this->store->countRevisions($request->id));
+
+        $withdrawn = $this->hold()->replace(
+            $this->context(),
+            PatientWritableType::VitalSignObservation,
+            $request->uuid,
+            self::withId(['status' => 'entered-in-error'] + $this->vitalSign(), $request->uuid)
+        );
+        $this->assertSame(ReviewStatus::Cancelled, $withdrawn->status);
+    }
+
     public function testAReplacementNamingAnotherPatientIsRefused(): void
     {
         $request = $this->held();

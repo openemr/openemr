@@ -114,6 +114,17 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         return is_int($total) || (is_string($total) && ctype_digit($total)) ? intval($total) : 0;
     }
 
+    public function countRevisions(int $requestId): int
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT COUNT(*) AS `total` FROM `patient_review_event` WHERE `request_id` = ? AND `payload` IS NOT NULL',
+            [$requestId]
+        );
+        $total = is_array($row) ? ($row['total'] ?? 0) : 0;
+
+        return is_int($total) || (is_string($total) && ctype_digit($total)) ? intval($total) : 0;
+    }
+
     public function findOpenForClient(int $pid, ReviewType $type, FhirResourceType $resourceType, string $clientId): array
     {
         $rows = QueryUtils::fetchRecords(

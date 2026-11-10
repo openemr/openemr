@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -47,14 +48,15 @@ use Symfony\Component\HttpFoundation\Response;
 final readonly class FhirPatientAppWriteController
 {
     /**
-     * Search parameters the held writes can be matched on. A search with any other parameter
-     * finds only chart records, so a held write is never returned for a search it may not match.
-     * That includes _count: adding held writes could return more than the page size asked for.
+     * Search parameters the held writes can be matched on, plus _count, which limits how many
+     * are added (see the search's bundle). A search with any other parameter finds only chart
+     * records, so a held write is never returned for a search it may not match.
      */
-    private const HELD_SEARCH_PARAMETERS = ['_id', 'patient', 'subject'];
+    private const HELD_SEARCH_PARAMETERS = ['_id', 'patient', 'subject', '_count'];
 
     /**
      * @param \Closure(string): ?PatientWriteClientType $clientType the registered client's type, or null for an unknown client
+     * @param \Closure(int): ?string $portalUsername the patient's portal login, as the audit log records a patient; null when the patient has none
      */
     public function __construct(
         private PatientWritableType $type,
@@ -62,6 +64,7 @@ final readonly class FhirPatientAppWriteController
         private PatientWriteReadBack $readBack,
         private \Closure $clientType,
         private string $fhirUrl,
+        private \Closure $portalUsername,
     ) {
     }
 
@@ -86,6 +89,14 @@ final readonly class FhirPatientAppWriteController
                     : PatientWriteClientType::Public;
             },
             (new ServerConfig())->getFhirUrl(),
+            static function (int $pid): ?string {
+                $username = QueryUtils::fetchSingleValue(
+                    'SELECT `portal_username` FROM `patient_access_onsite` WHERE `pid` = ?',
+                    'portal_username',
+                    [$pid]
+                );
+                return is_string($username) && $username !== '' ? $username : null;
+            },
         );
     }
 
@@ -212,13 +223,15 @@ final readonly class FhirPatientAppWriteController
         if ($clientType === null) {
             return null;
         }
-        $name = $user['fullname'] ?? '';
+        $patientUuid = strtolower($patientUuid);
         try {
             return new PatientWriteContext(
-                strtolower($patientUuid),
+                $patientUuid,
                 $clientId,
                 $clientType,
-                ReviewActor::patient($pid, is_string($name) ? $name : ''),
+                // The audit log names a patient by portal login, as the portal does; a patient
+                // without one by the uuid the token was issued for.
+                ReviewActor::patient($pid, ($this->portalUsername)($pid) ?? $patientUuid),
             );
         } catch (\DomainException) {
             return null;

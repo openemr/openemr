@@ -28,22 +28,31 @@ class ScopeRepositoryPatientWriteIsolatedTest extends TestCase
 {
     private const SCOPES = ['patient/QuestionnaireResponse.rs', 'patient/QuestionnaireResponse.cu'];
 
-    /** @var array<string, mixed> */
+    /** @var array<string, array{value: mixed}|null> each setting's value before the test; null when it was not set */
     private array $saved = [];
 
     protected function setUp(): void
     {
         $globals = OEGlobalsBag::getInstance();
         foreach ([GlobalConnectorsEnum::FHIR_PATIENT_WRITE_MODE, GlobalConnectorsEnum::FHIR_PATIENT_WRITE_QUESTIONNAIRE_RESPONSE] as $setting) {
-            $this->saved[$setting->value] = $globals->get($setting->value);
+            $this->saved[$setting->value] = $globals->has($setting->value) ? ['value' => $globals->get($setting->value)] : null;
         }
     }
 
+    /**
+     * Puts each setting back as it was. One that was not set is removed, not left set to null,
+     * so later tests still get its default.
+     */
     protected function tearDown(): void
     {
         $globals = OEGlobalsBag::getInstance();
-        foreach ($this->saved as $name => $value) {
-            $globals->set($name, $value);
+        foreach ($this->saved as $name => $previous) {
+            if ($previous === null) {
+                $globals->remove($name);
+                unset($GLOBALS[$name]);
+                continue;
+            }
+            $globals->set($name, $previous['value']);
         }
     }
 

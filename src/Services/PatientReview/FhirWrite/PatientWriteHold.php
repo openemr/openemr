@@ -52,6 +52,12 @@ final readonly class PatientWriteHold
     /** Writes one app may have waiting for review for one patient. */
     public const MAX_OPEN_PER_CLIENT = 50;
 
+    /**
+     * Times an app may replace one write while it waits. Each replacement keeps what it
+     * overwrote in the write's history, so this bounds how much one write can grow.
+     */
+    public const MAX_REVISIONS = 20;
+
     /** Note on a request the app withdrew by marking it entered-in-error. */
     public const NOTE_WITHDRAWN = 'withdrawn by the app (entered-in-error)';
 
@@ -100,7 +106,7 @@ final readonly class PatientWriteHold
      * @param string $id the id the update was sent to
      * @param array<array-key, mixed> $resource decoded FHIR JSON, already validated
      * @return ReviewRequest the request as replaced, or as cancelled
-     * @throws PatientWriteRefusal when nothing is changed
+     * @throws PatientWriteRefusal when nothing is changed, 429 once the write has been replaced MAX_REVISIONS times
      */
     public function replace(PatientWriteContext $context, PatientWritableType $type, string $id, array $resource): ReviewRequest
     {
@@ -120,7 +126,9 @@ final readonly class PatientWriteHold
             }
             $held = $this->prepare($context, $type, $resource);
 
-            return $this->queue->revise($request->id, $context->actor, PatientWriteSummary::of($type, $held), $held);
+            return $this->queue->revise($request->id, $context->actor, PatientWriteSummary::of($type, $held), $held, self::MAX_REVISIONS);
+        } catch (ReviewLimitReachedException $e) {
+            throw new PatientWriteRefusal(PatientWriteRefusalReason::TooManyRevisions, $e);
         } catch (InvalidReviewTransitionException $e) {
             // Staff decided it between the lookup and the change.
             self::refuseUnlessPending($this->queue->find($request->id) ?? $request, $e);

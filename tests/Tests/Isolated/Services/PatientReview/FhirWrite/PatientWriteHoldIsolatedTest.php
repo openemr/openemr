@@ -452,6 +452,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
             'wrong type' => [PatientWriteRefusalReason::WrongType, 400, 'invalid'],
             'too large' => [PatientWriteRefusalReason::TooLarge, 413, 'too-costly'],
             'too many open' => [PatientWriteRefusalReason::TooManyOpen, 429, 'throttled'],
+            'too many revisions' => [PatientWriteRefusalReason::TooManyRevisions, 429, 'throttled'],
             'not writable' => [PatientWriteRefusalReason::NotWritable, 400, 'not-found'],
             'not held for the app' => [PatientWriteRefusalReason::NotHeldForApp, 403, 'forbidden'],
             'gone' => [PatientWriteRefusalReason::Gone, 410, 'deleted'],
