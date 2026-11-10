@@ -187,7 +187,7 @@ land in `onsite_documents` + `onsite_signatures`.
 > and a doubled security surface (hence the §4 guards). Migrate Phreez controllers and
 > `get_*.php` endpoints to thin shims over `src/Services`/REST, following the
 > `get_patient_info.php` → `PatientPortalLoginController` pattern. Retire the vendored
-> Phreez/Savant framework as its last controller is migrated (strategy:
+> Phreez framework as its last controller is migrated (strategy:
 > [migration.md](migration.md)).
 
 ---
