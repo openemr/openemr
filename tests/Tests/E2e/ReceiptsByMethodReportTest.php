@@ -10,6 +10,11 @@
  * is one encounter with that co-pay (10.00, cash) and a patient check
  * (20.00, reference E2E-CHK-1) on the same day.
  *
+ * By Payer, the payment loop kept the last row's reference and the last
+ * row's patient insurance: an insurer payment showed the patient check
+ * before it, and a patient payment after an insurer one posted with no
+ * payer was counted as the insurer's.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    anun333 <anun333@posteo.net>
@@ -39,6 +44,10 @@ class ReceiptsByMethodReportTest extends PantherTestCase
     private const FIXTURE_MARKER = 'e2e-receipts-copay';
     private const VISIT_DATE = '2025-03-14';
     private const CHECK_REFERENCE = 'E2E-CHK-1';
+    private const PAYER_FIXTURE_MARKER = 'e2e-receipts-payer-ref';
+    private const PAYER_DATE = '2025-03-21';
+    private const PAYER_CHECK_REFERENCE = 'E2E-CHK-2';
+    private const INSURER_NAME = 'E2E Receipts Health Plan';
 
     /**
      * XPath to the report iframe. Reports open in a frame named 'rep'.
@@ -90,7 +99,56 @@ class ReceiptsByMethodReportTest extends PantherTestCase
         }
     }
 
-    private function submitReport(string $reportBy, bool $details): void
+    #[Test]
+    #[Depends('testLoginAuthorized')]
+    public function testByPayerEachRowHasItsOwnReferenceAndPayer(): void
+    {
+        try {
+            $this->insertPayerFixtureData();
+            $this->base();
+            $this->login(LoginTestData::username, LoginTestData::password);
+            $this->goToMainMenuLink('Reports||Financial||Pmt Method');
+            $this->assertActiveTab('Receipts Summary');
+            $this->switchToIFrame(self::REPORT_IFRAME);
+
+            // Report by Payer, with details.
+            $this->submitReport('1', true, self::PAYER_DATE);
+            $rows = $this->payerRefDatePayments($this->reportRows());
+            $this->assertContains(
+                ['Personal pay', self::PAYER_CHECK_REFERENCE, self::PAYER_DATE, '20.00'],
+                $rows,
+                "The patient's check is the patient's, with its reference"
+            );
+            $this->assertContains(
+                [self::INSURER_NAME, '', self::PAYER_DATE, '30.00'],
+                $rows,
+                'The insurer payment posted without a payer is the insurer\'s, with no reference'
+            );
+            $this->assertContains(
+                [self::INSURER_NAME, '', self::PAYER_DATE, '40.00'],
+                $rows,
+                "The insurer payment that follows the patient's check doesn't take its reference"
+            );
+            $this->assertCount(3, $rows);
+
+            // Report by Payer, summary only: the patient's check counts as the patient's.
+            $this->submitReport('1', false, self::PAYER_DATE);
+            $rows = $this->reportRows();
+            $this->assertContains([self::INSURER_NAME, '', '70.00'], $rows);
+            $this->assertContains(['Personal pay', '', '20.00'], $rows);
+            $this->assertSame(['Grand Total', '', '90.00'], $rows[count($rows) - 1], 'The report reaches its Grand Total');
+        } finally {
+            try {
+                if (isset($this->client)) {
+                    $this->client->quit();
+                }
+            } finally {
+                $this->cleanUpPayerFixtureData();
+            }
+        }
+    }
+
+    private function submitReport(string $reportBy, bool $details, string $date = self::VISIT_DATE): void
     {
         // The page being left; once it is stale the next one has replaced it.
         $leaving = $this->client->findElement(WebDriverBy::tagName('body'));
@@ -103,7 +161,7 @@ class ReceiptsByMethodReportTest extends PantherTestCase
             . ' f.form_to_date.value = arguments[2];'
             . ' f.form_refresh.value = "true";'
             . ' f.submit();',
-            [$reportBy, $details, self::VISIT_DATE]
+            [$reportBy, $details, $date]
         );
         $this->client->wait(30)->until(
             WebDriverExpectedCondition::stalenessOf($leaving),
@@ -158,6 +216,122 @@ class ReceiptsByMethodReportTest extends PantherTestCase
             }
         }
         return $out;
+    }
+
+    /**
+     * By-payer detail rows cut down to payer, reference, date and payments. The payer
+     * is printed only on its group's first row, so it is carried down.
+     *
+     * @param list<list<string>> $rows
+     * @return list<list<string>>
+     */
+    private function payerRefDatePayments(array $rows): array
+    {
+        $out = [];
+        $payer = '';
+        foreach ($rows as $row) {
+            if (count($row) !== 10) {
+                continue;
+            }
+            $payer = $row[0] !== '' ? $row[0] : $payer;
+            $out[] = [$payer, $row[1], $row[2], $row[9]];
+        }
+        return $out;
+    }
+
+    /**
+     * One patient with primary insurance, two encounters on the same day and three
+     * payments deposited that day, in the order the report reads them (by payment
+     * method, then posting time):
+     *  - 30.00 from the insurer on encounter 1, posted under a session with no payer,
+     *    type or method, as invoice posting without a payer records one
+     *    (SLEOB::arGetSession());
+     *  - 20.00 from the patient on encounter 1, check E2E-CHK-2;
+     *  - 40.00 from the insurer on encounter 2, under a session naming the insurer.
+     */
+    private function insertPayerFixtureData(): void
+    {
+        $this->cleanUpPayerFixtureData();
+
+        $insurerId = $this->toInt(QueryUtils::generateId());
+        QueryUtils::sqlInsert('INSERT INTO insurance_companies (id, name) VALUES (?, ?)', [$insurerId, self::INSURER_NAME]);
+        $pid = $this->toInt(QueryUtils::fetchSingleValue('SELECT COALESCE(MAX(pid), 0) + 1 AS pid FROM patient_data', 'pid'));
+        QueryUtils::sqlInsert(
+            'INSERT INTO patient_data (pid, pubpid, fname, lname, DOB, sex, date) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+            [$pid, self::PAYER_FIXTURE_MARKER, 'Rita', 'Payertest', '1980-01-01', 'Female']
+        );
+        QueryUtils::sqlInsert(
+            "INSERT INTO insurance_data (pid, type, provider, policy_number, date) VALUES (?, 'primary', ?, 'E2E-POL-1', '2020-01-01')",
+            [$pid, $insurerId]
+        );
+        $encounters = [];
+        foreach ([1, 2] as $n) {
+            $encounter = $this->toInt(QueryUtils::generateId());
+            $encounters[$n] = $encounter;
+            $formId = QueryUtils::sqlInsert(
+                'INSERT INTO form_encounter (date, reason, pid, encounter, provider_id) VALUES (?, ?, ?, ?, 1)',
+                [self::PAYER_DATE . ' 09:00:00', self::PAYER_FIXTURE_MARKER, $pid, $encounter]
+            );
+            QueryUtils::sqlInsert(
+                "INSERT INTO forms (date, encounter, form_name, form_id, pid, user, groupname, authorized, formdir)"
+                . " VALUES (?, ?, 'New Patient Encounter', ?, ?, 'admin', 'Default', 1, 'newpatient')",
+                [self::PAYER_DATE . ' 09:00:00', $encounter, $formId, $pid]
+            );
+            QueryUtils::sqlInsert(
+                "INSERT INTO billing (date, code_type, code, pid, provider_id, encounter, code_text, billed, activity, units, fee)"
+                . " VALUES (?, 'CPT4', '99213', ?, 1, ?, ?, 1, 1, 1, '100.00')",
+                [self::PAYER_DATE . ' 09:00:00', $pid, $encounter, self::PAYER_FIXTURE_MARKER]
+            );
+        }
+        $payments = [
+            // session payer_id and patient_id, reference, method, payment type; payer type, encounter,
+            // sequence_no (ar_activity's key is pid, encounter, sequence_no), amount, posted
+            [0, 0, 'E2E-EOB-1', '', '', 1, $encounters[1], 1, '30.00', '08:00:00'],
+            [0, $pid, self::PAYER_CHECK_REFERENCE, 'check_payment', 'patient', 0, $encounters[1], 2, '20.00', '09:00:00'],
+            [$insurerId, 0, 'E2E-EOB-2', 'check_payment', 'insurance', 1, $encounters[2], 1, '40.00', '10:00:00'],
+        ];
+        foreach ($payments as [$payerId, $sessionPid, $reference, $method, $paymentType, $payerType, $encounter, $sequence, $amount, $posted]) {
+            $sessionId = QueryUtils::sqlInsert(
+                "INSERT INTO ar_session (payer_id, user_id, reference, check_date, deposit_date, pay_total, modified_time,"
+                . " global_amount, payment_type, description, adjustment_code, post_to_date, patient_id, payment_method)"
+                . " VALUES (?, 1, ?, ?, ?, ?, NOW(), 0, ?, ?, '', ?, ?, ?)",
+                [$payerId, $reference, self::PAYER_DATE, self::PAYER_DATE, $amount, $paymentType, self::PAYER_FIXTURE_MARKER, self::PAYER_DATE, $sessionPid, $method]
+            );
+            QueryUtils::sqlInsert(
+                "INSERT INTO ar_activity (pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_user,"
+                . " session_id, memo, pay_amount, adj_amount, modified_time, follow_up, follow_up_note, account_code)"
+                . " VALUES (?, ?, ?, 'CPT4', '99213', '', ?, ?, 1, ?, '', ?, '0.00', NOW(), '', '', ?)",
+                [$pid, $encounter, $sequence, $payerType, self::PAYER_DATE . ' ' . $posted, $sessionId, $amount, $payerType === 0 ? 'PP' : 'IPP']
+            );
+        }
+    }
+
+    private function cleanUpPayerFixtureData(): void
+    {
+        // The report's insurance lookups register uuids for the patient, the policy and the insurer.
+        $pids = QueryUtils::fetchTableColumn('SELECT pid FROM patient_data WHERE pubpid = ?', 'pid', [self::PAYER_FIXTURE_MARKER]);
+        foreach ($pids as $pid) {
+            QueryUtils::sqlStatementThrowException('DELETE FROM ar_activity WHERE pid = ?', [$pid]);
+            QueryUtils::sqlStatementThrowException('DELETE FROM billing WHERE pid = ?', [$pid]);
+            QueryUtils::sqlStatementThrowException("DELETE FROM forms WHERE pid = ? AND formdir = 'newpatient'", [$pid]);
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'insurance_data' AND uuid IN (SELECT uuid FROM insurance_data WHERE pid = ?)",
+                [$pid]
+            );
+            QueryUtils::sqlStatementThrowException('DELETE FROM insurance_data WHERE pid = ?', [$pid]);
+        }
+        QueryUtils::sqlStatementThrowException('DELETE FROM ar_session WHERE description = ?', [self::PAYER_FIXTURE_MARKER]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM form_encounter WHERE reason = ?', [self::PAYER_FIXTURE_MARKER]);
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE table_name = 'patient_data' AND uuid IN (SELECT uuid FROM patient_data WHERE pubpid = ?)",
+            [self::PAYER_FIXTURE_MARKER]
+        );
+        QueryUtils::sqlStatementThrowException('DELETE FROM patient_data WHERE pubpid = ?', [self::PAYER_FIXTURE_MARKER]);
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE table_name = 'insurance_companies' AND uuid IN (SELECT uuid FROM insurance_companies WHERE name = ?)",
+            [self::INSURER_NAME]
+        );
+        QueryUtils::sqlStatementThrowException('DELETE FROM insurance_companies WHERE name = ?', [self::INSURER_NAME]);
     }
 
     private function insertFixtureData(): void
