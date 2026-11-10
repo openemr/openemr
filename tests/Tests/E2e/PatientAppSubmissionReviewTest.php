@@ -58,6 +58,10 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
     private string $requestUuid = '';
     private string $questionnaireTitle = '';
 
+    /**
+     * Approving the held response files it in the chart, lists it in Assessment History, and
+     * audits the write and read as the patient and the decision as the staff user.
+     */
     #[Test]
     #[Depends('testLoginAuthorized')]
     public function testApprovingAHeldResponseAddsItToTheChartAndAuditsEachStep(): void
@@ -134,6 +138,10 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
         }
     }
 
+    /**
+     * A denial needs a reason in the browser and on the server; once given, nothing is filed,
+     * the app reads the write as gone, and the audit entry carries the reason.
+     */
     #[Test]
     #[Depends('testLoginAuthorized')]
     public function testDenyingAHeldResponseNeedsAReasonAndAddsNothing(): void
@@ -207,11 +215,17 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
         $this->client->executeScript('window.restoreSession = function () { return true; };');
     }
 
+    /**
+     * Waits for the success alert the page shows after a decision.
+     */
     private function waitForNotice(string $text): void
     {
         $this->waitForAlert('.alert-success', $text);
     }
 
+    /**
+     * Waits until the first alert matching the selector reads exactly the given text.
+     */
     private function waitForAlert(string $selector, string $text): void
     {
         $this->client->wait(30)->until(
@@ -223,6 +237,9 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
         );
     }
 
+    /**
+     * The fixture request's status as stored, e.g. pending, completed or denied.
+     */
     private function requestStatus(): string
     {
         $status = QueryUtils::fetchSingleValue('SELECT status FROM patient_review_request WHERE id = ?', 'status', [$this->requestId]);
@@ -260,6 +277,9 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
         return $trail;
     }
 
+    /**
+     * The fixture patient's app, as the bearer token check describes it to the hold.
+     */
     private function context(): PatientWriteContext
     {
         $uuid = QueryUtils::fetchSingleValue('SELECT uuid FROM patient_data WHERE pid = ?', 'uuid', [$this->pid]);
@@ -281,6 +301,10 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
             ->read($this->context(), PatientWritableType::QuestionnaireResponse, $this->requestUuid);
     }
 
+    /**
+     * Adds a patient and a questionnaire, then holds a response to it as the patient's app
+     * writes one and reads it back, so the write and the read are both audited.
+     */
     private function insertFixtureData(): void
     {
         $this->cleanUpFixtureData();
@@ -322,6 +346,9 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
         $this->assertSame(PatientWriteReadOutcome::Held, $read->outcome, 'The app must read back the write it was given an id for');
     }
 
+    /**
+     * Removes every fixture row this test adds, including any a failed run left behind.
+     */
     private function cleanUpFixtureData(): void
     {
         $pids = QueryUtils::fetchTableColumn('SELECT pid FROM patient_data WHERE pubpid = ?', 'pid', [self::FIXTURE_MARKER]);
@@ -352,6 +379,9 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
         QueryUtils::sqlStatementThrowException('DELETE FROM patient_data WHERE pubpid = ?', [self::FIXTURE_MARKER]);
     }
 
+    /**
+     * A database value as an int, failing the test when it is not numeric.
+     */
     private function toInt(mixed $value): int
     {
         if (!is_numeric($value)) {
