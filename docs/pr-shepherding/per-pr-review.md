@@ -274,18 +274,15 @@ PRs independently reduce the same baseline count from 2 to 1, git merges both cl
 and the combined count is 1 — but the baseline entry should have been deleted entirely
 (both reductions removed the last two occurrences). §7 compares each PR to its own
 merge base and sees a valid 2→1, so both ship with a baseline that fails the stability
-check after merge. Regenerate and check the baseline against the throwaway-merge
-result when the merge touches `.phpstan/baseline/`:
+check after merge.
 
-```bash
-# in the merge-test clone, with pr-<N> already merged into upstream-base:
-composer install --quiet
-composer phpstan-baseline
-git diff --exit-code -- .phpstan/baseline/
-```
-
-A non-empty diff means the merged baseline doesn't match what the combined code
-produces — the PR needs a rebase so §7 runs against the real merge base.
+**When the throwaway-merge touches `.phpstan/baseline/`, request a rebase** so the
+author's branch runs CI's baseline-stability check against the real merge base. Do not
+run `composer install` or `composer phpstan-baseline` against the merged PR-controlled
+code on the shepherd's host: a PR can change Composer scripts or PHPStan bootstrap
+files, and the throwaway git clone shares the shepherd's credentials (`$HOME/.config/gh/`,
+`$HOME/.ssh/`, env vars, maintainer-level push access). CI runs in a credential-free
+sandbox for exactly this reason; the rebase delegates the baseline-regen there.
 
 ---
 

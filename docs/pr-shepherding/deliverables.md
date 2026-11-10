@@ -318,6 +318,8 @@ while making the current state scannable.
 ## 🔴/🟡 STATE DELTA — <YYYY-MM-DD>
 
 **Current verdict:** <new verdict if changed, or "unchanged ✅/🔶/🔴" if preserved>.
+**Re-verified head:** `<new-head-sha>` (supersedes §3.2 header if head moved).
+**Re-verified base-tip:** `<new-base-tip-sha>` (supersedes §3.2 header if base moved).
 
 <One-paragraph note: what changed, what the brief body no longer reflects, which
 sections need re-verification before the verdict applies again. End with the
@@ -327,6 +329,10 @@ re-verification criteria for the delta.>
 
 <original brief body below, unchanged>
 ```
+
+Record the re-verified head + base-tip SHAs whenever either moved, even on an
+"unchanged verdict" delta — without them, a reader can't tell which revisions were
+actually re-checked. State explicitly that the delta's SHAs supersede the §3.2 header.
 
 **Delta authority.** The delta is authoritative for any fact it records as changed —
 re-verifying one finding doesn't make an unrelated stale statement in the brief body
