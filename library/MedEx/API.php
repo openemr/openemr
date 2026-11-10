@@ -76,7 +76,7 @@ class CurlRequest
         $this->saveSession();
     }
 
-    private function getCookies()
+    private function getCookies(): string
     {
         $cookies = [];
         foreach ($this->cookies as $name => $value) {
@@ -161,10 +161,7 @@ class Base
     {
         $quoted = [];
         foreach ($this->cancelledApptStatuses() as $status) {
-            $escaped = \add_escape_custom($status);
-            if (is_string($escaped)) {
-                $quoted[] = "'" . $escaped . "'";
-            }
+            $quoted[] = "'" . \add_escape_custom($status) . "'";
         }
         if ($quoted === []) {
             return '';
@@ -267,7 +264,7 @@ class Practice extends Base
         while ($row = sqlFetchArray($result)) {
             $pid = trim((string) $row['msg_pc_eid'], "recall_");
             $query  = "SELECT pc_eid FROM openemr_postcalendar_events WHERE (pc_eventDate > CURDATE()) AND pc_pid=?";
-            $test3 = sqlStatement($query, [$pid]);
+            $test3 = sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($pid)]);
             $result3 = sqlFetchArray($test3);
             if ($result3) {
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'SCHEDULED', msg_extra_text=? WHERE msg_uid = ?";
@@ -1004,7 +1001,7 @@ class Events extends Base
                         $sql_NoFollowUp = "SELECT COUNT(*) AS num FROM openemr_postcalendar_events WHERE
                             pc_pid = ? AND
                             pc_eventDate > ( ? + INTERVAL " . (int) $no_interval . " DAY)";
-                        $result = sqlQuery($sql_NoFollowUp, [$appt['pc_pid'], $appt['pc_eventDate']]);
+                        $result = sqlQuery($sql_NoFollowUp, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($appt['pc_pid']), $appt['pc_eventDate']]);
                         if ($result['num'] > 0) {
                             continue;
                         }
@@ -1073,9 +1070,9 @@ class Events extends Base
  * This function will check recurring appt entries in calendar.
  * @param $appt
  * @param $result
- * @return array|bool
+ * @return int Number of occurrences split out into standalone appointments
  */
-    private function addRecurrent($appt, $interval, $timing, $timing2, $M_group = "REMINDER")
+    private function addRecurrent($appt, $interval, $timing, $timing2, $M_group = "REMINDER"): int
     {
         //get dates in this request
         if ($M_group == "REMINDER") {
@@ -1139,7 +1136,7 @@ class Events extends Base
             "pc_billing_location,pc_room " .
             ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)";
 
-            $pc_eid = sqlInsert($sql, [$appt['pc_catid'], $appt['pc_multiple'], $appt['pc_aid'], $appt['pc_pid'], $appt['pc_gid'], $appt['pc_title'],
+            $pc_eid = sqlInsert($sql, [$appt['pc_catid'], $appt['pc_multiple'], $appt['pc_aid'], \OpenEMR\Services\AppointmentService::calendarPidOrNull($appt['pc_pid']), $appt['pc_gid'], $appt['pc_title'],
             $appt['pc_hometext'], $appt['pc_informant'], $selected_date, $args['form_enddate'], $appt['pc_duration'], '0',
             serialize($noRecurrspec), $appt['pc_startTime'], $appt['pc_endTime'], $appt['pc_alldayevent'],
             $appt['pc_apptstatus'], $appt['pc_prefcatid'], $locationspec, (int)$appt['pc_facility'],
@@ -1234,7 +1231,7 @@ class Events extends Base
         return false;
     }
 
-    public function calculateEvents($event, $start_date, $stop_date)
+    public function calculateEvents($event, $start_date, $stop_date): array
     {
 
           ///////////////////////////////////////////////////////////////////////
@@ -1484,7 +1481,10 @@ class Events extends Base
         return $age;
     }
 
-    private function getDatesInRecurring($appt, $interval, $start_days = '', $end_days = '')
+    /**
+     * @return string[]
+     */
+    private function getDatesInRecurring($appt, $interval, $start_days = '', $end_days = ''): array
     {
         $start = date('Y-m-d', strtotime($interval . $start_days . ' day'));
         $end = date('Y-m-d', strtotime($interval . $end_days . ' day'));
@@ -2211,7 +2211,7 @@ class Display extends Base
         $content = ob_get_clean();
         echo $content;
     }
-    public function get_recalls(string $from_date = '', string $to_date = '', string $rcb_facility = '', string $rcb_provider = '', string $patient_id = '', string $patient_name = '')
+    public function get_recalls(string $from_date = '', string $to_date = '', string $rcb_facility = '', string $rcb_provider = '', string $patient_id = '', string $patient_name = ''): array
     {
         $recalls = [];
 
@@ -2294,7 +2294,7 @@ class Display extends Base
                  id="recall_' . attr($recall['pid']) . '" style="display:none;">';
 
             $query = "SELECT cal.pc_eventDate,pat.DOB FROM openemr_postcalendar_events AS cal JOIN patient_data AS pat ON cal.pc_pid=pat.pid WHERE cal.pc_pid =? ORDER BY cal.pc_eventDate DESC LIMIT 1";
-            $result2 = sqlQuery($query, [$recall['pid']]);
+            $result2 = sqlQuery($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($recall['pid'])]);
             $last_visit = $result2['pc_eventDate'];
             if (empty($result2['DOB'] ?? '')) {
                 $result2['DOB'] = sqlQuery("Select DOB From patient_data Where `pid` = ?", [$recall['pid']])['DOB'];
@@ -2417,7 +2417,7 @@ class Display extends Base
         $show['DONE'] = '';
         $query = "SELECT * FROM openemr_postcalendar_events WHERE
                   pc_eventDate >= CURDATE() AND pc_pid =? AND pc_eventDate > (? - INTERVAL 90 DAY)  AND pc_time >  (CURDATE()- INTERVAL 16 HOUR)";
-        $count = sqlFetchArray(sqlStatement($query, [$recall['r_pid'],$recall['r_eventDate']]));
+        $count = sqlFetchArray(sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($recall['r_pid']), $recall['r_eventDate']]));
 
         if ($count) {
             $sqlDELETE = "DELETE FROM medex_outgoing WHERE msg_pc_eid = ?";
@@ -2545,7 +2545,7 @@ class Display extends Base
         }
 
         $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate > CURDATE() AND pc_pid =? AND pc_time >  CURDATE()- INTERVAL 16 HOUR";
-        $result = sqlFetchArray(sqlStatement($query, [$recall['r_pid']]));
+        $result = sqlFetchArray(sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($recall['r_pid'])]));
 
         if ($something_happened || $result) {
             if ($result) {
@@ -2586,7 +2586,7 @@ class Display extends Base
         }
         return false;
     }
-    public function possibleModalities($appt)
+    public function possibleModalities($appt): array
     {
         $pat = [];
         $sqlQuery = "SELECT * FROM medex_icons";
@@ -3197,7 +3197,7 @@ class Setup extends Base
                                     <label for="new_password"><?php echo xlt('Password'); ?>:</label>
                                     <i id="pwd_check" name="pwd_check" class="top_right_corner nodisplay text-success fa fa-check"></i>
                                     <i class="fa top_right_corner fa-question" id="pwd_ico_help" aria-hidden="true" onclick="$('#pwd_help').toggleClass('nodisplay');"></i>
-                                    <input type="password" placeholder="<?php xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required />
+                                    <input type="password" placeholder="<?php echo xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required />
                                     <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('Secure Password Required') . ": " . xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number, one special character and no common strings'); ?>...</div>
                                 </div>
                                 <div class="form-group mt-3">
@@ -3583,7 +3583,7 @@ class MedEx
         $info['running'] = $back['running'];
         return $info;
     }
-    public function getUrl($method)
+    public function getUrl($method): string
     {
         return $this->url . $method; }
 

@@ -32,6 +32,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -110,6 +111,24 @@ if (!empty($_POST['form_save'])) {
     // Server-side validation: require check/reference number for check and bank draft payments
     if (($form_method === 'check_payment' || $form_method === 'bank_draft') && $form_source === '') {
         $alertmsg = xl('Check or Reference Number is required for this payment method.');
+    }
+
+    // In House card dialog: its approval code and the card's last four digits arrive as their
+    // own fields and are checked as the dialog checks them; together they are the reference.
+    $inHouseCard = CurrentRequest::get()->request;
+    if ($alertmsg === '' && $globalsBag->getString('payment_gateway') === 'InHouse' && $inHouseCard->getString('inhouse_card') === '1') {
+        $inHouseAuthCode = trim($inHouseCard->getString('inhouse_auth_code'));
+        $inHouseLast4 = trim($inHouseCard->getString('inhouse_last4'));
+        if (
+            $form_method !== 'credit_card'
+            || $inHouseAuthCode === ''
+            || mb_strlen($inHouseAuthCode) > 40
+            || ($inHouseLast4 !== '' && preg_match('/^\d{4}$/', $inHouseLast4) !== 1)
+        ) {
+            $alertmsg = xl('The card approval code is required, and the last four digits must be four numbers.');
+        } else {
+            $form_source = $inHouseLast4 === '' ? $inHouseAuthCode : $inHouseAuthCode . ' : ' . $inHouseLast4;
+        }
     }
 
     if ($alertmsg === '') {
@@ -358,7 +377,7 @@ if ($alertmsg === '' && (!empty($_POST['form_save']) || !empty($_REQUEST['receip
 
     // Create key for deleting, just in case.
     $ref_id = ($_REQUEST['radio_type_of_payment'] == 'copay') ? $session_id : $payment_id;
-    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', (string) $timestamp) . '.' . $ref_id;
+    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', $timestamp) . '.' . $ref_id;
 
     if ($_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         // get facility from encounter
@@ -713,21 +732,114 @@ function toencounter(enc, datestr, topframe) {
     var publicKey = <?php echo json_encode($cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('gateway_public_key'))); ?>;
 $(function() {
     $('#openPayModal').on('show.bs.modal', function () {
-        let total = $("[name='form_paytotal']").val();
-        let prepay = $("#form_prepayment").val();
+        // The amount charged is the amount the save records: the prepayment when Pre Pay is
+        // selected, otherwise the invoice lines.
+        const total = chargeAmount();
         if (Number(total) < 1) {
-            if (Number(prepay) < 1) {
-                let error = <?php echo xlj("Please enter a payment amount"); ?>;
-                alert(error);
-                return false;
-            }
-            total = prepay;
+            alert(<?php echo xlj("Please enter a payment amount"); ?>);
+            return false;
         }
+        <?php if ($globalsBag->getString('payment_gateway') === 'InHouse') { ?>
+        // In House: staff charge the card on their terminal before saving, so everything that
+        // would stop the save is checked before the dialog asks them to.
+        const methodSelect = document.getElementById('form_method');
+        if (![...methodSelect.options].some((option) => option.value === 'credit_card')) {
+            alert(<?php echo xlj('The Credit Card payment method is not active. Turn it on in the payment_method list.'); ?>);
+            return false;
+        }
+        // Only the fields the selected payment type saves: switching type hides the others
+        // without clearing them.
+        const prepaying = document.getElementById('radio_type_of_payment4').checked;
+        const amountFields = prepaying
+            ? document.querySelectorAll('#form_prepayment')
+            : document.querySelectorAll('input[name^="form_upay["], input[name^="form_bpay["]');
+        // A line may be cents only (".50"), as posting accepts; a prepayment needs whole dollars.
+        const amountFormat = prepaying ? /^\d+(\.\d{1,2})?$/ : /^(\d+(\.\d{1,2})?|\.\d{1,2})$/;
+        if ([...amountFields].some((field) => field.value.trim() !== '' && !amountFormat.test(field.value.trim()))) {
+            alert(<?php echo xlj('Enter each amount as a number such as 50.00'); ?>);
+            return false;
+        }
+        const todayPayment = document.querySelector('input[name="form_upay[0]"]');
+        if (!prepaying && todayPayment && Number(todayPayment.value) > 0) {
+            alert(<?php echo xlj("Create today's encounter before taking a card payment for it."); ?>);
+            return false;
+        }
+        inHousePreviousMethod = methodSelect.value;
+        inHouseRecorded = false;
         $("#form_method").val('credit_card');
+        // The full check, save confirmation included: everything is asked before the card is
+        // charged, and the save after recording does not ask again.
+        if (!validate()) {
+            $("#form_method").val(inHousePreviousMethod);
+            return false;
+        }
+        <?php } else { ?>
+        $("#form_method").val('credit_card');
+        <?php } ?>
         $("#payTotal").text(total);
         $("#paymentAmount").val(total);
     });
+    <?php if ($globalsBag->getString('payment_gateway') === 'InHouse') { ?>
+    // Cancelled without recording: put back the payment method staff had chosen, and clear the
+    // approval so it cannot be recorded against another payment.
+    $('#openPayModal').on('hidden.bs.modal', function () {
+        if (!inHouseRecorded) {
+            if (inHousePreviousMethod !== null) {
+                $("#form_method").val(inHousePreviousMethod);
+            }
+            $("#inHouseAuthCode, #inHouseLast4").val('');
+        }
+    });
+    <?php } ?>
 });
+
+let inHousePreviousMethod = null;
+let inHouseRecorded = false;
+
+// What a card payment charges: the prepayment when Pre Pay is selected, otherwise the invoice
+// lines' total. The save records the same field, so the two cannot differ. Always two decimals
+// ("100" is "100.00"): the POS terminal reads the amount in cents by dropping the point. Empty
+// when the amount is not a plain number.
+function chargeAmount() {
+    const amount = document.getElementById('radio_type_of_payment4').checked
+        ? $("#form_prepayment").val().trim()
+        : $("[name='form_paytotal']").val();
+    if (!/^\d+(\.\d{1,2})?$/.test(amount)) {
+        return '';
+    }
+    const [dollars, cents = ''] = amount.split('.');
+    return dollars + '.' + cents.padEnd(2, '0');
+}
+
+// In House: the card is run on the clinic's own terminal, so the dialog only records the
+// approval and saves the payment as a credit card payment. No card data is sent or kept.
+function recordInHouseCardPayment(e) {
+    e.preventDefault();
+    // Already saving this approval: a second click must not save the payment twice.
+    if (inHouseRecorded) {
+        return;
+    }
+    let auth = $("#inHouseAuthCode").val().trim();
+    let last4 = $("#inHouseLast4").val().trim();
+    if (auth === '') {
+        alert(<?php echo xlj('Please enter the card approval code'); ?>);
+        $("#inHouseAuthCode").trigger('focus');
+        return;
+    }
+    if (last4 !== '' && !/^\d{4}$/.test(last4)) {
+        alert(<?php echo xlj('The last four digits must be four numbers'); ?>);
+        $("#inHouseLast4").trigger('focus');
+        return;
+    }
+    $("#form_method").val('credit_card');
+    $("#check_number").prop('disabled', false).val(last4 === '' ? auth : auth + ' : ' + last4);
+    $("#inhouse_card").val('1');
+    $("#inhouse_auth_code").val(auth);
+    $("#inhouse_last4").val(last4);
+    inHouseRecorded = true;
+    $('#openPayModal').modal('hide');
+    $("[name='form_save']").click();
+}
     <?php require($srcdir . "/restoreSession.php"); ?>
 function closeHow(e) {
     if (opener) {
@@ -1092,7 +1204,7 @@ function make_insurance() {
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
+                <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return inHouseRecorded === true || validate();'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
@@ -1421,18 +1533,21 @@ function make_insurance() {
                         <div class="col-sm-12 text-left position-override">
                             <div class="form-group" role="group" id="button-group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
-                                <?php if (OEGlobalsBag::getInstance()->getBoolean('cc_front_payments') && OEGlobalsBag::getInstance()->get('payment_gateway') != 'InHouse') {
+                                <?php if (OEGlobalsBag::getInstance()->getBoolean('cc_front_payments')) {
                                     if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere') {
                                         echo SpherePayment::renderSphereHtml('clinic');
                                     } else {
                                         echo '<button type="button" id="paynowbutton" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
-                                        if (OEGlobalsBag::getInstance()->getBoolean('cc_stripe_terminal')) {
+                                        if (OEGlobalsBag::getInstance()->getBoolean('cc_stripe_terminal') && $globalsBag->getString('payment_gateway') === 'Stripe') {
                                             echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
                                         }
                                     }
                                 }  ?>
                                 <button type='button' class="btn btn-secondary btn-cancel" value='<?php echo xla('Cancel'); ?>' onclick='closeHow(event)'><?php echo xlt('Cancel'); ?></button>
                                 <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($pid);?>"/>
+                                <input type="hidden" name="inhouse_card" id="inhouse_card" value="" />
+                                <input type="hidden" name="inhouse_auth_code" id="inhouse_auth_code" value="" />
+                                <input type="hidden" name="inhouse_last4" id="inhouse_last4" value="" />
                                 <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
                                 <input type='hidden' name='mode' id='mode' value='' />
                             </div>
@@ -1452,6 +1567,18 @@ function make_insurance() {
                         <h4><?php echo xlt('Submit Payment for Authorization'); ?></h4>
                     </div>
                     <div class="modal-body">
+                        <?php if ($globalsBag->getString('payment_gateway') === 'InHouse') { ?>
+                            <p><?php echo xlt('Charge the card on your card terminal, then record its approval here.'); ?></p>
+                            <div class="form-group">
+                                <label class="control-label" for="inHouseAuthCode"><?php echo xlt('Approval Code'); ?></label>
+                                <input id="inHouseAuthCode" type="text" class="form-control" autocomplete="off" maxlength="40" />
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="inHouseLast4"><?php echo xlt('Card Last Four Digits'); ?></label>
+                                <input id="inHouseLast4" type="text" class="form-control" autocomplete="off" maxlength="4" inputmode="numeric" />
+                            </div>
+                            <h5><?php echo xlt('Payment Amount'); ?>:&nbsp;<strong><span id="payTotal"></span></strong></h5>
+                        <?php } ?>
                         <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'AuthorizeNet') { ?>
                             <form id='paymentForm' method='post' action='./front_payment_cc.php'>
                                 <fieldset>
@@ -1579,6 +1706,10 @@ function make_insurance() {
                             <?php }
                             if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Stripe') { ?>
                                 <button id="stripeSubmit" class="btn btn-primary"><?php echo xlt('Pay Now'); ?></button>
+                            <?php }
+                            if ($globalsBag->getString('payment_gateway') === 'InHouse') { ?>
+                                <button type="button" id="inHouseRecord" class="btn btn-primary"
+                                    onclick="recordInHouseCardPayment(event)"><?php echo xlt('Record Payment'); ?></button>
                             <?php } ?>
                         </div>
                     </div>
@@ -1830,16 +1961,10 @@ function make_insurance() {
                             alert(xl("Must have an encounter to take credit card payment."));
                             return true;
                         }
-                        let total = $("[name='form_paytotal']").val();
-                        let prepay = $("#form_prepayment").val();
-                        // just to be sure. validate() should catch...
+                        const total = chargeAmount();
                         if (Number(total) < 1) {
-                            if (Number(prepay) < 1) {
-                                let error = xl("Please enter a payment amount");
-                                alert(error);
-                                return false;
-                            }
-                            total = prepay;
+                            alert(xl("Please enter a payment amount"));
+                            return false;
                         }
                         $("#payTotal").text(total);
                         $("#paymentAmount").val(total);

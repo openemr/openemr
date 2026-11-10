@@ -24,6 +24,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRLocation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -100,7 +101,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
      * Returns an array mapping FHIR Location Resource search parameters to OpenEMR Location search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
@@ -152,9 +153,9 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['last_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $locationResource->setMeta($meta);
 
@@ -353,12 +354,12 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         return $patientFacilityType;
     }
 
-    private function hasAccessToUserLocationData()
+    private function hasAccessToUserLocationData(): bool
     {
         return AclMain::aclCheckCore('admin', 'users', $this->getSession()->get("authUser")) !== false;
     }
 
-    private function shouldIncludeContactInformationForLocationType($type, $recordUuid)
+    private function shouldIncludeContactInformationForLocationType($type, $recordUuid): bool
     {
         $isPatientBoundUuid = !empty($this->patientUuid) && $this->patientUuid == $recordUuid;
         // if its not a patient requesting their own record location information we need to check permissions on this.

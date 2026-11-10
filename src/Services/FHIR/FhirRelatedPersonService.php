@@ -16,6 +16,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRRelatedPerson;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\ContactRelationService;
@@ -44,7 +45,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
     /**
      * @inheritDoc
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -56,7 +57,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
     /**
      * @inheritDoc
      */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRRelatedPerson
     {
         $fhirRelatedPerson = new FHIRRelatedPerson();
         $this->populateId($fhirRelatedPerson, $dataRecord);
@@ -95,9 +96,9 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['last_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
             $meta->addProfile($profile);
@@ -174,7 +175,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRRelatedPerson)) {
             throw new \InvalidArgumentException(

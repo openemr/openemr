@@ -72,6 +72,8 @@ class UuidRegistry
         'questionnaire_repository' => ['table_name' => 'questionnaire_repository'],
         'questionnaire_response' => ['table_name' => 'questionnaire_response'],
         'form_history_sdoh' => ['table_name' => 'form_history_sdoh'],
+        'task' => ['table_name' => 'task'],
+        'transactions' => ['table_name' => 'transactions'],
         'users' => ['table_name' => 'users']
     ];
     // Maximum tries to create a unique uuid before failing (this should never happen)
@@ -184,9 +186,8 @@ class UuidRegistry
      * Returns the uuid registry record for a given uuid.
      * @param string|binary $uuid The uuid to search
      * @param bool $is_binary Whether the passed in uuid is a string or binary
-     * @return array|null
      */
-    public static function getRegistryRecordForUuid($uuid, $is_binary = false)
+    public static function getRegistryRecordForUuid($uuid, $is_binary = false): array
     {
         $sql = "select * from `uuid_registry` WHERE uuid = ?";
         $uuid_as_binary = $is_binary ? $uuid : UuidRegistry::uuidToBytes($uuid);
@@ -292,7 +293,7 @@ class UuidRegistry
         }
     }
 
-    private function createMissingUuids()
+    private function createMissingUuids(): int
     {
         try {
             QueryUtils::startTransaction();
@@ -331,7 +332,7 @@ class UuidRegistry
      * Converts a UUID byte value to a string representation
      * @return string the UUID string value
      */
-    public static function uuidToString($uuidBytes)
+    public static function uuidToString($uuidBytes): string
     {
         return Uuid::fromBytes($uuidBytes)->toString();
     }
@@ -340,9 +341,41 @@ class UuidRegistry
      * Converts a UUID string to a bytes representation
      * @return string the UUID bytes value
      */
-    public static function uuidToBytes($uuidString)
+    public static function uuidToBytes($uuidString): string
     {
         return Uuid::fromString($uuidString)->getBytes();
+    }
+
+    /**
+     * Registers a uuid that was issued before its record existed, for this registry's table.
+     *
+     * The patient review queue gives a patient app the id of a write it holds; approving the
+     * write creates the record under that id. createUuid() picks its own, so this takes the
+     * issued one instead, after the same uniqueness checks.
+     *
+     * @param string $uuidBytes the 16-byte uuid
+     * @throws \RuntimeException when the uuid is already registered or used in the table
+     */
+    public function registerIssuedUuid(string $uuidBytes): void
+    {
+        if (strlen($uuidBytes) !== 16) {
+            throw new \InvalidArgumentException('A uuid is 16 bytes');
+        }
+        $table = $this->table_name;
+        if (!is_string($table) || $table === '') {
+            throw new \LogicException('An issued uuid is registered for a table');
+        }
+        $used = QueryUtils::fetchRecordsNoLog('SELECT `uuid` FROM `uuid_registry` WHERE `uuid` = ?', [$uuidBytes]) !== []
+            || QueryUtils::fetchRecordsNoLog(
+                'SELECT `uuid` FROM ' . QueryUtils::escapeTableName($table) . ' WHERE `uuid` = ?',
+                [$uuidBytes]
+            ) !== [];
+        if ($used) {
+            throw new \RuntimeException('The issued uuid is already in use');
+        }
+        if (!$this->disable_tracker) {
+            $this->insertUuidsIntoRegistry([$uuidBytes]);
+        }
     }
 
     /**
@@ -358,7 +391,7 @@ class UuidRegistry
      * Check if UUID Brinary is Empty
      * @return bool
      */
-    public static function isEmptyBinaryUUID($uuidString)
+    public static function isEmptyBinaryUUID($uuidString): bool
     {
         return (empty($uuidString) || ($uuidString == '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'));
     }
@@ -408,7 +441,7 @@ class UuidRegistry
         return $this->getUnusedUuidBatch($limit);
     }
 
-    private function createMissingUuidsForTableWithId()
+    private function createMissingUuidsForTableWithId(): int
     {
         $counter = 0;
         $count = $this->getTableCountWithMissingUuids();
@@ -446,7 +479,7 @@ class UuidRegistry
      *      assigned this group uuid. (see completePartialMissingUuidsForVerticalTable() function)
      * @return int
      */
-    private function createMissingUuidsForVerticalTable()
+    private function createMissingUuidsForVerticalTable(): int
     {
         $counter = 0;
 
@@ -494,7 +527,7 @@ class UuidRegistry
      *      assigned this group uuid. (this function)
      * @return int
      */
-    private function completePartialMissingUuidsForVerticalTable()
+    private function completePartialMissingUuidsForVerticalTable(): int
     {
         $counter = 0;
 
@@ -556,24 +589,35 @@ class UuidRegistry
 
 
     /**
-     * Returns an array of generated unique universal identifiers up to the passed in limit.
-     * @param int $limit
-     * @return array
+     * A uuid factory whose uuid4() makes the timestamp-first COMB uuids OpenEMR uses for its
+     * records: the first part is a timestamp, so they are naturally ordered and can be used for
+     * primary keys; the rest is random, as in a uuid4. createUuid() uses the same factory.
+     *
+     * For an id chosen before its record exists, such as the one the patient review queue
+     * gives a held write (see registerIssuedUuid()).
+     *
+     * @link https://uuid.ramsey.dev/en/latest/customize/timestamp-first-comb-codec.html#customize-timestamp-first-comb-codec
      */
-    private function getUUIDBatch($limit = 10)
+    public static function timestampFirstCombFactory(): UuidFactory
     {
-        $uuids = [];
-        // Create uuid using the Timestamp-first COMB Codec, so can use for primary keys
-        //  (since first part is timestamp, it is naturally ordered; the rest is from uuid4, so is random)
-        //  reference:
-        //    https://uuid.ramsey.dev/en/latest/customize/timestamp-first-comb-codec.html#customize-timestamp-first-comb-codec
         $factory = new UuidFactory();
-        $codec = new TimestampFirstCombCodec($factory->getUuidBuilder());
-        $factory->setCodec($codec);
+        $factory->setCodec(new TimestampFirstCombCodec($factory->getUuidBuilder()));
         $factory->setRandomGenerator(new CombGenerator(
             $factory->getRandomGenerator(),
             $factory->getNumberConverter()
         ));
+
+        return $factory;
+    }
+
+    /**
+     * Returns an array of generated unique universal identifiers up to the passed in limit.
+     * @param int $limit
+     */
+    private function getUUIDBatch($limit = 10): array
+    {
+        $uuids = [];
+        $factory = self::timestampFirstCombFactory();
         for ($i = 0; $i < $limit; $i++) {
             $timestampFirstComb = $factory->uuid4();
             $uuids[] = $timestampFirstComb->getBytes();

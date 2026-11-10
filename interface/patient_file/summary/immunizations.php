@@ -285,7 +285,7 @@ function getImmunizationObservationLists($k)
     }
 }
 
-function getImmunizationObservationResults()
+function getImmunizationObservationResults(): array
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $obs_res_q = "SELECT
@@ -307,7 +307,7 @@ function saveImmunizationObservationResults($id, $immunizationdata): void
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $imm_obs_data = getImmunizationObservationResults();
-    if (!empty($imm_obs_data) && count($imm_obs_data) > 0) {
+    if (!empty($imm_obs_data)) {
         foreach ($imm_obs_data as $val) {
             if ($val['imo_id'] && $val['imo_id'] != 0) {
                 $sql2                   = " DELETE

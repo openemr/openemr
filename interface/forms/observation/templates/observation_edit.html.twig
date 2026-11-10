@@ -453,7 +453,7 @@
         window.addEventListener('DOMContentLoaded', function () {
             if (window.observationForm) {
                 window.observationForm.init(
-                    {{ webroot|js_url }}
+                    {{ webroot|js_escape }}
                     ,{{ reasonCodeTypes|js_url }}
                     ,{{ translations|json_encode }}
                     ,{{ fhir_config|json_encode }}

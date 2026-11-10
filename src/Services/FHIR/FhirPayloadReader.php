@@ -83,6 +83,34 @@ final class FhirPayloadReader
     }
 
     /**
+     * Returns the `code` of every coding in a CodeableConcept, in order, optionally limited to
+     * one code system.
+     *
+     * CodeableConcept carries 0..* codings and FHIR puts no meaning on their order, so a reader
+     * that only looks at the first one rejects a valid resource whose LOINC coding happens to
+     * follow a SNOMED one -- and, when it ignores the system, accepts a coding from another
+     * system whose code string collides with the one it was looking for.
+     *
+     * @param ?string $system When given, only codings whose `system` equals it are returned.
+     * @return list<string>
+     */
+    public static function codingCodes(mixed $codeableConcept, ?string $system = null): array
+    {
+        $codes = [];
+        foreach (self::codings($codeableConcept) as $coding) {
+            if ($system !== null && self::getString($coding, 'system') !== $system) {
+                continue;
+            }
+            $code = self::getString($coding, 'code');
+            if ($code !== null && $code !== '') {
+                $codes[] = $code;
+            }
+        }
+
+        return $codes;
+    }
+
+    /**
      * Returns the first `coding` entry of a FHIR CodeableConcept, or [] when there is none.
      *
      * @return array<array-key, mixed>

@@ -27,8 +27,10 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -86,7 +88,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * Returns an array mapping FHIR Encounter Resource search parameters to OpenEMR Encounter search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             '_id' => new FhirSearchParameterDefinition(
@@ -124,7 +126,7 @@ class FhirEncounterService extends FhirServiceBase implements
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated((new \DateTime($dataRecord['last_update']) )->format(DATE_ATOM)); // stored as utc
+        $meta->setLastUpdated(new FHIRInstant((new \DateTime($dataRecord['last_update']))->format(DATE_ATOM))); // stored as utc
         $encounterResource->setMeta($meta);
 
         $id = new FhirId();
@@ -181,7 +183,7 @@ class FhirEncounterService extends FhirServiceBase implements
                 )
             );
             $period = new FHIRPeriod();
-            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
             $participant->setPeriod($period);
 
             $participantType = UtilsService::createCodeableConcept([
@@ -206,7 +208,7 @@ class FhirEncounterService extends FhirServiceBase implements
                 )
             );
             $period = new FHIRPeriod();
-            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
             $participant->setPeriod($period);
 
             $participantType = UtilsService::createCodeableConcept([
@@ -224,7 +226,7 @@ class FhirEncounterService extends FhirServiceBase implements
         // period - must support
         if (!empty($dataRecord['date'])) {
             $period = new FHIRPeriod();
-            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
             $encounterResource->setPeriod($period);
         }
 
@@ -298,7 +300,7 @@ class FhirEncounterService extends FhirServiceBase implements
      * @param FHIRDomainResource $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIREncounter)) {
             throw new \InvalidArgumentException(

@@ -7,9 +7,13 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 $srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
@@ -38,8 +42,10 @@ if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
 // Deep-linked page: align session pid with the URL patient so the wrapping
 // chart header and menu render for the same patient the queries below load.
 // Fires on bootstrap (empty session) AND on context switch (bookmark for a
-// different patient while another chart is open).
+// different patient while another chart is open). Both need a CSRF token
+// in the link.
 if ($pid > 0 && $pid !== PatientSessionUtil::getPid()) {
+    PatientSessionUtil::requireCsrfForLinkSwitch(CurrentRequest::get(), $pid);
     setpid($pid);
 }
 

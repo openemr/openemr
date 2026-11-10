@@ -49,8 +49,13 @@ class C_Document extends Controller
     private readonly DocumentTemplateService $templateService;
     private bool $returnRetrieveKey = false;
 
+    /**
+     * @param bool $withCsrfToken false when nothing will be rendered, e.g. the REST API reading a file;
+     *                            API bearer token sessions have no CSRF key to build a token from
+     */
     public function __construct(
         ?CryptoInterface $crypto = null,
+        bool $withCsrfToken = true,
     ) {
         parent::__construct();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -60,7 +65,7 @@ class C_Document extends Controller
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "document&");
 
-        if (php_sapi_name() !== 'cli') {
+        if ($withCsrfToken && php_sapi_name() !== 'cli') {
             // skip when this is being called via command line for the ccda importing
             $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken($session));
         }
@@ -83,7 +88,7 @@ class C_Document extends Controller
         $this->templateService = new DocumentTemplateService();
     }
 
-    public function upload_action($patient_id, $category_id)
+    public function upload_action($patient_id, $category_id): string
     {
         $category_name = $this->tree->get_node_name($category_id);
         $this->assign("category_id", $category_id);
@@ -252,7 +257,7 @@ class C_Document extends Controller
                                 if ($fp) {
                                     $head = fread($fp, 256);
                                     fclose($fp);
-                                    if (!str_contains($head, 'DICM')) { // Fixed at offset 128. even one non DICOM makes zip invalid.
+                                    if (substr((string) $head, 128, 4) !== 'DICM') { // Fixed at offset 128. even one non DICOM makes zip invalid.
                                         $mimetype = "application/zip";
                                         break;
                                     }
@@ -293,7 +298,7 @@ class C_Document extends Controller
                         $fname = basename((string) $_POST['destination']);
                     }
                     // test for single DICOM and assign extension if missing.
-                    if (str_contains($filetext, 'DICM')) {
+                    if (substr((string) $filetext, 128, 4) === 'DICM') { // the DICOM marker is only valid at offset 128, not anywhere in the file (a stored zip can contain it)
                         $mimetype = 'application/dicom';
                         $parts = pathinfo((string) $fname);
                         if (!$parts['extension']) {
@@ -437,7 +442,7 @@ class C_Document extends Controller
         return $this->list_action();
     }
 
-    public function view_action(?string $patient_id, $doc_id)
+    public function view_action(?string $patient_id, $doc_id): string
     {
         $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
@@ -923,10 +928,10 @@ class C_Document extends Controller
             //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
             //try to convert it if it has not yet been converted
             $originalUrl = $url;
-            if (strrpos((string) basename_international($url), '.') === false) {
+            if (strrpos(basename_international($url), '.') === false) {
                 $convertedFile = basename_international($url) . '_converted.jpg';
             } else {
-                $convertedFile = substr((string) basename_international($url), 0, strrpos((string) basename_international($url), '.')) . '_converted.jpg';
+                $convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
             }
             $url = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . $from_pathname . '/' . $convertedFile;
             if (!is_file($url)) {
@@ -1303,7 +1308,9 @@ class C_Document extends Controller
             if ((int)$cur_pid > 0) {
                 $query = "select fname, lname from patient_data WHERE pid = ?";
                 $name = sqlQuery($query, [$cur_pid]);
-                $place_hld = $name['fname'] . ' ' . $name['lname'];
+                if (is_array($name)) {
+                    $place_hld = $name['fname'] . ' ' . $name['lname'];
+                }
             }
         }
         if (!AclMain::aclCheckCore('patients', 'docs')) {
@@ -1527,7 +1534,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function image_procedure_action(?string $patient_id, $document_id)
+    public function image_procedure_action(?string $patient_id, $document_id): string
     {
         // Anti-IDOR: only permit tagging a document the caller can already access.
         $this->authorizeDocumentWrite($patient_id, $document_id);
@@ -1554,7 +1561,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function clear_procedure_tag_action(?string $patient_id, $document_id)
+    public function clear_procedure_tag_action(?string $patient_id, $document_id): string
     {
         // Anti-IDOR: only permit clearing tags on a document the caller can access.
         $this->authorizeDocumentWrite($patient_id, $document_id);
@@ -1598,7 +1605,7 @@ class C_Document extends Controller
     }
 
 //clear encounter tag public function
-    public function clear_encounter_tag_action(?string $patient_id, $document_id)
+    public function clear_encounter_tag_action(?string $patient_id, $document_id): string
     {
         // Anti-IDOR: only permit clearing the encounter tag on a document the
         // caller can already access.

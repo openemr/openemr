@@ -18,6 +18,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDevice;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceUdiCarrier;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -59,7 +60,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
         'patient' => $this->getPatientContextSearchField(),
@@ -78,18 +79,17 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
      *
      * @param $dataRecord The source OpenEMR data record
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDevice
     {
         $device = new FHIRDevice();
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         if (!empty($dataRecord['modifydate'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['modifydate']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['modifydate'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $device->setMeta($fhirMeta);
 
@@ -168,7 +168,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRDevice)) {
             throw new \InvalidArgumentException(

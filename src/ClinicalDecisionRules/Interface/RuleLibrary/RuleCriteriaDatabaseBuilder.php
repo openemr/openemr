@@ -49,9 +49,8 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
 
     /**
      * @param RuleCriteriaType $ruleCriteriaType
-     * @return ?RuleCriteria
      */
-    public function build($ruleCriteriaType, $value, $methodDetail)
+    public function build($ruleCriteriaType, $value, $methodDetail): ?RuleCriteria
     {
         $exploded = explode("::", (string) $value);
 
@@ -90,7 +89,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
      *
      * @param RuleCriteriaType $ruleCriteriaType
      */
-    public function newInstance($ruleCriteriaType)
+    public function newInstance($ruleCriteriaType): ?RuleCriteria
     {
         if ($ruleCriteriaType->code == RuleCriteriaType::lifestyle) {
             return new RuleCriteriaLifestyle(null, null);

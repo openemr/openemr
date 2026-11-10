@@ -31,6 +31,7 @@ use OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy;
 use OpenEMR\RestControllers\Authorization\IAuthorizationStrategy;
 use OpenEMR\RestControllers\Authorization\LocalApiAuthorizationController;
 use OpenEMR\RestControllers\Authorization\SkipAuthorizationStrategy;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWritePolicy;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -88,11 +89,21 @@ class AuthorizationListener implements EventSubscriberInterface
             $this->addAuthorizationStrategy(new LocalApiAuthorizationController($this->getLogger(), $this->getGlobalsBag()));
             $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
             $skipAuthorizationStrategy->setSystemLogger($this->getLogger());
+            // The three /fhir/ routes below are discovery/conformance surfaces
+            // that FHIR R4 + SMART-on-FHIR + the Bulk Data IG expect clients
+            // to reach before holding an access token: CapabilityStatement at
+            // /metadata, SMART discovery at .well-known, and OperationDefinition
+            // resources whose canonicals are referenced from /metadata.
+            // Keep this list to those three — do not add convenience /api/
+            // endpoints here; their OpenAPI annotations declare
+            // openemr_auth as required and the runtime must match.
             $skipAuthorizationStrategy->addSkipRoute('/fhir/metadata');
             $skipAuthorizationStrategy->addSkipRoute('/fhir/.well-known/smart-configuration');
-            $skipAuthorizationStrategy->addSkipRoute('/fhir/OperationDefinition');
-            $skipAuthorizationStrategy->addSkipRoute('/api/version');
-            $skipAuthorizationStrategy->addSkipRoute('/api/product');
+            // Prefix form so /fhir/OperationDefinition/{op} named-operation
+            // descriptors (currently just $bulkdata-status) are reachable
+            // alongside the collection. Narrow this to OperationDefinition —
+            // addSkipRoute() exact-match is the default for everything else.
+            $skipAuthorizationStrategy->addSkipRoutePrefix('/fhir/OperationDefinition');
             $this->addAuthorizationStrategy($skipAuthorizationStrategy);
             // TODO: @adunsulag not sure I like instantiating the ServerConfig here, perhaps we need to do this in a different way?
             $serverConfig = new ServerConfig();
@@ -127,11 +138,33 @@ class AuthorizationListener implements EventSubscriberInterface
      * @return RestApiSecurityCheckEvent
      * @throws AccessDeniedException
      */
+    /**
+     * Routes that have no fine-grained resource/permission to gate on and
+     * are protected entirely by the Bearer strategy's api:oemr scope check.
+     * Listed here so the dispatcher's resource-level scope check (which would
+     * otherwise require a non-existent `user/version.s` scope) is skipped
+     * for them. Keep this list very narrow -- adding to it bypasses the
+     * dispatcher's authorization logic.
+     *
+     * @var list<string>
+     */
+    private const BEARER_ONLY_STANDARD_API_PATHS = [
+        '/api/version',
+        '/api/product',
+    ];
+
     public function onRestApiSecurityCheck(RestApiSecurityCheckEvent $event): RestApiSecurityCheckEvent
     {
         $request = $event->getRestRequest();
         if ($event->shouldSkipSecurityCheck()) {
             // If the event indicates that security checks should be skipped, we don't do any further processing.
+            return $event;
+        }
+        if (in_array($request->getRequestPathWithoutSite(), self::BEARER_ONLY_STANDARD_API_PATHS, true)) {
+            // Bearer strategy has already enforced api:oemr for /api/* routes
+            // on the way in; the resource-level check that would otherwise
+            // run would just produce a false 401 because no `user/version.*`
+            // or `user/product.*` scope is defined in the scope repository.
             return $event;
         }
         $restRequest = $event->getRestRequest();
@@ -156,9 +189,14 @@ class AuthorizationListener implements EventSubscriberInterface
         // we check the request type against the user role... this is fairly cumbersome and complicated
         // TODO: @adunsulag can we look at simplifying this role / request type check?
         if ($restRequest->isFhir()) {
-            // we do NOT want logged in patients writing data at this point so we fail
-            // TODO: when we have better auditing and provider merge/verification mechanisms look at opening up patient write access to data.
-            if ($restRequest->isPatientWriteRequest() && $restRequest->getRequestUserRole() == 'patient') {
+            // A patient's write reaches the chart only through staff review. The one way through
+            // this gate is a type the practice opened to patient apps (PatientWritePolicy), whose
+            // route holds the write for review and checks the client on every request.
+            if (
+                $restRequest->isPatientWriteRequest()
+                && $restRequest->getRequestUserRole() == 'patient'
+                && !PatientWritePolicy::fromGlobals($this->getGlobalsBag())->opensResource($event->getResource())
+            ) {
                 // not allowing patient userrole write for fhir
                 throw new AccessDeniedException("patient", "demo", "Patient user role is not allowed to write FHIR resources.");
             }

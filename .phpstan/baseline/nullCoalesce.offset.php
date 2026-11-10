@@ -227,29 +227,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'http\\://hl7\\.org/fhir…\'\\|\'http\\://terminology…\' on array\\{\'http\\://hl7\\.org/fhir/us/core/CodeSystem/condition\\-category\\|health\\-concern\'\\: \'Health Concerns\', \'http\\://terminology\\.hl7\\.org/CodeSystem/condition\\-category\\|encounter\\-diagnosis\'\\: \'Encounter Diagnoses\', \'http\\://terminology\\.hl7\\.org/CodeSystem/condition\\-category\\|problem\\-list\\-item\'\\: \'Problem List Items\', \'http\\://terminology\\.hl7\\.org/CodeSystem/observation\\-category\\|clinical\\-test\'\\: \'Clinical Test\', \'http\\://terminology\\.hl7\\.org/CodeSystem/observation\\-category\\|laboratory\'\\: \'Laboratory\', \'http\\://terminology\\.hl7\\.org//CodeSystem\\-observation\\-category\\|social\\-history\'\\: \'Social History\', \'http\\://hl7\\.org/fhir/us/core/CodeSystem/us\\-core\\-category\\|sdoh\'\\: \'Social Determinants…\', \'http\\://terminology\\.hl7\\.org/CodeSystem/observation\\-category\\|survey\'\\: \'Survey\', \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/ScopePermissionParser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 0 on non\\-empty\\-list\\<string\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'2710\\-2\'\\|\'29463\\-7\'\\|\'3141\\-9\'\\|\'39156\\-5\'\\|\'59408\\-5\'\\|\'8287\\-5\'\\|\'8302\\-2\'\\|\'8310\\-5\'\\|\'8462\\-4\'\\|\'8480\\-6\'\\|\'8867\\-4\'\\|\'9279\\-1\' on array\\{\'8310\\-5\'\\: \'temperature\', \'8462\\-4\'\\: \'bpd\', \'8480\\-6\'\\: \'bps\', \'8287\\-5\'\\: \'head_circ\', \'8867\\-4\'\\: \'pulse\', \'8302\\-2\'\\: \'height\', \'2710\\-2\'\\: \'oxygen_saturation\', \'59408\\-5\'\\: \'oxygen_saturation\', \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'2\\.16\\.840\\.1\\.113883…\' on array\\{\'2\\.16\\.840\\.1\\.113883\\.10\\.20\\.24\\.3\\.147\'\\: \'fetchAllergyIntoler…\', \'2\\.16\\.840\\.1\\.113883\\.10\\.20\\.24\\.3\\.41\'\\: \'fetchMedicationData\', \'2\\.16\\.840\\.1\\.113883\\.10\\.20\\.24\\.3\\.42\'\\: \'fetchMedicationData\', \'2\\.16\\.840\\.1\\.113883\\.10\\.20\\.24\\.3\\.139\'\\: \'fetchMedicationData\', \'2\\.16\\.840\\.1\\.113883\\.10\\.20\\.24\\.3\\.105\'\\: \'fetchMedicationData\', \'2\\.16\\.840\\.1\\.113883\\.10\\.20\\.24\\.3\\.137\'\\: \'fetchMedicalProblem…\', \'2\\.16\\.840\\.1\\.113883\\.10\\.20\\.24\\.3\\.138\'\\: \'fetchMedicalProblem…\', \'2\\.16\\.840\\.1\\.113883\\.10\\.20\\.24\\.3\\.140\'\\: \'fetchImmunizationDa…\', \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'HIP\'\\|\'PUBLICPOL\' on array\\{HIP\\: \'health insurance…\', PUBLICPOL\\: \'public healthcare\', EHCPOL\\: \'extended healthcare\'\\} on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'reason\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',

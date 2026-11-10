@@ -19,6 +19,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 /*
 TODO: Code cleanup */
 
@@ -84,8 +86,10 @@ if (
 // menu render for the same patient the queries below load. Placed after the
 // ACL check above so an unauthorized caller cannot pollute session pid.
 // Fires on bootstrap (empty session) AND on context switch (bookmark for a
-// different patient while another chart is open).
+// different patient while another chart is open). Both need a CSRF token
+// in the link.
 if ($requestPid > 0 && $requestPid !== PatientSessionUtil::getPid()) {
+    PatientSessionUtil::requireCsrfForLinkSwitch(CurrentRequest::get(), $requestPid);
     setpid($requestPid);
 }
 
@@ -154,7 +158,7 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
             echo " aitypes['" . attr($key) . "'] = '0';\n";
 
             // FH, SocHx and ROS have no quick-pick list of their own; they are built below.
-            $panel = is_string($key) ? IssueQuickPick::tryFrom($key) : null;
+            $panel = IssueQuickPick::tryFrom($key);
             if ($panel === null) {
                 continue;
             }
@@ -597,7 +601,7 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
                         "POS"        => ['', xlt("POS")],
                         "FH"         => ['', xlt("FH")],
                         "ROS"        => ['', xlt("ROS")],
-                        default      => ['', is_string($key) ? text($key) : ''],
+                        default      => ['', text($key)],
                     };
                     $keyAttr = attr($key);
                     $inputId = "PMSFH_{$keyAttr}";
@@ -867,7 +871,7 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
                         <tr>
                             <td></td>
                             <td>
-                                <select name="form_tobacco" id="form_tobacco" onchange="radioChange(this.options[this.selectedIndex].value)" title="<?php xla('Tobacco use'); ?>">
+                                <select name="form_tobacco" id="form_tobacco" onchange="radioChange(this.options[this.selectedIndex].value)" title="<?php echo xla('Tobacco use'); ?>">
                                     <option value="" <?php if (($result2['tobacco']['reslist'] ?? '') == '') {
                                         echo "selected";
                                                      } ?>><?php echo xlt('Unassigned'); ?></option>

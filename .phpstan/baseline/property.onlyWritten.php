@@ -147,11 +147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/WenoGlobalConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Plugin\\\\Phimail\\:\\:\\$listenerObject is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Carecoordination\\\\Model\\\\CarecoordinationTable\\:\\:\\$codeService is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
@@ -165,16 +160,6 @@ $ignoreErrors[] = [
     'message' => '#^Property ClinicalType\\:\\:\\$_title is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/ClinicalTypes/ClinicalType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property CacheMemCache\\:\\:\\$_lockFilePath is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property CacheNoCache\\:\\:\\$ram is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheNoCache.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\AuthUtils\\:\\:\\$otherAuth is never read, only written\\.$#',
@@ -315,11 +300,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\CapabilityFhirTest\\:\\:\\$oauthBaseUrl is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/CapabilityFhirTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G9_Certification\\\\CCDADocRefGenerationTest\\:\\:\\$baseUrl is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Static property OpenEMR\\\\Tests\\\\E2e\\\\NotificationCronEmailTest\\:\\:\\$functionsLoaded is never read, only written\\.$#',

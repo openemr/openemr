@@ -24,10 +24,10 @@ docker build -t openemr-binary:latest .
 
 ### Build Arguments
 
-- `OPENEMR_VERSION`: OpenEMR version (default: `7_0_4`)
-- `BINARY_RELEASE_DATE`: Release date for binary package (default: `12292025`)
+- `OPENEMR_VERSION`: OpenEMR version (default: `8_4_1`)
+- `BINARY_RELEASE_DATE`: Release date for binary package (default: `10212026`)
 - `PHP_VERSION`: PHP version used in binaries (default: `8.5`)
-- `ALPINE_VERSION`: Alpine Linux version (default: `3.22`)
+- `ALPINE_VERSION`: Alpine Linux version (default: `3.24`)
 
 `OPENEMR_VERSION`, `BINARY_RELEASE_DATE`, and `ALPINE_VERSION` are maintained
 by `.github/workflows/updatecli-docker-pins.yml`, which opens a pull request
@@ -39,12 +39,12 @@ always a human decision; see `.github/updatecli/binary-image.yaml` for what the
 bot verifies before proposing a forge bump.
 
 Override any of them to build an older combination — for example the
-December 2025 forge release:
+August 2026 forge release:
 
 ```bash
 docker build \
-  --build-arg OPENEMR_VERSION=7_0_4 \
-  --build-arg BINARY_RELEASE_DATE=12292025 \
+  --build-arg OPENEMR_VERSION=8_3_0 \
+  --build-arg BINARY_RELEASE_DATE=08232026 \
   -t openemr-binary:latest .
 ```
 
@@ -53,7 +53,6 @@ docker build \
 ### Basic Usage with docker-compose
 
 ```yaml
-version: '3.1'
 services:
   mysql:
     restart: always
@@ -95,7 +94,7 @@ See the main [OpenEMR Docker documentation](../README.md) for a complete list of
 
 - **XDebug Not Supported**: XDebug cannot be used with static PHP binaries
 - **Architecture Support**: The container supports multiple architectures (amd64, arm64) and automatically detects the build architecture. Binary releases must be available for the target architecture in the [openemr-static-binary-forge](https://github.com/Jmevorach/openemr-static-binary-forge) repository.
-- **PHP Version Fixed**: The PHP version is determined by the binary release (currently PHP 8.5)
+- **PHP Version Fixed**: The PHP version is baked into the binary release, not installed at image build time. The forge builds against the newest patch of the `PHP_VERSION` series available when the release is cut (the `10212026` release ships PHP 8.5.12), so picking up a PHP security fix means cutting a new forge release and bumping `BINARY_RELEASE_DATE`. Check the running version with `docker exec <container> php -v`.
 
 ## Technical Details
 
@@ -119,7 +118,7 @@ See the main [OpenEMR Docker documentation](../README.md) for a complete list of
 
 ## Comparison with Standard Containers
 
-| Feature | Standard Container (7.0.5) | Binary Container |
+| Feature | Standard Container (`release/`) | Binary Container |
 |---------|---------------------------|------------------|
 | PHP Installation | Alpine PHP packages | Static binaries |
 | Image Size | Larger (includes PHP packages) | Smaller (static binaries) |

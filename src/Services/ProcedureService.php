@@ -71,10 +71,8 @@ class ProcedureService extends BaseService
      *
      * @param  array<string, ISearchField> $search         search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     *                         payload.
      */
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         // Query structure: Start from procedure_order (the ServiceRequest)
         // and LEFT JOIN all related data so orders without reports/results still appear
@@ -314,6 +312,8 @@ class ProcedureService extends BaseService
         $whereClause = FhirSearchWhereClauseBuilder::build($modifiedSearch, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
+        // Orders in id order, so two runs of a search list them in the same order and a page cut from them agrees.
+        $sql .= " ORDER BY porder.procedure_order_id";
         $sqlBindArray = $whereClause->getBoundValues();
         $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
         $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
@@ -326,9 +326,8 @@ class ProcedureService extends BaseService
      * with procedures, reports, results, and specimens.
      *
      * @param \ADORecordSet $queryResource The result resource from the executed SQL query.
-     * @return ProcessingResult The structured processing result containing procedures and their details.
      */
-    private function hydrateSearchResultsFromQueryResource($queryResource)
+    private function hydrateSearchResultsFromQueryResource($queryResource): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         $procedureByUuid = [];
@@ -646,7 +645,6 @@ class ProcedureService extends BaseService
                 ON practitioner.id = porder.provider_id
             LEFT JOIN procedure_providers AS lab
                 ON lab.ppid = porder.lab_id
-            LEFT JOIN
             WHERE porder.activity = 1";
 
         if (!empty($search)) {

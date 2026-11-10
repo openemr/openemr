@@ -86,12 +86,12 @@ jobs:
       e2e_enabled: ${{ steps.parse.outputs.e2e_enabled }}
       openemr_dir: ${{ steps.parse.outputs.openemr_dir }}
       redis_sentinel_enabled: ${{ steps.parse.outputs.redis_sentinel_enabled }}
+      coverage_flag: ${{ steps.coverage-flag.outputs.coverage_flag }}
       suites: ${{ steps.compute-suites.outputs.suites }}
       compose_file: ${{ steps.parse-env.outputs.compose_file }}
       # Cache keys for restore in test jobs
       vendor_key: ${{ steps.cache-keys.outputs.vendor }}
       npm_build_key: ${{ steps.cache-keys.outputs.npm-build }}
-      ccda_build_key: ${{ steps.cache-keys.outputs.ccda-build }}
     steps:
     - name: Checkout Code
       uses: actions/checkout@v7
@@ -118,6 +118,13 @@ jobs:
       run: |
         jq -r '"compose_file=\(.[0].env.COMPOSE_FILE)"' parsed_config.json >> "$GITHUB_OUTPUT"
 
+    - name: Compute Codecov flag name
+      id: coverage-flag
+      # Each CI config needs its own flag; ci/codecov_flags.sh explains why.
+      run: |
+        line=$(ci/codecov_flags.sh < parsed_config.json)
+        echo "coverage_flag=${line#* }" >> "$GITHUB_OUTPUT"
+
     - name: Compute test suite list
       id: compute-suites
       # Suites common,controllers,fixtures,validators,unit are covered by integration-tests.yml
@@ -130,6 +137,37 @@ jobs:
           base="${base},"'"redis-failover"'
         fi
         echo "suites=${base}]" >> "$GITHUB_OUTPUT"
+
+    - name: Check Codecov flag lengths
+      # Codecov rejects flag names longer than 45 characters. Build every flag
+      # the test jobs will upload (the redis-failover suite uploads as
+      # "redis"; api and e2e also upload "<suite>-tests") and fail early.
+      env:
+        FLAG: ${{ steps.coverage-flag.outputs.coverage_flag }}
+        SUITES: ${{ steps.compute-suites.outputs.suites }}
+      run: |
+        # On its own line so a jq failure fails the step, and checked for
+        # empty (jq accepts empty input), so the loop can't pass vacuously.
+        suite_list=$(jq -r '.[]' <<<"${SUITES}")
+        if [[ -z "${suite_list}" || -z "${FLAG}" ]]; then
+          echo '::error::No test suites or Codecov flag to check.'
+          exit 1
+        fi
+        status=0
+        for suite in ${suite_list}; do
+          prefix="${suite/#redis-failover/redis}"
+          names="${prefix}-${FLAG}"
+          if [[ "${suite}" == api || "${suite}" == e2e ]]; then
+            names="${names} ${suite}-tests-${FLAG}"
+          fi
+          for name in ${names}; do
+            if (( ${#name} > 45 )); then
+              echo "::error::Codecov flag '${name}' is ${#name} characters; the limit is 45."
+              status=1
+            fi
+          done
+        done
+        exit "${status}"
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -169,7 +207,6 @@ jobs:
           echo 'vendor=${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
           echo 'composer=${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
           echo 'npm-build=${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
-          echo 'ccda-build=${{ runner.os }}-ccdaservice-modules-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
           echo 'npm=${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
         } >> "$GITHUB_OUTPUT"
 
@@ -239,7 +276,6 @@ jobs:
     ##
     # Restore everything that node built for the given key.
     # We don't need to run npm ci && npm build at all if we get a hit.
-    # This does not include ccda.
     - name: Restore npm build artifacts
       id: npm-build-cache-restore
       uses: actions/cache/restore@v6
@@ -268,39 +304,10 @@ jobs:
         fi >> "$GITHUB_OUTPUT"
 
     ##
-    # Restore everything that node built for CCDA for the given key.
-    # We don't need to run npm ci in ccdaservice at all if we get a hit.
-    - name: Restore CCDA build artifacts
-      id: ccda-build-cache-restore
-      uses: actions/cache/restore@v6
-      with:
-        path: |
-          ccdaservice/node_modules/
-          ccdaservice/packages/oe-cqm-service/node_modules/
-        key: ${{ steps.cache-keys.outputs.ccda-build }}
-        restore-keys: |
-          ${{ runner.os }}-ccdaservice-modules-${{ steps.parse.outputs.node_version }}-
-
-    ##
-    # The 'cache-hit' output for actions/cache/restore is always false
-    # if restore-keys can match the cache key. So we have to manually
-    # check if we got a cache hit after all.
-    - name: Check ccda build cache
-      id: ccda-build-cache-check
-      run: |
-        key='${{ steps.cache-keys.outputs.ccda-build }}'
-        matched='${{ steps.ccda-build-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = "$matched" ]]; then
-          echo hit=true
-        else
-          echo hit=false
-        fi >> "$GITHUB_OUTPUT"
-
-    ##
     # Restore npm's own cache
     # This can still save us time if we miss the npm build caches
     - name: Restore npm cache
-      if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true' }}
+      if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' }}
       id: npm-cache-restore
       uses: actions/cache/restore@v6
       with:
@@ -330,12 +337,6 @@ jobs:
         . ci/ciLibrary.source
         npm_build
 
-    - name: CCDA build
-      if: ${{ steps.ccda-build-cache-check.outputs.hit != 'true' }}
-      run: |
-        . ci/ciLibrary.source
-        ccda_build
-
     - name: Cleanup after Build
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' || steps.npm-build-cache-check.outputs.hit != 'true' }}
       run: |
@@ -346,20 +347,11 @@ jobs:
     # Save caches: base caches before derived caches
     # Only save if we ran the build AND didn't get an exact cache hit (to avoid "cache already exists" warnings)
     - name: Save npm cache
-      if: ${{ inputs.save_node_cache && (steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true') && steps.npm-cache-check.outputs.hit != 'true' }}
+      if: ${{ inputs.save_node_cache && steps.npm-build-cache-check.outputs.hit != 'true' && steps.npm-cache-check.outputs.hit != 'true' }}
       uses: actions/cache/save@v6
       with:
         key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
-
-    - name: Save CCDA build artifacts
-      if: ${{ steps.ccda-build-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v6
-      with:
-        key: ${{ steps.cache-keys.outputs.ccda-build }}
-        path: |
-          ccdaservice/node_modules/
-          ccdaservice/packages/oe-cqm-service/node_modules/
 
     - name: Save NPM build artifacts
       if: ${{ inputs.save_node_cache && steps.npm-build-cache-check.outputs.hit != 'true' }}
@@ -510,16 +502,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-npm-build-${{ needs.setup.outputs.node_version }}-
           ${{ runner.os }}-npm-build-
-
-    - name: Restore CCDA build artifacts
-      uses: actions/cache/restore@v6
-      with:
-        key: ${{ needs.setup.outputs.ccda_build_key }}
-        path: |
-          ccdaservice/node_modules/
-          ccdaservice/packages/oe-cqm-service/node_modules/
-        restore-keys: |
-          ${{ runner.os }}-ccdaservice-modules-${{ needs.setup.outputs.node_version }}-
 
     - name: Download setup snapshot
       uses: actions/download-artifact@v8
@@ -676,7 +658,8 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-${{ matrix.suite }}.xml
-        flags: ${{ matrix.suite }}-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
+        disable_search: true
+        flags: ${{ matrix.suite == 'redis-failover' && 'redis' || matrix.suite }}-${{ needs.setup.outputs.coverage_flag }}
         report_type: test_results
 
     ##
@@ -690,7 +673,8 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}.clover.xml
-        flags: ${{ matrix.suite }}-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
+        disable_search: true
+        flags: ${{ matrix.suite == 'redis-failover' && 'redis' || matrix.suite }}-${{ needs.setup.outputs.coverage_flag }}
 
     # API/E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
     # Verifies the test code itself is executing, separate from server-side coverage.
@@ -700,7 +684,8 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}-tests.clover.xml
-        flags: ${{ matrix.suite }}-tests-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
+        disable_search: true
+        flags: ${{ matrix.suite }}-tests-${{ needs.setup.outputs.coverage_flag }}
 
     ##
     # Upload JUnit results to GitHub

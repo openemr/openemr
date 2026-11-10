@@ -20,7 +20,6 @@ class InvoiceSummaryTest extends TestCase
         // Use fake patient/encounter IDs - the method should handle non-existent data gracefully
         $summary = InvoiceSummary::arGetInvoiceSummary(999999, 999999);
 
-        $this->assertIsArray($summary);
         $this->assertEmpty($summary, 'Non-existent patient/encounter should return empty array');
     }
 
@@ -29,7 +28,6 @@ class InvoiceSummaryTest extends TestCase
         // Test with explicit false for detail parameter
         $summary = InvoiceSummary::arGetInvoiceSummary(999999, 999999, false);
 
-        $this->assertIsArray($summary);
         $this->assertEmpty($summary);
     }
 
@@ -38,7 +36,6 @@ class InvoiceSummaryTest extends TestCase
         // Test with explicit true for detail parameter
         $summary = InvoiceSummary::arGetInvoiceSummary(999999, 999999, true);
 
-        $this->assertIsArray($summary);
         $this->assertEmpty($summary);
     }
 

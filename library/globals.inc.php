@@ -86,6 +86,7 @@ use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteMode;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -98,7 +99,7 @@ if (stristr(PHP_OS, 'WIN')) {
     $backup_log_dir = '/tmp';
 }
 
-function getDefaultRenderListOptions()
+function getDefaultRenderListOptions(): array
 {
     return [
         RenderFormFieldHelper::SHOW_ON_NEW_ONLY => xl('Show on New Form Only'),
@@ -166,7 +167,7 @@ $USER_SPECIFIC_GLOBALS = ['default_top_pane',
 
 // Gets array of time zones supported by PHP.
 //
-function gblTimeZones()
+function gblTimeZones(): array
 {
     $zones = timezone_identifiers_list();
     $arr = ['' => xl('Unassigned')];
@@ -1173,6 +1174,13 @@ $GLOBALS_METADATA = [
             xl('Display Invoice Number or Patient Name in the Cash Receipt Report')
         ],
 
+        'referral_overdue_days' => [
+            xl('Referrals Overdue After (Days)'),
+            'num',
+            '14',
+            xl('A referral still open (not completed, and its Task not cancelled, rejected, failed or entered in error) shows as overdue this many days after its Referral Date, on the Transactions screen and in the Referrals report. 0 turns this off.')
+        ],
+
     ],
 
     // Billing Tab
@@ -1331,6 +1339,13 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '0',                              // default = false
             xl('Automatically replicate justification codes in Fee Sheet (basically fills in the blanks with the justification code above it).')
+        ],
+
+        'fee_sheet_save_appt_status' => [
+            xl('Fee Sheet Save: Ask to Set Appointment Status'),
+            'text',                           // data type
+            '',                               // default = off
+            xl('Code of an appointment status, for example $ for Coding done. When set, Save on the fee sheet asks whether to set the patient\'s appointment on the visit date to this status, and on Yes opens the calendar on that date. Not asked for an appointment that already has the status or is canceled or a no show. Blank: off.')
         ],
 
         'display_units_in_billing' => [
@@ -2221,7 +2236,7 @@ $GLOBALS_METADATA = [
             xl('Clear IP Failed-Login Counter on Successful Authentication'),
             'bool',                           // data type
             '1',                              // default ON — preserves pre-8.5.0 behaviour
-            xl('When enabled (default), a successful login (staff, portal, or MFA) zeros the per-IP failed-login counter for that IP. This matches the pre-8.5.0 behaviour and is convenient in shared-NAT environments where legitimate users would otherwise accumulate strikes across a day. When disabled, the per-IP counter decays only via its own time-based reset window, so a valid login on one account cannot clear an in-progress lockout being accumulated against another account from the same IP — recommended for higher-security deployments. If disabled AND the reset window is also 0 (never auto-reset), the ip_tracking.ip_login_fail_counter can be cleared by an administrator via the IP Tracker report; the ip_tracking.mfa_login_fail_counter has no admin UI yet and requires direct SQL to clear (see the follow-up admin-unblock issue tracked separately).')
+            xl('When enabled (default), a successful login (staff, portal, or MFA) zeros the per-IP failed-login counter for that IP. This matches the pre-8.5.0 behaviour and is convenient in shared-NAT environments where legitimate users would otherwise accumulate strikes across a day. When disabled, the per-IP counter decays only via its own time-based reset window, so a valid login on one account cannot clear an in-progress lockout being accumulated against another account from the same IP — recommended for higher-security deployments. If disabled AND the reset window is also 0 (never auto-reset), an administrator can clear both per-IP counters via the IP Tracker report (Reports → Administrative → IP Tracker).')
         ],
 
         'portal_onetime_max_pin_attempts' => [
@@ -3076,6 +3091,13 @@ $GLOBALS_METADATA = [
             xl('Website link for the Patient Portal.')
         ],
 
+        'pdf_allowed_host' => [
+            xl('Patient Portal PDF Renderer Allowed Host'),
+            'text',                           // data type
+            '',                               // default — blank blocks all remote http(s) fetches
+            xl('Origin the patient-portal PDF renderer accepts http(s) resource references for (barcodes, letterhead images, inline CSS url() values). Formats accepted: `host` (either scheme, default port), `host:port`, `http://host`, `https://host:port`. When left blank the renderer rejects all remote http(s) resources, which disables same-host barcodes and letterhead images.')
+        ],
+
         'portal_css_header' => [
             xl('Portal Default Theme'),
             [
@@ -3253,6 +3275,20 @@ $GLOBALS_METADATA = [
             xl('Enable OpenEMR Standard FHIR RESTful API.')
         ],
 
+        GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value => [
+            xl('Track Referrals with FHIR Tasks'),
+            'bool',
+            '0',
+            xl('When a referral is saved, on the Transactions screen or through the REST API, create a FHIR Task for the one it is sent to (Refer To) if FHIR serves them as a Practitioner or Organization. The receiving system can then accept, reject, complete or cancel it through the FHIR API, or mark it failed, and each of those sends the one who made the referral (Refer By) an inbox message. When the referral records a Reply Date, the reply is filed in the patient\'s documents and completes the recipient\'s Task; clearing the Reply Date on the Transactions screen marks that Task entered in error and, when FHIR serves the recipient, gives them a new one.')
+        ],
+
+        GlobalConnectorsEnum::FHIR_REFERRAL_NOTIFY_RECIPIENT->value => [
+            xl('Notify Referral Recipients'),
+            'bool',
+            '0',
+            xl('With referrals tracked by FHIR Tasks, tell the one a referral is sent to (Refer To) when a Task is created for them, and again on a re-send. An address book entry with a Direct address is sent the Referral C-CDA by Direct (allergies, medications, problems, plan of care and the reason for referral, not the whole chart); one with only an email address gets a plain email with no patient details, saying the practice sent a referral and how to reach it. The referral shows staff how the recipient was told, or that they could not be. Off by default because a referral saved with the wrong Refer To sends that C-CDA to the wrong recipient.')
+        ],
+
         GlobalConnectorsEnum::SMART_TEST_LAUNCHES_ENABLE->value => [
             xl('Enable OpenEMR SMART ON FHIR Context Test Launches (Turn on only if you know what you are doing)'),
             'bool',
@@ -3307,6 +3343,40 @@ $GLOBALS_METADATA = [
             'bool',
             '1',
             xl('Enable an OAuth2 Client application to be configured to skip the login screen and the scope authorization screen if the user is already logged into the EHR.')
+        ],
+        GlobalConnectorsEnum::FHIR_PATIENT_WRITE_MODE->value => [
+            xl('Patient App FHIR Writes'),
+            [
+                PatientWriteMode::Off->value => xl('Off'),
+                PatientWriteMode::Confidential->value => xl('Confidential apps'),
+                PatientWriteMode::ConfidentialAndPublic->value => xl('Confidential and public apps'),
+            ],
+            PatientWriteMode::Off->value,
+            xl('Which patient apps may submit data through the FHIR API. Every submission is held for staff review and stays out of the chart until it is approved. Only QuestionnaireResponse is accepted in this version; the other types are refused whatever their setting.')
+        ],
+        GlobalConnectorsEnum::FHIR_PATIENT_WRITE_QUESTIONNAIRE_RESPONSE->value => [
+            xl('Patient App FHIR Writes: QuestionnaireResponse'),
+            'bool',
+            '0',
+            xl('Accept questionnaire responses from patient apps, held for staff review.')
+        ],
+        GlobalConnectorsEnum::FHIR_PATIENT_WRITE_VITAL_SIGNS->value => [
+            xl('Patient App FHIR Writes: Vital Signs'),
+            'bool',
+            '0',
+            xl('Accept vital sign Observations from patient apps, held for staff review. Not accepted yet in this version.')
+        ],
+        GlobalConnectorsEnum::FHIR_PATIENT_WRITE_ALLERGY_INTOLERANCE->value => [
+            xl('Patient App FHIR Writes: AllergyIntolerance'),
+            'bool',
+            '0',
+            xl('Accept allergies from patient apps, held for staff review. Not accepted yet in this version.')
+        ],
+        GlobalConnectorsEnum::FHIR_PATIENT_WRITE_CONDITION->value => [
+            xl('Patient App FHIR Writes: Condition'),
+            'bool',
+            '0',
+            xl('Accept conditions from patient apps, held for staff review. Not accepted yet in this version.')
         ],
         GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value => [
             xl('Maximum supported version for US Core FHIR Implementation Guide -- note if a resource/profile is forwards compatible it will still be supported'),
@@ -3600,7 +3670,7 @@ $GLOBALS_METADATA = [
         ],
 
         'ccda_alt_service_enable' => [
-            xl('Enable C-CDA Service'),
+            xl('Enable C-CDA Documents'),
             [
                 0 => xl('Off'),
                 1 => xl('Care Coordination Only'),
@@ -3608,7 +3678,7 @@ $GLOBALS_METADATA = [
                 3 => xl('Both'),
             ],
             '0',
-            xl('Enable C-CDA Service')
+            xl('Where C-CDA documents can be generated: the Care Coordination module, the patient portal, or both.')
         ],
 
         'phimail_enable' => [

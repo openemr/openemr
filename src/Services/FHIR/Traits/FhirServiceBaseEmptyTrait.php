@@ -18,7 +18,7 @@ use OpenEMR\Validators\ProcessingResult;
 
 trait FhirServiceBaseEmptyTrait
 {
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [];
     }
@@ -53,7 +53,12 @@ trait FhirServiceBaseEmptyTrait
         return;
     }
 
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    /**
+     * This is typed mixed because the FhirServiceBase has a docbock type
+     * that's incompatible with a couple of the implementations, and Rector L10
+     * types require _something_ to be present.
+     */
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): mixed
     {
         return null;
     }

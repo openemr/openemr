@@ -187,7 +187,7 @@ class LabCompendiumInstall
         return $returnValue;
     }
 
-    public static function getQuestionType($questionType)
+    public static function getQuestionType($questionType): string
     {
         /*
         text field = T

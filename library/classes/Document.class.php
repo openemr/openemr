@@ -430,7 +430,7 @@ class Document extends ORDataObject
      *                        otherwise every document object is returned
      * @return Document[]
      */
-    public function documents_factory($foreign_id = "")
+    public function documents_factory($foreign_id = ""): array
     {
         $documents = [];
 
@@ -462,7 +462,7 @@ class Document extends ORDataObject
      * @param string $foreign_reference_id The table record that this document references
      * @return Document[]
      */
-    public function documents_factory_for_foreign_reference(string $foreign_reference_table, $foreign_reference_id = "")
+    public function documents_factory_for_foreign_reference(string $foreign_reference_table, $foreign_reference_id = ""): array
     {
         $documents = [];
 
@@ -732,14 +732,14 @@ class Document extends ORDataObject
     /**
     * get the url filename only
     */
-    public function get_url_file()
+    public function get_url_file(): string
     {
         return basename_international(preg_replace("|^(.*)://|", "", (string) $this->url));
     }
     /**
     * get the url path only
     */
-    public function get_url_path()
+    public function get_url_path(): string
     {
         return dirname((string) preg_replace("|^(.*)://|", "", (string) $this->url)) . "/";
     }
@@ -978,7 +978,7 @@ class Document extends ORDataObject
         $foreign_reference_id = null,
         $foreign_reference_table = null,
         $eid = "",
-    ) {
+    ): string {
         if (
             !empty($foreign_reference_id) && empty($foreign_reference_table)
             || empty($foreign_reference_id) && !empty($foreign_reference_table)
@@ -1206,7 +1206,7 @@ class Document extends ORDataObject
      * @return string  Returns false if the encryption failed, otherwise it returns a string
      * @throws RuntimeException If the data cannot be decrypted
      */
-    public function decrypt_content($data)
+    public function decrypt_content($data): string
     {
         $cryptoGen = ServiceContainer::getCrypto();
         try {
@@ -1223,7 +1223,7 @@ class Document extends ORDataObject
      * @throws BadMethodCallException If you attempt to retrieve a document that is not stored on the file system
      * @throws RuntimeException if the filesystem file does not exist or content cannot be accessed.
      */
-    protected function get_content_from_filesystem()
+    protected function get_content_from_filesystem(): string
     {
         $path = $this->get_filesystem_filepath();
         if (empty($path)) {

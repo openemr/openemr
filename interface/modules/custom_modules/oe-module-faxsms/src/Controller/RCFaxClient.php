@@ -5,6 +5,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,6 +22,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxDocumentDisposalInterface;
 use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
+use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentAccessException;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
@@ -265,8 +268,10 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
         $fileName ??= pathinfo((string)$file, PATHINFO_BASENAME);
 
         $allowedTempDir = realpath($this->baseDir . '/send/');
-        // Validate file path to prevent path traversal
-        if (is_file($file)) {
+        // Validate file path to prevent path traversal. A patient document
+        // send names the document's own storage path, which is never under
+        // send/; it is read by document id below, so the path isn't used.
+        if (!$isDocuments && is_file($file)) {
             if (str_starts_with((string)$file, 'file://')) {
                 $file = substr((string)$file, 7);
             }
@@ -316,16 +321,25 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                 $fileName = pathinfo($stagedPath, PATHINFO_BASENAME);
             }
 
-            // Build $content (plaintext bytes for the vendor).
-            if ($isContent) {
+            // Build $content (plaintext bytes for the vendor). A document send
+            // is decided first: it skipped the send/ path check, so its `file`
+            // value must never become the payload, whatever other flags the
+            // request carries.
+            if ($isDocuments) {
+                // Enforce the document ACLs and patient ownership before
+                // reading a request-supplied document id.
+                try {
+                    $document = $this->readAuthorizedFaxDocument($docId);
+                } catch (FaxDocumentAccessException $e) {
+                    return $e->getMessage();
+                }
+                $content = $document['content'];
+                $fileName = $document['name'];
+            } elseif ($isContent) {
                 $content = $file;
                 $file = 'report-' . attr(OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
             } else {
-                if ($isDocuments) {
-                    // Enforce patients/docs ACL and patient ownership before
-                    // reading a request-supplied document id (see A3).
-                    $content = $this->readAuthorizedFaxDocument(is_scalar($docId) ? (int) $docId : 0);
-                } elseif (is_file($file)) {
+                if (is_file($file)) {
                     $content = file_get_contents($file);
                     if ($content === false) {
                         return xlt('Error: No content to send.');
@@ -346,12 +360,17 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
             // plaintext path (the staged-upload branch), it's emailed as
             // is; for the isContent / isDocuments branches we pass the
             // decrypted bytes and FaxMailer writes a per-request scratch
-            // file, returning that path for finally cleanup.
+            // file, returning that path for finally cleanup. A document
+            // send must never email the request's `file` value: it skipped
+            // the send/ path check above, so it could name any readable
+            // server file.
             $error = false;
             if ($hasEmail && $smtpEnabled) {
                 try {
-                    $payloadIsContent = !(is_string($file) && is_file($file));
-                    $emailPath = FaxMailer::mailUploadedDocument(
+                    $payloadIsContent = $isDocuments !== 0
+                        || (bool) $isContent
+                        || !(is_string($file) && is_file($file));
+                    $emailPath = $this->emailCopy(
                         $email,
                         $comments,
                         $payloadIsContent ? $content : $file,
@@ -382,6 +401,19 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
     }
 
     /**
+     * Email a copy of the fax payload (see FaxMailer::mailUploadedDocument).
+     * Overridable so a test can check what a send hands to the mailer.
+     *
+     * @param array<array-key, mixed> $user
+     * @return string|null The scratch file written for a content payload, for cleanup.
+     * @throws \PHPMailer\PHPMailer\Exception
+     */
+    protected function emailCopy(mixed $email, string $comments, mixed $payload, array $user, bool $payloadIsContent): ?string
+    {
+        return FaxMailer::mailUploadedDocument($email, $comments, $payload, $user, $payloadIsContent);
+    }
+
+    /**
      * @param $phone
      * @param $content
      * @param $fileName
@@ -392,17 +424,17 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
      */
     private function sendFaxRequest($phone, $content, $fileName = '', $comments = 'No Comment', $name = ''): void
     {
-        // Almost always $content is file content but lets check in case it is a file path
-        if (is_file($content)) {
-            $content = file_get_contents($content);
-        }
+        // $content is the payload bytes: sendFax() read a validated send/ file,
+        // an authorized document or inline content into it. It is never read
+        // as a path, even when it happens to name an existing file (a patient
+        // document can hold any text).
         try {
             $phone = $this->formatPhone($phone);
             $mime = FileUtils::fileGetMimeType($fileName, $content);
             $type = $mime['type'];
             $fileName = $mime['filePath'];
             if (empty($type)) {
-                $type = mime_content_type($content);
+                $type = (new \finfo(FILEINFO_MIME_TYPE))->buffer($content);
             }
             // RingCentral 400s when an attachment's filename extension does not
             // match its Content-Type. Tempnam-derived names (e.g. a Windows
@@ -1075,10 +1107,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
      */
     protected function index(): ?string
     {
-        if (!$this->getSession('pid', '')) {
-            $pid = $this->getRequest('patient_id');
-            $this->setSession('pid', $pid);
-        }
+        $this->openRequestedPatient();
 
         return null;
     }

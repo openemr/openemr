@@ -24,12 +24,15 @@ class PatientTransactionService extends BaseService
     const _formPredicate = 'd.form_id';
     const _transactionPredicate = 't.pid';
 
-    public function __construct()
+    /**
+     * @param ReferralTaskService $referralTaskService makes a saved referral's FHIR Task (#14710)
+     */
+    public function __construct(private readonly ReferralTaskService $referralTaskService = new ReferralTaskService(new UserService()))
     {
         parent::__construct(self::TABLE_NAME);
     }
 
-    public function getSelectStatement($predicateColumnName)
+    public function getSelectStatement($predicateColumnName): string
     {
 
         $criteriaItemsWhitelist = [
@@ -101,7 +104,7 @@ class PatientTransactionService extends BaseService
         ";
     }
 
-    private function getOneFromDb($tid)
+    private function getOneFromDb($tid): array
     {
 
         $sqlBindArray = [];
@@ -114,7 +117,7 @@ class PatientTransactionService extends BaseService
         return $records;
     }
 
-    public function getAll($pid)
+    public function getAll($pid): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         $sqlBindArray = [];
@@ -134,7 +137,7 @@ class PatientTransactionService extends BaseService
     public function insert($pid, $data)
     {
         try {
-            return QueryUtils::inTransaction(function () use ($pid, $data) {
+            $saved = QueryUtils::inTransaction(function () use ($pid, $data) {
                 $transactionId = $this->insertTransaction($pid, $data);
                 if ($transactionId == false) {
                     throw new PatientTransactionInsertFailedException('Failed to insert patient transaction');
@@ -150,6 +153,24 @@ class PatientTransactionService extends BaseService
         } catch (PatientTransactionInsertFailedException) {
             return false;
         }
+        $this->createReferralTask($saved['id']);
+        return $saved;
+    }
+
+    /**
+     * The referral's FHIR Task and its reply, when the fhir_referral_tasks global is on (#14710), made
+     * by the user of the service's session (setSession()), else of the active one. The referral is
+     * already committed, so a failure here is logged rather than thrown (afterSave()). It passes no
+     * Reply Date the save loaded: the REST API never writes the Reply Date, so its save never undoes
+     * a reply (ReferralTaskService::createForReferral()).
+     */
+    private function createReferralTask(mixed $transactionId): void
+    {
+        if (!is_numeric($transactionId)) {
+            return;
+        }
+        $userId = ($this->getSession() ?? SessionWrapperFactory::getInstance()->getActiveSession())->get('authUserID');
+        $this->referralTaskService->afterSave((int)$transactionId, is_numeric($userId) ? (int)$userId : null);
     }
 
     public function insertTransaction($pid, $data)
@@ -220,16 +241,11 @@ class PatientTransactionService extends BaseService
             $transactionId, $data["validThrough"],
         ];
 
-        $results = sqlInsert(
-            $sql,
-            $params
-        );
+        // lbt_data has no auto increment column, so sqlInsert()'s insert id is always 0.
+        // The rows are keyed by the transaction id; throws on failure.
+        QueryUtils::sqlStatementThrowException($sql, $params);
 
-        if (!$results) {
-            return false;
-        }
-
-        return $results;
+        return $transactionId;
     }
 
     public function update($tid, $data)
@@ -248,6 +264,9 @@ class PatientTransactionService extends BaseService
         $validThrough = $data["validThrough"];
 
         QueryUtils::inTransaction(function () use ($tid, $referById, $referToId, $body, $referralDate, $referralDiagnosis, $riskLevel, $includeVitals, $authorization, $visits, $validFrom, $validThrough): void {
+            // As the Transactions screen does on every save, so that the change shows as the
+            // referral's last update (the FHIR ServiceRequest's meta.lastUpdated and _lastUpdated).
+            QueryUtils::sqlStatementThrowException('UPDATE transactions SET date = NOW() WHERE id = ?', [$tid]);
             $this->updateTransactionForm($tid, 'refer_from', $referById);
             $this->updateTransactionForm($tid, 'refer_to', $referToId);
             $this->updateTransactionForm($tid, 'body', $body);
@@ -260,6 +279,7 @@ class PatientTransactionService extends BaseService
             $this->updateTransactionForm($tid, 'refer_validFrom', $validFrom);
             $this->updateTransactionForm($tid, 'refer_validThrough', $validThrough);
         });
+        $this->createReferralTask($tid);
 
         return $this->getOneFromDb($tid);
     }

@@ -29,6 +29,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$result in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/find_group_popup.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$result in isset\\(\\) always exists and is not nullable\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
 ];
 $ignoreErrors[] = [
@@ -110,11 +115,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$redirectUrl in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../portal/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$_POST in isset\\(\\) always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$ta1_icn in isset\\(\\) always exists and is not nullable\\.$#',

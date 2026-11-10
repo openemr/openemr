@@ -16,9 +16,17 @@
 require_once("../globals.php");
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
+
+// Chart-view page for the open patient; align the permission check with the
+// surrounding `patients/med` chart views.
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: External Data", xl("External Data"));
+}
 
 $records1 = [];
 $records2 = [];

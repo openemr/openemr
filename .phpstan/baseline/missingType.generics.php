@@ -167,16 +167,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/library/RsPopulation.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Class DataPage implements generic interface Iterator but does not specify its types\\: TKey, TValue$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class DataSet implements generic interface Iterator but does not specify its types\\: TKey, TValue$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ResourceScopeEntityList extends generic class ArrayObject but does not specify its types\\: TKey, TValue$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ResourceScopeEntityList.php',
@@ -185,26 +175,6 @@ $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Menu\\\\MenuItems extends generic class ArrayObject but does not specify its types\\: TKey, TValue$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G9_Certification\\\\CCDADocRefGenerationTest\\:\\:replaceRootIdForNodes\\(\\) has parameter \\$currentList1 with generic class DOMNodeList but does not specify its types\\: TNode$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G9_Certification\\\\CCDADocRefGenerationTest\\:\\:replaceRootIdForNodes\\(\\) has parameter \\$expectedList2 with generic class DOMNodeList but does not specify its types\\: TNode$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\Modules\\\\CareCoordination\\\\Model\\\\CcdaServiceDocumentRequestorTest\\:\\:replaceRootIdForNodes\\(\\) has parameter \\$currentList1 with generic class DOMNodeList but does not specify its types\\: TNode$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\Modules\\\\CareCoordination\\\\Model\\\\CcdaServiceDocumentRequestorTest\\:\\:replaceRootIdForNodes\\(\\) has parameter \\$expectedList2 with generic class DOMNodeList but does not specify its types\\: TNode$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -23,7 +23,7 @@
 
 class AMC_304h_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304h Numerator";
     }

@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -227,7 +229,7 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
     /**
      * @return string
      */
-    public function getCallLogs()
+    public function getCallLogs(): string
     {
         return xlt('Not Implemented');
     }
@@ -235,13 +237,10 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
     /**
      * @return null
      */
-    protected function index()
+    protected function index(): null
     {
         global $pid;
-        if (!$this->getSession('pid', '')) {
-            $pid_s = $this->getRequest('patient_id');
-            $this->setSession('pid', $pid ?: $pid_s);
-        }
+        $this->openRequestedPatient();
         if (empty($pid)) {
             $pid = $this->getSession('pid', '');
         }

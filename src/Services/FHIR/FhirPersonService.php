@@ -16,6 +16,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPerson;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -76,7 +77,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * Returns an array mapping FHIR Practitioner Resource search parameters to OpenEMR Practitioner search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             // not sure if this a token or not
@@ -119,9 +120,9 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['last_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $person->setMeta($meta);
 
@@ -199,7 +200,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRPerson) && !($fhirResource instanceof FHIRPractitioner)) {
             throw new \InvalidArgumentException(

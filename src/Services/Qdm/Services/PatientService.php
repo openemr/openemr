@@ -5,7 +5,7 @@
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
@@ -28,12 +28,7 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class PatientService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getPatientIdColumn()
-    {
-        return 'P.pid';
-    }
-
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
         $sql = "SELECT
                     P.pid,
@@ -67,7 +62,7 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public static function makeQdmIdentifier($namingSystem, $value)
+    public static function makeQdmIdentifier($namingSystem, $value): Identifier
     {
         return new Identifier(
             [
@@ -77,7 +72,7 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         );
     }
 
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): Patient
     {
         $record = $recordObj->getData();
         // Make a BSON-formatted ID that the CQM-execution service will preserve when results returned

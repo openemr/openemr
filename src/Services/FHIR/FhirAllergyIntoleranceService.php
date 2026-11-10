@@ -11,6 +11,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction;
@@ -64,7 +65,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      * Returns an array mapping FHIR AllergyIntolerance Resource search parameters to OpenEMR AllergyIntolerance search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -112,9 +113,9 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
         if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['modifydate']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['modifydate'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $allergyIntoleranceResource->setMeta($fhirMeta);
 
@@ -263,7 +264,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      * @param FHIRDomainResource $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRAllergyIntolerance)) {
             throw new \InvalidArgumentException(

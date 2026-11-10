@@ -89,9 +89,9 @@ class Form_Signable extends DbRow_Signable implements SignableIF
      * specific table. Then we get the row of data from the specific
      * form_* table.
      *
-     * @see \ESign\SignableIF::getData()
+     * @see SignableIF::getData()
      */
-    public function getData()
+    public function getData(): array
     {
       // Use default standards based on formdir value
       // Exceptions are specified in formdir_keys list

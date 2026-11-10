@@ -1,0 +1,26 @@
+{#
+  Tab links for the administration screens on the patient dashboard's Questionnaire
+  Assessments page: Document Templates, Availability and Import. Each shows only to a user
+  whose permissions the embedded screen also enforces. Panes are in admin_tab_panes.html.twig.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% if canUseTemplates %}
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="document-templates-tab" data-toggle="tab" href="#document-templates" role="tab" aria-controls="document-templates" aria-selected="false">{{ 'Document Templates'|xlt }}</a>
+    </li>
+{% endif %}
+{% if canManageAvailability %}
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="questionnaire-availability-tab" data-toggle="tab" href="#questionnaire-availability" role="tab" aria-controls="questionnaire-availability" aria-selected="false">{{ 'Availability'|xlt }}</a>
+    </li>
+{% endif %}
+{% if canImport %}
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="questionnaire-import-tab" data-toggle="tab" href="#questionnaire-import" role="tab" aria-controls="questionnaire-import" aria-selected="false">{{ 'Import'|xlt }}</a>
+    </li>
+{% endif %}

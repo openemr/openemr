@@ -50,7 +50,7 @@ class RuleCriteriaType
         return array_keys($map);
     }
 
-    private static function map()
+    private static function map(): array
     {
         $map = [
             self::ageMin => new RuleCriteriaType(self::ageMin, xl('Age min'), 'age_min'),

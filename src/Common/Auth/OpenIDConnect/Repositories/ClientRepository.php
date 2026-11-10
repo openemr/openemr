@@ -21,6 +21,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\HttpUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 
 class ClientRepository implements ClientRepositoryInterface
@@ -125,12 +126,12 @@ class ClientRepository implements ClientRepositoryInterface
         return $result !== false;
     }
 
-    public function generateClientId()
+    public function generateClientId(): string
     {
         return HttpUtils::base64url_encode(random_bytes(32));
     }
 
-    public function generateClientSecret()
+    public function generateClientSecret(): string
     {
         return HttpUtils::base64url_encode(random_bytes(64));
     }
@@ -298,15 +299,19 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setRegistrationDate($client_record['register_date']);
         $client->setSkipEHRLaunchAuthorizationFlow($client_record['skip_ehr_launch_authorization_flow'] == "1");
         $client->setDSIType(intval($client_record['dsi_type'] ?? 0));
+        $addressBookUuid = is_array($client_record) ? ($client_record['address_book_uuid'] ?? null) : null;
+        $client->setAddressBookUuid(is_string($addressBookUuid) && $addressBookUuid !== '' ? UuidRegistry::uuidToString($addressBookUuid) : null);
+        $grantTypes = is_array($client_record) ? ($client_record['grant_types'] ?? null) : null;
+        $client->setGrantTypes(is_string($grantTypes) || is_array($grantTypes) ? $grantTypes : null);
         return $client;
     }
 
-    public function generateRegistrationAccessToken()
+    public function generateRegistrationAccessToken(): string
     {
         return HttpUtils::base64url_encode(random_bytes(32));
     }
 
-    public function generateRegistrationClientUriPath()
+    public function generateRegistrationClientUriPath(): string
     {
         return HttpUtils::base64url_encode(random_bytes(16));
     }
@@ -324,6 +329,31 @@ class ClientRepository implements ClientRepositoryInterface
             throw new \RuntimeException("Failed to save oauth_clients skip_ehr_launch_authorization_flow flag.  Check logs for sql error");
         }
         return true;
+    }
+
+    /**
+     * @param list<string> $grantTypes
+     */
+    public function saveGrantTypes(ClientEntity $client, array $grantTypes): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE oauth_clients SET grant_types = ? WHERE client_id = ?",
+            [implode('|', $grantTypes), $client->getIdentifier()]
+        );
+        $client->setGrantTypes($grantTypes);
+    }
+
+    /**
+     * Limits a client to an address book entry's Tasks and referrals, or with null lifts that.
+     * It holds from the client's next request: the bearer check reads the client each time.
+     */
+    public function saveAddressBookUuid(ClientEntity $client, ?string $uuid): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE oauth_clients SET address_book_uuid = ? WHERE client_id = ?',
+            [$uuid === null ? null : UuidRegistry::uuidToBytes($uuid), $client->getIdentifier()]
+        );
+        $client->setAddressBookUuid($uuid);
     }
 
     public function remove(ClientEntity $clientEntity, bool $noLog = false)

@@ -104,7 +104,7 @@ class Note extends ORDataObject
     /**
      * Convenience function to generate string debug data about the object
      */
-    public function toString($html = false)
+    public function toString($html = false): string
     {
         $string = "\n"
         . "ID: " . $this->id . "\n"

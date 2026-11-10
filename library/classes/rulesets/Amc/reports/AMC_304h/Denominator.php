@@ -14,7 +14,7 @@
 
 class AMC_304h_Denominator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304h Denominator";
     }

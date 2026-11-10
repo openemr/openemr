@@ -141,6 +141,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit.xml
+        disable_search: true
         flags: isolated-php${{ matrix.php-version }}
         report_type: test_results
 
@@ -163,4 +164,5 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: clover.xml
+        disable_search: true
         flags: isolated-php${{ matrix.php-version }}

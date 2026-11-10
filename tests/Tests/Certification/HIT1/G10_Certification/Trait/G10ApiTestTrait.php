@@ -89,7 +89,7 @@ trait G10ApiTestTrait
 
     public static function teardownG10Test() {
         QueryUtils::sqlStatementThrowException("UPDATE globals SET `gl_value` = ? WHERE `gl_name` = ?"
-            , [GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value, self::$previousProfileValue]);
+            , [self::$previousProfileValue, GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]);
     }
 
     private static function buildIdMap(array $testGroups): void

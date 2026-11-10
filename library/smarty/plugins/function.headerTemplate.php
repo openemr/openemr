@@ -26,7 +26,7 @@ use OpenEMR\Core\Header;
  * @param array $params
  * @param mixed $smarty
  */
-function smarty_function_headerTemplate($params, &$smarty)
+function smarty_function_headerTemplate($params, &$smarty): string
 {
     $assets = [];
     if (!empty($params['assets'])) {

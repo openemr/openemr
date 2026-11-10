@@ -4,11 +4,6 @@ $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
 ];
 $ignoreErrors[] = [
@@ -139,11 +134,16 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/home.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../portal/import_template.php',
 ];
 $ignoreErrors[] = [

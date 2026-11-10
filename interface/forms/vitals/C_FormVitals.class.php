@@ -388,7 +388,7 @@ class C_FormVitals
         return $twig->render("vitals.html.twig", $data);
     }
 
-    private function get_interpretation_list_options()
+    private function get_interpretation_list_options(): array
     {
         $listService = new ListService();
         $options = $listService->getOptionsByListName(FormVitals::LIST_OPTION_VITALS_INTERPRETATION);
@@ -405,7 +405,7 @@ class C_FormVitals
         return $orderedList;
     }
 
-    private function get_interpretation_list_as_hash()
+    private function get_interpretation_list_as_hash(): array
     {
         $hashList = [];
         foreach ($this->interpretationsList as $option) {

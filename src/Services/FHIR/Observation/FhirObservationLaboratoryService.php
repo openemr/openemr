@@ -16,7 +16,9 @@ use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationReferenceRange;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
@@ -77,7 +79,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $this->service = $service;
     }
 
-    public function getResourcePathForCode($code)
+    public function getResourcePathForCode($code): string
     {
         return "category=" . self::CATEGORY . "&code=" . $code;
     }
@@ -89,7 +91,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         return $query_vars['code'] ?? null;
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return ($category === self::CATEGORY);
     }
@@ -105,7 +107,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
@@ -208,17 +210,16 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
      *
      * @param $dataRecord The source OpenEMR data record
      * @param $encode     Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRObservation
     {
         $observation = new FHIRObservation();
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['report_date'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['report_date']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['report_date'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         // setup our profiles
         $meta = $this->addProfilesToMeta([
@@ -231,7 +232,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $observation->setId($id);
 
         if (!empty($dataRecord['report_date'])) {
-            $observation->setEffectiveDateTime(UtilsService::getLocalDateAsUTC($dataRecord['report_date']));
+            $observation->setEffectiveDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['report_date'])));
         } else {
             $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }

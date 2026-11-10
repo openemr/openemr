@@ -18,7 +18,9 @@
 require_once(__DIR__ . "/../interface/globals.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Http\RequestTerminator;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,26 +29,44 @@ $type = $_GET['type'];
 $document_id = $_GET['doc_id'];
 $d = new Document($document_id);
 
+$ccrDisplaySession = SessionWrapperFactory::getInstance()->getActiveSession();
+$ccrDisplaySessionPid = (int) ($ccrDisplaySession->get('pid') ?? 0);
+$ccrDisplayDocPid = (int) $d->get_foreign_id();
+$ccrDisplayPatientAuthorized = false;
+if ($ccrDisplayDocPid > 0) {
+    if ($ccrDisplaySessionPid > 0) {
+        $ccrDisplayPatientAuthorized = $ccrDisplaySessionPid === $ccrDisplayDocPid;
+    } else {
+        $ccrDisplayPatientAuthorized = AclMain::aclCheckCore('patients', 'docs') !== false;
+    }
+}
 
 try {
     $twig = ServiceContainer::getTwig();
+    // The script runs in a legacy entry point whose output may already have
+    // been buffered by the time RequestTerminator wants to set a status.
+    // Emit the HTTP status with http_response_code() before any rendering so
+    // the deny path reaches the wire with the intended code instead of a 200.
     // can_access will check session if no params are passed.
-    if (!$d->can_access()) {
+    if (!$d->can_access() || !$ccrDisplayPatientAuthorized) {
+        http_response_code(Response::HTTP_UNAUTHORIZED);
         (new RequestTerminator())->respond(new Response(
-            $twig->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']),
+            $twig->render("error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']),
             Response::HTTP_UNAUTHORIZED,
         ));
     } elseif ($d->is_deleted()) {
+        http_response_code(Response::HTTP_NOT_FOUND);
         (new RequestTerminator())->respond(new Response(
-            $twig->render("templates/error/404.html.twig"),
+            $twig->render("error/404.html.twig"),
             Response::HTTP_NOT_FOUND,
         ));
     }
 
     $xml = $d->get_data();
     if (empty($xml)) {
+        http_response_code(Response::HTTP_NOT_FOUND);
         (new RequestTerminator())->respond(new Response(
-            $twig->render("templates/error/404.html.twig"),
+            $twig->render("error/404.html.twig"),
             Response::HTTP_NOT_FOUND,
         ));
     }
@@ -67,7 +87,7 @@ try {
     if (empty($content)) {
         // TODO: @adunsulag log the security error as someone is trying to do a remote file inclusion
         (new RequestTerminator())->respond(new Response(
-            $twig->render("templates/error/general_http_error.html.twig", ['statusCode' => 500, 'errorMessage' => 'System error occurred in processing content']),
+            $twig->render("error/general_http_error.html.twig", ['statusCode' => 500, 'errorMessage' => 'System error occurred in processing content']),
             Response::HTTP_INTERNAL_SERVER_ERROR,
         ));
     }

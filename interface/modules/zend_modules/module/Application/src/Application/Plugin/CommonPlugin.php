@@ -115,7 +115,10 @@ class CommonPlugin extends AbstractPlugin
         return $audit_master_id;
     }
 
-    public function getList($list_id, $selected = '', $opt = '')
+    /**
+     * @return array<int, non-empty-array<(literal-string & lowercase-string & non-falsy-string), mixed>>
+     */
+    public function getList($list_id, $selected = '', $opt = ''): array
     {
         $this->listenerObject = new Listener();
         $res = QueryUtils::fetchRecords("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title", [$list_id]);
@@ -154,7 +157,7 @@ class CommonPlugin extends AbstractPlugin
     * $this->escapeHtml() cannot be used in any files other than view.
     * This function will enable a user to use escapeHtml in any files like controller model etc.
     */
-    public static function escape($string)
+    public static function escape($string): string
     {
         return htmlspecialchars((string) $string, ENT_QUOTES);
     }

@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
+use OpenEMR\Common\Auth\OpenIDConnect\ClientGrantTypePolicy;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
@@ -25,6 +26,9 @@ use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWritableType;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteClientType;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWritePolicy;
 use OpenIDConnectServer\Repositories\ClaimSetRepositoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -65,8 +69,49 @@ class ScopeRepository implements ScopeRepositoryInterface
     {
         if (empty($this->serverScopeList)) {
             $this->serverScopeList = new ServerScopeListEntity();
+            $this->serverScopeList->setPatientWriteResources(array_map(
+                static fn (PatientWritableType $type): string => $type->fhirResourceType()->value,
+                $this->getPatientWritePolicy()->advertisedTypes(),
+            ));
         }
         return $this->serverScopeList;
+    }
+
+    /**
+     * Which patient app writes the site accepts, read each time so a change applies at once.
+     */
+    private function getPatientWritePolicy(): PatientWritePolicy
+    {
+        return PatientWritePolicy::fromGlobals(OEGlobalsBag::getInstance());
+    }
+
+    /**
+     * A patient write scope (patient/<Resource>.c or .u) is issued only to a kind of client the
+     * site's mode allows to write that type. The hold checks again on every request, so a token
+     * issued before the mode was turned down still can't write.
+     */
+    private function grantsPatientWriteScope(ScopeEntity $scope, ClientEntity $client, PatientWritePolicy $policy): bool
+    {
+        if ($scope->getContext() !== 'patient' || !$scope->isResourcePermissionScope()) {
+            return true;
+        }
+        // Only a scope that is nothing but create and update, on a type patient apps can write,
+        // is dropped: a scope can't be granted in part, and dropping one that also reads would
+        // take away the app's read access. The hold refuses the write on every request anyway.
+        $permissions = $scope->getPermissions()->getPermissionsAsArray();
+        $writesOnly = ($permissions['create'] || $permissions['update'])
+            && !$permissions['read'] && !$permissions['search'] && !$permissions['delete'];
+        $writableResources = array_map(
+            static fn (PatientWritableType $type): string => $type->fhirResourceType()->value,
+            PatientWritableType::cases(),
+        );
+        if (!$writesOnly || !in_array($scope->getResource(), $writableResources, true)) {
+            return true;
+        }
+        $clientType = in_array($client->isConfidential(), [true, 1, '1'], true)
+            ? PatientWriteClientType::Confidential
+            : PatientWriteClientType::Public;
+        return $policy->grantsWriteScope($clientType, $scope->getResource());
     }
 
 
@@ -103,7 +148,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             if (
                 !(
                     isset($this->validationScopes[$scopeLookupKey])
-                    && $this->validationScopes[$scopeLookupKey]->containsScope($scopeIdentifier)
+                    && $this->validationScopes[$scopeLookupKey]->grantsScope($scopeIdentifier)
                 )
             ) {
                 $this->getSystemLogger()->debug("ScopeRepository->getScopeEntityByIdentifier() scope requested does not exist in system", [
@@ -151,14 +196,19 @@ class ScopeRepository implements ScopeRepositoryInterface
         // we only let scopes that the client initially registered with through instead of whatever they request in
         // their grant.
         if ($clientEntity instanceof ClientEntity) {
-            $clientScopes = $clientEntity->getScopes();
+            $registeredScopes = $clientEntity->getScopes();
+            $clientScopes = is_array($registeredScopes) ? array_values(array_filter($registeredScopes, is_string(...))) : [];
             $clientValidatorArray = $this->buildScopeValidatorArray($clientScopes);
+            $grantTypePolicy = new ClientGrantTypePolicy();
+            $patientWritePolicy = $this->getPatientWritePolicy();
             foreach ($scopes as $scope) {
                 $scopeListNames[] = $scope->getIdentifier();
                 $lookupKey = $scope->getScopeLookupKey();
                 if (
                     isset($clientValidatorArray[$lookupKey])
-                    && $clientValidatorArray[$lookupKey]->containsScope($scope)
+                    && $clientValidatorArray[$lookupKey]->grantsScope($scope)
+                    && $grantTypePolicy->grantAllowsScope($grantType, $scope)
+                    && $this->grantsPatientWriteScope($scope, $clientEntity, $patientWritePolicy)
                 ) {
                     $finalizedScopes[] = $scope;
                     $finalizedScopeNames[] = $scope->getIdentifier();
@@ -201,7 +251,10 @@ class ScopeRepository implements ScopeRepositoryInterface
      * Method will qualify current scopes based on active FHIR resources.
      * Allowed permissions are validated from the default scopes and client role.
      *
-     * @return array
+     * Listeners of RestApiScopeEvent may contribute anything, so the result is narrowed to the
+     * scope strings here, at the boundary.
+     *
+     * @return list<string>
      */
     public function getCurrentSmartScopes(): array
     {
@@ -223,10 +276,13 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopesSupportedList = $scopesEvent->getScopes();
         }
 
-        return $scopesSupportedList;
+        return array_values(array_filter($scopesSupportedList, is_string(...)));
     }
 
-    // made public for now!
+    /**
+     * @param array<array-key, string|ScopeEntity> $currentServerScopes
+     * @return array<string, ResourceScopeEntityList> keyed by ScopeEntity::getScopeLookupKey()
+     */
     public function buildScopeValidatorArray(array $currentServerScopes): array
     {
         $scopeValidatorFactory = new ScopeValidatorFactory();
@@ -256,7 +312,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         $scope = ScopeEntity::createFromString($scope);
         if (empty($scope->getResource())) {
-            return $this->getServerScopeList()->lookupDescriptionForFullScopeString($scope);
+            // pass the scope string, not the entity: the lookup is keyed by identifier
+            return $this->getServerScopeList()->lookupDescriptionForFullScopeString($scope->getIdentifier());
         } elseif (!empty($scope->getOperation())) {
             return $this->lookupDescriptionForResourceOperation($scope);
         } else {
@@ -285,7 +342,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         if ($permissions->search) {
             $permissionStrings[] = xl("Search existing records");
         }
-        if ($permissions->search) {
+        if ($permissions->read) {
             $permissionStrings[] = xl("Access or retrieve an existing record");
         }
         $description = xl('Permission to do the following actions') . " " . implode(" ", $permissionStrings);
@@ -294,7 +351,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $description;
     }
 
-    private function lookupDescriptionForResourceOperation(ScopeEntity $scope)
+    private function lookupDescriptionForResourceOperation(ScopeEntity $scope): string
     {
         $resource = $scope->getResource();
         return match ($scope->getOperation()) {
@@ -315,6 +372,10 @@ class ScopeRepository implements ScopeRepositoryInterface
             ,'$swap-insurance' => match ($scope->getResource()) {
                 'insurance' => xl("Permission to swap the insurance position for a patient (such as primary and secondary insurance)"),
                 default => xl("Permission to swap the insurance for resource type") . " " . $resource,
+            }
+            ,'$run' => match ($scope->getResource()) {
+                'background_service' => xl("Permission to trigger execution of a named background service"),
+                default => xl("Permission to invoke the \$run operation on resource type") . " " . $resource,
             }
             ,default => throw new InvalidArgumentException("Unknown operation for scope: " . $scope->getOperation())
         };

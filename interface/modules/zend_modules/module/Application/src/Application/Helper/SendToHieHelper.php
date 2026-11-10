@@ -32,11 +32,10 @@ class SendToHieHelper extends \Laminas\View\Helper\AbstractHelper
    * @param String $controllerName Controller
    * @param String $actionName Action
    * @param Array $params Parameters to action
-   * @return Array
    * @author  Basil PT <basil@zhservices.com>
    **/
 
-    public function __invoke($layoutName, array $required_buttons, $send_via, $download_format = null)
+    public function __invoke($layoutName, array $required_buttons, $send_via, $download_format = null): string
     {
         $viewModel = $this->sendController->sendAction();
         $arr = $viewModel->getVariables();
@@ -46,7 +45,7 @@ class SendToHieHelper extends \Laminas\View\Helper\AbstractHelper
             $arr['download_format'] = $download_format;
         }
 
-        $this->getView()->layout('carecoordination/layout/encountermanager');
+        $this->getView()->layout($layoutName);
         echo $this->getView()->partial("application/sendto/send", $arr);
         return '';
     }

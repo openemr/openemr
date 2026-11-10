@@ -46,9 +46,8 @@ class ClinicalNotesService extends BaseService
      *
      * @param ISearchField[] $search Hashmap of string => ISearchField where the key is the field name of the search field
      * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
-     * @return ProcessingResult The results of the search.
      */
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         // because we can have two clinical note table options (one from contrib etc), we will return an empty search
         // result for now if the table does not conform to our CORE clinical_notes
@@ -399,7 +398,7 @@ class ClinicalNotesService extends BaseService
      * @param $code string
      * @return bool true if the code is valid, false otherwise
      */
-    public function isValidClinicalNoteCode($code)
+    public function isValidClinicalNoteCode($code): bool
     {
         // make it a LOINC code
         if (!str_contains((string) $code, ":")) {
@@ -426,7 +425,7 @@ class ClinicalNotesService extends BaseService
         return $this->getListAsSelectList($options);
     }
 
-    private function getListAsSelectList($optionsList)
+    private function getListAsSelectList($optionsList): array
     {
         if (empty($optionsList)) {
             return [];

@@ -82,13 +82,10 @@ class FallbackRouterTest extends TestCase
             'composer.lock' => ['/composer.lock'],
             'package.json' => ['/package.json'],
             'package-lock.json' => ['/package-lock.json'],
-            'nested package.json' => ['/ccdaservice/package.json'],
+            'nested package.json' => ['/interface/modules/custom_modules/oe-module-comlink-telehealth/public/assets/js/package.json'],
 
             // sites documents (sites/*/documents/.htaccess: Deny From All)
             'sites documents htaccess' => ['/sites/default/documents/.htaccess'],
-
-            // portal framework libs (portal/patient/fwk/libs/.htaccess: deny from all)
-            'portal fwk libs htaccess' => ['/portal/patient/fwk/libs/.htaccess'],
 
             // .inc.php files
             'inc.php file' => ['/library/sql.inc.php'],
@@ -129,6 +126,9 @@ class FallbackRouterTest extends TestCase
             'static css' => ['/public/assets/modified/dygraphs-2-0-0/dygraph.css'],
             'static js' => ['/public/assets/modified/dygraphs-2-0-0/dygraph.js'],
             'image' => ['/public/images/login-logo-svg'],
+            // Under a rewritten prefix: served as files, not sent to portal/patient/index.php.
+            'portal patient script' => ['/portal/patient/scripts/portal-api.js'],
+            'portal patient app script' => ['/portal/patient/scripts/app/patientdata.js'],
         ];
     }
 
@@ -303,9 +303,9 @@ class FallbackRouterTest extends TestCase
         $installRoot = self::getInstallRoot();
         $router = new FallbackRouter($installRoot, new NullLogger());
 
-        // /portal/patient/fwk/libs is blocked AND has no index.php
+        // /bin is blocked AND has no index.php
         $this->expectException(NotFoundHttpException::class);
-        $router->performLegacyRouting($this->createRequest('/portal/patient/fwk/libs'));
+        $router->performLegacyRouting($this->createRequest('/bin'));
     }
 
     public function testRewriteRulePathWithoutSlashRoutesCorrectly(): void

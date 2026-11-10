@@ -13,8 +13,11 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\ConditionService;
+use OpenEMR\Services\PatientService;
+use OpenEMR\Validators\ProcessingResult;
 
 #[OA\Schema(
     schema: 'api_medical_problem_request',
@@ -269,7 +272,30 @@ class ConditionRestController
     public function put($puuid, $uuid, $data)
     {
         $filteredData = $this->conditionService->filterData($data, self::WHITELISTED_FIELDS);
-        $processingResult = $this->conditionService->update($uuid, $filteredData);
+        // Resolve the path puuid to a pid and pass it as $expectedPatientId so the
+        // service's compartment check runs: a leaked condition uuid supplied under
+        // one patient's path must not update a row belonging to another patient.
+        // Mirrors how AppointmentRestController::getOneScopedByPatient scopes by pid.
+        $expectedPatientId = null;
+        if (is_string($puuid) && UuidRegistry::isValidStringUUID($puuid)) {
+            $puuidBytes = UuidRegistry::uuidToBytes($puuid);
+            $resolvedPid = (new PatientService())->getPidByUuid($puuidBytes);
+            if (is_numeric($resolvedPid)) {
+                $expectedPatientId = (int) $resolvedPid;
+            }
+        }
+        // Reject at the controller when the path puuid is malformed or names no
+        // existing patient. The service's compartment check only runs when
+        // $expectedPatientId !== null, so passing null here would bind the UPDATE
+        // under the row's own pid and let a crafted path still mutate another
+        // patient's row. Reporting as not-found rather than invalid-uuid matches
+        // the service's shape and does not confirm whether a given puuid exists.
+        if ($expectedPatientId === null) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'Condition not found']);
+        } else {
+            $processingResult = $this->conditionService->update($uuid, $filteredData, $expectedPatientId);
+        }
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 

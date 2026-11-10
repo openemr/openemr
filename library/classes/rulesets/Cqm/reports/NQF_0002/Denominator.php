@@ -24,7 +24,7 @@
 
 class NQF_0002_Denominator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Denominator";
     }

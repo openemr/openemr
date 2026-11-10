@@ -10,11 +10,13 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2021-2025 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -350,7 +352,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         }
 
         async function toInsurance(type, pid, pubpid, pname, enc, datestr, dobstr, enc_pid_array, enc_date_array, cal_cat_array) {
-            patUrl = 'patient_file/summary/insurance_edit.php?set_pid=' + encodeURIComponent(pid);
+            const patParams = new URLSearchParams({set_pid: pid, csrf_token_form: top.csrf_token_js});
+            patUrl = 'patient_file/summary/insurance_edit.php?' + patParams;
             pid = parseInt(pid, 10);
             // Restore the session (getSessionValue calls restoreSession()) and load the encounter
             let curpid = parseInt(await top.getSessionValue('pid'));
@@ -368,7 +371,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 if (curpid == pid) {
                     await parent.asyncLoadFrame('dem1', 'pat', patUrl);
                 }
-                await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
+                const encParams = new URLSearchParams({pid: pid, csrf_token_form: top.csrf_token_js});
+                await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?' + encParams);
                 await parent.activateTabByName('pat', true);
 
             } catch (error) {
@@ -380,7 +384,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             top.restoreSession();
             const params = new URLSearchParams({
                 set_encounterid: enc,
-                set_pid: newpid
+                set_pid: newpid,
+                csrf_token_form: top.csrf_token_js
             });
             top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?" + params;
         }
@@ -394,7 +399,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 formname: 'misc_billing_options',
                 id: mboid,
                 isBilling: '1',
-                pid: pid
+                pid: pid,
+                csrf_token_form: top.csrf_token_js
             });
             const href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/interface/patient_file/encounter/view_form.php?" + params;
             dlgopen(href, 'mbopop', 'modal-lg', 750, false, '', {
@@ -409,7 +415,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             top.restoreSession();
             const params = new URLSearchParams({
                 enc: enc,
-                pid: pid
+                pid: pid,
+                csrf_token_form: top.csrf_token_js
             });
             const href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/interface/billing/ub04_form.php?" + params;
             dlgopen(href, 'ub04pop', 1175, 750, false, '', {
@@ -918,8 +925,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     </colgroup>
                     <?php
                     $divnos = 0;
-                    if ($ret = BillingReport::getBillsBetween("%")) {
-                        if (is_array($ret)) { ?>
+                    if ($ret = BillingReport::getBillsBetween("%")) { ?>
                     <tr>
                         <td class="text-right" colspan='<?php echo attr($colCount); ?>'>
                             <table>
@@ -938,7 +944,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             </table>
                         </td>
                     </tr>
-                    <?php } ?>
 
                         <?php
                         $loop = 0;

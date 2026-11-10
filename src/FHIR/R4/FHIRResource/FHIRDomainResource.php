@@ -125,7 +125,7 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      * These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, and nor can they have their own independent transaction scope.
      * @return array
      */
-    public function getContained()
+    public function getContained(): array
     {
         if (count($this->contained) > 0) {
             $resources = [];

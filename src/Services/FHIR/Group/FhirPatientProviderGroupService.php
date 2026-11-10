@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\Group;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGroup;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRGroup\FHIRGroupMember;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -42,7 +43,7 @@ class FhirPatientProviderGroupService extends FhirServiceBase implements IPatien
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -65,15 +66,15 @@ class FhirPatientProviderGroupService extends FhirServiceBase implements IPatien
         return $this->service->searchPatientProviderGroups($openEMRSearchParameters);
     }
 
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRGroup
     {
         $fhirGroup = new FHIRGroup();
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
         if (!empty($dataRecord['last_modified_date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_modified_date']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_modified_date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $fhirGroup->setMeta($fhirMeta);
 

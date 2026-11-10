@@ -279,7 +279,7 @@ class UserVideoRegistrationRequest
         ];
     }
 
-    private function getArrayRole()
+    private function getArrayRole(): string
     {
         if ($this->isPatient) {
             return 'patient';

@@ -43,6 +43,10 @@ class InsuranceCompanyServiceTest extends TestCase
         foreach ($this->createdIds as $id) {
             QueryUtils::fetchRecordsNoLog("DELETE FROM `addresses` WHERE `foreign_id` = ?", [$id]);
             QueryUtils::fetchRecordsNoLog("DELETE FROM `phone_numbers` WHERE `foreign_id` = ?", [$id]);
+            QueryUtils::fetchRecordsNoLog(
+                "DELETE FROM `uuid_registry` WHERE `table_name` = 'insurance_companies' AND `uuid` = (SELECT `uuid` FROM `insurance_companies` WHERE `id` = ?)",
+                [$id]
+            );
             QueryUtils::fetchRecordsNoLog("DELETE FROM `insurance_companies` WHERE `id` = ?", [$id]);
         }
     }
@@ -138,6 +142,25 @@ class InsuranceCompanyServiceTest extends TestCase
         $this->assertNull($address);
     }
 
+    /**
+     * insert() stores no fax: POST /api/insurance_company never has, and a fax it stored
+     * unchecked would be an empty row for a number outside North America. The FHIR insurer
+     * path stores its fax itself, once it has checked it.
+     */
+    #[Test]
+    public function testInsertDoesNotStoreAFax(): void
+    {
+        $data = $this->getTestData();
+        $data['fax'] = '+44 20 7946 0958';
+
+        /** @var int|string $id */
+        $id = $this->service->insert($data);
+        $this->createdIds[] = $id;
+
+        $phoneRows = QueryUtils::fetchRecordsNoLog("SELECT `id` FROM `phone_numbers` WHERE `foreign_id` = ?", [$id]);
+        $this->assertSame([], $phoneRows);
+    }
+
     #[Test]
     public function testUpdateModifiesInsuranceCompany(): void
     {
@@ -202,6 +225,19 @@ class InsuranceCompanyServiceTest extends TestCase
         $this->assertEquals($id, $result['id']);
         $this->assertEquals('test-fixture-Service Test Insurance', $result['name']);
         $this->assertEquals('88888', $result['cms_id']);
+    }
+
+    #[Test]
+    public function testGetOneByIdReturnsJsonEncodableUuid(): void
+    {
+        $id = $this->insertAndTrack();
+
+        $result = $this->service->getOneById($id);
+
+        $this->assertIsArray($result);
+        $this->assertIsString($result['uuid']);
+        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $result['uuid']);
+        $this->assertNotFalse(json_encode($result));
     }
 
     #[Test]

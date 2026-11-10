@@ -40,7 +40,7 @@ class ReminderIntervals
         $this->detailMap[$detail->intervalType->code] = $details;
     }
 
-    public function getTypes()
+    public function getTypes(): array
     {
         $types = [];
         foreach (array_keys($this->detailMap) as $code) {
@@ -73,7 +73,7 @@ class ReminderIntervals
         return null;
     }
 
-    public function displayDetails($type)
+    public function displayDetails($type): string
     {
         $details = $this->getDetailFor($type);
         $display = "";

@@ -53,7 +53,10 @@ class PhoneNumberService extends BaseService
         return $validator->validate($phoneNumber);
     }
 
-    public function insert($data, $foreignId)
+    /**
+     * @param ?PhoneType $type the number's type; null stores it as $this->type (work, unless set)
+     */
+    public function insert($data, $foreignId, ?PhoneType $type = null): int
     {
         $freshId = $this->getFreshId("id", "phone_numbers");
         $this->foreignId = $foreignId;
@@ -77,7 +80,7 @@ class PhoneNumberService extends BaseService
                 $this->area_code,
                 $this->prefix,
                 $this->number,
-                $this->type,
+                $type->value ?? $this->type,
                 $this->foreignId
             ]
         );

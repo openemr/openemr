@@ -22,6 +22,8 @@ class SearchFieldStatementResolver
 {
     const MAX_NESTED_LEVEL = 10;
 
+    private const LITERAL_LIKE_ESCAPE = '!';
+
     /**
      * Given a search field that implements the ISearchField interface, convert the field based upon its type to a full
      * SQL Where Query fragment with its corresponding bound parameterized values.  This is a recursive method as it will
@@ -78,9 +80,8 @@ class SearchFieldStatementResolver
      * Given a DateSearchField with a list of SearchFieldComparableValue objects in the search field a SQL query fragment
      * is generated that handles the date field searching.
      * @param DateSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveDateField(DateSearchField $searchField)
+    public static function resolveDateField(DateSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -199,9 +200,8 @@ class SearchFieldStatementResolver
      * TODO: adunsulag this seems like a lot of duplicate code similar to the resolveTokenField... reference doesn't have
      * the modifiers like the token does so I'm not sure if we keep this duplicative code here or not.
      * @param ReferenceSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveReferenceField(ReferenceSearchField $searchField)
+    public static function resolveReferenceField(ReferenceSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -231,9 +231,8 @@ class SearchFieldStatementResolver
     /**
      * Resolves a TokenSearchField to its corresponding value.
      * @param TokenSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveTokenField(TokenSearchField $searchField)
+    public static function resolveTokenField(TokenSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -245,16 +244,22 @@ class SearchFieldStatementResolver
         $modifier = $searchField->getModifier(); // we aren't going to deal with modifiers just yet
         $values = $searchField->getValues();
         $clauses = [];
+        if ($modifier === SearchModifier::MISSING && count($values) !== 1) {
+            throw new SearchFieldException($field, "the missing modifier takes one value, true or false");
+        }
 
         foreach ($values as $value) {
             /** @var TokenSearchValue $value  */
 
             if ($modifier === SearchModifier::MISSING) {
+                if ($value->getSystem() !== null) {
+                    throw new SearchFieldException($field, "the missing modifier takes true or false, without a system");
+                }
                 // On MySQL 8, CAST(col AS CHAR) of a binary uuid that is not valid UTF-8 is cut at the
                 // first invalid byte (often to '') with the sql_mode OpenEMR sets, or NULL in strict
                 // mode, so the uuid looked missing. A value whose bytes are not all spaces is never
                 // missing; every value the CHAR cast can read compares exactly as before.
-                if ($value->getCode() === false) {
+                if (!self::isMissingRequested($field, $value->getCode())) {
                     // often our tokens get treated as string values so we will do this here also
                     $clauses[] = "(" . $field . " IS NOT NULL AND (CAST(" . $field . " AS CHAR) != ''"
                         . " OR TRIM(CAST(" . $field . " AS BINARY)) != '')) ";
@@ -304,11 +309,24 @@ class SearchFieldStatementResolver
     }
 
     /**
+     * A FHIR request sends :missing as the string 'true' or 'false', and internal callers pass a boolean or null.
+     * Search values are not typed, so the match narrows the value here.
+     * @throws SearchFieldException for any other value
+     */
+    public static function isMissingRequested(string $field, mixed $value): bool
+    {
+        return match ($value) {
+            true, 'true', null => true,
+            false, 'false' => false,
+            default => throw new SearchFieldException($field, "the missing modifier must be true or false"),
+        };
+    }
+
+    /**
      * Given a search field and any modifier's it may have it converts it to the corresponding SearchQueryFragment
      * @param StringSearchField $searchField
-     * @return SearchQueryFragment
      */
-    public static function resolveStringSearchField(StringSearchField $searchField)
+    public static function resolveStringSearchField(StringSearchField $searchField): SearchQueryFragment
     {
         $field = self::assertValidFieldIdentifier($searchField);
 
@@ -320,20 +338,37 @@ class SearchFieldStatementResolver
         $searchFragment = new SearchQueryFragment();
         $modifier = $searchField->getModifier();
         $values = $searchField->getValues();
+        if ($modifier === SearchModifier::MISSING && count($values) !== 1) {
+            throw new SearchFieldException($field, "the missing modifier takes one value, true or false");
+        }
 
         foreach ($values as $value) {
+            if ($modifier === SearchModifier::MISSING) {
+                $clauses[] = self::isMissingRequested($field, $value)
+                    ? "(" . $field . " IS NULL OR " . $field . " = '')"
+                    : "(" . $field . " IS NOT NULL AND " . $field . " != '')";
+                continue;
+            }
             $result = match ($modifier) {
-                SearchModifier::PREFIX => [$field . ' LIKE ?', $value . '%'],
-                SearchModifier::SUFFIX => [$field . ' LIKE ?', '%' . $value],
-                SearchModifier::CONTAINS => [$field . ' LIKE ?', '%' . $value . '%'],
-                SearchModifier::EXACT => ["BINARY " . $field . ' = ?', $value],
-                SearchModifier::NOT_EQUALS_EXACT => ["BINARY " . $field . ' != ?', $value],
+                SearchModifier::PREFIX => [self::likeClause($searchField, $field), [self::likeValue($searchField, $value) . '%']],
+                SearchModifier::SUFFIX => [self::likeClause($searchField, $field), ['%' . self::likeValue($searchField, $value)]],
+                SearchModifier::CONTAINS => [self::likeClause($searchField, $field), ['%' . self::likeValue($searchField, $value) . '%']],
+                // BINARY on the column keeps the match exact (case, trailing spaces, accents) but
+                // stops the database from using the column's index. A field that asks for it
+                // (usesIndex()) adds the plain comparison, which lets the index find the rows;
+                // BINARY then keeps only the exact match, so the result is the same.
+                SearchModifier::EXACT => $searchField->usesIndex()
+                    ? ['(' . $field . ' = ? AND BINARY ' . $field . ' = ?)', [$value, $value]]
+                    : ['BINARY ' . $field . ' = ?', [$value]],
+                SearchModifier::NOT_EQUALS_EXACT => ["BINARY " . $field . ' != ?', [$value]],
                 default => null,
             };
             if ($result !== null) {
                 [$clause, $bound] = $result;
                 $clauses[] = $clause;
-                $searchFragment->addBoundValue($bound);
+                foreach ($bound as $boundValue) {
+                    $searchFragment->addBoundValue($boundValue);
+                }
             }
         }
         if (count($clauses) > 1) {
@@ -346,11 +381,32 @@ class SearchFieldStatementResolver
     }
 
     /**
+     * A literal string field names its own LIKE escape character, so the match does not depend on MySQL's
+     * default backslash escape, which NO_BACKSLASH_ESCAPES turns off. Other callers keep the plain LIKE.
+     */
+    private static function likeClause(StringSearchField $searchField, string $field): string
+    {
+        return $field . ' LIKE ?' . ($searchField->isLiteral() ? " ESCAPE '" . self::LITERAL_LIKE_ESCAPE . "'" : '');
+    }
+
+    /**
+     * Escapes the LIKE wildcards and the escape character in a value of a literal string field.
+     */
+    private static function likeValue(StringSearchField $searchField, mixed $value): mixed
+    {
+        if (!$searchField->isLiteral() || !is_string($value)) {
+            return $value;
+        }
+        $escape = self::LITERAL_LIKE_ESCAPE;
+        return strtr($value, [$escape => $escape . $escape, '%' => $escape . '%', '_' => $escape . '_']);
+    }
+
+    /**
      * Retrieves the date search field date format that should be used for the type of date.
      * @param $dateType
      * @return string
      */
-    public static function getDateFieldFormatForDateType($dateType)
+    public static function getDateFieldFormatForDateType($dateType): string
     {
         $format = "Y-m-d H:i:s.u"; // default format is datetime
         if ($dateType == DateSearchField::DATE_TYPE_DATE) {
@@ -368,7 +424,7 @@ class SearchFieldStatementResolver
     private static function adjustTimezoneToLocalTime(\DateTimeInterface $dateTime)
     {
         if ($dateTime instanceof \DateTimeImmutable || $dateTime instanceof \DateTime) {
-            $dateTime->setTimezone(new \DateTimeZone(date('P')));
+            $dateTime->setTimezone(new \DateTimeZone(date_default_timezone_get()));
         }
 
         // either we return the original date, or we return the locally formatted timezone date.

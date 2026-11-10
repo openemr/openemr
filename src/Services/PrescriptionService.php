@@ -72,10 +72,8 @@ class PrescriptionService extends BaseService
      *
      * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
      */
-    public function getAll(array $search = [], $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true): ProcessingResult
     {
         // Three caller shapes reach here:
         //   - REST /api/prescription list: passes `patient.uuid` as a bare

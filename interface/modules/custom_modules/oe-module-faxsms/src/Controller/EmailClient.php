@@ -165,14 +165,9 @@ class EmailClient extends AppDispatch implements EmailChannelInterface
     /**
      * @return null
      */
-    protected function index()
+    protected function index(): null
     {
-        if (!$this->getSession('pid', '')) {
-            $pid = $this->getRequest('patient_id');
-            $this->setSession('pid', $pid);
-        } else {
-            $pid = $this->getSession('pid', '');
-        }
+        $this->openRequestedPatient();
 
         return null;
     }
@@ -198,7 +193,7 @@ class EmailClient extends AppDispatch implements EmailChannelInterface
     /**
      * @return string
      */
-    public function getCallLogs()
+    public function getCallLogs(): string
     {
         return xlt('Not Implemented');
     }

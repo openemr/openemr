@@ -9,10 +9,12 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -26,6 +28,7 @@ use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
@@ -122,7 +125,7 @@ function generate_html_middle(): void
     posted_to_hidden('clearPass');
 }
 
-function generate_html_end()
+function generate_html_end(): int
 {
     // to be safe, remove clearPass from memory now (if it is not empty yet)
     if (!empty($_POST["clearPass"])) {
@@ -446,11 +449,12 @@ if ($is_expired) {
 } elseif (!empty($_POST['patientID'])) {
     // Patient is open, so add this to the list of tabs, at the end
     $patientID = (int) $_POST['patientID'];
-    $_notes = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
+    $dashboardQuery = ['set_pid' => $patientID];
     if (!empty($_POST['encounterID'])) {
-        $encounterID = (int) $_POST['encounterID'];
-        $_notes = $_notes . "&set_encounterid=" . attr_url($encounterID);
+        $dashboardQuery['set_encounterid'] = (int) $_POST['encounterID'];
     }
+    $dashboardQuery['csrf_token_form'] = CsrfUtils::collectCsrfToken(session: $session);
+    $_notes = '../patient_file/summary/demographics.php?' . http_build_query($dashboardQuery);
     $_tabs[] = [
         'notes' => $_notes,
         'id' => "pat",
@@ -477,6 +481,13 @@ if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
 // Pass a unique token, so main.php script can not be run on its own
 $tokenMainPhp = RandomGenUtils::createUniqueToken();
 $session->set('token_main_php', $tokenMainPhp);
-header('Location: ' . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/tabs/main.php?token_main=" . urlencode($tokenMainPhp));
+// The previous acceptance time belongs to the previous token.
+SessionUtil::unsetSession('token_main_php_at');
+$siteId = $session->get('site_id');
+header(
+    'Location: ' . OEGlobalsBag::getInstance()->getWebRoot() .
+    "/interface/main/tabs/main.php?token_main=" . urlencode($tokenMainPhp) .
+    "&site=" . urlencode(is_string($siteId) ? $siteId : '')
+);
 exit();
 ?>

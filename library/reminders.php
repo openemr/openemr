@@ -203,7 +203,7 @@ function update_reminders_batch_method($dateTarget = '', $batchSize = 25, $repor
  * @param int $batchSize number of patients to batch (when batching process)
  * @return array                 see above for data structure of returned array
  */
-function update_reminders($dateTarget = '', $patient_id = '', $start = null, $batchSize = null)
+function update_reminders($dateTarget = '', $patient_id = '', $start = null, $batchSize = null): array
 {
 
     $logging = [];
@@ -339,7 +339,7 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
  *
  * @return array                 see above for data structure of returned array
  */
-function send_reminders()
+function send_reminders(): array
 {
 
     $logging = [];

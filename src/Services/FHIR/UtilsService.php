@@ -16,6 +16,8 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\ORDataObject\ContactAddress;
+use OpenEMR\Cqm\Cql\Ucum\Ucum;
+use OpenEMR\Cqm\Cql\Util\JavaScript;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
@@ -29,6 +31,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -36,6 +40,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -44,7 +50,18 @@ class UtilsService
     const UNKNOWNABLE_CODE_NULL_FLAVOR = "UNK";
     const UNKNOWNABLE_CODE_DATA_ABSENT = "unknown";
 
-    public static function createRelativeReference($type, $uuid, $displayName = null)
+    /**
+     * Unit titles in OpenEMR's lists (Drug Units) whose UCUM code is spelled differently.
+     */
+    private const UCUM_ALIASES = [
+        'mcg' => 'ug',
+        'grams' => 'g',
+    ];
+
+    /** @var array<string, ?string> each trimmed unit's UCUM code, or null, once asked */
+    private static array $ucumCodes = [];
+
+    public static function createRelativeReference($type, $uuid, $displayName = null): FHIRReference
     {
         $reference = new FHIRReference();
         $reference->setType($type);
@@ -69,7 +86,7 @@ class UtilsService
         return $canonical;
     }
 
-    public static function parseCanonicalUrl(?string $url)
+    public static function parseCanonicalUrl(?string $url): array
     {
         $parsed_url = [
             'localResource' => false
@@ -117,21 +134,55 @@ class UtilsService
         return $uuid;
     }
 
-    public static function createQuantity($value, $unit, $code): FHIRQuantity
+    public static function createQuantity(mixed $value, mixed $unit, mixed $code): FHIRQuantity
     {
         $quantity = new FHIRQuantity();
-        // if there is no code provided we should not populate it nor the unit value
-        // that way it becomes a SimpleQuantity variant of Quantity
-        if (!empty($unit)) {
-            $quantity->setUnit($unit);
-            // only set the code if we have a unit as the unit is the textual display of the coded unit
-            if (!empty($code)) {
-                $quantity->setCode($code);
+        // With no unit, a SimpleQuantity. The unit's text whenever there is one, and UCUM's system and
+        // code only for a code UCUM accepts: receivers trust the system, and units such as MG/DL or
+        // tablet are not UCUM. A unit of 0 was left off before (empty()), and still is.
+        $unitText = is_string($unit) ? JavaScript::trim($unit) : '';
+        if ($unitText !== '' && $unitText !== '0') {
+            $quantity->setUnit(new FHIRString($unitText));
+            $ucumCode = self::ucumCodeFor($code);
+            if ($ucumCode !== null) {
+                $quantity->setCode(new FHIRCode($ucumCode));
+                $quantity->setSystem(new FHIRUri(FhirCodeSystemConstants::UNITS_OF_MEASURE));
             }
-            $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
         }
         $quantity->setValue($value);
         return $quantity;
+    }
+
+    /**
+     * The UCUM code for a unit, or null when it isn't one: the unit without spaces around it, when
+     * core's UCUM engine accepts it, else its UCUM spelling ("mcg" is ug, "grams" is g). Codes are
+     * case-sensitive (mg/dL is UCUM, MG/DL is not); the two aliases match in any case.
+     * createQuantity(), an immunization's dose (DoseUnit) and HL7 v2's RXA-7 read units by this rule;
+     * DoseUnit also refuses a bare number, which as a dose's unit is an option id.
+     */
+    public static function ucumCodeFor(mixed $unit): ?string
+    {
+        if (!is_string($unit)) {
+            return null;
+        }
+        // Trimmed as the engine trims, so a code never goes out with spaces under UCUM's system.
+        $unit = JavaScript::trim($unit);
+        if ($unit === '') {
+            return null;
+        }
+        // Kept per unit, as Cql's Units::checkUnit() keeps its answers: a unit the engine refuses costs a full
+        // parse, and an Observation with a range asks three times.
+        if (!array_key_exists($unit, self::$ucumCodes)) {
+            $ucum = Ucum::instance();
+            self::$ucumCodes[$unit] = null;
+            foreach ([$unit, self::UCUM_ALIASES[strtolower($unit)] ?? null] as $candidate) {
+                if ($candidate !== null && $ucum->isValid($candidate)) {
+                    self::$ucumCodes[$unit] = $candidate;
+                    break;
+                }
+            }
+        }
+        return self::$ucumCodes[$unit];
     }
 
     public static function createCoding($code, $display, $system): FHIRCoding
@@ -165,20 +216,35 @@ class UtilsService
         return $diagnosisCode;
     }
 
-    public static function createDataMissingExtension()
+    /**
+     * An element that holds only a data-absent-reason extension, to pass as the value of a
+     * missing element, e.g. $resource->setSubject(UtilsService::createDataMissingExtension()).
+     * The returned object serializes as {"extension": [<data-absent-reason>]} and has no url
+     * itself, so don't add it to another element's extensions; use
+     * createDataAbsentReasonExtension() for that.
+     * @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
+     */
+    public static function createDataMissingExtension(): FHIRExtension
     {
-        // @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
-        // for some reason in order to get this to work we have to wrap our inner exception
-        // into an outer exception.  This might be just a PHPism with the way JSON encodes things
-        $extension = new FHIRExtension();
-        $extension->setUrl(FhirCodeSystemConstants::DATA_ABSENT_REASON_EXTENSION);
-        $extension->setValueCode(new FHIRCode("unknown"));
         $outerExtension = new FHIRExtension();
-        $outerExtension->addExtension($extension);
+        $outerExtension->addExtension(self::createDataAbsentReasonExtension());
         return $outerExtension;
     }
 
-    public static function getExtensionsByUrl($url, $object)
+    /**
+     * The data-absent-reason extension with the code "unknown", for adding to an element's
+     * extensions, e.g. $reference->addExtension(UtilsService::createDataAbsentReasonExtension()).
+     * @see http://hl7.org/fhir/us/core/general-guidance.html#missing-data
+     */
+    public static function createDataAbsentReasonExtension(): FHIRExtension
+    {
+        $extension = new FHIRExtension();
+        $extension->setUrl(FhirCodeSystemConstants::DATA_ABSENT_REASON_EXTENSION);
+        $extension->setValueCode(new FHIRCode("unknown"));
+        return $extension;
+    }
+
+    public static function getExtensionsByUrl($url, $object): array
     {
         if (method_exists($object, 'getExtension')) {
             $extensions = $object->getExtension();
@@ -222,7 +288,7 @@ class UtilsService
                 $date = new \DateTime('now', new \DateTimeZone(date('P')));
             }
             // TODO: look into why we use RFC3339_EXTENDED here instead of DATE_ATOM like other places
-            $addressPeriod->setStart($date->format(\DateTime::RFC3339_EXTENDED));
+            $addressPeriod->setStart(new FHIRDateTime($date->format(\DateTime::RFC3339_EXTENDED)));
         } else {
             // we should always have a start period, but if we don't, we will go one year before
             $start = new \DateTime();
@@ -242,7 +308,7 @@ class UtilsService
             // if we have an end date we need to set our use to be old
             // TODO: when FHIR R4 5.0.1 is the standard, it has proposed to go off the 'end' date instead of the use column for an old address
             // for ONC R4 3.1.1 we have to populate the use column as old (which removes the fact that the address was a 'home' or a 'work' address)
-            $addressPeriod->setEnd($date->format(\DateTime::RFC3339_EXTENDED));
+            $addressPeriod->setEnd(new FHIRDateTime($date->format(\DateTime::RFC3339_EXTENDED)));
             $address->setUse(new FHIRAddressUse(['value' => ContactAddress::USE_OLD]));
         }
 
@@ -288,11 +354,11 @@ class UtilsService
         return null;
     }
 
-    public static function createFhirMeta($version, $date): FHIRMeta
+    public static function createFhirMeta(string $version, string $date): FHIRMeta
     {
         $meta = new FHIRMeta();
-        $meta->setVersionId($version);
-        $meta->setLastUpdated($date);
+        $meta->setVersionId(new FHIRId($version));
+        $meta->setLastUpdated(new FHIRInstant($date));
         return $meta;
     }
 
@@ -354,7 +420,7 @@ class UtilsService
      * @param FHIRPeriod $period The object representing the period interval.
      * @return array Containing two keys of 'start' and 'end' representing the period.
      */
-    public static function getPeriodTimestamps(?FHIRPeriod $period)
+    public static function getPeriodTimestamps(?FHIRPeriod $period): array
     {
         $end = null;
         $start = null;
@@ -392,7 +458,7 @@ class UtilsService
         return (new \DateTime())->format(DATE_ATOM);
     }
 
-    public static function getLocalTimestampAsUTCDate($date)
+    public static function getLocalTimestampAsUTCDate($date): string
     {
         // make this assumption explicit that we are using the current timezone specified in PHP
         // when we use strtotime or gmdate we get bad behavior when dealing with DST
@@ -406,7 +472,7 @@ class UtilsService
         return $utcDate;
     }
 
-    public static function getLocalDateAsUTC($date)
+    public static function getLocalDateAsUTC($date): string
     {
         // make this assumption explicit that we are using the current timezone specified in PHP
         // when we use strtotime or gmdate we get bad behavior when dealing with DST
@@ -431,7 +497,7 @@ class UtilsService
         $severity_value,
         $code_value,
         $details_value = ''
-    ) {
+    ): FHIROperationOutcome {
         $resource = new FHIROperationOutcome();
         $issue = new FHIROperationOutcomeIssue();
         $severity = new FHIRIssueSeverity();

@@ -13,6 +13,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -47,14 +48,16 @@ class SocialHistoryService extends BaseService
             $where = 'tobacco is not null and';
         }
 
+        // Rows written in the same second share a date: the later id is the later version, as
+        // getHistoryData() in library/patient.inc.php already takes it.
         if ($dateStart && $dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", [$pid, $dateStart, $dateEnd]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC, id DESC limit 0,1", [$pid, $dateStart, $dateEnd]);
         } elseif ($dateStart && !$dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC limit 0,1", [$pid, $dateStart]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC, id DESC limit 0,1", [$pid, $dateStart]);
         } elseif (!$dateStart && $dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC limit 0,1", [$pid, $dateEnd]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC, id DESC limit 0,1", [$pid, $dateEnd]);
         } else {
-            $res = sqlQuery("select $given from history_data where $where pid=? order by date DESC limit 0,1", [$pid]);
+            $res = sqlQuery("select $given from history_data where $where pid=? order by date DESC, id DESC limit 0,1", [$pid]);
         }
 
         return $res;
@@ -74,7 +77,7 @@ class SocialHistoryService extends BaseService
         return [];
     }
 
-    public function search($search, $isAndCondition = true, $limit = null)
+    public function search($search, $isAndCondition = true, $limit = null): ProcessingResult
     {
         // history_data contains a table record for every single insert into the database
         $sql = "
@@ -186,6 +189,27 @@ class SocialHistoryService extends BaseService
         unset($record['pid']);
         unset($record['uuid']);
 
+        // Reject any layout-sourced key that does not resolve to a real column of
+        // history_data. Mirrors the house whitelist pattern used elsewhere for
+        // layout_options.field_id-driven writes. `*` is rejected explicitly
+        // because escape_sql_column_name() short-circuits on it without checking
+        // the schema.
+        foreach (array_keys($record) as $key) {
+            if (!is_string($key) || $key === '' || $key === '*') {
+                unset($record[$key]);
+                continue;
+            }
+            try {
+                escape_sql_column_name($key, [self::TABLE_NAME], false, true);
+            } catch (SqlQueryException) {
+                \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+                    'SocialHistoryService::insertRecord: skipped unknown history_data column',
+                    ['column' => $key]
+                );
+                unset($record[$key]);
+            }
+        }
+
         if (!empty($record)) {
             $arraySqlBind = array_merge($arraySqlBind, array_values($record));
             $sql .= ", " . implode(", ", array_map(fn($key): string => "`$key` = ?", array_keys($record)));
@@ -203,7 +227,7 @@ class SocialHistoryService extends BaseService
     {
         // note the uuid here is the uuid_mapping table's uuid since each column in the table has its own distinct uuid
         // in the system.
-        return ['puuid', 'uuid'];
+        return ['puuid', 'uuid', 'provider_uuid'];
     }
 
     public function updateHistoryDataForPatientPid($pid, $new)

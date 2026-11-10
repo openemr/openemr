@@ -5,7 +5,7 @@
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Cqm\Qdm\Traits;
@@ -71,7 +71,7 @@ trait PatientExtension
     // takes a category and/or, which returns all elements of that QDM
     // category. Example: patient.get_data_elements('encounters')
     // will return all Encounter QDM data types active on the patient.
-    public function get_data_elements($category = null, $status = null)
+    public function get_data_elements($category = null, $status = null): array
     {
         $categoryElements = [];
         foreach ($this->dataElements as $dataElement) {

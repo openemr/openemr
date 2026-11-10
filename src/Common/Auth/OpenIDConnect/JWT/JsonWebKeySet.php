@@ -64,7 +64,13 @@ class JsonWebKeySet implements Key
 
         // grab the keys array from the content
         $jwks = json_decode((string) $content);
-        if (!property_exists($jwks, 'keys')) {
+        if (!is_object($jwks) || !property_exists($jwks, 'keys') || !is_array($jwks->keys)) {
+            // json_decode returns null on malformed JSON; property_exists
+            // on null throws a TypeError that bubbles out as an HTTP 500
+            // rather than the usual invalid_client / 401 shape. The
+            // is_array check also rejects `{"keys":null}`, which would
+            // otherwise store null and emit an ErrorException when
+            // getJSONWebKey() iterates it under the repo error handler.
             throw new JWKValidatorException("Malformed jwks missing keys property");
         }
         $this->jwks = $jwks->keys;

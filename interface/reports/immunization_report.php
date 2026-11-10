@@ -47,7 +47,7 @@ function format_cvx_code($cvx_code)
     return $cvx_code;
 }
 
-function format_ethnicity($ethnicity)
+function format_ethnicity($ethnicity): string
 {
 
     return match ($ethnicity) {

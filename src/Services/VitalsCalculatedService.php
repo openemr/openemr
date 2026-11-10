@@ -39,7 +39,7 @@ class VitalsCalculatedService extends BaseService
         $this->authUserId = $user;
     }
 
-    public function getCurrentUserId()
+    public function getCurrentUserId(): int
     {
         if (!isset($this->authUserId)) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();

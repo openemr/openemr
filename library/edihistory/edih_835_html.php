@@ -1475,7 +1475,7 @@ function edih_835_payment_html(array $segments, edih_271_codes $codes27x, edih_8
  *
  * @return string  error message or a table with file information
  */
-function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
+function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false): string
 {
     //
     $html_str = '';

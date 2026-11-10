@@ -59,7 +59,7 @@ class UserSettingsService
      * @param int $user - user id number from users table
      * @return bool - true if setting exist and false if does not exist
      */
-    public static function checkUserSetting($label, $value, $user = null)
+    public static function checkUserSetting($label, $value, $user = null): bool
     {
 
         $user = self::effectiveUser($user);

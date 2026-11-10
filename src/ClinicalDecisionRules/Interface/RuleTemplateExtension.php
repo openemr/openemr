@@ -76,7 +76,7 @@ class RuleTemplateExtension
     <?php } ?>
     <?php }
 
-    public static function timeunit_select($args)
+    public static function timeunit_select($args): string
     {
         require_once(OEGlobalsBag::getInstance()->getKernel()->getSrcDir() . "/options.inc.php");
 
@@ -100,7 +100,7 @@ class RuleTemplateExtension
         // get from list_options
         $result = generate_display_field(['data_type' => '1','list_id' => $list_id], $value);
         // trap for fa-exclamation-circle used to indicate empty input from layouts options.
-        if ($result != '' && stripos((string) $result, 'fa-exclamation-circle') === false) {
+        if ($result != '' && stripos($result, 'fa-exclamation-circle') === false) {
             return $result;
         }
 

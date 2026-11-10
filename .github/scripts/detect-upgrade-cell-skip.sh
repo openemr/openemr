@@ -32,6 +32,25 @@
 #      to BOTH the rel branch AND master -- master's dev docker DOES
 #      have upgrade infra in that window.
 #
+# Criterion 2's "master carries `next`" predicate lives in
+# `lib/release-targets-queries.sh::master_row_carries_next`, sourced
+# below. Second consumer is docker-release-orchestrator.yml's
+# compute-matrix step, which uses the same predicate to decide the
+# per-row `require_upgrade_cell` flag for its fan-out dispatches --
+# single-sourced signal across both consumers so false-positive and
+# false-negative behavior cannot drift between them. The lib's
+# header covers the predicate semantics, YAML inline-comment handling
+# (`- branch: master  # ...` scoping and `docker_tags: ...  # ...`
+# strip-before-match), and master-authoritative-path invariant.
+# Lib has its own BATS corpus at
+# tests/bats/ci-scripts/release-targets-queries/ -- the negative
+# cases there (word-boundary false-match protection, comment
+# stripping, missing docker_tags, no master row) are the regression
+# wall for criterion 2's underlying signal. The BATS at
+# tests/bats/ci-scripts/detect-upgrade-cell-skip/ then covers this
+# file's own composition on top of that signal (output format,
+# both-criteria interaction, bad-shape handling).
+#
 # Inputs (env, all required except RELEASE_TARGETS_PATH):
 #
 #   FROM_REV               OCI revision label of the from-tag image
@@ -154,26 +173,32 @@ fi
 # in release-targets.yml carries the `next` docker tag. When master
 # has next, master is between-cycles (no rel branch in active dev
 # cycle) and lacks the upgrade infra for arbitrary source versions.
-if [[ ! -r "${RELEASE_TARGETS_PATH}" ]]; then
-    echo "::error::detect-upgrade-cell-skip.sh: cannot read RELEASE_TARGETS_PATH='${RELEASE_TARGETS_PATH}' -- needed to check master's docker_tags" >&2
-    exit 1
-fi
+#
+# Predicate lives in lib/release-targets-queries.sh so other callers
+# (notably docker-release-orchestrator.yml) can read the same signal
+# when deciding require_upgrade_cell per row. The lib function anchors
+# `next` on word-boundaries so `next-something` / `nothing-next` can't
+# false-match; its own header docs cover the full semantics.
+# shellcheck source=/dev/null
+source "$(dirname -- "${BASH_SOURCE[0]}")/lib/release-targets-queries.sh"
 
-# awk finds `- branch: master`, then emits the docker_tags line
-# within the master row. The `- branch:` sentinel on any other row
-# closes the master scope so an absent docker_tags line in master
-# doesn't leak into a later row's tags being read. grep matches
-# `next` as a word (surrounded by start/end of string, comma, or
-# space) so we don't false-match on `next-something` or `nothing-
-# next`.
-if awk '
-    /^- branch: master$/ { in_master=1; next }
-    /^- branch:/         { if (in_master) exit; next }
-    in_master && /^  docker_tags:/ { print; exit }
-' "${RELEASE_TARGETS_PATH}" | grep -qE '(^|,| )next(,| |$)'; then
-    emit "skip=true"
-    emit_multiline "skip_reason" "to_tag (${TO_TAG}) has OCI revision=master AND master carries the \`next\` docker tag in release-targets.yml -- indicates between-cycles state (no rel branch in active dev cycle). Master's docker-upgrade infrastructure (fsupgrade-N + docker-version bump) hasn't been scaffolded to walk from currently-shipped versions to master's current version.php in this window. Post-upgrade DB will not advance -> code-vs-DB mismatch -> every downstream assertion unreliable."
-else
-    emit "skip=false"
-    echo "==> to_tag revision=master but master does NOT carry \`next\` tag -- indicates rel-XXX branch is in active dev cycle. Release-cut / patch-prep mutators cross-propagated upgrade infra to master; cell will run."
-fi
+query_rc=0
+master_row_carries_next "${RELEASE_TARGETS_PATH}" || query_rc=$?
+case "${query_rc}" in
+    0)
+        emit "skip=true"
+        emit_multiline "skip_reason" "to_tag (${TO_TAG}) has OCI revision=master AND master carries the \`next\` docker tag in release-targets.yml -- indicates between-cycles state (no rel branch in active dev cycle). Master's docker-upgrade infrastructure (fsupgrade-N + docker-version bump) hasn't been scaffolded to walk from currently-shipped versions to master's current version.php in this window. Post-upgrade DB will not advance -> code-vs-DB mismatch -> every downstream assertion unreliable."
+        ;;
+    1)
+        emit "skip=false"
+        echo "==> to_tag revision=master but master does NOT carry \`next\` tag -- indicates rel-XXX branch is in active dev cycle. Release-cut / patch-prep mutators cross-propagated upgrade infra to master; cell will run."
+        ;;
+    2)
+        echo "::error::detect-upgrade-cell-skip.sh: cannot read RELEASE_TARGETS_PATH='${RELEASE_TARGETS_PATH}' -- needed to check master's docker_tags" >&2
+        exit 1
+        ;;
+    *)
+        echo "::error::detect-upgrade-cell-skip.sh: master_row_carries_next returned unexpected code ${query_rc}" >&2
+        exit 1
+        ;;
+esac

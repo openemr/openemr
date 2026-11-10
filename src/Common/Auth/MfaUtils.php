@@ -102,7 +102,7 @@ class MfaUtils
      * Check if user registered to MFA
      * @return bool
      */
-    public function isMfaRequired()
+    public function isMfaRequired(): bool
     {
         return !empty($this->types);
     }

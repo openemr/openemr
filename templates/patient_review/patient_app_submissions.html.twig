@@ -1,0 +1,293 @@
+{#
+  Patient App Submissions: FHIR writes from patient apps held for staff review. Rendered by
+  OpenEMR\Controllers\Interface\PatientReview\PatientAppSubmissionsController.
+
+  Everything but the ids came from the patient or the app. Autoescape is off in OpenEMR, so
+  every value goes through |text, |attr or a translation filter.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<html>
+<head>
+    <title>{{ 'Patient App Submissions'|xlt }}</title>
+    {{ setupHeader() }}
+</head>
+<body class="body_top">
+<div class="container-fluid">
+    <h2 class="mt-3">{{ 'Patient App Submissions'|xlt }}</h2>
+    <p class="text-muted mb-3">
+        {{ 'Data a patient sent from an app is held here until you approve it. Approving adds it to the chart; denying keeps a record of it but adds nothing. Until then only the app that sent it can see it.'|xlt }}
+    </p>
+
+    {% if notice is not null %}
+        <div class="alert alert-success">{{ notice|text }}</div>
+    {% endif %}
+    {% if error is not null %}
+        <div class="alert alert-danger">{{ error|text }}</div>
+    {% endif %}
+
+    {% if items is empty %}
+        <div class="alert alert-info">{{ 'No patient app submissions are waiting for review.'|xlt }}</div>
+    {% else %}
+        <div class="d-flex flex-wrap align-items-center justify-content-between mb-2">
+            <span class="text-muted">
+                {% if total > items|length %}
+                    {{ 'Showing the oldest'|xlt }} {{ items|length|text }} {{ 'of'|xlt }} {{ total|text }}.
+                {% else %}
+                    {{ items|length|text }} {{ 'waiting for review'|xlt }}
+                {% endif %}
+            </span>
+            <span>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="submissions-expand-all"><i class="fa fa-fw fa-expand"></i> {{ 'Expand all'|xlt }}</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="submissions-collapse-all"><i class="fa fa-fw fa-compress"></i> {{ 'Collapse all'|xlt }}</button>
+            </span>
+        </div>
+        {% for item in items %}
+            {# Collapsed, the header still says what it is, whose it is and which app sent it. #}
+            <div class="card mb-2" id="submission-{{ item.id|attr }}">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center submission-toggle" role="button" tabindex="0"
+                     data-toggle="collapse" data-target="#submission-body-{{ item.id|attr }}"
+                     aria-expanded="{{ expanded ? 'true' : 'false' }}" aria-controls="submission-body-{{ item.id|attr }}" style="cursor: pointer;">
+                    <div>
+                        <i class="fa fa-fw {{ expanded ? 'fa-compress' : 'fa-expand' }} submission-icon" aria-hidden="true"></i>
+                        {% if item.resourceType == 'QuestionnaireResponse' and item.questionnaireName is not null %}
+                            <strong>{{ 'Questionnaire response'|xlt }}: {{ item.questionnaireName|text }}</strong>
+                        {% else %}
+                            <strong>{{ item.summary|text }}</strong>
+                        {% endif %}
+                        <span class="text-muted ml-1">#{{ item.id|text }}</span>
+                        <span class="ml-2">{{ item.patientName|text }}</span>
+                        {% if item.appName is not null %}
+                            <span class="text-muted ml-2">{{ item.appName|text }}</span>
+                            {% if item.clientType == 'confidential' %}
+                                <span class="badge badge-info ml-1">{{ 'Confidential app'|xlt }}</span>
+                            {% else %}
+                                <span class="badge badge-warning ml-1">{{ 'Public app'|xlt }}</span>
+                            {% endif %}
+                        {% endif %}
+                        {% if item.duplicateOf is not null %}
+                            <span class="badge badge-secondary ml-1">{{ 'Possible duplicate'|xlt }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="text-muted">{{ 'Received'|xlt }} {{ item.received|text }}</div>
+                </div>
+                <div class="collapse{{ expanded ? ' show' : '' }} submission-body" id="submission-body-{{ item.id|attr }}"
+                     data-key="{{ item.id|attr }}-{{ item.revision|attr }}">
+                <div class="card-body">
+                    <dl class="row mb-2">
+                        <dt class="col-sm-2">{{ 'Patient'|xlt }}</dt>
+                        <dd class="col-sm-10">{{ item.patientName|text }}{% if item.pubpid != '' %} ({{ item.pubpid|text }}){% endif %}</dd>
+                        <dt class="col-sm-2">{{ 'App'|xlt }}</dt>
+                        <dd class="col-sm-10">
+                            {% if item.appName is null %}
+                                <span class="text-muted">{{ 'This app is no longer registered'|xlt }}</span>
+                            {% else %}
+                                {{ item.appName|text }}
+                                {% if item.clientType == 'confidential' %}
+                                    <span class="badge badge-info ml-1" title="{{ 'The app proved its identity with a secret or key.'|xla }}">{{ 'Confidential app'|xlt }}</span>
+                                {% else %}
+                                    <span class="badge badge-warning ml-1" title="{{ 'The app has no secret, so the server cannot confirm which app sent this.'|xla }}">{{ 'Public app'|xlt }}</span>
+                                {% endif %}
+                            {% endif %}
+                        </dd>
+                        <dt class="col-sm-2">{{ 'Type'|xlt }}</dt>
+                        <dd class="col-sm-10">{{ item.resourceType|text }}</dd>
+                        {% if item.resourceType == 'QuestionnaireResponse' %}
+                            <dt class="col-sm-2">{{ 'Questionnaire'|xlt }}</dt>
+                            <dd class="col-sm-10">
+                                {% if item.questionnaireName is null %}
+                                    <span class="text-danger">{{ 'Not a questionnaire on this server; this response cannot be added to the chart.'|xlt }}</span>
+                                {% else %}
+                                    {{ item.questionnaireName|text }}
+                                {% endif %}
+                            </dd>
+                        {% endif %}
+                    </dl>
+
+                    {% if item.duplicateOf is not null %}
+                        <div class="alert alert-warning py-2">
+                            {{ 'Possible duplicate: the same content is already waiting as'|xlt }}
+                            <a href="#submission-{{ item.duplicateOf|attr_url }}">#{{ item.duplicateOf|text }}</a>.
+                        </div>
+                    {% endif %}
+
+                    {% if item.answers is not empty %}
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                            <tr>
+                                <th>{{ 'Question'|xlt }}</th>
+                                <th>{{ 'Answer'|xlt }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in item.answers %}
+                                <tr>
+                                    <td>{{ row.question|text }}</td>
+                                    <td>
+                                        {{ row.answers|join(', ')|text }}
+                                        {% if row.unshown > 0 %}
+                                            <span class="text-danger">{{ row.answers is empty ? '' : '+ '|text }}{{ row.unshown|text }} {{ 'answer not shown here; see what the app sent'|xlt }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                    {% if item.answersTooDeep > 0 %}
+                        <div class="alert alert-warning py-2">
+                            {{ item.answersTooDeep|text }} {{ 'answers are nested too deeply to show here. Open what the app sent before deciding.'|xlt }}
+                        </div>
+                    {% endif %}
+
+                    {# Opened when the table can't show everything, so nothing is decided unseen. #}
+                    {% set partlyShown = item.answersTooDeep > 0 or item.answers|filter(row => row.unshown > 0) is not empty %}
+                    <details class="mb-3 submission-sent"{% if partlyShown %} open data-forced="1"{% elseif sentShown %} open{% endif %}>
+                        <summary>{{ 'Show what the app sent'|xlt }}</summary>
+                        <pre class="bg-light p-2 mt-2">{{ item.resourceJson|text }}</pre>
+                    </details>
+
+                    {% if canDecide %}
+                        {# Two forms, so pressing Enter in the reason can only deny. #}
+                        <div class="d-flex flex-wrap align-items-start">
+                            {% if item.canApprove %}
+                                <form method="post" action="patient_app_submissions.php" class="mr-3" onsubmit="return top.restoreSession()">
+                                    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                                    <input type="hidden" name="request_id" value="{{ item.id|attr }}" />
+                                    <input type="hidden" name="revision" value="{{ item.revision|attr }}" />
+                                    <button type="submit" name="action" value="approve" class="btn btn-sm btn-primary mb-2">{{ 'Approve'|xlt }}</button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted mr-3 mb-2">
+                                    {% if item.resourceType == 'QuestionnaireResponse' and item.questionnaireName is null %}
+                                        {{ 'It cannot be approved: it does not answer a questionnaire on this server.'|xlt }}
+                                    {% else %}
+                                        {{ 'This type cannot be approved in this version.'|xlt }}
+                                    {% endif %}
+                                </span>
+                            {% endif %}
+                            <form method="post" action="patient_app_submissions.php" class="form-inline" onsubmit="return top.restoreSession()">
+                                <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                                <input type="hidden" name="request_id" value="{{ item.id|attr }}" />
+                                <input type="hidden" name="revision" value="{{ item.revision|attr }}" />
+                                <input type="hidden" name="action" value="deny" />
+                                <label class="sr-only" for="note-{{ item.id|attr }}">{{ 'Reason for denying'|xlt }}</label>
+                                <input type="text" class="form-control form-control-sm mr-2 mb-2" id="note-{{ item.id|attr }}" name="note" maxlength="255"
+                                       required placeholder="{{ 'Reason for denying (required)'|xla }}" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger mb-2">{{ 'Deny'|xlt }}</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<script>
+    (function () {
+        // Expand all and Collapse all are saved for the user, like the dashboard's cards, and
+        // so is showing what the app sent. One submission opened or closed is remembered for
+        // this browser session, so deciding another (which reloads the page) keeps it as it was.
+        const csrfToken = {{ csrfToken|js_escape }};
+        const settingExpanded = {{ settingExpanded|js_escape }};
+        const settingSentShown = {{ settingSentShown|js_escape }};
+        let expanded = {{ expanded ? 'true' : 'false' }};
+        let sentShown = {{ sentShown ? 'true' : 'false' }};
+
+        function saveSetting(target, on) {
+            if (typeof top.restoreSession === 'function') {
+                top.restoreSession();
+            }
+            $.post('../../library/ajax/user_settings.php', {
+                target: target,
+                mode: on ? 1 : 0,
+                csrf_token_form: csrfToken
+            });
+        }
+
+        function remember(key, on) {
+            try {
+                window.sessionStorage.setItem('patient-app-submission-' + key, on ? '1' : '0');
+            } catch (e) {
+                // Storage turned off: the submission opens as the saved setting says.
+            }
+        }
+
+        function remembered(key) {
+            try {
+                return window.sessionStorage.getItem('patient-app-submission-' + key);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function showIcon(body) {
+            const open = body.classList.contains('show');
+            const header = document.querySelector('[data-target="#' + body.id + '"]');
+            if (header === null) {
+                return;
+            }
+            header.setAttribute('aria-expanded', open ? 'true' : 'false');
+            const icon = header.querySelector('.submission-icon');
+            icon.classList.toggle('fa-compress', open);
+            icon.classList.toggle('fa-expand', !open);
+        }
+
+        $(function () {
+            document.querySelectorAll('.submission-body').forEach(function (body) {
+                const saved = remembered(body.dataset.key);
+                if (saved !== null) {
+                    body.classList.toggle('show', saved === '1');
+                    showIcon(body);
+                }
+            });
+
+            $('.submission-body').on('shown.bs.collapse hidden.bs.collapse', function (e) {
+                if (e.target !== this) {
+                    return;
+                }
+                remember(this.dataset.key, this.classList.contains('show'));
+                showIcon(this);
+            });
+
+            $('.submission-toggle').on('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    $($(this).data('target')).collapse('toggle');
+                }
+            });
+
+            $('#submissions-expand-all, #submissions-collapse-all').on('click', function () {
+                const open = this.id === 'submissions-expand-all';
+                $('.submission-body').collapse(open ? 'show' : 'hide');
+                if (open !== expanded) {
+                    expanded = open;
+                    saveSetting(settingExpanded, open);
+                }
+            });
+
+            // A duplicate's link opens the submission it points to.
+            $('a[href^="#submission-"]').on('click', function () {
+                $($(this).attr('href')).find('.submission-body').collapse('show');
+            });
+
+            document.querySelectorAll('details.submission-sent').forEach(function (details) {
+                details.addEventListener('toggle', function () {
+                    // Opened because the table can't show everything: not the user's choice.
+                    if (details.dataset.forced === '1' || details.open === sentShown) {
+                        return;
+                    }
+                    sentShown = details.open;
+                    saveSetting(settingSentShown, sentShown);
+                });
+            });
+        });
+    })();
+</script>
+</body>
+</html>

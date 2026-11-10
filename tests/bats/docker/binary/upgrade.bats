@@ -1,4 +1,4 @@
-# BATS: binary upgrade scripts (1–13)
+# BATS: binary upgrade scripts (1–15)
 
 load '../helpers'
 
@@ -9,7 +9,7 @@ setup() {
     # Bump this together with upgrade/docker-version when adding an
     # fsupgrade script. The loops below derive their bound from it, so the
     # script set and the version marker cannot drift apart silently.
-    LATEST_DOCKER_VERSION=13
+    LATEST_DOCKER_VERSION=15
 }
 
 @test "binary upgrade: docker-version matches the newest fsupgrade script" {

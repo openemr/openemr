@@ -28,6 +28,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\Services\Questionnaire\QuestionnaireAnswerText;
+use OpenEMR\Services\Questionnaire\QuestionnaireCanonical;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -262,9 +264,8 @@ class QuestionnaireResponseService extends BaseService
     /**
      * @param $search
      * @param $isAndCondition
-     * @return ProcessingResult
      */
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         $sqlSelectIds = "SELECT DISTINCT qr.questionnaire_response_uuid ";
         $sqlSelectData = " SELECT qr.*
@@ -342,7 +343,16 @@ class QuestionnaireResponseService extends BaseService
      * @param ?string  $form_response
      * @param bool  $add_report
      * @param array $scores
-     * @return array|false|int|mixed
+     * @param ?string $issuedUuid the uuid a new response is created under, when it was issued
+     *                            before the response existed (a patient app write held for
+     *                            review); a new uuid is created when null. Never for an update.
+     * @param bool $writtenByPatient the patient wrote the response, so it has no creating user
+     *                               (a staff approver is recorded by the review queue instead)
+     * @return array{
+     *   id: mixed,
+     *   response_id: mixed,
+     *   new: bool,
+     * }
      * @throws Exception
      */
     public function saveQuestionnaireResponse(
@@ -355,8 +365,10 @@ class QuestionnaireResponseService extends BaseService
         $q_id = null,
         $form_response = null,
         $add_report = false,
-        $scores = []
-    ) {
+        $scores = [],
+        ?string $issuedUuid = null,
+        bool $writtenByPatient = false
+    ): array {
         $q_content = null;
         $q_title = null;
         $q_record_id = null;
@@ -421,7 +433,18 @@ class QuestionnaireResponseService extends BaseService
         } else {
             $qr_id = $this->getValue($fhirResponseOb->id);
         }
-        if (empty($qr_id)) {
+        if ($issuedUuid !== null && $qr_id !== null && $qr_id !== '') {
+            throw new Exception(xlt("An issued uuid is only for a new questionnaire response"));
+        }
+        if ($issuedUuid !== null) {
+            if (!UuidRegistry::isValidStringUUID($issuedUuid)) {
+                throw new Exception(xlt("Questionnaire response uuid is invalid"));
+            }
+            $qr_uuid = UuidRegistry::uuidToBytes($issuedUuid);
+            (new UuidRegistry(['table_name' => 'questionnaire_response']))->registerIssuedUuid($qr_uuid);
+            $qr_id = UuidRegistry::uuidToString($qr_uuid);
+            $update_flag = false;
+        } elseif (empty($qr_id)) {
             $qr_uuid = (new UuidRegistry(['table_name' => 'questionnaire_response']))->createUuid();
             // unique id for this set of answers
             $qr_id = UuidRegistry::uuidToString($qr_uuid);
@@ -440,18 +463,25 @@ class QuestionnaireResponseService extends BaseService
 
         $fhirResponseOb->setId(new FHIRId($qr_id));
         $serverConfig = new ServerConfig();
-        $fhirResponseOb->setQuestionnaire(new FHIRCanonical($serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id));
+        $fhirResponseOb->setQuestionnaire(new FHIRCanonical(QuestionnaireCanonical::forResponse(
+            $this->getValue($fhirQuestionnaireOb->url),
+            $this->getValue($fhirQuestionnaireOb->version),
+            $serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id
+        )));
+        // the FHIR reference uses the encounter uuid; the encounter column keeps the encounter id
+        $encounterReference = $encounter;
         if (is_numeric($encounter)) {
             $encounter_uuid = $this::getUuidById($encounter, 'form_encounter', 'encounter');
             if (empty($encounter_uuid)) {
                 $encounter = 0;
+                $encounterReference = 0;
             } else {
-                $encounter = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
+                $encounterReference = UuidRegistry::uuidToString($encounter_uuid) ?: $encounter;
             }
         }
-        if (!empty($encounter)) {
+        if (!empty($encounterReference)) {
             $encRef = new FHIRReference();
-            $encRef->setReference(new FHIRString('fhir/Encounter/' . $encounter));
+            $encRef->setReference(new FHIRString('fhir/Encounter/' . $encounterReference));
             $fhirResponseOb->setEncounter($encRef);
         }
         $r_status = $fhirResponseOb->getStatus();
@@ -468,7 +498,7 @@ class QuestionnaireResponseService extends BaseService
             , 'questionnaire_name' => $q_title
             // if its created by a patient we won't have an authUserID
             , 'audit_user_id' => $update_flag ? $session->get('authUserID') : null
-            , 'creator_user_id' => $session->get('authUserID')
+            , 'creator_user_id' => $writtenByPatient ? null : $session->get('authUserID')
             , 'version' => $update_flag ? (int)$id['version'] + 1 : 1
             , 'last_updated' => date("Y-m-d H:i:s")
             , 'patient_id' => $pid
@@ -703,26 +733,21 @@ class QuestionnaireResponseService extends BaseService
     }
 
     /**
-     * @param $answer
-     * @return string
+     * Display text for one QuestionnaireResponse answer; 'N/A' when it is not an answer array.
      */
-    public function extractAnswerValue($answer)
+    public function extractAnswerValue(mixed $answer): string
     {
-        if (isset($answer['valueCoding'])) {
-            return $answer['valueCoding']['display'];
-        } elseif (isset($answer['valueDecimal'])) {
-            return $answer['valueDecimal'];
-        } elseif (isset($answer['valueString'])) {
-            return $answer['valueString'];
-        } elseif (isset($answer['valueBoolean'])) {
-            return $answer['valueBoolean'] ? 'Yes' : 'No';
-        } elseif (isset($answer['valueInteger'])) {
-            return $answer['valueInteger'];
-        } elseif (isset($answer['valueDate'])) {
-            return $answer['valueDate'];
-        } else {
-            return 'N/A';
-        }
+        return is_array($answer) ? self::answerText($answer) : 'N/A';
+    }
+
+    /**
+     * The text the encounter view shows for one answer; see QuestionnaireAnswerText.
+     *
+     * @param array<mixed> $answer
+     */
+    public static function answerText(array $answer): string
+    {
+        return QuestionnaireAnswerText::of($answer);
     }
 
 

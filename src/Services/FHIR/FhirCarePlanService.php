@@ -19,7 +19,9 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCarePlan;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
@@ -28,6 +30,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanDetail;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CarePlanService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -64,7 +67,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      * @return array The search parameters
      */
     // In FhirCarePlanService.php - Update loadSearchParameters()
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
@@ -168,9 +171,9 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         $fhirMeta->addProfile(self::USCGI_PROFILE_URI);
 
         if (!empty($dataRecord['creation_date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['creation_date']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['creation_date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
 
         $carePlanResource->setMeta($fhirMeta);
@@ -246,10 +249,10 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         if ($hasStartDate || $hasEndDate) {
             $period = new FHIRPeriod();
             if ($hasStartDate) {
-                $period->setStart(UtilsService::getLocalDateAsUTC($startDate));
+                $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($startDate)));
             }
             if ($hasEndDate) {
-                $period->setEnd(UtilsService::getLocalDateAsUTC($endDate));
+                $period->setEnd(new FHIRDateTime(UtilsService::getLocalDateAsUTC($endDate)));
             }
             $carePlanResource->setPeriod($period);
         }
@@ -399,10 +402,10 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             if (!empty($detail['date']) || !empty($detail['date_end'])) {
                 $scheduledPeriod = new FHIRPeriod();
                 if (!empty($detail['date'])) {
-                    $scheduledPeriod->setStart(UtilsService::getLocalDateAsUTC($detail['date']));
+                    $scheduledPeriod->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($detail['date'])));
                 }
                 if (!empty($detail['date_end'])) {
-                    $scheduledPeriod->setEnd(UtilsService::getLocalDateAsUTC($detail['date_end']));
+                    $scheduledPeriod->setEnd(new FHIRDateTime(UtilsService::getLocalDateAsUTC($detail['date_end'])));
                 }
                 $activityDetail->setScheduledPeriod($scheduledPeriod);
             }
@@ -728,7 +731,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      *   items: array<int, array<string, mixed>> activity rows
      * }
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRCarePlan)) {
             throw new \InvalidArgumentException(
@@ -979,12 +982,9 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             return $result;
         }
 
-        $encounterId = QueryUtils::fetchSingleValue(
-            "SELECT encounter FROM form_encounter WHERE uuid = ?",
-            'encounter',
-            [UuidRegistry::uuidToBytes($encounterUuid)]
-        );
-        if (!is_numeric($encounterId)) {
+        // A soft-deleted encounter resolves to null, like an unknown one.
+        $encounterId = EncounterService::getActiveEncounterByUuid($encounterUuid)['encounter'] ?? null;
+        if ($encounterId === null) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['uuid' => 'Encounter not found for given CarePlan id']);
             return $result;
@@ -1046,12 +1046,9 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             $result->setValidationMessages(['encounter' => 'Encounter reference is required for CarePlan']);
             return $result;
         }
-        $encounterId = QueryUtils::fetchSingleValue(
-            "SELECT encounter FROM form_encounter WHERE uuid = ?",
-            'encounter',
-            [UuidRegistry::uuidToBytes($euuid)]
-        );
-        if (!is_numeric($encounterId)) {
+        // A soft-deleted encounter resolves to null, like an unknown one.
+        $encounterId = EncounterService::getActiveEncounterByUuid($euuid)['encounter'] ?? null;
+        if ($encounterId === null) {
             $result = new ProcessingResult();
             $result->setValidationMessages(
                 ['encounter' => 'Encounter reference could not be resolved: ' . $euuid]

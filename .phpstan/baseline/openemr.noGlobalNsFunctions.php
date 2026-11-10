@@ -7,16 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function isServiceEnabled may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sendZipDownload may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccdaservice/ccda_gateway.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function createCCR may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ccr/createCCR.php',
@@ -482,46 +472,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function SavePatientAudit may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function emailLogin may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function eob_search_era_callback may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function fixup_invoice may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function is_auth_portal may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function notify_portal may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function upload_file_to_client may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function upload_file_to_client_pdf may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function is_clinic may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_receipts_report.php',
@@ -650,11 +600,6 @@ $ignoreErrors[] = [
     'message' => '#^Function send_drug_email may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function array_key_exists_default may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRx.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function LicensedPrescriber may not be defined in the global namespace\\.$#',
@@ -2012,16 +1957,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function rp may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function dateSearch may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function Add may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/ippf_export.php',
@@ -2863,11 +2798,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function printHTML may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function printPDF may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
 ];
@@ -3985,66 +3915,6 @@ $ignoreErrors[] = [
     'message' => '#^Function Insert_Rows may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/custom_template/personalize.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_allow_document_mimetype may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_check may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_close may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_connect may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_extension may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_logit may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_notify may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_read_blob may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_service_userID may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_store may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_write may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_write_expect_OK may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function addNewDocument may not be defined in the global namespace\\.$#',
@@ -5472,6 +5342,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/account/account.lib.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function isServiceEnabled may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function sendZipDownload may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/ccda_gateway.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function portal_doOneDay may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
@@ -5495,11 +5375,6 @@ $ignoreErrors[] = [
     'message' => '#^Function renderProfileHtml may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/import_template.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function CloseAudit may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function SaveAudit may not be defined in the global namespace\\.$#',
@@ -5555,31 +5430,6 @@ $ignoreErrors[] = [
     'message' => '#^Function getAuthPortalUsers may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/messaging/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function convert_html_to_text may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function fix_newlines may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function iterate_over_node may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function next_child_name may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function prev_child_name may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/html2text.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function Zip may not be defined in the global namespace\\.$#',

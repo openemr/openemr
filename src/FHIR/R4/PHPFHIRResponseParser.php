@@ -269,7 +269,7 @@ class PHPFHIRResponseParser
      * @param string $propertyName
      * @return bool
      */
-    private function _triggerPropertyNotFoundError($fhirElementName, $propertyName)
+    private function _triggerPropertyNotFoundError($fhirElementName, $propertyName): bool
     {
         return trigger_error(sprintf(
             'Could not find mapped property called "%s" on object "%s".  This could indicate malformed response or bug in class generator.',
@@ -280,9 +280,8 @@ class PHPFHIRResponseParser
 
     /**
      * @param mixed $input
-     * @return \InvalidArgumentException
      */
-    private function _createNonStringArgumentException($input)
+    private function _createNonStringArgumentException($input): \InvalidArgumentException
     {
         return new \InvalidArgumentException(sprintf(
             '%s::parse - Argument 1 expected to be string, %s seen.',

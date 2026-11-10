@@ -3,11 +3,13 @@
 namespace OpenEMR\RestControllers\Subscriber;
 
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\Audit\ApiLogRedactor;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -18,6 +20,8 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
 
     private EventAuditLogger $eventAuditLogger;
 
+    private ApiLogRedactor $redactor;
+
     public function setEventAuditLogger(EventAuditLogger $eventAuditLogger): void
     {
         $this->eventAuditLogger = $eventAuditLogger;
@@ -27,6 +31,18 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
         $this->eventAuditLogger ??= EventAuditLogger::getInstance();
         return $this->eventAuditLogger;
     }
+
+    public function setRedactor(ApiLogRedactor $redactor): void
+    {
+        $this->redactor = $redactor;
+    }
+
+    public function getRedactor(): ApiLogRedactor
+    {
+        $this->redactor ??= new ApiLogRedactor();
+        return $this->redactor;
+    }
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -53,25 +69,40 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             !$request->attributes->has("skipResponseLogging") &&
             $globalsBag->getInt('api_log_option') > 0
         ) {
+            $url = $request->getRequestUri();
             if ($globalsBag->getInt('api_log_option') === 1) {
-                $this->getSystemLogger()->debug("ApiResponseLoggerListener::onRequestTerminated api_log_option set to 1, skipping log and request");
-                // Do not log the response and requestBody
+                $this->logger?->debug("ApiResponseLoggerListener::onRequestTerminated api_log_option set to 1, skipping log and request");
+                // Do not log the response or request body at minimal level
+                $logRequestBody = '';
                 $logResponse = '';
-            } elseif ($this->shouldLogResponse($response)) {
-                // If the response is a Symfony Response, we can get the content directly.
-                // getContent() returns false for streamed responses, which we log as empty.
-                $content = $response->getContent();
-                $logResponse = is_string($content) ? $content : '';
             } else {
-                $logResponse = '';
-                $this->getSystemLogger()->debug("ApiResponseLoggerListener::onRequestTerminated skipping log of response, not a json response");
+                if ($this->shouldLogResponse($response)) {
+                    // getContent() returns false for streamed responses, which we log as empty.
+                    $content = $response->getContent();
+                    $logResponse = is_string($content) ? $content : '';
+                } else {
+                    $logResponse = '';
+                    $this->logger?->debug("ApiResponseLoggerListener::onRequestTerminated skipping log of response, not a json response");
+                }
+
+                if ($this->shouldLogRequest($request)) {
+                    $logRequestBody = $request->getContent();
+                } else {
+                    $logRequestBody = '';
+                    $this->logger?->debug("ApiResponseLoggerListener::onRequestTerminated skipping log of request body, not a json or form-encoded request");
+                }
+
+                // Replace transient OAuth2 field values with a sentinel before writing;
+                // no-op for non-OAuth2 URLs.
+                $redactor = $this->getRedactor();
+                $logRequestBody = $redactor->redactRequest($url, $logRequestBody);
+                $logResponse = $redactor->redactResponse($url, $logResponse);
             }
 
             // prepare values and call the log function
-            $event = 'api';
+            $eventName = 'api';
             $category = 'api';
             $method = $request->getMethod();
-            $url = $request->getRequestUri();
             $patientId = (int)($session->get('pid', 0));
             $userId = (int)($session->get('authUserID', 0));
             $api = [
@@ -81,8 +112,7 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
                 'method' => $method,
                 'request' => $request->getResource() ?? '',
                 'request_url' => $url,
-                // note due to the way responses are handled now, the request_body and response are going to be the same
-                'request_body' => $logResponse,
+                'request_body' => $logRequestBody,
                 'response' => $logResponse
             ];
             if ($patientId === 0) {
@@ -90,7 +120,7 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             }
             $this->getEventAuditLogger()->recordLogItem(
                 1,
-                $event,
+                $eventName,
                 $session->get('authUser', ''),
                 $session->get('authProvider', ''),
                 'api log',
@@ -106,14 +136,11 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
     }
 
     /**
-     * Checks if we should log the response interface (we don't want to log binary documents or anything like that)
-     * We only log requests with a content-type of any form of json fhir+application/json or application/json
-     * @param Response $response
-     * @return bool If the request should be logged, false otherwise
+     * Checks if we should log the response interface (we don't want to log binary documents or anything like that).
+     * We only log responses with a content-type of application/json or application/fhir+json.
      */
     private function shouldLogResponse(Response $response): bool
     {
-        // If the response is a Symfony Response, we can check the content type directly
         if ($response->headers->has('Content-Type')) {
             $contentType = $response->headers->get('Content-Type');
             if (in_array($contentType, ['application/json', 'application/fhir+json'])) {
@@ -121,5 +148,28 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             }
         }
         return false;
+    }
+
+    /**
+     * Mirror of shouldLogResponse() for the request side: whitelists the
+     * content-types we expect for API requests. x-www-form-urlencoded is on
+     * the list so OAuth2 token requests get captured (post-redaction);
+     * everything outside the whitelist (file uploads, FHIR Binary POSTs,
+     * NDJSON bulk-import) is dropped from the request_body column, same way
+     * the response column already drops binary and streamed responses.
+     */
+    private function shouldLogRequest(Request $request): bool
+    {
+        $contentType = $request->headers->get('Content-Type');
+        if (!is_string($contentType)) {
+            return false;
+        }
+        // Strip any ";charset=…" suffix a client may have added.
+        $mediaType = trim(strtok($contentType, ';') ?: '');
+        return in_array($mediaType, [
+            'application/json',
+            'application/fhir+json',
+            'application/x-www-form-urlencoded',
+        ], true);
     }
 }

@@ -6,28 +6,37 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = $session->get('pid', 0);
+$pid = \OpenEMR\Common\Session\PatientSessionUtil::getPid();
 $userauthorized = $session->get('userauthorized', 0);
 require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientService;
 
-
-if (!empty($_GET['set_pid'])) {
-    setpid($_GET['set_pid']);
+// Switching to another patient needs a CSRF token in the link.
+$request = CurrentRequest::get();
+$setPid = $request->query->getInt('set_pid');
+if ($setPid > 0) {
+    PatientSessionUtil::requireCsrfForLinkSwitch($request, $setPid);
+    setpid($setPid);
 }
 
 // form parameter docid can be passed to restrict the display to a document.
@@ -354,10 +363,10 @@ function submitform(attr) {
 <script>
 
 <?php
-if (!empty($_GET['set_pid'])) {
+if ($setPid > 0) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
     ?>
- parent.left_nav.setPatient(<?php echo js_escape($ndata['fname'] . " " . $ndata['lname']) . "," . js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name, null, " . ((new PatientService())->hasPictureForPid($patient_id) ? 'true' : 'false'); ?>);
+ parent.left_nav.setPatient(<?php echo js_escape($ndata['fname'] . " " . $ndata['lname']) . "," . $patient_id . "," . js_escape($ndata['pubpid']) . ",window.name, null, " . ((new PatientService())->hasPictureForPid($patient_id) ? 'true' : 'false'); ?>);
     <?php
 }
 
@@ -370,7 +379,7 @@ if ($noteid /* && $title == 'New Document' */) {
         $docid = $matches[1];
         $docname = $matches[2];
         ?>
-     window.open('../../../controller.php?document&retrieve&patient_id=<?php echo attr_url($patient_id); ?>&document_id=<?php echo attr_url($docid); ?>&<?php echo attr_url($docname)?>&as_file=true',
+     window.open('../../../controller.php?document&retrieve&patient_id=<?php echo attr_url((string) $patient_id); ?>&document_id=<?php echo attr_url($docid); ?>&<?php echo attr_url($docname)?>&as_file=true',
   '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
         <?php
     }

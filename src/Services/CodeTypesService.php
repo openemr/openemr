@@ -200,7 +200,7 @@ class CodeTypesService
      * @param $code
      * @return array
      */
-    public function parseCode($code)
+    public function parseCode($code): array
     {
         $parsedCode = $code;
         $parsedType = null;
@@ -300,7 +300,8 @@ class CodeTypesService
         if ($useOid) {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
                 $system = '2.16.840.1.113883.6.96';
-            } elseif (self::CODE_TYPE_SNOMED == $codeType) {
+            } elseif (self::CODE_TYPE_SNOMED == $codeType || self::CODE_TYPE_SNOMED_PROCEDURE == $codeType) {
+                // SNOMED-PR holds SNOMED CT procedure codes, as getCodeTypeListForSystem() already reads them back.
                 $system = '2.16.840.1.113883.6.96';
             } elseif (self::CODE_TYPE_CPT4 == $codeType) {
                 $system = '2.16.840.1.113883.6.12';
@@ -323,7 +324,7 @@ class CodeTypesService
         } else {
             $system = match ($codeType) {
                 self::CODE_TYPE_SNOMED_CT => FhirCodeSystemConstants::SNOMED_CT,
-                self::CODE_TYPE_SNOMED => FhirCodeSystemConstants::SNOMED_CT,
+                self::CODE_TYPE_SNOMED, self::CODE_TYPE_SNOMED_PROCEDURE => FhirCodeSystemConstants::SNOMED_CT,
                 self::CODE_TYPE_NUCC => FhirCodeSystemConstants::NUCC_PROVIDER,
                 self::CODE_TYPE_LOINC => FhirCodeSystemConstants::LOINC,
                 self::CODE_TYPE_RXNORM, self::CODE_TYPE_RXCUI => FhirCodeSystemConstants::RXNORM,
@@ -418,9 +419,8 @@ class CodeTypesService
      * @param        $codeType
      * @param string $currentCodeText
      * @param string $codeDescriptionType
-     * @return array
      */
-    public function resolveCode($code, $codeType, $currentCodeText = '', $codeDescriptionType = 'code_text')
+    public function resolveCode($code, $codeType, $currentCodeText = '', $codeDescriptionType = 'code_text'): array
     {
         $valueset = '';
         $valueset_name = '';
@@ -497,7 +497,7 @@ class CodeTypesService
     public function dischargeOptionIdFromCode($formatted_code)
     {
         $listService = $this->getListService();
-        $ret = $listService->getOptionsByListName('discharge-disposition', ['codes' => $formatted_code]) ?? '';
+        $ret = $listService->getOptionsByListName('discharge-disposition', ['codes' => $formatted_code]);
         return $ret[0]['option_id'] ?? '';
     }
 
@@ -507,7 +507,7 @@ class CodeTypesService
         return $listService->getListOption('discharge-disposition', $option_id)['codes'] ?? '';
     }
 
-    public function parseCodesIntoCodeableConcepts($codes)
+    public function parseCodesIntoCodeableConcepts($codes): array
     {
         if (!is_string($codes) || empty(trim($codes))) {
             return [];

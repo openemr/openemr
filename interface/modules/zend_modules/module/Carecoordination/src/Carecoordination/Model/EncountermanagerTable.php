@@ -126,7 +126,7 @@ class EncountermanagerTable
         return QueryUtils::fetchRecords($query, [$pid]);
     }
 
-    public function convert_to_yyyymmdd($date)
+    public function convert_to_yyyymmdd($date): string
     {
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
@@ -242,7 +242,7 @@ class EncountermanagerTable
      * @param string requested_by user | patient
      * @return string result of operation
      */
-    public function transmitCcdToRecipients($data = [])
+    public function transmitCcdToRecipients($data = []): string
     {
         $ccda_combination = $data['ccda_combination'];
         $recipients = $data['recipients'];
@@ -263,15 +263,17 @@ class EncountermanagerTable
                 $elec_sent = [];
                 $arr = explode('|', (string) $ccda_combination);
                 foreach ($arr as $value) {
-                    $query = "SELECT id,transaction_id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
+                    $query = "SELECT id,transaction_id,transaction_chosen FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
                     $result = QueryUtils::fetchRecords($query, [$value]);
                     $ccda_id = null;
                     $trans_id = null;
+                    $trans_chosen = false;
                     // weird foreach loop considering the limit 1 up above?
                     foreach ($result as $val) {
                         $ccda_id = $val['id'];
                         // gets connected at the time the ccda is created
                         $trans_id = $val['transaction_id'];
+                        $trans_chosen = in_array($val['transaction_chosen'] ?? null, [1, '1'], true);
                     }
 
                     $elec_sent[] = ['pid' => $value, 'map_id' => $trans_id];
@@ -304,7 +306,10 @@ class EncountermanagerTable
 
                     // there is no way currently to specify this came from the patient so we force to clinician.
                     // Default xml type is CCD  (ie Continuity of Care Document)
-                    $result = transmitCCD($value, $ccda_file, $recipient, 'clinician', "CCD", $xml_type, '', $fileName, $verifyMessageReceivedChecked);
+                    // The referral staff chose the C-CDA for, so a reply to it can be filed with that referral. The
+                    // most recent referral, linked when they chose none, is a guess, and a reply isn't filed by it.
+                    $referralId = $trans_chosen && is_numeric($trans_id) ? (int)$trans_id : null;
+                    $result = transmitCCD($value, $ccda_file, $recipient, 'clinician', "CCD", $xml_type, '', $fileName, $verifyMessageReceivedChecked, $referralId);
                     if ($result !== "SUCCESS") {
                         $d_Address .= ' ' . $recipient . "(" . $result . ")";
                     }

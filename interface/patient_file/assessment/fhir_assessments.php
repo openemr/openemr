@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Patient FHIR assessment launcher.
+ * Patient questionnaire assessment launcher.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 require_once(dirname(__FILE__, 3) . "/globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -24,13 +25,17 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Services\Globals\CollapsedSections;
+use OpenEMR\Services\Questionnaire\AssessmentCategoryGroups;
+use OpenEMR\Services\Questionnaire\AssessmentPageLayout;
+use OpenEMR\Services\Questionnaire\AvailabilityContext;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 
 $pid = PatientSessionUtil::getPid();
 $authorized = AclMain::aclCheckCore('patients', 'med');
 $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
-$container = OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')
-    ? 'container'
-    : 'container-fluid';
+$pageLayout = AssessmentPageLayout::create(OEGlobalsBag::getInstance());
 $showSmartContextTestLaunches = OEGlobalsBag::getInstance()->getBoolean(
     'smart_context_test_launches'
 );
@@ -109,50 +114,31 @@ $assessmentStatusClass = (static fn(string $status): string => match ($status) {
     'in-progress' => 'badge-warning',
     'amended' => 'badge-info',
     'stopped', 'entered-in-error' => 'badge-danger',
-    default => 'badge-secondary',
+    default => 'badge-info',
 });
 
 $questionnairesByCategory = [];
+$smartLaunchesSection = AssessmentPageLayout::SMART_LAUNCHES_SECTION;
+// questionnaire id => the SMART apps it may be launched into. Empty unless a SMART
+// availability rule reaches the questionnaire, so the launch menu is offered only for
+// questionnaires an administrator selected, not for every assessment.
+$smartClientsByQuestionnaire = [];
 $assessmentHistory = [];
 $latestAssessmentByQuestionnaire = [];
 
 if ($authorized && $pid > 0) {
-    $questionnaireRecords = QueryUtils::fetchRecordsNoLog(
-        "SELECT
-            qr.id,
-            qr.name,
-            qr.version,
-            qr.profile,
-            qr.type,
-            qr.code_display,
-            qr.category,
-            qr.questionnaire,
-            lo.title AS category_title
-         FROM questionnaire_repository qr
-         LEFT JOIN list_options lo
-            ON lo.list_id = 'Observation_Types'
-            AND lo.option_id = qr.category
-            AND lo.activity = 1
-         WHERE qr.active = 1
-         ORDER BY COALESCE(lo.seq, 999999), COALESCE(lo.title, qr.category), qr.name"
+    // Which questionnaires belong on this dashboard is an assignment question, not a
+    // property of the repository row, so it is answered in one place for every surface.
+    $questionnaireRecords = (new QuestionnaireAvailabilityService())->getAvailableQuestionnaires(
+        new AvailabilityContext(
+            QuestionnaireSurface::Dashboard,
+            pid: $pid,
+            encounter: is_numeric($currentEncounterValue) ? (int)$currentEncounterValue : null,
+            facility: $assessmentPositiveInt($activeSession->get('facilityId')),
+        )
     );
 
-    foreach ($questionnaireRecords as $questionnaireRecord) {
-        $questionnaireId = $assessmentPositiveInt($questionnaireRecord['id']);
-        if ($questionnaireId === null) {
-            continue;
-        }
-
-        $categoryTitle = $assessmentString($questionnaireRecord['category_title'] ?? null);
-        $category = $assessmentString($questionnaireRecord['category'] ?? null);
-        if ($categoryTitle === '') {
-            $categoryTitle = $category !== ''
-                ? ucwords(str_replace(['_', '-'], ' ', $category))
-                : xl('Unassigned');
-        }
-
-        $questionnairesByCategory[$categoryTitle][] = $questionnaireRecord;
-    }
+    $questionnairesByCategory = AssessmentCategoryGroups::fromRecords($questionnaireRecords, xl('Unassigned'));
 
     $assessmentHistory = QueryUtils::fetchRecordsNoLog(
         "SELECT
@@ -180,7 +166,34 @@ if ($authorized && $pid > 0) {
 
         $latestAssessmentByQuestionnaire[$questionnaireForeignId] = $assessmentRecord;
     }
+
+    // One availability question per app, because a SMART rule can name the app it allows.
+    // The launch endpoint asks the same question, so a hand-built launch URL is refused too.
+    if ($smartAssessmentClients !== []) {
+        $smartAvailability = new QuestionnaireAvailabilityService();
+        $smartFacility = $assessmentPositiveInt($activeSession->get('facilityId'));
+        foreach ($smartAssessmentClients as $smartClient) {
+            $smartClientIdentifier = $assessmentString($smartClient->getIdentifier());
+            if ($smartClientIdentifier === '') {
+                continue;
+            }
+            $launchableIds = $smartAvailability->getAvailableIds(new AvailabilityContext(
+                QuestionnaireSurface::Smart,
+                pid: $pid,
+                facility: $smartFacility,
+                clientId: $smartClientIdentifier,
+            ));
+            foreach ($launchableIds as $launchableId) {
+                $smartClientsByQuestionnaire[$launchableId][] = $smartClient;
+            }
+        }
+    }
 }
+
+$collapsedSections = CollapsedSections::forCurrentUser([$smartLaunchesSection, ...array_keys($questionnairesByCategory)]);
+
+$twig = ServiceContainer::getTwig();
+$adminTabs = AssessmentPageLayout::adminTabs($authorized, $pid, $webRoot);
 
 $nativeQuestionnaireUrl = $webRoot . '/interface/forms/questionnaire_assessments/native_questionnaire.php';
 $smartLaunchUrl = $webRoot . '/interface/smart/ehr-launch-client.php';
@@ -190,7 +203,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
 <html>
 <head>
     <?php Header::setupHeader(); ?>
-    <title><?php echo xlt('FHIR Assessments'); ?></title>
+    <title><?php echo xlt('Questionnaire Assessments'); ?></title>
     <style>
         #assessment-frame {
             border: 0;
@@ -200,8 +213,8 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
     </style>
 </head>
 <body class="body_top">
-    <div class="<?php echo attr($container); ?> mt-3">
-        <h4><?php echo xlt('FHIR Assessments'); ?></h4>
+    <div id="container_div" class="<?php echo attr($pageLayout->oeContainer()); ?> mt-3">
+        <?php echo $pageLayout->pageHeading(); ?>
         <div class="row">
             <div class="col-sm-12">
                 <?php
@@ -229,15 +242,21 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <iframe id="assessment-frame" title="<?php echo xla('FHIR Assessment'); ?>"></iframe>
+                    <iframe id="assessment-frame" title="<?php echo xla('Questionnaire Assessment'); ?>"></iframe>
                 </div>
             </div>
 
             <?php if ($showSmartContextTestLaunches && $smartAssessmentClients !== []) : ?>
+                <?php $smartLaunchesCollapsed = $collapsedSections->isCollapsed($smartLaunchesSection); ?>
                 <div class="card my-3">
                     <div class="card-header">
-                        <strong><?php echo xlt('SMART Context Test Launches'); ?></strong>
+                        <?php echo $twig->render('patient/assessment/section_toggle.html.twig', ['section' => $smartLaunchesSection, 'title' => xl('SMART Context Test Launches'), 'collapsed' => $smartLaunchesCollapsed]); ?>
                     </div>
+                    <div
+                        id="<?php echo attr($smartLaunchesSection); ?>"
+                        class="collapse<?php echo $smartLaunchesCollapsed ? '' : ' show'; ?>"
+                        data-persist-collapse
+                    >
                     <div class="card-body">
                         <div class="small text-muted mb-3">
                             <?php echo xlt('Launch a registered SMART app with standard OpenEMR patient, encounter, main-tab, or appointment context.'); ?>
@@ -300,6 +319,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             </div>
                         <?php endforeach; ?>
                     </div>
+                    </div>
                 </div>
             <?php endif; ?>
 
@@ -330,10 +350,11 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         >
                             <?php echo xlt('Assessment History'); ?>
                             <?php if ($assessmentHistory !== []) : ?>
-                                <span class="badge badge-secondary ml-1"><?php echo text((string)count($assessmentHistory)); ?></span>
+                                <span class="badge badge-info ml-1"><?php echo text((string)count($assessmentHistory)); ?></span>
                             <?php endif; ?>
                         </a>
                     </li>
+                    <?php echo $twig->render('patient/assessment/admin_tab_nav.html.twig', $adminTabs); ?>
                 </ul>
                 <div class="tab-content border-left border-right border-bottom p-3 bg-light" id="assessment-tabs-content">
                     <div
@@ -354,9 +375,21 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         <?php if ($questionnairesByCategory === []) : ?>
                             <div class="text-muted"><?php echo xlt('No active FHIR Questionnaires are available.'); ?></div>
                         <?php else : ?>
-                            <?php foreach ($questionnairesByCategory as $categoryTitle => $questionnaires) : ?>
-                                <h5 class="mt-2 mb-3"><?php echo text($categoryTitle); ?></h5>
-                                <div class="row">
+                            <?php foreach ($questionnairesByCategory as $categorySection => $categoryGroup) : ?>
+                                <?php
+                                $categoryTitle = $categoryGroup['title'];
+                                $questionnaires = $categoryGroup['records'];
+                                $categoryCollapsed = $collapsedSections->isCollapsed($categorySection);
+                                ?>
+                                <h5 class="mt-2 mb-3">
+                                    <?php echo $twig->render('patient/assessment/section_toggle.html.twig', ['section' => $categorySection, 'title' => $categoryTitle, 'collapsed' => $categoryCollapsed]); ?>
+                                    <span class="badge badge-light ml-1"><?php echo text((string)count($questionnaires)); ?></span>
+                                </h5>
+                                <div
+                                    id="<?php echo attr($categorySection); ?>"
+                                    class="row collapse<?php echo $categoryCollapsed ? '' : ' show'; ?>"
+                                    data-persist-collapse
+                                >
                                     <?php foreach ($questionnaires as $questionnaire) : ?>
                                         <?php
                                         $questionnaireId = $assessmentPositiveInt($questionnaire['id']);
@@ -395,6 +428,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                     ? ['response_id' => $latestResponseId]
                                                     : ['questionnaire_id' => $questionnaireId]
                                             );
+                                        $cardSmartClients = $smartClientsByQuestionnaire[$questionnaireId] ?? [];
                                         ?>
                                         <div class="col-12 col-lg-6 col-xl-4 mb-3">
                                             <div class="card h-100">
@@ -419,7 +453,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                         <?php if (str_contains($profile, '/uv/sdc/')) : ?>
                                                             <span class="badge badge-info ml-1"><?php echo xlt('FHIR SDC'); ?></span>
                                                         <?php else : ?>
-                                                            <span class="badge badge-secondary ml-1"><?php echo xlt('FHIR R4'); ?></span>
+                                                            <span class="badge badge-info ml-1"><?php echo xlt('FHIR R4'); ?></span>
                                                         <?php endif; ?>
                                                     </div>
                                                     <?php if ($lastUpdated !== '') : ?>
@@ -437,7 +471,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                         >
                                                             <?php echo $isContinuable ? xlt('Continue') : xlt('Start Assessment'); ?>
                                                         </button>
-                                                        <?php if ($smartAssessmentClients !== []) : ?>
+                                                        <?php if ($cardSmartClients !== []) : ?>
                                                             <div class="btn-group ml-1">
                                                                 <button
                                                                     type="button"
@@ -446,10 +480,10 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                                     aria-haspopup="true"
                                                                     aria-expanded="false"
                                                                 >
-                                                                    <?php echo xlt('Launch SMART App'); ?>
+                                                                    <?php echo xlt('Launch App'); ?>
                                                                 </button>
                                                                 <div class="dropdown-menu">
-                                                                    <?php foreach ($smartAssessmentClients as $smartClient) : ?>
+                                                                    <?php foreach ($cardSmartClients as $smartClient) : ?>
                                                                         <button
                                                                             type="button"
                                                                             class="dropdown-item assessment-smart-launch"
@@ -490,7 +524,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                         </div>
 
                         <?php if ($assessmentHistory === []) : ?>
-                            <div class="text-muted"><?php echo xlt('No FHIR assessment history found.'); ?></div>
+                            <div class="text-muted"><?php echo xlt('No questionnaire assessment history found.'); ?></div>
                         <?php else : ?>
                             <div class="table-responsive">
                                 <table class="table table-sm table-striped mb-0">
@@ -521,6 +555,9 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                         $editUrl = $responseId !== ''
                                             ? $nativeQuestionnaireUrl . '?' . http_build_query(['response_id' => $responseId])
                                             : '';
+                                        $historySmartClients = $historyQuestionnaireId !== null
+                                            ? ($smartClientsByQuestionnaire[$historyQuestionnaireId] ?? [])
+                                            : [];
                                         ?>
                                         <tr>
                                             <td><?php echo text($questionnaireName); ?></td>
@@ -544,8 +581,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                     </button>
                                                 <?php endif; ?>
                                                 <?php if (
-                                                    $smartAssessmentClients !== []
-                                                    && $historyQuestionnaireId !== null
+                                                    $historySmartClients !== []
                                                     && $historyQuestionnaireResponseId !== null
                                                 ) : ?>
                                                     <div class="btn-group ml-1">
@@ -556,10 +592,10 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                             aria-haspopup="true"
                                                             aria-expanded="false"
                                                         >
-                                                            <?php echo xlt('Launch SMART App'); ?>
+                                                            <?php echo xlt('Launch App'); ?>
                                                         </button>
                                                         <div class="dropdown-menu dropdown-menu-right">
-                                                            <?php foreach ($smartAssessmentClients as $smartClient) : ?>
+                                                            <?php foreach ($historySmartClients as $smartClient) : ?>
                                                                 <button
                                                                     type="button"
                                                                     class="dropdown-item assessment-smart-launch"
@@ -582,12 +618,15 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             </div>
                         <?php endif; ?>
                     </div>
+                    <?php echo $twig->render('patient/assessment/admin_tab_panes.html.twig', $adminTabs); ?>
                 </div>
             </div>
         <?php endif; ?>
     </div>
-
+    <?php $pageLayout->oeBelowContainerDiv(); ?>
     <?php if ($authorized && $pid > 0) : ?>
+        <?php echo $twig->render('super/_collapse_persist.html.twig', ['csrfToken' => $smartLaunchCsrfToken]); ?>
+        <?php echo $twig->render('patient/assessment/assessment_feedback.html.twig', ['launcherUrl' => $selfUrl]); ?>
         <script>
             const assessmentWorkspace = document.getElementById('assessment-workspace')
             const assessmentCatalog = document.getElementById('assessment-catalog')
@@ -605,17 +644,19 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
             function openAssessment (url, title) {
                 top.restoreSession()
                 assessmentSavePending = false
-                assessmentSaveButton.disabled = false
+                assessmentFeedback.saving(false)
                 assessmentTitle.textContent = title
                 assessmentCatalog.classList.add('d-none')
                 assessmentWorkspace.classList.remove('d-none')
+                assessmentFeedback.loading(true)
                 assessmentFrame.src = url
                 window.scrollTo({ top: 0, behavior: 'smooth' })
             }
 
             function closeAssessment () {
                 assessmentSavePending = false
-                assessmentSaveButton.disabled = false
+                assessmentFeedback.saving(false)
+                assessmentFeedback.loading(false)
                 assessmentFrame.src = 'about:blank'
                 assessmentWorkspace.classList.add('d-none')
                 assessmentCatalog.classList.remove('d-none')
@@ -716,7 +757,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 }
                 top.restoreSession()
                 assessmentSavePending = true
-                assessmentSaveButton.disabled = true
+                assessmentFeedback.saving(true)
                 assessmentFrame.contentWindow.postMessage({ submitForm: true }, window.location.origin)
             })
 
@@ -728,13 +769,13 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 }
 
                 if (event.data?.assessmentSaved === true) {
-                    window.location.href = assessmentLauncherUrl
+                    window.location.href = assessmentFeedback.savedUrl
                     return
                 }
 
                 if (event.data?.assessmentValidationFailed === true || event.data?.assessmentSaveFailed === true) {
                     assessmentSavePending = false
-                    assessmentSaveButton.disabled = false
+                    assessmentFeedback.saving(false)
                 }
             })
         </script>

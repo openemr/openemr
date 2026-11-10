@@ -247,17 +247,17 @@ class Bootstrap
         return $event;
     }
 
-    private function getPublicPath()
+    private function getPublicPath(): string
     {
         return self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
     }
 
-    private function getAssetPath()
+    private function getAssetPath(): string
     {
         return $this->getPublicPath() . 'assets' . DIRECTORY_SEPARATOR;
     }
 
-    public function getTemplatePath()
+    public function getTemplatePath(): string
     {
         return \dirname(__DIR__) . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR;
     }

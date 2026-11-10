@@ -7,7 +7,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2022 Stephen Waite <stephen.waite@cmsvt.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
@@ -46,8 +46,26 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
                 `ob_reason_status`, `ob_reason_code`, `date_end`
                 FROM `form_observation`
                 WHERE `ob_type` = '$observation_type'
+                AND " . self::countedObservation('`form_observation`') . "
                 ";
         return $sql;
+    }
+
+    /**
+     * Which form_observation rows the measures count, as SQL: not deleted in the Observation form
+     * (ObservationService::deleteObservationById() sets activity = 0), and not from an Observation
+     * form deleted from the visit (delete_form.php sets forms.deleted = 1). A NULL activity, and an
+     * observation with no forms row (form_id 0, as the QRDA import writes them), are kept. The form
+     * has to be the observation's patient's too: the Observation form and the import each pick the
+     * next form_id with an unlocked MAX() + 1, so two patients' forms can share one.
+     * VitalSignsService checks its duplicates against the same rows.
+     *
+     * @param string $table form_observation or its alias, as it appears in the query
+     */
+    public static function countedObservation(string $table): string
+    {
+        return "COALESCE($table.`activity`, 1) <> 0
+                AND " . self::countedFormRow("$table.`form_id`", "$table.`pid`", QdmForm::Observation);
     }
 
     public function makeResult($record)

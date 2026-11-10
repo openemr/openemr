@@ -22,14 +22,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'date\' on non\\-empty\\-list in empty\\(\\) does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'diagnosis\' on array\\{id\\: non\\-falsy\\-string, title\\: mixed, diagnosis\\: non\\-falsy\\-string, comments\\: mixed, date\\: mixed, author_id\\: mixed\\} in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'drug_id\' on array\\{drug_id\\: 0, warehouse_id\\: \'\'\\} in empty\\(\\) always exists and is always falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/inventory_list.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'id\' on non\\-empty\\-array\\<mixed, mixed\\> in empty\\(\\) always exists and is not falsy\\.$#',

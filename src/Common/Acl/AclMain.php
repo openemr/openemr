@@ -276,7 +276,7 @@ class AclMain
      * $param String $section_identifier ACL Section id
      * @return bool
      */
-    public static function zhAclCheck($user_id, $section_identifier)
+    public static function zhAclCheck($user_id, $section_identifier): bool
     {
         $sql_user_acl = " SELECT
                         COUNT(allowed) AS count
@@ -388,7 +388,7 @@ class AclMain
     // Permissions check for a specified issue type.
     // Note $return_value may be an array of return values.
     //
-    public static function aclCheckIssue($type, $user = '', $return_value = '')
+    public static function aclCheckIssue($type, $user = '', $return_value = ''): bool
     {
         $issueTypes = IssueTypeRegistry::issueTypes();
         if (empty($issueTypes[$type][5])) {

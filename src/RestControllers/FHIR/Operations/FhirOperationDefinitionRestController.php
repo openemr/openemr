@@ -131,7 +131,7 @@ class FhirOperationDefinitionRestController
         return $response->withAddedHeader('Content-Type', 'application/json');
     }
 
-    private function getBulkDataStatusDefinition()
+    private function getBulkDataStatusDefinition(): FHIROperationDefinition
     {
         $opDef = new FHIROperationDefinition();
         $opDef->setName('$bulkdata-status');

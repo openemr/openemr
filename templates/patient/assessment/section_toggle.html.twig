@@ -1,0 +1,13 @@
+{#
+  The header link that folds a section away, for pages written in PHP. Twig pages import the
+  macro from super/_collapse_persist.html.twig directly. Takes section (the setting key, also
+  the section body's id), title (already translated) and collapsed.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% import 'super/_collapse_persist.html.twig' as collapse %}
+{{ collapse.toggle(section, title, collapsed) }}

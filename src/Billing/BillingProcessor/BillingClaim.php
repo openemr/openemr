@@ -191,6 +191,19 @@ class BillingClaim implements \JsonSerializable
     }
 
     /**
+     * The insurance company selected for this claim in the billing manager, or
+     * null when none was: the payer drop-down's "Unassigned" option posts -1,
+     * which getPayorId() turns into "1".
+     */
+    public function getSelectedPayerId(): ?string
+    {
+        $isPayerLevel = in_array($this->payor_type, [self::PRIMARY, self::SECONDARY, self::TERTIARY], true);
+        return $isPayerLevel && is_string($this->payor_id) && $this->payor_id !== ''
+            ? $this->payor_id
+            : null;
+    }
+
+    /**
      * @return mixed
      */
     public function getPayorType()

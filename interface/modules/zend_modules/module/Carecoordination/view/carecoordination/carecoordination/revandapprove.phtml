@@ -231,6 +231,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
     });
 </script>
 <form method="post" action="<?php echo $this->basePath() . '/carecoordination/revandapprove'; ?>">
+    <input type="hidden" name="csrf_token_form" value="<?php echo \OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()); ?>">
     <input type="hidden" name="amid" value="<?php echo $this->escapeHtml($this->amid); ?>">
     <input type="hidden" name="pid" value="<?php echo $this->escapeHtml($this->pid); ?>">
     <input type="hidden" name="document_id" id="document_id" value="<?php echo $this->escapeHtml($this->document_id); ?>" >
@@ -447,8 +448,13 @@ $insert = $this->listenerObject->z_xlt('Insert');
         </tr>
         <?php
         foreach ($this->social_history as $res_existing_social_history) {
-            $arr_his_alcohol = explode("|", $res_existing_social_history['alcohol']);
-            $arr_his_tobacco = explode("|", $res_existing_social_history['tobacco']);
+            // note|status|date. The patient's latest history row may hold one of the two or neither: a new
+            // patient's first row is empty, and an import writes only what its document carries.
+            $date_alcohol = $date_tobacco = '';
+            $existing_alcohol = $res_existing_social_history['alcohol'] ?? null;
+            $existing_tobacco = $res_existing_social_history['tobacco'] ?? null;
+            $arr_his_alcohol = array_pad(explode("|", is_string($existing_alcohol) ? $existing_alcohol : ''), 3, '');
+            $arr_his_tobacco = array_pad(explode("|", is_string($existing_tobacco) ? $existing_tobacco : ''), 3, '');
             $alc1 = explode("alcohol", $arr_his_alcohol[1]);
             $tob1 = explode('tobacco', $arr_his_tobacco[1]);
             if ($arr_his_alcohol[2] != 0 && $arr_his_alcohol[2] != '')
@@ -487,11 +493,15 @@ $insert = $this->listenerObject->z_xlt('Insert');
             '228274009' => 'Never'
         );
         foreach ($this->social_history_audit['social_history'] as $key => $val) {
-            $array_his_alcohol = explode("|", $val['alcohol']);
+            // note|status|date; a document may carry only one of the two (no import carries alcohol yet).
+            $his_alc_date = $his_tob_date = '';
+            $val_alcohol = $val['alcohol'] ?? null;
+            $array_his_alcohol = array_pad(explode("|", is_string($val_alcohol) ? $val_alcohol : ''), 3, '');
             if ($array_his_alcohol[2] != 0 && $array_his_alcohol[2] != '') {
                 $his_alc_date = $this->carecoordinationTable->formatDate($array_his_alcohol[2], 0);
             }
-            $array_his_tobacco = explode("|", $val['smoking']);
+            $val_smoking = $val['smoking'] ?? null;
+            $array_his_tobacco = array_pad(explode("|", is_string($val_smoking) ? $val_smoking : ''), 3, '');
             if ($array_his_tobacco[2] != 0 && $array_his_tobacco[2] != '') {
                 $his_tob_date = $this->carecoordinationTable->formatDate($array_his_tobacco[2], 0);
             }

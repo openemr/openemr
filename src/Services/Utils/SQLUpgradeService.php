@@ -24,6 +24,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
 use OpenEMR\Services\VersionService;
 
@@ -213,6 +214,10 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * #IfCareTeamsV1MigrationNeeded
      *  desc: Migrate care teams v1 data to care teams v2 structure.
+     *  arguments: none
+     *
+     * #IfPatientReviewMigrationNeeded
+     *  desc: Copy onsite_portal_activity rows not yet copied into the patient review queue tables.
      *  arguments: none
      *
      * #EndIf
@@ -768,6 +773,20 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $skipping = true;
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
+            } elseif (str_starts_with($line, '#IfPatientReviewMigrationNeeded')) {
+                $migrator = ReviewQueueFactory::portalActivityMigrator();
+                if ($migrator->isNeeded()) {
+                    $skipping = false;
+                    $report = $migrator->migrate();
+                    $this->echo("<p class='text-success'>" . xlt('Copied portal review activity to the review queue') . ': ' . text((string) $report->migrated) . "</p>\n");
+                    if ($report->skipped !== [] || $report->failed !== [] || $report->unrecognised !== []) {
+                        $this->echo("<p class='text-warning'>" . xlt('Some portal activity rows need attention; see the system log') . "</p>\n");
+                    }
+                    $this->flush_echo();
+                } else {
+                    $skipping = true;
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
             } elseif (str_starts_with($line, '#EndIf')) {
                 $skipping = false;
             }
@@ -1028,7 +1047,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $engine  engine name ( myisam, memory, innodb )...
      * @return bool true if the table has been created using specified engine
      */
-    private function tableHasEngine($tblname, $engine)
+    private function tableHasEngine($tblname, $engine): bool
     {
         $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', [$tblname, $engine]);
         return !empty($row);
@@ -1190,9 +1209,9 @@ class SQLUpgradeService implements ISQLUpgradeService
      * Request to information_schema
      *
      * @param array $arg possible arguments: engine, table_name
-     * @return SQLStatement
+     * @return array<string, string> table names, keyed by table name
      */
-    private function getTablesList($arg = [])
+    private function getTablesList($arg = []): array
     {
         $binds = [$this->databaseName()];
         $sql = 'SELECT TABLE_NAME AS table_name FROM information_schema.tables WHERE table_schema = ? AND table_type = "BASE TABLE"';

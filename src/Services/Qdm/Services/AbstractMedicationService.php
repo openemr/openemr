@@ -5,7 +5,7 @@
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
@@ -46,11 +46,6 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
         return $sql;
     }
 
-    public function getPatientIdColumn()
-    {
-        return 'patient_id';
-    }
-
     public function makeQdmModel(QdmRecord $recordObj)
     {
         $record = $recordObj->getData();
@@ -72,7 +67,8 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
                     'date' => $end_date
                 ]),
                 'lowClosed' => (bool) $start_date,
-                'highClosed' => (bool) $this->validDateOrNull($end_date)
+                // No end date means ongoing: in CQL a closed null end is unbounded, an open one unknown (#14526)
+                'highClosed' => true
             ]),
             'route' => null // In sample files, route was null, probably doesn't matter for eCQM
         ]);

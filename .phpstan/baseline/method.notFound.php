@@ -113,12 +113,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
-    'count' => 7,
+    'count' => 9,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getQuery\\(\\)\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
 $ignoreErrors[] = [
@@ -222,51 +222,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/smtp/sasl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:htmlAttribs\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_image.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:IsTerminated\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:GetPrimaryKeyValue\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:GetPrimaryKeyName\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:OnBeforeDelete\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:OnDelete\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:OnInsert\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:OnSave\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:OnUpdate\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Omnipay\\\\Common\\\\GatewayInterface\\:\\:setApiKey\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/PaymentGateway.php',
@@ -347,11 +302,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:getHeader\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Subscriber/CORSListener.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:getRequestMethod\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Subscriber/TelemetryListener.php',
@@ -372,18 +322,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/ClinicalNoteParser.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:addValidationError\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/ContactRelationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Common\\\\ORDataObject\\\\Contact\\:\\:toArray\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ContactService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:addProcessingError\\(\\)\\.$#',
-    'count' => 9,
     'path' => __DIR__ . '/../../src/Services/ContactService.php',
 ];
 $ignoreErrors[] = [
@@ -437,11 +377,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirValueSetService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:addProcessingError\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Lcobucci\\\\JWT\\\\Token\\:\\:claims\\(\\)\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../src/Services/JWTClientAuthenticationService.php',
@@ -490,21 +425,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Particle\\\\Validator\\\\Chain\\:\\:listOption\\(\\)\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:getAttribute\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:hasAttribute\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:setAttribute\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:getMessages\\(\\)\\.$#',
@@ -618,7 +538,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:quick_install\\(\\)\\.$#',
-    'count' => 3,
+    'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [
@@ -648,7 +568,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:write_configuration_file\\(\\)\\.$#',
-    'count' => 7,
+    'count' => 9,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [

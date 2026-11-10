@@ -9,7 +9,7 @@
 //
 class DenominatorAllPatients implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Denominator: All patients in the initial patient population";
     }

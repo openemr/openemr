@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
+use OpenEMR\Common\Auth\OpenIDConnect\ClientGrantTypePolicy;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
@@ -25,6 +26,8 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Kernel;
@@ -34,6 +37,7 @@ use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
 use OpenEMR\Services\DecisionSupportInterventionService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\ReferralService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Symfony\Component\HttpFoundation\Request;
@@ -65,6 +69,8 @@ class ClientAdminController
 
     private AccessTokenRepository $accessTokenRepository;
 
+    private EventAuditLogger $eventAuditLogger;
+
     private string $webroot;
 
     /**
@@ -83,6 +89,11 @@ class ClientAdminController
     public function setTwig(Environment $twig): void
     {
         $this->twig = $twig;
+    }
+
+    public function setEventAuditLogger(EventAuditLogger $eventAuditLogger): void
+    {
+        $this->eventAuditLogger = $eventAuditLogger;
     }
 
     public function setExternalCDRController(RouteController $controller): void
@@ -105,17 +116,15 @@ class ClientAdminController
 
     /**
      * Validates the given request for CSRF attacks as well as ACL permissions.
+     * @param Request $request The request, which carries the token to check
      * @param string $action The action that is being requested
      * @throws CsrfInvalidException If the CSRF token is required but invalid for the given action request
      * @throws AccessDeniedException If the user does not have permission to make the requested action
      */
-    public function checkSecurity(string $action): void
+    public function checkSecurity(Request $request, string $action): void
     {
-        if ($this->shouldCheckCSRFTokenForRequest($action)) {
-            $CSRFToken = $this->getCSRFToken();
-            if (!CsrfUtils::verifyCsrfToken($CSRFToken, $this->session, self::CSRF_TOKEN_NAME)) {
-                throw new CsrfInvalidException(xlt('Authentication Error'));
-            }
+        if ($this->shouldCheckCSRFTokenForRequest($action) && !$this->hasValidCSRFToken($request, $action)) {
+            throw new CsrfInvalidException(xlt('Authentication Error'));
         }
 
         if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -133,7 +142,7 @@ class ClientAdminController
     public function dispatch(Request $request): Response
     {
         $action = $this->normalizeAction($request);
-        $this->checkSecurity($action);
+        $this->checkSecurity($request, $action);
 
         if ($action === '' || $action === 'list/') {
             return $this->listAction();
@@ -166,6 +175,9 @@ class ClientAdminController
                 ,self::REVOKE_TRUSTED_USER => $this->revokeTrustedUserAction($mainActionChild, $request)
                 ,self::REVOKE_ACCESS_TOKEN => $this->revokeAccessToken($mainActionChild, $request)
                 ,self::REVOKE_REFRESH_TOKEN => $this->revokeRefreshToken($mainActionChild, $request)
+                ,'address-book' => $this->addressBookAction($mainActionChild, $request)
+                ,'allow-password-grant' => $this->passwordGrantAction($mainActionChild, true)
+                ,'deny-password-grant' => $this->passwordGrantAction($mainActionChild, false)
                 ,'enable-authorization-flow-skip' => $this->enableAuthorizationFlowSkipAction($mainActionChild)
                 ,'disable-authorization-flow-skip' => $this->disableAuthorizationFlowSkipAction($mainActionChild)
                 , default => $this->notFoundAction()
@@ -404,9 +416,29 @@ class ClientAdminController
      */
     private function handleEnabledAction(ClientEntity $client, bool $isEnabled, string $successMessage): Response
     {
+        $wasEnabled = $client->isEnabled();
         $client->setIsEnabled($isEnabled);
         try {
             $this->clientRepo->saveIsEnabled($client, $isEnabled);
+            $writeScopes = $client->getFhirWriteScopes();
+            if ($writeScopes !== []) {
+                $this->eventAuditLogger ??= EventAuditLogger::getInstance();
+                $this->eventAuditLogger->newEvent(
+                    'oauth2',
+                    $this->session->get('authUser', ''),
+                    $this->session->get('authProvider', ''),
+                    1,
+                    json_encode([
+                        'action' => $isEnabled ? 'enable_fhir_write_client' : 'disable_fhir_write_client',
+                        'client_id' => $client->getIdentifier(),
+                        'client_name' => $client->getName(),
+                        'admin_user_id' => $this->session->get('authUserID', 0),
+                        'previously_enabled' => $wasEnabled,
+                        'enabled' => $isEnabled,
+                        'fhir_write_scopes' => $writeScopes,
+                    ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)
+                );
+            }
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $successMessage]]);
             return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
         } catch (\Throwable $ex) {
@@ -427,6 +459,9 @@ class ClientAdminController
         $enableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable']);
         $disableSkipAuthorizationFlowLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable-authorization-flow-skip']);
         $enableSkipAuthorizationFlowLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable-authorization-flow-skip']);
+        $allowPasswordGrantLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'allow-password-grant']);
+        $denyPasswordGrantLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'deny-password-grant']);
+        $grantTypes = (new ClientGrantTypePolicy())->effectiveGrantTypes($client->getGrantTypes());
         $isEnabled = $client->isEnabled();
         $allowSkipAuthSetting = $this->globalsBag->getString('oauth_ehr_launch_authorization_flow_skip') === '1';
         $skipAuthorizationFlow = $client->shouldSkipEHRLaunchAuthorizationFlow();
@@ -456,6 +491,11 @@ class ClientAdminController
                 'type' => 'text'
                 ,'label' => xl("Date Registered")
                 ,'value' => $client->getRegistrationDate()
+            ],
+            'grantTypes' => [
+                'type' => 'text'
+                ,'label' => xl("Allowed Grant Types")
+                ,'value' => implode(', ', $grantTypes)
             ],
             'confidential' => [
                 'type' => 'checkbox'
@@ -554,6 +594,10 @@ class ClientAdminController
                 ,'link' => $this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION, 'edit', $client->getIdentifier()])
             ];
         }
+        // The entry a client is limited to can drop off the list (made inactive, or given a login) while
+        // the limit still holds, so the page has to go on showing the client as limited.
+        $addressBookUuid = $client->getAddressBookUuid();
+        $addressBookRecipients = $this->addressBookRecipients();
         $data = [
             'listAction' => $listAction
             ,'client' => $client
@@ -563,10 +607,17 @@ class ClientAdminController
             ,'enableSkipAuthorizationFlowLink' => $enableSkipAuthorizationFlowLink
             ,'disableClientLink' => $disableClientLink
             ,'enableClientLink' => $enableClientLink
+            ,'passwordGrantAllowed' => in_array(ClientGrantTypePolicy::PASSWORD, $grantTypes, true)
+            ,'allowPasswordGrantLink' => $allowPasswordGrantLink
+            ,'denyPasswordGrantLink' => $denyPasswordGrantLink
             ,'requestMessage' => $requestMessage
             ,'isEnabled' => $isEnabled
             ,'formValues' => $formValues
             ,'scopes' => $client->getScopes()
+            ,'addressBookLink' => $this->getActionUrl(['edit', $client->getIdentifier(), 'address-book'])
+            ,'addressBookUuid' => $addressBookUuid
+            ,'addressBookRecipients' => $addressBookRecipients
+            ,'addressBookLimitUnlisted' => $addressBookUuid !== null && !in_array($addressBookUuid, array_column($addressBookRecipients, 'uuid'), true)
             ,'trustedUsers' => $trustedUsersList
             ,'services' => $servicesList
             ,'nav' => $this->getDefaultNavData()
@@ -605,6 +656,19 @@ class ClientAdminController
             return false;
         }
         return true;
+    }
+
+    /**
+     * Whether the request carries this screen's token. The external CDR screens also accept the general
+     * token, because the patient chart's SMART launch card opens them holding only that one.
+     */
+    private function hasValidCSRFToken(Request $request, string $action): bool
+    {
+        $token = $request->query->getString('csrf_token');
+        if (CsrfUtils::verifyCsrfToken($token, $this->session, self::CSRF_TOKEN_NAME)) {
+            return true;
+        }
+        return str_starts_with($action, RouteController::EXTERNAL_CDR_ACTION . '/') && CsrfUtils::verifyCsrfToken($token, $this->session);
     }
 
     /**
@@ -891,6 +955,94 @@ class ClientAdminController
         /** @var array<string, mixed> $tokenParts */
         $tokenParts['token_type'] = $tokenType;
         return $tokenParts;
+    }
+
+    /**
+     * The password grant cannot be derived at registration, so an administrator allows or
+     * denies it per client. Other grant types are fixed by the client's registration.
+     */
+    private function passwordGrantAction(string $clientId, bool $allow): Response
+    {
+        $client = $this->clientRepo->getClientEntity($clientId);
+        if ($client === false) {
+            return $this->notFoundAction();
+        }
+        $policy = new ClientGrantTypePolicy();
+        $grantTypes = array_values(array_diff($policy->effectiveGrantTypes($client->getGrantTypes()), [ClientGrantTypePolicy::PASSWORD]));
+        if ($allow) {
+            $grantTypes[] = ClientGrantTypePolicy::PASSWORD;
+        }
+        try {
+            $this->clientRepo->saveGrantTypes($client, $grantTypes);
+            $message = ($allow ? xl('Allowed password grant for') : xl('Denied password grant for')) . " " . $client->getName();
+            $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
+            return new Response(null, Response::HTTP_TEMPORARY_REDIRECT, ['Location' => $url]);
+        } catch (SqlQueryException $ex) {
+            return $this->returnFailedToSaveClientResponse($ex, $client);
+        }
+    }
+
+    /**
+     * The address book entries a client can be limited to. Only `users` gets missing uuids filled in,
+     * since an entry without one can't be listed. A plain ReferralService would also backfill
+     * transactions and patient_data, which this screen has no use for.
+     *
+     * @return list<array{uuid: string, name: string, type: string}>
+     */
+    private function addressBookRecipients(): array
+    {
+        UuidRegistry::createMissingUuidsForTables(['users']);
+        return (new ReferralService(createMissingUuids: false))->addressBookRecipients();
+    }
+
+    /**
+     * Limits a client to an address book entry's Tasks and referrals, or lifts that when the empty
+     * choice is posted. It only ever changes on a POST, and anything else posted leaves it as it was:
+     * it decides what patient data an outside party's client can reach.
+     */
+    private function addressBookAction(string $clientId, Request $request): Response
+    {
+        $client = $this->clientRepo->getClientEntity($clientId);
+        if ($client === false) {
+            return $this->notFoundAction();
+        }
+        if (!$request->isMethod('POST')) {
+            return new Response('', Response::HTTP_METHOD_NOT_ALLOWED, ['Allow' => 'POST']);
+        }
+        $posted = $request->request->all()['address_book_uuid'] ?? null;
+        $before = $client->getAddressBookUuid();
+        $known = array_column($this->addressBookRecipients(), 'uuid');
+        if (is_string($posted) && $posted !== '' && $posted === $before) {
+            // The page offers the current limit even after its entry drops off the list.
+            $message = xl('The address book limit is unchanged for') . ' ' . $client->getName();
+        } elseif (!is_string($posted) || ($posted !== '' && !in_array($posted, $known, true))) {
+            $message = xl('That address book entry cannot be used for a client.');
+        } else {
+            $uuid = $posted === '' ? null : $posted;
+            try {
+                $this->clientRepo->saveAddressBookUuid($client, $uuid);
+            } catch (SqlQueryException $ex) {
+                return $this->returnFailedToSaveClientResponse($ex, $client);
+            }
+            $this->eventAuditLogger ??= EventAuditLogger::getInstance();
+            $this->eventAuditLogger->newEvent(
+                'oauth2',
+                $this->session->get('authUser', ''),
+                $this->session->get('authProvider', ''),
+                1,
+                json_encode([
+                    'action' => 'limit_client_to_address_book_entry',
+                    'client_id' => $client->getIdentifier(),
+                    'client_name' => $client->getName(),
+                    'admin_user_id' => $this->session->get('authUserID', 0),
+                    'previous_address_book_uuid' => $before,
+                    'address_book_uuid' => $uuid,
+                ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)
+            );
+            $message = ($uuid === null ? xl('Removed the address book limit from') : xl('Limited to an address book entry:')) . ' ' . $client->getName();
+        }
+        $url = $this->getActionUrl(['edit', $client->getIdentifier()], ['queryParams' => ['message' => $message]]);
+        return new Response(null, Response::HTTP_SEE_OTHER, ['Location' => $url]);
     }
 
     private function enableAuthorizationFlowSkipAction(string $clientId): Response

@@ -1,38 +1,44 @@
 <?php
 
 /**
- * CcdaGenerator.php  is responsible for generating a CCDA document.  It creates the initial xml input data for the
- * ccda node service and then communicates with the ccda node service to get back the generated ccda document.
+ * CcdaGenerator.php is responsible for generating a CCDA document. It builds the internal
+ * /CCDA/ xml input data and converts it to C-CDA in process via InternalToCdaConverter,
+ * which replaces the former socket call to the node ccda service.
  *
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR <https://opencoreemr.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace Carecoordination\Model;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Cda\InternalToCdaConverter;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class CcdaGenerator
 {
     /**
      * @var int
      */
-    private $createdtime;
-
-    /**
-     * @var string
-     */
-    private $data;
+    private int $createdtime;
+    private bool $debug_ccda = false;
 
     public function __construct(private readonly EncounterccdadispatchTable $dispatchTable)
     {
     }
 
+    /**
+     * The table this generator saves its documents through.
+     */
     public function getEncounterccdadispatchTable(): EncounterccdadispatchTable
     {
         return $this->dispatchTable;
@@ -53,6 +59,7 @@ class CcdaGenerator
      * @param $document_type
      * @param $referral_reason
      * @param $date_options has the format of ['date_start' => 'YYYY-MM-DD HH:mm:ss', 'date_end' => 'YYYY-MM-DD HH:mm:ss', 'filter_content' => boolean]
+     * @param ?int $referralId the referral staff chose this C-CDA for, or null for the patient's most recent
      * @return GeneratedCcdaResult
      * @throws \Exception
      */
@@ -69,18 +76,19 @@ class CcdaGenerator
         $params,
         $document_type,
         $referral_reason,
-        $date_options = []
+        $date_options = [],
+        ?int $referralId = null
     ): GeneratedCcdaResult {
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // we need to make sure we don't accidentally stuff in the debug logs any PHI, so we'll only report on the presence of certain variables
         ServiceContainer::getLogger()->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
-                , 'encounter_id' => $encounter_id, 'sent_by' => (!empty($sent_by) ? "sent_by not empty" : "sent_by is empty")
-                , 'send' => $send, 'view' => $view, 'emr_transfer' => $emr_transfer, 'components' => $components
-                , 'sections' => $sections, 'recipients' => !empty($recipients) ? "Recipients count " . (is_array($recipients) ? count($recipients) : "1") : "No recipients"
-                , 'params' => $params, 'document_type' => $document_type
-                , 'referral_reason' => (empty($referral_reason) ? "No referral reason" : "Has referral reason")
-                , 'date_options' => $date_options]);
+            , 'encounter_id' => $encounter_id, 'sent_by' => (!empty($sent_by) ? "sent_by not empty" : "sent_by is empty")
+            , 'send' => $send, 'view' => $view, 'emr_transfer' => $emr_transfer, 'components' => $components
+            , 'sections' => $sections, 'recipients' => !empty($recipients) ? "Recipients count " . (is_array($recipients) ? count($recipients) : "1") : "No recipients"
+            , 'params' => $params, 'document_type' => $document_type
+            , 'referral_reason' => (empty($referral_reason) ? "No referral reason" : "Has referral reason")
+            , 'date_options' => $date_options]);
         if ($sent_by != '') {
             SessionUtil::setSession('authUserID', $sent_by);
         }
@@ -114,32 +122,32 @@ class CcdaGenerator
             }
             $components = $str1;
         }
-        $data = $this->create_data(
-            $patient_id,
-            $encounter_id,
-            $sections,
-            $components,
-            $recipients,
-            $params,
-            $document_type,
-            $referral_reason,
-            $send,
-            $date_options
-        );
-        $content = $this->socket_get($data);
-        $content = trim($content);
-        // split content if unstructured is included from service.
-        // service will send back a CDA and an auto created unstructured document
-        // if CCM sends the documents(patient_files object) with data array.
-        $unstructured = "";
-        if (substr_count($content, '</ClinicalDocument>') == 2) {
-            $d = explode('</ClinicalDocument>', $content);
-            $content = $d[0] . '</ClinicalDocument>';
-            $unstructured = $d[1] . '</ClinicalDocument>';
+        // The Reason for Referral is the chosen referral's, as the C-CDA is linked to it (logCCDA()).
+        $this->getEncounterccdadispatchTable()->setContentReferral($referralId);
+        try {
+            $data = $this->create_data(
+                $patient_id,
+                $encounter_id,
+                $sections,
+                $components,
+                $recipients,
+                $params,
+                $document_type,
+                $referral_reason,
+                $send,
+                $date_options
+            );
+        } finally {
+            $this->getEncounterccdadispatchTable()->setContentReferral(null);
         }
-        // save if generated by service. Filo!
-        if (!empty($unstructured)) {
-            $generatedResultUnstructered = $this->getEncounterccdadispatchTable()->logCCDA(
+        $content = $this->normalize($data);
+        // When patient documents are exported with the C-CDA (patient_files in
+        // the data), they travel in a separate unstructured document. The Node
+        // service returned both documents in one response; the converter builds
+        // each on request.
+        $unstructured = $this->normalizeUnstructured($data);
+        if ($unstructured !== '') {
+            $this->getEncounterccdadispatchTable()->logCCDA(
                 $patient_id,
                 $encounter_id,
                 base64_encode($unstructured),
@@ -149,7 +157,8 @@ class CcdaGenerator
                 'unstructured',
                 $view,
                 $send,
-                $emr_transfer
+                $emr_transfer,
+                $referralId
             );
         }
         $generatedResult = $this->getEncounterccdadispatchTable()->logCCDA(
@@ -162,20 +171,60 @@ class CcdaGenerator
             $document_type,
             $view,
             $send,
-            $emr_transfer
+            $emr_transfer,
+            $referralId
         );
+        if ($this->debug_ccda === true) {
+            $tmp_file_location = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . DIRECTORY_SEPARATOR;
+            file_put_contents($tmp_file_location . 'ccda_document.xml', $generatedResult->getContent());
+            file_put_contents($tmp_file_location . 'ccda_data.xml', $data);
+        }
 
         return $generatedResult;
     }
 
-    public function socket_get($data): string
+    public function normalize(string $data): string
     {
-        $serviceRequestor = new CcdaServiceDocumentRequestor();
-        $content = $serviceRequestor->socket_get($data);
-        return $content;
+        return $this->runConverter(static fn (InternalToCdaConverter $converter): string => $converter->convert($data));
     }
 
-    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = [])
+    /**
+     * The unstructured document carrying exported patient files, or '' when
+     * the data has none.
+     */
+    public function normalizeUnstructured(string $data): string
+    {
+        return $this->runConverter(static fn (InternalToCdaConverter $converter): string => $converter->convertUnstructured($data));
+    }
+
+    /**
+     * @param callable(InternalToCdaConverter): string $conversion
+     */
+    private function runConverter(callable $conversion): string
+    {
+        // 1 -> Care coordination module, 2 -> portal, 3 -> Both
+        // Any non-zero value enables the service
+        if (OEGlobalsBag::getInstance()->getInt('ccda_alt_service_enable') === 0) {
+            throw new CcdaServiceConnectionException("Please enable C-CDA documents in Global Settings");
+        }
+
+        $converter = new InternalToCdaConverter();
+        try {
+            return trim($conversion($converter));
+        } catch (\InvalidArgumentException | \RuntimeException $e) {
+            // The converter runs in-process, so its failures would otherwise escape
+            // EncounterccdadispatchController, which only handles
+            // CcdaServiceConnectionException. Translate at this boundary so
+            // conversion failures keep the existing HTTP 500 and logging path.
+            throw new CcdaServiceConnectionException(
+                'Failed to generate CCDA document: ' . $e->getMessage(),
+                0,
+                $e
+            );
+        }
+    }
+
+    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = []): string
     {
         $modelGenerator = new CcdaServiceRequestModelGenerator($this->getEncounterccdadispatchTable());
         $modelGenerator->create_data(
@@ -187,11 +236,17 @@ class CcdaGenerator
             $params,
             $document_type,
             $referral_reason,
-            $send,
+            // CcdaServiceRequestModelGenerator::create_data() types $send as
+            // int|null. Callers reach generate() with an int, a numeric string,
+            // false or null depending on the entry point, so the value is
+            // normalised here rather than typing the parameter: typing it would
+            // reject EncounterccdadispatchController, CCDAEventsSubscriber and
+            // CDADocumentService, all of which pass something other than an int.
+            is_numeric($send) ? (int)$send : null,
             $date_options
         );
         $this->createdtime = $modelGenerator->getCreatedTime();
-        $this->data = $modelGenerator->getData();
-        return $this->data;
+
+        return $modelGenerator->getData();
     }
 }

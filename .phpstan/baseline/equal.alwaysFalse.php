@@ -122,6 +122,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between true and false will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \\*NEVER\\* and \'\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',
@@ -160,11 +165,6 @@ $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \'false\' and \'true\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between 0\\|0\\.0\\|\'\'\\|\'0\'\\|array\\{\\}\\|false\\|null and \\-1 will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -21,11 +21,13 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDate;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRGoalLifecycleStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRGoal\FHIRGoalTarget;
 use OpenEMR\Services\CarePlanService;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -61,7 +63,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -70,7 +72,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             '_lastUpdated' => $this->getLastModifiedSearchField(),
             'lifecycle-status' => new FhirSearchParameterDefinition('lifecycle-status', SearchFieldType::TOKEN, ['plan_status']),
             'target-date' => new FhirSearchParameterDefinition('target-date', SearchFieldType::DATE, ['date_end']),
-            'description' => new FhirSearchParameterDefinition('description', SearchFieldType::TOKEN, ['code']),
+            'description' => new FhirSearchParameterDefinition('description', SearchFieldType::TOKEN, ['fcp.code']),
         ];
     }
 
@@ -95,9 +97,9 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         if (!empty($dataRecord['creation_date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['creation_date']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['creation_date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $fhirMeta->addProfile(self::USCGI_PROFILE_URI);
         $goal->setMeta($fhirMeta);
@@ -380,7 +382,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRGoal)) {
             throw new \InvalidArgumentException(
@@ -554,12 +556,9 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             ]);
             return $result;
         }
-        $encounterId = QueryUtils::fetchSingleValue(
-            'SELECT encounter FROM form_encounter WHERE uuid = ?',
-            'encounter',
-            [UuidRegistry::uuidToBytes($encounterUuid)]
-        );
-        if (!is_numeric($encounterId)) {
+        // A soft-deleted encounter resolves to null, like an unknown one.
+        $encounterId = EncounterService::getActiveEncounterByUuid($encounterUuid)['encounter'] ?? null;
+        if ($encounterId === null) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['encounter' => 'Encounter reference could not be resolved: ' . $encounterUuid]);
             return $result;
@@ -596,12 +595,9 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             $result->setValidationMessages(['uuid' => 'Invalid Goal id; expected encounter-uuid + "-SK-" + form-id']);
             return $result;
         }
-        $encounterId = QueryUtils::fetchSingleValue(
-            'SELECT encounter FROM form_encounter WHERE uuid = ?',
-            'encounter',
-            [UuidRegistry::uuidToBytes($encounterUuid)]
-        );
-        if (!is_numeric($encounterId)) {
+        // A soft-deleted encounter resolves to null, like an unknown one.
+        $encounterId = EncounterService::getActiveEncounterByUuid($encounterUuid)['encounter'] ?? null;
+        if ($encounterId === null) {
             $result = new ProcessingResult();
             $result->setValidationMessages(['uuid' => 'Encounter not found for given Goal id']);
             return $result;
@@ -710,7 +706,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 
-    private function getGoalTextFromDetails($details)
+    private function getGoalTextFromDetails($details): array
     {
         $descriptions = [];
         foreach ($details as $detail) {

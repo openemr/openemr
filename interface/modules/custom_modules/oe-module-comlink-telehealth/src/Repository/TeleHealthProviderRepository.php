@@ -40,7 +40,7 @@ class TeleHealthProviderRepository
         return false;
     }
 
-    public function getEnabledProviders()
+    public function getEnabledProviders(): array
     {
         $providers =  [];
         // if we auto provision we need to grab our entire provider array
@@ -63,7 +63,7 @@ class TeleHealthProviderRepository
         return $providers;
     }
 
-    private function mapProviderToPersonSetting($provider)
+    private function mapProviderToPersonSetting($provider): TeleHealthPersonSettings
     {
         $personSetting = new TeleHealthPersonSettings();
         $personSetting->setIsPatient(false);

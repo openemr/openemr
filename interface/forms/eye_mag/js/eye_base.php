@@ -1811,7 +1811,7 @@ function update_READONLY() {
     $.ajax({
            type   : 'POST',
            dataType : 'json',
-           url      :  "../../forms/eye_mag/save.php?copy=READONLY",
+           url      :  "../../forms/eye_mag/save.php?copy=READONLY&skip_timeout_reset=1",
            data   : data,
            success  : function(result) {
            $.map(result, function(valhere, keyhere) {
@@ -3496,7 +3496,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 echo '$(' . js_escape('#' . $optionId) . ').val(' . js_escape($title) . ').css("background-color","beige");
                                             ';
                                             }
-                                            function startsWith($str, $needle)
+                                            function startsWith($str, $needle): bool
                                             {
                                                 return str_starts_with((string) $str, (string) $needle);
                                             }

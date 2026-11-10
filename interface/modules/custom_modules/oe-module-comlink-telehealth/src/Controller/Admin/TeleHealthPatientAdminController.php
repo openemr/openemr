@@ -62,7 +62,7 @@ class TeleHealthPatientAdminController
         }
     }
 
-    private function shouldUpdateRegistrationCodeForUser(TeleHealthUser $user)
+    private function shouldUpdateRegistrationCodeForUser(TeleHealthUser $user): bool
     {
         return empty($user->getRegistrationCode()) || !empty($_POST['comlink_registration_new_code']);
     }

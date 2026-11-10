@@ -1,3 +1,13 @@
+{#
+ # An OAuth client's admin page: its registration, its limits, and its users and tokens.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
 
 {% extends "interface/smart/admin-client/base.html.twig" %}
 {% block title %}{{ "Client Registrations"|xlt }}{% endblock %}
@@ -15,6 +25,11 @@
                             <a href="{{ enableSkipAuthorizationFlowLink|attr }}" class="btn btn-sm btn-danger" onclick="top.restoreSession()">{{ "Disable EHR Launch Authorization Flow"|xlt }}</a>
                         {% endif %}
                     {% endif %}
+                    {% if passwordGrantAllowed %}
+                        <a href="{{ denyPasswordGrantLink|attr }}" class="btn btn-sm btn-danger" onclick="top.restoreSession()">{{ "Deny Password Grant"|xlt }}</a>
+                    {% else %}
+                        <a href="{{ allowPasswordGrantLink|attr }}" class="btn btn-sm btn-secondary" onclick="top.restoreSession()">{{ "Allow Password Grant"|xlt }}</a>
+                    {% endif %}
                     {% if isEnabled %}
                         <a href="{{ disableClientLink|attr }}" class="btn btn-sm btn-danger" onclick="top.restoreSession()">{{ "Disable Client"|xlt }}</a>
                     {% else %}
@@ -30,6 +45,23 @@
             </h2>
         </div>
         <div class="card-body">
+            {% set fhirWriteScopes = client.getFhirWriteScopes() %}
+            <form method="post" action="{{ addressBookLink|attr }}" class="mb-3" onsubmit="top.restoreSession()">
+                <div class="form-group">
+                    <label for="address_book_uuid">{{ "Limit to Address Book Entry"|xlt }}</label>
+                    <select class="form-control" id="address_book_uuid" name="address_book_uuid">
+                        <option value="">{{ "Not limited"|xlt }}</option>
+                        {% if addressBookLimitUnlisted %}
+                            <option value="{{ addressBookUuid|attr }}" selected>{{ "Limited to an entry that is no longer listed (inactive, or now has a login)"|xlt }}: {{ addressBookUuid|text }}</option>
+                        {% endif %}
+                        {% for recipient in addressBookRecipients %}
+                            <option value="{{ recipient.uuid|attr }}"{% if recipient.uuid == addressBookUuid %} selected{% endif %}>{{ recipient.name|text }} ({{ recipient.type|xlt }})</option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">{{ "For an outside organization or practitioner. Whatever its scopes say, a limited client can only read and update the Tasks that entry owns and read the referrals it is the current recipient of through a referral Task. It gets no other patient data."|xlt }}</small>
+                </div>
+                <button type="submit" class="btn btn-sm btn-primary">{{ "Save Limit"|xlt }}</button>
+            </form>
             <div class="row">
                 <div class="col-6">
                     {% if requestMessage is not empty %}
@@ -59,9 +91,15 @@
                 </div>
                 <div class="col-6">
                     <label>{{ "Scopes"|xlt }}</label>
+                    {% if fhirWriteScopes|length > 0 %}
+                        <div class="border border-warning rounded px-2 py-1 mb-2 small text-warning" role="note">
+                            <i class="fa fa-exclamation-triangle mr-1" aria-hidden="true"></i>
+                            {{ "Caution: FHIR writes are experimental and pending audit. Review these permissions before enabling this client."|xlt }}
+                        </div>
+                    {% endif %}
                     <ul>
                         {% for scope in scopes %}
-                            <li>
+                            <li{% if scope in fhirWriteScopes %} class="text-warning"{% endif %}>
                                 {{ scope|text }}
                             </li>
                         {% endfor %}

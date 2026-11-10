@@ -33,6 +33,19 @@ class FhirCodeSystemConstants
 
     const HL7_OBSERVATION_CATEGORY = "http://terminology.hl7.org/CodeSystem/observation-category";
 
+    // Displays for HL7_OBSERVATION_CATEGORY codes. A coding's display must match the code system's.
+    const HL7_OBSERVATION_CATEGORY_DISPLAYS = [
+        'social-history' => 'Social History',
+        'vital-signs' => 'Vital Signs',
+        'imaging' => 'Imaging',
+        'laboratory' => 'Laboratory',
+        'procedure' => 'Procedure',
+        'survey' => 'Survey',
+        'exam' => 'Exam',
+        'therapy' => 'Therapy',
+        'activity' => 'Activity',
+    ];
+
     // @see https://www.hl7.org/fhir/us/core/ValueSet-us-core-documentreference-category.html
     const DOCUMENT_REFERENCE_CATEGORY = "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category";
 
@@ -65,6 +78,11 @@ class FhirCodeSystemConstants
 
     public const HL7_V3_ACT_CODE = "http://terminology.hl7.org/CodeSystem/v3-ActCode";
 
+    // Source of Payment Typology (OID 2.16.840.1.113883.3.221.5), the codes of the Payer Type value set
+    // that US Core binds Coverage.type to
+    // @see https://hl7.org/fhir/us/core/STU8.0.1/Coverage-coverage-example.json.html
+    public const SOURCE_OF_PAYMENT_TYPOLOGY = "https://nahdo.org/sopt";
+
     public const HL7_PARTICIPATION_TYPE = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType";
 
     public const RFC_3986 = "urn:ietf:rfc:3986";
@@ -77,6 +95,13 @@ class FhirCodeSystemConstants
     const NDC = "http://hl7.org/fhir/sid/ndc";
 
     const HL7_MEDICATION_REQUEST_CATEGORY = "http://terminology.hl7.org/CodeSystem/medicationrequest-category";
+    // Displays for HL7_MEDICATION_REQUEST_CATEGORY codes. A coding's display must match the code system's.
+    const HL7_MEDICATION_REQUEST_CATEGORY_DISPLAYS = [
+        'inpatient' => 'Inpatient',
+        'outpatient' => 'Outpatient',
+        'community' => 'Community',
+        'discharge' => 'Discharge',
+    ];
     public const NCIMETA_NCI_NIH = "http://ncimeta.nci.nih.gov";
 
     const OID_RACE_AND_ETHNICITY = "urn:oid:2.16.840.1.113883.6.238";
@@ -136,6 +161,23 @@ class FhirCodeSystemConstants
     const NCI_THESAURUS = 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl';
 
     const HL7_TIMING_ABBREVIATION = 'http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation';
+    // Displays for the HL7_TIMING_ABBREVIATION codes used by the drug_interval list. A coding's display
+    // must match the code system's.
+    const HL7_TIMING_ABBREVIATION_DISPLAYS = [
+        'AM' => 'AM',
+        'BID' => 'BID',
+        'MO' => 'monthly',
+        'PM' => 'PM',
+        'Q1H' => 'every hour',
+        'Q3H' => 'every 3 hours',
+        'Q4H' => 'Q4H',
+        'Q6H' => 'Q6H',
+        'Q8H' => 'every 8 hours',
+        'QD' => 'QD',
+        'QID' => 'QID',
+        'TID' => 'TID',
+        'WK' => 'weekly',
+    ];
 
     const HL7_ROLE_CODE = "http://terminology.hl7.org/CodeSystem/role-code";
 

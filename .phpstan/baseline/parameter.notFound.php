@@ -202,51 +202,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$log$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$params$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$sql$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$border$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_image.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$fieldname$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$b64encode$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$observer$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$mapping$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$fm$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$direction$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
@@ -325,11 +280,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$reason_status_code$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/FormVitalDetails.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$client$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$prefix$#',

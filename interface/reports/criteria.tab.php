@@ -296,7 +296,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
                     </li>
                     <li class="list-group-item bg-light"><a class="link_submit" href="JavaScript:void(0);" onclick="select_all(); return false;"><strong><?php echo xlt('Select All'); ?></strong></a>
                     </li>
-                    <li class="list-group-item bg-light"><a id="clear-log" href="#" title='<?php xla('Clear the log'); ?>'><strong><?php echo xlt('Clear Log') ?></strong></a>
+                    <li class="list-group-item bg-light"><a id="clear-log" href="#" title='<?php echo xla('Clear the log'); ?>'><strong><?php echo xlt('Clear Log') ?></strong></a>
                     </li>
                 </ul>
             </div>

@@ -71,7 +71,7 @@ class AclController extends AbstractActionController
                 return $index;
     }
 
-    public function acltabAction()
+    public function acltabAction(): ViewModel
     {
         $module_id = $this->params()->fromQuery('module_id');
         $this->layout('layout/layout_tabs');
@@ -81,7 +81,7 @@ class AclController extends AbstractActionController
                 return $index;
     }
 
-    public function aclAction()
+    public function aclAction(): ViewModel
     {
         $module_id = $this->params()->fromQuery('module_id');
         $data = $this->getAclTable()->getGroups();
@@ -313,7 +313,7 @@ class AclController extends AbstractActionController
      * @param String $li_class <li> Class Name
      *
      **/
-    private function createUserGroups($id = "user_group_", $visibility = "", $dragabble = "draggable", $li_class = "")
+    private function createUserGroups($id = "user_group_", $visibility = "", $dragabble = "draggable", $li_class = ""): string
     {
         /** Html Escape Function */
         $escapeHtml         = $this->htmlEscaper;

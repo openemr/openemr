@@ -6,8 +6,10 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2023-2025 Jerry Padgett <sjpadgett@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
@@ -22,6 +24,7 @@ use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxDocumentDisposalInterface;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
+use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentAccessException;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
@@ -82,13 +85,25 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
     }
 
     /**
-     * @return string
+     * Count of inbound faxes waiting to be read, for the main menu badge.
+     *
+     * Read live from the EtherFax inbox (unread), the same thing the other
+     * fax vendors report, so the count is current without downloading the
+     * faxes. If the account cannot be reached or the inbox request fails,
+     * the count of received faxes still in the local queue is returned
+     * instead (sent faxes are not counted).
+     * A real unread count of 0 is returned as 0.
      */
     public function fetchReminderCount(): string
     {
-        // removed polling API to download pending faxes.
-        // this is better served in a background task.
-        return json_encode($this->fetchQueueCount());
+        if ($this->authenticate()) {
+            $unread = $this->client->getUnreadFaxCount();
+            if ($unread !== null) {
+                return (string)$unread;
+            }
+        }
+
+        return (string)$this->fetchQueueCount();
     }
 
     /**
@@ -154,29 +169,35 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
         $tag = $user['username'] ?? '';
         $fileName = '';
 
-        // Validate file path if not content
+        // Validate the file path. Every existing file the request names must
+        // be under send/, whatever flags come with it: inline content
+        // (`isContent`) is bytes, never a path, so it can't exempt a path. A
+        // patient document send names the document's own storage path, which
+        // is never under send/; it is read by document id below, so the path
+        // isn't used.
         $allowedTempDir = realpath($this->baseDir . '/send/');
-        if (empty($isContent)) {
+        if (!$isDocuments) {
             if (str_starts_with((string)$file, 'file://')) {
                 $file = substr((string)$file, 7);
             }
-            $realPath = realpath((string)$file);
-            if ($realPath !== false) {
+            if (is_string($file) && is_file($file)) {
+                $realPath = realpath($file);
                 $allowedRoot = $allowedTempDir !== false
                     ? rtrim($allowedTempDir, DIRECTORY_SEPARATOR)
                     : false;
                 // Require an exact match or a true child path; a bare prefix
                 // check would let a sibling like ".../send_evil" slip through.
-                $withinAllowed = $allowedRoot !== false
+                $withinAllowed = $realPath !== false
+                    && $allowedRoot !== false
                     && ($realPath === $allowedRoot
                         || str_starts_with($realPath, $allowedRoot . DIRECTORY_SEPARATOR));
-                if (!$withinAllowed) {
-                    error_log("Path traversal blocked: " . $realPath);
+                if ($realPath === false || !$withinAllowed) {
+                    error_log("Path traversal blocked: " . ($realPath === false ? $file : $realPath));
                     return xlt('Error: Invalid file location');
                 }
                 $file = str_replace("\\", "/", $realPath);
-                $fileName = pathinfo((string)$file, PATHINFO_BASENAME);
-            } else {
+                $fileName = pathinfo($file, PATHINFO_BASENAME);
+            } elseif (empty($isContent)) {
                 return xlt('Error: No Fax content');
             }
         }
@@ -203,11 +224,16 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
             $fileName = pathinfo($file, PATHINFO_BASENAME);
         }
 
-        // If document mode, load from Document table instead
+        // If document mode, load from Document table instead, enforcing the
+        // document ACLs and patient ownership for the request-supplied id.
         if ($isDocuments) {
-            $doc = new Document($docId);
-            $file = $doc->get_data();
-            $fileName = $doc->get_name() ?? 'document';
+            try {
+                $document = $this->readAuthorizedFaxDocument($docId);
+            } catch (FaxDocumentAccessException $e) {
+                return $e->getMessage();
+            }
+            $file = $document['content'];
+            $fileName = $document['name'];
         }
 
         // Optional email copy. $file is raw bytes when either the
@@ -416,10 +442,8 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
 
     /**
      * Rest Endpoint
-     *
-     * @return string|void
      */
-    public function getPending()
+    public function getPending(): string
     {
         if (!$this->authenticate()) {
             return $this->authErrorDefault;
@@ -490,7 +514,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
         exit();
     }
 
-    private function getTransactionTypeWord($transactionType)
+    private function getTransactionTypeWord($transactionType): string
     {
         $transactionTypes = [
             '0' => xlt('Received'),
@@ -515,7 +539,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
         return 'No';
     }
 
-    private function generateFaxForm($id, $recognized)
+    private function generateFaxForm($id, $recognized): string
     {
         if (empty($recognized)) {
             return '';
@@ -538,7 +562,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
         return $form;
     }
 
-    private function generateActionLinks($id, $record_id, $pid_assumed)
+    private function generateActionLinks($id, $record_id, $pid_assumed): string
     {
         return "<a role='button' href='#' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(json_encode([])) . ")\">
                 <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i>
@@ -560,7 +584,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
             </a>";
     }
 
-    private function generateDetailLink($id, $recognized)
+    private function generateDetailLink($id, $recognized): string
     {
         $showFlag = count($recognized);
         return $showFlag ? "<a role='button' href='#' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#" . text($id) . "\")'></a>" . text($showFlag) . ' ' . xlt("Items") : '';
@@ -680,7 +704,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
     /**
      * @return string
      */
-    public function getCallLogs()
+    public function getCallLogs(): string
     {
         return xlt('Not Implemented');
     }
@@ -772,8 +796,9 @@ SQL;
         $details_encoded = json_encode($details);
         $sentDate = date('Y-m-d H:i:s');
 
-        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`)
-        VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, 'application/pdf', ?)";
+        // direction defaults to 'inbound', so a sent fax must say so.
+        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`, `direction`)
+        VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, 'application/pdf', ?, 'outbound')";
 
         return sqlInsert($sql, [$uid, $account, $jobId, $sentDate, $callerId, $dialNumber, $details_encoded]);
     }
@@ -839,11 +864,14 @@ SQL;
     }
 
     /**
+     * Received faxes still in the local queue (not deleted). Sent faxes
+     * share the table and are left out.
+     *
      * @return int
      */
     public function fetchQueueCount(): int
     {
-        return (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0")['count'] ?? 0;
+        return (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0 AND direction = 'inbound'")['count'] ?? 0;
     }
 
     /**
@@ -925,9 +953,7 @@ SQL;
      */
     protected function index()
     {
-        if (!$this->getSession('pid', '')) {
-            $this->setSession('pid', $this->getRequest('patient_id'));
-        }
+        $this->openRequestedPatient();
     }
 
 }

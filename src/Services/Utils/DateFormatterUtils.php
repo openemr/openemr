@@ -77,7 +77,9 @@ class DateFormatterUtils
     /**
      * Convert a date from the configured display format to YYYY-MM-DD (ISO 8601).
      *
-     * @param mixed $DateValue The date string in the configured format
+     * A value that is already an ISO date is returned unchanged, whatever the display format.
+     *
+     * @param mixed $DateValue The date string in the configured format, or an ISO date
      * @param ?ParameterBag $globals Optional globals bag for testing
      */
     public static function DateToYYYYMMDD($DateValue, ?ParameterBag $globals = null)
@@ -94,6 +96,12 @@ class DateFormatterUtils
         }
 
         if ($dateFormat === self::DATE_FORMAT_US || $dateFormat === self::DATE_FORMAT_INTL) {
+            // Scripts type an ISO date whatever the display format (the issue form's Resolved
+            // outcome and Active checkbox). Split on '/', it came out malformed ("-2026-11-4-"
+            // on a US site), which the database stores as a zero date.
+            if (is_string($DateValue) && preg_match('/^\d{4}-\d{1,2}-\d{1,2}(?!\d)/', $DateValue) === 1) {
+                return $DateValue;
+            }
             $DateValueArray = explode('/', (string) $DateValue);
             if ($dateFormat === self::DATE_FORMAT_US) {
                 return $DateValueArray[2] . '-' . $DateValueArray[0] . '-' . $DateValueArray[1];

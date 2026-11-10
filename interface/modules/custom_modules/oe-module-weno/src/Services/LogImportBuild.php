@@ -63,7 +63,7 @@ class LogImportBuild
         return $entry['count'] ?? 0;
     }
 
-    public function convertToUTC($dateString)
+    public function convertToUTC($dateString): string
     {
         $date = new DateTime($dateString, new DateTimeZone('UTC'));
         $tz = new DateTimeZone(date_default_timezone_get());

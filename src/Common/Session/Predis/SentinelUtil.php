@@ -245,7 +245,7 @@ class SentinelUtil
                 // phpredis 6.0+ supports an array constructor for RedisSentinel with
                 // TLS options.  PHPStan stubs only know the older positional constructor.
                 // phpredis 6.0+ array constructor; stubs only know positional form
-                $sentinel = new \RedisSentinel([ // @phpstan-ignore arguments.count, argument.type
+                $sentinel = new \RedisSentinel([
                     'host'           => $host,
                     'port'           => 26379,
                     'connectTimeout' => 3.0,
@@ -279,7 +279,7 @@ class SentinelUtil
 
         throw new \RuntimeException(
             'Could not discover Redis master from any sentinel: '
-            . ($lastException !== null ? $lastException->getMessage() : 'all sentinels returned empty'),
+            . ($lastException?->getMessage() ?? 'all sentinels returned empty'),
             0,
             $lastException,
         );

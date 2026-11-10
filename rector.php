@@ -28,7 +28,6 @@ return RectorConfig::configure()
         __DIR__ . '/acl_upgrade.php',
         __DIR__ . '/admin.php',
         __DIR__ . '/apis',
-        __DIR__ . '/ccdaservice',
         __DIR__ . '/ccr',
         __DIR__ . '/cli',
         __DIR__ . '/config',
@@ -120,4 +119,5 @@ return RectorConfig::configure()
     ->withPhpSets()
     ->withDeadCodeLevel(5)
     ->withCodeQualityLevel(5)
-    ->withTypeCoverageLevel(7);
+    // vendor/rector/rector/src/Config/Level/TypeDeclarationLevel.php shows the coverage levels
+    ->withTypeCoverageLevel(19);

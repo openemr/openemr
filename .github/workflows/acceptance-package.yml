@@ -270,16 +270,19 @@ jobs:
     # More toolchain than the acceptance job needs (which only needs
     # vendor/ for the harness), so break the build into its own job
     # rather than bloat every matrix leg.
-    - name: Set up PHP + composer for PackageAssembler
-      uses: shivammathur/setup-php@v2
+    # tools/release/bin/package-assemble.php requires vendor/autoload.php
+    # to bring in the OpenEMR\Release\PackageAssembler class + its
+    # symfony/console + symfony/process deps.
+    - name: Set up PHP + composer and install harness deps for PackageAssembler
+      uses: ./.github/actions/setup-php-composer
       with:
         php-version: '8.5'
-        tools: composer:v2
         # Extensions PackageAssembler + Symfony Process + composer's
         # own runtime need. Explicit rather than transitive so a future
         # composer.json change doesn't silently rely on an extension
         # the runner happens to ship today.
         extensions: curl, dom, mbstring, tokenizer, xml, zip
+        no-scripts: 'true'
 
     - name: Set up Node for `npm ci` + `npm run build`
       uses: actions/setup-node@v7
@@ -289,12 +292,6 @@ jobs:
         # produce, so drifting node-version between them defeats the
         # point. Also matches styling.yml + js-test.yml + inferno-test.
         node-version: '24'
-
-    - name: Install harness composer deps (autoloader for PackageAssembler)
-      # tools/release/bin/package-assemble.php requires vendor/autoload.php
-      # to bring in the OpenEMR\Release\PackageAssembler class + its
-      # symfony/console + symfony/process deps.
-      run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
 
     - name: Build package from PR checkout via PackageAssembler
       # --release-version uses the workflow's to_version so the output
@@ -418,12 +415,12 @@ jobs:
       with:
         persist-credentials: false
 
-    - name: Set up PHP + composer for the acceptance harness
-      uses: shivammathur/setup-php@v2
+    - name: Set up PHP + composer and install acceptance-suite dependencies
+      uses: ./.github/actions/setup-php-composer
       with:
         php-version: '8.5'
-        tools: composer:v2
         extensions: curl, dom, mbstring, tokenizer, xml
+        no-scripts: 'true'
 
     # ChromeDriver for the E2eCriticalPathTest — see acceptance-docker.yml
     # for the rationale on nanasess/setup-chromedriver over
@@ -431,9 +428,6 @@ jobs:
     # drift from independent release channels).
     - name: Set up matching ChromeDriver for Panther-driven acceptance tests
       uses: nanasess/setup-chromedriver@v3
-
-    - name: Install acceptance-suite composer dependencies
-      run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
 
     # ==== Load PR-built or caller-supplied artifact + resolve boot flags ====
     # Two source paths × two formats converge here:
@@ -799,6 +793,23 @@ jobs:
           -f .github/docker/acceptance-package-compose.yml \
           -p openemr-acceptance-package \
           logs openemr || true
+
+    # On any acceptance-cell failure, upload the per-test artifacts
+    # written by PantherAcceptanceTestCase::onNotSuccessfulTest()
+    # (screenshot.png + page-source.html + browser-console.json +
+    # context.txt). Hash check avoids a warning + spurious artifact
+    # when the failure happened before any Panther client was alive
+    # (e.g., docker-compose boot timeout, chromedriver install fail)
+    # and the hook never ran. Mirrors the pattern test.yml uses for
+    # e2e's selenium-videos upload.
+    - name: Upload failure artifacts
+      if: ${{ !cancelled() && failure() && hashFiles('tmp/acceptance-failure-artifacts/**') != '' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: acceptance-package-failure-${{ matrix.scenario }}-${{ matrix.format }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+        path: tmp/acceptance-failure-artifacts/
+        if-no-files-found: ignore
+        retention-days: 14
 
     - name: Teardown
       if: always()

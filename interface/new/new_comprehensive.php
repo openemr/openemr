@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2009-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -339,7 +341,8 @@ FMT, $af, $hasValue, $ai, $getValue);
 }
 function srchDone(pid){
     top.restoreSession();
-    document.location.href = "./../../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(pid);
+    const params = new URLSearchParams({set_pid: pid, csrf_token_form: top.csrf_token_js});
+    document.location.href = "./../../patient_file/summary/demographics.php?" + params;
 }
 //-->
 
@@ -471,7 +474,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 <div class="card">
                                     <div class="card-header p-0 bg-secondary" id="header_{$group_seq_attr}">
                                         <h2 class="mb-0">
-                                            <button class="btn btn-link btn-block text-light text-left" type="button" data-toggle="collapse" data-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
+                                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
                                         </h2>
                                     </div>
                                     <div id="div_{$group_seq_attr}" class="bg-light collapse {$checked}" aria-labelledby="header_{$group_seq_attr}" >
@@ -580,7 +583,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         <div class="card">
                             <div class="card-header p-0 bg-secondary" id="header_ins">
                                 <h2 class="mb-0">
-                                    <button class="btn btn-link btn-block text-light text-left" type="button" data-toggle="collapse" data-target="#div_ins" aria-expanded="true" aria-controls="ins">$insuranceTitle</button>
+                                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#div_ins" aria-expanded="true" aria-controls="ins">$insuranceTitle</button>
                                 </h2>
                             </div>
                             <div id="div_ins" class="bg-light collapse" aria-labelledby="header_ins" >

@@ -1,0 +1,109 @@
+{#
+ # Direct Message Log report. Rendered by OpenEMR\Controllers\Interface\Reports\DirectMessageLogController.
+ # The Older and Newer buttons step by the controller's PAGE_SIZE.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Brady Miller <brady.g.miller@gmail.com>
+ # @author    Michael A. Smith <michael@opencoreemr.com>
+ # @copyright Copyright (c) 2013-2018 Brady Miller <brady.g.miller@gmail.com>
+ # @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+<html>
+
+<head>
+    {{ setupHeader() }}
+
+    <title>{{ 'Direct Message Log'|xlt }}</title>
+
+    <style>
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results table {
+                margin-top: 0;
+            }
+        }
+
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="body_top">
+
+<span class='title'>{{ 'Direct Message Log'|xlt }}</span>
+
+<form method='post' name='theform' id='theform' action='direct_message_log.php' onsubmit='return top.restoreSession()'>
+    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+    <input type='hidden' name='lognext' id='lognext' value=''>
+
+    <div id="report_parameters">
+        <table>
+            <tr>
+                <td width='470px'>
+                    <div class="btn-group float-left" role="group">
+                        <a id='refresh_button' href='#' class='btn btn-secondary btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+                            {{ 'Refresh'|xlt }}
+                        </a>
+                        <a id='prev_button' href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#lognext").val(-100); $("#theform").submit()'>
+                            {{ 'Older'|xlt }}
+                        </a>
+                        <a id='next_button' href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#lognext").val(100); $("#theform").submit()'>
+                            {{ 'Newer'|xlt }}
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- end of search parameters -->
+
+    <br />
+
+    <div id="report_results">
+        <table class='table'>
+            <thead class='thead-light'>
+                <th align='center'>{{ 'ID'|xlt }}</th>
+                <th align='center'>{{ 'Type'|xlt }}</th>
+                <th align='center'>{{ 'Date Created'|xlt }}</th>
+                <th align='center'>{{ 'Sender'|xlt }}</th>
+                <th align='center'>{{ 'Recipient'|xlt }}</th>
+                <th align='center'>{{ 'Status'|xlt }}</th>
+                <th align='center'>{{ 'Date of Status Change'|xlt }}</th>
+            </thead>
+            <tbody>
+                {%~ for record in records %}
+                    <tr>
+                        <td align='center'>{{ record.id|text }}</td>
+                        <td align='center'>{% if record.typeLabel() is null %}&nbsp;{% else %}{{ record.typeLabel()|text }}{% endif %}</td>
+                        <td align='center'>{{ record.createdAt|oeFormatDateTime('global', true)|text }}</td>
+                        <td align='center'>{{ record.sender|text }}</td>
+                        <td align='center'>{{ record.recipient|text }}</td>
+                        <td align='center'>{% if record.statusLabel() is null %}&nbsp;{% else %}{{ record.statusLabel()|text }}{% endif %}</td>
+                        <td align='center'>{{ record.statusChangedAt|text }}</td>
+                    </tr>
+                {%~ endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- end of search results -->
+
+    <input type='hidden' name='logstart' id='logstart' value='{{ logstart|attr }}'>
+</form>
+
+</body>
+</html>

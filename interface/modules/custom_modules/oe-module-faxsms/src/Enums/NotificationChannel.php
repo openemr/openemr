@@ -18,10 +18,15 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\FaxSMS\Enums;
 
+/**
+ * Backed by the spellings of `notification_log.type`, an enum('SMS','Email').
+ * MySQL matches enum values by the column's collation, so under a binary
+ * collation any other casing stores '' and never matches a lookup.
+ */
 enum NotificationChannel: string
 {
     case SMS = 'SMS';
-    case EMAIL = 'EMAIL';
+    case EMAIL = 'Email';
 
     /**
      * Parse a legacy `$TYPE` string (case-insensitive) into a channel,
@@ -30,6 +35,9 @@ enum NotificationChannel: string
      */
     public static function fromLegacyType(?string $type): self
     {
-        return self::tryFrom(strtoupper((string) $type)) ?? self::SMS;
+        return match (strtoupper((string) $type)) {
+            'EMAIL' => self::EMAIL,
+            default => self::SMS,
+        };
     }
 }

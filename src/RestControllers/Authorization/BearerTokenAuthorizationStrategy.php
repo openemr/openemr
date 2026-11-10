@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Authorizes an API request from its bearer token.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\RestControllers\Authorization;
 
 use League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator;
@@ -9,8 +20,10 @@ use League\OAuth2\Server\ResourceServer;
 use LogicException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -46,6 +59,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private TrustedUserService $trustedUserService;
 
+    private ?ClientRepository $clientRepository = null;
+
     /**
      * @var callable|null
      */
@@ -62,6 +77,17 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         if ($logger) {
             $this->setSystemLogger($logger);
         }
+    }
+
+    public function getClientRepository(): ClientRepository
+    {
+        $this->clientRepository ??= new ClientRepository();
+        return $this->clientRepository;
+    }
+
+    public function setClientRepository(ClientRepository $clientRepository): void
+    {
+        $this->clientRepository = $clientRepository;
     }
 
     public function getTrustedUserService(): TrustedUserService
@@ -153,7 +179,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $attributes = $tokenRaw->getAttributes();
         // collect openemr user uuid
         $userId = $attributes['oauth_user_id'];
-        // collect client id (will be empty for PKCE)
+        // collect client id: every token this server issues names its client in aud, PKCE ones included
         $clientId = $attributes['oauth_client_id'] ?? null;
         // collect token id
         $tokenId = $attributes['oauth_access_token_id'];
@@ -176,6 +202,33 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             );
             throw OAuthServerException::accessDenied('Access token has been revoked');
         }
+        // A token that names no client can't be held to its client's limits, so it is refused.
+        if (!is_string($clientId) || $clientId === '') {
+            $logger->error(
+                "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: token names no client",
+                ['tokenId' => $tokenId, 'userId' => $userId]
+            );
+            throw OAuthServerException::accessDenied('Access token names no client');
+        }
+        // A client an administrator disabled (or deleted) loses API access now, not when the
+        // tokens it already holds expire; disabling a client does not revoke its tokens.
+        $client = $this->getClientRepository()->getClientEntity($clientId);
+        if (!$client instanceof ClientEntity || !$client->isEnabled()) {
+            $logger->error(
+                "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: client disabled or not registered",
+                ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
+            );
+            throw OAuthServerException::accessDenied('Client is not enabled');
+        }
+        $addressBookUuid = $client->getAddressBookUuid();
+        if ($addressBookUuid !== null && !self::addressBookClientMayCall($request->getMethod(), $request->getRequestPathWithoutSite())) {
+            $logger->error(
+                "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: route is outside what a client limited to an address book entry may call",
+                ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
+            );
+            throw new HttpException(403, "This client is limited to its own Tasks and referrals.");
+        }
+        $request->setClientAddressBookUuid($addressBookUuid);
         $logger->debug("BearerTokenAuthorizationStrategy->authorizeRequest() - Access token verified, authenticating user");
 
         // verify that user tokens haven't been revoked
@@ -249,6 +302,20 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return true;
     }
 
+
+    /**
+     * What a client limited to an address book entry may call, whatever its scopes say: reading and
+     * updating Tasks, and reading ServiceRequests. Each of those keeps to the entry's own (FhirTaskService,
+     * FhirServiceRequestReferralService). Anything else is refused, a route added later included.
+     */
+    public static function addressBookClientMayCall(?string $method, ?string $path): bool
+    {
+        return match ($method) {
+            'GET' => preg_match('#^/fhir/(Task|ServiceRequest)(/[^/]+)?$#D', (string)$path) === 1,
+            'PUT' => preg_match('#^/fhir/Task/[^/]+$#D', (string)$path) === 1,
+            default => false,
+        };
+    }
 
     private function setupSessionForUserRole(string $userRole, string $userUuid, array $user, HttpRestRequest $request): void
     {
@@ -520,7 +587,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         try {
             return json_decode($context, true);
         } catch (\Throwable $exception) {
-            $this->getSystemLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
+            $this->auditLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
                 , 'tokenId' => $restRequest->getAccessTokenId()]);
         }
         return [];

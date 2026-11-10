@@ -32,8 +32,6 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
     use LoginTrait;
     use PatientOpenTrait;
 
-    private $crawler;
-
     #[DataProvider('menuLinkProvider')]
     #[Depends('testLoginAuthorized')]
     #[Depends('testPatientOpen')]

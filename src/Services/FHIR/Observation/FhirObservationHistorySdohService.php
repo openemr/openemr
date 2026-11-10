@@ -303,7 +303,7 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
         return $query_vars['code'] ?? null;
     }
 
-    private function getColumnsForCode($code)
+    private function getColumnsForCode($code): array
     {
         $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
         if (isset($codeMapping)) {

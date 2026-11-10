@@ -3,7 +3,7 @@
 use OpenEMR\Common\Session\EncounterSessionUtil;
 
 //function called to set the global session variable for encounter number
-function setencounter($enc)
+function setencounter($enc): int
 {
     return EncounterSessionUtil::setEncounter($enc);
 }
@@ -21,9 +21,8 @@ function fetchCategoryIdByEncounter($encounter)
 
 /**
  * @param $encounter
- * @return mixed
  */
-function fetchDateService($encounter)
+function fetchDateService($encounter): string
 {
     $sql = "select date from form_encounter where encounter = ?";
     $result = sqlQuery($sql, [$encounter]);

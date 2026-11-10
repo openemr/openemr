@@ -45,7 +45,7 @@ class ListService
         return $validator->validate($list);
     }
 
-    public function getAll($pid, $list_type)
+    public function getAll($pid, $list_type): array
     {
         $sql = "SELECT * FROM lists WHERE pid=? AND type=? ORDER BY date DESC";
 
@@ -53,14 +53,27 @@ class ListService
 
         $results = [];
         while ($row = sqlFetchArray($statementResults)) {
-            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $row['uuid'] = self::uuidOrNull($row['uuid'] ?? null);
             array_push($results, $row);
         }
 
         return $results;
     }
 
-    public function getListOptionsForLists($lists)
+    /**
+     * Rows inserted before uuids were assigned here can still have a NULL uuid,
+     * and Uuid::fromBytes() throws on that.
+     */
+    private static function uuidOrNull(mixed $uuidBytes): ?string
+    {
+        if (!is_string($uuidBytes) || $uuidBytes === '') {
+            return null;
+        }
+
+        return UuidRegistry::uuidToString($uuidBytes);
+    }
+
+    public function getListOptionsForLists($lists): array
     {
         $sql = "SELECT * FROM list_options WHERE list_id IN (" . str_repeat('?,', count($lists) - 1) . "?) "
             . " ORDER BY list_id, seq";
@@ -73,9 +86,8 @@ class ListService
      * the search criteria as well as the last updated date of the sublist.
      * @param $search
      * @param $isAndCondition
-     * @return ProcessingResult
      */
-    public function searchLists($search, $isAndCondition = true)
+    public function searchLists($search, $isAndCondition = true): ProcessingResult
     {
         // TODO: @adunsulag this is copy-pasta from BaseService... need to investigate if we can just have ListService extend BaseService
         $processingResult = new ProcessingResult();
@@ -118,7 +130,7 @@ class ListService
         return QueryUtils::fetchTableColumn($sql, 'list_id', []);
     }
 
-    public function getOptionsByListName($list_name, $search = [])
+    public function getOptionsByListName($list_name, $search = []): array
     {
         $sql = "SELECT * FROM list_options WHERE list_id = ? ";
         $binding = [$list_name];
@@ -180,12 +192,18 @@ class ListService
     {
         $sql = "SELECT * FROM lists WHERE pid=? AND type=? AND id=? ORDER BY date DESC";
 
-        return sqlQuery($sql, [$pid, $list_type, $list_id]);
+        $row = sqlQuery($sql, [$pid, $list_type, $list_id]);
+        if (is_array($row)) {
+            $row['uuid'] = self::uuidOrNull($row['uuid'] ?? null);
+        }
+
+        return $row;
     }
 
     public function insert($data)
     {
         $sql  = " INSERT INTO lists SET";
+        $sql .= "     uuid=?,";
         $sql .= "     date=NOW(),";
         $sql .= "     activity=1,";
         $sql .= "     pid=?,";
@@ -198,6 +216,7 @@ class ListService
         return sqlInsert(
             $sql,
             [
+                UuidRegistry::getRegistryForTable('lists')->createUuid(),
                 $data['pid'],
                 $data['type'],
                 $data["title"],

@@ -5,6 +5,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\CodeTypesService;
@@ -90,7 +91,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
      *
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -122,8 +123,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
                 $category = $fhirSearchParameters['category'];
 
                 $catServices = $this->getServiceListForCategory(
-                    // TODO: @adunsulag should we put inside TokenSearchValue the exploding of the comma separated values?
-                    new TokenSearchField('category', explode(",", $category))
+                    TokenSearchField::fromEscapedFHIRString('category', $category)
                 );
                 foreach ($catServices as $service) {
                     $servicesMap[$service::class] = $service;
@@ -145,12 +145,21 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     }
 
     /**
+     * jsonSerialize() keeps typed elements as objects, while client-supplied JSON stays a raw string.
+     * Reduce typed date elements to their string value so both reach the parser the same way.
+     */
+    private static function scalarDateTime(mixed $value): mixed
+    {
+        return $value instanceof FHIRDateTime ? $value->getValue() : $value;
+    }
+
+    /**
      * Parses a FHIR Condition resource, returning the equivalent OpenEMR record.
      *
      * @param FHIRDomainResource $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRCondition)) {
             throw new \InvalidArgumentException(
@@ -237,13 +246,13 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         // Partial precision (YYYY, YYYY-MM) is rejected rather than widened:
         // lists.begdate is a DATE column and a year-only onset cannot be stored
         // faithfully, so the caller gets a 400 instead of a fabricated day.
-        $begdate = FhirDateTimeParser::toDbDate($json['onsetDateTime'] ?? null, 'Condition.onsetDateTime');
+        $begdate = FhirDateTimeParser::toDbDate(self::scalarDateTime($json['onsetDateTime'] ?? null), 'Condition.onsetDateTime');
         if ($begdate !== null) {
             $data['begdate'] = $begdate;
         }
 
         // abatementDateTime -> enddate
-        $enddate = FhirDateTimeParser::toDbDate($json['abatementDateTime'] ?? null, 'Condition.abatementDateTime');
+        $enddate = FhirDateTimeParser::toDbDate(self::scalarDateTime($json['abatementDateTime'] ?? null), 'Condition.abatementDateTime');
         if ($enddate !== null) {
             $data['enddate'] = $enddate;
         }

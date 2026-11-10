@@ -28,7 +28,9 @@ use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\AddressBookOrganizationService;
 use OpenEMR\Services\CareTeamService;
+use OpenEMR\Services\Cda\VitalSignConversion;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactRelationService;
@@ -64,6 +66,8 @@ class EncounterccdadispatchTable
     public $searchToDate;
     public $searchFiltered = false;
     private $encounterFilterList = [];
+    /** The referral (transactions.id) the Reason for Referral section is about, or null for the patient's most recent. */
+    private ?int $contentReferralId = null;
 
     private readonly SessionInterface $session;
 
@@ -155,9 +159,8 @@ class EncounterccdadispatchTable
     /**
      * @param DateSearchField $searchField
      * @param                 $column
-     * @return DateSearchField
      */
-    private function convertDateSearchFieldForColumn(DateSearchField $searchField, $column)
+    private function convertDateSearchFieldForColumn(DateSearchField $searchField, $column): DateSearchField
     {
         return new DateSearchField($column, $searchField->getValues(), $searchField->getDateType(), $searchField->isAnd());
     }
@@ -244,10 +247,10 @@ class EncounterccdadispatchTable
     public function getPreviousNames($pid): array
     {
         $nameService = new PatientNameHistoryService();
-        return $nameService->getPatientNameHistory($pid) ?? [];
+        return $nameService->getPatientNameHistory($pid);
     }
 
-    public function getSdohData($pid, $encounter)
+    public function getSdohData($pid, $encounter): string
     {
         // Pull latest assessment row and (optionally) the mapped code from list_options
         $sql = "
@@ -362,7 +365,7 @@ class EncounterccdadispatchTable
         return $xml;
     }
 
-    public function getPatientOccupation($pid)
+    public function getPatientOccupation($pid): string
     {
         $sql = "SELECT
             p.pid,
@@ -840,7 +843,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProviderDetails($pid, $encounter)
+    public function getProviderDetails($pid, $encounter): string
     {
         $provider_details = '';
         if (!$encounter) {
@@ -930,7 +933,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getAuthorXmlForRecord($recordAuthor, $pid, $encounter)
+    public function getAuthorXmlForRecord($recordAuthor, $pid, $encounter): string
     {
         $provenanceRecord = $this->getProvenanceForRecord($recordAuthor, $pid, $encounter);
         if (empty($provenanceRecord)) {
@@ -1072,7 +1075,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getAuthorDate($pid, $encounter)
+    public function getAuthorDate($pid, $encounter): string
     {
         // we allow providers to use the latest encounter date if they have the force flag set.
         $time = null;
@@ -1100,7 +1103,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getDataEnterer($pid, $encounter)
+    public function getDataEnterer($pid, $encounter): string
     {
         $data_enterer = '';
         $details = $this->getDetails('hie_data_enterer_id');
@@ -1125,7 +1128,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getInformant($pid, $encounter)
+    public function getInformant($pid, $encounter): string
     {
         $informant = '';
         $details = $this->getDetails('hie_informant_id');
@@ -1151,7 +1154,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getDocumentParticipants($pid, $encounter)
+    public function getDocumentParticipants($pid, $encounter): string
     {
 
         $participants = "<document_participants>";
@@ -1166,7 +1169,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getDocumentReferralParticipant($pid, $encounter)
+    public function getDocumentReferralParticipant($pid, $encounter): string
     {
         $participant = '';
         $records = $this->getReferralRecords($pid);
@@ -1222,7 +1225,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getOfficeContact($pid, $encounter)
+    public function getOfficeContact($pid, $encounter): string
     {
         $details = $this->getDetails('hie_office_contact');
         if (empty($details)) {
@@ -1268,7 +1271,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getCustodian($pid, $encounter)
+    public function getCustodian($pid, $encounter): string
     {
         $custodian = '';
         $details = $this->getDetails('hie_custodian_id');
@@ -1294,7 +1297,7 @@ class EncounterccdadispatchTable
      * @param $params
      * @return string
      */
-    public function getInformationRecipient($pid, $encounter, $recipients, $params)
+    public function getInformationRecipient($pid, $encounter, $recipients, $params): string
     {
         $information_recipient = '';
         $field_name = [];
@@ -1354,7 +1357,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getLegalAuthenticator($pid, $encounter)
+    public function getLegalAuthenticator($pid, $encounter): string
     {
         $legal_authenticator = '';
         $details = $this->getDetails('hie_legal_authenticator_id');
@@ -1378,7 +1381,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getAuthenticator($pid, $encounter)
+    public function getAuthenticator($pid, $encounter): string
     {
         $authenticator = '';
         $details = $this->getDetails('hie_authenticator_id');
@@ -1550,7 +1553,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getAllergies($pid)
+    public function getAllergies($pid): string
     {
         $allergies = '';
         $query = "SELECT l.id, l.title, l.begdate, l.enddate, lo.title AS observation,
@@ -1645,7 +1648,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getMedications($pid)
+    public function getMedications($pid): string
     {
         $medications = '';
         $query = "select l.id, l.date_added, l.start_date, l.drug, l.dosage, l.quantity, l.size, l.substitute, l.drug_info_erx, l.active, SUBSTRING(l3.codes, LOCATE(':',l3.codes)+1, LENGTH(l3.codes)) AS route_code,
@@ -1738,7 +1741,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getProblemList($pid)
+    public function getProblemList($pid): string
     {
         UuidRegistry::createMissingUuidsForTables(['lists']);
         $problem_lists = '';
@@ -1837,7 +1840,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getMedicalDeviceList($pid)
+    public function getMedicalDeviceList($pid): string
     {
         $medical_devices = '';
         $query = "select l.*, author.id AS provenance_updated_by, lo.title as observation, lo.codes as observation_code, l.diagnosis AS code
@@ -1914,7 +1917,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getImmunization($pid)
+    public function getImmunization($pid): string
     {
         $immunizations = '';
         $query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,
@@ -1979,7 +1982,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProcedures($pid, $encounter)
+    public function getProcedures($pid, $encounter): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -2101,7 +2104,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getResults($pid, $encounter)
+    public function getResults($pid, $encounter): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -2217,7 +2220,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getEncounterHistory($pid)
+    public function getEncounterHistory($pid): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -2431,7 +2434,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProgressNotes($pid, $encounter)
+    public function getProgressNotes($pid, $encounter): string
     {
         $progress_notes = '';
         $formTables_details = $this->fetchFields('progress_note', 'assessment_plan', 1);
@@ -2461,7 +2464,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getHospitalCourse($pid, $encounter)
+    public function getHospitalCourse($pid, $encounter): string
     {
         $hospital_course = '';
         $formTables_details = $this->fetchFields('discharge_summary', 'hospital_course', 1);
@@ -2483,7 +2486,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getDischargeDiagnosis($pid, $encounter)
+    public function getDischargeDiagnosis($pid, $encounter): string
     {
         $discharge_diagnosis = '';
         $formTables_details = $this->fetchFields('discharge_summary', 'hospital_discharge_diagnosis', 1);
@@ -2505,7 +2508,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getDischargeMedications($pid, $encounter)
+    public function getDischargeMedications($pid, $encounter): string
     {
         $discharge_medications = '';
         $formTables_details = $this->fetchFields('discharge_summary', 'hospital_discharge_medications', 1);
@@ -2538,7 +2541,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getComplications($pid, $encounter)
+    public function getComplications($pid, $encounter): string
     {
         $complications = '';
         $formTables_details = $this->fetchFields('procedure_note', 'complications', 1);
@@ -2569,7 +2572,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getPostProcedureDiag($pid, $encounter)
+    public function getPostProcedureDiag($pid, $encounter): string
     {
         $procedure_diag = '';
         $formTables_details = $this->fetchFields('procedure_note', 'postprocedure_diagnosis', 1);
@@ -2600,7 +2603,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProcedureDescription($pid, $encounter)
+    public function getProcedureDescription($pid, $encounter): string
     {
         $procedure_description = '';
         $formTables_details = $this->fetchFields('procedure_note', 'procedure_description', 1);
@@ -2630,7 +2633,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProcedureIndications($pid, $encounter)
+    public function getProcedureIndications($pid, $encounter): string
     {
         $procedure_indications = '';
         $formTables_details = $this->fetchFields('procedure_note', 'procedure_indications', 1);
@@ -2663,7 +2666,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getAnesthesia($pid, $encounter)
+    public function getAnesthesia($pid, $encounter): string
     {
         $anesthesia = '';
         $formTables_details = $this->fetchFields('operative_note', 'anesthesia', 1);
@@ -2692,7 +2695,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getPostoperativeDiag($pid, $encounter)
+    public function getPostoperativeDiag($pid, $encounter): string
     {
         $post_operative_diag = '';
         $formTables_details = $this->fetchFields('operative_note', 'post_operative_diagnosis', 1);
@@ -2721,7 +2724,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getPreOperativeDiag($pid, $encounter)
+    public function getPreOperativeDiag($pid, $encounter): string
     {
         $pre_operative_diag = '';
         $formTables_details = $this->fetchFields('operative_note', 'pre_operative_diagnosis', 1);
@@ -2750,7 +2753,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getEstimatedBloodLoss($pid, $encounter)
+    public function getEstimatedBloodLoss($pid, $encounter): string
     {
         $estimated_blood_loss = '';
         $formTables_details = $this->fetchFields('operative_note', 'procedure_estimated_blood_loss', 1);
@@ -2779,7 +2782,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProcedureFindings($pid, $encounter)
+    public function getProcedureFindings($pid, $encounter): string
     {
         $procedure_findings = '';
         $formTables_details = $this->fetchFields('operative_note', 'procedure_findings', 1);
@@ -2808,7 +2811,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProcedureSpecimensTaken($pid, $encounter)
+    public function getProcedureSpecimensTaken($pid, $encounter): string
     {
         $procedure_specimens = '';
         $formTables_details = $this->fetchFields('operative_note', 'procedure_specimens_taken', 1);
@@ -2840,7 +2843,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getHP($pid, $encounter)
+    public function getHP($pid, $encounter): string
     {
         $hp = '';
         $formTables_details = $this->fetchFields('consultation_note', 'history_of_present_illness', 1);
@@ -2869,7 +2872,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getPhysicalExam($pid, $encounter)
+    public function getPhysicalExam($pid, $encounter): string
     {
         $physical_exam = '';
         $formTables_details = $this->fetchFields('consultation_note', 'physical_exam', 1);
@@ -2901,7 +2904,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getChiefComplaint($pid, $encounter)
+    public function getChiefComplaint($pid, $encounter): string
     {
         $chief_complaint = '';
         $formTables_details = $this->fetchFields('history_physical_note', 'chief_complaint', 1);
@@ -2930,7 +2933,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getGeneralStatus($pid, $encounter)
+    public function getGeneralStatus($pid, $encounter): string
     {
         $general_status = '';
         $formTables_details = $this->fetchFields('history_physical_note', 'general_status', 1);
@@ -2959,7 +2962,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getHistoryOfPastIllness($pid, $encounter)
+    public function getHistoryOfPastIllness($pid, $encounter): string
     {
         $history_past_illness = '';
         $formTables_details = $this->fetchFields('history_physical_note', 'hpi_past_med', 1);
@@ -2988,7 +2991,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getReviewOfSystems($pid, $encounter)
+    public function getReviewOfSystems($pid, $encounter): string
     {
         $review_of_systems = '';
         $formTables_details = $this->fetchFields('history_physical_note', 'review_of_systems', 1);
@@ -3017,7 +3020,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getVitals($pid)
+    public function getVitals($pid): string
     {
         $wherCon = '';
         $first_encounter = null;
@@ -3078,9 +3081,13 @@ class EncounterccdadispatchTable
                 , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $first_encounter);
-            $convWeightValue = number_format($row['weight'] * 0.45359237, 2);
-            $convHeightValue = number_format(round($row['height'] * 2.54, 1), 2);
-            $convTempValue = number_format((round($row['temperature'] - 32) * (5 / 9)), 1);
+            // An unrecorded measurement is stored as 0. Converted, it became a
+            // real-looking 0.00 kg, 0.00 cm or -17.8 Cel; it now stays empty,
+            // as the imperial branch below already leaves it. The temperature is
+            // also converted before rounding (98.6 [degF] had become 37.2 Cel).
+            $convWeightValue = VitalSignConversion::poundsToKilograms($row['weight']);
+            $convHeightValue = VitalSignConversion::inchesToCentimetres($row['height']);
+            $convTempValue = VitalSignConversion::fahrenheitToCelsius($row['temperature']);
             if (OEGlobalsBag::getInstance()->get('units_of_measurement') == 2 || OEGlobalsBag::getInstance()->get('units_of_measurement') == 4) {
                 $weight_value = $convWeightValue;
                 $weight_unit = 'kg';
@@ -3092,7 +3099,7 @@ class EncounterccdadispatchTable
                 // these value sets have to come from urn:oid:2.16.840.1.113883.1.11.12839 which is codes here: http://unitsofmeasure.org/
                 // nice website with these values are https://build.fhir.org/ig/HL7/UTG/ValueSet-v3-UnitsOfMeasureCaseSensitive.html
                 $temp = US_weight($row['weight'], 1);
-                $tempArr = explode(" ", (string)$temp);
+                $tempArr = explode(" ", $temp);
                 $weight_value = (float)$tempArr[0];
                 $weight_unit = '[lb_av]'; // pounds US, British
                 $height_value = (float)$row['height'];
@@ -3207,7 +3214,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getSocialHistory($pid)
+    public function getSocialHistory($pid): string
     {
         $social_history = '';
         $arr = [
@@ -3307,7 +3314,7 @@ class EncounterccdadispatchTable
     /**
      * Generates an unstructured component template for each patient document to be exported.
      * The resulting template is structured for direct placement into the unstructured
-     * document by the ccda service.
+     * document by the C-CDA generator.
      * BTW HL7 spec doesn't allow but one component per unstructured document so
      * this will break spec. However, we'll keep it our little secret as this is off by default.
      * User can turn on during exports for OpenEMR to OpenEMR transfer of patients.
@@ -3369,7 +3376,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getUnstructuredDocuments($pid, $encounter)
+    public function getUnstructuredDocuments($pid, $encounter): string
     {
         $image = '';
         $formTables_details = $this->fetchFields('unstructured_document', 'unstructured_doc', 1);
@@ -3532,9 +3539,8 @@ class EncounterccdadispatchTable
      * @param $ccda_component
      * @param $ccda_section
      * @param $user_id
-     * @return array
      */
-    public function fetchFields($ccda_component, $ccda_section, $user_id)
+    public function fetchFields($ccda_component, $ccda_section, $user_id): array
     {
         $form_type = $table_name = $field_names = '';
         $query = "select * from ccda_table_mapping
@@ -3629,17 +3635,39 @@ class EncounterccdadispatchTable
                         }
                     }
                 } else {//Fetching a single field from the table
-                    $primary_key = '';
-                    $query = "SHOW INDEX FROM ? WHERE Key_name='PRIMARY'";
-                    $res_primary = QueryUtils::fetchRecords($query, [$formTables_details[1]]);
-                    foreach ($res_primary as $row_primary) {
-                        $primary_key = $row_primary['Column_name'];
+                    // The mapper stores the target table and column list in free-form text
+                    // fields; both reach SQL grammar unparameterized below, so validate each
+                    // identifier against the alphanumeric/underscore shape SQL identifiers
+                    // actually take. Bail silently on anything else so the mapper never
+                    // widens into an injection surface.
+                    $tableName = (string) $formTables_details[1];
+                    if (preg_match('/\A[A-Za-z0-9_]+\z/', $tableName) !== 1) {
+                        continue;
+                    }
+                    $columnList = array_values(array_filter(
+                        array_map(trim(...), explode(',', (string) $formTables_details[3])),
+                        static fn(string $c): bool => $c !== '' && preg_match('/\A[A-Za-z0-9_]+\z/', $c) === 1,
+                    ));
+                    if ($columnList === []) {
+                        continue;
                     }
 
+                    $primary_key = '';
+                    $res_primary = QueryUtils::fetchRecords(
+                        "SELECT COLUMN_NAME FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = 'PRIMARY'",
+                        [$tableName]
+                    );
+                    foreach ($res_primary as $row_primary) {
+                        $primary_key = (string) $row_primary['COLUMN_NAME'];
+                    }
                     unset($res_primary);
+                    if ($primary_key === '' || preg_match('/\A[A-Za-z0-9_]+\z/', $primary_key) !== 1) {
+                        continue;
+                    }
 
-                    $query = "select " . $formTables_details[3] . " from " . $formTables_details[1] . "
-                    join forms as f on f.pid=? AND f.encounter=? AND f.form_id=" . $formTables_details[1] . "." . $primary_key . " AND f.formdir=?
+                    $selectCols = implode(', ', array_map(static fn(string $c): string => "`$c`", $columnList));
+                    $query = "select $selectCols from `$tableName`
+                    join forms as f on f.pid=? AND f.encounter=? AND f.form_id=`$tableName`.`$primary_key` AND f.formdir=?
                     where 1 = 1 ";
                     $result = QueryUtils::fetchRecords($query, [$pid, $encounter, $formDir]);
 
@@ -3672,8 +3700,14 @@ class EncounterccdadispatchTable
                     include_once($filename);
                 }
 
-                $field_ids = explode(',', (string)$formTables_details[3]);
-                $fields_str = implode(',', array_map(fn($v): string => "'$v'", $field_ids));
+                $field_ids = array_values(array_filter(
+                    array_map(trim(...), explode(',', (string) $formTables_details[3])),
+                    static fn(string $f): bool => $f !== '' && preg_match('/\A[A-Za-z0-9_]+\z/', $f) === 1,
+                ));
+                if ($field_ids === []) {
+                    continue;
+                }
+                $placeholders = implode(',', array_fill(0, count($field_ids), '?'));
 
                 $query = <<<SQL
                     SELECT *
@@ -3682,10 +3716,10 @@ class EncounterccdadispatchTable
                     ON f.pid = ?
                     AND f.form_id = {$lbf}.form_id
                     AND f.formdir = ?
-                    AND {$lbf}.field_id IN ({$fields_str})
+                    AND {$lbf}.field_id IN ({$placeholders})
                     WHERE deleted = 0
                     SQL;
-                $result = QueryUtils::fetchRecords($query, [$pid, $formDir]);
+                $result = QueryUtils::fetchRecords($query, array_merge([$pid, $formDir], $field_ids));
 
                 foreach ($result as $row) {
                     preg_match('/\.$/', trim((string)$row['field_value']), $matches);
@@ -3746,9 +3780,8 @@ class EncounterccdadispatchTable
     */
     /**
      * @param $date
-     * @return array
      */
-    public function getEncounterDate($date)
+    public function getEncounterDate($date): array
     {
         $date_list = [];
         $query = "select pid, encounter from form_encounter where date between ? and ?";
@@ -3774,9 +3807,8 @@ class EncounterccdadispatchTable
     /**
      * @param $pid
      * @param $encounter
-     * @return array
      */
-    public function signOff($pid, $encounter)
+    public function signOff($pid, $encounter): array
     {
         /*Saving Demographics to locked data*/
         $query_patient_data = "SELECT * FROM patient_data WHERE pid = ?";
@@ -3884,9 +3916,8 @@ class EncounterccdadispatchTable
     */
     /**
      * @param $type
-     * @return array
      */
-    public function getCCDAComponents($type)
+    public function getCCDAComponents($type): array
     {
         $get = new SendtoTable();
         $components = $get->getCcdaComponents($type);
@@ -3902,7 +3933,6 @@ class EncounterccdadispatchTable
     * @param    integer     $content
     * @param    integer     $time
     * @param    integer     $status
-    * @return   None
     */
     /**
      * @param $pid
@@ -3915,10 +3945,10 @@ class EncounterccdadispatchTable
      * @param $view
      * @param $transfer
      * @param $emr_transfer
-     * @return GeneratedCcdaResult
+     * @param ?int $chosenReferralId the referral staff chose this C-CDA for (referralForCcda())
      * @throws \Exception
      */
-    public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0)
+    public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0, ?int $chosenReferralId = null): GeneratedCcdaResult
     {
         $content = base64_decode((string)$content);
         $document = new \Document();
@@ -3957,7 +3987,7 @@ class EncounterccdadispatchTable
         $mimeType = "text/xml";
 
         // TODO: @adunsulag do we need to clean up the file if we fail to commit the transaction here?
-        $moduleInsertId = QueryUtils::inTransaction(function () use ($document, $pid, $categoryId, $file_name, $mimeType, $content, $binaryUuid, $encounter, $time, $status, $user_id, $view, $transfer, $emr_transfer) {
+        $moduleInsertId = QueryUtils::inTransaction(function () use ($document, $pid, $categoryId, $file_name, $mimeType, $content, $binaryUuid, $encounter, $time, $status, $user_id, $view, $transfer, $emr_transfer, $chosenReferralId) {
             // set the foreign key so we can track documents connected to a specific export
             $result = $document->createDocument(
                 $pid,
@@ -3975,10 +4005,12 @@ class EncounterccdadispatchTable
             $revid = $document->get_couch_revid();
             $hash = $document->get_hash();
             $encrypted = $document->is_encrypted();
-            $referralId = $this->getMostRecentPatientReferral($pid);
+            $referralId = $this->referralForCcda(is_numeric($pid) ? (int)$pid : 0, $chosenReferralId);
 
-            $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $moduleInsertId = QueryUtils::sqlInsert($query, [$binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId]);
+            // Whether the link is the referral staff chose, not the guess at the most recent one.
+            $chosen = $chosenReferralId !== null && $referralId !== null ? 1 : 0;
+            $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`, `transaction_chosen`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $moduleInsertId = QueryUtils::sqlInsert($query, [$binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId, $chosen]);
 
             // now let's go ahead and log our amc actions for this behavior
             if (!empty($emr_transfer)) {
@@ -4001,6 +4033,62 @@ class EncounterccdadispatchTable
     }
 
     /**
+     * The referral a C-CDA is linked to: the one staff chose, if it's a referral of this patient's, or
+     * with no choice the patient's most recent. A choice that isn't this patient's links to nothing
+     * rather than falling back to a guess, since this link decides which referral the document counts for.
+     */
+    public function referralForCcda(int $pid, ?int $chosenReferralId): ?int
+    {
+        if ($chosenReferralId === null) {
+            $referralId = $this->getMostRecentPatientReferral($pid);
+            return is_numeric($referralId) ? (int)$referralId : null;
+        }
+        $found = QueryUtils::fetchSingleValue("SELECT id FROM transactions WHERE id = ? AND pid = ? AND title = 'LBTref'", 'id', [$chosenReferralId, $pid]);
+        if (!is_numeric($found)) {
+            ServiceContainer::getLogger()->error('EncounterccdadispatchTable::referralForCcda: the chosen referral is not a referral of this patient', ['pid' => $pid, 'referral' => $chosenReferralId]);
+            return null;
+        }
+        return (int)$found;
+    }
+
+    /**
+     * A patient's referrals, newest first, to choose from when sending a C-CDA.
+     *
+     * @return list<array{id: int, label: string}>
+     */
+    public function getPatientReferrals(int $pid): array
+    {
+        // The recipient's name as the FHIR performer and the client screen give it.
+        $rows = QueryUtils::fetchRecords(
+            "SELECT t.id, referred.field_value AS refer_date, body.field_value AS body,
+                    " . AddressBookOrganizationService::nameSql('u') . " AS recipient
+                FROM transactions AS t
+                LEFT JOIN lbt_data AS referred ON referred.form_id = t.id AND referred.field_id = 'refer_date'
+                LEFT JOIN lbt_data AS body ON body.form_id = t.id AND body.field_id = 'body'
+                LEFT JOIN lbt_data AS recipient ON recipient.form_id = t.id AND recipient.field_id = 'refer_to'
+                LEFT JOIN users AS u ON u.id = recipient.field_value
+                WHERE t.pid = ? AND t.title = 'LBTref'
+                ORDER BY t.id DESC",
+            [$pid]
+        );
+        $referrals = [];
+        foreach ($rows as $row) {
+            if (!is_numeric($row['id'] ?? null)) {
+                continue;
+            }
+            $parts = ['#' . (int)$row['id']];
+            foreach (['refer_date', 'recipient', 'body'] as $column) {
+                $value = $row[$column] ?? null;
+                if (is_string($value) && trim($value) !== '') {
+                    $parts[] = mb_substr(trim($value), 0, 60);
+                }
+            }
+            $referrals[] = ['id' => (int)$row['id'], 'label' => implode(' - ', $parts)];
+        }
+        return $referrals;
+    }
+
+    /**
      * Retrieves the most recent patient referral found in the transactions table or null if none is found.
      *
      * @param $pid
@@ -4016,9 +4104,8 @@ class EncounterccdadispatchTable
         $refs = QueryUtils::fetchRecords("select t.id as trans_id from transactions t where t.pid = ? and t.date = NOW() AND t.title = 'LBTref'", [$pid]);
         $trans_id = null;
         if (count($refs) == 0) {
-            // the choose the most recent transaction to link this up...  This could create problems in the
-            // future if multiple referrals are created BEFORE sending the CCDA.
-            // TODO: is there a way to fix it so we can choose a referral (works for single ccda generation, more problematic for multiple patient select).
+            // no referral was chosen (a send for several patients, or one that left the choice alone), so
+            // the most recent one is used, which is a guess when the patient has several.
             $trans = QueryUtils::fetchRecords("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1", [$pid]);
             $trans_cur = $trans[0] ?? [];
             $trans_id = $trans_cur['id'] ?? null;
@@ -4230,7 +4317,7 @@ class EncounterccdadispatchTable
      * @param $pid string  Internal Identifier.
      * @return string $planofcare  XML which contains the details collected from the patient.
      */
-    public function getPlanOfCare($pid, $encounter)
+    public function getPlanOfCare($pid, $encounter): string
     {
         $wherCon = '';
         $sqlBindArray = ['Plan_of_Care_Type', $pid, 'care_plan', 0];
@@ -4501,7 +4588,7 @@ class EncounterccdadispatchTable
         return $planofcare . $goals . $concerns . $sdoh_social;
     }
 
-    public function getSocialHistorySDOH($pid)
+    public function getSocialHistorySDOH($pid): string
     {
         $sql = "
         SELECT
@@ -4583,7 +4670,7 @@ class EncounterccdadispatchTable
         return $xml;
     }
 
-    private function getHungerAnswerDisplay($code)
+    private function getHungerAnswerDisplay($code): string
     {
         $map = [
             'LA28397-0' => 'Often true',
@@ -4604,7 +4691,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getFunctionalCognitiveStatus($pid)
+    public function getFunctionalCognitiveStatus($pid): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -4661,7 +4748,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getClinicalNotes($pid, $encounter)
+    public function getClinicalNotes($pid, $encounter): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -4744,7 +4831,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getClinicalInstructions($pid)
+    public function getClinicalInstructions($pid): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -4771,13 +4858,26 @@ class EncounterccdadispatchTable
     }
 
     /**
-     * @param $pid
-     * @return array
+     * Makes the Reason for Referral section of the C-CDAs generated from here on about this referral,
+     * or, with null, the patient's most recent one. A referral that isn't the patient's gives the
+     * section nothing, rather than another referral's reason.
      */
-    private function getReferralRecords($pid)
+    public function setContentReferral(?int $referralId): void
+    {
+        $this->contentReferralId = $referralId;
+    }
+
+    /**
+     * @param $pid
+     */
+    private function getReferralRecords($pid): array
     {
         $wherCon = '';
         $sqlBindArray = [$pid];
+        if ($this->contentReferralId !== null) {
+            $wherCon .= "AND t.id = ? ";
+            $sqlBindArray[] = $this->contentReferralId;
+        }
         $wherCon .= "ORDER BY date DESC";
 
         $query = "SELECT ref_body.field_value AS body, ref_to.field_value AS refer_to
@@ -4821,7 +4921,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getReferrals($pid)
+    public function getReferrals($pid): string
     {
         $referrals = '';
         $result = $this->getReferralRecords($pid);
@@ -4862,7 +4962,7 @@ class EncounterccdadispatchTable
      * @param $str
      * @return string
      */
-    public function formatUid($str)
+    public function formatUid($str): string
     {
         $sha = sha1((string)$str);
         return substr((string)preg_replace('/^.{8}|.{4}/', '\0-', $sha, 4), 0, 36);
@@ -4871,9 +4971,8 @@ class EncounterccdadispatchTable
     /**
      * @param $pid
      * @param $encounter
-     * @return array
      */
-    private function getEncounterListForDateRange($pid, $encounter)
+    private function getEncounterListForDateRange($pid, $encounter): array
     {
         $encounter = '';
         $boundParams = [$pid];

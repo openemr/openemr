@@ -5,7 +5,7 @@
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
@@ -21,8 +21,12 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class LaboratoryTestService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getSqlStatement()
+    public function getSqlStatement(): string
     {
+        // Each result with the code of its own line of the order (procedure_report.procedure_order_seq),
+        // as the procedure API's OpenEMR\Services\ProcedureService pairs them. A result, or its report,
+        // marked Error is left out: the results screen's statuses (proc_res_status, proc_rep_status), and
+        // an HL7 result received with status X.
         $sql = "SELECT
                     O.patient_id AS pid,
                     O.encounter_id AS encounter,
@@ -38,18 +42,16 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
                     JOIN procedure_report REP ON RES.procedure_report_id = REP.procedure_report_id
                     JOIN procedure_order O ON REP.procedure_order_id = O.procedure_order_id
                     JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
+                        AND OC.procedure_order_seq = REP.procedure_order_seq
                 WHERE O.procedure_order_type = 'laboratory_test' AND O.activity != 0
+                AND RES.result_status <> 'error' AND REP.report_status <> 'error'
+                AND " . self::countedFormRow('O.procedure_order_id', 'O.patient_id', QdmForm::ProcedureOrder) . "
                 ";
 
         return $sql;
     }
 
-    public function getPatientIdColumn()
-    {
-        return 'O.patient_id';
-    }
-
-    public function makeQdmModel(QdmRecord $recordObj)
+    public function makeQdmModel(QdmRecord $recordObj): LaboratoryTestPerformed
     {
         $record = $recordObj->getData();
         $result = 'Negative';

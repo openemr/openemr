@@ -141,7 +141,7 @@ class PatientService extends BaseService
         return sqlStatement($sql);
     }
 
-    public function getFreshPid()
+    public function getFreshPid(): int
     {
         $pid = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
         /** @var int|string|null $pidValue */
@@ -408,7 +408,7 @@ class PatientService extends BaseService
         return $this->search($querySearch, $isAndCondition, $config);
     }
 
-    public function search(array $search, $isAndCondition = true, ?SearchQueryConfig $config = null)
+    public function search(array $search, $isAndCondition = true, ?SearchQueryConfig $config = null): ProcessingResult
     {
         // we run two queries in this search.  The first query is to grab all of the uuids of the patients that match
         // the search.  Because we are joining several tables with a 1:m relationship on several tables (previous name,
@@ -515,7 +515,7 @@ class PatientService extends BaseService
         }
     }
 
-    private function hydrateSearchResultsFromQueryResource($queryResource, ?QueryPagination $pagination = null)
+    private function hydrateSearchResultsFromQueryResource($queryResource, ?QueryPagination $pagination = null): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         if (!empty($pagination)) {
@@ -571,7 +571,7 @@ class PatientService extends BaseService
         return $processingResult;
     }
 
-    private function hydratePatientAdditionalAddressInformation(&$record)
+    private function hydratePatientAdditionalAddressInformation(&$record): array
     {
         $address = [
             'id' => $record['contact_address_address_id'] ?? null
@@ -593,7 +593,7 @@ class PatientService extends BaseService
         return $address;
     }
 
-    private function hydratedPatientInitialAddressInformation(&$patient)
+    private function hydratedPatientInitialAddressInformation(&$patient): array
     {
         // we need to setup our initial address from the patient records if we have one
         $address = [
@@ -766,7 +766,7 @@ class PatientService extends BaseService
         return self::getIdByUuid($uuid, self::TABLE_NAME, 'pid');
     }
 
-    public function formatPreviousName($item)
+    public function formatPreviousName($item): string
     {
         return PatientNameHistoryService::formatPreviousName($item);
     }
@@ -925,7 +925,7 @@ class PatientService extends BaseService
         return compact('age', 'age_in_months', 'ageinYMD');
     }
 
-    public function getProviderIDsForPatientPids(array $patientPids)
+    public function getProviderIDsForPatientPids(array $patientPids): array
     {
         // get integer only filtered pids for sql safety
         $pids = array_map(intval(...), $patientPids);
@@ -943,7 +943,7 @@ class PatientService extends BaseService
         return $mappedPids;
     }
 
-    public function getProviderIDsForPatientUuids(array $patientUuids)
+    public function getProviderIDsForPatientUuids(array $patientUuids): array
     {
         // get integer only filtered pids for sql safety
         $bindString = rtrim(str_repeat("?,", count($patientUuids) - 1)) . "?";

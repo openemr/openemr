@@ -154,6 +154,10 @@ class FhirAppointmentRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirAppointmentService->getAll($searchParams, $puuidBind);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

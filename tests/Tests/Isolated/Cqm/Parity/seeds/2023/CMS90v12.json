@@ -1,0 +1,90 @@
+{
+    "patients": [
+        {
+            "note": "Heart failure since 2021, office visits in February and March 2023, MLHFQ two days before the first visit and again two months later: denominator and numerator.",
+            "birthDatetime": "1954-04-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Heart Failure",
+                    "prevalencePeriod": [
+                        "2021-05-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "Physical score [MLHFQ]",
+                    "relevantDatetime": "2023-02-01T09:00:00.000+00:00",
+                    "result": 20
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "Emotional score [MLHFQ]",
+                    "relevantDatetime": "2023-02-01T09:05:00.000+00:00",
+                    "result": 10
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2023-02-03T09:00:00.000+00:00",
+                        "2023-02-03T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2023-03-10T09:00:00.000+00:00",
+                        "2023-03-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "Physical score [MLHFQ]",
+                    "relevantDatetime": "2023-04-01T09:00:00.000+00:00",
+                    "result": 15
+                },
+                {
+                    "type": "AssessmentPerformed",
+                    "valueSet": "Emotional score [MLHFQ]",
+                    "relevantDatetime": "2023-04-01T09:05:00.000+00:00",
+                    "result": 8
+                }
+            ]
+        },
+        {
+            "note": "Heart failure since 2020 and two office visits in 2023, no functional status assessment: denominator, not numerator.",
+            "birthDatetime": "1947-08-01T08:00:00.000+00:00",
+            "sex": "M",
+            "elements": [
+                {
+                    "type": "Diagnosis",
+                    "valueSet": "Heart Failure",
+                    "prevalencePeriod": [
+                        "2020-09-01T08:00:00.000+00:00",
+                        null
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2023-01-20T09:00:00.000+00:00",
+                        "2023-01-20T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2023-04-14T09:00:00.000+00:00",
+                        "2023-04-14T09:30:00.000+00:00"
+                    ]
+                }
+            ]
+        }
+    ]
+}

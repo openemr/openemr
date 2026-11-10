@@ -38,7 +38,7 @@ final readonly class ShipReleaseRenderer
         string $pr,
     ): void {
         // Exhaustive match without default so PHPStan flags new enum
-        // cases at compile time (per CLAUDE.md coding guideline).
+        // cases at compile time (per AGENTS.md coding guideline).
         $lines = match ($step->status) {
             ShipReleaseStepStatus::MERGED => [
                 sprintf('<info>✓ merged</info>   %s %s → %s', $tag, $pr, $step->mergeSha ?? '?'),

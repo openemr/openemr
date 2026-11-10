@@ -69,7 +69,7 @@ class HCFAInfo
      * @param HCFAInfo $second
      * @return int
      */
-    public static function cmpHcfaInfo($first, $second)
+    public static function cmpHcfaInfo($first, $second): int
     {
         $first_value = $first->getPosition();
         $second_value = $second->getPosition();

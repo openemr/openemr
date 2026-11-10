@@ -7,6 +7,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitionerRole;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -54,7 +55,7 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
      * Returns an array mapping FHIR PractitionerRole Resource search parameters to OpenEMR PractitionerRole search parameters
      * @return array The search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'specialty' => new FhirSearchParameterDefinition('specialty', SearchFieldType::TOKEN, ['specialty_code']),
@@ -88,9 +89,9 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['role_last_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['role_last_updated']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['role_last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $practitionerRoleResource->setMeta($meta);
 
@@ -171,7 +172,7 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
      * @param FHIRDomainResource $fhirResource
      * @return array<string, mixed>
      */
-    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    public function parseFhirResource(FHIRDomainResource $fhirResource): array
     {
         if (!($fhirResource instanceof FHIRPractitionerRole)) {
             throw new \InvalidArgumentException(

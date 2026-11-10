@@ -19,7 +19,7 @@ class Handler_HL7v2
 
     //----- Internal methods
 
-    public function _StripToNumeric($string)
+    public function _StripToNumeric($string): string
     {
         $target = '';
         for ($pos = 0; $pos < strlen((string) $string); $pos++) {

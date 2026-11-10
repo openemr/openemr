@@ -11,6 +11,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
@@ -27,13 +28,16 @@ use ESign\Api;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\MainScreenToken;
+use OpenEMR\Common\Session\MainScreenTokenDecision;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
-use OpenEMR\Menu\MainMenuRole;
+use OpenEMR\Menu\MainMenuData;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
@@ -76,19 +80,33 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 // Ensure token_main matches so this script can not be run by itself
 //  If tokens do not match, then destroy the session and go back to log in screen
 $token_main_php = $session->get('token_main_php');
-if (
-    $token_main_php === null ||
-    (!array_key_exists('token_main', $_GET) || $_GET['token_main'] === '') ||
-    $_GET['token_main'] !== $token_main_php
-) {
+try {
+    $presentedToken = CurrentRequest::get()->query->getString('token_main');
+} catch (\Symfony\Component\HttpFoundation\Exception\BadRequestException) {
+    $presentedToken = '';
+}
+$expectedToken = is_string($token_main_php) ? $token_main_php : null;
+$acceptedAt = $session->get('token_main_php_at');
+if (is_string($acceptedAt) && ctype_digit($acceptedAt)) {
+    $acceptedAt = (int) $acceptedAt;
+}
+if (!is_int($acceptedAt)) {
+    $acceptedAt = null;
+}
+$decision = MainScreenToken::decide(
+    $expectedToken,
+    $presentedToken,
+    $acceptedAt,
+    time(),
+    OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 1
+);
+if ($decision === MainScreenTokenDecision::Reject) {
 // Below functions are from auth.inc, which is included in globals.php
     authCloseSession();
     authLoginScreen(false);
 }
-// this will not allow copy/paste of the link to this main.php page or a refresh of this main.php page
-//  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
-if (OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 1) {
-    SessionUtil::unsetSession('token_main_php');
+if ($decision === MainScreenTokenDecision::AcceptAndStamp) {
+    SessionUtil::setSession('token_main_php_at', time());
 }
 
 $esignApi = new Api();
@@ -107,6 +125,7 @@ $twig = ServiceContainer::getTwig();
         <?php if (OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 0) { ?>
         window.addEventListener('beforeunload', (event) => {
             if (!timed_out) {
+                restoreSession();
                 event.returnValue = <?php echo xlj('Recommend not leaving or refreshing or you may lose data.'); ?>;
             }
         });
@@ -156,6 +175,241 @@ $twig = ServiceContainer::getTwig();
         const isServicesOther = (isSms || isFax);
         var telemetryEnabled = <?php echo js_escape((new TelemetryService())->isTelemetryEnabled()); ?>;
         var noBackgroundTasks = <?php echo $noBackgroundTasks ? 'true' : 'false'; ?>;
+        const sessionTimeoutWarningSeconds = 60;
+        var sessionTimeoutWarningDeadline = null;
+        var sessionTimeoutWarningTimer = null;
+        var sessionTimeoutWarningStartTimer = null;
+        var sessionTimeoutCheckPending = false;
+        var sessionTimeoutConfirmRetried = false;
+
+        function formatSessionTimeoutRemaining(seconds) {
+            const safeSeconds = Math.max(0, parseInt(seconds, 10) || 0);
+            const minutes = Math.floor(safeSeconds / 60);
+            const remainder = safeSeconds % 60;
+            return `${minutes}:${String(remainder).padStart(2, '0')}`;
+        }
+
+        function getSessionTimeoutWarning() {
+            let warning = document.getElementById('sessionTimeoutWarning');
+            if (warning) {
+                return warning;
+            }
+
+            warning = document.createElement('div');
+            warning.id = 'sessionTimeoutWarning';
+            warning.className = 'alert alert-warning shadow';
+            warning.setAttribute('role', 'alert');
+            warning.style.position = 'fixed';
+            warning.style.top = '1rem';
+            warning.style.left = '50%';
+            warning.style.transform = 'translateX(-50%)';
+            warning.style.zIndex = '2000';
+            warning.style.display = 'none';
+            warning.style.maxWidth = 'calc(100% - 2rem)';
+
+            const message = document.createElement('span');
+            message.textContent = <?php echo xlj('Your session will expire due to inactivity in'); ?> + ' ';
+            warning.appendChild(message);
+
+            const countdown = document.createElement('strong');
+            countdown.id = 'sessionTimeoutCountdown';
+            countdown.setAttribute('aria-live', 'off');
+            countdown.textContent = '1:00';
+            warning.appendChild(countdown);
+
+            const period = document.createTextNode('. ');
+            warning.appendChild(period);
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.id = 'sessionTimeoutStayLoggedIn';
+            button.className = 'btn btn-sm btn-primary ml-2';
+            button.textContent = <?php echo xlj('Stay Logged In'); ?>;
+            button.addEventListener('click', stayLoggedInFromSessionWarning);
+            warning.appendChild(button);
+
+            document.body.appendChild(warning);
+            return warning;
+        }
+
+        function clearSessionTimeoutWarningTimers() {
+            if (sessionTimeoutWarningTimer !== null) {
+                window.clearInterval(sessionTimeoutWarningTimer);
+                sessionTimeoutWarningTimer = null;
+            }
+            if (sessionTimeoutWarningStartTimer !== null) {
+                window.clearTimeout(sessionTimeoutWarningStartTimer);
+                sessionTimeoutWarningStartTimer = null;
+            }
+        }
+
+        function hideSessionTimeoutWarning() {
+            const warning = document.getElementById('sessionTimeoutWarning');
+            if (warning) {
+                warning.style.display = 'none';
+            }
+            sessionTimeoutWarningDeadline = null;
+            sessionTimeoutCheckPending = false;
+            sessionTimeoutConfirmRetried = false;
+            clearSessionTimeoutWarningTimers();
+        }
+
+        function requestSessionTimeoutStatus(skipTimeoutReset) {
+            restoreSession();
+            const request = new FormData();
+            if (skipTimeoutReset) {
+                request.append('skip_timeout_reset', '1');
+            }
+            request.append('csrf_token_form', csrf_token_js);
+            return fetch(webroot_url + '/library/ajax/dated_reminders_counter.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: request
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error('Session status request failed');
+                }
+                return response.json();
+            });
+        }
+
+        function confirmSessionTimeout() {
+            if (sessionTimeoutCheckPending) {
+                return;
+            }
+            sessionTimeoutCheckPending = true;
+            requestSessionTimeoutStatus(true).then((data) => {
+                sessionTimeoutCheckPending = false;
+                if (data.timeoutMessage && data.timeoutMessage === 'timeout') {
+                    timeoutLogout();
+                    return;
+                }
+
+                if (!Object.prototype.hasOwnProperty.call(data, 'sessionSecondsRemaining')) {
+                    window.setTimeout(confirmSessionTimeout, 5000);
+                    return;
+                }
+
+                const secondsRemaining = parseInt(data.sessionSecondsRemaining, 10);
+                if (isNaN(secondsRemaining)) {
+                    window.setTimeout(confirmSessionTimeout, 5000);
+                    return;
+                }
+                if (secondsRemaining <= 0) {
+                    timeoutLogout();
+                    return;
+                }
+
+                sessionTimeoutConfirmRetried = false;
+                updateSessionTimeoutWarning(secondsRemaining);
+            }).catch(() => {
+                sessionTimeoutCheckPending = false;
+                if (!sessionTimeoutConfirmRetried) {
+                    sessionTimeoutConfirmRetried = true;
+                    window.setTimeout(confirmSessionTimeout, 1000);
+                    return;
+                }
+                timeoutLogout();
+            });
+        }
+
+        function updateSessionTimeoutCountdown() {
+            if (sessionTimeoutWarningDeadline === null) {
+                return;
+            }
+
+            const millisecondsRemaining = sessionTimeoutWarningDeadline - Date.now();
+            const secondsRemaining = Math.max(0, Math.ceil(millisecondsRemaining / 1000));
+            const countdown = document.getElementById('sessionTimeoutCountdown');
+            if (countdown) {
+                countdown.textContent = formatSessionTimeoutRemaining(secondsRemaining);
+            }
+
+            if (secondsRemaining <= 0) {
+                if (sessionTimeoutWarningTimer !== null) {
+                    window.clearInterval(sessionTimeoutWarningTimer);
+                    sessionTimeoutWarningTimer = null;
+                }
+                confirmSessionTimeout();
+            }
+        }
+
+        function showSessionTimeoutWarning() {
+            const warning = getSessionTimeoutWarning();
+            warning.style.display = 'block';
+            updateSessionTimeoutCountdown();
+            if (sessionTimeoutWarningTimer === null && sessionTimeoutWarningDeadline !== null) {
+                sessionTimeoutWarningTimer = window.setInterval(updateSessionTimeoutCountdown, 1000);
+            }
+        }
+
+        function updateSessionTimeoutWarning(secondsRemaining) {
+            const parsedRemaining = parseInt(secondsRemaining, 10);
+            if (isNaN(parsedRemaining)) {
+                return;
+            }
+
+            const remaining = Math.max(0, parsedRemaining);
+            clearSessionTimeoutWarningTimers();
+            sessionTimeoutWarningDeadline = Date.now() + (remaining * 1000);
+            sessionTimeoutCheckPending = false;
+            sessionTimeoutConfirmRetried = false;
+
+            if (remaining <= sessionTimeoutWarningSeconds) {
+                showSessionTimeoutWarning();
+                return;
+            }
+
+            const warning = document.getElementById('sessionTimeoutWarning');
+            if (warning) {
+                warning.style.display = 'none';
+            }
+
+            // The normal reminder poll runs every 60 seconds. Schedule locally from
+            // the server-authoritative deadline so the warning starts at one minute,
+            // then confirm passively in case another tab renewed the same session.
+            const delay = Math.max(0, (remaining - sessionTimeoutWarningSeconds) * 1000);
+            sessionTimeoutWarningStartTimer = window.setTimeout(function() {
+                sessionTimeoutWarningStartTimer = null;
+                requestSessionTimeoutStatus(true).then((data) => {
+                    if (data.timeoutMessage && data.timeoutMessage === 'timeout') {
+                        timeoutLogout();
+                        return;
+                    }
+                    if (Object.prototype.hasOwnProperty.call(data, 'sessionSecondsRemaining')) {
+                        updateSessionTimeoutWarning(data.sessionSecondsRemaining);
+                    } else {
+                        showSessionTimeoutWarning();
+                    }
+                }).catch(() => {
+                    showSessionTimeoutWarning();
+                });
+            }, delay);
+        }
+
+        function stayLoggedInFromSessionWarning() {
+            const button = document.getElementById('sessionTimeoutStayLoggedIn');
+            if (button) {
+                button.disabled = true;
+            }
+
+            requestSessionTimeoutStatus(false).then((data) => {
+                if (data.timeoutMessage && data.timeoutMessage === 'timeout') {
+                    timeoutLogout();
+                    return;
+                }
+
+                if (Object.prototype.hasOwnProperty.call(data, 'sessionSecondsRemaining')) {
+                    updateSessionTimeoutWarning(data.sessionSecondsRemaining);
+                }
+            }).catch((error) => {
+                console.log('Unable to renew session', error);
+            }).finally(() => {
+                if (button) {
+                    button.disabled = false;
+                }
+            });
+        }
 
         /**
          * Async function to get session value from the server
@@ -236,6 +490,10 @@ $twig = ServiceContainer::getTwig();
                 if (data.timeoutMessage && (data.timeoutMessage == 'timeout')) {
                     // timeout has happened, so logout
                     timeoutLogout();
+                    return;
+                }
+                if (Object.prototype.hasOwnProperty.call(data, 'sessionSecondsRemaining')) {
+                    updateSessionTimeoutWarning(data.sessionSecondsRemaining);
                 }
                 if (isPortalEnabled) {
                     let mail = data.mailCnt;
@@ -281,9 +539,10 @@ $twig = ServiceContainer::getTwig();
                 setTimeout(function () {
                     restoreSession();
                     // Call the REST "run all due" endpoint via LocalApi (APICSRFTOKEN header).
-                    // The REST stack does not touch SessionTracker, so no skip_timeout_reset
-                    // equivalent is needed to avoid resetting the session expiration timer.
-                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run", {
+                    // A LocalApi request loads globals.php with auth, so auth.inc.php would
+                    // reset the session expiration timer; send skip_timeout_reset so this
+                    // background poll does not keep an idle session alive.
+                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run?skip_timeout_reset=1", {
                         method: 'POST',
                         credentials: 'same-origin',
                         headers: {
@@ -389,24 +648,6 @@ $twig = ServiceContainer::getTwig();
     <script src="js/shortcuts.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
 
     <?php
-    // Below code block is to prepare certain elements for deciding what links to show on the menu
-    // prepare Ensora eRx globals that are used in creating the menu
-    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
-        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$session->get('authUser')]);
-        OEGlobalsBag::getInstance()->set('newcrop_user_role', $newcrop_user_role_sql['newcrop_user_role']);
-        if (OEGlobalsBag::getInstance()->get('newcrop_user_role') === 'erxadmin') {
-            OEGlobalsBag::getInstance()->set('newcrop_user_role_erxadmin', 1);
-        }
-    }
-
-    // prepare track anything to be used in creating the menu
-    $track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
-    OEGlobalsBag::getInstance()->set('track_anything_state', $track_anything_sql['state'] ?? 0);
-    // prepare Issues popup link global that is used in creating the menu
-    OEGlobalsBag::getInstance()->set('allow_issue_menu_link', (AclMain::aclCheckCore('encounters', 'notes', '', 'write')
-    || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write'))
-    && AclMain::aclCheckCore('patients', 'med', '', 'write'));
-
     // we use twig templates here so modules can customize some of these files
     // at some point we will twigify all of main.php so we can extend it.
     echo $twig->render("interface/main/tabs/tabs_template.html.twig", []);
@@ -419,9 +660,8 @@ $twig = ServiceContainer::getTwig();
     echo $twig->render("interface/main/tabs/user_data_template.html.twig", [
         'openemr_name' => OEGlobalsBag::getInstance()->getString('openemr_name')
     ]);
-    // Collect the menu then build it
-    $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-    $menu_restrictions = $menuMain->getMenu();
+    // Collect the menu then build it (menu_json.php returns the same for top.refreshMainMenu())
+    $menu_restrictions = MainMenuData::forUser(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher(), $session);
     echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
     ?>
     <?php $userQuery = sqlQuery("select * from users where username = ?", [$session->get('authUser')]); ?>

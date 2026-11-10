@@ -25,9 +25,8 @@ abstract class RuleCriteriaBuilder
 
     /**
      * @param RuleCriteriaType $ruleCriteriaType
-     * @return ?RuleCriteria
      */
-    abstract public function build($ruleCriteriaType, $value, $methodDetail);
+    abstract public function build($ruleCriteriaType, $value, $methodDetail): ?RuleCriteria;
 
-    abstract public function newInstance($criteriaType);
+    abstract public function newInstance($criteriaType): ?RuleCriteria;
 }

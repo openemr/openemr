@@ -46,7 +46,7 @@ $groupCount   = 0;      // 0 if no items in the group yet
 $itemSeparator = '; ';  // separator between group items
 
 // Check if the current location has the specified {string}.
-function keySearch(&$s, $key)
+function keySearch(&$s, $key): bool
 {
     global $keyLocation, $keyLength;
     $keyLength = strlen((string) $key);
@@ -59,7 +59,7 @@ function keySearch(&$s, $key)
 
 // Replace the {string} at the current location with the specified data.
 // Also update the location to resume scanning accordingly.
-function keyReplace(&$s, $data)
+function keyReplace(&$s, $data): string
 {
     global $keyLocation, $keyLength, $nextLocation;
     $nextLocation = $keyLocation + strlen((string) $data);
@@ -96,7 +96,7 @@ function dataFixup($data, $title = '')
 }
 
 // Return a string naming all issues for the specified patient and issue type.
-function getIssues($type)
+function getIssues($type): string
 {
     $tmp = '';
     $lres = sqlStatement("SELECT title, comments FROM lists WHERE " .
@@ -188,7 +188,7 @@ function doSubs($s)
             $patientid = $ptrow['pid'];
             $DOS = substr((string) $enrow['date'], 0, 10);
             // Prefer appointment comment if one is present.
-            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, [$patientid]);
+            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($patientid)]);
             foreach ($evlist as $tmp) {
                 if ($tmp['pc_pid'] == $pid && !empty($tmp['pc_hometext'])) {
                     $cc = $tmp['pc_hometext'];
@@ -393,7 +393,6 @@ if ($ext != 'dotx') {
     if (function_exists('finfo_open')) {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimetype = finfo_file($finfo, $templatepath);
-        finfo_close($finfo);
     } elseif (function_exists('mime_content_type')) {
         $mimetype = mime_content_type($templatepath);
     }

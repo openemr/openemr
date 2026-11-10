@@ -7,6 +7,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    AI Generated - Claude (Anthropic)
  * @copyright Copyright (c) 2025 - Public Domain for AI generated content
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -35,7 +36,7 @@ class ScopePermissionParser
         // Observation categories (ONC Required)
         'http://terminology.hl7.org/CodeSystem/observation-category|clinical-test' => 'Clinical Test',
         'http://terminology.hl7.org/CodeSystem/observation-category|laboratory' => 'Laboratory',
-        'http://terminology.hl7.org//CodeSystem-observation-category|social-history' => 'Social History',
+        'http://terminology.hl7.org/CodeSystem/observation-category|social-history' => 'Social History',
         'http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh' => 'Social Determinants of Health (SDOH)',
         'http://terminology.hl7.org/CodeSystem/observation-category|survey' => 'Survey',
         'http://terminology.hl7.org/CodeSystem/observation-category|vital-signs' => 'Vital Signs',
@@ -54,7 +55,7 @@ class ScopePermissionParser
         'Observation' => [
             'http://terminology.hl7.org/CodeSystem/observation-category|clinical-test',
             'http://terminology.hl7.org/CodeSystem/observation-category|laboratory',
-            'http://terminology.hl7.org//CodeSystem-observation-category|social-history',
+            'http://terminology.hl7.org/CodeSystem/observation-category|social-history',
             'http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh',
             'http://terminology.hl7.org/CodeSystem/observation-category|survey',
             'http://terminology.hl7.org/CodeSystem/observation-category|vital-signs',
@@ -109,6 +110,14 @@ class ScopePermissionParser
                 continue;
             }
 
+            // Operation scopes (patient/DocumentReference.$docref, system/*.$export, ...) are not
+            // CRUDS permissions and cannot be expressed as card checkboxes. Folding them into a
+            // resource card turned them into a plain `.r` on submit and the operation was lost.
+            // They are rendered as individual "other" permissions by the controller instead.
+            if (isset($parsed['operation'])) {
+                continue;
+            }
+
             // Group by context AND resource, never by resource alone. A client may legitimately
             // request the same resource in two contexts -- patient/Patient.read alongside
             // user/Patient.read and user/Patient.write is an ordinary SMART request. Keyed on the
@@ -126,6 +135,9 @@ class ScopePermissionParser
                     'name' => $resource,
                     'description' => $serverScopeList->lookupDescriptionForResourceScope($resource, $context),
                     'context' => $context,
+                    // Informational only. The consent form no longer rebuilds scope strings from
+                    // a per-card version: ScopeConsentResolver intersects each requested scope
+                    // with what the user approved and keeps the client's own spelling.
                     'version' => $version,
                     'actions' => [
                         'c' => ['enabled' => false],
@@ -188,7 +200,7 @@ class ScopePermissionParser
             // Add all ONC required restrictions for this resource
             foreach (self::ONC_REQUIRED_RESTRICTIONS[$resourceName] as $restrictionUri) {
                 if (!isset($structuredScopes[$key]['restrictions'][$restrictionUri])) {
-                    $restrictionLabel = self::RESTRICTION_LABELS[$restrictionUri] ?? $restrictionUri;
+                    $restrictionLabel = self::RESTRICTION_LABELS[$restrictionUri];
 
                     $structuredScopes[$key]['restrictions'][$restrictionUri] = [
                         'label' => $restrictionLabel,
@@ -240,9 +252,12 @@ class ScopePermissionParser
             $restriction = null;
 
             if (!empty($matches[4])) {
-                // Parse restriction (e.g., category=http://...)
-                if (preg_match('/category=(.+)/', $matches[4], $restrictionMatches)) {
-                    $restriction = $restrictionMatches[1];
+                // Only a single category constraint can be shown and toggled on the consent
+                // screen. Any other constraint is not offered (and ScopeConsentResolver never
+                // grants it), rather than being shown under a misleading label.
+                $restriction = ScopeConsentResolver::categoryConstraint($matches[4]);
+                if ($restriction === null) {
+                    return null;
                 }
             }
 
@@ -308,7 +323,7 @@ class ScopePermissionParser
             ],
             'Observation' => [
                 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh',
-                'http://terminology.hl7.org//CodeSystem-observation-category|social-history',
+                'http://terminology.hl7.org/CodeSystem/observation-category|social-history',
                 'http://terminology.hl7.org/CodeSystem/observation-category|laboratory',
                 'http://terminology.hl7.org/CodeSystem/observation-category|survey',
                 'http://terminology.hl7.org/CodeSystem/observation-category|vital-signs',

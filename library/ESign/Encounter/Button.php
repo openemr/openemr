@@ -35,7 +35,7 @@ class Encounter_Button implements ButtonIF
         return OEGlobalsBag::getInstance()->getBoolean('esign_all');
     }
 
-    public function getViewScript()
+    public function getViewScript(): string
     {
         return OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/views/encounter/esign_button.php';
     }
