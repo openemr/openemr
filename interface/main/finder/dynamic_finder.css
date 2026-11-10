@@ -1,12 +1,15 @@
 /**
  * dynamic_finder.css
  *
- * Styles for the Patient Finder (dynamic_finder.php): DataTables processing
- * indicator and the jQuery-DataTables color/border overrides. Extracted from the
- * page's former inline <style> block.
+ * Styles for the Patient Finder (dynamic_finder.php): the one-row heading bar, the
+ * patient list and recent patients tables, the row-detail toggle, and the
+ * jQuery-DataTables overrides. Rules are scoped by id so they win over Bootstrap's
+ * and DataTables' own rules without !important.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -27,140 +30,252 @@ div.dataTables_wrapper div.dataTables_processing {
   border-radius: 0;
 }
 
+/* ==========================================================================
+   Heading bar: tabs, page length and search on the left (finder_heading.html.twig);
+   then Add Patient and the OemrUI margins and search-row icons on the right.
+   ========================================================================== */
+
+/* Let the page show through. Bootstrap's .bg-light utility on the OemrUI navbar is
+   itself !important, so only !important overrides it. */
+#finder-heading .navbar {
+  flex-wrap: wrap;
+  padding: 0;
+  background-color: transparent !important;
+}
+
+/* The OemrUI page title stays for screen readers; the tabs name the page on screen. */
+#finder-heading .navbar-brand {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+#finder-heading-content {
+  flex: 1 1 auto;
+}
+
+/* The page-length menu and the search box sit to the right of the tabs. */
+#finder-length-slot {
+  margin-right: 2rem;
+  margin-left: auto;
+}
+
+#finder-search {
+  margin-right: 1.5rem;
+}
+
+#finder-search .input-group {
+  flex-wrap: nowrap;
+  width: 15rem;
+}
+
+#finder-add-patient {
+  padding: 0.25rem 0.75rem;
+  white-space: nowrap;
+}
+
+/* Keep the icons visible at every width; OemrUI's navbar gives them no toggle
+   button, so Bootstrap's collapse would otherwise hide them. */
+#finder-heading .navbar-collapse {
+  display: flex;
+  flex-grow: 0;
+  align-items: center;
+}
+
+#finder-heading .navbar-nav {
+  flex-direction: row;
+  align-items: center;
+}
+
+#finder-heading #pageHeadingNav {
+  padding-left: 1rem;
+}
+
+#finder-heading #pageHeadingNav .nav-link {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: var(--primary);
+}
+
+#finder-heading #pageHeadingNav .nav-link:hover {
+  background-color: var(--light);
+}
+
+/* Show [10] entries */
+#pt_table_length label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+#pt_table_length select {
+  width: 4rem;
+  margin: 0 0.5rem;
+}
+
 @media screen and (width <= 640px) {
-  .dataTables_wrapper .dataTables_length,
-  .dataTables_wrapper .dataTables_filter {
+  .dataTables_wrapper .dataTables_length {
     float: inherit;
     text-align: justify;
   }
 }
 
-/* Color Overrides for jQuery-DT */
-table.dataTable thead th,
-table.dataTable thead td {
-  border-bottom: 1px solid var(--gray900) !important;
+/* ==========================================================================
+   Patient list and recent patients tables
+   ========================================================================== */
+
+/* Blue column headings. */
+#pt_table > thead > tr,
+#recent_table > thead > tr {
+  background-color: var(--primary);
 }
 
-table.dataTable tfoot th,
-table.dataTable tfoot td {
-  border-top: 1px solid var(--gray900) !important;
+#pt_table > thead > tr > th,
+#recent_table > thead > tr > th {
+  padding: 0.25rem 0.75rem;
+  border: 0;
+  color: var(--white);
 }
 
-table.dataTable tbody tr {
-  background-color: var(--white) !important;
+/* The per-column search boxes. */
+#pt_table > thead > tr > td {
+  padding: 5px 10px;
+  border: 0;
+}
+
+#pt_table > thead input.search_init {
+  height: 1.7rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* While the search boxes are on (the OemrUI search icon), they take the column titles' place. */
+#pt_table > thead > tr.hideaway:not(.d-none) + tr {
+  display: none;
+}
+
+/* A blue line under each row. */
+#pt_table > tbody > tr > td,
+#recent_table > tbody > tr > td {
+  padding: 0.1rem 0.75rem;
+  border-top: 0;
+  border-bottom: 1px solid var(--primary);
+}
+
+#pt_table.no-footer {
+  border-bottom: 0;
+}
+
+#pt_table > tbody > tr,
+#recent_table > tbody > tr {
+  background-color: var(--white);
   cursor: pointer;
 }
 
-table.dataTable.row-border tbody th,
-table.dataTable.row-border tbody td,
-table.dataTable.display tbody th,
-table.dataTable.display tbody td {
-  border-top: 1px solid var(--gray300) !important;
+#pt_table > tbody > tr.odd,
+#recent_table > tbody > tr:nth-child(odd) {
+  background-color: var(--light);
 }
 
-table.dataTable.cell-border tbody th,
-table.dataTable.cell-border tbody td {
-  border-top: 1px solid var(--gray300) !important;
-  border-right: 1px solid var(--gray300) !important;
+/* A patient row under the pointer turns gray with light text. Only result rows: an
+   expanded row's details (which have no odd/even class) stay as they are. */
+#pt_table > tbody > tr.odd:hover,
+#pt_table > tbody > tr.even:hover,
+#recent_table > tbody > tr:hover {
+  background-color: var(--gray500);
+  color: var(--light);
 }
 
-table.dataTable.cell-border tbody tr th:first-child,
-table.dataTable.cell-border tbody tr td:first-child {
-  border-left: 1px solid var(--gray300) !important;
+#pt_table > tbody > tr.odd:hover a,
+#pt_table > tbody > tr.even:hover a,
+#recent_table > tbody > tr:hover a {
+  color: var(--light);
+  text-decoration: none;
 }
 
-table.dataTable.stripe tbody tr.odd,
-table.dataTable.display tbody tr.odd {
-  background-color: var(--light) !important;
+/* ==========================================================================
+   Row details
+   ========================================================================== */
+
+/* The narrow first column holding each row's expand button. */
+#pt_table > tbody > tr > td.finder-detail-control {
+  width: 1.75rem;
+  padding: 0.1rem 0.2rem;
+  text-align: center;
 }
 
-table.dataTable.hover tbody tr:hover,
-table.dataTable.display tbody tr:hover {
-  background-color: var(--light) !important;
+/* Blue square with a right arrow; red with a down arrow while the details are open. */
+#pt_table .finder-detail-toggle {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  padding: 0;
+  border: 0;
+  background-color: var(--primary);
+  box-shadow: 0 0 0.3em var(--gray700);
+  color: var(--white);
+  font-size: 0.8rem;
+  line-height: 1.1em;
+  vertical-align: middle;
+  cursor: pointer;
 }
 
-table.dataTable.order-column tbody tr>.sorting_1,
-table.dataTable.order-column tbody tr>.sorting_2,
-table.dataTable.order-column tbody tr>.sorting_3,
-table.dataTable.display tbody tr>.sorting_1,
-table.dataTable.display tbody tr>.sorting_2,
-table.dataTable.display tbody tr>.sorting_3 {
-  background-color: var(--light) !important;
+/* U+FE0E keeps the arrows as text, not emoji. */
+#pt_table .finder-detail-toggle::before {
+  content: '\25B6\FE0E';
 }
 
-table.dataTable.display tbody tr.odd>.sorting_1,
-table.dataTable.order-column.stripe tbody tr.odd>.sorting_1 {
-  background-color: var(--light) !important;
+#pt_table .finder-detail-toggle[aria-expanded='true'] {
+  background-color: var(--danger);
 }
 
-table.dataTable.display tbody tr.odd>.sorting_2,
-table.dataTable.order-column.stripe tbody tr.odd>.sorting_2 {
-  background-color: var(--light) !important;
+#pt_table .finder-detail-toggle[aria-expanded='true']::before {
+  content: '\25BC\FE0E';
 }
 
-table.dataTable.display tbody tr.odd>.sorting_3,
-table.dataTable.order-column.stripe tbody tr.odd>.sorting_3 {
-  background-color: var(--light) !important;
+/* An expanded row: the Patient Finder Detail layout, set off by a blue line on its left. */
+#pt_table > tbody > tr > td > .finder-detail {
+  padding: 0.5rem 1rem 0.5rem 2rem;
+  border-left: 3px solid var(--primary);
+  background-color: var(--white);
+  cursor: default;
 }
 
-table.dataTable.display tbody tr.even>.sorting_1,
-table.dataTable.order-column.stripe tbody tr.even>.sorting_1 {
-  background-color: var(--light) !important;
+/* The layout's tab keeps its fields together without the empty space it has on other pages. */
+#pt_table .finder-detail .tab {
+  min-height: 0;
+  margin-bottom: 0;
 }
 
-table.dataTable.display tbody tr.even>.sorting_2,
-table.dataTable.order-column.stripe tbody tr.even>.sorting_2 {
-  background-color: var(--light) !important;
+#pt_table .finder-detail td {
+  padding: 0.1rem 0.5rem;
+  border: 0;
 }
 
-table.dataTable.display tbody tr.even>.sorting_3,
-table.dataTable.order-column.stripe tbody tr.even>.sorting_3 {
-  background-color: var(--light) !important;
-}
+/* ==========================================================================
+   Below the table: the options, the entry count and the pages
+   ========================================================================== */
 
-table.dataTable.display tbody tr:hover>.sorting_1,
-table.dataTable.order-column.hover tbody tr:hover>.sorting_1 {
-  background-color: var(--gray200) !important;
-}
-
-table.dataTable.display tbody tr:hover>.sorting_2,
-table.dataTable.order-column.hover tbody tr:hover>.sorting_2 {
-  background-color: var(--gray200) !important;
-}
-
-table.dataTable.display tbody tr:hover>.sorting_3,
-table.dataTable.order-column.hover tbody tr:hover>.sorting_3 {
-  background-color: var(--gray200) !important;
-}
-
-table.dataTable.display tbody .odd:hover,
-table.dataTable.display tbody .even:hover {
-  background-color: var(--gray200) !important;
-}
-
-table.dataTable.no-footer {
-  border-bottom: 1px solid var(--gray900) !important;
-}
-
-.dataTables_wrapper .dataTables_processing {
-  background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgb(var(--black), 0.9)), color-stop(75%, rgb(var(--black), 0.9)), color-stop(100%, transparent)) !important;
-  background: linear-gradient(to right, transparent 0%, rgb(var(--black), 0.9) 25%, rgb(var(--black), 0.9) 75%, transparent 100%) !important;
+#list .finder-options {
+  padding: 0.5rem 0.25rem 0;
 }
 
 .dataTables_wrapper .dataTables_length,
-.dataTables_wrapper .dataTables_filter,
 .dataTables_wrapper .dataTables_info,
 .dataTables_wrapper .dataTables_processing,
 .dataTables_wrapper .dataTables_paginate {
   color: var(--dark) !important;
 }
 
-div.dataTables_length select {
-  width: 50px !important;
-}
-
-.dataTables_wrapper.no-footer .dataTables_scrollBody {
-  border-bottom: 1px solid var(--gray900) !important;
+.dataTables_wrapper .dataTables_processing {
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgb(var(--black), 0.9)), color-stop(75%, rgb(var(--black), 0.9)), color-stop(100%, transparent)) !important;
+  background: linear-gradient(to right, transparent 0%, rgb(var(--black), 0.9) 25%, rgb(var(--black), 0.9) 75%, transparent 100%) !important;
 }
 
 /* Pagination button Overrides for jQuery-DT */
@@ -178,17 +293,4 @@ table thead .sorting_desc::before,
 table thead .sorting_desc::after,
 table thead .sorting::after {
   display: none !important;
-}
-
-/* An expanded row: the Patient Finder Detail layout, set off from the result rows. */
-#pt_table tbody tr td > .finder-detail {
-  padding: 0.5rem 1rem;
-  border-left: 3px solid var(--primary);
-  background-color: var(--light);
-  cursor: default;
-}
-
-#pt_table .finder-detail-toggle {
-  line-height: 1;
-  vertical-align: baseline;
 }

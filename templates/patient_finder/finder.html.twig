@@ -1,6 +1,6 @@
 {#
-Patient Finder page, rendered by interface/main/finder/dynamic_finder.php: the patient
-list and recent patients tabs, and the finder's top controls.
+Patient Finder page, rendered by interface/main/finder/dynamic_finder.php: the heading
+bar, the patient list and recent patients tabs, and the options below the list.
 
 @package   OpenEMR
 @link      https://www.open-emr.org
@@ -8,26 +8,27 @@ list and recent patients tabs, and the finder's top controls.
 #}
 <body>
     <div id="container_div" class="{{ oeContainer|attr }} mt-3">
-        {{ pageHeading }}
+        {# The heading bar holds the list tabs, page-length menu, search, Add Patient and the OemrUI icons. #}
+        <div id="finder-heading">{{ pageHeading }}</div>
          <div class="w-100">
             <div>
-                <ul class="nav nav-tabs mt-3" id="finderTabsNav" role="tablist">
-                    <li class="nav-item" role="presentation"><button class="nav-link active" id="listTab" data-toggle="tab" data-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true">{{ "Patient List"|xlt }}</button></li>
-                    <li class="nav-item" role="presentation"><button class="nav-link" id="recentTab" data-toggle="tab" data-target="#recent" type="button" role="tab" aria-controls="recent" aria-selected="false">{{ "Recent Patients"|xlt }}</button></li>
-                </ul>
                 <div class="tab-content" id="finderTabs">
                     <div class="tab-pane show active" id="list" role="tabpanel" aria-labelledby="listTab">
                         <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
                             <!-- Class "display" is defined in demo_table.css -->
                             <div class="table-responsive">
-                                <table class="table" class="border-0 display" id="pt_table">
-                                    <thead class="thead-light">
+                                <table class="table border-0 display" id="pt_table">
+                                    <thead>
+                                        {# Shown in place of the column titles while the search row is on. #}
                                         <tr id="advanced_search" class="hideaway d-none">
+                                            {% if detailEnabled %}<td></td>{% endif %}
                                             {% for column in columns %}
-                                                <td><input type="text" size="20" value="" class="form-control search_init" placeholder="{{ "Search by"|xla }} {{ column.link ? "Name"|xla : column.title|attr }}"/></td>
+                                                {% set searchLabel = column.link ? "Name"|xla : column.title|attr %}
+                                                <td><input type="text" size="20" value="" class="form-control search_init" placeholder="{{ searchLabel }}" aria-label="{{ "Search by"|xla }} {{ searchLabel }}"/></td>
                                             {% endfor %}
                                         </tr>
-                                        <tr class="">
+                                        <tr>
+                                            {% if detailEnabled %}<th><span class="sr-only">{{ "Details"|xlt }}</span></th>{% endif %}
                                             {% for column in columns %}
                                                 <th>{{ column.title|text }}</th>
                                             {% endfor %}
@@ -36,7 +37,7 @@ list and recent patients tabs, and the finder's top controls.
                                     <tbody>
                                         <tr>
                                             <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-                                            <td class="dataTables_empty" colspan="{{ columns|length|attr }}">...</td>
+                                            <td class="dataTables_empty" colspan="{{ (columns|length + (detailEnabled ? 1 : 0))|attr }}">...</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -46,8 +47,8 @@ list and recent patients tabs, and the finder's top controls.
                     <div class="tab-pane" id="recent" role="tabpanel" aria-labelledby="recentTab">
                         {% if rp|length > 0 %}
                         <div class="table mt-2">
-                            <table class="w-100">
-                                <thead class="thead-light">
+                            <table class="w-100" id="recent_table">
+                                <thead>
                                     <tr>
                                         {% for h in headers %}
                                             <th scope="col">{{ h.title|xlListLabel }}</th>
@@ -56,7 +57,7 @@ list and recent patients tabs, and the finder's top controls.
                                 </thead>
                                 <tbody>
                                     {% for p in rp %}
-                                        <tr class="clickable-row" style="cursor:pointer;" data-pid="{{ p.pid|attr }}">
+                                        <tr class="clickable-row" data-pid="{{ p.pid|attr }}">
                                             {% for h in headers %}
                                                 {% set value = p[h.option_id] %}
                                                 <td>
@@ -89,7 +90,7 @@ list and recent patients tabs, and the finder's top controls.
             {{ csrfToken('', 'csrf_token_form') }}
             <input type='hidden' name='patientID' value='0'/>
         </form>
-        <!-- Top controls; dynamic_finder.js moves this form into the DataTables toolbar. -->
+        <!-- Options below the list; dynamic_finder.js moves this form under the table. -->
         <div id="finder-topform" class="d-none">
             <form name="myform">
                 <div class="form-check form-check-inline">
@@ -118,14 +119,13 @@ list and recent patients tabs, and the finder's top controls.
         $("#exp_cont_icon").click(function () {
             $("#pt_table").removeAttr("style");
         });
-        $("#pt_table_filter").addClass("d-md-initial");
         $("#pt_table_length").addClass("d-md-initial");
         $("#show_hide").addClass("d-md-initial");
         $("#search_hide").addClass("d-md-initial");
         $("#pt_table_length").addClass("d-none");
         $("#show_hide").addClass("d-none");
         $("#search_hide").addClass("d-none");
-        $('div.dataTables_filter input').focus();
+        $('#finder-search-input').focus();
     });
 
     let elements = document.querySelectorAll("[data-pid]");

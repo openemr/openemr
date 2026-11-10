@@ -21,12 +21,12 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
-use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\UserSettingsService;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
@@ -110,16 +110,16 @@ $pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
     ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
 
-    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event): void {
+    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function (PageHeadingRenderEvent $event): void {
         if ($event->getPageId() !== 'dynamic_finder') {
             return;
         }
 
-        $event->setPrimaryMenuItem(new BaseMenuItem([
-            'displayText' => xl('Add New Patient'),
-            'linkClassList' => ['btn-add'],
-            'id' => OEGlobalsBag::getInstance()->getWebRoot() . '/interface/new/new.php',
-            'acl' => ['patients', 'demo', ['write', 'addonly']]
+        // One heading row: the list tabs, page-length menu, search box and Add Patient,
+        // then the OemrUI margins and search-row icons on the right.
+        $event->setTitleNavContent(ServiceContainer::getTwig()->render('patient_finder/finder_heading.html.twig', [
+            'webroot' => OEGlobalsBag::getInstance()->getWebRoot(),
+            'canAddPatient' => AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly']),
         ]));
     });
     ?>
@@ -134,6 +134,7 @@ $templateVars = [
     'oeBelowContainerDiv' => $oemr_ui->oeBelowContainerDiv(),
     'pageHeading' => $oemr_ui->pageHeading(),
     'columns' => $columns,
+    'detailEnabled' => $detailEnabled,
     'newWindowChecked' => $newWindowChecked,
     'exactSearch' => $patient_finder_exact_search,
     'exactChecked' => $exactChecked,

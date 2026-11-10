@@ -2,8 +2,9 @@
  * dynamic_finder.js
  *
  * Client behaviour for the Patient Finder (dynamic_finder.php): initialises the
- * server-side DataTable, wires the per-column search, row hover/click navigation,
- * and the "open in new tab" / "exact search" controls. All server-provided values
+ * server-side DataTable, wires the heading's search box and search-mode menu, the
+ * per-column search, row click navigation, the row-detail toggle, and the
+ * "open in new tab" / "exact search" controls. All server-provided values
  * (column definitions, translations, page size, CSRF token, webroot, the
  * search_any term) arrive via the inline `window.finderConfig` object the page
  * emits; no markup or server values are hard-coded here.
@@ -11,7 +12,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,31 +24,57 @@
     var cfg = window.finderConfig || {};
     var columns = cfg.columns || [];
     var detail = cfg.detail || {};
+    // With row details on, a narrow first column holds each row's expand button, so
+    // every finder column sits one place to the right.
+    var columnOffset = detail.enabled ? 1 : 0;
+    // How long typing in the heading's search box pauses before the list reloads.
+    var SEARCH_DELAY_MS = 300;
 
     function escapeAttr(text) {
         return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // The button that expands a row to show the Patient Finder Detail layout.
+    // The button that expands a row to show the Patient Finder Detail layout. CSS draws
+    // it as a blue square with a right arrow, and red with a down arrow while open.
     function detailToggle() {
         var label = escapeAttr(detail.showLabel || '');
-        return '<button type="button" class="btn btn-link btn-sm p-0 mr-1 finder-detail-toggle"'
-            + ' aria-expanded="false" title="' + label + '" aria-label="' + label + '">'
-            + '<i class="fa fa-fw fa-caret-right" aria-hidden="true"></i></button>';
+        return '<button type="button" class="finder-detail-toggle"'
+            + ' aria-expanded="false" title="' + label + '" aria-label="' + label + '"></button>';
     }
 
-    // DataTables mRender callback for a column: the Name column renders as a link, and the
-    // first column carries the expand button when the detail layout shows anything. Cell
-    // data arrives HTML-escaped from the server.
-    function cellRenderer(column, index) {
-        return function (data, type) {
-            if (type !== 'display') {
-                return data;
+    // DataTables mRender callback for the Name column, which renders as a link. Cell data
+    // arrives HTML-escaped from the server.
+    function linkRenderer(data, type) {
+        return type === 'display' ? '<a href="">' + data + '</a>' : data;
+    }
+
+    // The DataTables column config. The expand-button column is client-only: the server
+    // has no column by that name, so it returns an empty cell in its place.
+    function dataTableColumns() {
+        var config = columns.map(function (c) {
+            var col = {"sName": c.key};
+            if (c.width) {
+                col.width = c.width;
             }
-            var html = column.link ? '<a href="">' + data + '</a>' : data;
-            return index === 0 && detail.enabled ? detailToggle() + html : html;
-        };
+            if (c.link) {
+                col.mRender = linkRenderer;
+            }
+            return col;
+        });
+        if (detail.enabled) {
+            config.unshift({
+                "sName": 'finder_detail',
+                "className": 'finder-detail-control',
+                "width": '1.75rem',
+                "orderable": false,
+                "searchable": false,
+                "mRender": function (data, type) {
+                    return type === 'display' ? detailToggle() : '';
+                }
+            });
+        }
+        return config;
     }
 
     function setExpanded(button, expanded) {
@@ -53,7 +82,6 @@
         button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
         button.setAttribute('title', label || '');
         button.setAttribute('aria-label', label || '');
-        $(button).find('i').toggleClass('fa-caret-right', !expanded).toggleClass('fa-caret-down', expanded);
     }
 
     // Show or hide a row's detail, fetching it the first time. DataTables child rows span
@@ -100,6 +128,31 @@
         document.fnew.submit();
     }
 
+    // The heading's search box searches the list as the user types, matching what its
+    // menu has picked: every column, the name, or the ZIP.
+    function wireHeadingSearch(oTable, state) {
+        var $input = $('#finder-search-input');
+        var timer = null;
+        $input.on('input', function () {
+            var term = this.value;
+            window.clearTimeout(timer);
+            timer = window.setTimeout(function () {
+                oTable.api().search(term).draw();
+            }, SEARCH_DELAY_MS);
+        });
+        $('#finder-search [data-search-mode]').on('click', function () {
+            var $choice = $(this);
+            state.searchMode = $choice.data('searchMode');
+            $choice.siblings().removeClass('active').removeAttr('aria-current');
+            $choice.addClass('active').attr('aria-current', 'true');
+            $input.attr('placeholder', $choice.data('placeholder'));
+            if ($input.val() !== '') {
+                oTable.api().draw();
+            }
+            $input.trigger('focus');
+        });
+    }
+
     // Persist the "exact search" preference as a user setting.
     function persistCriteria(el, e) {
         if (e) {
@@ -121,6 +174,7 @@
             serverUrl += '?search_any=' + encodeURIComponent(cfg.searchAny);
         }
 
+        var searchState = {searchMode: 'all'};
         var oTable = $('#pt_table').dataTable({
             "processing": true,
             // next 2 lines invoke server side processing
@@ -131,51 +185,53 @@
             "fnServerParams": function (aoData) {
                 var searchType = $("#setting_search_type:checked").length > 0;
                 aoData.push({"name": "searchType", "value": searchType});
+                aoData.push({"name": "searchMode", "value": searchState.searchMode});
             },
-            // dom invokes ColReorderWithResize and allows inclusion of a custom div
-            "dom": 'Rlfrt<"mytopdiv">ip',
+            // dom invokes ColReorderWithResize and adds a div under the table for the
+            // options form. The heading's own search box replaces DataTables' filter.
+            "dom": 'Rlrt<"finder-options">ip',
             // Column names come over as $_GET['sColumns']; the Name column renders as a link.
-            "columns": columns.map(function (c, idx) {
-                var col = {"sName": c.key};
-                if (c.width) {
-                    col.width = c.width;
-                }
-                if (c.link || (idx === 0 && detail.enabled)) {
-                    col.mRender = cellRenderer(c, idx);
-                }
-                return col;
-            }),
+            "columns": dataTableColumns(),
+            // Keep the expand-button column first when columns are dragged.
+            "colReorder": {"fixedColumnsLeft": columnOffset},
+            // Let CSS size the table to its container; DataTables' computed pixel width
+            // overflowed it by a pixel. Column widths set in Patient List Columns still apply.
+            "autoWidth": false,
             "order": columns.map(function (c, idx) {
-                return [idx, c.sortDir];
+                return [idx + columnOffset, c.sortDir];
             }),
             "lengthMenu": [10, 25, 50, 100],
             "pageLength": cfg.pageLength || 10,
             "language": cfg.language || {}
         });
 
-        // The top controls form is rendered (hidden) by the Twig template; move it
-        // into the DataTables-created div and wire the exact-search toggle.
-        $("div.mytopdiv").append($("#finder-topform form"));
+        // The page-length menu goes into the heading bar, next to the tabs.
+        $('#finder-length-slot').append($('#pt_table_length'));
+        wireHeadingSearch(oTable, searchState);
+
+        // The options form is rendered (hidden) by the Twig template; move it
+        // under the table and wire the exact-search toggle.
+        $("div.finder-options").append($("#finder-topform form"));
         $("#setting_search_type").on('change', function (e) {
             persistCriteria(this, e);
         });
 
-        // Column-specific search fields (borrowed from the multi_filter.html example).
+        // Column-specific search fields (borrowed from the multi_filter.html example). A
+        // field's cell position is its column's index, counting the expand-button column.
         $("thead input").keyup(function () {
-            oTable.fnFilter(this.value, $("thead input").index(this));
+            oTable.fnFilter(this.value, $(this).closest('td').index());
         });
 
-        $('#pt_table').on('mouseenter', 'tbody tr', function () {
-            $(this).find('a').css('text-decoration', 'underline');
-        });
-        $('#pt_table').on('mouseleave', 'tbody tr', function () {
-            $(this).find('a').css('text-decoration', '');
-        });
-        // The expand button shows the row's detail instead of opening the patient.
-        $('#pt_table').on('click', '.finder-detail-toggle', function (e) {
+        // A click anywhere in the expand-button cell shows the row's detail instead of
+        // opening the patient.
+        $('#pt_table').on('click', 'td.finder-detail-control', function (e) {
+            var button = $(this).find('.finder-detail-toggle').get(0);
+            if (!button) {
+                return;
+            }
             e.preventDefault();
             e.stopPropagation();
-            toggleDetail(oTable, this);
+            toggleDetail(oTable, button);
         });
 
         // OnClick handler for the rows
