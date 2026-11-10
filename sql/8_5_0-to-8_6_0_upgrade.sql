@@ -348,3 +348,10 @@ CREATE TABLE `referral_notice` (
   KEY `transaction_id` (`transaction_id`)
 ) ENGINE=InnoDB;
 #EndIf
+
+-- The 7.0.4 upgrade added the DEM interpreter_needed field with its own name in edit_options.
+-- The new patient duplicate check picks fields whose edit_options contain D, case-insensitively,
+-- so it took that field for one of its match fields.
+#IfRow3D layout_options form_id DEM field_id interpreter_needed edit_options interpreter_needed
+UPDATE `layout_options` SET `edit_options` = '' WHERE `form_id` = 'DEM' AND `field_id` = 'interpreter_needed' AND `edit_options` = 'interpreter_needed';
+#EndIf
