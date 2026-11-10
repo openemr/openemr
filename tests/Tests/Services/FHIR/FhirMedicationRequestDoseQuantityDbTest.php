@@ -36,6 +36,9 @@ class FhirMedicationRequestDoseQuantityDbTest extends TestCase
     private string $patientUuid;
     private int $patientId;
 
+    /**
+     * Install a fixture patient and bind the FHIR MedicationRequest service to it.
+     */
     protected function setUp(): void
     {
         $this->fixtureManager = new FixtureManager();
@@ -57,12 +60,18 @@ class FhirMedicationRequestDoseQuantityDbTest extends TestCase
         $this->fhirMedicationRequestService->setLogger($this->createMock(LoggerInterface::class));
     }
 
+    /**
+     * Remove the seeded prescription and fixture patient.
+     */
     protected function tearDown(): void
     {
         $this->fixtureManager->removeMedicationRequestFixtures();
         $this->fixtureManager->removePatientFixtures();
     }
 
+    /**
+     * FHIR search SQL must keep prescriptions.size 0.5 as 0.5 mg, not intval() 0.
+     */
     #[Test]
     public function testSearchKeepsAHalfMilligramDoseQuantity(): void
     {
@@ -85,6 +94,9 @@ class FhirMedicationRequestDoseQuantityDbTest extends TestCase
         $this->assertSame('mg', $json['unit'] ?? null);
     }
 
+    /**
+     * QDM SQL must keep prescriptions.dosage 0.5 as 0.5 tablet, not (int) 0 mg.
+     */
     #[Test]
     public function testQdmSqlKeepsAHalfTabletWithTheFormUnit(): void
     {
@@ -108,6 +120,9 @@ class FhirMedicationRequestDoseQuantityDbTest extends TestCase
         $this->assertNotSame('mg', $dosage['unit']);
     }
 
+    /**
+     * Seed a 0.5 mg / 0.5 tablet prescription for the fixture patient.
+     */
     private function insertFractionalPrescription(): string
     {
         $uuid = UuidRegistry::getRegistryForTable('prescriptions')->createUuid();

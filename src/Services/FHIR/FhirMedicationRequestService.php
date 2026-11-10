@@ -609,6 +609,14 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         // TODO: if we want a linkage to the Condition resource we need to implement that in OpenEMR first
     }
 
+    /**
+     * Map prescription SIG, timing, route, and doseQuantity onto the MedicationRequest.
+     *
+     * doseQuantity is prescriptions.size + unit_title as a decimal (FHIR
+     * Quantity.value), not intval(), so 0.5 mg stays 0.5 (#14703).
+     *
+     * @param array<string, mixed> $dataRecord
+     */
     public function populateDosageInstruction(FHIRMedicationRequest $medRequestResource, array $dataRecord): void
     {
         if (empty($dataRecord['drug_dosage_instructions']) && empty($dataRecord['dosage']) && empty($dataRecord['prescription_route'])) {

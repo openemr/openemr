@@ -433,7 +433,12 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
     }
 
     /**
-     * Map dosage instruction information
+     * Map SIG, timing, route, and doseQuantity onto a FHIR Dosage.
+     *
+     * doseQuantity is prescriptions.size + unit_title as a decimal, matching
+     * MedicationRequest; intval() would send 0 mg for 0.5 (#14703).
+     *
+     * @param array<string, mixed> $dataRecord
      */
     private function mapDosageInstruction(array $dataRecord): ?FHIRDosage
     {

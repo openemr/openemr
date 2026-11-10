@@ -39,6 +39,8 @@ class FhirMedicationRequestDoseQuantityIsolatedTest extends TestCase
     }
 
     /**
+     * Fractional prescriptions.size values must stay decimal with the strength unit.
+     *
      * @param mixed $size
      * @param mixed $unit
      */
@@ -55,6 +57,9 @@ class FhirMedicationRequestDoseQuantityIsolatedTest extends TestCase
         $this->assertSame($expectedUnit, $json['unit'] ?? null);
     }
 
+    /**
+     * 0.5 mg must not become 0 mg the way intval() used to.
+     */
     public function testATruncatingCastWouldHaveSentZeroMilligrams(): void
     {
         $json = $this->doseQuantity([
@@ -68,6 +73,9 @@ class FhirMedicationRequestDoseQuantityIsolatedTest extends TestCase
         $this->assertSame('mg', $json['unit'] ?? null);
     }
 
+    /**
+     * No prescriptions.size means no doseAndRate, matching the prior omit-empty rule.
+     */
     public function testAMissingSizeOmitsDoseQuantity(): void
     {
         $resource = new FHIRMedicationRequest();
@@ -80,6 +88,8 @@ class FhirMedicationRequestDoseQuantityIsolatedTest extends TestCase
     }
 
     /**
+     * Encode populateDosageInstruction() doseQuantity as JSON for assertions.
+     *
      * @param array<string, mixed> $record
      * @return array<mixed>
      */
@@ -96,6 +106,9 @@ class FhirMedicationRequestDoseQuantityIsolatedTest extends TestCase
         return $json;
     }
 
+    /**
+     * populateDosageInstruction() does not touch instance state.
+     */
     private function service(): FhirMedicationRequestService
     {
         // populateDosageInstruction() does not touch instance state.

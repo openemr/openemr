@@ -42,6 +42,8 @@ class MedicationDosageIsolatedTest extends TestCase
     }
 
     /**
+     * QDM dosage is the per-dose count with the form unit, as a decimal.
+     *
      * @param mixed $dosage
      */
     #[DataProvider('dosages')]
@@ -58,6 +60,9 @@ class MedicationDosageIsolatedTest extends TestCase
         $this->assertNotSame($strengthUnit, $json['unit'] ?? null, 'the strength unit does not describe the per-dose count');
     }
 
+    /**
+     * 0.5 tablet must not become 0 the way (int) used to.
+     */
     public function testATruncatingCastWouldHaveSentZero(): void
     {
         $json = $this->dosageJson('0.5', 'tablet', 'mg');
@@ -66,11 +71,17 @@ class MedicationDosageIsolatedTest extends TestCase
         $this->assertSame('tablet', $json['unit'] ?? null);
     }
 
+    /**
+     * A free-text SIG is not numeric, so QDM dosage is omitted.
+     */
     public function testASigIsNotAQuantity(): void
     {
         $this->assertNull($this->dosageJson('Take 1 tablet daily', 'tablet', 'mg'));
     }
 
+    /**
+     * Missing drug_form omits the unit; it must not fall back to drug_unit (mg).
+     */
     public function testAMissingFormOmitsTheUnitRatherThanUsingTheStrengthUnit(): void
     {
         $json = $this->dosageJson('1', null, 'mg');
@@ -80,6 +91,8 @@ class MedicationDosageIsolatedTest extends TestCase
     }
 
     /**
+     * Encode makeQdmModel() dosage as JSON for assertions, or null when omitted.
+     *
      * @return array<mixed>|null
      */
     private function dosageJson(mixed $dosage, ?string $form, ?string $strengthUnit): ?array
@@ -106,6 +119,9 @@ class MedicationDosageIsolatedTest extends TestCase
         return $dosageJson;
     }
 
+    /**
+     * MedicationActiveService with a mocked code-type lookup.
+     */
     private function service(): MedicationActiveService
     {
         $codeTypes = $this->createMock(CodeTypesService::class);

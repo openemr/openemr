@@ -24,6 +24,9 @@ use ReflectionMethod;
 #[Group('isolated')]
 class FhirMedicationDispenseDoseQuantityIsolatedTest extends TestCase
 {
+    /**
+     * MedicationDispense doseQuantity must keep 0.5 mg, not intval() 0.
+     */
     public function testDoseQuantityKeepsHalfAMilligram(): void
     {
         $method = new ReflectionMethod(FhirMedicationDispenseLocalDispensaryService::class, 'mapDosageInstruction');

@@ -448,6 +448,9 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         }
     }
 
+    /**
+     * US Core parse must keep prescription_drug_size 0.5 as 0.5 mg, not intval() 0.
+     */
     #[Test]
     public function testFractionalDoseQuantityIsNotTruncated(): void
     {

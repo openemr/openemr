@@ -119,12 +119,18 @@ class UtilsServiceQuantityTest extends TestCase
         ];
     }
 
+    /**
+     * decimalQuantityValue() keeps fractions, omits zero, and rejects a SIG.
+     */
     #[DataProvider('decimalValues')]
     public function testDecimalQuantityValue(mixed $value, ?float $expected): void
     {
         $this->assertSame($expected, UtilsService::decimalQuantityValue($value));
     }
 
+    /**
+     * createQuantity() must serialize 0.5 mg as 0.5, not 0.
+     */
     public function testCreateQuantityKeepsAFractionalValue(): void
     {
         $json = json_decode((string)json_encode(UtilsService::createQuantity(0.5, 'mg', 'mg')), true);

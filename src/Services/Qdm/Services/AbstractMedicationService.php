@@ -24,6 +24,12 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
 {
     abstract public function getModelClass();
 
+    /**
+     * Prescription rows plus drug_units, drug_routes, drug_intervals, and drug_form titles.
+     *
+     * drug_form is the unit for dosage (the per-dose count); drug_unit is the
+     * strength unit and must not be used as dosage.unit (#14703).
+     */
     public function getSqlStatement(): string
     {
         $sql = "SELECT
@@ -50,6 +56,10 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
         return $sql;
     }
 
+    /**
+     * A medication QDM model: relevantPeriod, dosage as a decimal with the form unit,
+     * frequency, and RxNorm. Do not pair dosage with drug_unit or cast it to int (#14703).
+     */
     public function makeQdmModel(QdmRecord $recordObj)
     {
         $record = $recordObj->getData();
