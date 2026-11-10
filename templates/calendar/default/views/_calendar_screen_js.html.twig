@@ -5,7 +5,13 @@
    document.ready jQuery handler that wires UI clicks to these.
 
    The legacy code embedded webroot + Date into ChangeDate and PrintView
-   URLs at render time; preserved here via Twig substitution. #}
+   URLs at render time; preserved here via Twig substitution.
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @author    Brady Miller <brady.g.miller@gmail.com>
+   @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 #}
 <script>
     function event_time_click(elem) {
         EditEvent($(elem).parents("div.event_appointment").get(0));
@@ -53,7 +59,8 @@
 
  function goGid(gid) {
   top.restoreSession();
-  top.RTop.location = '{{ webroot }}/therapy_groups/index.php' + '?method=groupDetails&group_id=' + encodeURIComponent(gid);
+  const params = new URLSearchParams({method: 'groupDetails', group_id: gid, csrf_token_form: top.csrf_token_js});
+  top.RTop.location = '{{ webroot }}/therapy_groups/index.php?' + params;
  }
 
  function GoToToday(theForm){
