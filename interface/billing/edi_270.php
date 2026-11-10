@@ -22,11 +22,13 @@
 
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\InsuranceService;
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcDir . '/options.inc.php');
@@ -68,6 +70,20 @@ $sqlBindArray = [];
 
 $ids = count($ids) > 0 ? implode(',', $ids) : "'0'";
 $where  = "e.pc_eid in($ids) ";
+// The primary policy each patient's 270 asks about: the one in force on the day its DTP*291 sends.
+$policyIds = [];
+$insuranceService = new InsuranceService();
+foreach ($appts as $appt) {
+    $policyId = is_array($appt) && is_numeric($appt['pid'] ?? null) ? EDI270::primaryPolicyIdOn(
+        $insuranceService,
+        (int) $appt['pid'],
+        EDI270::eligibilityDay($appt['pc_eventDate'] ?? null, $X12info, ServiceContainer::getClock())
+    ) : null;
+    if ($policyId !== null) {
+        $policyIds[] = $policyId;
+    }
+}
+$policyIds = count($policyIds) > 0 ? implode(',', $policyIds) : "'0'";
 
 if ($form_facility != "") {
     $where .= " AND f.id = ? ";
@@ -134,9 +150,9 @@ if ($exclude_policy != "") {
         LEFT JOIN users AS d on (e.pc_aid is not null and e.pc_aid = d.id)
         LEFT JOIN facility AS f on (f.id = e.pc_facility)
         LEFT JOIN patient_data AS p ON p.pid = e.pc_pid
-        LEFT JOIN insurance_data AS i ON (i.id =(SELECT id FROM insurance_data AS i WHERE pid = p.pid AND type = 'primary' ORDER BY date DESC LIMIT 1))
+        LEFT JOIN insurance_data AS i ON (i.pid = p.pid AND i.id IN (%s))
         LEFT JOIN insurance_companies as c ON (c.id = i.provider)
-        WHERE %s ", $where);
+        WHERE %s ", $policyIds, $where);
 
     // Run the query
     $rslt = sqlStatement($query, $sqlBindArray);
@@ -401,7 +417,7 @@ if ($exclude_policy != "") {
                                             <?php echo xlt('X12 Partner'); ?>:
                                         </td>
                                         <td colspan='5'>
-                                            <select name='form_x12' id='form_x12' class='form-control' onchange='return toggleMessage("emptyVald","form_x12");'>
+                                            <select name='form_x12' id='form_x12' class='form-control' onchange='toggleMessage("emptyVald","form_x12"); validate_policy(); form.submit();'>
                                                 <option value=''>--<?php echo xlt('select'); ?>--</option>
                                                 <?php
                                                 if (isset($clearinghouses) && !empty($clearinghouses)) {

@@ -15,6 +15,10 @@ require_once(__DIR__ . "/../../globals.php");
 // require_once(__DIR__ . '/../libs/tcpdf/autoload/autoload.php');
 
 use Mpdf\Mpdf;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\Insurance\LabRequisitionPolicies;
+use OpenEMR\Services\InsuranceService;
 
 $form_id = $_REQUEST['formid'];
 //$_REQUEST['debug'] = 'yes';
@@ -394,7 +398,13 @@ STYLES;
             $pdfContent .= '</tr>';
         }
 
-        $primary = sqlQuery("SELECT i.*,ic.name,ic.id FROM insurance_data i join insurance_companies ic ON i.provider=ic.id WHERE i.pid=? and i.type='primary' ORDER BY i.date DESC LIMIT 1", [$pid]);
+        // The primary and secondary in force on the lab day (the collection date, else the order date), as the
+        // HL7 order bills them; 'name' and 'id' are each one's company's, as before.
+        $patientId = EffectiveInsuranceRule::storedId($pid);
+        $labDay = CoverageDay::forLabOrder($procedure['date_collected'] ?? null, $procedure['date_ordered'] ?? null);
+        ['primary' => $primary, 'secondary' => $secondary] = LabRequisitionPolicies::fromRows(
+            $patientId === null || $labDay === null ? [] : (new InsuranceService())->getEffectiveInsuranceRows($patientId, $labDay)
+        );
         $billtype = "Unknown";
         switch (trim((string) $procedure['billing_type'])) {
             case 'T':
@@ -635,7 +645,6 @@ STYLES;
         $pdfContent .= '</td>';
         $pdfContent .= '<td class="width50">';
         $pdfContent .= '<table>';
-        $secondary = sqlQuery("SELECT i.*, ic.name, ic.id FROM insurance_data i join insurance_companies ic ON i.provider=ic.id WHERE i.pid=? and i.type='secondary' ORDER BY i.date DESC LIMIT 1", [$pid]);
         $pdfContent .= '<tr><td style="width:36%;text-align:right;">LCA Ins Code:</td><td style="width:64%;padding-left:8px;">&nbsp;</td></tr>';
         $saddress = sqlQuery("SELECT * FROM addresses WHERE foreign_id=?", [$secondary['id']]);
         $pdfContent .= '<tr><td style="text-align:right;">Ins Co Name:</td><td style="padding-left:8px;">' . text($secondary['name']) . '</td></tr>';
