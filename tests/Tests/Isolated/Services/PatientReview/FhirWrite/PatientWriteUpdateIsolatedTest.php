@@ -120,7 +120,7 @@ class PatientWriteUpdateIsolatedTest extends TestCase
         }
         $atLimit = $this->queue->get($request->id);
 
-        $this->assertRefused(PatientWriteRefusalReason::TooManyRevisions, $atLimit, static fn() => $replace(99));
+        $this->assertRefused(PatientWriteRefusalReason::TooManyRevisions, $atLimit, static fn(): ReviewRequest => $replace(99));
         $this->assertSame(PatientWriteHold::MAX_REVISIONS, $this->store->countRevisions($request->id));
 
         $withdrawn = $this->hold()->replace(

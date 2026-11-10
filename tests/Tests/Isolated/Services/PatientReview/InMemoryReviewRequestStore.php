@@ -250,11 +250,6 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         $this->requests[$id]['updated_at'] = $this->mapper->formatDateTime($now);
     }
 
-    /**
-     * Adds one event to the request's history.
-     *
-     * @param ?array<array-key, mixed> $previousPayload kept on the event, as the repository keeps it
-     */
     public function countRevisions(int $requestId): int
     {
         return count(array_filter(
@@ -263,6 +258,11 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         ));
     }
 
+    /**
+     * Adds one event to the request's history.
+     *
+     * @param ?array<array-key, mixed> $previousPayload kept on the event, as the repository keeps it
+     */
     public function appendEvent(
         int $requestId,
         ?ReviewStatus $from,

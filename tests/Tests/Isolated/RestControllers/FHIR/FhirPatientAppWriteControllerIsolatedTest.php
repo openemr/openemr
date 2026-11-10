@@ -111,7 +111,7 @@ class FhirPatientAppWriteControllerIsolatedTest extends TestCase
             PatientWritableType::QuestionnaireResponse,
             new PatientWriteHold($this->queue, new PatientWritePolicy(PatientWriteMode::ConfidentialAndPublic, [PatientWritableType::QuestionnaireResponse]), new FhirWriteReviewHandler([])),
             new PatientWriteReadBack($this->queue),
-            static fn (string $clientId): ?PatientWriteClientType => PatientWriteClientType::Confidential,
+            static fn (string $clientId): PatientWriteClientType => PatientWriteClientType::Confidential,
             self::FHIR_URL,
             static fn (int $pid): ?string => null,
         );
