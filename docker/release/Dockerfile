@@ -196,9 +196,11 @@ until composer install --no-dev --optimize-autoloader; do
     sleep 15
 done
 composer dump-autoload --optimize --apcu
-# Older OPENEMR_VERSION refs predate the script.
-if [ -f bin/compile-container.php ]; then
-    php bin/compile-container.php
+# Pre-flight check: loading bootstrap.php compiles the DI container. `list`
+# is only a placeholder until there's a real check to run. Older
+# OPENEMR_VERSION refs predate ./cli.
+if [ -f cli ]; then
+    ENVIRONMENT=production ./cli list
 fi
 EOF
 
