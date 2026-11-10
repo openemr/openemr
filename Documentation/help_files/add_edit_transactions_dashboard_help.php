@@ -85,6 +85,7 @@ require_once("../../interface/globals.php");
                     <h4><?php echo xlt("Referral Tracking With Tasks"); ?></h4>
                     <p><?php echo xlt("When Track Referrals with FHIR Tasks is turned on in the Connectors settings, saving a referral that has no Reply Date creates a task for the Refer To recipient");?>.</p>
                     <p><?php echo xlt("The recipient must have an NPI, or be an External Organization in the Address Book");?>.</p>
+                    <p><?php echo xlt("An External Organization needs an Organization name or a contact name to receive a task. If the name is missing, add it in the Address Book and save the referral again");?>.</p>
                     <p><?php echo xlt("The referral then shows the status of that task: Draft, Requested, Received, Accepted, Ready, In Progress, On Hold, Completed, Rejected, Failed, Cancelled or Entered in Error");?>.</p>
                     <p><?php echo xlt("A recipient connected through the API changes this status, and the Refer By provider gets a message when the referral is accepted, rejected, completed, failed or cancelled");?>.</p>
                     <p><?php echo xlt("Changing Refer To and saving cancels the first recipient's task if it is still open. The new recipient gets a task only when the referral has no Reply Date and the new recipient has an NPI or is an External Organization");?>.</p>
