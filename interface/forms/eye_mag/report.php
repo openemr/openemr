@@ -2478,7 +2478,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             <div style="text-align:right;padding:1px;">
                 <?php
                     display_draw_image("IMPPLAN", $encounter, $pid);
-
+                ?>
+                <div style="page-break-inside:avoid;">
+                <?php
                 if ($PDF_OUTPUT) {
                     //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
                     //Isn't there a place in sites/..default../images for a jpg signature file for Rx printing or some other openEMR task?
@@ -2501,9 +2503,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 ?>
                 <br/>
                 <span style="padding-left:30px;"><?php echo text($providerNAME); ?></span>
-                <?php
-
-                ?>
+                </div>
             </div>
             </div>
             </div>
