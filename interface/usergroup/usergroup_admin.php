@@ -137,8 +137,9 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         // Additional taxonomies (a provider who practices in more than one specialty). The field is only posted
         // when the form rendered it, so a missing field leaves the stored list alone.
         $taxonomyPost = Request::createFromGlobals()->request;
-        if ($taxonomyPost->has('taxonomy_extra')) {
-            (new UserTaxonomyService())->saveExtras($taxonomyPost->getInt('id'), $taxonomyPost->all('taxonomy_extra'));
+        $extraTaxonomyField = $taxonomyPost->all()['taxonomy_extra'] ?? null;
+        if (is_array($extraTaxonomyField)) {
+            (new UserTaxonomyService())->saveExtras($taxonomyPost->getInt('id'), $extraTaxonomyField);
         }
 
         if ($_POST["lname"]) {
