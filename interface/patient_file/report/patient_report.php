@@ -255,7 +255,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <input type='checkbox' name='include_allergies' id='include_allergies' value="allergies">Allergies<br />
                                     -->
                                     <?php if (AclMain::aclCheckCore('patients', 'med')) : ?>
-                                    <input type='checkbox' name='include_medications' id='include_medications' value="medications" /><?php echo xlt('Medications'); ?>
+                                    <input type='checkbox' name='include_medications' id='include_medications' value="medications" /><label for="include_medications"><?php echo xlt('Medications'); ?></label>
                                     <br />
                                     <?php endif; ?>
                                     <input type='checkbox' name='include_immunizations' id='include_immunizations' value="immunizations" /><?php echo xlt('Immunizations'); ?>
