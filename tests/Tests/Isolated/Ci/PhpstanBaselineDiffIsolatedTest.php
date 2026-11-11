@@ -74,6 +74,23 @@ class PhpstanBaselineDiffIsolatedTest extends TestCase
         self::assertStringContainsString('| `missing-identifier` | 1 | 4 | +3 |', $output, 'the generator writes identifier-less errors to missing-identifier.php');
     }
 
+    public function testUnreadableBaselineFails(): void
+    {
+        $this->writeBaseline('base', 'argument.type', [2]);
+        $this->writeBaseline('head', 'argument.type', [2]);
+        $file = $this->root . '/head/argument.type.php';
+        chmod($file, 0);
+        if (is_readable($file)) {
+            self::markTestSkipped('This user can read files without read permission (e.g. root).');
+        }
+
+        $process = $this->diffProcess();
+        $process->run();
+
+        self::assertNotSame(0, $process->getExitCode(), 'an unreadable file must not be counted as 0');
+        self::assertStringContainsString('Cannot read baseline file', $process->getOutput() . $process->getErrorOutput(), 'the failure should name the cause');
+    }
+
     /**
      * Writes a baseline file the way `composer phpstan-baseline` does, so the
      * script is tested against the generator's real output format.
@@ -91,9 +108,14 @@ class PhpstanBaselineDiffIsolatedTest extends TestCase
         file_put_contents("{$this->root}/$side/$identifier.php", $php);
     }
 
+    private function diffProcess(): Process
+    {
+        return new Process([PHP_BINARY, self::SCRIPT, $this->root . '/base', $this->root . '/head']);
+    }
+
     private function runDiff(): string
     {
-        $process = new Process([PHP_BINARY, self::SCRIPT, $this->root . '/base', $this->root . '/head']);
+        $process = $this->diffProcess();
         $process->run();
         self::assertSame(0, $process->getExitCode(), 'the script should succeed; stderr: ' . $process->getErrorOutput());
         return $process->getOutput();
