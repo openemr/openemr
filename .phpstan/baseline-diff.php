@@ -46,20 +46,19 @@ if (!is_dir($headDir)) {
 /**
  * Return the sum of a baseline file's `count` fields, or 0 for a missing file
  * so identifiers that only exist on one side are handled naturally.
- *
- * SECURITY: do not `require` or `include` the file, even though it is PHP.
- * The PHPStan Baseline Diff workflow runs this script in a privileged
- * workflow_run job on the baseline artifact a pull request's own PHPStan run
- * uploaded, so a fork PR controls the file's contents. Loading it would run
- * the PR author's code with the job's write token. Reading the generator's
- * `'count' => N,` lines as text means a hostile file can at worst misreport
- * its counts.
  */
 function count_occurrences(string $file): int
 {
     if (!is_file($file)) {
         return 0;
     }
+    // SECURITY: do not `require` or `include` the file, even though it is PHP.
+    // The PHPStan Baseline Diff workflow runs this script in a privileged
+    // workflow_run job on the baseline artifact a pull request's own PHPStan
+    // run uploaded, so a fork PR controls the file's contents. Loading it would
+    // run the PR author's code with the job's write token. Reading the
+    // generator's `'count' => N,` lines as text means a hostile file can at
+    // worst misreport its counts.
     $contents = file_get_contents($file);
     if ($contents === false) {
         throw new RuntimeException("Cannot read baseline file: {$file}");
