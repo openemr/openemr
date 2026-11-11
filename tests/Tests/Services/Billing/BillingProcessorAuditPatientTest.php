@@ -62,6 +62,9 @@ class BillingProcessorAuditPatientTest extends TestCase
         $session->set('authUserID', QueryUtils::fetchSingleValue('SELECT id FROM users WHERE username = ?', 'id', ['admin']));
         $session->set('pid', self::OPEN_CHART_PID);
         $this->cleanUp();
+        // Setup deletes stay in the audit buffer until a flush. Write them
+        // before the test reads the log, or they land in the claim window.
+        EventAuditLogger::getInstance()->flushAuditWrites();
     }
 
     protected function tearDown(): void
