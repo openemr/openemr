@@ -197,7 +197,8 @@ class SiteReceivedFileStoreTest extends TestCase
 
     /**
      * The name the ERA upload builds (eob_search_era_callback() in sl_eob_search.php), copied
-     * here so a change to either side shows up as a failing comparison.
+     * here because that callback cannot be called from a test. A change to the service fails
+     * the comparison; a change to the upload does not, so keep this copy in step by hand.
      */
     private static function uploadName(string $gsDate, string $controlNumber, string $payerId, string $sender): string
     {
