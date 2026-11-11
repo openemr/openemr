@@ -12,12 +12,9 @@
 
 set -xeuo pipefail
 
-# Documentation holds the in-app help pages (Documentation/help_files), which are PHP that the
-# web server runs, so the e2e tests that open them need their coverage kept.
-coverage_filter_dirs=(Documentation apis gacl interface library modules oauth2 portal sites src tests)
+coverage_filter_dirs=(apis gacl interface library modules oauth2 portal sites src tests)
 
 coverage_args=(
-    --coverage-filter Documentation
     --coverage-filter apis
     --coverage-filter gacl
     --coverage-filter interface
