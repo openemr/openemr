@@ -767,7 +767,14 @@ if [[ -n "${SSL_PID:-}" ]] && ! wait "${SSL_PID}" 2>/dev/null; then
     echo "Warning: Could not configure SSL certificates (may be read-only)"
 fi
 unset SSL_PID
-wait "${CERT_COPY_PID}" 2>/dev/null || true
+# `wait` propagates CERT_COPY_PID's exit status, which under `set -e`
+# aborts startup if manage_certificates failed. manage_certificates is
+# now fail-fast on cp errors (sites volume read-only, disk full,
+# permission denied on Secret mount, etc.) — swallowing its exit code
+# here would hide those. Unlike SSL_PID above there's no leader /
+# follower distinction: every pod reads the same certs, so cp failure
+# for any pod is a real error for that pod, not a swarm hiccup.
+wait "${CERT_COPY_PID}"
 unset CERT_COPY_PID
 
 [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
