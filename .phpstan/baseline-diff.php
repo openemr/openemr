@@ -13,9 +13,8 @@
  *   - Identifiers that did not change, collapsed inside a <details> block.
  *   - A totals row (base, head, delta).
  *
- * The baseline files are valid PHP that assemble `$ignoreErrors = [...]`;
- * this script loads them via `require` inside an isolated function scope
- * and sums `count` across entries.
+ * The baseline files are PHP that assemble `$ignoreErrors = [...]`; this
+ * script reads them as text and sums the `count` across entries.
  *
  * Usage:
  *   php .phpstan/baseline-diff.php <base-dir> <head-dir>
@@ -45,18 +44,24 @@ if (!is_dir($headDir)) {
 }
 
 /**
- * Load a baseline file in an isolated scope and return the sum of `count`
- * fields. Returns 0 for a missing file so identifiers that only exist on
- * one side are handled naturally.
+ * Return the sum of a baseline file's `count` fields, or 0 for a missing file
+ * so identifiers that only exist on one side are handled naturally.
+ *
+ * SECURITY: do not `require` or `include` the file, even though it is PHP.
+ * The PHPStan Baseline Diff workflow runs this script in a privileged
+ * workflow_run job on the baseline artifact a pull request's own PHPStan run
+ * uploaded, so a fork PR controls the file's contents. Loading it would run
+ * the PR author's code with the job's write token. Reading the generator's
+ * `'count' => N,` lines as text means a hostile file can at worst misreport
+ * its counts.
  */
 function count_occurrences(string $file): int
 {
     if (!is_file($file)) {
         return 0;
     }
-    $ignoreErrors = [];
-    require $file;
-    return array_sum(array_column($ignoreErrors, 'count'));
+    preg_match_all("/^    'count' => (\d+),$/m", (string) file_get_contents($file), $matches);
+    return array_sum(array_map(intval(...), $matches[1]));
 }
 
 /**
