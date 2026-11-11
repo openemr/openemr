@@ -57,6 +57,17 @@ class PhpstanBaselineDiffIsolatedTest extends TestCase
         self::assertStringContainsString('| `argument.type` | 2 | 5 | +3 |', $output, 'counts should still be summed');
     }
 
+    public function testIdentifierThatIsNotAnErrorIdentifierIsIgnored(): void
+    {
+        $this->writeBaseline('base', 'argument.type', [2]);
+        $this->writeBaseline('head', 'argument.type', [2]);
+        $this->writeBaseline('head', 'x` | **injected** | `y', [1]);
+
+        $output = $this->runDiff();
+
+        self::assertStringNotContainsString('injected', $output, 'a PR-chosen file name must not reach the PR comment');
+    }
+
     /**
      * @param list<int> $counts
      */
