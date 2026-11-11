@@ -22,6 +22,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\BaseDrawing;
 use OpenEMR\Forms\EyeMag\DrawingBackgroundOption;
+use OpenEMR\Forms\EyeMag\EyeFormData;
 use OpenEMR\Forms\EyeMag\SavedOverlayMetadata;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;

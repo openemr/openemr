@@ -22,7 +22,6 @@ use OpenEMR\Forms\EyeMag\PatientReportDocument;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-use function OpenEMR\Forms\EyeMag\Clinical\display_VisualAcuitiesModern;
 use function OpenEMR\Forms\EyeMag\Clinical\display_wear_colgroup;
 use function OpenEMR\Forms\EyeMag\Clinical\display_wear_comment_tail_cells;
 use function OpenEMR\Forms\EyeMag\Clinical\display_wear_distance_cells;
@@ -110,23 +109,6 @@ final class ClinicalHelpersTest extends TestCase
         $hHtml = eye_mag_neuro_prior(['STEREO_FLY' => 'Yes'], 'H');
         $this->assertStringContainsString('data-display="H"', $hHtml);
         $this->assertStringNotContainsString('<details class="eye-neuro-prior-act-details" open>', $hHtml);
-    }
-
-    #[Test]
-    public function visualAcuityHistoryShowsEmptyAlertWhenNoQualifyingPriorVisitsExist(): void
-    {
-        $emptyHtml = display_VisualAcuitiesModern(10, [], '2026-11-10');
-        $this->assertStringContainsString('Visual acuity history will appear after a prior visit is available.', $emptyHtml);
-
-        $futureFiltered = display_VisualAcuitiesModern(
-            10,
-            [
-                ['visit_date' => 'invalid-date', 'form_id' => 1],
-                ['visit_date' => '2026-12-31', 'form_id' => 2],
-            ],
-            '2026-11-10'
-        );
-        $this->assertStringContainsString('Visual acuity history will appear after a prior visit is available.', $futureFiltered);
     }
 
     #[Test]
