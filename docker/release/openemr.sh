@@ -401,11 +401,19 @@ manage_certificates() {
         local name="${2}"     # e.g. mysql-ca
         local src="${certs_dir}/${subdir}/${name}"
         local dst="${dest_dir}/${name}"
-        if [[ -f "${src}" && -s "${src}" ]] && ! cmp -s "${src}" "${dst}"; then
-            cp "${src}" "${dst}"
-            chmod 744 "${dst}"
-            echo "Copied ${name}"
+        # Benign no-op paths (source absent/empty, or identical to dst)
+        # return 0 so bare callers don't trip set -e. `cp` runs under
+        # the script's `set -e` — a real cp failure aborts startup with
+        # cp's own error on stderr, which is the right outcome (half-
+        # copied cert material would be worse than failing loud). The
+        # "Copied" log fires only AFTER cp returns, so the log line
+        # can't claim a copy that didn't actually happen.
+        if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
+            return 0
         fi
+        cp "${src}" "${dst}"
+        chmod 744 "${dst}"
+        echo "Copied ${name}"
     }
     cp_cert_file mysql/server mysql-ca
     cp_cert_file mysql/server mysql-cert

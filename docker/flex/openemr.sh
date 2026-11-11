@@ -986,57 +986,67 @@ fi
 #    /root/certs/ldap/ldap-cert (supported)
 #    /root/certs/ldap/ldap-key (supported)
 #    /root/certs/redis/.. (not yet supported)
-# Helper that copies certificate files from /root/certs/<service>/ into the
-# sites/certificates dir. Runs on every container start.
+# Helper that copies certificate files from /root/certs/<service>/ into
+# the sites/certificates dir. Runs on every container start.
 #
-# Guards:
-#   -f "${src}"  : source present (service didn't mount this cert)
+# Copy conditions — all three must hold:
+#   -f "${src}"  : source file exists (service didn't mount this cert)
 #   -s "${src}"  : source non-empty (defends against a partial Secret
-#                  projection where the key is created but the data hasn't
-#                  landed yet — copying a 0-byte cert would break TLS
-#                  silently)
-#   ! cmp -s     : source content differs from destination — copy only on
-#                  first boot OR when the mounted Secret has rotated under
-#                  us. On a steady-state restart with no rotation, cmp -s
-#                  returns 0 and the copy is skipped (no inode churn, no
-#                  log noise). This closes the cert-rotation path: the
-#                  previous "! -f dst" guard meant that once the sites
-#                  copy existed, no subsequent Secret rotation could
-#                  overwrite it — openemr kept reading the stale
-#                  first-boot cert indefinitely. Common failure shape in
-#                  k8s with cert-manager + stakater/reloader: Secret
-#                  rotates, pod rolls, pod reads stale cached cert from
-#                  the sites PVC, mTLS handshake uses the old cert,
+#                  projection where the key is created but the data
+#                  hasn't landed yet — copying a 0-byte cert would
+#                  break TLS silently)
+#   ! cmp -s     : source content differs from destination — on a
+#                  steady-state restart with no rotation, cmp -s
+#                  returns 0 and the copy is skipped. This closes the
+#                  cert-rotation path: the previous "! -f dst" guard
+#                  meant that once the sites copy existed, no
+#                  subsequent Secret rotation could overwrite it —
+#                  openemr kept reading the stale first-boot cert
+#                  indefinitely. Common failure shape in k8s with
+#                  cert-manager + stakater/reloader: Secret rotates,
+#                  pod rolls, pod reads stale cached cert from the
+#                  sites PVC, mTLS handshake uses the old cert,
 #                  connection breaks on the next CA rotation.
 #
-# Prints "copied over <name>" on an actual write (first boot or rotation)
-# and stays silent on steady-state restarts. Returns 0 on copy, 1 on
-# no-op — the mysql flags below branch on that.
+# Failure propagation: `set -e` is in effect for this script. When this
+# function reaches the cp, a cp failure (read-only sites volume, disk
+# full, permission denied, EACCES on the Secret mount, etc.) aborts
+# startup with cp's own error on stderr — half-copied cert material is
+# worse than failing loud. Benign paths (source absent, empty, or
+# identical to dst) return 0 so they don't trip `set -e` at bare call
+# sites; callers interested in whether a copy actually happened read
+# the LAST_COPIED side-effect flag.
+#
+# Prints "copied over <name>" ONLY after cp succeeds — never before,
+# since set -e would turn the pre-cp log line into a lie about state
+# that didn't happen.
+LAST_COPIED=0
 cp_cert_file() {
     local subdir="${1}"   # e.g. mysql/server, couchdb, ldap
     local name="${2}"     # e.g. mysql-ca
     local src="/root/certs/${subdir}/${name}"
     local dst="/var/www/localhost/htdocs/openemr/sites/default/documents/certificates/${name}"
-    if [[ -f "${src}" && -s "${src}" ]] && ! cmp -s "${src}" "${dst}"; then
-        echo "copied over ${name}"
-        cp "${src}" "${dst}"
+    LAST_COPIED=0
+    if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
         return 0
     fi
-    return 1
+    cp "${src}" "${dst}"
+    echo "copied over ${name}"
+    LAST_COPIED=1
 }
+
 # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
 MYSQLCA=false
 MYSQLCERT=false
 MYSQLKEY=false
-# shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-if cp_cert_file mysql/server mysql-ca;   then MYSQLCA=true;   fi
-# shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-if cp_cert_file mysql/server mysql-cert; then MYSQLCERT=true; fi
-# shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-if cp_cert_file mysql/server mysql-key;  then MYSQLKEY=true;  fi
+cp_cert_file mysql/server mysql-ca
+if ((LAST_COPIED)); then MYSQLCA=true; fi
+cp_cert_file mysql/server mysql-cert
+if ((LAST_COPIED)); then MYSQLCERT=true; fi
+cp_cert_file mysql/server mysql-key
+if ((LAST_COPIED)); then MYSQLKEY=true; fi
 
-# Return code is naturally ignored here — this script does not enable
-# `set -e`, so a no-op (return 1) does not stop the script.
+# couchdb + ldap copies don't need flag tracking downstream — just run.
 cp_cert_file couchdb couchdb-ca
 cp_cert_file couchdb couchdb-cert
 cp_cert_file couchdb couchdb-key
