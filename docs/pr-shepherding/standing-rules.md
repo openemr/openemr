@@ -193,9 +193,11 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
   `CodeRabbit` check conclusion is `NEUTRAL` and no Actionables are ever posted. The
   decision-gate's "no unresolved rabbit Actionable" row passes vacuously — the shepherd
   has no signal from rabbit, not a clean signal.
-- Trigger `@coderabbitai full review` as a **Phase 1 action**, independent of whether
-  the PR ever reaches Phase 2. The request is a prerequisite for the gate, not a
-  Phase 2 brief-writing step — if the PR is held in Phase 1 for any other reason, the
+- Getting `@coderabbitai full review` posted is a **Phase 1 action**, independent of
+  whether the PR ever reaches Phase 2. The mention is a public PR comment, so §1.1
+  applies: the agent flags the PR and asks the maintainer to post it (or to approve that
+  one post); it does not post it on its own. The request is a prerequisite for the gate,
+  not a Phase 2 brief-writing step — if the PR is held in Phase 1 for any other reason, the
   trigger still has to fire so rabbit coverage is available when the other block
   clears. Flag `NEUTRAL` in the stock-take snapshot and the shepherd log.
 
