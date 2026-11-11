@@ -113,6 +113,11 @@ class StatementRepository
         if (!in_array($op, ['band', 'ratio_lt', 'ratio_gt', 'parse_severity'], true)) {
             throw new \InvalidArgumentException('Invalid op');
         }
+        if (in_array($op, ['ratio_lt', 'ratio_gt'], true) && $source2 === '') {
+            throw new \InvalidArgumentException('A ratio rule needs a second field.');
+        }
+        self::assertOpenOrNumeric($data['min_value'] ?? null);
+        self::assertOpenOrNumeric($data['max_value'] ?? null);
         $lockName = null;
         $lockAcquired = false;
         try {
@@ -134,6 +139,26 @@ class StatementRepository
             });
         } finally {
             $this->releaseBandLock($lockName, $lockAcquired);
+        }
+    }
+
+    /**
+     * Empty is an open end. Anything else must be a number.
+     */
+    private static function assertOpenOrNumeric(mixed $value): void
+    {
+        if ($value === null || is_int($value)) {
+            return;
+        }
+        if (is_float($value)) {
+            if (!is_finite($value)) {
+                throw new \InvalidArgumentException('A bound must be a number.');
+            }
+
+            return;
+        }
+        if (!is_string($value) || (trim($value) !== '' && !is_numeric(trim($value)))) {
+            throw new \InvalidArgumentException('A bound must be a number.');
         }
     }
 

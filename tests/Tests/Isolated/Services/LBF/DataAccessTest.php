@@ -212,6 +212,19 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         }
 
         /**
+         * Another textarea is not a statement target.
+         */
+        public function testParagraphFieldDoesNotUseAnotherTextarea(): void
+        {
+            $catalog = new LayoutCatalog($this->sql);
+            $this->sql->queue[] = null;
+            $this->sql->queue[] = [
+                ['field_id' => 'notes', 'data_type' => 3, 'title' => 'Notes', 'list_id' => '', 'seq' => 1, 'group_id' => '1'],
+            ];
+            $this->assertSame('', $catalog->paragraphField('LBFecho'));
+        }
+
+        /**
          * A stored paragraph field that is no longer a textarea is not used.
          */
         public function testParagraphFieldIgnoresInvalidConfiguredTarget(): void
@@ -713,6 +726,42 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
                 'op' => 'band',
                 'min_value' => 0,
                 'max_value' => 1,
+                'enabled' => 1,
+                'statement_text' => 'X',
+            ]);
+        }
+
+        /**
+         * A ratio rule without a denominator is not stored.
+         */
+        public function testSaveRuleRejectsRatioWithoutSecondField(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage('A ratio rule needs a second field.');
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'ratio_lt',
+                'enabled' => 1,
+                'statement_text' => 'X',
+            ]);
+        }
+
+        /**
+         * A typed bound that is not a number is not stored as open-ended.
+         */
+        public function testSaveRuleRejectsABoundThatIsNotANumber(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage('A bound must be a number.');
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => '5 %',
+                'max_value' => '',
                 'enabled' => 1,
                 'statement_text' => 'X',
             ]);
