@@ -122,6 +122,38 @@ class SiteReceivedFileStoreTest extends TestCase
         $this->assertFileExists($this->site . '/documents/edi/history/f835/20260101_42_60054.835');
     }
 
+    public function testRemittanceIsStoredWhenEdiHistoryAlreadyHoldsTheSameFile(): void
+    {
+        mkdir($this->site . '/documents/edi/history/f835', 0700, true);
+        file_put_contents($this->site . '/documents/edi/history/f835/20260101_42_60054.835', $this->era());
+        $store = new SiteReceivedFileStore($this->site);
+
+        $outcome = $store->store(X12FileType::Remittance835, $this->localFile($this->era()), 'day1.RMT');
+
+        $this->assertSame(ReceivedStatus::Stored, $outcome->status);
+        $this->assertFileExists($this->site . '/documents/era/20260101_42_60054.edi');
+    }
+
+    public function testRemittanceIsRejectedWhenEdiHistoryHoldsADifferentFileOfItsName(): void
+    {
+        mkdir($this->site . '/documents/edi/history/f835', 0700, true);
+        file_put_contents($this->site . '/documents/edi/history/f835/20260101_42_60054.835', 'another remittance');
+        $store = new SiteReceivedFileStore($this->site);
+
+        $outcome = $store->store(X12FileType::Remittance835, $this->localFile($this->era()), 'day1.RMT');
+
+        $this->assertSame(ReceivedStatus::Rejected, $outcome->status);
+        $this->assertFileDoesNotExist($this->site . '/documents/era/20260101_42_60054.edi');
+        $this->assertSame('another remittance', file_get_contents($this->site . '/documents/edi/history/f835/20260101_42_60054.835'));
+    }
+
+    public function testEraNameFallsBackToTheSenderWhenThePayerIdIsAllZeros(): void
+    {
+        $path = $this->localFile($this->era('REF*2U*000~'));
+
+        $this->assertSame('20260101_42_PAYER', SiteReceivedFileStore::eraName($path));
+    }
+
     public function testRemittanceThatCannotBeParsedIsRejected(): void
     {
         $store = new SiteReceivedFileStore($this->site);

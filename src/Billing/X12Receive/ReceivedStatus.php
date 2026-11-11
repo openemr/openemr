@@ -23,7 +23,7 @@ enum ReceivedStatus: string
     case Stored = 'stored';
     /** The site already holds a file of that name; the local one was kept. */
     case Duplicate = 'duplicate';
-    /** Not an X12 file of the kind its folder is for, or it could not be named. */
+    /** Not an X12 file of the kind its folder is for, it could not be named, or a different file holds its name. */
     case Rejected = 'rejected';
     /** The download or the local write did not complete; tried again next run. */
     case Failed = 'failed';

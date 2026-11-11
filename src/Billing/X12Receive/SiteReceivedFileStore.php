@@ -57,6 +57,17 @@ final readonly class SiteReceivedFileStore implements ReceivedFileStore
         if ($historyCopy->status === ReceivedStatus::Failed) {
             return $historyCopy;
         }
+        if (
+            $historyCopy->status === ReceivedStatus::Duplicate
+            && !self::sameContent($localPath, $history . '/' . $name . '.835')
+        ) {
+            // Another remittance already holds this name in EDI History. Storing this one for
+            // posting would leave the two copies of the name disagreeing.
+            return new StoreOutcome(
+                ReceivedStatus::Rejected,
+                message: 'EDI History already holds a different 835 of this name',
+            );
+        }
         return $this->copyOnce($localPath, $eraDirectory, $name . '.edi', 0600);
     }
 
@@ -72,7 +83,8 @@ final readonly class SiteReceivedFileStore implements ReceivedFileStore
         try {
             ParseERA::parseERA($path, static function (array $out) use (&$name): void {
                 $text = static fn(string $key): string => is_string($out[$key] ?? null) ? $out[$key] : '';
-                $payer = $text('payer_id') !== '' ? $text('payer_id') : $text('isa_sender_id');
+                // As on upload, a payer id that is empty or all zeros falls back to the sender.
+                $payer = ltrim($text('payer_id'), '0') !== '' ? $text('payer_id') : $text('isa_sender_id');
                 $name = $text('gs_date') . '_' . ltrim($text('isa_control_number'), '0') . '_' . ltrim($payer, '0');
             });
         } finally {
@@ -93,6 +105,13 @@ final readonly class SiteReceivedFileStore implements ReceivedFileStore
             return null;
         }
         return substr($name, 0, 200);
+    }
+
+    private static function sameContent(string $pathA, string $pathB): bool
+    {
+        $hashA = @hash_file('sha256', $pathA);
+        $hashB = @hash_file('sha256', $pathB);
+        return $hashA !== false && $hashA === $hashB;
     }
 
     private function copyOnce(string $localPath, string $directory, string $name, int $mode): StoreOutcome
