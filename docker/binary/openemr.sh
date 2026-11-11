@@ -369,73 +369,56 @@ manage_certificates() {
     # Create destination directory if it doesn't exist
     mkdir -p "${dest_dir}"
 
-    # Helper function to copy certificate files
+    # Helper function to copy certificate files from /root/certs/<service>/
+    # into the sites/certificates dir. Runs on every container start.
+    #
+    # Guards:
+    #   -f "${src}"  : source present (service didn't mount this cert)
+    #   -s "${src}"  : source non-empty (defends against a partial Secret
+    #                  projection where the key is created but the data
+    #                  hasn't landed yet — copying a 0-byte cert would
+    #                  break TLS silently)
+    #   ! cmp -s     : source content differs from destination — copy only
+    #                  on first boot OR when the mounted Secret has
+    #                  rotated under us. On a steady-state restart with
+    #                  no rotation, cmp -s returns 0 and the copy is
+    #                  skipped (no inode churn, no chmod reset, no log
+    #                  noise). This closes the cert-rotation path: an
+    #                  earlier guard of "! -f dst" meant that once the
+    #                  sites copy existed, no subsequent Secret rotation
+    #                  could overwrite it — openemr kept reading the
+    #                  stale first-boot cert indefinitely. Common
+    #                  failure shape in k8s with cert-manager +
+    #                  stakater/reloader: Secret rotates, pod rolls, pod
+    #                  reads stale cached cert from the sites PVC, mTLS
+    #                  handshake uses the old cert, connection breaks on
+    #                  the next CA rotation.
     cp_cert_file() {
-        local src="${certs_dir}/mysql/server/${1}"
-        local dst="${dest_dir}/${1}"
-        if [[ -f "${src}" && ! -f "${dst}" ]]; then
+        local subdir="${1}"   # e.g. mysql/server, couchdb, ldap, redis
+        local name="${2}"     # e.g. mysql-ca
+        local src="${certs_dir}/${subdir}/${name}"
+        local dst="${dest_dir}/${name}"
+        if [[ -f "${src}" && -s "${src}" ]] && ! cmp -s "${src}" "${dst}"; then
             cp "${src}" "${dst}"
             chmod 744 "${dst}"
-            echo "Copied ${1}"
+            echo "Copied ${name}"
         fi
     }
-    cp_cert_file mysql-ca
-    cp_cert_file mysql-cert
-    cp_cert_file mysql-key
+    cp_cert_file mysql/server mysql-ca
+    cp_cert_file mysql/server mysql-cert
+    cp_cert_file mysql/server mysql-key
 
-    # Copy CouchDB certificates (if provided)
-    if [[ -f "${certs_dir}/couchdb/couchdb-ca" ]] &&
-       [[ ! -f "${dest_dir}/couchdb-ca" ]]; then
-        cp "${certs_dir}/couchdb/couchdb-ca" "${dest_dir}/couchdb-ca"
-        echo "Copied couchdb-ca"
-    fi
-    if [[ -f "${certs_dir}/couchdb/couchdb-cert" ]] &&
-       [[ ! -f "${dest_dir}/couchdb-cert" ]]; then
-        cp "${certs_dir}/couchdb/couchdb-cert" "${dest_dir}/couchdb-cert"
-        echo "Copied couchdb-cert"
-    fi
-    if [[ -f "${certs_dir}/couchdb/couchdb-key" ]] &&
-       [[ ! -f "${dest_dir}/couchdb-key" ]]; then
-        cp "${certs_dir}/couchdb/couchdb-key" "${dest_dir}/couchdb-key"
-        echo "Copied couchdb-key"
-    fi
+    cp_cert_file couchdb      couchdb-ca
+    cp_cert_file couchdb      couchdb-cert
+    cp_cert_file couchdb      couchdb-key
 
-    # Copy LDAP certificates (if provided)
-    if [[ -f "${certs_dir}/ldap/ldap-ca" ]] &&
-       [[ ! -f "${dest_dir}/ldap-ca" ]]; then
-        cp "${certs_dir}/ldap/ldap-ca" "${dest_dir}/ldap-ca"
-        echo "Copied ldap-ca"
-    fi
-    if [[ -f "${certs_dir}/ldap/ldap-cert" ]] &&
-       [[ ! -f "${dest_dir}/ldap-cert" ]]; then
-        cp "${certs_dir}/ldap/ldap-cert" "${dest_dir}/ldap-cert"
-        echo "Copied ldap-cert"
-    fi
-    if [[ -f "${certs_dir}/ldap/ldap-key" ]] &&
-       [[ ! -f "${dest_dir}/ldap-key" ]]; then
-        cp "${certs_dir}/ldap/ldap-key" "${dest_dir}/ldap-key"
-        echo "Copied ldap-key"
-    fi
+    cp_cert_file ldap         ldap-ca
+    cp_cert_file ldap         ldap-cert
+    cp_cert_file ldap         ldap-key
 
-    # Copy Redis certificates (if provided)
-    if [[ -f "${certs_dir}/redis/redis-ca" ]] &&
-       [[ ! -f "${dest_dir}/redis-ca" ]]; then
-        cp "${certs_dir}/redis/redis-ca" "${dest_dir}/redis-ca"
-        chmod 744 "${dest_dir}/redis-ca"
-        echo "Copied redis-ca"
-    fi
-    if [[ -f "${certs_dir}/redis/redis-cert" ]] &&
-       [[ ! -f "${dest_dir}/redis-cert" ]]; then
-        cp "${certs_dir}/redis/redis-cert" "${dest_dir}/redis-cert"
-        chmod 744 "${dest_dir}/redis-cert"
-        echo "Copied redis-cert"
-    fi
-    if [[ -f "${certs_dir}/redis/redis-key" ]] &&
-       [[ ! -f "${dest_dir}/redis-key" ]]; then
-        cp "${certs_dir}/redis/redis-key" "${dest_dir}/redis-key"
-        chmod 744 "${dest_dir}/redis-key"
-        echo "Copied redis-key"
-    fi
+    cp_cert_file redis        redis-ca
+    cp_cert_file redis        redis-cert
+    cp_cert_file redis        redis-key
 }
 
 # ============================================================================

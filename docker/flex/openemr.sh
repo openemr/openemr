@@ -986,60 +986,64 @@ fi
 #    /root/certs/ldap/ldap-cert (supported)
 #    /root/certs/ldap/ldap-key (supported)
 #    /root/certs/redis/.. (not yet supported)
+# Helper that copies certificate files from /root/certs/<service>/ into the
+# sites/certificates dir. Runs on every container start.
+#
+# Guards:
+#   -f "${src}"  : source present (service didn't mount this cert)
+#   -s "${src}"  : source non-empty (defends against a partial Secret
+#                  projection where the key is created but the data hasn't
+#                  landed yet — copying a 0-byte cert would break TLS
+#                  silently)
+#   ! cmp -s     : source content differs from destination — copy only on
+#                  first boot OR when the mounted Secret has rotated under
+#                  us. On a steady-state restart with no rotation, cmp -s
+#                  returns 0 and the copy is skipped (no inode churn, no
+#                  log noise). This closes the cert-rotation path: the
+#                  previous "! -f dst" guard meant that once the sites
+#                  copy existed, no subsequent Secret rotation could
+#                  overwrite it — openemr kept reading the stale
+#                  first-boot cert indefinitely. Common failure shape in
+#                  k8s with cert-manager + stakater/reloader: Secret
+#                  rotates, pod rolls, pod reads stale cached cert from
+#                  the sites PVC, mTLS handshake uses the old cert,
+#                  connection breaks on the next CA rotation.
+#
+# Prints "copied over <name>" on an actual write (first boot or rotation)
+# and stays silent on steady-state restarts. Returns 0 on copy, 1 on
+# no-op — the mysql flags below branch on that.
+cp_cert_file() {
+    local subdir="${1}"   # e.g. mysql/server, couchdb, ldap
+    local name="${2}"     # e.g. mysql-ca
+    local src="/root/certs/${subdir}/${name}"
+    local dst="/var/www/localhost/htdocs/openemr/sites/default/documents/certificates/${name}"
+    if [[ -f "${src}" && -s "${src}" ]] && ! cmp -s "${src}" "${dst}"; then
+        echo "copied over ${name}"
+        cp "${src}" "${dst}"
+        return 0
+    fi
+    return 1
+}
+# for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
 MYSQLCA=false
-if [[ -f /root/certs/mysql/server/mysql-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca ]]; then
-    echo "copied over mysql-ca"
-    cp /root/certs/mysql/server/mysql-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLCA=true
-fi
 MYSQLCERT=false
-if [[ -f /root/certs/mysql/server/mysql-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-cert ]]; then
-    echo "copied over mysql-cert"
-    cp /root/certs/mysql/server/mysql-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-cert
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLCERT=true
-fi
 MYSQLKEY=false
-if [[ -f /root/certs/mysql/server/mysql-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-key ]]; then
-    echo "copied over mysql-key"
-    cp /root/certs/mysql/server/mysql-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-key
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLKEY=true
-fi
-if [[ -f /root/certs/couchdb/couchdb-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca ]]; then
-    echo "copied over couchdb-ca"
-    cp /root/certs/couchdb/couchdb-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca
-fi
-if [[ -f /root/certs/couchdb/couchdb-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-cert ]]; then
-    echo "copied over couchdb-cert"
-    cp /root/certs/couchdb/couchdb-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-cert
-fi
-if [[ -f /root/certs/couchdb/couchdb-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-key ]]; then
-    echo "copied over couchdb-key"
-    cp /root/certs/couchdb/couchdb-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-key
-fi
-if [[ -f /root/certs/ldap/ldap-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca ]]; then
-    echo "copied over ldap-ca"
-    cp /root/certs/ldap/ldap-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca
-fi
-if [[ -f /root/certs/ldap/ldap-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-cert ]]; then
-    echo "copied over ldap-cert"
-    cp /root/certs/ldap/ldap-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-cert
-fi
-if [[ -f /root/certs/ldap/ldap-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-key ]]; then
-    echo "copied over ldap-key"
-    cp /root/certs/ldap/ldap-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-key
-fi
+# shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
+if cp_cert_file mysql/server mysql-ca;   then MYSQLCA=true;   fi
+# shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
+if cp_cert_file mysql/server mysql-cert; then MYSQLCERT=true; fi
+# shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
+if cp_cert_file mysql/server mysql-key;  then MYSQLKEY=true;  fi
+
+# Return code is naturally ignored here — this script does not enable
+# `set -e`, so a no-op (return 1) does not stop the script.
+cp_cert_file couchdb couchdb-ca
+cp_cert_file couchdb couchdb-cert
+cp_cert_file couchdb couchdb-key
+
+cp_cert_file ldap    ldap-ca
+cp_cert_file ldap    ldap-cert
+cp_cert_file ldap    ldap-key
 
 if [[ "${AUTHORITY}" = "yes" ]]; then
     if [[ "${CONFIG}" = "0" ]] &&
