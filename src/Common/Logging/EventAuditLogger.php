@@ -647,12 +647,19 @@ class EventAuditLogger implements AuditLoggerInterface
     /**
      * The first chart, order, lab, or form table joined to this statement.
      *
-     * A JOIN and a comma both count. Security tables are skipped. The caller
-     * uses this only when the table after FROM is itself a security table.
+     * A JOIN and a comma both count. The search starts after FROM, so a
+     * name in the select list is not a join. Security tables are skipped.
+     * The caller uses this only when the table after FROM is itself a
+     * security table.
      */
     private function joinedClinicalTable(string $sql): ?string
     {
-        if (preg_match_all('/(?:\bjoin\s+|,\s*)`?([a-z0-9_]+)`?/i', $sql, $matches) < 1) {
+        $from = stripos($sql, " from ");
+        if ($from === false) {
+            return null;
+        }
+        $fromClause = substr($sql, $from);
+        if (preg_match_all('/(?:\bjoin\s+|,\s*)`?([a-z0-9_]+)`?/i', $fromClause, $matches) < 1) {
             return null;
         }
         foreach ($matches[1] as $name) {
