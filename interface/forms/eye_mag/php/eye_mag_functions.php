@@ -2243,7 +2243,7 @@ function canvas_select($zone, $encounter, $pid): string
             $canvi[] = $doc;
         }
     }
-    usort($canvi, static fn($a, $b): int => EyeFormData::integer($b['encounter_timestamp'] ?? 0) <=> EyeFormData::integer($a['encounter_timestamp'] ?? 0)
+    usort($canvi, static fn($a, $b): int => EyeFormData::integer(EyeFormData::text($b['encounter_timestamp'] ?? '')) <=> EyeFormData::integer($a['encounter_timestamp'] ?? 0)
         ?: EyeFormData::integer($b['document_id'] ?? 0) <=> EyeFormData::integer($a['document_id'] ?? 0));
     if (!empty($canvi)) {
         $currentIndex = null;
@@ -2281,7 +2281,7 @@ function canvas_select($zone, $encounter, $pid): string
                 if ($count == '0') {
                     $select .= "<option value='current'>" . text($hit['encounter_date']) . "</option>\n";
                 } else {
-                    $select .= "<option value='" . attr($hit['document_id']) . "'>" . text($hit['encounter_date']) . "</option>\n";
+                    $select .= "<option value='" . attr(EyeFormData::text($hitEyeFormData::text($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'] ?? ''))) . "'>" . text($hit['encounter_date']) . "</option>\n";
                 }
                 $count++;
             }
@@ -2765,7 +2765,7 @@ function display($pid, $encounter, $category_value): array
     for ($j = 0; $j < count($documents['zones'][$category_value]); $j++) {
         $count_here = empty($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) ? 0 : count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
 
-        $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'] ?? '';
+        $id_to_show = EyeFormData::text($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'] ?? '');
         $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", (string) $documents['zones'][$category_value][$j]['name']);
         $categoryName = is_string($documents['zones'][$category_value][$j]['name'] ?? null)
             ? $documents['zones'][$category_value][$j]['name']

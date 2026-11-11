@@ -822,7 +822,7 @@ function eye_mag_materials_for_report(int $formId, int $pid): PatientMaterials
                     $data = $bytes;
                 } elseif (is_string($bytes)) {
                     $image = @getimagesizefromstring($bytes);
-                    $detected = is_array($image) ? EyeFormData::text($image['mime'] ?? '') : '';
+                    $detected = is_array($image) ? EyeFormData::text($image['mime']) : '';
                     if (in_array($detected, ['image/jpeg', 'image/png', 'image/gif'], true)) {
                         $mime = $detected;
                         $data = $bytes;

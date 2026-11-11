@@ -472,7 +472,7 @@ function eye_mag_drawing_background_library_manage(mixed $zone, mixed $providerI
         $metadata = eye_mag_drawing_background_library_metadata($paths, $sourceKey, $action === 'delete');
         if ($action === 'rename') {
             if ($metadata->label !== $name) {
-                eye_mag_drawing_background_library_replace($paths, $metadata->withLabel($name));
+                eye_mag_drawing_background_library_replace($paths, $metadata->withLabel(EyeFormData::text($name)));
             }
             return;
         }

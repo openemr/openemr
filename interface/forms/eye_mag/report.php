@@ -654,7 +654,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                             if ($PDF_OUTPUT) {
                                 if ($reportPdf instanceof Mpdf) {
                                     // Keep large photos out of the HTML parser while retaining the original bytes in memory.
-                                    $photoKey = 'eye_patient_photo_' . EyeFormData::integer($pid) . '_' . EyeFormData::integer($result['id']);
+                                    $photoKey = 'eye_patient_photo_' . EyeFormData::integer($pid) . '_' . EyeFormData::integer(EyeFormData::row($result)['id'] ?? 0);
                                     $reportPdf->imageVars[$photoKey] = $fileTemp;
                                     echo "<img src='var:" . attr($photoKey) . "' style='width:140px;'>";
                                 } else {
@@ -984,32 +984,32 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                         </tr>
                         <tr>
                             <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['1']; ?>
+                                <?php echo text(EyeFormData::text($ODVF['1'] ?? '')); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['2']; ?>
+                                <?php echo text(EyeFormData::text($ODVF['2'] ?? '')); ?>
                             </td>
                             <td></td>
                             <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['1']; ?>
+                                <?php echo text(EyeFormData::text($OSVF['1'] ?? '')); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['2']; ?>
+                                <?php echo text(EyeFormData::text($OSVF['2'] ?? '')); ?>
                             </td>
                         </tr>
                         <tr>
                             <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['3']; ?>
+                                <?php echo text(EyeFormData::text($ODVF['3'] ?? '')); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['4']; ?>
+                                <?php echo text(EyeFormData::text($ODVF['4'] ?? '')); ?>
                             </td>
                             <td></td>
                             <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['3']; ?>
+                                <?php echo text(EyeFormData::text($OSVF['3'] ?? '')); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['4']; ?>
+                                <?php echo text(EyeFormData::text($OSVF['4'] ?? '')); ?>
                             </td>
                         </tr>
                     </table>
@@ -1205,14 +1205,14 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
 
                                 <tr>
                                     <td style="text-align:center;font-weight:bold;">
-                                        <img src="../../forms/<?php echo $form_folder; ?>/images/Amsler_<?php echo attr($AMSLEROD); ?>.jpg"
+                                        <img src="../../forms/<?php echo attr(EyeFormData::text($form_folder)); ?>/images/Amsler_<?php echo attr($AMSLEROD); ?>.jpg"
                                              id="AmslerOD" style="margin:0.05in;height:0.5in;width:0.6in;"/>
                                         <br/>
                                         <small><?php echo text($AMSLEROD); ?>/5</small>
                                     </td>
                                     <td></td>
                                     <td style="text-align:center;font-weight:bold;">
-                                        <img src="../../forms/<?php echo $form_folder; ?>/images/Amsler_<?php echo attr($AMSLEROS); ?>.jpg"
+                                        <img src="../../forms/<?php echo attr(EyeFormData::text($form_folder)); ?>/images/Amsler_<?php echo attr($AMSLEROS); ?>.jpg"
                                              id="AmslerOS" style="margin:0.05in;height:0.5in;width:0.6in;"/>
                                         <br/>
                                         <small><?php echo text($AMSLEROS); ?>/5</small>
@@ -1442,7 +1442,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                     <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($CTLOSBC) ?: "-"); ?></td>
                     <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($CTLOSDIAM) ?: "-"); ?></td>
                     <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($CTLOSADD) ?: "-"); ?></td>
-                    <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo($CTLOSVA ?: "-"); ?></td>
+                    <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(EyeFormData::text($CTLOSVA)) ?: "-"); ?></td>
                 </tr>
                 <tr style="font-size:9px;">
                     <td></td>
@@ -1777,7 +1777,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
         $additionalSection = null;
         $additionalEyeFields = ['RLF', 'LLF', 'RMRD', 'LMRD', 'RVFISSURE', 'LVFISSURE', 'RCAROTID', 'LCAROTID', 'RTEMPART', 'LTEMPART', 'RCNV', 'LCNV', 'RCNVII', 'LCNVII', 'ODCOLOR', 'OSCOLOR', 'ODREDDESAT', 'OSREDDESAT', 'ODCOINS', 'OSCOINS', 'ODNPA', 'OSNPA', 'HERTELBASE'];
         $additionalOtherFields = ['NPA', 'NPC', 'STEREOPSIS', 'STEREO_FLY', 'STEREO_ANIMALS', 'STEREO_CIRCLES', 'STEREO_FIXATION_PREF', 'DACCDIST', 'DACCNEAR', 'CACCDIST', 'CACCNEAR', 'VERTFUSAMPS'];
-        $hasAdditionalValues = static fn(array $fields): bool => array_filter($fields, static fn(string $field): bool => trim(EyeFormData::text($reportRow[$field] ?? '')) !== '') !== [];
+        $hasAdditionalValues = static fn(array $fields): bool => array_filter($fields, static fn(mixed $field): bool => is_string($field) && trim(EyeFormData::text($reportRow[$field] ?? '')) !== '') !== [];
         if ($hasAdditionalValues($additionalEyeFields) || $hasAdditionalValues($additionalOtherFields)) {
             ?>
                 <?php
@@ -2505,7 +2505,7 @@ function display_draw_image($zone, $encounter, $pid): void
             // retrieve key, as core's custom_report.php does; without it
             // C_Document denies the request (403) and no PDF is made.
             $tempDocC->onReturnRetrieveKey();
-            $fileTemp = $tempDocC->retrieve_action((string) $pid, $doc['id'], false, true, true, true);
+            $fileTemp = $tempDocC->retrieve_action((string) $pid, $document_id, false, true, true, true);
                         $fileTemp = EyeFormData::text($fileTemp);
             $drawingRenderer = new ReportRenderer(OEGlobalsBag::getInstance()->getProjectDir());
             if ($drawingRenderer->drawingIsUntouchedBase($fileTemp, $zone)) {

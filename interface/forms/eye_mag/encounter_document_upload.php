@@ -103,7 +103,7 @@ if ($request->isMethod('POST')) {
                         break;
                     }
                     $uploaded[] = $name;
-                } catch (\Throwable $exception) {
+                } catch (\Exception $exception) {
                     ServiceContainer::getLogger()->error(
                         'Eye Form encounter document upload failed',
                         ['exception' => $exception::class]

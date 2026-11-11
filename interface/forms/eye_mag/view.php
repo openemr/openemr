@@ -251,7 +251,7 @@ $materialsRow = QueryUtils::querySingleRow(
 $materialsToPrint = $materialsRow['content'] ?? '';
 $materialsTextIncluded = EyeFormData::integer($materialsRow['include_text'] ?? 0) === 1;
 $materialsHandoutIds = eye_mag_material_ids($materialsRow ?: []);
-$materialsReportDocuments = eye_mag_report_documents($pid, $encounter);
+$materialsReportDocuments = eye_mag_report_documents(EyeFormData::integer($pid), EyeFormData::integer($encounter));
 $materialsHandouts = [];
 $materialsHandoutResult = QueryUtils::sqlStatementThrowException(
     "SELECT DISTINCT d.id, d.name, d.url, d.foreign_id
@@ -4728,9 +4728,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                               </td>
                                           </tr>
                                           <tr><td>&nbsp;</td></tr>
-                                          <tr><td class="top bold"><?php echo xlt('Insurance'); ?>:</td><td><?php echo text($ins_coA); ?></td></tr>
+                                          <tr><td class="top bold"><?php echo xlt('Insurance'); ?>:</td><td><?php echo text(EyeFormData::text($ins_coA)); ?></td></tr>
                                             <?php if ((EyeFormData::text($ins_coB ?? '') !== '')) { ?>
-                                          <tr><td class="top bold"><?php echo xlt('Secondary'); ?>:</td><td><?php echo text($ins_coB); ?></td></tr>
+                                          <tr><td class="top bold"><?php echo xlt('Secondary'); ?>:</td><td><?php echo text(EyeFormData::text($ins_coB)); ?></td></tr>
                                             <?php } ?>
                                           <tr><td class="top bold"><?php echo xlt('Pharmacy'); ?>:</td>
                                                 <?php
@@ -4760,7 +4760,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                           <textarea name="MATERIALS_TO_PRINT" id="MATERIALS_TO_PRINT"
                                               class="form-control form-control-sm" rows="3"
                                               placeholder="<?php echo xla('Enter text or use a Phrase to populate'); ?>"
-                                              style="box-sizing:border-box;width:100%;"><?php echo text($materialsToPrint); ?></textarea>
+                                              style="box-sizing:border-box;width:100%;"><?php echo text(EyeFormData::text($materialsToPrint)); ?></textarea>
                                           <input type="hidden" name="MATERIALS_TEXT_INCLUDED" id="MATERIALS_TEXT_INCLUDED" value="<?php echo $materialsTextIncluded ? '1' : '0'; ?>">
                                           <div class="d-flex align-items-center justify-content-between mt-2 mb-1">
                                               <label class="bold mb-0" for="MATERIALS_HANDOUT_PICKER"><?php echo xlt('PDF Handouts'); ?>:</label>
@@ -4826,9 +4826,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                               <div class="bold mb-1"><?php echo xlt('Encounter documents'); ?></div>
                                               <small class="text-muted d-block mb-1"><?php echo xlt('PDFs and images tagged to this encounter are included automatically in the report.'); ?></small>
                                               <?php foreach ($materialsReportDocuments as $document) {
-                                                    if (EyeFormData::integer($document['encounter_id'] ?? 0) !== $encounter) {
+                                                    if (EyeFormData::integer($document['encounter_id'] ?? 0) !== EyeFormData::integer($encounter)) {
                                                         continue; } ?>
-                                                  <div><?php echo text($document['name'] ?? ''); ?></div>
+                                                  <div><?php echo text(EyeFormData::text($document['name'] ?? '')); ?></div>
                                               <?php } ?>
                                           </div>
                                           <?php if (($materialsHandouts === [])) { ?>

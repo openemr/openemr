@@ -131,7 +131,7 @@ if ($is92060Selection) {
         exit;
     }
     if (!$selectionPatient || !$selectionEncounter || !$selectionForm || !in_array($selectionValue, ['0', '1'], true)
-        || EyeFormData::identifier($_REQUEST['form_id'] ?? null) !== $selectionForm
+        || EyeFormData::identifier($request->query->get('form_id', $posted['form_id'] ?? null)) !== $selectionForm
         || EyeFormData::identifier($posted['encounter'] ?? null) !== $selectionEncounter) {
         http_response_code(400);
         exit;
@@ -682,6 +682,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
 
     if ($is92060Selection) {
         header('Content-Type: application/json');
+        $selectionConflict = false;
         try {
             QueryUtils::inTransaction(static function () use ($selectionPatient, $selectionEncounter, $selectionForm, $selectionValue): void {
                 $neuro = QueryUtils::querySingleRow('SELECT id,CPT_92060_SELECTED,CPT_92060_REMOVED_IDS FROM form_eye_neuro WHERE id=? AND pid=? FOR UPDATE', [$selectionForm, $selectionPatient]);
@@ -697,7 +698,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                         [$selectionPatient, $selectionEncounter]
                     );
                     foreach ($charges as $charge) {
-                        if (EyeFormData::integer($charge['billed'] ?? 0) !== 0 || EyeFormData::integer($charge['bill_process'] ?? 0) !== 0 || !empty($charge['bill_date'])) {
+                        if (EyeFormData::integer($charge['billed'] ?? 0) !== 0 || EyeFormData::integer($charge['bill_process'] ?? 0) !== 0 || EyeFormData::text($charge['bill_date'] ?? '') !== '') {
                             throw new \DomainException('Already billed');
                         }
                         $removedIds[] = EyeFormData::identifier($charge['id'] ?? null);
@@ -726,6 +727,9 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 QueryUtils::sqlStatementThrowException('UPDATE form_eye_neuro SET CPT_92060_SELECTED=?,CPT_92060_REMOVED_IDS=? WHERE id=? AND pid=?', [(int) $selectionValue, $selectionValue === '0' ? json_encode($removedIds) : null, $selectionForm, $selectionPatient]);
             });
         } catch (\DomainException) {
+            $selectionConflict = true;
+        }
+        if ($selectionConflict) {
             http_response_code(409);
             echo json_encode(['ok' => false, 'error' => xl('This charge has already entered billing and cannot be removed here.')]);
             exit;
@@ -1213,6 +1217,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             http_response_code(400);
             exit;
         }
+        $feeSheetConflict = false;
         try {
             QueryUtils::inTransaction(static function () use ($CODING, $form_id, $pid, $encounter, $providerID): void {
                 // Serialize against the 92060 choice so a stale submission cannot re-add an opted-out charge.
@@ -1225,7 +1230,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 }
                 $existing = QueryUtils::fetchRecords('SELECT billed,bill_process,bill_date FROM billing WHERE pid=? AND encounter=? AND activity=1 FOR UPDATE', [$pid, $encounter]);
                 foreach ($existing as $line) {
-                    if (EyeFormData::integer($line['billed'] ?? 0) !== 0 || EyeFormData::integer($line['bill_process'] ?? 0) !== 0 || !empty($line['bill_date'])) {
+                    if (EyeFormData::integer($line['billed'] ?? 0) !== 0 || EyeFormData::integer($line['bill_process'] ?? 0) !== 0 || EyeFormData::text($line['bill_date'] ?? '') !== '') {
                         throw new \DomainException('Already billed');
                     }
                 }
@@ -1265,6 +1270,9 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 }
             });
         } catch (\DomainException) {
+            $feeSheetConflict = true;
+        }
+        if ($feeSheetConflict) {
             http_response_code(409);
             echo xlt('The fee sheet cannot be replaced after charges have entered billing.');
             exit;
@@ -1362,7 +1370,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $_POST['PLAN'] = mb_substr(($fields['PLAN'] ?? ''), 0, -1); //get rid of trailing "|"
     }
 
-    $M = empty($_POST['TEST']) ? 0 : count($_POST['TEST']);
+    $M = is_array($_POST['TEST'] ?? null) ? count($_POST['TEST']) : 0;
     if ($M > '0') {
         for ($i = 0; $i < $M; $i++) {
             $_POST['Resource'] .= $_POST['TEST'][$i] . "|"; //this makes an entry for form_eyemag: Resource
@@ -1665,14 +1673,14 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
         `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`
         ) VALUES (" . implode(',', array_fill(0, 42, '?')) . ")";
-        $LENS_TREATMENTS_4 = implode("|", $_POST['LENS_TREATMENTS_4'] ?? []);
-        sqlQuery($query, [$encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_4'], $_POST['ODCYL_4'], $_POST['ODAXIS_4'],
-            $_POST['ODVA_4'], $_POST['ODADD_4'], $_POST['ODNEARVA_4'] ?? '', $_POST['OSSPH_4'], $_POST['OSCYL_4'], $_POST['OSAXIS_4'],
-            $_POST['OSVA_4'], $_POST['OSADD_4'], $_POST['OSNEARVA_4'] ?? '', $_POST['ODMIDADD_4'], $_POST['OSMIDADD_4'],
-            0 + $_POST['RX_TYPE_4'] ?? '', $_POST['COMMENTS_4'] ?? '',
-            $_POST['ODHPD_4'], $_POST['ODHBASE_4'], $_POST['ODVPD_4'], $_POST['ODVBASE_4'], $_POST['ODSLABOFF_4'], $_POST['ODVERTEXDIST_4'],
-            $_POST['OSHPD_4'], $_POST['OSHBASE_4'], $_POST['OSVPD_4'], $_POST['OSVBASE_4'], $_POST['OSSLABOFF_4'], $_POST['OSVERTEXDIST_4'],
-            $_POST['ODMPDD_4'], $_POST['ODMPDN_4'], $_POST['OSMPDD_4'], $_POST['OSMPDN_4'], $_POST['BPDD_4'], $_POST['BPDN_4'], $_POST['LENS_MATERIAL_4'],
+        $LENS_TREATMENTS_4 = implode("|", $posted['LENS_TREATMENTS_4'] ?? []);
+        sqlQuery($query, [$encounter, $form_id, $pid, $rx_number, $posted['ODSPH_4'], $posted['ODCYL_4'], $posted['ODAXIS_4'],
+            $posted['ODVA_4'], $posted['ODADD_4'], $posted['ODNEARVA_4'] ?? '', $posted['OSSPH_4'], $posted['OSCYL_4'], $posted['OSAXIS_4'],
+            $posted['OSVA_4'], $posted['OSADD_4'], $posted['OSNEARVA_4'] ?? '', $posted['ODMIDADD_4'], $posted['OSMIDADD_4'],
+            EyeFormData::integer($posted['RX_TYPE_4'] ?? 0), $posted['COMMENTS_4'] ?? '',
+            $posted['ODHPD_4'], $posted['ODHBASE_4'], $posted['ODVPD_4'], $posted['ODVBASE_4'], $posted['ODSLABOFF_4'], $posted['ODVERTEXDIST_4'],
+            $posted['OSHPD_4'], $posted['OSHBASE_4'], $posted['OSVPD_4'], $posted['OSVBASE_4'], $posted['OSSLABOFF_4'], $posted['OSVERTEXDIST_4'],
+            $posted['ODMPDD_4'], $posted['ODMPDN_4'], $posted['OSMPDD_4'], $posted['OSMPDN_4'], $posted['BPDD_4'], $posted['BPDN_4'], $posted['LENS_MATERIAL_4'],
             $LENS_TREATMENTS_4, $posted['ODPRISM_4'] ?? '', $posted['OSPRISM_4'] ?? '']);
         $rx_number++;
     } else {
@@ -1750,7 +1758,7 @@ if ($_REQUEST['canvas'] ?? '') {
         'SELECT form_id FROM forms WHERE form_id=? AND pid=? AND encounter=? AND formdir=? AND deleted=0 LIMIT 1',
         [EyeFormData::integer($id), EyeFormData::integer($pid), EyeFormData::integer($encounter), 'eye_mag']
     ));
-    if (EyeFormData::integer($drawingForm['form_id'] ?? 0) <= 0 || ($_REQUEST['canvas'] ?? '') !== $zone) {
+    if (EyeFormData::integer($drawingForm['form_id'] ?? 0) <= 0 || EyeFormData::text($request->query->get('canvas', $posted['canvas'] ?? '')) !== $zone) {
         http_response_code(404);
         exit;
     }
@@ -1785,7 +1793,7 @@ if ($_REQUEST['canvas'] ?? '') {
     }
     $rasterBase = null;
     $hadRasterBase = false;
-    if ($zone === 'NEURO' && $rasterMode !== '') {
+    if ($zone === 'NEURO') {
         if (!in_array($rasterMode, ['separate', 'legacy'], true)) {
             http_response_code(400);
             exit;
@@ -1811,7 +1819,7 @@ if ($_REQUEST['canvas'] ?? '') {
                 exit;
             }
             $rasterSize = getimagesizefromstring($decodedRaster);
-            if ($rasterSize === false || $rasterSize[0] !== 450 || $rasterSize[1] !== 250 || ($rasterSize['mime'] ?? '') !== 'image/png') {
+            if ($rasterSize === false || $rasterSize[0] !== 450 || $rasterSize[1] !== 250 || $rasterSize['mime'] !== 'image/png') {
                 http_response_code(400);
                 exit;
             }
@@ -1845,12 +1853,12 @@ if ($_REQUEST['canvas'] ?? '') {
     }
 
     $type = "image/jpeg"; // all our canvases are this type
-    $data = $_POST["imgBase64"];
-    $data = substr((string) $data, strpos((string) $data, ",") + 1);
+    $imageData = EyeFormData::text($posted['imgBase64'] ?? '');
+    $data = substr($imageData, (int) strpos($imageData, ",") + 1);
     $data = base64_decode($data);
     $size = strlen($data);
 
-    $return = addNewDocument($filename, $type, $_POST["imgBase64"], 0, $size, $session->get('authUserID'), $pid, $category_id);
+    $return = addNewDocument($filename, $type, $imageData, 0, $size, $session->get('authUserID'), $pid, $category_id);
     $doc_id = is_array($return) ? EyeFormData::integer($return['doc_id'] ?? 0) : 0;
     if ($doc_id <= 0) {
         http_response_code(500);
@@ -1859,7 +1867,7 @@ if ($_REQUEST['canvas'] ?? '') {
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
     sqlQuery($sql, [$encounter, $doc_id]);
 
-    if ($zone === 'NEURO' && $rasterMode !== '') {
+    if ($zone === 'NEURO') {
         // Do not write patient image bytes into the SQL audit log.
         QueryUtils::sqlStatementThrowException(
             'UPDATE form_eye_mag_drawing_overlays SET raster_base=?, raster_legacy=? WHERE form_id=? AND pid=? AND zone=?',
