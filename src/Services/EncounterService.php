@@ -256,6 +256,7 @@ class EncounterService extends BaseService
                        fe.provider_id,
                        fe.referring_provider_id,
                        fe.ordering_provider_id,
+                       fe.provider_taxonomy,
                        providers.provider_uuid,
                        providers.provider_username,
                        referrers.referrer_uuid,
@@ -291,6 +292,7 @@ class EncounterService extends BaseService
                                pid as encounter_pid,
                                referring_provider_id,
                                ordering_provider_id,
+                               provider_taxonomy,
                                last_update
                            FROM form_encounter
                        ) fe
@@ -414,6 +416,7 @@ class EncounterService extends BaseService
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
 
+        $data = $this->keepAllowedTaxonomy($data, $data['provider_id'] ?? null);
         $data = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $data);
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO form_encounter SET ";
@@ -462,6 +465,25 @@ class EncounterService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      *               payload.
      */
+    /**
+     * A taxonomy code is kept only when it is one of the encounter provider's codes; otherwise it is cleared,
+     * which means the provider's primary taxonomy applies.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function keepAllowedTaxonomy(array $data, mixed $providerId): array
+    {
+        if (array_key_exists('provider_taxonomy', $data)) {
+            $userId = filter_var($providerId, FILTER_VALIDATE_INT);
+            $data['provider_taxonomy'] = $userId === false ? null : (new UserTaxonomyService())->resolveChoice(
+                $userId,
+                is_string($data['provider_taxonomy']) ? $data['provider_taxonomy'] : null
+            );
+        }
+        return $data;
+    }
+
     public function updateEncounter($puuid, $euuid, $data)
     {
         $processingResult = new ProcessingResult();
@@ -493,6 +515,11 @@ class EncounterService extends BaseService
         }
 
         $data['facility'] = $facility;
+        $data = $this->keepAllowedTaxonomy($data, $data['provider_id'] ?? QueryUtils::fetchSingleValue(
+            'SELECT `provider_id` FROM `form_encounter` WHERE `encounter` = ? AND `pid` = ?',
+            'provider_id',
+            [$encounter, $pid]
+        ));
         $data = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $data);
 
         $query = $this->buildUpdateColumns($data);
