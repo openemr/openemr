@@ -376,7 +376,7 @@ ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_worked_dir` varchar(255)
 #IfNotTable x12_remote_received
 CREATE TABLE `x12_remote_received` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `remote_key` char(64) NOT NULL COMMENT 'sha256 of partner, folder, name, size and modified time: one row per remote file',
+  `remote_key` char(64) NOT NULL COMMENT 'sha256 of partner, folder, name, size, modified time and file type: one row per remote file and type',
   `x12_partner_id` int(11) NOT NULL,
   `remote_dir` varchar(255) NOT NULL,
   `remote_name` varchar(255) NOT NULL,

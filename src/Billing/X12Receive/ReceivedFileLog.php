@@ -18,9 +18,11 @@ interface ReceivedFileLog
 {
     /**
      * Whether this file (same partner, folder, name, size and modified time)
-     * was already stored, found to be a duplicate, or rejected.
+     * was already stored, found to be a duplicate, or rejected as a file of
+     * this type. A folder may be shared by several types, so a file rejected
+     * as one type is still open for the others.
      */
-    public function isSettled(int $partnerId, string $folder, RemoteFile $file): bool;
+    public function isSettled(int $partnerId, string $folder, RemoteFile $file, X12FileType $type): bool;
 
     public function record(
         int $partnerId,

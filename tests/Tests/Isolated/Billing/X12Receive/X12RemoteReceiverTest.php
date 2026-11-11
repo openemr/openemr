@@ -119,9 +119,9 @@ class X12RemoteReceiverTest extends TestCase
             /** @var array<string, StoreOutcome> */
             public array $rows = [];
 
-            public function isSettled(int $partnerId, string $folder, RemoteFile $file): bool
+            public function isSettled(int $partnerId, string $folder, RemoteFile $file, X12FileType $type): bool
             {
-                $row = $this->rows[ReceivedFileRepository::remoteKey($partnerId, $folder, $file)] ?? null;
+                $row = $this->rows[ReceivedFileRepository::remoteKey($partnerId, $folder, $file, $type)] ?? null;
                 return $row !== null && $row->status->isSettled();
             }
 
@@ -133,7 +133,7 @@ class X12RemoteReceiverTest extends TestCase
                 StoreOutcome $outcome,
                 \DateTimeImmutable $at,
             ): void {
-                $this->rows[ReceivedFileRepository::remoteKey($partnerId, $folder, $file)] = $outcome;
+                $this->rows[ReceivedFileRepository::remoteKey($partnerId, $folder, $file, $type)] = $outcome;
             }
         };
         $store = new class implements ReceivedFileStore {
@@ -184,6 +184,22 @@ class X12RemoteReceiverTest extends TestCase
         $this->assertSame([1, 1], [$first->stored, $first->rejected]);
         $this->assertSame([0, 0, 0], [$second->stored, $second->rejected, $second->failed]);
         $this->assertCount(1, $store->stored);
+    }
+
+    public function testOneFolderSharedByTwoTypesStoresEachFileUnderItsOwnType(): void
+    {
+        [$receiver, , , $store] = $this->receiver(['/out' => ['a.RMT' => self::x12('HP'), 'b.277' => self::x12('HN')]]);
+        $partner = $this->partner(['f835' => '/out', 'f277' => '/out']);
+
+        $first = $receiver->receive([$partner]);
+        $second = $receiver->receive([$partner]);
+
+        $this->assertSame([2, 2], [$first->stored, $first->rejected]);
+        $this->assertSame(
+            [[X12FileType::Remittance835, 'a.RMT', self::x12('HP')], [X12FileType::ClaimStatus277, 'b.277', self::x12('HN')]],
+            $store->stored
+        );
+        $this->assertSame([0, 0, 0], [$second->stored, $second->rejected, $second->failed]);
     }
 
     public function testWrongKindOfFileIsRejectedAndNotStored(): void

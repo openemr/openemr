@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ReceivedFileLog in the x12_remote_received table: one row per remote file.
+ * ReceivedFileLog in the x12_remote_received table: one row per remote file and file type.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -18,12 +18,12 @@ use OpenEMR\Common\Database\QueryUtils;
 
 final class ReceivedFileRepository implements ReceivedFileLog
 {
-    public function isSettled(int $partnerId, string $folder, RemoteFile $file): bool
+    public function isSettled(int $partnerId, string $folder, RemoteFile $file, X12FileType $type): bool
     {
         $status = QueryUtils::fetchSingleValue(
             'SELECT `status` FROM `x12_remote_received` WHERE `remote_key` = ?',
             'status',
-            [self::remoteKey($partnerId, $folder, $file)]
+            [self::remoteKey($partnerId, $folder, $file, $type)]
         );
         return is_string($status) && (ReceivedStatus::tryFrom($status)?->isSettled() ?? false);
     }
@@ -43,7 +43,7 @@ final class ReceivedFileRepository implements ReceivedFileLog
             . ' ON DUPLICATE KEY UPDATE `status` = VALUES(`status`), `stored_name` = VALUES(`stored_name`),'
             . ' `message` = VALUES(`message`), `received_at` = VALUES(`received_at`)',
             [
-                self::remoteKey($partnerId, $folder, $file),
+                self::remoteKey($partnerId, $folder, $file, $type),
                 $partnerId,
                 mb_substr($folder, 0, 255),
                 mb_substr($file->name, 0, 255),
@@ -61,8 +61,8 @@ final class ReceivedFileRepository implements ReceivedFileLog
     /**
      * One value to key on, so the unique index stays short whatever the names are.
      */
-    public static function remoteKey(int $partnerId, string $folder, RemoteFile $file): string
+    public static function remoteKey(int $partnerId, string $folder, RemoteFile $file, X12FileType $type): string
     {
-        return hash('sha256', implode("\0", [$partnerId, $folder, $file->name, $file->size, $file->modifiedAt]));
+        return hash('sha256', implode("\0", [$partnerId, $folder, $file->name, $file->size, $file->modifiedAt, $type->value]));
     }
 }

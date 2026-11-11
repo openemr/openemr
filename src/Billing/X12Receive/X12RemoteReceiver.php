@@ -82,7 +82,7 @@ final readonly class X12RemoteReceiver
             return;
         }
         foreach ($files as $file) {
-            if ($this->log->isSettled($partner->id, $folder, $file)) {
+            if ($this->log->isSettled($partner->id, $folder, $file, $type)) {
                 continue;
             }
             $outcome = $this->receiveFile($type, $folder, $file, $remote);
