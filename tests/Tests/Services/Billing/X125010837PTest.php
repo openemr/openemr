@@ -167,15 +167,20 @@ class X125010837PTest extends TestCase
         // 2000B is the secondary's subscriber, 2320 the primary's.
         $this->assertSame(['SBR', 'S'], array_slice($this->elements($segments, 'SBR')[0], 0, 2));
         $this->assertSame(['SBR', 'P'], array_slice($this->elements($segments, 'SBR')[1], 0, 2));
-        // 2320: what the primary paid on the claim.
-        $this->assertSame(['AMT', 'D', '60.00'], $this->elements($segments, 'AMT')[0]);
-        // 2430: what the primary paid on the line, its write-off, and what is left to the patient
-        // (100.00 - 60.00 - 20.00, sent as coinsurance).
-        $this->assertSame(['SVD', 'PP001', '60.00', 'HC:99213'], array_slice($this->elements($segments, 'SVD')[0], 0, 4));
-        $this->assertSame(
-            [['CAS', 'CO', '45', '20.00'], ['CAS', 'PR', '2', '20.00']],
-            $this->elements($segments, 'CAS')
+        // 2320 (from the primary's SBR to the other payer's NM1): what the primary paid on the claim.
+        $loop2320 = array_slice(
+            $segments,
+            $this->position($segments, 'SBR*P*'),
+            $this->position($segments, 'NM1*PR*2*PRIMARY PAYER*') - $this->position($segments, 'SBR*P*')
         );
+        $this->assertContains('AMT*D*60.00', $loop2320);
+        // 2430, right after the line's SVD: what the primary paid on the line, its write-off, and
+        // what is left to the patient (100.00 - 60.00 - 20.00, sent as coinsurance).
+        $this->assertSame(
+            ['SVD*PP001*60.00*HC:99213**1', 'CAS*CO*45*20.00', 'CAS*PR*2*20.00', 'DTP*573*D8*20260915'],
+            $this->loopAfter($segments, 'SVD*', 4)
+        );
+        $this->assertCount(2, $this->elements($segments, 'CAS'), 'no CAS outside loop 2430');
     }
 
     /**
