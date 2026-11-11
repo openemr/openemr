@@ -2297,7 +2297,9 @@ class Claim
      */
     private function encounterTaxonomy($user): ?string
     {
-        if (!is_array($user) || empty($user['id']) || $user['id'] != ($this->encounter['provider_id'] ?? null)) {
+        $userId = is_array($user) ? filter_var($user['id'] ?? null, FILTER_VALIDATE_INT) : false;
+        $encounterProvider = is_array($this->encounter) ? filter_var($this->encounter['provider_id'] ?? null, FILTER_VALIDATE_INT) : false;
+        if ($userId === false || $userId !== $encounterProvider) {
             return null;
         }
         $chosen = QueryUtils::fetchSingleValue(
@@ -2308,7 +2310,7 @@ class Claim
         if (!is_string($chosen) || trim($chosen) === '') {
             return null;
         }
-        return (new UserTaxonomyService())->resolveChoice((int) $user['id'], $chosen);
+        return (new UserTaxonomyService())->resolveChoice($userId, $chosen);
     }
 
     /**
