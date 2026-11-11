@@ -104,6 +104,24 @@ class SiteReceivedFileStoreTest extends TestCase
         $this->assertFileDoesNotExist($this->site . '/documents/edi/history/f835/20260101_42_60054.835');
     }
 
+    public function testRemittanceWhoseEdiHistoryCopyFailsIsNotStoredAndTheRetryStoresBoth(): void
+    {
+        file_put_contents($this->site . '/documents/edi', 'a file where the folder should be');
+        $store = new SiteReceivedFileStore($this->site);
+
+        $first = @$store->store(X12FileType::Remittance835, $this->localFile($this->era()), 'day1.RMT');
+
+        $this->assertSame(ReceivedStatus::Failed, $first->status);
+        $this->assertFileDoesNotExist($this->site . '/documents/era/20260101_42_60054.edi');
+
+        unlink($this->site . '/documents/edi');
+        $second = $store->store(X12FileType::Remittance835, $this->localFile($this->era()), 'day1.RMT');
+
+        $this->assertSame(ReceivedStatus::Stored, $second->status);
+        $this->assertFileExists($this->site . '/documents/era/20260101_42_60054.edi');
+        $this->assertFileExists($this->site . '/documents/edi/history/f835/20260101_42_60054.835');
+    }
+
     public function testRemittanceThatCannotBeParsedIsRejected(): void
     {
         $store = new SiteReceivedFileStore($this->site);

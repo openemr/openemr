@@ -46,12 +46,18 @@ final readonly class SiteReceivedFileStore implements ReceivedFileStore
         if ($name === null) {
             return new StoreOutcome(ReceivedStatus::Rejected, message: 'The 835 could not be read to name it');
         }
-        $outcome = $this->copyOnce($localPath, $this->siteDirectory . '/documents/era', $name . '.edi', 0600);
-        if ($outcome->status === ReceivedStatus::Stored) {
-            // The posting screen makes this copy on upload; a copy already there is the same remittance.
-            $this->copyOnce($localPath, $history, $name . '.835', 0400);
+        $eraDirectory = $this->siteDirectory . '/documents/era';
+        if (file_exists($eraDirectory . '/' . $name . '.edi')) {
+            return new StoreOutcome(ReceivedStatus::Duplicate, $name . '.edi', 'A file of this name is already stored');
         }
-        return $outcome;
+        // The EDI History copy (the posting screen makes one on upload) goes first. If it
+        // cannot be written nothing is in documents/era yet, so the file is reported as
+        // failed and the next run stores both. A copy already there is the same remittance.
+        $historyCopy = $this->copyOnce($localPath, $history, $name . '.835', 0400);
+        if ($historyCopy->status === ReceivedStatus::Failed) {
+            return $historyCopy;
+        }
+        return $this->copyOnce($localPath, $eraDirectory, $name . '.edi', 0600);
     }
 
     /**
