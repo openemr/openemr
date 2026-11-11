@@ -141,7 +141,7 @@ maintainer reports `landed <PR#>`. Update the brief + log entry with the merge S
 | Write a review brief, log entry, or follow-up register entry | [deliverables.md](deliverables.md) |
 | Post-verdict state shift (head moved, maintainer inline comment, base advance, new rabbit finding) — maintain the brief | [deliverables.md §3.12](deliverables.md#312-state-delta-header-brief-maintenance-across-post-verdict-shifts) |
 | Decide whether an action (public comment, branch push, direct code change) is allowed | [standing-rules.md](standing-rules.md) |
-| Interpret a confusing CodeRabbit interaction (incremental review, "already reviewed," paused reviews, typo'd mention) | [standing-rules.md](standing-rules.md#2-coderabbit-mechanics) |
+| Interpret a confusing CodeRabbit interaction (incremental review, "already reviewed," paused reviews, typo'd mention, an acceptance that ends with a new ask) | [standing-rules.md](standing-rules.md#2-coderabbit-mechanics) |
 | Resolve a stale hold after 24h | [standing-rules.md](standing-rules.md#3-staleness-and-recheck-cadence) |
 
 ---
@@ -186,6 +186,9 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   with each finding tracked on its own (a later no-op reply does not close an earlier
   one) — see
   [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding).
+  The same goes for rabbit's replies to PR comments, which have no thread at all: an
+  acceptance there can end with a new ask — see
+  [standing-rules §2.11](standing-rules.md#211-an-acceptance-can-carry-a-new-ask).
 - **No unresolved maintainer `CHANGES_REQUESTED`.** A formal review-state request stays
   open until the requesting maintainer re-reviews. A separate maintainer approving does
   not clear it.

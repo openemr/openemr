@@ -225,6 +225,29 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
   verified out-of-scope → `🔶` residual + follow-up; verified false positive → record
   and move on, no residual. Rabbit's agreement is not the final word in either case.
 
+### 2.11 An acceptance can carry a new ask
+
+- Rabbit answers the author in two places besides its reviews: replies in inline threads
+  (§2.7) and replies to PR comments on the conversation tab. A reply that opens by
+  accepting the author's answer ("Thanks", "I accept…", "I withdraw…") often ends with a
+  caveat or a new request in the same message: "One separate caveat: …", "One test
+  limitation: …", "Two points remain: …", "Please …".
+- A reply to a PR comment is easy to miss: it is not a review, has no thread and no
+  resolved state, and walking review bodies (§2.5) or threads (§2.7) does not reach it.
+  Pull `issues/<N>/comments` and read every rabbit reply posted after the author's last
+  comment to the end.
+- Each caveat or ask gets its own raised → addressed → confirmed row, like an inline
+  finding. Most are small (a test limitation, a request to check something by hand); they
+  can be answered with a fix, a code comment, or a reply, but not left unread. A question
+  to the maintainer ("Would you like a follow-up issue?") is the maintainer's to answer.
+- Precedent: #15231, 2026-11-11. Rabbit's 01:37 UTC reply in an inline thread confirmed
+  the fix and resolved the thread, then added "One separate caveat: if a hash read fails,
+  the file is also rejected and settled, so a transient read failure will not retry" (a
+  real bug, fixed in the next push). Its 14:01 UTC reply to a PR comment accepted both of
+  the author's answers, then added "One test limitation: … A change to the upload
+  implementation alone will not make that comparison fail", which showed the author's
+  reply had overstated what the test checks.
+
 ---
 
 ## 3. Staleness and recheck cadence
