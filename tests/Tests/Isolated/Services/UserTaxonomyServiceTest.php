@@ -69,7 +69,10 @@ class UserTaxonomyServiceTest extends TestCase
         $this->assertSame(['207RC0000X'], $result['codes']);
     }
 
-    /** @return array<string, array{?string, ?string}> */
+    /**
+     * @codeCoverageIgnore
+     * @return array<string, array{?string, ?string}>
+     */
     public static function choices(): array
     {
         return [
