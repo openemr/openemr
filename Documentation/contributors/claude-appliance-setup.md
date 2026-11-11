@@ -500,9 +500,10 @@ openemr-cmd worktree add test-appliance -b --env easy --start
 # Check assigned ports
 openemr-cmd worktree list
 
-# Verify PHP tooling runs inside the stack, not the appliance
-openemr-cmd pp
-openemr-cmd ut
+# Verify PHP tooling runs inside the stack, not the appliance.
+# Target test-appliance explicitly in case another worktree's stack is also running.
+openemr-cmd worktree exec test-appliance pp
+openemr-cmd worktree exec test-appliance ut
 ```
 
 > 💻 **On the host** — open browser and visit the HTTPS URL for `test-appliance` using its assigned port from `openemr-cmd worktree list`. For offset 1, use:

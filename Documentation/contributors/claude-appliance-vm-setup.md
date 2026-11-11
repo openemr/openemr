@@ -270,17 +270,21 @@ curl -fsSL https://get.docker.com | sh
 systemctl enable docker
 systemctl start docker
 
+# kubectl, kind — pick the binary for the guest's architecture (Incus inherits
+# host arch, so arm64 hosts get arm64 guests here).
+ARCH=$(dpkg --print-architecture)   # amd64 or arm64
+
 # kubectl
 # Note: this fetches the current stable release. Pin to a specific version
 # and verify the published .sha256 file if you want stricter supply-chain guarantees.
-curl -fsSL https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl \
+curl -fsSL https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl \
   -o /usr/local/bin/kubectl
 chmod +x /usr/local/bin/kubectl
 
 # kind (Kubernetes IN Docker — works natively here; see openemr-devops/kubernetes/)
 # Note: this fetches the latest release. Pin to a specific version and verify the
 # SHA from https://github.com/kubernetes-sigs/kind/releases for stricter supply-chain guarantees.
-curl -fsSL https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64 \
+curl -fsSL https://kind.sigs.k8s.io/dl/latest/kind-linux-${ARCH} \
   -o /usr/local/bin/kind
 chmod +x /usr/local/bin/kind
 
@@ -430,9 +434,10 @@ openemr-cmd worktree add test-vm -b --env easy --start
 # Check assigned ports
 openemr-cmd worktree list
 
-# Verify PHP tooling runs inside the stack, not the appliance
-openemr-cmd pp
-openemr-cmd ut
+# Verify PHP tooling runs inside the stack, not the appliance.
+# Target test-vm explicitly in case another worktree's stack is also running.
+openemr-cmd worktree exec test-vm pp
+openemr-cmd worktree exec test-vm ut
 ```
 
 > 💻 **On the host** — open a browser and visit the HTTPS URL for `test-vm` using its assigned port from `openemr-cmd worktree list`. For offset 1, use:
@@ -567,19 +572,40 @@ The main day-to-day friction compared to the LXC appliance is boot time and `git
 Incus has a native network ACL mechanism that expresses "deny egress to RFC1918 except the gateway" more cleanly than host ufw/iptables rules do. Sketch:
 
 ```bash
-# Create an ACL that denies egress to private ranges (RFC1918 + loopback aliases),
-# then allow everything else
+# Create the ACL. Incus rule evaluation is first-match; put the specific
+# deny rules first, then a catch-all allow for everything else so public
+# internet still works.
 incus network acl create agent-egress
+
 incus network acl rule add agent-egress egress \
-  action=reject destination=10.0.0.0/8 description="deny RFC1918 10/8"
+  action=reject destination=10.0.0.0/8      description="deny RFC1918 10/8"
 incus network acl rule add agent-egress egress \
-  action=reject destination=172.16.0.0/12 description="deny RFC1918 172.16/12"
+  action=reject destination=172.16.0.0/12   description="deny RFC1918 172.16/12"
 incus network acl rule add agent-egress egress \
-  action=reject destination=192.168.0.0/16 description="deny RFC1918 192.168/16"
+  action=reject destination=192.168.0.0/16  description="deny RFC1918 192.168/16"
+# IPv6 ULA (fc00::/7) is the IPv6 equivalent of RFC1918. Only meaningful
+# if your host actually routes IPv6 — skip if incusbr0 is IPv4-only.
+incus network acl rule add agent-egress egress \
+  action=reject destination=fc00::/7        description="deny IPv6 ULA"
+# Catch-all allow: anything that doesn't match a reject above goes through.
+incus network acl rule add agent-egress egress \
+  action=allow description="allow public internet"
+
+# Ingress default: allow host-initiated and return traffic. Without this,
+# attaching the ACL inherits Incus's default-reject for unmatched traffic
+# and breaks SSH / `incus exec` into the guest.
+incus network acl rule add agent-egress ingress \
+  action=allow description="allow ingress (host-initiated + return)"
+
+# Attach to incusbr0. Applies to any guest on the bridge; override per-NIC
+# with `incus config device set claude-vm eth0 security.acls=agent-egress`
+# if you want to leave other guests untouched.
 incus network set incusbr0 security.acls=agent-egress
 ```
 
-Not applied in the default configuration above because many developer workflows (reaching a local registry, a company intranet behind VPN, a self-hosted LDAP for test-data) deliberately *want* RFC1918 access from the guest. If you are confident the guest only ever needs the public internet, this is the tightest expression of that policy.
+> **Incus default behavior when an ACL is attached.** The moment any ACL is set on a network or NIC, Incus switches to "default reject" for unmatched traffic in both directions. A reject-only ACL therefore blocks public internet access and host-initiated connections to the guest too. The sketch above pairs the reject rules with explicit allow rules for the catch-all case; keep that shape when editing. See the [Incus network ACL docs](https://linuxcontainers.org/incus/docs/main/howto/network_acls/) for the full rule grammar, stateful-vs-stateless connection tracking, and per-NIC overrides.
+
+Not applied in the default configuration above because many developer workflows (reaching a local registry, a company intranet behind VPN, a self-hosted LDAP for test-data) deliberately *want* RFC1918 access from the guest. If you are confident the guest only ever needs the public internet, the sketch above is the tightest expression of that policy.
 
 ### Non-Incus hypervisors
 
