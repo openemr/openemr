@@ -91,13 +91,50 @@ sudo ufw reload
 
 ## Step 2 — Install Incus on the host
 
+Incus's packaging story depends on your distro:
+
+| Distro                   | Source                                       |
+|--------------------------|----------------------------------------------|
+| Ubuntu 24.10+, Debian 12+ | Native apt repos (`sudo apt install incus`) |
+| Ubuntu 24.04 LTS         | **Zabbly upstream apt repo** (steps below)   |
+| Ubuntu 22.04 LTS         | Zabbly upstream apt repo                     |
+
+[Zabbly](https://github.com/zabbly/incus) is maintained by Stéphane Graber (the Incus project lead) and is the canonical upstream source for Debian/Ubuntu Incus packages that are not yet in distro repos. On Ubuntu 24.04 LTS — the host the LXC appliance guide also targets — `apt install incus` fails with "Package 'incus' has no installation candidate" because Incus landed in Ubuntu universe only at 24.10.
+
+**Ubuntu 24.04 LTS — add the Zabbly repo first:**
+
 ```bash
+sudo mkdir -p /etc/apt/keyrings/
+sudo wget -O /etc/apt/keyrings/zabbly.asc https://pkgs.zabbly.com/key.asc
+
+# Verify the key fingerprint before trusting it. Compare against the fingerprint
+# published at https://github.com/zabbly/incus#repository and in Stéphane Graber's
+# announcement posts — treat the GitHub README as the source of truth, not this doc.
+gpg --show-keys /etc/apt/keyrings/zabbly.asc
+
+sudo sh -c 'cat > /etc/apt/sources.list.d/zabbly-incus-stable.sources <<EOF
+Enabled: yes
+Types: deb
+URIs: https://pkgs.zabbly.com/incus/stable
+Suites: $(. /etc/os-release && echo ${VERSION_CODENAME})
+Components: main
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/zabbly.asc
+EOF'
+
 sudo apt update
-sudo apt install incus qemu-system-x86 virtiofsd
+```
+
+**Then install Incus (same step on all distros above):**
+
+```bash
+sudo apt install incus
 sudo incus admin init    # accept defaults, except choose btrfs or zfs if offered — snapshots are instant on CoW storage pools
 sudo usermod -aG incus-admin $USER
 # log out / log back in so the new group membership takes effect
 ```
+
+The `incus` package pulls `qemu-system-x86` and `virtiofsd` as dependencies — no need to install them explicitly.
 
 > **`incus-admin` is root-equivalent on the host.** Membership lets any user start privileged guests and push files to arbitrary paths. The same shape as needing `sudo lxc-*` in the LXC guide — called out here so it does not slip in. See the threat model for the full posture.
 
