@@ -354,4 +354,229 @@ CREATE TABLE `referral_notice` (
 -- so it took that field for one of its match fields.
 #IfRow3D layout_options form_id DEM field_id interpreter_needed edit_options interpreter_needed
 UPDATE `layout_options` SET `edit_options` = '' WHERE `form_id` = 'DEM' AND `field_id` = 'interpreter_needed' AND `edit_options` = 'interpreter_needed';
+
+-- Eye Form drawing, refraction and practice display settings.
+#IfNotTable form_eye_dotphrases
+CREATE TABLE `form_eye_dotphrases` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `phrase_key` varchar(128) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `owner_uid` int(11) NOT NULL,
+  `visibility` enum('private','shared') NOT NULL DEFAULT 'private',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `content_type` enum('text','object') NOT NULL DEFAULT 'text',
+  `content` text NOT NULL,
+  `zones` varchar(64) NOT NULL DEFAULT '',
+  `improvement_of` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `owner_uid` (`owner_uid`),
+  KEY `phrase_key` (`phrase_key`),
+  KEY `visible` (`visibility`,`active`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable form_eye_mag_drawing_overlays
+CREATE TABLE `form_eye_mag_drawing_overlays` (
+  `form_id` bigint(20) NOT NULL,
+  `pid` bigint(20) NOT NULL,
+  `zone` varchar(24) NOT NULL,
+  `overlay_json` longtext NOT NULL,
+  `background_key` varchar(32) NOT NULL DEFAULT '',
+  `raster_base` longblob DEFAULT NULL,
+  `raster_legacy` tinyint(1) NOT NULL DEFAULT 0,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`form_id`,`zone`),
+  KEY `pid` (`pid`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn form_eye_mag_drawing_overlays raster_base
+ALTER TABLE `form_eye_mag_drawing_overlays` ADD `raster_base` longblob DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_eye_mag_drawing_overlays raster_legacy
+ALTER TABLE `form_eye_mag_drawing_overlays` ADD `raster_legacy` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+
+#IfNotTable form_eye_mag_materials
+CREATE TABLE `form_eye_mag_materials` (
+  `form_id` bigint(20) NOT NULL,
+  `pid` bigint(20) NOT NULL,
+  `content` longtext NOT NULL,
+  `include_text` tinyint(1) NOT NULL DEFAULT 0,
+  `handout_document_id` bigint(20) DEFAULT NULL,
+  `handout_document_ids` longtext DEFAULT NULL COMMENT 'JSON list; NULL keeps the legacy single selection, [] means none',
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`form_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- Installs that already have an early form_eye_mag_materials (created lazily before these
+-- columns existed) get them added individually.
+#IfMissingColumn form_eye_mag_materials include_text
+ALTER TABLE `form_eye_mag_materials` ADD `include_text` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+
+#IfMissingColumn form_eye_mag_materials handout_document_id
+ALTER TABLE `form_eye_mag_materials` ADD `handout_document_id` bigint(20) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_eye_mag_materials handout_document_ids
+ALTER TABLE `form_eye_mag_materials` ADD `handout_document_ids` longtext DEFAULT NULL COMMENT 'JSON list; NULL keeps the legacy single selection, [] means none';
+#EndIf
+
+-- Visual fields: record when confrontation testing could not be performed.
+#IfMissingColumn form_eye_vitals VF_UNABLE
+ALTER TABLE `form_eye_vitals` ADD `VF_UNABLE` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+
+-- Neuro: drawing, stereopsis and primary-position SPCT. STEREOPSIS (legacy) is untouched.
+#IfMissingColumn form_eye_neuro MOTILITY_RRSO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_RRSO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_RLSO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_RLSO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_RRIO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_RRIO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_RLIO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_RLIO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_LRSO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_LRSO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_LLSO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_LLSO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_LRIO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_LRIO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+#IfMissingColumn form_eye_neuro MOTILITY_LLIO_OVER
+ALTER TABLE `form_eye_neuro` ADD `MOTILITY_LLIO_OVER` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+
+#IfMissingColumn form_eye_neuro NEURO_DRAWING_JSON
+ALTER TABLE `form_eye_neuro` ADD `NEURO_DRAWING_JSON` longtext DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_eye_neuro STEREO_FLY
+ALTER TABLE `form_eye_neuro` ADD `STEREO_FLY` varchar(3) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_eye_neuro STEREO_ANIMALS
+ALTER TABLE `form_eye_neuro` ADD `STEREO_ANIMALS` varchar(5) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_eye_neuro STEREO_CIRCLES
+ALTER TABLE `form_eye_neuro` ADD `STEREO_CIRCLES` varchar(5) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_eye_neuro STEREO_FIXATION_PREF
+ALTER TABLE `form_eye_neuro` ADD `STEREO_FIXATION_PREF` varchar(3) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_eye_neuro SPCT_SCDIST
+ALTER TABLE `form_eye_neuro` ADD `SPCT_SCDIST` text;
+#EndIf
+
+#IfMissingColumn form_eye_neuro SPCT_CCDIST
+ALTER TABLE `form_eye_neuro` ADD `SPCT_CCDIST` text;
+#EndIf
+
+#IfMissingColumn form_eye_neuro SPCT_SCNEAR
+ALTER TABLE `form_eye_neuro` ADD `SPCT_SCNEAR` text;
+#EndIf
+
+#IfMissingColumn form_eye_neuro SPCT_CCNEAR
+ALTER TABLE `form_eye_neuro` ADD `SPCT_CCNEAR` text;
+#EndIf
+
+#IfMissingColumn form_eye_neuro CPT_92060_SELECTED
+ALTER TABLE `form_eye_neuro` ADD `CPT_92060_SELECTED` tinyint(1) DEFAULT NULL COMMENT 'NULL uses the automatic suggestion; 0 or 1 records the clinician choice';
+#EndIf
+
+#IfMissingColumn form_eye_neuro CPT_92060_REMOVED_IDS
+ALTER TABLE `form_eye_neuro` ADD `CPT_92060_REMOVED_IDS` text DEFAULT NULL COMMENT 'Unbilled charge rows disabled by this form selection';
+#EndIf
+
+-- Prism and pupillary distance (Spectacle Rx / refraction / biometrics).
+#IfMissingColumn form_eye_mag_wearing ODPRISM
+ALTER TABLE `form_eye_mag_wearing` ADD `ODPRISM` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn form_eye_mag_wearing OSPRISM
+ALTER TABLE `form_eye_mag_wearing` ADD `OSPRISM` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn form_eye_mag_dispense ODPRISM
+ALTER TABLE `form_eye_mag_dispense` ADD `ODPRISM` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn form_eye_mag_dispense OSPRISM
+ALTER TABLE `form_eye_mag_dispense` ADD `OSPRISM` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn form_eye_refraction CRODPRISM
+ALTER TABLE `form_eye_refraction` ADD `CRODPRISM` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn form_eye_refraction CROSPRISM
+ALTER TABLE `form_eye_refraction` ADD `CROSPRISM` varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn form_eye_biometrics BPDD
+ALTER TABLE `form_eye_biometrics` ADD `BPDD` varchar(20) NOT NULL DEFAULT '';
+#EndIf
+
+-- Dilation medication list. One guard per row so a partially seeded list is repaired
+-- without overwriting a practice's customized display names.
+#IfNotRow2D list_options list_id lists option_id Eye_Dilation_Meds
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity) VALUES ('lists', 'Eye_Dilation_Meds', 'Eye Dilation Medications', 0, 1, 0);
+#EndIf
+#IfNotRow2D list_options list_id Eye_Dilation_Meds option_id CYCLOMYDRIL
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'CYCLOMYDRIL', 'CycloMydril', 10, 'Cyclomydril', 1);
+#EndIf
+#IfNotRow2D list_options list_id Eye_Dilation_Meds option_id TROPICAMIDE
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'TROPICAMIDE', 'Tropic 1%', 20, 'Tropicamide 1%', 1);
+#EndIf
+#IfNotRow2D list_options list_id Eye_Dilation_Meds option_id NEO25
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'NEO25', 'Neo 2.5%', 30, 'Neosynephrine 2.5%', 1);
+#EndIf
+#IfNotRow2D list_options list_id Eye_Dilation_Meds option_id NEO10
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'NEO10', 'Neo 10%', 40, 'Neosynephrine 10%', 1);
+#EndIf
+#IfNotRow2D list_options list_id Eye_Dilation_Meds option_id CYCLOGYL
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'CYCLOGYL', 'Cyclo 1%', 50, 'Cyclopentolate 1%', 1);
+#EndIf
+#IfNotRow2D list_options list_id Eye_Dilation_Meds option_id ATROPINE
+INSERT INTO list_options (list_id, option_id, title, seq, notes, activity) VALUES ('Eye_Dilation_Meds', 'ATROPINE', 'Atropine 1%', 60, 'Atropine 1%', 1);
+#EndIf
+
+-- Practice display defaults; preserve existing customization.
+#IfNotRow2D list_options list_id lists option_id Eye_IOP_Methods
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('lists', 'Eye_IOP_Methods', 'Eye IOP Measurement Types', 0, '', 1, 0);
+#EndIf
+#IfNotRow2D list_options list_id Eye_IOP_Methods option_id AP
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_IOP_Methods', 'AP', 'AP', 10, 'Applanation', 0, 1);
+#EndIf
+#IfNotRow2D list_options list_id Eye_IOP_Methods option_id TPN
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_IOP_Methods', 'TPN', 'TP', 20, 'Tonopen or other handheld tonometer', 0, 1);
+#EndIf
+#IfNotRow2D list_options list_id Eye_IOP_Methods option_id FT
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_IOP_Methods', 'FT', 'FT', 30, 'Finger tension', 0, 1);
+#EndIf
+#IfNotRow2D list_options list_id Eye_IOP_Methods option_id POST
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_IOP_Methods', 'POST', 'Dil', 40, 'Dilated IOP', 0, 1);
+#EndIf
+#IfNotRow2D list_options list_id lists option_id Eye_Motility_Display
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('lists', 'Eye_Motility_Display', 'Eye Motility Display', 0, '', 1, 0);
+#EndIf
+#IfNotRow2D list_options list_id Eye_Motility_Display option_id X
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_Motility_Display', 'X', 'X', 10, 'Eight-position spoke chart', 1, 1);
+#EndIf
+#IfNotRow2D list_options list_id Eye_Motility_Display option_id H
+INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_Motility_Display', 'H', 'H', 20, 'Six cardinal positions', 0, 1);
 #EndIf
