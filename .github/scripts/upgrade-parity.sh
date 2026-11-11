@@ -170,6 +170,12 @@ rows() {
                          JOIN information_schema.tables u ON u.table_schema = 'parity_upgraded' AND u.table_name = f.table_name
                         WHERE f.table_schema = 'parity_fresh' ORDER BY 1")
     while read -r table; do
+        # database.sql does not seed globals. The installer and the upgrade
+        # screen write those rows from library/globals.inc.php, and an upgrade
+        # may insert a flag off while a new install keeps the default on.
+        if [[ "${table}" == "globals" ]]; then
+            continue
+        fi
         cols=$(q -e "SET SESSION group_concat_max_len = 1000000;
                      SELECT GROUP_CONCAT(CONCAT('\`', f.column_name, '\`') ORDER BY f.ordinal_position)
                        FROM information_schema.columns f
