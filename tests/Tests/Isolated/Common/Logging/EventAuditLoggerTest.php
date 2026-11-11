@@ -799,6 +799,29 @@ class EventAuditLoggerTest extends TestCase
     }
 
     /**
+     * A column named in the select list is not a joined table.
+     */
+    public function testASelectListNameIsNotAJoinedTable(): void
+    {
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->never())->method('record');
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent(
+            'SELECT id, patient_data.fname FROM users WHERE username = ?',
+            true,
+        );
+        $logger->flushPendingQuerySummary();
+    }
+
+    /**
      * A users row joined only to another security table stays security administration.
      */
     public function testAUsersReadJoinedToSecurityStaysSecurity(): void
