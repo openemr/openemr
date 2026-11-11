@@ -129,4 +129,23 @@ class QueryUtilsRetryTest extends TestCase
             'A non-DB Throwable thrown by the transaction body must propagate, not be retried',
         );
     }
+
+    /**
+     * A RuntimeException with code 1213 is NOT a database retry signal —
+     * code-1213 only triggers retry when the exception type is
+     * SqlQueryException. This keeps the retry policy scoped to failures
+     * that actually originated in the DB layer. If a caller's transaction
+     * body threw its own RuntimeException with an arbitrary numeric code
+     * matching a SQLSTATE code, retry would be unsafe (we don't know what
+     * state the callable left behind — the intent of catching THAT error
+     * is caller-specific, not retry).
+     */
+    public function testRuntimeExceptionWithDeadlockCodeIsNotRetryable(): void
+    {
+        $e = new \RuntimeException('coincidentally code 1213', 1213);
+        $this->assertFalse(
+            QueryUtils::isRetryableWriteConflict($e),
+            'retry is scoped to SqlQueryException; a stray RuntimeException with code=1213 is not a DB retry signal',
+        );
+    }
 }

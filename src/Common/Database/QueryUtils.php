@@ -436,9 +436,25 @@ class QueryUtils
         self::getADODB()->BeginTrans();
     }
 
+    /**
+     * Commits the current transaction. Surfaces COMMIT failure as a
+     * SqlQueryException carrying the driver's error code — necessary for
+     * Galera, where write-conflict certification can reject the commit
+     * even after every statement in the transaction succeeded locally.
+     * Prior behavior discarded CommitTrans()'s return value, which would
+     * silently report success on a cert-rejected commit.
+     */
     public static function commitTransaction(): void
     {
-        self::getADODB()->CommitTrans();
+        if (self::getADODB()->CommitTrans() === false) {
+            $error = self::getLastError();
+            throw new SqlQueryException(
+                sqlStatement: 'COMMIT',
+                message: "COMMIT failed. Error: " . $error,
+                code: self::getLastErrorCode(),
+                sqlError: $error,
+            );
+        }
     }
 
     public static function rollbackTransaction(): void
@@ -493,6 +509,21 @@ class QueryUtils
      * resolve in 1-2 attempts; anything requiring more is a hot-spot
      * contention problem the application needs to redesign around).
      *
+     * Replay-safety contract for callers: the $action callback MAY be
+     * invoked more than once when the transaction is retried. Before
+     * each invocation the DB transaction is rolled back and a fresh
+     * one started, so DB state the callback reads is consistent with
+     * a new attempt. But SIDE EFFECTS OUTSIDE THE TRANSACTION do not
+     * roll back automatically: callers that mutate PHP globals, write
+     * to `$_SESSION`, enqueue external work (email, HTTP calls), or
+     * capture `lastInsertId()` into caller-scope variables must
+     * design those side effects to be idempotent OR opt out of retry
+     * by passing `maxRetries: 0`. This is the same hazard as every
+     * classic deadlock-retry loop — on single-primary MariaDB today
+     * a deadlock also rolls back the DB but any non-DB side effects
+     * stick; this wrapper doesn't change the contract, just makes
+     * the retry explicit.
+     *
      * @phpstan-template T
      * @param callable(): T $action
      * @param int $maxRetries Max retry attempts on transient write-conflict (0 = no retry, legacy behavior)
@@ -531,10 +562,18 @@ class QueryUtils
 
     /**
      * Whether a transaction failure is a transient write-conflict worth
-     * retrying. Checks the exception's code AND a message-substring heuristic
-     * so we catch both the common standard-deadlock path (code 1213 with any
-     * message) and the Galera-specific certification-failure path (code 1180
-     * with a WSREP-mentioning message).
+     * retrying. Scoped to SqlQueryException: a stray RuntimeException from
+     * inside the callable that happens to carry a numeric code equal to
+     * 1213 or 1180 is not a database retry signal and must propagate. The
+     * caller must have produced the exception via one of QueryUtils's
+     * SQL execution paths (or constructed a SqlQueryException directly)
+     * for retry to be considered.
+     *
+     * Within SqlQueryException, checks the exception's code AND a
+     * message-substring heuristic so we catch both the common
+     * standard-deadlock path (code 1213 with any message) and the
+     * Galera-specific certification-failure path (code 1180 with a
+     * WSREP-mentioning message).
      *
      * Non-retryable by design: 1205 ER_LOCK_WAIT_TIMEOUT (the holder isn't
      * going to release just because we retry), constraint violations,
@@ -548,6 +587,9 @@ class QueryUtils
      */
     public static function isRetryableWriteConflict(Throwable $e): bool
     {
+        if (!($e instanceof SqlQueryException)) {
+            return false;
+        }
         $code = $e->getCode();
         if ($code === self::RETRYABLE_SQLSTATE_DEADLOCK) {
             return true;
