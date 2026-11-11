@@ -41,6 +41,7 @@ use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\UserService;
+use OpenEMR\Services\UserTaxonomyService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\TwigFunction;
@@ -111,6 +112,21 @@ class C_EncounterVisitForm
         return null;
     }
 
+
+// Providers with more than one taxonomy code: provider id => [code, name] pairs, primary first
+    public function getProviderTaxonomiesForTemplate(): array
+    {
+        $service = new UserTaxonomyService();
+        $names = $service->getNames();
+        $choices = [];
+        foreach ($service->getChoicesByUser() as $userId => $codes) {
+            $choices[$userId] = array_map(
+                static fn(string $code): array => ['code' => $code, 'name' => $names[$code] ?? ''],
+                $codes
+            );
+        }
+        return $choices;
+    }
 
 // Get providers list
     public function getProvidersForTemplate(UserService $userService, $encounter): array
@@ -696,6 +712,8 @@ class C_EncounterVisitForm
             'pageTitle' => xl('Patient Encounter'),
             'facilities' => $facilities,
             'providers' => $this->getProvidersForTemplate(new UserService(), $encounter),
+            'providerTaxonomies' => $this->getProviderTaxonomiesForTemplate(),
+            'encounterTaxonomy' => $encounter['provider_taxonomy'] ?? '',
             'visitCategories' => $this->getVisitCategoriesForTemplate($viewmode, $encounter, OEGlobalsBag::getInstance()->getString('default_visit_category')),
             'sensitivities' => $this->getSensitivitiesForTemplate($encounter),
             'issuesEnabled' => $issuesEnabled,

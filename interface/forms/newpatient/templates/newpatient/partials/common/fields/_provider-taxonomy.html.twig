@@ -1,0 +1,34 @@
+{# Taxonomy the visit was done under, shown only when a provider has more than one #}
+{% if providerTaxonomies %}
+<div class="col-sm" id="provider_taxonomy_group" style="display:none">
+    <div class="form-group">
+        <label for="provider_taxonomy" class="text-right">{{ "Taxonomy"|xlt }}:</label>
+        <select name="provider_taxonomy" id="provider_taxonomy" class="form-control"
+                data-choices="{{ providerTaxonomies|json_encode|attr }}" data-selected="{{ encounterTaxonomy|attr }}"></select>
+    </div>
+</div>
+<script>
+    (function () {
+        const provider = document.getElementById('provider_id');
+        const select = document.getElementById('provider_taxonomy');
+        const group = document.getElementById('provider_taxonomy_group');
+        const choices = JSON.parse(select.dataset.choices);
+        let selected = select.dataset.selected;
+        function fill() {
+            const list = choices[provider.value] || [];
+            const keep = select.value || selected;
+            select.innerHTML = '';
+            list.forEach(function (item, index) {
+                const option = document.createElement('option');
+                option.value = index === 0 ? '' : item.code;
+                option.textContent = item.name ? item.name + ' (' + item.code + ')' : item.code;
+                option.selected = index === 0 ? !keep : item.code === keep;
+                select.appendChild(option);
+            });
+            group.style.display = list.length > 1 ? '' : 'none';
+        }
+        provider.addEventListener('change', function () { selected = ''; select.value = ''; fill(); });
+        fill();
+    })();
+</script>
+{% endif %}

@@ -121,6 +121,77 @@ final class UserTaxonomyService
     }
 
     /**
+     * The code to keep from a chosen one: the chosen code when it is one of the allowed codes, otherwise null
+     * (the provider's primary taxonomy applies).
+     *
+     * @param list<string> $allowed the provider's codes, primary first
+     */
+    public static function pickAllowed(array $allowed, ?string $chosen): ?string
+    {
+        $code = self::normalize((string) $chosen);
+        if ($code === null || $code === ($allowed[0] ?? null)) {
+            return null;
+        }
+        return in_array($code, $allowed, true) ? $code : null;
+    }
+
+    /**
+     * All of a user's taxonomy codes, the primary (users.taxonomy) first.
+     *
+     * @return list<string>
+     */
+    public function getAllowed(int $userId): array
+    {
+        $primary = QueryUtils::fetchSingleValue('SELECT `taxonomy` FROM `users` WHERE `id` = ?', 'taxonomy', [$userId]);
+        $codes = is_string($primary) && trim($primary) !== '' ? [strtoupper(trim($primary))] : [];
+        foreach ($this->getExtras($userId) as $extra) {
+            if (!in_array($extra, $codes, true)) {
+                $codes[] = $extra;
+            }
+        }
+        return $codes;
+    }
+
+    /**
+     * The code an encounter was done under, when it is a valid choice for that provider; null otherwise.
+     */
+    public function resolveChoice(int $userId, ?string $chosen): ?string
+    {
+        if ($chosen === null || trim($chosen) === '') {
+            return null;
+        }
+        return self::pickAllowed($this->getAllowed($userId), $chosen);
+    }
+
+    /**
+     * Providers with more than one taxonomy code, for the encounter form: user id => codes, primary first.
+     *
+     * @return array<int, list<string>>
+     */
+    public function getChoicesByUser(): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            'SELECT u.`id`, u.`taxonomy` AS `primary_code`, t.`taxonomy` AS `extra_code` FROM `users_taxonomy` t'
+            . ' JOIN `users` u ON u.`id` = t.`user_id` WHERE u.`active` = 1 ORDER BY t.`user_id`, t.`seq`, t.`id`'
+        );
+        $byUser = [];
+        foreach ($rows as $row) {
+            $id = filter_var($row['id'], FILTER_VALIDATE_INT);
+            if ($id === false || !is_string($row['extra_code'])) {
+                continue;
+            }
+            if (!isset($byUser[$id])) {
+                $primary = is_string($row['primary_code']) ? strtoupper(trim($row['primary_code'])) : '';
+                $byUser[$id] = $primary !== '' ? [$primary] : [];
+            }
+            if (!in_array($row['extra_code'], $byUser[$id], true)) {
+                $byUser[$id][] = $row['extra_code'];
+            }
+        }
+        return array_filter($byUser, static fn(array $codes): bool => count($codes) > 1);
+    }
+
+    /**
      * Taxonomy names by code for the picker, or an empty array when the list is not installed.
      *
      * @return array<string, string>
