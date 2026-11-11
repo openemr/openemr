@@ -64,6 +64,16 @@ class PhpstanBaselineDiffIsolatedTest extends TestCase
         self::assertStringNotContainsString('injected', $output, 'a PR-chosen file name must not reach the PR comment');
     }
 
+    public function testGeneratorFallbackIdentifierIsCounted(): void
+    {
+        $this->writeBaseline('base', 'missing-identifier', [1]);
+        $this->writeBaseline('head', 'missing-identifier', [4]);
+
+        $output = $this->runDiff();
+
+        self::assertStringContainsString('| `missing-identifier` | 1 | 4 | +3 |', $output, 'the generator writes identifier-less errors to missing-identifier.php');
+    }
+
     /**
      * Writes a baseline file the way `composer phpstan-baseline` does, so the
      * script is tested against the generator's real output format.
