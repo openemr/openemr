@@ -7,15 +7,10 @@
  *  Forms: new and updates
  *  User preferences for displaying the form as the user desires.
  *    Each time a form is used, layout choices auto-change preferences.
- *  Retrieves old records so the user can flip through old values within this form,
- *    ideally with the intent that the old data can be carried forward.
- *    Yeah, gotta write that carry forward stuff yet.  Next week it'll be done?
- *  HTML5 Canvas images the user draws.
- *    For now we have one image per section
- *    I envision a user definable image they can upload to draw on and name such as
- *    A face image to draw injectable location/dosage for fillers or botulinum toxins.
- *    Ideally this concept when it comes to fruition will serve as a basis for any specialty image form
- *    to be used.  Upload image, drop widget and save it...
+ *  Retrieves old records so the user can flip through old values within this form.
+ *  Old data can be carried forward.
+ *  Canvas images the user draws.
+ *   Upload canvii backgrounds and overlays
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
