@@ -147,6 +147,23 @@ class SiteReceivedFileStoreTest extends TestCase
         $this->assertSame('another remittance', file_get_contents($this->site . '/documents/edi/history/f835/20260101_42_60054.835'));
     }
 
+    public function testRemittanceIsLeftToRetryWhenTheEdiHistoryCopyCannotBeRead(): void
+    {
+        mkdir($this->site . '/documents/edi/history/f835', 0700, true);
+        $historyCopy = $this->site . '/documents/edi/history/f835/20260101_42_60054.835';
+        file_put_contents($historyCopy, $this->era());
+        chmod($historyCopy, 0000);
+        if (is_readable($historyCopy)) {
+            $this->markTestSkipped('Running as a user that can read a mode 0000 file.');
+        }
+        $store = new SiteReceivedFileStore($this->site);
+
+        $outcome = $store->store(X12FileType::Remittance835, $this->localFile($this->era()), 'day1.RMT');
+
+        $this->assertSame(ReceivedStatus::Failed, $outcome->status);
+        $this->assertFileDoesNotExist($this->site . '/documents/era/20260101_42_60054.edi');
+    }
+
     public function testEraNameFallsBackToTheSenderWhenThePayerIdIsAllZeros(): void
     {
         $path = $this->localFile($this->era('REF*2U*000~'));

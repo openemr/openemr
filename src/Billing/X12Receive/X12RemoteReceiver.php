@@ -19,13 +19,21 @@ use Psr\Log\LoggerInterface;
 
 /**
  * For each partner and each folder it has set: list the folder, skip what an
- * earlier run settled, download the rest one at a time, and store a file only
+ * earlier run settled, download the rest one at a time (never more than the size
+ * limit, nor more than the listing said), and store a file only
  * when all of it arrived and it is the kind of X12 file the folder is for. A
  * stored file is moved to the partner's worked folder when it has one;
  * otherwise it stays on the remote and is skipped next run by its record.
  */
 final readonly class X12RemoteReceiver
 {
+    /**
+     * Largest file that is downloaded. X12 response files are a few megabytes at most;
+     * anything bigger in a receive folder is not one, and would only fill the temporary
+     * directory.
+     */
+    public const DEFAULT_MAX_FILE_BYTES = 52_428_800;
+
     public function __construct(
         private RemoteDirectoryOpener $opener,
         private ReceivedFileLog $log,
@@ -33,6 +41,7 @@ final readonly class X12RemoteReceiver
         private ClockInterface $clock,
         private LoggerInterface $logger,
         private string $tempDirectory,
+        private int $maxFileBytes = self::DEFAULT_MAX_FILE_BYTES,
     ) {
     }
 
@@ -99,12 +108,19 @@ final readonly class X12RemoteReceiver
         if ($file->name === '' || str_contains($file->name, '/') || str_starts_with($file->name, '.')) {
             return new StoreOutcome(ReceivedStatus::Rejected, message: 'The remote file name cannot be used');
         }
+        if ($file->size > $this->maxFileBytes) {
+            return new StoreOutcome(
+                ReceivedStatus::Rejected,
+                message: 'Larger than the ' . $this->maxFileBytes . ' byte limit for a received file',
+            );
+        }
         $temp = tempnam($this->tempDirectory, 'x12r');
         if ($temp === false) {
             return new StoreOutcome(ReceivedStatus::Failed, message: 'No temporary file could be created');
         }
         try {
-            $downloaded = $remote->download($folder . '/' . $file->name, $temp);
+            // One byte more than the listing said, so a file that grew shows as a size mismatch.
+            $downloaded = $remote->download($folder . '/' . $file->name, $temp, $file->size + 1);
             clearstatcache(true, $temp);
             if (!$downloaded || filesize($temp) !== $file->size) {
                 return new StoreOutcome(ReceivedStatus::Failed, message: 'The download did not complete');

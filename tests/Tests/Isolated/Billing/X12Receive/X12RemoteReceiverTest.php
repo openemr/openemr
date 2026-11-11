@@ -49,19 +49,24 @@ class X12RemoteReceiverTest extends TestCase
     /**
      * @param array<string, array<string, string>> $remoteFiles content by folder and name
      * @param list<string> $truncated names whose download comes back short
-     * @return array{X12RemoteReceiver, object{files: array<string, array<string, string>>, moves: list<array{string, string}>}, object{rows: array<string, StoreOutcome>}, object{stored: list<array{X12FileType, string, string}>}}
+     * @param list<string> $grown names that are longer on download than in the listing
+     * @return array{X12RemoteReceiver, object{files: array<string, array<string, string>>, moves: list<array{string, string}>, downloads: list<string>}, object{rows: array<string, StoreOutcome>}, object{stored: list<array{X12FileType, string, string}>}}
      */
-    private function receiver(array $remoteFiles, array $truncated = [], bool $reachable = true): array
+    private function receiver(array $remoteFiles, array $truncated = [], bool $reachable = true, array $grown = [], int $maxFileBytes = X12RemoteReceiver::DEFAULT_MAX_FILE_BYTES): array
     {
-        $remote = new class ($remoteFiles, $truncated) implements RemoteDirectory {
+        $remote = new class ($remoteFiles, $truncated, $grown) implements RemoteDirectory {
             /** @var list<array{string, string}> */
             public array $moves = [];
+
+            /** @var list<string> */
+            public array $downloads = [];
 
             /**
              * @param array<string, array<string, string>> $files
              * @param list<string> $truncated
+             * @param list<string> $grown names that are longer on download than in the listing
              */
-            public function __construct(public array $files, private readonly array $truncated)
+            public function __construct(public array $files, private readonly array $truncated, private readonly array $grown)
             {
             }
 
@@ -77,12 +82,17 @@ class X12RemoteReceiverTest extends TestCase
                 return $list;
             }
 
-            public function download(string $remotePath, string $localPath): bool
+            public function download(string $remotePath, string $localPath, int $maxBytes): bool
             {
+                $this->downloads[] = basename($remotePath);
                 $content = $this->files[dirname($remotePath)][basename($remotePath)] ?? null;
                 if ($content === null) {
                     return false;
                 }
+                if (in_array(basename($remotePath), $this->grown, true)) {
+                    $content .= str_repeat('X', 500);
+                }
+                $content = substr($content, 0, $maxBytes);
                 if (in_array(basename($remotePath), $this->truncated, true)) {
                     $content = substr($content, 0, 10);
                 }
@@ -142,7 +152,7 @@ class X12RemoteReceiverTest extends TestCase
                 return new \DateTimeImmutable('2026-11-10 12:00:00');
             }
         };
-        return [new X12RemoteReceiver($opener, $log, $store, $clock, new NullLogger(), sys_get_temp_dir()), $remote, $log, $store];
+        return [new X12RemoteReceiver($opener, $log, $store, $clock, new NullLogger(), sys_get_temp_dir(), $maxFileBytes), $remote, $log, $store];
     }
 
     public function testFilesOfTheRightKindAreStoredAndLeftOnTheRemote(): void
@@ -209,6 +219,29 @@ class X12RemoteReceiverTest extends TestCase
         $this->assertSame(2, $summary->stored);
         $this->assertSame(1, $summary->moved);
         $this->assertSame([['/remits/a.RMT', '/WorkedTrans/a.RMT'], ['/remits/stuck.RMT', '/WorkedTrans/stuck.RMT']], $remote->moves);
+    }
+
+    public function testFileOverTheSizeLimitIsRejectedWithoutADownload(): void
+    {
+        [$receiver, $remote, $log, $store] = $this->receiver(['/277' => ['big.277' => self::x12('HN')]], maxFileBytes: 50);
+
+        $summary = $receiver->receive([$this->partner(['f277' => '/277'])]);
+
+        $this->assertSame(1, $summary->rejected);
+        $this->assertSame([], $remote->downloads);
+        $this->assertSame([], $store->stored);
+        $this->assertSame(['Larger than the 50 byte limit for a received file'], array_values(array_map(static fn(StoreOutcome $o): string => $o->message, $log->rows)));
+    }
+
+    public function testFileThatGrewSinceTheListingIsCutOffAndFails(): void
+    {
+        [$receiver, $remote, , $store] = $this->receiver(['/277' => ['b.277' => self::x12('HN')]], grown: ['b.277']);
+
+        $summary = $receiver->receive([$this->partner(['f277' => '/277'])]);
+
+        $this->assertSame(1, $summary->failed);
+        $this->assertSame(['b.277'], $remote->downloads);
+        $this->assertSame([], $store->stored);
     }
 
     public function testUnusableRemoteNameIsRejectedWithoutADownload(): void

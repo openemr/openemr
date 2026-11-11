@@ -57,10 +57,14 @@ final readonly class SiteReceivedFileStore implements ReceivedFileStore
         if ($historyCopy->status === ReceivedStatus::Failed) {
             return $historyCopy;
         }
-        if (
-            $historyCopy->status === ReceivedStatus::Duplicate
-            && !self::sameContent($localPath, $history . '/' . $name . '.835')
-        ) {
+        $sameAsHistory = $historyCopy->status === ReceivedStatus::Duplicate
+            ? self::sameContent($localPath, $history . '/' . $name . '.835')
+            : true;
+        if ($sameAsHistory === null) {
+            // Not knowing is not a mismatch: leave the file to be tried again.
+            return new StoreOutcome(ReceivedStatus::Failed, message: 'The EDI History copy could not be read to compare it');
+        }
+        if (!$sameAsHistory) {
             // Another remittance already holds this name in EDI History. Storing this one for
             // posting would leave the two copies of the name disagreeing.
             return new StoreOutcome(
@@ -107,11 +111,17 @@ final readonly class SiteReceivedFileStore implements ReceivedFileStore
         return substr($name, 0, 200);
     }
 
-    private static function sameContent(string $pathA, string $pathB): bool
+    /**
+     * @return ?bool null when either file could not be read
+     */
+    private static function sameContent(string $pathA, string $pathB): ?bool
     {
         $hashA = @hash_file('sha256', $pathA);
         $hashB = @hash_file('sha256', $pathB);
-        return $hashA !== false && $hashA === $hashB;
+        if ($hashA === false || $hashB === false) {
+            return null;
+        }
+        return $hashA === $hashB;
     }
 
     private function copyOnce(string $localPath, string $directory, string $name, int $mode): StoreOutcome

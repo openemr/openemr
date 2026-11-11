@@ -49,9 +49,9 @@ final readonly class SftpRemoteDirectory implements RemoteDirectory
         return $files;
     }
 
-    public function download(string $remotePath, string $localPath): bool
+    public function download(string $remotePath, string $localPath, int $maxBytes): bool
     {
-        return $this->sftp->get($remotePath, $localPath) === true;
+        return $this->sftp->get($remotePath, $localPath, 0, $maxBytes) === true;
     }
 
     public function move(string $fromPath, string $toPath): bool

@@ -22,9 +22,12 @@ interface RemoteDirectory
     public function listFiles(string $directory): ?array;
 
     /**
-     * @return bool false when the file could not be read in full
+     * Reads at most $maxBytes of the remote file into $localPath, so a file that is
+     * larger than its listing said cannot fill the local disk.
+     *
+     * @return bool false when the file could not be read
      */
-    public function download(string $remotePath, string $localPath): bool;
+    public function download(string $remotePath, string $localPath, int $maxBytes): bool;
 
     public function move(string $fromPath, string $toPath): bool;
 }
