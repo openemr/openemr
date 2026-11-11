@@ -60,7 +60,11 @@ function count_occurrences(string $file): int
     if (!is_file($file)) {
         return 0;
     }
-    preg_match_all("/^    'count' => (\d+),$/m", (string) file_get_contents($file), $matches);
+    $contents = file_get_contents($file);
+    if ($contents === false) {
+        throw new RuntimeException("Cannot read baseline file: {$file}");
+    }
+    preg_match_all("/^    'count' => (\d+),$/m", $contents, $matches);
     return array_sum(array_map(intval(...), $matches[1]));
 }
 
