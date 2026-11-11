@@ -416,7 +416,9 @@ class EncounterService extends BaseService
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
 
-        $data = $this->keepAllowedTaxonomy($data);
+        if (is_array($data) && array_key_exists('provider_taxonomy', $data)) {
+            $data['provider_taxonomy'] = $this->resolveEncounterTaxonomy($data['provider_id'] ?? null, $data['provider_taxonomy']);
+        }
         $data = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $data);
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO form_encounter SET ";
@@ -457,26 +459,13 @@ class EncounterService extends BaseService
     }
 
     /**
-     * Updates an existing Encounter record.
-     *
-     * @param $puuid The patient identifier of particular encounter.
-     * @param $euuid - The Encounter identifier used for update.
-     * @param $data  - The updated Encounter data fields
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     *               payload.
-     */
-    /**
-     * A taxonomy code is kept only when it is one of the encounter provider's codes; otherwise it is cleared,
-     * which means the provider's primary taxonomy applies.
-     *
+     * The taxonomy code to store for an encounter: the chosen code when it is one of the encounter provider's
+     * codes, otherwise an empty string, which means the provider's primary taxonomy applies. The empty string
+     * (not null) is deliberate: the update builder skips null values, so null could not clear an earlier choice.
      * When the data does not name a provider (an update), the encounter's current provider is used.
      */
-    private function keepAllowedTaxonomy(mixed $data, mixed $encounter = null, mixed $pid = null): mixed
+    private function resolveEncounterTaxonomy(mixed $providerId, mixed $chosen, mixed $encounter = null, mixed $pid = null): string
     {
-        if (!is_array($data) || !array_key_exists('provider_taxonomy', $data)) {
-            return $data;
-        }
-        $providerId = $data['provider_id'] ?? null;
         if ($providerId === null && $encounter !== null) {
             $providerId = QueryUtils::fetchSingleValue(
                 'SELECT `provider_id` FROM `form_encounter` WHERE `encounter` = ? AND `pid` = ?',
@@ -485,14 +474,21 @@ class EncounterService extends BaseService
             );
         }
         $userId = filter_var($providerId, FILTER_VALIDATE_INT);
-        // An empty string, not null: the update builder skips null values, so null could not clear an earlier choice.
-        $data['provider_taxonomy'] = $userId === false ? '' : ((new UserTaxonomyService())->resolveChoice(
-            $userId,
-            is_string($data['provider_taxonomy']) ? $data['provider_taxonomy'] : null
-        ) ?? '');
-        return $data;
+        if ($userId === false || !is_string($chosen)) {
+            return '';
+        }
+        return (new UserTaxonomyService())->resolveChoice($userId, $chosen) ?? '';
     }
 
+    /**
+     * Updates an existing Encounter record.
+     *
+     * @param $puuid The patient identifier of particular encounter.
+     * @param $euuid - The Encounter identifier used for update.
+     * @param $data  - The updated Encounter data fields
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     *               payload.
+     */
     public function updateEncounter($puuid, $euuid, $data)
     {
         $processingResult = new ProcessingResult();
@@ -524,7 +520,9 @@ class EncounterService extends BaseService
         }
 
         $data['facility'] = $facility;
-        $data = $this->keepAllowedTaxonomy($data, $encounter, $pid);
+        if (is_array($data) && array_key_exists('provider_taxonomy', $data)) {
+            $data['provider_taxonomy'] = $this->resolveEncounterTaxonomy($data['provider_id'] ?? null, $data['provider_taxonomy'], $encounter, $pid);
+        }
         $data = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $data);
 
         $query = $this->buildUpdateColumns($data);
