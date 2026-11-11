@@ -125,7 +125,9 @@ maintainer reports `landed <PR#>`. Update the brief + log entry with the merge S
 | Deep-review one merge-ready PR | [per-pr-review.md](per-pr-review.md) |
 | Review a batch of 3+ independent PRs via parallel subagents | [per-pr-review.md §13](per-pr-review.md#13-parallel-subagents-for-batch-reviews) |
 | Verify two PRs touching the same files really merge cleanly (overlapping-touch) | [per-pr-review.md §6.6](per-pr-review.md#66-probe-an-unknown-mergeable-state) |
+| Just merged a PR — re-probe surviving ✅ queue for landing-cascade base-advance effects | [per-pr-review.md §12](per-pr-review.md#12-handoff-to-phase-3) |
 | Write a review brief, log entry, or follow-up register entry | [deliverables.md](deliverables.md) |
+| Post-verdict state shift (head moved, maintainer inline comment, base advance, new rabbit finding) — maintain the brief | [deliverables.md §3.12](deliverables.md#312-state-delta-header-brief-maintenance-across-post-verdict-shifts) |
 | Decide whether an action (public comment, branch push, direct code change) is allowed | [standing-rules.md](standing-rules.md) |
 | Interpret a confusing CodeRabbit interaction (incremental review, "already reviewed," paused reviews, typo'd mention) | [standing-rules.md](standing-rules.md#2-coderabbit-mechanics) |
 | Resolve a stale hold after 24h | [standing-rules.md](standing-rules.md#3-staleness-and-recheck-cadence) |
@@ -142,6 +144,20 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   cancellation is a title-lint-superseded-by-next-commit case; note it explicitly.
   `codecov/patch` and `codecov/project` are advisory status checks — they don't fail the
   "All Checks Passed" aggregator, so a solo codecov FAILURE with green aggregator is OK.
+  The `All Checks Passed` aggregator itself occasionally shows FAILURE when every other
+  underlying lane is SUCCESS or SKIPPED (a dependent check didn't register SUCCESS but
+  no real lane failed). The PR's *health signal* is still green — underlying lanes are
+  primary — but the aggregator is a required merge check, so merge needs it cleared.
+  Three resolution paths, in preferred order: the healer workflow
+  (`.github/workflows/rerun-stale-all-checks.yml`) reruns the aggregator
+  automatically after a heavy-workflow rerun, and may leave it red for any
+  mechanical reason (cap reached, out-of-scope trigger, in-progress sibling,
+  etc. — specifics live in the workflow file); a **maintainer manually reruns**
+  the aggregator job via the GitHub UI's "Re-run jobs" button when the healer
+  leaves it red; an **admin uses merge override** when the aggregator is
+  genuinely stuck despite clean underlying lanes. The shepherd *observes* and
+  names the expected path in the brief — the shepherd doesn't trigger any of
+  these itself.
 - **No unresolved rabbit Actionable.** Every CodeRabbit "Actionable" finding needs its
   own finding-specific evidence of resolution: addressed in a subsequent commit
   (confirmed by rabbit's auto-ack **or** by the shepherd's diff inspection against the

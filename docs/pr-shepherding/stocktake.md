@@ -86,7 +86,7 @@ Collect the following signals per PR:
 | `isDraft` | `view.isDraft` | Draft vs non-draft |
 | `reviewDecision` | `view.reviewDecision` | `CHANGES_REQUESTED` → held |
 | `mergeable` | `view.mergeable` | `CONFLICTING` → held |
-| CI rollup | `statusCheckRollup` | Any `FAILURE` outside `codecov/*` → held (`codecov/patch` and `codecov/project` are advisory; don't fail the aggregator) |
+| CI rollup | `statusCheckRollup` | Any `FAILURE` outside `codecov/*` and the `All Checks Passed` aggregator → held, unless the FAILURE matches the flake exception (single scope-unrelated or known-flaky lane; see per-pr-review §8). `codecov/*` are advisory; the `All Checks Passed` aggregator fails occasionally when every *other* underlying lane is SUCCESS or SKIPPED — underlying lanes are the primary health signal, aggregator is a required merge check cleared by healer / manual rerun / admin merge override (see per-pr-review §8) |
 | CANCELLED lanes | `statusCheckRollup` | Investigate; see §3 |
 | Author activity | `commits[-N:].authoredDate` | Dormant vs active |
 | Last update | `updatedAt` | Freshness, dormancy check |
@@ -96,7 +96,8 @@ Collect the following signals per PR:
 **CI rollup quick-classify:**
 
 - All `SUCCESS` or `SKIPPED` (+ at most 1 `CANCELLED` that's title-lint-superseded) → `OK`
-- Any `FAILURE` outside `codecov/*` → `FAIL` (codecov/patch and codecov/project are advisory and don't fail the aggregator — a solo codecov FAILURE with green aggregator is OK)
+- Any `FAILURE` outside `codecov/*` and `All Checks Passed` → `FAIL`, **except** when it matches the flake exception in the next bullet. Both are advisory *for the health classification*: `codecov/patch` + `codecov/project` don't fail the aggregator (a solo codecov FAILURE with green aggregator is OK); and a solo `All Checks Passed` aggregator FAILURE (or aggregator + codecov/* only) with every *other* underlying lane SUCCESS or SKIPPED is also OK for health — treat the same as codecov-only. The aggregator is still a required merge check; see per-pr-review §8 for resolution paths (healer / manual rerun / admin merge override).
+- A single `FAILURE` lane **scope-unrelated** to the PR's changed-file surface (test file not in the PR's changed files and not transitively reached) → classify as `FAIL?` pending. A known-flaky-on-master lane qualifies only when also scope-unrelated; a scope-related failure never qualifies as a flake candidate regardless of flakiness history. Place in ⏳ awaiting shepherd review with a "flake candidate, rerun pending" note (only when the other metadata gates pass — draft, `CHANGES_REQUESTED`, mergeable still rule); Phase 2 runs the rerun-based triage per per-pr-review §8. Rerun clears → mark the flake cleared, then reclassify the full CI rollup; treat as `OK` for the CI axis only when every lane satisfies the standard OK criteria. Advance to ✅ / 🔶 only if the full decision gate also passes, otherwise use the matching bucket. Rerun still red → promote to 🔴 held.
 - Many `CANCELLED` + no `FAILURE` → `CRED` (concurrency-redeemed; usually in-flight
   re-run — recheck in 5-10m)
 - Lanes `IN_PROGRESS` > 24 h on a non-dormant PR with aggregator NULL → `STALE` → 🔴
@@ -129,6 +130,17 @@ verdict.
 Every decision-gate metadata row passes (non-draft, CI green, no open maintainer
 `CHANGES_REQUESTED`, mergeable). No brief yet, OR the brief's recorded head/base-tip
 no longer matches (author pushed, or base branch advanced). Feeds Phase 2.
+
+`FAIL?` flake candidates (see §2) enter this bucket **only when the other
+metadata gates pass** (non-draft, no open maintainer `CHANGES_REQUESTED`,
+mergeable); a draft / `CHANGES_REQUESTED` / conflicting PR with a `FAIL?` lane
+stays in its existing bucket with the flake note recorded in that bucket's log
+entry. When routed to ⏳, flag as "flake candidate, rerun pending" so Phase 2
+can run the rerun triage — a cleared rerun marks the flake cleared, then
+reclassifies the full CI rollup; CI is `OK` only when every lane satisfies
+the standard OK criteria. Once the brief is written, advance to ✅ / 🔶 only
+if the full decision gate also passes, otherwise use the matching bucket.
+A still-red rerun promotes to 🔴 held.
 
 #### ✅ Merge-ready
 
