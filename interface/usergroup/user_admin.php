@@ -474,12 +474,14 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
 <?php
 $taxonomyService = new UserTaxonomyService();
 $taxonomyNames = $taxonomyService->getNames();
+$taxonomyUserId = filter_var($iter['id'] ?? null, FILTER_VALIDATE_INT);
+$extraTaxonomies = $taxonomyUserId === false ? [] : $taxonomyService->getExtras($taxonomyUserId);
 ?>
 <tr>
 <td><span class="text"><?php echo xlt('Additional Taxonomies'); ?>: </span></td>
 <td colspan="3">
     <div id="extra_taxonomies">
-        <?php foreach ($taxonomyService->getExtras((int) $iter['id']) as $extraTaxonomy) { ?>
+        <?php foreach ($extraTaxonomies as $extraTaxonomy) { ?>
         <div class="input-group mb-1 extra-taxonomy">
             <input type="text" name="taxonomy_extra[]" style="max-width:150px;" class="form-control" list="taxonomy_codes" maxlength="10" value="<?php echo attr($extraTaxonomy); ?>">
             <span class="input-group-text"><?php echo text($taxonomyNames[$extraTaxonomy] ?? ''); ?></span>
