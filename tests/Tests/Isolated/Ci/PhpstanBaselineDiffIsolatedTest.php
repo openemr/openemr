@@ -20,6 +20,7 @@ namespace OpenEMR\Tests\Isolated\Ci;
 
 use PHPUnit\Framework\TestCase;
 use ShipMonk\PHPStan\Baseline\Handler\PhpBaselineHandler;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
 class PhpstanBaselineDiffIsolatedTest extends TestCase
@@ -37,13 +38,7 @@ class PhpstanBaselineDiffIsolatedTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach (glob($this->root . '/*/*') ?: [] as $file) {
-            unlink($file);
-        }
-        foreach (glob($this->root . '/*') ?: [] as $entry) {
-            is_dir($entry) ? rmdir($entry) : unlink($entry);
-        }
-        rmdir($this->root);
+        (new Filesystem())->remove($this->root);
     }
 
     public function testHeadBaselineIsNotExecuted(): void
