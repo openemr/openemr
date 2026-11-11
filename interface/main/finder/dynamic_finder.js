@@ -29,6 +29,13 @@
     var columnOffset = detail.enabled ? 1 : 0;
     // How long typing in the heading's search box pauses before the list reloads.
     var SEARCH_DELAY_MS = 300;
+    // The column lists Customize opens in Administration > Lists.
+    var LIST_IDS = {patientList: 'ptlistcols', recent: 'recent_patient_columns'};
+    // The shared Admin tab the menu opens Lists in, and the tab Customize uses when
+    // that one shows another admin page.
+    var ADMIN_TAB = 'adm';
+    var LIST_EDITOR_TAB = 'lst';
+    var LIST_EDITOR_TABS = [ADMIN_TAB, LIST_EDITOR_TAB];
 
     function escapeAttr(text) {
         return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
@@ -66,7 +73,6 @@
             config.unshift({
                 "sName": 'finder_detail',
                 "className": 'finder-detail-control',
-                "width": '1.75rem',
                 "orderable": false,
                 "searchable": false,
                 "mRender": function (data, type) {
@@ -75,6 +81,18 @@
             });
         }
         return config;
+    }
+
+    // DataTables puts each column's width on the column-title cells only. While the
+    // search boxes take the titles' place that row is hidden, and the browser ignores a
+    // hidden row when sizing columns, so the search-box cells carry the widths too.
+    function copyWidthsToSearchRow(config) {
+        var cells = $('#advanced_search > td');
+        config.forEach(function (col, idx) {
+            if (col.width) {
+                cells.eq(idx).css('width', col.width);
+            }
+        });
     }
 
     function setExpanded(button, expanded) {
@@ -153,6 +171,39 @@
         });
     }
 
+    // Open Administration > Lists at the given list. A tab already showing the List
+    // editor is reused; so is the shared Admin tab when it isn't open. Otherwise the
+    // editor opens in a tab of its own, so another admin page isn't replaced.
+    function openListEditor(listId) {
+        var url = cfg.webroot + '/interface/super/edit_list.php?' + new URLSearchParams({list_id: listId});
+        var tabs = window.top;
+        if (typeof tabs.navigateTab !== 'function') {
+            window.open(url, '_blank');
+            return;
+        }
+        var name = LIST_EDITOR_TABS.find(function (tabName) {
+            return listEditorShownIn(tabs, tabName);
+        });
+        if (!name) {
+            name = tabs.document.querySelector("iframe[name='" + ADMIN_TAB + "']") ? LIST_EDITOR_TAB : ADMIN_TAB;
+        }
+        tabs.navigateTab(url, name, function () {
+            tabs.activateTabByName(name, true);
+        });
+    }
+
+    function listEditorShownIn(tabs, tabName) {
+        var frame = tabs.document.querySelector("iframe[name='" + tabName + "']");
+        if (!frame) {
+            return false;
+        }
+        try {
+            return frame.contentWindow.location.pathname.indexOf('/interface/super/edit_list.php') !== -1;
+        } catch {
+            return false; // not readable yet, or from elsewhere
+        }
+    }
+
     // Persist the "exact search" preference as a user setting.
     function persistCriteria(el, e) {
         if (e) {
@@ -175,6 +226,7 @@
         }
 
         var searchState = {searchMode: 'all'};
+        var columnConfig = dataTableColumns();
         var oTable = $('#pt_table').dataTable({
             "processing": true,
             // next 2 lines invoke server side processing
@@ -187,11 +239,11 @@
                 aoData.push({"name": "searchType", "value": searchType});
                 aoData.push({"name": "searchMode", "value": searchState.searchMode});
             },
-            // dom invokes ColReorderWithResize and adds a div under the table for the
-            // options form. The heading's own search box replaces DataTables' filter.
-            "dom": 'Rlrt<"finder-options">ip',
+            // dom invokes ColReorderWithResize. The heading's own search box replaces
+            // DataTables' filter, and the options sit under the table outside DataTables.
+            "dom": 'Rlrtip',
             // Column names come over as $_GET['sColumns']; the Name column renders as a link.
-            "columns": dataTableColumns(),
+            "columns": columnConfig,
             // Keep the expand-button column first when columns are dragged.
             "colReorder": {"fixedColumnsLeft": columnOffset},
             // Let CSS size the table to its container; DataTables' computed pixel width
@@ -205,13 +257,15 @@
             "language": cfg.language || {}
         });
 
+        copyWidthsToSearchRow(columnConfig);
+
         // The page-length menu goes into the heading bar, next to the tabs.
         $('#finder-length-slot').append($('#pt_table_length'));
         wireHeadingSearch(oTable, searchState);
 
-        // The options form is rendered (hidden) by the Twig template; move it
-        // under the table and wire the exact-search toggle.
-        $("div.finder-options").append($("#finder-topform form"));
+        $('#finder-customize').on('click', function () {
+            openListEditor(LIST_IDS.patientList);
+        });
         $("#setting_search_type").on('change', function (e) {
             persistCriteria(this, e);
         });

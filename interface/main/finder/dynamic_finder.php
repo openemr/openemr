@@ -135,6 +135,8 @@ $templateVars = [
     'pageHeading' => $oemr_ui->pageHeading(),
     'columns' => $columns,
     'detailEnabled' => $detailEnabled,
+    // Customize opens Administration > Lists, which needs admin/super.
+    'canCustomize' => AclMain::aclCheckCore('admin', 'super'),
     'newWindowChecked' => $newWindowChecked,
     'exactSearch' => $patient_finder_exact_search,
     'exactChecked' => $exactChecked,

@@ -203,32 +203,47 @@ div.dataTables_wrapper div.dataTables_processing {
    Row details
    ========================================================================== */
 
-/* The narrow first column holding each row's expand button. */
-#pt_table > tbody > tr > td.finder-detail-control {
-  width: 1.75rem;
-  padding: 0.1rem 0.2rem;
+/* The narrow first column holding each row's expand button. A 1% width keeps it at its
+   content's width, so the spare width of a full-width table goes to the other columns. */
+#pt_table {
+  --finder-control-width: 1.375rem;
+}
+
+#pt_table .finder-detail-control {
+  box-sizing: border-box;
+  width: 1%;
+  min-width: var(--finder-control-width);
+  padding: 0.1rem 0.25rem;
   text-align: center;
 }
 
-/* Blue square with a right arrow; red with a down arrow while the details are open. */
+/* Blue square with a right arrow; red with a down arrow while the details are open.
+   The arrow is centered in the square by flexbox, not by the font's line box. */
 #pt_table .finder-detail-toggle {
-  display: inline-block;
-  width: 1.1em;
-  height: 1.1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  top: -1px;
+  width: 0.9rem;
+  height: 0.9rem;
   padding: 0;
   border: 0;
   background-color: var(--primary);
   box-shadow: 0 0 0.3em var(--gray700);
   color: var(--white);
-  font-size: 0.8rem;
-  line-height: 1.1em;
+  font-size: 0.6rem;
+  line-height: 1;
   vertical-align: middle;
   cursor: pointer;
 }
 
-/* U+FE0E keeps the arrows as text, not emoji. */
+/* U+FE0E keeps the arrows as text, not emoji. The right arrow's glyph sits above
+   its box's center, so it is nudged down. */
 #pt_table .finder-detail-toggle::before {
   content: '\25B6\FE0E';
+  position: relative;
+  top: 1px;
 }
 
 #pt_table .finder-detail-toggle[aria-expanded='true'] {
@@ -237,10 +252,13 @@ div.dataTables_wrapper div.dataTables_processing {
 
 #pt_table .finder-detail-toggle[aria-expanded='true']::before {
   content: '\25BC\FE0E';
+  top: 0;
 }
 
-/* An expanded row: the Patient Finder Detail layout, set off by a blue line on its left. */
+/* An expanded row: the Patient Finder Detail layout, set off by a blue line on its left
+   that lines up with the first column after the expand buttons. */
 #pt_table > tbody > tr > td > .finder-detail {
+  margin-left: calc(var(--finder-control-width) - 0.75rem);
   padding: 0.5rem 1rem 0.5rem 2rem;
   border-left: 3px solid var(--primary);
   background-color: var(--white);
@@ -262,8 +280,17 @@ div.dataTables_wrapper div.dataTables_processing {
    Below the table: the options, the entry count and the pages
    ========================================================================== */
 
-#list .finder-options {
-  padding: 0.5rem 0.25rem 0;
+#finder-options {
+  padding: 0.5rem 0 1rem;
+}
+
+#finder-options .form-check-inline {
+  margin-right: 2rem;
+}
+
+/* Customize sits at the right end of the line. */
+#finder-customize {
+  margin-left: auto;
 }
 
 .dataTables_wrapper .dataTables_length,

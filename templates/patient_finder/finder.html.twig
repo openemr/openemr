@@ -21,7 +21,7 @@ bar, the patient list and recent patients tabs, and the options below the list.
                                     <thead>
                                         {# Shown in place of the column titles while the search row is on. #}
                                         <tr id="advanced_search" class="hideaway d-none">
-                                            {% if detailEnabled %}<td></td>{% endif %}
+                                            {% if detailEnabled %}<td class="finder-detail-control"></td>{% endif %}
                                             {% for column in columns %}
                                                 {% set searchLabel = column.link ? "Name"|xla : column.title|attr %}
                                                 <td><input type="text" size="20" value="" class="form-control search_init" placeholder="{{ searchLabel }}" aria-label="{{ "Search by"|xla }} {{ searchLabel }}"/></td>
@@ -82,6 +82,26 @@ bar, the patient list and recent patients tabs, and the options below the list.
                         {% endif %}
                     </div>
                 </div>
+                {# Options for both tabs, under the entry count and the pages. #}
+                <div id="finder-options" class="d-flex flex-wrap align-items-center">
+                    <form name="myform">
+                        <div class="form-check form-check-inline">
+                            <label for="form_new_window" class="form-check-label" id="form_new_window_label">
+                                <input type="checkbox" class="form-check-input" id="form_new_window" name="form_new_window" value="1"{{ newWindowChecked ? ' checked' : '' }} />
+                                {{ "Open in New Browser Tab"|xlt }}
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label for="setting_search_type" class="form-check-label" id="setting_search_type_label">
+                                <input type="checkbox" class="form-check-input" id="setting_search_type" name="setting_search_type" value="{{ exactSearch|attr }}"{{ exactChecked ? ' checked' : '' }} />
+                                {{ "Search with exact method"|xlt }}
+                            </label>
+                        </div>
+                    </form>
+                    {% if canCustomize %}
+                        <button type="button" id="finder-customize" class="btn btn-primary btn-sm" title="{{ "Choose the columns this list shows"|xla }}">{{ "Customize"|xlt }}</button>
+                    {% endif %}
+                </div>
             </div>
           </div>
         </div>
@@ -90,23 +110,6 @@ bar, the patient list and recent patients tabs, and the options below the list.
             {{ csrfToken('', 'csrf_token_form') }}
             <input type='hidden' name='patientID' value='0'/>
         </form>
-        <!-- Options below the list; dynamic_finder.js moves this form under the table. -->
-        <div id="finder-topform" class="d-none">
-            <form name="myform">
-                <div class="form-check form-check-inline">
-                    <label for="form_new_window" class="form-check-label" id="form_new_window_label">
-                        <input type="checkbox" class="form-check-input" id="form_new_window" name="form_new_window" value="1"{{ newWindowChecked ? ' checked' : '' }} />
-                        {{ "Open in New Browser Tab"|xlt }}
-                    </label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <label for="setting_search_type" class="form-check-label" id="setting_search_type_label">
-                        <input type="checkbox" class="form-check-input" id="setting_search_type" name="setting_search_type" value="{{ exactSearch|attr }}"{{ exactChecked ? ' checked' : '' }} />
-                        {{ "Search with exact method"|xlt }}
-                    </label>
-                </div>
-            </form>
-        </div>
     </div> <!--End of Container div-->
     {{ oeBelowContainerDiv }}
 
