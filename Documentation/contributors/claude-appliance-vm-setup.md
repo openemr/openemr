@@ -131,7 +131,6 @@ sudo apt update
 sudo apt install incus
 sudo incus admin init    # accept defaults, except choose btrfs or zfs if offered — snapshots are instant on CoW storage pools
 sudo usermod -aG incus-admin $USER
-# log out / log back in so the new group membership takes effect
 ```
 
 The `incus` package pulls `qemu-system-x86` and `virtiofsd` as dependencies — no need to install them explicitly.
@@ -143,8 +142,15 @@ Confirm `/dev/kvm` is present and usable (Incus VMs require it):
 ```bash
 ls -l /dev/kvm
 # crw-rw---- 1 root kvm ... /dev/kvm — if missing, the host doesn't have KVM enabled.
-groups | grep -qw kvm || sudo usermod -aG kvm $USER   # log out/in again if added
+groups | grep -qw kvm || sudo usermod -aG kvm $USER
 ```
+
+> **Activate the new group memberships in your current shell.** `usermod -aG` writes to `/etc/group` but the shell you're already in won't see it until you re-authenticate. Pick one:
+>
+> - `newgrp incus-admin && newgrp kvm` — swaps the current shell into each group (no logout). Both work for the rest of this guide; only drawback is that `newgrp` starts a subshell, so `exit` returns to the pre-group shell.
+> - **Log out / log back in** — picks up both groups cleanly for every future shell.
+>
+> Verify with either `groups` (after re-login or `newgrp`) or `getent group incus-admin kvm` (reads `/etc/group` directly — unaffected by shell cache).
 
 Now that `incusbr0` exists, return to Step 1 and apply the ufw rules with the real subnet.
 
