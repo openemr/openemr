@@ -139,6 +139,9 @@ class X12RemoteReceiverTest extends TestCase
                 StoreOutcome $outcome,
                 \DateTimeImmutable $at,
             ): void {
+                if (str_contains($file->name, 'dbfail')) {
+                    throw new \RuntimeException('the record could not be written');
+                }
                 $this->rows[ReceivedFileRepository::remoteKey($partnerId, $folder, $file)] = $outcome;
                 $this->types[$file->name] = $type;
             }
@@ -318,6 +321,23 @@ class X12RemoteReceiverTest extends TestCase
 
         $this->assertSame([2, 1, 1], [$summary->partners, $summary->partnersInterrupted, $summary->stored]);
         $this->assertCount(1, $store->stored);
+    }
+
+    public function testRecordThatCannotBeWrittenEndsThatPartnersTurnButNotTheRun(): void
+    {
+        [$receiver, , , $store] = $this->receiver([
+            '/a' => ['a-dbfail.277' => self::x12('HN'), 'z.277' => self::x12('HN')],
+            '/b' => ['b.277' => self::x12('HN')],
+        ]);
+        $first = new ReceivePartner(645, 'sftp.example.test', 22, 'biller', null, ['f277' => '/a'], '');
+
+        $summary = $receiver->receive([$first, $this->partner(['f277' => '/b'])]);
+
+        $this->assertSame([2, 1], [$summary->partners, $summary->partnersInterrupted]);
+        // a-dbfail.277 was stored but could not be recorded, so it is not counted and is tried again next
+        // run (the store finds it and reports a duplicate); z.277 waits for that run too.
+        $this->assertSame(['a-dbfail.277', 'b.277'], array_column($store->stored, 1));
+        $this->assertSame(1, $summary->stored);
     }
 
     public function testFilesInTheRemoteRootAreFetchedAndMovedByTheirPlainPath(): void

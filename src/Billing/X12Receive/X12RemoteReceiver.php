@@ -27,8 +27,11 @@ use Psr\Log\LoggerInterface;
  * and is skipped next run by its record.
  *
  * A file or partner that fails with a runtime exception (the SFTP session dropping,
- * a database write failing) does not stop the run for the ones after it. Other
- * exceptions and PHP Errors are programming faults and are not caught.
+ * a database write failing) does not stop the run for the ones after it. A failure
+ * while handling one file is recorded as that file failing; a failure of the record
+ * itself (reading or writing x12_remote_received) ends that partner's turn, since the
+ * partner's other files could not be recorded either, and the next partner is tried.
+ * Other exceptions and PHP Errors are programming faults and are not caught.
  */
 final readonly class X12RemoteReceiver
 {

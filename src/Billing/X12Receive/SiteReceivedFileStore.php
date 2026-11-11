@@ -113,6 +113,11 @@ final readonly class SiteReceivedFileStore implements ReceivedFileStore
      * The name the ERA posting screen gives an uploaded 835:
      * <GS date>_<ISA control number>_<payer id>, or null when the file has no
      * claim payment to take it from.
+     *
+     * It matches the upload (`eob_search_era_callback()` in interface/billing/sl_eob_search.php)
+     * for every payer id the upload can name. One case differs on purpose: a payer id of
+     * several zeros ("000"), which the upload keeps and then trims to nothing, giving a name
+     * the posting screen refuses. Here it falls back to the ISA sender like an empty one.
      */
     public static function eraName(string $path): ?string
     {

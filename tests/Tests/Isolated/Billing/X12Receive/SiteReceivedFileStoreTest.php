@@ -14,9 +14,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Billing\X12Receive;
 
+use OpenEMR\Billing\EraFilenameValidator;
 use OpenEMR\Billing\X12Receive\ReceivedStatus;
 use OpenEMR\Billing\X12Receive\SiteReceivedFileStore;
 use OpenEMR\Billing\X12Receive\X12FileType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class SiteReceivedFileStoreTest extends TestCase
@@ -190,6 +192,47 @@ class SiteReceivedFileStoreTest extends TestCase
     {
         $path = $this->localFile($this->era('REF*2U*000~'));
 
+        $this->assertSame('20260101_42_PAYER', SiteReceivedFileStore::eraName($path));
+    }
+
+    /**
+     * The name the ERA upload builds (eob_search_era_callback() in sl_eob_search.php), copied
+     * here so a change to either side shows up as a failing comparison.
+     */
+    private static function uploadName(string $gsDate, string $controlNumber, string $payerId, string $sender): string
+    {
+        return $gsDate . '_' . ltrim($controlNumber, '0') . '_' . ltrim($payerId ?: $sender, '0');
+    }
+
+    /**
+     * @return array<string, array{?string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function payerIdProvider(): array
+    {
+        return [
+            'a payer id' => ['REF*2U*60054~', '60054'],
+            'a payer id with leading zeros' => ['REF*2U*0060054~', '0060054'],
+            'payer id "0"' => ['REF*2U*0~', '0'],
+            'no payer id' => [null, ''],
+        ];
+    }
+
+    #[DataProvider('payerIdProvider')]
+    public function testEraNameMatchesTheUploadForEveryPayerIdTheUploadCanName(?string $payerRef, string $payerId): void
+    {
+        $path = $this->localFile($this->era($payerRef));
+
+        $this->assertSame(self::uploadName('20260101', '000000042', $payerId, 'PAYER'), SiteReceivedFileStore::eraName($path));
+    }
+
+    public function testEraNameDiffersFromTheUploadOnlyWhereTheUploadsNameIsUnusable(): void
+    {
+        $path = $this->localFile($this->era('REF*2U*000~'));
+        $uploadName = self::uploadName('20260101', '000000042', '000', 'PAYER');
+
+        $this->assertNull(EraFilenameValidator::sanitize($uploadName), 'the upload trims "000" to nothing');
         $this->assertSame('20260101_42_PAYER', SiteReceivedFileStore::eraName($path));
     }
 
