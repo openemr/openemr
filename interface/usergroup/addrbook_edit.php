@@ -453,6 +453,7 @@ if (!empty($_POST['form_save'])) {
 
     // Person types (option_value 1, 2, or empty) are the ones claims pick as
     // referring providers. Company types (3) are labs/vendors and skip this.
+    // External Organization is option_value 1, so the type id excludes it.
     // Local login users are edited here too; do not block those saves.
     $save_ok = true;
     $existing_username = '';
@@ -460,7 +461,11 @@ if (!empty($_POST['form_save'])) {
         $existing = QueryUtils::querySingleRow("SELECT username FROM users WHERE id = ?", [$userid]) ?: [];
         $existing_username = AddressBookReferrerFields::asString($existing['username'] ?? '');
     }
-    if (AddressBookReferrerFields::isExternalPerson($existing_username, $option_abook_type)) {
+    if (AddressBookReferrerFields::isExternalPerson(
+        $existing_username,
+        $option_abook_type,
+        $posted->get('form_abook_type')
+    )) {
         $requireNpi = AddressBookReferrerFields::npiRequired();
         if (
             !AddressBookReferrerFields::saveAllowed(
