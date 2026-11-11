@@ -483,7 +483,7 @@ $extraTaxonomies = $taxonomyUserId === false ? [] : $taxonomyService->getExtras(
     <div id="extra_taxonomies">
         <?php foreach ($extraTaxonomies as $extraTaxonomy) { ?>
         <div class="input-group mb-1 extra-taxonomy">
-            <input type="text" name="taxonomy_extra[]" style="max-width:150px;" class="form-control" list="taxonomy_codes" maxlength="10" value="<?php echo attr($extraTaxonomy); ?>">
+            <input type="text" name="taxonomy_extra[]" style="max-width:150px;" class="form-control" list="taxonomy_codes" maxlength="10" pattern="[0-9]{3}[A-Za-z0-9]{6}[Xx]" title="<?php echo xla('A taxonomy code is 10 characters, for example 207R00000X'); ?>" value="<?php echo attr($extraTaxonomy); ?>">
             <span class="input-group-text"><?php echo text($taxonomyNames[$extraTaxonomy] ?? ''); ?></span>
         </div>
         <?php } ?>
@@ -739,7 +739,7 @@ $(function () {
     $("#add_taxonomy").click(function () {
         $("#extra_taxonomies").append(
             $('<div class="input-group mb-1 extra-taxonomy"></div>').append(
-                $('<input type="text" name="taxonomy_extra[]" style="max-width:150px;" class="form-control" list="taxonomy_codes" maxlength="10">')
+                $('<input type="text" name="taxonomy_extra[]" style="max-width:150px;" class="form-control" list="taxonomy_codes" maxlength="10" pattern="[0-9]{3}[A-Za-z0-9]{6}[Xx]" title="<?php echo xla('A taxonomy code is 10 characters, for example 207R00000X'); ?>">')
             )
         ).find("input:last").trigger("focus");
     });
