@@ -884,6 +884,16 @@ function csv_dirfile_list($type)
                 } elseif ($tp == 'f837' && ($file == 'history' || $file == 'README.txt')) {
                     continue;
                 } elseif (is_file($search_dir . DS . $file) && is_string($ext_re) && $ext_re !== '' && preg_match($ext_re, $file) === 1) {
+                    // A publishing marker without a matching note is an
+                    // unfinished batch. History waits until that attempt ends.
+                    $publishing = $search_dir . DS . $file . '.publishing';
+                    if (
+                        is_file($publishing)
+                        && !is_link($publishing)
+                        && !\OpenEMR\Billing\BatchFilePublisher::isPublished($search_dir, $file)
+                    ) {
+                        continue;
+                    }
                     $dirfiles[] = $file;
                 } else {
                     if ($tp == 'f837' && $file == 'history') {

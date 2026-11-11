@@ -30,6 +30,8 @@ class HeldClaimSettlementTest extends TestCase
 
     private int $billingId = 0;
 
+    private int $lateBillingId = 0;
+
     /**
      * Remove only the rows this test inserted.
      */
@@ -70,7 +72,7 @@ class HeldClaimSettlementTest extends TestCase
      */
     public function testAssignmentNamesAndClearsTheBillingRows(): void
     {
-        $filename = $this->insertOpenClaim(1, 0);
+        $filename = $this->insertOpenClaim(1, 0, false);
 
         $this->assertTrue(BillingUtilities::assignUnbilledClaimFile($this->pid, $this->encounter, 1, $filename));
         $this->assertSame($filename, $this->storedClaimFile());
@@ -98,9 +100,40 @@ class HeldClaimSettlementTest extends TestCase
     }
 
     /**
+     * A charge inserted after the file name was stored stays on the unbilled report.
+     */
+    public function testSettlementLeavesAChargeAddedAfterTheFileName(): void
+    {
+        $filename = $this->insertOpenClaim(1, 0);
+        $lateId = QueryUtils::sqlInsert(
+            'INSERT INTO billing (pid, encounter, code_type, code, code_text, billed, activity, fee)'
+            . ' VALUES (?, ?, ?, ?, ?, 0, 1, ?)',
+            [$this->pid, $this->encounter, 'CPT4', '99214', 'Later visit', '20.00']
+        );
+        if ($lateId <= 0) {
+            $this->fail('Later billing insert did not return an id');
+        }
+        $this->lateBillingId = $lateId;
+
+        $this->assertTrue(BillingUtilities::billUnbilledClaimFile($this->pid, $this->encounter, 1, $filename));
+        $this->assertSame(1, $this->storedBilledFlag());
+        $this->assertSame($filename, $this->storedBillingFile());
+        $this->assertSame(BillingClaim::STATUS_MARK_AS_BILLED, $this->storedClaimStatus());
+        $this->assertSame(0, $this->storedInt(
+            'SELECT billed FROM billing WHERE id = ?',
+            [$lateId],
+            'billed'
+        ));
+        $this->assertSame('', $this->storedFile(
+            'SELECT process_file FROM billing WHERE id = ?',
+            [$lateId]
+        ));
+    }
+
+    /**
      * Insert an unbilled claim that names this file and return the file name.
      */
-    private function insertOpenClaim(int $payerType, int $startingLevel): string
+    private function insertOpenClaim(int $payerType, int $startingLevel, bool $nameBilling = true): string
     {
         $suffix = bin2hex(random_bytes(4));
         $filename = 'held-settlement-' . $suffix . '.txt';
@@ -142,10 +175,11 @@ class HeldClaimSettlementTest extends TestCase
                 $filename,
             ]
         );
+        $billingFile = $nameBilling ? $filename : '';
         $billingId = QueryUtils::sqlInsert(
-            'INSERT INTO billing (pid, encounter, code_type, code, code_text, billed, activity, fee)'
-            . ' VALUES (?, ?, ?, ?, ?, 0, 1, ?)',
-            [$this->pid, $this->encounter, 'CPT4', '99213', 'Office visit', '10.00']
+            'INSERT INTO billing (pid, encounter, code_type, code, code_text, billed, activity, fee, process_file)'
+            . ' VALUES (?, ?, ?, ?, ?, 0, 1, ?, ?)',
+            [$this->pid, $this->encounter, 'CPT4', '99213', 'Office visit', '10.00', $billingFile]
         );
         if ($billingId <= 0) {
             $this->fail('Billing insert did not return an id');
@@ -252,6 +286,9 @@ class HeldClaimSettlementTest extends TestCase
      */
     private function removeCreatedRows(): void
     {
+        if ($this->lateBillingId > 0) {
+            QueryUtils::sqlStatementThrowException('DELETE FROM billing WHERE id = ?', [$this->lateBillingId]);
+        }
         if ($this->billingId > 0) {
             QueryUtils::sqlStatementThrowException('DELETE FROM billing WHERE id = ?', [$this->billingId]);
         }

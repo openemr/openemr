@@ -1977,10 +1977,11 @@ class BillingUtilities
     /**
      * Mark the unbilled row billed only when it still names this file.
      *
-     * The claim row and the encounter's active billing rows commit together.
-     * A miss on the billing rows rolls the claim status back, so the next
-     * run can still find the unbilled version. The encounter's billed level
-     * is written from the claim's payer type in that same transaction.
+     * Only billing rows that already name this file are marked billed.
+     * A charge saved after that name was stored stays unbilled. A miss
+     * rolls the claim status back, so the next run can still find it.
+     * The encounter level is written from the payer type in that same
+     * transaction.
      */
     public static function billUnbilledClaimFile(
         mixed $patientId,
@@ -2027,15 +2028,23 @@ class BillingUtilities
                 }
 
                 QueryUtils::sqlStatementThrowException(
-                    "UPDATE billing SET billed = 1, bill_date = NOW(), bill_process = ?, process_file = ?, process_date = NOW() "
-                    . "WHERE encounter = ? AND pid = ? AND activity = 1",
-                    [BillingClaim::BILL_PROCESS_BILLED, $filename, $encounterId, $patientId]
+                    "UPDATE billing SET billed = 1, bill_date = NOW(), bill_process = ?, process_date = NOW() "
+                    . "WHERE encounter = ? AND pid = ? AND activity = 1 AND process_file = ?",
+                    [BillingClaim::BILL_PROCESS_BILLED, $encounterId, $patientId, $filename]
                 );
-                $billingRows = QueryUtils::fetchRecords(
-                    "SELECT billed, process_file FROM billing WHERE pid = ? AND encounter = ? AND activity = 1",
+                $namedRows = QueryUtils::fetchRecords(
+                    "SELECT billed, process_file FROM billing WHERE pid = ? AND encounter = ? "
+                    . "AND activity = 1 AND process_file = ?",
+                    [$patientId, $encounterId, $filename]
+                );
+                $activeRows = QueryUtils::fetchRecords(
+                    "SELECT id FROM billing WHERE pid = ? AND encounter = ? AND activity = 1",
                     [$patientId, $encounterId]
                 );
-                if (!self::billingSettlementLanded($billingRows, $filename)) {
+                if ($activeRows !== [] && $namedRows === []) {
+                    throw new \RuntimeException('No billing row named this claim file');
+                }
+                if (!self::billingSettlementLanded($namedRows, $filename)) {
                     throw new \RuntimeException('Billing rows were not marked billed with the claim file');
                 }
 
