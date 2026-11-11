@@ -45,8 +45,19 @@ Open this document when you are:
 - Preparing a release — producing the per-PR verdicts that decide what ships.
 
 Do **not** open this document when you are writing a PR of your own (consult
-[`AGENTS.md`](../../AGENTS.md) and [`docs/architecture/`](../architecture/)) or when you
-are reviewing a single PR unrelated to a batch (just read the PR).
+[`AGENTS.md`](../../AGENTS.md) and [`docs/architecture/`](../architecture/)).
+
+**Reviewing a single PR outside a batch** skips Phase 1: read
+[standing-rules.md](standing-rules.md), then run [per-pr-review.md](per-pr-review.md) on
+that PR and save the brief. The decision gate (§5) applies as written. In place of the
+Phase 1 output that per-pr-review expects, write the PR's one-line scope summary yourself
+and check the gate's metadata rows first (draft state, CI, mergeable, review decision);
+if one fails, the PR is held and gets a note naming the blocker, not a deep review.
+
+The workstream doc and shepherd log are optional for a one-off review. A non-blocking
+residual still needs a follow-up register entry: add it to the area's workstream doc when
+one exists; otherwise the brief's "Follow-ups to track" section is the record, and the
+maintainer decides whether it becomes an issue.
 
 ---
 
@@ -123,9 +134,12 @@ maintainer reports `landed <PR#>`. Update the brief + log entry with the merge S
 |---|---|
 | Scan the queue + classify every open PR | [stocktake.md](stocktake.md) |
 | Deep-review one merge-ready PR | [per-pr-review.md](per-pr-review.md) |
+| Review a single PR outside a batch | [standing-rules.md](standing-rules.md), then [per-pr-review.md](per-pr-review.md) |
 | Review a batch of 3+ independent PRs via parallel subagents | [per-pr-review.md §13](per-pr-review.md#13-parallel-subagents-for-batch-reviews) |
 | Verify two PRs touching the same files really merge cleanly (overlapping-touch) | [per-pr-review.md §6.6](per-pr-review.md#66-probe-an-unknown-mergeable-state) |
+| Just merged a PR — re-probe surviving ✅ queue for landing-cascade base-advance effects | [per-pr-review.md §12](per-pr-review.md#12-handoff-to-phase-3) |
 | Write a review brief, log entry, or follow-up register entry | [deliverables.md](deliverables.md) |
+| Post-verdict state shift (head moved, maintainer inline comment, base advance, new rabbit finding) — maintain the brief | [deliverables.md §3.12](deliverables.md#312-state-delta-header-brief-maintenance-across-post-verdict-shifts) |
 | Decide whether an action (public comment, branch push, direct code change) is allowed | [standing-rules.md](standing-rules.md) |
 | Interpret a confusing CodeRabbit interaction (incremental review, "already reviewed," paused reviews, typo'd mention) | [standing-rules.md](standing-rules.md#2-coderabbit-mechanics) |
 | Resolve a stale hold after 24h | [standing-rules.md](standing-rules.md#3-staleness-and-recheck-cadence) |
@@ -142,6 +156,20 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   cancellation is a title-lint-superseded-by-next-commit case; note it explicitly.
   `codecov/patch` and `codecov/project` are advisory status checks — they don't fail the
   "All Checks Passed" aggregator, so a solo codecov FAILURE with green aggregator is OK.
+  The `All Checks Passed` aggregator itself occasionally shows FAILURE when every other
+  underlying lane is SUCCESS or SKIPPED (a dependent check didn't register SUCCESS but
+  no real lane failed). The PR's *health signal* is still green — underlying lanes are
+  primary — but the aggregator is a required merge check, so merge needs it cleared.
+  Three resolution paths, in preferred order: the healer workflow
+  (`.github/workflows/rerun-stale-all-checks.yml`) reruns the aggregator
+  automatically after a heavy-workflow rerun, and may leave it red for any
+  mechanical reason (cap reached, out-of-scope trigger, in-progress sibling,
+  etc. — specifics live in the workflow file); a **maintainer manually reruns**
+  the aggregator job via the GitHub UI's "Re-run jobs" button when the healer
+  leaves it red; an **admin uses merge override** when the aggregator is
+  genuinely stuck despite clean underlying lanes. The shepherd *observes* and
+  names the expected path in the brief — the shepherd doesn't trigger any of
+  these itself.
 - **No unresolved rabbit Actionable.** Every CodeRabbit "Actionable" finding needs its
   own finding-specific evidence of resolution: addressed in a subsequent commit
   (confirmed by rabbit's auto-ack **or** by the shepherd's diff inspection against the
@@ -165,8 +193,6 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   mergeable (GitHub hasn't finished computing it, or a conflict exists that doesn't show
   as markers). Either poll until the state refreshes, or run the local merge-compatibility
   verify ([per-pr-review §6.6](per-pr-review.md#66-probe-an-unknown-mergeable-state)).
-- **Scope confirmed in scope.** The PR falls in the subject-filter bucket, not "outside
-  primary scope."
 - **Baseline integrity.** PHPStan baseline: zero new entries. Count reductions are fine
   (they indicate source-level fixes). Verify against the **actual merge base**, not your
   local `upstream/master` (which may have drifted).
@@ -177,6 +203,11 @@ false, the PR goes into the matching held / residual / draft bucket instead.
   against. Before merging on a shepherd verdict, confirm the current PR head still
   matches that SHA — if the author pushed after the brief was written, the verdict
   applies to different code and a fresh review is needed.
+
+Scope is not a gate row. A PR the subject filter caught but that is not really in scope
+is listed under "Outside primary scope" at stock-take
+([stocktake.md §3](stocktake.md#classification-buckets)) whatever its merge state, and
+gets no verdict in this pass.
 
 If a PR *passes every row* but surfaces a non-blocking concern (coverage gap, sibling-file
 sweep, pre-existing bug the PR correctly scopes out), place it in **`🔶 merge-ready with

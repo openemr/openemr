@@ -186,10 +186,6 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
   authorized document reader…" (a real Major, fixed in `15148379f7`), and resolved the
   thread. A gate check against resolution state read "no unresolved Actionable" with that
   finding open.
-- Rabbit's concurrence is weak evidence too. On the same PR it withdrew an outside-diff
-  Minor within a minute of the author's decline comment ("I agree… I withdraw the
-  suggestion"). Record "I agree / I withdraw" as the author's scope-out, verified by the
-  shepherd against the code, not as rabbit having re-checked anything.
 
 ### 2.8 Rate-limit → no coverage, not clean coverage
 
@@ -197,9 +193,11 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
   `CodeRabbit` check conclusion is `NEUTRAL` and no Actionables are ever posted. The
   decision-gate's "no unresolved rabbit Actionable" row passes vacuously — the shepherd
   has no signal from rabbit, not a clean signal.
-- Trigger `@coderabbitai full review` as a **Phase 1 action**, independent of whether
-  the PR ever reaches Phase 2. The request is a prerequisite for the gate, not a
-  Phase 2 brief-writing step — if the PR is held in Phase 1 for any other reason, the
+- Getting `@coderabbitai full review` posted is a **Phase 1 action**, independent of
+  whether the PR ever reaches Phase 2. The mention is a public PR comment, so §1.1
+  applies: the agent flags the PR and asks the maintainer to post it (or to approve that
+  one post); it does not post it on its own. The request is a prerequisite for the gate,
+  not a Phase 2 brief-writing step — if the PR is held in Phase 1 for any other reason, the
   trigger still has to fire so rabbit coverage is available when the other block
   clears. Flag `NEUTRAL` in the stock-take snapshot and the shepherd log.
 
@@ -213,6 +211,19 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
 - The mechanic is already handled in practice: §4 step 3 verified-by-diff on the
   current head doesn't require the cited SHA to resolve. But naming it explicitly keeps
   a new shepherd from blocking on an unresolvable citation.
+
+### 2.10 Rabbit's concurrence is weak evidence
+
+- Rabbit will often withdraw a finding within a minute of the author declining it
+  ("I agree… I withdraw the suggestion") without re-reading the code. On the same
+  #15100 session that drove §2.7, rabbit withdrew an outside-diff Minor the author
+  had pushed back on, with no independent verification.
+- Record "I agree / I withdraw" as the **author's** scope-out, verified by the
+  shepherd against the code, not as rabbit having re-checked anything. The scope-out
+  path in [per-pr-review.md §4 step 4](per-pr-review.md#4-walk-rabbit-history) applies:
+  shepherd confirms by diff inspection, then splits by what the inspection shows —
+  verified out-of-scope → `🔶` residual + follow-up; verified false positive → record
+  and move on, no residual. Rabbit's agreement is not the final word in either case.
 
 ---
 

@@ -130,9 +130,16 @@ For every rabbit Actionable or Major on the PR:
    the reply carries, and rabbit can raise a new finding in the same reply it resolves the
    thread with — see [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding).
    A new finding there starts its own raised → addressed → confirmed row.
-4. **Scoped-out.** The author legitimately pushed back ("that's pre-existing", "that's
-   out of scope") and rabbit accepted. Record as a `🔶 residual` with follow-up register
-   entry. For an author who doesn't reply inline, Scoped-out can be reached via rabbit's
+4. **Scoped-out.** The author pushed back ("that's pre-existing", "that's out of
+   scope", "the code already handles that") and rabbit accepted. Verify against the
+   code and split by what the inspection shows:
+   - **Verified out-of-scope** — the concern is real but the author legitimately scoped
+     it out. Record as a `🔶 residual` with a follow-up register entry.
+   - **Verified false positive** — code inspection shows the reported case is already
+     handled. Record the finding-and-verification in the brief, no residual, no
+     follow-up — a non-issue doesn't need a hygiene sweep.
+
+   For an author who doesn't reply inline, Scoped-out can still be reached via rabbit's
    own withdrawal or the shepherd's verdict based on the diff — don't block waiting for
    an author reply that may not come.
 
@@ -324,13 +331,36 @@ Not every green rollup is cleanly green. Call out explicitly:
   lint. Verify the next job passed.
 - **SKIPPED lanes.** Inferno is often SKIPPED on forks (expected); other skips may be
   conditional on label.
-- **FAILURE lanes** — the PR is held; name the lane in the brief. Exception: a solo
-  `codecov/patch` or `codecov/project` FAILURE with a green "All Checks Passed"
-  aggregator is OK; those are advisory status checks.
+- **FAILURE lanes** — the PR is held; name the lane in the brief. Three exceptions, all
+  advisory *for the health classification* (the PR's lane breakdown doesn't block the
+  review itself):
+  - A solo `codecov/patch` or `codecov/project` FAILURE with a green "All Checks Passed"
+    aggregator is OK; those are advisory status checks.
+  - A solo `All Checks Passed` aggregator FAILURE (or aggregator + codecov/* FAILURE
+    only) with every *other* underlying lane SUCCESS or SKIPPED is OK for health
+    classification — a dependent check didn't register SUCCESS but no real lane failed.
+    The aggregator is still a required merge check, so merge itself needs it to clear.
+    Three resolution paths, in preferred order: the healer workflow
+    (`.github/workflows/rerun-stale-all-checks.yml`) reruns the aggregator
+    automatically after a heavy-workflow rerun, and may leave it red for any
+    mechanical reason (cap reached, out-of-scope trigger, in-progress sibling,
+    etc. — specifics live in the workflow file); a **maintainer manually reruns**
+    the aggregator job via the GitHub UI's "Re-run jobs" button when the healer
+    leaves it red; an **admin uses merge override** when the aggregator is
+    genuinely stuck despite clean underlying lanes. The shepherd *observes* and
+    names the expected path in the brief ("aggregator stuck; underlying lanes
+    clean; expect manual rerun by maintainer / admin merge override") — the
+    shepherd doesn't trigger any of these itself.
+  - A single FAILURE lane clearly outside the PR's changed-file surface (e.g., an e2e
+    lane on an unrelated feature), or a lane known-flaky on master, may be a flake.
+    Request a rerun; cleared on rerun → record "flake, cleared on rerun" in the brief
+    and don't hold. Rerun still red, or failure is scope-related (test file overlaps
+    or is transitively reached) → real FAIL regardless of rerun history.
 
 A common masking pattern: "All Checks Passed" job shows FAILURE because it depends on a
 preceding CANCELLED or FAILURE. The underlying lane is what matters; the aggregator is
-derivative.
+derivative — true whether the dependency is real (in which case the underlying lane is
+the stopper) or spurious (the aggregator-stuck case above).
 
 ---
 
@@ -381,7 +411,10 @@ Some patterns that should move a verdict from `✅ Merge-ready` to `🔶 residua
 
 - Open rabbit Actionable that isn't withdrawn or addressed.
 - Open maintainer `CHANGES_REQUESTED` with no evidence of substantive resolution.
-- CI FAILURE in any lane that isn't title-lint-superseded or advisory codecov/*.
+- CI FAILURE in any lane that isn't title-lint-superseded, advisory codecov/*, or a
+  solo `All Checks Passed` aggregator (or aggregator + codecov/* only) with every
+  other underlying lane SUCCESS or SKIPPED (see §8 for the aggregator exception and
+  its resolution paths).
 - Baseline entries added (not removed).
 - A convention violation flagged by `AGENTS.md` that would land `mixed`, cast, or
   un-ignored data provider.
