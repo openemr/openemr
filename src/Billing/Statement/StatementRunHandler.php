@@ -36,6 +36,11 @@ final readonly class StatementRunHandler
      */
     public function handle(array $invoices, StatementDelivery $delivery, bool $withoutUpdate, bool $test, bool $skipNothingDue, string $today): string
     {
+        $refused = StatementEnvelopeDocuments::refusalMessage();
+        if ($refused !== null) {
+            return $refused;
+        }
+
         $result = $this->run->run($invoices, $delivery, !$test && !$withoutUpdate, $skipNothingDue, $today);
         file_put_contents($this->batchFile, $result->output);
 
