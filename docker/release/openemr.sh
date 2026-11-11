@@ -372,73 +372,95 @@ manage_certificates() {
     # Create destination directory if it doesn't exist
     mkdir -p "${dest_dir}"
 
-    # Helper function to copy certificate files
+    # Helper function to copy certificate files from /root/certs/<service>/
+    # into the sites/certificates dir. Runs on every container start.
+    #
+    # Guards:
+    #   -f "${src}"  : source present (service didn't mount this cert)
+    #   -s "${src}"  : source non-empty (defends against a partial Secret
+    #                  projection where the key is created but the data
+    #                  hasn't landed yet — copying a 0-byte cert would
+    #                  break TLS silently)
+    #   ! cmp -s     : source content differs from destination — copy only
+    #                  on first boot OR when the mounted Secret has
+    #                  rotated under us. On a steady-state restart with
+    #                  no rotation, cmp -s returns 0 and the copy is
+    #                  skipped (no inode churn, no chmod reset, no log
+    #                  noise). This closes the cert-rotation path: an
+    #                  earlier guard of "! -f dst" meant that once the
+    #                  sites copy existed, no subsequent Secret rotation
+    #                  could overwrite it — openemr kept reading the
+    #                  stale first-boot cert indefinitely. Common
+    #                  failure shape in k8s with cert-manager +
+    #                  stakater/reloader: Secret rotates, pod rolls, pod
+    #                  reads stale cached cert from the sites PVC, mTLS
+    #                  handshake uses the old cert, connection breaks on
+    #                  the next CA rotation.
     cp_cert_file() {
-        local src="${certs_dir}/mysql/server/${1}"
-        local dst="${dest_dir}/${1}"
-        if [[ -f "${src}" && ! -f "${dst}" ]]; then
-            cp "${src}" "${dst}"
-            chmod 744 "${dst}"
-            echo "Copied ${1}"
+        local subdir="${1}"   # e.g. mysql/server, couchdb, ldap, redis
+        local name="${2}"     # e.g. mysql-ca
+        local src="${certs_dir}/${subdir}/${name}"
+        local dst="${dest_dir}/${name}"
+        # Benign no-op paths (source absent/empty, or identical to dst)
+        # return 0 so bare callers don't trip set -e. `cp` runs under
+        # the script's `set -e` — a real cp failure aborts startup with
+        # cp's own error on stderr, which is the right outcome (half-
+        # copied cert material would be worse than failing loud). The
+        # "Copied" log fires only AFTER mv returns, so the log line
+        # can't claim a copy that didn't actually happen.
+        if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
+            return 0
         fi
+        # Atomic replace: stage to a mktemp-generated sibling file
+        # under the same directory (so the final `mv` stays on the
+        # same filesystem and is a POSIX-atomic rename), then rename
+        # over dst. This removes two race windows the plain `cp src
+        # dst` form had:
+        #   * A concurrent reader (e.g. an already-running openemr
+        #     process on another pod sharing the sites PVC) observing
+        #     a partially-written dst mid-cp.
+        #   * A crash mid-cp leaving a truncated dst that would then
+        #     pass the `! cmp -s` guard on next boot and either stay
+        #     truncated or be overwritten only on a subsequent Secret
+        #     rotation — meanwhile TLS handshakes against the
+        #     truncated file fail silently.
+        # `mktemp` gives us a cryptographically random suffix instead
+        # of a predictable `.$$` form, which matters because the
+        # sites/default/documents/certificates directory can be
+        # apache-owned after the entrypoint's chown pass. A
+        # lower-trust process on the same PVC that could predict the
+        # tmp name could pre-create a symlink there and race the cp
+        # into writing elsewhere; mktemp's random component +
+        # exclusive-creation semantics close that.
+        # Failure mode: if cp / chmod / mv fail under set -e, the
+        # script exits and leaves a `.cert.<name>.<rand>` orphan in
+        # the certs dir (bounded size, same perms the cert would end
+        # up with anyway — no security impact, just hygiene). A
+        # subsequent successful run won't touch orphans (different
+        # random suffix each time); operators clean up via a simple
+        # `find ${dest_dir} -name '.cert.*' -mtime +7 -delete`.
+        local tmp
+        tmp=$(mktemp "${dest_dir}/.cert.${name}.XXXXXXXX")
+        cp "${src}" "${tmp}"
+        chmod 744 "${tmp}"
+        mv "${tmp}" "${dst}"
+        echo "Copied ${name}"
     }
-    cp_cert_file mysql-ca
-    cp_cert_file mysql-cert
-    cp_cert_file mysql-key
+    cp_cert_file mysql/server mysql-ca
+    cp_cert_file mysql/server mysql-cert
+    cp_cert_file mysql/server mysql-key
 
-    # Copy CouchDB certificates (if provided)
-    if [[ -f "${certs_dir}/couchdb/couchdb-ca" ]] &&
-       [[ ! -f "${dest_dir}/couchdb-ca" ]]; then
-        cp "${certs_dir}/couchdb/couchdb-ca" "${dest_dir}/couchdb-ca"
-        echo "Copied couchdb-ca"
-    fi
-    if [[ -f "${certs_dir}/couchdb/couchdb-cert" ]] &&
-       [[ ! -f "${dest_dir}/couchdb-cert" ]]; then
-        cp "${certs_dir}/couchdb/couchdb-cert" "${dest_dir}/couchdb-cert"
-        echo "Copied couchdb-cert"
-    fi
-    if [[ -f "${certs_dir}/couchdb/couchdb-key" ]] &&
-       [[ ! -f "${dest_dir}/couchdb-key" ]]; then
-        cp "${certs_dir}/couchdb/couchdb-key" "${dest_dir}/couchdb-key"
-        echo "Copied couchdb-key"
-    fi
+    cp_cert_file couchdb      couchdb-ca
+    cp_cert_file couchdb      couchdb-cert
+    cp_cert_file couchdb      couchdb-key
 
-    # Copy LDAP certificates (if provided)
-    if [[ -f "${certs_dir}/ldap/ldap-ca" ]] &&
-       [[ ! -f "${dest_dir}/ldap-ca" ]]; then
-        cp "${certs_dir}/ldap/ldap-ca" "${dest_dir}/ldap-ca"
-        echo "Copied ldap-ca"
-    fi
-    if [[ -f "${certs_dir}/ldap/ldap-cert" ]] &&
-       [[ ! -f "${dest_dir}/ldap-cert" ]]; then
-        cp "${certs_dir}/ldap/ldap-cert" "${dest_dir}/ldap-cert"
-        echo "Copied ldap-cert"
-    fi
-    if [[ -f "${certs_dir}/ldap/ldap-key" ]] &&
-       [[ ! -f "${dest_dir}/ldap-key" ]]; then
-        cp "${certs_dir}/ldap/ldap-key" "${dest_dir}/ldap-key"
-        echo "Copied ldap-key"
-    fi
+    cp_cert_file ldap         ldap-ca
+    cp_cert_file ldap         ldap-cert
+    cp_cert_file ldap         ldap-key
 
-    # Copy Redis certificates (if provided)
-    if [[ -f "${certs_dir}/redis/redis-ca" ]] &&
-       [[ ! -f "${dest_dir}/redis-ca" ]]; then
-        cp "${certs_dir}/redis/redis-ca" "${dest_dir}/redis-ca"
-        chmod 744 "${dest_dir}/redis-ca"
-        echo "Copied redis-ca"
-    fi
-    if [[ -f "${certs_dir}/redis/redis-cert" ]] &&
-       [[ ! -f "${dest_dir}/redis-cert" ]]; then
-        cp "${certs_dir}/redis/redis-cert" "${dest_dir}/redis-cert"
-        chmod 744 "${dest_dir}/redis-cert"
-        echo "Copied redis-cert"
-    fi
-    if [[ -f "${certs_dir}/redis/redis-key" ]] &&
-       [[ ! -f "${dest_dir}/redis-key" ]]; then
-        cp "${certs_dir}/redis/redis-key" "${dest_dir}/redis-key"
-        chmod 744 "${dest_dir}/redis-key"
-        echo "Copied redis-key"
-    fi
+    cp_cert_file redis        redis-ca
+    cp_cert_file redis        redis-cert
+    cp_cert_file redis        redis-key
 }
 
 # ============================================================================
@@ -985,7 +1007,14 @@ if [[ -n "${SSL_PID:-}" ]]; then
     fi
     unset SSL_PID SSL_IS_LEADER
 fi
-wait "${CERT_COPY_PID}" 2>/dev/null || true
+# `wait` propagates CERT_COPY_PID's exit status, which under `set -e`
+# aborts startup if manage_certificates failed. manage_certificates is
+# now fail-fast on cp errors (sites volume read-only, disk full,
+# permission denied on Secret mount, etc.) — swallowing its exit code
+# here would hide those. Unlike SSL_PID above there's no leader /
+# follower distinction: every pod reads the same certs, so cp failure
+# for any pod is a real error for that pod, not a swarm hiccup.
+wait "${CERT_COPY_PID}"
 unset CERT_COPY_PID
 
 [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat

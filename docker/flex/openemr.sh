@@ -986,60 +986,84 @@ fi
 #    /root/certs/ldap/ldap-cert (supported)
 #    /root/certs/ldap/ldap-key (supported)
 #    /root/certs/redis/.. (not yet supported)
+# Helper that copies certificate files from /root/certs/<service>/ into
+# the sites/certificates dir. Runs on every container start.
+#
+# Copy conditions — all three must hold:
+#   -f "${src}"  : source file exists (service didn't mount this cert)
+#   -s "${src}"  : source non-empty (defends against a partial Secret
+#                  projection where the key is created but the data
+#                  hasn't landed yet — copying a 0-byte cert would
+#                  break TLS silently)
+#   ! cmp -s     : source content differs from destination — on a
+#                  steady-state restart with no rotation, cmp -s
+#                  returns 0 and the copy is skipped. This closes the
+#                  cert-rotation path: the previous "! -f dst" guard
+#                  meant that once the sites copy existed, no
+#                  subsequent Secret rotation could overwrite it —
+#                  openemr kept reading the stale first-boot cert
+#                  indefinitely. Common failure shape in k8s with
+#                  cert-manager + stakater/reloader: Secret rotates,
+#                  pod rolls, pod reads stale cached cert from the
+#                  sites PVC, mTLS handshake uses the old cert,
+#                  connection breaks on the next CA rotation.
+#
+# Failure propagation: `set -e` is in effect for this script. When this
+# function reaches the cp, a cp failure (read-only sites volume, disk
+# full, permission denied, EACCES on the Secret mount, etc.) aborts
+# startup with cp's own error on stderr — half-copied cert material is
+# worse than failing loud. Benign paths (source absent, empty, or
+# identical to dst) return 0 so they don't trip `set -e` at bare call
+# sites; callers interested in whether a copy actually happened read
+# the LAST_COPIED side-effect flag.
+#
+# Prints "copied over <name>" ONLY after cp succeeds — never before,
+# since set -e would turn the pre-cp log line into a lie about state
+# that didn't happen.
+LAST_COPIED=0
+cp_cert_file() {
+    local subdir="${1}"   # e.g. mysql/server, couchdb, ldap
+    local name="${2}"     # e.g. mysql-ca
+    local src="/root/certs/${subdir}/${name}"
+    local dst="/var/www/localhost/htdocs/openemr/sites/default/documents/certificates/${name}"
+    LAST_COPIED=0
+    if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
+        return 0
+    fi
+    # Atomic replace via sibling mktemp + rename. See the matching
+    # block in docker/release/openemr.sh for the full rationale —
+    # removes the concurrent-reader-sees-partial and crash-mid-cp
+    # races; mktemp's random suffix closes the symlink-prediction
+    # TOCTOU vs a `.tmp.$$` form. The chmod flex applies to mysql
+    # certs happens in a later gated block (around line ~1170)
+    # against the final dst, so no chmod on tmp needed here.
+    local tmp
+    tmp=$(mktemp "$(dirname "${dst}")/.cert.${name}.XXXXXXXX")
+    cp "${src}" "${tmp}"
+    mv "${tmp}" "${dst}"
+    echo "copied over ${name}"
+    LAST_COPIED=1
+}
+
+# for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
 MYSQLCA=false
-if [[ -f /root/certs/mysql/server/mysql-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca ]]; then
-    echo "copied over mysql-ca"
-    cp /root/certs/mysql/server/mysql-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLCA=true
-fi
 MYSQLCERT=false
-if [[ -f /root/certs/mysql/server/mysql-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-cert ]]; then
-    echo "copied over mysql-cert"
-    cp /root/certs/mysql/server/mysql-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-cert
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLCERT=true
-fi
 MYSQLKEY=false
-if [[ -f /root/certs/mysql/server/mysql-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-key ]]; then
-    echo "copied over mysql-key"
-    cp /root/certs/mysql/server/mysql-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-key
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLKEY=true
-fi
-if [[ -f /root/certs/couchdb/couchdb-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca ]]; then
-    echo "copied over couchdb-ca"
-    cp /root/certs/couchdb/couchdb-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca
-fi
-if [[ -f /root/certs/couchdb/couchdb-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-cert ]]; then
-    echo "copied over couchdb-cert"
-    cp /root/certs/couchdb/couchdb-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-cert
-fi
-if [[ -f /root/certs/couchdb/couchdb-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-key ]]; then
-    echo "copied over couchdb-key"
-    cp /root/certs/couchdb/couchdb-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-key
-fi
-if [[ -f /root/certs/ldap/ldap-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca ]]; then
-    echo "copied over ldap-ca"
-    cp /root/certs/ldap/ldap-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca
-fi
-if [[ -f /root/certs/ldap/ldap-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-cert ]]; then
-    echo "copied over ldap-cert"
-    cp /root/certs/ldap/ldap-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-cert
-fi
-if [[ -f /root/certs/ldap/ldap-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-key ]]; then
-    echo "copied over ldap-key"
-    cp /root/certs/ldap/ldap-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-key
-fi
+cp_cert_file mysql/server mysql-ca
+if ((LAST_COPIED)); then MYSQLCA=true; fi
+cp_cert_file mysql/server mysql-cert
+if ((LAST_COPIED)); then MYSQLCERT=true; fi
+cp_cert_file mysql/server mysql-key
+if ((LAST_COPIED)); then MYSQLKEY=true; fi
+
+# couchdb + ldap copies don't need flag tracking downstream — just run.
+cp_cert_file couchdb couchdb-ca
+cp_cert_file couchdb couchdb-cert
+cp_cert_file couchdb couchdb-key
+
+cp_cert_file ldap    ldap-ca
+cp_cert_file ldap    ldap-cert
+cp_cert_file ldap    ldap-key
 
 if [[ "${AUTHORITY}" = "yes" ]]; then
     if [[ "${CONFIG}" = "0" ]] &&
