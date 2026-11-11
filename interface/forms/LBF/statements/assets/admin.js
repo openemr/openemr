@@ -22,7 +22,9 @@
     }
     const overlapMsg = {
         inverted: modalEl.getAttribute('data-msg-inverted') || 'Minimum must be less than or equal to maximum.',
-        overlap: modalEl.getAttribute('data-msg-overlap') || 'This numeric range overlaps another band on the same field.'
+        overlap: modalEl.getAttribute('data-msg-overlap') || 'This numeric range overlaps another band on the same field.',
+        number: modalEl.getAttribute('data-msg-number') || 'Enter a number, or leave the bound empty.',
+        ratio: modalEl.getAttribute('data-msg-ratio') || 'A ratio rule needs a second field.'
     };
 
     /**
@@ -111,6 +113,31 @@
      * @param {*} raw
      * @returns {number|null}
      */
+    /**
+     * True when a bound was typed and is not a finite number.
+     * @param {*} raw
+     * @returns {boolean}
+     */
+    function badNumber(raw) {
+        if (raw === null || raw === undefined || String(raw).trim() === '') {
+            return false;
+        }
+        return !Number.isFinite(Number(raw));
+    }
+
+    /**
+     * Message when a bound is not blank and not numeric.
+     * @returns {string}
+     */
+    function invalidBound() {
+        const minEl = document.getElementById('min_value');
+        const maxEl = document.getElementById('max_value');
+        if ((minEl && badNumber(minEl.value)) || (maxEl && badNumber(maxEl.value))) {
+            return overlapMsg.number;
+        }
+        return '';
+    }
+
     function numOrNull(raw) {
         if (raw === null || raw === undefined || String(raw).trim() === '') {
             return null;
@@ -258,6 +285,19 @@
     const form = modalEl.querySelector('form');
     if (form) {
         form.addEventListener('submit', function (e) {
+            const bound = invalidBound();
+            if (bound) {
+                e.preventDefault();
+                showOverlap(bound);
+                return;
+            }
+            const draft = readDraft();
+            const ratio = draft.op === 'ratio_lt' || draft.op === 'ratio_gt';
+            if (ratio && String(draft.source_field_id_2 || '').trim() === '') {
+                e.preventDefault();
+                showOverlap(overlapMsg.ratio);
+                return;
+            }
             const why = draftOverlaps();
             if (why) {
                 e.preventDefault();

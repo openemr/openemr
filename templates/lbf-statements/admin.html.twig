@@ -132,6 +132,8 @@
              data-band-rules="{{ bandRules|json_encode|attr }}"
              data-msg-overlap="{{ "This numeric range overlaps another band on the same field."|xla }}"
              data-msg-inverted="{{ "Minimum must be less than or equal to maximum."|xla }}"
+             data-msg-number="{{ "Enter a number, or leave the bound empty."|xla }}"
+             data-msg-ratio="{{ "A ratio rule needs a second field."|xla }}"
              {% if edit %}data-reopen="{{ edit|json_encode|attr }}"{% endif %}>
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">

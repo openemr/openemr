@@ -140,11 +140,7 @@ class LayoutCatalog
         if ($summary !== '') {
             return $summary;
         }
-        foreach ($meta as $fieldId => $info) {
-            if ($info['data_type'] === 3) {
-                return $fieldId;
-            }
-        }
+
         return '';
     }
 
