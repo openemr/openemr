@@ -17,7 +17,6 @@ namespace OpenEMR\Billing\Statement;
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Pdf\Config_Mpdf;
 
 final readonly class PageStatementRunSteps implements StatementRunSteps
 {
@@ -57,7 +56,8 @@ final readonly class PageStatementRunSteps implements StatementRunSteps
         $categoryId = is_array($category) && is_numeric($category['id'] ?? null) ? (int) $category['id'] : 0;
         // The batch is HTML or text; with HTML statements the document is its PDF.
         if ($this->htmlStatements) {
-            $pdf = new Mpdf(Config_Mpdf::getConfigMpdf());
+            $statement = StatementEnvelopeDocuments::forOnePatient($statement);
+            $pdf = new Mpdf(StatementEnvelopeDocuments::pdfConfig());
             if ($this->rightToLeft) {
                 $pdf->SetDirectionality('rtl');
             }
@@ -76,7 +76,7 @@ final readonly class PageStatementRunSteps implements StatementRunSteps
 
     public function email(int $pid, string $statement): void
     {
-        $this->emailer->send($pid, $statement);
+        $this->emailer->send($pid, StatementEnvelopeDocuments::forOnePatient($statement));
     }
 
     public function isPortalAuthorized(int $pid): bool

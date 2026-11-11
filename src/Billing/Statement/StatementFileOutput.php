@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace OpenEMR\Billing\Statement;
 
 use Mpdf\Mpdf;
-use OpenEMR\Pdf\Config_Mpdf;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessException;
 use Symfony\Component\Process\Process;
@@ -53,7 +52,7 @@ final readonly class StatementFileOutput implements StatementOutput
         $batch = file_get_contents($batchFile);
         $batch = $batch === false ? '' : $batch;
         if ($this->htmlStatements) {
-            $pdf = new Mpdf(Config_Mpdf::getConfigMpdf());
+            $pdf = new Mpdf(StatementEnvelopeDocuments::pdfConfig());
             if ($this->rightToLeft) {
                 $pdf->SetDirectionality('rtl');
             }
@@ -102,7 +101,11 @@ final readonly class StatementFileOutput implements StatementOutput
     private static function textPdf(string $batch): string
     {
         $pdf = new \Cezpdf('LETTER');
-        $pdf->ezSetMargins(45, 9, 36, 10);
+        if (StatementEnvelopeDocuments::textMarginsAreZero()) {
+            $pdf->ezSetMargins(0, 0, 0, 0);
+        } else {
+            $pdf->ezSetMargins(45, 9, 36, 10);
+        }
         $pdf->selectFont('Courier');
         $pdf->ezSetY(self::pageTop($pdf));
         $lines = preg_split('/(?<=\n)/', $batch);
