@@ -139,8 +139,12 @@ class AdminController
                         $edit['id'] = Values::asInt($this->stringParam($request, 'rule_id'));
                     } catch (RuleNotFoundException) {
                         $error = xl('That rule was deleted.');
-                    } catch (\InvalidArgumentException) {
-                        $error = xl('Could not save the rule.');
+                    } catch (\InvalidArgumentException $exception) {
+                        $error = match ($exception->getMessage()) {
+                            'A ratio rule needs a second field.' => xl('A ratio rule needs a second field.'),
+                            'A bound must be a number.' => xl('Enter a number, or leave the bound empty.'),
+                            default => xl('Could not save the rule.'),
+                        };
                         $edit = $data;
                         $edit['id'] = Values::asInt($this->stringParam($request, 'rule_id'));
                     }

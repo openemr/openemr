@@ -123,6 +123,16 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         }
 
         /**
+         * Storing a paragraph needs encounter-notes write and layout write.
+         */
+        public function testMaySaveParagraphRequiresNotesWrite(): void
+        {
+            $this->assertFalse(GenerateController::maySaveParagraph(false, true));
+            $this->assertFalse(GenerateController::maySaveParagraph(true, false));
+            $this->assertTrue(GenerateController::maySaveParagraph(true, true));
+        }
+
+        /**
          * A missing or inactive layout is refused before the access rule.
          */
         public function testLayoutWriteDecisionRefusesAnInactiveLayout(): void

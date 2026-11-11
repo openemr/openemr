@@ -198,7 +198,10 @@ class GenerateController
                 $csrfOk = false;
                 $error = xl('Invalid CSRF token');
             }
-            if ($csrfOk && !$this->layoutWriteAllowed($catalog, $formId)) {
+            if ($csrfOk && !self::maySaveParagraph(
+                AclMain::aclCheckCore('encounters', 'notes', '', 'write'),
+                $this->layoutWriteAllowed($catalog, $formId)
+            )) {
                 $error = xl('Access Denied');
             } elseif ($csrfOk && ($instanceId <= 0 || $pid <= 0 || $formId === '')) {
                 $error = xl('Select a patient and form instance.');
@@ -431,6 +434,17 @@ class GenerateController
             AclMain::aclCheckCore('admin', 'super'),
             AclMain::aclCheckAcoSpec($acoSpec, '', 'write')
         );
+    }
+
+    /**
+     * A view of encounter notes is not enough to store a paragraph.
+     *
+     * The layout rule is checked as well. An empty layout rule does not
+     * replace the notes write.
+     */
+    public static function maySaveParagraph(bool $hasNotesWrite, bool $layoutAllowsWrite): bool
+    {
+        return $hasNotesWrite && $layoutAllowsWrite;
     }
 
     /**
