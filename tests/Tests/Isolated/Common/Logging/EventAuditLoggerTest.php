@@ -20,6 +20,7 @@ use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Common\Logging\Audit\Event;
 use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
+use OpenEMR\Common\Logging\AuditQueryDetail;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\EventCategory;
@@ -432,12 +433,20 @@ class EventAuditLoggerTest extends TestCase
      * A logger with patient-record and security-administration events on that
      * appends every recorded event to $events.
      *
+     * Statement detail is required. The branch default summarizes selects and
+     * would leave these assertions with an empty event list.
+     *
      * @param list<Event> $events
      */
     private function patientRecordLogger(array &$events, mixed $sessionPid): EventAuditLogger
     {
         $this->session->method('get')->willReturnCallback(
-            fn (string $name): mixed => $name === 'pid' ? $sessionPid : null
+            fn (string $name): mixed => match ($name) {
+                'pid' => $sessionPid,
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                default => null,
+            }
         );
         $sink = $this->createMock(SinkInterface::class);
         $sink->method('record')->willReturnCallback(
@@ -455,9 +464,421 @@ class EventAuditLoggerTest extends TestCase
                 queryEvents: true,
                 httpRequestEvents: false,
                 enabledEventTypes: [EventCategory::PatientRecord, EventCategory::SecurityAdministration],
+                queryDetail: AuditQueryDetail::Statement,
             ),
             breakglassChecker: $this->breakglassChecker,
             clock: $this->clock,
         );
+    }
+
+    public function testRequestModeRecordsOneSummaryForSeveralSelects(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent('SELECT id FROM patient_data WHERE pid = ?', true, [4]);
+        $logger->auditSQLEvent('SELECT id FROM forms WHERE pid = ?', true, [4]);
+        $logger->flushPendingQuerySummary();
+
+        self::assertCount(1, $captured);
+        self::assertSame('patient-record-select', $captured[0]->event);
+        self::assertSame(4, $captured[0]->patientId);
+        $comments = base64_decode($captured[0]->comments, true);
+        self::assertIsString($comments);
+        self::assertStringContainsString('selects=2', $comments);
+        self::assertStringContainsString('tables=patient_data,forms', $comments);
+        self::assertStringNotContainsString('pid = ?', $comments);
+    }
+
+    public function testStatementModeStillRecordsEachSelect(): void
+    {
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->exactly(2))->method('record');
+
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Statement, false);
+        $logger->auditSQLEvent('SELECT id FROM patient_data WHERE pid = ?', true, [4]);
+        $logger->auditSQLEvent('SELECT id FROM forms WHERE pid = ?', true, [4]);
+    }
+
+    public function testBreakglassKeepsARowPerSelect(): void
+    {
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->exactly(2))->method('record');
+
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                default => null,
+            });
+        $this->breakglassChecker->method('isBreakglassUser')->willReturn(true);
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, true);
+        $logger->auditSQLEvent('SELECT id FROM patient_data WHERE pid = ?', true);
+        $logger->auditSQLEvent('SELECT id FROM forms WHERE pid = ?', true);
+    }
+
+    public function testAChangeFlushesTheSelectSummaryFirst(): void
+    {
+        $events = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->exactly(2))
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$events): void {
+                $events[] = $event->event;
+            });
+
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent('SELECT id FROM patient_data WHERE pid = ?', true);
+        $logger->auditSQLEvent('UPDATE patient_data SET fname = ? WHERE pid = ?', true, ['A', 4]);
+
+        self::assertSame(['patient-record-select', 'patient-record-update'], $events);
+    }
+
+    private function loggerWith(
+        SinkInterface&MockObject $sink,
+        AuditQueryDetail $detail,
+        bool $forceBreakglass,
+    ): EventAuditLogger {
+        return new EventAuditLogger(
+            sink: $sink,
+            session: $this->session,
+            config: new AuditConfig(
+                enabled: true,
+                forceBreakglass: $forceBreakglass,
+                queryEvents: true,
+                httpRequestEvents: false,
+                enabledEventTypes: [EventCategory::PatientRecord],
+                queryDetail: $detail,
+            ),
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+    }
+
+    public function testRequestModeNamesVitalsAndAMedicationList(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent("SELECT id FROM lists WHERE type = 'medication' AND pid = 4", true);
+        $logger->auditSQLEvent('SELECT id FROM form_vitals WHERE pid = 4', true);
+        $logger->flushPendingQuerySummary();
+
+        self::assertCount(1, $captured);
+        self::assertSame(4, $captured[0]->patientId);
+        $comments = base64_decode($captured[0]->comments, true);
+        self::assertIsString($comments);
+        self::assertStringContainsString('tables=lists,form_vitals', $comments);
+        self::assertStringContainsString('data=Medication,Vitals', $comments);
+    }
+
+    public function testAJoinedPrescriptionReadKeepsThePrescription(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = new EventAuditLogger(
+            sink: $sink,
+            session: $this->session,
+            config: new AuditConfig(
+                enabled: true,
+                forceBreakglass: false,
+                queryEvents: true,
+                httpRequestEvents: false,
+                enabledEventTypes: [EventCategory::Order],
+                queryDetail: AuditQueryDetail::Request,
+            ),
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+        $logger->auditSQLEvent(
+            'SELECT id FROM prescriptions JOIN form_echo ON form_echo.pid = prescriptions.patient_id',
+            true,
+        );
+        $logger->flushPendingQuerySummary();
+
+        self::assertCount(1, $captured);
+        self::assertSame('order-select', $captured[0]->event);
+        self::assertSame(4, $captured[0]->patientId);
+        $comments = base64_decode($captured[0]->comments, true);
+        self::assertIsString($comments);
+        self::assertStringContainsString('tables=prescriptions', $comments);
+        self::assertStringNotContainsString('form_echo', $comments);
+    }
+
+    public function testAnUnknownFormTableIsStillNamed(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent('SELECT id FROM form_echo WHERE pid = 4', true);
+        $logger->flushPendingQuerySummary();
+
+        self::assertCount(1, $captured);
+        self::assertSame('patient-record-select', $captured[0]->event);
+        $comments = base64_decode($captured[0]->comments, true);
+        self::assertIsString($comments);
+        self::assertStringContainsString('tables=form_echo', $comments);
+        self::assertStringContainsString('data=Encounter Form', $comments);
+    }
+
+    /**
+     * A form table after FROM stays a patient record when users is joined.
+     */
+    public function testAFormReadJoinedToUsersStaysOnThePatient(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent(
+            'SELECT id FROM form_echo JOIN users ON users.id = 1 WHERE pid = 4',
+            true,
+        );
+        $logger->flushPendingQuerySummary();
+
+        self::assertCount(1, $captured);
+        self::assertSame('patient-record-select', $captured[0]->event);
+        $comments = base64_decode($captured[0]->comments, true);
+        self::assertIsString($comments);
+        self::assertStringContainsString('tables=form_echo', $comments);
+        self::assertStringNotContainsString('tables=users', $comments);
+    }
+
+    /**
+     * A users row joined to a chart is the chart read, not security administration.
+     */
+    public function testAUsersReadJoinedToAPatientStaysOnThePatient(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent(
+            'SELECT u.id FROM users JOIN patient_data ON patient_data.providerID = users.id WHERE patient_data.pid = 4',
+            true,
+        );
+        $logger->flushPendingQuerySummary();
+
+        self::assertCount(1, $captured);
+        self::assertSame('patient-record-select', $captured[0]->event);
+        self::assertSame(4, $captured[0]->patientId);
+        $comments = base64_decode($captured[0]->comments, true);
+        self::assertIsString($comments);
+        self::assertStringContainsString('tables=patient_data', $comments);
+        self::assertStringNotContainsString('tables=users', $comments);
+    }
+
+    /**
+     * A comma join is still a join. FROM users, patient_data is the chart.
+     */
+    public function testAUsersCommaJoinToAPatientStaysOnThePatient(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent(
+            'SELECT u.id FROM users u, patient_data WHERE patient_data.providerID = u.id AND patient_data.pid = 4',
+            true,
+        );
+        $logger->flushPendingQuerySummary();
+
+        self::assertCount(1, $captured);
+        self::assertSame('patient-record-select', $captured[0]->event);
+        self::assertSame(4, $captured[0]->patientId);
+        $comments = base64_decode($captured[0]->comments, true);
+        self::assertIsString($comments);
+        self::assertStringContainsString('tables=patient_data', $comments);
+        self::assertStringNotContainsString('tables=users', $comments);
+    }
+
+    /**
+     * A column named in the select list is not a joined table.
+     */
+    public function testASelectListNameIsNotAJoinedTable(): void
+    {
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->never())->method('record');
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent(
+            'SELECT id, patient_data.fname FROM users WHERE username = ?',
+            true,
+        );
+        $logger->flushPendingQuerySummary();
+    }
+
+    /**
+     * A users row joined only to another security table stays security administration.
+     */
+    public function testAUsersReadJoinedToSecurityStaysSecurity(): void
+    {
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->never())->method('record');
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->auditSQLEvent(
+            'SELECT id FROM users JOIN gacl_aro ON gacl_aro.value = users.username',
+            true,
+        );
+        $logger->flushPendingQuerySummary();
+    }
+
+    public function testAPrescriptionReadKeepsTheOpenPatient(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = new EventAuditLogger(
+            sink: $sink,
+            session: $this->session,
+            config: new AuditConfig(
+                enabled: true,
+                forceBreakglass: false,
+                queryEvents: true,
+                httpRequestEvents: false,
+                enabledEventTypes: [EventCategory::Order],
+                queryDetail: AuditQueryDetail::Request,
+            ),
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+        $logger->auditSQLEvent('SELECT id, drug FROM prescriptions WHERE patient_id = 4', true);
+        $logger->flushPendingQuerySummary();
+
+        self::assertSame('order-select', $captured[0]->event);
+        self::assertSame(4, $captured[0]->patientId);
     }
 }

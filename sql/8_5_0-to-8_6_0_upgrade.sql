@@ -355,3 +355,27 @@ CREATE TABLE `referral_notice` (
 #IfRow3D layout_options form_id DEM field_id interpreter_needed edit_options interpreter_needed
 UPDATE `layout_options` SET `edit_options` = '' WHERE `form_id` = 'DEM' AND `field_id` = 'interpreter_needed' AND `edit_options` = 'interpreter_needed';
 #EndIf
+
+
+-- Audit chain: each new checksum includes the previous one, and the anchor
+-- remembers the newest link so a deleted tail is visible.
+#IfMissingColumn log_comment_encrypt chain
+ALTER TABLE `log_comment_encrypt` ADD COLUMN `chain` char(128) DEFAULT NULL COMMENT 'HMAC of the previous chain, this log id, and the row checksum';
+#EndIf
+
+#IfNotIndex log_comment_encrypt log_id
+CREATE INDEX `log_id` ON `log_comment_encrypt` (`log_id`);
+#EndIf
+
+#IfNotTable log_chain_anchor
+CREATE TABLE `log_chain_anchor` (
+  `id` tinyint(3) NOT NULL,
+  `log_id` bigint(20) NOT NULL DEFAULT 0,
+  `chain` char(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- The installer and the upgrade applicator create the audit triggers.
+-- A server that cannot create them still finishes. The application
+-- also refuses updates and deletes of these tables.

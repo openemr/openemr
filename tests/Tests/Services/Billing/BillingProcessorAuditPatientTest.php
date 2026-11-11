@@ -62,6 +62,9 @@ class BillingProcessorAuditPatientTest extends TestCase
         $session->set('authUserID', QueryUtils::fetchSingleValue('SELECT id FROM users WHERE username = ?', 'id', ['admin']));
         $session->set('pid', self::OPEN_CHART_PID);
         $this->cleanUp();
+        // Setup deletes stay in the audit buffer until a flush. Write them
+        // before the test reads the log, or they land in the claim window.
+        EventAuditLogger::getInstance()->flushAuditWrites();
     }
 
     protected function tearDown(): void
@@ -90,6 +93,7 @@ class BillingProcessorAuditPatientTest extends TestCase
             'bn_mark' => '1',
             'claims' => [self::CLAIM_PID . '-' . self::CLAIM_ENCOUNTER => ['bill' => '1', 'partner' => '-1', 'payer' => 'p0']],
         ]))->execute();
+        EventAuditLogger::getInstance()->flushAuditWrites();
 
         $patients = QueryUtils::fetchTableColumn(
             "SELECT DISTINCT patient_id FROM log WHERE id > ? AND event LIKE 'patient-record-%'",
@@ -102,6 +106,7 @@ class BillingProcessorAuditPatientTest extends TestCase
         // After the batch, statements fall back to the session's open chart again.
         $after = $this->lastLogId();
         QueryUtils::sqlStatementThrowException('UPDATE billing SET activity = activity WHERE pid = ?', [self::CLAIM_PID]);
+        EventAuditLogger::getInstance()->flushAuditWrites();
         $patient = QueryUtils::fetchSingleValue(
             "SELECT patient_id FROM log WHERE id > ? AND event LIKE 'patient-record-%' ORDER BY id DESC LIMIT 1",
             'patient_id',
@@ -132,6 +137,7 @@ class BillingProcessorAuditPatientTest extends TestCase
             'bn_mark' => '1',
             'claims' => [$pid . '-' . self::CLAIM_ENCOUNTER => ['bill' => '1', 'partner' => '-1', 'payer' => 'p0']],
         ]))->execute();
+        EventAuditLogger::getInstance()->flushAuditWrites();
 
         $this->assertSame(
             [],
@@ -146,9 +152,11 @@ class BillingProcessorAuditPatientTest extends TestCase
 
     public function testX12ClaimsReadOnlyTheirOwnPatientsRowsUnderTheirPatient(): void
     {
-        // X12 Direct (one batch per partner), with SELECTs audited too.
+        // X12 Direct (one batch per partner). Statement mode keeps each
+        // SELECT, which is what this test reads back out of the log.
         $this->setGlobal('gen_x12_based_on_ins_co', '1');
         $this->setGlobal('audit_events_query', '1');
+        $this->setGlobal('audit_events_query_mode', 'statement');
         self::resetAuditLogger();
         $this->insertX12Claims();
         $before = $this->lastLogId();
@@ -162,6 +170,7 @@ class BillingProcessorAuditPatientTest extends TestCase
                 self::SECOND_PID . '-' . self::SECOND_ENCOUNTER => $claim,
             ],
         ]))->execute();
+        EventAuditLogger::getInstance()->flushAuditWrites();
 
         // The log keeps each statement, with its binds, base64-encoded in comments.
         $readsOf = function (int $auditedAs, int $readPid) use ($before): int {

@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\Portal;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use PHPUnit\Framework\Attributes\Test;
@@ -134,6 +135,7 @@ class PortalMailArchiveTest extends TestCase
         $this->insertMessage(self::OWNER, 'Staff Sender', 'Portal Recipient');
 
         updatePortalMailMessageStatus(self::MAIL_CHAIN, 'Delete', self::OWNER);
+        EventAuditLogger::getInstance()->flushAuditWrites();
 
         $this->assertSame(
             'secure message soft delete by ' . self::AUDIT_USER . ' msg id: ' . self::MAIL_CHAIN .
@@ -149,6 +151,7 @@ class PortalMailArchiveTest extends TestCase
         $messageId = $this->insertMessage(self::OWNER, '', '');
 
         updatePortalMailMessageStatus($messageId, 'Delete', self::OWNER);
+        EventAuditLogger::getInstance()->flushAuditWrites();
 
         $archivedRow = $this->getMessageState($messageId);
         $this->assertSame('Delete', $archivedRow['message_status']);
@@ -234,16 +237,6 @@ class PortalMailArchiveTest extends TestCase
         QueryUtils::sqlStatementThrowException(
             'DELETE FROM onsite_mail WHERE `owner` IN (?, ?)',
             [self::OWNER, self::OTHER_OWNER],
-        );
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM log_comment_encrypt WHERE log_id IN (' .
-            'SELECT id FROM `log` WHERE user = ? AND event = ? AND groupname = ?' .
-            ')',
-            [self::AUDIT_USER, 'delete', 'Portal'],
-        );
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM `log` WHERE user = ? AND event = ? AND groupname = ?',
-            [self::AUDIT_USER, 'delete', 'Portal'],
         );
     }
 }
