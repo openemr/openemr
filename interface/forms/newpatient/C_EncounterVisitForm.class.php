@@ -113,7 +113,11 @@ class C_EncounterVisitForm
     }
 
 
-// Providers with more than one taxonomy code: provider id => [code, name] pairs, primary first
+/**
+     * Providers with more than one taxonomy code: provider id => [code, name] pairs, primary first.
+     *
+     * @return array<int, list<array{code: string, name: string}>>
+     */
     public function getProviderTaxonomiesForTemplate(): array
     {
         $service = new UserTaxonomyService();
