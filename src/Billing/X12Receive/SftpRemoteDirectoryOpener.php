@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Billing\X12Receive;
 
 use OpenEMR\Billing\BillingProcessor\SftpConnector;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use Psr\Log\LoggerInterface;
 
@@ -28,13 +29,19 @@ final readonly class SftpRemoteDirectoryOpener implements RemoteDirectoryOpener
 
     public function open(ReceivePartner $partner): ?RemoteDirectory
     {
+        try {
+            $password = $this->crypto->decryptFromDatabase($partner->encryptedPassword);
+        } catch (CryptoGenException $e) {
+            // One partner's unreadable password must not stop the run for the others; the
+            // caller counts this partner as unreachable and goes on to the next.
+            $this->logger->error('X12 receive: the stored SFTP password could not be decrypted', [
+                'partner' => $partner->id,
+                'exception' => $e,
+            ]);
+            return null;
+        }
         $connector = new SftpConnector(logger: $this->logger);
-        $sftp = $connector->connect(
-            $partner->host,
-            $partner->port,
-            $partner->login,
-            $this->crypto->decryptFromDatabase($partner->encryptedPassword),
-        );
+        $sftp = $connector->connect($partner->host, $partner->port, $partner->login, $password);
         if ($sftp === null) {
             $this->logger->warning('X12 receive: could not connect to the partner', ['partner' => $partner->id]);
             return null;
