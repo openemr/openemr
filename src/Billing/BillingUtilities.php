@@ -1906,9 +1906,11 @@ class BillingUtilities
     }
 
     /**
-     * Store this file name only while the unbilled row has no other name.
+     * Store this file name only while no other unbilled claim owns the rows.
      *
-     * A different name means another run already owns the row.
+     * A billed claim's file name can be replaced. An open claim's name
+     * cannot, so two payers cannot publish one file and leave the other
+     * unbilled.
      */
     public static function assignUnbilledClaimFile(
         mixed $patientId,
@@ -1946,6 +1948,28 @@ class BillingUtilities
                 $status = $row['status'] ?? null;
                 if ($status !== BillingClaim::STATUS_LEAVE_UNBILLED && $status !== '1') {
                     return false;
+                }
+
+                $otherFiles = QueryUtils::fetchRecords(
+                    "SELECT process_file FROM billing WHERE pid = ? AND encounter = ? AND activity = 1 "
+                    . "AND process_file IS NOT NULL AND process_file <> '' AND process_file <> ?",
+                    [$patientId, $encounterId, $filename]
+                );
+                if ($otherFiles !== []) {
+                    $openOwners = QueryUtils::fetchRecords(
+                        "SELECT version FROM claims WHERE patient_id = ? AND encounter_id = ? "
+                        . "AND status = ? AND process_file IS NOT NULL AND process_file <> '' "
+                        . "AND process_file <> ?",
+                        [
+                            $patientId,
+                            $encounterId,
+                            BillingClaim::STATUS_LEAVE_UNBILLED,
+                            $filename,
+                        ]
+                    );
+                    if ($openOwners !== []) {
+                        throw new \RuntimeException('Another unbilled claim still names these billing rows');
+                    }
                 }
 
                 QueryUtils::sqlStatementThrowException(
@@ -2138,7 +2162,12 @@ class BillingUtilities
     }
 
     /**
-     * Lock name for one claim on this database.
+     * Lock name for one encounter on this database.
+     *
+     * The payer is checked and then left out. Two payers on the same
+     * encounter share the fence, so one run cannot replace the other's
+     * file name before settlement. A later run can take the fence after
+     * that claim is billed and store its own name.
      *
      * The database name is part of the fence, so two sites on one server do
      * not block each other. A name longer than 64 characters is a hash of
@@ -2153,12 +2182,12 @@ class BillingUtilities
             return null;
         }
 
-        $readable = 'openemr_x12_' . $site . '_' . $patient . '_' . $encounter . '_' . $payer;
+        $readable = 'openemr_x12_' . $site . '_' . $patient . '_' . $encounter;
         if (strlen($readable) <= 64 && preg_match('/^[A-Za-z0-9_]+$/', $readable) === 1) {
             return $readable;
         }
 
-        $hashed = 'openemr_x12_' . substr(hash('sha256', $site . "\0" . $patient . "\0" . $encounter . "\0" . $payer), 0, 52);
+        $hashed = 'openemr_x12_' . substr(hash('sha256', $site . "\0" . $patient . "\0" . $encounter), 0, 52);
         if (strlen($hashed) > 64) {
             return null;
         }
