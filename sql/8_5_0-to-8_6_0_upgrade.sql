@@ -366,3 +366,8 @@ INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`,
     ('PTFINDER', 'insurance_primary_policy', '1', 'Insurance ID', 30, 2, 1, 20, 60, '', 1, 2, '', '["J"]', 'Policy number of the primary insurance in effect today', 0),
     ('PTFINDER', 'address_full', '1', 'Address', 40, 2, 1, 20, 200, '', 1, 7, '', '["J"]', 'Street, city, state and postal code', 0);
 #EndIf
+
+-- Patient Finder column lists: named after the finder and its tabs, so they sit together in
+-- Administration > Lists. Only a name still at its default changes; a site's own name stays.
+UPDATE `list_options` SET `title` = 'Patient Finder – Patient List Columns' WHERE `list_id` = 'lists' AND `option_id` = 'ptlistcols' AND `title` = 'Patient List Columns';
+UPDATE `list_options` SET `title` = 'Patient Finder – Recent Patients Columns' WHERE `list_id` = 'lists' AND `option_id` = 'recent_patient_columns' AND `title` = 'Recent Patient Columns';

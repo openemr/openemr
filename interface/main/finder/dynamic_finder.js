@@ -247,7 +247,7 @@
             // Keep the expand-button column first when columns are dragged.
             "colReorder": {"fixedColumnsLeft": columnOffset},
             // Let CSS size the table to its container; DataTables' computed pixel width
-            // overflowed it by a pixel. Column widths set in Patient List Columns still apply.
+            // overflowed it by a pixel. Column widths set in Patient Finder – Patient List Columns still apply.
             "autoWidth": false,
             "order": columns.map(function (c, idx) {
                 return [idx + columnOffset, c.sortDir];
