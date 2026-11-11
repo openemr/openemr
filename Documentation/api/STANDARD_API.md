@@ -176,10 +176,16 @@ Accept: application/json
     1. `GET /fhir/ServiceRequest?patient=<patient-uuid>&category=3457005` and find the referral;
        its `id` is the uuid.
     2. `GET /fhir/Task?focus=ServiceRequest/<uuid>`.
-    3. Look for a Task whose `owner` is the intended recipient and that is not `cancelled` or
-       `entered-in-error`. A Task for an earlier recipient does not count.
+    3. Look for the referral's own Task for the intended recipient: `code` is `fulfill`, it has
+       no `partOf`, and `owner` is that recipient. A recipient's sub-Task, or a Task for an
+       earlier recipient, does not count.
+    4. Read its `status` and `statusReason`. A Task OpenEMR set aside does not count either: it
+       is `cancelled` or `entered-in-error` with one of OpenEMR's own reasons, such as "The
+       referral was sent to another recipient." A Task the recipient itself cancelled, rejected
+       or failed does count, and saving the referral again will not replace it: staff use
+       **Re-send** on the referral screen.
 
-  If there is none, save the referral again. A client without FHIR access cannot check; staff can
+  If there is no Task that counts, save the referral again. A client without FHIR access cannot check; staff can
   see the referral's status on the Transactions screen.
 - The API does not write the Reply Date, so it cannot close a referral.
 - `authorization`, `visits`, `validFrom` and `validThrough` are stored, but the stock referral

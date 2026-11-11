@@ -225,8 +225,11 @@ referral's page shows how the recipient was told, and a Direct send whose delive
 
 A notice is sent only when a save creates a new Task for a recipient, and on Re-send. A save that
 creates no new Task sends nothing, so turning the notice setting on later and saving again does
-not send the referral. A save that changes Refer To does create a Task for the new recipient, and
-so sends them the C-CDA: check Refer To before saving. Direct messaging itself must be enabled (section F); without it
+not send the referral. A save that changes Refer To creates a Task for the new recipient,
+and so sends them the C-CDA, when the referral has no Reply Date and the new recipient can own a
+Task (see "When a Task is made" in Documentation/REFERRAL_WORKFLOWS.md). Check Refer To before
+saving, and check the referral's page afterwards for how the recipient was told: if no Task was
+made, nothing was sent. Direct messaging itself must be enabled (section F); without it
 the referral's page says that Direct was not available.
 
 2. Sending by hand: The Direct section of the Care Coordination send form offers the selected

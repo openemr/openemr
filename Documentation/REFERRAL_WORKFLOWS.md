@@ -288,12 +288,18 @@ Every update follows the same three steps: read the Task, change it, and send th
 back with the version just read. This uses `jq`; `meta.versionId` is the version for `If-Match`.
 Read the Task again before each update, because every update changes the version.
 
-Accept it:
+Set up once. The files hold patient information, so keep them in a private directory and remove
+it when done:
 
 ```bash
 BASE='https://emr.example.org/apis/default/fhir'
 TASK="$BASE/Task/<task-uuid>"
+WORK=$(mktemp -d) && cd "$WORK"
+```
 
+Accept it:
+
+```bash
 curl -s "$TASK" -H 'Authorization: Bearer <token>' > task.json
 jq '.status = "accepted"' task.json > update.json
 curl -X PUT "$TASK" \
@@ -330,6 +336,12 @@ curl -X PUT "$TASK" \
   -H 'Content-Type: application/fhir+json' \
   -H "If-Match: W/\"$(jq -r '.meta.versionId' task.json)\"" \
   --data @update.json
+```
+
+When finished, remove the working files:
+
+```bash
+cd / && rm -rf "$WORK"
 ```
 
 **A note returned as text is not shown in OpenEMR.** The referral page and the inbox message

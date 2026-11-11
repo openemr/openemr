@@ -950,8 +950,9 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/ServiceRequest?patient=<pa
 With the **Track Referrals with FHIR Tasks** global on, saving a referral makes its Task:
 `requested`, `intent` order, `code` fulfill, `focus` the referral, `owner` Refer To,
 `requester` Refer By. `requester` is left out when FHIR cannot serve Refer By as a Practitioner
-(no NPI), so a client must not rely on it. It is set when the Task is made and not updated
+(no NPI), so a client must not rely on it. Saving the referral sets it when the Task is made and does not update it
 afterwards: if Refer By changes, or gains an NPI, an existing Task keeps its old `requester`.
+A Task `PUT` can still change or remove it, so send back the `requester` that was read.
 The referral ServiceRequest's `requester` is always the current one.
 
 - No Task is made when FHIR cannot serve Refer To as a Practitioner or an Organization (a
