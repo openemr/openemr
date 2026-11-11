@@ -234,8 +234,10 @@ CodeRabbit's review system has non-obvious behaviors that confuse first-time she
   limitation: …", "Two points remain: …", "Please …".
 - A reply to a PR comment is easy to miss: it is not a review, has no thread and no
   resolved state, and walking review bodies (§2.5) or threads (§2.7) does not reach it.
-  Pull `issues/<N>/comments` and read every rabbit reply posted after the author's last
-  comment to the end.
+  Pull `issues/<N>/comments` and read to the end every rabbit reply posted since you last
+  read them: for the pre-merge check (per-pr-review §12), since the brief was written. The
+  author's last comment is not a safe starting point, because the author may have
+  commented after a caveat without answering it.
 - Each caveat or ask gets its own raised → addressed → confirmed row, like an inline
   finding. Most are small (a test limitation, a request to check something by hand); they
   can be answered with a fix, a code comment, or a reply, but not left unread. A question
