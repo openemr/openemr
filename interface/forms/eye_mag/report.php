@@ -32,12 +32,25 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+require_once(__DIR__ . "/../../../library/options.inc.php");
 require_once(__DIR__ . "/../../../controllers/C_Document.class.php");
 
+use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\EyeFormData;
+use OpenEMR\Forms\EyeMag\ProviderSignature;
+use OpenEMR\Forms\EyeMag\ReportRenderer;
 use OpenEMR\Services\FacilityService;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_embed_materials;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_iop_method_labels;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_materials_for_report;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_motility_display_preference;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_patient_photo;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -49,24 +62,24 @@ $facilityService = new FacilityService();
 
 require_once(__DIR__ . "/../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
-if ($_REQUEST['CHOICE'] ?? '') {
-    $choice = $_REQUEST['choice'];
+if (CurrentRequest::get()->request->get('CHOICE', CurrentRequest::get()->query->get('CHOICE')) ?? '') {
+    $choice = CurrentRequest::get()->request->get('choice', CurrentRequest::get()->query->get('choice'));
 }
 
-if ($_REQUEST['ptid'] ?? '') {
-    $pid = $_REQUEST['ptid'];
+if (CurrentRequest::get()->request->get('ptid', CurrentRequest::get()->query->get('ptid')) ?? '') {
+    $pid = CurrentRequest::get()->request->get('ptid', CurrentRequest::get()->query->get('ptid'));
 }
 
-if ($_REQUEST['encid'] ?? '') {
-    $encounter = $_REQUEST['encid'];
+if (CurrentRequest::get()->request->get('encid', CurrentRequest::get()->query->get('encid')) ?? '') {
+    $encounter = CurrentRequest::get()->request->get('encid', CurrentRequest::get()->query->get('encid'));
 }
 
-if ($_REQUEST['formid'] ?? '') {
-    $form_id = $_REQUEST['formid'];
+if (CurrentRequest::get()->request->get('formid', CurrentRequest::get()->query->get('formid')) ?? '') {
+    $form_id = CurrentRequest::get()->request->get('formid', CurrentRequest::get()->query->get('formid'));
 }
 
-if ($_REQUEST['formname'] ?? '') {
-    $form_name = $_REQUEST['formname'];
+if (CurrentRequest::get()->request->get('formname', CurrentRequest::get()->query->get('formname')) ?? '') {
+    $form_name = CurrentRequest::get()->request->get('formname', CurrentRequest::get()->query->get('formname'));
 }
 
 if (!($id ?? '')) {
@@ -76,12 +89,13 @@ if (!($id ?? '')) {
 // Get users preferences, for this user
 // (and if not the default where a fresh install begins from, or someone else's)
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
-$result = sqlStatement($query, [$session->get('authUserID')]);
-while ($prefs = sqlFetchArray($result)) {
+$result = QueryUtils::fetchRecords($query, [$session->get('authUserID')]);
+foreach ($result as $prefs) {
     $LOCATION = $prefs['LOCATION'];
     ${$LOCATION} = text($prefs['GOVALUE']);
 }
 
+/** Resolve the requested Eye Form record and render its encounter report. */
 function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): void
 {
     global $form_folder;
@@ -96,6 +110,23 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
    * Note that without encounter in each table,
    * custom clinical reminders that wish to access Eye Form data do not work.
    */
+    // Encounter summary and PDF render every form's report in ONE shared
+    // request scope, so an inherited $form_id may belong to a different form
+    // (or be absent) — either way the FORM_ID-keyed Wear lookup misses and
+    // Wear never renders there. Always resolve this encounter's eye form.
+    // $form_id is already function-global; refresh it unconditionally.
+    $requestedFormId = EyeFormData::integer($id);
+    $fidRow = $requestedFormId > 0 ? QueryUtils::querySingleRow(
+        "SELECT form_id FROM forms WHERE pid=? AND encounter=? AND formdir='eye_mag' AND deleted!='1' AND form_id=? LIMIT 1",
+        [$pid ?? null, $encounter ?? null, $requestedFormId]
+    ) : [];
+    if (!($fidRow['form_id'] ?? null)) {
+        $fidRow = QueryUtils::querySingleRow(
+            "SELECT form_id FROM forms WHERE pid=? AND encounter=? AND formdir='eye_mag' AND deleted!='1' ORDER BY form_id DESC LIMIT 1",
+            [$pid ?? null, $encounter ?? null]
+        );
+    }
+    $form_id = (bool) ($fidRow['form_id'] ?? null) ? EyeFormData::integer($fidRow['form_id']) : null;
 
     $query = "  select  *,form_encounter.date as encounter_date
 
@@ -120,10 +151,11 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
                     forms.form_id=form_eye_postseg.id and
                     forms.form_id=form_eye_neuro.id and
                     forms.form_id=form_eye_locking.id and
+                    forms.form_id=? and
                     forms.encounter=? and
                     forms.pid=? ";
-    $objQuery = sqlQuery($query, [$encounter,$pid]);
-    @extract($objQuery);
+    $objQuery = QueryUtils::querySingleRow($query, [$form_id, $encounter, $pid]);
+    @extract(EyeFormData::row($objQuery));
     // Default columns from joined form_eye_* tables so PHPStan can verify them after @extract.
     $encounter_date ??= null;
     // End column defaults.
@@ -171,12 +203,17 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
         <?php
     } elseif ($choice == 'TEXT') {
         //just display HPI and A/P
-        narrative($pid, $encounter, $cols, $id, 'TEXT');
+        narrative($pid, $encounter, $cols, $form_id, 'TEXT');
     } else {
-        narrative($pid, $encounter, $cols, $id, 'narrative');
+        narrative($pid, $encounter, $cols, $form_id, 'narrative');
         //return;
     }
 }
+
+
+
+
+
 function left_overs(): void
 {
   /*
@@ -198,11 +235,19 @@ function left_overs(): void
  *  It relies on the presence of the PMSFH,IMPPLAN arrays.
  *  Rest of fields are pulled from the DB.
  */
-function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
+/** Render the selected exam narrative, prescriptions, drawings, and patient materials. */
+function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $materialsPdf = null): void
 {
     global $form_folder;
     global $PDF_OUTPUT;
 
+    $reportPdf = $materialsPdf ?? OEGlobalsBag::getInstance()->get('pdf');
+    $reportPdf = $reportPdf instanceof Mpdf ? $reportPdf : null;
+    if ($PDF_OUTPUT && $reportPdf instanceof Mpdf) {
+        // Keep continued report sections clear of the host report's page header.
+        $reportPdf->setAutoTopMargin = 'stretch';
+        $reportPdf->autoMarginPadding = max(3, EyeFormData::number($reportPdf->autoMarginPadding));
+    }
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
   //and any clinical area that is blank.
@@ -229,11 +274,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     forms.form_id=form_eye_postseg.id and
                     forms.form_id=form_eye_neuro.id and
                     forms.form_id=form_eye_locking.id and
+                    forms.form_id=? and
                     forms.encounter=? and
                     forms.pid=? ";
 
-    $encounter_data = sqlQuery($query, [$encounter, $pid]);
-    @extract($encounter_data);
+    $encounter_data = QueryUtils::querySingleRow($query, [$form_id, $encounter, $pid]);
+    $reportRow = EyeFormData::row($encounter_data);
+    @extract($reportRow);
     // Default columns from joined form_eye_* tables so PHPStan can verify them after @extract.
     $ACT ??= null; $ACT10CCDIST ??= null; $ACT10CCNEAR ??= null; $ACT10SCDIST ??= null; $ACT10SCNEAR ??= null;
     $ACT11CCDIST ??= null; $ACT11CCNEAR ??= null; $ACT11SCDIST ??= null; $ACT11SCNEAR ??= null;
@@ -267,7 +314,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     $LOCATION3 ??= null; $LTEMPART ??= null; $LUL ??= null; $LVFISSURE ??= null; $MODIFY1 ??= null;
     $MODIFY2 ??= null; $MODIFY3 ??= null; $MOTILITYNORMAL ??= null; $MOTILITY_L0 ??= null; $MOTILITY_LI ??= null;
     $MOTILITY_LL ??= null; $MOTILITY_LLIO ??= null; $MOTILITY_LLSO ??= null; $MOTILITY_LR ??= null;
-    $MOTILITY_LRSO ??= null; $MOTILITY_LS ??= null; $MOTILITY_R0 ??= null; $MOTILITY_RI ??= null;
+    $MOTILITY_LRSO ??= null; $MOTILITY_LRIO ??= null; $MOTILITY_LS ??= null; $MOTILITY_R0 ??= null; $MOTILITY_RI ??= null;
     $MOTILITY_RL ??= null; $MOTILITY_RLIO ??= null; $MOTILITY_RLSO ??= null; $MOTILITY_RR ??= null;
     $MOTILITY_RRIO ??= null; $MOTILITY_RRSO ??= null; $MOTILITY_RS ??= null; $MRNEARODVA ??= null;
     $MRNEAROSVA ??= null; $MRODADD ??= null; $MRODAXIS ??= null; $MRODCYL ??= null; $MRODPRISM ??= null;
@@ -296,9 +343,20 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     $RETINA_COMMENTS ??= null; $RLF ??= null; $RLL ??= null; $RMCT ??= null; $RMRD ??= null; $RTEMPART ??= null;
     $RUL ??= null; $RVFISSURE ??= null; $RX_TYPE ??= null; $SCNEARODVA ??= null; $SCNEAROSVA ??= null;
     $SCODVA ??= null; $SCOSVA ??= null; $SEVERITY1 ??= null; $SEVERITY2 ??= null; $SEVERITY3 ??= null;
-    $STEREOPSIS ??= null; $TIMING1 ??= null; $TIMING2 ??= null; $TIMING3 ??= null; $VERTFUSAMPS ??= null;
+    $STEREOPSIS ??= null; $STEREO_FLY ??= null; $STEREO_ANIMALS ??= null; $STEREO_CIRCLES ??= null; $STEREO_FIXATION_PREF ??= null;
+    $TIMING1 ??= null; $TIMING2 ??= null; $TIMING3 ??= null; $VERTFUSAMPS ??= null;
     $display_Add ??= null; $encounter_date ??= null; $pend ??= null;
     // End column defaults.
+    $reportRefractions = ReportRenderer::refractions(EyeFormData::integer($pid), EyeFormData::integer($encounter), EyeFormData::integer($form_id));
+    /** Determine whether the report contains a documented refraction section with the requested label. */
+    $hasReportRefraction = static function (string $label) use ($reportRefractions): bool {
+        foreach ($reportRefractions as $section) {
+            if (str_starts_with($section['label'], $label)) {
+                return true;
+            }
+        }
+        return false;
+    };
     $providerID = getProviderIdOfEncounter($encounter);
     $providerNAME = getProviderName($providerID);
     $dated = new DateTime($encounter_date);
@@ -306,10 +364,45 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     $visit_date = oeFormatShortDate($dated);
     ?>
 
-    <?php Header::setupHeader(['no_dialog', 'no_jquery', 'fontawesome']); ?>
+    <?php
+    // The PDF path must not load the web theme: mPDF fetches it over HTTP, and
+    // Bootstrap's layout rules collapse the report's nested tables, spreading the
+    // Alternate Cover Test grid one cell per page with the page footer squeezed
+    // into a one-character column (18 pages instead of 2).
+    if (!$PDF_OUTPUT) {
+        Header::setupHeader(['no_dialog', 'no_jquery', 'fontawesome']);
+    }
+    ?>
     <link rel="stylesheet" href="../../forms/eye_mag/css/report.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>">
     <style>
         <?php if ($PDF_OUTPUT) { ?>
+        /* ONE body size. ReportRenderer::flushPdf((bool) $PDF_OUTPUT) strips every inline font-size below
+           the letterhead, so text inherits 9pt from .rpt-body; the report.css
+           classes that set their own size are pinned to it as well. */
+        .rpt-body, .report_exam_group, .report_section, .rpt-pdf, .rpt-vitals {
+            font-size: 9pt;
+        }
+        .rpt-letterhead {
+            font-size: 10pt;
+        }
+        .rpt-h {
+            font-weight: bold;
+            color: #fff;
+            background-color: #356b77;
+            padding: 3pt 5pt;
+            margin: 0 0 3pt 0;
+            width: 100%;
+        }
+        table.report_section { border-collapse: collapse; width: 100%; }
+        .report_section td { padding: 2pt 3pt !important; vertical-align: middle; }
+        .report-bilateral td.rl-m, .report-bilateral td:nth-child(2) { background-color: #f0f5f5; }
+        .report_section tr.rl-head td { background-color: #fff; font-weight: bold; text-decoration: none; color: #354d55; }
+        .report-measurements, .report-detail-values { margin-top: 4pt; }
+        .report-measurement-head td { background-color: #e9f1f2; color: #294b54; font-weight: bold; }
+        .report-measurements td:first-child, .report-detail-values td:first-child { text-align: left; }
+        .report-measurements td, .report-detail-values td { text-align: center; }
+        .act-tab { background-color: #356b77; color: #fff; padding: 2pt 3pt; }
+        .report_exam_group td.act-cell { padding: 0 !important; line-height: 1; }
         .mot {
             text-align: center;
             width: 3mm;
@@ -317,6 +410,34 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
         }
 
         <?php } else { ?>
+        .eye-report { color: #1f3037; font-family: Arial, sans-serif; line-height: 1.4; max-width: 1100px; }
+        .eye-report .report_exam_group { font-size: 13px; margin: 12px 0; max-width: none; text-align: left; width: 100%; }
+        .eye-report-heading { background: #356b77; border-radius: 3px; color: #fff; font-size: 14px; font-weight: 600; margin: 0 0 6px; padding: 6px 9px; text-align: left; }
+        .eye-report .eye-zone-layout { border-collapse: collapse; table-layout: fixed; width: 100%; }
+        .eye-report .eye-zone-content { padding: 0; text-align: left; vertical-align: top; }
+        .eye-report .eye-zone-drawing { padding: 8px 0 6px 16px; text-align: center; vertical-align: top; width: 38%; }
+        .eye-report .eye-zone-drawing img { height: auto !important; max-width: 100%; width: 300px !important; }
+        .eye-report .report_section { border-collapse: collapse; font-size: inherit; margin: 0; width: 100%; }
+        .eye-report .report_section td { border-bottom: 1px solid #e5ecee; padding: 4px 6px !important; vertical-align: middle; }
+        .eye-report .report-bilateral td:nth-child(2) { background: #f1f6f6; color: #294b54; }
+        .eye-report .report_section tr.rl-head td { background: #fff; color: #526970; font-weight: 600; text-decoration: none !important; }
+        .eye-report .report-measurements, .eye-report .report-detail-values { margin-top: 10px; }
+        .eye-report .report-measurement-head td { background: #e9f1f2; color: #294b54; font-weight: 600; }
+        .eye-report .report-measurements td, .eye-report .report-detail-values td { text-align: center; }
+        .eye-report .report-measurements td:first-child, .eye-report .report-detail-values td:first-child { text-align: left; }
+        .eye-report .rpt-vitals { border: 1px solid #cddbdd !important; border-radius: 4px !important; box-shadow: none !important; margin: 12px 0; table-layout: fixed; width: 100% !important; }
+        .eye-report .rpt-vitals > tbody > tr > td { float: none; padding: 6px 4px !important; vertical-align: top; }
+        .eye-report .report_vitals { float: none; }
+        .eye-report .refraction_tables { border-collapse: collapse; font-size: 13px; margin: 12px 0; width: 100%; }
+        .eye-report .refraction_tables td { font-size: 13px !important; padding: 4px; }
+        .eye-report-print-pdf { background: #356b77; border: 0; border-radius: 3px; color: #fff; cursor: pointer; margin: 6px 0; padding: 8px 12px; }
+        .eye-report-materials { font-size: 13px; margin: 12px 0; max-width: 1100px; }
+        @media print { .eye-report-print-pdf { display: none; } }
+        @media (max-width: 760px) {
+            .eye-report .eye-zone-layout, .eye-report .eye-zone-layout > tbody, .eye-report .eye-zone-layout > tbody > tr,
+            .eye-report .eye-zone-content, .eye-report .eye-zone-drawing { display: block; width: 100%; }
+            .eye-report .eye-zone-drawing { padding: 10px 0 0; }
+        }
         .mot {
             text-align: center;
             width: 5mm;
@@ -325,10 +446,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
 
         <?php }  ?>
     </style>
-    <div>
+    <?php
+    if ($PDF_OUTPUT) {
+        ob_start();
+    }
+    ?>
+    <div class="eye-report">
     <?php
     if (in_array($cols, ['Fax', 'Report', 'Fax-resend'])) {
-        echo report_header($pid, 'PDF');
+        $letterhead = report_header($pid, 'PDF');
+        echo $PDF_OUTPUT ? '<div class="rpt-letterhead">' . $letterhead . '</div><!--/rpt-letterhead-->' : $letterhead;
     }
 
     if ($PDF_OUTPUT) {
@@ -339,10 +466,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     }
 
     ?><br /><br />
-    <table class="report_exam_group">
+    <table class="report_exam_group rpt-cc"<?php echo $PDF_OUTPUT ? ' style="width:100%;max-width:none;"' : ''; ?>>
         <tr>
             <td style="text-align:left;padding:1px;vertical-align:top;max-width:720px;">
-                <table style="padding:5px;width:700px;">
+                <table style="padding:5px;width:<?php echo $PDF_OUTPUT ? '100%' : '700px'; ?>;">
                     <tr>
                         <td style="text-align: justify;text-justify: inter-word;width:100%;">
                             <b><?php echo xlt('Chief Complaint'); ?>:</b> &nbsp;<?php echo text($CC1); ?>
@@ -499,7 +626,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     </tr>
                 </table>
             </td>
-            <td style="width:220px;padding:1px;vertical-align:top;">
+            <td style="<?php echo $PDF_OUTPUT ? '' : 'width:140px;'; ?>padding:1px;vertical-align:top;">
 
                 <?php
                     /**
@@ -510,17 +637,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                      * Instead, we will check manually here for a patient_photograph
                      * and if it exists, display it via the Document class.
                      */
-                    $sql = "SELECT doc.id AS id
-                 FROM documents doc
-                 JOIN categories_to_documents cate_to_doc
-                   ON doc.id = cate_to_doc.document_id
-                 JOIN categories cate
-                   ON cate.id = cate_to_doc.category_id
-                WHERE cate.name LIKE ? and doc.foreign_id = ?";
+                    $result = eye_mag_patient_photo($pid);
 
-                    $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->getString('patient_photo_category_name'), $pid]);
-
-                if (empty($result) || empty($result['id'])) {
+                if (!($result) || !($result['id'] ?? null)) {
                     //echo "no photo";
                 } else {
                     //get patient photo
@@ -529,17 +648,22 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     // allows once the caller has asked for the retrieve key.
                     $tempDocC->onReturnRetrieveKey();
                     try {
-                        $fileTemp = $tempDocC->retrieve_action($pid, -1, false, true, true, true, 'patient_picture');
-                        if (!empty($fileTemp)) {
+                        $fileTemp = $tempDocC->retrieve_action((string) $pid, $result['id'], false, true, true, true, 'patient_picture');
+                        $fileTemp = EyeFormData::text($fileTemp);
+                        if ((bool) ($fileTemp)) {
                             if ($PDF_OUTPUT) {
-                                // tmp file in ../documents/temp since need to be available via webroot
-                                $from_file_tmp_web_name = tempnam(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp', "oer");
-                                file_put_contents($from_file_tmp_web_name, $fileTemp);
-                                echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
-                                $tmp_files_remove[] = $from_file_tmp_web_name;
+                                if ($reportPdf instanceof Mpdf) {
+                                    // Keep large photos out of the HTML parser while retaining the original bytes in memory.
+                                    $photoKey = 'eye_patient_photo_' . EyeFormData::integer($pid) . '_' . EyeFormData::integer($result['id']);
+                                    $reportPdf->imageVars[$photoKey] = $fileTemp;
+                                    echo "<img src='var:" . attr($photoKey) . "' style='width:140px;'>";
+                                } else {
+                                    $photoMime = str_starts_with($fileTemp, "\x89PNG") ? 'image/png' : (str_starts_with($fileTemp, 'GIF8') ? 'image/gif' : 'image/jpeg');
+                                    echo "<img src='data:" . $photoMime . ';base64,' . base64_encode($fileTemp) . "' style='width:140px;'>";
+                                }
                             } else {
-                                $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
-                                echo "<img src='" . $filetoshow . "' style='width:220px;'>";
+                                $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url(EyeFormData::text($pid)) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
+                                echo "<img src='" . $filetoshow . "' style='width:140px;'>";
                             }
                         }
                     } catch (\Throwable $ex) {
@@ -551,10 +675,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
         </tr>
     </table>
     <?php
+    if ($choice === 'TEXT') {
+        ReportRenderer::renderRefractionSummary($reportRefractions);
+    }
     if ($choice !== 'TEXT') {
         //exclude all of this from displaying on the summary mouseover by default
         ?>
-        <table style="margin:1px auto;" class="report_exam_group">
+        <table style="margin:1px auto;" class="report_exam_group rpt-pmsfh">
             <tr>
                 <td style="width:680px;text-align:center;margin:1 auto;">
                     <?php
@@ -563,39 +690,51 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         show_PMSFH_report($PMSFH);
                     }
 
-                        $count_rx = '0';
+                        $count_rx = 0;
+                        $wearingRows = [];
 
                         $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? ORDER BY RX_NUMBER";
-                        $wear = sqlStatement($query, [$pid, $form_id, $encounter]);
-                    while ($wearing = sqlFetchArray($wear)) {
+                        $wear = QueryUtils::sqlStatementThrowException($query, [$pid, $form_id, $encounter]);
+                    while ($wearing = QueryUtils::fetchArrayFromResultSet($wear)) {
+                        $wearing = EyeFormData::textRow(EyeFormData::row($wearing));
                         $count_rx++;
-                        ${"display_W_$count_rx"} = '';
-                        ${"ODSPH_$count_rx"} = $wearing['ODSPH'];
-                        ${"ODCYL_$count_rx"} = $wearing['ODCYL'];
-                        ${"ODAXIS_$count_rx"} = $wearing['ODAXIS'];
-                        ${"OSSPH_$count_rx"} = $wearing['OSSPH'];
-                        ${"OSCYL_$count_rx"} = $wearing['OSCYL'];
-                        ${"OSAXIS_$count_rx"} = $wearing['OSAXIS'];
-                        ${"ODMIDADD_$count_rx"} = $wearing['ODMIDADD'];
-                        ${"OSMIDADD_$count_rx"} = $wearing['OSMIDADD'];
-                        ${"ODADD_$count_rx"} = $wearing['ODADD'];
-                        ${"OSADD_$count_rx"} = $wearing['OSADD'];
-                        ${"ODVA_$count_rx"} = $wearing['ODVA'];
-                        ${"OSVA_$count_rx"} = $wearing['OSVA'];
-                        ${"ODNEARVA_$count_rx"} = $wearing['ODNEARVA'];
-                        ${"OSNEARVA_$count_rx"} = $wearing['OSNEARVA'];
-                        ${"ODPRISM_$count_rx"} = $wearing['ODPRISM'] ?? '';
-                        ${"OSPRISM_$count_rx"} = $wearing['OSPRISM'] ?? '';
-                        ${"COMMENTS_$count_rx"} = $wearing['COMMENTS'];
-                        ${"W_$count_rx"} = '1';
-                        ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
+                        $wearingRows[$count_rx]['display_W'] = '';
+                        $wearingRows[$count_rx]['ODSPH'] = $wearing['ODSPH'];
+                        $wearingRows[$count_rx]['ODCYL'] = $wearing['ODCYL'];
+                        $wearingRows[$count_rx]['ODAXIS'] = $wearing['ODAXIS'];
+                        $wearingRows[$count_rx]['OSSPH'] = $wearing['OSSPH'];
+                        $wearingRows[$count_rx]['OSCYL'] = $wearing['OSCYL'];
+                        $wearingRows[$count_rx]['OSAXIS'] = $wearing['OSAXIS'];
+                        $wearingRows[$count_rx]['ODMIDADD'] = $wearing['ODMIDADD'];
+                        $wearingRows[$count_rx]['OSMIDADD'] = $wearing['OSMIDADD'];
+                        $wearingRows[$count_rx]['ODADD'] = $wearing['ODADD'];
+                        $wearingRows[$count_rx]['OSADD'] = $wearing['OSADD'];
+                        $wearingRows[$count_rx]['ODVA'] = $wearing['ODVA'];
+                        $wearingRows[$count_rx]['OSVA'] = $wearing['OSVA'];
+                        $wearingRows[$count_rx]['ODNEARVA'] = $wearing['ODNEARVA'];
+                        $wearingRows[$count_rx]['OSNEARVA'] = $wearing['OSNEARVA'];
+                        if (EyeFormData::integer($wearing['RX_NUMBER'] ?? null) === 1) {
+                            $ODVA_1 = $wearing['ODVA'];
+                            $OSVA_1 = $wearing['OSVA'];
+                            $ODNEARVA_1 = $wearing['ODNEARVA'];
+                            $OSNEARVA_1 = $wearing['OSNEARVA'];
+                        }
+                        // The glasses Rx stores horizontal and vertical prism
+                        // separately; the report shows one Prism column, so
+                        // compose them (the old single ODPRISM column does not
+                        // exist on form_eye_mag_wearing).
+                        $wearingRows[$count_rx]['ODPRISM'] = trim(EyeFormData::text($wearing['ODPRISM'] ?? '')) ?: trim(trim(($wearing['ODHPD'] ?? '') . ' ' . ($wearing['ODHBASE'] ?? '')) . ' ' . trim(($wearing['ODVPD'] ?? '') . ' ' . ($wearing['ODVBASE'] ?? '')));
+                        $wearingRows[$count_rx]['OSPRISM'] = trim(EyeFormData::text($wearing['OSPRISM'] ?? '')) ?: trim(trim(($wearing['OSHPD'] ?? '') . ' ' . ($wearing['OSHBASE'] ?? '')) . ' ' . trim(($wearing['OSVPD'] ?? '') . ' ' . ($wearing['OSVBASE'] ?? '')));
+                        $wearingRows[$count_rx]['COMMENTS'] = $wearing['COMMENTS'];
+                        $wearingRows[$count_rx]['W'] = '1';
+                        $wearingRows[$count_rx]['RX_TYPE'] = $wearing['RX_TYPE'];
                     }
                     ?>
 
                 </td>
             </tr>
         </table>
-        <table style="background: #fff;
+        <table class="rpt-vitals" style="background: #fff;
                       border: 1pt solid #000;
                       border-radius: 8px;
                       box-shadow: 5px 5px 9px #888;
@@ -605,18 +744,17 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                       position: relative;
                       text-align: left;
                       vertical-align: top;
-                      width: 720px;">
+                      width: <?php echo $PDF_OUTPUT ? '100%' : '720px'; ?>;">
             <tr>
                 <!-- Start of the Vision box -->
                 <td style="border-right: 1pt #000 solid;
-                            float: left;
                             font-size: 0.9em;
                             margin-bottom: 5px;
                             min-height: 0.8in;
                             padding-left: 2px;
                             padding-right: 2px;
                             text-align: center;
-                            vertical-align: top;">
+                            vertical-align: top;<?php echo $PDF_OUTPUT ? 'width:20%;' : ''; ?>">
                     <b class="underline"><?php echo xlt('Visual Acuities'); ?></b>
                     <table id="Additional_VA" cellspacing="2" style="text-align:center;font-weight:bold;">
                         <tr style="font-weight:bold;">
@@ -680,7 +818,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                     <td><?php echo text($SCNEAROSVA); ?></td>
                                 </tr>
                             <?php }
-                        if ($ODNEARVA_1 || ($WNEAROSVA_1 ?? '')) { ?>
+                        if ($ODNEARVA_1 || $OSNEARVA_1) { ?>
                                 <tr>
                                     <td><?php echo xlt('ccNear{{with correction at near}}'); ?></td>
                                     <td><?php echo text($ODNEARVA_1); ?></td>
@@ -722,7 +860,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                     <td><?php echo text($CONTRASTOSVA); ?></td>
                                 </tr>
                             <?php }
-                        if (!empty($BINOCVA)) { ?>
+                        if ((bool) ($BINOCVA ?? null)) { ?>
                                 <tr>
                                     <td><?php echo xlt('VABiNoc{{Binocular Visual Acuity}}'); ?></td>
                                     <td rowspan="2"><?php echo text($BINOCVA); ?></td>
@@ -732,14 +870,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 </td>
                 <!-- START OF THE PRESSURE BOX -->
                 <td style="border-right: 1pt #000 solid;
-                          float: left;
                           font-size: 0.9em;
                           margin-bottom: 5px;
                           min-height: 0.8in;
                           padding-left: 2px;
                           padding-right: 2px;
                           text-align: center;
-                          vertical-align: top;">
+                          vertical-align: top;<?php echo $PDF_OUTPUT ? 'width:20%;' : ''; ?>">
                     <b class="underline"><?php echo xlt('Intraocular Pressures'); ?></b>
                     <table cellspacing="2" style="margin:2px;text-align:center;">
                         <tr style="font-weight:bold;">
@@ -748,27 +885,29 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                             <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OS'); ?></td>
                         </tr>
                         <?php
+                        $iopMethodLabels = eye_mag_iop_method_labels();
                         if ($ODIOPAP || $OSIOPAP) {
-                            echo "<tr><td style='text-align:right;padding-right:10px;'>" . xlt('App{{Applanation abbreviation}}') . ":</td><td style='text-align:center;'>" . text($ODIOPAP) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPAP) . "</td></tr>";
+                            echo "<tr><td style='text-align:right;padding-right:10px;font-weight:bold;'>" . text($iopMethodLabels['AP']) . ":</td><td style='text-align:center;'>" . text($ODIOPAP) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPAP) . "</td></tr>";
                         }
 
                         if ($ODIOPTPN || $OSIOPTPN) {
-                            echo "<tr><td style='text-align:right;padding-right:10px;'>" . xlt('Tpn{{Tonopen abbreviation}}') . ":</td><td style='text-align:center;'>" . text($ODIOPTPN) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPTPN) . "</td></tr>";
+                            echo "<tr><td style='text-align:right;padding-right:10px;font-weight:bold;'>" . text($iopMethodLabels['TPN']) . ":</td><td style='text-align:center;'>" . text($ODIOPTPN) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPTPN) . "</td></tr>";
                         }
 
                         if ($ODIOPFTN || $OSIOPFTN) {
-                            echo "<tr><td style='text-align:right;padding-right:10px;'>" . xlt('FTN{{Finger Tension abbreviation}}') . ":</td><td style='text-align:center;'>" . text($ODIOPFTN) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPFTN) . "</td></tr>";
+                            echo "<tr><td style='text-align:right;padding-right:10px;font-weight:bold;'>" . text($iopMethodLabels['FT']) . ":</td><td style='text-align:center;'>" . text($ODIOPFTN) . "</td><td style='width:75px;text-align:center;'>" . text($OSIOPFTN) . "</td></tr>";
                         }
                         ?>
                         <tr>
                             <td colspan="3" style="text-align:center;font-weight:bold;">
-                                @ <?php echo text($IOPTIME); ?>
+                                @ <?php echo text(\OpenEMR\Services\Utils\DateFormatterUtils::oeFormatTime(EyeFormData::text($IOPTIME ?? ''), 'global')); ?>
                             </td>
                         </tr>
                     </table>
                 </td>
                 <!-- START OF THE FIELDS BOX -->
                 <?php
+                    // These symbols are fixed markup generated here, not patient input.
                     // if the VF zone is checked, display it
                     // if ODVF1 = 1 (true boolean) the value="0" checked="true"
                 $bad = 0;
@@ -805,30 +944,29 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 }
                 ?>
                 <?php
-                if (($bad ?? '') < '1') { ?>
+                if (EyeFormData::integer($reportRow['VF_UNABLE'] ?? null) === 1 || ($bad ?? '') < '1') { ?>
             <td style="border-right: 1pt #000 solid;
-                          float: left;
                           font-size: 0.9em;
                           margin-bottom: 5px;
                           min-height: 0.8in;
                           padding-left: 2px;
                           padding-right: 2px;
                           text-align: center;
-                          vertical-align: top;">
+                          vertical-align: top;<?php echo $PDF_OUTPUT ? 'width:20%;' : ''; ?>">
             <b class="underline"><?php echo xlt('Fields{{visual fields}}'); ?></b>
                     <?php
-                    echo "<br /><br />Full to CF OU";
+                    echo '<br /><br />' . (EyeFormData::integer($reportRow['VF_UNABLE'] ?? null) === 1
+                        ? xlt('Unable to perform') : xlt('Full to CF OU'));
                 } else {
                     ?>
                 <td style="border-right: 1pt #000 solid;
-                          float: left;
                           font-size: 0.9em;
                           margin-bottom: 5px;
                           min-height: 0.8in;
                           padding-left: 2px;
                           padding-right: 2px;
                           text-align: center;
-                          vertical-align: top;">
+                          vertical-align: top;<?php echo $PDF_OUTPUT ? 'width:20%;' : ''; ?>">
                     <b class="underline"><?php echo xlt('Fields{{visual fields}}'); ?></b>
                     <table style="text-align:center;font-weight:bold;">
                         <tr style="font-weight:bold;">
@@ -846,32 +984,32 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         </tr>
                         <tr>
                             <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo text($ODVF['1']); ?>
+                                <?php echo $ODVF['1']; ?>
                             </td>
                             <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo text($ODVF['2']); ?>
+                                <?php echo $ODVF['2']; ?>
                             </td>
                             <td></td>
                             <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo text($OSVF['1']); ?>
+                                <?php echo $OSVF['1']; ?>
                             </td>
                             <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo text($OSVF['2']); ?>
+                                <?php echo $OSVF['2']; ?>
                             </td>
                         </tr>
                         <tr>
                             <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo text($ODVF['3']); ?>
+                                <?php echo $ODVF['3']; ?>
                             </td>
                             <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo text($ODVF['4']); ?>
+                                <?php echo $ODVF['4']; ?>
                             </td>
                             <td></td>
                             <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo text($OSVF['3']); ?>
+                                <?php echo $OSVF['3']; ?>
                             </td>
                             <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo text($OSVF['4']); ?>
+                                <?php echo $OSVF['4']; ?>
                             </td>
                         </tr>
                     </table>
@@ -881,93 +1019,52 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
 
                 <!-- START OF THE MOTILITY BOX -->
                 <td style="border-right: 1pt #000 solid;
-                          float: left;
                           font-size: 0.9em;
                           margin-bottom: 5px;
                           min-height: 0.8in;
                           padding-left: 2px;
                           padding-right: 2px;
                           text-align: center;
-                          vertical-align: top;">
+                          vertical-align: top;<?php echo $PDF_OUTPUT ? 'width:20%;' : ''; ?>">
                     <b class="underline"><?php echo xlt('Motility'); ?></b>
                     <?php
-                    if ($MOTILITYNORMAL == 'on') {
+                    $motilityHasGrades = false;
+                    foreach (['RS', 'RI', 'RR', 'RL', 'LS', 'LI', 'LR', 'LL', 'RRSO', 'RLSO', 'RRIO', 'RLIO', 'LRSO', 'LLSO', 'LRIO', 'LLIO'] as $direction) {
+                        if (EyeFormData::integer($reportRow['MOTILITY_' . $direction] ?? 0) > 0
+                            || EyeFormData::integer($reportRow['MOTILITY_' . $direction . '_OVER'] ?? 0) > 0) {
+                            $motilityHasGrades = true;
+                            break;
+                        }
+                    }
+                    if ($MOTILITYNORMAL == 'on' && !$motilityHasGrades) {
                         echo "<br /><br />&nbsp;" . xlt('D&V Full OU{{Ductions and Versions full both eyes}}') . "&nbsp;<br /><br />";
                     } else {
-                        if ($PDF_OUTPUT) {
-                            $background = "url(" . OEGlobalsBag::getInstance()->getProjectDir() . "/interface/forms/" . $form_folder . "/images/eom.jpg)";
-                        } else {
-                            $background = "url(../../forms/" . $form_folder . "/images/eom.bmp)";
-                        }
-
-                        $zone = [
-                            "MOTILITY_RRSO",
-                            "MOTILITY_RS",
-                            "MOTILITY_RLSO",
-                            "MOTILITY_RR",
-                            "MOTILITY_R0",
-                            "MOTILITY_RL",
-                            "MOTILITY_RRIO",
-                            "MOTILITY_RI",
-                            "MOTILITY_RLIO",
-                            "MOTILITY_LRSO",
-                            "MOTILITY_LS",
-                            "MOTILITY_LLSO",
-                            "MOTILITY_LR",
-                            "MOTILITY_L0",
-                            "MOTILITY_LL",
-                            "MOTILITY_LRIO",
-                            "MOTILITY_LI",
-                            "MOTILITY_LLIO"
+                        $motilityDisplay = eye_mag_motility_display_preference();
+                        $rightMotility = [
+                            'up' => $MOTILITY_RS, 'down' => $MOTILITY_RI,
+                            'left' => $MOTILITY_RR, 'right' => $MOTILITY_RL,
+                            'upperLeft' => $MOTILITY_RRSO, 'upperRight' => $MOTILITY_RLSO,
+                            'lowerLeft' => $MOTILITY_RRIO, 'lowerRight' => $MOTILITY_RLIO,
+                            'upperLeftOver' => $reportRow['MOTILITY_RRSO_OVER'] ?? 0, 'upperRightOver' => $reportRow['MOTILITY_RLSO_OVER'] ?? 0,
+                            'lowerLeftOver' => $reportRow['MOTILITY_RRIO_OVER'] ?? 0, 'lowerRightOver' => $reportRow['MOTILITY_RLIO_OVER'] ?? 0,
                         ];
-                        for ($i = 0; $i < count($zone); ++$i) {
-                            (${$zone}[$i] >= '1') ? (${$zone}[$i] = "-" . ${$zone}[$i]) : (${$zone}[$i] = '');
-                        }
+                        $leftMotility = [
+                            'up' => $MOTILITY_LS, 'down' => $MOTILITY_LI,
+                            'left' => $MOTILITY_LR, 'right' => $MOTILITY_LL,
+                            'upperLeft' => $MOTILITY_LRSO, 'upperRight' => $MOTILITY_LLSO,
+                            'lowerLeft' => $MOTILITY_LRIO, 'lowerRight' => $MOTILITY_LLIO,
+                            'upperLeftOver' => $reportRow['MOTILITY_LRSO_OVER'] ?? 0, 'upperRightOver' => $reportRow['MOTILITY_LLSO_OVER'] ?? 0,
+                            'lowerLeftOver' => $reportRow['MOTILITY_LRIO_OVER'] ?? 0, 'lowerRightOver' => $reportRow['MOTILITY_LLIO_OVER'] ?? 0,
+                        ];
                         ?>
-                            <table cellspacing="2" style="margin:2px;text-align:center;">
+                            <table cellspacing="0" style="margin:1px auto;text-align:center;table-layout:fixed;width:100%;">
                                 <tr style="font-weight:bold;">
                                     <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OD'); ?></td>
                                     <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OS'); ?></td>
                                 </tr>
                                 <tr>
-                                    <td style="font-weight:600;">
-                                        <table style="background: <?php echo attr($background); ?> no-repeat center center;filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50); -moz-opacity: 0.5; -webkit-opacity: 0.5; opacity:1.0;padding-bottom:5px;">
-                                            <tr>
-                                                <td class="mot"><?php echo text($MOTILITY_RRSO); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_RS); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_RLSO); ?></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="mot"><?php echo text($MOTILITY_RR); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_R0); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_RL); ?></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="mot"><?php echo text($MOTILITY_RRIO); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_RI); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_RLIO); ?></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td style="text-align:center;font-weight:600;padding-left:20px;">
-                                        <table style="background: <?php echo attr($background); ?> no-repeat center center;background-size: 100% auto; filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50) -moz-opacity: 0.5; -webkit-opacity: 0.5; opacity:1.0;Xpadding-bottom:5px;">
-                                            <tr>
-                                                <td class="mot"><?php echo text($MOTILITY_LRSO); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_LS); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_LLSO); ?></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="mot"><?php echo text($MOTILITY_LR); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_L0); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_LL); ?></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="mot"><?php echo text($MOTILITY_LLIO); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_LI); ?></td>
-                                                <td class="mot"><?php echo text($MOTILITY_LLIO); ?></td>
-                                            </tr>
-                                        </table>
-                                    </td>
+                                    <td style="text-align:center;padding:0;"><?php echo ReportRenderer::motilityDiagram($motilityDisplay, $rightMotility, (bool) $PDF_OUTPUT); ?></td>
+                                    <td style="text-align:center;padding:0;"><?php echo ReportRenderer::motilityDiagram($motilityDisplay, $leftMotility, (bool) $PDF_OUTPUT); ?></td>
                                 </tr>
                             </table>
                             <?php
@@ -977,10 +1074,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 <?php
                 if (($PUPIL_NORMAL == '1') || $ODPUPILSIZE1 || $OSPUPILSIZE1) {
                     ?>
-                        <td style="border-right:0px;">
+                        <td style="border-right:0px;<?php echo $PDF_OUTPUT ? 'width:20%;padding-left:6px;vertical-align:top;' : ''; ?>">
                         <?php
                         if (($PUPIL_NORMAL == '1') && (!$ODPUPILSIZE1 || !$OSPUPILSIZE1)) { ?>
-                                    <b class="underline"><?php echo xlt('Pupils'); ?></b>&nbsp;&nbsp;
+                                    <b class="underline"><?php echo xlt('Pupils'); ?></b><br /><br />
                                     <?php echo xlt('Round and Reactive') . "<br />";
                         }
 
@@ -1133,23 +1230,12 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
         if ($cols != 'Fax') {
             ?><!-- start of the refraction boxes -->
             <?php
-            if (
-                ($ODVA ?? '') ||
-                 ($OSVA ?? '') ||
-                 ($ARODSPH ?? '') ||
-                  ($AROSSPH ?? '') ||
-                   ($MRODSPH ?? '') ||
-                    ($MROSSPH ?? '') ||
-                    ($CRODSPH ?? '') ||
-                    ($CROSSPH ?? '') ||
-                    ($CTLODSPH ?? '') ||
-                    ($CTLOSSPH ?? '')
-            ) { ?>
+            if ((bool) ($reportRefractions)) { ?>
                 <br/>
-                <table class="refraction_tables">
+                <table class="refraction_tables" style="width:100%;<?php echo $PDF_OUTPUT ? 'page-break-inside:avoid;' : ''; ?>">
                 <tr>
-                    <td colspan="9"
-                        style="text-align:left;text-decoration:underline;font-weight:bold;"><?php echo xlt('Refractive States'); ?>
+                    <td colspan="10" style="text-align:left;">
+                        <?php ReportRenderer::zoneHeading(xl('Refractive States'), (bool) $PDF_OUTPUT); ?>
                     </td>
                 </tr>
                 <tr style="text-align:center;padding:5px;text-decoration:underline;">
@@ -1158,7 +1244,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     <td style="font-weight:600;font-size:10px;text-align:center;"><?php echo xlt('Sph{{Sphere}}'); ?></td>
                     <td style="font-weight:600;font-size:10px;text-align:center;"><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                     <td style="font-weight:600;font-size:10px;text-align:center;"><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
-                    <td style="font-weight:600;font-size:10px;text-align:center;"><?php echo xlt('Prism'); ?></td>
+                    <td style="font-weight:600;font-size:10px;text-align:center;"><?php echo xlt('Prisms'); ?></td>
                     <td style="font-weight:600;font-size:10px;text-align:center;"><?php echo xlt('Acuity'); ?></td>
                     <td style="font-weight:600;font-size:10px;text-align:center;"><?php echo xlt('Mid{{Middle Distance Add}}'); ?></td>
                     <td style="font-weight:600;font-size:10px;text-align:center;"><?php echo xlt('ADD{{Near Add}}'); ?></td>
@@ -1167,53 +1253,53 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 <?php
                 //$count_rx++;
                 for ($i = 1; $i <= $count_rx; $i++) {
-                    if (${"RX_TYPE_$i"} == "0") {
+                    if ($wearingRows[$i]['RX_TYPE'] == "0") {
                         $RX_TYPE = '';
-                    } elseif (${"RX_TYPE_$i"} == "1") {
+                    } elseif ($wearingRows[$i]['RX_TYPE'] == "1") {
                         $RX_TYPE = xlt('Bifocals');
-                    } elseif (${"RX_TYPE_$i"} == "2") {
+                    } elseif ($wearingRows[$i]['RX_TYPE'] == "2") {
                         $RX_TYPE = xlt('Trifocals');
-                    } elseif (${"RX_TYPE_$i"} == "3") {
+                    } elseif ($wearingRows[$i]['RX_TYPE'] == "3") {
                         $RX_TYPE = xlt('Progressive');
                     }
                     ?>
                     <tr>
                         <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Current RX') . " #" . $i . ": "; ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"ODSPH_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"ODCYL_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"ODAXIS_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"ODPRISM_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"ODVA_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"ODMIDADD_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"ODADD_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"ODNEARVA_$i"}) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['ODSPH']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['ODCYL']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['ODAXIS']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['ODPRISM']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['ODVA']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['ODMIDADD']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['ODADD']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['ODNEARVA']) ?: "-"); ?></td>
                     </tr>
                     <tr>
                         <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo text($RX_TYPE); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSSPH_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSCYL_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSAXIS_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSPRISM_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSVA_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSMIDADD_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSADD_$i"}) ?: "-"); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSNEARVA_$i"}) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['OSSPH']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['OSCYL']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['OSAXIS']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['OSPRISM']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['OSVA']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['OSMIDADD']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['OSADD']) ?: "-"); ?></td>
+                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($wearingRows[$i]['OSNEARVA']) ?: "-"); ?></td>
                     </tr>
                     <?php
-                    if (${"COMMENTS_$i"}) {
+                    if ($wearingRows[$i]['COMMENTS']) {
                         ?>
                         <tr>
                             <td></td>
                             <td colspan="2"><?php echo xlt('Comments'); ?>:</td>
-                            <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
+                            <td colspan="7"><?php echo text($wearingRows[$i]['COMMENTS']); ?></td>
                         </tr>
                         <?php
                     }
                 }
 
-                if ($ARODSPH || $AROSSPH) { ?>
+                if ($hasReportRefraction('Auto Refraction')) { ?>
                     <tr style="border-bottom:1pt solid black;">
                         <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Auto Refraction'); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -1254,7 +1340,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             }
 
 
-            if ($MRODSPH || $MROSSPH) { ?>
+            if ($hasReportRefraction('Manifest Refraction')) { ?>
                 <tr>
                     <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Manifest (Dry) Refraction'); ?></td>
                     <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -1283,7 +1369,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 <?php
             }
 
-            if ($CRODSPH || $CROSSPH) { ?>
+            if ($hasReportRefraction('Cycloplegic Refraction')) { ?>
                 <tr>
                     <td style="font-weight:600;font-size:0.8em;text-align:right;"><?php echo xlt('Cycloplegic (Wet) Refraction'); ?></td>
                     <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -1313,7 +1399,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 <?php
             }
 
-            if ($CTLODSPH || $CTLOSSPH) { ?>
+            if ($hasReportRefraction('Contact Lens')) { ?>
                 <tr style="text-align:center;padding:5px;text-decoration:underline;">
                     <td></td>
                     <td><?php echo xlt('Eye'); ?></td>
@@ -1463,17 +1549,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     <!-- end of the refraction boxes -->
 
     <!-- start of external exam -->
-    <div class="report_exam_group">
-        <table>
-            <tr>
-                <td style="text-align:left;vertical-align:top;">
-                    <span style="font-weight:bold;text-decoration: underline"><?php echo xlt('External Exam'); ?>:</span>
-                    <table class="report_section">
-                        <tr>
-                            <td style="font-weight:bold;text-align:right;padding-right:10px;text-decoration:underline;width:150px;"><?php echo xlt('Right'); ?></td>
-                            <td style="width:100px;"></td>
-                            <td style="font-weight:bold;text-align:left;padding-left:10px;text-decoration:underline;width:150px;"><?php echo xlt('Left'); ?></td>
-                        </tr>
+    <?php
+    $pdf_zones = [];
+    ob_start();
+    ReportRenderer::zoneHeading(xl('External Exam'), (bool) $PDF_OUTPUT);
+    ?>
+                    <table class="report_section report-bilateral">
+                        <?php ReportRenderer::rlHeader((bool) $PDF_OUTPUT); ?>
                         <tr>
                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1538,31 +1620,18 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                 <?php
                         } ?>
                     </table>
-                </td>
-                <td style="text-align:center;padding:1px;vertical-align:middle;">
-                    <?php
-                        display_draw_image("EXT", $encounter, $pid);
-                    ?>
-                </td>
-            </tr>
-        </table>
-    </div>
+    <?php ReportRenderer::zoneEmit(EyeFormData::text(ob_get_clean()), "EXT", $encounter, $pid, $pdf_zones, (bool) $PDF_OUTPUT, display_draw_image(...)); ?>
     <!-- end of external exam -->
-    <div class="report_exam_group">
         <?php
         if ($OSCONJ || $ODCONJ || $ODCORNEA || $OSCORNEA || $ODAC || $OSAC || $ODLENS || $OSLENS || $ODIRIS || $OSIRIS) {
             ?>
                 <!-- start of Anterior Segment exam -->
-                <table>
-                    <tr>
-                        <td style="text-align:left;padding:1px;vertical-align:top;">
-                            <span style="font-weight:bold;text-decoration: underline"><?php echo xlt('Anterior Segment'); ?>:</span>
-                            <table class="report_section">
-                                <tr>
-                                    <td style="font-weight:bold;text-align:right;padding-right:10px;text-decoration:underline;width:150px;"><?php echo xlt('Right'); ?></td>
-                                    <td style="width:100px;"></td>
-                                    <td style="font-weight:bold;text-align:left;padding-left:10px;text-decoration:underline;width:150px;"><?php echo xlt('Left'); ?></td>
-                                </tr>
+                <?php
+                ob_start();
+                ReportRenderer::zoneHeading(xl('Anterior Segment'), (bool) $PDF_OUTPUT);
+                ?>
+                            <table class="report_section report-bilateral">
+                                <?php ReportRenderer::rlHeader((bool) $PDF_OUTPUT); ?>
                                 <tr>
                                     <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1696,43 +1765,35 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         </tr>
                                     <?php } ?>
                             </table>
-                        </td>
-                        <td style="text-align:center;padding:1px;vertical-align:middle;">
-                            <?php
-                            display_draw_image("ANTSEG", $encounter, $pid);
-                            ?>
-                        </td>
-                    </tr>
-                </table>
+                <?php ReportRenderer::zoneEmit(EyeFormData::text(ob_get_clean()), "ANTSEG", $encounter, $pid, $pdf_zones, (bool) $PDF_OUTPUT, display_draw_image(...)); ?>
                 <!-- end of Anterior Segment exam -->
 
                 <?php
         }
         ?>
-    </div>
-    <div class="report_exam_group">
 
         <!-- start of Other exam -->
         <?php
-        if ($RLF || $LLF || $RMRD || $LMRD || $RVFISSURE || $LVFISSURE || $RCAROTID || $LCAROTID || $RTEMPART || $LTEMPART || $RCNV || $LCNV || $RCNVII || $LCNVII || $HERTELBASE || $ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || ($NPA ?? null) || $NPC || $STEREOPSIS || $DACCDIST || $DACCNEAR || $CACCDIST || $CACCNEAR || $VERTFUSAMPS) {
+        $additionalSection = null;
+        $additionalEyeFields = ['RLF', 'LLF', 'RMRD', 'LMRD', 'RVFISSURE', 'LVFISSURE', 'RCAROTID', 'LCAROTID', 'RTEMPART', 'LTEMPART', 'RCNV', 'LCNV', 'RCNVII', 'LCNVII', 'ODCOLOR', 'OSCOLOR', 'ODREDDESAT', 'OSREDDESAT', 'ODCOINS', 'OSCOINS', 'ODNPA', 'OSNPA', 'HERTELBASE'];
+        $additionalOtherFields = ['NPA', 'NPC', 'STEREOPSIS', 'STEREO_FLY', 'STEREO_ANIMALS', 'STEREO_CIRCLES', 'STEREO_FIXATION_PREF', 'DACCDIST', 'DACCNEAR', 'CACCDIST', 'CACCNEAR', 'VERTFUSAMPS'];
+        $hasAdditionalValues = static fn(array $fields): bool => array_filter($fields, static fn(string $field): bool => trim(EyeFormData::text($reportRow[$field] ?? '')) !== '') !== [];
+        if ($hasAdditionalValues($additionalEyeFields) || $hasAdditionalValues($additionalOtherFields)) {
             ?>
-                <table>
-                    <tr>
-                        <td style="text-align:left;vertical-align:top;padding:1px;">
-                            <b><u><?php echo xlt('Additional Findings'); ?>:</u></b>
+                <?php
+                ob_start();
+                ReportRenderer::zoneHeading(xl('Additional Findings'), (bool) $PDF_OUTPUT);
+                ?>
                         <?php if ($ACT == 'on' and $MOTILITYNORMAL == 'on') { ?>
                                 <span id="ACTNORMAL_CHECK" name="ACTNORMAL_CHECK">
                             <?php echo xlt('Orthophoric'); ?>
               </span>
                             <?php } ?>
-                            <table class="report_section">
-                                <tr>
-                                    <td style="font-weight:bold;text-align:right;padding-right:10px;text-decoration:underline;width:150px;"><?php echo xlt('Right'); ?></td>
-                                    <td style="width:100px;"></td>
-                                    <td style="font-weight:bold;text-align:left;padding-left:10px;text-decoration:underline;width:150px;"><?php echo xlt('Left'); ?></td>
-                                </tr>
-                            <?php
-                            if ($RLF || $LLF) { ?>
+                            <?php if ($hasAdditionalValues($additionalEyeFields)) { ?>
+                            <table class="report_section report-additional report-bilateral">
+                                <?php ReportRenderer::rlHeader((bool) $PDF_OUTPUT); ?>
+                                <?php
+                                if ($RLF || $LLF) { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1744,16 +1805,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LLF); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if (isset($RMRD) || isset($LMRD)) { ?>
+                                if (($RMRD ?? '') !== '' || ($LMRD ?? '') !== '') { ?>
                                         <tr>
                                             <td style="text-align:right;
                                                         flex-wrap: wrap;
                                                         padding: 2px 10px;
                                                         width: 200px;">
-                                                <?php echo text($RMRD); ?>
+                                                    <?php echo text($RMRD); ?>
                                             </td>
                                             <td style="text-align:center;font-weight:bold;"
                                                 title="<?php echo xla('Marginal Reflex Distance'); ?>"><?php echo xlt('MRD{{marginal reflex distance}}'); ?></td>
@@ -1762,10 +1823,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LMRD); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if (isset($RVFISSURE) || isset($LVFISSURE)) { ?>
+                                if (($RVFISSURE ?? '') !== '' || ($LVFISSURE ?? '') !== '') { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1778,10 +1839,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LVFISSURE); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($RCAROTID || $LCAROTID) { ?>
+                                if ($RCAROTID || $LCAROTID) { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1794,10 +1855,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LCAROTID); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($RTEMPART || $LTEMPART) { ?>
+                                if ($RTEMPART || $LTEMPART) { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1810,10 +1871,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LTEMPART); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($RCNV || $LCNV) { ?>
+                                if ($RCNV || $LCNV) { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1826,10 +1887,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LCNV); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($RCNVII || $LCNVII) { ?>
+                                if ($RCNVII || $LCNVII) { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1842,10 +1903,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LCNVII); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($HERTELBASE) { ?>
+                                if ($HERTELBASE) { ?>
                                         <tr>
                                             <td colspan="3" style="text-align:center;padding-top:15px;">
                                                 <b style="font-weight:bold;padding-bottom:5px;">
@@ -1853,7 +1914,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                                 </b>
                                                 <br/>
                                                 <?php
-                                                if ($HERTELBASE) { ?>
+                                                ?>
                                                         <b style="border:1pt solid black;width:30px;text-align:center;padding:0 5;">
                                                             <?php echo text($ODHERTEL); ?>
                                                         </b>
@@ -1866,16 +1927,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                                             <?php echo text($OSHERTEL); ?>
                                                         </b>
                                                         <?php
-                                                } ?>
+                                                        ?>
                                             </td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || ($NPA ?? null) || $NPC || $STEREOPSIS) { ?>
+                                if ($ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || ($NPA ?? null) || $NPC || $STEREOPSIS || $STEREO_FLY || $STEREO_ANIMALS || $STEREO_CIRCLES || $STEREO_FIXATION_PREF) { ?>
                                         <!-- start of NEURO exam -->
-                                        <?php
-                                        if ($ODCOLOR or $OSCOLOR) { ?>
+                                            <?php
+                                            if ($ODCOLOR or $OSCOLOR) { ?>
                                             <tr>
                                                 <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1887,10 +1948,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($OSCOLOR); ?></td>
                                             </tr>
-                                            <?php
-                                        }
+                                                <?php
+                                            }
 
-                                        if ($ODREDDESAT or $OSREDDESAT) { ?>
+                                            if ($ODREDDESAT or $OSREDDESAT) { ?>
                                             <tr>
                                                 <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1904,10 +1965,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($OSREDDESAT); ?></td>
                                             </tr>
-                                            <?php
-                                        }
+                                                <?php
+                                            }
 
-                                        if ($ODCOINS or $OSCOINS) { ?>
+                                            if ($ODCOINS or $OSCOINS) { ?>
                                             <tr>
                                                 <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1921,10 +1982,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($OSCOINS); ?></td>
                                             </tr>
-                                            <?php
-                                        }
+                                                <?php
+                                            }
 
-                                        if ($ODNPA or $OSNPA) { ?>
+                                            if ($ODNPA or $OSNPA) { ?>
                                             <tr>
                                                 <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1938,93 +1999,86 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($OSNPA); ?></td>
                                             </tr>
-                                            <?php
-                                        }
+                                                <?php
+                                            }
 
-                                        if ($ODNPC or $OSNPC) { ?>
-                                            <tr>
-                                                <td style="text-align:right;font-weight:bold;"><?php echo xlt('NPC{{near point of convergence}}'); ?>
-                                                    :&nbsp;
-                                                </td>
-                                                <td style="text-align:center;" colspan="2"><?php echo text($NPC); ?></td>
-                                            </tr>
-                                            <?php
-                                        }
-
-                                        if ($DACCDIST or $DACCNEAR or $CACCDIST or $CACCNEAR) { ?>
-                                            <tr style="text-decoration:underline;">
-                                                <td></td>
-                                                <td style="text-align:center;font-weight:bold;"><?php echo xlt('Distance'); ?> </td>
-                                                <td style="text-align:center;font-weight:bold;"> <?php echo xlt('Near'); ?></td>
-                                            </tr>
-                                            <?php
-                                        }
-
-                                        if ($DACCDIST or $DACCNEAR) { ?>
-                                            <tr>
-                                                <td style="text-align:right;font-weight:bold;"><?php echo xlt('Divergence Amps'); ?>:
-                                                </td>
-                                                <td class="center"><?php echo text($DACCDIST); ?></td>
-                                                <td class="center"><?php echo text($DACCNEAR); ?></td>
-                                            </tr>
-                                            <?php
-                                        }
-
-                                        if ($CACCDIST or $CACCNEAR) { ?>
-                                            <tr>
-                                                <td style="text-align:right;font-weight:bold;"><?php echo xlt('Convergence Amps'); ?>:
-                                                </td>
-                                                <td class="center"><?php echo text($CACCDIST); ?></td>
-                                                <td class="center"><?php echo text($CACCNEAR); ?></td>
-                                            </tr>
-                                            <?php
-                                        }
-
-                                        if ($VERTFUSAMPS) { ?>
-                                            <tr>
-                                                <td style="text-align:right;font-weight:bold;">
-                                                    <?php echo xlt('Vert Fusional Amps'); ?>:
-                                                </td>
-                                                <td colspan="2" style="text-align: center;">
-                                                    <?php echo text($VERTFUSAMPS); ?>
-                                                    <br/>
-                                                </td>
-                                            </tr>
-                                            <?php
-                                        }
-
-                                        if ($STEREOPSIS) { ?>
-                                            <tr>
-                                                <td style="text-align:right;font-weight:bold;"><?php echo xlt('Stereopsis'); ?>:&nbsp;
-                                                </td>
-                                                <td style="text-align:center;" colspan="2"><?php echo text($STEREOPSIS); ?></td>
-                                            </tr>
-                                            <?php
-                                        }
-                            } ?>
+                                } ?>
                             </table>
-                        </td>
-                        <td style="text-align:center;padding:1px;vertical-align:middle;">
+                            <?php } ?>
                             <?php
-                            display_draw_image("NEURO", $encounter, $pid);
-                            ?>
-                        </td>
-                    </tr>
-                </table>
+                            $amplitudeRows = [];
+                            if (trim(EyeFormData::text($DACCDIST)) !== '' || trim(EyeFormData::text($DACCNEAR)) !== '') {
+                                $amplitudeRows[] = [xl('Divergence Amps'), $DACCDIST, $DACCNEAR];
+                            }
+                            if (trim(EyeFormData::text($CACCDIST)) !== '' || trim(EyeFormData::text($CACCNEAR)) !== '') {
+                                $amplitudeRows[] = [xl('Convergence Amps'), $CACCDIST, $CACCNEAR];
+                            }
+                            if ($amplitudeRows) { ?>
+                                <table class="report_section report-measurements">
+                                    <colgroup><col style="width:46%;"><col style="width:27%;"><col style="width:27%;"></colgroup>
+                                    <tr class="report-measurement-head">
+                                        <td><?php echo xlt('Amplitudes'); ?></td>
+                                        <td><?php echo xlt('Distance'); ?></td>
+                                        <td><?php echo xlt('Near'); ?></td>
+                                    </tr>
+                                    <?php foreach ($amplitudeRows as [$label, $distance, $near]) { ?>
+                                        <tr><td><?php echo text($label); ?></td><td><?php echo text($distance); ?></td><td><?php echo text($near); ?></td></tr>
+                                    <?php } ?>
+                                </table>
+                            <?php }
+                            $additionalValues = [];
+                            if (trim(EyeFormData::text($NPC)) !== '') {
+                                $additionalValues[] = [xl('NPC{{near point of convergence}}'), $NPC];
+                            }
+                            if (trim(EyeFormData::text($VERTFUSAMPS)) !== '') {
+                                $additionalValues[] = [xl('Vert Fusional Amps'), $VERTFUSAMPS];
+                            }
+                            if ($additionalValues) { ?>
+                                <table class="report_section report-detail-values">
+                                    <colgroup><col style="width:50%;"><col style="width:50%;"></colgroup>
+                                    <?php foreach ($additionalValues as [$label, $value]) { ?>
+                                        <tr><td><?php echo text($label); ?></td><td><?php echo text($value); ?></td></tr>
+                                    <?php } ?>
+                                </table>
+                            <?php }
+                            $stereopsisRows = [];
+                            if (trim(EyeFormData::text($STEREO_FLY)) !== '') {
+                                $stereopsisRows[] = [xl('Fly'), $STEREO_FLY];
+                            }
+                            if ($STEREO_ANIMALS !== null && $STEREO_ANIMALS !== '') {
+                                $stereopsisRows[] = [xl('Animals'), EyeFormData::text($STEREO_ANIMALS) . '/3'];
+                            }
+                            if ($STEREO_CIRCLES !== null && $STEREO_CIRCLES !== '') {
+                                $stereopsisRows[] = [xl('Circles'), EyeFormData::text($STEREO_CIRCLES) . '/9'];
+                            }
+                            if (trim(EyeFormData::text($STEREO_FIXATION_PREF)) !== '') {
+                                $stereopsisRows[] = [xl('Fixation Pref'), $STEREO_FIXATION_PREF];
+                            }
+                            if (trim(EyeFormData::text($STEREOPSIS)) !== '') {
+                                $stereopsisRows[] = [xl('Previous/Other'), $STEREOPSIS];
+                            }
+                            if ($stereopsisRows) { ?>
+                                <table class="report_section report-detail-values">
+                                    <colgroup><col style="width:50%;"><col style="width:50%;"></colgroup>
+                                    <tr class="report-measurement-head"><td colspan="2"><?php echo xlt('Stereopsis'); ?></td></tr>
+                                    <?php foreach ($stereopsisRows as [$label, $value]) { ?>
+                                        <tr><td><?php echo text($label); ?></td><td><?php echo text($value); ?></td></tr>
+                                    <?php } ?>
+                                </table>
+                            <?php } ?>
+                <?php $additionalSection = EyeFormData::text(ob_get_clean()); ?>
                 <?php
         } ?>
         <!-- end of Other exam -->
-    </div>
-    <div class="report_exam_group">
         <!-- start of the Retina exam -->
         <?php
         if ($ODDISC || $OSDISC || $ODCUP || $ODMACULA || $ODVESSELS || $ODPERIPH || $ODVITREOUS) {
             ?>
-                <table>
-                    <tr>
-                        <td style="text-align:left;padding:1px;vertical-align:top;">
-                            <b><u><?php echo xlt('Retina'); ?>:</u></b>
-                            <table class="report_section">
+                <?php
+                ob_start();
+                ReportRenderer::zoneHeading(xl('Retina'), (bool) $PDF_OUTPUT);
+                ?>
+                            <table class="report_section report-bilateral">
                             <?php
                             if ($DIL_MEDS) { ?>
                                         <tr>
@@ -2039,11 +2093,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         </tr>
                                         <?php
                             } ?>
-                                <tr>
-                                    <td style="text-align:right;font-weight:bold;text-decoration:underline;width:150px;"><?php echo xlt('Right'); ?></td>
-                                    <td style="width:100px;"></td>
-                                    <td style="text-align:left;font-weight:bold;text-decoration:underline;width:150px;"><?php echo xlt('Left'); ?></td>
-                                </tr>
+                                <?php ReportRenderer::rlHeader((bool) $PDF_OUTPUT); ?>
                                 <tr>
                                     <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -2140,270 +2190,117 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         </tr>
                                     <?php } ?>
                             </table>
-                        </td>
-                        <td style="text-align:center;padding:1px;vertical-align:middle;">
-                            <?php
-                            display_draw_image("RETINA", $encounter, $pid);
-                            ?>
-                        </td>
-                    </tr>
-                </table>
+                <?php ReportRenderer::zoneEmit(EyeFormData::text(ob_get_clean()), "RETINA", $encounter, $pid, $pdf_zones, (bool) $PDF_OUTPUT, display_draw_image(...)); ?>
 
                 <?php
         } ?>
         <!-- end of Retina exam -->
-    </div>
-    <?php
-    if ($ACT != 'on') { ?>
-        <table style="text-align:center;font-size:10px;">
-            <tr>
-                <td colspan=3 style="">
-                    <?php if ($ACT5SCDIST || $ACT5CCDIST || $ACT5CCNEAR) { ?>
-                    <table>
-                        <tr style="text-align:left;height:16px;vertical-align:top;width:880px;">
-                            <td>
-                                <span id="ACTTRIGGER" name="ACTTRIGGER"
-                                      style="text-decoration:underline;padding-left:2px;">
-                                    <?php echo xlt('Alternate Cover Test'); ?>:
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <?php
-                            if ($ACT5SCDIST) { ?>
-                                    <td style="text-align:center;font-weight:bold;"> <!-- scDIST -->
-                                        <table cellpadding="0"
-                                               style="position:relative;text-align:center;font-size:12px;margin: 7 5 10 5;border:1pt solid grey;">
-                                            <tr>
-                                                <td id="ACT_tab_SCDIST" name="ACT_tab_SCDIST"
-                                                    style="background-color: #2d6775;
-                                                          border-bottom: 1px solid #000;
-                                                          border-bottom-left-radius: 0;
-                                                          border-bottom-right-radius: 0;
-                                                          border-top-left-radius: 7px;
-                                                          border-top-right-radius: 7px;
-                                                          color: #fff;
-                                                          font-size: 1rem;
-                                                          height: 25px;
-                                                          margin: 5px;"> <?php echo xlt('sc Distance{{without correction distance}}'); ?>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="4" style="text-align:center;font-size:10px;">
-                                                    <table>
-                                                        <tr>
-                                                            <td style="text-align:center;font-weight:bold;"><?php echo xlt('R{{right}}'); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT1SCDIST); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT2SCDIST); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT3SCDIST); ?></td>
-                                                            <td style="text-align:center;font-weight:bold;"><?php echo xlt('L{{left}}'); ?></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="text-align:right;"><i class="fas fa-reply rotate-left"></i></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT4SCDIST); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT5SCDIST); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT6SCDIST); ?></td>
-                                                            <td><i class="fas fa-share rotate-right"></i></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT10SCDIST); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT7SCDIST); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT8SCDIST); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT9SCDIST); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT11SCDIST); ?></td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <?php
-                            }
 
-                            if ($ACT5CCDIST) {
-                                ?>
-                            <td style="text-align:center;font-weight:bold;"> <!-- ccDIST -->
-                                <table cellpadding="0"
-                                       style="position:relative;text-align:center;font-size:12px;margin: 7 5 10 5;border:1pt solid grey;">
-                                    <tr>
-                                        <td style="background-color: #2d6775;
-                                                  border-bottom: 1px solid #000;
-                                                  border-bottom-left-radius: 0;
-                                                  border-bottom-right-radius: 0;
-                                                  border-top-left-radius: 7px;
-                                                  border-top-right-radius: 7px;
-                                                  color: #fff;
-                                                  font-size: 1rem;
-                                                  height: 25px;
-                                                  margin: 5px;"> <?php echo xlt('cc Distance{{with correction at distance}}'); ?>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="4" style="text-align:center;font-size:10px;">
-                                            <table>
-                                                <tr>
-                                                    <td style="text-align:center;font-weight:bold;"><?php echo xlt('R{{right}}'); ?></td>
-                                                    <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT1CCDIST); ?></td>
-                                                    <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT2CCDIST); ?></td>
-                                                    <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT3CCDIST); ?></td>
-                                                    <td style="text-align:center;font-weight:bold;"><?php echo xlt('L{{left}}'); ?></td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="text-align:right;"><i
-                                                                class="fas fa-reply rotate-left"></i></td>
-                                                    <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT4CCDIST); ?></td>
-                                                    <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT5CCDIST); ?></td>
-                                                    <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT6CCDIST); ?></td>
-                                                    <td><i class="fas fa-share rotate-right"></i></td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT10CCDIST); ?></td>
-                                                    <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT7CCDIST); ?></td>
-                                                    <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT8CCDIST); ?></td>
-                                                    <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT9CCDIST); ?></td>
-                                                    <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT11CCDIST); ?>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                        <tr>
-                                <?php
-                            }
-
-                            if ($ACT5SCNEAR) {
-                                ?>
-
-                                    <td style="text-align:center;font-weight:bold;"> <!-- scNEAR -->
-                                        <table cellpadding="0"
-                                               style="position:relative;text-align:center;font-size:10px;margin: 7 5 10 5;border:1pt solid grey;">
-                                            <tr>
-                                                <td style="background-color: #2d6775;
-                                                          border-bottom: 1px solid #000;
-                                                          border-bottom-left-radius: 0;
-                                                          border-bottom-right-radius: 0;
-                                                          border-top-left-radius: 7px;
-                                                          border-top-right-radius: 7px;
-                                                          color: #fff;
-                                                          font-size: 1rem;
-                                                          height: 25px;
-                                                          margin: 5px;"> <?php echo xlt('sc Near{{without correction near}}'); ?>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="4" style="text-align:center;font-size:10px">
-                                                    <table>
-                                                        <tr>
-                                                            <td style="text-align:center;font-weight:bold;"><?php echo xlt('R{{right}}'); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT1SCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT2SCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT3SCNEAR); ?></td>
-                                                            <td style="text-align:center;font-weight:bold;"><?php echo xlt('L{{left}}'); ?></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="text-align:right;"><i
-                                                                        class="fas fa-reply rotate-left"></i></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT4SCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT5SCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT6SCNEAR); ?></td>
-                                                            <td><i class="fas fa-share rotate-right"></i></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT10SCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT7SCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT8SCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT9SCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT11SCNEAR); ?>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <?php
-                            }
-
-                            if ($ACT5CCNEAR) {
-                                ?>
-
-                                    <td style="text-align:center;font-weight:bold;"> <!-- ccNEAR -->
-                                        <table cellpadding="0"
-                                               style="position:relative;text-align:center;font-size:10px;margin: 7 5 10 5;border:1pt solid grey;">
-                                            <tr>
-                                                <td style="background-color: #2d6775;
-                                                      border-bottom: 1px solid #000;
-                                                      border-bottom-left-radius: 0;
-                                                      border-bottom-right-radius: 0;
-                                                      border-top-left-radius: 7px;
-                                                      border-top-right-radius: 7px;
-                                                      color: #fff;
-                                                      font-size: 1rem;
-                                                      height: 25px;
-                                                      margin: 5px;"> <?php echo xlt('cc Near{{with correction at Near}}'); ?>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="4" style="text-align:center;font-size:10px;">
-                                                    <table>
-                                                        <tr>
-                                                            <td style="text-align:center;font-weight:bold;"><?php echo xlt('R{{right}}'); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT1CCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT2CCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT3CCNEAR); ?></td>
-                                                            <td style="text-align:center;font-weight:bold;"><?php echo xlt('L{{left}}'); ?></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="text-align:right;"><i
-                                                                        class="fas fa-reply rotate-left"></i></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT4CCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT5CCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT6CCNEAR); ?></td>
-                                                            <td><i class="fas fa-share rotate-right"></i></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT10CCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT7CCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT8CCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT9CCNEAR); ?></td>
-                                                            <td style="height: 58px; width: 58px;"><?php echo report_ACT($ACT11CCNEAR); ?></td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-
-                                    </td>
-                                    <?php
-                            } ?>
-                        </tr>
-                    </table>
-                        <?php
-                    }
-                    if ($NEURO_COMMENTS) { ?>
-                        <table>
-                            <tr>
-                                <td colspan="2">
-                                    <b><?php echo xlt('Comments'); ?>:</b> <?php echo report_ACT($NEURO_COMMENTS); ?>
-                                </td>
-                            </tr>
-                        </table>
-                    <?php } ?>
-                </td>
-            </tr>
-        </table>
         <?php
+        // Scleral Depression drawing: saved with the standard zone document
+        // naming but never emitted by the narrative report.  It has no exam
+        // section of its own, so it renders across the FULL two-column
+        // width — not squeezed into the right half of a zone row.
+        $sd_doc = QueryUtils::querySingleRow(
+            "SELECT id FROM documents WHERE name LIKE ?",
+            ['%' . EyeFormData::text($pid) . '_' . EyeFormData::text($encounter) . '_OU_SDRETINA_VIEW' . '%']
+        );
+        if ((bool) ($sd_doc['id'] ?? null)) {
+            ob_start();
+            display_draw_image("SDRETINA", $encounter, $pid);
+            $sd_drawing = trim(EyeFormData::text(ob_get_clean()));
+            if ($sd_drawing !== '') {
+                if ($PDF_OUTPUT) {
+                    $sd_drawing = str_replace('width:78mm;', 'width:150mm;', $sd_drawing);
+                    ob_start();
+                    ReportRenderer::zoneHeading(xlt('Retinal Drawing'), (bool) $PDF_OUTPUT);
+                    $pdf_zones[] = ['section' => EyeFormData::text(ob_get_clean()), 'drawing' => $sd_drawing, 'fullwidth' => true];
+                } else {
+                    $sd_drawing = str_replace('width:220px;height:auto', 'width:440px;height:auto', $sd_drawing);
+                    echo '<div class="report_exam_group">';
+                    ReportRenderer::zoneHeading(xlt('Retinal Drawing'), (bool) $PDF_OUTPUT);
+                    echo '<div style="text-align:center;">' . $sd_drawing . '</div></div>';
+                }
+            }
+        }
+        if ($additionalSection !== null) {
+            ReportRenderer::zoneEmit($additionalSection, "NEURO", $encounter, $pid, $pdf_zones, (bool) $PDF_OUTPUT, display_draw_image(...));
+        } ?>
+    <?php
+    if ($PDF_OUTPUT) {
+        ReportRenderer::pdfZoneLayout($pdf_zones);
+    }
+    ?>
+    <?php
+    $coverTestViews = [
+        'SCDIST' => xl('sc Distance{{without correction distance}}'),
+        'CCDIST' => xl('cc Distance{{with correction at distance}}'),
+        'SCNEAR' => xl('sc Near{{without correction near}}'),
+        'CCNEAR' => xl('cc Near{{with correction at Near}}'),
+    ];
+    $act_grids = [];
+    $spctMeasurements = [];
+    foreach ($coverTestViews as $suffix => $title) {
+        $act_vals = [];
+        $hasActValue = false;
+        for ($k = 1; $k <= 11; $k++) {
+            $act_vals[$k] = EyeFormData::text($reportRow['ACT' . $k . $suffix] ?? '');
+            $hasActValue = $hasActValue || trim($act_vals[$k]) !== '';
+        }
+        if ($hasActValue) {
+            $act_grids[] = [$title, $act_vals];
+        }
+        $spctValue = EyeFormData::text($reportRow['SPCT_' . $suffix] ?? '');
+        if (trim($spctValue) !== '') {
+            $spctMeasurements[] = [$title, $spctValue];
+        }
+    }
+    if ($act_grids || $spctMeasurements || $NEURO_COMMENTS) { ?>
+        <div class="report_exam_group eye-cover-tests" style="text-align:left;<?php echo $PDF_OUTPUT ? 'width:100%;max-width:none;margin-top:10pt;' : ''; ?>">
+                    <?php
+                    if ($act_grids) {
+                        if (!$PDF_OUTPUT) {
+                            ReportRenderer::zoneHeading(xl('Alternate Cover Test'), false);
+                        }
+                        // At the 9pt body size a grid is ~67mm wide, so two fit a PDF row.
+                        $per_row = $PDF_OUTPUT ? 2 : 4;
+                        foreach (array_chunk($act_grids, $per_row) as $rowIndex => $act_row) {
+                            echo $PDF_OUTPUT ? '<table style="width:100%;page-break-inside:avoid;"><tbody>' : '<table><tbody>';
+                            if ($PDF_OUTPUT && $rowIndex === 0) {
+                                echo '<tr><td colspan="' . count($act_row) . '" style="padding:5mm 0 0;">';
+                                ReportRenderer::zoneHeading(xl('Alternate Cover Test'), true);
+                                echo '</td></tr>';
+                            }
+                            echo '<tr>';
+                            foreach ($act_row as [$act_title, $act_vals]) {
+                                echo '<td style="vertical-align:top;padding:2px 4mm 4px 0;">';
+                                ReportRenderer::actGrid($act_title, $act_vals, (bool) $PDF_OUTPUT, report_ACT(...));
+                                echo '</td>';
+                            }
+                            echo '</tr></tbody></table>';
+                        }
+                    }
+                    if ($spctMeasurements) { ?>
+                        <?php ReportRenderer::zoneHeading(xl('Simultaneous Prism and Cover Test'), (bool) $PDF_OUTPUT); ?>
+                        <table class="report_section">
+                            <?php foreach ($spctMeasurements as [$label, $value]) { ?>
+                                <tr><td><?php echo text($label); ?></td><td><?php echo text($value); ?></td></tr>
+                            <?php } ?>
+                        </table>
+                    <?php }
+                    if ($NEURO_COMMENTS) { ?>
+                        <b><?php echo xlt('Comments'); ?>:</b> <?php echo report_ACT($NEURO_COMMENTS); ?>
+                    <?php } ?>
+        </div>
+            <?php
     }
     //end choice !== 'TEXT' -- include this in summary mouseover report.
     ?>
     <!-- start of IMPPLAN exam -->
-    <table class="report_exam_group">
+    <table class="report_exam_group" style="width:100%;max-width:none;">
+    <tr><td colspan="2"><?php ReportRenderer::zoneHeading(xl('Impression/Plan'), (bool) $PDF_OUTPUT); ?></td></tr>
     <tr>
     <td style="text-align:left;padding:1px;vertical-align:top;width:480px;">
-    <b><u><?php echo xlt('Impression/Plan'); ?>:</u></b>
     <table style="">
     <tr>
     <td style="padding:5px;text-align: left;text-align:justify;width:475px;">
@@ -2412,9 +2309,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
      *  Retrieve and Display the IMPPLAN_items for the Impression/Plan zone.
      */
     $query = "select * from form_" . $form_folder . "_impplan where form_id=? and pid=? order by IMPPLAN_order ASC";
-    $result = sqlStatement($query, [$form_id, $pid]);
+    $result = QueryUtils::sqlStatementThrowException($query, [$form_id, $pid]);
     $i = '0';
-    while ($ip_list = sqlFetchArray($result)) {
+    while ($ip_list = QueryUtils::fetchArrayFromResultSet($result)) {
         $newdata = [
             'form_id' => $ip_list['form_id'],
             'pid' => $ip_list['pid'],
@@ -2429,13 +2326,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
         $i++;
     }
 
-    if (!empty($IMPPLAN_items)) {
+    if ((bool) ($IMPPLAN_items ?? null)) {
         //for ($i=0; $i < count($IMPPLAN_item); $i++) {
         foreach ($IMPPLAN_items as $item) {
             echo ($item['IMPPLAN_order'] + 1) . '. <b>' . text($item['title']) . '</b><br />';
             echo '<div style="padding-left:15px;">';
             $pattern = '/Code/';
-            if (preg_match($pattern, (string) $item['code'])) {
+            if (preg_match($pattern, EyeFormData::text($item['code']))) {
                 $item['code'] = '';
             }
 
@@ -2457,93 +2354,137 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             echo nl2br(text($plan)) . "</div><br />";
         }
             $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
-            $PLAN_results = sqlStatement($query, [$form_id, $pid]);
+            $PLAN_results = QueryUtils::fetchRecords($query, [$form_id, $pid]);
 
 
-        if (!empty($PLAN_results)) { ?>
+        if ($PLAN_results !== []) { ?>
                 <br />
                 <b><?php echo xlt('Orders') . "/" . xlt('Next Visit'); ?>:</b>
                 <br />
                 <div style="padding-left:15px;padding-bottom:10px;width:400px;">
                     <?php
-                    while ($plan_row = sqlFetchArray($PLAN_results)) {
+                    foreach ($PLAN_results as $plan_row) {
                         echo text($plan_row['ORDER_DETAILS']) . "<br />";
                     }
                     ?>
                 </div>
                 <?php
         }
-        ?>
+    }
+    ?>
             </td>
             </tr>
             </table>
-            </td>
-            <td style="text-align:center;vertical-align:bottom;padding:1px;">
                 <?php
-                    display_draw_image("IMPPLAN", $encounter, $pid);
-
-                if ($PDF_OUTPUT) {
-                    //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
-                    //Isn't there a place in sites/..default../images for a jpg signature file for Rx printing or some other openEMR task?
-                    $from_file = OEGlobalsBag::getInstance()->get("webserver_root") . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
-                    if (file_exists($from_file)) {
-                        echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />";
-                    } else {
-                        echo "<br /><br />";
-                    }
-                } else {
-                    $signature = OEGlobalsBag::getInstance()->get("webserver_root") . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
+                if ((bool) ($IMPPLAN_items ?? null)) {
+                    echo '<div class="eye-report-signature" style="text-align:left;margin-top:12px;">';
+                    $providerSignature = ProviderSignature::fromGlobals(OEGlobalsBag::getInstance());
+                    $signature = $providerSignature->path(EyeFormData::integer($providerID));
                     if (file_exists($signature)) {
-                        echo "<img style='width:50mm;' src='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg'><hr style='width:40mm;' />";
+                        $signatureSource = $PDF_OUTPUT ? $signature : $providerSignature->url(EyeFormData::integer($providerID));
+                        echo "<img style='width:50mm;' src='" . attr($signatureSource) . "'><hr style='width:40mm;margin-left:0;' />";
                     } else {
                         echo "<br /><br />";
                     }
-                }
                     echo "<br /><i style='font-size:9px;'>" . xlt('electronically signed on') . " " . oeFormatShortDate() . "</i>";
 
-                ?>
+                    ?>
                 <br/>
-                <span style="padding-left:30px;"><?php echo text($providerNAME); ?></span>
-                <?php
-
+                <span><?php echo text($providerNAME); ?></span>
+                    <?php
+                    echo '</div>';
+                }
                 ?>
-
-
+            </td>
+            <td style="text-align:center;vertical-align:top;padding:1px;">
+                <?php
+                if ((bool) ($IMPPLAN_items ?? null)) {
+                    ob_start();
+                    display_draw_image('IMPPLAN', $encounter, $pid);
+                    $planDrawing = trim(EyeFormData::text(ob_get_clean()));
+                    if ($planDrawing !== '') {
+                        echo '<div class="eye-plan-drawing"><b>' . xlt('Impression/Plan Drawing') . '</b><br />' . $planDrawing . '</div>';
+                    }
+                }
+                ?>
             </td>
             </tr>
             </table>
             </div>
             <?php
-            return;
-    }
+            $patientId = EyeFormData::integer($pid);
+            $eyeFormId = EyeFormData::integer($form_id);
+            $materials = eye_mag_materials_for_report($eyeFormId, $patientId);
+            $canReadDocumentNotes = !$session->get('patient_portal_onsite_two') && AclMain::aclCheckCore('patients', 'notes');
+            foreach ($canReadDocumentNotes ? $materials->documents : [] as $document) {
+                $notes = QueryUtils::fetchRecords(
+                    "SELECT p.date,p.user,p.body FROM pnotes p JOIN gprelations r ON r.type1=1 AND r.id1=? AND r.type2=6 AND r.id2=p.id
+              WHERE p.pid=? AND p.deleted!=1 AND p.title='Clinical' ORDER BY p.date,p.id",
+                    [$document->documentId, $patientId]
+                );
+                if ($notes !== []) {
+                    echo '<div class="report_exam_group"><b>' . xlt('Document interpretation') . ': ' . text($document->name) . '</b>';
+                    foreach ($notes as $note) {
+                        echo '<p>' . text($note['user'] ?? '') . ' · ' . text($note['date'] ?? '') . '<br>'
+                            . nl2br(text($note['body'] ?? '')) . '</p>';
+                    }
+                    echo '</div>';
+                }
+            }
+            ReportRenderer::materialsText($patientId, $eyeFormId, $reportPdf, (bool) $PDF_OUTPUT, eye_mag_materials_for_report(...), eye_mag_embed_materials(...), CurrentRequest::get()->query->getBoolean('printable'));
+            if (!$PDF_OUTPUT && !CurrentRequest::get()->query->getBoolean('printable')) {
+                foreach ($materials->documents as $document) {
+                    if ($document->data !== '' && str_starts_with($document->mimeType, 'image/')) {
+                        $url = OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&retrieve&patient_id='
+                            . urlencode((string) $patientId) . '&document_id=' . urlencode((string) $document->documentId)
+                            . '&as_file=false&original_file=true&disable_exit=false&show_original=true';
+                        echo '<div class="report_exam_group"><b>' . text($document->name) . '</b><br><img src="'
+                            . attr($url) . '" alt="' . attr($document->name) . '" style="max-width:100%;height:auto;"></div>';
+                    }
+                }
+            }
+            ReportRenderer::flushPdf((bool) $PDF_OUTPUT);
 }
 
+
+
+/** Render a zone's saved drawing for screen or PDF output, skipping untouched base images. */
 function display_draw_image($zone, $encounter, $pid): void
 {
     global $form_folder;
     global $web_root;
     global $PDF_OUTPUT;
     global $tmp_files_remove;
+    $zone = EyeFormData::text($zone);
+    $pid = EyeFormData::integer($pid);
+    $encounter = EyeFormData::integer($encounter);
+    $form_folder = EyeFormData::text($form_folder);
     $side = "OU";
     $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $zone . "_VIEW";
     $filename = $base_name . ".jpg";
-    $sql = "SELECT * from documents where documents.name like '%" . $filename . "'";
-    $doc = sqlQuery($sql);
+    // Legacy originals can be retained alongside their newer replacements.
+    // Show the newest active drawing for this patient and encounter, while
+    // still accepting older documents whose names have a prefix.
+    $doc = QueryUtils::querySingleRow(
+        'SELECT * FROM documents WHERE foreign_id = ? AND encounter_id = ? AND deleted = 0'
+        . ' AND RIGHT(name, CHAR_LENGTH(?)) = ? ORDER BY id DESC LIMIT 1',
+        [$pid, $encounter, $filename, $filename]
+    );
     $document_id = $doc['id'] ?? '';
 
     if (($document_id > '1') && (is_numeric($document_id))) {
         $d = new Document($document_id);
-        $fname = basename((string) $d->get_url());
+        $fname = basename(EyeFormData::text($d->get_url()));
 
         $extension = substr($fname, strrpos($fname, "."));
         $notes = $d->get_notes();
-        if (!empty($notes)) {
+        if ((bool) ($notes)) {
             echo "<table>";
         }
 
         foreach ($notes as $note) {
             echo '<tr>';
-            echo '<td>' . xlt('Note') . ' #' . $note->get_id() . '</td>';
+            echo '<td>' . xlt('Note') . ' #' . EyeFormData::text($note->get_id()) . '</td>';
             echo '</tr>';
             echo '<tr>';
             echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
@@ -2553,23 +2494,40 @@ function display_draw_image($zone, $encounter, $pid): void
             echo '</tr>';
         }
 
-        if (!empty($notes)) {
+        if ((bool) ($notes)) {
             echo "</table>";
         }
 
         //               if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
         if ($PDF_OUTPUT) {
             $tempDocC = new C_Document();
+            // Server-side read of the raw file (disable_exit=true) needs the
+            // retrieve key, as core's custom_report.php does; without it
+            // C_Document denies the request (403) and no PDF is made.
             $tempDocC->onReturnRetrieveKey();
-            $fileTemp = $tempDocC->retrieve_action($pid, $doc['id'], false, true, true);
+            $fileTemp = $tempDocC->retrieve_action((string) $pid, $doc['id'], false, true, true, true);
+                        $fileTemp = EyeFormData::text($fileTemp);
+            $drawingRenderer = new ReportRenderer(OEGlobalsBag::getInstance()->getProjectDir());
+            if ($drawingRenderer->drawingIsUntouchedBase($fileTemp, $zone)) {
+                return;
+            }
             // tmp file in ../documents/temp since need to be available via webroot
-            $from_file_tmp_web_name = tempnam(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp', "oer");
+            $tmp_base = tempnam(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/documents/temp', "oer");
+            // mPDF can't decode an image unless the filename ends with a known extension.
+            $sniffed = '.jpg';
+            if (str_starts_with($fileTemp, "\x89PNG")) {
+                $sniffed = '.png';
+            } elseif (str_starts_with($fileTemp, "GIF8")) {
+                $sniffed = '.gif';
+            }
+            $from_file_tmp_web_name = $tmp_base . $sniffed;
+            rename($tmp_base, $from_file_tmp_web_name);
             file_put_contents($from_file_tmp_web_name, $fileTemp);
-            echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;height:120px;'>";
+            echo "<img src='" . $from_file_tmp_web_name . "' style='width:78mm;display:block;margin:2mm auto;'>";
             $tmp_files_remove[] = $from_file_tmp_web_name;
         } else {
-            $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc['id']) . "&as_file=false&blahblah=" . attr_url(random_int(0, mt_getrandmax()));
-            echo "<img src='" . $filetoshow . "' style='width:220px;height:120px;'>";
+            $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url(EyeFormData::text($pid)) . "&document_id=" . attr_url(EyeFormData::text($doc['id'] ?? '')) . "&as_file=false&original_file=true&disable_exit=false&show_original=true&blahblah=" . attr_url((string) random_int(0, mt_getrandmax()));
+            echo "<img src='" . $filetoshow . "' style='width:220px;height:auto;'>";
         }
     } else {
         //else show base_image
@@ -2585,9 +2543,28 @@ function display_draw_image($zone, $encounter, $pid): void
     return;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/** Escape an alternate-cover-test value and preserve its line breaks in report cells. */
 function report_ACT($term): string
 {
-    $term = nl2br(htmlspecialchars((string) $term, ENT_NOQUOTES));
+    $term = nl2br(htmlspecialchars(EyeFormData::text($term), ENT_NOQUOTES));
     return $term . "&nbsp;";
 }
 ?>
