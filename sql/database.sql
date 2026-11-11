@@ -2047,6 +2047,7 @@ CREATE TABLE `form_encounter` (
   `last_stmt_date`    date DEFAULT NULL,
   `stmt_count`        int  NOT NULL DEFAULT 0,
   `provider_id` INT(11) DEFAULT '0' COMMENT 'default and main provider for this visit',
+  `provider_taxonomy` VARCHAR(30) DEFAULT NULL COMMENT 'taxonomy code the visit was done under, one of the provider codes; empty means the primary',
   `supervisor_id` INT(11) DEFAULT '0' COMMENT 'supervising provider, if any, for this visit',
   `invoice_refno` varchar(31) NOT NULL DEFAULT '',
   `referral_source` varchar(31) NOT NULL DEFAULT '',

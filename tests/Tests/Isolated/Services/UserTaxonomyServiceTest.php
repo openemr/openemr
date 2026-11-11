@@ -68,4 +68,31 @@ class UserTaxonomyServiceTest extends TestCase
         $result = UserTaxonomyService::cleanList([['207RC0000X'], null, '207RC0000X']);
         $this->assertSame(['207RC0000X'], $result['codes']);
     }
+
+    /** @return array<string, array{?string, ?string}> */
+    public static function choices(): array
+    {
+        return [
+            'the second code' => ['207RC0000X', '207RC0000X'],
+            'lower case and padded' => [' 207rc0000x ', '207RC0000X'],
+            'the primary means no choice' => ['207R00000X', null],
+            'a code the provider does not hold' => ['207Q00000X', null],
+            'not a code' => ['cardiology', null],
+            'empty' => ['', null],
+            'null' => [null, null],
+        ];
+    }
+
+    #[DataProvider('choices')]
+    public function testPickAllowed(?string $chosen, ?string $expected): void
+    {
+        $this->assertSame($expected, UserTaxonomyService::pickAllowed(['207R00000X', '207RC0000X'], $chosen));
+    }
+
+    public function testPickAllowedTreatsTheFirstCodeAsThePrimary(): void
+    {
+        $allowed = ['207RC0000X', '208D00000X'];
+        $this->assertNull(UserTaxonomyService::pickAllowed($allowed, '207RC0000X'));
+        $this->assertSame('208D00000X', UserTaxonomyService::pickAllowed($allowed, '208D00000X'));
+    }
 }

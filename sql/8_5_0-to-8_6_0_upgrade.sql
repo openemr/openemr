@@ -409,3 +409,8 @@ CREATE TABLE `users_taxonomy` (
   UNIQUE KEY `user_taxonomy` (`user_id`, `taxonomy`)
 ) ENGINE=InnoDB COMMENT='additional taxonomy codes of a provider (users.taxonomy is the primary)';
 #EndIf
+
+-- The taxonomy code an encounter was done under, one of the provider's codes (users.taxonomy or users_taxonomy).
+#IfMissingColumn form_encounter provider_taxonomy
+ALTER TABLE `form_encounter` ADD COLUMN `provider_taxonomy` VARCHAR(30) DEFAULT NULL COMMENT 'taxonomy code the visit was done under, one of the provider codes; empty means the primary' AFTER `provider_id`;
+#EndIf
