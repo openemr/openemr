@@ -222,8 +222,10 @@ Things to know:
 
 ### 4. Outside, recipient has only an email address
 
-Same as workflow 2, with one addition: with the notice global on, the recipient gets a plain
-email.
+Same as workflow 2, with one addition: the recipient gets a plain email. That needs **both**
+globals on, Task tracking and Notify Referral Recipients, and a save that makes a Task (see
+[when a Task is made](#setup)). The notice global by itself sends nothing, and a recipient that
+cannot own a Task gets no email.
 
 **Example.** A patient is referred to a physical therapy office with an email address and no
 Direct address.
@@ -239,7 +241,14 @@ could not be told.
 
 ### 5. Outside, recipient connected through the FHIR API
 
-The recipient's system reads its referrals and reports progress itself. No phone calls.
+The recipient's system reads its referrals and reports progress itself, so status no longer
+travels by phone.
+
+**The API does not tell the recipient who the patient is.** The Task and the ServiceRequest name
+the patient only by a FHIR id, with no name or date of birth, and a limited client cannot read
+Patient. The recipient still needs the patient's details another way: the Referral C-CDA by
+Direct (workflow 3), the printed referral, or a call. Use this workflow for status and results,
+alongside one of those.
 
 **One-time setup**
 
@@ -275,32 +284,41 @@ curl 'https://emr.example.org/apis/default/fhir/ServiceRequest/<referral-uuid>' 
   -H 'Authorization: Bearer <token>'
 ```
 
-Accept it. Read the Task, change `status`, and send the whole Task back:
+Accept it. An update sends the whole Task, so read it, change `status`, and send it back. This
+uses `jq`; `meta.versionId` is the version for `If-Match`:
 
 ```bash
-curl -X PUT 'https://emr.example.org/apis/default/fhir/Task/<task-uuid>' \
+BASE='https://emr.example.org/apis/default/fhir'
+curl -s "$BASE/Task/<task-uuid>" -H 'Authorization: Bearer <token>' > task.json
+VERSION=$(jq -r '.meta.versionId' task.json)
+jq '.status = "accepted"' task.json > accepted.json
+curl -X PUT "$BASE/Task/<task-uuid>" \
   -H 'Authorization: Bearer <token>' \
   -H 'Content-Type: application/fhir+json' \
-  -H 'If-Match: W/"1"' \
-  -d '{ "resourceType": "Task", "id": "<task-uuid>", "status": "accepted", ... }'
+  -H "If-Match: W/\"$VERSION\"" \
+  --data @accepted.json
 ```
 
-Decline it instead, with a reason:
+Decline it instead, with a reason. The same steps, with this change:
 
-```json
-"status": "rejected",
-"statusReason": { "text": "Not accepting new patients until January" }
+```bash
+jq '.status = "rejected" | .statusReason = {text: "Not accepting new patients until January"}' \
+  task.json > rejected.json
 ```
 
 Finish it, with a note back:
 
-```json
-"status": "completed",
-"output": [{
-  "type": { "coding": [{ "system": "http://loinc.org", "code": "11488-4", "display": "Consult note" }] },
-  "valueString": "Seen 2026-11-20. Benign nevus, no treatment needed. Recheck in 12 months."
-}]
+```bash
+jq '.status = "completed" | .output = [{
+      type: {coding: [{system: "http://loinc.org", code: "11488-4", display: "Consult note"}]},
+      valueString: "Seen 2026-11-20. Benign nevus, no treatment needed. Recheck in 12 months."
+    }]' task.json > completed.json
 ```
+
+**A note returned as text is not shown in OpenEMR.** The referral page and the inbox message
+show the status, not the Task's output. Staff see Completed and nothing else, so someone must
+read the Task with a FHIR client to get the text. When staff have no such client, send the
+report by Direct (workflow 3) or have staff record it in Counter-Referral.
 
 What the referring practice sees: the status changes on the referral screen and worklist,
 and Refer By gets an inbox message for accepted, rejected, completed, failed and cancelled.
@@ -376,6 +394,10 @@ marked entered-in-error, and the recipient gets a new one. The filed reply stays
 patient's documents. A Task the recipient finished itself through the API is not undone: a referral
 the recipient completed, rejected, failed or cancelled keeps showing that status.
 
+Task tracking must be on when the Reply Date is cleared. With it off, the Task the reply
+completed is left completed and a later save does not undo it. To recover, turn tracking on,
+enter the Reply Date again and save, then clear it and save.
+
 **Referral or patient deleted.** Open Tasks are cancelled with the reason.
 
 ### 8. Referral created by another system
@@ -426,9 +448,13 @@ here through FHIR.
 - **Reports > Clients > Referrals.** Filter by date, facility and **Show**: All, Open or Overdue. Open
   and Overdue ignore the From date, because an open referral may be an old one.
 - **CMS50, Closing the Referral Loop.** Calculated from these referrals.
-  - A referral counts when it has a Referral Date and a Requested Service from the SNOMED CT
-    code type. A billing code does not match the measure's value set.
-  - It is closed by a Reply Date, or by a document a recipient returned in its Task's output.
+  - A referral can count only when it has a Referral Date and a Requested Service from the
+    SNOMED CT code type. A billing code does not match the measure's value set.
+  - Not every such referral counts. The measure takes each patient's first referral in the first
+    ten months of the year, and only when its code is in the measure's Referral value set.
+  - It is closed by a Reply Date, or by a document a recipient returned in its Task's output
+    whose type is in the measure's Consultant Report value set. Either must come after the
+    referral and inside the measurement period.
 - **Summary of care (Promoting Interoperability).** The Sent Summary of Care boxes on the
   referral feed the automated measure calculations. They are separate from Task tracking.
 

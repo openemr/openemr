@@ -223,21 +223,31 @@ the referral sections only: allergies, medications, problems, plan of care and r
 An entry with only a regular email address gets a plain email with no patient details. The
 referral's page shows how the recipient was told, and a Direct send whose delivery failed.
 
+A notice is sent only when a save creates a new Task for the recipient, and on Re-send. Saving a
+referral that already has a Task sends nothing, so turning the notice setting on later and saving
+again does not send the referral. Direct messaging itself must be enabled (section F); without it
+the referral's page says that Direct was not available.
+
 2. Sending by hand: The Direct section of the Care Coordination send form offers the selected
 patient's referrals, so the C-CDA is linked to the referral it is sent for. It defaults to the
 patient's most recent referral. With several patients selected, each keeps their most recent.
 
 3. Replies: A received message that answers a message sent from here about a patient (matched by
-its In-Reply-To or References header) is filed to that patient and referral instead of being left
-unassigned. A message that answers nothing sent is processed as described in section J.2.
+its In-Reply-To or References header) is filed to that patient instead of being left unassigned.
+The reply must come from the address the original message was sent to; a reply from any other
+address stays unassigned. It is filed with a referral, and shown on that referral's page, only
+when the message it answers was itself linked to that referral (a notice, or a C-CDA sent for a
+chosen referral). A message that answers nothing sent is processed as described in section J.2.
 
 4. Completing the referral: A matched reply never completes the referral on its own, since it may
 be a question or a refusal. On the referral's page, each reply has a "Confirm it completes the
 referral" button. Confirming files the reply's documents as the referral's consult note, sets the
 Reply Date and completes the recipient's Task.
 
-The button is shown only while the recipient's Task is still open and the referral has no Reply
-Date. There is no button, and one on a page opened earlier does nothing, when:
+The button is shown only when all of these are true: "Track Referrals with FHIR Tasks" is on, the
+recipient's Task is still open, the referral has no Reply Date, and the user may edit
+transactions. Without a button, record the reply by hand in the referral's Counter-Referral tab.
+There is no button, and one on a page opened earlier does nothing, when:
 
   - the recipient has already completed, rejected, failed or cancelled the Task. The reply stays
     in the patient's chart, but it is not added to the Task and the Reply Date is not set.

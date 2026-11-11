@@ -161,15 +161,22 @@ Accept: application/json
 **Patient referrals.** A referral saved with `POST /api/patient/:pid/transaction` (type `LBTref`) or
 `PUT /api/transaction/:tid` is the same record as one saved on the Transactions screen:
 
-- Refer By and Refer To are found by NPI (`referByNpi`, `referToNpi`).
+- Refer By and Refer To are found by NPI (`referByNpi`, `referToNpi`). An NPI that matches no
+  user is not an error: on `PUT` the recipient is left as it was and the call still succeeds, so
+  the old recipient keeps the referral and its Task. Read the referral back to check who it is
+  sent to.
 - With the **Track Referrals with FHIR Tasks** global on, the referral gets a FHIR Task for its
   recipient, and is readable as a FHIR ServiceRequest. No Task is made when FHIR cannot serve
   Refer To as a Practitioner or an Organization, such as a practitioner without an NPI, or when
   the referral already has a Reply Date. A `PUT` of an answered referral therefore creates none.
   See [when a Task is made](../REFERRAL_WORKFLOWS.md#setup).
+- The save succeeds even if making the Task fails; the failure is only logged. Check for the Task
+  with `GET /fhir/Task?focus=ServiceRequest/<uuid>`, and save the referral again if it is missing.
 - The API does not write the Reply Date, so it cannot close a referral.
 - `authorization`, `visits`, `validFrom` and `validThrough` are stored, but the stock referral
   form has no fields for them.
+- `PUT` only changes a field the referral already has a value for. A referral made on the stock
+  form has none for these four, so a `PUT` cannot add them.
 - `PUT` skips empty values, `"0"` included, so it cannot clear a field: sending an empty
   `authorization` or `visits` of `"0"` leaves the old value in place.
 

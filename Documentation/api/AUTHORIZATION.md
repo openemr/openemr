@@ -613,6 +613,9 @@ Whatever scopes the client holds, it can then only call:
 
 - Give it `Task` read and update scopes and `ServiceRequest` read scopes, in the user or system
   context.
+- **It cannot identify the patient from the API alone.** The Task and ServiceRequest name the
+  patient by FHIR id only, and Patient is refused. Send the patient's details another way, such
+  as the Referral C-CDA by Direct or the printed referral.
 - The limit is read on every request, so setting or removing it takes effect at once, for
   tokens already issued too.
 - A referral is readable only while the entry is Refer To and has a Task for it. A referral saved
