@@ -14,6 +14,7 @@ ignore:
 - tests/eventdispatcher/               # Example modules for documentation
 - portal/messaging/messages.php        # Entry-point script (bootstrap + render) — exercised by manual QA, not unit tests
 - portal/messaging/handle_note.php     # Entry-point script (CSRF, ACL, sendMail) — testable logic extracted to OpenEMR\Services\PortalMessagingSender
+- Documentation/help_files/            # In-app help pages: static translated text with no logic. The e2e run's coverage of this directory is not kept (ci/ciLibrary.source), so a page's lines read as untested even when a test loads it
 
 # Strip environment-specific path prefixes from coverage reports so Codecov
 # can match them to repository files. See https://docs.codecov.com/docs/fixing-paths
