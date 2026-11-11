@@ -485,10 +485,11 @@ class EncounterService extends BaseService
             );
         }
         $userId = filter_var($providerId, FILTER_VALIDATE_INT);
-        $data['provider_taxonomy'] = $userId === false ? null : (new UserTaxonomyService())->resolveChoice(
+        // An empty string, not null: the update builder skips null values, so null could not clear an earlier choice.
+        $data['provider_taxonomy'] = $userId === false ? '' : ((new UserTaxonomyService())->resolveChoice(
             $userId,
             is_string($data['provider_taxonomy']) ? $data['provider_taxonomy'] : null
-        );
+        ) ?? '');
         return $data;
     }
 
