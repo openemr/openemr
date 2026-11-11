@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Ci;
 
 use PHPUnit\Framework\TestCase;
+use ShipMonk\PHPStan\Baseline\Handler\PhpBaselineHandler;
 use Symfony\Component\Process\Process;
 
 class PhpstanBaselineDiffIsolatedTest extends TestCase
@@ -69,20 +70,19 @@ class PhpstanBaselineDiffIsolatedTest extends TestCase
     }
 
     /**
+     * Writes a baseline file the way `composer phpstan-baseline` does, so the
+     * script is tested against the generator's real output format.
+     *
      * @param list<int> $counts
      */
     private function writeBaseline(string $side, string $identifier, array $counts, string $extraCode = ''): void
     {
-        $php = "<?php declare(strict_types = 1);\n\n\$ignoreErrors = [];\n";
+        $errors = [];
         foreach ($counts as $i => $count) {
-            $php .= "\$ignoreErrors[] = [\n"
-                . "    'message' => '#^Message $i\\\\.\$#',\n"
-                . "    'count' => $count,\n"
-                . "    'path' => __DIR__ . '/../../file$i.php',\n"
-                . "];\n";
+            $errors[] = ['message' => "#^Message $i\\.$#", 'count' => $count, 'path' => "file$i.php"];
         }
-        $php .= $extraCode;
-        $php .= "\nreturn ['parameters' => ['ignoreErrors' => \$ignoreErrors]];\n";
+        $php = (new PhpBaselineHandler())->encodeBaseline(null, $errors, '    ');
+        $php = str_replace("\nreturn ", "\n{$extraCode}return ", $php);
         file_put_contents("{$this->root}/$side/$identifier.php", $php);
     }
 
