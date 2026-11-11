@@ -2400,13 +2400,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     //end choice !== 'TEXT' -- include this in summary mouseover report.
     ?>
     <!-- start of IMPPLAN exam -->
-    <table class="report_exam_group">
-    <tr>
-    <td style="text-align:left;padding:1px;vertical-align:top;width:480px;">
+    <?php
+    // Blocks, not table cells: mPDF can't break a table row across pages, so it shrank a
+    // plan longer than a page until it fit on one, leaving the text too small to read.
+    ?>
+    <div style="font-size:11px;text-align:left;padding:1px;">
     <b><u><?php echo xlt('Impression/Plan'); ?>:</u></b>
-    <table style="">
-    <tr>
-    <td style="padding:5px;text-align: left;text-align:justify;width:475px;">
+    <div style="padding:5px;text-align:justify;">
     <?php
     /**
      *  Retrieve and Display the IMPPLAN_items for the Impression/Plan zone.
@@ -2474,11 +2474,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 <?php
         }
         ?>
-            </td>
-            </tr>
-            </table>
-            </td>
-            <td style="text-align:center;vertical-align:bottom;padding:1px;">
+            </div>
+            <div style="text-align:right;padding:1px;">
                 <?php
                     display_draw_image("IMPPLAN", $encounter, $pid);
 
@@ -2507,11 +2504,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 <?php
 
                 ?>
-
-
-            </td>
-            </tr>
-            </table>
+            </div>
+            </div>
             </div>
             <?php
             return;
