@@ -207,13 +207,14 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
     <style>
         #assessment-frame {
             border: 0;
-            min-height: 72vh;
+            display: block;
+            height: 72vh;
             width: 100%;
         }
     </style>
 </head>
 <body class="body_top">
-    <div id="container_div" class="<?php echo attr($pageLayout->oeContainer()); ?> mt-3">
+    <div id="container_div" class="<?php echo attr($pageLayout->oeContainer()); ?> mt-2">
         <?php echo $pageLayout->pageHeading(); ?>
         <div class="row">
             <div class="col-sm-12">
@@ -229,7 +230,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
         <?php elseif ($pid < 1) : ?>
             <div class="alert alert-info mt-3"><?php echo xlt('No patient selected.'); ?></div>
         <?php else : ?>
-            <div id="assessment-workspace" class="card my-3 d-none">
+            <div id="assessment-workspace" class="card my-2 d-none">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span id="assessment-title" class="font-weight-bold"></span>
                     <div class="btn-group btn-group-sm">
@@ -242,7 +243,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <iframe id="assessment-frame" title="<?php echo xla('Questionnaire Assessment'); ?>"></iframe>
+                    <iframe id="assessment-frame" title="<?php echo xla('Questionnaire Assessment'); ?>" data-fit-window></iframe>
                 </div>
             </div>
 
@@ -323,7 +324,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 </div>
             <?php endif; ?>
 
-            <div id="assessment-catalog" class="my-3">
+            <div id="assessment-catalog" class="my-2">
                 <ul class="nav nav-tabs" id="assessment-tabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <a
@@ -356,7 +357,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                     </li>
                     <?php echo $twig->render('patient/assessment/admin_tab_nav.html.twig', $adminTabs); ?>
                 </ul>
-                <div class="tab-content border-left border-right border-bottom p-3 bg-light" id="assessment-tabs-content">
+                <div class="tab-content border-left border-right border-bottom p-2 bg-light" id="assessment-tabs-content">
                     <div
                         class="tab-pane fade show active"
                         id="available-assessments"
@@ -627,6 +628,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
     <?php if ($authorized && $pid > 0) : ?>
         <?php echo $twig->render('super/_collapse_persist.html.twig', ['csrfToken' => $smartLaunchCsrfToken]); ?>
         <?php echo $twig->render('patient/assessment/assessment_feedback.html.twig', ['launcherUrl' => $selfUrl]); ?>
+        <?php echo $twig->render('patient/assessment/frame_fit.html.twig'); ?>
         <script>
             const assessmentWorkspace = document.getElementById('assessment-workspace')
             const assessmentCatalog = document.getElementById('assessment-catalog')
@@ -648,6 +650,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 assessmentTitle.textContent = title
                 assessmentCatalog.classList.add('d-none')
                 assessmentWorkspace.classList.remove('d-none')
+                assessmentFrameFit.fit()
                 assessmentFeedback.loading(true)
                 assessmentFrame.src = url
                 window.scrollTo({ top: 0, behavior: 'smooth' })

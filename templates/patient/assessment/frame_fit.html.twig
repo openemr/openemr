@@ -1,0 +1,57 @@
+{#
+  Sizes every frame marked data-fit-window to fill the window below it, so an embedded screen
+  scrolls inside itself and the page around it does not scroll as well.
+
+  Only the padding, borders and margins of the frame's own containers are kept below it.
+  Content that follows the frame's card, such as the SMART test launches card under an open
+  assessment, can be scrolled to and does not shrink the frame. Frames refit when a tab is
+  shown, when a frame finishes loading and when the window is resized; call
+  window.assessmentFrameFit.fit() after showing a frame any other way.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<script>
+    (function () {
+        // Below this a frame is too short to use; the page scrolls instead.
+        const minimumHeight = 300
+
+        // The space the frame's containers keep below it: each one's bottom padding, border
+        // and margin, up to and including the body.
+        function spaceBelow (frame) {
+            let space = parseFloat(getComputedStyle(frame).marginBottom) || 0
+            for (let element = frame.parentElement; element && element !== document.documentElement; element = element.parentElement) {
+                const style = getComputedStyle(element)
+                space += (parseFloat(style.paddingBottom) || 0)
+                    + (parseFloat(style.borderBottomWidth) || 0)
+                    + (parseFloat(style.marginBottom) || 0)
+            }
+            return space
+        }
+
+        // A frame inside a hidden tab or a closed workspace is skipped; it fits when shown.
+        function fit () {
+            document.querySelectorAll('iframe[data-fit-window]').forEach((frame) => {
+                if (frame.offsetParent === null) {
+                    return
+                }
+                const top = frame.getBoundingClientRect().top + window.scrollY
+                const height = Math.floor(window.innerHeight - top - spaceBelow(frame))
+                frame.style.height = Math.max(minimumHeight, height) + 'px'
+            })
+        }
+
+        window.assessmentFrameFit = { fit }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('iframe[data-fit-window]').forEach((frame) => {
+                frame.addEventListener('load', fit)
+            })
+            $('a[data-toggle="tab"]').on('shown.bs.tab', fit)
+            fit()
+        })
+        window.addEventListener('resize', fit)
+    })()
+</script>
