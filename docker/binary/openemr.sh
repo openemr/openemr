@@ -408,10 +408,12 @@ manage_certificates() {
         if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
             return 0
         fi
-        # Atomic replace via sibling temp + rename. See the matching
+        # Atomic replace via sibling mktemp + rename. See the matching
         # block in docker/release/openemr.sh for the full rationale —
-        # same idiom and same race-closure benefits apply here.
-        local tmp="${dst}.tmp.$$"
+        # same idiom, same race-closure benefits, same orphan-tmp
+        # cleanup caveat on failure.
+        local tmp
+        tmp=$(mktemp "${dest_dir}/.cert.${name}.XXXXXXXX")
         cp "${src}" "${tmp}"
         chmod 744 "${tmp}"
         mv "${tmp}" "${dst}"

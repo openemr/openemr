@@ -1030,13 +1030,15 @@ cp_cert_file() {
     if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
         return 0
     fi
-    # Atomic replace via sibling temp + rename. See the matching
+    # Atomic replace via sibling mktemp + rename. See the matching
     # block in docker/release/openemr.sh for the full rationale —
     # removes the concurrent-reader-sees-partial and crash-mid-cp
-    # races. The chmod flex applies to mysql certs happens in a
-    # later gated block (around line ~1160) against the final dst,
-    # so no chmod on tmp needed here.
-    local tmp="${dst}.tmp.$$"
+    # races; mktemp's random suffix closes the symlink-prediction
+    # TOCTOU vs a `.tmp.$$` form. The chmod flex applies to mysql
+    # certs happens in a later gated block (around line ~1170)
+    # against the final dst, so no chmod on tmp needed here.
+    local tmp
+    tmp=$(mktemp "$(dirname "${dst}")/.cert.${name}.XXXXXXXX")
     cp "${src}" "${tmp}"
     mv "${tmp}" "${dst}"
     echo "copied over ${name}"

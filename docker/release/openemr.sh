@@ -411,22 +411,36 @@ manage_certificates() {
         if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
             return 0
         fi
-        # Atomic replace: write to a sibling temp file under the same
-        # directory (so the final `mv` stays on the same filesystem
-        # and is a POSIX-atomic rename), then rename over dst. This
-        # removes two race windows the plain `cp src dst` form had:
+        # Atomic replace: stage to a mktemp-generated sibling file
+        # under the same directory (so the final `mv` stays on the
+        # same filesystem and is a POSIX-atomic rename), then rename
+        # over dst. This removes two race windows the plain `cp src
+        # dst` form had:
         #   * A concurrent reader (e.g. an already-running openemr
         #     process on another pod sharing the sites PVC) observing
         #     a partially-written dst mid-cp.
         #   * A crash mid-cp leaving a truncated dst that would then
         #     pass the `! cmp -s` guard on next boot and either stay
-        #     truncated or be overwritten only on a subsequent
-        #     Secret rotation — meanwhile TLS handshakes against the
+        #     truncated or be overwritten only on a subsequent Secret
+        #     rotation — meanwhile TLS handshakes against the
         #     truncated file fail silently.
-        # The PID suffix on the temp name prevents collision if two
-        # entrypoint instances somehow run concurrently against the
-        # same dst (not expected, but cheap defense).
-        local tmp="${dst}.tmp.$$"
+        # `mktemp` gives us a cryptographically random suffix instead
+        # of a predictable `.$$` form, which matters because the
+        # sites/default/documents/certificates directory can be
+        # apache-owned after the entrypoint's chown pass. A
+        # lower-trust process on the same PVC that could predict the
+        # tmp name could pre-create a symlink there and race the cp
+        # into writing elsewhere; mktemp's random component +
+        # exclusive-creation semantics close that.
+        # Failure mode: if cp / chmod / mv fail under set -e, the
+        # script exits and leaves a `.cert.<name>.<rand>` orphan in
+        # the certs dir (bounded size, same perms the cert would end
+        # up with anyway — no security impact, just hygiene). A
+        # subsequent successful run won't touch orphans (different
+        # random suffix each time); operators clean up via a simple
+        # `find ${dest_dir} -name '.cert.*' -mtime +7 -delete`.
+        local tmp
+        tmp=$(mktemp "${dest_dir}/.cert.${name}.XXXXXXXX")
         cp "${src}" "${tmp}"
         chmod 744 "${tmp}"
         mv "${tmp}" "${dst}"
