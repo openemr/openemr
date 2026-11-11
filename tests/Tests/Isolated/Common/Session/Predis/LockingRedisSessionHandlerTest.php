@@ -588,4 +588,66 @@ class LockingRedisSessionHandlerTest extends TestCase
 
         $this->assertCount(1, $this->callsFor($calls, 'eval'), 'Lock must be released even when WAIT throws');
     }
+
+    public function testWriteReturnsTrueWhenLockReleaseThrows(): void
+    {
+        // Scenario: waitForReplication() hits a transient connection
+        // drop mid-WAIT, catches its own \RedisException, but the
+        // underlying phpredis client is now in a broken state. The
+        // next op (our Lua eval in releaseLock) throws fresh about
+        // the dead socket. Without releaseLock's own \RedisException
+        // catch, this fresh throw propagates through the `finally`
+        // block of write() and silently overrides the successful
+        // inner-write return value — the controller boundary sees a
+        // thrown exception even though every byte the caller asked
+        // for already landed on the primary.
+        //
+        // Contract: lock-release failure is logged (operators can
+        // alert on it) but does NOT propagate. The lock's PX TTL is
+        // the safety net — the next reader for this session waits up
+        // to lockTtlSeconds before the key auto-expires.
+        $this->redis->method('set')->willReturn(true);
+        $this->redis->method('eval')
+            ->willThrowException(new \RedisException('Redis server went away'));
+        $this->inner->method('write')->willReturn(true);
+
+        $this->handler->read('sess123');
+        $this->assertTrue(
+            $this->handler->write('sess123', 'data'),
+            'write() must return the inner write result even when releaseLock throws',
+        );
+    }
+
+    public function testDestroyReturnsTrueWhenLockReleaseThrows(): void
+    {
+        // Same rationale as testWriteReturnsTrueWhenLockReleaseThrows
+        // but exercises the destroy() path, which also routes through
+        // releaseLock in its finally block.
+        $this->redis->method('set')->willReturn(true);
+        $this->redis->method('eval')
+            ->willThrowException(new \RedisException('Redis server went away'));
+        $this->inner->method('destroy')->willReturn(true);
+
+        $this->handler->read('sess123');
+        $this->assertTrue(
+            $this->handler->destroy('sess123'),
+            'destroy() must return the inner destroy result even when releaseLock throws',
+        );
+    }
+
+    public function testUpdateTimestampReturnsTrueWhenLockReleaseThrows(): void
+    {
+        // Same rationale, exercises the updateTimestamp() / lazy_write
+        // path.
+        $this->redis->method('set')->willReturn(true);
+        $this->redis->method('eval')
+            ->willThrowException(new \RedisException('Redis server went away'));
+        $this->inner->method('updateTimestamp')->willReturn(true);
+
+        $this->handler->read('sess123');
+        $this->assertTrue(
+            $this->handler->updateTimestamp('sess123', 'data'),
+            'updateTimestamp() must return the inner result even when releaseLock throws',
+        );
+    }
 }

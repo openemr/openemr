@@ -280,6 +280,26 @@ class LockingRedisSessionHandler implements
      * The Lua script checks that the lock key's value matches our token before
      * deleting it, preventing us from releasing a lock that was re-acquired by
      * another request after our TTL expired.
+     *
+     * A \RedisException thrown by the eval is swallowed (logged, not
+     * propagated) because this method is called from the `finally` block
+     * of write() / updateTimestamp() / destroy(), where a throw would
+     * silently override the successful return value of the inner handler
+     * call that just preceded it. The most common way this trips is:
+     * waitForReplication() hits a transient connection drop mid-WAIT,
+     * catches its own \RedisException, but leaves the phpredis client
+     * in a broken state — the next operation on that client (our Lua
+     * eval here) throws fresh about the dead socket. Without this
+     * catch, a successful session write would surface as a thrown
+     * exception at the controller boundary even though every byte the
+     * caller asked for landed on the primary.
+     *
+     * The failure cost of a swallowed release is bounded: the lock key
+     * carries a `PX` TTL (REDIS_SESSION_LOCK_TTL, default 60s), so the
+     * next reader for this session waits up to that TTL before the lock
+     * auto-expires and acquireLock()'s spin wait succeeds. That path is
+     * already covered by `testSecondReaderAcquiresLockAfterTtlExpiry`
+     * in the integration suite.
      */
     private function releaseLock(): void
     {
@@ -294,13 +314,28 @@ else
     return 0
 end
 LUA;
-        // phpredis eval: script, [keys + args], numKeys
-        $this->redis->eval($script, [$this->currentLockKey, $this->lockToken], 1);
-
-        $this->logger->debug('Redis session lock released');
-
-        $this->lockToken = null;
-        $this->currentLockKey = null;
+        try {
+            // phpredis eval: script, [keys + args], numKeys
+            $this->redis->eval($script, [$this->currentLockKey, $this->lockToken], 1);
+            $this->logger->debug('Redis session lock released');
+        } catch (\RedisException $e) {
+            // Catch \RedisException specifically (not \Throwable or
+            // \Exception) — the only runtime failure we want to swallow
+            // is a Redis-protocol problem (network, server-side error,
+            // dead connection after a mid-WAIT drop). Programming
+            // errors (TypeError, ParseError, ErrorException) must
+            // propagate.
+            $this->logger->warning('Redis session lock release raised; lock will expire via TTL safety net', [
+                'exception' => $e,
+            ]);
+        } finally {
+            // Clear ownership state either way: whether the release
+            // succeeded or the eval threw, this request no longer owns
+            // the lock from its own perspective. A subsequent same-
+            // request operation would re-acquire via read() if needed.
+            $this->lockToken = null;
+            $this->currentLockKey = null;
+        }
     }
 
     /**
