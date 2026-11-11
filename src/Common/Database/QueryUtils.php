@@ -153,6 +153,7 @@ class QueryUtils
             throw new SqlQueryException(
                 sqlStatement: $sqlStatement,
                 message: "Failed to execute statement. Error: " . $error . " Statement: " . $sqlStatement,
+                code: self::getLastErrorCode(),
                 sqlError: $error,
             );
         }
@@ -292,6 +293,7 @@ class QueryUtils
             throw new SqlQueryException(
                 sqlStatement: $statement,
                 message: "Failed to execute statement. Error: " . $error . " Statement: " . $statement,
+                code: self::getLastErrorCode(),
                 sqlError: $error,
             );
         }
@@ -359,6 +361,7 @@ class QueryUtils
             throw new SqlQueryException(
                 sqlStatement: $statement,
                 message: "Insert failed. SQL error " . $error . " Query: " . $statement,
+                code: self::getLastErrorCode(),
                 sqlError: $error,
             );
         }
@@ -444,26 +447,123 @@ class QueryUtils
     }
 
     /**
+     * MariaDB / Galera error codes that indicate a transient write-conflict
+     * where retrying the whole transaction is the correct recovery.
+     *
+     * 1213 ER_LOCK_DEADLOCK — classic InnoDB deadlock. MariaDB resolves by
+     *      aborting one of the deadlocked transactions with this code; the
+     *      calling application is expected to retry. Galera also surfaces
+     *      cross-node certification failures as 1213 at commit time (MariaDB
+     *      maps SQLSTATE 40001 to this).
+     *
+     * 1180 ER_ERROR_DURING_COMMIT — generic "something went wrong at commit"
+     *      wrapper. On Galera this is how WSREP certification conflicts
+     *      surface for writes that were optimistically applied locally but
+     *      rejected globally. Only treat as retryable when the companion
+     *      message identifies WSREP; a bare 1180 could be a disk or binlog
+     *      problem that retrying won't fix.
+     */
+    private const RETRYABLE_SQLSTATE_DEADLOCK = 1213;
+    private const RETRYABLE_SQLSTATE_COMMIT_ERROR = 1180;
+
+    /** Default retry budget. Zero disables retries (legacy behavior). */
+    public const DEFAULT_TRANSACTION_RETRIES = 3;
+
+    /** Default initial backoff between retries (milliseconds). */
+    public const DEFAULT_TRANSACTION_RETRY_DELAY_MS = 50;
+
+    /**
      * Runs the $action within a database transaction, automatically committing
      * it on success and rolling back if there's an exception.
      *
+     * Retries the whole transaction up to $maxRetries times when the failure
+     * is a MariaDB / Galera write-conflict error code (see
+     * RETRYABLE_SQLSTATE_*). Uses exponential backoff with full jitter
+     * (AWS architecture-blog pattern) — each retry doubles the base delay
+     * and picks a uniform-random actual delay in [0, base]. This smears
+     * retries over time instead of thundering-herd re-colliding at the
+     * same instant.
+     *
+     * Design intent: openemr-devops is adopting Galera multi-master
+     * (openemr/openemr-devops#931 follow-up — write-conflict certification
+     * is Galera's commit contract). Classic single-primary MariaDB
+     * deadlock-retries are already standard SQL practice, so this
+     * wrapper benefits non-Galera deployments too. Default budget of
+     * 3 retries matches the common best-practice (deadlock cycles
+     * resolve in 1-2 attempts; anything requiring more is a hot-spot
+     * contention problem the application needs to redesign around).
+     *
      * @phpstan-template T
      * @param callable(): T $action
+     * @param int $maxRetries Max retry attempts on transient write-conflict (0 = no retry, legacy behavior)
+     * @param int $retryDelayMs Initial base delay in milliseconds (doubles per attempt before jitter)
      * @return T
      */
-    public static function inTransaction(callable $action): mixed
-    {
-        self::startTransaction();
+    public static function inTransaction(
+        callable $action,
+        int $maxRetries = self::DEFAULT_TRANSACTION_RETRIES,
+        int $retryDelayMs = self::DEFAULT_TRANSACTION_RETRY_DELAY_MS,
+    ): mixed {
+        $attempt = 0;
+        while (true) {
+            self::startTransaction();
 
-        try {
-            $return = $action();
+            try {
+                $return = $action();
+                self::commitTransaction();
+                return $return;
+            } catch (Throwable $e) {
+                self::rollbackTransaction();
 
-            self::commitTransaction();
-            return $return;
-        } catch (Throwable $e) {
-            self::rollbackTransaction();
-            throw $e;
+                if ($attempt < $maxRetries && self::isRetryableWriteConflict($e)) {
+                    $attempt++;
+                    // Exponential backoff with full jitter: base doubles each
+                    // attempt; actual sleep is uniform in [0, base_ms * 1000 μs].
+                    $baseUs = $retryDelayMs * 1000 * (1 << ($attempt - 1));
+                    usleep(random_int(0, $baseUs));
+                    continue;
+                }
+
+                throw $e;
+            }
         }
+    }
+
+    /**
+     * Whether a transaction failure is a transient write-conflict worth
+     * retrying. Checks the exception's code AND a message-substring heuristic
+     * so we catch both the common standard-deadlock path (code 1213 with any
+     * message) and the Galera-specific certification-failure path (code 1180
+     * with a WSREP-mentioning message).
+     *
+     * Non-retryable by design: 1205 ER_LOCK_WAIT_TIMEOUT (the holder isn't
+     * going to release just because we retry), constraint violations,
+     * syntax errors, disk-full, etc.
+     *
+     * Public so callers that build their own transaction loops (e.g.
+     * GaclApi's hand-rolled BeginTrans / CommitTrans / RollbackTrans
+     * sequences that haven't yet migrated to inTransaction()) can
+     * participate in the same retry policy without duplicating the
+     * decision logic.
+     */
+    public static function isRetryableWriteConflict(Throwable $e): bool
+    {
+        $code = $e->getCode();
+        if ($code === self::RETRYABLE_SQLSTATE_DEADLOCK) {
+            return true;
+        }
+        if ($code === self::RETRYABLE_SQLSTATE_COMMIT_ERROR) {
+            // 1180 is broad; require the message to identify a Galera
+            // certification-level conflict before treating as retryable.
+            $message = $e->getMessage();
+            if (stripos($message, 'wsrep') !== false
+                || stripos($message, 'certification') !== false
+                || stripos($message, 'deadlock') !== false
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -519,6 +619,28 @@ class QueryUtils
         return !empty(OEGlobalsBag::getInstance()->get('last_mysql_error'))
             ? (string) OEGlobalsBag::getInstance()->get('last_mysql_error')
             : (string) OEGlobalsBag::getInstance()->get('adodb')['db']->ErrorMsg();
+    }
+
+    /**
+     * MySQL / MariaDB native error code from the most recent failing query.
+     * Preferred over parsing getLastError()'s string: the code is stable
+     * across locales, driver versions, and MariaDB-version-specific message
+     * phrasing. Used by inTransaction()'s retry logic to decide whether a
+     * failure is a transient write-conflict (deadlock / Galera cert
+     * failure) or a fatal error (constraint violation, syntax, etc.).
+     *
+     * Returns 0 when no DB error code is available (e.g. the failure
+     * originated before the query reached the server, or the ADODB bag
+     * is unavailable). Callers should NOT treat 0 as success.
+     */
+    public static function getLastErrorCode(): int
+    {
+        if (!function_exists('sqlQuery')) {
+            // adodb bootstrap hasn't loaded (unit tests that only
+            // exercise this helper's branches), nothing to query.
+            return 0;
+        }
+        return (int) self::getADODB()->ErrorNo();
     }
 
     /**
