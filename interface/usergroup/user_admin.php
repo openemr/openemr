@@ -32,6 +32,7 @@ use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\UserService;
+use OpenEMR\Services\UserTaxonomyService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
@@ -470,6 +471,31 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
 </td>
 </tr>
 
+<?php
+$taxonomyService = new UserTaxonomyService();
+$taxonomyNames = $taxonomyService->getNames();
+?>
+<tr>
+<td><span class="text"><?php echo xlt('Additional Taxonomies'); ?>: </span></td>
+<td colspan="3">
+    <div id="extra_taxonomies">
+        <?php foreach ($taxonomyService->getExtras((int) $iter['id']) as $extraTaxonomy) { ?>
+        <div class="input-group mb-1 extra-taxonomy">
+            <input type="text" name="taxonomy_extra[]" style="max-width:150px;" class="form-control" list="taxonomy_codes" maxlength="10" value="<?php echo attr($extraTaxonomy); ?>">
+            <span class="input-group-text"><?php echo text($taxonomyNames[$extraTaxonomy] ?? ''); ?></span>
+        </div>
+        <?php } ?>
+    </div>
+    <button type="button" class="btn btn-sm btn-secondary" id="add_taxonomy"><?php echo xlt('Add another taxonomy'); ?></button>
+    <span class="text"><?php echo xlt('Clear a code to remove it. The Taxonomy above stays the primary one.'); ?></span>
+    <datalist id="taxonomy_codes">
+        <?php foreach ($taxonomyNames as $taxonomyCode => $taxonomyTitle) { ?>
+        <option value="<?php echo attr($taxonomyCode); ?>" label="<?php echo attr($taxonomyTitle); ?>"></option>
+        <?php } ?>
+    </datalist>
+</td>
+</tr>
+
 <tr>
 <td><span class="text"><?php echo xlt('State License Number'); ?>: </span></td>
 <td><input type="text" name="state_license_number" style="width:150px;" class="form-control" value="<?php echo attr($iter["state_license_number"]); ?>"></td>
@@ -708,6 +734,13 @@ $(function () {
     $("#cancel").click(function() {
           dlgclose();
      });
+    $("#add_taxonomy").click(function () {
+        $("#extra_taxonomies").append(
+            $('<div class="input-group mb-1 extra-taxonomy"></div>').append(
+                $('<input type="text" name="taxonomy_extra[]" style="max-width:150px;" class="form-control" list="taxonomy_codes" maxlength="10">')
+            )
+        ).find("input:last").trigger("focus");
+    });
 
 });
 </script>
