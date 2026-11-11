@@ -1,0 +1,19 @@
+{#
+  Generate and Rules tabs.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Simon Quigley <squigley@altispeed.com>
+  @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link {% if activeTab == 'generate' %}active{% endif %}" href="index.php">{{ "Generate"|xlt }}</a>
+    </li>
+    {% if canAdmin %}
+    <li class="nav-item">
+        <a class="nav-link {% if activeTab == 'rules' %}active{% endif %}" href="admin.php">{{ "Rules"|xlt }}</a>
+    </li>
+    {% endif %}
+</ul>
