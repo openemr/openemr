@@ -41,12 +41,19 @@ final class AddressBookReferrerFields
      * column is FLOAT, so a driver may return '3' or 3.0. Compare the same
      * way addrbook_edit.php does ($option_abook_type == 3). asString() would
      * turn a numeric 3 into '' and treat labs as referring providers.
+     * External Organization uses option_value 1, the same number as a person,
+     * so the type id is what keeps it out of this guard.
      *
      * @param mixed $username          users.username; empty for address-book-only rows
      * @param mixed $abookOptionValue  list_options.option_value for abook_type
+     * @param mixed $abookTypeId       list_options.option_id for abook_type
      */
-    public static function isExternalPerson(mixed $username, mixed $abookOptionValue): bool
+    public static function isExternalPerson(mixed $username, mixed $abookOptionValue, mixed $abookTypeId = null): bool
     {
+        if (self::asString($abookTypeId) === 'external_org') {
+            return false;
+        }
+
         return self::asString($username) === '' && $abookOptionValue != 3;
     }
 

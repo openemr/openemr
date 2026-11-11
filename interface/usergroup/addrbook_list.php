@@ -199,7 +199,11 @@ while ($row = sqlFetchArray($res)) {
         $displayName .= ", " . $row['suffix'];
     }
 
-    $person = AddressBookReferrerFields::isExternalPerson($row['username'] ?? '', $row['ab_option'] ?? '');
+    $person = AddressBookReferrerFields::isExternalPerson(
+        $row['username'] ?? '',
+        $row['ab_option'] ?? '',
+        $row['ab_name'] ?? ''
+    );
     $npi_missing = $person && AddressBookReferrerFields::npiRequired()
         && AddressBookReferrerFields::npiMissingOnList($row['npi'] ?? '');
     $addr_missing = $person && !AddressBookReferrerFields::mailingAddressComplete(
