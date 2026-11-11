@@ -2510,6 +2510,12 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             <?php
             return;
     }
+    // No plan items: close the plan blocks and the report container all the same.
+    ?>
+    </div>
+    </div>
+    </div>
+    <?php
 }
 
 function display_draw_image($zone, $encounter, $pid): void
