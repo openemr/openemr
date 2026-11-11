@@ -1030,7 +1030,15 @@ cp_cert_file() {
     if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
         return 0
     fi
-    cp "${src}" "${dst}"
+    # Atomic replace via sibling temp + rename. See the matching
+    # block in docker/release/openemr.sh for the full rationale —
+    # removes the concurrent-reader-sees-partial and crash-mid-cp
+    # races. The chmod flex applies to mysql certs happens in a
+    # later gated block (around line ~1160) against the final dst,
+    # so no chmod on tmp needed here.
+    local tmp="${dst}.tmp.$$"
+    cp "${src}" "${tmp}"
+    mv "${tmp}" "${dst}"
     echo "copied over ${name}"
     LAST_COPIED=1
 }

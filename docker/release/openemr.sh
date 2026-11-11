@@ -406,13 +406,30 @@ manage_certificates() {
         # the script's `set -e` — a real cp failure aborts startup with
         # cp's own error on stderr, which is the right outcome (half-
         # copied cert material would be worse than failing loud). The
-        # "Copied" log fires only AFTER cp returns, so the log line
+        # "Copied" log fires only AFTER mv returns, so the log line
         # can't claim a copy that didn't actually happen.
         if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
             return 0
         fi
-        cp "${src}" "${dst}"
-        chmod 744 "${dst}"
+        # Atomic replace: write to a sibling temp file under the same
+        # directory (so the final `mv` stays on the same filesystem
+        # and is a POSIX-atomic rename), then rename over dst. This
+        # removes two race windows the plain `cp src dst` form had:
+        #   * A concurrent reader (e.g. an already-running openemr
+        #     process on another pod sharing the sites PVC) observing
+        #     a partially-written dst mid-cp.
+        #   * A crash mid-cp leaving a truncated dst that would then
+        #     pass the `! cmp -s` guard on next boot and either stay
+        #     truncated or be overwritten only on a subsequent
+        #     Secret rotation — meanwhile TLS handshakes against the
+        #     truncated file fail silently.
+        # The PID suffix on the temp name prevents collision if two
+        # entrypoint instances somehow run concurrently against the
+        # same dst (not expected, but cheap defense).
+        local tmp="${dst}.tmp.$$"
+        cp "${src}" "${tmp}"
+        chmod 744 "${tmp}"
+        mv "${tmp}" "${dst}"
         echo "Copied ${name}"
     }
     cp_cert_file mysql/server mysql-ca

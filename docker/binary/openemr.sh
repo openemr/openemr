@@ -403,13 +403,18 @@ manage_certificates() {
         # the script's `set -e` — a real cp failure aborts startup with
         # cp's own error on stderr, which is the right outcome (half-
         # copied cert material would be worse than failing loud). The
-        # "Copied" log fires only AFTER cp returns, so the log line
+        # "Copied" log fires only AFTER mv returns, so the log line
         # can't claim a copy that didn't actually happen.
         if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
             return 0
         fi
-        cp "${src}" "${dst}"
-        chmod 744 "${dst}"
+        # Atomic replace via sibling temp + rename. See the matching
+        # block in docker/release/openemr.sh for the full rationale —
+        # same idiom and same race-closure benefits apply here.
+        local tmp="${dst}.tmp.$$"
+        cp "${src}" "${tmp}"
+        chmod 744 "${tmp}"
+        mv "${tmp}" "${dst}"
         echo "Copied ${name}"
     }
     cp_cert_file mysql/server mysql-ca
