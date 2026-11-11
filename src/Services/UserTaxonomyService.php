@@ -101,6 +101,20 @@ final class UserTaxonomyService
     }
 
     /**
+     * Save the additional codes posted from the user edit form: clean the list against the user's primary
+     * taxonomy and replace the stored codes. Anything that is not a taxonomy code is dropped; the form's
+     * pattern attribute already stops those from being submitted.
+     *
+     * @param array<array-key, mixed> $posted
+     */
+    public function saveExtras(int $userId, array $posted): void
+    {
+        $primary = QueryUtils::fetchSingleValue('SELECT `taxonomy` FROM `users` WHERE `id` = ?', 'taxonomy', [$userId]);
+        $clean = self::cleanList(array_values($posted), is_string($primary) ? $primary : '');
+        $this->replaceExtras($userId, $clean['codes']);
+    }
+
+    /**
      * Taxonomy names by code for the picker, or an empty array when the list is not installed.
      *
      * @return array<string, string>
