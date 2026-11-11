@@ -468,7 +468,8 @@ baseline checks need to re-run against the new base tip).
 4. No new rabbit Actionable has been posted since the brief — including inside a reply
    in a thread rabbit resolved itself (see
    [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding)),
-   and no caveat or ask inside one of its replies to a PR comment (see
+   and no new caveat or ask in any of its replies since the brief, inline or to a PR
+   comment, even one that is not an Actionable (see
    [standing-rules §2.11](standing-rules.md#211-an-acceptance-can-carry-a-new-ask)).
 5. No new maintainer `CHANGES_REQUESTED` has been filed.
 6. No new maintainer inline comment carries a substantive ask on PR-introduced
