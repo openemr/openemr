@@ -376,13 +376,13 @@ ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_worked_dir` varchar(255)
 #IfNotTable x12_remote_received
 CREATE TABLE `x12_remote_received` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `remote_key` char(64) NOT NULL COMMENT 'sha256 of partner, folder, name, size, modified time and file type: one row per remote file and type',
+  `remote_key` char(64) NOT NULL COMMENT 'sha256 of partner, folder, name, size and modified time: one row per remote file',
   `x12_partner_id` int(11) NOT NULL,
   `remote_dir` varchar(255) NOT NULL,
   `remote_name` varchar(255) NOT NULL,
   `remote_size` bigint(20) NOT NULL,
   `remote_mtime` bigint(20) NOT NULL DEFAULT 0 COMMENT 'modified time on the remote, Unix seconds',
-  `file_type` varchar(8) NOT NULL COMMENT 'X12FileType: f835, f277 or f997',
+  `file_type` varchar(8) NOT NULL DEFAULT '' COMMENT 'X12FileType: f835, f277 or f997; empty when the file was none of the kinds its folder is for',
   `status` varchar(31) NOT NULL COMMENT 'ReceivedStatus: stored, duplicate, rejected or failed',
   `stored_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'file name it was stored under on the site',
   `message` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it was not stored',

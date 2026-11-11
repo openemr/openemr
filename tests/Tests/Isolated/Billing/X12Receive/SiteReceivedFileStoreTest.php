@@ -92,16 +92,38 @@ class SiteReceivedFileStoreTest extends TestCase
         $this->assertSame($this->era(), file_get_contents($this->site . '/documents/edi/history/f835/20260101_42_60054.835'));
     }
 
-    public function testRemittanceAlreadyOnTheSiteIsKeptAndReportedAsDuplicate(): void
+    public function testRemittanceAlreadyOnTheSiteIsReportedAsDuplicate(): void
+    {
+        file_put_contents($this->site . '/documents/era/20260101_42_60054.edi', $this->era());
+        $store = new SiteReceivedFileStore($this->site);
+
+        $outcome = $store->store(X12FileType::Remittance835, $this->localFile($this->era()), 'whatever.RMT');
+
+        $this->assertSame(ReceivedStatus::Duplicate, $outcome->status);
+        $this->assertFileDoesNotExist($this->site . '/documents/edi/history/f835/20260101_42_60054.835');
+    }
+
+    public function testDifferentRemittanceOfANameAlreadyStoredForPostingIsRejectedAndTheStoredOneKept(): void
     {
         file_put_contents($this->site . '/documents/era/20260101_42_60054.edi', 'uploaded by the biller');
         $store = new SiteReceivedFileStore($this->site);
 
         $outcome = $store->store(X12FileType::Remittance835, $this->localFile($this->era()), 'whatever.RMT');
 
-        $this->assertSame(ReceivedStatus::Duplicate, $outcome->status);
+        $this->assertSame(ReceivedStatus::Rejected, $outcome->status);
+        $this->assertSame('A different 835 of this name is already stored for posting', $outcome->message);
         $this->assertSame('uploaded by the biller', file_get_contents($this->site . '/documents/era/20260101_42_60054.edi'));
         $this->assertFileDoesNotExist($this->site . '/documents/edi/history/f835/20260101_42_60054.835');
+    }
+
+    public function testNothingIsLeftInTheStagingFolder(): void
+    {
+        $store = new SiteReceivedFileStore($this->site);
+
+        $store->store(X12FileType::Remittance835, $this->localFile($this->era()), 'whatever.RMT');
+        $store->store(X12FileType::ClaimStatus277, $this->localFile('277 body'), 'a.277');
+
+        $this->assertSame([], glob($this->site . '/documents/temp/*'));
     }
 
     public function testRemittanceWhoseEdiHistoryCopyFailsIsNotStoredAndTheRetryStoresBoth(): void
@@ -202,15 +224,30 @@ class SiteReceivedFileStoreTest extends TestCase
         $this->assertSame('999 body', file_get_contents($this->site . '/documents/edi/history/f997/ack.999'));
     }
 
-    public function testSecondFileOfTheSameNameDoesNotReplaceTheFirst(): void
+    public function testSameFileAgainIsADuplicate(): void
+    {
+        $store = new SiteReceivedFileStore($this->site);
+        $store->store(X12FileType::ClaimStatus277, $this->localFile('first'), 'same.277');
+
+        $outcome = $store->store(X12FileType::ClaimStatus277, $this->localFile('first'), 'same.277');
+
+        $this->assertSame(ReceivedStatus::Duplicate, $outcome->status);
+        $this->assertCount(1, (array) glob($this->site . '/documents/edi/history/f277/*'));
+    }
+
+    public function testDifferentFileOfATakenNameIsStoredBesideTheFirstNotDropped(): void
     {
         $store = new SiteReceivedFileStore($this->site);
         $store->store(X12FileType::ClaimStatus277, $this->localFile('first'), 'same.277');
 
         $outcome = $store->store(X12FileType::ClaimStatus277, $this->localFile('second'), 'same.277');
+        $again = $store->store(X12FileType::ClaimStatus277, $this->localFile('second'), 'same.277');
 
-        $this->assertSame(ReceivedStatus::Duplicate, $outcome->status);
+        $this->assertSame(ReceivedStatus::Stored, $outcome->status);
+        $this->assertMatchesRegularExpression('/^same-[0-9a-f]{8}\.277$/', $outcome->storedName);
         $this->assertSame('first', file_get_contents($this->site . '/documents/edi/history/f277/same.277'));
+        $this->assertSame('second', file_get_contents($this->site . '/documents/edi/history/f277/' . $outcome->storedName));
+        $this->assertSame(ReceivedStatus::Duplicate, $again->status);
     }
 
     public function testUnusableRemoteNamesAreRejected(): void

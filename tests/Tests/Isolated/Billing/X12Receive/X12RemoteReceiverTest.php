@@ -50,7 +50,7 @@ class X12RemoteReceiverTest extends TestCase
      * @param array<string, array<string, string>> $remoteFiles content by folder and name
      * @param list<string> $truncated names whose download comes back short
      * @param list<string> $grown names that are longer on download than in the listing
-     * @return array{X12RemoteReceiver, object{files: array<string, array<string, string>>, moves: list<array{string, string}>, downloads: list<string>}, object{rows: array<string, StoreOutcome>}, object{stored: list<array{X12FileType, string, string}>}}
+     * @return array{X12RemoteReceiver, object{files: array<string, array<string, string>>, moves: list<array{string, string}>, downloads: list<string>}, object{rows: array<string, StoreOutcome>, types: array<string, ?X12FileType>}, object{stored: list<array{X12FileType, string, string}>}}
      */
     private function receiver(array $remoteFiles, array $truncated = [], bool $reachable = true, array $grown = [], int $maxFileBytes = X12RemoteReceiver::DEFAULT_MAX_FILE_BYTES): array
     {
@@ -72,6 +72,9 @@ class X12RemoteReceiverTest extends TestCase
 
             public function listFiles(string $directory): ?array
             {
+                if ($directory === '/dropped') {
+                    throw new \RuntimeException('Connection closed prematurely');
+                }
                 if (!isset($this->files[$directory])) {
                     return null;
                 }
@@ -119,9 +122,12 @@ class X12RemoteReceiverTest extends TestCase
             /** @var array<string, StoreOutcome> */
             public array $rows = [];
 
-            public function isSettled(int $partnerId, string $folder, RemoteFile $file, X12FileType $type): bool
+            /** @var array<string, ?X12FileType> the kind recorded for each file name */
+            public array $types = [];
+
+            public function isSettled(int $partnerId, string $folder, RemoteFile $file): bool
             {
-                $row = $this->rows[ReceivedFileRepository::remoteKey($partnerId, $folder, $file, $type)] ?? null;
+                $row = $this->rows[ReceivedFileRepository::remoteKey($partnerId, $folder, $file)] ?? null;
                 return $row !== null && $row->status->isSettled();
             }
 
@@ -129,11 +135,12 @@ class X12RemoteReceiverTest extends TestCase
                 int $partnerId,
                 string $folder,
                 RemoteFile $file,
-                X12FileType $type,
+                ?X12FileType $type,
                 StoreOutcome $outcome,
                 \DateTimeImmutable $at,
             ): void {
-                $this->rows[ReceivedFileRepository::remoteKey($partnerId, $folder, $file, $type)] = $outcome;
+                $this->rows[ReceivedFileRepository::remoteKey($partnerId, $folder, $file)] = $outcome;
+                $this->types[$file->name] = $type;
             }
         };
         $store = new class implements ReceivedFileStore {
@@ -142,6 +149,9 @@ class X12RemoteReceiverTest extends TestCase
 
             public function store(X12FileType $type, string $localPath, string $remoteName): StoreOutcome
             {
+                if (str_contains($remoteName, 'boom')) {
+                    throw new \RuntimeException('the file could not be stored');
+                }
                 $this->stored[] = [$type, $remoteName, (string) file_get_contents($localPath)];
                 return new StoreOutcome(ReceivedStatus::Stored, 'stored-' . $remoteName);
             }
@@ -188,17 +198,19 @@ class X12RemoteReceiverTest extends TestCase
 
     public function testOneFolderSharedByTwoTypesStoresEachFileUnderItsOwnType(): void
     {
-        [$receiver, , , $store] = $this->receiver(['/out' => ['a.RMT' => self::x12('HP'), 'b.277' => self::x12('HN')]]);
+        [$receiver, $remote, $log, $store] = $this->receiver(['/out' => ['a.RMT' => self::x12('HP'), 'b.277' => self::x12('HN')]]);
         $partner = $this->partner(['f835' => '/out', 'f277' => '/out']);
 
         $first = $receiver->receive([$partner]);
         $second = $receiver->receive([$partner]);
 
-        $this->assertSame([2, 2], [$first->stored, $first->rejected]);
+        $this->assertSame([2, 0], [$first->stored, $first->rejected]);
         $this->assertSame(
             [[X12FileType::Remittance835, 'a.RMT', self::x12('HP')], [X12FileType::ClaimStatus277, 'b.277', self::x12('HN')]],
             $store->stored
         );
+        $this->assertSame(['a.RMT', 'b.277'], $remote->downloads, 'each file is downloaded once, not once per kind');
+        $this->assertSame(['a.RMT' => X12FileType::Remittance835, 'b.277' => X12FileType::ClaimStatus277], $log->types);
         $this->assertSame([0, 0, 0], [$second->stored, $second->rejected, $second->failed]);
     }
 
@@ -260,6 +272,64 @@ class X12RemoteReceiverTest extends TestCase
         $this->assertSame([], $store->stored);
     }
 
+    public function testFileThatDoesNotEndWithACompleteInterchangeFailsAndIsTriedAgain(): void
+    {
+        $partial = substr(self::x12('HN'), 0, -20);
+        [$receiver, , $log, $store] = $this->receiver(['/277' => ['partial.277' => $partial]]);
+        $partner = $this->partner(['f277' => '/277']);
+
+        $first = $receiver->receive([$partner]);
+        $second = $receiver->receive([$partner]);
+
+        $this->assertSame([1, 1], [$first->failed, $second->failed]);
+        $this->assertSame([], $store->stored);
+        $this->assertSame(['partial.277' => X12FileType::ClaimStatus277], $log->types);
+    }
+
+    public function testAcknowledgmentWithATa1BeforeItsGroupOrAloneIsStored(): void
+    {
+        $withTa1 = self::ISA . 'TA1*000000001*260101*1200*A*000~GS*FA*PAYER*RECEIVER*20260101*1200*1*X*005010~ST*999*0001~SE*2*0001~GE*1*1~IEA*1*000000001~';
+        $ta1Only = self::ISA . "TA1*000000001*260101*1200*A*000~IEA*0*000000001~\r\n";
+        [$receiver, , , $store] = $this->receiver(['/999' => ['a.999' => $withTa1, 'b.ta1' => $ta1Only]]);
+
+        $summary = $receiver->receive([$this->partner(['f997' => '/999'])]);
+
+        $this->assertSame(2, $summary->stored);
+        $this->assertSame([X12FileType::Acknowledgment999, X12FileType::Acknowledgment999], array_column($store->stored, 0));
+    }
+
+    public function testOneFileThatThrowsDoesNotStopTheFilesAfterIt(): void
+    {
+        [$receiver, , $log, $store] = $this->receiver(['/277' => ['a-boom.277' => self::x12('HN'), 'b.277' => self::x12('HN')]]);
+
+        $summary = $receiver->receive([$this->partner(['f277' => '/277'])]);
+
+        $this->assertSame([1, 1, 0], [$summary->failed, $summary->stored, $summary->partnersInterrupted]);
+        $this->assertSame([[X12FileType::ClaimStatus277, 'b.277', self::x12('HN')]], $store->stored);
+        $this->assertContains('An error interrupted this file', array_map(static fn(StoreOutcome $o): string => $o->message, $log->rows));
+    }
+
+    public function testPartnerWhoseConnectionDropsDoesNotStopThePartnersAfterIt(): void
+    {
+        [$receiver, , , $store] = $this->receiver(['/277' => ['b.277' => self::x12('HN')]]);
+        $dropped = new ReceivePartner(645, 'sftp.example.test', 22, 'biller', null, ['f277' => '/dropped'], '');
+
+        $summary = $receiver->receive([$dropped, $this->partner(['f277' => '/277'])]);
+
+        $this->assertSame([2, 1, 1], [$summary->partners, $summary->partnersInterrupted, $summary->stored]);
+        $this->assertCount(1, $store->stored);
+    }
+
+    public function testFilesInTheRemoteRootAreFetchedAndMovedByTheirPlainPath(): void
+    {
+        [$receiver, $remote] = $this->receiver(['/' => ['a.277' => self::x12('HN')]]);
+
+        $summary = $receiver->receive([$this->partner(['f277' => '/'], '/done')]);
+
+        $this->assertSame(1, $summary->stored);
+        $this->assertSame([['/a.277', '/done/a.277']], $remote->moves);
+    }
+
     public function testUnusableRemoteNameIsRejectedWithoutADownload(): void
     {
         [$receiver, , , $store] = $this->receiver(['/277' => ['.hidden' => self::x12('HN')]]);
@@ -280,7 +350,7 @@ class X12RemoteReceiverTest extends TestCase
         $summary = $noFolder->receive([$partner]);
         $this->assertSame(1, $summary->foldersUnreadable);
         $this->assertSame(
-            ['partners' => 1, 'partnersUnreachable' => 0, 'foldersUnreadable' => 1, 'stored' => 0, 'duplicates' => 0, 'rejected' => 0, 'failed' => 0, 'moved' => 0],
+            ['partners' => 1, 'partnersUnreachable' => 0, 'partnersInterrupted' => 0, 'foldersUnreadable' => 1, 'stored' => 0, 'duplicates' => 0, 'rejected' => 0, 'failed' => 0, 'moved' => 0],
             $summary->toArray()
         );
     }

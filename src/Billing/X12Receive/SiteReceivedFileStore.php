@@ -23,7 +23,8 @@ use OpenEMR\Billing\ParseERA;
  * copy in EDI History. Claim status and acknowledgment files go to their EDI
  * History folders, where "Process" on the New Files tab finds them.
  *
- * A file already there is never replaced.
+ * A file already there is never replaced, and a file only appears under its
+ * final name once all of it is written.
  */
 final readonly class SiteReceivedFileStore implements ReceivedFileStore
 {
@@ -35,11 +36,7 @@ final readonly class SiteReceivedFileStore implements ReceivedFileStore
     {
         $history = $this->siteDirectory . '/documents/edi/history/' . $type->value;
         if ($type !== X12FileType::Remittance835) {
-            $name = self::safeName($remoteName);
-            if ($name === null) {
-                return new StoreOutcome(ReceivedStatus::Rejected, message: 'The remote file name cannot be used');
-            }
-            return $this->copyOnce($localPath, $history, $name, 0400);
+            return $this->storeInHistory($localPath, $history, $remoteName);
         }
 
         $name = self::eraName($localPath);
@@ -48,12 +45,20 @@ final readonly class SiteReceivedFileStore implements ReceivedFileStore
         }
         $eraDirectory = $this->siteDirectory . '/documents/era';
         if (file_exists($eraDirectory . '/' . $name . '.edi')) {
-            return new StoreOutcome(ReceivedStatus::Duplicate, $name . '.edi', 'A file of this name is already stored');
+            return match (self::sameContent($localPath, $eraDirectory . '/' . $name . '.edi')) {
+                true => new StoreOutcome(ReceivedStatus::Duplicate, $name . '.edi', 'This file is already stored'),
+                // Two remittances with one name: the posting screen can only hold one of them.
+                false => new StoreOutcome(
+                    ReceivedStatus::Rejected,
+                    message: 'A different 835 of this name is already stored for posting',
+                ),
+                null => new StoreOutcome(ReceivedStatus::Failed, message: 'The stored 835 could not be read to compare it'),
+            };
         }
         // The EDI History copy (the posting screen makes one on upload) goes first. If it
         // cannot be written nothing is in documents/era yet, so the file is reported as
-        // failed and the next run stores both. A copy already there is the same remittance.
-        $historyCopy = $this->copyOnce($localPath, $history, $name . '.835', 0400);
+        // failed and the next run stores both.
+        $historyCopy = $this->placeOnce($localPath, $history, $name . '.835', 0400);
         if ($historyCopy->status === ReceivedStatus::Failed) {
             return $historyCopy;
         }
@@ -72,7 +77,36 @@ final readonly class SiteReceivedFileStore implements ReceivedFileStore
                 message: 'EDI History already holds a different 835 of this name',
             );
         }
-        return $this->copyOnce($localPath, $eraDirectory, $name . '.edi', 0600);
+        return $this->placeOnce($localPath, $eraDirectory, $name . '.edi', 0600);
+    }
+
+    /**
+     * Claim status and acknowledgment files keep the partner's file name. EDI History has
+     * one folder per kind for every partner and for uploads, so a name can already be
+     * taken by a different file; that file is then stored with part of its checksum in
+     * the name instead of being dropped.
+     */
+    private function storeInHistory(string $localPath, string $history, string $remoteName): StoreOutcome
+    {
+        $name = self::safeName($remoteName);
+        if ($name === null) {
+            return new StoreOutcome(ReceivedStatus::Rejected, message: 'The remote file name cannot be used');
+        }
+        $outcome = $this->placeOnce($localPath, $history, $name, 0400);
+        if ($outcome->status !== ReceivedStatus::Duplicate) {
+            return $outcome;
+        }
+        $same = self::sameContent($localPath, $history . '/' . $name);
+        if ($same === null) {
+            return new StoreOutcome(ReceivedStatus::Failed, message: 'The stored file could not be read to compare it');
+        }
+        if ($same) {
+            return $outcome;
+        }
+        $checksum = substr((string) hash_file('sha256', $localPath), 0, 8);
+        $extension = pathinfo($name, PATHINFO_EXTENSION);
+        $stem = $extension === '' ? $name : substr($name, 0, -strlen($extension) - 1);
+        return $this->placeOnce($localPath, $history, $stem . '-' . $checksum . ($extension === '' ? '' : '.' . $extension), 0400);
     }
 
     /**
@@ -124,32 +158,43 @@ final readonly class SiteReceivedFileStore implements ReceivedFileStore
         return $hashA === $hashB;
     }
 
-    private function copyOnce(string $localPath, string $directory, string $name, int $mode): StoreOutcome
+    /**
+     * Copies the file to $directory/$name unless something is already there. The copy is
+     * written under a temporary name in the site's documents/temp folder and linked into
+     * place when complete, so a run that is cut short never leaves part of a file under
+     * the final name.
+     */
+    private function placeOnce(string $localPath, string $directory, string $name, int $mode): StoreOutcome
     {
-        if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
-            return new StoreOutcome(ReceivedStatus::Failed, message: 'The folder for the file could not be created');
+        $staging = $this->siteDirectory . '/documents/temp';
+        foreach ([$directory, $staging] as $needed) {
+            if (!is_dir($needed) && !@mkdir($needed, 0755, true) && !is_dir($needed)) {
+                return new StoreOutcome(ReceivedStatus::Failed, message: 'A folder for the file could not be created');
+            }
         }
         $target = $directory . '/' . $name;
         if (file_exists($target)) {
             return new StoreOutcome(ReceivedStatus::Duplicate, $name, 'A file of this name is already stored');
         }
-        // "x" refuses to open a file that appeared since the check above.
-        $out = @fopen($target, 'x');
-        $in = @fopen($localPath, 'r');
-        $copied = ($out !== false && $in !== false) ? stream_copy_to_stream($in, $out) : false;
-        if ($in !== false) {
-            fclose($in);
-        }
-        if ($out !== false) {
-            fclose($out);
-        }
-        if ($copied === false || $copied !== filesize($localPath)) {
-            if ($out !== false) {
-                unlink($target);
-            }
+        $staged = tempnam($staging, 'x12r');
+        if ($staged === false) {
             return new StoreOutcome(ReceivedStatus::Failed, message: 'The file could not be written');
         }
-        chmod($target, $mode);
-        return new StoreOutcome(ReceivedStatus::Stored, $name);
+        try {
+            if (!@copy($localPath, $staged) || filesize($staged) !== filesize($localPath) || !chmod($staged, $mode)) {
+                return new StoreOutcome(ReceivedStatus::Failed, message: 'The file could not be written');
+            }
+            // link() refuses a name that exists; rename() is for a filesystem without hard links.
+            if (@link($staged, $target) || (!file_exists($target) && @rename($staged, $target))) {
+                return new StoreOutcome(ReceivedStatus::Stored, $name);
+            }
+            return file_exists($target)
+                ? new StoreOutcome(ReceivedStatus::Duplicate, $name, 'A file of this name is already stored')
+                : new StoreOutcome(ReceivedStatus::Failed, message: 'The file could not be written');
+        } finally {
+            if (is_file($staged)) {
+                unlink($staged);
+            }
+        }
     }
 }

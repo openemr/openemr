@@ -37,6 +37,30 @@ enum X12FileType: string
     }
 
     /**
+     * Whether a file whose envelope reports $code (X12Envelope::groupCode()) is of this
+     * kind. An interchange acknowledgment (TA1) with no functional group counts as an
+     * acknowledgment, as it does in EDI History.
+     */
+    public function accepts(?string $code): bool
+    {
+        return $code === $this->groupCode()
+            || ($this === self::Acknowledgment999 && $code === X12Envelope::INTERCHANGE_ACK);
+    }
+
+    /**
+     * @param list<self> $candidates
+     */
+    public static function forGroupCode(?string $code, array $candidates): ?self
+    {
+        foreach ($candidates as $candidate) {
+            if ($candidate->accepts($code)) {
+                return $candidate;
+            }
+        }
+        return null;
+    }
+
+    /**
      * The x12_partners column that names the remote folder to read.
      */
     public function partnerColumn(): string

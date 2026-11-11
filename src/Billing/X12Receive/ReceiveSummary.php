@@ -18,6 +18,7 @@ final class ReceiveSummary
 {
     public int $partners = 0;
     public int $partnersUnreachable = 0;
+    public int $partnersInterrupted = 0;
     public int $foldersUnreadable = 0;
     public int $stored = 0;
     public int $duplicates = 0;
@@ -43,6 +44,7 @@ final class ReceiveSummary
         return [
             'partners' => $this->partners,
             'partnersUnreachable' => $this->partnersUnreachable,
+            'partnersInterrupted' => $this->partnersInterrupted,
             'foldersUnreadable' => $this->foldersUnreadable,
             'stored' => $this->stored,
             'duplicates' => $this->duplicates,

@@ -55,6 +55,18 @@ final class ReceivePartnerRepository
     }
 
     /**
+     * A folder as entered, without a trailing slash; the root stays "/".
+     */
+    private static function folder(string $entered): string
+    {
+        if ($entered === '') {
+            return '';
+        }
+        $trimmed = rtrim($entered, '/');
+        return $trimmed === '' ? '/' : $trimmed;
+    }
+
+    /**
      * @return list<string>
      */
     private static function folderColumns(): array
@@ -94,7 +106,7 @@ final class ReceivePartnerRepository
         $text = static fn(string $column): string => is_string($row[$column] ?? null) ? trim($row[$column]) : '';
         $folders = [];
         foreach (X12FileType::cases() as $type) {
-            $folder = rtrim($text($type->partnerColumn()), '/');
+            $folder = self::folder($text($type->partnerColumn()));
             if ($folder !== '') {
                 $folders[$type->value] = $folder;
             }
@@ -112,7 +124,7 @@ final class ReceivePartnerRepository
             login: $text('x12_sftp_login'),
             encryptedPassword: is_string($password) ? $password : null,
             folders: $folders,
-            workedFolder: rtrim($text(self::WORKED_COLUMN), '/'),
+            workedFolder: self::folder($text(self::WORKED_COLUMN)),
         );
     }
 }

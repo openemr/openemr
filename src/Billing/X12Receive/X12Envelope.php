@@ -28,8 +28,20 @@ final class X12Envelope
     public const HEAD_LENGTH = 512;
 
     /**
+     * Bytes from the end of a file needed to see its IEA segment.
+     */
+    public const TAIL_LENGTH = 256;
+
+    /**
+     * What groupCode() reports for an interchange that carries only TA1
+     * acknowledgments and no functional group.
+     */
+    public const INTERCHANGE_ACK = 'TA1';
+
+    /**
      * @param string $head the first HEAD_LENGTH bytes of the file
-     * @return ?string GS01 of the first functional group, or null when the text is not X12
+     * @return ?string GS01 of the first functional group, INTERCHANGE_ACK for an
+     *                 interchange of TA1 segments only, or null when the text is not X12
      */
     public static function groupCode(string $head): ?string
     {
@@ -37,11 +49,39 @@ final class X12Envelope
             return null;
         }
         $elementSeparator = $head[3];
-        $afterIsa = ltrim(substr($head, self::ISA_LENGTH), "\r\n");
-        $elements = explode($elementSeparator, $afterIsa, 3);
-        if (count($elements) < 3 || $elements[0] !== 'GS' || $elements[1] === '') {
-            return null;
+        $segments = explode($head[self::ISA_LENGTH - 1], substr($head, self::ISA_LENGTH));
+        $sawInterchangeAck = false;
+        foreach ($segments as $segment) {
+            $elements = explode($elementSeparator, ltrim($segment, "\r\n"), 3);
+            // A TA1 may sit between the ISA and the first functional group.
+            if ($elements[0] === 'TA1') {
+                $sawInterchangeAck = true;
+                continue;
+            }
+            if ($elements[0] === 'GS') {
+                return ($elements[1] ?? '') !== '' ? $elements[1] : null;
+            }
+            return $elements[0] === 'IEA' && $sawInterchangeAck ? self::INTERCHANGE_ACK : null;
         }
-        return $elements[1];
+        return null;
+    }
+
+    /**
+     * Whether the file ends with a terminated IEA segment, which is what a
+     * file still being written by the sender lacks.
+     *
+     * @param string $head the first HEAD_LENGTH bytes of the file
+     * @param string $tail the last TAIL_LENGTH bytes of the file
+     */
+    public static function isComplete(string $head, string $tail): bool
+    {
+        if (strlen($head) < self::ISA_LENGTH || !str_starts_with($head, 'ISA')) {
+            return false;
+        }
+        $segments = explode($head[self::ISA_LENGTH - 1], $tail);
+        if (count($segments) < 2 || trim(array_pop($segments)) !== '') {
+            return false;
+        }
+        return str_starts_with(ltrim(array_pop($segments), "\r\n \t"), 'IEA' . $head[3]);
     }
 }

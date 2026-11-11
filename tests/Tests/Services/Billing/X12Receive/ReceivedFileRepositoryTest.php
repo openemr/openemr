@@ -41,13 +41,13 @@ class ReceivedFileRepositoryTest extends TestCase
         $file = new RemoteFile('status.277', 648, 1767268800);
         $at = new \DateTimeImmutable('2026-11-10 12:00:00');
 
-        $this->assertFalse($log->isSettled(self::PARTNER_ID, self::FOLDER, $file, X12FileType::ClaimStatus277));
+        $this->assertFalse($log->isSettled(self::PARTNER_ID, self::FOLDER, $file));
 
         $log->record(self::PARTNER_ID, self::FOLDER, $file, X12FileType::ClaimStatus277, new StoreOutcome(ReceivedStatus::Failed, message: 'The download did not complete'), $at);
-        $this->assertFalse($log->isSettled(self::PARTNER_ID, self::FOLDER, $file, X12FileType::ClaimStatus277));
+        $this->assertFalse($log->isSettled(self::PARTNER_ID, self::FOLDER, $file));
 
         $log->record(self::PARTNER_ID, self::FOLDER, $file, X12FileType::ClaimStatus277, new StoreOutcome(ReceivedStatus::Stored, 'status.277'), $at->modify('+1 hour'));
-        $this->assertTrue($log->isSettled(self::PARTNER_ID, self::FOLDER, $file, X12FileType::ClaimStatus277));
+        $this->assertTrue($log->isSettled(self::PARTNER_ID, self::FOLDER, $file));
 
         $rows = QueryUtils::fetchRecords(
             'SELECT `remote_name`, `remote_size`, `file_type`, `status`, `stored_name`, `message`, `received_at` FROM `x12_remote_received` WHERE `x12_partner_id` = ?',
@@ -65,31 +65,20 @@ class ReceivedFileRepositoryTest extends TestCase
         $log = new ReceivedFileRepository();
         $log->record(self::PARTNER_ID, self::FOLDER, new RemoteFile('status.277', 648, 1767268800), X12FileType::ClaimStatus277, new StoreOutcome(ReceivedStatus::Stored, 'status.277'), new \DateTimeImmutable('2026-11-10 12:00:00'));
 
-        $this->assertFalse($log->isSettled(self::PARTNER_ID, self::FOLDER, new RemoteFile('status.277', 700, 1767268800), X12FileType::ClaimStatus277));
-        $this->assertFalse($log->isSettled(self::PARTNER_ID, self::FOLDER, new RemoteFile('status.277', 648, 1767355200), X12FileType::ClaimStatus277));
-        $this->assertFalse($log->isSettled(self::PARTNER_ID + 1, self::FOLDER, new RemoteFile('status.277', 648, 1767268800), X12FileType::ClaimStatus277));
+        $this->assertFalse($log->isSettled(self::PARTNER_ID, self::FOLDER, new RemoteFile('status.277', 700, 1767268800)));
+        $this->assertFalse($log->isSettled(self::PARTNER_ID, self::FOLDER, new RemoteFile('status.277', 648, 1767355200)));
+        $this->assertFalse($log->isSettled(self::PARTNER_ID + 1, self::FOLDER, new RemoteFile('status.277', 648, 1767268800)));
     }
 
-    public function testAFileRejectedAsOneTypeIsStillOpenForAnotherTypeInTheSameFolder(): void
+    public function testAFileOfNoKnownKindIsRecordedWithoutAType(): void
     {
         $log = new ReceivedFileRepository();
-        $file = new RemoteFile('status.277', 648, 1767268800);
-        $at = new \DateTimeImmutable('2026-11-10 12:00:00');
+        $file = new RemoteFile('readme.txt', 15, 1767268800);
 
-        $log->record(self::PARTNER_ID, self::FOLDER, $file, X12FileType::Remittance835, new StoreOutcome(ReceivedStatus::Rejected, message: 'Not an X12 835 file'), $at);
+        $log->record(self::PARTNER_ID, self::FOLDER, $file, null, new StoreOutcome(ReceivedStatus::Rejected, message: 'Not an X12 835, 277 file'), new \DateTimeImmutable('2026-11-10 12:00:00'));
 
-        $this->assertTrue($log->isSettled(self::PARTNER_ID, self::FOLDER, $file, X12FileType::Remittance835));
-        $this->assertFalse($log->isSettled(self::PARTNER_ID, self::FOLDER, $file, X12FileType::ClaimStatus277));
-
-        $log->record(self::PARTNER_ID, self::FOLDER, $file, X12FileType::ClaimStatus277, new StoreOutcome(ReceivedStatus::Stored, 'status.277'), $at);
-
-        $this->assertTrue($log->isSettled(self::PARTNER_ID, self::FOLDER, $file, X12FileType::ClaimStatus277));
-        $types = QueryUtils::fetchTableColumn(
-            'SELECT `file_type` FROM `x12_remote_received` WHERE `x12_partner_id` = ? ORDER BY `file_type`',
-            'file_type',
-            [self::PARTNER_ID]
-        );
-        $this->assertSame(['f277', 'f835'], $types);
+        $this->assertTrue($log->isSettled(self::PARTNER_ID, self::FOLDER, $file));
+        $this->assertSame('', QueryUtils::fetchSingleValue('SELECT `file_type` FROM `x12_remote_received` WHERE `x12_partner_id` = ?', 'file_type', [self::PARTNER_ID]));
     }
 
     public function testOnlyPartnersWithAHostAndAReceiveFolderAreReturned(): void

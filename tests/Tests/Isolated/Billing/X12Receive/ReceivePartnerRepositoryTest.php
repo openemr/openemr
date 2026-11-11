@@ -52,6 +52,19 @@ class ReceivePartnerRepositoryTest extends TestCase
         $this->assertSame('/WorkedTrans', $partner->workedFolder);
     }
 
+    public function testTheRemoteRootIsAFolder(): void
+    {
+        $partner = ReceivePartnerRepository::fromRow($this->row([
+            'x12_sftp_receive_dir_835' => '/',
+            'x12_sftp_receive_dir_277' => '',
+            'x12_sftp_receive_worked_dir' => '/',
+        ]));
+
+        $this->assertNotNull($partner);
+        $this->assertSame(['f835' => '/'], $partner->folders);
+        $this->assertSame('/', $partner->workedFolder);
+    }
+
     public function testPortDefaultsTo22AndPasswordMayBeMissing(): void
     {
         $partner = ReceivePartnerRepository::fromRow($this->row(['x12_sftp_port' => '', 'x12_sftp_pass' => null]));

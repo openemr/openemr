@@ -35,6 +35,8 @@ class X12EnvelopeTest extends TestCase
             '277 with line breaks' => [self::ISA . "\r\nGS*HN*PAYER*RECEIVER*20260101*1200*1*X*005010X214~\r\n", 'HN'],
             '999 acknowledgment' => [self::ISA . "\nGS*FA*PAYER*RECEIVER*20260101*1200*1*X*005010X231A1~", 'FA'],
             'other separator' => [str_replace('*', '|', self::ISA) . 'GS|HP|PAYER|RECEIVER|20260101|1200|1|X|005010X221A1~', 'HP'],
+            'TA1 before the group' => [self::ISA . 'TA1*000000001*260101*1200*A*000~GS*FA*PAYER*RECEIVER*20260101*1200*1*X*005010X231A1~', 'FA'],
+            'TA1 only' => [self::ISA . 'TA1*000000001*260101*1200*A*000~IEA*0*000000001~', 'TA1'],
             'plain text' => ['hello, not x12', null],
             'ISA only' => [self::ISA, null],
             'ISA then something else' => [self::ISA . 'ST*835*0001~BPR*I*0~', null],
@@ -47,6 +49,45 @@ class X12EnvelopeTest extends TestCase
     public function testGroupCode(string $head, ?string $expected): void
     {
         $this->assertSame($expected, X12Envelope::groupCode($head));
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function tailProvider(): array
+    {
+        return [
+            'ends with IEA' => ['SE*2*0001~GE*1*1~IEA*1*000000001~', true],
+            'IEA then a line ending' => ["GE*1*1~\r\nIEA*1*000000001~\r\n", true],
+            'cut off inside the IEA' => ['GE*1*1~IEA*1*0000', false],
+            'cut off before the IEA' => ['SE*2*0001~GE*1*1~', false],
+            'no terminator at all' => ['IEA', false],
+            'empty' => ['', false],
+        ];
+    }
+
+    #[DataProvider('tailProvider')]
+    public function testIsComplete(string $tail, bool $expected): void
+    {
+        $this->assertSame($expected, X12Envelope::isComplete(self::ISA, $tail));
+    }
+
+    public function testTextThatIsNotX12IsNeverComplete(): void
+    {
+        $this->assertFalse(X12Envelope::isComplete('hello', 'IEA*1*000000001~'));
+    }
+
+    public function testAnAcknowledgmentFolderAlsoTakesAnInterchangeAckAndOthersDoNot(): void
+    {
+        $this->assertTrue(X12FileType::Acknowledgment999->accepts('FA'));
+        $this->assertTrue(X12FileType::Acknowledgment999->accepts('TA1'));
+        $this->assertFalse(X12FileType::ClaimStatus277->accepts('TA1'));
+        $this->assertFalse(X12FileType::Remittance835->accepts(null));
+        $both = [X12FileType::Remittance835, X12FileType::ClaimStatus277];
+        $this->assertSame(X12FileType::ClaimStatus277, X12FileType::forGroupCode('HN', $both));
+        $this->assertNull(X12FileType::forGroupCode('FA', $both));
     }
 
     public function testEachFileTypeHasItsGroupCodeFolderColumnAndLabel(): void
