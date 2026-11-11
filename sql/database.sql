@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 573
+-- v_database: 574
 --
 
 --
@@ -213,6 +213,8 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 ('MedEx', 'MedEx Messaging Service', 0, 0, '2017-05-09 17:39:10', 0, 'start_MedEx', '/library/MedEx/MedEx_background.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('X12_SFTP', 'SFTP Claims to X12 Partner Service', 0, 0, '2021-01-18 11:25:10', 1, 'start_X12_SFTP', '/library/billing_sftp_service.php', 100);
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('X12_SFTP_Receive', 'Receive X12 Files from X12 Partners Service', 0, 0, '2021-01-18 11:25:10', 60, 'OpenEMR\\Billing\\X12Receive\\X12ReceiveService::runBackgroundService', NULL, 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('UUID_Service', 'Automated UUID Creation Service', 1, 0, '2021-01-18 11:25:10', 240, 'autoPopulateAllMissingUuids', '/library/uuid.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
@@ -10179,6 +10181,10 @@ CREATE TABLE `x12_partners` (
   `x12_sftp_port` varchar(255) DEFAULT NULL,
   `x12_sftp_local_dir` varchar(255) DEFAULT NULL,
   `x12_sftp_remote_dir` varchar(255) DEFAULT NULL,
+  `x12_sftp_receive_dir_835` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 835 remittances from',
+  `x12_sftp_receive_dir_277` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 277 claim status files from',
+  `x12_sftp_receive_dir_999` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 999 acknowledgments from',
+  `x12_sftp_receive_worked_dir` varchar(255) DEFAULT NULL COMMENT 'remote folder a fetched file is moved to; empty leaves it in place',
   `x12_token_endpoint` tinytext,
   `x12_eligibility_endpoint` tinytext,
   `x12_claim_status_endpoint` tinytext,
@@ -14299,6 +14305,25 @@ CREATE TABLE `x12_remote_tracker` (
 `created_at` datetime DEFAULT NULL,
 `updated_at` datetime DEFAULT NULL,
 PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `x12_remote_received`;
+CREATE TABLE `x12_remote_received` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `remote_key` char(64) NOT NULL COMMENT 'sha256 of partner, folder, name, size and modified time: one row per remote file',
+  `x12_partner_id` int(11) NOT NULL,
+  `remote_dir` varchar(255) NOT NULL,
+  `remote_name` varchar(255) NOT NULL,
+  `remote_size` bigint(20) NOT NULL,
+  `remote_mtime` bigint(20) NOT NULL DEFAULT 0 COMMENT 'modified time on the remote, Unix seconds',
+  `file_type` varchar(8) NOT NULL DEFAULT '' COMMENT 'X12FileType: f835, f277 or f997; empty when the file was none of the kinds its folder is for',
+  `status` varchar(31) NOT NULL COMMENT 'ReceivedStatus: stored, duplicate, rejected or failed',
+  `stored_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'file name it was stored under on the site',
+  `message` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it was not stored',
+  `received_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `remote_key` (`remote_key`),
+  KEY `partner_status` (`x12_partner_id`, `status`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `export_job`;

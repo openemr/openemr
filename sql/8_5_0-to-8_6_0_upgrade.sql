@@ -355,3 +355,45 @@ CREATE TABLE `referral_notice` (
 #IfRow3D layout_options form_id DEM field_id interpreter_needed edit_options interpreter_needed
 UPDATE `layout_options` SET `edit_options` = '' WHERE `form_id` = 'DEM' AND `field_id` = 'interpreter_needed' AND `edit_options` = 'interpreter_needed';
 #EndIf
+
+-- Receive X12 files (835, 277, 999) from X12 partners over SFTP (#15227).
+#IfMissingColumn x12_partners x12_sftp_receive_dir_835
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_dir_835` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 835 remittances from';
+#EndIf
+
+#IfMissingColumn x12_partners x12_sftp_receive_dir_277
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_dir_277` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 277 claim status files from';
+#EndIf
+
+#IfMissingColumn x12_partners x12_sftp_receive_dir_999
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_dir_999` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 999 acknowledgments from';
+#EndIf
+
+#IfMissingColumn x12_partners x12_sftp_receive_worked_dir
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_worked_dir` varchar(255) DEFAULT NULL COMMENT 'remote folder a fetched file is moved to; empty leaves it in place';
+#EndIf
+
+#IfNotTable x12_remote_received
+CREATE TABLE `x12_remote_received` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `remote_key` char(64) NOT NULL COMMENT 'sha256 of partner, folder, name, size and modified time: one row per remote file',
+  `x12_partner_id` int(11) NOT NULL,
+  `remote_dir` varchar(255) NOT NULL,
+  `remote_name` varchar(255) NOT NULL,
+  `remote_size` bigint(20) NOT NULL,
+  `remote_mtime` bigint(20) NOT NULL DEFAULT 0 COMMENT 'modified time on the remote, Unix seconds',
+  `file_type` varchar(8) NOT NULL DEFAULT '' COMMENT 'X12FileType: f835, f277 or f997; empty when the file was none of the kinds its folder is for',
+  `status` varchar(31) NOT NULL COMMENT 'ReceivedStatus: stored, duplicate, rejected or failed',
+  `stored_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'file name it was stored under on the site',
+  `message` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it was not stored',
+  `received_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `remote_key` (`remote_key`),
+  KEY `partner_status` (`x12_partner_id`, `status`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow background_services name X12_SFTP_Receive
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('X12_SFTP_Receive', 'Receive X12 Files from X12 Partners Service', 0, 0, '2021-01-18 11:25:10', 60, 'OpenEMR\\Billing\\X12Receive\\X12ReceiveService::runBackgroundService', NULL, 100);
+#EndIf
