@@ -30,6 +30,7 @@ class X125010837PTest extends TestCase
     private const PARTNER = 99990481;
     private const ADDRESS_PRIMARY = 99990581;
     private const ADDRESS_SECONDARY = 99990582;
+    private const SESSION = 99990681;
 
     protected function setUp(): void
     {
@@ -118,12 +119,33 @@ class X125010837PTest extends TestCase
             ['NM1*PR*2*SECONDARY PAYER*****PI*SP002', 'N3*200 OTHER RD', 'N4*BOSTON*MA*02110'],
             $this->loopAfter($segments, 'NM1*PR*2*SECONDARY PAYER*', 3)
         );
+        $this->assertLessThan(
+            $this->position($segments, 'NM1*PR*2*SECONDARY PAYER*'),
+            $this->position($segments, 'NM1*PR*2*PRIMARY PAYER*'),
+            'the payer billed (2010BB) comes before the other payer (2330B)'
+        );
         $this->assertSame(['SBR', 'P'], array_slice($this->elements($segments, 'SBR')[0], 0, 2));
         $this->assertSame(['SBR', 'S'], array_slice($this->elements($segments, 'SBR')[1], 0, 2));
     }
 
     public function testASecondaryClaimNamesTheOtherPayerWithItsAddressInLoop2330B(): void
     {
+        // The primary has paid 60.00 and written off 20.00, as its remit would have posted.
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO ar_session (session_id, payer_id, user_id, reference, check_date, deposit_date, pay_total, " .
+            "payment_type, adjustment_code, post_to_date, patient_id, payment_method) " .
+            "VALUES (?, ?, 1, 'TESTERA', '2026-09-15', '2026-09-15', 60.00, 'insurance', 'insurance_payment', " .
+            "'2026-09-15', ?, 'electronic')",
+            [self::SESSION, self::PRIMARY, self::PID]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO ar_activity (pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, " .
+            "post_user, session_id, pay_amount, adj_amount, memo, account_code, post_date) " .
+            "VALUES (?, ?, 1, 'CPT4', '99213', '', 1, NOW(), 1, ?, 60.00, 0, '', 'IPP', '2026-09-15'), " .
+            "(?, ?, 2, 'CPT4', '99213', '', 1, NOW(), 1, ?, 0, 20.00, 'Ins1 adjust code 45', '', '2026-09-15')",
+            [self::PID, self::ENC, self::SESSION, self::PID, self::ENC, self::SESSION]
+        );
+
         [$segments, $edicount] = $this->generate(self::SECONDARY);
 
         $this->assertTransactionIsWellFormed($segments, $edicount);
@@ -137,6 +159,16 @@ class X125010837PTest extends TestCase
             ['NM1*PR*2*PRIMARY PAYER*****PI*PP001', 'N3*100 PAYER WAY', 'N4*ALBANY*NY*12207'],
             $this->loopAfter($segments, 'NM1*PR*2*PRIMARY PAYER*', 3)
         );
+        $this->assertLessThan(
+            $this->position($segments, 'NM1*PR*2*PRIMARY PAYER*'),
+            $this->position($segments, 'NM1*PR*2*SECONDARY PAYER*'),
+            'the payer billed (2010BB) comes before the other payer (2330B)'
+        );
+        // 2000B is the secondary's subscriber, 2320 the primary's.
+        $this->assertSame(['SBR', 'S'], array_slice($this->elements($segments, 'SBR')[0], 0, 2));
+        $this->assertSame(['SBR', 'P'], array_slice($this->elements($segments, 'SBR')[1], 0, 2));
+        // 2430: what the primary paid on the line.
+        $this->assertSame(['SVD', 'PP001', '60.00', 'HC:99213'], array_slice($this->elements($segments, 'SVD')[0], 0, 4));
     }
 
     /**
@@ -147,16 +179,18 @@ class X125010837PTest extends TestCase
         $log = '';
         $hlCount = 1;
         $edicount = 0;
+        // SEFLAG true: write the SE trailer even when gen_x12_based_on_ins_co is on (which otherwise
+        // leaves it to the batch). The payer ID is numeric, as BillingClaim::getSelectedPayerId() passes it.
         $out = X125010837P::genX12837P(
             self::PID,
             self::ENC,
             self::PARTNER,
             $log,
             false,
-            false,
+            true,
             $hlCount,
             $edicount,
-            payerId: $payerId === null ? null : 'P' . $payerId,
+            payerId: $payerId === null ? null : (string) $payerId,
         );
         $this->assertIsString($out);
         $this->assertIsInt($edicount);
@@ -208,6 +242,20 @@ class X125010837PTest extends TestCase
 
     /**
      * @param list<string> $segments
+     * @return int the index of the first segment starting with $prefix
+     */
+    private function position(array $segments, string $prefix): int
+    {
+        foreach ($segments as $i => $segment) {
+            if (str_starts_with($segment, $prefix)) {
+                return $i;
+            }
+        }
+        $this->fail("no segment starts with '$prefix'");
+    }
+
+    /**
+     * @param list<string> $segments
      * @return list<string> the first segment starting with $prefix and the ones after it, $count in all
      */
     private function loopAfter(array $segments, string $prefix, int $count): array
@@ -222,6 +270,8 @@ class X125010837PTest extends TestCase
 
     private function cleanUp(): void
     {
+        QueryUtils::sqlStatementThrowException('DELETE FROM ar_activity WHERE pid = ?', [self::PID]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM ar_session WHERE session_id = ?', [self::SESSION]);
         QueryUtils::sqlStatementThrowException('DELETE FROM billing WHERE pid = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM form_encounter WHERE pid = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM insurance_data WHERE pid = ?', [self::PID]);
