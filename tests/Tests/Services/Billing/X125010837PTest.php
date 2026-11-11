@@ -167,8 +167,15 @@ class X125010837PTest extends TestCase
         // 2000B is the secondary's subscriber, 2320 the primary's.
         $this->assertSame(['SBR', 'S'], array_slice($this->elements($segments, 'SBR')[0], 0, 2));
         $this->assertSame(['SBR', 'P'], array_slice($this->elements($segments, 'SBR')[1], 0, 2));
-        // 2430: what the primary paid on the line.
+        // 2320: what the primary paid on the claim.
+        $this->assertSame(['AMT', 'D', '60.00'], $this->elements($segments, 'AMT')[0]);
+        // 2430: what the primary paid on the line, its write-off, and what is left to the patient
+        // (100.00 - 60.00 - 20.00, sent as coinsurance).
         $this->assertSame(['SVD', 'PP001', '60.00', 'HC:99213'], array_slice($this->elements($segments, 'SVD')[0], 0, 4));
+        $this->assertSame(
+            [['CAS', 'CO', '45', '20.00'], ['CAS', 'PR', '2', '20.00']],
+            $this->elements($segments, 'CAS')
+        );
     }
 
     /**
