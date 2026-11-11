@@ -34,6 +34,9 @@ class AddressBookReferrerFieldsIsolatedTest extends TestCase
         $this->assertTrue(AddressBookReferrerFields::isExternalPerson('', 1));
         $this->assertTrue(AddressBookReferrerFields::isExternalPerson('', '1', 'external_provider'));
         $this->assertFalse(AddressBookReferrerFields::isExternalPerson('', '1', 'external_org'));
+        $this->assertFalse(AddressBookReferrerFields::isExternalPerson('', '4', 'emr_direct'));
+        $this->assertFalse(AddressBookReferrerFields::isExternalPerson('', 4));
+        $this->assertFalse(AddressBookReferrerFields::isExternalPerson('', 4.0));
         $this->assertTrue(AddressBookReferrerFields::isExternalPerson('', ''));
         $this->assertTrue(AddressBookReferrerFields::isExternalPerson(null, '2'));
     }

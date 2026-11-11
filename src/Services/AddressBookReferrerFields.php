@@ -5,7 +5,7 @@
  *
  * Person entries used on claims need a mailing address, and a valid NPI
  * when that requirement is enabled. NPI is the US HIPAA identifier from
- * CMS/NPPES, not a locale setting. Labs, vendors, and local login users
+ * CMS/NPPES, not a locale setting. Labs, vendors, EMR Direct, and local login users
  * skip those rules.
  *
  * @package   OpenEMR
@@ -37,12 +37,13 @@ final class AddressBookReferrerFields
     /**
      * True when the row is an external person (not a local login, not a company).
      *
-     * Company types use list_options.option_value 3 (labs and vendors). That
-     * column is FLOAT, so a driver may return '3' or 3.0. Compare the same
-     * way addrbook_edit.php does ($option_abook_type == 3). asString() would
+     * Company types use list_options.option_value 3 (labs and vendors).
+     * EMR Direct uses option_value 4. That column is FLOAT, so a driver
+     * may return '3', 3.0, '4', or 4.0. Compare the same way
+     * addrbook_edit.php does ($option_abook_type == 3). asString() would
      * turn a numeric 3 into '' and treat labs as referring providers.
-     * External Organization uses option_value 1, the same number as a person,
-     * so the type id is what keeps it out of this guard.
+     * External Organization uses option_value 1, the same number as a
+     * person, so the type id is what keeps it out of this guard.
      *
      * @param mixed $username          users.username; empty for address-book-only rows
      * @param mixed $abookOptionValue  list_options.option_value for abook_type
@@ -50,11 +51,14 @@ final class AddressBookReferrerFields
      */
     public static function isExternalPerson(mixed $username, mixed $abookOptionValue, mixed $abookTypeId = null): bool
     {
-        if (self::asString($abookTypeId) === 'external_org') {
+        $typeId = self::asString($abookTypeId);
+        if ($typeId === 'external_org' || $typeId === 'emr_direct') {
             return false;
         }
 
-        return self::asString($username) === '' && $abookOptionValue != 3;
+        return self::asString($username) === ''
+            && $abookOptionValue != 3
+            && $abookOptionValue != 4;
     }
 
     /**
