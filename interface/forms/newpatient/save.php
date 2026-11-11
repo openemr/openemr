@@ -148,7 +148,6 @@ $encounterData = [
     'provider_id' => $provider_id,
     'referring_provider_id' => $referring_provider_id,
     'ordering_provider_id' => $ordering_provider_id,
-    'provider_taxonomy' => $provider_taxonomy,
     'discharge_disposition' => $discharge_disposition,
     'external_id' => $external_id,
     'encounter_type_code' => $encounter_type_code,
@@ -158,6 +157,11 @@ $encounterData = [
     'user' => $session->get('authUser'),
     'group' => $session->get('authProvider'),
 ];
+
+// Only a posted field changes the choice: a form without the select leaves the stored one alone.
+if ($provider_taxonomy !== null) {
+    $encounterData['provider_taxonomy'] = $provider_taxonomy;
+}
 
 if ($mode == 'new') {
     $result = $encounterService->insertEncounter($puuid, $encounterData);
