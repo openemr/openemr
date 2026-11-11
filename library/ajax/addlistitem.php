@@ -24,6 +24,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 //verify csrf
@@ -44,24 +45,21 @@ $title = trim((string) $_GET['newitem']);
 $option_id = trim((string) $_GET['newitem_abbr']);
 $option_value = 0;
 
-// The `recent_patient_columns` list stores `option_id` values that
-// `interface/main/finder/dynamic_finder.php` later concatenates into a
-// SELECT column list from `patient_data`. Validate the identifier at the
-// write seam so stored rows always resolve to a real `patient_data`
-// column. `escape_sql_column_name()` short-circuits `*` without checking
-// the schema, so reject that explicitly before the schema check.
-if ($list_id === 'recent_patient_columns') {
-    $validOptionId = true;
-    if ($option_id === '*') {
-        $validOptionId = false;
-    } else {
+// The Patient Finder's column lists store `option_id` values the finder turns into
+// SQL: its Name column, a combined column it builds itself, or a `patient_data`
+// column. Validate the identifier at the write seam so stored rows always resolve.
+// `escape_sql_column_name()` short-circuits `*` without checking the schema, so
+// isValidColumnId() rejects that before the schema check.
+if (is_string($list_id) && PatientFinderColumnList::isColumnList($list_id)) {
+    $isPatientDataField = static function (string $field): bool {
         try {
-            escape_sql_column_name($option_id, ['patient_data'], false, true);
+            escape_sql_column_name($field, ['patient_data'], false, true);
+            return true;
         } catch (SqlQueryException) {
-            $validOptionId = false;
+            return false;
         }
-    }
-    if (!$validOptionId) {
+    };
+    if (!PatientFinderColumnList::isValidColumnId($option_id, $isPatientDataField)) {
         echo json_encode(["error" => xl('Invalid column name')]);
         exit;
     }

@@ -6,15 +6,17 @@
  * Orchestrates the Patient Finder's server-side endpoint, replacing the body of
  * dynamic_finder_ajax.php. It:
  *
- *   1. builds the column registry — seeds the core `ptlistcols` columns, then
- *      dispatches PatientFinderColumnRegistrationEvent so modules can add,
- *      remove or reorder columns;
+ *   1. builds the column registry for the tab that asked — seeds the columns of
+ *      its list (Patient List, or Recent Patients unless that shares the Patient
+ *      List's), then dispatches PatientFinderColumnRegistrationEvent so modules
+ *      can add, remove or reorder columns;
  *   2. resolves the client's (possibly ColReorder-ed) column order against the
  *      registry into the active column list;
  *   3. dispatches the existing PatientFinderFilterEvent to obtain the custom
  *      WHERE BoundFilter (privacy / security / information-blocking exclusion);
  *   4. delegates SQL construction to PatientFinderQueryBuilder and runs the
- *      resulting plan;
+ *      resulting plan — for Recent Patients, limited to the user's recent
+ *      patients, most recent first unless the table is sorted;
  *   5. dispatches PatientFinderRowEnrichEvent with the current page's pids to
  *      populate display-only (enriched) columns, then assembles the DataTables
  *      response array.
@@ -26,7 +28,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2026 Open Plan IT Ltd
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -35,10 +39,12 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientFinder;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderRowEnrichEvent;
+use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 final class PatientFinderQueryService
@@ -59,6 +65,11 @@ final class PatientFinderQueryService
     /** @var (callable(array<mixed>, mixed): mixed)|null */
     private $plaintext;
 
+    /** @var callable(): list<int> The current user's recent patients, most recent first. */
+    private $recentPids;
+
+    private readonly bool $recentSharesColumns;
+
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         ?PatientFinderQueryBuilder $builder = null,
@@ -66,7 +77,9 @@ final class PatientFinderQueryService
         ?callable $singleRow = null,
         ?callable $attr = null,
         ?callable $plaintext = null,
-        ?PatientFinderColumnRegistryFactory $registryFactory = null
+        ?PatientFinderColumnRegistryFactory $registryFactory = null,
+        ?callable $recentPids = null,
+        ?bool $recentSharesColumns = null
     ) {
         $this->builder = $builder ?? new PatientFinderQueryBuilder();
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
@@ -77,6 +90,26 @@ final class PatientFinderQueryService
         // the column set; default to one backed by this service's fetcher.
         $this->registryFactory = $registryFactory
             ?? new PatientFinderColumnRegistryFactory($dispatcher, $this->fetchRecords);
+        $this->recentPids = $recentPids ?? self::currentUserRecentPids(...);
+        $this->recentSharesColumns = $recentSharesColumns
+            ?? OEGlobalsBag::getInstance()->getBoolean('gbl_pt_list_recent_same_columns');
+    }
+
+    /**
+     * The logged-in user's recent patients, most recent first.
+     *
+     * @return list<int>
+     */
+    private static function currentUserRecentPids(): array
+    {
+        $pids = [];
+        foreach ((new PatientService())->getRecentPatientList() as $row) {
+            $pid = PatientFinderValue::int(is_array($row) ? ($row['pid'] ?? null) : null);
+            if ($pid > 0) {
+                $pids[] = $pid;
+            }
+        }
+        return $pids;
     }
 
     /**
@@ -89,13 +122,14 @@ final class PatientFinderQueryService
      */
     public function handle(array $get): array
     {
-        $registry = $this->buildColumnRegistry();
         $request = PatientFinderRequest::fromArray($get);
+        $registry = $this->buildColumnRegistry($request->columnList);
         $activeColumns = $this->resolveActiveColumns($registry, $request);
         $globalSearchColumns = $this->buildGlobalSearchColumns($request);
         $filter = $this->dispatchFilter($activeColumns, $request);
+        $onlyPids = $request->columnList === PatientFinderColumnList::Recent ? ($this->recentPids)() : null;
 
-        $plan = $this->builder->build($activeColumns, $request, $filter, $globalSearchColumns);
+        $plan = $this->builder->build($activeColumns, $request, $filter, $globalSearchColumns, $onlyPids);
 
         $iTotal = $this->count($plan->totalCountSql, $plan->totalCountBinds);
         $iFiltered = $this->count($plan->filteredCountSql, $plan->filteredCountBinds);
@@ -117,13 +151,14 @@ final class PatientFinderQueryService
     }
 
     /**
-     * Build the shared column registry (core ptlistcols columns + module
-     * contributions). Delegates to the factory so the finder page and this
-     * endpoint produce an identical column set.
+     * Build a tab's column registry (its list's columns + module contributions).
+     * Delegates to the factory so the finder page and this endpoint produce an
+     * identical column set.
      */
-    public function buildColumnRegistry(): PatientFinderColumnRegistry
-    {
-        return $this->registryFactory->create();
+    public function buildColumnRegistry(
+        PatientFinderColumnList $tab = PatientFinderColumnList::PatientList
+    ): PatientFinderColumnRegistry {
+        return $this->registryFactory->create($tab->columnsSource($this->recentSharesColumns));
     }
 
     /**

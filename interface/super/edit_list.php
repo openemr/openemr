@@ -32,6 +32,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientFinder\PatientFinderBuiltInColumns;
+use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryBuilder;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -409,8 +410,8 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
     echo "<input type='hidden' name='opt[" . attr($opt_line_no) . "][real_id]' value='" .
         attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
     $id_name = "opt[" . attr($opt_line_no) . "][id]";
-    if ($list_id == 'ptlistcols') {
-        // A Patient Finder column: pick one of the combined columns the finder builds itself
+    if ((is_string($list_id) && PatientFinderColumnList::isColumnList($list_id))) {
+        // A Patient Finder column (Patient List or Recent Patients): pick one of the combined columns the finder builds itself
         // or a patient_data field. An id in neither list, such as one a module added, is kept
         // as its own choice so saving the list never changes it.
         $current_id = is_string($option_id) ? $option_id : '';
@@ -556,7 +557,7 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
             "value='" . attr($value) . "' onclick='sel_cvxcode(this)' " .
             "title='" . xla('Click to select or change CVX code') . "'/>";
         echo "</td>\n";
-    } elseif ($list_id == 'ptlistcols') {
+    } elseif ((is_string($list_id) && PatientFinderColumnList::isColumnList($list_id))) {
         echo "  <td>";
         echo generate_select_list("opt[$opt_line_no][toggle_setting_1]", 'Sort_Direction', $tog1, 'Sort Direction', '', 'option');
         echo "</td>\n";
@@ -1411,7 +1412,7 @@ function writeITLine($it_array): void
                         <th><?php echo xlt('Facility'); ?></th>
                     <?php } elseif ($list_id == 'immunizations') { ?>
                         <th>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('CVX Code Mapping'); ?></th>
-                    <?php } elseif ($list_id == 'ptlistcols') { ?>
+                    <?php } elseif ((is_string($list_id) && PatientFinderColumnList::isColumnList($list_id))) { ?>
                         <th>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Default Sort Direction'); ?></th>
                     <?php }
                     if (OEGlobalsBag::getInstance()->get('ippf_specific')) { ?>
@@ -1450,7 +1451,7 @@ function writeITLine($it_array): void
                         echo xlt('External URL');
                     } elseif ($list_id == "default_open_tabs") {
                         echo xlt("URL");
-                    } elseif ($list_id == 'ptlistcols') {
+                    } elseif ((is_string($list_id) && PatientFinderColumnList::isColumnList($list_id))) {
                         // PatientFinderColumnRegistryFactory reads the column width from notes.
                         echo xlt('Width (px, rem, em or %)');
                     } else {

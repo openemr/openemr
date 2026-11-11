@@ -175,7 +175,7 @@ class PatientFinderBuiltInColumnsTest extends TestCase
      */
     public function testFactorySeedsABuiltInKeyAsItsSqlColumn(): void
     {
-        $fetch = static fn(string $sql, array $binds): array => str_contains($sql, 'ptlistcols')
+        $fetch = static fn(string $sql, array $binds): array => in_array('ptlistcols', $binds, true)
             ? [
                 ['option_id' => 'phone_home', 'title' => 'Home Phone', 'toggle_setting_1' => ''],
                 ['option_id' => 'city_state', 'title' => 'City State', 'toggle_setting_1' => '1', 'notes' => '10rem'],
@@ -209,7 +209,7 @@ class PatientFinderBuiltInColumnsTest extends TestCase
      */
     public function testAppointmentColumnsNeedTheAppointmentAcl(): void
     {
-        $fetch = static fn(string $sql, array $binds): array => str_contains($sql, 'ptlistcols')
+        $fetch = static fn(string $sql, array $binds): array => in_array('ptlistcols', $binds, true)
             ? [
                 ['option_id' => 'age', 'title' => 'Age', 'toggle_setting_1' => ''],
                 ['option_id' => 'next_appointment', 'title' => 'Next Appt', 'toggle_setting_1' => ''],

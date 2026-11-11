@@ -371,3 +371,9 @@ INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`,
 -- Administration > Lists. Only a name still at its default changes; a site's own name stays.
 UPDATE `list_options` SET `title` = 'Patient Finder – Patient List Columns' WHERE `list_id` = 'lists' AND `option_id` = 'ptlistcols' AND `title` = 'Patient List Columns';
 UPDATE `list_options` SET `title` = 'Patient Finder – Recent Patients Columns' WHERE `list_id` = 'lists' AND `option_id` = 'recent_patient_columns' AND `title` = 'Recent Patient Columns';
+
+-- Recent Patients Use Patient List Columns: on for new installs, off here so an existing
+-- site's Recent Patients tab keeps its own columns until an administrator turns it on.
+#IfNotRow globals gl_name gbl_pt_list_recent_same_columns
+INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES ('gbl_pt_list_recent_same_columns', 0, '0');
+#EndIf

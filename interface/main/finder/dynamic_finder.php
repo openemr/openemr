@@ -29,10 +29,10 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\UserSettingsService;
+use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
 use OpenEMR\Services\PatientFinder\PatientFinderDetailService;
 use OpenEMR\Services\PatientFinder\PatientFinderPageService;
-use OpenEMR\Services\PatientFinder\PatientFinderRecentService;
 use OpenEMR\Services\PatientFinder\PatientFinderValue;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -45,14 +45,19 @@ $patient_finder_exact_search = UserSettingsService::prevSetting($uspfx, 'patient
 
 $searchAny = PatientFinderValue::string(empty($_GET['search_any']) ? '' : $_GET['search_any']);
 unset($_GET['search_any']);
-// Build the finder's column data from the shared registry (the core ptlistcols
-// columns plus any a module contributed via PatientFinderColumnRegistrationEvent).
-// The server-side endpoint (dynamic_finder_ajax.php) builds the same registry, so
-// the displayed and queried columns agree. The column HTML is rendered by the
-// Twig template; the DataTables column config is serialised to JSON below.
+// Build each tab's column data from the shared registry (its list's columns plus any
+// a module contributed via PatientFinderColumnRegistrationEvent). The server-side
+// endpoint (dynamic_finder_ajax.php) builds the same registries, so the displayed and
+// queried columns agree. The column HTML is rendered by the Twig template; the
+// DataTables column config is serialised to JSON below. Recent Patients uses the
+// Patient List's columns while the site's setting says so.
 $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
-$registry = (new PatientFinderColumnRegistryFactory($eventDispatcher))->create();
-$columns = (new PatientFinderPageService())->getColumns($registry);
+$registryFactory = new PatientFinderColumnRegistryFactory($eventDispatcher);
+$pageService = new PatientFinderPageService();
+$columns = $pageService->getColumns($registryFactory->create(PatientFinderColumnList::PatientList));
+$recentSharesColumns = OEGlobalsBag::getInstance()->getBoolean('gbl_pt_list_recent_same_columns');
+$recentColumnList = PatientFinderColumnList::Recent->columnsSource($recentSharesColumns);
+$recentColumns = $pageService->getColumns($registryFactory->create($recentColumnList));
 // A row can be expanded to show the Patient Finder Detail layout, when that layout shows anything.
 $detailEnabled = (new PatientFinderDetailService($eventDispatcher))->isEnabled();
 
@@ -80,6 +85,12 @@ $pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
             pageLength: <?php echo $pageSize > 0 ? $pageSize : 10; ?>,
             // Column definitions from the shared registry (the Name column renders as a link).
             columns: <?php echo json_encode($columns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
+            // The Recent Patients tab: its columns, and the list Customize opens for it.
+            recent: {
+                columns: <?php echo json_encode($recentColumns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
+                listId: <?php echo js_escape($recentColumnList->value); ?>,
+                emptyText: <?php echo xlj('No recent patients'); ?>
+            },
             // Expanding a row to show the Patient Finder Detail layout.
             detail: {
                 enabled: <?php echo $detailEnabled ? 'true' : 'false'; ?>,
@@ -127,8 +138,6 @@ $pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
 <body>
 <?php
 
-$recent = (new PatientFinderRecentService())->build();
-
 $templateVars = [
     'oeContainer' => $oemr_ui->oeContainer(),
     'oeBelowContainerDiv' => $oemr_ui->oeBelowContainerDiv(),
@@ -140,8 +149,7 @@ $templateVars = [
     'newWindowChecked' => $newWindowChecked,
     'exactSearch' => $patient_finder_exact_search,
     'exactChecked' => $exactChecked,
-    'headers' => $recent['headers'],
-    'rp' => $recent['rp'],
+    'recentColumns' => $recentColumns,
 ];
 
 $t = ServiceContainer::getTwig();

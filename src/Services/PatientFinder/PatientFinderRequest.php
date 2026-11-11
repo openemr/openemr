@@ -10,8 +10,8 @@
  * `bSearchable_N`/`sSearch_N` filters, the `iSortCol_N`/`sSortDir_N`/
  * `bSortable_N` sort instructions, the client-side column order in `sColumns`
  * (which may differ from the server's because of ColReorder), the exact-vs-like
- * `searchType` toggle, the `searchMode` dropdown choice, and the `search_any`
- * any-column mode — as typed PHP so the
+ * `searchType` toggle, the `searchMode` dropdown choice, the `finderList` tab
+ * (the Patient List or Recent Patients), and the `search_any` any-column mode — as typed PHP so the
  * query builder and tests never touch `$_GET` directly.
  *
  * Parsing only; it performs no SQL and no database access.
@@ -42,6 +42,7 @@ final readonly class PatientFinderRequest
      * @param array<int, array{index: int, dir: string}> $sortColumns Sort instructions (column index + ASC|DESC).
      * @param array<int, string>       $columnSearches Per-column search terms, keyed by client column index.
      * @param PatientFinderSearchMode  $searchMode    Which fields the global search term matches.
+     * @param PatientFinderColumnList  $columnList    Which tab asked: the Patient List or Recent Patients.
      */
     public function __construct(
         public int $echo,
@@ -53,7 +54,8 @@ final readonly class PatientFinderRequest
         public array $columnKeys,
         public array $sortColumns,
         public array $columnSearches,
-        public PatientFinderSearchMode $searchMode = PatientFinderSearchMode::All
+        public PatientFinderSearchMode $searchMode = PatientFinderSearchMode::All,
+        public PatientFinderColumnList $columnList = PatientFinderColumnList::PatientList
     ) {
     }
 
@@ -92,7 +94,8 @@ final readonly class PatientFinderRequest
             $columnKeys,
             self::parseSort($get),
             self::parseColumnSearches($get, count($columnKeys)),
-            PatientFinderSearchMode::fromRequestValue(PatientFinderValue::string($get['searchMode'] ?? null))
+            PatientFinderSearchMode::fromRequestValue(PatientFinderValue::string($get['searchMode'] ?? null)),
+            PatientFinderColumnList::fromRequestValue(PatientFinderValue::string($get['finderList'] ?? null))
         );
     }
 

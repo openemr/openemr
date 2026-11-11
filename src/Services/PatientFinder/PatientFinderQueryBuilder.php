@@ -71,19 +71,28 @@ final class PatientFinderQueryBuilder
      *        term applies to, when it differs from the displayed set — the `search_any` any-column
      *        mode searches the DEM layout fields rather than the displayed columns. Null (the
      *        default) searches the displayed columns, as the normal mode does.
+     * @param list<int>|null $onlyPids Limit the results to these patients, ordered as given unless
+     *        the request sorts — the Recent Patients tab, most recent first. Null (the default)
+     *        searches every patient.
      */
     public function build(
         array $columns,
         PatientFinderRequest $request,
         BoundFilter $filter,
-        ?array $globalSearchColumns = null
+        ?array $globalSearchColumns = null,
+        ?array $onlyPids = null
     ): PatientFinderQueryPlan {
         [$selectList, $dataJoinMap, $selectBinds] = $this->buildSelect($columns);
         [$searchWhere, $searchBinds, $whereJoinMap] = $this->buildWhere($columns, $request, $globalSearchColumns);
-        $orderBy = $this->buildOrderBy($columns, $request);
+        [$orderBy, $orderBinds] = $this->buildOrderBy($columns, $request, $onlyPids);
 
-        $customWhere = $filter->getFilterClause();
-        $filterBinds = $filter->getBoundValues();
+        // The patient limit goes in front of the custom filter, so the total counts only
+        // those patients too.
+        [$pidWhere, $pidBinds] = $this->buildPidWhere($onlyPids);
+        $customWhere = $pidWhere === ''
+            ? $filter->getFilterClause()
+            : $pidWhere . ' AND ( ' . $filter->getFilterClause() . ' )';
+        $filterBinds = array_merge($pidBinds, $filter->getBoundValues());
 
         $fullWhere = $searchWhere === ''
             ? $customWhere
@@ -107,7 +116,7 @@ final class PatientFinderQueryBuilder
 
         // Bind values follow the SQL left-to-right: SELECT placeholders, then the
         // JOIN placeholders (once per distinct JOIN, in JOIN order), then the
-        // WHERE (filter then search), then LIMIT.
+        // WHERE (patient limit, filter, search), then ORDER BY, then LIMIT.
         $dataSql = 'SELECT ' . implode(', ', $selectList)
             . ' FROM patient_data' . $this->joinSql(array_keys($dataJoins))
             . ' WHERE ' . $fullWhere . $orderBy . $limitSql;
@@ -116,6 +125,7 @@ final class PatientFinderQueryBuilder
             $this->joinBinds($dataJoins),
             $filterBinds,
             $searchBinds,
+            $orderBinds,
             $limitBinds
         );
 
@@ -269,9 +279,32 @@ final class PatientFinderQueryBuilder
     }
 
     /**
-     * @param array<int, PatientFinderColumn> $columns
+     * The WHERE fragment limiting the results to the given patients, and its bind values.
+     *
+     * @param list<int>|null $onlyPids
+     * @return array{0: string, 1: list<int>}
      */
-    private function buildOrderBy(array $columns, PatientFinderRequest $request): string
+    private function buildPidWhere(?array $onlyPids): array
+    {
+        if ($onlyPids === null) {
+            return ['', []];
+        }
+        if ($onlyPids === []) {
+            return ['1 = 0', []];
+        }
+        $placeholders = implode(', ', array_fill(0, count($onlyPids), '?'));
+        return ['patient_data.pid IN (' . $placeholders . ')', $onlyPids];
+    }
+
+    /**
+     * The ORDER BY clause and its bind values. With no sort requested, a patient limit
+     * keeps its own order.
+     *
+     * @param array<int, PatientFinderColumn> $columns
+     * @param list<int>|null $onlyPids
+     * @return array{0: string, 1: list<int>}
+     */
+    private function buildOrderBy(array $columns, PatientFinderRequest $request, ?array $onlyPids = null): array
     {
         $clauses = [];
         foreach ($request->sortColumns as $sort) {
@@ -289,7 +322,14 @@ final class PatientFinderQueryBuilder
             }
         }
 
-        return $clauses === [] ? '' : ' ORDER BY ' . implode(', ', $clauses);
+        if ($clauses !== []) {
+            return [' ORDER BY ' . implode(', ', $clauses), []];
+        }
+        if ($onlyPids === null || $onlyPids === []) {
+            return ['', []];
+        }
+        $placeholders = implode(', ', array_fill(0, count($onlyPids), '?'));
+        return [' ORDER BY FIELD(patient_data.pid, ' . $placeholders . ')', $onlyPids];
     }
 
     /**

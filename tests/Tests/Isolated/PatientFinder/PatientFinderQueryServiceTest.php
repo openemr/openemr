@@ -131,7 +131,7 @@ class PatientFinderQueryServiceTest extends TestCase
 
     public function testBuildColumnRegistrySeedsPtlistcolsAndRunsEvent(): void
     {
-        $fetch = static fn(string $sql, array $binds): array => str_contains($sql, 'ptlistcols')
+        $fetch = static fn(string $sql, array $binds): array => in_array('ptlistcols', $binds, true)
             ? [['option_id' => 'name', 'title' => 'Full Name'], ['option_id' => 'DOB', 'title' => 'DOB']]
             : [];
 
@@ -153,7 +153,7 @@ class PatientFinderQueryServiceTest extends TestCase
     {
         $dataRow = ['pid' => 1, 'lname' => 'Smith', 'fname' => 'John', 'mname' => '', 'DOB' => '1980-01-01'];
         $fetch = static function (string $sql, array $binds) use ($dataRow): array {
-            if (str_contains($sql, 'ptlistcols')) {
+            if (in_array('ptlistcols', $binds, true)) {
                 return [['option_id' => 'name', 'title' => 'Name'], ['option_id' => 'DOB', 'title' => 'DOB']];
             }
             if (str_contains($sql, 'data_type')) { // fetchFieldsInfo
@@ -218,7 +218,7 @@ class PatientFinderQueryServiceTest extends TestCase
     {
         $dataSql = '';
         $fetch = static function (string $sql, array $binds) use (&$dataSql): array {
-            if (str_contains($sql, 'ptlistcols')) {
+            if (in_array('ptlistcols', $binds, true)) {
                 return [['option_id' => 'name', 'title' => 'Name'], ['option_id' => 'DOB', 'title' => 'DOB']];
             }
             if (str_contains($sql, 'FROM patient_data')) {
@@ -265,5 +265,57 @@ class PatientFinderQueryServiceTest extends TestCase
         $this->assertStringContainsString('( `postal_code` LIKE ? )', $sql);
         $this->assertStringNotContainsString('lname LIKE ?', $sql);
         $this->assertStringNotContainsString('`DOB` LIKE ?', $sql);
+    }
+
+    /**
+     * The column-list ids and data query the service uses for one Recent Patients request.
+     *
+     * @return array{lists: list<mixed>, dataSql: string, dataBinds: array<mixed>}
+     */
+    private function recentRequest(bool $shared): array
+    {
+        $seen = ['lists' => [], 'dataSql' => '', 'dataBinds' => []];
+        $fetch = static function (string $sql, array $binds) use (&$seen): array {
+            if (str_contains($sql, 'FROM list_options') && str_contains($sql, 'activity = 1')) {
+                $seen['lists'][] = $binds[0] ?? null;
+                return [['option_id' => 'name', 'title' => 'Name']];
+            }
+            if (str_contains($sql, 'FROM patient_data')) {
+                $seen['dataSql'] = $sql;
+                $seen['dataBinds'] = $binds;
+            }
+            return [];
+        };
+        $service = new PatientFinderQueryService(
+            $this->dispatcher(),
+            new PatientFinderQueryBuilder(
+                static fn(string $col, array $tables): string => '`' . $col . '`',
+                static fn(string $term): string => $term
+            ),
+            $fetch,
+            static fn(string $sql, array $binds): array => ['count' => 0],
+            static fn(mixed $v): string => PatientFinderValue::string($v),
+            null,
+            null,
+            static fn(): array => [12, 4],
+            $shared
+        );
+        $service->handle(['sColumns' => 'finder_detail,name', 'finderList' => 'recent']);
+        return $seen;
+    }
+
+    public function testRecentPatientsAreLimitedToTheUsersRecentListMostRecentFirst(): void
+    {
+        $seen = $this->recentRequest(false);
+
+        $this->assertStringContainsString('WHERE patient_data.pid IN (?, ?)', $seen['dataSql']);
+        $this->assertStringContainsString('ORDER BY FIELD(patient_data.pid, ?, ?)', $seen['dataSql']);
+        $this->assertSame([12, 4, 12, 4], $seen['dataBinds']);
+    }
+
+    public function testRecentPatientsUseTheirOwnListUnlessShared(): void
+    {
+        $this->assertSame(['recent_patient_columns'], $this->recentRequest(false)['lists']);
+        $this->assertSame(['ptlistcols'], $this->recentRequest(true)['lists']);
     }
 }

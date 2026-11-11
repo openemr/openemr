@@ -387,4 +387,59 @@ class PatientFinderQueryBuilderTest extends TestCase
         $this->assertStringContainsString('FROM patient_data ' . $join . ' WHERE', $plan->dataSql);
         $this->assertStringContainsString('(tb.val) LIKE ?', $plan->dataSql);
     }
+
+    public function testOnlyPidsLimitsTheResultsAndKeepsTheirOrder(): void
+    {
+        $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
+        $plan = $this->builder()->build(
+            $columns,
+            $this->request(start: 0, length: 10),
+            new BoundFilter(),
+            null,
+            [7, 3, 9]
+        );
+
+        $this->assertSame(
+            'SELECT patient_data.pid, `sex` FROM patient_data WHERE patient_data.pid IN (?, ?, ?) AND ( 1 )'
+            . ' ORDER BY FIELD(patient_data.pid, ?, ?, ?) LIMIT ? OFFSET ?',
+            $plan->dataSql
+        );
+        $this->assertSame([7, 3, 9, 7, 3, 9, 10, 0], $plan->dataBinds);
+        $this->assertSame(
+            'SELECT COUNT(id) AS count FROM patient_data WHERE patient_data.pid IN (?, ?, ?) AND ( 1 )',
+            $plan->totalCountSql
+        );
+        $this->assertSame([7, 3, 9], $plan->totalCountBinds);
+    }
+
+    public function testASortReplacesTheOnlyPidsOrderAndFilterBindsFollowThePids(): void
+    {
+        $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
+        $filter = new BoundFilter();
+        $filter->setFilterClause('patient_data.pid <> ?');
+        $filter->setBoundValues([5]);
+        $plan = $this->builder()->build(
+            $columns,
+            $this->request(globalSearch: 'f', sort: [['index' => 0, 'dir' => 'DESC']]),
+            $filter,
+            null,
+            [7, 3]
+        );
+
+        $this->assertSame(
+            'SELECT patient_data.pid, `sex` FROM patient_data WHERE patient_data.pid IN (?, ?) AND '
+            . '( patient_data.pid <> ? ) AND ( ( `sex` LIKE ? ) ) ORDER BY `sex` DESC',
+            $plan->dataSql
+        );
+        $this->assertSame([7, 3, 5, 'f%'], $plan->dataBinds);
+    }
+
+    public function testNoRecentPatientsMatchesNothing(): void
+    {
+        $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
+        $plan = $this->builder()->build($columns, $this->request(), new BoundFilter(), null, []);
+
+        $this->assertSame('SELECT patient_data.pid, `sex` FROM patient_data WHERE 1 = 0 AND ( 1 )', $plan->dataSql);
+        $this->assertSame([], $plan->dataBinds);
+    }
 }

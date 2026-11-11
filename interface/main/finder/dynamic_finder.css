@@ -2,7 +2,7 @@
  * dynamic_finder.css
  *
  * Styles for the Patient Finder (dynamic_finder.php): the one-row heading bar, the
- * patient list and recent patients tables, the row-detail toggle, and the
+ * Patient List and Recent Patients tables, the row-detail toggle, and the
  * jQuery-DataTables overrides. Rules are scoped by id so they win over Bootstrap's
  * and DataTables' own rules without !important.
  *
@@ -108,14 +108,14 @@ div.dataTables_wrapper div.dataTables_processing {
 }
 
 /* Show [10] entries */
-#pt_table_length label {
+#finder-length-slot .dataTables_length label {
   display: flex;
   align-items: center;
   margin-bottom: 0;
   white-space: nowrap;
 }
 
-#pt_table_length select {
+#finder-length-slot .dataTables_length select {
   width: 4rem;
   margin: 0 0.5rem;
 }
@@ -128,73 +128,65 @@ div.dataTables_wrapper div.dataTables_processing {
 }
 
 /* ==========================================================================
-   Patient list and recent patients tables
+   Patient List and Recent Patients tables. :is() keeps the id's specificity, which
+   wins over Bootstrap's and DataTables' own rules.
    ========================================================================== */
 
 /* Blue column headings. */
-#pt_table > thead > tr,
-#recent_table > thead > tr {
+:is(#pt_table, #recent_table) > thead > tr {
   background-color: var(--primary);
 }
 
-#pt_table > thead > tr > th,
-#recent_table > thead > tr > th {
+:is(#pt_table, #recent_table) > thead > tr > th {
   padding: 0.25rem 0.75rem;
   border: 0;
   color: var(--white);
 }
 
 /* The per-column search boxes. */
-#pt_table > thead > tr > td {
+:is(#pt_table, #recent_table) > thead > tr > td {
   padding: 5px 10px;
   border: 0;
 }
 
-#pt_table > thead input.search_init {
+:is(#pt_table, #recent_table) > thead input.search_init {
   height: 1.7rem;
   padding: 0.25rem 0.5rem;
 }
 
 /* While the search boxes are on (the OemrUI search icon), they take the column titles' place. */
-#pt_table > thead > tr.hideaway:not(.d-none) + tr {
+:is(#pt_table, #recent_table) > thead > tr.finder-search-row:not(.d-none) + tr {
   display: none;
 }
 
 /* A blue line under each row. */
-#pt_table > tbody > tr > td,
-#recent_table > tbody > tr > td {
+:is(#pt_table, #recent_table) > tbody > tr > td {
   padding: 0.1rem 0.75rem;
   border-top: 0;
   border-bottom: 1px solid var(--primary);
 }
 
-#pt_table.no-footer {
+:is(#pt_table, #recent_table).no-footer {
   border-bottom: 0;
 }
 
-#pt_table > tbody > tr,
-#recent_table > tbody > tr {
+:is(#pt_table, #recent_table) > tbody > tr {
   background-color: var(--white);
   cursor: pointer;
 }
 
-#pt_table > tbody > tr.odd,
-#recent_table > tbody > tr:nth-child(odd) {
+:is(#pt_table, #recent_table) > tbody > tr.odd {
   background-color: var(--light);
 }
 
 /* A patient row under the pointer turns gray with light text. Only result rows: an
    expanded row's details (which have no odd/even class) stay as they are. */
-#pt_table > tbody > tr.odd:hover,
-#pt_table > tbody > tr.even:hover,
-#recent_table > tbody > tr:hover {
+:is(#pt_table, #recent_table) > tbody > tr:is(.odd, .even):hover {
   background-color: var(--gray500);
   color: var(--light);
 }
 
-#pt_table > tbody > tr.odd:hover a,
-#pt_table > tbody > tr.even:hover a,
-#recent_table > tbody > tr:hover a {
+:is(#pt_table, #recent_table) > tbody > tr:is(.odd, .even):hover a {
   color: var(--light);
   text-decoration: none;
 }
@@ -205,11 +197,11 @@ div.dataTables_wrapper div.dataTables_processing {
 
 /* The narrow first column holding each row's expand button. A 1% width keeps it at its
    content's width, so the spare width of a full-width table goes to the other columns. */
-#pt_table {
+:is(#pt_table, #recent_table) {
   --finder-control-width: 1.375rem;
 }
 
-#pt_table .finder-detail-control {
+:is(#pt_table, #recent_table) .finder-detail-control {
   box-sizing: border-box;
   width: 1%;
   min-width: var(--finder-control-width);
@@ -219,7 +211,7 @@ div.dataTables_wrapper div.dataTables_processing {
 
 /* Blue square with a right arrow; red with a down arrow while the details are open.
    The arrow is centered in the square by flexbox, not by the font's line box. */
-#pt_table .finder-detail-toggle {
+:is(#pt_table, #recent_table) .finder-detail-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -240,24 +232,24 @@ div.dataTables_wrapper div.dataTables_processing {
 
 /* U+FE0E keeps the arrows as text, not emoji. The right arrow's glyph sits above
    its box's center, so it is nudged down. */
-#pt_table .finder-detail-toggle::before {
+:is(#pt_table, #recent_table) .finder-detail-toggle::before {
   content: '\25B6\FE0E';
   position: relative;
   top: 1px;
 }
 
-#pt_table .finder-detail-toggle[aria-expanded='true'] {
+:is(#pt_table, #recent_table) .finder-detail-toggle[aria-expanded='true'] {
   background-color: var(--danger);
 }
 
-#pt_table .finder-detail-toggle[aria-expanded='true']::before {
+:is(#pt_table, #recent_table) .finder-detail-toggle[aria-expanded='true']::before {
   content: '\25BC\FE0E';
   top: 0;
 }
 
 /* An expanded row: the Patient Finder Detail layout, set off by a blue line on its left
    that lines up with the first column after the expand buttons. */
-#pt_table > tbody > tr > td > .finder-detail {
+:is(#pt_table, #recent_table) > tbody > tr > td > .finder-detail {
   margin-left: calc(var(--finder-control-width) - 0.75rem);
   padding: 0.5rem 1rem 0.5rem 2rem;
   border-left: 3px solid var(--primary);
@@ -266,12 +258,12 @@ div.dataTables_wrapper div.dataTables_processing {
 }
 
 /* The layout's tab keeps its fields together without the empty space it has on other pages. */
-#pt_table .finder-detail .tab {
+:is(#pt_table, #recent_table) .finder-detail .tab {
   min-height: 0;
   margin-bottom: 0;
 }
 
-#pt_table .finder-detail td {
+:is(#pt_table, #recent_table) .finder-detail td {
   padding: 0.1rem 0.5rem;
   border: 0;
 }

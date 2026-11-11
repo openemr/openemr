@@ -6,7 +6,9 @@
  * Builds the Patient Finder column registry the same way for both the finder
  * page (dynamic_finder.php) and its server-side endpoint
  * (dynamic_finder_ajax.php), so the displayed and queried column sets always
- * agree. It seeds the active `ptlistcols` columns in seq order — carrying each
+ * agree. It seeds the active columns of one of the finder's column lists
+ * ({@see PatientFinderColumnList}: `ptlistcols` for the Patient List tab,
+ * `recent_patient_columns` for Recent Patients) in seq order — carrying each
  * column's configured initial sort direction (its `toggle_setting_1`, resolved
  * through the `Sort_Direction` list). An entry whose option id is one of
  * {@see PatientFinderBuiltInColumns::keys()} is seeded as that combined column
@@ -23,7 +25,9 @@
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2026 Open Plan IT Ltd
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -74,15 +78,16 @@ final class PatientFinderColumnRegistryFactory
     }
 
     /**
-     * Build the registry: the active ptlistcols columns the user may see, then any columns listeners add.
+     * Build the registry: the list's active columns the user may see, then any columns listeners add.
      */
-    public function create(): PatientFinderColumnRegistry
-    {
+    public function create(
+        PatientFinderColumnList $columnList = PatientFinderColumnList::PatientList
+    ): PatientFinderColumnRegistry {
         $registry = new PatientFinderColumnRegistry();
         $rows = ($this->fetchRecords)(
             "SELECT option_id, title, toggle_setting_1, notes FROM list_options "
-            . "WHERE list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title",
-            []
+            . "WHERE list_id = ? AND activity = 1 ORDER BY seq, title",
+            [$columnList->value]
         );
         foreach ($rows as $row) {
             $key = PatientFinderValue::string($row['option_id'] ?? null);
@@ -107,7 +112,7 @@ final class PatientFinderColumnRegistryFactory
         }
 
         $this->dispatcher->dispatch(
-            new PatientFinderColumnRegistrationEvent($registry),
+            new PatientFinderColumnRegistrationEvent($registry, $columnList),
             PatientFinderColumnRegistrationEvent::EVENT_HANDLE
         );
 

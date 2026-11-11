@@ -2,12 +2,13 @@
  * dynamic_finder.js
  *
  * Client behaviour for the Patient Finder (dynamic_finder.php): initialises the
- * server-side DataTable, wires the heading's search box and search-mode menu, the
- * per-column search, row click navigation, the row-detail toggle, and the
- * "open in new tab" / "exact search" controls. All server-provided values
- * (column definitions, translations, page size, CSRF token, webroot, the
- * search_any term) arrive via the inline `window.finderConfig` object the page
- * emits; no markup or server values are hard-coded here.
+ * server-side DataTables for the Patient List and Recent Patients tabs, wires the
+ * heading's search box, search-mode menu and page-length menu to whichever tab is
+ * showing, and per table the column search, row click navigation and row-detail
+ * toggle, plus the "open in new tab" / "exact search" controls and Customize. All
+ * server-provided values (column definitions, translations, page size, CSRF token,
+ * webroot, the search_any term) arrive via the inline `window.finderConfig` object
+ * the page emits; no markup or server values are hard-coded here.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -22,20 +23,54 @@
     'use strict';
 
     var cfg = window.finderConfig || {};
-    var columns = cfg.columns || [];
     var detail = cfg.detail || {};
+    var recent = cfg.recent || {};
     // With row details on, a narrow first column holds each row's expand button, so
     // every finder column sits one place to the right.
     var columnOffset = detail.enabled ? 1 : 0;
     // How long typing in the heading's search box pauses before the list reloads.
     var SEARCH_DELAY_MS = 300;
-    // The column lists Customize opens in Administration > Lists.
-    var LIST_IDS = {patientList: 'ptlistcols', recent: 'recent_patient_columns'};
     // The shared Admin tab the menu opens Lists in, and the tab Customize uses when
     // that one shows another admin page.
     var ADMIN_TAB = 'adm';
     var LIST_EDITOR_TAB = 'lst';
     var LIST_EDITOR_TABS = [ADMIN_TAB, LIST_EDITOR_TAB];
+
+    // The finder's two tabs. finderList tells the server which tab asks; listId is the
+    // column list Customize opens for it.
+    var TABS = {
+        list: {
+            key: 'list',
+            tableId: 'pt_table',
+            searchRowId: 'advanced_search',
+            columns: cfg.columns || [],
+            finderList: 'patient',
+            listId: 'ptlistcols',
+            // Sorted by every column in its configured direction.
+            sortedAtStart: true,
+            searchAny: cfg.searchAny || ''
+        },
+        recent: {
+            key: 'recent',
+            tableId: 'recent_table',
+            searchRowId: 'recent_advanced_search',
+            columns: recent.columns || [],
+            finderList: 'recent',
+            listId: recent.listId || 'recent_patient_columns',
+            // Most recent first, until a column title is clicked.
+            sortedAtStart: false,
+            emptyText: recent.emptyText || '',
+            searchAny: ''
+        }
+    };
+
+    // What the heading's search box and menu hold; each table searches with it when it draws.
+    var search = {term: '', mode: 'all'};
+    // The DataTable of each tab, made the first time its tab shows.
+    var tables = {};
+    // The search each table last drew with, so switching tabs redraws only when it changed.
+    var drawnSearch = {};
+    var activeTab = TABS.list;
 
     function escapeAttr(text) {
         return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
@@ -56,16 +91,20 @@
         return type === 'display' ? '<a href="">' + data + '</a>' : data;
     }
 
-    // The DataTables column config. The expand-button column is client-only: the server
-    // has no column by that name, so it returns an empty cell in its place.
-    function dataTableColumns() {
-        var config = columns.map(function (c) {
+    // A tab's DataTables column config. The expand-button column is client-only: the
+    // server has no column by that name, so it returns an empty cell in its place. A
+    // table that starts unsorted sorts a column in its configured direction first.
+    function dataTableColumns(tab) {
+        var config = tab.columns.map(function (c) {
             var col = {"sName": c.key};
             if (c.width) {
                 col.width = c.width;
             }
             if (c.link) {
                 col.mRender = linkRenderer;
+            }
+            if (!tab.sortedAtStart) {
+                col.orderSequence = c.sortDir === 'desc' ? ['desc', 'asc'] : ['asc', 'desc'];
             }
             return col;
         });
@@ -86,8 +125,8 @@
     // DataTables puts each column's width on the column-title cells only. While the
     // search boxes take the titles' place that row is hidden, and the browser ignores a
     // hidden row when sizing columns, so the search-box cells carry the widths too.
-    function copyWidthsToSearchRow(config) {
-        var cells = $('#advanced_search > td');
+    function copyWidthsToSearchRow(tab, config) {
+        var cells = $('#' + tab.searchRowId + ' > td');
         config.forEach(function (col, idx) {
             if (col.width) {
                 cells.eq(idx).css('width', col.width);
@@ -146,26 +185,47 @@
         document.fnew.submit();
     }
 
-    // The heading's search box searches the list as the user types, matching what its
-    // menu has picked: every column, the name, or the ZIP.
-    function wireHeadingSearch(oTable, state) {
+    function openPatient(pid) {
+        if (document.myform.form_new_window.checked) {
+            openNewTopWindow(pid);
+            return;
+        }
+        top.restoreSession();
+        var params = new URLSearchParams({set_pid: pid, csrf_token_form: cfg.csrfToken});
+        top.RTop.location = cfg.webroot + "/interface/patient_file/summary/demographics.php?" + params;
+    }
+
+    // Redraw a tab's table with the heading's search when it last drew with another.
+    function applySearch(tab) {
+        var oTable = tables[tab.key];
+        var last = drawnSearch[tab.key];
+        if (!oTable || (last && last.term === search.term && last.mode === search.mode)) {
+            return;
+        }
+        oTable.api().search(search.term).draw();
+    }
+
+    // The heading's search box searches the showing tab's list as the user types,
+    // matching what its menu has picked: every column, the name, or the ZIP.
+    function wireHeadingSearch() {
         var $input = $('#finder-search-input');
         var timer = null;
         $input.on('input', function () {
             var term = this.value;
             window.clearTimeout(timer);
             timer = window.setTimeout(function () {
-                oTable.api().search(term).draw();
+                search.term = term;
+                applySearch(activeTab);
             }, SEARCH_DELAY_MS);
         });
         $('#finder-search [data-search-mode]').on('click', function () {
             var $choice = $(this);
-            state.searchMode = $choice.data('searchMode');
+            search.mode = $choice.data('searchMode');
             $choice.siblings().removeClass('active').removeAttr('aria-current');
             $choice.addClass('active').attr('aria-current', 'true');
             $input.attr('placeholder', $choice.data('placeholder'));
-            if ($input.val() !== '') {
-                oTable.api().draw();
+            if (search.term !== '') {
+                applySearch(activeTab);
             }
             $input.trigger('focus');
         });
@@ -219,15 +279,33 @@
         });
     }
 
-    $(function () {
-        var serverUrl = 'dynamic_finder_ajax.php';
-        if (cfg.searchAny) {
-            serverUrl += '?search_any=' + encodeURIComponent(cfg.searchAny);
-        }
+    // The Recent Patients search row follows the Patient List's, which OemrUI's search
+    // icon shows and hides.
+    function syncSearchRow() {
+        var hidden = $('#' + TABS.list.searchRowId).hasClass('d-none');
+        $('#' + TABS.recent.searchRowId).toggleClass('d-none', hidden);
+    }
 
-        var searchState = {searchMode: 'all'};
-        var columnConfig = dataTableColumns();
-        var oTable = $('#pt_table').dataTable({
+    // Show the showing tab's page-length menu in the heading bar.
+    function showLengthMenu(tab) {
+        $('#finder-length-slot .finder-length').each(function () {
+            $(this).toggleClass('d-none', $(this).data('tab') !== tab.key);
+        });
+    }
+
+    // Make a tab's DataTable and wire its column search, detail toggle and row clicks.
+    function createTable(tab) {
+        var serverUrl = 'dynamic_finder_ajax.php';
+        if (tab.searchAny) {
+            serverUrl += '?search_any=' + encodeURIComponent(tab.searchAny);
+        }
+        var columnConfig = dataTableColumns(tab);
+        var language = cfg.language || {};
+        if (tab.emptyText) {
+            language = $.extend({}, language, {"emptyTable": tab.emptyText});
+        }
+        var $table = $('#' + tab.tableId);
+        var oTable = $table.dataTable({
             "processing": true,
             // next 2 lines invoke server side processing
             "serverSide": true,
@@ -237,48 +315,49 @@
             "fnServerParams": function (aoData) {
                 var searchType = $("#setting_search_type:checked").length > 0;
                 aoData.push({"name": "searchType", "value": searchType});
-                aoData.push({"name": "searchMode", "value": searchState.searchMode});
+                aoData.push({"name": "searchMode", "value": search.mode});
+                aoData.push({"name": "finderList", "value": tab.finderList});
+                drawnSearch[tab.key] = {term: search.term, mode: search.mode};
             },
             // dom invokes ColReorderWithResize. The heading's own search box replaces
-            // DataTables' filter, and the options sit under the table outside DataTables.
+            // DataTables' filter, and the options sit under the tables outside DataTables.
             "dom": 'Rlrtip',
             // Column names come over as $_GET['sColumns']; the Name column renders as a link.
             "columns": columnConfig,
             // Keep the expand-button column first when columns are dragged.
             "colReorder": {"fixedColumnsLeft": columnOffset},
             // Let CSS size the table to its container; DataTables' computed pixel width
-            // overflowed it by a pixel. Column widths set in Patient Finder – Patient List Columns still apply.
+            // overflowed it by a pixel. Column widths set in the column list still apply.
             "autoWidth": false,
-            "order": columns.map(function (c, idx) {
-                return [idx + columnOffset, c.sortDir];
-            }),
+            "order": tab.sortedAtStart
+                ? tab.columns.map(function (c, idx) {
+                    return [idx + columnOffset, c.sortDir];
+                })
+                : [],
+            "search": {"search": search.term},
             "lengthMenu": [10, 25, 50, 100],
             "pageLength": cfg.pageLength || 10,
-            "language": cfg.language || {}
+            "language": language
         });
+        tables[tab.key] = oTable;
 
-        copyWidthsToSearchRow(columnConfig);
+        copyWidthsToSearchRow(tab, columnConfig);
 
-        // The page-length menu goes into the heading bar, next to the tabs.
-        $('#finder-length-slot').append($('#pt_table_length'));
-        wireHeadingSearch(oTable, searchState);
-
-        $('#finder-customize').on('click', function () {
-            openListEditor(LIST_IDS.patientList);
-        });
-        $("#setting_search_type").on('change', function (e) {
-            persistCriteria(this, e);
-        });
+        // The page-length menu goes into the heading bar, next to the tabs. Like the
+        // OemrUI search icon, it shows from medium screens up.
+        var $length = $('#' + tab.tableId + '_length').addClass('d-none d-md-initial');
+        $('<div class="finder-length"></div>').attr('data-tab', tab.key).append($length)
+            .appendTo('#finder-length-slot');
 
         // Column-specific search fields (borrowed from the multi_filter.html example). A
         // field's cell position is its column's index, counting the expand-button column.
-        $("thead input").keyup(function () {
+        $table.find('thead input').on('keyup', function () {
             oTable.fnFilter(this.value, $(this).closest('td').index());
         });
 
         // A click anywhere in the expand-button cell shows the row's detail instead of
         // opening the patient.
-        $('#pt_table').on('click', 'td.finder-detail-control', function (e) {
+        $table.on('click', 'td.finder-detail-control', function (e) {
             var button = $(this).find('.finder-detail-toggle').get(0);
             if (!button) {
                 return;
@@ -288,23 +367,55 @@
             toggleDetail(oTable, button);
         });
 
-        // OnClick handler for the rows
-        $('#pt_table').on('click', 'tbody tr', function () {
-            // ID of a row element is pid_{value}
-            var newpid = this.id.substring(4);
-            // The "No matching records found" row has no valid ID but is otherwise
-            // clickable; guard against setting an invalid PID.
-            if (newpid.length === 0) {
-                return;
+        // A row opens its patient. Its id is pid_{value}; the "No matching records
+        // found" row has none, so it opens nothing.
+        $table.on('click', 'tbody tr', function () {
+            var pid = this.id.substring(4);
+            if (pid.length > 0) {
+                openPatient(pid);
             }
-            if (document.myform.form_new_window.checked) {
-                openNewTopWindow(newpid);
-            } else {
-                top.restoreSession();
-                const params = new URLSearchParams({set_pid: newpid, csrf_token_form: cfg.csrfToken});
-                top.RTop.location = cfg.webroot
-                    + "/interface/patient_file/summary/demographics.php?" + params;
-            }
+        });
+        return oTable;
+    }
+
+    // Switch the heading's controls to a tab, making its table the first time it shows.
+    // Recent Patients reloads each time, since opening a patient changes it.
+    function showTab(tab) {
+        activeTab = tab;
+        if (!tables[tab.key]) {
+            syncSearchRow();
+            createTable(tab);
+        } else if (tab === TABS.recent) {
+            tables[tab.key].api().search(search.term).draw(false);
+        } else {
+            applySearch(tab);
+        }
+        showLengthMenu(tab);
+    }
+
+    $(function () {
+        createTable(TABS.list);
+        showLengthMenu(TABS.list);
+        wireHeadingSearch();
+
+        $('#listTab').on('shown.bs.tab', function () {
+            showTab(TABS.list);
+        });
+        $('#recentTab').on('shown.bs.tab', function () {
+            showTab(TABS.recent);
+        });
+
+        // OemrUI's search icon shows and hides the Patient List's search row.
+        new MutationObserver(syncSearchRow).observe(
+            document.getElementById(TABS.list.searchRowId),
+            {attributes: true, attributeFilter: ['class']}
+        );
+
+        $('#finder-customize').on('click', function () {
+            openListEditor(activeTab.listId);
+        });
+        $("#setting_search_type").on('change', function (e) {
+            persistCriteria(this, e);
         });
     });
 })();

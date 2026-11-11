@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\PatientFinder;
 
+use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 use OpenEMR\Services\PatientFinder\PatientFinderRequest;
 use OpenEMR\Services\PatientFinder\PatientFinderSearchMode;
 use PHPUnit\Framework\TestCase;
@@ -173,5 +174,14 @@ class PatientFinderRequestTest extends TestCase
         $this->assertSame([], $req->columnKeys);
         $this->assertSame([], $req->columnSearches);
         $this->assertSame([], $req->sortColumns);
+    }
+
+    public function testFinderListSaysWhichTabAsked(): void
+    {
+        $this->assertSame(
+            PatientFinderColumnList::Recent,
+            PatientFinderRequest::fromArray(['finderList' => 'recent'])->columnList
+        );
+        $this->assertSame(PatientFinderColumnList::PatientList, PatientFinderRequest::fromArray([])->columnList);
     }
 }

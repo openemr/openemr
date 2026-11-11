@@ -21,6 +21,7 @@ namespace OpenEMR\Tests\Isolated\PatientFinder;
 
 use OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent;
 use OpenEMR\Services\PatientFinder\PatientFinderColumn;
+use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -40,7 +41,7 @@ class PatientFinderColumnRegistryFactoryTest extends TestCase
 
     public function testSeedsColumnsWithSortDirectionAndRunsEvent(): void
     {
-        $fetch = static fn(string $sql, array $binds): array => str_contains($sql, 'ptlistcols')
+        $fetch = static fn(string $sql, array $binds): array => in_array('ptlistcols', $binds, true)
             ? [
                 ['option_id' => 'name', 'title' => 'Full Name', 'toggle_setting_1' => '0'],
                 ['option_id' => 'DOB', 'title' => 'DOB', 'toggle_setting_1' => '1'],
@@ -67,7 +68,7 @@ class PatientFinderColumnRegistryFactoryTest extends TestCase
 
     public function testBlankToggleDefaultsToAscWithoutConsultingList(): void
     {
-        $fetch = static fn(string $sql, array $binds): array => str_contains($sql, 'ptlistcols')
+        $fetch = static fn(string $sql, array $binds): array => in_array('ptlistcols', $binds, true)
             ? [['option_id' => 'sex', 'title' => 'Sex', 'toggle_setting_1' => '']]
             : [];
 
@@ -79,5 +80,24 @@ class PatientFinderColumnRegistryFactoryTest extends TestCase
         $registry = (new PatientFinderColumnRegistryFactory($this->dispatcher(), $fetch, $listMap))->create();
 
         $this->assertSame('asc', $registry->get('sex')?->defaultSortDir);
+    }
+
+    public function testSeedsTheRequestedListAndTellsListenersWhichOne(): void
+    {
+        $fetch = static fn(string $sql, array $binds): array => in_array('recent_patient_columns', $binds, true)
+            ? [['option_id' => 'fname', 'title' => 'First Name', 'toggle_setting_1' => '']]
+            : [['option_id' => 'DOB', 'title' => 'DOB', 'toggle_setting_1' => '']];
+        $seen = [];
+        $dispatcher = $this->dispatcher([
+            PatientFinderColumnRegistrationEvent::EVENT_HANDLE =>
+                static function (PatientFinderColumnRegistrationEvent $e) use (&$seen): void {
+                    $seen[] = $e->getColumnList();
+                },
+        ]);
+        $factory = new PatientFinderColumnRegistryFactory($dispatcher, $fetch);
+
+        $this->assertSame(['fname'], $factory->create(PatientFinderColumnList::Recent)->keys());
+        $this->assertSame(['DOB'], $factory->create()->keys());
+        $this->assertSame([PatientFinderColumnList::Recent, PatientFinderColumnList::PatientList], $seen);
     }
 }
