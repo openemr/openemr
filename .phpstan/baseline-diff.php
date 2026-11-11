@@ -83,7 +83,7 @@ function list_identifiers(string $dir): array
     foreach (glob($dir . '/*.php') ?: [] as $path) {
         $name = basename($path, '.php');
         // A PR picks these file names, and they're echoed into the PR comment.
-        if ($name === 'loader' || preg_match('/^[A-Za-z0-9.]+$/', $name) !== 1) {
+        if ($name === 'loader' || preg_match('/^[A-Za-z0-9.-]+$/', $name) !== 1) {
             continue;
         }
         $ids[] = $name;
