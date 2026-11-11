@@ -477,8 +477,9 @@ final class ClaimPosting
 
             // Check for secondary insurance.
             if ($primary && (bool) SLEOB::arGetPayerID($pid, $serviceDate, 2)) {
-                SLEOB::arSetupSecondary($pid, $encounter, $debug, $claim->crossover);
-                $secondaryQueued = true;
+                // The helper picks the next level from what was billed, on the encounter's
+                // date; with no payer there it only reopens the claim.
+                $secondaryQueued = SLEOB::arSetupSecondary($pid, $encounter, $debug, $claim->crossover);
                 if ($claim->crossover !== 1) {
                     $this->message(ReportStyle::Info, 'This claim is now re-queued for secondary paper billing');
                 }

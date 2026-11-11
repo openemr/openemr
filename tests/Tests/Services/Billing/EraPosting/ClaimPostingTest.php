@@ -290,6 +290,44 @@ class ClaimPostingTest extends TestCase
         );
     }
 
+    public function testALineAnsweredLaterInTheSameRunClosesTheLevel(): void
+    {
+        // One ERA: the first claim payment pends the line, a later one on the same check answers it.
+        $run = new EraCheckPosting(self::PRIMARY);
+        $pended = new ServiceLine('99213', '', 100.00, 0.0, null, null, [new Adjustment('OA', '133', 100.00)]);
+
+        $first = $this->post($this->claim([$pended]), run: $run);
+        $second = $this->post($this->claim([$this->paidLine()]), run: $run);
+
+        $this->assertSame([ClaimIssue::LinesPended], $first->issues);
+        $this->assertFalse($first->levelClosed);
+        $this->assertSame([], $second->issues);
+        $this->assertSame(70.0, $second->paymentsPosted);
+        $this->assertSame(0, $run->pendedLineCount(self::PID, self::ENC, 1));
+        $this->assertTrue($second->levelClosed);
+        $this->assertSame(1, $this->closedLevel());
+    }
+
+    public function testNoSecondaryOnTheEncounterDateOnlyReopensTheClaim(): void
+    {
+        // The secondary starts after the encounter date but before the ERA's date of
+        // service: the page sees a secondary, the queueing (by encounter date) doesn't.
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE insurance_data SET date = '2026-09-20' WHERE pid = ? AND type = 'secondary'",
+            [self::PID]
+        );
+
+        $result = $this->post($this->claim([$this->paidLine()], serviceDate: '20260925'));
+
+        $this->assertTrue($result->levelClosed);
+        $this->assertFalse($result->secondaryQueued);
+        // Reopened with no payer, as SLEOB::arSetupSecondary() has always done.
+        $this->assertSame(
+            ['0', '-1'],
+            $this->row('SELECT payer_id, payer_type FROM claims WHERE patient_id = ? AND encounter_id = ? ORDER BY version DESC LIMIT 1')
+        );
+    }
+
     public function testWarningsAndInvoiceLinesTheEraLeftOutAreReported(): void
     {
         $this->addCharge('85025', '', 30.00);
@@ -302,10 +340,14 @@ class ClaimPostingTest extends TestCase
         $this->assertContains('Existing: ' . self::DOS . ' Service Item 30.00 / 40.00', $report);
     }
 
-    private function post(ClaimPayment $claim, bool $withoutUpdate = false, bool $addUnmatchedCodes = false): ClaimPostingResult
-    {
+    private function post(
+        ClaimPayment $claim,
+        bool $withoutUpdate = false,
+        bool $addUnmatchedCodes = false,
+        ?EraCheckPosting $run = null,
+    ): ClaimPostingResult {
         $posting = new ClaimPosting(
-            new EraCheckPosting(self::PRIMARY),
+            $run ?? new EraCheckPosting(self::PRIMARY),
             new EraReversal(self::PRIMARY),
             new Recorder(),
             1,
@@ -326,6 +368,7 @@ class ClaimPostingTest extends TestCase
         string $ourClaimId = self::PID . '-' . self::ENC,
         int $crossover = 0,
         string $warnings = '',
+        string $serviceDate = '20260915',
     ): ClaimPayment {
         return new ClaimPayment(
             checkNumber: self::CHECK,
@@ -334,7 +377,7 @@ class ClaimPostingTest extends TestCase
             ourClaimId: $ourClaimId,
             claimStatusCode: $status,
             payerClaimId: 'ICN1',
-            serviceDate: '20260915',
+            serviceDate: $serviceDate,
             patientFirstName: 'ANNE',
             patientLastName: 'POSTING',
             warnings: $warnings,

@@ -27,7 +27,8 @@ final readonly class ClaimPostingResult
      * @param float                              $adjustmentsPosted sum of adjustments posted
      * @param float                              $chargesAdded      sum of charges added for codes not on the invoice
      * @param bool                               $levelClosed       the insurance level was closed
-     * @param bool                               $secondaryQueued   the claim was queued for the next payer
+     * @param bool                               $secondaryQueued   the claim was queued for the next payer (false when
+     *                                                              it was only reopened, having no payer at that level)
      * @param list<ReportMessage|ReportDetail>   $lines             the report for this claim payment
      */
     public function __construct(
