@@ -131,7 +131,7 @@ class LbfCreateAndEditTest extends TestCase
     {
         $cookies = new CookieJar();
         $this->request($cookies, $this->appBase() . '/interface/login/login.php?site=default');
-        $this->request($cookies, $this->appBase() . '/interface/main/main_screen.php?auth=login&site=default', [
+        $home = $this->request($cookies, $this->appBase() . '/interface/main/main_screen.php?auth=login&site=default', [
             'authUser' => 'admin',
             'clearPass' => 'pass',
             'new_login_session_management' => '1',
@@ -139,7 +139,9 @@ class LbfCreateAndEditTest extends TestCase
         ]);
         $this->request(
             $cookies,
-            $this->appBase() . '/interface/patient_file/encounter/encounter_top.php?set_pid=' . self::PID . '&set_encounter=' . self::ENCOUNTER
+            $this->appBase() . '/interface/patient_file/encounter/encounter_top.php?set_pid=' . self::PID
+                . '&set_encounter=' . self::ENCOUNTER
+                . '&csrf_token_form=' . rawurlencode($this->sessionToken($home))
         );
 
         return $cookies;
@@ -319,6 +321,18 @@ class LbfCreateAndEditTest extends TestCase
         }
 
         return rtrim($base, '/');
+    }
+
+    /**
+     * Read the session token the main screen printed.
+     */
+    private function sessionToken(string $page): string
+    {
+        if (preg_match('/csrf_token_js\s*=\s*"([0-9a-f]{40})"/', $page, $match) !== 1) {
+            $this->fail('The main screen did not offer a token.');
+        }
+
+        return $match[1];
     }
 
     /**
