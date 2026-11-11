@@ -226,8 +226,12 @@ referral's page shows how the recipient was told, and a Direct send whose delive
 A notice is sent only when a save creates a new Task for a recipient, and on Re-send. A save that
 creates no new Task sends nothing, so turning the notice setting on later and saving again does
 not send the referral. A save that changes Refer To creates a Task for the new recipient,
-and so sends them the C-CDA, when the referral has no Reply Date and the new recipient can own a
-Task (see "When a Task is made" in Documentation/REFERRAL_WORKFLOWS.md). Check Refer To before
+and so notifies them, when the referral has no Reply Date, the new recipient can own a Task, and
+they do not already have a Task for this referral that still counts (see "When a Task is made" in
+Documentation/REFERRAL_WORKFLOWS.md). A recipient who rejected the referral earlier keeps that
+Task, so sending it back to them makes no Task and no notice; use Re-send. The notice is the
+C-CDA only for a recipient with a Direct address and when the Direct send succeeds; an email-only
+recipient gets the plain email, and one with no address gets nothing. Check Refer To before
 saving, and check the referral's page afterwards for how the recipient was told: if no Task was
 made, nothing was sent. Direct messaging itself must be enabled (section F); without it
 the referral's page says that Direct was not available.

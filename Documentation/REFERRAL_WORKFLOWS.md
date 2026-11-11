@@ -294,8 +294,12 @@ it when done:
 ```bash
 BASE='https://emr.example.org/apis/default/fhir'
 TASK="$BASE/Task/<task-uuid>"
-WORK=$(mktemp -d) && cd "$WORK"
+WORK=$(mktemp -d) && cd "$WORK" || echo 'Stop: no private directory'
+pwd
 ```
+
+Stop if that prints the warning, or if `pwd` is not the new directory: the commands below would
+write `task.json` and `update.json` wherever you are.
 
 Accept it:
 

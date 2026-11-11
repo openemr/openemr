@@ -176,14 +176,21 @@ Accept: application/json
     1. `GET /fhir/ServiceRequest?patient=<patient-uuid>&category=3457005` and find the referral;
        its `id` is the uuid.
     2. `GET /fhir/Task?focus=ServiceRequest/<uuid>`.
-    3. Look for the referral's own Task for the intended recipient: `code` is `fulfill`, it has
+    3. Keep the referral's own Tasks for the intended recipient: `code` is `fulfill`, there is
        no `partOf`, and `owner` is that recipient. A recipient's sub-Task, or a Task for an
        earlier recipient, does not count.
-    4. Read its `status` and `statusReason`. A Task OpenEMR set aside does not count either: it
-       is `cancelled` or `entered-in-error` with one of OpenEMR's own reasons, such as "The
-       referral was sent to another recipient." A Task the recipient itself cancelled, rejected
-       or failed does count, and saving the referral again will not replace it: staff use
-       **Re-send** on the referral screen.
+    4. Drop any Task OpenEMR set aside: `status` is `cancelled` or `entered-in-error` and
+       `statusReason.text` is exactly one of
+         - `The referral was sent to another recipient.`
+         - `The referral no longer names a recipient.`
+         - `The referral was deleted.`
+         - `The referral's reply was cleared.`
+    5. Of what is left, use the most recent Task only (the latest `authoredOn`). After a
+       Re-send, an older rejected Task and the new requested Task both remain, and the new one
+       is the referral's status.
+    6. If that Task is one the recipient itself cancelled, rejected or failed, it still counts,
+       and saving the referral again will not replace it: staff use **Re-send** on the referral
+       screen.
 
   If there is no Task that counts, save the referral again. A client without FHIR access cannot check; staff can
   see the referral's status on the Transactions screen.
