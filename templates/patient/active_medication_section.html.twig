@@ -1,4 +1,14 @@
-{# One medication section. The caller translates labels. The template escapes. #}
+{#
+One medication section on the printed list and the report.
+
+The caller translates the labels. The template escapes the values.
+
+@package   OpenEMR
+@link      https://www.open-emr.org
+@author    Simon Quigley <squigley@altispeed.com>
+@copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
+@license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
 <p><b>{{ heading|text }}</b></p>
 {%- if rows is empty -%}
 <p>{{ emptyLabel|text }}</p>
