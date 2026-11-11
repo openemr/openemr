@@ -4,9 +4,9 @@
  * Publish one claim batch only after its full contents are on disk.
  *
  * The batch name appears after the bytes are written and synced. A
- * completion note is written second, and the directory entry is synced
- * after the rename and after that note. A retry treats the batch as sent
- * only when that note matches the file's size.
+ * completion note is written second. Once that note matches, the batch
+ * stays even if the last directory sync fails. A retry treats the batch
+ * as sent only when that note matches the file's size.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -94,17 +94,16 @@ final class BatchFilePublisher
         }
 
         // The new name has to reach disk before the completion note does.
-        // A later failure removes this run's file so the name is not left behind.
-        if (
-            !self::syncDirectory($directory, $filename)
-            || !self::writeCompletion($final, $size)
-            || !self::syncDirectory($directory, $filename . '.complete')
-        ) {
+        // A failure before that note removes this run's file.
+        if (!self::syncDirectory($directory, $filename) || !self::writeCompletion($final, $size)) {
             self::discard($directory, $filename);
 
             return false;
         }
 
+        // The note already matches. A download can start, so this sync
+        // must not delete the batch when it fails.
+        self::syncDirectory($directory, $filename . '.complete');
         self::remove($marker);
 
         return true;
