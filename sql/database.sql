@@ -10365,6 +10365,22 @@ CREATE TABLE `users_facility` (
 -- -----------------------------------------------------------------------------------
 
 --
+-- Table structure for table `users_taxonomy`
+--
+
+DROP TABLE IF EXISTS `users_taxonomy`;
+CREATE TABLE `users_taxonomy` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL COMMENT 'users.id',
+  `taxonomy` varchar(30) NOT NULL COMMENT 'additional NUCC provider taxonomy code; users.taxonomy stays the primary',
+  `seq` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_taxonomy` (`user_id`, `taxonomy`)
+) ENGINE=InnoDB COMMENT='additional taxonomy codes of a provider (users.taxonomy is the primary)';
+
+-- -----------------------------------------------------------------------------------
+
+--
 -- Table structure for table `lbf_data`
 --
 
