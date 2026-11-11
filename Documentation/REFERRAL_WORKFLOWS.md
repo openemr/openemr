@@ -478,4 +478,3 @@ here through FHIR.
 - [Authorization: a client limited to an address book entry](api/AUTHORIZATION.md#client-limited-to-an-address-book-entry)
 - [Standard API](api/STANDARD_API.md)
 - [Direct Messaging](Direct_Messaging_README.txt), section K
-- Help on the Transactions screen (`help_files/add_edit_transactions_dashboard_help.php`)
