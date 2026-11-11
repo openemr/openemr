@@ -1384,7 +1384,7 @@ class Claim
      * 837P payer N3/N4 segments (loops 2010BB and 2330B): a street, a city, a state and a 5 or 9 digit ZIP.
      * A segment without data elements is invalid X12, so the generator leaves the pair out when this is false.
      */
-    public function hasPayerAddress($ins = 0): bool
+    public function hasPayerAddress(int $ins = 0): bool
     {
         return $this->payerStreet($ins) !== ''
             && $this->payerCity($ins) !== ''
