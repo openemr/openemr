@@ -528,6 +528,7 @@ function eye_mag_drawing_background_library_store(string $destination, string $b
             throw new RuntimeException('The image library could not be stored.');
         }
         if (!@link($temporary, $destination)) {
+            clearstatcache(true, $destination);
             if (!eye_mag_drawing_background_library_matches($destination, $bytes)) {
                 throw new RuntimeException('The image library could not be stored.');
             }

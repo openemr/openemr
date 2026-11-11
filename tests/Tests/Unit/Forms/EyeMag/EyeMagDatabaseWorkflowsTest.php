@@ -44,8 +44,8 @@ use function OpenEMR\Forms\EyeMag\Drawing\eye_mag_drawing_background_paths;
 use function OpenEMR\Forms\EyeMag\Drawing\eye_mag_drawing_background_preference;
 use function OpenEMR\Forms\EyeMag\Drawing\eye_mag_drawing_background_save_preference;
 
-require_once dirname(__DIR__, 4) . '/interface/forms/eye_mag/php/clinical_helpers.php';
-require_once dirname(__DIR__, 4) . '/interface/forms/eye_mag/php/drawing_backgrounds.php';
+require_once dirname(__DIR__, 5) . '/interface/forms/eye_mag/php/clinical_helpers.php';
+require_once dirname(__DIR__, 5) . '/interface/forms/eye_mag/php/drawing_backgrounds.php';
 
 final class EyeMagDatabaseWorkflowsTest extends TestCase
 {
@@ -64,6 +64,9 @@ final class EyeMagDatabaseWorkflowsTest extends TestCase
     private const ENCOUNTER_DOC_ID = 994211;
 
     private const REPORT_ARTIFACT_DOC_ID = 994212;
+
+    /** @var array<int,array> saved rows per list_id, to restore in tearDown */
+    private array $savedListOptions = [];
 
     private string $tempDir;
 
@@ -87,12 +90,32 @@ final class EyeMagDatabaseWorkflowsTest extends TestCase
         $bag->set('OE_SITE_WEBROOT', '/openemr/sites/default');
         $bag->set('temporary_files_dir', $this->tempDir);
 
+        // Save and replace seeded Eye lookup lists so tests are hermetic.
+        foreach (['Eye_Dilation_Meds', 'Eye_IOP_Methods', 'Eye_Motility_Display'] as $listId) {
+            $this->savedListOptions[$listId] = QueryUtils::fetchRecords(
+                "SELECT option_id, title, activity, notes FROM list_options WHERE list_id = ? ORDER BY seq, option_id",
+                [$listId]
+            );
+            QueryUtils::sqlStatementThrowException("DELETE FROM list_options WHERE list_id = ?", [$listId]);
+        }
+
         $this->cleanupTestRows();
     }
 
     protected function tearDown(): void
     {
         try {
+            // Restore seeded Eye lookup lists removed in setUp.
+            foreach ($this->savedListOptions as $listId => $rows) {
+                QueryUtils::sqlStatementThrowException("DELETE FROM list_options WHERE list_id = ?", [$listId]);
+                foreach ($rows as $row) {
+                    QueryUtils::sqlStatementThrowException(
+                        "INSERT INTO list_options (list_id, option_id, title, activity, notes, seq, option_value)
+                         VALUES (?,?,?,?,?,?,?)",
+                        [$listId, $row['option_id'], $row['title'], $row['activity'], $row['notes'] ?? '', $row['seq'] ?? 0, $row['option_value'] ?? 0.0]
+                    );
+                }
+            }
             $this->cleanupTestRows();
         } finally {
             $bag = OEGlobalsBag::getInstance();

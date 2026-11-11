@@ -299,9 +299,10 @@ if (($input['action'] ?? '') === 'dotphrase') {
                     $out['msg'] = 'not your phrase';
                     break;
                 }
-                // Share-back: if this is an improved copy, retire the shared row it improved.
+                // Share-back: if this is an improved copy, retire the shared row it improved,
+                // but only when the current user owns the source row.
                 $sourceId = EyeFormData::integer($row['improvement_of'] ?? 0);
-                if ($sourceId) {
+                if ($sourceId && EyeFormData::integer($row['owner_uid']) === $authUserID) {
                     QueryUtils::sqlStatementThrowException("UPDATE form_eye_dotphrases SET active=0 WHERE id=? AND visibility='shared'", [$sourceId]);
                 }
                 QueryUtils::sqlStatementThrowException("UPDATE form_eye_dotphrases SET visibility='shared', active=1, updated_at=? WHERE id=?",

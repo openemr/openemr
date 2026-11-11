@@ -695,11 +695,8 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <strong><?php echo xlt('Prior Exam'); ?>:</strong>
         <?php
         // Read the current chart style without seeding preferences while viewing a prior exam.
-        $priorMotilityPreference = sqlQuery(
-            "SELECT option_id FROM list_options WHERE list_id = 'Eye_Motility_Display'
-             AND is_default = 1 AND activity = 1 ORDER BY seq LIMIT 1"
-        );
-        echo eye_mag_neuro_prior(EyeFormData::row($result), (string)($priorMotilityPreference['option_id'] ?? 'X'));
+        $priorMotilityPreference = eye_mag_motility_display_preference();
+        echo eye_mag_neuro_prior(EyeFormData::row($result), $priorMotilityPreference);
     } elseif ($zone == "IMPPLAN") {
         if ($report == '0') {
             $output =  priors_select($zone, $orig_id, $id_to_show, $pid);
