@@ -100,6 +100,44 @@ class HeldClaimSettlementTest extends TestCase
     }
 
     /**
+     * An open claim keeps its file name. A billed claim can be replaced.
+     */
+    public function testAssignmentDoesNotReplaceAnOpenClaimFile(): void
+    {
+        $filename = $this->insertOpenClaim(1, 0);
+        $second = $filename . '-second';
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO claims (patient_id, encounter_id, version, payer_id, status, payer_type,'
+            . ' bill_process, process_file) VALUES (?, ?, 2, 1, ?, ?, ?, ?)',
+            [
+                $this->pid,
+                $this->encounter,
+                BillingClaim::STATUS_LEAVE_UNBILLED,
+                1,
+                BillingClaim::BILL_PROCESS_IN_PROGRESS,
+                '',
+            ]
+        );
+
+        $this->assertFalse(BillingUtilities::assignUnbilledClaimFile($this->pid, $this->encounter, 2, $second));
+        $this->assertSame($filename, $this->storedBillingFile());
+        $this->assertSame($filename, $this->storedClaimFile());
+        $this->assertSame('', $this->storedFile(
+            'SELECT process_file FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = 2',
+            [$this->pid, $this->encounter]
+        ));
+
+        $this->assertTrue(BillingUtilities::billUnbilledClaimFile($this->pid, $this->encounter, 1, $filename));
+        $this->assertTrue(BillingUtilities::assignUnbilledClaimFile($this->pid, $this->encounter, 2, $second));
+        $this->assertSame($second, $this->storedBillingFile());
+        $this->assertSame($filename, $this->storedClaimFile());
+        $this->assertSame($second, $this->storedFile(
+            'SELECT process_file FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = 2',
+            [$this->pid, $this->encounter]
+        ));
+    }
+
+    /**
      * A charge inserted after the file name was stored stays on the unbilled report.
      */
     public function testSettlementLeavesAChargeAddedAfterTheFileName(): void
@@ -294,7 +332,7 @@ class HeldClaimSettlementTest extends TestCase
         }
         if ($this->pid > 0 && $this->encounter > 0) {
             QueryUtils::sqlStatementThrowException(
-                'DELETE FROM claims WHERE patient_id = ? AND encounter_id = ? AND version = 1',
+                'DELETE FROM claims WHERE patient_id = ? AND encounter_id = ?',
                 [$this->pid, $this->encounter]
             );
             QueryUtils::sqlStatementThrowException(

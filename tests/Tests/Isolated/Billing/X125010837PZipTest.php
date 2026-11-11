@@ -698,6 +698,14 @@ class X125010837PZipTest extends TestCase
             $this->assertSame('KEEP', file_get_contents($directory . '/plain.txt'));
             file_put_contents($directory . '/legacy.txt', 'OLD');
             $this->assertTrue(BatchFilePublisher::downloadAllowed($directory, 'legacy.txt'));
+            file_put_contents($directory . '/batch.txt.partial', 'PART');
+            file_put_contents($directory . '/batch.txt.interrupted', 'HOLD');
+            $this->assertFalse(BatchFilePublisher::downloadAllowed($directory, 'batch.txt.partial'));
+            $this->assertFalse(BatchFilePublisher::downloadAllowed($directory, 'batch.txt.interrupted'));
+            $this->assertFalse(BatchFilePublisher::downloadAllowed($directory, 'batch.txt.complete'));
+            $this->assertTrue(BatchFilePublisher::isPublicationArtifact('batch.txt.partial'));
+            $this->assertFalse(BatchFilePublisher::isPublicationArtifact('payment.txt'));
+            $this->assertTrue(BatchFilePublisher::downloadAllowed($directory, 'batch.txt'));
             file_put_contents($directory . '/stopped.txt', 'PART');
             file_put_contents($directory . '/stopped.txt.publishing', '1');
             $this->assertFalse(BatchFilePublisher::downloadAllowed($directory, 'stopped.txt'));
@@ -1098,16 +1106,19 @@ class X125010837PZipTest extends TestCase
     }
 
     /**
-     * Two databases do not share a fence, and every name stays within 64 characters.
+     * Two payers on one encounter share a fence. Two databases do not.
      */
     public function testGenerationFenceNamesTheDatabase(): void
     {
         $one = BillingUtilities::generationFenceName('10', '20', '30', 'clinic_a');
+        $otherPayer = BillingUtilities::generationFenceName('10', '20', '99', 'clinic_a');
         $two = BillingUtilities::generationFenceName('10', '20', '30', 'clinic_b');
         $again = BillingUtilities::generationFenceName('10', '20', '30', 'clinic_a');
         $this->assertNotNull($one);
+        $this->assertNotNull($otherPayer);
         $this->assertNotNull($two);
         $this->assertSame($one, $again);
+        $this->assertSame($one, $otherPayer);
         $this->assertNotSame($one, $two);
         $this->assertLessThanOrEqual(64, strlen($one));
         $this->assertLessThanOrEqual(64, strlen($two));

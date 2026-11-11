@@ -206,6 +206,24 @@ final class BatchFilePublisher
     }
 
     /**
+     * A publisher sidecar is not a claim file.
+     *
+     * Partial, marker, note, and interrupted names stay out of download
+     * and out of history. The batch itself does not use these suffixes.
+     */
+    public static function isPublicationArtifact(string $filename): bool
+    {
+        if (!self::nameIsSafe($filename)) {
+            return false;
+        }
+
+        return str_ends_with($filename, '.partial')
+            || str_ends_with($filename, '.publishing')
+            || str_ends_with($filename, '.complete')
+            || str_ends_with($filename, '.interrupted');
+    }
+
+    /**
      * Whether this stored name may be downloaded.
      *
      * A matching completion note is required once one exists. A publishing
@@ -215,6 +233,9 @@ final class BatchFilePublisher
     public static function downloadAllowed(string $directory, string $filename): bool
     {
         if (!self::nameIsSafe($filename) || $directory === '') {
+            return false;
+        }
+        if (self::isPublicationArtifact($filename)) {
             return false;
         }
 
