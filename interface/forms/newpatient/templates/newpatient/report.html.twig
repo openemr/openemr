@@ -7,6 +7,9 @@
     {% if e.posCode %}
         {{ "POS Code"|xlt }} - {{ e.posCode|text }}
     {% endif %}
+    {% if e.taxonomy %}
+        <br />{{ "Taxonomy"|xlt }} - {{ e.taxonomy|text }}
+    {% endif %}
     {% if e.referringProvider %}
         <br />{{ "Referring Provider"|xlt }} - {{ e.referringProvider|text }}
     {% endif %}

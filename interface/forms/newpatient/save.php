@@ -27,7 +27,6 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\UserTaxonomyService;
 
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
@@ -95,8 +94,6 @@ $nexturl = $normalurl;
 
 $provider_id = $session->get('authUserID') ?: 0;
 $provider_id = $encounter_provider ?: $provider_id;
-// Keep the taxonomy choice only when it is one of this provider's codes (empty means the primary).
-$provider_taxonomy = (new UserTaxonomyService())->resolveChoice((int) $provider_id, is_string($provider_taxonomy) ? $provider_taxonomy : null);
 
 $encounter_type = $_POST['encounter_type'] ?? '';
 $encounter_type_code = null;
