@@ -187,7 +187,10 @@ Accept: application/json
          - `The referral's reply was cleared.`
     5. Of what is left, use the most recent Task only (the latest `authoredOn`). After a
        Re-send, an older rejected Task and the new requested Task both remain, and the new one
-       is the referral's status.
+       is the referral's status. OpenEMR itself takes the Task it created last, which FHIR does
+       not expose: if two Tasks that count share the same `authoredOn`, or one was created
+       through the API with its own `authoredOn`, check the referral's status on the
+       Transactions screen instead.
     6. If that Task is one the recipient itself cancelled, rejected or failed, it still counts,
        and saving the referral again will not replace it: staff use **Re-send** on the referral
        screen.

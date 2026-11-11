@@ -294,7 +294,7 @@ it when done:
 ```bash
 BASE='https://emr.example.org/apis/default/fhir'
 TASK="$BASE/Task/<task-uuid>"
-WORK=$(mktemp -d) && cd "$WORK" || echo 'Stop: no private directory'
+WORK=$(mktemp -d) && cd "$WORK" && WORK=$PWD || echo 'Stop: no private directory'
 pwd
 ```
 

@@ -229,7 +229,8 @@ not send the referral. A save that changes Refer To creates a Task for the new r
 and so notifies them, when the referral has no Reply Date, the new recipient can own a Task, and
 they do not already have a Task for this referral that still counts (see "When a Task is made" in
 Documentation/REFERRAL_WORKFLOWS.md). A recipient who rejected the referral earlier keeps that
-Task, so sending it back to them makes no Task and no notice; use Re-send. The notice is the
+Task, so sending it back to them makes no Task and no notice; use Re-send, which is offered
+only while their latest Task that counts is rejected, failed or cancelled. The notice is the
 C-CDA only for a recipient with a Direct address and when the Direct send succeeds; an email-only
 recipient gets the plain email, and one with no address gets nothing. Check Refer To before
 saving, and check the referral's page afterwards for how the recipient was told: if no Task was
