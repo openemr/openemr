@@ -223,9 +223,10 @@ the referral sections only: allergies, medications, problems, plan of care and r
 An entry with only a regular email address gets a plain email with no patient details. The
 referral's page shows how the recipient was told, and a Direct send whose delivery failed.
 
-A notice is sent only when a save creates a new Task for the recipient, and on Re-send. Saving a
-referral that already has a Task sends nothing, so turning the notice setting on later and saving
-again does not send the referral. Direct messaging itself must be enabled (section F); without it
+A notice is sent only when a save creates a new Task for a recipient, and on Re-send. A save that
+creates no new Task sends nothing, so turning the notice setting on later and saving again does
+not send the referral. A save that changes Refer To does create a Task for the new recipient, and
+so sends them the C-CDA: check Refer To before saving. Direct messaging itself must be enabled (section F); without it
 the referral's page says that Direct was not available.
 
 2. Sending by hand: The Direct section of the Care Coordination send form offers the selected
@@ -246,7 +247,8 @@ Reply Date and completes the recipient's Task.
 
 The button is shown only when all of these are true: "Track Referrals with FHIR Tasks" is on, the
 recipient's Task is still open, the referral has no Reply Date, and the user may edit
-transactions. Without a button, record the reply by hand in the referral's Counter-Referral tab.
+transactions. Without a button, record the reply by hand in the referral's Counter-Referral tab. A user who may
+not edit transactions can do neither, and needs someone who can.
 There is no button, and one on a page opened earlier does nothing, when:
 
   - the recipient has already completed, rejected, failed or cancelled the Task. The reply stays

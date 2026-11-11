@@ -284,35 +284,52 @@ curl 'https://emr.example.org/apis/default/fhir/ServiceRequest/<referral-uuid>' 
   -H 'Authorization: Bearer <token>'
 ```
 
-Accept it. An update sends the whole Task, so read it, change `status`, and send it back. This
-uses `jq`; `meta.versionId` is the version for `If-Match`:
+Every update follows the same three steps: read the Task, change it, and send the whole Task
+back with the version just read. This uses `jq`; `meta.versionId` is the version for `If-Match`.
+Read the Task again before each update, because every update changes the version.
+
+Accept it:
 
 ```bash
 BASE='https://emr.example.org/apis/default/fhir'
-curl -s "$BASE/Task/<task-uuid>" -H 'Authorization: Bearer <token>' > task.json
-VERSION=$(jq -r '.meta.versionId' task.json)
-jq '.status = "accepted"' task.json > accepted.json
-curl -X PUT "$BASE/Task/<task-uuid>" \
+TASK="$BASE/Task/<task-uuid>"
+
+curl -s "$TASK" -H 'Authorization: Bearer <token>' > task.json
+jq '.status = "accepted"' task.json > update.json
+curl -X PUT "$TASK" \
   -H 'Authorization: Bearer <token>' \
   -H 'Content-Type: application/fhir+json' \
-  -H "If-Match: W/\"$VERSION\"" \
-  --data @accepted.json
+  -H "If-Match: W/\"$(jq -r '.meta.versionId' task.json)\"" \
+  --data @update.json
 ```
 
-Decline it instead, with a reason. The same steps, with this change:
+Decline it instead, with a reason. Only the `jq` line differs:
 
 ```bash
+curl -s "$TASK" -H 'Authorization: Bearer <token>' > task.json
 jq '.status = "rejected" | .statusReason = {text: "Not accepting new patients until January"}' \
-  task.json > rejected.json
+  task.json > update.json
+curl -X PUT "$TASK" \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/fhir+json' \
+  -H "If-Match: W/\"$(jq -r '.meta.versionId' task.json)\"" \
+  --data @update.json
 ```
 
-Finish it, with a note back:
+Finish it later, with a note back. An update replaces the Task's outputs, so add the note to the
+outputs just read instead of overwriting them:
 
 ```bash
-jq '.status = "completed" | .output = [{
+curl -s "$TASK" -H 'Authorization: Bearer <token>' > task.json
+jq '.status = "completed" | .output = ((.output // []) + [{
       type: {coding: [{system: "http://loinc.org", code: "11488-4", display: "Consult note"}]},
       valueString: "Seen 2026-11-20. Benign nevus, no treatment needed. Recheck in 12 months."
-    }]' task.json > completed.json
+    }])' task.json > update.json
+curl -X PUT "$TASK" \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/fhir+json' \
+  -H "If-Match: W/\"$(jq -r '.meta.versionId' task.json)\"" \
+  --data @update.json
 ```
 
 **A note returned as text is not shown in OpenEMR.** The referral page and the inbox message

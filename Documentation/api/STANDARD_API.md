@@ -170,13 +170,23 @@ Accept: application/json
   Refer To as a Practitioner or an Organization, such as a practitioner without an NPI, or when
   the referral already has a Reply Date. A `PUT` of an answered referral therefore creates none.
   See [when a Task is made](../REFERRAL_WORKFLOWS.md#setup).
-- The save succeeds even if making the Task fails; the failure is only logged. Check for the Task
-  with `GET /fhir/Task?focus=ServiceRequest/<uuid>`, and save the referral again if it is missing.
+- The save succeeds even if making the Task fails; the failure is only logged. Checking needs the
+  FHIR API, with `ServiceRequest` and `Task` read scopes, because this API returns the
+  transaction id and not the referral's FHIR id:
+    1. `GET /fhir/ServiceRequest?patient=<patient-uuid>&category=3457005` and find the referral;
+       its `id` is the uuid.
+    2. `GET /fhir/Task?focus=ServiceRequest/<uuid>`.
+    3. Look for a Task whose `owner` is the intended recipient and that is not `cancelled` or
+       `entered-in-error`. A Task for an earlier recipient does not count.
+
+  If there is none, save the referral again. A client without FHIR access cannot check; staff can
+  see the referral's status on the Transactions screen.
 - The API does not write the Reply Date, so it cannot close a referral.
 - `authorization`, `visits`, `validFrom` and `validThrough` are stored, but the stock referral
   form has no fields for them.
-- `PUT` only changes a field the referral already has a value for. A referral made on the stock
-  form has none for these four, so a `PUT` cannot add them.
+- `PUT` only changes a field the referral already has a stored row for. A referral created
+  through this API has a row for each of these four, even when it was sent empty. A referral made
+  on the stock form has none, so a `PUT` cannot add them to it.
 - `PUT` skips empty values, `"0"` included, so it cannot clear a field: sending an empty
   `authorization` or `visits` of `"0"` leaves the old value in place.
 
