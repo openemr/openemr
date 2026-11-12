@@ -147,6 +147,11 @@ migration.
 
 Place each piece before writing. (This gate is mirrored as a trigger list in `AGENTS.md`.)
 
+- **Adding a file under `interface/`, `portal/` or `library/`?** → don't. Those directories
+  are frozen: logic goes in `src/`, markup in `templates/`. A PR that adds a `.php`/`.inc`
+  there (or any `.tpl` anywhere) fails the `legacy-directories` check unless an admin approves
+  it. ([CONTRIBUTING → Where New Code Goes](../../CONTRIBUTING.md#where-new-code-goes),
+  [enforcement.md](enforcement.md))
 - **Is it HTML?** → a Twig template. Not Smarty, not `echo`. ([layers.md](layers.md#presentation-layer-twig))
 - **Does it read `$_GET`/`$_POST`/`$_SESSION`, or decide which view to show?** → a controller
   action reading the Symfony `Request`. ([layers.md](layers.md#controller-layer))
@@ -173,11 +178,17 @@ Place each piece before writing. (This gate is mirrored as a trigger list in `AG
   ([subsystems.md](subsystems.md#security-encryption-keys-and-api-authorization))
 - **A new clinical/encounter form?** → MVC shape in `src/` (controller + service + Twig),
   table in `sql/database.sql`, thin entry points — not a procedural `new/view/save/report`
-  quartet. LBF only for admin-configurable forms. ([interface-and-forms.md](interface-and-forms.md))
+  quartet. LBF only for admin-configurable forms. Note that a new form still needs its
+  `interface/forms/<name>/` entry points, which land in a frozen directory and so need admin
+  approval of the `legacy-directories` gate. ([interface-and-forms.md](interface-and-forms.md))
 - **A menu/tab item for a module?** → contribute via `MenuEvent`/`RenderEvent`, not by
   editing a core menu JSON or template. ([interface-and-forms.md](interface-and-forms.md#menus-and-how-they-are-overridden))
 - **Patient-portal behavior?** → reuse the same services/API as the clinical UI, never a
   portal-only copy. ([portal.md](portal.md))
+- **Patient-submitted data?** (a portal form, payment, profile change, or a SMART patient-app
+  write) → hold it in the review queue (`src/Services/PatientReview/ReviewQueueService`) for
+  staff approval; never write it straight to the chart, and never use `onsite_portal_activity`.
+  ([portal.md](portal.md))
 - **Compliance-governed output?** (C-CDA, FHIR/US-Core/SMART, QRDA/CQM, Direct messaging, a
   code-system/OID mapping, or API app approval) → treat it as a regulated surface and
   re-validate against the standard, not just CI. ([compliance.md](compliance.md))
@@ -229,8 +240,8 @@ Add no new instances of these; remove them opportunistically when you touch a fi
 ### Deprecated technologies — do not add new usage
 
 Smarty · new Laminas-MVC core controllers · jQuery · Knockout.js · AngularJS · React ·
-Moment.js · Node.js **as a runtime** (the C-CDA service; Node stays for the *build*). Full
-inventory, versions, and rationale: [tech-stack.md](tech-stack.md).
+Moment.js. (Node.js as a C-CDA/CQM **runtime** was removed in #14470/#14524; Node stays for
+the *build*.) Full inventory, versions, and rationale: [tech-stack.md](tech-stack.md).
 
 ---
 

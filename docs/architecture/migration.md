@@ -10,6 +10,11 @@ pattern to copy:
 - `src/Services/Forms/CarePlanFormService.php` — the service
 - `interface/forms/care_plan/templates/*.html.twig` — the presentation
 
+> **Note on the directory freeze.** The Care Plan templates live under `interface/` because
+> they predate the freeze on `interface/`, `portal/` and `library/` (see "Where migrated code
+> lands" below). They are fine as a *reference for the shim/controller/service split*, but new
+> markup goes under `templates/<area>/`, not under `interface/`.
+
 ---
 
 ## The thin entry point
@@ -90,8 +95,17 @@ point not yet thinned) is still an improvement and still passes CI.
 |-----------------------|-----------------------------------|----|
 | `library/*.inc.php` helper | `src/Services/…` or `src/Common/…` | A class with injected deps |
 | `interface/.../x.php` logic | `src/Services/…`             | A service method, unit-tested |
-| `interface/.../x.php` HTML  | `interface/.../templates/*.html.twig` or `templates/` | A Twig template |
+| `interface/.../x.php` HTML  | `templates/<area>/*.html.twig` | A Twig template |
 | `interface/.../x.php` input/dispatch | `src/Controllers/…`      | A controller action returning `Response` |
+
+> **`interface/`, `portal/` and `library/` are frozen directories** (CONTRIBUTING → *Where
+> New Code Goes*, since #14850). The `legacy-directories` CI gate
+> (`.github/workflows/legacy-directories.yml`) fails any PR that adds a `.php`/`.inc` file
+> under them — or any `.tpl` anywhere — unless an admin approves it. So extracted markup goes
+> under `templates/<area>/`, not a new `interface/.../templates/` directory, and new logic
+> goes in `src/`. The gate does not block a new `.twig` under `interface/`, but CONTRIBUTING
+> still puts new markup outside the frozen trees. Thinning an *existing* legacy file in place
+> is fine — the gate only triggers on *new* files.
 
 `library/` is a *legacy* home, not a modern one — new helpers do not go there; they go in
 `src/` as services. `library/dated_reminder_functions.php` (which imports a module class

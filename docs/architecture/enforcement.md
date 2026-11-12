@@ -62,6 +62,7 @@ These doc rules already fail CI. No new work — cited so the docs and the check
 | Undeclared dependencies / some core↔module leaks | `composer-require-checker` |
 | PSR-12 / PER-CS style, import hygiene, file headers | phpcs + Slevomat (`phpcs.xml.dist`) |
 | Calls to `@deprecated` symbols flagged | `phpstan/phpstan-deprecation-rules` (required in `composer.json`, auto-loaded via `phpstan/extension-installer`) |
+| No new PHP in `interface/`, `portal/`, `library/`; no new Smarty (`.tpl`) templates | `.github/workflows/legacy-directories.yml` (`.github/scripts/legacy-new-files.sh`); admin approval overrides (#14850) |
 
 ## 2. Candidate — high value, low effort (reuse an existing pattern)
 
@@ -69,7 +70,6 @@ These doc rules already fail CI. No new work — cited so the docs and the check
 |---|---|---|---|
 | **Core must not name a module class** (`OpenEMR\Modules\*` / vendor-prefixed) outside `interface/modules/` | new PHPStan rule modeled on `ForbiddenClassesRule` (namespace-prefix + path scope) | **S** | The most-repeated boundary in the docs; near-identical precedent exists. `class_exists()` string probes are the sanctioned exception. |
 | **No hand-rolled crypto** (`openssl_*`, `sodium_*`, `hash_hmac`) outside `Common\Crypto` | extend `ForbiddenFunctionsRule` with a path allowlist | **S** | Pushes code to `CryptoInterface`/`CryptoGen`. |
-| **No new Smarty templates** | CI diff gate failing on an added `*.tpl` / new Smarty usage | **S** | Simple check on the PR diff; Smarty is frozen. |
 | **Deprecated front-end libs** (jQuery `$`/`jQuery`, `ko.`, `angular.`, `moment(`) in new JS | ESLint `no-restricted-globals` / `no-restricted-imports` | **S** | ESLint is already wired (`npm run lint:js`); the natural home. |
 | **Flag `filter_input()`** — no rule covers it today; the request-globals rule only names it as a non-target in its *tip* text | new PHPStan rule, or extend `ForbiddenRequestGlobalsRule` to also match the `filter_input` call | **S** | Closes the gap where converting a superglobal to `filter_input()` silences the existing rule without a replacement. |
 
@@ -112,8 +112,8 @@ These are judgment calls; they live in the `AGENTS.md` gate and code review, not
 ## Priority, when implementation is approved
 
 Once the architecture direction is ratified, the suggested order is: the **module/core boundary
-rule** (§2, most-repeated principle, direct precedent) → **hand-rolled-crypto** and
-**new-Smarty** gates (§2, trivial) → **ESLint deprecated-libs** (§2) → the **schema linter**
+rule** (§2, most-repeated principle, direct precedent) → the **hand-rolled-crypto** gate
+(§2, trivial) → **ESLint deprecated-libs** (§2) → the **schema linter**
 (§3, largest new capability). Each should be run across the whole codebase first to size the
 existing violation count and decide between a hard failure and a baseline-then-ratchet rollout
 (`AGENTS.md` discourages growing the PHPStan baseline — prefer fixing, or scope a new rule to
