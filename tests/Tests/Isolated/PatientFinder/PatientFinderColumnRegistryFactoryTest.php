@@ -73,6 +73,36 @@ class PatientFinderColumnRegistryFactoryTest extends TestCase
         return $dispatcher;
     }
 
+    /**
+     * A module column keeps the place an administrator gave its list entry: the listener's
+     * column replaces the entry where it stands.
+     */
+    public function testModuleColumnKeepsItsListPosition(): void
+    {
+        $fetch = static fn(string $sql, array $binds): array => in_array('ptlistcols', $binds, true)
+            ? [
+                ['option_id' => 'name', 'title' => 'Full Name', 'toggle_setting_1' => ''],
+                ['option_id' => 'ihi', 'title' => 'IHI', 'toggle_setting_1' => ''],
+                ['option_id' => 'DOB', 'title' => 'DOB', 'toggle_setting_1' => ''],
+            ]
+            : [];
+        $dispatcher = $this->dispatcher([
+            PatientFinderColumnRegistrationEvent::EVENT_HANDLE =>
+                static fn(PatientFinderColumnRegistrationEvent $e) => $e->addColumn(
+                    PatientFinderColumn::enriched('ihi', 'IHI')
+                ),
+        ]);
+
+        $registry = (new PatientFinderColumnRegistryFactory(
+            $dispatcher,
+            $fetch,
+            patientDataFields: self::fields(...)
+        ))->create();
+
+        $this->assertSame(['name', 'ihi', 'DOB'], $registry->keys());
+        $this->assertTrue($registry->get('ihi')?->isEnriched());
+    }
+
     public function testSeedsColumnsWithSortDirectionAndRunsEvent(): void
     {
         $fetch = static fn(string $sql, array $binds): array => in_array('ptlistcols', $binds, true)

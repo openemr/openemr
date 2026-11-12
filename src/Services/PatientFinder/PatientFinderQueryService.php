@@ -64,7 +64,11 @@ final class PatientFinderQueryService
     /** @var (callable(array<mixed>, mixed): mixed)|null */
     private $plaintext;
 
-    /** @var callable(): list<int> The current user's recent patients, most recent first. */
+    /**
+     * @var (callable(): list<int>)|null The current user's recent patients, most recent first.
+     *      Needed for the Recent Patients tab, with $recentSharesColumns; the entry point
+     *      passes both, and a Recent Patients request without them fails loudly.
+     */
     private $recentPids;
 
     public function __construct(
@@ -76,7 +80,7 @@ final class PatientFinderQueryService
         ?callable $plaintext = null,
         ?PatientFinderColumnRegistryFactory $registryFactory = null,
         ?callable $recentPids = null,
-        private readonly bool $recentSharesColumns = true
+        private readonly ?bool $recentSharesColumns = null
     ) {
         $this->builder = $builder ?? new PatientFinderQueryBuilder();
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
@@ -87,7 +91,7 @@ final class PatientFinderQueryService
         // the column set; default to one backed by this service's fetcher.
         $this->registryFactory = $registryFactory
             ?? new PatientFinderColumnRegistryFactory($dispatcher, $this->fetchRecords);
-        $this->recentPids = $recentPids ?? static fn(): array => [];
+        $this->recentPids = $recentPids;
     }
 
     /**
@@ -122,7 +126,7 @@ final class PatientFinderQueryService
         $activeColumns = $this->resolveActiveColumns($registry, $request);
         $globalSearchColumns = $this->buildGlobalSearchColumns($request);
         $filter = $this->dispatchFilter($activeColumns, $request);
-        $onlyPids = $request->columnList === PatientFinderColumnList::Recent ? ($this->recentPids)() : null;
+        $onlyPids = $request->columnList === PatientFinderColumnList::Recent ? $this->recentPatients() : null;
 
         $plan = $this->builder->build($activeColumns, $request, $filter, $globalSearchColumns, $onlyPids);
 
@@ -153,7 +157,26 @@ final class PatientFinderQueryService
     public function buildColumnRegistry(
         PatientFinderColumnList $tab = PatientFinderColumnList::PatientList
     ): PatientFinderColumnRegistry {
+        if ($tab === PatientFinderColumnList::PatientList) {
+            return $this->registryFactory->create($tab);
+        }
+        if ($this->recentSharesColumns === null) {
+            throw new \LogicException('The Recent Patients tab needs the recentSharesColumns setting.');
+        }
         return $this->registryFactory->create($tab->columnsSource($this->recentSharesColumns));
+    }
+
+    /**
+     * The current user's recent patients, most recent first.
+     *
+     * @return list<int>
+     */
+    private function recentPatients(): array
+    {
+        if ($this->recentPids === null) {
+            throw new \LogicException('The Recent Patients tab needs the recentPids source.');
+        }
+        return ($this->recentPids)();
     }
 
     /**

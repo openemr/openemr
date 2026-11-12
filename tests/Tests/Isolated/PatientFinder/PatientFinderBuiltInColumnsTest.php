@@ -167,7 +167,7 @@ class PatientFinderBuiltInColumnsTest extends TestCase
             ' ORDER BY (' . $age->searchExpression . ') DESC',
             $plan->dataSql
         );
-        $this->assertStringContainsString('(' . $age->searchExpression . ') LIKE ?', $plan->dataSql);
+        $this->assertStringContainsString('(' . $age->searchExpression . ') LIKE ? ESCAPE \'|\'', $plan->dataSql);
         $this->assertContains('4%', $plan->dataBinds);
     }
 

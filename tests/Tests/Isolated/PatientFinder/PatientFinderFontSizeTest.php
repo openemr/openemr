@@ -30,4 +30,17 @@ class PatientFinderFontSizeTest extends TestCase
         $this->assertSame(PatientFinderFontSize::Normal, PatientFinderFontSize::fromSetting(null));
         $this->assertSame(PatientFinderFontSize::Normal, PatientFinderFontSize::fromSetting('huge'));
     }
+
+    /**
+     * The Font Size menu offers every size, smallest first, each with a name.
+     */
+    public function testMenuListsEverySizeInOrder(): void
+    {
+        $menu = PatientFinderFontSize::menu();
+
+        $this->assertSame(['small', 'normal', 'large', 'x-large'], array_keys($menu));
+        foreach ($menu as $label) {
+            $this->assertNotSame('', $label);
+        }
+    }
 }

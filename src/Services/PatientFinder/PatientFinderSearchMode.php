@@ -75,12 +75,31 @@ enum PatientFinderSearchMode: string
     }
 
     /**
-     * Whether a field also matches when its number is the end of the term: a phone number
-     * typed with its country code (+1 555 444 3333) still finds one stored without it.
+     * The fewest digits a number left after taking off a country code may have, so a short
+     * local number cannot match a longer one from another area.
      */
-    public function matchesFieldAtEndOfTerm(): bool
+    private const MIN_NATIONAL_DIGITS = 9;
+
+    /**
+     * For a phone search, the term without a country code of 1 to 3 digits, each at least
+     * 9 digits long, so +1 555 444 3333 also finds 555-444-3333. A stored number must equal
+     * one of them. None for the other modes.
+     *
+     * @return list<string>
+     */
+    public function withoutCountryCode(string $term): array
     {
-        return $this === self::Phone;
+        if ($this !== self::Phone) {
+            return [];
+        }
+        $numbers = [];
+        for ($codeLength = 1; $codeLength <= 3; $codeLength++) {
+            $number = substr($term, $codeLength);
+            if (strlen($number) >= self::MIN_NATIONAL_DIGITS) {
+                $numbers[] = $number;
+            }
+        }
+        return $numbers;
     }
 
     /**

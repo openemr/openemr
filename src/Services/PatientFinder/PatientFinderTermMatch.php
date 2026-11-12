@@ -16,6 +16,13 @@ namespace OpenEMR\Services\PatientFinder;
 
 enum PatientFinderTermMatch
 {
+    /**
+     * The character that makes the next %, _ or itself in a pattern match only itself. Every
+     * LIKE the finder builds names it in an ESCAPE clause. Not a backslash, which a string
+     * literal reads differently under the NO_BACKSLASH_ESCAPES SQL mode.
+     */
+    public const ESCAPE_CHARACTER = '|';
+
     /** The field starts with the term. */
     case Start;
     /** The term is anywhere in the field. */
@@ -44,11 +51,12 @@ enum PatientFinderTermMatch
     }
 
     /**
-     * A term as LIKE text that matches only itself: backslash, % and _ escaped with
-     * LIKE's default escape character, the backslash.
+     * A term as LIKE text that matches only itself: %, _ and the escape character each
+     * preceded by the escape character.
      */
     public static function escape(string $term): string
     {
-        return addcslashes($term, '\\%_');
+        $escape = self::ESCAPE_CHARACTER;
+        return strtr($term, [$escape => $escape . $escape, '%' => $escape . '%', '_' => $escape . '_']);
     }
 }

@@ -45,8 +45,11 @@ final class PatientFinderQueryBuilder
     /** The date-of-birth column, which uses the fuzzy date search. */
     public const DOB_KEY = 'DOB';
 
-    /** The fewest digits a stored phone number needs to match as the end of a longer typed one. */
-    private const MIN_NUMBER_DIGITS = 7;
+    /**
+     * A LIKE comparison with its bind placeholder. The escape character is given rather than
+     * left to the server, whose default changes with the NO_BACKSLASH_ESCAPES SQL mode.
+     */
+    private const LIKE = ' LIKE ? ESCAPE \'' . PatientFinderTermMatch::ESCAPE_CHARACTER . '\'';
 
     /** @var callable(string, array<int, string>): string */
     private $columnEscaper;
@@ -232,19 +235,19 @@ final class PatientFinderQueryBuilder
                     continue;
                 }
                 $target = $this->searchTarget($column);
-                $ors[] = $target . ' LIKE ?';
+                $ors[] = $target . self::LIKE;
                 if ($column->isSql()) {
                     $this->collectJoin($joins, $column);
                 }
                 // An exact search matches the whole field, as in the legacy script;
                 // a date is always read as a date.
                 $binds[] = $match->pattern($term, $request->exactSearch, $this->dateSearch);
-                if (!$request->anySearch && $mode->matchesFieldAtEndOfTerm()) {
-                    // The stored number ends the typed one, as when a country code is typed.
-                    // A stored number needs 7 digits, so a short one cannot match by chance.
-                    $ors[] = '( CHAR_LENGTH(' . $target . ') >= ' . self::MIN_NUMBER_DIGITS
-                        . ' AND ? LIKE CONCAT(\'%\', ' . $target . ') )';
-                    $binds[] = $term;
+                // A phone number typed with its country code also finds the number stored
+                // without it.
+                $withoutCountryCode = $request->anySearch ? [] : $mode->withoutCountryCode($term);
+                if ($withoutCountryCode !== []) {
+                    $ors[] = $target . ' IN (' . implode(', ', array_fill(0, count($withoutCountryCode), '?')) . ')';
+                    array_push($binds, ...$withoutCountryCode);
                 }
             }
             if ($ors !== []) {
@@ -272,11 +275,11 @@ final class PatientFinderQueryBuilder
                 continue;
             }
             if ($column->key === self::DOB_KEY) {
-                $parts[] = ($this->columnEscaper)($column->key, [$column->table]) . ' LIKE ?';
+                $parts[] = ($this->columnEscaper)($column->key, [$column->table]) . self::LIKE;
                 $binds[] = ($this->dateSearch)($term);
                 continue;
             }
-            $parts[] = $this->searchTarget($column) . ' LIKE ?';
+            $parts[] = $this->searchTarget($column) . self::LIKE;
             if ($column->isSql()) {
                 $this->collectJoin($joins, $column);
             }
@@ -287,24 +290,42 @@ final class PatientFinderQueryBuilder
     }
 
     /**
-     * The WHERE fragment matching a name search, and its bind values. Each word of the term
-     * must start (or, in an exact search, be) the last, first or middle name, so "Phil
-     * Belford" and "Belford, Phil" both find Phil Belford. Parenthesised as a whole so it
-     * can sit in an OR group or among ANDs.
+     * The WHERE fragment matching a name search, and its bind values. The whole term must
+     * start (or, in an exact search, be) the last, first or middle name, as "Van Dyke" or
+     * "Mary Ann"; or, for a term of several words, each word must, so "Phil Belford" and
+     * "Belford, Phil" both find Phil Belford. Parenthesised as a whole so it can sit in an
+     * OR group or among ANDs.
      *
      * @return array{0: string, 1: list<string>}
      */
     private function nameWhere(string $term, bool $exact): array
     {
-        $words = preg_split('/[\s,]+/', $term, -1, PREG_SPLIT_NO_EMPTY) ?: [$term];
-        $clauses = [];
-        $binds = [];
-        foreach ($words as $word) {
-            $clauses[] = '( lname LIKE ? OR fname LIKE ? OR mname LIKE ? )';
-            $value = PatientFinderTermMatch::Start->pattern($word, $exact, $this->dateSearch);
-            array_push($binds, $value, $value, $value);
+        [$where, $binds] = $this->anyNameWhere($term, $exact);
+        $words = preg_split('/[\s,]+/', $term, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        if (count($words) < 2) {
+            return ['( ' . $where . ' )', $binds];
         }
-        return ['( ' . implode(' AND ', $clauses) . ' )', $binds];
+        $clauses = [];
+        foreach ($words as $word) {
+            [$wordWhere, $wordBinds] = $this->anyNameWhere($word, $exact);
+            $clauses[] = $wordWhere;
+            array_push($binds, ...$wordBinds);
+        }
+        return ['( ' . $where . ' OR ( ' . implode(' AND ', $clauses) . ' ) )', $binds];
+    }
+
+    /**
+     * The term matching the last, first or middle name, and its bind values.
+     *
+     * @return array{0: string, 1: list<string>}
+     */
+    private function anyNameWhere(string $text, bool $exact): array
+    {
+        $value = PatientFinderTermMatch::Start->pattern($text, $exact, $this->dateSearch);
+        return [
+            '( lname' . self::LIKE . ' OR fname' . self::LIKE . ' OR mname' . self::LIKE . ' )',
+            [$value, $value, $value],
+        ];
     }
 
     /**

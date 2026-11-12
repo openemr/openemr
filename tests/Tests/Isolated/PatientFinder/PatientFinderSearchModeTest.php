@@ -49,21 +49,35 @@ class PatientFinderSearchModeTest extends TestCase
     }
 
     /**
-     * A term's own %, _ and backslash match only themselves.
+     * A term's own %, _ and the escape character match only themselves.
      */
     public function testWildcardsInTheTermMatchOnlyThemselves(): void
     {
         $datePattern = static fn(string $term): string => $term;
 
-        $this->assertSame('%a\\%b\\_c\\\\%', PatientFinderTermMatch::Anywhere->pattern('a%b_c\\', false, $datePattern));
-        $this->assertSame('j\\_smith', PatientFinderTermMatch::Start->pattern('j_smith', true, $datePattern));
+        $this->assertSame('%a|%b|_c||%', PatientFinderTermMatch::Anywhere->pattern('a%b_c|', false, $datePattern));
+        $this->assertSame('j|_smith', PatientFinderTermMatch::Start->pattern('j_smith', true, $datePattern));
+        $this->assertSame('a\\b%', PatientFinderTermMatch::Start->pattern('a\\b', false, $datePattern), 'a backslash is plain text');
     }
 
-    public function testOnlyPhoneMatchesAFieldAtTheEndOfTheTerm(): void
+    /**
+     * A phone number typed with a country code of 1 to 3 digits also gives the number
+     * without it, when at least 9 digits are left; other modes give none.
+     */
+    public function testPhoneTermWithoutCountryCode(): void
     {
-        $this->assertTrue(PatientFinderSearchMode::Phone->matchesFieldAtEndOfTerm());
-        $this->assertFalse(PatientFinderSearchMode::Ssn->matchesFieldAtEndOfTerm());
-        $this->assertFalse(PatientFinderSearchMode::All->matchesFieldAtEndOfTerm());
+        $this->assertSame(
+            ['5554443333', '554443333'],
+            PatientFinderSearchMode::Phone->withoutCountryCode('15554443333')
+        );
+        $this->assertSame(
+            ['4207123456789', '207123456789', '07123456789'],
+            PatientFinderSearchMode::Phone->withoutCountryCode('44207123456789')
+        );
+        // A 7-digit local number never comes out, so it cannot match a number from another area.
+        $this->assertNotContains('4443333', PatientFinderSearchMode::Phone->withoutCountryCode('8134443333'));
+        $this->assertSame([], PatientFinderSearchMode::Phone->withoutCountryCode('4443333'), 'too short to hold a code');
+        $this->assertSame([], PatientFinderSearchMode::Ssn->withoutCountryCode('15554443333'));
     }
 
     public function testPhoneAndSsnCompareOnlyDigits(): void

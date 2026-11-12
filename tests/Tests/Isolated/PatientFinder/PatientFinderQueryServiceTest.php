@@ -29,6 +29,7 @@ use OpenEMR\Services\PatientFinder\PatientFinderQueryBuilder;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryService;
 use OpenEMR\Services\PatientFinder\PatientFinderRequest;
 use OpenEMR\Services\PatientFinder\PatientFinderValue;
+use OpenEMR\Services\PatientService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -270,8 +271,8 @@ class PatientFinderQueryServiceTest extends TestCase
     {
         $sql = $this->dataSqlForSearchMode('all');
 
-        $this->assertStringContainsString('lname LIKE ?', $sql);
-        $this->assertStringContainsString('`DOB` LIKE ?', $sql);
+        $this->assertStringContainsString('lname LIKE ? ESCAPE \'|\'', $sql);
+        $this->assertStringContainsString('`DOB` LIKE ? ESCAPE \'|\'', $sql);
         $this->assertStringNotContainsString('postal_code', $sql);
     }
 
@@ -279,17 +280,17 @@ class PatientFinderQueryServiceTest extends TestCase
     {
         $sql = $this->dataSqlForSearchMode('name');
 
-        $this->assertStringContainsString('lname LIKE ? OR fname LIKE ? OR mname LIKE ?', $sql);
-        $this->assertStringNotContainsString('`DOB` LIKE ?', $sql);
+        $this->assertStringContainsString('lname LIKE ? ESCAPE \'|\' OR fname LIKE ? ESCAPE \'|\' OR mname LIKE ? ESCAPE \'|\'', $sql);
+        $this->assertStringNotContainsString('`DOB` LIKE ? ESCAPE \'|\'', $sql);
     }
 
     public function testSearchZipModeMatchesOnlyThePostalCode(): void
     {
         $sql = $this->dataSqlForSearchMode('zip');
 
-        $this->assertStringContainsString('( `postal_code` LIKE ? )', $sql);
-        $this->assertStringNotContainsString('lname LIKE ?', $sql);
-        $this->assertStringNotContainsString('`DOB` LIKE ?', $sql);
+        $this->assertStringContainsString('( `postal_code` LIKE ? ESCAPE \'|\' )', $sql);
+        $this->assertStringNotContainsString('lname LIKE ? ESCAPE \'|\'', $sql);
+        $this->assertStringNotContainsString('`DOB` LIKE ? ESCAPE \'|\'', $sql);
     }
 
     public function testSearchAddressModeMatchesEveryAddressField(): void
@@ -297,11 +298,11 @@ class PatientFinderQueryServiceTest extends TestCase
         $sql = $this->dataSqlForSearchMode('address');
 
         $this->assertStringContainsString(
-            '( `street` LIKE ? OR `street_line_2` LIKE ? OR `city` LIKE ? OR `state` LIKE ? OR `postal_code` LIKE ? )',
+            '( `street` LIKE ? ESCAPE \'|\' OR `street_line_2` LIKE ? ESCAPE \'|\' OR `city` LIKE ? ESCAPE \'|\' OR `state` LIKE ? ESCAPE \'|\' OR `postal_code` LIKE ? ESCAPE \'|\' )',
             $sql
         );
-        $this->assertStringNotContainsString('lname LIKE ?', $sql);
-        $this->assertStringNotContainsString('`DOB` LIKE ?', $sql);
+        $this->assertStringNotContainsString('lname LIKE ? ESCAPE \'|\'', $sql);
+        $this->assertStringNotContainsString('`DOB` LIKE ? ESCAPE \'|\'', $sql);
     }
 
     /**
@@ -354,5 +355,34 @@ class PatientFinderQueryServiceTest extends TestCase
     {
         $this->assertSame(['recent_patient_columns'], $this->recentRequest(false)['lists']);
         $this->assertSame(['ptlistcols'], $this->recentRequest(true)['lists']);
+    }
+
+    /**
+     * A Recent Patients request to a service built without the recent patients and the
+     * site's setting fails, rather than showing an empty list.
+     */
+    public function testRecentPatientsWithoutTheirSourceFails(): void
+    {
+        $service = new PatientFinderQueryService(
+            $this->dispatcher(),
+            null,
+            static fn(string $sql, array $binds): array => [],
+            static fn(string $sql, array $binds): array => ['count' => 0],
+            static fn(mixed $v): string => PatientFinderValue::string($v)
+        );
+
+        $this->expectException(\LogicException::class);
+        $service->handle(['sColumns' => 'name', 'finderList' => 'recent']);
+    }
+
+    /**
+     * The recent patient list becomes its pids, in order, leaving out anything that is not one.
+     */
+    public function testRecentPidsOfReadsThePatientServiceList(): void
+    {
+        $patients = $this->createMock(PatientService::class);
+        $patients->method('getRecentPatientList')->willReturn([['pid' => 5], ['pid' => '2'], ['pid' => 0], 'junk']);
+
+        $this->assertSame([5, 2], PatientFinderQueryService::recentPidsOf($patients));
     }
 }

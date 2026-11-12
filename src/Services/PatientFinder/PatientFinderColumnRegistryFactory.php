@@ -14,7 +14,8 @@
  * {@see PatientFinderBuiltInColumns::keys()} is seeded as that combined column
  * rather than as a `patient_data` field. An entry's notes hold its display width
  * (see {@see PatientFinderColumn::withWidth()}). An entry that is neither the Name
- * column, a combined column nor a `patient_data` field is left out. It then dispatches
+ * column, a combined column nor a `patient_data` field holds its place for a module
+ * column with that key, and is left out if no listener adds one. It then dispatches
  * {@see PatientFinderColumnRegistrationEvent} so modules can add, remove or
  * reorder columns.
  *
@@ -104,6 +105,8 @@ final class PatientFinderColumnRegistryFactory
             . "WHERE list_id = ? AND activity = 1 ORDER BY seq, title",
             [$columnList->value]
         );
+        // Keyed by column key: the column seeded for an entry the finder cannot read itself.
+        $placeholders = [];
         foreach ($rows as $row) {
             $key = PatientFinderValue::string($row['option_id'] ?? null);
             if ($key === '') {
@@ -114,27 +117,38 @@ final class PatientFinderColumnRegistryFactory
                 $title = PatientFinderValue::string(xl_list_label($title));
             }
             $sortDir = $this->sortDirection(PatientFinderValue::string($row['toggle_setting_1'] ?? null));
+            // Not a column the finder can read itself, such as a module's: it holds the
+            // list's place for a listener that adds a column with this key.
+            $isPlaceholder = false;
             if (PatientFinderBuiltInColumns::has($key)) {
                 // A combined column the user may not see is left out, never read as a table field.
                 $column = $this->builtInColumn($key, $title, $sortDir);
                 if ($column === null) {
                     continue;
                 }
-            } elseif ($key === PatientFinderQueryBuilder::NAME_KEY || $this->isPatientDataField($key)) {
-                $column = PatientFinderColumn::fromTable($key, $title, defaultSortDir: $sortDir);
             } else {
-                // Not a column the finder can read, such as one a disabled module added or a
-                // field since removed: left out, so it cannot break the query for everyone.
-                // A module that still provides it adds it through the registration event.
-                continue;
+                $column = PatientFinderColumn::fromTable($key, $title, defaultSortDir: $sortDir);
+                $isPlaceholder = $key !== PatientFinderQueryBuilder::NAME_KEY && !$this->isPatientDataField($key);
             }
-            $registry->add($column->withWidth(PatientFinderValue::string($row['notes'] ?? null)));
+            $column = $column->withWidth(PatientFinderValue::string($row['notes'] ?? null));
+            if ($isPlaceholder) {
+                $placeholders[$key] = $column;
+            }
+            $registry->add($column);
         }
 
         $this->dispatcher->dispatch(
             new PatientFinderColumnRegistrationEvent($registry, $columnList),
             PatientFinderColumnRegistrationEvent::EVENT_HANDLE
         );
+
+        // A place no listener filled, as for a disabled module or a field since removed, is
+        // left out, so it cannot break the query for everyone.
+        foreach ($placeholders as $key => $placeholder) {
+            if ($registry->get($key) === $placeholder) {
+                $registry->remove($key);
+            }
+        }
 
         return $registry;
     }

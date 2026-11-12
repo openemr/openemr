@@ -423,6 +423,7 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
             $patient_data_fields = array_values(QueryUtils::listTableFields('patient_data'));
             sort($patient_data_fields);
         }
+        // Filtered here rather than when cached: PHPStan cannot keep a static's type.
         $field_ids = array_values(array_filter($patient_data_fields, is_string(...)));
         $id_groups = [
             xl('Combined columns') => $built_in_ids,

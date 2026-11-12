@@ -83,7 +83,7 @@ class PatientFinderQueryBuilderTest extends TestCase
 
         $this->assertSame(
             'SELECT patient_data.pid, lname, fname, mname, `DOB`, `sex` FROM patient_data WHERE 1 AND '
-            . '( ( ( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) ) OR `DOB` LIKE ? OR `sex` LIKE ? ) )'
+            . '( ( ( ( lname LIKE ? ESCAPE \'|\' OR fname LIKE ? ESCAPE \'|\' OR mname LIKE ? ESCAPE \'|\' ) ) OR `DOB` LIKE ? ESCAPE \'|\' OR `sex` LIKE ? ESCAPE \'|\' ) )'
             . ' LIMIT ? OFFSET ?',
             $plan->dataSql
         );
@@ -94,7 +94,7 @@ class PatientFinderQueryBuilderTest extends TestCase
 
         $this->assertSame(
             'SELECT COUNT(id) AS count FROM patient_data WHERE 1 AND '
-            . '( ( ( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) ) OR `DOB` LIKE ? OR `sex` LIKE ? ) )',
+            . '( ( ( ( lname LIKE ? ESCAPE \'|\' OR fname LIKE ? ESCAPE \'|\' OR mname LIKE ? ESCAPE \'|\' ) ) OR `DOB` LIKE ? ESCAPE \'|\' OR `sex` LIKE ? ESCAPE \'|\' ) )',
             $plan->filteredCountSql
         );
         $this->assertSame(['smith%', 'smith%', 'smith%', 'smith%', 'smith%'], $plan->filteredCountBinds);
@@ -105,7 +105,7 @@ class PatientFinderQueryBuilderTest extends TestCase
         $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
         $plan = $this->builder()->build($columns, $this->request(globalSearch: 'male', exact: true), new BoundFilter());
 
-        $this->assertStringContainsString('( `sex` LIKE ? )', $plan->dataSql);
+        $this->assertStringContainsString('( `sex` LIKE ? ESCAPE \'|\' )', $plan->dataSql);
         $this->assertSame(['male'], $plan->filteredCountBinds);
     }
 
@@ -130,7 +130,7 @@ class PatientFinderQueryBuilderTest extends TestCase
         );
 
         $this->assertSame(
-            'SELECT patient_data.pid, lname, fname, mname, `DOB` FROM patient_data WHERE 1 AND ( `DOB` LIKE ? )',
+            'SELECT patient_data.pid, lname, fname, mname, `DOB` FROM patient_data WHERE 1 AND ( `DOB` LIKE ? ESCAPE \'|\' )',
             $plan->dataSql
         );
         $this->assertSame(['DATE(1990)'], $plan->dataBinds);
@@ -168,7 +168,7 @@ class PatientFinderQueryBuilderTest extends TestCase
         );
 
         $this->assertStringContainsString($expr . ' AS `ihi_number`', $plan->dataSql);
-        $this->assertStringContainsString('(' . $expr . ') LIKE ?', $plan->dataSql);
+        $this->assertStringContainsString('(' . $expr . ') LIKE ? ESCAPE \'|\'', $plan->dataSql);
         $this->assertStringContainsString('ORDER BY (' . $expr . ') ASC', $plan->dataSql);
         // Subquery column needs no JOIN, so the filtered count stays COUNT(id).
         $this->assertStringContainsString('SELECT COUNT(id) AS count FROM patient_data WHERE', $plan->filteredCountSql);
@@ -186,7 +186,7 @@ class PatientFinderQueryBuilderTest extends TestCase
         $this->assertStringContainsString('ihi.ihi_number AS `ihi_number`', $plan->dataSql);
         $this->assertSame(
             'SELECT COUNT(DISTINCT patient_data.pid) AS count FROM patient_data ' . $join . ' WHERE 1 AND '
-            . '( ( (ihi.ihi_number) LIKE ? ) )',
+            . '( ( (ihi.ihi_number) LIKE ? ESCAPE \'|\' ) )',
             $plan->filteredCountSql
         );
     }
@@ -205,7 +205,7 @@ class PatientFinderQueryBuilderTest extends TestCase
 
         $this->assertStringNotContainsString('care_flag', $plan->dataSql);
         // Only the name OR-group should be present; the enriched column is skipped.
-        $this->assertStringContainsString('( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) )', $plan->dataSql);
+        $this->assertStringContainsString('( ( lname LIKE ? ESCAPE \'|\' OR fname LIKE ? ESCAPE \'|\' OR mname LIKE ? ESCAPE \'|\' ) )', $plan->dataSql);
     }
 
     public function testCustomBoundFilterComposesAndBindsFirst(): void
@@ -218,7 +218,7 @@ class PatientFinderQueryBuilderTest extends TestCase
         $plan = $this->builder()->build($columns, $this->request(globalSearch: 'male', start: 0, length: 25), $filter);
 
         $this->assertStringContainsString(
-            'WHERE patient_data.pid NOT IN (?, ?) AND ( ( `sex` LIKE ? ) ) LIMIT ? OFFSET ?',
+            'WHERE patient_data.pid NOT IN (?, ?) AND ( ( `sex` LIKE ? ESCAPE \'|\' ) ) LIMIT ? OFFSET ?',
             $plan->dataSql
         );
         $this->assertSame([5, 6, 'male%', 25, 0], $plan->dataBinds);
@@ -253,7 +253,7 @@ class PatientFinderQueryBuilderTest extends TestCase
         // SELECT is driven by the displayed columns...
         $this->assertStringContainsString('SELECT patient_data.pid, lname, fname, mname, `sex` FROM', $plan->dataSql);
         // ...while the global WHERE searches the DEM field set with contains binds.
-        $this->assertStringContainsString('( `street` LIKE ? OR `phone_home` LIKE ? )', $plan->dataSql);
+        $this->assertStringContainsString('( `street` LIKE ? ESCAPE \'|\' OR `phone_home` LIKE ? ESCAPE \'|\' )', $plan->dataSql);
         $this->assertSame(['%main%', '%main%'], $plan->filteredCountBinds);
     }
 
@@ -288,12 +288,26 @@ class PatientFinderQueryBuilderTest extends TestCase
         $plan = $this->modeSearch(PatientFinderSearchMode::Phone, '(444) 333');
 
         $this->assertStringContainsString("REPLACE(patient_data.phone_cell, '-', '')", $plan->dataSql);
-        // Each phone matches the digits anywhere in it, or as the end of the typed number.
+        // Each phone matches the digits anywhere in it; '(444) 333' is too short to hold a
+        // country code, so there is no match without one.
+        $this->assertSame(array_fill(0, 4, '%444333%'), $plan->filteredCountBinds);
+        $this->assertStringNotContainsString(' IN (', $plan->dataSql);
+    }
+
+    /**
+     * A number typed with its country code also finds the number stored without it, and a
+     * stored number has to be the whole rest of it, not just its last digits.
+     */
+    public function testPhoneSearchWithACountryCodeAlsoMatchesTheNumberWithout(): void
+    {
+        $plan = $this->modeSearch(PatientFinderSearchMode::Phone, '+1 (555) 444-3333');
+
+        $this->assertStringContainsString("REPLACE(patient_data.phone_home, '-', '')", $plan->dataSql);
+        $this->assertStringContainsString(') IN (?, ?)', $plan->dataSql);
         $this->assertSame(
-            array_merge(...array_fill(0, 4, ['%444333%', '444333'])),
+            array_merge(...array_fill(0, 4, ['%15554443333%', '5554443333', '554443333'])),
             $plan->filteredCountBinds
         );
-        $this->assertStringContainsString(">= 7 AND ? LIKE CONCAT('%', (REPLACE(", $plan->dataSql);
     }
 
     public function testSsnSearchMatchesTheLastDigits(): void
@@ -315,18 +329,18 @@ class PatientFinderQueryBuilderTest extends TestCase
     {
         $plan = $this->modeSearch(PatientFinderSearchMode::Dob, '1972-02-09');
 
-        $this->assertStringContainsString('( `DOB` LIKE ? )', $plan->dataSql);
+        $this->assertStringContainsString('( `DOB` LIKE ? ESCAPE \'|\' )', $plan->dataSql);
         $this->assertSame(['DATE(1972-02-09)'], $plan->filteredCountBinds);
     }
 
     public function testEmailAndExternalIdSearchTheirFields(): void
     {
         $email = $this->modeSearch(PatientFinderSearchMode::Email, 'gmail');
-        $this->assertStringContainsString('( `email` LIKE ? OR `email_direct` LIKE ? )', $email->dataSql);
+        $this->assertStringContainsString('( `email` LIKE ? ESCAPE \'|\' OR `email_direct` LIKE ? ESCAPE \'|\' )', $email->dataSql);
         $this->assertSame(['%gmail%', '%gmail%'], $email->filteredCountBinds);
 
         $id = $this->modeSearch(PatientFinderSearchMode::ExternalId, 'A12');
-        $this->assertStringContainsString('( `pubpid` LIKE ? )', $id->dataSql);
+        $this->assertStringContainsString('( `pubpid` LIKE ? ESCAPE \'|\' )', $id->dataSql);
         $this->assertSame(['A12%'], $id->filteredCountBinds);
     }
 
@@ -463,25 +477,61 @@ class PatientFinderQueryBuilderTest extends TestCase
         );
 
         $this->assertStringContainsString(
-            '( ( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) ) AND `sex` LIKE ? )',
+            '( ( ( lname LIKE ? ESCAPE \'|\' OR fname LIKE ? ESCAPE \'|\' OR mname LIKE ? ESCAPE \'|\' ) ) AND `sex` LIKE ? ESCAPE \'|\' )',
             $plan->dataSql
         );
     }
 
     /**
-     * Each word of a name search must match one of the names, so a full name in either
-     * order finds the patient.
+     * A name search matches the whole term, or each word of it, so a full name in either
+     * order finds the patient, and so does a name with a space in it.
      */
-    public function testNameSearchMatchesEachWordOfAFullName(): void
+    public function testNameSearchMatchesTheWholeNameOrEachWord(): void
     {
         $plan = $this->modeSearch(PatientFinderSearchMode::Name, 'Belford, Phil');
 
-        $this->assertStringContainsString(
-            '( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) AND ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) )',
-            $plan->dataSql
-        );
+        $like = "LIKE ? ESCAPE '|'";
+        $anyName = "( lname $like OR fname $like OR mname $like )";
+        $this->assertStringContainsString("( $anyName OR ( $anyName AND $anyName ) )", $plan->dataSql);
         $this->assertSame(
-            ['Belford%', 'Belford%', 'Belford%', 'Phil%', 'Phil%', 'Phil%'],
+            ['Belford, Phil%', 'Belford, Phil%', 'Belford, Phil%', 'Belford%', 'Belford%', 'Belford%', 'Phil%', 'Phil%', 'Phil%'],
+            $plan->filteredCountBinds
+        );
+    }
+
+    /**
+     * A last name with a space, as "Van Dyke", still matches as a whole.
+     */
+    public function testNameWithASpaceMatchesAsAWhole(): void
+    {
+        $plan = $this->modeSearch(PatientFinderSearchMode::Name, 'Van Dyke');
+
+        $this->assertSame('Van Dyke%', $plan->filteredCountBinds[0]);
+    }
+
+    /**
+     * A one-word name search is the plain name match, with no word-by-word part.
+     */
+    public function testOneWordNameSearchHasNoWordPart(): void
+    {
+        $plan = $this->modeSearch(PatientFinderSearchMode::Name, 'Belford');
+
+        $this->assertSame(['Belford%', 'Belford%', 'Belford%'], $plan->filteredCountBinds);
+    }
+
+    /**
+     * In an exact search, each word must be a whole name.
+     */
+    public function testExactMultiWordNameSearchMatchesWholeNames(): void
+    {
+        $plan = $this->builder()->build(
+            [PatientFinderColumn::fromTable(PatientFinderQueryBuilder::NAME_KEY, 'Name')],
+            $this->request(globalSearch: 'Phil Belford', exact: true, searchMode: PatientFinderSearchMode::Name),
+            new BoundFilter()
+        );
+
+        $this->assertSame(
+            ['Phil Belford', 'Phil Belford', 'Phil Belford', 'Phil', 'Phil', 'Phil', 'Belford', 'Belford', 'Belford'],
             $plan->filteredCountBinds
         );
     }
@@ -503,7 +553,7 @@ class PatientFinderQueryBuilderTest extends TestCase
         );
 
         $this->assertStringContainsString('FROM patient_data ' . $join . ' WHERE', $plan->dataSql);
-        $this->assertStringContainsString('(tb.val) LIKE ?', $plan->dataSql);
+        $this->assertStringContainsString('(tb.val) LIKE ? ESCAPE \'|\'', $plan->dataSql);
     }
 
     public function testOnlyPidsLimitsTheResultsAndKeepsTheirOrder(): void
@@ -546,7 +596,7 @@ class PatientFinderQueryBuilderTest extends TestCase
 
         $this->assertSame(
             'SELECT patient_data.pid, `sex` FROM patient_data WHERE patient_data.pid IN (?, ?) AND '
-            . '( patient_data.pid <> ? ) AND ( ( `sex` LIKE ? ) ) ORDER BY `sex` DESC',
+            . '( patient_data.pid <> ? ) AND ( ( `sex` LIKE ? ESCAPE \'|\' ) ) ORDER BY `sex` DESC',
             $plan->dataSql
         );
         $this->assertSame([7, 3, 5, 'f%'], $plan->dataBinds);
