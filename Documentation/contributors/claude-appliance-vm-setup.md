@@ -490,25 +490,34 @@ Why a `socat` systemd template unit and not an Incus proxy device: Incus VMs onl
 incus exec claude-vm -- apt-get update
 incus exec claude-vm -- apt-get install -y socat
 
-# 2. Write a tiny helper script that returns the VM's primary outbound IP. 'ip route get'
+# 2. Stage both files in a private, caller-owned temp dir rather than predictable
+#    /tmp paths — avoids a symlink-pre-plant window that would otherwise exist
+#    on a multi-user host. 'mktemp -d' creates a 0700-mode directory by default.
+workdir=$(mktemp -d)
+chmod 700 "$workdir"
+
+# 3. Write a tiny helper script that returns the VM's primary outbound IP. 'ip route get'
 #    asks the kernel which source address would be used to reach a remote destination, so
 #    it ignores docker0 / kind bridges / any other local interfaces that appear in
 #    `hostname -I`.
-printf '#!/bin/sh\nexec ip -4 route get 1.1.1.1 | awk '\''{for (i=1; i<=NF; i++) if ($i == "src") {print $(i+1); exit}}'\''\n' > /tmp/k8s-loopback-expose-primary-ip
-incus file push --mode=755 /tmp/k8s-loopback-expose-primary-ip claude-vm/usr/local/bin/
+printf '#!/bin/sh\nexec ip -4 route get 1.1.1.1 | awk '\''{for (i=1; i<=NF; i++) if ($i == "src") {print $(i+1); exit}}'\''\n' > "$workdir/k8s-loopback-expose-primary-ip"
+incus file push --mode=755 "$workdir/k8s-loopback-expose-primary-ip" claude-vm/usr/local/bin/
 
-# 3. Generate the systemd template unit. Binds socat to the helper's returned IP (NOT
+# 4. Generate the systemd template unit. Binds socat to the helper's returned IP (NOT
 #    0.0.0.0) — kind's docker-proxy already owns 127.0.0.1:{8800,9800}, so a 0.0.0.0
 #    bind overlaps and fails with EADDRINUSE. The %i specifier is instantiated per
 #    enabled port below.
-printf '[Unit]\nDescription=Expose loopback port %%i on the VM external NIC (for kind-bound services)\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nExecStart=/bin/bash -c '\''exec /usr/bin/socat TCP-LISTEN:%%i,fork,reuseaddr,bind=$(/usr/local/bin/k8s-loopback-expose-primary-ip) TCP:127.0.0.1:%%i'\''\nRestart=on-failure\nRestartSec=2\n\n[Install]\nWantedBy=multi-user.target\n' > /tmp/k8s-loopback-expose@.service
-incus file push /tmp/k8s-loopback-expose@.service claude-vm/etc/systemd/system/
+printf '[Unit]\nDescription=Expose loopback port %%i on the VM external NIC (for kind-bound services)\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nExecStart=/bin/bash -c '\''exec /usr/bin/socat TCP-LISTEN:%%i,fork,reuseaddr,bind=$(/usr/local/bin/k8s-loopback-expose-primary-ip) TCP:127.0.0.1:%%i'\''\nRestart=on-failure\nRestartSec=2\n\n[Install]\nWantedBy=multi-user.target\n' > "$workdir/k8s-loopback-expose@.service"
+incus file push "$workdir/k8s-loopback-expose@.service" claude-vm/etc/systemd/system/
 
-# 4. Reload systemd and enable the three instances.
+# 5. Reload systemd and enable the three instances.
 incus exec claude-vm -- systemctl daemon-reload
 incus exec claude-vm -- systemctl enable --now k8s-loopback-expose@8800.service   # OpenEMR HTTP
 incus exec claude-vm -- systemctl enable --now k8s-loopback-expose@9800.service   # OpenEMR HTTPS
 incus exec claude-vm -- systemctl enable --now k8s-loopback-expose@8081.service   # phpMyAdmin (user-initiated kubectl port-forward)
+
+# 6. Clean up the staging directory (optional — contents are harmless).
+rm -rf "$workdir"
 ```
 
 Verify each is `active (running)` and reachable from the host:
