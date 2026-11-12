@@ -856,10 +856,25 @@ class Claim
         return (string) $this->x12Zip($this->billingFacilityMailField('mail_zip'));
     }
 
+    /**
+     * One text column from a facility row. Empty when the row or the column is missing.
+     */
+    private function facilityText(mixed $facility, string $column): string
+    {
+        if (!is_array($facility)) {
+            return '';
+        }
+        $value = $facility[$column] ?? null;
+        if (!is_string($value)) {
+            return '';
+        }
+
+        return trim($value);
+    }
+
     private function billingFacilityMailField(string $field): string
     {
-        $value = is_array($this->billing_facility) ? ($this->billing_facility[$field] ?? null) : null;
-        return is_string($value) ? trim($value) : '';
+        return $this->facilityText($this->billing_facility, $field);
     }
 
     /**
@@ -896,6 +911,22 @@ class Claim
             && $words($field('mail_state')) === $words($field('state'))
             && $sameZip
         );
+    }
+
+    /**
+     * Postal code stored for the billing facility, before digit reduction.
+     */
+    public function billingFacilityPostalCode(): string
+    {
+        return $this->facilityText($this->billing_facility, 'postal_code');
+    }
+
+    /**
+     * Country stored for the billing facility. Empty when the row has none.
+     */
+    public function billingFacilityCountry(): string
+    {
+        return $this->facilityText($this->billing_facility, 'country_code');
     }
 
     /**
@@ -1040,6 +1071,22 @@ class Claim
     public function facilityZip()
     {
         return $this->x12Zip($this->facility['postal_code']);
+    }
+
+    /**
+     * Postal code stored for the service facility, before digit reduction.
+     */
+    public function facilityPostalCode(): string
+    {
+        return $this->facilityText($this->facility, 'postal_code');
+    }
+
+    /**
+     * Country stored for the service facility. Empty when the row has none.
+     */
+    public function facilityCountry(): string
+    {
+        return $this->facilityText($this->facility, 'country_code');
     }
 
     /**
