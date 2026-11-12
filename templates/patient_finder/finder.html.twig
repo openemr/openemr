@@ -14,7 +14,8 @@ dynamic_finder.js), and the options below the list.
         <div id="finder-heading">{{ pageHeading }}</div>
          <div class="w-100">
             <div>
-                <div class="tab-content" id="finderTabs">
+                {# data-finder-font-size sets the lists' text size; the Font Size menu changes it. #}
+                <div class="tab-content" id="finderTabs" data-finder-font-size="{{ fontSize|attr }}">
                     <div class="tab-pane show active" id="list" role="tabpanel" aria-labelledby="listTab">
                         <div class="table-responsive">
                             {# OemrUI's search icon shows and hides the first .hideaway on the page: this row. #}
@@ -44,9 +45,20 @@ dynamic_finder.js), and the options below the list.
                             </label>
                         </div>
                     </form>
-                    {% if canCustomize %}
-                        <button type="button" id="finder-customize" class="btn btn-primary btn-sm" title="{{ "Choose the columns this list shows"|xla }}">{{ "Customize"|xlt }}</button>
-                    {% endif %}
+                    {# Font Size and Customize sit together at the right end of the line. #}
+                    <div id="finder-option-buttons" class="d-flex align-items-center">
+                        <div class="dropdown">
+                            <button type="button" id="finder-font-size" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{ "Change the text size of the list"|xla }}">{{ "Font Size"|xlt }}</button>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="finder-font-size">
+                                {% for size, label in {'small': "Small"|xl, 'normal': "Normal"|xl, 'large': "Large"|xl, 'x-large': "Extra Large"|xl} %}
+                                    <button type="button" class="dropdown-item{{ size == fontSize ? ' active' : '' }}" data-font-size="{{ size|attr }}"{{ size == fontSize ? ' aria-current="true"' : '' }}>{{ label|text }}</button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% if canCustomize %}
+                            <button type="button" id="finder-customize" class="btn btn-primary btn-sm" title="{{ "Choose the columns this list shows"|xla }}">{{ "Customize"|xlt }}</button>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
           </div>

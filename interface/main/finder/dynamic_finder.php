@@ -32,6 +32,7 @@ use OpenEMR\Services\Globals\UserSettingsService;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
 use OpenEMR\Services\PatientFinder\PatientFinderDetailService;
+use OpenEMR\Services\PatientFinder\PatientFinderFontSize;
 use OpenEMR\Services\PatientFinder\PatientFinderPageService;
 use OpenEMR\Services\PatientFinder\PatientFinderValue;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -64,6 +65,8 @@ $detailEnabled = (new PatientFinderDetailService($eventDispatcher))->isEnabled()
 // Top-controls state for the finder form (rendered by the Twig template).
 $newWindowChecked = OEGlobalsBag::getInstance()->getBoolean('gbl_pt_list_new_window');
 $exactChecked = trim(PatientFinderValue::string($patient_finder_exact_search)) === 'checked';
+// The text size the user last picked for the lists.
+$fontSize = PatientFinderFontSize::fromSetting(UserSettingsService::getUserSetting(PatientFinderFontSize::SETTING));
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $cacheBust = attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes'));
@@ -82,6 +85,7 @@ $pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
             webroot: <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>,
             csrfToken: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
             searchAny: <?php echo js_escape($searchAny); ?>,
+            fontSizeSetting: <?php echo js_escape(PatientFinderFontSize::SETTING); ?>,
             pageLength: <?php echo $pageSize > 0 ? $pageSize : 10; ?>,
             // Column definitions from the shared registry (the Name column renders as a link).
             columns: <?php echo json_encode($columns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
@@ -150,6 +154,7 @@ $templateVars = [
     'exactSearch' => $patient_finder_exact_search,
     'exactChecked' => $exactChecked,
     'recentColumns' => $recentColumns,
+    'fontSize' => $fontSize->value,
 ];
 
 $t = ServiceContainer::getTwig();

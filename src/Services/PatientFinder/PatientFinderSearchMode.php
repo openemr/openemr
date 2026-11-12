@@ -24,6 +24,8 @@ enum PatientFinderSearchMode: string
     case All = 'all';
     /** Last, first and middle name. */
     case Name = 'name';
+    /** Street, street line 2, city, state and ZIP / postal code. */
+    case Address = 'address';
     /** The ZIP / postal code. */
     case Zip = 'zip';
 
@@ -45,6 +47,13 @@ enum PatientFinderSearchMode: string
         return match ($this) {
             self::All => null,
             self::Name => [PatientFinderColumn::fromTable(PatientFinderQueryBuilder::NAME_KEY, 'Name')],
+            self::Address => [
+                PatientFinderColumn::fromTable('street', 'Address'),
+                PatientFinderColumn::fromTable('street_line_2', 'Address Line 2'),
+                PatientFinderColumn::fromTable('city', 'City'),
+                PatientFinderColumn::fromTable('state', 'State'),
+                PatientFinderColumn::fromTable('postal_code', 'ZIP'),
+            ],
             self::Zip => [PatientFinderColumn::fromTable('postal_code', 'ZIP')],
         };
     }

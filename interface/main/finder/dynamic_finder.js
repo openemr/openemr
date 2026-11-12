@@ -206,7 +206,7 @@
     }
 
     // The heading's search box searches the showing tab's list as the user types,
-    // matching what its menu has picked: every column, the name, or the ZIP.
+    // matching what its menu has picked: every column, the name, the address, or the ZIP.
     function wireHeadingSearch() {
         var $input = $('#finder-search-input');
         var timer = null;
@@ -228,6 +228,23 @@
                 applySearch(activeTab);
             }
             $input.trigger('focus');
+        });
+    }
+
+    // The Font Size menu sets the lists' text size and keeps it as the user's setting.
+    function wireFontSize() {
+        $('#finder-option-buttons [data-font-size]').on('click', function () {
+            var $choice = $(this);
+            var size = $choice.data('fontSize');
+            $choice.siblings().removeClass('active').removeAttr('aria-current');
+            $choice.addClass('active').attr('aria-current', 'true');
+            $('#finderTabs').attr('data-finder-font-size', size);
+            top.restoreSession();
+            $.post(cfg.webroot + '/library/ajax/user_settings.php', {
+                target: cfg.fontSizeSetting,
+                setting: size,
+                csrf_token_form: cfg.csrfToken
+            });
         });
     }
 
@@ -411,6 +428,7 @@
             {attributes: true, attributeFilter: ['class']}
         );
 
+        wireFontSize();
         $('#finder-customize').on('click', function () {
             openListEditor(activeTab.listId);
         });

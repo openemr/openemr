@@ -267,6 +267,18 @@ class PatientFinderQueryServiceTest extends TestCase
         $this->assertStringNotContainsString('`DOB` LIKE ?', $sql);
     }
 
+    public function testSearchAddressModeMatchesEveryAddressField(): void
+    {
+        $sql = $this->dataSqlForSearchMode('address');
+
+        $this->assertStringContainsString(
+            '( `street` LIKE ? OR `street_line_2` LIKE ? OR `city` LIKE ? OR `state` LIKE ? OR `postal_code` LIKE ? )',
+            $sql
+        );
+        $this->assertStringNotContainsString('lname LIKE ?', $sql);
+        $this->assertStringNotContainsString('`DOB` LIKE ?', $sql);
+    }
+
     /**
      * The column-list ids and data query the service uses for one Recent Patients request.
      *

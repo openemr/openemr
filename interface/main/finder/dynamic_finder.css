@@ -180,10 +180,17 @@ div.dataTables_wrapper div.dataTables_processing {
 }
 
 /* A patient row under the pointer turns gray with light text. Only result rows: an
-   expanded row's details (which have no odd/even class) stay as they are. */
+   expanded row's details (which have no odd/even class) stay as they are. The cells are
+   painted rather than the row, because the theme gives tr.odd a white background with
+   !important, which would leave odd rows white. Clearing the box-shadow drops the
+   DataTables stripe and sorted-column tints, so every cell is the same gray. */
 :is(#pt_table, #recent_table) > tbody > tr:is(.odd, .even):hover {
-  background-color: var(--gray500);
   color: var(--light);
+}
+
+:is(#pt_table, #recent_table) > tbody > tr:is(.odd, .even):hover > td {
+  background-color: var(--gray500);
+  box-shadow: none;
 }
 
 :is(#pt_table, #recent_table) > tbody > tr:is(.odd, .even):hover a {
@@ -268,21 +275,46 @@ div.dataTables_wrapper div.dataTables_processing {
   border: 0;
 }
 
+/* The theme sizes layout labels and values at 0.8rem. In em they keep that size at the
+   normal text size and follow the list's when the Font Size menu changes it. The theme
+   sets the labels' size with !important, so only !important can replace it. */
+:is(#pt_table, #recent_table) .finder-detail :is(.label_custom, .text) {
+  font-size: 0.8em !important;
+}
+
 /* ==========================================================================
    Below the table: the options, the entry count and the pages
    ========================================================================== */
 
+/* A blank line's worth of space separates the options from the entry count above. */
 #finder-options {
-  padding: 0.5rem 0 1rem;
+  padding: 1.5rem 0 1rem;
 }
 
 #finder-options .form-check-inline {
   margin-right: 2rem;
 }
 
-/* Customize sits at the right end of the line. */
-#finder-customize {
+/* Font Size and Customize sit at the right end of the line. */
+#finder-option-buttons {
+  gap: 0.5rem;
   margin-left: auto;
+}
+
+/* ==========================================================================
+   Text size of the lists, picked from the Font Size menu
+   ========================================================================== */
+
+#finderTabs[data-finder-font-size='small'] :is(#pt_table, #recent_table) {
+  font-size: 0.875rem;
+}
+
+#finderTabs[data-finder-font-size='large'] :is(#pt_table, #recent_table) {
+  font-size: 1.125rem;
+}
+
+#finderTabs[data-finder-font-size='x-large'] :is(#pt_table, #recent_table) {
+  font-size: 1.25rem;
 }
 
 .dataTables_wrapper .dataTables_length,

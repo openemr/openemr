@@ -106,6 +106,10 @@ class PatientFinderRequestTest extends TestCase
             PatientFinderRequest::fromArray(['searchMode' => 'name'])->searchMode
         );
         $this->assertSame(
+            PatientFinderSearchMode::Address,
+            PatientFinderRequest::fromArray(['searchMode' => 'address'])->searchMode
+        );
+        $this->assertSame(
             PatientFinderSearchMode::Zip,
             PatientFinderRequest::fromArray(['searchMode' => 'zip'])->searchMode
         );
