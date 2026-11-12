@@ -237,44 +237,7 @@ incus network get incusbr0 ipv4.address
 incus config device override claude-vm eth0 ipv4.address=10.140.22.100
 ```
 
-**Optional — forward the Kubernetes dev-stack ports to the host.** Only needed if you plan to run `openemr-devops/kubernetes/` (`kub-up`) inside the VM. The `kind-config-*.yaml` files in that repo pin `listenAddress: "127.0.0.1"` as a laptop-LAN-exposure hardening; inside this NAT-contained VM the LAN containment is already provided by `incusbr0`, so putting a listener on the VM's external NIC only exposes those ports to the host — not to any external network. Three `socat` forwarders inside the guest handle it without touching the `openemr-devops` working tree, declaratively captured as a single systemd template unit:
-
-```bash
-# Install socat inside the VM
-incus exec claude-vm -- apt-get update
-incus exec claude-vm -- apt-get install -y socat
-
-# Generate the systemd template unit on the host. Binds socat to the VM's
-# external NIC (not 0.0.0.0) — kind's docker-proxy already owns
-# 127.0.0.1:{8800,9800}, so a 0.0.0.0 bind overlaps and fails with EADDRINUSE.
-printf '[Unit]\nDescription=Expose loopback port %%i on the VM external NIC (for kind-bound services)\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nExecStart=/bin/bash -c '\''exec /usr/bin/socat TCP-LISTEN:%%i,fork,reuseaddr,bind=$(hostname -I | cut -d" " -f1) TCP:127.0.0.1:%%i'\''\nRestart=on-failure\nRestartSec=2\n\n[Install]\nWantedBy=multi-user.target\n' > /tmp/k8s-loopback-expose@.service
-
-# Push into the VM, reload, enable the three instances
-incus file push /tmp/k8s-loopback-expose@.service claude-vm/etc/systemd/system/
-incus exec claude-vm -- systemctl daemon-reload
-incus exec claude-vm -- systemctl enable --now k8s-loopback-expose@8800.service   # OpenEMR HTTP
-incus exec claude-vm -- systemctl enable --now k8s-loopback-expose@9800.service   # OpenEMR HTTPS
-incus exec claude-vm -- systemctl enable --now k8s-loopback-expose@8081.service   # phpMyAdmin
-```
-
-Verify each is `active (running)` and reachable from the host:
-
-```bash
-incus exec claude-vm -- systemctl --no-pager status 'k8s-loopback-expose@*.service'
-
-# 8800/9800 answer immediately once kub-up finishes
-curl -I http://claude-vm.local:8800
-curl -Ik https://claude-vm.local:9800
-
-# 8081 only answers while a port-forward is active in the VM — the
-# openemr-devops kubernetes README calls this out as the normal access
-# pattern for phpMyAdmin. In one terminal:
-incus exec claude-vm -- su - claude-agent -c 'kubectl port-forward service/phpmyadmin 8081:8081'
-# ...in another:
-curl -I http://claude-vm.local:8081
-```
-
-If you never run the k8s dev-stack, skip this block entirely — nothing else in the appliance workflow depends on it.
+> **If you plan to run the Kubernetes dev-stack inside the VM,** there's one more optional setup pass to expose kind's `localhost:{8800,9800}` + phpMyAdmin port-forward to the host. That requires the VM to be running and is deferred to [Step 11a](#step-11a--optional-expose-kubernetes-dev-stack-ports-to-the-host) after verification.
 
 ---
 
@@ -510,6 +473,65 @@ echo "y" | openemr-cmd worktree remove test-vm
 
 ---
 
+## Step 11a — Optional: Expose Kubernetes dev-stack ports to the host
+
+> 💻 **On the host machine**
+
+Only needed if you plan to run `openemr-devops/kubernetes/` (`kub-up`) inside the VM. If you never touch the k8s dev-stack, skip this step entirely — nothing else in the appliance workflow depends on it.
+
+The `kind-config-*.yaml` files in `openemr-devops/kubernetes/` pin `listenAddress: "127.0.0.1"` as a laptop-LAN-exposure hardening; inside this NAT-contained VM the LAN containment is already provided by `incusbr0`, so putting a listener on the VM's external NIC gives the host reachability we want without re-opening a LAN-reachability path.
+
+**Exposure profile after this step.** Binding socat to the VM's external NIC means the listeners are reachable from (a) the host, and (b) any *other* Incus guests that share `incusbr0` (none in this guide's default single-guest setup). They remain unreachable from the LAN or from any external host that lacks a route to the Incus-assigned subnet. Same profile as the regular `openemr-cmd` worktree stacks at `claude-vm.local:93XX`, which also bind on the guest's external NIC — if that was acceptable for Step 11, it's acceptable here.
+
+Why a `socat` systemd template unit and not an Incus proxy device: Incus VMs only support **NAT-mode** proxy devices, which does host-side DNAT and cannot break the guest's internal "bound to 127.0.0.1 only" constraint. The in-guest listener has to actually live in the guest.
+
+```bash
+# 1. Install socat inside the VM (VM must be running by now — Steps 6 and 11 handle that).
+incus exec claude-vm -- apt-get update
+incus exec claude-vm -- apt-get install -y socat
+
+# 2. Write a tiny helper script that returns the VM's primary outbound IP. 'ip route get'
+#    asks the kernel which source address would be used to reach a remote destination, so
+#    it ignores docker0 / kind bridges / any other local interfaces that appear in
+#    `hostname -I`.
+printf '#!/bin/sh\nexec ip -4 route get 1.1.1.1 | awk '\''{for (i=1; i<=NF; i++) if ($i == "src") {print $(i+1); exit}}'\''\n' > /tmp/k8s-loopback-expose-primary-ip
+incus file push --mode=755 /tmp/k8s-loopback-expose-primary-ip claude-vm/usr/local/bin/
+
+# 3. Generate the systemd template unit. Binds socat to the helper's returned IP (NOT
+#    0.0.0.0) — kind's docker-proxy already owns 127.0.0.1:{8800,9800}, so a 0.0.0.0
+#    bind overlaps and fails with EADDRINUSE. The %i specifier is instantiated per
+#    enabled port below.
+printf '[Unit]\nDescription=Expose loopback port %%i on the VM external NIC (for kind-bound services)\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nExecStart=/bin/bash -c '\''exec /usr/bin/socat TCP-LISTEN:%%i,fork,reuseaddr,bind=$(/usr/local/bin/k8s-loopback-expose-primary-ip) TCP:127.0.0.1:%%i'\''\nRestart=on-failure\nRestartSec=2\n\n[Install]\nWantedBy=multi-user.target\n' > /tmp/k8s-loopback-expose@.service
+incus file push /tmp/k8s-loopback-expose@.service claude-vm/etc/systemd/system/
+
+# 4. Reload systemd and enable the three instances.
+incus exec claude-vm -- systemctl daemon-reload
+incus exec claude-vm -- systemctl enable --now k8s-loopback-expose@8800.service   # OpenEMR HTTP
+incus exec claude-vm -- systemctl enable --now k8s-loopback-expose@9800.service   # OpenEMR HTTPS
+incus exec claude-vm -- systemctl enable --now k8s-loopback-expose@8081.service   # phpMyAdmin (user-initiated kubectl port-forward)
+```
+
+Verify each is `active (running)` and reachable from the host:
+
+```bash
+incus exec claude-vm -- systemctl --no-pager status 'k8s-loopback-expose@*.service'
+
+# 8800/9800 answer immediately once kub-up finishes
+curl -I http://claude-vm.local:8800
+curl -Ik https://claude-vm.local:9800
+
+# 8081 only answers while a kubectl port-forward is active inside the VM — the
+# openemr-devops kubernetes README calls this out as the normal access pattern
+# for phpMyAdmin. In one terminal:
+incus exec claude-vm -- su - claude-agent -c 'kubectl port-forward service/phpmyadmin 8081:8081'
+# ...in another:
+curl -I http://claude-vm.local:8081
+```
+
+All privileged setup here runs from the host via `incus exec` / `incus file push` so the appliance's `claude-agent` sudoers (`apt-get` and `systemctl` only, per Step 3) stays tight.
+
+---
+
 ## Step 12 — Snapshot the baseline
 
 > 💻 **On the host**
@@ -654,6 +676,7 @@ incus network acl rule add agent-egress ingress \
 # does NOT replace or scope the bridge attachment; both would apply.
 incus network set incusbr0 security.acls=agent-egress                      # bridge-wide: applies to every guest on incusbr0
 # OR
+# Requires the nftables firewall driver on the host — check with `incus info | grep -i firewall`.
 incus config device set claude-vm eth0 security.acls=agent-egress          # per-NIC: applies only to claude-vm's eth0
 ```
 
