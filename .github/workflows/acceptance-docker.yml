@@ -326,6 +326,7 @@ jobs:
     - id: resolve-from-tag
       env:
         INPUT_FROM_TAG: ${{ inputs.from_tag }}
+        INPUT_TO_TAG: ${{ inputs.to_tag || 'next' }}
       run: |
         set -euo pipefail
         if [[ -n "${INPUT_FROM_TAG}" ]]; then
@@ -369,8 +370,10 @@ jobs:
         # candidate-... from docker-build-release, or to_tag=next
         # scheduled) is non-version-shaped and skips this guard.
         # Pre-G56 sql-based rule had an equivalent strict-less-than
-        # filter on candidates.
-        INPUT_TO_TAG="${{ inputs.to_tag || 'next' }}"
+        # filter on candidates. INPUT_TO_TAG comes through the step's
+        # env block (not direct GitHub Actions expression interpolation
+        # into the shell source) to prevent operator-supplied to_tag
+        # values from being shell-parsed.
         if [[ "${INPUT_TO_TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ "${derived}" == "${INPUT_TO_TAG}" ]]; then
           echo "::error::acceptance-docker.yml resolve-from-tag: derived from_tag '${derived}' equals version-shaped to_tag '${INPUT_TO_TAG}'. Upgrade cell would be a vacuous no-op. Pass an explicit from_tag override pointing at a lower shipped version if this dispatch is intentional." >&2
           exit 1
