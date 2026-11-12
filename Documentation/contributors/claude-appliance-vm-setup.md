@@ -93,11 +93,11 @@ sudo ufw reload
 
 Incus's packaging story depends on your distro:
 
-| Distro                   | Source                                       |
-|--------------------------|----------------------------------------------|
-| Ubuntu 24.10+, Debian 12+ | Native apt repos (`sudo apt install incus`) |
-| Ubuntu 24.04 LTS         | **Zabbly upstream apt repo** (steps below)   |
-| Ubuntu 22.04 LTS         | Zabbly upstream apt repo                     |
+| Distro                      | Source                                                  |
+|-----------------------------|---------------------------------------------------------|
+| Ubuntu 24.10+, Debian 13+   | Native apt repos (`sudo apt install incus`)             |
+| Debian 12 (bookworm)        | `bookworm-backports` or **Zabbly upstream apt repo**    |
+| Ubuntu 24.04 LTS, 22.04 LTS | **Zabbly upstream apt repo** (steps below)              |
 
 [Zabbly](https://github.com/zabbly/incus) is maintained by Stéphane Graber (the Incus project lead) and is the canonical upstream source for Debian/Ubuntu Incus packages that are not yet in distro repos. On Ubuntu 24.04 LTS — the host the LXC appliance guide also targets — `apt install incus` fails with "Package 'incus' has no installation candidate" because Incus landed in Ubuntu universe only at 24.10.
 
@@ -147,10 +147,17 @@ groups | grep -qw kvm || sudo usermod -aG kvm $USER
 
 > **Activate the new group memberships in your current shell.** `usermod -aG` writes to `/etc/group` but the shell you're already in won't see it until you re-authenticate. Pick one:
 >
-> - `newgrp incus-admin && newgrp kvm` — swaps the current shell into each group (no logout). Both work for the rest of this guide; only drawback is that `newgrp` starts a subshell, so `exit` returns to the pre-group shell.
-> - **Log out / log back in** — picks up both groups cleanly for every future shell.
+> - `exec su - $USER` — replaces the current shell with a fresh login shell that reads `/etc/group` from scratch. Both groups active, no subshell to `exit` out of, no desktop logout.
+> - **Log out and log back in** — on *desktop* Linux this means ending the whole desktop session (GNOME/KDE caches the group list for every terminal spawned afterwards); closing one terminal window and opening another is not enough.
 >
-> Verify with either `groups` (after re-login or `newgrp`) or `getent group incus-admin kvm` (reads `/etc/group` directly — unaffected by shell cache).
+> `newgrp` doesn't chain: `newgrp incus-admin && newgrp kvm` spawns a subshell in `incus-admin`, then the `&&` only fires when that subshell exits — by which point `incus-admin` is gone and only `kvm` ends up active. You'd have to run `newgrp kvm` *from inside* the `incus-admin` subshell to nest them. Easier to just `exec su - $USER`.
+>
+> Two different verification commands for two different questions:
+>
+> - `getent group incus-admin kvm` — did `usermod` actually write? Reads `/etc/group` directly, independent of shell cache. Shows `brady2` (etc.) as a member.
+> - `groups` or `id -nG` — does *this* shell currently have the groups? Only reflects the state at login or after an `exec su -`.
+>
+> If `getent` lists you but `groups` doesn't, the write worked and you just need to re-login (or `exec su -`). If `getent` doesn't list you, the `usermod` didn't actually run — rerun it.
 
 Now that `incusbr0` exists, return to Step 1 and apply the ufw rules with the real subnet.
 
@@ -603,13 +610,17 @@ incus network acl rule add agent-egress egress \
 incus network acl rule add agent-egress ingress \
   action=allow description="allow ingress (host-initiated + return)"
 
-# Attach to incusbr0. Applies to any guest on the bridge; override per-NIC
-# with `incus config device set claude-vm eth0 security.acls=agent-egress`
-# if you want to leave other guests untouched.
-incus network set incusbr0 security.acls=agent-egress
+# Attach the ACL. Pick ONE of the two lines below — they are alternatives,
+# not a sequence. Setting the ACL on the NIC after setting it on the bridge
+# does NOT replace or scope the bridge attachment; both would apply.
+incus network set incusbr0 security.acls=agent-egress                      # bridge-wide: applies to every guest on incusbr0
+# OR
+incus config device set claude-vm eth0 security.acls=agent-egress          # per-NIC: applies only to claude-vm's eth0
 ```
 
 > **Incus default behavior when an ACL is attached.** The moment any ACL is set on a network or NIC, Incus switches to "default reject" for unmatched traffic in both directions. A reject-only ACL therefore blocks public internet access and host-initiated connections to the guest too. The sketch above pairs the reject rules with explicit allow rules for the catch-all case; keep that shape when editing. See the [Incus network ACL docs](https://linuxcontainers.org/incus/docs/main/howto/network_acls/) for the full rule grammar, stateful-vs-stateless connection tracking, and per-NIC overrides.
+
+> **Bridge-peer traffic is not isolated by this ACL.** Incus network ACLs filter traffic between a guest and destinations *outside* its bridge (internet, host, other networks). They do *not* filter traffic between two guests that share the same bridge — those packets never leave `incusbr0`. If you ever add a second guest to `incusbr0` and want them unable to reach each other, use a **per-NIC** ACL (the second line above) with explicit peer-deny rules, or put the second guest on a different Incus network. In the single-guest default (`claude-vm` is the only Incus guest on the host), this does not apply.
 
 Not applied in the default configuration above because many developer workflows (reaching a local registry, a company intranet behind VPN, a self-hosted LDAP for test-data) deliberately *want* RFC1918 access from the guest. If you are confident the guest only ever needs the public internet, the sketch above is the tightest expression of that policy.
 
