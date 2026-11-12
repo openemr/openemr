@@ -36,11 +36,17 @@ class PatientFinderFontSizeTest extends TestCase
      */
     public function testMenuListsEverySizeInOrder(): void
     {
-        $menu = PatientFinderFontSize::menu();
-
-        $this->assertSame(['small', 'normal', 'large', 'x-large'], array_keys($menu));
-        foreach ($menu as $label) {
-            $this->assertNotSame('', $label);
+        // xl() returns its input when translation is disabled, so no database is needed.
+        $GLOBALS['disable_translation'] = true;
+        try {
+            $menu = PatientFinderFontSize::menu();
+        } finally {
+            unset($GLOBALS['disable_translation']);
         }
+
+        $this->assertSame(
+            ['small' => 'Small', 'normal' => 'Normal', 'large' => 'Large', 'x-large' => 'Extra Large'],
+            $menu
+        );
     }
 }
