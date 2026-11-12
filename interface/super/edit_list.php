@@ -31,9 +31,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\PatientFinder\PatientFinderBuiltInColumns;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
-use OpenEMR\Services\PatientFinder\PatientFinderQueryBuilder;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $language_choice = $session->get('language_choice');
@@ -411,27 +409,20 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
         attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
     $id_name = "opt[" . attr($opt_line_no) . "][id]";
     if (is_string($list_id) && PatientFinderColumnList::isColumnList($list_id)) {
-        // A Patient Finder column (Patient List or Recent Patients): pick one of the combined columns the finder builds itself
-        // or a patient_data field. An id in neither list, such as one a module added, is kept
-        // as its own choice so saving the list never changes it.
+        // A Patient Finder column (Patient List or Recent Patients): pick one of the finder's
+        // own columns or a patient_data field; an id in neither, such as a module's, is kept.
         $current_id = is_string($option_id) ? $option_id : '';
-        // name (Last, First Middle) is the finder's own column, like the combined ones.
-        $built_in_ids = array_merge([PatientFinderQueryBuilder::NAME_KEY], PatientFinderBuiltInColumns::keys());
         // Read once per page, not once per row.
         static $patient_data_fields = null;
         if (!is_array($patient_data_fields)) {
-            $patient_data_fields = array_values(QueryUtils::listTableFields('patient_data'));
-            sort($patient_data_fields);
+            $patient_data_fields = QueryUtils::listTableFields('patient_data');
         }
-        // Filtered here rather than when cached: PHPStan cannot keep a static's type.
-        $field_ids = array_values(array_filter($patient_data_fields, is_string(...)));
-        $id_groups = [
-            xl('Combined columns') => $built_in_ids,
-            xl('Patient data fields') => $field_ids,
-        ];
-        if ($current_id !== '' && !in_array($current_id, $built_in_ids, true) && !in_array($current_id, $field_ids, true)) {
-            $id_groups[xl('Other')] = [$current_id];
-        }
+        $choices = PatientFinderColumnList::columnChoices($current_id, $patient_data_fields);
+        $id_groups = array_filter([
+            xl('Combined columns') => $choices['combined'],
+            xl('Patient data fields') => $choices['fields'],
+            xl('Other') => $choices['other'],
+        ]);
         echo "<select name='" . $id_name . "' class='optin form-control form-control-sm select-dropdown' data-width='100%'>";
         echo "<option value=''></option>";
         foreach ($id_groups as $group_label => $group_ids) {

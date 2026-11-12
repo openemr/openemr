@@ -52,6 +52,28 @@ enum PatientFinderColumnList: string
     }
 
     /**
+     * The choices the List editor's column picker offers for one entry: the finder's own
+     * columns (its Name column and the combined ones), the patient_data fields sorted by
+     * name, and the entry's own id when it is in neither, such as a module's, so saving
+     * the list never changes it.
+     *
+     * @param array<array-key, mixed> $patientDataFields the patient_data column names
+     * @return array{combined: list<string>, fields: list<string>, other: list<string>}
+     */
+    public static function columnChoices(string $currentId, array $patientDataFields): array
+    {
+        $combined = array_merge([PatientFinderQueryBuilder::NAME_KEY], PatientFinderBuiltInColumns::keys());
+        $fields = array_values(array_filter($patientDataFields, is_string(...)));
+        sort($fields);
+        $isOther = $currentId !== '' && !in_array($currentId, $combined, true) && !in_array($currentId, $fields, true);
+        return [
+            'combined' => $combined,
+            'fields' => $fields,
+            'other' => $isOther ? [$currentId] : [],
+        ];
+    }
+
+    /**
      * Read the finder page's `finderList` request value; anything else is the Patient List.
      */
     public static function fromRequestValue(string $value): self

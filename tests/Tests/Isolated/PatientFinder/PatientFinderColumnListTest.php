@@ -65,4 +65,29 @@ class PatientFinderColumnListTest extends TestCase
             'empty' => ['', false],
         ];
     }
+
+    /**
+     * The column picker offers the finder's own columns, then the patient_data fields sorted
+     * by name, leaving out anything that is not a field name.
+     */
+    public function testColumnChoicesOfferTheFindersColumnsThenSortedFields(): void
+    {
+        $choices = PatientFinderColumnList::columnChoices('DOB', ['sex', 'DOB', 7, 'city']);
+
+        $this->assertSame('name', $choices['combined'][0]);
+        $this->assertContains('address_full', $choices['combined']);
+        $this->assertSame(['DOB', 'city', 'sex'], $choices['fields']);
+        $this->assertSame([], $choices['other']);
+    }
+
+    /**
+     * An entry whose id is neither one of the finder's columns nor a field, such as a
+     * module's, is offered as its own choice so saving the list keeps it.
+     */
+    public function testColumnChoicesKeepAnIdTheFinderDoesNotKnow(): void
+    {
+        $this->assertSame(['ihi'], PatientFinderColumnList::columnChoices('ihi', ['sex'])['other']);
+        $this->assertSame([], PatientFinderColumnList::columnChoices('', ['sex'])['other'], 'a new, blank entry');
+        $this->assertSame([], PatientFinderColumnList::columnChoices('age', ['sex'])['other'], 'a combined column');
+    }
 }
