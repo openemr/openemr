@@ -743,6 +743,37 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       openemr-cmd change-webroot-openemr
       ```
 
+## AI Agent Development Environment
+
+If you contribute with the help of AI coding agents (Claude Code, Codex, and
+similar), you may want a sandboxed environment that lets agents work against
+OpenEMR — each in its own git worktree with its own Docker stack — without
+exposing your host filesystem or host Docker daemon to the agent.
+
+The repository's [`AGENTS.md`](AGENTS.md) documents the universal rules every
+agent environment must satisfy: required tools, the git directory layout, and
+the golden rules for worktree and stack lifecycle. Any environment that meets
+those rules will work.
+
+Reference configurations:
+
+| Configuration      | Isolation                                                                           | Supported workloads                                                              | Host requirements                      | Guide                                                         |
+|--------------------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|----------------------------------------|---------------------------------------------------------------|
+| LXC appliance      | Jailed LXC container, NAT networking, own Docker daemon                             | Worktree stacks (`openemr-cmd`)                                                  | Linux host with LXC                    | [Setup guide](Documentation/contributors/claude-appliance-setup.md)    |
+| Incus VM appliance | KVM guest with its own kernel (hypervisor boundary), NAT networking, own Docker daemon | Worktree stacks + Kubernetes dev-stack (`openemr-devops/kubernetes/` via `kind`) | Linux host with Incus + KVM (`/dev/kvm`) | [Setup guide](Documentation/contributors/claude-appliance-vm-setup.md) |
+
+Other approaches — devcontainers, full VMs, and remote development hosts — work
+too. These guides are starting points, not requirements.
+
+Whichever you choose, two things are worth doing regardless:
+
+- **Scope the agent's credentials.** Give it a token limited to your own fork
+  rather than one that inherits your access to upstream repositories or to
+  organization accounts.
+- **Keep the permission prompts on unless the environment is a real boundary.**
+  Skipping approval prompts is reasonable inside an isolated sandbox. It is not
+  reasonable on a host with access to production systems or patient data.
+
 ## Working without Docker
 
 The sections above describe the recommended Docker-based workflow. If you maintain a full host toolchain (PHP 8.3+, Composer with `composer install` populated `vendor/`, Node, Python 3 (if using pre-commit over prek)), you can run validation, code-quality checks, and isolated tests directly on your machine without invoking the openemr container.
@@ -799,37 +830,6 @@ Review the diff before committing. See `tests/Tests/Isolated/Common/Twig/fixture
 ### Full host installation
 
 If you'd rather not use Docker at all, you can install OpenEMR directly on your local environment. This requires installing additional dependencies for your operating system. For more info see [OpenEMR Development Versions](https://open-emr.org/wiki/index.php/OpenEMR_Installation_Guides#OpenEMR_Development_Versions) on the wiki.
-
-## AI Agent Development Environment
-
-If you contribute with the help of AI coding agents (Claude Code, Codex, and
-similar), you may want a sandboxed environment that lets agents work against
-OpenEMR — each in its own git worktree with its own Docker stack — without
-exposing your host filesystem or host Docker daemon to the agent.
-
-The repository's [`AGENTS.md`](AGENTS.md) documents the universal rules every
-agent environment must satisfy: required tools, the git directory layout, and
-the golden rules for worktree and stack lifecycle. Any environment that meets
-those rules will work.
-
-Reference configurations:
-
-| Configuration | Isolation | Host requirements | Guide |
-|---|---|---|---|
-| LXC appliance | Jailed LXC container, NAT networking, own Docker daemon | Linux host with LXC | [Setup guide](Documentation/contributors/claude-appliance-setup.md) |
-| Incus VM appliance | KVM guest with its own kernel (hypervisor boundary), NAT networking, own Docker daemon | Linux host with Incus + KVM (`/dev/kvm`) | [Setup guide](Documentation/contributors/claude-appliance-vm-setup.md) |
-
-Other approaches — devcontainers, full VMs, and remote development hosts — work
-too. These guides are starting points, not requirements.
-
-Whichever you choose, two things are worth doing regardless:
-
-- **Scope the agent's credentials.** Give it a token limited to your own fork
-  rather than one that inherits your access to upstream repositories or to
-  organization accounts.
-- **Keep the permission prompts on unless the environment is a real boundary.**
-  Skipping approval prompts is reasonable inside an isolated sandbox. It is not
-  reasonable on a host with access to production systems or patient data.
 
 ## Financial contributions
 
