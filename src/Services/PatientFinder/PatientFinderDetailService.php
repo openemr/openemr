@@ -58,23 +58,40 @@ final class PatientFinderDetailService
     /** @var callable(string, string): bool */
     private $aclCheck;
 
+    /** @var callable(string, array<string, string>): string */
+    private $renderLayout;
+
     /**
      * @param callable(string, array<int, string|int>): list<array<mixed>>|null $fetchRecords
      * @param callable(): list<string>|null $patientDataFields the patient_data column names
      * @param callable(string, string): bool|null $aclCheck whether the current user has an ACL
      *        section and value (defaults to AclMain::aclCheckCore())
+     * @param callable(string, array<string, string>): string|null $renderLayout a layout's HTML
+     *        for the given values (defaults to display_layout_tabs_data() from options.inc.php)
      */
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         ?callable $fetchRecords = null,
         ?callable $patientDataFields = null,
         private ?PatientFinderBuiltInColumns $builtInColumns = null,
-        ?callable $aclCheck = null
+        ?callable $aclCheck = null,
+        ?callable $renderLayout = null
     ) {
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
         $this->patientDataFields = $patientDataFields ?? self::listPatientDataFields(...);
         $this->aclCheck = $aclCheck ?? static fn(string $section, string $value): bool
             => AclMain::aclCheckCore($section, $value);
+        $this->renderLayout = $renderLayout ?? self::renderLayoutTabsData(...);
+    }
+
+    /**
+     * The detail layout's HTML for one patient, or null when there is no such patient or the
+     * finder would not show them.
+     */
+    public function html(int $pid): ?string
+    {
+        $values = $this->values($pid);
+        return $values === null ? null : ($this->renderLayout)(self::LAYOUT_ID, $values);
     }
 
     /**
@@ -177,6 +194,19 @@ final class PatientFinderDetailService
         $event = new PatientFinderFilterEvent(new BoundFilter(), [], []);
         $this->dispatcher->dispatch($event, PatientFinderFilterEvent::EVENT_HANDLE);
         return $event->getBoundFilter();
+    }
+
+    /**
+     * The layout renderer prints its HTML, so it is captured. The caller has loaded
+     * options.inc.php, which defines it.
+     *
+     * @param array<string, string> $values
+     */
+    private static function renderLayoutTabsData(string $layoutId, array $values): string
+    {
+        ob_start();
+        display_layout_tabs_data($layoutId, $values);
+        return (string) ob_get_clean();
     }
 
     /**

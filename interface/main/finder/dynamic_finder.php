@@ -98,7 +98,7 @@ $pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
             // Expanding a row to show the Patient Finder Detail layout.
             detail: {
                 enabled: <?php echo $detailEnabled ? 'true' : 'false'; ?>,
-                url: <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/main/finder/patient_detail_ajax.php'); ?>,
+                url: <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/main/finder/dynamic_finder_ajax.php'); ?>,
                 showLabel: <?php echo xlj('Show details'); ?>,
                 hideLabel: <?php echo xlj('Hide details'); ?>,
                 errorText: <?php echo xlj('The details could not be loaded.'); ?>

@@ -161,7 +161,7 @@
             return;
         }
         top.restoreSession();
-        fetch(detail.url + '?' + new URLSearchParams({pid: pid}), {credentials: 'same-origin'})
+        fetch(detail.url + '?' + new URLSearchParams({detail: pid}), {credentials: 'same-origin'})
             .then(function (response) {
                 if (!response.ok) {
                     throw new Error('detail request failed: ' + response.status);

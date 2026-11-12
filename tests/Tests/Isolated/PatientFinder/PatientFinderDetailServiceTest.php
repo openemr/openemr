@@ -5,7 +5,8 @@
  *
  * Checks that an expanded finder row reads only the fields the Patient Finder
  * Detail layout shows, builds combined columns from their SQL, applies the
- * finder's patient filter, and finds nothing for a bad or hidden pid.
+ * finder's patient filter, finds nothing for a bad or hidden pid, and renders the
+ * layout with the values it read.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -55,7 +56,9 @@ class PatientFinderDetailServiceTest extends TestCase
             $fetch,
             static fn(): array => ['pid', 'sex', 'DOB', 'ss'],
             new PatientFinderBuiltInColumns(),
-            static fn(string $section, string $value): bool => $appointmentAccess
+            static fn(string $section, string $value): bool => $appointmentAccess,
+            static fn(string $layoutId, array $values): string
+                => $layoutId . ':' . json_encode($values, JSON_THROW_ON_ERROR)
         );
     }
 
@@ -100,6 +103,27 @@ class PatientFinderDetailServiceTest extends TestCase
         [$sql, $binds] = end($this->queries) ?: ['', []];
         $this->assertStringContainsString('WHERE patient_data.pid = ? AND (patient_data.pid NOT IN (?)) LIMIT 1', $sql);
         $this->assertSame([42, 42], $binds);
+    }
+
+    /**
+     * The HTML is the detail layout rendered with the patient's values.
+     */
+    public function testHtmlRendersTheDetailLayoutWithThePatientsValues(): void
+    {
+        $service = $this->service(['sex'], [['pid' => 7, 'sex' => 'Female']]);
+
+        $this->assertSame('PTFINDER:{"sex":"Female"}', $service->html(7));
+    }
+
+    /**
+     * A patient that is not found has no HTML, so the endpoint can answer 404.
+     */
+    public function testHtmlIsNullForAPatientNotFound(): void
+    {
+        $service = $this->service(['sex'], []);
+
+        $this->assertNull($service->html(7));
+        $this->assertNull($service->html(0));
     }
 
     /**
