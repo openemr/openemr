@@ -467,6 +467,10 @@ UPDATE `list_options` SET `title` = 'Patient Finder – Recent Patients Columns'
 
 -- Recent Patients Use Patient List Columns: on for new installs, off here so an existing
 -- site's Recent Patients tab keeps its own columns until an administrator turns it on.
+-- Only a site that has been set up is changed: the installer writes every global's
+-- default, so a bare database.sql (with no globals) gets the default, as a new install does.
 #IfNotRow globals gl_name gbl_pt_list_recent_same_columns
-INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES ('gbl_pt_list_recent_same_columns', 0, '0');
+INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`)
+SELECT 'gbl_pt_list_recent_same_columns', 0, '0' FROM DUAL
+WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
 #EndIf
