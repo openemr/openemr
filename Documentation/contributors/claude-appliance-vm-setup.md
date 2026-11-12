@@ -381,6 +381,30 @@ Required permissions:
 
 > 🖥️ **Inside guest** (as claude-agent)
 
+### Optional shortcut: copy `~/.ssh` from a running LXC appliance
+
+If you already have the [LXC appliance](claude-appliance-setup.md) set up with deploy keys and `~/.ssh/config` stanzas for one or more forks, you can copy the whole `.ssh/` directory into the VM in one command rather than re-running the deploy-key generation + SSH-config stanza for each fork. Big time-saver once you have more than one fork wired up.
+
+```bash
+# On the host:
+sudo lxc-attach -n claude-appliance -- su - claude-agent -c 'tar czf - .ssh' \
+  | incus exec claude-vm -- su - claude-agent -c 'tar xzf -'
+```
+
+Both `tar` invocations run as `claude-agent`, which matches ownership and permissions on both sides without any post-copy `chown`/`chmod` fixup. Verify from inside the VM:
+
+```bash
+incus exec claude-vm -- su - claude-agent -c 'ssh -T git@github-<your-username>-openemr'
+# Same "Hi <your-username>/openemr! You've successfully authenticated..." greeting
+# as on the LXC side — the deploy keys and SSH config transfer intact.
+```
+
+> **The same private deploy keys now live in both appliances.** That is within the existing appliance threat model — both are agent-trust-level sandboxes you own, and a deploy key is already repo-scoped by design, so the blast radius doesn't widen. But if you ever decommission one appliance (delete the LXC, or `incus delete claude-vm`), the orphaned copies on the other side are still registered on GitHub. Either rotate the GitHub deploy keys after decommission or delete the surviving `.ssh/` copies before they become stale.
+
+If you don't have the LXC appliance (or you'd rather keep the two appliances' keys separate), skip this block and generate fresh keys per the next subsection.
+
+### Generating from scratch
+
 Identical to the LXC appliance's [Step 10a](claude-appliance-setup.md#step-10a--deploy-key-for-fork-pushes) — generate a per-repo SSH deploy key, register it with "Allow write access" on your fork, configure a repo-scoped `Host` alias in `~/.ssh/config`, rewrite origin to use it, and mirror the alias on the host side. The mechanism is unchanged in the VM.
 
 Verify:
