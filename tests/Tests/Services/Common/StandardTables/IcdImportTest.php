@@ -106,8 +106,7 @@ final class IcdImportTest extends TestCase
     {
         $this->seedActiveRevisions();
         $this->stageRelease([
-            'icd10cm_order_2026.txt' => str_replace(PHP_EOL, "
-", self::dxLine(1, 'A00', '0', 'Cholera') . self::dxLine(2, 'A001', '1', 'Cholera due to Vibrio cholerae 01, biovar eltor')),
+            'icd10cm_order_2026.txt' => str_replace(PHP_EOL, "\r\n", self::dxLine(1, 'A00', '0', 'Cholera') . self::dxLine(2, 'A001', '1', 'Cholera due to Vibrio cholerae 01, biovar eltor')),
         ]);
 
         icd_import('ICD10');
