@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2023-2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,6 +24,7 @@ use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxDocumentDisposalInterface;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
+use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentAccessException;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
@@ -166,29 +169,35 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
         $tag = $user['username'] ?? '';
         $fileName = '';
 
-        // Validate file path if not content
+        // Validate the file path. Every existing file the request names must
+        // be under send/, whatever flags come with it: inline content
+        // (`isContent`) is bytes, never a path, so it can't exempt a path. A
+        // patient document send names the document's own storage path, which
+        // is never under send/; it is read by document id below, so the path
+        // isn't used.
         $allowedTempDir = realpath($this->baseDir . '/send/');
-        if (empty($isContent)) {
+        if (!$isDocuments) {
             if (str_starts_with((string)$file, 'file://')) {
                 $file = substr((string)$file, 7);
             }
-            $realPath = realpath((string)$file);
-            if ($realPath !== false) {
+            if (is_string($file) && is_file($file)) {
+                $realPath = realpath($file);
                 $allowedRoot = $allowedTempDir !== false
                     ? rtrim($allowedTempDir, DIRECTORY_SEPARATOR)
                     : false;
                 // Require an exact match or a true child path; a bare prefix
                 // check would let a sibling like ".../send_evil" slip through.
-                $withinAllowed = $allowedRoot !== false
+                $withinAllowed = $realPath !== false
+                    && $allowedRoot !== false
                     && ($realPath === $allowedRoot
                         || str_starts_with($realPath, $allowedRoot . DIRECTORY_SEPARATOR));
-                if (!$withinAllowed) {
-                    error_log("Path traversal blocked: " . $realPath);
+                if ($realPath === false || !$withinAllowed) {
+                    error_log("Path traversal blocked: " . ($realPath === false ? $file : $realPath));
                     return xlt('Error: Invalid file location');
                 }
                 $file = str_replace("\\", "/", $realPath);
-                $fileName = pathinfo((string)$file, PATHINFO_BASENAME);
-            } else {
+                $fileName = pathinfo($file, PATHINFO_BASENAME);
+            } elseif (empty($isContent)) {
                 return xlt('Error: No Fax content');
             }
         }
@@ -215,11 +224,16 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface, FaxDoc
             $fileName = pathinfo($file, PATHINFO_BASENAME);
         }
 
-        // If document mode, load from Document table instead
+        // If document mode, load from Document table instead, enforcing the
+        // document ACLs and patient ownership for the request-supplied id.
         if ($isDocuments) {
-            $doc = new Document($docId);
-            $file = $doc->get_data();
-            $fileName = $doc->get_name() ?? 'document';
+            try {
+                $document = $this->readAuthorizedFaxDocument($docId);
+            } catch (FaxDocumentAccessException $e) {
+                return $e->getMessage();
+            }
+            $file = $document['content'];
+            $fileName = $document['name'];
         }
 
         // Optional email copy. $file is raw bytes when either the
@@ -939,9 +953,7 @@ SQL;
      */
     protected function index()
     {
-        if (!$this->getSession('pid', '')) {
-            $this->setSession('pid', $this->getRequest('patient_id'));
-        }
+        $this->openRequestedPatient();
     }
 
 }

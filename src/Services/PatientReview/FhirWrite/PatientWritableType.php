@@ -41,6 +41,34 @@ enum PatientWritableType
     }
 
     /**
+     * Whether the FHIR API accepts this type from patient apps yet. A type the API doesn't serve
+     * is never advertised and never let through the permission gates, whatever its setting says:
+     * its approval and read-back rules aren't in place, so a write could be held but not decided.
+     */
+    public function servedByApi(): bool
+    {
+        return match ($this) {
+            self::QuestionnaireResponse => true,
+            self::VitalSignObservation, self::AllergyIntolerance, self::Condition => false,
+        };
+    }
+
+    /**
+     * The kind of write a held request is, from the resource type it was filed under. An
+     * Observation is a vital sign: no other Observation can be held.
+     */
+    public static function forResourceType(FhirResourceType $resourceType): ?self
+    {
+        foreach (self::cases() as $type) {
+            if ($type->fhirResourceType()->equals($resourceType)) {
+                return $type;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * The FHIR resource type a held write of this kind is filed under in the review queue.
      */
     public function fhirResourceType(): FhirResourceType

@@ -5,9 +5,11 @@
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2025 Mountain Valley Health <mvhinspire@mountainvalleyhealthinc.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @license   There are segments of code in this file that have been generated via Claude.ai and used common.php as its original source are licensed as Public Domain.  They have been marked with a header and footer.
  */
@@ -85,8 +87,8 @@ window.NewPatientForm = function(window) {
                 // User pressed the cancel button, so redirect to today's encounter
                 top.restoreSession();
                 parent.left_nav.setEncounter(config.duplicate.dateStr, config.duplicate.encounter, window.name);
-                parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter='
-                    + encodeURIComponent(config.duplicate.encounter));
+                const params = new URLSearchParams({set_encounter: config.duplicate.encounter, csrf_token_form: top.csrf_token_js});
+                parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?' + params);
                 return;
             }
         }

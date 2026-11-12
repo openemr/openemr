@@ -16,11 +16,12 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
-use OpenEMR\Services\QuestionnaireService;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
@@ -42,6 +43,7 @@ $patient = json_decode($_POST['upload_pid'] ?? '');
 $template_content = null;
 
 if (($_POST['mode'] ?? null) === 'save_profiles') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-profiles', dieOnFail: true);
     $profiles = json_decode((string)$_POST['profiles'], true);
     $rtn = $templateService->saveAllProfileTemplates($profiles);
     if ($rtn) {
@@ -77,6 +79,7 @@ if (($_POST['mode'] ?? null) === 'get') {
 }
 
 if (($_POST['mode'] ?? null) === 'send_profiles') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-send', dieOnFail: true);
     if (!empty($_POST['checked'])) {
         $profiles = json_decode((string)$_POST['checked']) ?: [];
         $last_id = $templateService->setProfileActiveStatus($profiles);
@@ -91,6 +94,7 @@ if (($_POST['mode'] ?? null) === 'send_profiles') {
 }
 
 if (($_POST['mode'] ?? null) === 'send') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-send', dieOnFail: true);
     if (!empty($_POST['docid'])) {
         $pids_array = json_decode((string)$_POST['docid']) ?: ['0'];
         // profiles are in an array with flag to indicate a group of template id's
@@ -144,6 +148,7 @@ if (($_POST['mode'] ?? null) === 'save') {
     }
     die(xlt('Invalid File'));
 } elseif (($_POST['mode'] ?? null) === 'update_category') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-send', dieOnFail: true);
     if ($_POST['docid']) {
         $template = $templateService->updateTemplateCategory($_POST['docid'], $_POST['category']);
         echo xlt('Template Category successfully changed to new Category') . ' ' . text($_POST['category']);
@@ -179,38 +184,22 @@ if (isset($_POST['blank-nav-button'])) {
     die();
 }
 
-if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
-    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
-    $id = 0;
-    $q = $_POST['questionnaire'] ?? '';
-    $l = $_POST['lform'] ?? '';
-    if (!empty($q)) {
-        $service = new QuestionnaireService();
-        try {
-            $id = $service->saveQuestionnaireResource($q, null, null, null, $l);
-        } catch (\Throwable $e) {
-            header('refresh:3;url= import_template_ui.php');
-            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
-                text($e->getMessage()) . '</h4>';
-            exit;
-        }
-        if (empty($id)) {
-            header('refresh:3;url= import_template_ui.php');
-            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
-                xlt("Import failed to save.") . '</h4>';
-            exit;
-        }
-    }
-    header("location: " . $_SERVER['HTTP_REFERER']);
-    die();
-}
-
 // templates file import
 if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['template_files']['name'][0] ?? '')) {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
     // so it is a template file import. create record(s).
     $import_files = $_FILES["template_files"];
     $total = count($_FILES['template_files']['name']);
+    // Check every file before saving any, so a JSON file in the selection refuses it whole
+    // rather than leaving the templates before it saved and the ones after it not.
+    foreach (CurrentRequest::get()->files->all('template_files') as $upload) {
+        if ($upload instanceof UploadedFile && DocumentTemplateService::isJsonFile($upload->getPathname())) {
+            header('refresh:3;url= import_template_ui.php');
+            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
+                xlt('JSON files are not templates. Use Import Questionnaires for a FHIR Questionnaire.') . '</h4>';
+            exit;
+        }
+    }
     for ($i = 0; $i < $total; $i++) {
         if ($_FILES['template_files']['error'][$i] !== UPLOAD_ERR_OK) {
             header('refresh:3;url= import_template_ui.php');
@@ -230,7 +219,7 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
         }
         // get em and dispose
         try {
-            $success = $templateService->uploadTemplate($name, $_POST['template_category'], $_FILES['template_files']['tmp_name'][$i], $patient, isset($_POST['upload_submit_questionnaire']));
+            $success = $templateService->uploadTemplate($name, $_POST['template_category'], $_FILES['template_files']['tmp_name'][$i], $patient);
             if (!$success) {
                 echo "<p>" . xlt("Unable to save files. Use back button!") . "</p>";
                 exit;
@@ -512,6 +501,7 @@ function renderEditorHtml($template_id, $content): void
 function renderProfileHtml(): void
 {
     global $templateService, $globalsBag;
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     $category_list = $templateService->fetchDefaultCategories();
     $profile_list = $templateService->fetchDefaultProfiles();
@@ -596,6 +586,7 @@ function renderProfileHtml(): void
         });
         top.restoreSession();
 
+        // Save every profile's template list and options, then reload the opener.
         function submitProfiles() {
             top.restoreSession();
             let target = document.getElementById('edit-profiles');
@@ -622,6 +613,7 @@ function renderProfileHtml(): void
             const data = new FormData();
             data.append('profiles', JSON.stringify(profileArray));
             data.append('mode', 'save_profiles');
+            data.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'import-template-profiles')); ?>);
             fetch('./import_template.php', {
                 method: 'POST',
                 body: data,

@@ -10,6 +10,8 @@
 
 A jailed Ubuntu LXC container running on the host Linux machine, connected to the host's git directory via bind mount (mirrored path). The container uses LXC's default NAT bridge (`lxcbr0`) rather than a separate LAN/host bridge such as `br0`, with a static IP inside the container and a single `/etc/hosts` entry on the host for name resolution.
 
+> **See also:** [`claude-appliance-vm-setup.md`](claude-appliance-vm-setup.md) — an Incus VM sibling of this guide. Same workflow, with a hypervisor boundary between agent and host kernel as defense-in-depth on top of the shared `.git/` path discussed in the threat model below. Costs ~10-20 s boot and virtiofs-speed metadata operations on the shared git path; makes `kind` (and the full `openemr-devops` Kubernetes dev-stack) runnable inside the sandbox. Both appliances can coexist on the same host.
+
 **Key design decisions:**
 - PHP, Composer, and Node for OpenEMR work are **not** installed in the LXC — all PHP/JS/CSS work runs inside the demo stacks via `openemr-cmd` commands (`docker exec`). Node is installed only to run the agent CLI itself (Claude Code).
 - LXC provides the jail — agents cannot reach host Docker, host filesystem outside the bind mount, or host localhost services
@@ -208,24 +210,9 @@ curl -fsSL https://get.docker.com | sh
 systemctl enable docker
 systemctl start docker
 
-# kubectl
-# Note: this fetches the current stable release. Pin to a specific version
-# and verify the published .sha256 file if you want stricter supply-chain guarantees.
-curl -fsSL https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl \
-  -o /usr/local/bin/kubectl
-chmod +x /usr/local/bin/kubectl
-
-# kind (Kubernetes IN Docker — for openemr-devops kubernetes work)
-# Note: this fetches the latest release. Pin to a specific version and verify the
-# SHA from https://github.com/kubernetes-sigs/kind/releases for stricter supply-chain guarantees.
-curl -fsSL https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64 \
-  -o /usr/local/bin/kind
-chmod +x /usr/local/bin/kind
-
-# helm (used by kub-up to install cert-manager and NFS provisioner)
-# Note: piping a remote install script to a shell is convenient but trusts the upstream;
-# pin a specific Helm release if you want stricter supply-chain guarantees.
-curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+# No kubectl/kind/helm — the k8s dev-stack (kind-based) does not run inside
+# the LXC appliance (documented in openemr-devops/kubernetes/README.md).
+# Use the Incus VM appliance for Kubernetes work — see claude-appliance-vm-setup.md.
 
 # openemr-cmd (clone openemr-devops into the bind-mounted git dir if not already present)
 if [ ! -d "<git-dir>/openemr-devops" ]; then
@@ -513,9 +500,10 @@ openemr-cmd worktree add test-appliance -b --env easy --start
 # Check assigned ports
 openemr-cmd worktree list
 
-# Verify PHP tooling runs inside the stack, not the appliance
-openemr-cmd pp
-openemr-cmd ut
+# Verify PHP tooling runs inside the stack, not the appliance.
+# Target test-appliance explicitly in case another worktree's stack is also running.
+openemr-cmd worktree exec test-appliance pp
+openemr-cmd worktree exec test-appliance ut
 ```
 
 > 💻 **On the host** — open browser and visit the HTTPS URL for `test-appliance` using its assigned port from `openemr-cmd worktree list`. For offset 1, use:

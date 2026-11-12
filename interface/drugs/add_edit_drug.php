@@ -1,11 +1,14 @@
 <?php
 
- // Copyright (C) 2006-2021 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * Edit / add drug entry.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2006-2021 Rod Roark <rod@sunsetsystems.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once("../globals.php");
 require_once("drugs.inc.php");
@@ -205,6 +208,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 //
 if (!empty($_POST['form_save'])) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    // The page-level admin/drugs check at :32 accepts any grant including
+    // read-only `view`. Mutating drug/inventory data (name, NDC, prices,
+    // reorder points, dispensable + related inventory handlers) must require
+    // the `write` return mode.
+    if (!AclMain::aclCheckCore('admin', 'drugs', '', ['write'])) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs write: Edit/Add Drug", xl("Edit/Add Drug"));
+    }
 
     $drugName = trim((string) $_POST['form_name']);
     if ($drugName === '') {

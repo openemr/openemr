@@ -7,10 +7,14 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 require_once("./ub04_dispose.php");
 
@@ -46,6 +50,8 @@ if ($isAuthorized === 1) {
     $requestPid = $query->getInt('pid');
     $sessionPid = PatientSessionUtil::getPid();
     if ($requestPid > 0 && $sessionPid <= 0) {
+        // Opening a patient needs a CSRF token in the link.
+        PatientSessionUtil::requireCsrfForLinkSwitch(CurrentRequest::get(), $requestPid);
         setpid($requestPid);
     }
     $pid = PatientSessionUtil::getPid();

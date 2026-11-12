@@ -21,6 +21,30 @@ use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
 
 class SentinelUtil
 {
+    /**
+     * Redis socket read timeout (seconds) used across every connection path
+     * (sentinel discovery + master connect). Any per-command timeout that
+     * blocks on reading a reply (notably WAIT) must stay strictly below this
+     * or phpredis will tear the socket down with a RedisException before the
+     * command's own timeout fires — the longer command timeout is silently
+     * ignored.
+     */
+    public const REDIS_READ_TIMEOUT_SECONDS = 3.0;
+
+    /**
+     * Safe ceiling (milliseconds) for any per-command WAIT timeout, with a
+     * 500 ms margin below the socket read timeout to let the WAIT reply
+     * reach the client before the socket read times out.
+     *
+     * Hardcoded to 2500 (= REDIS_READ_TIMEOUT_SECONDS * 1000 - 500 margin)
+     * because PHP 8.3 constant expressions disallow casts, and the float-
+     * math form (3.0 * 1000 - 500 = 2500.0) resolves to a float which the
+     * declared `int` property type on $redisSessionWaitTimeoutMs would
+     * silently coerce via min(). Keeping the const an int keeps the
+     * invariant visible. Update alongside REDIS_READ_TIMEOUT_SECONDS.
+     */
+    public const WAIT_TIMEOUT_CEILING_MS = 2500;
+
     private static string $sentinelCa = 'redis-sentinel-ca';
     private static string $sentinelCert = 'redis-sentinel-cert';
     private static string $sentinelKey = 'redis-sentinel-key';
@@ -46,6 +70,8 @@ class SentinelUtil
 
     private readonly int $redisSessionLockTtl;
     private readonly int $redisSessionLockMaxWait;
+    private readonly int $redisSessionWaitReplicas;
+    private readonly int $redisSessionWaitTimeoutMs;
 
     private readonly LoggerInterface $logger;
 
@@ -150,6 +176,38 @@ class SentinelUtil
             ? (int) $redisSessionLockMaxWait
             : LockingRedisSessionHandler::DEFAULT_LOCK_MAX_WAIT_SECONDS;
 
+        // optional: number of Redis replicas that must ACK each session
+        // write before the request returns. 0 (default) disables the WAIT
+        // step entirely — legacy behavior: write-then-return as soon as
+        // the primary has stored the value. Set to 1 on a Sentinel-managed
+        // cluster to eliminate the session-loss window where the primary
+        // crashes with writes that have not yet replicated. Non-zero only
+        // makes sense with Redis replication configured (which this stack
+        // provides via the sentinel/redis StatefulSets).
+        $redisSessionWaitReplicas = getenv('REDIS_SESSION_WAIT_REPLICAS', true);
+        $this->redisSessionWaitReplicas = ($redisSessionWaitReplicas !== false && ctype_digit($redisSessionWaitReplicas) && (int) $redisSessionWaitReplicas >= 0)
+            ? (int) $redisSessionWaitReplicas
+            : LockingRedisSessionHandler::DEFAULT_WAIT_REPLICAS;
+
+        // optional: per-call timeout (milliseconds) for the WAIT command.
+        // Only consulted when waitReplicas > 0. Clamped at WAIT_TIMEOUT_CEILING_MS
+        // so the WAIT reply arrives before the socket read timeout (see
+        // REDIS_READ_TIMEOUT_SECONDS) tears the connection down — otherwise
+        // phpredis throws RedisException before WAIT's own timeout fires and
+        // the longer user-configured value is silently ineffective.
+        $redisSessionWaitTimeoutMs = getenv('REDIS_SESSION_WAIT_TIMEOUT_MS', true);
+        $requestedWaitTimeoutMs = ($redisSessionWaitTimeoutMs !== false && ctype_digit($redisSessionWaitTimeoutMs) && (int) $redisSessionWaitTimeoutMs > 0)
+            ? (int) $redisSessionWaitTimeoutMs
+            : LockingRedisSessionHandler::DEFAULT_WAIT_TIMEOUT_MS;
+        if ($requestedWaitTimeoutMs > self::WAIT_TIMEOUT_CEILING_MS) {
+            $this->logger->warning('REDIS_SESSION_WAIT_TIMEOUT_MS clamped to the socket-read-timeout ceiling', [
+                'requested_ms' => $requestedWaitTimeoutMs,
+                'ceiling_ms' => self::WAIT_TIMEOUT_CEILING_MS,
+                'socket_read_timeout_seconds' => self::REDIS_READ_TIMEOUT_SECONDS,
+            ]);
+        }
+        $this->redisSessionWaitTimeoutMs = min($requestedWaitTimeoutMs, self::WAIT_TIMEOUT_CEILING_MS);
+
         $this->logger->debug("Predis Sentinel constructor initialized successfully.", [
             'predisSentinels' => $this->predisSentinels,
             'predisMaster' => $this->predisMaster,
@@ -165,6 +223,8 @@ class SentinelUtil
             'masterKeyFile' => $this->masterKeyFile,
             'redisSessionLockTtl' => $this->redisSessionLockTtl,
             'redisSessionLockMaxWait' => $this->redisSessionLockMaxWait,
+            'redisSessionWaitReplicas' => $this->redisSessionWaitReplicas,
+            'redisSessionWaitTimeoutMs' => $this->redisSessionWaitTimeoutMs,
         ]);
     }
 
@@ -200,10 +260,10 @@ class SentinelUtil
         $connected = $redis->connect(
             $host,
             $masterPort,
-            3.0,   // connectTimeout
+            self::REDIS_READ_TIMEOUT_SECONDS,   // connectTimeout
             null,  // persistentId
             0,     // retryInterval
-            3.0,   // readTimeout
+            self::REDIS_READ_TIMEOUT_SECONDS,   // readTimeout
             $options,
         );
 
@@ -226,7 +286,14 @@ class SentinelUtil
     {
         $redis = $this->configureClient();
         $inner = new RedisSessionHandler($redis, ['ttl' => $ttl]);
-        return new LockingRedisSessionHandler($redis, $inner, $this->redisSessionLockTtl, $this->redisSessionLockMaxWait);
+        return new LockingRedisSessionHandler(
+            $redis,
+            $inner,
+            $this->redisSessionLockTtl,
+            $this->redisSessionLockMaxWait,
+            $this->redisSessionWaitReplicas,
+            $this->redisSessionWaitTimeoutMs,
+        );
     }
 
     /**
@@ -248,8 +315,8 @@ class SentinelUtil
                 $sentinel = new \RedisSentinel([
                     'host'           => $host,
                     'port'           => 26379,
-                    'connectTimeout' => 3.0,
-                    'readTimeout'    => 3.0,
+                    'connectTimeout' => self::REDIS_READ_TIMEOUT_SECONDS,
+                    'readTimeout'    => self::REDIS_READ_TIMEOUT_SECONDS,
                 ] + $this->buildSentinelAuthOptions() + $this->buildSentinelSslOptions());
 
                 $masterInfo = $sentinel->getMasterAddrByName($this->predisMaster);

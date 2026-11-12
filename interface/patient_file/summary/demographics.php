@@ -90,7 +90,7 @@ $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 if ($request->query->has('set_pid')) {
     $setPid = $request->query->getInt('set_pid');
     $setEncounterId = $request->query->getInt('set_encounterid');
-    PatientSessionUtil::requireCsrfForLinkSwitch($request, $setPid, $setEncounterId);
+    PatientSessionUtil::requireCsrfForLinkSwitch($request, $setPid, $setEncounterId > 0 ? $setEncounterId : null);
     setpid($setPid);
     $ptService = new PatientService();
     $newPatient = $ptService->findByPid($pid);

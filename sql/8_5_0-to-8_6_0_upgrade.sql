@@ -305,6 +305,99 @@ UPDATE `notification_log` SET `type` = 'Email' WHERE `type` = '' AND `smsgateway
 ALTER TABLE `oauth_clients` ADD COLUMN `address_book_uuid` binary(16) DEFAULT NULL COMMENT 'users.uuid of the address book entry this client acts for; limits it to that entry''s Tasks and referrals';
 #EndIf
 
+-- The background service runner can call a class method, so the phimail service names the receiver
+-- directly. library/direct_message_check.inc.php, which held phimail_check(), is deleted.
+-- Unguarded so a rerun from before 7.0.1 also clears the require_once that upgrade sets back.
+UPDATE `background_services` SET `function` = 'OpenEMR\\Common\\DirectMessaging\\PhiMailReceiver::runBackgroundService', `require_once` = NULL
+WHERE `name` = 'phimail' AND (`function` = 'phimail_check' OR `require_once` = '/library/direct_message_check.inc.php');
+
+-- A patient app may replace its own write while it waits for review. The request keeps its id,
+-- so the version it replaced is kept on the history row that records the replacement.
+#IfMissingColumn patient_review_event payload
+ALTER TABLE `patient_review_event`
+  ADD COLUMN `payload` longtext COMMENT 'What the request held before its submitter replaced it; NULL for a status change';
+#EndIf
+
+-- A Direct message's referral: the one a sent message carried, or the one a reply was matched to (#15137).
+#IfMissingColumn direct_message_log referral_id
+ALTER TABLE `direct_message_log` ADD COLUMN `referral_id` bigint(20) DEFAULT NULL COMMENT 'transactions.id of the referral a sent message carried, or a received reply was matched to', ADD KEY `referral_id` (`referral_id`);
+#EndIf
+
+-- Whether staff chose a C-CDA's referral, so only a chosen one is sent with a Direct message (#15137).
+#IfMissingColumn ccda transaction_chosen
+ALTER TABLE `ccda` ADD COLUMN `transaction_chosen` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 when staff chose transaction_id for this C-CDA, 0 when it is the patient''s most recent referral';
+#EndIf
+
+#IfMissingColumn direct_message_log note_id
+ALTER TABLE `direct_message_log` ADD COLUMN `note_id` bigint(20) DEFAULT NULL COMMENT 'pnotes.id of the note a received message was filed as';
+#EndIf
+
+-- How a referral's recipient was told about their Task, or why they weren't (#15137).
+#IfNotTable referral_notice
+CREATE TABLE `referral_notice` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `transaction_id` bigint(20) NOT NULL COMMENT 'transactions.id of the referral',
+  `task_uuid` binary(16) NOT NULL COMMENT 'task.uuid of the Task the recipient was told about',
+  `outcome` varchar(31) NOT NULL COMMENT 'ReferralNoticeOutcome: how the recipient was told, or why they were not',
+  `address` varchar(255) DEFAULT NULL COMMENT 'the Direct or email address the notice went to',
+  `msg_id` varchar(127) DEFAULT NULL COMMENT 'direct_message_log.msg_id of a Direct notice, which carries its delivery status',
+  `detail` varchar(511) DEFAULT NULL COMMENT 'why a notice could not be sent',
+  `user_id` bigint(20) DEFAULT NULL COMMENT 'users.id of who saved the referral',
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `transaction_id` (`transaction_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- The 7.0.4 upgrade added the DEM interpreter_needed field with its own name in edit_options.
+-- The new patient duplicate check picks fields whose edit_options contain D, case-insensitively,
+-- so it took that field for one of its match fields.
+#IfRow3D layout_options form_id DEM field_id interpreter_needed edit_options interpreter_needed
+UPDATE `layout_options` SET `edit_options` = '' WHERE `form_id` = 'DEM' AND `field_id` = 'interpreter_needed' AND `edit_options` = 'interpreter_needed';
+#EndIf
+
+-- Receive X12 files (835, 277, 999) from X12 partners over SFTP (#15227).
+#IfMissingColumn x12_partners x12_sftp_receive_dir_835
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_dir_835` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 835 remittances from';
+#EndIf
+
+#IfMissingColumn x12_partners x12_sftp_receive_dir_277
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_dir_277` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 277 claim status files from';
+#EndIf
+
+#IfMissingColumn x12_partners x12_sftp_receive_dir_999
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_dir_999` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 999 acknowledgments from';
+#EndIf
+
+#IfMissingColumn x12_partners x12_sftp_receive_worked_dir
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_worked_dir` varchar(255) DEFAULT NULL COMMENT 'remote folder a fetched file is moved to; empty leaves it in place';
+#EndIf
+
+#IfNotTable x12_remote_received
+CREATE TABLE `x12_remote_received` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `remote_key` char(64) NOT NULL COMMENT 'sha256 of partner, folder, name, size and modified time: one row per remote file',
+  `x12_partner_id` int(11) NOT NULL,
+  `remote_dir` varchar(255) NOT NULL,
+  `remote_name` varchar(255) NOT NULL,
+  `remote_size` bigint(20) NOT NULL,
+  `remote_mtime` bigint(20) NOT NULL DEFAULT 0 COMMENT 'modified time on the remote, Unix seconds',
+  `file_type` varchar(8) NOT NULL DEFAULT '' COMMENT 'X12FileType: f835, f277 or f997; empty when the file was none of the kinds its folder is for',
+  `status` varchar(31) NOT NULL COMMENT 'ReceivedStatus: stored, duplicate, rejected or failed',
+  `stored_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'file name it was stored under on the site',
+  `message` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it was not stored',
+  `received_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `remote_key` (`remote_key`),
+  KEY `partner_status` (`x12_partner_id`, `status`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow background_services name X12_SFTP_Receive
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('X12_SFTP_Receive', 'Receive X12 Files from X12 Partners Service', 0, 0, '2021-01-18 11:25:10', 60, 'OpenEMR\\Billing\\X12Receive\\X12ReceiveService::runBackgroundService', NULL, 100);
+#EndIf
+
 -- Patient Finder combined columns (PatientFinderBuiltInColumns). Added switched off, so a
 -- site's finder only changes once an administrator enables one in Patient List Columns.
 #IfNotRow2D list_options list_id ptlistcols option_id name_first_last

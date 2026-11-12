@@ -3289,6 +3289,13 @@ $GLOBALS_METADATA = [
             xl('When a referral is saved, on the Transactions screen or through the REST API, create a FHIR Task for the one it is sent to (Refer To) if FHIR serves them as a Practitioner or Organization. The receiving system can then accept, reject, complete or cancel it through the FHIR API, or mark it failed, and each of those sends the one who made the referral (Refer By) an inbox message. When the referral records a Reply Date, the reply is filed in the patient\'s documents and completes the recipient\'s Task; clearing the Reply Date on the Transactions screen marks that Task entered in error and, when FHIR serves the recipient, gives them a new one.')
         ],
 
+        GlobalConnectorsEnum::FHIR_REFERRAL_NOTIFY_RECIPIENT->value => [
+            xl('Notify Referral Recipients'),
+            'bool',
+            '0',
+            xl('With referrals tracked by FHIR Tasks, tell the one a referral is sent to (Refer To) when a Task is created for them, and again on a re-send. An address book entry with a Direct address is sent the Referral C-CDA by Direct (allergies, medications, problems, plan of care and the reason for referral, not the whole chart); one with only an email address gets a plain email with no patient details, saying the practice sent a referral and how to reach it. The referral shows staff how the recipient was told, or that they could not be. Off by default because a referral saved with the wrong Refer To sends that C-CDA to the wrong recipient.')
+        ],
+
         GlobalConnectorsEnum::SMART_TEST_LAUNCHES_ENABLE->value => [
             xl('Enable OpenEMR SMART ON FHIR Context Test Launches (Turn on only if you know what you are doing)'),
             'bool',
@@ -3352,7 +3359,7 @@ $GLOBALS_METADATA = [
                 PatientWriteMode::ConfidentialAndPublic->value => xl('Confidential and public apps'),
             ],
             PatientWriteMode::Off->value,
-            xl('Which patient apps may submit data through the FHIR API. Every submission is held for staff review and stays out of the chart until it is approved. Not active yet: patient app writes are still refused in this version.')
+            xl('Which patient apps may submit data through the FHIR API. Every submission is held for staff review and stays out of the chart until it is approved. Only QuestionnaireResponse is accepted in this version; the other types are refused whatever their setting.')
         ],
         GlobalConnectorsEnum::FHIR_PATIENT_WRITE_QUESTIONNAIRE_RESPONSE->value => [
             xl('Patient App FHIR Writes: QuestionnaireResponse'),
@@ -3364,19 +3371,19 @@ $GLOBALS_METADATA = [
             xl('Patient App FHIR Writes: Vital Signs'),
             'bool',
             '0',
-            xl('Accept vital sign Observations from patient apps, held for staff review.')
+            xl('Accept vital sign Observations from patient apps, held for staff review. Not accepted yet in this version.')
         ],
         GlobalConnectorsEnum::FHIR_PATIENT_WRITE_ALLERGY_INTOLERANCE->value => [
             xl('Patient App FHIR Writes: AllergyIntolerance'),
             'bool',
             '0',
-            xl('Accept allergies from patient apps, held for staff review.')
+            xl('Accept allergies from patient apps, held for staff review. Not accepted yet in this version.')
         ],
         GlobalConnectorsEnum::FHIR_PATIENT_WRITE_CONDITION->value => [
             xl('Patient App FHIR Writes: Condition'),
             'bool',
             '0',
-            xl('Accept conditions from patient apps, held for staff review.')
+            xl('Accept conditions from patient apps, held for staff review. Not accepted yet in this version.')
         ],
         GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value => [
             xl('Maximum supported version for US Core FHIR Implementation Guide -- note if a resource/profile is forwards compatible it will still be supported'),

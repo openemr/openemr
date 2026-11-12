@@ -3,8 +3,9 @@
 /**
  * Questionnaire availability management.
  *
- * Entry point only: the URL the Availability tab under Questionnaires loads. The page itself
- * is QuestionnaireAvailabilityController and templates/super/questionnaire_availability.html.twig.
+ * Entry point only: the URL the Availability and Import tabs under Questionnaires load. The
+ * pages are QuestionnaireAvailabilityController and QuestionnaireImportController, with their
+ * markup in templates/super/.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -17,20 +18,7 @@ declare(strict_types=1);
 
 require_once('../globals.php');
 
-use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Http\CurrentRequest;
-use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailabilityController;
-use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityLookups;
-use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Controllers\Interface\Super\QuestionnaireAdminEntryPoint;
 
-$controller = new QuestionnaireAvailabilityController(
-    new QuestionnaireAvailabilityService(),
-    new QuestionnaireAvailabilityLookups(new ClientRepository()),
-    ServiceContainer::getTwig(),
-    SessionWrapperFactory::getInstance()->getActiveSession(),
-    ServiceContainer::getLogger(),
-);
-
-$controller->dispatchAction(CurrentRequest::get())->send();
+(new QuestionnaireAdminEntryPoint())->handle(CurrentRequest::get())->send();

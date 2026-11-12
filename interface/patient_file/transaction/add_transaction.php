@@ -468,6 +468,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $referralId = is_numeric($transid) ? intval($transid) : 0;
                 $resendTask = AclMain::aclCheckCore('patients', 'trans', '', 'write') ? $referralDisplay->resendableTask($form_id, $referralId) : null;
                 echo $referralDisplay->forTransactionPage($form_id, $referralId, $resendTask !== null);
+                // How its recipient was told, failed Direct deliveries, and Direct replies to confirm.
+                $confirmTask = AclMain::aclCheckCore('patients', 'trans', '', 'write') ? $referralDisplay->confirmableTask($form_id, $referralId) : null;
+                echo $referralDisplay->communicationForTransactionPage($form_id, $referralId, $confirmTask !== null);
                 ?>
                 <div class="col-sm-12 mt-3">
                     <fieldset>
@@ -665,6 +668,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </form>
         <?php if ($resendTask !== null) {
             echo $referralDisplay->resendForm($referralId, $resendTask, CsrfUtils::collectCsrfToken(session: $session));
+        }
+        if ($confirmTask !== null) {
+            echo $referralDisplay->replyConfirmForm($referralId, $confirmTask, CsrfUtils::collectCsrfToken(session: $session));
         } ?>
 
         <!-- include support for the list-add selectbox feature -->

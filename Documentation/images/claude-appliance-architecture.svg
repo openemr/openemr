@@ -72,9 +72,8 @@
 
   <g class="c-gray">
     <rect x="248" y="128" width="374" height="56" rx="8" stroke-width="0.5"/>
-    <text class="th" x="435" y="147" text-anchor="middle">Lean toolchain</text>
-    <text class="ts" x="435" y="163" text-anchor="middle">openemr-cmd · git · gh · docker · jq</text>
-    <text class="ts" x="435" y="178" text-anchor="middle">kubectl · kind · helm</text>
+    <text class="th" x="435" y="153" text-anchor="middle">Lean toolchain</text>
+    <text class="ts" x="435" y="171" text-anchor="middle">openemr-cmd · git · gh · docker · jq</text>
   </g>
 
   <g class="c-teal">
@@ -101,8 +100,8 @@
   </g>
   <g class="c-coral">
     <rect x="502" y="276" width="110" height="56" rx="8" stroke-width="0.5"/>
-    <text class="th" x="557" y="298" text-anchor="middle">agent-3 (k8s)</text>
-    <text class="ts" x="557" y="314" text-anchor="middle">devops/kubernetes</text>
+    <text class="th" x="557" y="298" text-anchor="middle">agent-3</text>
+    <text class="ts" x="557" y="314" text-anchor="middle">openemr-wt-3</text>
   </g>
 
   <g class="c-blue">
@@ -121,22 +120,16 @@
   </g>
   <g class="c-blue">
     <rect x="502" y="354" width="110" height="80" rx="8" stroke-width="0.5"/>
-    <text class="th" x="557" y="374" text-anchor="middle">kind cluster</text>
-    <text class="ts" x="557" y="390" text-anchor="middle">OpenEMR · MariaDB</text>
-    <text class="ts" x="557" y="406" text-anchor="middle">Redis · Sentinel</text>
-    <text class="ts" x="557" y="422" text-anchor="middle">cert-manager</text>
+    <text class="th" x="557" y="374" text-anchor="middle">demo stack 3</text>
+    <text class="ts" x="557" y="390" text-anchor="middle">PHP · Composer</text>
+    <text class="ts" x="557" y="406" text-anchor="middle">Node · MySQL</text>
+    <text class="ts" x="557" y="422" text-anchor="middle">CouchDB</text>
   </g>
 
   <g class="c-gray">
-    <rect x="248" y="452" width="234" height="44" rx="8" stroke-width="0.5"/>
-    <text class="th" x="365" y="470" text-anchor="middle">openemr-cmd</text>
-    <text class="ts" x="365" y="486" text-anchor="middle">PHP/JS/CSS ops via docker exec</text>
-  </g>
-
-  <g class="c-gray">
-    <rect x="494" y="452" width="118" height="44" rx="8" stroke-width="0.5"/>
-    <text class="th" x="553" y="470" text-anchor="middle">kub-up / kub-down</text>
-    <text class="ts" x="553" y="486" text-anchor="middle">kubectl · kind · helm</text>
+    <rect x="248" y="452" width="364" height="44" rx="8" stroke-width="0.5"/>
+    <text class="th" x="430" y="470" text-anchor="middle">openemr-cmd</text>
+    <text class="ts" x="430" y="486" text-anchor="middle">PHP/JS/CSS ops via docker exec</text>
   </g>
 
   <g class="c-amber">

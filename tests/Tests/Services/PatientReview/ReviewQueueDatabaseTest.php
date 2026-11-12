@@ -21,6 +21,8 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Services\PatientReview\EventAuditReviewTrail;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
+use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
+use OpenEMR\Services\PatientReview\Exception\ReviewRequestChangedException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewActorType;
@@ -65,6 +67,29 @@ class ReviewQueueDatabaseTest extends TestCase
         );
         QueryUtils::sqlStatementThrowException('DELETE FROM `patient_review_request` WHERE `pid` IN (?, ?)', $pids);
         QueryUtils::sqlStatementThrowException('DELETE FROM `onsite_documents` WHERE `pid` IN (?, ?)', $pids);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `patient_data` WHERE `pid` IN (?, ?)', $pids);
+    }
+
+    /** The patient row a patient app write is held against. */
+    private function insertPatient(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `patient_data` (`pid`, `pubpid`, `fname`, `lname`, `DOB`, `sex`) VALUES (?, ?, 'Review', 'Test', '1970-01-01', 'Female')",
+            [self::PID, 'review-test-' . self::PID]
+        );
+    }
+
+    private function appWrite(string $clientId, string $resourceType): ReviewSubmission
+    {
+        return new ReviewSubmission(
+            self::PID,
+            ReviewType::FhirWrite,
+            'Patient app ' . $resourceType . ' write',
+            ['resourceType' => $resourceType],
+            ReviewSource::Api,
+            $clientId,
+            resourceType: new FhirResourceType($resourceType),
+        );
     }
 
     /** A portal document row for the patient, as the portal creates one; returns its id. */
@@ -145,6 +170,11 @@ class ReviewQueueDatabaseTest extends TestCase
         $this->assertSame('patient_data', $found->targetTable);
         $this->assertSame((string) self::PID, $found->targetId);
         $this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $found->uuid);
+        // A timestamp-first COMB, as UuidRegistry::createUuid() makes: a fhir-write request's
+        // uuid becomes the id of the record approval writes. The first 48 bits are the time
+        // the uuid was made, in units of 0.00001 seconds.
+        $madeAt = hexdec(substr(str_replace('-', '', $found->uuid), 0, 12)) / 100000;
+        $this->assertEqualsWithDelta(microtime(true), $madeAt, 300);
         $this->assertNull($found->reviewedBy);
 
         $history = $service->history($submitted->id);
@@ -209,7 +239,121 @@ class ReviewQueueDatabaseTest extends TestCase
         $repository = new ReviewRequestRepository(new ReviewRequestMapper());
 
         $this->expectException(\DomainException::class);
-        $repository->lockTarget('patient_data', '1');
+        $repository->lockTarget('users', '1');
+    }
+
+    /**
+     * The count is per client and patient, and a denied request stops counting.
+     */
+    public function testSubmitWithinLimitCountsOnlyTheClientsOpenRequests(): void
+    {
+        $this->insertPatient();
+        $service = ReviewQueueFactory::create();
+        $first = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 2);
+        $service->submitWithinLimit($this->appWrite('client-a', 'Condition'), $this->patient(), 2);
+        $service->submitWithinLimit($this->appWrite('client-b', 'Observation'), $this->patient(), 2);
+
+        $repository = new ReviewRequestRepository(new ReviewRequestMapper());
+        $this->assertSame(2, $repository->countOpenForClient(self::PID, ReviewType::FhirWrite, 'client-a'));
+        $this->assertSame(1, $repository->countOpenForClient(self::PID, ReviewType::FhirWrite, 'client-b'));
+        $this->assertSame(0, $repository->countOpenForClient(self::OTHER_PID, ReviewType::FhirWrite, 'client-a'));
+
+        try {
+            $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 2);
+            $this->fail('client-a is at its limit');
+        } catch (ReviewLimitReachedException) {
+            // expected
+        }
+
+        $service->deny($first->id, $this->staff(), 'duplicate reading');
+        $this->assertSame(1, $repository->countOpenForClient(self::PID, ReviewType::FhirWrite, 'client-a'));
+    }
+
+    /**
+     * A revision keeps the request's uuid, and the history row that records it keeps the
+     * payload it replaced.
+     */
+    public function testReviseKeepsTheReplacedPayloadOnItsHistoryRow(): void
+    {
+        $this->insertPatient();
+        $service = ReviewQueueFactory::create();
+        $request = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 5);
+
+        $service->revise($request->id, $this->patient(), 'Patient app Observation write, corrected', ['resourceType' => 'Observation', 'status' => 'preliminary']);
+
+        $found = $service->findByUuid($request->uuid);
+        $this->assertNotNull($found);
+        $this->assertSame($request->id, $found->id);
+        $this->assertSame(['resourceType' => 'Observation', 'status' => 'preliminary'], $found->payload);
+        $this->assertSame('Patient app Observation write, corrected', $found->summary);
+
+        $history = $service->history($request->id);
+        $this->assertCount(2, $history);
+        $this->assertNull($history[0]->previousPayload);
+        $this->assertSame(ReviewQueueService::NOTE_REVISED, $history[1]->note);
+        $this->assertSame(['resourceType' => 'Observation'], $history[1]->previousPayload);
+    }
+
+    /**
+     * A reviewer's decision names the version they were shown; once the app has replaced it,
+     * the decision is refused and the replacement waits for review.
+     */
+    public function testADecisionOnAReplacedVersionIsRefused(): void
+    {
+        $this->insertPatient();
+        $service = ReviewQueueFactory::create();
+        $request = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 5);
+        $service->revise($request->id, $this->patient(), 'Patient app Observation write, corrected', ['resourceType' => 'Observation', 'status' => 'preliminary']);
+
+        try {
+            $service->deny($request->id, $this->staff(), 'no', $request->revision());
+            $this->fail('A denial of the replaced version should be refused');
+        } catch (ReviewRequestChangedException) {
+            $this->assertSame(ReviewStatus::Pending, $service->get($request->id)->status);
+        }
+
+        $denied = $service->deny($request->id, $this->staff(), 'no', $service->get($request->id)->revision());
+        $this->assertSame(ReviewStatus::Denied, $denied->status);
+    }
+
+    /**
+     * Read-back finds the client's own open requests of one resource type, oldest first.
+     */
+    public function testFindOpenForClientIsScopedToTheClientAndTypeOldestFirst(): void
+    {
+        $this->insertPatient();
+        $service = ReviewQueueFactory::create();
+        $first = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 5);
+        $service->submitWithinLimit($this->appWrite('client-a', 'Condition'), $this->patient(), 5);
+        $service->submitWithinLimit($this->appWrite('client-b', 'Observation'), $this->patient(), 5);
+        $denied = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 5);
+        $service->deny($denied->id, $this->staff(), 'duplicate reading');
+        $second = $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 5);
+
+        $found = $service->allOpenForClient(self::PID, ReviewType::FhirWrite, new FhirResourceType('Observation'), 'client-a');
+
+        $this->assertSame([$first->id, $second->id], array_map(static fn(ReviewRequest $request): int => $request->id, $found));
+    }
+
+    /**
+     * A write for a patient who doesn't exist is refused before anything is stored.
+     */
+    public function testSubmitWithinLimitCreatesNothingForAMissingPatient(): void
+    {
+        $service = ReviewQueueFactory::create();
+
+        try {
+            $service->submitWithinLimit($this->appWrite('client-a', 'Observation'), $this->patient(), 2);
+            $this->fail('A write for a patient who does not exist must be refused');
+        } catch (\RuntimeException $e) {
+            $this->assertNotInstanceOf(ReviewLimitReachedException::class, $e);
+        }
+        $created = QueryUtils::fetchSingleValue(
+            'SELECT COUNT(*) AS c FROM `patient_review_request` WHERE `pid` = ?',
+            'c',
+            [self::PID]
+        );
+        $this->assertSame(0, is_numeric($created) ? (int) $created : -1);
     }
 
     public function testSubmitUnlessOpenCreatesNothingForAMissingTargetRow(): void

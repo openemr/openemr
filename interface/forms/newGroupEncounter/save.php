@@ -150,7 +150,10 @@ if ($mode == 'new') {
     die("Unknown mode '" . text($mode) . "'");
 }
 
-$normalurl = "patient_file/encounter/encounter_top.php?set_encounter=" . urlencode((string) $encounter);
+$normalurl = 'patient_file/encounter/encounter_top.php?' . http_build_query([
+    'set_encounter' => $encounter,
+    'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session),
+]);
 
 $nexturl = $normalurl;
 

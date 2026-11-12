@@ -12,6 +12,7 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCapabilityStatement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
@@ -22,15 +23,19 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRVersion;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementImplementation;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSecurity;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSoftware;
 use OpenEMR\FHIR\SMART\Capability;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWritableType;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWritePolicy;
 
 /**
  * Supports REST interactions with the FHIR METADATA
@@ -39,11 +44,18 @@ class FhirMetaDataRestController
 {
     private readonly RestControllerHelper $restHelper;
     private readonly ServerConfig $config;
+    private readonly PatientWritePolicy $patientWritePolicy;
 
-    public function __construct()
+    /**
+     * Documentation on the create and update of a type a site opened to patient apps.
+     */
+    public const PATIENT_WRITE_DOCUMENTATION = 'A patient app\'s create or update is held for staff review and is not written to the chart until staff approve it. Until then only the app that sent it can read it back, for the same patient, tagged held-for-review; once staff deny it or the app withdraws it (entered-in-error), it is gone (410). Other writes by a patient app are refused with 403.';
+
+    public function __construct(?PatientWritePolicy $patientWritePolicy = null)
     {
         $this->config = new ServerConfig();
         $this->restHelper = new RestControllerHelper($this->config->getFhirUrl());
+        $this->patientWritePolicy = $patientWritePolicy ?? PatientWritePolicy::fromGlobals(OEGlobalsBag::getInstance());
     }
 
     protected function buildCapabilityStatement(): FHIRCapabilityStatement
@@ -85,6 +97,7 @@ class FhirMetaDataRestController
         // we build our rest object with our helpers here
         $restObj = $this->restHelper->getCapabilityRESTObject($routes);
         $restObj->setSecurity($this->getRestSecurity());
+        $this->documentPatientWrites($restObj);
 
         $capabilityStatement->addRest($restObj);
         $composerStr = file_get_contents($this->config->getWebServerRoot() . "/composer.json");
@@ -100,6 +113,31 @@ class FhirMetaDataRestController
         return $capabilityStatement;
     }
 
+
+    /**
+     * Says on the create and update of each type a site opened to patient apps that a patient
+     * app's write is held for review. Nothing changes while the mode is Off.
+     */
+    private function documentPatientWrites(FHIRCapabilityStatementRest $restObj): void
+    {
+        $opened = array_map(
+            static fn (PatientWritableType $type): string => $type->fhirResourceType()->value,
+            $this->patientWritePolicy->advertisedTypes(),
+        );
+        if ($opened === []) {
+            return;
+        }
+        foreach ($restObj->getResource() as $resource) {
+            if (!in_array($resource->getType()->getValue(), $opened, true)) {
+                continue;
+            }
+            foreach ($resource->getInteraction() as $interaction) {
+                if (in_array($interaction->getCode()->getValue(), ['create', 'update'], true)) {
+                    $interaction->setDocumentation(new FHIRMarkdown(self::PATIENT_WRITE_DOCUMENTATION));
+                }
+            }
+        }
+    }
 
     /**
      * Creates the Security Capability Statement and returns it.

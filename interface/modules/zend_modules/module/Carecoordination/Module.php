@@ -17,11 +17,13 @@
 namespace Carecoordination;
 
 use Carecoordination\Listener\CCDAEventsSubscriber;
+use Carecoordination\Listener\ReferralNoticeSubscriber;
 use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\MvcEvent;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Module
 {
@@ -73,14 +75,26 @@ class Module
         }, 100);
     }
 
-    public function onBootstrap(MvcEvent $e)
+    /**
+     * Subscribes the module's listeners to the OpenEMR event dispatcher.
+     */
+    public function onBootstrap(MvcEvent $e): void
     {
         // we grab the OpenEMR event listener (which is injected as Laminas has its own dispatcher)
         $serviceManager = $e->getApplication()->getServiceManager();
         $oemrDispatcher = $serviceManager->get(EventDispatcherInterface::class);
+        if (!$oemrDispatcher instanceof EventDispatcherInterface) {
+            throw new \LogicException('The service manager has no OpenEMR event dispatcher');
+        }
 
-        // now we can listen to our module events
-        $menuSubscriber = $serviceManager->get(CCDAEventsSubscriber::class);
-        $oemrDispatcher->addSubscriber($menuSubscriber);
+        // now we can listen to our module events; ReferralNoticeSubscriber sends a referral's
+        // recipient its Referral C-CDA by Direct when core asks (#15137).
+        foreach ([CCDAEventsSubscriber::class, ReferralNoticeSubscriber::class] as $name) {
+            $subscriber = $serviceManager->get($name);
+            if (!$subscriber instanceof EventSubscriberInterface) {
+                throw new \LogicException('The service manager has no ' . $name);
+            }
+            $oemrDispatcher->addSubscriber($subscriber);
+        }
     }
 }

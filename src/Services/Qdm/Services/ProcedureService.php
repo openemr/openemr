@@ -20,6 +20,9 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
 {
     public function getSqlStatement(): string
     {
+        // Each procedure with the results of its own line of the order (procedure_report.procedure_order_seq),
+        // as LaboratoryTestService pairs them. A result, or a report, marked Error (proc_res_status,
+        // proc_rep_status) is left out in the join, so the procedure is still read, without that result.
         $sql = "SELECT
                     O.patient_id AS pid,
                     O.encounter_id AS encounter,
@@ -35,16 +38,14 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
                 FROM procedure_order O
                     LEFT JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
                     LEFT JOIN procedure_report REP ON O.procedure_order_id = REP.procedure_order_id
+                        AND REP.procedure_order_seq = OC.procedure_order_seq AND REP.report_status <> 'error'
                     LEFT JOIN procedure_result RES ON REP.procedure_report_id = RES.procedure_report_id
+                        AND RES.result_status <> 'error'
                 WHERE O.procedure_order_type = 'order' AND O.activity != 0
+                AND " . self::countedFormRow('O.procedure_order_id', 'O.patient_id', QdmForm::ProcedureOrder) . "
                 ";
 
         return $sql;
-    }
-
-    public function getPatientIdColumn(): string
-    {
-        return 'O.patient_id';
     }
 
     public function makeQdmModel(QdmRecord $recordObj): ProcedurePerformed

@@ -882,11 +882,8 @@ $(function () {
                 url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
             }
         }
-        if (flds == '') {
-            url += "?close";
-        } else {
-            url+="&close";
-        }
+        // The separator is still "?" when no duplicate-check field had a value.
+        url += separator + "close";
         dlgopen(url, '_blank', 875, 500);
         } // end function
     } // end function

@@ -90,6 +90,21 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         return isset($this->requests[$id]) ? $this->mapper->toRequest($this->requests[$id]) : null;
     }
 
+    /**
+     * The request issued this uuid, or null.
+     *
+     * @param string $uuidBytes 16 raw bytes, matched as the repository matches the uuid column
+     */
+    public function findByUuid(string $uuidBytes): ?ReviewRequest
+    {
+        foreach ($this->requests as $row) {
+            if ($row['uuid'] === $uuidBytes) {
+                return $this->mapper->toRequest($row);
+            }
+        }
+        return null;
+    }
+
     public function findForUpdate(int $id): ?ReviewRequest
     {
         // Nothing runs concurrently in memory, so there is no row to hold.
@@ -105,6 +120,45 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
                 $request->pid === $pid
                 && $request->type === $type
                 && $request->resourceType?->value === $resourceType?->value
+                && $request->status->isOpen()
+            ) {
+                $open[] = $request;
+            }
+        }
+        return $open;
+    }
+
+    /**
+     * Counts the open requests the client submitted for the patient.
+     */
+    public function countOpenForClient(int $pid, ReviewType $type, string $clientId): int
+    {
+        $count = 0;
+        foreach ($this->requests as $row) {
+            $request = $this->mapper->toRequest($row);
+            if ($request->pid === $pid && $request->type === $type && $request->clientId === $clientId && $request->status->isOpen()) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    /**
+     * Open requests of the type and resource type from the client for the patient, oldest first,
+     * as the repository orders them.
+     *
+     * @return list<ReviewRequest>
+     */
+    public function findOpenForClient(int $pid, ReviewType $type, FhirResourceType $resourceType, string $clientId): array
+    {
+        $open = [];
+        foreach ($this->requests as $row) {
+            $request = $this->mapper->toRequest($row);
+            if (
+                $request->pid === $pid
+                && $request->type === $type
+                && $request->resourceType?->value === $resourceType->value
+                && $request->clientId === $clientId
                 && $request->status->isOpen()
             ) {
                 $open[] = $request;
@@ -189,9 +243,37 @@ final class InMemoryReviewRequestStore implements ReviewRequestStoreInterface
         return true;
     }
 
-    public function appendEvent(int $requestId, ?ReviewStatus $from, ReviewStatus $to, ReviewActor $actor, DateTimeImmutable $now, ?string $note): void
+    public function replacePayload(int $id, string $summary, array $payload, DateTimeImmutable $now): void
     {
+        $this->requests[$id]['summary'] = $summary;
+        $this->requests[$id]['payload'] = $this->mapper->encodePayload($payload);
+        $this->requests[$id]['updated_at'] = $this->mapper->formatDateTime($now);
+    }
+
+    public function countRevisions(int $requestId): int
+    {
+        return count(array_filter(
+            $this->events,
+            static fn(array $event): bool => $event['request_id'] === $requestId && $event['payload'] !== null,
+        ));
+    }
+
+    /**
+     * Adds one event to the request's history.
+     *
+     * @param ?array<array-key, mixed> $previousPayload kept on the event, as the repository keeps it
+     */
+    public function appendEvent(
+        int $requestId,
+        ?ReviewStatus $from,
+        ReviewStatus $to,
+        ReviewActor $actor,
+        DateTimeImmutable $now,
+        ?string $note,
+        ?array $previousPayload = null,
+    ): void {
         $this->events[] = [
+            'payload' => $previousPayload === null ? null : $this->mapper->encodePayload($previousPayload),
             'id' => count($this->events) + 1,
             'request_id' => $requestId,
             'from_status' => $from?->value,

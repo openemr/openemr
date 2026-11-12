@@ -145,7 +145,8 @@
 
  function goGid(gid) {
   top.restoreSession();
-  top.RTop.location = '/therapy_groups/index.php' + '?method=groupDetails&group_id=' + encodeURIComponent(gid);
+  const params = new URLSearchParams({method: 'groupDetails', group_id: gid, csrf_token_form: top.csrf_token_js});
+  top.RTop.location = '/therapy_groups/index.php?' + params;
  }
 
  function GoToToday(theForm){

@@ -34,4 +34,18 @@ final class RecordingReviewAuditTrail implements ReviewAuditTrailInterface
         }
         $this->entries[] = ['id' => $request->id, 'from' => $from, 'to' => $request->status, 'actor' => $actor->name, 'note' => $note];
     }
+
+    /** @var list<array{ids: list<int>, actor: string}> one per recordAccess() call */
+    public array $reads = [];
+
+    /**
+     * Records the ids read, or throws the failure a test set.
+     */
+    public function recordAccess(array $requests, ReviewActor $actor): void
+    {
+        if ($this->failure !== null) {
+            throw $this->failure;
+        }
+        $this->reads[] = ['ids' => array_map(static fn(ReviewRequest $request): int => $request->id, $requests), 'actor' => $actor->name];
+    }
 }

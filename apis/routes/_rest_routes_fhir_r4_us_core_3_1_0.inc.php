@@ -47,6 +47,7 @@ use OpenEMR\RestControllers\FHIR\FhirMedicationRequestRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationRestController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
+use OpenEMR\RestControllers\FHIR\FhirPatientAppWriteController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
 use OpenEMR\RestControllers\FHIR\FhirPersonRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
@@ -86,6 +87,7 @@ use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\FhirServiceRequestService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWritableType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -1411,7 +1413,7 @@ return [
         return $controller->put($uuid, $data);
     },
 
-    "GET /fhir/QuestionnaireResponse" => function (HttpRestRequest $request) {
+    "GET /fhir/QuestionnaireResponse" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         // Non-patient callers (user-scope OAuth tokens or APICSRFTOKEN
         // core-session paths) previously reached the controller with no
         // route-level ACL gate. Apply the same `patients/med` gate the
@@ -1421,15 +1423,27 @@ return [
         if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "patients", "med");
         }
+        // A patient app also sees what it wrote that is still held for staff review.
+        $held = $request->isPatientRequest()
+            ? FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag)
+                ->searchHeld($request, $request->getQueryParams())
+            : [];
         $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
         $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
-        $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->list($request);
+        $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->list($request, $held);
         return $return;
     },
-    "GET /fhir/QuestionnaireResponse/:uuid" => function (string $uuid, HttpRestRequest $request) {
+    "GET /fhir/QuestionnaireResponse/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         // See sibling list route above — same ACL rationale.
         if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "patients", "med");
+        }
+        // A patient app's own write held for review, or 410 once it was denied or withdrawn.
+        $held = $request->isPatientRequest()
+            ? FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag)->read($request, $uuid)
+            : null;
+        if ($held !== null) {
+            return $held;
         }
         $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
         $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
@@ -1437,9 +1451,12 @@ return [
         return $return;
     },
     "POST /fhir/QuestionnaireResponse" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        // Same gate the sibling read routes use; the generic controller rejects patient-scope
-        // tokens for writes outright.
-        RestConfig::request_authorization_check($request, "patients", "med");
+        // Same gate the sibling read routes use. A patient app's write is held for staff review
+        // instead; the permission gates have already checked its scope, and the hold checks the
+        // practice's settings.
+        if (!$request->isPatientRequest()) {
+            RestConfig::request_authorization_check($request, "patients", "med");
+        }
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1447,11 +1464,15 @@ return [
         $controller = new FhirGenericRestController($request, new FhirQuestionnaireResponseService($request->getApiBaseFullUrl()), $globalsBag);
         $controller->setExpectedResourceType("QuestionnaireResponse");
         $controller->addAclRestrictions("patients", "med");
+        $controller->setPatientAppWrites(FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag));
         return $controller->post($data);
     },
 
     "PUT /fhir/QuestionnaireResponse/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        // A patient app may update only its own write still held for review; see the POST route.
+        if (!$request->isPatientRequest()) {
+            RestConfig::request_authorization_check($request, "patients", "med");
+        }
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1459,6 +1480,7 @@ return [
         $controller = new FhirGenericRestController($request, new FhirQuestionnaireResponseService($request->getApiBaseFullUrl()), $globalsBag);
         $controller->setExpectedResourceType("QuestionnaireResponse");
         $controller->addAclRestrictions("patients", "med");
+        $controller->setPatientAppWrites(FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag));
         return $controller->put($uuid, $data);
     },
 

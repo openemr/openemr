@@ -24,6 +24,7 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
     /** Target tables whose rows lockTarget() can hold, with their key column. */
     private const LOCKABLE_TARGETS = [
         'onsite_documents' => 'id',
+        'patient_data' => 'pid',
     ];
 
     public function __construct(private ReviewRequestMapper $mapper)
@@ -67,6 +68,17 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         return is_array($row) && $row !== [] ? $this->mapper->toRequest($row) : null;
     }
 
+    /**
+     * The request issued this uuid, or null; the uuid column is unique.
+     *
+     * @param string $uuidBytes 16 raw bytes, as the queue issued it
+     */
+    public function findByUuid(string $uuidBytes): ?ReviewRequest
+    {
+        $row = QueryUtils::querySingleRow('SELECT * FROM `patient_review_request` WHERE `uuid` = ?', [$uuidBytes]);
+        return is_array($row) && $row !== [] ? $this->mapper->toRequest($row) : null;
+    }
+
     public function findForUpdate(int $id): ?ReviewRequest
     {
         $row = QueryUtils::querySingleRow('SELECT * FROM `patient_review_request` WHERE `id` = ? FOR UPDATE', [$id]);
@@ -84,6 +96,42 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
             $binds[] = $resourceType->value;
         }
         $rows = QueryUtils::fetchRecords($sql . ' ORDER BY `created_at` DESC, `id` DESC', $binds);
+        return array_map($this->mapper->toRequest(...), $rows);
+    }
+
+    /**
+     * Counts pending and awaiting-payment requests the client submitted for the patient.
+     */
+    public function countOpenForClient(int $pid, ReviewType $type, string $clientId): int
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT COUNT(*) AS `total` FROM `patient_review_request` WHERE `pid` = ? AND `type` = ? AND `client_id` = ?'
+            . ' AND `status` IN (?, ?)',
+            [$pid, $type->value, $clientId, ReviewStatus::Pending->value, ReviewStatus::AwaitingPayment->value]
+        );
+        $total = is_array($row) ? ($row['total'] ?? 0) : 0;
+
+        return is_int($total) || (is_string($total) && ctype_digit($total)) ? intval($total) : 0;
+    }
+
+    public function countRevisions(int $requestId): int
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT COUNT(*) AS `total` FROM `patient_review_event` WHERE `request_id` = ? AND `payload` IS NOT NULL',
+            [$requestId]
+        );
+        $total = is_array($row) ? ($row['total'] ?? 0) : 0;
+
+        return is_int($total) || (is_string($total) && ctype_digit($total)) ? intval($total) : 0;
+    }
+
+    public function findOpenForClient(int $pid, ReviewType $type, FhirResourceType $resourceType, string $clientId): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            'SELECT * FROM `patient_review_request` WHERE `pid` = ? AND `type` = ? AND `resource_type` = ? AND `client_id` = ?'
+            . ' AND `status` IN (?, ?) ORDER BY `created_at` ASC, `id` ASC',
+            [$pid, $type->value, $resourceType->value, $clientId, ReviewStatus::Pending->value, ReviewStatus::AwaitingPayment->value]
+        );
         return array_map($this->mapper->toRequest(...), $rows);
     }
 
@@ -169,12 +217,42 @@ final readonly class ReviewRequestRepository implements ReviewRequestStoreInterf
         return QueryUtils::affectedRows() === 1;
     }
 
-    public function appendEvent(int $requestId, ?ReviewStatus $from, ReviewStatus $to, ReviewActor $actor, DateTimeImmutable $now, ?string $note): void
+    public function replacePayload(int $id, string $summary, array $payload, DateTimeImmutable $now): void
     {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `patient_review_request` SET `summary` = ?, `payload` = ?, `payload_format` = ?, `updated_at` = ? WHERE `id` = ?',
+            [$summary, $this->mapper->encodePayload($payload), PayloadFormat::Json->value, $this->mapper->formatDateTime($now), $id]
+        );
+    }
+
+    /**
+     * Adds one row to the request's history.
+     *
+     * @param ?array<array-key, mixed> $previousPayload the payload a replacement overwrote; stored
+     *                                                  as JSON in patient_review_event.payload
+     */
+    public function appendEvent(
+        int $requestId,
+        ?ReviewStatus $from,
+        ReviewStatus $to,
+        ReviewActor $actor,
+        DateTimeImmutable $now,
+        ?string $note,
+        ?array $previousPayload = null,
+    ): void {
         QueryUtils::sqlInsert(
-            'INSERT INTO `patient_review_event` (`request_id`, `from_status`, `to_status`, `actor_type`, `actor_id`, `created_at`, `note`)'
-            . ' VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [$requestId, $from?->value, $to->value, $actor->type->value, $actor->id, $this->mapper->formatDateTime($now), $note]
+            'INSERT INTO `patient_review_event` (`request_id`, `from_status`, `to_status`, `actor_type`, `actor_id`, `created_at`, `note`,'
+            . ' `payload`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [
+                $requestId,
+                $from?->value,
+                $to->value,
+                $actor->type->value,
+                $actor->id,
+                $this->mapper->formatDateTime($now),
+                $note,
+                $previousPayload === null ? null : $this->mapper->encodePayload($previousPayload),
+            ]
         );
     }
 

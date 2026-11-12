@@ -5,31 +5,26 @@
  *
  * This is the main controller for the therapy group views and functionality.
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
- * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    https://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 require_once __DIR__ . '/base_controller.php';
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Session\TherapyGroupSessionUtil;
+use Symfony\Component\HttpFoundation\Request;
 
 class TherapyGroupsController extends BaseController
 {
@@ -88,12 +83,12 @@ class TherapyGroupsController extends BaseController
      * making validation and saving in the match tables.
      * @param ?int $groupId - must pass when edit group
      */
-    public function index($groupId = null)
+    public function index(?int $groupId = null)
     {
 
         $data = [];
         if ($groupId) {
-            self::setSession($groupId);
+            self::setSession($groupId, $this->request);
         }
 
         //Load models
@@ -119,6 +114,7 @@ class TherapyGroupsController extends BaseController
         $_POST['group_end_date'] = DateToYYYYMMDD($_POST['group_end_date']);
 
         if (isset($_POST['save'])) {
+            TherapyGroupSessionUtil::requireCsrfToken($this->request);
             $isEdit = !empty($_POST['group_id']);
 
             // for new group - checking if already exist same name
@@ -161,7 +157,7 @@ class TherapyGroupsController extends BaseController
                     $data['groupData']['group_id'] = $id;
                     $data['message'] = xlt('New group was saved successfully') . '.';
                     $data['savingStatus'] = 'success';
-                    self::setSession($id);
+                    self::setSession($id, $this->request);
                     $events = $eventsModel->getGroupEvents($id);
                     $data['events'] = $events;
                     $data['readonly'] = 'disabled';
@@ -231,6 +227,7 @@ class TherapyGroupsController extends BaseController
 
         //If deleting a group
         if ($_GET['deleteGroup'] == 1) {
+            TherapyGroupSessionUtil::requireCsrfToken($this->request);
             $group_id = $_GET['group_id'];
             $deletion_response = $this->deleteGroup($group_id);
             $data['deletion_try'] = 1;
@@ -405,9 +402,15 @@ class TherapyGroupsController extends BaseController
         return $groupData['group_id'];
     }
 
-    public static function setSession($groupId)
+    /**
+     * Make $groupId the active therapy group, which closes any open patient.
+     * Ends the request with a 403 when this is a switch without the CSRF token.
+     */
+    public static function setSession(int $groupId, Request $request): void
     {
-
+        // Opening a group closes the open patient, so a link from another
+        // site must not be able to do it.
+        TherapyGroupSessionUtil::requireCsrfForGroupSwitch($request, $groupId);
         setpid(0);
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($session->get('therapy_group') != $groupId) {

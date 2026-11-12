@@ -33,9 +33,12 @@ use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewHandlerMissingException;
+use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
+use OpenEMR\Services\PatientReview\Exception\ReviewRequestChangedException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\UuidFactoryInterface;
 
 final class ReviewQueueService
@@ -45,6 +48,9 @@ final class ReviewQueueService
 
     /** Note written on a request that a newer submission replaced. */
     public const NOTE_SUPERSEDED = 'superseded by a newer submission';
+
+    /** Note written when the submitter replaced what a pending request holds. */
+    public const NOTE_REVISED = 'replaced by the submitter';
 
     /** @var array<string, ReviewHandlerInterface> keyed by ReviewType value */
     private array $handlers = [];
@@ -86,6 +92,38 @@ final class ReviewQueueService
     public function submit(ReviewSubmission $submission, ReviewActor $actor, array $secrets = []): ReviewRequest
     {
         return $this->atomically(fn(): ReviewRequest => $this->create($submission, $actor, $secrets));
+    }
+
+    /**
+     * Adds a request unless the submitting API client already has $maxOpenForClient open
+     * requests of this type for the patient. Like submit(), it leaves the open ones alone: a
+     * patient app's second reading is a second request, not a replacement for the first.
+     *
+     * The patient row is held for the count, so concurrent submissions for the patient take
+     * turns and cannot both pass it.
+     *
+     * @throws \DomainException when the submission has no client, or the limit is below 1
+     * @throws \RuntimeException when the patient does not exist (nothing is created)
+     * @throws ReviewLimitReachedException when the client is at the limit (nothing is created)
+     */
+    public function submitWithinLimit(ReviewSubmission $submission, ReviewActor $actor, int $maxOpenForClient): ReviewRequest
+    {
+        $clientId = $submission->clientId;
+        if ($clientId === null) {
+            throw new \DomainException('Only a submission from an API client has a per-client limit');
+        }
+        if ($maxOpenForClient < 1) {
+            throw new \DomainException('The open request limit must be at least 1');
+        }
+
+        return $this->atomically(function () use ($submission, $actor, $clientId, $maxOpenForClient): ReviewRequest {
+            $this->store->lockTarget('patient_data', (string) $submission->pid);
+            if ($this->store->countOpenForClient($submission->pid, $submission->type, $clientId) >= $maxOpenForClient) {
+                throw ReviewLimitReachedException::forClient($maxOpenForClient);
+            }
+
+            return $this->create($submission, $actor, []);
+        });
     }
 
     /**
@@ -144,15 +182,79 @@ final class ReviewQueueService
     }
 
     /**
+     * Replaces what a pending request holds, for a submitter correcting it before it is decided.
+     * The request keeps its id and uuid, and the payload it replaced is kept in its history.
+     *
+     * The request row is held while its status is checked, so a reviewer deciding it at the same
+     * moment either sees the replacement or the replacement fails.
+     *
+     * Each replacement keeps the payload it overwrote, so $maxRevisions bounds how much history
+     * one request can grow while it waits; null leaves it unbounded.
+     *
+     * @param array<array-key, mixed> $payload
+     * @throws ReviewRequestNotFoundException
+     * @throws InvalidReviewTransitionException when the request is no longer pending
+     * @throws ReviewLimitReachedException when the request has been replaced $maxRevisions times (nothing changes)
+     */
+    public function revise(int $id, ReviewActor $actor, string $summary, array $payload, ?int $maxRevisions = null): ReviewRequest
+    {
+        return $this->atomically(function () use ($id, $actor, $summary, $payload, $maxRevisions): ReviewRequest {
+            $request = $this->store->findForUpdate($id) ?? throw ReviewRequestNotFoundException::forId($id);
+            if ($request->status !== ReviewStatus::Pending) {
+                throw InvalidReviewTransitionException::changedConcurrently($id, ReviewStatus::Pending);
+            }
+
+            if ($maxRevisions !== null && $this->store->countRevisions($id) >= $maxRevisions) {
+                throw ReviewLimitReachedException::forRevisions($maxRevisions);
+            }
+
+            $now = $this->clock->now();
+            $this->store->replacePayload($id, $summary, $payload, $now);
+            $this->store->appendEvent($id, ReviewStatus::Pending, ReviewStatus::Pending, $actor, $now, self::NOTE_REVISED, $request->payload);
+            $revised = $this->get($id);
+            $this->pendingAudit[] = ['request' => $revised, 'from' => ReviewStatus::Pending, 'actor' => $actor, 'note' => self::NOTE_REVISED];
+
+            return $revised;
+        });
+    }
+
+    /**
+     * Records in the audit log that open requests were shown outside staff review: a patient app
+     * reading back what it submitted. Nothing is recorded for an empty list.
+     *
+     * As with the audit of a change, a failure to write the entry is logged for the operator
+     * rather than failing the read.
+     *
+     * @param list<ReviewRequest> $requests
+     */
+    public function recordAccess(array $requests, ReviewActor $actor): void
+    {
+        if ($requests === []) {
+            return;
+        }
+        try {
+            $this->auditTrail->recordAccess($requests, $actor);
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            $this->logger->error('Review requests were read but the audit log entry could not be written', [
+                'request_ids' => array_map(static fn(ReviewRequest $request): int => $request->id, $requests),
+                'exception' => $e,
+            ]);
+        }
+    }
+
+    /**
      * Approves a pending request and applies it to the chart through the handler for its type.
      * If the handler throws, nothing changes and the request stays pending.
      *
+     * @param ?string $reviewedRevision the revision() the reviewer was shown; required for a
+     *                                  request its submitter can replace (see revise())
      * @throws ReviewHandlerMissingException when no handler is registered for the type
+     * @throws ReviewRequestChangedException when the request was replaced since that revision
      */
-    public function approve(int $id, ReviewActor $reviewer, ?string $note = null): ReviewRequest
+    public function approve(int $id, ReviewActor $reviewer, ?string $note = null, ?string $reviewedRevision = null): ReviewRequest
     {
-        return $this->atomically(function () use ($id, $reviewer, $note): ReviewRequest {
-            $request = $this->get($id);
+        return $this->atomically(function () use ($id, $reviewer, $note, $reviewedRevision): ReviewRequest {
+            $request = $this->forDecision($id, $reviewedRevision);
             $handler = $this->handlers[$request->type->value]
                 ?? throw ReviewHandlerMissingException::forType($request->type);
 
@@ -163,9 +265,15 @@ final class ReviewQueueService
         });
     }
 
-    public function deny(int $id, ReviewActor $reviewer, ?string $note = null): ReviewRequest
+    /**
+     * @param ?string $reviewedRevision as for approve()
+     * @throws ReviewRequestChangedException when the request was replaced since that revision
+     */
+    public function deny(int $id, ReviewActor $reviewer, ?string $note = null, ?string $reviewedRevision = null): ReviewRequest
     {
-        return $this->change($id, ReviewStatus::Denied, $reviewer, $note);
+        return $this->atomically(
+            fn(): ReviewRequest => $this->transition($this->forDecision($id, $reviewedRevision), ReviewStatus::Denied, $reviewer, $note)
+        );
     }
 
     public function cancel(int $id, ReviewActor $actor, ?string $note = null): ReviewRequest
@@ -210,6 +318,32 @@ final class ReviewQueueService
     public function get(int $id): ReviewRequest
     {
         return $this->store->find($id) ?? throw ReviewRequestNotFoundException::forId($id);
+    }
+
+    /**
+     * The request with this uuid, in canonical text form. Null when there is none, or when the
+     * text is not a uuid (an id from a URL can be anything).
+     */
+    public function findByUuid(string $uuid): ?ReviewRequest
+    {
+        try {
+            $bytes = $this->uuidFactory->fromString($uuid)->getBytes();
+        } catch (InvalidUuidStringException) {
+            return null;
+        }
+
+        return $this->store->findByUuid($bytes);
+    }
+
+    /**
+     * The open requests one API client submitted for the patient, of one type and resource type,
+     * oldest first.
+     *
+     * @return list<ReviewRequest>
+     */
+    public function allOpenForClient(int $pid, ReviewType $type, FhirResourceType $resourceType, string $clientId): array
+    {
+        return $this->store->findOpenForClient($pid, $type, $resourceType, $clientId);
     }
 
     /**
@@ -400,6 +534,30 @@ final class ReviewQueueService
         $this->pendingAudit = [];
 
         return $entries;
+    }
+
+    /**
+     * The request a reviewer is deciding. Given the revision they were shown, the row is held
+     * until the decision commits, so revise() cannot replace the content between this check and
+     * the change of status; a pending request no longer at that revision is refused. One that
+     * is no longer pending is left to transition() to refuse.
+     *
+     * Call inside atomically().
+     *
+     * @throws ReviewRequestNotFoundException
+     * @throws ReviewRequestChangedException
+     */
+    private function forDecision(int $id, ?string $reviewedRevision): ReviewRequest
+    {
+        if ($reviewedRevision === null) {
+            return $this->get($id);
+        }
+        $request = $this->store->findForUpdate($id) ?? throw ReviewRequestNotFoundException::forId($id);
+        if ($request->status === ReviewStatus::Pending && !hash_equals($request->revision(), $reviewedRevision)) {
+            throw ReviewRequestChangedException::sinceReviewed($id);
+        }
+
+        return $request;
     }
 
     private function change(int $id, ReviewStatus $to, ReviewActor $actor, ?string $note): ReviewRequest
