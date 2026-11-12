@@ -447,19 +447,22 @@ if ($is_expired) {
         "label" => xl("Password Reset"),
     ]);
 } elseif (!empty($_POST['patientID'])) {
-    // Patient is open, so add this to the list of tabs, at the end
+    // A patient opened in a new window, as from the Patient Finder or Patient Tracker:
+    // the Dashboard goes first, because main.php shows only the first tab.
     $patientID = (int) $_POST['patientID'];
     $dashboardQuery = ['set_pid' => $patientID];
     if (!empty($_POST['encounterID'])) {
         $dashboardQuery['set_encounterid'] = (int) $_POST['encounterID'];
     }
     $dashboardQuery['csrf_token_form'] = CsrfUtils::collectCsrfToken(session: $session);
-    $_notes = '../patient_file/summary/demographics.php?' . http_build_query($dashboardQuery);
-    $_tabs[] = [
+    // Tab paths start at the project root: main.php puts the web root in front of them
+    // and drops any that DefaultTabsFilter cannot find under the root.
+    $_notes = 'interface/patient_file/summary/demographics.php?' . http_build_query($dashboardQuery);
+    array_unshift($_tabs, [
         'notes' => $_notes,
         'id' => "pat",
         'label' => xl("Dashboard"),
-    ];
+    ]);
 } elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
     // Load the calendar, at the end
     $_notes = "calendar/index.php?pid=" . attr_url($_GET['pid']);
