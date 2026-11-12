@@ -38,6 +38,19 @@ enum PatientFinderSearchMode: string
     }
 
     /**
+     * Whether the term may match anywhere in a field rather than only at its start. An
+     * address is searched by any part of it, such as the street name after the house
+     * number. None of its fields are indexed, so this costs no more than a prefix match.
+     */
+    public function matchesAnywhere(): bool
+    {
+        return match ($this) {
+            self::Address => true,
+            self::All, self::Name, self::Zip => false,
+        };
+    }
+
+    /**
      * The columns the main search box matches in this mode, or null for the displayed columns.
      *
      * @return list<PatientFinderColumn>|null

@@ -228,10 +228,11 @@ final class PatientFinderQueryBuilder
                     $this->collectJoin($joins, $column);
                 }
                 // Match mode precedence matches the legacy script: exact wins,
-                // then the any-column "contains" mode, otherwise prefix.
+                // then the "contains" modes (any-column, or a search mode that
+                // matches anywhere, such as Address), otherwise prefix.
                 if ($request->exactSearch) {
                     $binds[] = $term;
-                } elseif ($request->anySearch) {
+                } elseif ($request->anySearch || $request->searchMode->matchesAnywhere()) {
                     $binds[] = '%' . $term . '%';
                 } else {
                     $binds[] = $term . '%';

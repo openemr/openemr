@@ -24,6 +24,7 @@ use OpenEMR\Events\BoundFilter;
 use OpenEMR\Services\PatientFinder\PatientFinderColumn;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryBuilder;
 use OpenEMR\Services\PatientFinder\PatientFinderRequest;
+use OpenEMR\Services\PatientFinder\PatientFinderSearchMode;
 use PHPUnit\Framework\TestCase;
 
 class PatientFinderQueryBuilderTest extends TestCase
@@ -49,7 +50,8 @@ class PatientFinderQueryBuilderTest extends TestCase
         array $sort = [],
         array $columnSearches = [],
         int $start = -1,
-        int $length = -1
+        int $length = -1,
+        PatientFinderSearchMode $searchMode = PatientFinderSearchMode::All
     ): PatientFinderRequest {
         return new PatientFinderRequest(
             1,
@@ -60,7 +62,8 @@ class PatientFinderQueryBuilderTest extends TestCase
             $any,
             $columnKeys,
             $sort,
-            $columnSearches
+            $columnSearches,
+            $searchMode
         );
     }
 
@@ -251,6 +254,48 @@ class PatientFinderQueryBuilderTest extends TestCase
         // ...while the global WHERE searches the DEM field set with contains binds.
         $this->assertStringContainsString('( `street` LIKE ? OR `phone_home` LIKE ? )', $plan->dataSql);
         $this->assertSame(['%main%', '%main%'], $plan->filteredCountBinds);
+    }
+
+    public function testAddressSearchMatchesAnywhereInEachField(): void
+    {
+        $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
+        $plan = $this->builder()->build(
+            $columns,
+            $this->request(globalSearch: 'String', searchMode: PatientFinderSearchMode::Address),
+            new BoundFilter(),
+            PatientFinderSearchMode::Address->globalSearchColumns()
+        );
+
+        $this->assertSame(array_fill(0, 5, '%String%'), $plan->filteredCountBinds);
+    }
+
+    public function testExactSearchStillWinsInAddressMode(): void
+    {
+        $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
+        $plan = $this->builder()->build(
+            $columns,
+            $this->request(globalSearch: 'Longview', exact: true, searchMode: PatientFinderSearchMode::Address),
+            new BoundFilter(),
+            PatientFinderSearchMode::Address->globalSearchColumns()
+        );
+
+        $this->assertSame(array_fill(0, 5, 'Longview'), $plan->filteredCountBinds);
+    }
+
+    public function testNameAndZipSearchesStillMatchTheStart(): void
+    {
+        foreach ([PatientFinderSearchMode::Name, PatientFinderSearchMode::Zip] as $mode) {
+            $this->assertFalse($mode->matchesAnywhere());
+        }
+        $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
+        $plan = $this->builder()->build(
+            $columns,
+            $this->request(globalSearch: '445', searchMode: PatientFinderSearchMode::Zip),
+            new BoundFilter(),
+            PatientFinderSearchMode::Zip->globalSearchColumns()
+        );
+
+        $this->assertSame(['445%'], $plan->filteredCountBinds);
     }
 
     public function testNoPagingOmitsLimit(): void
