@@ -186,6 +186,10 @@ final readonly class PatientFinderBuiltInColumns
     /**
      * The soonest appointment after now, or the latest one before now, leaving out canceled
      * ones. pid is compared as text because pc_pid is a varchar; that keeps its index usable.
+     *
+     * A repeating appointment counts by its series' first date (pc_eventDate): its later
+     * dates are worked out in PHP (fetchEvents() in appointments.inc.php), which a SQL
+     * column cannot do. Kept as SQL so the list can sort and search on these columns.
      */
     private function appointment(bool $next): string
     {
