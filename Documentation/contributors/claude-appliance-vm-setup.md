@@ -391,7 +391,7 @@ sudo lxc-attach -n claude-appliance -- su - claude-agent -c 'tar czf - .ssh' \
   | incus exec claude-vm -- su - claude-agent -c 'tar xzf -'
 ```
 
-Both `tar` invocations run as `claude-agent`, which matches ownership and permissions on both sides without any post-copy `chown`/`chmod` fixup. Verify from inside the VM:
+Both `tar` invocations run as `claude-agent`, which matches ownership and permissions on both sides without any post-copy `chown`/`chmod` fixup. Verify from the host (the one-liner enters the VM and runs `ssh -T` as `claude-agent`):
 
 ```bash
 incus exec claude-vm -- su - claude-agent -c 'ssh -T git@github-<your-username>-openemr'
@@ -399,7 +399,7 @@ incus exec claude-vm -- su - claude-agent -c 'ssh -T git@github-<your-username>-
 # as on the LXC side — the deploy keys and SSH config transfer intact.
 ```
 
-> **The same private deploy keys now live in both appliances.** That is within the existing appliance threat model — both are agent-trust-level sandboxes you own, and a deploy key is already repo-scoped by design, so the blast radius doesn't widen. But if you ever decommission one appliance (delete the LXC, or `incus delete claude-vm`), the orphaned copies on the other side are still registered on GitHub. Either rotate the GitHub deploy keys after decommission or delete the surviving `.ssh/` copies before they become stale.
+> **The same private deploy keys now live in both appliances.** That is within the existing appliance threat model — both are agent-trust-level sandboxes you own, and a deploy key is already repo-scoped by design, so the blast radius doesn't widen. But if you ever decommission one appliance (delete the LXC, or `incus delete claude-vm`), the orphaned copies on the other side are still registered on GitHub. The GitHub-side registration is what actually authorizes a push — deleting a local copy only reduces surface, it does not revoke the key. First remove the orphaned deploy keys in the repository's **Settings → Deploy keys** on GitHub, then delete the surviving `.ssh/id_*` files on the other appliance.
 
 If you don't have the LXC appliance (or you'd rather keep the two appliances' keys separate), skip this block and generate fresh keys per the next subsection.
 
