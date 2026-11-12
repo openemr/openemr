@@ -175,8 +175,22 @@ div.dataTables_wrapper div.dataTables_processing {
   cursor: pointer;
 }
 
-:is(#pt_table, #recent_table) > tbody > tr.odd {
-  background-color: var(--light);
+/* Gray rows, odd ones a shade darker, as the finder update had them. The cells are
+   painted, because the theme gives tr.odd a white background with !important. DataTables'
+   stripe and sorted-column tints still darken them a little, as before. The expand
+   column has no stripe tint: lighter than its row, white on even rows. An expanded row's
+   details have no odd/even class and stay white. */
+:is(#pt_table, #recent_table) > tbody > tr.odd > td {
+  background-color: color-mix(in srgb, var(--gray100) 75%, var(--white));
+}
+
+:is(#pt_table, #recent_table) > tbody > tr.even > td:not(.finder-detail-control) {
+  background-color: color-mix(in srgb, var(--gray100) 50%, var(--white));
+}
+
+:is(#pt_table, #recent_table) > tbody > tr.odd > td.finder-detail-control {
+  background-color: var(--gray100);
+  box-shadow: none;
 }
 
 /* A patient row under the pointer turns gray with light text. Only result rows: an
