@@ -418,7 +418,7 @@ CREATE TABLE `lang_languages` (
   `lang_code` char(2) NOT NULL default '',
   `lang_description` varchar(100) default NULL,
   `lang_is_rtl` TINYINT DEFAULT 0,
-  UNIQUE KEY `lang_id` (`lang_id`)
+  PRIMARY KEY (`lang_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;
 \n
 --
@@ -476,7 +476,7 @@ DROP TABLE IF EXISTS `lang_constants`;
 CREATE TABLE `lang_constants` (
   `cons_id` int(11) NOT NULL auto_increment,
   `constant_name` mediumtext BINARY,
-  UNIQUE KEY `cons_id` (`cons_id`),
+  PRIMARY KEY (`cons_id`),
   KEY `constant_name` (`constant_name`(100))
 ) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;
 \n
@@ -551,7 +551,7 @@ CREATE TABLE `lang_definitions` (
   `cons_id` int(11) NOT NULL default '0',
   `lang_id` int(11) NOT NULL default '0',
   `definition` mediumtext,
-  UNIQUE KEY `def_id` (`def_id`),
+  PRIMARY KEY (`def_id`),
   KEY `cons_id` (`cons_id`),
   KEY `lang_cons` (`lang_id`, `cons_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;

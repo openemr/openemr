@@ -397,3 +397,252 @@ CREATE TABLE `x12_remote_received` (
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('X12_SFTP_Receive', 'Receive X12 Files from X12 Partners Service', 0, 0, '2021-01-18 11:25:10', 60, 'OpenEMR\\Billing\\X12Receive\\X12ReceiveService::runBackgroundService', NULL, 100);
 #EndIf
+
+-- ========================================================================
+-- Schema hygiene: PRIMARY KEY on every core openemr table.
+--
+-- Adds an explicit PRIMARY KEY to the 45 openemr core tables that
+-- historically lacked one. Needed for:
+--   * Doctrine ORM mapping (every entity requires #[ORM\Id]) — openemr
+--     is actively migrating toward Doctrine (AGENTS.md: 'Database:
+--     MySQL via Doctrine DBAL 4.x (ADODB surface API for legacy
+--     code)'). DBAL is in place today, ORM needs PKs on every entity.
+--   * InnoDB row clustering performance — without an explicit PK,
+--     InnoDB generates a hidden 6-byte row ID; secondary-index
+--     lookups do an extra pointer-chase through the hidden id.
+--   * Standard-compliance posture — HIPAA / NIST SP 800-53 database
+--     hardening guides list 'every table must have a unique row
+--     identifier' as a basic control.
+--   * Galera compatibility — Galera's row-level replication cert
+--     requires PRIMARY KEY on every replicated table. Not the
+--     motivation, but a free bonus for openemr-devops users.
+--
+-- Four patterns, grouped below:
+--   1. Promote existing auto_increment-backed non-PRIMARY index
+--      (atomic DROP + ADD in one ALTER).
+--   2. Promote SERIAL's implicit UNIQUE index.
+--   3. ADD PRIMARY KEY on an existing NOT NULL non-autoinc column
+--      that the application already treats as unique.
+--   4. ADD a synthetic auto_increment id column (no suitable
+--      existing candidate, or existing candidate is nullable or
+--      the wrong type).
+--
+-- All blocks are idempotent via the #IfNotIndex PRIMARY / #IfMissingColumn
+-- directives — safe to rerun. No data is inserted, updated, or deleted
+-- in any ALTER; all changes are schema metadata plus a backfill of the
+-- synthetic id values for tables in pattern 4.
+--
+-- A new pre-commit + CI gate (tests/schema/assert-primary-keys.sh)
+-- parses sql/database.sql and contrib/util/language_translations/
+-- currentLanguage_utf8.sql to prevent regressions: any new table
+-- without a PRIMARY KEY fails the hook.
+-- ========================================================================
+
+-- Pattern 1: Promote existing auto_increment-backed non-PRIMARY index.
+
+#IfNotIndex patient_data PRIMARY
+ALTER TABLE `patient_data` DROP INDEX `id`, ADD PRIMARY KEY (`id`);
+#EndIf
+
+#IfNotIndex lang_constants PRIMARY
+ALTER TABLE `lang_constants` DROP INDEX `cons_id`, ADD PRIMARY KEY (`cons_id`);
+#EndIf
+
+#IfNotIndex lang_definitions PRIMARY
+ALTER TABLE `lang_definitions` DROP INDEX `def_id`, ADD PRIMARY KEY (`def_id`);
+#EndIf
+
+#IfNotIndex lang_languages PRIMARY
+ALTER TABLE `lang_languages` DROP INDEX `lang_id`, ADD PRIMARY KEY (`lang_id`);
+#EndIf
+
+#IfNotIndex form_eye_mag_wearing PRIMARY
+ALTER TABLE `form_eye_mag_wearing` DROP INDEX `id`, ADD PRIMARY KEY (`id`);
+#EndIf
+
+#IfNotIndex amendments_history PRIMARY
+ALTER TABLE `amendments_history` DROP INDEX `amendment_history_id`, ADD PRIMARY KEY (`amendment_id`);
+#EndIf
+
+-- Pattern 2: Promote SERIAL's implicit UNIQUE index to PRIMARY KEY.
+-- SERIAL = BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE; the UNIQUE
+-- constraint creates an index auto-named after the column.
+
+#IfNotIndex supported_external_dataloads PRIMARY
+ALTER TABLE `supported_external_dataloads` DROP INDEX `load_id`, ADD PRIMARY KEY (`load_id`);
+#EndIf
+
+#IfNotIndex icd9_dx_code PRIMARY
+ALTER TABLE `icd9_dx_code` DROP INDEX `dx_id`, ADD PRIMARY KEY (`dx_id`);
+#EndIf
+
+#IfNotIndex icd9_sg_code PRIMARY
+ALTER TABLE `icd9_sg_code` DROP INDEX `sg_id`, ADD PRIMARY KEY (`sg_id`);
+#EndIf
+
+#IfNotIndex icd9_dx_long_code PRIMARY
+ALTER TABLE `icd9_dx_long_code` DROP INDEX `dx_id`, ADD PRIMARY KEY (`dx_id`);
+#EndIf
+
+#IfNotIndex icd9_sg_long_code PRIMARY
+ALTER TABLE `icd9_sg_long_code` DROP INDEX `sq_id`, ADD PRIMARY KEY (`sq_id`);
+#EndIf
+
+#IfNotIndex icd10_dx_order_code PRIMARY
+ALTER TABLE `icd10_dx_order_code` DROP INDEX `dx_id`, ADD PRIMARY KEY (`dx_id`);
+#EndIf
+
+#IfNotIndex icd10_pcs_order_code PRIMARY
+ALTER TABLE `icd10_pcs_order_code` DROP INDEX `pcs_id`, ADD PRIMARY KEY (`pcs_id`);
+#EndIf
+
+#IfNotIndex icd10_gem_pcs_9_10 PRIMARY
+ALTER TABLE `icd10_gem_pcs_9_10` DROP INDEX `map_id`, ADD PRIMARY KEY (`map_id`);
+#EndIf
+
+#IfNotIndex icd10_gem_pcs_10_9 PRIMARY
+ALTER TABLE `icd10_gem_pcs_10_9` DROP INDEX `map_id`, ADD PRIMARY KEY (`map_id`);
+#EndIf
+
+#IfNotIndex icd10_gem_dx_9_10 PRIMARY
+ALTER TABLE `icd10_gem_dx_9_10` DROP INDEX `map_id`, ADD PRIMARY KEY (`map_id`);
+#EndIf
+
+#IfNotIndex icd10_gem_dx_10_9 PRIMARY
+ALTER TABLE `icd10_gem_dx_10_9` DROP INDEX `map_id`, ADD PRIMARY KEY (`map_id`);
+#EndIf
+
+#IfNotIndex icd10_reimbr_dx_9_10 PRIMARY
+ALTER TABLE `icd10_reimbr_dx_9_10` DROP INDEX `map_id`, ADD PRIMARY KEY (`map_id`);
+#EndIf
+
+#IfNotIndex icd10_reimbr_pcs_9_10 PRIMARY
+ALTER TABLE `icd10_reimbr_pcs_9_10` DROP INDEX `map_id`, ADD PRIMARY KEY (`map_id`);
+#EndIf
+
+-- Pattern 3: ADD PRIMARY KEY on existing NOT NULL non-autoinc column.
+-- Trust the application's uniqueness invariant on the chosen column.
+-- Legacy sequence/counter tables are single-row by design; form tables
+-- have application-assigned unique ids per encounter.
+
+-- form_care_plan and form_functional_cognitive_status: `id` is the FORM id
+-- (one form instance per encounter), but each form HOLDS multiple rows — one
+-- row per care-plan item / per functional-cognitive line. CarePlanService::
+-- create() inserts N rows with the same `id`; form_functional_cognitive_status
+-- / save.php does the same. Promoting `id` to PRIMARY KEY would therefore
+-- fail on every real install and break future multi-item inserts. Use the
+-- Pattern-4 synthetic `row_id` instead; keep `id` as a non-unique KEY so
+-- existing WHERE id = ? queries stay index-covered.
+
+#IfMissingColumn form_care_plan row_id
+ALTER TABLE `form_care_plan` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn form_functional_cognitive_status row_id
+ALTER TABLE `form_functional_cognitive_status` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST,
+                                                 ADD KEY `id` (`id`);
+#EndIf
+
+#IfNotIndex gacl_acl_seq PRIMARY
+ALTER TABLE `gacl_acl_seq` ADD PRIMARY KEY (`id`);
+#EndIf
+
+#IfNotIndex gacl_aco_sections_seq PRIMARY
+ALTER TABLE `gacl_aco_sections_seq` ADD PRIMARY KEY (`id`);
+#EndIf
+
+#IfNotIndex gacl_aco_seq PRIMARY
+ALTER TABLE `gacl_aco_seq` ADD PRIMARY KEY (`id`);
+#EndIf
+
+#IfNotIndex gacl_aro_groups_id_seq PRIMARY
+ALTER TABLE `gacl_aro_groups_id_seq` ADD PRIMARY KEY (`id`);
+#EndIf
+
+#IfNotIndex gacl_aro_sections_seq PRIMARY
+ALTER TABLE `gacl_aro_sections_seq` ADD PRIMARY KEY (`id`);
+#EndIf
+
+#IfNotIndex gacl_aro_seq PRIMARY
+ALTER TABLE `gacl_aro_seq` ADD PRIMARY KEY (`id`);
+#EndIf
+
+#IfNotIndex edi_sequences PRIMARY
+ALTER TABLE `edi_sequences` ADD PRIMARY KEY (`id`);
+#EndIf
+
+#IfNotIndex sequences PRIMARY
+ALTER TABLE `sequences` ADD PRIMARY KEY (`id`);
+#EndIf
+
+-- Pattern 4: ADD a synthetic auto_increment surrogate column as PRIMARY KEY.
+-- Used where no existing column is a safe PK candidate (all nullable,
+-- no uniqueness, or the obvious `id` column is a varchar foreign-key-like
+-- reference that would clash with a new INT id). Column named `id` where
+-- the table has no existing `id`, `row_id` where there's a clash. Placed
+-- FIRST in column order; existing rows receive sequential ids via the
+-- auto_increment backfill during the ALTER.
+
+#IfMissingColumn amc_misc_data id
+ALTER TABLE `amc_misc_data` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn benefit_eligibility id
+ALTER TABLE `benefit_eligibility` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn enc_category_map id
+ALTER TABLE `enc_category_map` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn fee_sheet_options id
+ALTER TABLE `fee_sheet_options` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn form_eye_mag_prefs row_id
+ALTER TABLE `form_eye_mag_prefs` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn lang_custom id
+ALTER TABLE `lang_custom` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn medex_prefs id
+ALTER TABLE `medex_prefs` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn module_acl_sections id
+ALTER TABLE `module_acl_sections` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn modules_settings id
+ALTER TABLE `modules_settings` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn patient_tracker_element id
+ALTER TABLE `patient_tracker_element` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn report_itemized id
+ALTER TABLE `report_itemized` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn rule_action row_id
+ALTER TABLE `rule_action` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn rule_filter row_id
+ALTER TABLE `rule_filter` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn rule_reminder row_id
+ALTER TABLE `rule_reminder` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn rule_target row_id
+ALTER TABLE `rule_target` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
+
+#IfMissingColumn version id
+ALTER TABLE `version` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#EndIf
