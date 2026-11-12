@@ -24,14 +24,11 @@ use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\CoreEventSubscribers;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\VersionFile;
-use OpenEMR\Services\CodeTypes\Subscriber\CodeTypeEventsSubscriber;
-use OpenEMR\Services\FHIR\Subscriber\CalculatedObservationEventsSubscriber;
-use OpenEMR\Services\FHIR\Subscriber\UuidMappingEventsSubscriber;
-use OpenEMR\Services\PatientFlowBoard\Subscriber\PatientFlowBoardEventsSubscriber;
 
 // Set up autoloader as early as possible
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -836,14 +833,8 @@ if ($globalsBag->getBoolean('translation_preload_cache')) {
  */
 const OPENEMR_GLOBALS_LOADED = true;
 
-// Core event subscribers.
-// These are always-on behaviour, not optional modules, so they register directly
-// on the kernel dispatcher rather than going through the modules system.
-$coreDispatcher = $globalsBag->getKernel()->getEventDispatcher();
-$coreDispatcher->addSubscriber(new UuidMappingEventsSubscriber());
-$coreDispatcher->addSubscriber(new CalculatedObservationEventsSubscriber());
-$coreDispatcher->addSubscriber(new CodeTypeEventsSubscriber());
-$coreDispatcher->addSubscriber(new PatientFlowBoardEventsSubscriber());
+// Core event subscribers: always-on behaviour, registered in src/Core/CoreEventSubscribers.php.
+(new CoreEventSubscribers())->register($globalsBag->getKernel()->getEventDispatcher());
 
 // Module configurations.
 // Runs after OPENEMR_GLOBALS_LOADED is defined so that module class files

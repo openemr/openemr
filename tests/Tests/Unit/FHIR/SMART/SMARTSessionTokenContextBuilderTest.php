@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Tests\Unit\FHIR\SMART;
 
+use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
@@ -78,14 +79,64 @@ class SMARTSessionTokenContextBuilderTest extends TestCase
         );
     }
 
+    public function testPortalLaunchByItsPatientCarriesThePatient(): void
+    {
+        $token = new SMARTLaunchToken('patient-uuid');
+        $token->setIntent(SMARTLaunchToken::INTENT_PATIENT_PORTAL);
+
+        $context = $this->buildContext($token, ['user_id' => 'patient-uuid', 'puuid' => 'patient-uuid']);
+
+        $this->assertSame('patient-uuid', $context['patient'], 'A portal launch hands the app its patient');
+        $this->assertSame(SMARTLaunchToken::INTENT_PATIENT_PORTAL, $context['intent']);
+    }
+
+    public function testPatientLoginCannotUseALaunchForAnotherPatient(): void
+    {
+        $token = new SMARTLaunchToken('other-patient-uuid');
+        $token->setIntent(SMARTLaunchToken::INTENT_PATIENT_PORTAL);
+
+        $this->expectException(OAuthServerException::class);
+        $this->buildContext($token, ['user_id' => 'patient-uuid', 'puuid' => 'patient-uuid']);
+    }
+
+    public function testPatientLoginCannotUseAStaffLaunchForAnotherPatient(): void
+    {
+        $token = new SMARTLaunchToken('other-patient-uuid');
+        $token->setIntent(SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG);
+
+        $this->expectException(OAuthServerException::class);
+        $this->buildContext($token, ['user_id' => 'patient-uuid', 'puuid' => 'patient-uuid']);
+    }
+
+    public function testStaffLoginCannotUseAPortalLaunch(): void
+    {
+        $token = new SMARTLaunchToken('patient-uuid');
+        $token->setIntent(SMARTLaunchToken::INTENT_PATIENT_PORTAL);
+
+        $this->expectException(OAuthServerException::class);
+        $this->buildContext($token, ['user_id' => 'staff-user-uuid', 'puuid' => 'patient-uuid']);
+    }
+
+    public function testStaffLaunchIsUnchangedForStaffLogin(): void
+    {
+        $token = new SMARTLaunchToken('patient-uuid');
+        $token->setIntent(SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG);
+
+        $context = $this->buildContext($token, ['user_id' => 'staff-user-uuid']);
+
+        $this->assertSame('patient-uuid', $context['patient'], 'A staff EHR launch keeps the patient it names');
+    }
+
     /**
+     * @param array<string, string> $sessionValues session values other than the launch
      * @return array<string, mixed>
      */
-    private function buildContext(SMARTLaunchToken $token): array
+    private function buildContext(SMARTLaunchToken $token, array $sessionValues = []): array
     {
+        $serialized = $token->serialize();
         $session = $this->createMock(SessionInterface::class);
         $session->method('get')->willReturnCallback(
-            static fn(string $name, mixed $default = null): mixed => $name === 'launch' ? $token->serialize() : $default
+            static fn(string $name, mixed $default = null): mixed => $name === 'launch' ? $serialized : ($sessionValues[$name] ?? $default)
         );
 
         $serverConfig = $this->createMock(ServerConfig::class);

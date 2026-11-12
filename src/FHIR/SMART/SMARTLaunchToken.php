@@ -22,7 +22,13 @@ class SMARTLaunchToken
 
     public const INTENT_QUESTIONNAIRE_ASSESSMENT = 'questionnaire.assessment.dialog';
 
-    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG, self::INTENT_ENCOUNTER_DIALOG, self::INTENT_MAIN_TAB, self::INTENT_QUESTIONNAIRE_ASSESSMENT];
+    /**
+     * A patient launched the app from the patient portal. The token's patient is the portal patient, and only that
+     * patient's own login may use it (see SMARTSessionTokenContextBuilder::getEHRLaunchContext()).
+     */
+    public const INTENT_PATIENT_PORTAL = 'patient.portal';
+
+    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG, self::INTENT_ENCOUNTER_DIALOG, self::INTENT_MAIN_TAB, self::INTENT_QUESTIONNAIRE_ASSESSMENT, self::INTENT_PATIENT_PORTAL];
 
     // used on the appointment add/edit dialog, context will include the selected appointment
     // for now this intent is used by custom apps that consume the openemr.appointment.add_edit_event.close.before event
