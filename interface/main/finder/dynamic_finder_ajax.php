@@ -36,8 +36,11 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientFinder\PatientFinderBuiltInColumns;
+use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
 use OpenEMR\Services\PatientFinder\PatientFinderDetailService;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryService;
+use OpenEMR\Services\PatientService;
 use Symfony\Component\HttpFoundation\Request;
 
 // Align the permission check with the Patient Finder page (`patients/demo`
@@ -53,7 +56,10 @@ if (!AclMain::aclCheckCore('patients', 'demo')) {
 //  2. Additionally, in this script there are no state changes, thus it is not even sensitive to csrf vulnerabilities.
 
 $query = Request::createFromGlobals()->query;
-$dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+$globals = OEGlobalsBag::getInstance();
+$dispatcher = $globals->getKernel()->getEventDispatcher();
+// The combined columns, in the site's date and time formats.
+$builtInColumns = PatientFinderBuiltInColumns::fromGlobals($globals);
 
 header('Content-Type: application/json');
 
@@ -61,7 +67,7 @@ if ($query->has('detail')) {
     // getInt() would throw on a value that is not a number; anything that is not a
     // positive integer is simply not found.
     $rawPid = $query->getString('detail');
-    $html = (new PatientFinderDetailService($dispatcher))->html(ctype_digit($rawPid) ? intval($rawPid) : 0);
+    $html = (new PatientFinderDetailService($dispatcher, builtInColumns: $builtInColumns))->html(ctype_digit($rawPid) ? intval($rawPid) : 0);
     if ($html === null) {
         http_response_code(404);
     }
@@ -69,7 +75,12 @@ if ($query->has('detail')) {
     exit;
 }
 
-$service = new PatientFinderQueryService($dispatcher);
+$service = new PatientFinderQueryService(
+    $dispatcher,
+    registryFactory: new PatientFinderColumnRegistryFactory($dispatcher, builtInColumns: $builtInColumns),
+    recentPids: static fn(): array => PatientFinderQueryService::recentPidsOf(new PatientService()),
+    recentSharesColumns: $globals->getBoolean('gbl_pt_list_recent_same_columns'),
+);
 $out = $service->handle($query->all());
 
 // Encoding with options for escaping a special chars - JSON_HEX_TAG (<)(>), JSON_HEX_AMP(&), JSON_HEX_APOS('), JSON_HEX_QUOT(").

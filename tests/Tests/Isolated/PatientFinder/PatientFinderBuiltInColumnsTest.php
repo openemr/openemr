@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\PatientFinder;
 
 use OpenEMR\Events\BoundFilter;
+use OpenEMR\Services\PatientFinder\PatientFinderBuiltInColumn;
 use OpenEMR\Services\PatientFinder\PatientFinderBuiltInColumns;
 use OpenEMR\Services\PatientFinder\PatientFinderColumn;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
@@ -118,7 +119,7 @@ class PatientFinderBuiltInColumnsTest extends TestCase
         string $pattern
     ): void {
         $column = (new PatientFinderBuiltInColumns($dateFormat, $timeFormat))
-            ->column(PatientFinderBuiltInColumns::NEXT_APPOINTMENT, 'Next Appt');
+            ->column(PatientFinderBuiltInColumn::NextAppointment->value, 'Next Appt');
 
         $this->assertNotNull($column);
         $this->assertStringStartsWith('DATE_FORMAT(', (string) $column->selectExpression);
@@ -132,8 +133,8 @@ class PatientFinderBuiltInColumnsTest extends TestCase
     public function testNextAndLastAppointmentLookInOppositeDirections(): void
     {
         $columns = new PatientFinderBuiltInColumns();
-        $next = (string) $columns->column(PatientFinderBuiltInColumns::NEXT_APPOINTMENT, 'Next')?->searchExpression;
-        $last = (string) $columns->column(PatientFinderBuiltInColumns::LAST_APPOINTMENT, 'Last')?->searchExpression;
+        $next = (string) $columns->column(PatientFinderBuiltInColumn::NextAppointment->value, 'Next')?->searchExpression;
+        $last = (string) $columns->column(PatientFinderBuiltInColumn::LastAppointment->value, 'Last')?->searchExpression;
 
         $this->assertStringStartsWith('(SELECT MIN(', $next);
         $this->assertStringContainsString('> NOW()', $next);
@@ -147,7 +148,7 @@ class PatientFinderBuiltInColumnsTest extends TestCase
      */
     public function testSortingOnABuiltInColumnOrdersByItsExpression(): void
     {
-        $age = (new PatientFinderBuiltInColumns())->column(PatientFinderBuiltInColumns::AGE, 'Age');
+        $age = (new PatientFinderBuiltInColumns())->column(PatientFinderBuiltInColumn::Age->value, 'Age');
         $this->assertNotNull($age);
         $request = PatientFinderRequest::fromArray([
             'sColumns' => 'age',
@@ -187,7 +188,8 @@ class PatientFinderBuiltInColumnsTest extends TestCase
             new EventDispatcher(),
             $fetch,
             $listMap,
-            new PatientFinderBuiltInColumns()
+            new PatientFinderBuiltInColumns(),
+            patientDataFields: static fn(): array => ['phone_home']
         ))->create();
 
         $this->assertSame(['phone_home', 'city_state'], $registry->keys());
@@ -228,14 +230,16 @@ class PatientFinderBuiltInColumnsTest extends TestCase
             $fetch,
             $listMap,
             new PatientFinderBuiltInColumns(),
-            $deny
+            $deny,
+            static fn(): array => []
         ))->create();
         $allowed = (new PatientFinderColumnRegistryFactory(
             new EventDispatcher(),
             $fetch,
             $listMap,
             new PatientFinderBuiltInColumns(),
-            static fn(string $section, string $value): bool => true
+            static fn(string $section, string $value): bool => true,
+            static fn(): array => []
         ))->create();
 
         $this->assertSame(['age'], $denied->keys());

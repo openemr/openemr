@@ -20,24 +20,35 @@ enum PatientFinderTermMatch
     case Start;
     /** The term is anywhere in the field. */
     case Anywhere;
-    /** The field ends with the term, as the last digits of an SSN. */
+    /** The field ends with the term, as the last digits of an SSN, even in an exact search. */
     case End;
     /** The term is a whole or partial date, read in the site's date format. */
     case Date;
 
     /**
-     * The LIKE pattern for a term. A date is always read as a date; otherwise an exact
-     * search matches the whole field.
+     * The LIKE pattern for a term. A date is always read as a date, and the end of a field
+     * is always matched as its end; otherwise an exact search matches the whole field. The
+     * term's own % and _ match only themselves.
      *
      * @param callable(string): string $datePattern turns a whole or partial date into a LIKE pattern
      */
     public function pattern(string $term, bool $exact, callable $datePattern): string
     {
+        $literal = self::escape($term);
         return match ($this) {
             self::Date => $datePattern($term),
-            self::Start => $exact ? $term : $term . '%',
-            self::Anywhere => $exact ? $term : '%' . $term . '%',
-            self::End => $exact ? $term : '%' . $term,
+            self::Start => $exact ? $literal : $literal . '%',
+            self::Anywhere => $exact ? $literal : '%' . $literal . '%',
+            self::End => '%' . $literal,
         };
+    }
+
+    /**
+     * A term as LIKE text that matches only itself: backslash, % and _ escaped with
+     * LIKE's default escape character, the backslash.
+     */
+    public static function escape(string $term): string
+    {
+        return addcslashes($term, '\\%_');
     }
 }

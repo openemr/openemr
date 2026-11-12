@@ -29,6 +29,33 @@ enum PatientFinderFontSize: string
     public const SETTING = 'patient_finder.font_size';
 
     /**
+     * The Font Size menu's name for the size, translated.
+     */
+    public function label(): string
+    {
+        return match ($this) {
+            self::Small => xl('Small'),
+            self::Normal => xl('Normal'),
+            self::Large => xl('Large'),
+            self::ExtraLarge => xl('Extra Large'),
+        };
+    }
+
+    /**
+     * The Font Size menu: each size's value and translated name, smallest first.
+     *
+     * @return array<string, string>
+     */
+    public static function menu(): array
+    {
+        $menu = [];
+        foreach (self::cases() as $size) {
+            $menu[$size->value] = $size->label();
+        }
+        return $menu;
+    }
+
+    /**
      * Read a stored setting; a missing or unknown value is the normal size.
      */
     public static function fromSetting(?string $value): self

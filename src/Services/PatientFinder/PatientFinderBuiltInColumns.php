@@ -6,8 +6,8 @@
  * The combined columns core offers in the Patient Finder besides plain
  * `patient_data` fields: alternative name orders, address lines, age, the next
  * and last appointment, and the primary insurance. An administrator turns one on
- * by adding a `ptlistcols` entry whose option id is the column's key (see
- * {@see self::keys()}); {@see PatientFinderColumnRegistryFactory} then seeds it
+ * by adding a `ptlistcols` entry whose option id is the column's key (one of
+ * {@see PatientFinderBuiltInColumn}); {@see PatientFinderColumnRegistryFactory} then seeds it
  * through {@see self::column()} instead of as a `patient_data` field.
  *
  * Every column is a {@see PatientFinderColumn::fromSql()} column, so it is searched
@@ -37,17 +37,6 @@ use OpenEMR\Core\OEGlobalsBag;
 
 final readonly class PatientFinderBuiltInColumns
 {
-    public const NAME_FIRST_LAST = 'name_first_last';
-    public const NAME_FIRST_LAST_MIDDLE = 'name_first_last_middle';
-    public const CITY_STATE = 'city_state';
-    public const ADDRESS_FULL = 'address_full';
-    public const ADDRESS_FULL_COUNTRY = 'address_full_country';
-    public const AGE = 'age';
-    public const NEXT_APPOINTMENT = 'next_appointment';
-    public const LAST_APPOINTMENT = 'last_appointment';
-    public const INSURANCE_PRIMARY_PROVIDER_NAME = 'insurance_primary_provider_name';
-    public const INSURANCE_PRIMARY_POLICY = 'insurance_primary_policy';
-
     /** MySQL DATE_FORMAT patterns for the date_display_format global (0, 1, 2). */
     private const DATE_FORMATS = ['%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y'];
 
@@ -81,47 +70,37 @@ final readonly class PatientFinderBuiltInColumns
     }
 
     /**
-     * The option ids an administrator can give a `ptlistcols` entry to show one of
+     * The option ids an administrator can give a finder column list entry to show one of
      * these columns.
      *
      * @return list<string>
      */
     public static function keys(): array
     {
-        return [
-            self::NAME_FIRST_LAST,
-            self::NAME_FIRST_LAST_MIDDLE,
-            self::CITY_STATE,
-            self::ADDRESS_FULL,
-            self::ADDRESS_FULL_COUNTRY,
-            self::AGE,
-            self::NEXT_APPOINTMENT,
-            self::LAST_APPOINTMENT,
-            self::INSURANCE_PRIMARY_PROVIDER_NAME,
-            self::INSURANCE_PRIMARY_POLICY,
-        ];
+        return array_map(
+            static fn(PatientFinderBuiltInColumn $column): string => $column->value,
+            PatientFinderBuiltInColumn::cases()
+        );
     }
 
     /**
-     * Whether a ptlistcols option id is one of these columns.
+     * Whether a column list option id is one of these columns.
      */
     public static function has(string $key): bool
     {
-        return in_array($key, self::keys(), true);
+        return PatientFinderBuiltInColumn::tryFrom($key) !== null;
     }
 
     /**
      * The ACL section and value a user needs to see a column, beyond the finder's own
-     * patients/demo, or null when the finder's access is enough. Appointment times need
-     * patients/appt, as on the patient summary.
+     * patients/demo, or null when the finder's access is enough (or the key is not one
+     * of these columns).
      *
      * @return array{string, string}|null
      */
     public static function requiredAcl(string $key): ?array
     {
-        return $key === self::NEXT_APPOINTMENT || $key === self::LAST_APPOINTMENT
-            ? ['patients', 'appt']
-            : null;
+        return PatientFinderBuiltInColumn::tryFrom($key)?->requiredAcl();
     }
 
     /**
@@ -132,34 +111,47 @@ final readonly class PatientFinderBuiltInColumns
      */
     public function column(string $key, string $title, string $defaultSortDir = 'asc'): ?PatientFinderColumn
     {
-        if ($key === self::NEXT_APPOINTMENT || $key === self::LAST_APPOINTMENT) {
-            $when = $this->appointment($key === self::NEXT_APPOINTMENT);
-            return PatientFinderColumn::fromSql(
-                $key,
-                $title,
-                "DATE_FORMAT($when, '{$this->dateTimeFormat}')",
-                searchExpression: $when,
-                defaultSortDir: $defaultSortDir
-            );
+        $column = PatientFinderBuiltInColumn::tryFrom($key);
+        if ($column === null) {
+            return null;
         }
-
-        $expression = match ($key) {
-            self::NAME_FIRST_LAST => self::joined(' ', ['fname', 'lname']),
-            self::NAME_FIRST_LAST_MIDDLE => self::joined(' ', ['fname', 'mname', 'lname']),
-            self::CITY_STATE => self::joined(', ', ['city', 'state']),
-            self::ADDRESS_FULL => self::address(),
-            self::ADDRESS_FULL_COUNTRY => 'CONCAT_WS(\', \', NULLIF(' . self::address() . ', \'\'), '
+        $expression = match ($column) {
+            PatientFinderBuiltInColumn::NextAppointment, PatientFinderBuiltInColumn::LastAppointment
+                => $this->appointmentColumn($column, $title, $defaultSortDir),
+            PatientFinderBuiltInColumn::NameFirstLast => self::joined(' ', ['fname', 'lname']),
+            PatientFinderBuiltInColumn::NameFirstLastMiddle => self::joined(' ', ['fname', 'mname', 'lname']),
+            PatientFinderBuiltInColumn::CityState => self::joined(', ', ['city', 'state']),
+            PatientFinderBuiltInColumn::AddressFull => self::address(),
+            PatientFinderBuiltInColumn::AddressFullCountry => 'CONCAT_WS(\', \', NULLIF(' . self::address() . ', \'\'), '
                 . self::field('country_code') . ')',
-            self::AGE => 'CASE WHEN patient_data.DOB IS NULL OR patient_data.DOB = \'0000-00-00\' THEN NULL'
+            PatientFinderBuiltInColumn::Age => 'CASE WHEN patient_data.DOB IS NULL OR patient_data.DOB = \'0000-00-00\' THEN NULL'
                 . ' ELSE TIMESTAMPDIFF(YEAR, patient_data.DOB, CURDATE()) END',
-            self::INSURANCE_PRIMARY_PROVIDER_NAME => self::primaryInsurance('ic.name'),
-            self::INSURANCE_PRIMARY_POLICY => self::primaryInsurance('ins.policy_number'),
-            default => null,
+            PatientFinderBuiltInColumn::InsurancePrimaryProviderName => self::primaryInsurance('ic.name'),
+            PatientFinderBuiltInColumn::InsurancePrimaryPolicy => self::primaryInsurance('ins.policy_number'),
         };
 
-        return $expression === null
-            ? null
+        return $expression instanceof PatientFinderColumn
+            ? $expression
             : PatientFinderColumn::fromSql($key, $title, $expression, defaultSortDir: $defaultSortDir);
+    }
+
+    /**
+     * An appointment column: shown in the site's date and time formats, searched and sorted
+     * on the stored date and time.
+     */
+    private function appointmentColumn(
+        PatientFinderBuiltInColumn $column,
+        string $title,
+        string $defaultSortDir
+    ): PatientFinderColumn {
+        $when = $this->appointment($column === PatientFinderBuiltInColumn::NextAppointment);
+        return PatientFinderColumn::fromSql(
+            $column->value,
+            $title,
+            "DATE_FORMAT($when, '{$this->dateTimeFormat}')",
+            searchExpression: $when,
+            defaultSortDir: $defaultSortDir
+        );
     }
 
     /**

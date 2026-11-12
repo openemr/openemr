@@ -410,15 +410,20 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
     echo "<input type='hidden' name='opt[" . attr($opt_line_no) . "][real_id]' value='" .
         attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
     $id_name = "opt[" . attr($opt_line_no) . "][id]";
-    if ((is_string($list_id) && PatientFinderColumnList::isColumnList($list_id))) {
+    if (is_string($list_id) && PatientFinderColumnList::isColumnList($list_id)) {
         // A Patient Finder column (Patient List or Recent Patients): pick one of the combined columns the finder builds itself
         // or a patient_data field. An id in neither list, such as one a module added, is kept
         // as its own choice so saving the list never changes it.
         $current_id = is_string($option_id) ? $option_id : '';
         // name (Last, First Middle) is the finder's own column, like the combined ones.
         $built_in_ids = array_merge([PatientFinderQueryBuilder::NAME_KEY], PatientFinderBuiltInColumns::keys());
-        $field_ids = QueryUtils::listTableFields('patient_data');
-        sort($field_ids);
+        // Read once per page, not once per row.
+        static $patient_data_fields = null;
+        if (!is_array($patient_data_fields)) {
+            $patient_data_fields = array_values(QueryUtils::listTableFields('patient_data'));
+            sort($patient_data_fields);
+        }
+        $field_ids = array_values(array_filter($patient_data_fields, is_string(...)));
         $id_groups = [
             xl('Combined columns') => $built_in_ids,
             xl('Patient data fields') => $field_ids,
@@ -557,7 +562,7 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
             "value='" . attr($value) . "' onclick='sel_cvxcode(this)' " .
             "title='" . xla('Click to select or change CVX code') . "'/>";
         echo "</td>\n";
-    } elseif ((is_string($list_id) && PatientFinderColumnList::isColumnList($list_id))) {
+    } elseif (is_string($list_id) && PatientFinderColumnList::isColumnList($list_id)) {
         echo "  <td>";
         echo generate_select_list("opt[$opt_line_no][toggle_setting_1]", 'Sort_Direction', $tog1, 'Sort Direction', '', 'option');
         echo "</td>\n";
@@ -1412,7 +1417,7 @@ function writeITLine($it_array): void
                         <th><?php echo xlt('Facility'); ?></th>
                     <?php } elseif ($list_id == 'immunizations') { ?>
                         <th>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('CVX Code Mapping'); ?></th>
-                    <?php } elseif ((is_string($list_id) && PatientFinderColumnList::isColumnList($list_id))) { ?>
+                    <?php } elseif (is_string($list_id) && PatientFinderColumnList::isColumnList($list_id)) { ?>
                         <th>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Default Sort Direction'); ?></th>
                     <?php }
                     if (OEGlobalsBag::getInstance()->get('ippf_specific')) { ?>
@@ -1451,7 +1456,7 @@ function writeITLine($it_array): void
                         echo xlt('External URL');
                     } elseif ($list_id == "default_open_tabs") {
                         echo xlt("URL");
-                    } elseif ((is_string($list_id) && PatientFinderColumnList::isColumnList($list_id))) {
+                    } elseif (is_string($list_id) && PatientFinderColumnList::isColumnList($list_id)) {
                         // PatientFinderColumnRegistryFactory reads the column width from notes.
                         echo xlt('Width (px, rem, em or %)');
                     } else {

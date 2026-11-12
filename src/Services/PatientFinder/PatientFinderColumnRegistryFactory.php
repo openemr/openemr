@@ -13,7 +13,8 @@
  * through the `Sort_Direction` list). An entry whose option id is one of
  * {@see PatientFinderBuiltInColumns::keys()} is seeded as that combined column
  * rather than as a `patient_data` field. An entry's notes hold its display width
- * (see {@see PatientFinderColumn::withWidth()}). It then dispatches
+ * (see {@see PatientFinderColumn::withWidth()}). An entry that is neither the Name
+ * column, a combined column nor a `patient_data` field is left out. It then dispatches
  * {@see PatientFinderColumnRegistrationEvent} so modules can add, remove or
  * reorder columns.
  *
@@ -37,7 +38,6 @@ namespace OpenEMR\Services\PatientFinder;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -52,6 +52,14 @@ final class PatientFinderColumnRegistryFactory
     /** @var callable(string, string): bool */
     private $aclCheck;
 
+    /** @var callable(): list<string> */
+    private $patientDataFields;
+
+    /** @var list<string>|null The patient_data column names, read once. */
+    private ?array $patientDataFieldNames = null;
+
+    private readonly PatientFinderBuiltInColumns $builtInColumns;
+
     /** @var array<array-key, mixed>|null Cached Sort_Direction map. */
     private ?array $sortDirectionMap = null;
 
@@ -60,21 +68,28 @@ final class PatientFinderColumnRegistryFactory
      * @param callable(string): array<array-key, mixed>|null $listMapResolver
      *        Resolves a list id to a value => title map (defaults to generate_list_map()).
      * @param PatientFinderBuiltInColumns|null $builtInColumns
-     *        The combined columns (defaults to one using the site's date and time formats).
+     *        The combined columns; the caller passes PatientFinderBuiltInColumns::fromGlobals() for
+     *        the site's date and time formats (defaults to YYYY-MM-DD and 24-hour times).
      * @param callable(string, string): bool|null $aclCheck
      *        Whether the current user has an ACL section and value (defaults to AclMain::aclCheckCore()).
+     * @param callable(): list<string>|null $patientDataFields
+     *        The patient_data column names (defaults to QueryUtils::listTableFields()).
      */
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         ?callable $fetchRecords = null,
         ?callable $listMapResolver = null,
-        private ?PatientFinderBuiltInColumns $builtInColumns = null,
-        ?callable $aclCheck = null
+        ?PatientFinderBuiltInColumns $builtInColumns = null,
+        ?callable $aclCheck = null,
+        ?callable $patientDataFields = null
     ) {
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
         $this->listMapResolver = $listMapResolver;
+        $this->builtInColumns = $builtInColumns ?? new PatientFinderBuiltInColumns();
         $this->aclCheck = $aclCheck ?? static fn(string $section, string $value): bool
             => AclMain::aclCheckCore($section, $value);
+        $this->patientDataFields = $patientDataFields
+            ?? static fn(): array => array_values(QueryUtils::listTableFields('patient_data'));
     }
 
     /**
@@ -105,8 +120,13 @@ final class PatientFinderColumnRegistryFactory
                 if ($column === null) {
                     continue;
                 }
-            } else {
+            } elseif ($key === PatientFinderQueryBuilder::NAME_KEY || $this->isPatientDataField($key)) {
                 $column = PatientFinderColumn::fromTable($key, $title, defaultSortDir: $sortDir);
+            } else {
+                // Not a column the finder can read, such as one a disabled module added or a
+                // field since removed: left out, so it cannot break the query for everyone.
+                // A module that still provides it adds it through the registration event.
+                continue;
             }
             $registry->add($column->withWidth(PatientFinderValue::string($row['notes'] ?? null)));
         }
@@ -128,8 +148,13 @@ final class PatientFinderColumnRegistryFactory
         if ($acl !== null && !($this->aclCheck)($acl[0], $acl[1])) {
             return null;
         }
-        $this->builtInColumns ??= PatientFinderBuiltInColumns::fromGlobals(OEGlobalsBag::getInstance());
         return $this->builtInColumns->column($key, $title, $sortDir);
+    }
+
+    private function isPatientDataField(string $key): bool
+    {
+        $this->patientDataFieldNames ??= ($this->patientDataFields)();
+        return in_array($key, $this->patientDataFieldNames, true);
     }
 
     /**

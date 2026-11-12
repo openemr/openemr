@@ -75,6 +75,15 @@ enum PatientFinderSearchMode: string
     }
 
     /**
+     * Whether a field also matches when its number is the end of the term: a phone number
+     * typed with its country code (+1 555 444 3333) still finds one stored without it.
+     */
+    public function matchesFieldAtEndOfTerm(): bool
+    {
+        return $this === self::Phone;
+    }
+
+    /**
      * The term as this mode compares it: only its digits for a phone or SSN search.
      */
     public function normalizeTerm(string $term): string

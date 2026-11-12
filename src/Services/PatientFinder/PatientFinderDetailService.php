@@ -33,7 +33,6 @@ namespace OpenEMR\Services\PatientFinder;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -61,9 +60,13 @@ final class PatientFinderDetailService
     /** @var callable(string, array<string, string>): string */
     private $renderLayout;
 
+    private readonly PatientFinderBuiltInColumns $builtInColumns;
+
     /**
      * @param callable(string, array<int, string|int>): list<array<mixed>>|null $fetchRecords
      * @param callable(): list<string>|null $patientDataFields the patient_data column names
+     * @param PatientFinderBuiltInColumns|null $builtInColumns the combined columns; the caller passes
+     *        PatientFinderBuiltInColumns::fromGlobals() for the site's date and time formats
      * @param callable(string, string): bool|null $aclCheck whether the current user has an ACL
      *        section and value (defaults to AclMain::aclCheckCore())
      * @param callable(string, array<string, string>): string|null $renderLayout a layout's HTML
@@ -73,7 +76,7 @@ final class PatientFinderDetailService
         private readonly EventDispatcherInterface $dispatcher,
         ?callable $fetchRecords = null,
         ?callable $patientDataFields = null,
-        private ?PatientFinderBuiltInColumns $builtInColumns = null,
+        ?PatientFinderBuiltInColumns $builtInColumns = null,
         ?callable $aclCheck = null,
         ?callable $renderLayout = null
     ) {
@@ -82,6 +85,7 @@ final class PatientFinderDetailService
         $this->aclCheck = $aclCheck ?? static fn(string $section, string $value): bool
             => AclMain::aclCheckCore($section, $value);
         $this->renderLayout = $renderLayout ?? self::renderLayoutTabsData(...);
+        $this->builtInColumns = $builtInColumns ?? new PatientFinderBuiltInColumns();
     }
 
     /**
@@ -122,7 +126,6 @@ final class PatientFinderDetailService
                 if ($acl !== null && !($this->aclCheck)($acl[0], $acl[1])) {
                     continue;
                 }
-                $this->builtInColumns ??= PatientFinderBuiltInColumns::fromGlobals(OEGlobalsBag::getInstance());
                 $column = $this->builtInColumns->column($fieldId, $fieldId);
                 if ($column !== null) {
                     $select[] = $column->selectExpression . ' AS `' . $fieldId . '`';

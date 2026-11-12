@@ -39,7 +39,6 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientFinder;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
@@ -68,8 +67,6 @@ final class PatientFinderQueryService
     /** @var callable(): list<int> The current user's recent patients, most recent first. */
     private $recentPids;
 
-    private readonly bool $recentSharesColumns;
-
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         ?PatientFinderQueryBuilder $builder = null,
@@ -79,7 +76,7 @@ final class PatientFinderQueryService
         ?callable $plaintext = null,
         ?PatientFinderColumnRegistryFactory $registryFactory = null,
         ?callable $recentPids = null,
-        ?bool $recentSharesColumns = null
+        private readonly bool $recentSharesColumns = true
     ) {
         $this->builder = $builder ?? new PatientFinderQueryBuilder();
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
@@ -90,20 +87,18 @@ final class PatientFinderQueryService
         // the column set; default to one backed by this service's fetcher.
         $this->registryFactory = $registryFactory
             ?? new PatientFinderColumnRegistryFactory($dispatcher, $this->fetchRecords);
-        $this->recentPids = $recentPids ?? self::currentUserRecentPids(...);
-        $this->recentSharesColumns = $recentSharesColumns
-            ?? OEGlobalsBag::getInstance()->getBoolean('gbl_pt_list_recent_same_columns');
+        $this->recentPids = $recentPids ?? static fn(): array => [];
     }
 
     /**
-     * The logged-in user's recent patients, most recent first.
+     * The logged-in user's recent patients, most recent first, for the Recent Patients tab.
      *
      * @return list<int>
      */
-    private static function currentUserRecentPids(): array
+    public static function recentPidsOf(PatientService $patients): array
     {
         $pids = [];
-        foreach ((new PatientService())->getRecentPatientList() as $row) {
+        foreach ($patients->getRecentPatientList() as $row) {
             $pid = PatientFinderValue::int(is_array($row) ? ($row['pid'] ?? null) : null);
             if ($pid > 0) {
                 $pids[] = $pid;

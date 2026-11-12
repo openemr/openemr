@@ -83,7 +83,7 @@ class PatientFinderQueryBuilderTest extends TestCase
 
         $this->assertSame(
             'SELECT patient_data.pid, lname, fname, mname, `DOB`, `sex` FROM patient_data WHERE 1 AND '
-            . '( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? OR `DOB` LIKE ? OR `sex` LIKE ? ) )'
+            . '( ( ( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) ) OR `DOB` LIKE ? OR `sex` LIKE ? ) )'
             . ' LIMIT ? OFFSET ?',
             $plan->dataSql
         );
@@ -94,7 +94,7 @@ class PatientFinderQueryBuilderTest extends TestCase
 
         $this->assertSame(
             'SELECT COUNT(id) AS count FROM patient_data WHERE 1 AND '
-            . '( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? OR `DOB` LIKE ? OR `sex` LIKE ? ) )',
+            . '( ( ( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) ) OR `DOB` LIKE ? OR `sex` LIKE ? ) )',
             $plan->filteredCountSql
         );
         $this->assertSame(['smith%', 'smith%', 'smith%', 'smith%', 'smith%'], $plan->filteredCountBinds);
@@ -288,7 +288,12 @@ class PatientFinderQueryBuilderTest extends TestCase
         $plan = $this->modeSearch(PatientFinderSearchMode::Phone, '(444) 333');
 
         $this->assertStringContainsString("REPLACE(patient_data.phone_cell, '-', '')", $plan->dataSql);
-        $this->assertSame(array_fill(0, 4, '%444333%'), $plan->filteredCountBinds);
+        // Each phone matches the digits anywhere in it, or as the end of the typed number.
+        $this->assertSame(
+            array_merge(...array_fill(0, 4, ['%444333%', '444333'])),
+            $plan->filteredCountBinds
+        );
+        $this->assertStringContainsString(">= 7 AND ? LIKE CONCAT('%', (REPLACE(", $plan->dataSql);
     }
 
     public function testSsnSearchMatchesTheLastDigits(): void
@@ -458,8 +463,26 @@ class PatientFinderQueryBuilderTest extends TestCase
         );
 
         $this->assertStringContainsString(
-            '( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) AND `sex` LIKE ? )',
+            '( ( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) ) AND `sex` LIKE ? )',
             $plan->dataSql
+        );
+    }
+
+    /**
+     * Each word of a name search must match one of the names, so a full name in either
+     * order finds the patient.
+     */
+    public function testNameSearchMatchesEachWordOfAFullName(): void
+    {
+        $plan = $this->modeSearch(PatientFinderSearchMode::Name, 'Belford, Phil');
+
+        $this->assertStringContainsString(
+            '( ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) AND ( lname LIKE ? OR fname LIKE ? OR mname LIKE ? ) )',
+            $plan->dataSql
+        );
+        $this->assertSame(
+            ['Belford%', 'Belford%', 'Belford%', 'Phil%', 'Phil%', 'Phil%'],
+            $plan->filteredCountBinds
         );
     }
 

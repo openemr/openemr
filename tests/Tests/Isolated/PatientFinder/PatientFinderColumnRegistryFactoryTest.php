@@ -29,6 +29,40 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PatientFinderColumnRegistryFactoryTest extends TestCase
 {
+    /**
+     * The patient_data fields the tests' lists use.
+     *
+     * @return list<string>
+     */
+    private static function fields(): array
+    {
+        return ['fname', 'mname', 'lname', 'DOB', 'sex', 'phone_home', 'ss', 'pubpid', 'street', 'city', 'state', 'postal_code'];
+    }
+
+    /**
+     * An entry that is neither the Name column, a combined column nor a patient_data
+     * field is left out, so it cannot break the finder's query.
+     */
+    public function testLeavesOutAnIdTheFinderCannotRead(): void
+    {
+        $fetch = static fn(string $sql, array $binds): array => in_array('ptlistcols', $binds, true)
+            ? [
+                ['option_id' => 'name', 'title' => 'Full Name', 'toggle_setting_1' => ''],
+                ['option_id' => 'module_gone', 'title' => 'Old Module Column', 'toggle_setting_1' => ''],
+                ['option_id' => 'age', 'title' => 'Age', 'toggle_setting_1' => ''],
+                ['option_id' => 'DOB', 'title' => 'DOB', 'toggle_setting_1' => ''],
+            ]
+            : [];
+
+        $registry = (new PatientFinderColumnRegistryFactory(
+            $this->dispatcher(),
+            $fetch,
+            patientDataFields: self::fields(...)
+        ))->create();
+
+        $this->assertSame(['name', 'age', 'DOB'], $registry->keys());
+    }
+
     /** @param array<string, callable> $listeners */
     private function dispatcher(array $listeners = []): EventDispatcherInterface
     {
@@ -59,7 +93,7 @@ class PatientFinderColumnRegistryFactoryTest extends TestCase
                 ),
         ]);
 
-        $registry = (new PatientFinderColumnRegistryFactory($dispatcher, $fetch, $listMap))->create();
+        $registry = (new PatientFinderColumnRegistryFactory($dispatcher, $fetch, $listMap, patientDataFields: self::fields(...)))->create();
 
         $this->assertSame(['name', 'DOB', 'ihi'], $registry->keys());
         $this->assertSame('asc', $registry->get('name')?->defaultSortDir);
@@ -77,7 +111,7 @@ class PatientFinderColumnRegistryFactoryTest extends TestCase
             throw new \RuntimeException('should not resolve the list for a blank toggle');
         };
 
-        $registry = (new PatientFinderColumnRegistryFactory($this->dispatcher(), $fetch, $listMap))->create();
+        $registry = (new PatientFinderColumnRegistryFactory($this->dispatcher(), $fetch, $listMap, patientDataFields: self::fields(...)))->create();
 
         $this->assertSame('asc', $registry->get('sex')?->defaultSortDir);
     }
@@ -94,7 +128,7 @@ class PatientFinderColumnRegistryFactoryTest extends TestCase
                     $seen[] = $e->getColumnList();
                 },
         ]);
-        $factory = new PatientFinderColumnRegistryFactory($dispatcher, $fetch);
+        $factory = new PatientFinderColumnRegistryFactory($dispatcher, $fetch, patientDataFields: self::fields(...));
 
         $this->assertSame(['fname'], $factory->create(PatientFinderColumnList::Recent)->keys());
         $this->assertSame(['DOB'], $factory->create()->keys());

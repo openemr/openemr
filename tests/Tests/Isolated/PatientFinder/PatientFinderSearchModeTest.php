@@ -43,9 +43,27 @@ class PatientFinderSearchModeTest extends TestCase
             'date' => [PatientFinderTermMatch::Date, false, 'date:abc'],
             'exact start' => [PatientFinderTermMatch::Start, true, 'abc'],
             'exact anywhere' => [PatientFinderTermMatch::Anywhere, true, 'abc'],
-            'exact end' => [PatientFinderTermMatch::End, true, 'abc'],
+            'exact end is still the end, so the last 4 of an SSN match' => [PatientFinderTermMatch::End, true, '%abc'],
             'exact date is still a date' => [PatientFinderTermMatch::Date, true, 'date:abc'],
         ];
+    }
+
+    /**
+     * A term's own %, _ and backslash match only themselves.
+     */
+    public function testWildcardsInTheTermMatchOnlyThemselves(): void
+    {
+        $datePattern = static fn(string $term): string => $term;
+
+        $this->assertSame('%a\\%b\\_c\\\\%', PatientFinderTermMatch::Anywhere->pattern('a%b_c\\', false, $datePattern));
+        $this->assertSame('j\\_smith', PatientFinderTermMatch::Start->pattern('j_smith', true, $datePattern));
+    }
+
+    public function testOnlyPhoneMatchesAFieldAtTheEndOfTheTerm(): void
+    {
+        $this->assertTrue(PatientFinderSearchMode::Phone->matchesFieldAtEndOfTerm());
+        $this->assertFalse(PatientFinderSearchMode::Ssn->matchesFieldAtEndOfTerm());
+        $this->assertFalse(PatientFinderSearchMode::All->matchesFieldAtEndOfTerm());
     }
 
     public function testPhoneAndSsnCompareOnlyDigits(): void
