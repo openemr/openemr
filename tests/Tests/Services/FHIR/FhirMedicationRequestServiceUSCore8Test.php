@@ -489,6 +489,45 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
     }
 
     #[Test]
+    public function testDispenseQuantityUsesPrescribedForm(): void
+    {
+        // 10 mg per dose, 30 tablets dispensed: the dispense amount is counted in the form.
+        $data = array_merge($this->compliantMedicationRequestData, [
+            'prescription_drug_size' => 10,
+            'unit_title' => 'mg',
+            'quantity' => 30,
+            'drug_form_title' => 'tablet',
+        ]);
+
+        $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($data);
+
+        $dispenseQuantity = $medicationRequest->getDispenseRequest()->getQuantity();
+        $this->assertEquals(30, $dispenseQuantity->getValue(), "Dispense quantity value must match input data");
+        $this->assertEquals('tablet', (string)$dispenseQuantity->getUnit(), "Dispense quantity must use the prescribed form");
+
+        $dosageInstructions = $medicationRequest->getDosageInstruction();
+        $this->assertNotEmpty($dosageInstructions, "Dosage instruction must be present");
+        $doseQuantity = $dosageInstructions[0]->getDoseAndRate()[0]->getDoseQuantity();
+        $this->assertEquals('mg', (string)$doseQuantity->getUnit(), "Dose quantity must keep the dose unit");
+    }
+
+    #[Test]
+    public function testDispenseQuantityFallsBackToDoseUnitWithoutForm(): void
+    {
+        $data = $this->compliantMedicationRequestData;
+        unset($data['drug_form_title']);
+
+        $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($data);
+
+        $dispenseQuantity = $medicationRequest->getDispenseRequest()->getQuantity();
+        $this->assertEquals(
+            $this->compliantMedicationRequestData['unit_title'],
+            (string)$dispenseQuantity->getUnit(),
+            "Without a recorded form the dispense unit must be unchanged"
+        );
+    }
+
+    #[Test]
     public function testMustSupportMedicationAdherenceExtension(): void
     {
         $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($this->compliantMedicationRequestData);
