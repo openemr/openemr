@@ -34,7 +34,7 @@ CREATE TABLE `addresses` (
 
 DROP TABLE IF EXISTS `amc_misc_data`;
 CREATE TABLE `amc_misc_data` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `amc_id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_rules',
   `pid` bigint(20) default NULL,
   `map_category` varchar(255) NOT NULL default '' COMMENT 'Maps to an object category (such as prescriptions etc.)',
@@ -1732,7 +1732,7 @@ CREATE TABLE `employer_data` (
 
 DROP TABLE IF EXISTS `enc_category_map`;
 CREATE TABLE `enc_category_map` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `rule_enc_id` varchar(31) NOT NULL DEFAULT '' COMMENT 'encounter id from rule_enc_types list in list_options',
   `main_cat_id` int(11) NOT NULL DEFAULT 0 COMMENT 'category id from event category in openemr_postcalendar_categories',
   KEY  (`rule_enc_id`,`main_cat_id`)
@@ -1955,7 +1955,7 @@ CREATE TABLE `fee_schedule` (
 
 DROP TABLE IF EXISTS `fee_sheet_options`;
 CREATE TABLE `fee_sheet_options` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `fs_category` varchar(63) default NULL,
   `fs_option` varchar(63) default NULL,
   `fs_codes` varchar(255) default NULL
@@ -3613,7 +3613,7 @@ INSERT INTO `lang_languages` VALUES (1, 'en', 'English', 0);
 
 DROP TABLE IF EXISTS `lang_custom`;
 CREATE TABLE `lang_custom` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `lang_description` varchar(100) NOT NULL default '',
   `lang_code` char(2) NOT NULL default '',
   `constant_name` mediumtext,
@@ -7886,7 +7886,7 @@ CREATE TABLE `module_acl_group_settings` (
 
 DROP TABLE IF EXISTS `module_acl_sections`;
 CREATE TABLE `module_acl_sections` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `section_id` int(11) DEFAULT NULL,
   `section_name` varchar(255) DEFAULT NULL,
   `parent_section` int(11) DEFAULT NULL,
@@ -7962,7 +7962,7 @@ CREATE TABLE `modules_hooks_settings` (
 
 DROP TABLE IF EXISTS `modules_settings`;
 CREATE TABLE `modules_settings` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `mod_id` INT(11) DEFAULT NULL,
   `fld_type` SMALLINT(6) DEFAULT NULL COMMENT '1=>ACL,2=>preferences,3=>hooks',
   `obj_name` VARCHAR(255) DEFAULT NULL,
@@ -8702,7 +8702,7 @@ CREATE TABLE `patient_tracker` (
 
 DROP TABLE IF EXISTS `patient_tracker_element`;
 CREATE TABLE `patient_tracker_element` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `pt_tracker_id`      bigint(20)   NOT NULL default '0' COMMENT 'maps to id column in patient_tracker table',
   `start_datetime`     datetime     DEFAULT NULL,
   `room`               varchar(20)  NOT NULL default '',
@@ -8990,7 +8990,7 @@ INSERT INTO `registry` VALUES ('New Questionnaire', 1, 'questionnaire_assessment
 
 DROP TABLE IF EXISTS `report_itemized`;
 CREATE TABLE `report_itemized` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `report_id` bigint(20) NOT NULL,
   `itemized_test_id` smallint(6) NOT NULL,
   `numerator_label` varchar(25) NOT NULL DEFAULT '' COMMENT 'Only used in special cases',
@@ -12600,7 +12600,7 @@ CREATE TABLE `extended_log` (
 
 DROP TABLE IF EXISTS `version`;
 CREATE TABLE version (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   v_major    int(11)     NOT NULL DEFAULT 0,
   v_minor    int(11)     NOT NULL DEFAULT 0,
   v_patch    int(11)     NOT NULL DEFAULT 0,
@@ -13667,7 +13667,7 @@ CREATE TABLE `medex_outgoing` (
 --
 DROP TABLE IF EXISTS `medex_prefs`;
 CREATE TABLE `medex_prefs` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `MedEx_id` int(11) DEFAULT '0',
   `ME_username` varchar(100) DEFAULT NULL,
   `ME_api_key` text,
@@ -14257,7 +14257,7 @@ CREATE TABLE `login_mfa_registrations` (
 
 DROP TABLE IF EXISTS `benefit_eligibility`;
 CREATE TABLE `benefit_eligibility` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `response_id` bigint(20) NOT NULL,
     `verification_id` bigint(20) NOT NULL,
     `type` varchar(4) DEFAULT NULL,

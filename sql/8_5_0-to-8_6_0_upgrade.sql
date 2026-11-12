@@ -583,48 +583,48 @@ ALTER TABLE `sequences` ADD PRIMARY KEY (`id`);
 -- FIRST in column order; existing rows receive sequential ids via the
 -- auto_increment backfill during the ALTER.
 
-#IfMissingColumn amc_misc_data id
-ALTER TABLE `amc_misc_data` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#IfMissingColumn amc_misc_data row_id
+ALTER TABLE `amc_misc_data` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
-#IfMissingColumn benefit_eligibility id
-ALTER TABLE `benefit_eligibility` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#IfMissingColumn benefit_eligibility row_id
+ALTER TABLE `benefit_eligibility` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
-#IfMissingColumn enc_category_map id
-ALTER TABLE `enc_category_map` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#IfMissingColumn enc_category_map row_id
+ALTER TABLE `enc_category_map` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
-#IfMissingColumn fee_sheet_options id
-ALTER TABLE `fee_sheet_options` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#IfMissingColumn fee_sheet_options row_id
+ALTER TABLE `fee_sheet_options` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
 #IfMissingColumn form_eye_mag_prefs row_id
 ALTER TABLE `form_eye_mag_prefs` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
-#IfMissingColumn lang_custom id
-ALTER TABLE `lang_custom` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#IfMissingColumn lang_custom row_id
+ALTER TABLE `lang_custom` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
-#IfMissingColumn medex_prefs id
-ALTER TABLE `medex_prefs` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#IfMissingColumn medex_prefs row_id
+ALTER TABLE `medex_prefs` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
-#IfMissingColumn module_acl_sections id
-ALTER TABLE `module_acl_sections` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#IfMissingColumn module_acl_sections row_id
+ALTER TABLE `module_acl_sections` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
-#IfMissingColumn modules_settings id
-ALTER TABLE `modules_settings` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#IfMissingColumn modules_settings row_id
+ALTER TABLE `modules_settings` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
-#IfMissingColumn patient_tracker_element id
-ALTER TABLE `patient_tracker_element` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#IfMissingColumn patient_tracker_element row_id
+ALTER TABLE `patient_tracker_element` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
-#IfMissingColumn report_itemized id
-ALTER TABLE `report_itemized` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#IfMissingColumn report_itemized row_id
+ALTER TABLE `report_itemized` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
 #IfMissingColumn rule_action row_id
@@ -643,6 +643,6 @@ ALTER TABLE `rule_reminder` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT P
 ALTER TABLE `rule_target` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
 
-#IfMissingColumn version id
-ALTER TABLE `version` ADD COLUMN `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
+#IfMissingColumn version row_id
+ALTER TABLE `version` ADD COLUMN `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 #EndIf
