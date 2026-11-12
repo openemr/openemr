@@ -24,6 +24,7 @@ Complete guide to OpenEMR's FHIR R4 API implementation.
     - [Export Status](#export-status)
     - [Download Files](#download-files)
 - [DocumentReference $docref Operation](#documentreference-docref-operation)
+- [Referrals and Tasks](#referrals-and-tasks)
 - [SMART Configuration](#smart-configuration)
 - [Error Handling](#error-handling)
 - [Examples](#examples)
@@ -388,7 +389,7 @@ The capability statement reveals:
 
 ## Supported Resources
 
-OpenEMR supports **30 FHIR R4 resources** across all contexts (patient, user, system).
+OpenEMR supports **32 FHIR R4 resources** across all contexts (patient, user, system).
 
 The resources that OpenEMR supports is documented via Swagger. You can see this documentation (and can test it) by going to the swagger directory in your OpenEMR installation. The FHIR API is documented there in the fhir section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the API (Swagger) User Interface link for the demo will take you there).
 
@@ -418,7 +419,7 @@ The resources that OpenEMR supports is documented via Swagger. You can see this 
 - Goal ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Goal))
 - CareTeam ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_CareTeam))
 - DiagnosticReport for Clinical Notes ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_DiagnosticReport))
-- Task, read, search, create and update ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Task))
+- Task, read, search, create and update ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Task)). See [Referrals and Tasks](#referrals-and-tasks).
 
 ### Diagnostic Resources
 - Observation ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Observation))
@@ -436,7 +437,9 @@ The resources that OpenEMR supports is documented via Swagger. You can see this 
 - - Sexual Orientation
 - - Uncategorized Observations
 - DiagnosticReport for Laboratory Results ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_DiagnosticReport))
-- ServiceRequest([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_ServiceCategory))
+- ServiceRequest ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_ServiceRequest))
+- - Orders (laboratory, imaging, procedures)
+- - Referrals, read-only. See [Referrals and Tasks](#referrals-and-tasks).
 - Media ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Media))
 - Specimen ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Specimen))
 
@@ -886,6 +889,94 @@ Upload XML to patient documents under "CCDA" category for human-readable view.
 
 Complete tutorial with screenshots:
 https://github.com/openemr/openemr/issues/5284#issuecomment-1155678620
+
+## Referrals and Tasks
+
+A referral saved on the Transactions screen is read as a ServiceRequest, and a Task tracks where
+it stands. See [Referral Workflows](../REFERRAL_WORKFLOWS.md) for the workflows and worked examples.
+
+### Referral ServiceRequests
+
+`/fhir/ServiceRequest` serves two things: orders (labs, imaging, procedures) and referrals.
+
+- A referral has category SNOMED CT `3457005` (Patient referral). A search without `category`
+  returns both.
+- **Referrals are read-only.** `POST` and `PUT /fhir/ServiceRequest` write a procedure order. A
+  referral is saved on the Transactions screen or through the
+  [Standard API](STANDARD_API.md) (`/api/patient/:pid/transaction`).
+- `status` is `active`, `completed` (a reply is recorded or the Task is completed), `revoked`
+  (the Task is cancelled) or `entered-in-error`.
+- `performer` is the recipient: a Practitioner or Organization when FHIR serves them as one,
+  otherwise a name only.
+- `meta.lastUpdated` moves when the referral or its Task changes, so `_lastUpdated` finds both.
+
+```bash
+# A patient's referrals
+curl -X GET 'https://localhost:9300/apis/default/fhir/ServiceRequest?patient=<patient-uuid>&category=3457005' \
+  -H 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...'
+```
+
+### Task
+
+`/fhir/Task` supports read, search, create and update. Two uses are built in:
+
+| Use | `code` | `focus` | `owner` |
+|---|---|---|---|
+| A referral being worked | `fulfill` | The referral ServiceRequest | Organization or Practitioner |
+| A questionnaire assigned to a patient | `complete-questionnaire` | Questionnaire | Patient or RelatedPerson |
+
+**Search parameters:** `_id`, `patient`, `subject`, `status`, `code`, `focus`, `owner`,
+`requester`, `part-of`, `authored-on`, `_lastUpdated`.
+
+**Write rules**
+
+- `for` (the patient) never changes.
+- `focus` is a ServiceRequest or a Questionnaire. `owner` is an Organization, Practitioner,
+  PractitionerRole, Patient or RelatedPerson.
+- `input` and `output` references must be on this server. A reference into a chart (a
+  DocumentReference, QuestionnaireResponse, Observation or Procedure) must be in the same
+  patient's chart. A Questionnaire, Organization, Practitioner or PractitionerRole is not any one
+  patient's.
+- `input` takes a Questionnaire, DocumentReference, Organization, Practitioner or
+  PractitionerRole, or a canonical, url, text or code. `output` takes a QuestionnaireResponse,
+  Observation, Procedure or DocumentReference, or text, or a code.
+- completed, rejected, failed and cancelled are final. A final Task can only become
+  `entered-in-error`.
+- `meta.versionId` counts updates. Send `If-Match: W/"<version>"` to update only if nobody
+  changed the Task since it was read; a stale version gets `412`. `If-Match` is optional.
+
+**A referral's own Task**
+
+With the **Track Referrals with FHIR Tasks** global on, saving a referral makes its Task:
+`requested`, `intent` order, `code` fulfill, `focus` the referral, `owner` Refer To,
+`requester` Refer By. `requester` is left out when FHIR cannot serve Refer By as a Practitioner
+(no NPI), so a client must not rely on it. Saving the referral sets it when the Task is made and does not update it
+afterwards: if Refer By changes, or gains an NPI, an existing Task keeps its old `requester`.
+A Task `PUT` can still change or remove it, so send back the `requester` that was read.
+The referral ServiceRequest's `requester` is always the current one.
+
+- No Task is made when FHIR cannot serve Refer To as a Practitioner or an Organization (a
+  provider or address book practitioner without an NPI, for example), or when the referral
+  already has a Reply Date when it is saved. A referral that never got a Task does not appear in
+  a recipient's Task search. One that got a Task and was answered later keeps it: the reply
+  completes a Task that is still open, while tracking is on, and a Task already final keeps its
+  status. See
+  [when a Task is made](../REFERRAL_WORKFLOWS.md#setup).
+- A `PUT` cannot change its `focus`, `owner`, `code` or `partOf`; that gets `400` naming the field.
+- Marking it accepted, rejected, completed, failed or cancelled sends Refer By an inbox message.
+  No message is sent when the tracking global is off, or when Refer By is inactive or has no
+  username.
+- Do not `POST` a Task with code `fulfill`, no `partOf` and a referral as `focus` for testing.
+  OpenEMR treats it as that referral's own Task.
+
+```bash
+# The recipient's new referrals
+curl -X GET 'https://localhost:9300/apis/default/fhir/Task?status=requested&owner=Organization/<uuid>' \
+  -H 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...'
+```
+
+A recipient's client can be limited to its own Tasks and referrals. See
+[Authorization](AUTHORIZATION.md#client-limited-to-an-address-book-entry).
 
 ## Error Handling
 

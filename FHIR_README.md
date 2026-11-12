@@ -103,6 +103,7 @@ All patient resources plus: Group, Bulk Export operations
 
 ### ✨ New in SMART v2.2.0
 - **ServiceRequest** - Lab orders, imaging requests, referrals
+- **Task** - Referral tracking and patient-assigned questionnaires. See [Referral Workflows](Documentation/REFERRAL_WORKFLOWS.md)
 - **Specimen** - Laboratory specimen tracking
 - **MedicationDispense** - Pharmacy dispensing records
 - **RelatedPerson** - Patient relationships and emergency contacts
