@@ -167,10 +167,17 @@ derive_from_version_sql_candidates() {
 # sql files") on master during active-dev-cycle resolves to the
 # floating pre-release tag that happens to be byte-identical-scaffolded
 # with master (same docker-version, same $v_database at cut), making
-# the upgrade cell vacuous. The fsupgrade-based rule picks a FROM
-# that's guaranteed to be at docker-version=TO-1, so the entrypoint
-# ALWAYS has a real fsupgrade walk to perform. See G53/G56 in
-# docs/release-mechanism-gaps.md for the full forensic.
+# the upgrade cell vacuous. The fsupgrade-based rule's fast path
+# targets the docker-version=TO-1 boundary (fsupgrade-N.priorOpenemrVersion
+# is the version shipped at docker-version=N-1), so the entrypoint
+# has a real fsupgrade walk to perform. The fallback path (when
+# fsupgrade-N.priorOpenemrVersion is itself unshipped — e.g. rel-820
+# pointing at the abandoned 8.1.1) may start FURTHER back than N-1
+# by walking the manifest for the highest shipped X.Y.Z below it;
+# the entrypoint's fsupgrade loop still traverses every intermediate
+# fsupgrade-K.sh (`#IfX`-guarded idempotent), just over a longer
+# chain than N-1 → N. See G53/G56 in docs/release-mechanism-gaps.md
+# for the full forensic.
 #
 # Manifest intersect with X.Y.Z-only filter: legacy branches like
 # rel-820 carry fsupgrade-N.sh with priorOpenemrVersion pointing at

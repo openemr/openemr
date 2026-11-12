@@ -62,11 +62,16 @@ write_sql_fixture_with_distractors() {
 }
 
 # Run `derive_from_version_fsupgrade <checkout_dir> <shipped_newline_list>`
-# in a subshell with the lib sourced. Standard BATS `run` semantics.
+# in a subshell with the lib sourced. Uses `run --separate-stderr` so
+# `${output}` carries only the stdout (the resolved version string)
+# and `${stderr}` carries diagnostics (fallback-firing note) + errors.
+# The function emits a diagnostic to stderr on the fallback path even
+# when the overall result is success, so mixing streams would break
+# exact-match assertions on `${output}`.
 run_fsupgrade() {
     local checkout_dir="$1"
     local shipped="$2"
-    run bash -c "source '${DERIVE_FROM_VERSION_LIB}' && derive_from_version_fsupgrade '${checkout_dir}' \"\$(printf '%s' '${shipped}')\""
+    run --separate-stderr bash -c "source '${DERIVE_FROM_VERSION_LIB}' && derive_from_version_fsupgrade '${checkout_dir}' \"\$(printf '%s' '${shipped}')\""
 }
 
 # Build a fsupgrade fixture at ${CWD}/<name>/ with:

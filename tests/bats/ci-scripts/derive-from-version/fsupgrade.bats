@@ -11,15 +11,24 @@
 #     (X.Y.Z-only filter guarantees this; patch-shaped X.Y.Z.N
 #     entries from the manifest are filtered out of the fallback
 #     walk)
-#   - Has docker-version=TO-1 (the fsupgrade-N scaffolding naturally
-#     encodes this; the entrypoint's fsupgrade walk is then guaranteed
-#     to run a real upgrade, not a vacuous no-op)
+#   - Fast path targets docker-version=TO-1 (the fsupgrade-N scaffolding
+#     naturally encodes this). Fallback walk may start earlier when the
+#     fsupgrade-named prior is itself unshipped (e.g., rel-820's
+#     fsupgrade-12 points at the never-shipped 8.1.1 from rel-810's
+#     abandoned cycle; fallback walks further back to the highest
+#     X.Y.Z-shaped shipped version below it).
 #
 # Primary invariant: a well-scaffolded rel branch must always produce
 # a working FROM. Negative cases cover the "legacy branch without
 # fsupgrade", "manifest missing candidate", and "no shipped version
 # below candidate" paths — each returns distinct error codes/messages
 # so operators can diagnose + override.
+#
+# Helper note: `run_fsupgrade` uses `run --separate-stderr`, so
+# `${output}` carries only stdout (the resolved version string) and
+# `${stderr}` carries diagnostics (fallback-firing note) + errors.
+# Keep assertions pointed at the right stream — stderr for error-case
+# message checks, stdout for the resolved version.
 #
 # See docs/release-mechanism-gaps.md G56 for the design rationale.
 
@@ -76,9 +85,10 @@ teardown() {
     shipped=$(printf '%s\n' "8.0.0" "8.2.0" "8.3.0" "8.4.0" "8.4.1")
     run_fsupgrade "${dir}" "${shipped}"
     [[ "${status}" -eq 0 ]]
+    # stdout: the resolved version (stdout-only via --separate-stderr).
     [[ "${output}" == "8.0.0" ]]
-    # Stderr should carry the diagnostic note about fallback firing.
-    [[ "${stderr}" == *"candidate '8.1.1'"* ]] || [[ "${output}" == "8.0.0" ]]  # stderr not always captured in BATS depending on version
+    # stderr: the diagnostic note about fallback firing.
+    [[ "${stderr}" == *"candidate '8.1.1'"* ]]
 }
 
 @test "patch-shape filter: fallback skips 8.0.0.3 even when present in manifest, picks X.Y.Z-only 8.0.0" {
@@ -93,7 +103,7 @@ teardown() {
     [[ "${output}" == "8.0.0" ]]
 }
 
-@test "fast path: candidate IS in manifest, returned as-is (no fallback walk)" {
+@test "fast path: candidate IS in manifest, returned as-is (no fallback walk, no diagnostic)" {
     local dir
     dir="$(write_fsupgrade_fixture rel-840 15 "8.4.0")"
     local shipped
@@ -101,18 +111,22 @@ teardown() {
     run_fsupgrade "${dir}" "${shipped}"
     [[ "${status}" -eq 0 ]]
     [[ "${output}" == "8.4.0" ]]
+    # Fast path emits no stderr diagnostic (distinguishable from the
+    # fallback path for log-grep tooling).
+    [[ "${stderr}" != *"falling back"* ]]
 }
 
-# ==== Negative cases — distinct error paths ====
+# ==== Negative cases — distinct error paths; errors go to stderr ====
 
-@test "missing docker-version file -> return 1 with actionable error" {
+@test "missing docker-version file -> return 1 with actionable error on stderr" {
     local dir="${CWD}/no-docker-version"
     mkdir -p "${dir}/docker/release/upgrade"
     local shipped
     shipped=$(printf '%s\n' "8.4.1")
     run_fsupgrade "${dir}" "${shipped}"
     [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"docker-version"* ]] || [[ "${output}" == *"not found"* ]]
+    [[ "${stderr}" == *"docker-version"* ]]
+    [[ "${stderr}" == *"not found"* ]]
 }
 
 @test "non-numeric docker-version -> return 1" {
@@ -123,7 +137,7 @@ teardown() {
     shipped=$(printf '%s\n' "8.4.1")
     run_fsupgrade "${dir}" "${shipped}"
     [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"not numeric"* ]]
+    [[ "${stderr}" == *"not numeric"* ]]
 }
 
 @test "missing fsupgrade-N.sh (legacy branch without scaffolding) -> return 1 with override hint" {
@@ -134,7 +148,8 @@ teardown() {
     shipped=$(printf '%s\n' "8.0.0" "8.4.1")
     run_fsupgrade "${dir}" "${shipped}"
     [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"fsupgrade-9.sh"* ]] || [[ "${output}" == *"override"* ]]
+    [[ "${stderr}" == *"fsupgrade-9.sh"* ]]
+    [[ "${stderr}" == *"override"* ]]
 }
 
 @test "fsupgrade.sh missing priorOpenemrVersion line -> return 1" {
@@ -144,7 +159,7 @@ teardown() {
     shipped=$(printf '%s\n' "8.4.1")
     run_fsupgrade "${dir}" "${shipped}"
     [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"priorOpenemrVersion"* ]]
+    [[ "${stderr}" == *"priorOpenemrVersion"* ]]
 }
 
 @test "empty shipped-versions arg -> return 1 with caller-contract error" {
@@ -152,7 +167,7 @@ teardown() {
     dir="$(write_fsupgrade_fixture rel-850 16 "8.4.1")"
     run_fsupgrade "${dir}" ""
     [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"shipped-versions list"* ]]
+    [[ "${stderr}" == *"shipped-versions list"* ]]
 }
 
 @test "no X.Y.Z shipped version below candidate AND candidate not shipped -> return 1" {
@@ -164,7 +179,8 @@ teardown() {
     shipped=$(printf '%s\n' "8.0.0.3" "8.2.0" "8.3.0")
     run_fsupgrade "${dir}" "${shipped}"
     [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"not shipped"* ]] || [[ "${output}" == *"override"* ]]
+    [[ "${stderr}" == *"not shipped"* ]]
+    [[ "${stderr}" == *"override"* ]]
 }
 
 @test "manifest contains only patch-shaped versions -> return 1 (no X.Y.Z-shaped candidates to walk)" {
@@ -174,5 +190,5 @@ teardown() {
     shipped=$(printf '%s\n' "8.0.0.1" "8.0.0.2" "8.0.0.3")
     run_fsupgrade "${dir}" "${shipped}"
     [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"X.Y.Z"* ]] || [[ "${output}" == *"no X.Y.Z-shaped"* ]]
+    [[ "${stderr}" == *"X.Y.Z-shaped"* ]]
 }

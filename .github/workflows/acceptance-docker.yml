@@ -345,7 +345,14 @@ jobs:
           echo "::error::acceptance-docker.yml resolve-from-tag: curl failed for ${MANIFEST_URL}: ${manifest}" >&2
           exit 1
         fi
-        if ! shipped=$(jq -re 'keys[]' <<< "${manifest}" 2>&1); then
+        # Filter to FINAL releases only — the manifest carries DRAFT
+        # entries for in-flight releases too, and an abandoned DRAFT
+        # (e.g. rel-810's cut-but-never-shipped 8.1.0) sitting at the
+        # top of the manifest would otherwise satisfy the fsupgrade
+        # candidate's fast-path intersect and point FROM at an
+        # unshipped version. Mirrors `fetch_shipped_versions` in
+        # `.github/scripts/detect-acceptance-mode.sh`.
+        if ! shipped=$(jq -re 'to_entries | .[] | select(.value.status == "FINAL") | .key' <<< "${manifest}" 2>&1); then
           echo "::error::acceptance-docker.yml resolve-from-tag: failed to parse shipped-versions manifest keys from ${MANIFEST_URL}" >&2
           exit 1
         fi
@@ -354,6 +361,18 @@ jobs:
         source .github/scripts/lib/derive-from-version.sh
         if ! derived=$(derive_from_version_fsupgrade "." "${shipped}"); then
           echo "::error::acceptance-docker.yml resolve-from-tag: fsupgrade-based derivation failed (see lib error above). Legacy branches that pre-date the fsupgrade convention, or edge cases where no shipped version precedes the fsupgrade-named prior, need an explicit from_tag override." >&2
+          exit 1
+        fi
+        # Guard: if to_tag is version-shaped (X.Y.Z) and derived ==
+        # to_tag, the upgrade cell would boot the same image on both
+        # sides → vacuous no-op. The common path (to_tag=release-
+        # candidate-... from docker-build-release, or to_tag=next
+        # scheduled) is non-version-shaped and skips this guard.
+        # Pre-G56 sql-based rule had an equivalent strict-less-than
+        # filter on candidates.
+        INPUT_TO_TAG="${{ inputs.to_tag || 'next' }}"
+        if [[ "${INPUT_TO_TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ "${derived}" == "${INPUT_TO_TAG}" ]]; then
+          echo "::error::acceptance-docker.yml resolve-from-tag: derived from_tag '${derived}' equals version-shaped to_tag '${INPUT_TO_TAG}'. Upgrade cell would be a vacuous no-op. Pass an explicit from_tag override pointing at a lower shipped version if this dispatch is intentional." >&2
           exit 1
         fi
         echo "==> from_tag derived via fsupgrade+manifest: ${derived}"
