@@ -1965,16 +1965,16 @@ CREATE TABLE `fee_sheet_options` (
 -- Inserting data for table `fee_sheet_options`
 --
 
-INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '1Brief', 'CPT4|99201|');
-INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '2Limited', 'CPT4|99202|');
-INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '3Detailed', 'CPT4|99203|');
-INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '4Extended', 'CPT4|99204|');
-INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '5Comprehensive', 'CPT4|99205|');
-INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '1Brief', 'CPT4|99211|');
-INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '2Limited', 'CPT4|99212|');
-INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '3Detailed', 'CPT4|99213|');
-INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '4Extended', 'CPT4|99214|');
-INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '5Comprehensive', 'CPT4|99215|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('1New Patient', '1Brief', 'CPT4|99201|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('1New Patient', '2Limited', 'CPT4|99202|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('1New Patient', '3Detailed', 'CPT4|99203|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('1New Patient', '4Extended', 'CPT4|99204|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('1New Patient', '5Comprehensive', 'CPT4|99205|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('2Established Patient', '1Brief', 'CPT4|99211|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('2Established Patient', '2Limited', 'CPT4|99212|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('2Established Patient', '3Detailed', 'CPT4|99213|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('2Established Patient', '4Extended', 'CPT4|99214|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('2Established Patient', '5Comprehensive', 'CPT4|99215|');
 
 -- --------------------------------------------------------
 

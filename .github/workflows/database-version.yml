@@ -25,6 +25,8 @@ on:
     - sql/database.sql
     - sql/patch.sql
     - sql/*-to-*_upgrade.sql
+    - contrib/util/language_translations/currentLanguage_utf8.sql
+    - tests/schema/assert-primary-keys.sh
 
 permissions:
   contents: read
@@ -259,3 +261,6 @@ jobs:
             echo "- \`$f\`"
           done
         } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Assert PRIMARY KEY on every CREATE TABLE
+      run: tests/schema/assert-primary-keys.sh

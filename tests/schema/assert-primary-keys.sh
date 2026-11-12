@@ -62,8 +62,11 @@ fi
 missing=""
 for f in "${files[@]}"; do
     if [[ ! -f "${f}" ]]; then
-        echo "WARN: ${f} not found — skipping" >&2
-        continue
+        # A caller-specified file that does not exist (or a default schema
+        # file that was renamed) is a gate failure, not a skip — otherwise
+        # a typo silently drops coverage.
+        echo "ERROR: ${f} not found" >&2
+        exit 1
     fi
     # shellcheck disable=SC2016  # $0 is awk's, not the shell's
     found=$(awk -v file="${f}" '
@@ -75,15 +78,17 @@ for f in "${files[@]}"; do
             # at EOF if the final block is unterminated.
             if (in_table && !has_pk) printf "  %s: %s\n", file, tbl
         }
-        /^CREATE TABLE/ {
+        /^[[:space:]]*CREATE[[:space:]]+TABLE/ {
             flush_open_block()   # catches a prior unterminated block
+            # $3 holds the table identifier whether the line is bare or
+            # indented, because awk resplits on whitespace.
             tbl = $3
             has_pk = 0
             in_table = 1
             next
         }
         in_table && /PRIMARY KEY/ { has_pk = 1 }
-        in_table && /^\) *ENGINE/ {
+        in_table && /^[[:space:]]*\) *ENGINE/ {
             if (!has_pk) printf "  %s: %s\n", file, tbl
             in_table = 0
         }
