@@ -148,3 +148,143 @@ derive_from_version_sql_candidates() {
     # duplicated, and sorted ascending (sort -uV above). Emit as-is.
     printf '%s\n' "${candidates}"
 }
+
+# derive_from_version_fsupgrade [checkout_dir] [shipped_versions]
+#
+# Docker-side upgrade-cell FROM derivation. Reads docker-version from
+# the checkout, looks up the matching fsupgrade-N.sh, extracts its
+# priorOpenemrVersion, and (via shipped-versions-manifest intersect)
+# returns a FROM that both EXISTS on Docker Hub as an immutable
+# shipped tag AND matches sql_upgrade.php's strcmp-based --from
+# semantics.
+#
+# Why fsupgrade-based for docker (not sql-based like the package side):
+# the docker entrypoint's `check_upgrade` gates on docker-version
+# delta (fsupgrade-N chain) and $v_database delta
+# (check_schema_upgrade fallback). When BOTH match between FROM and
+# TO, the entrypoint correctly no-ops — no real upgrade work is
+# exercised. The sql-derived FROM (= "latest from-side in checkout's
+# sql files") on master during active-dev-cycle resolves to the
+# floating pre-release tag that happens to be byte-identical-scaffolded
+# with master (same docker-version, same $v_database at cut), making
+# the upgrade cell vacuous. The fsupgrade-based rule picks a FROM
+# that's guaranteed to be at docker-version=TO-1, so the entrypoint
+# ALWAYS has a real fsupgrade walk to perform. See G53/G56 in
+# docs/release-mechanism-gaps.md for the full forensic.
+#
+# Manifest intersect with X.Y.Z-only filter: legacy branches like
+# rel-820 carry fsupgrade-N.sh with priorOpenemrVersion pointing at
+# versions that were cut but never shipped (rel-810's abandoned
+# 8.1.1 line). The fallback walks the shipped-versions manifest for
+# the highest X.Y.Z-shaped shipped version strictly less than the
+# fsupgrade-named prior. Patch-shaped X.Y.Z.N entries are excluded
+# because sql_upgrade.php's foreach uses `strcmp($file_from,
+# $cli_from) < 0` to filter upgrade files, and a patch-shaped
+# --from like 8.0.0.3 lex-compares as > "8.0.0" / "8.1.0" / etc.,
+# which causes sql_upgrade.php to skip upgrade files it should
+# apply. Only X.Y.Z-shaped --from values are safe.
+#
+# Arguments:
+#   $1  (optional) Path to checkout root. Defaults to current working
+#       directory. The function reads <checkout_dir>/docker-version
+#       and <checkout_dir>/docker/release/upgrade/fsupgrade-N.sh.
+#   $2  (required) Newline-separated list of shipped versions
+#       (typically from website-openemr's data/releases.json). The
+#       caller fetches this and injects it so the function stays
+#       pure / testable without network.
+#
+# Stdout: A single X.Y.Z version string. Matches both an immutable
+# Docker Hub tag AND a shipped-versions-manifest entry.
+#
+# Stderr: ::error:: line when the function returns non-zero.
+# Diagnostic note line when the manifest-intersect fallback fires.
+#
+# Returns:
+#   0  Derivation succeeded; one version printed.
+#   1  Any of: docker-version missing or malformed, fsupgrade-N.sh
+#      missing or has no parseable priorOpenemrVersion, shipped-
+#      versions arg empty, OR the full walk found no X.Y.Z-shaped
+#      shipped version candidate (fall-back-empty). Operator needs
+#      to pass from_tag override.
+#
+# Portability: same as derive_from_version_sql_candidates — GNU
+# coreutils (`sort -V` in particular). BSD/macOS via coreutils works.
+derive_from_version_fsupgrade() {
+    local checkout_dir="${1:-.}"
+    local shipped="${2:-}"
+
+    if [[ -z "${shipped}" ]]; then
+        echo "::error::derive_from_version_fsupgrade: shipped-versions list (arg 2) is empty; caller must fetch + inject" >&2
+        return 1
+    fi
+
+    local docker_version_file="${checkout_dir}/docker-version"
+    if [[ ! -f "${docker_version_file}" ]]; then
+        echo "::error::derive_from_version_fsupgrade: ${docker_version_file} not found" >&2
+        return 1
+    fi
+
+    local docker_version
+    docker_version=$(tr -d '[:space:]' < "${docker_version_file}")
+    if [[ ! "${docker_version}" =~ ^[0-9]+$ ]]; then
+        echo "::error::derive_from_version_fsupgrade: ${docker_version_file} content '${docker_version}' is not numeric" >&2
+        return 1
+    fi
+
+    local fsupgrade="${checkout_dir}/docker/release/upgrade/fsupgrade-${docker_version}.sh"
+    if [[ ! -f "${fsupgrade}" ]]; then
+        echo "::error::derive_from_version_fsupgrade: ${fsupgrade} not found. Legacy branches that pre-date the fsupgrade convention need an explicit from_tag/from_version override." >&2
+        return 1
+    fi
+
+    # Format expected in fsupgrade-N.sh: priorOpenemrVersion="X.Y.Z".
+    # `|| true` on the pipeline mirrors the existing
+    # derive_from_version_sql_candidates helper's pattern -- grep exits
+    # 1 when nothing matches, head/sed propagate; the explicit shape
+    # check below handles empty candidates with an actionable error.
+    local candidate
+    candidate=$({ grep -E '^priorOpenemrVersion=' "${fsupgrade}" \
+                  | head -1 \
+                  | sed -E 's/^priorOpenemrVersion="([^"]+)"$/\1/'; } || true)
+    if [[ ! "${candidate}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "::error::derive_from_version_fsupgrade: could not extract X.Y.Z priorOpenemrVersion from ${fsupgrade} (got '${candidate}')" >&2
+        return 1
+    fi
+
+    # Filter manifest to X.Y.Z-shaped only (strip X.Y.Z.N patch
+    # overlays). sql_upgrade.php's --from filter uses strcmp against
+    # X_Y_Z-shaped file names, and patch-shaped --from lex-compares
+    # incorrectly against X.Y.Z files (skips files it should apply).
+    local shipped_xyz
+    shipped_xyz=$(grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' <<< "${shipped}" || true)
+    if [[ -z "${shipped_xyz}" ]]; then
+        echo "::error::derive_from_version_fsupgrade: shipped-versions manifest contains no X.Y.Z-shaped entries after patch-shape filter" >&2
+        return 1
+    fi
+
+    # Fast path: candidate itself is shipped. Return as-is.
+    if grep -Fxq "${candidate}" <<< "${shipped_xyz}"; then
+        printf '%s\n' "${candidate}"
+        return 0
+    fi
+
+    # Fallback: walk the manifest for the highest X.Y.Z-shaped
+    # shipped version strictly less than candidate. sort -uV
+    # ascending; awk cuts at the first >= boundary; tail -1 picks
+    # the max remaining. `|| true` guards the pipeline against
+    # awk/sort returning non-zero on edge cases (empty intermediate
+    # result emits empty fallback, handled by the empty-check below).
+    local fallback
+    fallback=$({ printf '%s\n%s\n' "${shipped_xyz}" "${candidate}" \
+                 | sort -uV \
+                 | awk -v ref="${candidate}" '$0 == ref { exit } { print }' \
+                 | tail -1; } || true)
+    if [[ -n "${fallback}" ]]; then
+        echo "derive_from_version_fsupgrade: candidate '${candidate}' (from ${fsupgrade}) not in shipped-versions manifest; falling back to highest X.Y.Z-shaped shipped version < candidate: '${fallback}'" >&2
+        printf '%s\n' "${fallback}"
+        return 0
+    fi
+
+    echo "::error::derive_from_version_fsupgrade: candidate '${candidate}' not shipped AND no X.Y.Z-shaped shipped version below it; need explicit from_tag override" >&2
+    return 1
+}

@@ -389,52 +389,28 @@ job that produces the `pr-built` image the matrix cells then load.
 - Package treats `wizard-install` and `wizard-upgrade` as first-class
   scenarios in the expanded matrix. Docker doesn't yet (friction point
   #7 in the refactor plan).
-- Docker's `upgrade` scenario has an [auto-skip
-  path](../.github/scripts/detect-upgrade-cell-skip.sh) for
-  between-cycles master state (Item 4); package has no equivalent
-  because package-side upgrade machinery is sql-only
-  (`sql_upgrade.php` + `sql/*-to-*_upgrade.sql`), while docker's
-  adds `fsupgrade-N.sh` + docker-version bump scaffolding that
-  must be cross-propagated to master at branch-cut time. During
-  between-cycles (master carries `next`, no rel-XXX in active dev
-  cycle yet), that docker-specific scaffolding doesn't exist on
-  master, so the upgrade cell targeting master's dev image can't
-  produce a reliable signal and skips. Both sides now share the
-  sql-side `from_version` derivation via
-  [`derive_from_version_sql_candidates`](../.github/scripts/lib/derive-from-version.sh);
-  the package side layers a shipped-versions-manifest intersect
-  on top (needed for tarball download guarantees from GitHub
-  Releases). See the "Item 4 followup: per-row from_tag derivation
-  on docker side" entry under
-  [Refactor items (proposed, in priority order)](#refactor-items-proposed-in-priority-order)
-  below for the shipped per-row shape.
-- Docker's `require_upgrade_cell` input (Item 4 followup) flips the
-  auto-skip from silent to loud when the caller is in *release mode*
-  — set true by `release-prep.yml`'s dispatch, `docker-build-
-  release.yml`'s acceptance-gate, and `docker-acceptance-only.yml`'s
-  recovery reusable. Any of those callers hitting a skip criterion
-  fails the workflow with a descriptive error instead of publishing
-  an artifact whose auto-upgrade path was never validated. Scheduled
-  runs and push/PR triggers can't override the default false. Operator
-  `workflow_dispatch` runs default to false but can be set true from
-  the Actions UI when the operator wants the same guardrail for a
-  manual re-run (e.g. investigating whether a specific tag pairing
-  legitimately triggers a skip vs. represents a broken setup).
-  Package has no equivalent because its skip mode is already loud
-  (matrix-level cells missing from the run count) rather than silent.
-- `docker-release-orchestrator.yml` enriches each matrix row with a
-  per-row `require_upgrade_cell` value computed from the shared
-  [`master_row_carries_next`](../.github/scripts/lib/release-targets-queries.sh)
-  predicate (same signal driving criterion 2 in
-  `detect-upgrade-cell-skip.sh`). Non-master rows always publish
-  version-tagged artifacts, so they keep `true`. Master's row flips
-  to `false` only during the between-cycles window (master's row
-  carries `next`), where the upgrade cell's skip is a legitimate
-  no-signal answer and loud-fail would freeze floating-tag refreshes
-  indefinitely. The orchestrator only passes `-f require_upgrade_cell=false`
-  on dispatch when the per-row value is false (same "omit on default"
-  pattern as `gate_with_acceptance`), so branches whose
-  `docker-build-release.yml` predates the input stay compatible.
+- Docker and package have fundamentally different coupling to their FROM
+  selection. Package runs `sql_upgrade.php` directly (works for any
+  X.Y.Z → next with a valid sql chain), so it uses sql-latest + manifest-
+  intersect via
+  [`derive_from_version_sql_candidates`](../.github/scripts/lib/derive-from-version.sh).
+  Docker gates on docker-version delta + `$v_database` delta inside the
+  entrypoint's `check_upgrade`/`check_schema_upgrade` chain (see
+  `docker/release/openemr.sh`), so it needs a FROM at docker-version=TO-1
+  to exercise a real fsupgrade walk — provided by
+  [`derive_from_version_fsupgrade`](../.github/scripts/lib/derive-from-version.sh)
+  which reads the checkout's own `docker-version` + `fsupgrade-N.sh`
+  scaffolding (`priorOpenemrVersion`), intersects against the shipped-
+  versions manifest with an X.Y.Z-only fallback for legacy branches
+  with abandoned-version scaffolding (rel-820's abandoned rel-810
+  cycle). This uniform fsupgrade-based rule eliminates the pre-G56
+  "auto-skip on between-cycles" / `require_upgrade_cell` guardrail /
+  `master_row_carries_next` orchestrator enrichment — none of those
+  surfaces are needed because the new rule produces a real-delta FROM
+  in every cycle state. See G56 in
+  [`release-mechanism-gaps.md`](release-mechanism-gaps.md#g56) for
+  the full forensic + supersession history (iterations through G50 +
+  G49 to the current fsupgrade-based shape).
   See the "Item 4 followup: orchestrator between-cycles tolerance"
   shipped-item entry below for the full fix shape + regression wall.
 
