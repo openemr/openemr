@@ -23,6 +23,7 @@ namespace OpenEMR\Tests\Isolated\PatientFinder;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Services\PatientFinder\PatientFinderColumn;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryBuilder;
+use OpenEMR\Services\PatientFinder\PatientFinderQueryPlan;
 use OpenEMR\Services\PatientFinder\PatientFinderRequest;
 use OpenEMR\Services\PatientFinder\PatientFinderSearchMode;
 use PHPUnit\Framework\TestCase;
@@ -282,11 +283,60 @@ class PatientFinderQueryBuilderTest extends TestCase
         $this->assertSame(array_fill(0, 5, 'Longview'), $plan->filteredCountBinds);
     }
 
+    public function testPhoneSearchMatchesTheDigitsAnywhereInEachPhone(): void
+    {
+        $plan = $this->modeSearch(PatientFinderSearchMode::Phone, '(444) 333');
+
+        $this->assertStringContainsString("REPLACE(patient_data.phone_cell, '-', '')", $plan->dataSql);
+        $this->assertSame(array_fill(0, 4, '%444333%'), $plan->filteredCountBinds);
+    }
+
+    public function testSsnSearchMatchesTheLastDigits(): void
+    {
+        $plan = $this->modeSearch(PatientFinderSearchMode::Ssn, '5544');
+
+        $this->assertSame(['%5544'], $plan->filteredCountBinds);
+    }
+
+    public function testPhoneSearchWithoutDigitsMatchesNoOne(): void
+    {
+        $plan = $this->modeSearch(PatientFinderSearchMode::Phone, 'abc');
+
+        $this->assertStringContainsString('( 1 = 0 )', $plan->dataSql);
+        $this->assertSame([], $plan->filteredCountBinds);
+    }
+
+    public function testDobSearchReadsTheTermAsADate(): void
+    {
+        $plan = $this->modeSearch(PatientFinderSearchMode::Dob, '1972-02-09');
+
+        $this->assertStringContainsString('( `DOB` LIKE ? )', $plan->dataSql);
+        $this->assertSame(['DATE(1972-02-09)'], $plan->filteredCountBinds);
+    }
+
+    public function testEmailAndExternalIdSearchTheirFields(): void
+    {
+        $email = $this->modeSearch(PatientFinderSearchMode::Email, 'gmail');
+        $this->assertStringContainsString('( `email` LIKE ? OR `email_direct` LIKE ? )', $email->dataSql);
+        $this->assertSame(['%gmail%', '%gmail%'], $email->filteredCountBinds);
+
+        $id = $this->modeSearch(PatientFinderSearchMode::ExternalId, 'A12');
+        $this->assertStringContainsString('( `pubpid` LIKE ? )', $id->dataSql);
+        $this->assertSame(['A12%'], $id->filteredCountBinds);
+    }
+
+    private function modeSearch(PatientFinderSearchMode $mode, string $term): PatientFinderQueryPlan
+    {
+        return $this->builder()->build(
+            [PatientFinderColumn::fromTable('sex', 'Sex')],
+            $this->request(globalSearch: $term, searchMode: $mode),
+            new BoundFilter(),
+            $mode->globalSearchColumns()
+        );
+    }
+
     public function testNameAndZipSearchesStillMatchTheStart(): void
     {
-        foreach ([PatientFinderSearchMode::Name, PatientFinderSearchMode::Zip] as $mode) {
-            $this->assertFalse($mode->matchesAnywhere());
-        }
         $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
         $plan = $this->builder()->build(
             $columns,

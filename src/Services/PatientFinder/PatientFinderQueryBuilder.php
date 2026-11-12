@@ -209,9 +209,16 @@ final class PatientFinderQueryBuilder
         // Global search: one OR group across every searchable column (the DEM
         // layout fields in search_any mode, otherwise the displayed columns).
         if ($request->hasGlobalSearch()) {
-            $term = $request->globalSearch;
+            $mode = $request->searchMode;
+            // The any-column mode matches anywhere; otherwise the search mode says where.
+            $match = $request->anySearch ? PatientFinderTermMatch::Anywhere : $mode->termMatch();
+            $term = $mode->normalizeTerm($request->globalSearch);
             $ors = [];
-            foreach (($globalSearchColumns ?? $columns) as $column) {
+            if ($term === '') {
+                // A phone or SSN search with no digits in it matches no one.
+                $ors[] = '1 = 0';
+            }
+            foreach ($term === '' ? [] : ($globalSearchColumns ?? $columns) as $column) {
                 if (!$column->searchable) {
                     continue; // enriched + any module display-only column
                 }
@@ -227,16 +234,9 @@ final class PatientFinderQueryBuilder
                 if ($column->isSql()) {
                     $this->collectJoin($joins, $column);
                 }
-                // Match mode precedence matches the legacy script: exact wins,
-                // then the "contains" modes (any-column, or a search mode that
-                // matches anywhere, such as Address), otherwise prefix.
-                if ($request->exactSearch) {
-                    $binds[] = $term;
-                } elseif ($request->anySearch || $request->searchMode->matchesAnywhere()) {
-                    $binds[] = '%' . $term . '%';
-                } else {
-                    $binds[] = $term . '%';
-                }
+                // An exact search matches the whole field, as in the legacy script;
+                // a date is always read as a date.
+                $binds[] = $match->pattern($term, $request->exactSearch, $this->dateSearch);
             }
             if ($ors !== []) {
                 $parts[] = '( ' . implode(' OR ', $ors) . ' )';

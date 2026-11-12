@@ -206,7 +206,8 @@
     }
 
     // The heading's search box searches the showing tab's list as the user types,
-    // matching what its menu has picked: every column, the name, the address, or the ZIP.
+    // matching what its menu has picked: every column, or one kind of field such as the
+    // name, phone or address.
     function wireHeadingSearch() {
         var $input = $('#finder-search-input');
         var timer = null;

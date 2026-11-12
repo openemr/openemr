@@ -120,7 +120,7 @@ class PatientFinderRequestTest extends TestCase
         $this->assertSame(PatientFinderSearchMode::All, PatientFinderRequest::fromArray([])->searchMode);
         $this->assertSame(
             PatientFinderSearchMode::All,
-            PatientFinderRequest::fromArray(['searchMode' => 'ssn'])->searchMode
+            PatientFinderRequest::fromArray(['searchMode' => 'shoe_size'])->searchMode
         );
     }
 
