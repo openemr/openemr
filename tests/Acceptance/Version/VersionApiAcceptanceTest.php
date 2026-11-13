@@ -93,6 +93,15 @@ final class VersionApiAcceptanceTest extends TestCase
      */
     private const SCOPE = 'openid api:oemr';
 
+    /**
+     * First release whose `/api/version` payload carries `v_major`,
+     * `v_minor` and `v_patch` as ints: `VersionService` casts the
+     * `version` row since openemr/openemr#11428, which 8.1.0 was the
+     * first release to carry. Older images return the DB driver's
+     * numeric strings ("8", not 8).
+     */
+    private const FIRST_INT_VERSION = '8.1.0';
+
     public function testVersionEndpointReturnsExpectedVersion(): void
     {
         // Fail-hard on missing env (no skip guard): as of Item 4 of the
@@ -144,16 +153,32 @@ final class VersionApiAcceptanceTest extends TestCase
             self::VERSION_ENDPOINT . ' body must be a JSON object — a non-array decode result means the endpoint returned an empty body, a scalar, or malformed JSON',
         );
 
+        // acceptance-docker.yml's "Fresh install of from_tag" cell runs
+        // this test against the from image, and derive-from-version.sh
+        // can pin that to a release older than FIRST_INT_VERSION when
+        // the fsupgrade prior never shipped (rel-820 names 8.1.1, the
+        // shipped-versions manifest falls back to 8.0.0). The int
+        // contract only holds from FIRST_INT_VERSION on; older images
+        // still have to answer with digits.
+        $castsToInt = version_compare($expected, self::FIRST_INT_VERSION, '>=');
+
         foreach (['v_major', 'v_minor', 'v_patch'] as $key) {
             self::assertArrayHasKey(
                 $key,
                 $body,
                 self::VERSION_ENDPOINT . " payload must include '{$key}' — missing key means VersionService->fetch() shape regressed",
             );
-            self::assertIsInt(
-                $body[$key],
-                self::VERSION_ENDPOINT . " payload '{$key}' must be an integer — the DB stores these as ints and VersionService casts to int; a non-int here means the response shape or cast regressed",
-            );
+            if ($castsToInt) {
+                self::assertIsInt(
+                    $body[$key],
+                    self::VERSION_ENDPOINT . " payload '{$key}' must be an integer — the DB stores these as ints and VersionService casts to int; a non-int here means the response shape or cast regressed",
+                );
+            } else {
+                self::assertTrue(
+                    is_int($body[$key]) || (is_string($body[$key]) && ctype_digit($body[$key])),
+                    self::VERSION_ENDPOINT . " payload '{$key}' must be an int or a digits-only string on a release older than " . self::FIRST_INT_VERSION . ' (got ' . var_export($body[$key], true) . ') — anything else means the response shape regressed',
+                );
+            }
         }
 
         $actual = "{$body['v_major']}.{$body['v_minor']}.{$body['v_patch']}";
