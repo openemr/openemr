@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 574
+-- v_database: 576
 --
 
 --
@@ -2047,6 +2047,7 @@ CREATE TABLE `form_encounter` (
   `last_stmt_date`    date DEFAULT NULL,
   `stmt_count`        int  NOT NULL DEFAULT 0,
   `provider_id` INT(11) DEFAULT '0' COMMENT 'default and main provider for this visit',
+  `provider_taxonomy` VARCHAR(30) DEFAULT NULL COMMENT 'taxonomy code the visit was done under, one of the provider codes; empty means the primary',
   `supervisor_id` INT(11) DEFAULT '0' COMMENT 'supervising provider, if any, for this visit',
   `invoice_refno` varchar(31) NOT NULL DEFAULT '',
   `referral_source` varchar(31) NOT NULL DEFAULT '',
@@ -10361,6 +10362,22 @@ CREATE TABLE `users_facility` (
   `warehouse_id` varchar(31) NOT NULL DEFAULT '',
   PRIMARY KEY (`tablename`,`table_id`,`facility_id`,`warehouse_id`)
 ) ENGINE=InnoDB COMMENT='joins users or patient_data to facility table';
+
+-- -----------------------------------------------------------------------------------
+
+--
+-- Table structure for table `users_taxonomy`
+--
+
+DROP TABLE IF EXISTS `users_taxonomy`;
+CREATE TABLE `users_taxonomy` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL COMMENT 'users.id',
+  `taxonomy` varchar(30) NOT NULL COMMENT 'additional NUCC provider taxonomy code; users.taxonomy stays the primary',
+  `seq` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_taxonomy` (`user_id`, `taxonomy`)
+) ENGINE=InnoDB COMMENT='additional taxonomy codes of a provider (users.taxonomy is the primary)';
 
 -- -----------------------------------------------------------------------------------
 

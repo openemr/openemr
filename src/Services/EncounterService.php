@@ -256,6 +256,7 @@ class EncounterService extends BaseService
                        fe.provider_id,
                        fe.referring_provider_id,
                        fe.ordering_provider_id,
+                       fe.provider_taxonomy,
                        providers.provider_uuid,
                        providers.provider_username,
                        referrers.referrer_uuid,
@@ -291,6 +292,7 @@ class EncounterService extends BaseService
                                pid as encounter_pid,
                                referring_provider_id,
                                ordering_provider_id,
+                               provider_taxonomy,
                                last_update
                            FROM form_encounter
                        ) fe
@@ -414,6 +416,9 @@ class EncounterService extends BaseService
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
 
+        if (is_array($data) && array_key_exists('provider_taxonomy', $data)) {
+            $data['provider_taxonomy'] = $this->resolveEncounterTaxonomy($data['provider_id'] ?? null, $data['provider_taxonomy']);
+        }
         $data = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $data);
         $query = $this->buildInsertColumns($data);
         $sql = " INSERT INTO form_encounter SET ";
@@ -451,6 +456,28 @@ class EncounterService extends BaseService
         }
 
         return $processingResult;
+    }
+
+    /**
+     * The taxonomy code to store for an encounter: the chosen code when it is one of the encounter provider's
+     * codes, otherwise an empty string, which means the provider's primary taxonomy applies. The empty string
+     * (not null) is deliberate: the update builder skips null values, so null could not clear an earlier choice.
+     * When the data does not name a provider (an update), the encounter's current provider is used.
+     */
+    private function resolveEncounterTaxonomy(mixed $providerId, mixed $chosen, mixed $encounter = null, mixed $pid = null): string
+    {
+        if ($providerId === null && $encounter !== null) {
+            $providerId = QueryUtils::fetchSingleValue(
+                'SELECT `provider_id` FROM `form_encounter` WHERE `encounter` = ? AND `pid` = ?',
+                'provider_id',
+                [$encounter, $pid]
+            );
+        }
+        $userId = filter_var($providerId, FILTER_VALIDATE_INT);
+        if ($userId === false || !is_string($chosen)) {
+            return '';
+        }
+        return (new UserTaxonomyService())->resolveChoice($userId, $chosen) ?? '';
     }
 
     /**
@@ -493,6 +520,9 @@ class EncounterService extends BaseService
         }
 
         $data['facility'] = $facility;
+        if (is_array($data) && array_key_exists('provider_taxonomy', $data)) {
+            $data['provider_taxonomy'] = $this->resolveEncounterTaxonomy($data['provider_id'] ?? null, $data['provider_taxonomy'], $encounter, $pid);
+        }
         $data = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $data);
 
         $query = $this->buildUpdateColumns($data);

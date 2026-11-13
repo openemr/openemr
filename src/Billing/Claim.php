@@ -26,6 +26,7 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\UserService;
+use OpenEMR\Services\UserTaxonomyService;
 
 class Claim
 {
@@ -2275,11 +2276,41 @@ class Claim
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->provider : $this->procs[$prockey]['provider'];
+        // The taxonomy the encounter was done under, when the provider has more than one.
+        $chosen = $this->encounterTaxonomy($tmp);
+        if ($chosen !== null) {
+            return $this->x12Clean($chosen);
+        }
+
         if (empty($tmp['taxonomy'])) {
             return '207Q00000X';
         }
 
         return $this->x12Clean(trim((string) $tmp['taxonomy']));
+    }
+
+    /**
+     * The taxonomy code the encounter was done under (form_encounter.provider_taxonomy), or null when none was
+     * chosen, the chosen code is not one of the provider's codes, or the user is not the encounter's provider.
+     *
+     * @param mixed $user users row of the rendering provider
+     */
+    private function encounterTaxonomy($user): ?string
+    {
+        $userId = is_array($user) ? filter_var($user['id'] ?? null, FILTER_VALIDATE_INT) : false;
+        $encounterProvider = is_array($this->encounter) ? filter_var($this->encounter['provider_id'] ?? null, FILTER_VALIDATE_INT) : false;
+        if ($userId === false || $userId !== $encounterProvider) {
+            return null;
+        }
+        $chosen = QueryUtils::fetchSingleValue(
+            'SELECT `provider_taxonomy` FROM `form_encounter` WHERE `pid` = ? AND `encounter` = ?',
+            'provider_taxonomy',
+            [$this->pid, $this->encounter_id]
+        );
+        if (!is_string($chosen) || trim($chosen) === '') {
+            return null;
+        }
+        return (new UserTaxonomyService())->resolveChoice($userId, $chosen);
     }
 
     /**

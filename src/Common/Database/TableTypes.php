@@ -242,6 +242,7 @@ namespace OpenEMR\Common\Database;
  *   last_stmt_date: ?string,
  *   stmt_count: numeric-string,
  *   provider_id: ?numeric-string,
+ *   provider_taxonomy: ?string,
  *   supervisor_id: ?numeric-string,
  *   invoice_refno: string,
  *   referral_source: string,

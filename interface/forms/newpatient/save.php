@@ -27,6 +27,7 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
+use Symfony\Component\HttpFoundation\Request;
 
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
@@ -80,6 +81,8 @@ $referring_provider_id = $_POST['referring_provider_id'] ?? null;
 //save therapy group if exist in external_id column
 $external_id = $_POST['form_gid'] ?? '';
 $ordering_provider_id = $_POST['ordering_provider_id'] ?? null;
+$taxonomyRequest = Request::createFromGlobals()->request;
+$provider_taxonomy = $taxonomyRequest->has('provider_taxonomy') ? $taxonomyRequest->getString('provider_taxonomy') : null;
 
 $discharge_disposition = $_POST['discharge_disposition'] ?? null;
 $discharge_disposition = $discharge_disposition != '_blank' ? $discharge_disposition : null;
@@ -154,6 +157,11 @@ $encounterData = [
     'user' => $session->get('authUser'),
     'group' => $session->get('authProvider'),
 ];
+
+// Only a posted field changes the choice: a form without the select leaves the stored one alone.
+if ($provider_taxonomy !== null) {
+    $encounterData['provider_taxonomy'] = $provider_taxonomy;
+}
 
 if ($mode == 'new') {
     $result = $encounterService->insertEncounter($puuid, $encounterData);

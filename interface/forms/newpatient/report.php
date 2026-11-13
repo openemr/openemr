@@ -24,6 +24,7 @@ use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseLocalDispensa
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
+use OpenEMR\Services\UserTaxonomyService;
 
 function newpatient_report($pid, $encounter, $cols, $id): void
 {
@@ -32,6 +33,7 @@ function newpatient_report($pid, $encounter, $cols, $id): void
     $t = $twig->getTwig();
     $encounters = [];
     $userService = new UserService();
+    $taxonomyNames = (new UserTaxonomyService())->getNames();
     while ($result = sqlFetchArray($res)) {
         $hasAccess = (empty($result['sensitivity']) || AclMain::aclCheckCore('sensitivities', $result['sensitivity']));
         $calendar_category = (new AppointmentService())->getOneCalendarCategory($result['pc_catid']);
@@ -53,12 +55,16 @@ function newpatient_report($pid, $encounter, $cols, $id): void
             $posCode = sprintf('%02d', trim($result['pos_code'] ?? ''));
             $posCode = ($posCode !== '00') ? $posCode : false;
             $facility_name = $result['facility_name'];
+            $taxonomy = is_string($result['provider_taxonomy'] ?? null) && $result['provider_taxonomy'] !== ''
+                ? $result['provider_taxonomy'] . (isset($taxonomyNames[$result['provider_taxonomy']]) ? ' (' . $taxonomyNames[$result['provider_taxonomy']] . ')' : '')
+                : false;
         } else {
             $reason = false;
             $provider = false;
             $referringProvider = false;
             $posCode = false;
             $facility_name = false;
+            $taxonomy = false;
         }
 
         $encounterRecord = [
@@ -66,6 +72,7 @@ function newpatient_report($pid, $encounter, $cols, $id): void
             'reason' => $reason,
             'provider' => $provider,
             'referringProvider' => $referringProvider,
+            'taxonomy' => $taxonomy,
             'posCode' => $posCode,
             'facility' => $facility_name,
         ];
