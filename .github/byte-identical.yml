@@ -81,11 +81,15 @@
 #                                                  would defeat the master-
 #                                                  freshest-harness intent).
 #                                                  No rel-branch copy needed.
-#   .github/workflows/docker-acceptance-only.yml   same rationale as the
-#                                                  workflow above (Phase 10c
-#                                                  docker-side recovery
-#                                                  workflow, same master-ref
-#                                                  guard, same design intent).
+# NOTE: docker-acceptance-only.yml was previously listed here as
+# master-only-firing (same rationale as acceptance-only.yml above).
+# G56 (openemr/openemr#15261) refactored acceptance-docker.yml's
+# workflow_call surface, and actionlint-docker on rel-branch copies
+# started catching the stale workflow_call contract in the rel-branch
+# docker-acceptance-only.yml copy. Moved to the synced list below
+# (see the docker-acceptance-only.yml entry alongside acceptance-
+# docker.yml). Runtime stays master-only via the workflow's own
+# --ref guard; sync just keeps the lint contract valid everywhere.
 #   .github/workflows/check-vendored-contracts.yml master-only-firing
 #                                                  (workflow_call reusable
 #                                                  invoked by external
@@ -332,6 +336,21 @@ files:
 # stays excluded (further behind the composer surface + no
 # active-release-line concern).
 - path: .github/workflows/acceptance-docker.yml
+  exclude-branches: [rel-800]
+# docker-acceptance-only.yml only FIRES from master (Phase 10c
+# recovery workflow with a `--ref master` guard; dispatching from a
+# rel branch is refused by that guard). Pre-G56 (openemr/openemr#15261)
+# we intentionally left the file unsynced to rel branches since no
+# runtime invariant depended on the rel-branch copy. But the file is
+# a workflow_call consumer of acceptance-docker.yml: whenever that
+# reusable's input surface changes, actionlint-docker on EVERY rel
+# branch lints the stale copy against the NEW reusable contract and
+# flags any input that no longer exists -- failing the sync PR's
+# pre-commit even though the file would never actually run. Syncing
+# it preserves the runtime invariant (the --ref master guard still
+# refuses non-master dispatch) AND keeps the lint contract valid
+# everywhere. Same rel-800 exclusion as its sibling.
+- path: .github/workflows/docker-acceptance-only.yml
   exclude-branches: [rel-800]
 - path: .github/workflows/acceptance-package.yml
   exclude-branches: [rel-800]
