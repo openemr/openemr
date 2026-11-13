@@ -135,11 +135,11 @@ Three short phrases the maintainer uses to drive the loop between passes:
   in-flight briefs, next-action). No fresh GitHub pull, no workstream-doc update.
   Use to confirm the agent's working picture before spending tokens on a real
   stocktake. Different from `take stock` in cost + authority: a dashboard reports
-  what the session already knows; a stocktake re-reads GitHub and rewrites the
-  snapshot.
+  what the session already knows; a stocktake re-reads GitHub and writes a new
+  dated snapshot. The prior snapshot stays unchanged.
 - `landed <N>` — record a merge the maintainer just performed. Update the brief +
-  log entry with the merge SHA + a 🚢 SHIPPED marker, and move the
-  workstream-doc entry to the shipped list. See
+  log entry with the merge SHA + a 🚢 SHIPPED marker, and add a shipped entry to
+  the workstream doc. Leave the dated "Open as of" snapshot unchanged. See
   [deliverables §1.3](deliverables.md#13-updating-the-doc-as-prs-land) for the
   update sequence, and
   [per-pr-review §12](per-pr-review.md#12-handoff-to-phase-3) for why head +
