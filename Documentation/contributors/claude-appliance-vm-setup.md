@@ -221,15 +221,9 @@ incus init images:ubuntu/24.04/cloud claude-vm --vm \
 incus config device add claude-vm git disk source=<git-dir> path=<git-dir> io.cache=unsafe
 ```
 
-> **What "unsafe" means here.** The name refers to filesystem-consistency semantics, not data integrity or security. With `io.cache=unsafe` the guest kernel caches file attributes and data from the share aggressively with time-based invalidation; `fsync` on the host pushes writes to the host filesystem, but it does not push cache invalidation into the VM. The practical consequence: **host-side changes can take minutes to become visible to the VM.** If you save a source file in your editor on the host and immediately prompt the agent in the VM to re-read that file, the agent may see the old content until the VM's cache naturally invalidates.
+> **What "unsafe" means here.** The name refers to filesystem-consistency semantics, not data integrity or security. With `io.cache=unsafe` virtiofsd caches aggressively, which is unsafe only in one specific sense: **truly concurrent same-file writes from both the host and the VM in the same moment can lose data or interleave.** Sequential writes — host saves then VM reads, or VM writes then host reads — are coherent in practice (verified with a direct test: a file written on the host was readable with the new content from the VM in the same breath). virtiofsd handles invalidations on host-side changes; it just doesn't guarantee strict close-to-open consistency for the pathological concurrent-write case.
 >
-> Mitigations for workflows where that staleness window matters:
->
-> - **Do your editing from inside the VM.** Writes initiated in the VM go through virtiofsd and land authoritatively on the host — no staleness in the VM→host direction. If the agent is the primary editor and you review the diff from the host (read-only), you're never in the slow direction.
-> - **If you must edit on the host and read in the VM,** add a short pause after saving before prompting the agent, or `touch` the file inside the VM to force cache invalidation on that path.
-> - **If you need strict consistency** (host editor and VM agent working the same file in tight cycles), the LXC appliance is the stricter configuration — its bind mount has no caching layer, so host-side writes are immediately visible to the container. That is part of the cost-of-isolation tradeoff the two configs trade on.
->
-> What this is *not*: writes are never lost or corrupted, permissions and ownership are still enforced, the share isn't more reachable from outside the appliance. The scope of "unsafe" is strictly the view-latency of host-originated changes to the VM.
+> What this is *not*: writes are never lost or corrupted outside that concurrent-write edge case, permissions and ownership are enforced, the share isn't more reachable from outside the appliance, and routine host-save-then-VM-read cycles work correctly. For the single-developer appliance workflow this guide targets — one person editing at a time, from either side — the "unsafe" label is more dramatic than the actual behavior.
 
 > **Sizing.** 16 GiB RAM and 8 vCPUs is a sensible starting point for a few parallel worktrees plus a small `kind` cluster. Scale down if you only ever run one stack at a time; scale up before expecting the full `openemr-devops` Kubernetes dev-stack to behave. Unlike the LXC appliance, these resources are dedicated to the guest while it is running — they do not float back to the host under load.
 
@@ -704,12 +698,11 @@ The LXC appliance and the Incus VM appliance can run on the same host simultaneo
 |---|---|---|
 | Cold boot | ~1 s | ~10-20 s (first boot ~30-60 s while cloud-init runs) |
 | Shared git-dir I/O | Host-speed bind mount | virtiofs — host-speed read/write for *data*, slower for metadata ops (`stat`, large `ls`, `git status` across many files) |
-| Host → VM view consistency | Immediate — bind mount has no caching layer | Minute-scale lag — `io.cache=unsafe` is required for execve on the share (see Step 4); host-side edits are visible to the VM only after the guest kernel's cache naturally invalidates. `fsync` on the host doesn't push invalidation into the VM. VM → host writes are always immediate. |
 | Docker image I/O | On a path under LXC rootfs | On the guest's own virtual disk — dedicated, fast |
 | Compiled/installed deps (`vendor/`, `node_modules`) | In Docker volumes inside the stack | In Docker volumes inside the stack (same) |
 | RAM footprint | Shared with host, pay only for processes running | Dedicated to guest while running (16 GiB in the example) |
 
-The main day-to-day friction compared to the LXC appliance is boot time, `git status` latency on large trees, and the host→VM view-consistency lag if you edit on the host. None is prohibitive; the view-consistency lag can be worked around by editing from inside the VM (see the mitigation list in [Step 4](#step-4--create-the-vm)).
+The main day-to-day friction compared to the LXC appliance is boot time and `git status` latency on large trees. Neither is prohibitive.
 
 ### Stricter outbound isolation via Incus network ACLs
 
