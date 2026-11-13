@@ -5,7 +5,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -74,6 +76,7 @@ class DrugSalesService extends BaseService
                     pr.prescription_uuid,
                     pr.dosage,
                     pr.prescription_drug_size,
+                    pr.prescription_form,
                     pr.drug_dosage_instructions,
                     pr.prescription_route,
                     pr.prescription_interval,
@@ -97,6 +100,8 @@ class DrugSalesService extends BaseService
                     ,intervals_list.interval_codes
                     ,drug_forms.drug_form_title
                     ,drug_forms.drug_form_codes
+                    ,prescription_forms.prescription_form_title
+                    ,prescription_forms.prescription_form_codes
                 FROM drug_sales ds
                 LEFT JOIN (
                     SELECT
@@ -120,6 +125,7 @@ class DrugSalesService extends BaseService
                         dosage,
                         drug_dosage_instructions,
                         size AS prescription_drug_size,
+                        form AS prescription_form,
                         route as prescription_route,
                         `interval` as prescription_interval,
                         refills,
@@ -187,7 +193,16 @@ class DrugSalesService extends BaseService
                     ,codes AS drug_form_codes
                   FROM list_options
                   WHERE list_id='drug_form'
-                ) drug_forms ON drug_forms.drug_form_id = d.drug_form"; // Only include sales, returns, transfers, adjustments
+                ) drug_forms ON drug_forms.drug_form_id = d.drug_form
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS prescription_form_id
+                    ,title AS prescription_form_title
+                    ,codes AS prescription_form_codes
+                  FROM list_options
+                  WHERE list_id='drug_form'
+                ) prescription_forms ON prescription_forms.prescription_form_id = pr.prescription_form"; // Only include sales, returns, transfers, adjustments
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search);
         $sql .= $whereClause->getFragment();

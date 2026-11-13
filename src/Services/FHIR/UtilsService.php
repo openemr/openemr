@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -132,6 +134,22 @@ class UtilsService
             $uuid = $parts[1] ?? null;
         }
         return $uuid;
+    }
+
+    /**
+     * A recorded quantity as a decimal. FHIR Quantity.value is decimal, so 0.5 mg
+     * must stay 0.5; intval() would send 0 mg (#14703).
+     */
+    public static function decimalQuantityValue(mixed $value): ?float
+    {
+        if (!is_numeric($value)) {
+            return null;
+        }
+        $quantity = (float)$value;
+        if ($quantity == 0.0) {
+            return null;
+        }
+        return $quantity;
     }
 
     public static function createQuantity(mixed $value, mixed $unit, mixed $code): FHIRQuantity

@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -607,6 +609,12 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         // TODO: if we want a linkage to the Condition resource we need to implement that in OpenEMR first
     }
 
+    /**
+     * Map prescription SIG, timing, route, and doseQuantity onto the MedicationRequest.
+     *
+     * doseQuantity is prescriptions.dosage + form_title as a decimal (FHIR
+     * Quantity.value), matching QDM; intval() would send 0 for 0.5 tablet (#14703).
+     */
     public function populateDosageInstruction(FHIRMedicationRequest $medRequestResource, array $dataRecord): void
     {
         if (empty($dataRecord['drug_dosage_instructions']) && empty($dataRecord['dosage']) && empty($dataRecord['prescription_route'])) {
@@ -647,9 +655,13 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $dosage->setTiming($fhirTiming);
         }
 
-        if (!empty($dataRecord['prescription_drug_size']) && is_numeric($dataRecord['prescription_drug_size'])) {
-            $quantity = intval($dataRecord['prescription_drug_size']); // should be an integer value for dosage
-            $doseQuantity = UtilsService::createQuantity($quantity, $dataRecord['unit_title'] ?? '', $dataRecord['unit_title'] ?? '');
+        // dosage is the per-dose count (0.5 tablet); form_title is that count's unit.
+        // prescriptions.size + unit_title is strength (50 mg) and belongs elsewhere.
+        // Do not truncate: FHIR Quantity.value is decimal, so 0.5 tablet stays 0.5 (#14703).
+        $quantity = UtilsService::decimalQuantityValue($dataRecord['dosage'] ?? null);
+        if ($quantity !== null) {
+            $unit = $dataRecord['form_title'] ?? '';
+            $doseQuantity = UtilsService::createQuantity($quantity, $unit, $unit);
             $doseAndRate = new FHIRDosageDoseAndRate();
             $doseAndRate->setDoseQuantity($doseQuantity);
             $dosage->addDoseAndRate($doseAndRate);
