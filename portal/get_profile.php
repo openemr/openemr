@@ -26,6 +26,7 @@
 //namespace OnsitePortal;
 
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
@@ -36,10 +37,8 @@ require_once("./../library/report.inc.php");
 require_once("./../library/options.inc.php");
 require_once("./../custom/code_types.inc.php");
 
-require_once("./lib/appsql.class.php");
-
-$appsql = new ApplicationTable();
-$pending = $appsql->getPortalAudit($pid, 'review');
+// $pid is the portal session patient, set by verify_session.php.
+$pending = is_numeric($pid) && ReviewQueueFactory::portalWorkflows()->pendingProfileChange(intval($pid)) !== null;
 $N = 7;
 ?>
 

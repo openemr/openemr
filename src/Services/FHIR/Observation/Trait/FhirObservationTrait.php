@@ -23,10 +23,10 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRObservationStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
@@ -177,9 +177,9 @@ trait FhirObservationTrait
 
         // Set lastUpdated
         if (!empty($dataRecord['last_updated_time'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
 
         $observation->setMeta($meta);
@@ -251,19 +251,8 @@ trait FhirObservationTrait
 
                 case 'Quantity':
                 default:
-                    $valueQuantity = new FHIRQuantity();
-                    // must be an integer or decimal
-                    $valueQuantity->setValue(floatval($value));
-
-                    if (!empty($valueUnit)) {
-                        $valueQuantity->setUnit($valueUnit);
-                        // Apply UCUM constraint (us-core-3) for standard units
-                        if ($this->shouldUseUCUM($valueUnit)) {
-                            $valueQuantity->setSystem(new FHIRUri(FhirCodeSystemConstants::UNITS_OF_MEASURE));
-                            $valueQuantity->setCode($valueUnit);
-                        }
-                    }
-                    $observation->setValueQuantity($valueQuantity);
+                    // must be an integer or decimal; UCUM's system only for a UCUM unit (us-core-3)
+                    $observation->setValueQuantity(UtilsService::createQuantity(floatval($value), $valueUnit, $valueUnit));
                     break;
             }
         } elseif (empty($children)) {
@@ -432,19 +421,9 @@ trait FhirObservationTrait
             if (empty($component['value'])) {
                 $comp->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
             } elseif (is_numeric($component['value'])) {
-                $valueQuantity = new FHIRQuantity();
-                // must be an integer or decimal
-                $valueQuantity->setValue(floatval($component['value']));
-
-                if (!empty($component['value_unit'])) {
-                    $valueQuantity->setUnit($component['value_unit']);
-                    // Apply UCUM constraint (us-core-3) for standard units
-                    if ($this->shouldUseUCUM($component['value_unit'])) {
-                        $valueQuantity->setSystem(new FHIRUri(FhirCodeSystemConstants::UNITS_OF_MEASURE));
-                        $valueQuantity->setCode($component['value_unit']);
-                    }
-                }
-                $comp->setValueQuantity($valueQuantity);
+                // must be an integer or decimal; UCUM's system only for a UCUM unit (us-core-3)
+                $unit = $component['value_unit'] ?? null;
+                $comp->setValueQuantity(UtilsService::createQuantity(floatval($component['value']), $unit, $unit));
             } elseif (!empty($component['value_code_description']) && str_contains((string) $component['value'], ':')) {
                 $parsedCode = $this->getCodeTypesService()->parseCode($component['value']);
                 $code = $parsedCode['code'];
@@ -593,16 +572,6 @@ trait FhirObservationTrait
     {
         $system = $this->getCodeTypesService()->getSystemForCodeType($prefix);
         return $system ?? FhirCodeSystemConstants::LOINC;
-    }
-
-    /**
-     * Check if unit should use UCUM system (us-core-3 constraint)
-     */
-    protected function shouldUseUCUM($unit): bool
-    {
-        // Common non-UCUM units that shouldn't trigger UCUM system
-        $nonUCUMUnits = ['{score}', '{count}', '{ratio}', '{index}'];
-        return !in_array($unit, $nonUCUMUnits);
     }
 
     public function getProvenanceService(): FhirProvenanceService

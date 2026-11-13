@@ -12,6 +12,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
@@ -25,6 +26,18 @@ $web_root = OEGlobalsBag::getInstance()->getWebRoot();
 $pid = PatientSessionUtil::getPid();
 $encounter = EncounterSessionUtil::getEncounter();
 
+// **** DB ACTION ******
+$dbaction = isset($_POST['dbaction']) ? trim((string) $_POST['dbaction']) : '';
+
+// Track Anything definitions are site-wide: every mutation (add / edit / delete /
+// activate / deactivate) requires admin/super. The delete branch below already
+// gates on this ACO; the add / edit / activate / deactivate branches share the
+// same scope and need the same gate here so the admin boundary is uniform.
+// Runs before any HTML output so AccessDeniedHelper::deny() can emit its 403.
+if (($dbaction === 'add' || $dbaction === 'edit') && !AclMain::aclCheckCore('admin', 'super')) {
+    AccessDeniedHelper::deny('Unauthorized Track Anything definition mutation');
+}
+
 formHeader("Form: Track anything");
 
 
@@ -33,10 +46,6 @@ formHeader("Form: Track anything");
     <?php Header::setupHeader('track-anything'); ?>
 <?php
 echo "<div id='ta_type'>";
-
-
-// **** DB ACTION ******
-$dbaction = isset($_POST['dbaction']) ? trim((string) $_POST['dbaction']) : '';
 
 // save new item to a track
 //-----------------------------
@@ -234,6 +243,12 @@ if ($the_item) {
         echo "</td></tr></table>\n";
     }
 
+
+    if (($deactivate || $activate) && !AclMain::aclCheckCore('admin', 'super')) {
+        http_response_code(403);
+        echo xlt('Not Authorized');
+        exit;
+    }
 
     if ($deactivate) {
     // deactivate the item/track

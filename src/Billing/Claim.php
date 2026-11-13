@@ -6,8 +6,10 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -50,7 +52,6 @@ class Claim
     public $payers = [];       // array of arrays, for all payers
     public $copay;             // total of copays from the ar_activity table
     public $facilityService;   // via matthew.vita orm work :)
-    public $pay_to_provider;   // to be implemented in facility ui
     private $encounterService;
     public $billing_prov_id;
     public $line_item_adjs;    // adjustment array with key of [group code][reason code] needed for secondary claims
@@ -73,7 +74,6 @@ class Claim
         $this->copay = $this->getCopay($this->pid, $this->encounter_id);
         $this->facilityService = new FacilityService();
         $this->facility = $this->facilityService->getById($this->encounter['facility_id']);
-        $this->pay_to_provider = ''; // will populate from facility someday :)
         $this->x12_partner = $this->getX12Partner($x12_partner_id);
         $this->provider = (new UserService())->getUser($this->encounter['provider_id']);
         $this->billing_facility = empty($this->encounter['billing_facility']) ?
@@ -246,6 +246,29 @@ class Claim
     {
         // this will take out anything non-numeric
         return preg_replace('/[^0-9]/', '', (string) $zip);
+    }
+
+    /**
+     * Digits for NM109. Edge whitespace is trimmed, then hyphens and spaces
+     * are removed. Any other character blanks the value.
+     */
+    public function x12NpiDigits(string $npi): string
+    {
+        return self::npiDigits($npi);
+    }
+
+    /**
+     * Digits for NM109. Edge whitespace is trimmed, then hyphens and spaces
+     * are removed. Any other character blanks the value.
+     */
+    public static function npiDigits(string $npi): string
+    {
+        $npi = trim($npi);
+        if (preg_match('/[^0-9 -]/', $npi) === 1) {
+            return '';
+        }
+
+        return str_replace(['-', ' '], '', $npi);
     }
 
     /**
@@ -457,8 +480,8 @@ class Claim
                     } elseif (preg_match("/dedbl: (\S+)/i", (string) $rsn, $tmp) && !$chg) {
                         $deductible = $tmp[1]; // from 835 and manual post as of 6/2007
                         continue;
-                    } elseif (preg_match("/ptresp: (\S+)/i", (string) $rsn, $tmp) && !$chg) {
-                        continue; // from 835 as of 6/2007
+                    } elseif (preg_match(EraAdjustmentMemo::PATIENT_RESPONSIBILITY_PATTERN, (string) $rsn, $tmp) && !$chg) {
+                        continue; // from 835 as of 6/2007; with the reason code since 2026
                     } elseif (preg_match("/adjust code (\S+)/i", (string) $rsn, $tmp)) {
                         $rcode = $tmp[1]; // from 835
                     } elseif (preg_match("/$inslabel/i", (string) $rsn, $tmp)) {
@@ -795,6 +818,118 @@ class Claim
     }
 
     /**
+     * Whether the 837P sends a pay-to address (loop 2010AB): the billing facility has a
+     * mailing address and it differs from the physical address sent for the billing
+     * provider (loop 2010AA). 2010AB is only for a payment address that differs from
+     * the billing provider's.
+     */
+    public function hasPayToAddress(): bool
+    {
+        return self::mailingAddressDiffers(is_array($this->billing_facility) ? $this->billing_facility : []);
+    }
+
+    /**
+     * The billing facility's mailing address, sent as the 837P pay-to address.
+     */
+    public function payToFacilityStreet(): string
+    {
+        return (string) $this->x12Clean($this->billingFacilityMailField('mail_street'));
+    }
+
+    public function payToFacilityStreet2(): string
+    {
+        return (string) $this->x12Clean($this->billingFacilityMailField('mail_street2'));
+    }
+
+    public function payToFacilityCity(): string
+    {
+        return (string) $this->x12Clean($this->billingFacilityMailField('mail_city'));
+    }
+
+    public function payToFacilityState(): string
+    {
+        return (string) $this->x12Clean($this->billingFacilityMailField('mail_state'));
+    }
+
+    public function payToFacilityZip(): string
+    {
+        return (string) $this->x12Zip($this->billingFacilityMailField('mail_zip'));
+    }
+
+    /**
+     * One text column from a facility row. Empty when the row or the column is missing.
+     */
+    private function facilityText(mixed $facility, string $column): string
+    {
+        if (!is_array($facility)) {
+            return '';
+        }
+        $value = $facility[$column] ?? null;
+        if (!is_string($value)) {
+            return '';
+        }
+
+        return trim($value);
+    }
+
+    private function billingFacilityMailField(string $field): string
+    {
+        return $this->facilityText($this->billing_facility, $field);
+    }
+
+    /**
+     * Whether a facility row has a mailing address that differs from its physical address.
+     *
+     * Streets compare without case, punctuation or extra spaces (mailing street and
+     * street2 together against the physical street). ZIP codes compare as digits, and a
+     * 5-digit ZIP matches a ZIP+4 that starts with it.
+     *
+     * @param array<mixed> $facility row from the facility table
+     */
+    private static function mailingAddressDiffers(array $facility): bool
+    {
+        $field = static fn (string $key): string => is_string($facility[$key] ?? null) ? trim($facility[$key]) : '';
+        $words = static fn (string $value): string => trim((string) preg_replace(
+            '/\s+/',
+            ' ',
+            (string) preg_replace('/[^A-Z0-9 ]/', ' ', strtoupper($value))
+        ));
+        $digits = static fn (string $value): string => (string) preg_replace('/\D/', '', $value);
+
+        if ($field('mail_street') === '') {
+            return false;
+        }
+        $mailZip = $digits($field('mail_zip'));
+        $physicalZip = $digits($field('postal_code'));
+        $sameZip = $mailZip === $physicalZip
+            || (strlen($mailZip) === 5 && str_starts_with($physicalZip, $mailZip))
+            || (strlen($physicalZip) === 5 && str_starts_with($mailZip, $physicalZip));
+
+        return !(
+            $words($field('mail_street') . ' ' . $field('mail_street2')) === $words($field('street'))
+            && $words($field('mail_city')) === $words($field('city'))
+            && $words($field('mail_state')) === $words($field('state'))
+            && $sameZip
+        );
+    }
+
+    /**
+     * Postal code stored for the billing facility, before digit reduction.
+     */
+    public function billingFacilityPostalCode(): string
+    {
+        return $this->facilityText($this->billing_facility, 'postal_code');
+    }
+
+    /**
+     * Country stored for the billing facility. Empty when the row has none.
+     */
+    public function billingFacilityCountry(): string
+    {
+        return $this->facilityText($this->billing_facility, 'country_code');
+    }
+
+    /**
      * @return string
      */
     public function billingFacilityETIN()
@@ -807,7 +942,7 @@ class Claim
      */
     public function billingFacilityNPI()
     {
-        return $this->x12Clean(trim((string) $this->billing_facility['facility_npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->billing_facility['facility_npi']));
     }
 
     /**
@@ -939,6 +1074,22 @@ class Claim
     }
 
     /**
+     * Postal code stored for the service facility, before digit reduction.
+     */
+    public function facilityPostalCode(): string
+    {
+        return $this->facilityText($this->facility, 'postal_code');
+    }
+
+    /**
+     * Country stored for the service facility. Empty when the row has none.
+     */
+    public function facilityCountry(): string
+    {
+        return $this->facilityText($this->facility, 'country_code');
+    }
+
+    /**
      * @return string
      */
     public function facilityETIN()
@@ -951,7 +1102,7 @@ class Claim
      */
     public function facilityNPI()
     {
-        return $this->x12Clean(trim((string) $this->facility['facility_npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->facility['facility_npi']));
     }
 
     /**
@@ -1592,6 +1743,35 @@ class Claim
         return $this->x12Clean(trim((string) $this->billing_options['accident_state']));
     }
 
+    /**
+     * CLM10 (patient signature source code) and CLM11 (related causes) for the
+     * end of the 837P CLM segment, each with its separator. CLM10 is "P"
+     * (signature generated by the provider) for workers' comp claims only; on
+     * other claims it would state that the patient wasn't present. CLM11-1 and
+     * CLM11-2 carry up to two causes (EM, AA, OA in that order), and CLM11-4
+     * carries the auto accident state, which the TR3 requires when either
+     * cause is AA. Empty trailing elements are left out, so a claim with no
+     * related cause ends at CLM09.
+     */
+    public function x12SignatureAndRelatedCauses(): string
+    {
+        $employment = $this->isRelatedEmployment();
+        $auto = $this->isRelatedAuto();
+        $causes = array_keys(array_filter(['EM' => $employment, 'AA' => $auto, 'OA' => $this->isRelatedOther()]));
+        if ($causes === []) {
+            return '';
+        }
+        // AA always lands in CLM11-1 or CLM11-2: only EM can come before it.
+        $components = [$causes[0], $causes[1] ?? ''];
+        $state = $auto ? $this->autoAccidentState() : '';
+        if ($state !== '') {
+            // CLM11-3 isn't used in the 837P.
+            $components[] = '';
+            $components[] = $state;
+        }
+        return '*' . ($employment ? 'P' : '') . '*' . rtrim(implode(':', $components), ':');
+    }
+
     public function isUnableToWork(): bool
     {
         return !empty($this->billing_options['is_unable_to_work']);
@@ -2056,7 +2236,7 @@ class Claim
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->provider : $this->procs[$prockey]['provider'];
-        return $this->x12Clean(trim($tmp['npi'] ?? ''));
+        return $this->x12Clean($this->x12NpiDigits(trim($tmp['npi'] ?? '')));
     }
 
     public function NPIValid($npi)
@@ -2131,7 +2311,7 @@ class Claim
      */
     public function referrerNPI()
     {
-        return $this->x12Clean(trim((string) $this->referrer['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->referrer['npi']));
     }
 
     /**
@@ -2191,7 +2371,7 @@ class Claim
      */
     public function supervisorNPI()
     {
-        return $this->x12Clean(trim((string) $this->supervisor['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->supervisor['npi']));
     }
 
     /**
@@ -2264,7 +2444,7 @@ class Claim
      */
     public function billingProviderNPI()
     {
-        return $this->x12Clean(trim((string) $this->billing_prov_id['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->billing_prov_id['npi']));
     }
 
     /**
@@ -2392,7 +2572,7 @@ class Claim
      */
     public function ordererNPI()
     {
-        return $this->x12Clean(trim((string) $this->orderer['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->orderer['npi']));
     }
 
     /**

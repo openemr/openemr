@@ -36,6 +36,9 @@ class CcdaGenerator
     {
     }
 
+    /**
+     * The table this generator saves its documents through.
+     */
     public function getEncounterccdadispatchTable(): EncounterccdadispatchTable
     {
         return $this->dispatchTable;
@@ -56,6 +59,7 @@ class CcdaGenerator
      * @param $document_type
      * @param $referral_reason
      * @param $date_options has the format of ['date_start' => 'YYYY-MM-DD HH:mm:ss', 'date_end' => 'YYYY-MM-DD HH:mm:ss', 'filter_content' => boolean]
+     * @param ?int $referralId the referral staff chose this C-CDA for, or null for the patient's most recent
      * @return GeneratedCcdaResult
      * @throws \Exception
      */
@@ -72,7 +76,8 @@ class CcdaGenerator
         $params,
         $document_type,
         $referral_reason,
-        $date_options = []
+        $date_options = [],
+        ?int $referralId = null
     ): GeneratedCcdaResult {
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -117,18 +122,24 @@ class CcdaGenerator
             }
             $components = $str1;
         }
-        $data = $this->create_data(
-            $patient_id,
-            $encounter_id,
-            $sections,
-            $components,
-            $recipients,
-            $params,
-            $document_type,
-            $referral_reason,
-            $send,
-            $date_options
-        );
+        // The Reason for Referral is the chosen referral's, as the C-CDA is linked to it (logCCDA()).
+        $this->getEncounterccdadispatchTable()->setContentReferral($referralId);
+        try {
+            $data = $this->create_data(
+                $patient_id,
+                $encounter_id,
+                $sections,
+                $components,
+                $recipients,
+                $params,
+                $document_type,
+                $referral_reason,
+                $send,
+                $date_options
+            );
+        } finally {
+            $this->getEncounterccdadispatchTable()->setContentReferral(null);
+        }
         $content = $this->normalize($data);
         // When patient documents are exported with the C-CDA (patient_files in
         // the data), they travel in a separate unstructured document. The Node
@@ -146,7 +157,8 @@ class CcdaGenerator
                 'unstructured',
                 $view,
                 $send,
-                $emr_transfer
+                $emr_transfer,
+                $referralId
             );
         }
         $generatedResult = $this->getEncounterccdadispatchTable()->logCCDA(
@@ -159,7 +171,8 @@ class CcdaGenerator
             $document_type,
             $view,
             $send,
-            $emr_transfer
+            $emr_transfer,
+            $referralId
         );
         if ($this->debug_ccda === true) {
             $tmp_file_location = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . DIRECTORY_SEPARATOR;

@@ -92,15 +92,14 @@ class BackgroundServiceDefinitionTest extends TestCase
     {
         $row = self::row(name: 'phimail', executeInterval: 5);
         $row['title'] = 'phiMail Direct Messaging';
-        $row['function'] = 'phimail_check';
-        $row['require_once'] = '/library/phimail.php';
+        $row['function'] = 'OpenEMR\\Common\\DirectMessaging\\PhiMailReceiver::runBackgroundService';
 
         $def = BackgroundServiceDefinition::fromDatabaseRow($row);
 
         $this->assertSame('phimail', $def->name);
         $this->assertSame('phiMail Direct Messaging', $def->title);
-        $this->assertSame('phimail_check', $def->function);
-        $this->assertSame('/library/phimail.php', $def->requireOnce);
+        $this->assertSame('OpenEMR\\Common\\DirectMessaging\\PhiMailReceiver::runBackgroundService', $def->function);
+        $this->assertNull($def->requireOnce);
         $this->assertSame(5, $def->executeInterval);
         $this->assertSame(100, $def->sortOrder);
         $this->assertTrue($def->active);

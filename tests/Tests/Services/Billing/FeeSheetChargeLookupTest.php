@@ -50,7 +50,7 @@ class FeeSheetChargeLookupTest extends TestCase
         $this->addCode('CPT4', 'Refraction', 1, '', ['standard' => '44.00']);
 
         $this->assertSame(
-            ['code_text' => 'Refraction', 'units' => '1', 'fee' => '44.00'],
+            ['code_text' => 'Refraction', 'units' => '1', 'fee' => '44.00', 'modifier' => ''],
             (new FeeSheetChargeLookup())->find('CPT4', self::CODE, self::PID_STANDARD)
         );
     }
@@ -69,6 +69,17 @@ class FeeSheetChargeLookupTest extends TestCase
         $this->addCode('CPT4', 'Refraction', 1, '', ['standard' => '44.00']);
 
         $this->assertSame('44.00', (new FeeSheetChargeLookup())->find('CPT4', self::CODE, self::PID_STANDARD)['fee'] ?? null);
+    }
+
+    public function testTheOnlyRowGivesItsModifier(): void
+    {
+        // A drug code entered with its usual modifier (JZ, no waste) has no row without one.
+        $this->addCode('HCPCS', 'Chloroprocaine ophthalmic gel, 1 mg', 1, 'JZ', ['standard' => '0.80']);
+
+        $this->assertSame(
+            ['code_text' => 'Chloroprocaine ophthalmic gel, 1 mg', 'units' => '1', 'fee' => '0.80', 'modifier' => 'JZ'],
+            (new FeeSheetChargeLookup())->find('HCPCS', self::CODE, self::PID_STANDARD)
+        );
     }
 
     public function testFeeIsThePriceAtThePatientsPriceLevel(): void

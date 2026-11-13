@@ -133,15 +133,19 @@ class ConditionFhirApiTest extends TestCase
         $this->assertIsArray($resource);
         $this->assertEquals($this->conditionUuid, $resource['id']);
 
-        // The subject reference should point at our patient, e.g. "Patient/<uuid>".
+        // The subject reference must be the canonical FHIR R4 shape
+        // "Patient/<uuid>". The weaker substring check accepted any
+        // string containing the uuid, including non-FHIR shapes
+        // ("https://.../Patient/<uuid>/trailing"), the wrong resource
+        // type ("Group/<uuid>"), or lowercase "patient/<uuid>" — none
+        // of which a FHIR client would resolve correctly.
         $this->assertArrayHasKey("subject", $resource);
         $this->assertIsArray($resource['subject']);
         $this->assertArrayHasKey('reference', $resource['subject']);
-        $this->assertIsString($resource['subject']['reference']);
-        $this->assertStringContainsString(
-            $this->patientUuid,
+        $this->assertSame(
+            'Patient/' . $this->patientUuid,
             $resource['subject']['reference'],
-            "Condition subject should reference the seeded patient"
+            "Condition subject must be the canonical FHIR reference Patient/{uuid}"
         );
         $this->assertConditionCodeText($resource);
     }
@@ -174,10 +178,10 @@ class ConditionFhirApiTest extends TestCase
         $this->assertArrayHasKey("subject", $resource);
         $this->assertIsArray($resource['subject']);
         $this->assertArrayHasKey('reference', $resource['subject']);
-        $this->assertIsString($resource['subject']['reference']);
-        $this->assertStringContainsString(
-            $this->patientUuid,
-            $resource['subject']['reference']
+        $this->assertSame(
+            'Patient/' . $this->patientUuid,
+            $resource['subject']['reference'],
+            "Condition subject must be the canonical FHIR reference Patient/{uuid}"
         );
         $this->assertConditionCodeText($resource);
     }

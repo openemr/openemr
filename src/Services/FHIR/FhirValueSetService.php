@@ -136,7 +136,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
             ServiceContainer::getLogger()->error("search exception thrown", ['exception' => $exception,
                 'field' => $exception->getField()]);
             // put our exception information here
-            $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
+            FhirSearchSyntaxError::record($fhirSearchResult, $exception);
         }
         return $fhirSearchResult;
     }

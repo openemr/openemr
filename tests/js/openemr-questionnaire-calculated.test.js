@@ -406,3 +406,188 @@ describe('calculated expressions: resilience', () => {
         expect(answerOf(runtime, 'cql-item')).toBeUndefined();
     });
 });
+
+describe('calculated expressions: answering over a calculation (SDC 4.0.0 Using Expressions)', () => {
+    const typeInto = (container, linkId, value) => {
+        const input = container.querySelector('[data-link-id="' + linkId + '"] input');
+        input.value = value;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    const doubled = [
+        { linkId: 'a', type: 'integer', text: 'A' },
+        { linkId: 'double', type: 'integer', text: 'Double (editable)', extension: calculated(answerPath('a', 'valueInteger') + ' * 2') },
+    ];
+
+    test('a value typed over an editable calculation stays as other answers change', () => {
+        const { container, runtime } = mountItems(doubled);
+        runtime.setAnswers('a', [{ valueKey: 'valueInteger', value: 2 }]);
+        expect(answerOf(runtime, 'double').valueInteger).toBe(4);
+        typeInto(container, 'double', '9');
+        runtime.setAnswers('a', [{ valueKey: 'valueInteger', value: 3 }]);
+        expect(answerOf(runtime, 'double').valueInteger).toBe(9);
+        expect(container.querySelector('[data-link-id="double"] input').value).toBe('9');
+    });
+
+    test('clearing the typed value hands the item back to its calculation', () => {
+        const { container, runtime } = mountItems(doubled);
+        runtime.setAnswers('a', [{ valueKey: 'valueInteger', value: 2 }]);
+        typeInto(container, 'double', '9');
+        typeInto(container, 'double', '');
+        expect(answerOf(runtime, 'double').valueInteger).toBe(4);
+        runtime.setAnswers('a', [{ valueKey: 'valueInteger', value: 5 }]);
+        expect(answerOf(runtime, 'double').valueInteger).toBe(10);
+    });
+
+    test('a measurement the calculation cannot supply is kept when typed, and conditions on it work', () => {
+        // The shape of WHO's respiratory rate questions: taken from a profile value when the
+        // host has one, else counted and typed in.
+        const rateExtensions = [
+            { url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unit', valueCoding: { system: 'http://unitsofmeasure.org', code: '{Breaths}/min', display: 'breaths/min' } },
+            ...calculated("iif(%resource.item.where(linkId='profile').answer.exists(), %resource.item.where(linkId='profile').answer.value, {})"),
+        ];
+        const { container, runtime } = mountItems([
+            { linkId: 'profile', type: 'quantity', text: 'Rate on file', readOnly: true },
+            { linkId: 'rate', type: 'quantity', text: 'Breathing rate', extension: rateExtensions },
+            {
+                linkId: 'fast', type: 'display', text: 'Fast breathing',
+                extension: [{ url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-enableWhenExpression', valueExpression: { language: 'text/fhirpath', expression: "%resource.item.where(linkId='rate').answer.value >= 60 '{Breaths}/min'" } }],
+            },
+        ]);
+        container.querySelector('[data-link-id="rate"] input[type="number"]').value = '70';
+        container.querySelector('[data-link-id="rate"] input[type="number"]').dispatchEvent(new Event('change', { bubbles: true }));
+        expect(answerOf(runtime, 'rate').valueQuantity).toEqual({ value: 70, unit: 'breaths/min', system: 'http://unitsofmeasure.org', code: '{Breaths}/min' });
+        expect(runtime.isEnabled('fast')).toBe(true);
+    });
+
+    test('a calculated quantity shows its number in the value box', () => {
+        const { container, runtime } = mountItems([
+            { linkId: 'kg', type: 'decimal', text: 'Weight in kg' },
+            {
+                linkId: 'w', type: 'quantity', text: 'Weight', readOnly: true,
+                extension: calculated("%resource.item.where(linkId='kg').answer.value * 1 'kg'"),
+            },
+        ]);
+        runtime.setAnswers('kg', [{ valueKey: 'valueDecimal', value: 70 }]);
+        expect(answerOf(runtime, 'w').valueQuantity.value).toBe(70);
+        expect(container.querySelector('[data-link-id="w"] input[type="number"]').value).toBe('70');
+    });
+
+    test('a saved response whose editable calculated answer differs from the calculation keeps it', () => {
+        const container = createContainer();
+        const runtime = runtimeApi.mount({
+            questionnaire: baseQuestionnaire(doubled),
+            questionnaireResponse: { resourceType: 'QuestionnaireResponse', status: 'in-progress', item: [
+                { linkId: 'a', answer: [{ valueInteger: 2 }] },
+                { linkId: 'double', answer: [{ valueInteger: 9 }] },
+            ] },
+            container,
+        });
+        expect(answerOf(runtime, 'double').valueInteger).toBe(9);
+        runtime.setAnswers('a', [{ valueKey: 'valueInteger', value: 3 }]);
+        expect(answerOf(runtime, 'double').valueInteger).toBe(9);
+    });
+
+    test('a saved response whose calculated answers match keeps calculating, and read-only ones always do', () => {
+        const container = createContainer();
+        const runtime = runtimeApi.mount({
+            questionnaire: baseQuestionnaire([
+                ...doubled,
+                { linkId: 'total', type: 'integer', text: 'Total', readOnly: true, extension: calculated(answerPath('a', 'valueInteger') + ' + 1') },
+            ]),
+            questionnaireResponse: { resourceType: 'QuestionnaireResponse', status: 'in-progress', item: [
+                { linkId: 'a', answer: [{ valueInteger: 2 }] },
+                { linkId: 'double', answer: [{ valueInteger: 4 }] },
+                { linkId: 'total', answer: [{ valueInteger: 99 }] },
+            ] },
+            container,
+        });
+        expect(answerOf(runtime, 'total').valueInteger).toBe(3);
+        runtime.setAnswers('a', [{ valueKey: 'valueInteger', value: 5 }]);
+        expect(answerOf(runtime, 'double').valueInteger).toBe(10);
+        expect(answerOf(runtime, 'total').valueInteger).toBe(6);
+    });
+});
+
+describe('calculated expressions: each answer type saved and shown', () => {
+    const atLeast = (limit) => answerPath('a', 'valueInteger') + ' > ' + limit;
+
+    test('a calculated boolean shows as Yes or No', () => {
+        const { container, runtime } = mountItems([
+            { linkId: 'a', type: 'integer', text: 'A' },
+            { linkId: 'big', type: 'boolean', text: 'Big', readOnly: true, extension: calculated(atLeast(5)) },
+        ]);
+        const radios = () => [...container.querySelectorAll('[data-link-id="big"] input[type="radio"]')].map((radio) => radio.checked);
+        runtime.setAnswers('a', [{ valueKey: 'valueInteger', value: 9 }]);
+        expect(answerOf(runtime, 'big').valueBoolean).toBe(true);
+        expect(radios()).toEqual([true, false]);
+        runtime.setAnswers('a', [{ valueKey: 'valueInteger', value: 2 }]);
+        expect(radios()).toEqual([false, true]);
+    });
+
+    test.each([['radio-button'], ['drop-down']])('a calculated choice is saved as a Coding and shown selected (%s)', (control) => {
+        const options = [{ valueCoding: { code: 'lo', display: 'Low' } }, { valueCoding: { code: 'hi', display: 'High' } }];
+        const { container, runtime } = mountItems([
+            { linkId: 'a', type: 'integer', text: 'A' },
+            {
+                linkId: 'band', type: 'choice', text: 'Band', readOnly: true, answerOption: options,
+                extension: [
+                    { url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl', valueCodeableConcept: { coding: [{ system: 'http://hl7.org/fhir/questionnaire-item-control', code: control }] } },
+                    ...calculated('iif(' + atLeast(5) + ", %questionnaire.item.where(linkId='band').answerOption[1].value, %questionnaire.item.where(linkId='band').answerOption[0].value)"),
+                ],
+            },
+        ]);
+        runtime.setAnswers('a', [{ valueKey: 'valueInteger', value: 9 }]);
+        expect(answerOf(runtime, 'band')).toEqual({ valueCoding: { code: 'hi', display: 'High' } });
+        const shown = control === 'drop-down'
+            ? container.querySelector('[data-link-id="band"] select').value
+            : String([...container.querySelectorAll('[data-link-id="band"] input[type="radio"]')].findIndex((radio) => radio.checked));
+        expect(shown).toBe('1');
+    });
+
+    test('an initial expression on a choice is saved as a Coding', () => {
+        const { runtime } = mountItems([{
+            linkId: 'band', type: 'choice', text: 'Band', answerOption: [{ valueCoding: { code: 'lo', display: 'Low' } }],
+            extension: [{ url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression', valueExpression: { language: 'text/fhirpath', expression: "%questionnaire.item.where(linkId='band').answerOption.first().value" } }],
+        }]);
+        expect(answerOf(runtime, 'band')).toEqual({ valueCoding: { code: 'lo', display: 'Low' } });
+    });
+
+    test('a calculated quantity shows its own unit, and no unit it is not in', () => {
+        const unitOption = (code, display) => ({ url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption', valueCoding: { system: 'http://unitsofmeasure.org', code, display } });
+        const { container, runtime } = mountItems([
+            { linkId: 'n', type: 'decimal', text: 'Number' },
+            { linkId: 'unit', type: 'string', text: 'Unit code' },
+            {
+                linkId: 'w', type: 'quantity', text: 'Weight', readOnly: true,
+                extension: [unitOption('kg', 'kg'), unitOption('[lb_av]', 'lb'), ...calculated("iif(%resource.item.where(linkId='unit').answer.value = 'g', " + answerPath('n', 'value') + " * 1 'g', " + answerPath('n', 'value') + " * 1 '[lb_av]')")],
+            },
+        ]);
+        const select = container.querySelector('[data-link-id="w"] select');
+        runtime.setAnswers('n', [{ valueKey: 'valueDecimal', value: 150 }]);
+        expect(select.options[select.selectedIndex].textContent).toBe('lb');
+        runtime.setAnswers('unit', [{ valueKey: 'valueString', value: 'g' }]);
+        expect(select.value).toBe('');
+        expect(answerOf(runtime, 'w').valueQuantity).toEqual({ value: 150, unit: 'g', code: 'g' });
+    });
+
+    test('a typed answer over a calculation stays with its own repetition', () => {
+        const { container, runtime } = mountItems([{
+            linkId: 'kids', type: 'group', repeats: true, text: 'Child', item: [
+                { linkId: 'age', type: 'integer', text: 'Age' },
+                { linkId: 'months', type: 'integer', text: 'Months', extension: calculated("%context.item.where(linkId='age').answer.value * 12") },
+            ],
+        }]);
+        [...container.querySelectorAll('button')].find((button) => /Add/.test(button.textContent)).click();
+        const key = (index, linkId) => 'kids\u0000' + index + '\u0000' + linkId;
+        const months = (index) => runtime.responseStore.getAnswers(key(index, 'months'))[0]?.value;
+        runtime.setAnswers(key(0, 'age'), [{ valueKey: 'valueInteger', value: 2 }]);
+        runtime.setAnswers(key(1, 'age'), [{ valueKey: 'valueInteger', value: 3 }]);
+        expect([months(0), months(1)]).toEqual([24, 36]);
+        const box = runtime.renderer.inputs.get(key(0, 'months'));
+        box.value = '30';
+        box.dispatchEvent(new Event('change', { bubbles: true }));
+        runtime.setAnswers(key(0, 'age'), [{ valueKey: 'valueInteger', value: 4 }]);
+        runtime.setAnswers(key(1, 'age'), [{ valueKey: 'valueInteger', value: 5 }]);
+        expect([months(0), months(1)]).toEqual([30, 60]);
+    });
+});

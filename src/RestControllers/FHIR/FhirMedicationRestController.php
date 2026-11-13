@@ -166,6 +166,10 @@ class FhirMedicationRestController
     public function getAll($searchParams)
     {
         $processingResult = $this->fhirMedicationService->getAll($searchParams);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

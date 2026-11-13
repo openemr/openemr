@@ -17,9 +17,12 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-//ensure user has proper access
-if (!AclMain::aclCheckCore('patients', 'rx')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Weno Facility Setup", xl("Weno Facility Setup"));
+// Facility mapping is a site-wide administrator function: menu `acl_req` =
+// ["admin", "super"], parent setup page requires admin/super. The subpage
+// is also reachable directly, so it must apply the same admin/super gate
+// rather than the narrower `patients/rx` scope.
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Weno Facility Setup", xl("Weno Facility Setup"));
 }
 
 $wenoLog = new WenoLogService();

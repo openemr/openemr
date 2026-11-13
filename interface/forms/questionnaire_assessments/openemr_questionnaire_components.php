@@ -12,17 +12,10 @@
 
 declare(strict_types=1);
 
-use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Questionnaire\QuestionnaireRuntimeAssets;
 
-$questionnaireAssetRoot = OEGlobalsBag::getInstance()->getWebRoot()
-    . '/interface/forms/questionnaire_assessments/native';
-$questionnaireStylesheet = CacheUtils::addAssetCacheParamToPath(
-    $questionnaireAssetRoot . '/openemr_questionnaire.css'
-);
-$questionnaireScript = CacheUtils::addAssetCacheParamToPath(
-    $questionnaireAssetRoot . '/openemr_questionnaire.js'
-);
+$questionnaireRuntime = (new QuestionnaireRuntimeAssets(OEGlobalsBag::getInstance()))->describe();
 ?>
-<link href="<?php echo attr($questionnaireStylesheet); ?>" media="screen" rel="stylesheet" />
-<script src="<?php echo attr($questionnaireScript); ?>"></script>
+<link href="<?php echo attr($questionnaireRuntime['stylesheet']); ?>" media="screen" rel="stylesheet" />
+<script src="<?php echo attr($questionnaireRuntime['script']); ?>" data-openemr-version="<?php echo attr($questionnaireRuntime['version']); ?>" data-openemr-strings="<?php echo attr($questionnaireRuntime['strings']); ?>"></script>

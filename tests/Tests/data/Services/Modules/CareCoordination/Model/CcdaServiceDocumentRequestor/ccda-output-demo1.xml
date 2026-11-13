@@ -258,8 +258,8 @@
                         <templateId root="2.16.840.1.113883.10.20.22.4.30" extension="2015-08-01"/>
                         <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
                         <id root="36e3e930-7b14-11db-9fe1-0800200c9a66" extension="ZGVmYXVsdDM="/>
-                        <code code="48765-2" displayName="Allergies, adverse reactions, alerts"
-                              codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                        <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"
+                              codeSystemName="HL7ActClass"/>
                         <statusCode code="active"/>
                         <effectiveTime>
                             <low nullFlavor="UNK"/>
@@ -928,7 +928,9 @@
                                 <templateId root="2.16.840.1.113883.10.20.22.4.61"/>
                                 <id root="a208621d-2f4b-4f3a-a072-3477ecfdc6fe" extension="444"/>
                                 <code code="72" displayName="PPO" codeSystem="2.16.840.1.113883.3.221.5"
-                                      codeSystemName="Insurance Type Code"/>
+                                      codeSystemName="Insurance Type Code">
+                                    <translation nullFlavor="UNK"/>
+                                </code>
                                 <statusCode code="completed"/>
                                 <performer typeCode="PRF">
                                     <templateId root="2.16.840.1.113883.10.20.22.4.87"/>

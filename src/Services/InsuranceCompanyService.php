@@ -469,7 +469,8 @@ class InsuranceCompanyService extends BaseService
         $sql .= "     x12_receiver_id=?,";
         $sql .= "     x12_default_partner_id=?,";
         $sql .= "     alt_cms_id=?,";
-        $sql .= "     cqm_sop=?";
+        $sql .= "     cqm_sop=?,";
+        $sql .= "     inactive=?";
 
         // throws an exception if the record doesn't insert
         QueryUtils::sqlInsert(
@@ -485,6 +486,7 @@ class InsuranceCompanyService extends BaseService
                 $data["x12_default_partner_id"] ?? '',
                 $data["alt_cms_id"],
                 $data["cqm_sop"] ?? null,
+                is_array($data) ? ($data["inactive"] ?? 0) : 0,
             ]
         );
 

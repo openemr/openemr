@@ -5,42 +5,44 @@
  *
  * This is the controller for the groups' participant view.
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
- * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    https://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 require_once __DIR__ . '/base_controller.php';
 require_once __DIR__ . '/therapy_groups_controller.php';
 
+use OpenEMR\Common\Session\TherapyGroupSessionUtil;
+use Symfony\Component\HttpFoundation\Request;
+
 class ParticipantsController extends BaseController
 {
-    public function __construct()
+    public function __construct(Request $request)
     {
+        parent::__construct($request);
         $this->groupParticipantsModel = $this->loadModel('therapy_groups_participants');
         $this->groupEventsModel = $this->loadModel('Therapy_Groups_Events');
         $this->groupModel = $this->loadModel('therapy_groups');
     }
 
-    public function index($groupId, $data = [])
+    /**
+     * Show the group's participants after applying a posted update or a
+     * delete link; both writes need the CSRF token. Renders and exits.
+     */
+    public function index(int $groupId, $data = [])
     {
 
         if (isset($_POST['save'])) {
+            TherapyGroupSessionUtil::requireCsrfToken($this->request);
             for ($k = 0; $k < count($_POST['pid']); $k++) {
                 $patient['pid'] = $_POST['pid'][$k];
                 $patient['group_patient_status'] = $_POST['group_patient_status'][$k];
@@ -62,6 +64,7 @@ class ParticipantsController extends BaseController
         }
 
         if (isset($_GET['deleteParticipant'])) {
+            TherapyGroupSessionUtil::requireCsrfToken($this->request);
             $this->groupParticipantsModel->removeParticipant($_GET['group_id'], $_GET['pid']);
         }
 
@@ -86,16 +89,21 @@ class ParticipantsController extends BaseController
             $data['readonly'] = '';
         }
 
-        TherapyGroupsController::setSession($groupId);
+        TherapyGroupsController::setSession($groupId, $this->request);
 
         $this->loadView('groupDetailsParticipants', $data);
     }
 
 
-    public function add($groupId)
+    /**
+     * Register the posted patient in the group, which needs the CSRF token,
+     * then show the participant list. Renders and exits.
+     */
+    public function add(int $groupId)
     {
 
         if (isset($_POST['save_new'])) {
+            TherapyGroupSessionUtil::requireCsrfToken($this->request);
             $_POST['group_patient_start'] = DateToYYYYMMDD($_POST['group_patient_start']);
 
             $alreadyRegistered = $this->groupParticipantsModel->isAlreadyRegistered($_POST['pid'], $groupId);

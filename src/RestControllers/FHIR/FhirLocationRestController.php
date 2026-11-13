@@ -169,6 +169,10 @@ class FhirLocationRestController
     public function getAll($searchParams, $patientUuid)
     {
         $processingResult = $this->fhirLocationService->getAll($searchParams, $patientUuid);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

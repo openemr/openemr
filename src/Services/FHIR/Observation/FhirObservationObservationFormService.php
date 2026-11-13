@@ -26,6 +26,7 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirObservationObservationFormService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
@@ -131,11 +132,11 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
                 }
                 if (!empty($codeTypes)) {
                     $compoundObCodeWithCodeType = new CompositeSearchField('ob_code_code_type', [], true);
-                    $compoundObCodeWithCodeType->addChild(new TokenSearchField('ob_code', [$codeSearchFieldValue->getCode()]));
+                    $compoundObCodeWithCodeType->addChild(new TokenSearchField('ob_code', [new TokenSearchValue($codeSearchFieldValue->getCode())]));
                     $compoundObCodeWithCodeType->addChild(new TokenSearchField('code_type', $codeTypes));
                     $compoundObCode->addChild($compoundObCodeWithCodeType);
                 } else {
-                    $compoundObCode->addChild(new TokenSearchField('ob_code', [$codeSearchFieldValue->getCode()]));
+                    $compoundObCode->addChild(new TokenSearchField('ob_code', [new TokenSearchValue($codeSearchFieldValue->getCode())]));
                 }
             }
             $openEMRSearchParameters['ob_code'] = $compoundObCode;

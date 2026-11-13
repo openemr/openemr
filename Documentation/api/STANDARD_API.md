@@ -144,7 +144,7 @@ Accept: application/json
 | Patient Employers                | rs          | Read-only access to patient employers (`employers` table).                                             |
 | Patient Insurance                | crus        | Manage patient insurance information (`patient_insurance` table).                                      |
 | Patient Messages                 | cud         | Create patient messages (`patient_messages` table).                                                    |
-| Patient Referrals (transactions) | cruds       | Manage patient referrals (`lbt_data` table).                                                           |
+| Patient Referrals (transactions) | cruds       | Manage patient referrals (`transactions` and `lbt_data` tables). See the note below.                    |
 |Patient Immunizations| rs| Read-only access to patient immunizations (`immunizations` table).                                     |
 |Patient Procedures| rs| Read-only access to patient procedures (`procedure_order`,`procedure_report`,`procedure_result` table). |
 |Drugs| rs| Read-only access to drugs (`drugs` table).                                                               |
@@ -157,6 +157,56 @@ Accept: application/json
 | u           | Update resource                      |
 | d           | Delete resource                      |
 | s           | Search/List resources                |
+
+**Patient referrals.** A referral saved with `POST /api/patient/:pid/transaction` (type `LBTref`) or
+`PUT /api/transaction/:tid` is the same record as one saved on the Transactions screen:
+
+- Refer By and Refer To are found by NPI (`referByNpi`, `referToNpi`). An NPI that matches no
+  user is not an error: on `PUT` the recipient is left as it was and the call still succeeds, so
+  the old recipient keeps the referral and its Task. Read the referral back to check who it is
+  sent to.
+- With the **Track Referrals with FHIR Tasks** global on, the referral gets a FHIR Task for its
+  recipient, and is readable as a FHIR ServiceRequest. No Task is made when FHIR cannot serve
+  Refer To as a Practitioner or an Organization, such as a practitioner without an NPI, or when
+  the referral already has a Reply Date. A `PUT` of an answered referral therefore creates none.
+  See [when a Task is made](../REFERRAL_WORKFLOWS.md#setup).
+- The save succeeds even if making the Task fails; the failure is only logged. Checking needs the
+  FHIR API, with `ServiceRequest` and `Task` read scopes, because this API returns the
+  transaction id and not the referral's FHIR id:
+    1. `GET /fhir/ServiceRequest?patient=<patient-uuid>&category=3457005` and find the referral;
+       its `id` is the uuid.
+    2. `GET /fhir/Task?focus=ServiceRequest/<uuid>`.
+    3. Keep the referral's own Tasks for the intended recipient: `code` is `fulfill`, there is
+       no `partOf`, and `owner` is that recipient. A recipient's sub-Task, or a Task for an
+       earlier recipient, does not count.
+    4. Drop any Task OpenEMR set aside: `status` is `cancelled` or `entered-in-error` and
+       `statusReason.text` is exactly one of
+         - `The referral was sent to another recipient.`
+         - `The referral no longer names a recipient.`
+         - `The referral was deleted.`
+         - `The referral's reply was cleared.`
+    5. Of what is left, use the most recent Task only (the latest `authoredOn`). After a
+       Re-send, an older rejected Task and the new requested Task both remain, and the new one
+       is the referral's status. OpenEMR itself takes the Task it created last, which FHIR does
+       not expose: if two Tasks that count share the same `authoredOn`, or one was created
+       through the API with its own `authoredOn`, check the referral's status on the
+       Transactions screen instead.
+    6. If that Task is one the recipient itself cancelled, rejected or failed, it still counts,
+       and saving the referral again will not replace it: staff use **Re-send** on the referral
+       screen.
+
+  If there is no Task that counts, save the referral again. A client without FHIR access cannot check; staff can
+  see the referral's status on the Transactions screen.
+- The API does not write the Reply Date, so it cannot close a referral.
+- `authorization`, `visits`, `validFrom` and `validThrough` are stored, but the stock referral
+  form has no fields for them.
+- `PUT` only changes a field the referral already has a stored row for. A referral created
+  through this API has a row for each of these four, even when it was sent empty. A referral made
+  on the stock form has none, so a `PUT` cannot add them to it.
+- `PUT` skips empty values, `"0"` included, so it cannot clear a field: sending an empty
+  `authorization` or `visits` of `"0"` leaves the old value in place.
+
+See [Referral Workflows](../REFERRAL_WORKFLOWS.md).
 
 ## Patient Portal API ([swagger](https://demo.openemr.io/openemr/swagger/#/standard-patient))
 

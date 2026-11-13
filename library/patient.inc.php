@@ -18,6 +18,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
@@ -26,7 +27,12 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EmployerService;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\Insurance\InsuranceLevel;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\InsuranceService;
+use OpenEMR\Services\Patient\DuplicatePatientService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
@@ -1470,31 +1476,60 @@ function dateToDB($date): string
 }
 
 /**
- * Get up to 3 insurances (primary, secondary, tertiary) that are effective
- * for the given patient on the given date.
+ * The policies in force for a patient on a day, primary first, as rows: a
+ * wrapper over the coverage service, as getEmployerData() is over
+ * EmployerService. Each row is every insurance_data column of a policy
+ * InsuranceService::getEffectiveInsuranceRows() returns.
  *
- * @param int $patient_id The PID of the patient.
- * @param string $encdate Date in yyyy-mm-dd format.
- * @return array  Array of 0-3 insurance_data rows.
+ * It chooses by the service's rule (EffectiveInsuranceRule), so the
+ * procedural screens and the service agree.
+ *
+ * Like the query it replaced, the list stops at the first level with nothing
+ * in force, so a row's position is its level: a current secondary behind an
+ * ended primary gives no policies.
+ *
+ * Where it differs from the query it replaced:
+ * - a 0000-00-00 end is open, where the query read it as ended;
+ * - between two undated policies at a level the later entry wins, where the
+ *   query took whichever row the database returned first;
+ * - a company that, trimmed, isn't a whole number above 0 ('Acme', '12abc',
+ *   '1e3', '00', ' ') empties its level, where the query counted any company
+ *   but '', '0' and NULL;
+ * - a DATETIME counts as its day, and a date that can't be read (blank, zero,
+ *   or not Y-m-d) gives no policies;
+ * - a patient id that isn't a whole number above 0 gives no policies: for
+ *   NULL the query matched none either, but for 0 or '' it read pid 0's rows,
+ *   and for '12abc' patient 12's (MySQL compares it as 12).
+ *
+ * @param mixed  $patient_id The PID of the patient: an int or a digit string.
+ * @param string $encdate    The day asked about: Y-m-d, or a DATETIME.
+ * @return list<array<mixed>> 0 to 3 insurance_data rows.
  */
 function getEffectiveInsurances($patient_id, $encdate): array
 {
-    $insarr = [];
-    foreach (['primary','secondary','tertiary'] as $instype) {
-        $tmp = sqlQuery(
-            "SELECT * FROM insurance_data " .
-            "WHERE pid = ? AND type = ? " .
-            "AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY date DESC LIMIT 1",
-            [$patient_id, $instype, $encdate, $encdate]
-        );
-        if (empty($tmp['provider'])) {
+    $pid = EffectiveInsuranceRule::storedId($patient_id);
+    $day = CoverageDay::fromStored($encdate);
+    if ($pid === null || $day === null) {
+        return [];
+    }
+    // One service per request: its constructor backfills missing uuids in three tables, which these
+    // rows' callers don't read, and the Billing Manager, balances and ledgers call this once per visit.
+    static $service = null;
+    if (!$service instanceof InsuranceService) {
+        $service = new InsuranceService();
+    }
+    $byLevel = [];
+    foreach ($service->getEffectiveInsuranceRows($pid, $day) as $row) {
+        $byLevel[$row->policy->level->value] = $row->columns;
+    }
+    $rows = [];
+    foreach (InsuranceLevel::cases() as $level) {
+        if (!isset($byLevel[$level->value])) {
             break;
         }
-
-        $insarr[] = $tmp;
+        $rows[] = $byLevel[$level->value];
     }
-
-    return $insarr;
+    return $rows;
 }
 
 /**
@@ -1677,8 +1712,8 @@ function is_patient_deceased($pid, $date = '')
  */
 function updateDupScore(int|string $pid): int
 {
-    return (new \OpenEMR\Services\Patient\DuplicatePatientService(
-        \OpenEMR\BC\ServiceContainer::getClock()
+    return (new DuplicatePatientService(
+        ServiceContainer::getClock()
     ))->recalculateScore((int) $pid);
 }
 

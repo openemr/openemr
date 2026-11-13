@@ -1,0 +1,79 @@
+{#
+  Feedback for an assessment opened on the patient dashboard: a loading line until the form
+  arrives, a spinner on Save while it is on its way, and a note after a successful save.
+
+  The page's own script calls window.assessmentFeedback: saving(true|false), loading(true|false),
+  and savedUrl to go back to once a save succeeds. Include it after the workspace markup and
+  before that script. Takes launcherUrl, the page's own address.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<script>
+    window.assessmentFeedback = (function () {
+        const launcherUrl = {{ launcherUrl|js_escape }}
+        const words = {
+            loading: {{ 'Loading...'|xlj }},
+            saving: {{ 'Saving...'|xlj }},
+            saved: {{ 'Assessment saved.'|xlj }},
+            dismiss: {{ 'Dismiss'|xlj }}
+        }
+        const save = document.getElementById('assessment-save')
+        const frame = document.getElementById('assessment-frame')
+        const workspace = document.getElementById('assessment-workspace')
+        const saveLabel = save.textContent.trim()
+
+        function spinner () {
+            const spin = document.createElement('span')
+            spin.className = 'spinner-border spinner-border-sm mr-1'
+            spin.setAttribute('aria-hidden', 'true')
+            return spin
+        }
+
+        const loadingLine = document.createElement('div')
+        loadingLine.id = 'assessment-loading'
+        loadingLine.className = 'text-center text-muted py-5 d-none'
+        loadingLine.setAttribute('role', 'status')
+        loadingLine.append(spinner(), document.createTextNode(words.loading))
+        frame.before(loadingLine)
+        frame.addEventListener('load', () => loadingLine.classList.add('d-none'))
+
+        // Back from a save: confirm it once, and drop the flag so a refresh does not repeat it.
+        if (new URLSearchParams(window.location.search).get('saved') === '1') {
+            const note = document.createElement('div')
+            note.id = 'assessment-saved'
+            note.className = 'alert alert-success alert-dismissible fade show mt-3'
+            note.setAttribute('role', 'status')
+            const close = document.createElement('button')
+            close.type = 'button'
+            close.className = 'close'
+            close.dataset.dismiss = 'alert'
+            close.setAttribute('aria-label', words.dismiss)
+            close.textContent = '×'
+            note.append(document.createTextNode(words.saved), close)
+            workspace.before(note)
+            setTimeout(() => $(note).alert('close'), 6000)
+            window.history.replaceState(null, '', launcherUrl)
+        }
+
+        return {
+            savedUrl: launcherUrl + '?saved=1',
+            // Save shows a spinner while the assessment is on its way, and goes back to normal
+            // if validation or the save fails so the user can correct it and try again.
+            saving (on) {
+                save.disabled = on
+                if (on) {
+                    save.replaceChildren(spinner(), document.createTextNode(words.saving))
+                } else {
+                    save.textContent = saveLabel
+                }
+            },
+            loading (on) {
+                loadingLine.classList.toggle('d-none', !on)
+            }
+        }
+    })()
+</script>

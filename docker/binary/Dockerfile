@@ -23,7 +23,7 @@ FROM alpine:${ALPINE_VERSION} AS base
 
 # OpenEMR version and binary release information
 ARG OPENEMR_VERSION=8_4_1
-ARG BINARY_RELEASE_DATE=10032026
+ARG BINARY_RELEASE_DATE=10212026
 ARG PHP_VERSION=8.5
 # Forge tags use an abbreviated PHP version (e.g. "8.5" -> "php85"). Derived
 # once here rather than per-RUN, the same way docker/flex/Dockerfile does it.

@@ -11,10 +11,18 @@ final class Version20260000000001 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $table = new Table('foos');
-        $table->addColumn('id', Types::INTEGER, ['default' => 0]);
-        // ...
-        $this->addPrimaryKey($table, 'id');
+        $table = Table::editor()
+            ->setUnquotedName('foos')
+            ->addColumn(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setDefaultValue(0)
+                    ->create()
+            )
+            // ...
+            ->create();
+        $table = $this->addPrimaryKey($table, 'id');
 
         $this->createTable($table);
     }
@@ -33,5 +41,7 @@ This adds overhead and complexity, and will cause migrations to get steadily slo
 
 ### Methods
 
-- `createTable(Table $table)` - Sets charset/collation options and adds the CREATE TABLE SQL
-- `addPrimaryKey(Table $table, string $column, string ...$otherColumns)` - Adds a primary key constraint
+- `createTable(Table $table)` - Sets charset/collation options (keeping the table's other options) and adds the CREATE TABLE SQL
+- `addPrimaryKey(Table $table, string $column, string ...$otherColumns): Table` - Returns the table with the primary key constraint added; the table given is not changed, so assign the result
+
+Tables are built and changed through their editors (`Table::editor()`, `Table::edit()`, `Column::editor()`): DBAL 4.5 deprecates the `Table` mutators such as `addColumn()` and `addOption()`.

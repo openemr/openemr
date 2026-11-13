@@ -5,7 +5,7 @@
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
@@ -44,11 +44,6 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
                 ";
 
         return $sql;
-    }
-
-    public function getPatientIdColumn()
-    {
-        return 'patient_id';
     }
 
     public function makeQdmModel(QdmRecord $recordObj)

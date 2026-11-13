@@ -188,7 +188,7 @@ function doSubs($s)
             $patientid = $ptrow['pid'];
             $DOS = substr((string) $enrow['date'], 0, 10);
             // Prefer appointment comment if one is present.
-            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, [$patientid]);
+            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($patientid)]);
             foreach ($evlist as $tmp) {
                 if ($tmp['pc_pid'] == $pid && !empty($tmp['pc_hometext'])) {
                     $cc = $tmp['pc_hometext'];
@@ -393,7 +393,6 @@ if ($ext != 'dotx') {
     if (function_exists('finfo_open')) {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimetype = finfo_file($finfo, $templatepath);
-        finfo_close($finfo);
     } elseif (function_exists('mime_content_type')) {
         $mimetype = mime_content_type($templatepath);
     }

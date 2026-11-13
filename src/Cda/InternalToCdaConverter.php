@@ -18,6 +18,7 @@ use DOMDocument;
 use DOMElement;
 use DOMNodeList;
 use DOMXPath;
+use OpenEMR\Cqm\Cql\Ucum\Ucum;
 use Ramsey\Uuid\Uuid;
 
 class InternalToCdaConverter
@@ -96,6 +97,13 @@ class InternalToCdaConverter
 
     private function serializeDocument(): string
     {
+        // II/@extension has a minimum length of 1 in the CDA schema: an empty one is dropped, not written.
+        $xpath = new DOMXPath($this->output);
+        foreach ($xpath->query('//id[@extension=""]') ?: [] as $emptyExtension) {
+            if ($emptyExtension instanceof DOMElement) {
+                $emptyExtension->removeAttribute('extension');
+            }
+        }
         $xml = $this->output->saveXML();
         if ($xml === false) {
             throw new \RuntimeException('Failed to serialize XML');
@@ -1475,7 +1483,13 @@ class InternalToCdaConverter
         $idEl->setAttribute('extension', $id);
         $act->appendChild($idEl);
 
-        $act->appendChild($this->createLoincCode('48765-2', 'Allergies, adverse reactions, alerts'));
+        // Allergy Concern Act: the act code is the fixed concern code (CONF:1198-19158), not the section code.
+        $concernCode = $this->createElement('code');
+        $concernCode->setAttribute('code', 'CONC');
+        $concernCode->setAttribute('displayName', 'Concern');
+        $concernCode->setAttribute('codeSystem', '2.16.840.1.113883.5.6');
+        $concernCode->setAttribute('codeSystemName', 'HL7ActClass');
+        $act->appendChild($concernCode);
 
         $this->appendStatusCode($act, ActStatus::Active);
 
@@ -2825,8 +2839,7 @@ class InternalToCdaConverter
         $value = $this->output->createElement('value');
         $this->setXsiType($value, $valueType);
         if ($valueType === 'PQ') {
-            $value->setAttribute('value', $resultValue);
-            $value->setAttribute('unit', $unit);
+            $this->setQuantity($value, $resultValue, $unit);
         } elseif ($valueType === 'CO') {
             $value->setAttribute('code', '260385009');
             $value->setAttribute('codeSystemName', 'SNOMED-CT');
@@ -2883,14 +2896,12 @@ class InternalToCdaConverter
             $this->setXsiType($rangeValue, 'IVL_PQ');
             if ($low !== '') {
                 $lowEl = $this->createElement('low');
-                $lowEl->setAttribute('value', $low);
-                $lowEl->setAttribute('unit', $unit);
+                $this->setQuantity($lowEl, $low, $unit);
                 $rangeValue->appendChild($lowEl);
             }
             if ($high !== '') {
                 $highEl = $this->createElement('high');
-                $highEl->setAttribute('value', $high);
-                $highEl->setAttribute('unit', $unit);
+                $this->setQuantity($highEl, $high, $unit);
                 $rangeValue->appendChild($highEl);
             }
             $obsRange->appendChild($rangeValue);
@@ -4932,12 +4943,20 @@ class InternalToCdaConverter
         // Coverage type in Source of Payment Typology (2.16.840.1.113883.3.221.5).
         // Node defaults a missing type to 72 (PPO) named "Self"; an unknown
         // coverage type is carried as nullFlavor instead of asserting one.
-        $policyAct->appendChild($this->createPayerCode(
+        $payerCodeEl = $this->createPayerCode(
             $policyCode,
             $policyName,
             $policyCodeSystem !== '' ? $policyCodeSystem : '2.16.840.1.113883.3.221.5',
             $policyCodeSystemName !== '' ? $policyCodeSystemName : 'Source of Payment Typology',
-        ));
+        );
+        // CONF:1198-32852: the policy code SHALL carry at least one translation (Payer value set). The outer code
+        // is already a Source of Payment Typology code, but the builder writes the same default (72) for every
+        // policy, so copying it here would only repeat that default. The per-payer value is the insurance
+        // company's cqm_sop; until the payer input carries it, the translation is stated as nullFlavor.
+        $payerTranslation = $this->createElement('translation');
+        $payerTranslation->setAttribute('nullFlavor', 'UNK');
+        $payerCodeEl->appendChild($payerTranslation);
+        $policyAct->appendChild($payerCodeEl);
 
         $this->appendStatusCode($policyAct, ActStatus::Completed);
 
@@ -7211,6 +7230,26 @@ class InternalToCdaConverter
     private function setXsiType(DOMElement $el, string $type): void
     {
         $el->setAttribute('xsi:type', $type);
+    }
+
+    /**
+     * C-CDA requires UCUM in a PQ's @unit. A unit UCUM doesn't accept goes in a
+     * translation's originalText under nullFlavor="OTH", as in HL7's approved
+     * "Results Unit Non-UCUM" example.
+     */
+    private function setQuantity(DOMElement $el, string $value, string $unit): void
+    {
+        if (Ucum::instance()->isValid($unit)) {
+            $el->setAttribute('value', $value);
+            $el->setAttribute('unit', $unit);
+            return;
+        }
+        $el->setAttribute('nullFlavor', 'OTH');
+        $translation = $this->createElement('translation');
+        $translation->setAttribute('value', $value);
+        $translation->setAttribute('nullFlavor', 'OTH');
+        $translation->appendChild($this->createElement('originalText', $unit));
+        $el->appendChild($translation);
     }
 
     private function createElement(string $name, ?string $text = null): DOMElement

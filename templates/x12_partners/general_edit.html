@@ -175,6 +175,30 @@
             <input type="text" maxlength="400" id="x12_sftp_remote_dir" name="x12_sftp_remote_dir" class="form-control" value="{$partner->get_x12_sftp_remote_dir()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_receive_dir_835" class="col-form-label col-sm-2">{xlt t='SFTP Remote Directory for 835 Remittances'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="255" id="x12_sftp_receive_dir_835" name="x12_sftp_receive_dir_835" class="form-control" value="{$partner->get_x12_sftp_receive_dir_835()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_receive_dir_277" class="col-form-label col-sm-2">{xlt t='SFTP Remote Directory for 277 Claim Status'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="255" id="x12_sftp_receive_dir_277" name="x12_sftp_receive_dir_277" class="form-control" value="{$partner->get_x12_sftp_receive_dir_277()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_receive_dir_999" class="col-form-label col-sm-2">{xlt t='SFTP Remote Directory for 999 Acknowledgments'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="255" id="x12_sftp_receive_dir_999" name="x12_sftp_receive_dir_999" class="form-control" value="{$partner->get_x12_sftp_receive_dir_999()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_receive_worked_dir" class="col-form-label col-sm-2">{xlt t='SFTP Remote Directory for Received Files'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="255" id="x12_sftp_receive_worked_dir" name="x12_sftp_receive_worked_dir" class="form-control" value="{$partner->get_x12_sftp_receive_worked_dir()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
 
     <div class="form-row my-sm-2">
         <label for="x12_client_id" class="col-form-label col-sm-2">{xlt t='Client ID'}</label>

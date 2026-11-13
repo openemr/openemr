@@ -9,49 +9,63 @@
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Sam Likins <sam.likins@wsi-services.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2011 ZMG LLC <sam@zhservices.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Rx\Ensora\ErxLaunchBlock;
+use OpenEMR\Rx\Ensora\ErxLaunchBlockedException;
+use OpenEMR\Rx\Ensora\ErxPage;
+use OpenEMR\Rx\Ensora\ErxXmlBuilder;
 
 require_once(__DIR__ . '/globals.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxGlobals.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxStore.php');
-require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxXMLBuilder.php');
-require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxPage.php');
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
     AccessDeniedHelper::deny('eRx.php: patients/rx not granted');
 }
 
+// The page carries the eRx launch request, credentials included; keep browsers from storing it.
+header('Cache-Control: no-store');
+
 set_time_limit(0);
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-function array_key_exists_default($key, $search, $default = null)
-{
-    $value = array_key_exists($key, $search) ? $search[$key] : $default;
-
-    return $value;
-}
-
 $GLOBALS_REF = $GLOBALS;
-$eRxPage = new eRxPage(
-    new eRxXMLBuilder(
+$eRxPage = new ErxPage(
+    new ErxXmlBuilder(
         new eRxGlobals($GLOBALS_REF),
-        new eRxStore()
-    )
+        new eRxStore(),
+        ServiceContainer::getGuzzle(),
+        OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
+    ),
+    ServiceContainer::getLogger(),
 );
 
-$eRxPage->setAuthUserId(array_key_exists_default('authUserID', $session->all()))
-    ->setDestination(array_key_exists_default('page', $_REQUEST))
-    ->setPatientId(array_key_exists_default('pid', $GLOBALS))
-    ->setPrescriptionIds(array_key_exists_default('id', $_REQUEST))
+$authUserId = $session->get('authUserID');
+if (is_string($authUserId) && ctype_digit($authUserId)) {
+    $authUserId = (int) $authUserId;
+}
+if (!is_int($authUserId)) {
+    AccessDeniedHelper::deny('eRx.php: no authenticated user');
+}
+
+$request = CurrentRequest::get();
+$eRxPage->setAuthUserId($authUserId)
+    ->setDestination($request->query->getString('page'))
+    ->setPatientId(OEGlobalsBag::getInstance()->getInt('pid'))
+    ->setPrescriptionIds($request->query->getString('id'))
     ->setPrescriptionCount(60);
 
 ?>
@@ -75,9 +89,20 @@ if (count($missingExtensions) > 0) {
         <ul>
     <?php
 } else {
-    $messages = $eRxPage->buildXML();
+    $blocked = null;
+    $messages = ['demographics' => [], 'empty' => [], 'warning' => []];
+    try {
+        $messages = $eRxPage->buildXML();
+    } catch (ErxLaunchBlockedException $e) {
+        $blocked = $e->reason;
+    }
 
-    if (count($messages['demographics']) > 0) {
+    if ($blocked instanceof ErxLaunchBlock) {
+        echo match ($blocked) {
+            ErxLaunchBlock::UnauthorizedRole => xlt('Unauthorized access to ePrescription'),
+            ErxLaunchBlock::MissingTaxId => xlt('Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.'),
+        };
+    } elseif (count($messages['demographics']) > 0) {
         ?>
         <strong><?php echo xlt('Warning'); ?>:</strong>
         <p><?php echo xlt('The following fields have to be filled to send a request.'); ?></p>

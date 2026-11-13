@@ -306,6 +306,22 @@ auto_setup() {
     # Update heartbeat right before long-running PHP command
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
 
+    # Scoped heartbeat around the one opaque PHP call that can exceed
+    # LEADER_TIMEOUT (300s). Bounded to 15 iterations (~15 min) so a
+    # genuinely hung install eventually releases the lease and lets a
+    # follower take over. Step-boundary heartbeat semantics are preserved
+    # everywhere else — this is the single phase we can't subdivide.
+    local auto_config_heartbeat_pid=
+    if [[ "${AUTHORITY}" = "yes" ]]; then
+        (
+            for _ in $(seq 1 15); do
+                sleep 60
+                update_leader_heartbeat
+            done
+        ) &
+        auto_config_heartbeat_pid=$!
+    fi
+
     # Run auto_configure with optimized PHP settings.
     # Drop privileges to apache: auto_configure.php goes through the
     # Installer class, which openemr#12267's RootCliGuard refuses to
@@ -318,8 +334,19 @@ auto_setup() {
     # apache can read it. The file is rm'd at the end of this
     # entrypoint either way.
     chmod 0644 /var/www/localhost/htdocs/auto_configure.php
+    local auto_config_rc=0
     su-exec apache \
-        php /var/www/localhost/htdocs/auto_configure.php -c auto_configure.ini -f "${CONFIGURATION}" || return 1
+        php /var/www/localhost/htdocs/auto_configure.php -c auto_configure.ini -f "${CONFIGURATION}" || auto_config_rc=$?
+
+    # Reap the scoped heartbeat regardless of php exit status.
+    if [[ -n "${auto_config_heartbeat_pid}" ]]; then
+        kill "${auto_config_heartbeat_pid}" 2>/dev/null || true
+        wait "${auto_config_heartbeat_pid}" 2>/dev/null || true
+    fi
+
+    if (( auto_config_rc != 0 )); then
+        return 1
+    fi
 
     # Update heartbeat after PHP execution completes
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
@@ -583,9 +610,12 @@ wait_for_swarm_completion() {
             (( waited += 10 ))
         done
 
-        # Try one more time to become leader (in case leader died just as we timed out)
-        # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-        if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
+        # Try one more time to become leader (in case leader died just as we
+        # timed out). Guard on AUTHORITY=no: if we already took over inside the
+        # wait loop above (break'd out with AUTHORITY=yes), we hold the leader
+        # file, so calling try_become_leader again would see its own file via
+        # noclobber-fail and demote us back to a follower.
+        if [[ "${AUTHORITY}" = "no" ]] && [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
             try_become_leader
             if [[ "${AUTHORITY}" = "yes" ]]; then
                 echo "Promoted to leader after waiting period"
@@ -829,11 +859,13 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
 
         # install php dependencies
         flex_timing 'composer install start'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         if [[ "${DEVELOPER_TOOLS}" = "yes" ]]; then
             composer_install_with_retry
         else
             composer_install_with_retry --no-dev
         fi
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'composer install done'
         RAN_ANY_BUILD=true
     fi
@@ -853,11 +885,14 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
             chown -R apache:1000 public
         fi
         flex_timing 'npm install (root) start (includes napa postinstall)'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         npm install
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'npm install (root) done'
         # build css
         flex_timing 'npm run build (webpack) start'
         npm run build
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'npm run build (webpack) done'
         RAN_ANY_BUILD=true
     fi
@@ -865,9 +900,11 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
     if [[ "${NEED_NPM_BUILD}" = "true" ]] && [[ -f /var/www/localhost/htdocs/openemr/ccdaservice/package.json ]]; then
         # install ccdaservice
         flex_timing 'npm install (ccdaservice) start'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         cd /var/www/localhost/htdocs/openemr/ccdaservice
         npm install --allow-git=all
         cd /var/www/localhost/htdocs/openemr
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'npm install (ccdaservice) done'
         RAN_ANY_BUILD=true
     fi
@@ -875,6 +912,7 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
     # clean up and optimize (only if we ran any builds)
     if [[ "${RAN_ANY_BUILD}" = "true" ]]; then
         flex_timing 'phing + dump-autoload start'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         composer global require phing/phing
         /root/.composer/vendor/bin/phing vendor-clean
         /root/.composer/vendor/bin/phing assets-clean
@@ -882,6 +920,7 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
 
         # optimize
         composer dump-autoload --optimize --apcu
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'phing + dump-autoload done'
     fi
 
@@ -947,60 +986,84 @@ fi
 #    /root/certs/ldap/ldap-cert (supported)
 #    /root/certs/ldap/ldap-key (supported)
 #    /root/certs/redis/.. (not yet supported)
+# Helper that copies certificate files from /root/certs/<service>/ into
+# the sites/certificates dir. Runs on every container start.
+#
+# Copy conditions — all three must hold:
+#   -f "${src}"  : source file exists (service didn't mount this cert)
+#   -s "${src}"  : source non-empty (defends against a partial Secret
+#                  projection where the key is created but the data
+#                  hasn't landed yet — copying a 0-byte cert would
+#                  break TLS silently)
+#   ! cmp -s     : source content differs from destination — on a
+#                  steady-state restart with no rotation, cmp -s
+#                  returns 0 and the copy is skipped. This closes the
+#                  cert-rotation path: the previous "! -f dst" guard
+#                  meant that once the sites copy existed, no
+#                  subsequent Secret rotation could overwrite it —
+#                  openemr kept reading the stale first-boot cert
+#                  indefinitely. Common failure shape in k8s with
+#                  cert-manager + stakater/reloader: Secret rotates,
+#                  pod rolls, pod reads stale cached cert from the
+#                  sites PVC, mTLS handshake uses the old cert,
+#                  connection breaks on the next CA rotation.
+#
+# Failure propagation: `set -e` is in effect for this script. When this
+# function reaches the cp, a cp failure (read-only sites volume, disk
+# full, permission denied, EACCES on the Secret mount, etc.) aborts
+# startup with cp's own error on stderr — half-copied cert material is
+# worse than failing loud. Benign paths (source absent, empty, or
+# identical to dst) return 0 so they don't trip `set -e` at bare call
+# sites; callers interested in whether a copy actually happened read
+# the LAST_COPIED side-effect flag.
+#
+# Prints "copied over <name>" ONLY after cp succeeds — never before,
+# since set -e would turn the pre-cp log line into a lie about state
+# that didn't happen.
+LAST_COPIED=0
+cp_cert_file() {
+    local subdir="${1}"   # e.g. mysql/server, couchdb, ldap
+    local name="${2}"     # e.g. mysql-ca
+    local src="/root/certs/${subdir}/${name}"
+    local dst="/var/www/localhost/htdocs/openemr/sites/default/documents/certificates/${name}"
+    LAST_COPIED=0
+    if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
+        return 0
+    fi
+    # Atomic replace via sibling mktemp + rename. See the matching
+    # block in docker/release/openemr.sh for the full rationale —
+    # removes the concurrent-reader-sees-partial and crash-mid-cp
+    # races; mktemp's random suffix closes the symlink-prediction
+    # TOCTOU vs a `.tmp.$$` form. The chmod flex applies to mysql
+    # certs happens in a later gated block (around line ~1170)
+    # against the final dst, so no chmod on tmp needed here.
+    local tmp
+    tmp=$(mktemp "$(dirname "${dst}")/.cert.${name}.XXXXXXXX")
+    cp "${src}" "${tmp}"
+    mv "${tmp}" "${dst}"
+    echo "copied over ${name}"
+    LAST_COPIED=1
+}
+
+# for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
 MYSQLCA=false
-if [[ -f /root/certs/mysql/server/mysql-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca ]]; then
-    echo "copied over mysql-ca"
-    cp /root/certs/mysql/server/mysql-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLCA=true
-fi
 MYSQLCERT=false
-if [[ -f /root/certs/mysql/server/mysql-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-cert ]]; then
-    echo "copied over mysql-cert"
-    cp /root/certs/mysql/server/mysql-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-cert
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLCERT=true
-fi
 MYSQLKEY=false
-if [[ -f /root/certs/mysql/server/mysql-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-key ]]; then
-    echo "copied over mysql-key"
-    cp /root/certs/mysql/server/mysql-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-key
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLKEY=true
-fi
-if [[ -f /root/certs/couchdb/couchdb-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca ]]; then
-    echo "copied over couchdb-ca"
-    cp /root/certs/couchdb/couchdb-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca
-fi
-if [[ -f /root/certs/couchdb/couchdb-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-cert ]]; then
-    echo "copied over couchdb-cert"
-    cp /root/certs/couchdb/couchdb-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-cert
-fi
-if [[ -f /root/certs/couchdb/couchdb-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-key ]]; then
-    echo "copied over couchdb-key"
-    cp /root/certs/couchdb/couchdb-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-key
-fi
-if [[ -f /root/certs/ldap/ldap-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca ]]; then
-    echo "copied over ldap-ca"
-    cp /root/certs/ldap/ldap-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca
-fi
-if [[ -f /root/certs/ldap/ldap-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-cert ]]; then
-    echo "copied over ldap-cert"
-    cp /root/certs/ldap/ldap-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-cert
-fi
-if [[ -f /root/certs/ldap/ldap-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-key ]]; then
-    echo "copied over ldap-key"
-    cp /root/certs/ldap/ldap-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-key
-fi
+cp_cert_file mysql/server mysql-ca
+if ((LAST_COPIED)); then MYSQLCA=true; fi
+cp_cert_file mysql/server mysql-cert
+if ((LAST_COPIED)); then MYSQLCERT=true; fi
+cp_cert_file mysql/server mysql-key
+if ((LAST_COPIED)); then MYSQLKEY=true; fi
+
+# couchdb + ldap copies don't need flag tracking downstream — just run.
+cp_cert_file couchdb couchdb-ca
+cp_cert_file couchdb couchdb-cert
+cp_cert_file couchdb couchdb-key
+
+cp_cert_file ldap    ldap-ca
+cp_cert_file ldap    ldap-cert
+cp_cert_file ldap    ldap-key
 
 if [[ "${AUTHORITY}" = "yes" ]]; then
     if [[ "${CONFIG}" = "0" ]] &&

@@ -62,6 +62,14 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
     protected $pat_segment_counts = [];
 
     /**
+     * For each x-12 partner, whether the subscriber of its most recent claim
+     * is the patient, for the payer that claim was generated for
+     *
+     * @var array<int|string, bool>
+     */
+    protected array $prior_self_of_insured = [];
+
+    /**
      * @param mixed $action
      * @param bool $encounter_claim If "Allow Encounter Claims" is enabled, this allows the claims to use the alternate payor ID on the claim and sets the claims to report, not chargeable. ie: RP = reporting, CH = chargeable
      */
@@ -222,24 +230,22 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         $log = 'X12Direct ' . $claim->action . ' ';
         $is_last_claim = $claim->getIsLast();
         $HLCount = count($batch->getClaims());
-        if ($HLCount > 1) {
-            $idx = $HLCount - 2;
-            $prior_claim = $batch->getClaims()[$idx];
-            // Build the preceding claim for the payer it was generated for; that
-            // payer is at index 0, so its subscriber relationship is the one the
-            // preceding claim's hierarchy used.
-            if (
-                $prior_claim instanceof BillingClaim
-                && !(new Claim(
-                    $prior_claim->getPid(),
-                    $prior_claim->getEncounter(),
-                    $prior_claim->getPartner(),
-                    $prior_claim->getSelectedPayerId()
-                ))->isSelfOfInsured(0)
-            ) {
-                $patSegmentCount++;
-            }
+        $partner = $claim->getPartner();
+        $partnerKey = is_int($partner) || is_string($partner) ? $partner : '';
+        // The preceding claim's flag was worked out while that claim was being
+        // processed, so its reads were audited against its own patient.
+        if ($HLCount > 1 && !($this->prior_self_of_insured[$partnerKey] ?? true)) {
+            $patSegmentCount++;
         }
+        // Build this claim for the payer it's generated for; that payer is at
+        // index 0, so its subscriber relationship is the one this claim's
+        // hierarchy uses. The next claim for this partner reads it.
+        $this->prior_self_of_insured[$partnerKey] = (new Claim(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $partner,
+            $claim->getSelectedPayerId()
+        ))->isSelfOfInsured(0);
 
         //$is_self_of_insured = $claim->isSelfOfInsured();
         $segs = explode("~\n", (string) X125010837P::genX12837P(

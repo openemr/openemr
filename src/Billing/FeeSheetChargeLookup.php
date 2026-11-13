@@ -23,10 +23,11 @@ final class FeeSheetChargeLookup
      * the given code type (its key, or its code_types id), active rows first, then the row without a
      * modifier, then the oldest. When no row of that type has the code (or
      * no type is given), a row of any type is chosen the same way, so an item
-     * still gets a description, units and fee. The fee is the price at the
-     * patient's price level, or null when that level has no price.
+     * still gets a description, units, fee and modifier. The fee is the price at the
+     * patient's price level, or null when that level has no price; it is the price of
+     * one unit. The modifier is the row's own (e.g. JZ on a drug code), or ''.
      *
-     * @return array{code_text: string, units: string, fee: ?string}|null null when no row has this code
+     * @return array{code_text: string, units: string, fee: ?string, modifier: string}|null null when no row has this code
      */
     public function find(string $codeType, string $code, int $pid): ?array
     {
@@ -40,6 +41,7 @@ final class FeeSheetChargeLookup
             'code_text' => self::text($row['code_text'] ?? null) ?? '',
             'units' => self::text($row['units'] ?? null) ?? '',
             'fee' => self::text($row['pr_price'] ?? null),
+            'modifier' => self::text($row['modifier'] ?? null) ?? '',
         ];
     }
 
@@ -48,7 +50,7 @@ final class FeeSheetChargeLookup
      */
     private function row(string $code, int $pid, ?string $codeType): ?array
     {
-        $sql = "SELECT c.code_text, c.units, p.pr_price FROM codes AS c"
+        $sql = "SELECT c.code_text, c.units, c.modifier, p.pr_price FROM codes AS c"
             . " LEFT JOIN code_types AS ct ON ct.ct_id = c.code_type"
             . " LEFT JOIN patient_data AS pd ON pd.pid = ?"
             . " LEFT JOIN prices AS p ON p.pr_id = c.id AND p.pr_selector = '' AND p.pr_level = pd.pricelevel"

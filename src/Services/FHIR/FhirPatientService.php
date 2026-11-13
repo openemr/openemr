@@ -14,6 +14,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifierUse;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
@@ -29,6 +30,7 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -198,9 +200,9 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['last_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
             $meta->addProfile($profile);
@@ -324,7 +326,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 }
                 if (!empty($prevName['previous_name_enddate'])) {
                     $fhirPeriod = new FHIRPeriod();
-                    $fhirPeriod->setEnd(UtilsService::getLocalDateAsUTC($prevName['previous_name_enddate']));
+                    $fhirPeriod->setEnd(new FHIRDateTime(UtilsService::getLocalDateAsUTC($prevName['previous_name_enddate'])));
                     $previousHumanName->setPeriod($fhirPeriod);
                 }
                 $patientResource->addName($previousHumanName);
@@ -926,13 +928,16 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             /** @var TokenSearchField $field */
             $field = $openEMRSearchParameters[self::FIELD_NAME_GENDER];
 
-            $upperCaseCode = function (TokenSearchValue $tokenSearchValue) {
-                $tokenSearchValue->setCode(ucfirst($tokenSearchValue->getCode()));
-                return $tokenSearchValue;
-            };
+            // :missing carries true or false, not a gender code
+            if ($field->getModifier() !== SearchModifier::MISSING) {
+                $upperCaseCode = function (TokenSearchValue $tokenSearchValue) {
+                    $tokenSearchValue->setCode(ucfirst($tokenSearchValue->getCode()));
+                    return $tokenSearchValue;
+                };
 
-            // need to convert our gender's to a format that are stored in the database.
-            $field->setValues(array_map($upperCaseCode, $field->getValues()));
+                // need to convert our gender's to a format that are stored in the database.
+                $field->setValues(array_map($upperCaseCode, $field->getValues()));
+            }
         }
 
         return $this->patientService->search($openEMRSearchParameters, true, $config);

@@ -11,14 +11,19 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormQuestionnaireAssessment;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FormService;
+use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
@@ -78,6 +83,28 @@ if ($isPortal && $mode === 'update' && $formid > 0) {
 }
 if (($_REQUEST['formOrigin'] ?? null) == 2) {
     $encounter = 0;
+}
+// Staff save under the same form ACL the questionnaire page checks.
+if (!$isPortal && !AclMain::aclCheckForm('questionnaire_assessments')) {
+    AccessDeniedHelper::deny('questionnaire_assessments/save.php: questionnaire_assessments form ACL not granted');
+}
+// Every staff save of an existing form is checked. Auditing from the Portal Dashboard (with the
+// portal ACL that dashboard requires): the response and the form row belong to the document's
+// patient and the form's own encounter, not to whichever chart and encounter are open (if any),
+// and the session is left as it is. Otherwise the form must be the session patient's own.
+$auditForm = null;
+if (!$isPortal && $formid > 0) {
+    if ($patientPortalOther && $mode === 'update' && AclMain::aclCheckCore('patientportal', 'portal')) {
+        $auditForm = CoreFormToPortalUtility::questionnaireDocumentForm($formid);
+    }
+    if ($auditForm === null) {
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');
+    } elseif ($auditForm->locked) {
+        AccessDeniedHelper::deny('questionnaire_assessments/save.php: the portal document holding this form is locked');
+    } else {
+        $pid = $auditForm->pid;
+        $encounter = $auditForm->encounter;
+    }
 }
 
 if ($mode !== 'new' && !$isRegistering) {
@@ -162,6 +189,17 @@ if ($isRegistering) {
             $registrySql,
             [$formName, 1, 'questionnaire_assessments', 1, 1, 'Questionnaires', $formForeignId]
         );
+
+        // Registering the form is what makes this questionnaire an encounter form, so it
+        // is also what has to create its encounter assignment. Which questionnaires an
+        // encounter may offer is answered by content_assignments, and saving the resource
+        // only assigns the dashboard surface -- so without this the questionnaire is
+        // registered and then immediately filtered back out of the encounter form menu.
+        $registeredQuestionnaireId = is_numeric($formForeignId) ? (int)$formForeignId : 0;
+        if ($registeredQuestionnaireId > 0) {
+            (new QuestionnaireAvailabilityService())
+                ->assignDefault($registeredQuestionnaireId, QuestionnaireSurface::Encounter);
+        }
     } else {
         $msg = "<br /><br /><div><h3 style='color: red;font-weight: normal;'>"
             . xlt('Error. Form already registered! Redirecting back to form.')
@@ -214,7 +252,7 @@ if ($formid === 0) {
     unset($formUpdateData['select_item'], $formUpdateData['save_registry']);
     $formUpdateData['response_id'] = $qrid;
     $formUpdateData['response_meta'] = $responseMeta;
-    formUpdate('form_questionnaire_assessments', $formUpdateData, $formid, $userauthorized);
+    formUpdate('form_questionnaire_assessments', $formUpdateData, $formid, $userauthorized, $auditForm?->pid);
 }
 
 if ($isPortal || $patientPortalOther) {

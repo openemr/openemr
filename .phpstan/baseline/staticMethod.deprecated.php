@@ -2,14 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method createFromPath\\(\\) of class League\\\\Csv\\\\Reader\\:
-since version 9\\.27\\.0
-
-Returns a new instance from a file path\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/billing/load_fee_schedule.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method formatPhone\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
 Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>formatLocal\\(\\) instead$#',
     'count' => 3,
@@ -26,26 +18,6 @@ $ignoreErrors[] = [
 Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_invoice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method arPostAdjustment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
-Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method arPostPayment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
-Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method createFromPath\\(\\) of class League\\\\Csv\\\\Reader\\:
-since version 9\\.27\\.0
-
-Returns a new instance from a file path\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method toNationalDigits\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
@@ -82,14 +54,6 @@ $ignoreErrors[] = [
 Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>getNationalDigits\\(\\) instead$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method createFromString\\(\\) of class League\\\\Csv\\\\AbstractCsv\\:
-since version 9\\.27\\.0
-
-Returns a new instance from a string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerLog.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method forUnsecuredSigner\\(\\) of class Lcobucci\\\\JWT\\\\Configuration\\:

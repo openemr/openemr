@@ -308,8 +308,8 @@ handle_swarm_mode() {
             # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
             if is_leader_stale; then
                 echo "Leader appears to have crashed, attempting to take over..."
-                # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-                if try_become_leader; then
+                try_become_leader
+                if [[ "${AUTHORITY}" = "yes" ]]; then
                     echo "Successfully became leader after previous leader failure"
                     break
                 fi
@@ -318,10 +318,16 @@ handle_swarm_mode() {
             (( waited += 10 ))
         done
 
-        # Try one more time to become leader (in case leader died just as we timed out)
-        # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-        if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]] && try_become_leader; then
-            echo "Promoted to leader after waiting period"
+        # Try one more time to become leader (in case leader died just as we
+        # timed out). Guard on AUTHORITY=no: if we already took over inside the
+        # wait loop above (break'd out with AUTHORITY=yes), we hold the leader
+        # file, so calling try_become_leader again would see its own file via
+        # noclobber-fail and demote us back to a follower.
+        if [[ "${AUTHORITY}" = "no" ]] && [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
+            try_become_leader
+            if [[ "${AUTHORITY}" = "yes" ]]; then
+                echo "Promoted to leader after waiting period"
+            fi
         fi
 
         # If we timed out, check if configuration actually exists
@@ -366,73 +372,95 @@ manage_certificates() {
     # Create destination directory if it doesn't exist
     mkdir -p "${dest_dir}"
 
-    # Helper function to copy certificate files
+    # Helper function to copy certificate files from /root/certs/<service>/
+    # into the sites/certificates dir. Runs on every container start.
+    #
+    # Guards:
+    #   -f "${src}"  : source present (service didn't mount this cert)
+    #   -s "${src}"  : source non-empty (defends against a partial Secret
+    #                  projection where the key is created but the data
+    #                  hasn't landed yet — copying a 0-byte cert would
+    #                  break TLS silently)
+    #   ! cmp -s     : source content differs from destination — copy only
+    #                  on first boot OR when the mounted Secret has
+    #                  rotated under us. On a steady-state restart with
+    #                  no rotation, cmp -s returns 0 and the copy is
+    #                  skipped (no inode churn, no chmod reset, no log
+    #                  noise). This closes the cert-rotation path: an
+    #                  earlier guard of "! -f dst" meant that once the
+    #                  sites copy existed, no subsequent Secret rotation
+    #                  could overwrite it — openemr kept reading the
+    #                  stale first-boot cert indefinitely. Common
+    #                  failure shape in k8s with cert-manager +
+    #                  stakater/reloader: Secret rotates, pod rolls, pod
+    #                  reads stale cached cert from the sites PVC, mTLS
+    #                  handshake uses the old cert, connection breaks on
+    #                  the next CA rotation.
     cp_cert_file() {
-        local src="${certs_dir}/mysql/server/${1}"
-        local dst="${dest_dir}/${1}"
-        if [[ -f "${src}" && ! -f "${dst}" ]]; then
-            cp "${src}" "${dst}"
-            chmod 744 "${dst}"
-            echo "Copied ${1}"
+        local subdir="${1}"   # e.g. mysql/server, couchdb, ldap, redis
+        local name="${2}"     # e.g. mysql-ca
+        local src="${certs_dir}/${subdir}/${name}"
+        local dst="${dest_dir}/${name}"
+        # Benign no-op paths (source absent/empty, or identical to dst)
+        # return 0 so bare callers don't trip set -e. `cp` runs under
+        # the script's `set -e` — a real cp failure aborts startup with
+        # cp's own error on stderr, which is the right outcome (half-
+        # copied cert material would be worse than failing loud). The
+        # "Copied" log fires only AFTER mv returns, so the log line
+        # can't claim a copy that didn't actually happen.
+        if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
+            return 0
         fi
+        # Atomic replace: stage to a mktemp-generated sibling file
+        # under the same directory (so the final `mv` stays on the
+        # same filesystem and is a POSIX-atomic rename), then rename
+        # over dst. This removes two race windows the plain `cp src
+        # dst` form had:
+        #   * A concurrent reader (e.g. an already-running openemr
+        #     process on another pod sharing the sites PVC) observing
+        #     a partially-written dst mid-cp.
+        #   * A crash mid-cp leaving a truncated dst that would then
+        #     pass the `! cmp -s` guard on next boot and either stay
+        #     truncated or be overwritten only on a subsequent Secret
+        #     rotation — meanwhile TLS handshakes against the
+        #     truncated file fail silently.
+        # `mktemp` gives us a cryptographically random suffix instead
+        # of a predictable `.$$` form, which matters because the
+        # sites/default/documents/certificates directory can be
+        # apache-owned after the entrypoint's chown pass. A
+        # lower-trust process on the same PVC that could predict the
+        # tmp name could pre-create a symlink there and race the cp
+        # into writing elsewhere; mktemp's random component +
+        # exclusive-creation semantics close that.
+        # Failure mode: if cp / chmod / mv fail under set -e, the
+        # script exits and leaves a `.cert.<name>.<rand>` orphan in
+        # the certs dir (bounded size, same perms the cert would end
+        # up with anyway — no security impact, just hygiene). A
+        # subsequent successful run won't touch orphans (different
+        # random suffix each time); operators clean up via a simple
+        # `find ${dest_dir} -name '.cert.*' -mtime +7 -delete`.
+        local tmp
+        tmp=$(mktemp "${dest_dir}/.cert.${name}.XXXXXXXX")
+        cp "${src}" "${tmp}"
+        chmod 744 "${tmp}"
+        mv "${tmp}" "${dst}"
+        echo "Copied ${name}"
     }
-    cp_cert_file mysql-ca
-    cp_cert_file mysql-cert
-    cp_cert_file mysql-key
+    cp_cert_file mysql/server mysql-ca
+    cp_cert_file mysql/server mysql-cert
+    cp_cert_file mysql/server mysql-key
 
-    # Copy CouchDB certificates (if provided)
-    if [[ -f "${certs_dir}/couchdb/couchdb-ca" ]] &&
-       [[ ! -f "${dest_dir}/couchdb-ca" ]]; then
-        cp "${certs_dir}/couchdb/couchdb-ca" "${dest_dir}/couchdb-ca"
-        echo "Copied couchdb-ca"
-    fi
-    if [[ -f "${certs_dir}/couchdb/couchdb-cert" ]] &&
-       [[ ! -f "${dest_dir}/couchdb-cert" ]]; then
-        cp "${certs_dir}/couchdb/couchdb-cert" "${dest_dir}/couchdb-cert"
-        echo "Copied couchdb-cert"
-    fi
-    if [[ -f "${certs_dir}/couchdb/couchdb-key" ]] &&
-       [[ ! -f "${dest_dir}/couchdb-key" ]]; then
-        cp "${certs_dir}/couchdb/couchdb-key" "${dest_dir}/couchdb-key"
-        echo "Copied couchdb-key"
-    fi
+    cp_cert_file couchdb      couchdb-ca
+    cp_cert_file couchdb      couchdb-cert
+    cp_cert_file couchdb      couchdb-key
 
-    # Copy LDAP certificates (if provided)
-    if [[ -f "${certs_dir}/ldap/ldap-ca" ]] &&
-       [[ ! -f "${dest_dir}/ldap-ca" ]]; then
-        cp "${certs_dir}/ldap/ldap-ca" "${dest_dir}/ldap-ca"
-        echo "Copied ldap-ca"
-    fi
-    if [[ -f "${certs_dir}/ldap/ldap-cert" ]] &&
-       [[ ! -f "${dest_dir}/ldap-cert" ]]; then
-        cp "${certs_dir}/ldap/ldap-cert" "${dest_dir}/ldap-cert"
-        echo "Copied ldap-cert"
-    fi
-    if [[ -f "${certs_dir}/ldap/ldap-key" ]] &&
-       [[ ! -f "${dest_dir}/ldap-key" ]]; then
-        cp "${certs_dir}/ldap/ldap-key" "${dest_dir}/ldap-key"
-        echo "Copied ldap-key"
-    fi
+    cp_cert_file ldap         ldap-ca
+    cp_cert_file ldap         ldap-cert
+    cp_cert_file ldap         ldap-key
 
-    # Copy Redis certificates (if provided)
-    if [[ -f "${certs_dir}/redis/redis-ca" ]] &&
-       [[ ! -f "${dest_dir}/redis-ca" ]]; then
-        cp "${certs_dir}/redis/redis-ca" "${dest_dir}/redis-ca"
-        chmod 744 "${dest_dir}/redis-ca"
-        echo "Copied redis-ca"
-    fi
-    if [[ -f "${certs_dir}/redis/redis-cert" ]] &&
-       [[ ! -f "${dest_dir}/redis-cert" ]]; then
-        cp "${certs_dir}/redis/redis-cert" "${dest_dir}/redis-cert"
-        chmod 744 "${dest_dir}/redis-cert"
-        echo "Copied redis-cert"
-    fi
-    if [[ -f "${certs_dir}/redis/redis-key" ]] &&
-       [[ ! -f "${dest_dir}/redis-key" ]]; then
-        cp "${certs_dir}/redis/redis-key" "${dest_dir}/redis-key"
-        chmod 744 "${dest_dir}/redis-key"
-        echo "Copied redis-key"
-    fi
+    cp_cert_file redis        redis-ca
+    cp_cert_file redis        redis-cert
+    cp_cert_file redis        redis-key
 }
 
 # ============================================================================
@@ -556,6 +584,8 @@ check_schema_upgrade() {
         echo "ERROR: could not read \$v_database from ${OE_ROOT}/version.php." >&2
         return 1
     fi
+    local code_release
+    code_release=$(php -r "require '${OE_ROOT}/version.php'; echo implode('.', [\$v_major, \$v_minor, \$v_patch]);")
 
     # Every site is evaluated on its own. Sites in a multisite bank can sit at
     # different revisions, and the release a site is migrating *from* selects
@@ -568,10 +598,40 @@ check_schema_upgrade() {
     for dirdata in "${OE_ROOT}"/sites/*/; do
         sitename="${dirdata%/}"
         sitename="${sitename##*/}"
-        upgrade_site_schema "${sitename}" "${code_schema_version}"
+        upgrade_site_schema "${sitename}" "${code_schema_version}" "${code_release}"
     done
 
     return 0
+}
+
+# Prints the release to pass sql_upgrade.php as --from for a site.
+#
+# sql_upgrade.php applies every file whose starting release sorts at or after
+# --from. A site stamped with the code's own release was migrated earlier in
+# this release cycle, and the changes merged since then were appended to the
+# file that leads into that release. That file starts at the previous release,
+# so it sorts before the stamped one: passing the stamped release would run no
+# file at all and still stamp the new revision. Start from that file instead.
+# Upgrade files are written to be rerun, which is also why the web upgrader
+# tells development installs to pick the older release.
+upgrade_start_release() {
+    local installed_release="$1"
+    local code_release="$2"
+    if [[ "${installed_release}" != "${code_release}" ]]; then
+        printf '%s\n' "${installed_release}"
+        return 0
+    fi
+
+    local file
+    for file in "${OE_ROOT}"/sql/*-to-"${code_release//./_}"_upgrade.sql; do
+        if [[ -f "${file}" ]]; then
+            file="${file##*/}"
+            file="${file%%-to-*}"
+            printf '%s\n' "${file//_/.}"
+            return 0
+        fi
+    done
+    printf '%s\n' "${installed_release}"
 }
 
 # Migrates one site when its schema revision is behind the code's.
@@ -582,6 +642,7 @@ check_schema_upgrade() {
 upgrade_site_schema() {
     local sitename="$1"
     local -i code_schema_version="$2"
+    local code_release="$3"
     local sqlconf="${OE_ROOT}/sites/${sitename}/sqlconf.php"
 
     # A site directory without a sqlconf.php has no database to migrate.
@@ -651,6 +712,8 @@ PHP
     fi
 
     echo "Schema upgrade detected for ${sitename}: database is at revision ${installed_schema_version} (${installed_release}), code needs ${code_schema_version}"
+    local from_release
+    from_release=$(upgrade_start_release "${installed_release}" "${code_release}")
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
 
     # sql_upgrade.php resolves its site from $_GET['site'], so prepend the
@@ -669,8 +732,8 @@ PHP
     fi
 
     # Drop privileges to apache: RootCliGuard (openemr#12267) refuses root for OpenEMR CLI scripts.
-    if ! OPENEMR_UPGRADE_SITE="${sitename}" su-exec apache php -f "${OE_ROOT}/TEMPsql_upgrade.php" -- --from="${installed_release}"; then
-        echo "ERROR: Database upgrade failed for ${sitename} from ${installed_release}" >&2
+    if ! OPENEMR_UPGRADE_SITE="${sitename}" su-exec apache php -f "${OE_ROOT}/TEMPsql_upgrade.php" -- --from="${from_release}"; then
+        echo "ERROR: Database upgrade failed for ${sitename} from ${from_release}" >&2
         echo "The database may be partially upgraded. Review the errors above and either" >&2
         echo "correct the underlying problem or restore your pre-upgrade backup." >&2
         rm -f "${OE_ROOT}/TEMPsql_upgrade.php"
@@ -679,7 +742,7 @@ PHP
 
     rm -f "${OE_ROOT}/TEMPsql_upgrade.php"
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
-    echo "Completed: schema upgrade for ${sitename} from ${installed_release}"
+    echo "Completed: schema upgrade for ${sitename} from ${from_release}"
 }
 
 # Performs the actual OpenEMR upgrade by running upgrade scripts.
@@ -783,6 +846,22 @@ run_auto_configure() {
     # Update heartbeat right before the long-running PHP command
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
 
+    # Scoped heartbeat around the one opaque PHP call that can exceed
+    # LEADER_TIMEOUT (300s). Bounded to 15 iterations (~15 min) so a
+    # genuinely hung install eventually releases the lease and lets a
+    # follower take over. Step-boundary heartbeat semantics are preserved
+    # everywhere else — this is the single phase we can't subdivide.
+    local auto_config_heartbeat_pid=
+    if [[ "${AUTHORITY}" = "yes" ]]; then
+        (
+            for _ in $(seq 1 15); do
+                sleep 60
+                update_leader_heartbeat
+            done
+        ) &
+        auto_config_heartbeat_pid=$!
+    fi
+
     # Run auto_configure with optimized PHP settings.
     # Drop privileges to apache: auto_configure.php goes through the
     # Installer class, which openemr#12267's RootCliGuard refuses to
@@ -796,8 +875,19 @@ run_auto_configure() {
     # entrypoint either way.
     chmod 0644 auto_configure.php
     read -r -a config_args <<< "${CONFIGURATION}"
+    local auto_config_rc=0
     su-exec apache \
-        php -c auto_configure.ini auto_configure.php "${config_args[@]}" || return 1
+        php -c auto_configure.ini auto_configure.php "${config_args[@]}" || auto_config_rc=$?
+
+    # Reap the scoped heartbeat regardless of php exit status.
+    if [[ -n "${auto_config_heartbeat_pid}" ]]; then
+        kill "${auto_config_heartbeat_pid}" 2>/dev/null || true
+        wait "${auto_config_heartbeat_pid}" 2>/dev/null || true
+    fi
+
+    if (( auto_config_rc != 0 )); then
+        return 1
+    fi
 
     # Update heartbeat after PHP execution completes
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
@@ -917,7 +1007,14 @@ if [[ -n "${SSL_PID:-}" ]]; then
     fi
     unset SSL_PID SSL_IS_LEADER
 fi
-wait "${CERT_COPY_PID}" 2>/dev/null || true
+# `wait` propagates CERT_COPY_PID's exit status, which under `set -e`
+# aborts startup if manage_certificates failed. manage_certificates is
+# now fail-fast on cp errors (sites volume read-only, disk full,
+# permission denied on Secret mount, etc.) — swallowing its exit code
+# here would hide those. Unlike SSL_PID above there's no leader /
+# follower distinction: every pod reads the same certs, so cp failure
+# for any pod is a real error for that pod, not a swarm hiccup.
+wait "${CERT_COPY_PID}"
 unset CERT_COPY_PID
 
 [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat

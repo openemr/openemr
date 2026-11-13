@@ -1,10 +1,12 @@
+##
+# The single required check for PRs. It runs on PRs only: on a push it would
+# gate nothing, and it would hold a runner while it waits on the other checks.
+# Pushes to master also skip test runs that a newer push supersedes (see
+# test-all.yml), and this aggregate would report those canceled runs as
+# failures.
 name: All Checks Passed
 
 on:
-  push:
-    branches:
-    - master
-    - rel-*
   pull_request:
     branches:
     - master

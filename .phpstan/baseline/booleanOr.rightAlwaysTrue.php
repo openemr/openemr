@@ -8,11 +8,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Right side of \\|\\| is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Right side of \\|\\| is always true\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
 ];

@@ -86,6 +86,7 @@ use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteMode;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -1180,6 +1181,13 @@ $GLOBALS_METADATA = [
             xl('Display Invoice Number or Patient Name in the Cash Receipt Report')
         ],
 
+        'referral_overdue_days' => [
+            xl('Referrals Overdue After (Days)'),
+            'num',
+            '14',
+            xl('A referral still open (not completed, and its Task not cancelled, rejected, failed or entered in error) shows as overdue this many days after its Referral Date, on the Transactions screen and in the Referrals report. 0 turns this off.')
+        ],
+
     ],
 
     // Billing Tab
@@ -1338,6 +1346,13 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '0',                              // default = false
             xl('Automatically replicate justification codes in Fee Sheet (basically fills in the blanks with the justification code above it).')
+        ],
+
+        'fee_sheet_save_appt_status' => [
+            xl('Fee Sheet Save: Ask to Set Appointment Status'),
+            'text',                           // data type
+            '',                               // default = off
+            xl('Code of an appointment status, for example $ for Coding done. When set, Save on the fee sheet asks whether to set the patient\'s appointment on the visit date to this status, and on Yes opens the calendar on that date. Not asked for an appointment that already has the status or is canceled or a no show. Blank: off.')
         ],
 
         'display_units_in_billing' => [
@@ -3267,6 +3282,20 @@ $GLOBALS_METADATA = [
             xl('Enable OpenEMR Standard FHIR RESTful API.')
         ],
 
+        GlobalConnectorsEnum::FHIR_REFERRAL_TASKS->value => [
+            xl('Track Referrals with FHIR Tasks'),
+            'bool',
+            '0',
+            xl('When a referral is saved, on the Transactions screen or through the REST API, create a FHIR Task for the one it is sent to (Refer To) if FHIR serves them as a Practitioner or Organization. The receiving system can then accept, reject, complete or cancel it through the FHIR API, or mark it failed, and each of those sends the one who made the referral (Refer By) an inbox message. When the referral records a Reply Date, the reply is filed in the patient\'s documents and completes the recipient\'s Task; clearing the Reply Date on the Transactions screen marks that Task entered in error and, when FHIR serves the recipient, gives them a new one.')
+        ],
+
+        GlobalConnectorsEnum::FHIR_REFERRAL_NOTIFY_RECIPIENT->value => [
+            xl('Notify Referral Recipients'),
+            'bool',
+            '0',
+            xl('With referrals tracked by FHIR Tasks, tell the one a referral is sent to (Refer To) when a Task is created for them, and again on a re-send. An address book entry with a Direct address is sent the Referral C-CDA by Direct (allergies, medications, problems, plan of care and the reason for referral, not the whole chart); one with only an email address gets a plain email with no patient details, saying the practice sent a referral and how to reach it. The referral shows staff how the recipient was told, or that they could not be. Off by default because a referral saved with the wrong Refer To sends that C-CDA to the wrong recipient.')
+        ],
+
         GlobalConnectorsEnum::SMART_TEST_LAUNCHES_ENABLE->value => [
             xl('Enable OpenEMR SMART ON FHIR Context Test Launches (Turn on only if you know what you are doing)'),
             'bool',
@@ -3321,6 +3350,40 @@ $GLOBALS_METADATA = [
             'bool',
             '1',
             xl('Enable an OAuth2 Client application to be configured to skip the login screen and the scope authorization screen if the user is already logged into the EHR.')
+        ],
+        GlobalConnectorsEnum::FHIR_PATIENT_WRITE_MODE->value => [
+            xl('Patient App FHIR Writes'),
+            [
+                PatientWriteMode::Off->value => xl('Off'),
+                PatientWriteMode::Confidential->value => xl('Confidential apps'),
+                PatientWriteMode::ConfidentialAndPublic->value => xl('Confidential and public apps'),
+            ],
+            PatientWriteMode::Off->value,
+            xl('Which patient apps may submit data through the FHIR API. Every submission is held for staff review and stays out of the chart until it is approved. Only QuestionnaireResponse is accepted in this version; the other types are refused whatever their setting.')
+        ],
+        GlobalConnectorsEnum::FHIR_PATIENT_WRITE_QUESTIONNAIRE_RESPONSE->value => [
+            xl('Patient App FHIR Writes: QuestionnaireResponse'),
+            'bool',
+            '0',
+            xl('Accept questionnaire responses from patient apps, held for staff review.')
+        ],
+        GlobalConnectorsEnum::FHIR_PATIENT_WRITE_VITAL_SIGNS->value => [
+            xl('Patient App FHIR Writes: Vital Signs'),
+            'bool',
+            '0',
+            xl('Accept vital sign Observations from patient apps, held for staff review. Not accepted yet in this version.')
+        ],
+        GlobalConnectorsEnum::FHIR_PATIENT_WRITE_ALLERGY_INTOLERANCE->value => [
+            xl('Patient App FHIR Writes: AllergyIntolerance'),
+            'bool',
+            '0',
+            xl('Accept allergies from patient apps, held for staff review. Not accepted yet in this version.')
+        ],
+        GlobalConnectorsEnum::FHIR_PATIENT_WRITE_CONDITION->value => [
+            xl('Patient App FHIR Writes: Condition'),
+            'bool',
+            '0',
+            xl('Accept conditions from patient apps, held for staff review. Not accepted yet in this version.')
         ],
         GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value => [
             xl('Maximum supported version for US Core FHIR Implementation Guide -- note if a resource/profile is forwards compatible it will still be supported'),

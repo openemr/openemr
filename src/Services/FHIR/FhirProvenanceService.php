@@ -277,6 +277,12 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             $service->setSession($this->getSession());
         }
         $serviceResult = $service->getAll($searchParams, $puuidBind);
+        // A _lastUpdated that didn't parse is marked in the service's result; keep the mark, so the search answers
+        // 400 instead of an empty Bundle. A service's other errors are still ignored, as before.
+        if (FhirSearchSyntaxError::find($serviceResult) !== null) {
+            $processingResult->addProcessingResult($serviceResult);
+            return;
+        }
         // now loop through and grab all of our provenance resources
         if ($serviceResult->hasData()) {
             foreach ($serviceResult->getData() as $record) {
@@ -367,7 +373,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         // current timestamp for V1 so we need to check for that, everything else is V2 as last updated wasn't really tracked.
         } elseif ($resource->get_fhirElementName() === 'Patient') {
             // we use DATE_ATOM to get an ISO8601 compatible date as DATE_ISO8601 does not actually conform to an ISO8601 date for php legacy purposes
-            $lastUpdated = \DateTime::createFromFormat(DATE_ATOM, $resource->getMeta()->getLastUpdated());
+            $lastUpdated = \DateTime::createFromFormat(DATE_ATOM, (string) $resource->getMeta()->getLastUpdated());
 
             if ($lastUpdated !== false && $lastUpdated->getTimestamp() < self::V2_TIMESTAMP) {
                 $separator = self::SURROGATE_KEY_SEPARATOR_V1;

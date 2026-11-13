@@ -27,6 +27,12 @@ use PHPUnit\Framework\TestCase;
 class SmartLaunchControllerTest extends TestCase
 {
     /**
+     * Client the launch is for. Every case here is refused or ignored before the
+     * questionnaire availability check, so no SMART rule is needed for it.
+     */
+    private const CLIENT_ID = 'smart-launch-controller-test';
+
+    /**
      * @param list<mixed> $args
      */
     private function invokePrivate(string $method, array $args): mixed
@@ -48,7 +54,7 @@ class SmartLaunchControllerTest extends TestCase
     public function testNoQuestionnaireContextWithOtherIntentIsIgnored(): void
     {
         $token = $this->makeToken(SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG);
-        $this->invokePrivate('addQuestionnaireLaunchContext', [$token, [], 1]);
+        $this->invokePrivate('addQuestionnaireLaunchContext', [$token, [], 1, self::CLIENT_ID, null]);
         $this->assertSame([], $token->getFhirContext(), "Non-questionnaire launch should not gain FHIR context");
         $this->assertNull($token->getAppContext(), "Non-questionnaire launch should not gain app context");
     }
@@ -57,21 +63,21 @@ class SmartLaunchControllerTest extends TestCase
     {
         $token = $this->makeToken(SMARTLaunchToken::INTENT_QUESTIONNAIRE_ASSESSMENT);
         $this->expectException(\InvalidArgumentException::class);
-        $this->invokePrivate('addQuestionnaireLaunchContext', [$token, [], 1]);
+        $this->invokePrivate('addQuestionnaireLaunchContext', [$token, [], 1, self::CLIENT_ID, null]);
     }
 
     public function testQuestionnaireContextWithoutAssessmentIntentThrows(): void
     {
         $token = $this->makeToken(SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG);
         $this->expectException(\InvalidArgumentException::class);
-        $this->invokePrivate('addQuestionnaireLaunchContext', [$token, ['questionnaire_id' => '5'], 1]);
+        $this->invokePrivate('addQuestionnaireLaunchContext', [$token, ['questionnaire_id' => '5'], 1, self::CLIENT_ID, null]);
     }
 
     public function testInvalidQuestionnaireIdThrows(): void
     {
         $token = $this->makeToken(SMARTLaunchToken::INTENT_QUESTIONNAIRE_ASSESSMENT);
         $this->expectException(\InvalidArgumentException::class);
-        $this->invokePrivate('addQuestionnaireLaunchContext', [$token, ['questionnaire_id' => 'abc'], 1]);
+        $this->invokePrivate('addQuestionnaireLaunchContext', [$token, ['questionnaire_id' => 'abc'], 1, self::CLIENT_ID, null]);
     }
 
     public function testInvalidQuestionnaireResponseIdThrows(): void
@@ -80,7 +86,7 @@ class SmartLaunchControllerTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->invokePrivate(
             'addQuestionnaireLaunchContext',
-            [$token, ['questionnaire_id' => '5', 'questionnaire_response_id' => 'abc'], 1]
+            [$token, ['questionnaire_id' => '5', 'questionnaire_response_id' => 'abc'], 1, self::CLIENT_ID, null]
         );
     }
 
@@ -88,7 +94,27 @@ class SmartLaunchControllerTest extends TestCase
     {
         $token = $this->makeToken(SMARTLaunchToken::INTENT_QUESTIONNAIRE_ASSESSMENT);
         $this->expectException(\InvalidArgumentException::class);
-        $this->invokePrivate('addQuestionnaireLaunchContext', [$token, ['questionnaire_id' => '5'], null]);
+        $this->invokePrivate('addQuestionnaireLaunchContext', [$token, ['questionnaire_id' => '5'], null, self::CLIENT_ID, null]);
+    }
+
+    /**
+     * A dashboard assessment launch must not carry the session encounter, or the app
+     * saves a patient-level response into that encounter's context.
+     */
+    public function testQuestionnaireAssessmentLaunchDoesNotCarryTheSessionEncounter(): void
+    {
+        $this->assertFalse($this->invokePrivate(
+            'carriesSessionEncounter',
+            [SMARTLaunchToken::INTENT_QUESTIONNAIRE_ASSESSMENT]
+        ));
+        $this->assertTrue($this->invokePrivate(
+            'carriesSessionEncounter',
+            [SMARTLaunchToken::INTENT_ENCOUNTER_DIALOG]
+        ));
+        $this->assertTrue($this->invokePrivate(
+            'carriesSessionEncounter',
+            [SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG]
+        ));
     }
 
     #[DataProvider('positiveIntegerProvider')]
@@ -99,6 +125,8 @@ class SmartLaunchControllerTest extends TestCase
 
     /**
      * @return array<string, array{mixed, ?int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function positiveIntegerProvider(): array
     {
@@ -131,6 +159,8 @@ class SmartLaunchControllerTest extends TestCase
 
     /**
      * @return array<string, array{?string, array<string, string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function questionnaireContextItemProvider(): array
     {
@@ -170,6 +200,8 @@ class SmartLaunchControllerTest extends TestCase
 
     /**
      * @return array<string, array{?int, string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function appContextActionProvider(): array
     {

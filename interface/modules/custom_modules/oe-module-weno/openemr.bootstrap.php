@@ -7,7 +7,7 @@
  * @author      Jerry Padgett <sjpadgett@gmail.com>
  * @author      Kofi Appiah <kkappiah@medsov.com>
  * Copyright (c) 2023 Omega Systems Group Corp <omegasystemsgroup.com>
- * @license     GNU General Public License 3
+ * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
 

@@ -1536,6 +1536,80 @@ class InternalToCdaConverterTest extends TestCase
     }
 
     /**
+     * CONF:1198-32852: the Policy Activity code SHALL carry at least one
+     * translation (Payer value set). There is no mapping to that value set in
+     * the input, so the translation is stated as nullFlavor.
+     */
+    public function testPolicyActivityCodeCarriesATranslation(): void
+    {
+        $xpath = $this->convertToXPath($this->payerInput(
+            '<code code="512" code_system="2.16.840.1.113883.3.221.5" code_system_name="Source of Payment Typology" name="" />',
+            '<code name="self" code="SELF" code_system="2.16.840.1.113883.5.111" code_system_name="HL7 RoleCode" />',
+        ));
+
+        $translation = $this->singleElement($xpath, "//hl7:act[hl7:templateId/@root='2.16.840.1.113883.10.20.22.4.61']/hl7:code/hl7:translation");
+        self::assertSame('UNK', $translation->getAttribute('nullFlavor'));
+    }
+
+    /**
+     * CONF:1198-19158: the Allergy Concern Act code is the fixed concern code
+     * CONC (HL7ActClass), not the LOINC code of the allergies section.
+     */
+    public function testAllergyConcernActUsesTheFixedConcernCode(): void
+    {
+        $xpath = $this->convertToXPath(<<<'XML'
+            <CCDA>
+                <allergies>
+                    <allergy>
+                        <id>1</id>
+                        <sha_id>2.16.840.1.113883.19.5</sha_id>
+                        <title>Penicillin</title>
+                        <startdate>2020-01-01</startdate>
+                    </allergy>
+                </allergies>
+            </CCDA>
+            XML);
+
+        $code = $this->singleElement($xpath, "//hl7:act[hl7:templateId/@root='2.16.840.1.113883.10.20.22.4.30']/hl7:code");
+        self::assertSame('CONC', $code->getAttribute('code'));
+        self::assertSame('2.16.840.1.113883.5.6', $code->getAttribute('codeSystem'));
+        self::assertSame('HL7ActClass', $code->getAttribute('codeSystemName'));
+        self::assertSame('Concern', $code->getAttribute('displayName'));
+    }
+
+    /**
+     * II/@extension has a minimum length of 1 in the CDA schema, so an empty
+     * extension is not written. A non-empty one is kept.
+     */
+    public function testEmptyIdExtensionIsNotWritten(): void
+    {
+        $xpath = $this->convertToXPath(<<<'XML'
+            <CCDA>
+                <allergies>
+                    <allergy>
+                        <id></id>
+                        <sha_id>2.16.840.1.113883.19.5</sha_id>
+                        <title>Penicillin</title>
+                    </allergy>
+                    <allergy>
+                        <id>7</id>
+                        <sha_id>2.16.840.1.113883.19.5</sha_id>
+                        <title>Latex</title>
+                    </allergy>
+                </allergies>
+            </CCDA>
+            XML);
+
+        $empty = $xpath->query('//hl7:id[@extension=""]');
+        self::assertNotFalse($empty, 'Query must be valid');
+        self::assertSame(0, $empty->length, 'No id may carry an empty extension attribute');
+
+        $kept = $xpath->query("//hl7:act[hl7:templateId/@root='2.16.840.1.113883.10.20.22.4.30']/hl7:id[@extension='7']");
+        self::assertNotFalse($kept, 'Query must be valid');
+        self::assertSame(1, $kept->length, 'A non-empty extension must be kept');
+    }
+
+    /**
      * A care team member with no phone or start date carries nullFlavor. An
      * empty TEL has no URL scheme and an empty TS is not a date.
      */
@@ -1789,6 +1863,78 @@ class InternalToCdaConverterTest extends TestCase
         self::assertSame($expectedCode, $interp->getAttribute('code'));
         self::assertSame('2.16.840.1.113883.5.83', $interp->getAttribute('codeSystem'));
         self::assertFalse($interp->hasAttribute('nullFlavor'));
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function resultUnitProvider(): array
+    {
+        return [
+            'UCUM' => ['mg/dL', true],
+            'UCUM with a power of ten' => ['10*3/uL', true],
+            'UCUM is case-sensitive' => ['MG/DL', false],
+            'lab text' => ['Thous/CU.MM', false],
+        ];
+    }
+
+    /**
+     * A result's PQ @unit, and its reference range's, is UCUM or absent. Any other
+     * unit goes in a translation's originalText under nullFlavor="OTH", as in HL7's
+     * "Results Unit Non-UCUM" example.
+     */
+    #[DataProvider('resultUnitProvider')]
+    public function testResultQuantityClaimsUcumOnlyForUcumUnits(string $unit, bool $isUcum): void
+    {
+        $input = <<<XML
+            <CCDA>
+                <results>
+                    <result>
+                        <extension>RES-1</extension>
+                        <test_code>58410-2</test_code>
+                        <test_name>CBC panel</test_name>
+                        <subtest>
+                            <result_code>6690-2</result_code>
+                            <result_desc>WBC</result_desc>
+                            <result_value>7.2</result_value>
+                            <unit>{$unit}</unit>
+                            <range>4.5-11.0</range>
+                            <low>4.5</low>
+                            <high>11.0</high>
+                        </subtest>
+                    </result>
+                </results>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $observation = '//hl7:organizer/hl7:component/hl7:observation';
+        $quantities = [
+            '7.2' => $this->singleElement($xpath, $observation . '/hl7:value'),
+            '4.5' => $this->singleElement($xpath, $observation . '/hl7:referenceRange/hl7:observationRange/hl7:value/hl7:low'),
+            '11.0' => $this->singleElement($xpath, $observation . '/hl7:referenceRange/hl7:observationRange/hl7:value/hl7:high'),
+        ];
+        foreach ($quantities as $number => $quantity) {
+            if ($isUcum) {
+                self::assertSame($number, $quantity->getAttribute('value'));
+                self::assertSame($unit, $quantity->getAttribute('unit'));
+                self::assertFalse($quantity->hasAttribute('nullFlavor'));
+                self::assertSame(0, $quantity->childNodes->length, 'A UCUM quantity needs no translation');
+                continue;
+            }
+            self::assertSame('OTH', $quantity->getAttribute('nullFlavor'));
+            self::assertFalse($quantity->hasAttribute('value'));
+            self::assertFalse($quantity->hasAttribute('unit'), 'A unit UCUM rejects must not be claimed as UCUM');
+            $translation = $quantity->firstElementChild;
+            self::assertInstanceOf(\DOMElement::class, $translation);
+            self::assertSame('translation', $translation->localName);
+            self::assertSame($number, $translation->getAttribute('value'));
+            self::assertSame('OTH', $translation->getAttribute('nullFlavor'));
+            self::assertSame($unit, $translation->textContent, 'The unit as recorded goes in originalText');
+            self::assertSame('originalText', $translation->firstElementChild?->localName);
+        }
     }
 
     /**

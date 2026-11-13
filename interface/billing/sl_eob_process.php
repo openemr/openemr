@@ -21,9 +21,11 @@ ob_start();
 
 require_once("../globals.php");
 
-use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\EraCheckPosting;
-use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Billing\EraPosting\ClaimPayment;
+use OpenEMR\Billing\EraPosting\ClaimPosting;
+use OpenEMR\Billing\EraPosting\ReportMessage;
+use OpenEMR\Billing\EraReversal;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -34,6 +36,7 @@ use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\PaymentProcessing\Recorder;
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: ERA Posting", xl("ERA Posting"));
@@ -41,8 +44,6 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
 
 /** @var int $debug */
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
-/** @var string $paydate */
-$paydate = parseDate($_GET['paydate']);
 /** @var int $encount */
 $encount = 0;
 
@@ -52,30 +53,12 @@ $last_ptname = '';
 $last_invnumber = '';
 /** @var string $last_code */
 $last_code = '';
-/** @var float $invoice_total */
-$invoice_total = 0.00;
 /** @var array<string, int> $InsertionId last inserted ID of */
 $InsertionId = [];
 /** @var string $StringToEcho a manual buffer */
 $StringToEcho = '';
 
 ///////////////////////// Assorted Functions /////////////////////////
-
-/**
- * Parse a date string into YYYY-MM-DD format.
- *
- * @param string $date The date string to parse
- * @return string The formatted date string or empty string if invalid
- */
-function parseDate(string $date): string
-{
-    $date = substr(trim($date), 0, 10);
-    if (preg_match('/^(\d\d\d\d)\D*(\d\d)\D*(\d\d)$/', $date, $matches)) {
-        return $matches[1] . '-' . $matches[2] . '-' . $matches[3];
-    }
-
-    return '';
-}
 
 /**
  * Gets a message line for the EOB report HTML table.
@@ -119,6 +102,7 @@ function getMessageLine(string $bgcolor, string $class, string $description, boo
  * @param string $description The transaction description
  * @param float|int $amount The transaction amount
  * @param float|int|string $balance The running balance after this transaction
+ * @param bool $firstOfClaim The claim's first detail line: show its code even if the last claim ended with it
  * @return string The HTML table row
  */
 function getDetailLine(
@@ -130,10 +114,14 @@ function getDetailLine(
     string $date,
     string $description,
     float|int $amount,
-    float|int|string $balance
+    float|int|string $balance,
+    bool $firstOfClaim = false
 ): string {
 
     global $last_ptname, $last_invnumber, $last_code;
+    if ($firstOfClaim) {
+        $last_code = '';
+    }
     if ($ptname === $last_ptname) {
         $ptname = '';
     } else {
@@ -174,46 +162,6 @@ function getDetailLine(
      </tr>
 
     HTML;
-}
-
-/**
- * Gets detail lines that were already in SQL-Ledger for a given charge item.
- *
- * @param array $prev The previous charge details array containing 'dtl' with charges and payments
- * @param string $ptname The patient name
- * @param string $invnumber The invoice number
- * @param string $dos The date of service (YYYY-MM-DD format)
- * @param string $code The procedure code (CPT/HCPCS with optional modifiers)
- * @param string $bgcolor The background color for the HTML table row
- * @return Generator<string> Yields HTML table rows for each detail line
- */
-function getOldDetail(array &$prev, string $ptname, string $invnumber, string $dos, string $code, string $bgcolor): Generator
-{
-    global $invoice_total;
-    // $prev['total'] = 0.00; // to accumulate total charges
-    ksort($prev['dtl']);
-    foreach ($prev['dtl'] as $dkey => $ddata) {
-        $ddate = substr((string) $dkey, 0, 10);
-        $description = ($ddata['src'] ?? '') . ($ddata['rsn'] ?? '');
-        if ($ddate === '          ') { // this is the service item
-            $ddate = $dos;
-            $description = 'Service Item';
-        }
-
-        $amount = sprintf("%.2f", (floatval($ddata['chg'] ?? '')) - (floatval($ddata['pmt'] ?? '')));
-        $invoice_total = sprintf("%.2f", $invoice_total + $amount);
-        yield getDetailLine(
-            bgcolor: $bgcolor,
-            class: 'olddetail',
-            ptname: $ptname,
-            invnumber: $invnumber,
-            code: $code,
-            date: $ddate,
-            description: $description,
-            amount: $amount,
-            balance: $invoice_total
-        );
-    }
 }
 
 // This is called back by ParseERA::parseERA() once per claim.
@@ -311,7 +259,8 @@ function eob_process_era_callback_check(array &$out): void
 }
 
 /**
- * Callback function for processing ERA claim details.
+ * Callback function for processing ERA claim details: posts the claim payment
+ * with ClaimPosting and writes its report lines.
  *
  * @param array $out The ERA output data containing claim information
  * @return void
@@ -319,12 +268,10 @@ function eob_process_era_callback_check(array &$out): void
 function eob_process_era_callback(array &$out): void
 {
     global $encount, $debug;
-    global $invoice_total, $last_code, $paydate;
     // last inserted ID of ar_session table
     global $InsertionId;
 
     $checkNumber = is_string($out['check_number'] ?? null) ? $out['check_number'] : '';
-    $checkDate = is_string($out['check_date'] ?? null) ? $out['check_date'] : '';
 
     // Some heading information.
     $chk_123 = str_replace(' ', '_', $out['check_number']);
@@ -354,436 +301,44 @@ function eob_process_era_callback(array &$out): void
             );
         }
 
-        $last_code = '';
-        $invoice_total = 0.00;
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
-        [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
-
-        // Get details, if we have them, for the invoice.
-        $inverror = true;
-        $codes = [];
-        if ($pid && $encounter) {
-            // Get invoice data into $arrow or $ferow.
-            $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname " .
-            "FROM form_encounter AS e, patient_data AS p WHERE " .
-            "e.pid = ? AND e.encounter = ? AND " .
-            "p.pid = e.pid", [$pid, $encounter]);
-            if (empty($ferow)) {
-                  $pid = $encounter = 0;
-                  $invnumber = $out['our_claim_id'];
-            } else {
-                  $inverror = false;
-                  $codes = InvoiceSummary::arGetInvoiceSummary($pid, $encounter, true);
-                  // $svcdate = substr($ferow['date'], 0, 10);
-            }
-        }
-
-        // Show the claim status.
-        $csc = $out['claim_status_code'];
-        $inslabel = match ($csc) {
-            '2', '20' => 'Ins2',
-            '3', '21' => 'Ins3',
-            default => 'Ins1'
-        };
-
-        // Re-posting an ERA must not post a claim's payments and adjustments twice:
-        // skip a claim this check was already posted to in an earlier run. Several
-        // claim lines (CLPs) for one claim in this ERA still post.
-        $alreadyPosted = !$inverror && $eraRun->postedBefore(
-            is_numeric($pid) ? (int) $pid : 0,
-            is_numeric($encounter) ? (int) $encounter : 0,
-            $checkNumber,
-            $checkDate
+        $query = CurrentRequest::get()->query;
+        $payerId = $query->getString('InsId');
+        $postUser = SessionWrapperFactory::getInstance()->getActiveSession()->get('authUserID');
+        $claimPosting = new ClaimPosting(
+            checkPosting: $eraRun,
+            reversal: new EraReversal($payerId),
+            recorder: new Recorder(),
+            postUser: is_numeric($postUser) ? (int) $postUser : 0,
+            payerId: $payerId,
+            withoutUpdate: $debug === 1,
+            payDate: ClaimPosting::parseDate($query->getString('paydate')),
+            addUnmatchedCodes: OEGlobalsBag::getInstance()->getBoolean('add_unmatched_code_from_ins_co_era_to_billing'),
         );
-
-        $primary = ($inslabel === 'Ins1');
-        echo getMessageLine(
-            $bgcolor,
-            'infdetail',
-            "Claim status $csc: " . BillingUtilities::CLAIM_STATUS_CODES_CLP02[$csc]
+        $sessionId = $InsertionId[$out['check_number']] ?? 0;
+        $result = $claimPosting->post(
+            ClaimPayment::fromParsedEra($out),
+            is_numeric($sessionId) ? (int) $sessionId : 0
         );
-
-        // Show an error message if the claim is missing or already posted.
-        if ($inverror) {
-            echo getMessageLine(
-                $bgcolor,
-                'errdetail',
-                "The following claim is not in our database"
-            );
-        } else {
-            // Skip this test. Claims can get multiple CLPs from the same payer!
-            //
-            // $insdone = strtolower($arrow['shipvia']);
-            // if (strpos($insdone, 'ins1') !== false) {
-            //  $inverror = true;
-            //  writeMessageLine($bgcolor, 'errdetail',
-            //   "Primary insurance EOB was already posted for the following claim");
-            // }
-        }
-
-        if ($alreadyPosted) {
-            $inverror = true;
-            echo getMessageLine(
-                $bgcolor,
-                'errdetail',
-                "Already posted from check $checkNumber; not posted again"
-            );
-        } elseif ($csc === '4') {
-            // Denial case, code is stored in the claims table for display in the billing manager screen with reason explained.
-            $inverror = true;
-            if (!$debug) {
-                if ($pid && $encounter) {
-                    $code_value = '';
-                    foreach ($out['svc'] as $svc) {
-                        foreach ($svc['adj'] as $adj) {
-                            // Per code and modifier the reason will be showed in the billing manager.
-                            $code_value .= $svc['code'] . '_' . $svc['mod'] . '_' . $adj['group_code'] . '_' . $adj['reason_code'] . ',';
-                        }
-                    }
-
-                    $code_value = substr($code_value, 0, -1);
-                    // We store the reason code to display it with description in the billing manager screen.
-                    // process_file is used as for the denial case file name will not be there, and extra field(to store reason) can be avoided.
-                    BillingUtilities::updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
-                }
+        $firstOfClaim = true;
+        foreach ($result->lines as $line) {
+            if ($line instanceof ReportMessage) {
+                echo getMessageLine($bgcolor, $line->style->cssClass(), $line->text, $line->multiline);
+                continue;
             }
-
-            echo getMessageLine(
-                $bgcolor,
-                'errdetail',
-                "Not posting adjustments for denied claims, please follow up manually!"
-            );
-        } elseif ($csc === '22') {
-            $inverror = true;
-            echo getMessageLine(
-                $bgcolor,
-                'errdetail',
-                "Payment reversals are not automated, please enter manually!"
-            );
-        }
-
-        $warnings = rtrim((string) $out['warnings']);
-        if ($warnings) {
-            echo getMessageLine(
+            echo getDetailLine(
                 bgcolor: $bgcolor,
-                class: 'infdetail',
-                description: $warnings,
-                nl2br_process: true
+                class: $line->style->cssClass(),
+                ptname: $line->patientName,
+                invnumber: $line->invoiceNumber,
+                code: $line->code,
+                date: $line->date,
+                description: $line->description,
+                amount: $line->amount,
+                balance: $line->balance,
+                firstOfClaim: $firstOfClaim
             );
-        }
-
-        // Simplify some claim attributes for cleaner code.
-        $service_date = parseDate($out['dos'] ?? $out['claim_date']);
-        $check_date = $paydate ?: parseDate($out['check_date']);
-        $production_date = $paydate ?: parseDate($out['production_date']);
-        // CLP07, the payer's claim control number. It is stored on every row this
-        // claim posts, so a claim the payer paid nothing on still records it.
-        $payer_claim_number = is_string($out['payer_claim_id'] ?? null) && $out['payer_claim_id'] !== ''
-            ? $out['payer_claim_id']
-            : null;
-
-        $insurance_id = SLEOB::arGetPayerID($pid, $service_date, substr($inslabel, 3));
-        $patient_name = empty($ferow['lname'])
-            ? $out['patient_fname'] . ' ' . $out['patient_lname']
-            : $ferow['fname'] . ' ' . $ferow['lname'];
-
-        $error = $inverror;
-
-        // create array of cpts and mods for complex matching
-        $codes_arr_keys = array_keys($codes);
-        $cpts = [];
-        $mods = [];
-        foreach ($codes_arr_keys as $value) {
-            $tmp = explode(":", (string) $value);
-            $count = count($tmp) - 1;
-            $cpt = $tmp[0];
-            $cpts[] = $cpt;
-            for ($i = 1; $i <= $count; $i++) {
-                $mods[$cpt][] = $tmp[$i] ?? null;
-            }
-        }
-
-        // This loops once for each service item in this claim.
-        foreach ($out['svc'] as $svc) {
-            // Treat a modifier in the remit data as part of the procedure key.
-            // This key will then make its way into SQL-Ledger.
-            $codekey = $svc['code'];
-            if ($svc['mod']) {
-                $codekey .= ':' . $svc['mod'];
-            }
-
-            $prev = $codes[$codekey] ?? '';
-            // However sometimes a secondary insurance doesn't return the modifier that was on the service item
-            // that was processed by the primary payer so try to deal with that
-            if (!$prev && !$svc['mod'] && in_array($svc['code'], $cpts)) {
-                foreach ($cpts as $v) {
-                    if ($v === $svc['code']) {
-                        $codekey = $v . ':' . implode(':', $mods[$v] ?? []);
-                    }
-                }
-                $prev = $codes[$codekey] ?? '';
-            }
-            $codetype = ''; //will hold code type, if exists
-
-            // This reports detail lines already on file for this service item.
-            if ($prev) {
-                $codetype = $codes[$codekey]['code_type'] ?? 'none'; // store code type
-                $oldDetails = iterator_to_array(getOldDetail(
-                    prev: $prev,
-                    ptname: $patient_name,
-                    invnumber: $invnumber,
-                    dos: $service_date,
-                    code: $codekey,
-                    bgcolor: $bgcolor
-                ));
-                echo implode('', $oldDetails);
-                // Check for sanity in amount charged.
-                $prevchg = sprintf("%.2f", $prev['chg'] + ($prev['adj'] ?? null));
-                if ($prevchg !== sprintf("%.2f", abs($svc['chg']))) {
-                    echo getMessageLine(
-                        $bgcolor,
-                        'errdetail',
-                        "EOB charge amount " . $svc['chg'] . " for this code does not match our invoice"
-                    );
-                    $error = true;
-                }
-
-                unset($codes[$codekey]);
-            } else {
-                // If the service item is not in our database...
-                // This is not an error. If we are not in error mode and not debugging,
-                // insert the service item into billing. Then display it (in green if it
-                // was inserted, or in red if we are in error mode).
-                // Check the global to see if this is preferred to be an error.
-                if (OEGlobalsBag::getInstance()->getBoolean('add_unmatched_code_from_ins_co_era_to_billing')) {
-                    $description = "CPT4:$codekey Added by $inslabel $production_date";
-                } else {
-                    $error = true;
-                    $description = "CPT4:$codekey returned by $inslabel $production_date";
-                }
-                if (!$error && !$debug) {
-                    SLEOB::arPostCharge(
-                        patient_id: $pid,
-                        encounter_id: $encounter,
-                        session_id: 0,
-                        amount: $svc['chg'],
-                        units: 1,
-                        thisdate: $service_date,
-                        code: $codekey,
-                        description: $description,
-                        debug: $debug,
-                        codetype: $codetype
-                    );
-                    $invoice_total += $svc['chg'];
-                }
-
-                $class = $error ? 'errdetail' : 'newdetail';
-                echo getDetailLine(
-                    bgcolor: $bgcolor,
-                    class: $class,
-                    ptname: $patient_name,
-                    invnumber: $invnumber,
-                    code: $codekey,
-                    date: $production_date,
-                    description: $description,
-                    amount: $svc['chg'],
-                    balance: ($error ? '' : $invoice_total)
-                );
-            }
-
-            $class = $error ? 'errdetail' : 'newdetail';
-
-            // Report Allowed Amount.
-            if ($svc['allowed'] ?? '') {
-                echo getMessageLine(
-                    $bgcolor,
-                    'infdetail',
-                    'Allowed amount is ' . sprintf("%.2f", $svc['allowed'])
-                );
-            }
-
-            // Report miscellaneous remarks.
-            if ($svc['remark'] ?? '') {
-                $rmk = $svc['remark'];
-                echo getMessageLine($bgcolor, 'infdetail', "$rmk: " .
-                    BillingUtilities::REMITTANCE_ADVICE_REMARK_CODES[$rmk]);
-            }
-
-            // Post and report the payment for this service item from the ERA.
-            // By the way a 'Claim' level payment is probably going to be negative,
-            // i.e. a payment reversal.
-            if ($svc['paid'] ?? '') {
-                if (!$error && !$debug) {
-                    SLEOB::arPostPayment(
-                        patient_id: $pid,
-                        encounter_id: $encounter,
-                        session_id: $InsertionId[$out['check_number']],
-                        amount: $svc['paid'],
-                        code: $codekey,
-                        payer_type: substr($inslabel, 3),
-                        memo: $out['check_number'],
-                        codetype: $codetype,
-                        date: $check_date,
-                        payer_claim_number: $payer_claim_number
-                    );
-                    $invoice_total -= $svc['paid'];
-                }
-
-                $description = "$inslabel/" . $out['check_number'] . ' payment';
-                if ($svc['paid'] < 0) {
-                    $description .= ' reversal';
-                }
-
-                echo getDetailLine(
-                    bgcolor: $bgcolor,
-                    class: $class,
-                    ptname: $patient_name,
-                    invnumber: $invnumber,
-                    code: $codekey,
-                    date: $check_date,
-                    description: $description,
-                    amount: 0 - $svc['paid'],
-                    balance: ($error ? '' : $invoice_total)
-                );
-            }
-
-            // Post and report adjustments from this ERA.  Posted adjustment reasons
-            // must be 25 characters or less in order to fit on patient statements.
-            /** @var array<string, mixed> $adj */
-            foreach ($svc['adj'] as $adj) {
-                $description = ($adj['reason_code'] ?? '') . ': ' .
-                    BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code'] ?? ''];
-                $isContractualWriteoff = $adj['group_code'] === 'CO'
-                    && in_array($adj['reason_code'], ['45', '59'], true);
-                if ($adj['group_code'] === 'PR' || !$primary) {
-                    // Group code PR is Patient Responsibility.  Enter these as zero
-                    // adjustments to retain the note without crediting the claim.
-                    if ($primary) {
-                        // Reasons should be 25 chars or less.
-                        $reason = match ($adj['reason_code']) {
-                            '1' => "$inslabel dedbl: ",
-                            '2' => "$inslabel coins: ",
-                            '3' => "$inslabel copay: ",
-                            default => "$inslabel ptresp: "
-                        };
-                    } else {
-                        // Non-primary insurance adjustments are garbage, either repeating
-                        // the primary or are not adjustments at all.  Report them as notes
-                        // but do not post any amounts.
-                        $reason = "$inslabel note " . $adj['reason_code'] . ': ';
-                    }
-
-                    $reason .= sprintf("%.2f", $adj['amount']);
-                    // Post a zero-dollar adjustment just to save it as a comment.
-                    if (!$error && !$debug) {
-                        SLEOB::arPostAdjustment(
-                            patient_id: $pid,
-                            encounter_id: $encounter,
-                            session_id: $InsertionId[$out['check_number']],
-                            amount: 0,
-                            code: $codekey,
-                            payer_type: substr($inslabel, 3),
-                            reason: $reason,
-                            codetype: $codetype,
-                            payer_claim_number: $payer_claim_number,
-                        );
-                    }
-
-                    $amount = is_numeric($adj['amount']) ? (float)$adj['amount'] : 0.0;
-                    echo getMessageLine($bgcolor, $class, $description . ' ' . sprintf("%.2f", $amount));
-                } elseif (
-                    $svc['paid'] === 0.0
-                    && !$isContractualWriteoff
-                ) {
-                    $class = 'errdetail';
-                    $error = true;
-                } elseif (!$error && !$debug) {
-                    SLEOB::arPostAdjustment(
-                        patient_id: $pid,
-                        encounter_id: $encounter,
-                        session_id: $InsertionId[$out['check_number']],
-                        amount: $adj['amount'],
-                        code: $codekey,
-                        payer_type: substr($inslabel, 3),
-                        reason: "Adjust code " . $adj['reason_code'],
-                        codetype: $codetype,
-                        payer_claim_number: $payer_claim_number,
-                    );
-                    $invoice_total -= $adj['amount'];
-                }
-
-                echo getDetailLine(
-                    bgcolor: $bgcolor,
-                    class: $class,
-                    ptname: $patient_name,
-                    invnumber: $invnumber,
-                    code: $codekey,
-                    date: $production_date,
-                    description: $description,
-                    amount: 0 - $adj['amount'],
-                    balance: ($error ? '' : $invoice_total)
-                );
-            }
-        } // End of service item
-
-        // Report any existing service items not mentioned in the ERA, and
-        // determine if any of them are still missing an insurance response
-        // (if so, then insurance is not yet done with the claim).
-        $insurance_done = true;
-        foreach ($codes as $code => $prev) {
-            $oldDetails = iterator_to_array(getOldDetail(
-                prev: $prev,
-                ptname: $patient_name,
-                invnumber: $invnumber,
-                dos: $service_date,
-                code: $code,
-                bgcolor: $bgcolor
-            ));
-            echo implode('', $oldDetails);
-            $got_response = false;
-            foreach ($prev['dtl'] as $ddata) {
-                if ($ddata['pmt'] ?? '' || ($ddata['rsn'] ?? '')) {
-                    $got_response = true;
-                }
-            }
-
-            if (!$got_response) {
-                $insurance_done = false;
-            }
-        }
-
-        // Cleanup: If all is well, mark Ins<x> done and check for secondary billing.
-        if (!$error && !$debug && $insurance_done) {
-            $level_done = (int)substr($inslabel, 3);
-
-            if ($out['crossover'] === 1) {
-                // Automatic forward case. So need not bill again from the billing manager screen.
-                sqlStatement("UPDATE form_encounter " .
-                "SET last_level_closed = ?,last_level_billed=? WHERE " .
-                "pid = ? AND encounter = ?", [$level_done, $level_done, $pid, $encounter]);
-                echo getMessageLine(
-                    $bgcolor,
-                    'infdetail',
-                    'This claim is processed by Insurance ' . $level_done . ' and automatically forwarded to Insurance ' . ($level_done + 1) . ' for processing. '
-                );
-            } else {
-                sqlStatement("UPDATE form_encounter " .
-                "SET last_level_closed = ? WHERE " .
-                "pid = ? AND encounter = ?", [$level_done, $pid, $encounter]);
-            }
-
-            // Check for secondary insurance.
-            if ($primary && SLEOB::arGetPayerID($pid, $service_date, 2)) {
-                SLEOB::arSetupSecondary($pid, $encounter, $debug, $out['crossover']);
-
-                if ($out['crossover'] <> 1) {
-                    echo getMessageLine(
-                        $bgcolor,
-                        'infdetail',
-                        'This claim is now re-queued for secondary paper billing'
-                    );
-                }
-            }
+            $firstOfClaim = false;
         }
     }
 }

@@ -32,8 +32,17 @@ on:
 permissions:
   contents: read
 
+##
+# One group per PR and one per pushed branch.
+# - PRs: a new push cancels the run in progress.
+# - Pushes to master/rel-*: runs never cancel each other, so each run that
+#   starts finishes. GitHub keeps at most one more run pending per group, and a
+#   newer push replaces it. A burst of merges therefore runs the full matrix
+#   for the first and the latest commit, not for every commit in between,
+#   which keeps the shared runner pool free for PRs. A red run covers every
+#   commit since the last completed one.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || 'push' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -43,8 +52,10 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v7
       with:
-        # For PRs, checkout the PR head ref to access commit trailers
-        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        # A PR's merge commit, the default: the steps below run its ci/ scripts and
+        # read its ci/ configs, which are the ones the tests run with. The PR's own
+        # commits are its ancestors, so the trailer check still finds them; the PR
+        # head alone can predate a script a step needs (ci/codecov_flags.sh).
         # Fetch enough history to find the merge base with the target branch
         fetch-depth: 0
 
