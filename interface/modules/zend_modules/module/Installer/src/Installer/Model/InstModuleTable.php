@@ -289,7 +289,7 @@ class InstModuleTable
 
             $moduleInsertId = QueryUtils::sqlInsert($sql, $params);
 
-            $sql = "INSERT INTO module_acl_sections VALUES (?,?,0,?,?)";
+            $sql = "INSERT INTO module_acl_sections (`section_id`, `section_name`, `parent_section`, `section_identifier`, `module_id`) VALUES (?,?,0,?,?)";
             $params = [$moduleInsertId, $name, strtolower((string) $directory), $moduleInsertId];
             QueryUtils::sqlStatementThrowException($sql, $params);
             return $moduleInsertId;

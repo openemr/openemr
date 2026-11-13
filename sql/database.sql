@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 574
+-- v_database: 575
 --
 
 --
@@ -34,6 +34,7 @@ CREATE TABLE `addresses` (
 
 DROP TABLE IF EXISTS `amc_misc_data`;
 CREATE TABLE `amc_misc_data` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `amc_id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_rules',
   `pid` bigint(20) default NULL,
   `map_category` varchar(255) NOT NULL default '' COMMENT 'Maps to an object category (such as prescriptions etc.)',
@@ -79,7 +80,7 @@ CREATE TABLE `amendments_history` (
   `amendment_status` VARCHAR(50) NULL COMMENT 'Amendment Request Status',
   `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
   `created_time` timestamp NULL COMMENT 'created time',
-KEY amendment_history_id(`amendment_id`)
+PRIMARY KEY (`amendment_id`)
 ) ENGINE = InnoDB;
 
 -- --------------------------------------------------------
@@ -1643,7 +1644,8 @@ CREATE TABLE `drugs` (
 
 DROP TABLE IF EXISTS `edi_sequences`;
 CREATE TABLE `edi_sequences` (
-  `id` int(9) unsigned NOT NULL default '0'
+  `id` int(9) unsigned NOT NULL default '0',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 INSERT INTO `edi_sequences` VALUES (0);
@@ -1730,6 +1732,7 @@ CREATE TABLE `employer_data` (
 
 DROP TABLE IF EXISTS `enc_category_map`;
 CREATE TABLE `enc_category_map` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `rule_enc_id` varchar(31) NOT NULL DEFAULT '' COMMENT 'encounter id from rule_enc_types list in list_options',
   `main_cat_id` int(11) NOT NULL DEFAULT 0 COMMENT 'category id from event category in openemr_postcalendar_categories',
   KEY  (`rule_enc_id`,`main_cat_id`)
@@ -1952,6 +1955,7 @@ CREATE TABLE `fee_schedule` (
 
 DROP TABLE IF EXISTS `fee_sheet_options`;
 CREATE TABLE `fee_sheet_options` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `fs_category` varchar(63) default NULL,
   `fs_option` varchar(63) default NULL,
   `fs_codes` varchar(255) default NULL
@@ -1961,16 +1965,16 @@ CREATE TABLE `fee_sheet_options` (
 -- Inserting data for table `fee_sheet_options`
 --
 
-INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '1Brief', 'CPT4|99201|');
-INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '2Limited', 'CPT4|99202|');
-INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '3Detailed', 'CPT4|99203|');
-INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '4Extended', 'CPT4|99204|');
-INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '5Comprehensive', 'CPT4|99205|');
-INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '1Brief', 'CPT4|99211|');
-INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '2Limited', 'CPT4|99212|');
-INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '3Detailed', 'CPT4|99213|');
-INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '4Extended', 'CPT4|99214|');
-INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '5Comprehensive', 'CPT4|99215|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('1New Patient', '1Brief', 'CPT4|99201|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('1New Patient', '2Limited', 'CPT4|99202|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('1New Patient', '3Detailed', 'CPT4|99203|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('1New Patient', '4Extended', 'CPT4|99204|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('1New Patient', '5Comprehensive', 'CPT4|99205|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('2Established Patient', '1Brief', 'CPT4|99211|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('2Established Patient', '2Limited', 'CPT4|99212|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('2Established Patient', '3Detailed', 'CPT4|99213|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('2Established Patient', '4Extended', 'CPT4|99214|');
+INSERT INTO `fee_sheet_options` (`fs_category`, `fs_option`, `fs_codes`) VALUES ('2Established Patient', '5Comprehensive', 'CPT4|99215|');
 
 -- --------------------------------------------------------
 
@@ -2541,7 +2545,8 @@ INSERT INTO `gacl_acl_sections` VALUES (1,'system',1,'System',0),(2,'user',2,'Us
 
 DROP TABLE IF EXISTS `gacl_acl_seq`;
 CREATE TABLE `gacl_acl_seq` (
-  `id` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 --
@@ -2609,7 +2614,8 @@ CREATE TABLE `gacl_aco_sections` (
 
 DROP TABLE IF EXISTS `gacl_aco_sections_seq`;
 CREATE TABLE `gacl_aco_sections_seq` (
-  `id` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 --
@@ -2626,7 +2632,8 @@ INSERT INTO `gacl_aco_sections_seq` VALUES (9);
 
 DROP TABLE IF EXISTS `gacl_aco_seq`;
 CREATE TABLE `gacl_aco_seq` (
-  `id` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 
@@ -2683,7 +2690,8 @@ CREATE TABLE `gacl_aro_groups` (
 
 DROP TABLE IF EXISTS `gacl_aro_groups_id_seq`;
 CREATE TABLE `gacl_aro_groups_id_seq` (
-  `id` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 --
@@ -2745,7 +2753,8 @@ CREATE TABLE `gacl_aro_sections` (
 
 DROP TABLE IF EXISTS `gacl_aro_sections_seq`;
 CREATE TABLE `gacl_aro_sections_seq` (
-  `id` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 --
@@ -2762,7 +2771,8 @@ INSERT INTO `gacl_aro_sections_seq` VALUES (9);
 
 DROP TABLE IF EXISTS `gacl_aro_seq`;
 CREATE TABLE `gacl_aro_seq` (
-  `id` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 --
@@ -3029,13 +3039,14 @@ CREATE TABLE `history_data` (
 
 DROP TABLE IF EXISTS `icd9_dx_code`;
 CREATE TABLE `icd9_dx_code` (
-  `dx_id` SERIAL,
+  `dx_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `dx_code`             varchar(5),
   `formatted_dx_code`   varchar(6),
   `short_desc`          varchar(60),
   `long_desc`           varchar(300),
   `active` tinyint default 0,
   `revision` int default 0,
+  PRIMARY KEY (`dx_id`),
   KEY `dx_code` (`dx_code`),
   KEY `formatted_dx_code` (`formatted_dx_code`),
   KEY `active` (`active`)
@@ -3049,13 +3060,14 @@ CREATE TABLE `icd9_dx_code` (
 
 DROP TABLE IF EXISTS `icd9_sg_code`;
 CREATE TABLE `icd9_sg_code` (
-  `sg_id` SERIAL,
+  `sg_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `sg_code`             varchar(5),
   `formatted_sg_code`   varchar(6),
   `short_desc`          varchar(60),
   `long_desc`           varchar(300),
   `active` tinyint default 0,
   `revision` int default 0,
+  PRIMARY KEY (`sg_id`),
   KEY `sg_code` (`sg_code`),
   KEY `formatted_sg_code` (`formatted_sg_code`),
   KEY `active` (`active`)
@@ -3069,11 +3081,12 @@ CREATE TABLE `icd9_sg_code` (
 
 DROP TABLE IF EXISTS `icd9_dx_long_code`;
 CREATE TABLE `icd9_dx_long_code` (
-  `dx_id` SERIAL,
+  `dx_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `dx_code`             varchar(5),
   `long_desc`           varchar(300),
   `active` tinyint default 0,
-  `revision` int default 0
+  `revision` int default 0,
+  PRIMARY KEY (`dx_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -3084,11 +3097,12 @@ CREATE TABLE `icd9_dx_long_code` (
 
 DROP TABLE IF EXISTS `icd9_sg_long_code`;
 CREATE TABLE `icd9_sg_long_code` (
-  `sq_id` SERIAL,
+  `sq_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `sg_code`             varchar(5),
   `long_desc`           varchar(300),
   `active` tinyint default 0,
-  `revision` int default 0
+  `revision` int default 0,
+  PRIMARY KEY (`sq_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -3099,7 +3113,7 @@ CREATE TABLE `icd9_sg_long_code` (
 
 DROP TABLE IF EXISTS `icd10_dx_order_code`;
 CREATE TABLE `icd10_dx_order_code` (
-  `dx_id`               SERIAL,
+  `dx_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `dx_code`             varchar(7),
   `formatted_dx_code`   varchar(10),
   `valid_for_coding`    char,
@@ -3107,6 +3121,7 @@ CREATE TABLE `icd10_dx_order_code` (
   `long_desc`           text,
   `active` tinyint default 0,
   `revision` int default 0,
+  PRIMARY KEY (`dx_id`),
   KEY `formatted_dx_code` (`formatted_dx_code`),
   KEY `active` (`active`)
 ) ENGINE=InnoDB;
@@ -3119,13 +3134,14 @@ CREATE TABLE `icd10_dx_order_code` (
 
 DROP TABLE IF EXISTS `icd10_pcs_order_code`;
 CREATE TABLE `icd10_pcs_order_code` (
-  `pcs_id`              SERIAL,
+  `pcs_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `pcs_code`            varchar(7),
   `valid_for_coding`    char,
   `short_desc`          varchar(60),
   `long_desc`           text,
   `active` tinyint default 0,
   `revision` int default 0,
+  PRIMARY KEY (`pcs_id`),
   KEY `pcs_code` (`pcs_code`),
   KEY `active` (`active`)
 ) ENGINE=InnoDB;
@@ -3138,12 +3154,13 @@ CREATE TABLE `icd10_pcs_order_code` (
 
 DROP TABLE IF EXISTS `icd10_gem_pcs_9_10`;
 CREATE TABLE `icd10_gem_pcs_9_10` (
-  `map_id` SERIAL,
+  `map_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `pcs_icd9_source` varchar(5) default NULL,
   `pcs_icd10_target` varchar(7) default NULL,
   `flags` varchar(5) default NULL,
   `active` tinyint default 0,
-  `revision` int default 0
+  `revision` int default 0,
+  PRIMARY KEY (`map_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -3154,12 +3171,13 @@ CREATE TABLE `icd10_gem_pcs_9_10` (
 
 DROP TABLE IF EXISTS `icd10_gem_pcs_10_9`;
 CREATE TABLE `icd10_gem_pcs_10_9` (
-  `map_id` SERIAL,
+  `map_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `pcs_icd10_source` varchar(7) default NULL,
   `pcs_icd9_target` varchar(5) default NULL,
   `flags` varchar(5) default NULL,
   `active` tinyint default 0,
-  `revision` int default 0
+  `revision` int default 0,
+  PRIMARY KEY (`map_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -3170,12 +3188,13 @@ CREATE TABLE `icd10_gem_pcs_10_9` (
 
 DROP TABLE IF EXISTS `icd10_gem_dx_9_10`;
 CREATE TABLE `icd10_gem_dx_9_10` (
-  `map_id` SERIAL,
+  `map_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `dx_icd9_source` varchar(5) default NULL,
   `dx_icd10_target` varchar(7) default NULL,
   `flags` varchar(5) default NULL,
   `active` tinyint default 0,
-  `revision` int default 0
+  `revision` int default 0,
+  PRIMARY KEY (`map_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -3186,12 +3205,13 @@ CREATE TABLE `icd10_gem_dx_9_10` (
 
 DROP TABLE IF EXISTS `icd10_gem_dx_10_9`;
 CREATE TABLE `icd10_gem_dx_10_9` (
-  `map_id` SERIAL,
+  `map_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `dx_icd10_source` varchar(7) default NULL,
   `dx_icd9_target` varchar(5) default NULL,
   `flags` varchar(5) default NULL,
   `active` tinyint default 0,
-  `revision` int default 0
+  `revision` int default 0,
+  PRIMARY KEY (`map_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -3202,7 +3222,7 @@ CREATE TABLE `icd10_gem_dx_10_9` (
 
 DROP TABLE IF EXISTS `icd10_reimbr_dx_9_10`;
 CREATE TABLE `icd10_reimbr_dx_9_10` (
-  `map_id` SERIAL,
+  `map_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `code`        varchar(8),
   `code_cnt`    tinyint,
   `ICD9_01`     varchar(5),
@@ -3212,7 +3232,8 @@ CREATE TABLE `icd10_reimbr_dx_9_10` (
   `ICD9_05`     varchar(5),
   `ICD9_06`     varchar(5),
   `active` tinyint default 0,
-  `revision` int default 0
+  `revision` int default 0,
+  PRIMARY KEY (`map_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -3223,7 +3244,7 @@ CREATE TABLE `icd10_reimbr_dx_9_10` (
 
 DROP TABLE IF EXISTS `icd10_reimbr_pcs_9_10`;
 CREATE TABLE `icd10_reimbr_pcs_9_10` (
-  `map_id`      SERIAL,
+  `map_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `code`        varchar(8),
   `code_cnt`    tinyint,
   `ICD9_01`     varchar(5),
@@ -3233,7 +3254,8 @@ CREATE TABLE `icd10_reimbr_pcs_9_10` (
   `ICD9_05`     varchar(5),
   `ICD9_06`     varchar(5),
   `active` tinyint default 0,
-  `revision` int default 0
+  `revision` int default 0,
+  PRIMARY KEY (`map_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -3541,7 +3563,7 @@ DROP TABLE IF EXISTS `lang_constants`;
 CREATE TABLE `lang_constants` (
   `cons_id` int(11) NOT NULL auto_increment,
   `constant_name` mediumtext BINARY,
-  UNIQUE KEY `cons_id` (`cons_id`),
+  PRIMARY KEY (`cons_id`),
   KEY `constant_name` (`constant_name`(100))
 ) ENGINE=InnoDB;
 
@@ -3557,7 +3579,7 @@ CREATE TABLE `lang_definitions` (
   `cons_id` int(11) NOT NULL default '0',
   `lang_id` int(11) NOT NULL default '0',
   `definition` mediumtext,
-  UNIQUE KEY `def_id` (`def_id`),
+  PRIMARY KEY (`def_id`),
   KEY `cons_id` (`cons_id`),
   KEY `lang_cons` (`lang_id`, `cons_id`)
 ) ENGINE=InnoDB;
@@ -3574,7 +3596,7 @@ CREATE TABLE `lang_languages` (
   `lang_code` char(2) NOT NULL default '',
   `lang_description` varchar(100) default NULL,
   `lang_is_rtl` TINYINT DEFAULT 0 COMMENT 'Set this to 1 for RTL languages Arabic, Farsi, Hebrew, Urdu etc.',
-  UNIQUE KEY `lang_id` (`lang_id`)
+  PRIMARY KEY (`lang_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2;
 
 --
@@ -3591,6 +3613,7 @@ INSERT INTO `lang_languages` VALUES (1, 'en', 'English', 0);
 
 DROP TABLE IF EXISTS `lang_custom`;
 CREATE TABLE `lang_custom` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `lang_description` varchar(100) NOT NULL default '',
   `lang_code` char(2) NOT NULL default '',
   `constant_name` mediumtext,
@@ -7863,6 +7886,7 @@ CREATE TABLE `module_acl_group_settings` (
 
 DROP TABLE IF EXISTS `module_acl_sections`;
 CREATE TABLE `module_acl_sections` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `section_id` int(11) DEFAULT NULL,
   `section_name` varchar(255) DEFAULT NULL,
   `parent_section` int(11) DEFAULT NULL,
@@ -7938,6 +7962,7 @@ CREATE TABLE `modules_hooks_settings` (
 
 DROP TABLE IF EXISTS `modules_settings`;
 CREATE TABLE `modules_settings` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `mod_id` INT(11) DEFAULT NULL,
   `fld_type` SMALLINT(6) DEFAULT NULL COMMENT '1=>ACL,2=>preferences,3=>hooks',
   `obj_name` VARCHAR(255) DEFAULT NULL,
@@ -8490,11 +8515,11 @@ CREATE TABLE `patient_data` (
   `tribal_affiliations` TEXT,
   `sex_identified` TEXT COMMENT 'Patient reported current sex',
   `pronoun` TEXT,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `idx_patient_name` (`lname`, `fname`),
-  KEY `idx_patient_dob` (`DOB`),
-  KEY `id` (`id`)
+  KEY `idx_patient_dob` (`DOB`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 -- --------------------------------------------------------
 
@@ -8677,6 +8702,7 @@ CREATE TABLE `patient_tracker` (
 
 DROP TABLE IF EXISTS `patient_tracker_element`;
 CREATE TABLE `patient_tracker_element` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `pt_tracker_id`      bigint(20)   NOT NULL default '0' COMMENT 'maps to id column in patient_tracker table',
   `start_datetime`     datetime     DEFAULT NULL,
   `room`               varchar(20)  NOT NULL default '',
@@ -8964,6 +8990,7 @@ INSERT INTO `registry` VALUES ('New Questionnaire', 1, 'questionnaire_assessment
 
 DROP TABLE IF EXISTS `report_itemized`;
 CREATE TABLE `report_itemized` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `report_id` bigint(20) NOT NULL,
   `itemized_test_id` smallint(6) NOT NULL,
   `numerator_label` varchar(25) NOT NULL DEFAULT '' COMMENT 'Only used in special cases',
@@ -8996,6 +9023,7 @@ CREATE TABLE `report_results` (
 
 DROP TABLE IF EXISTS `rule_action`;
 CREATE TABLE `rule_action` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the id column in the clinical_rules table',
   `group_id` bigint(20) NOT NULL DEFAULT 1 COMMENT 'Contains group id to identify collection of targets in a rule',
   `category` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the category item in the rule_action_item table',
@@ -9078,6 +9106,7 @@ INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_
 
 DROP TABLE IF EXISTS `rule_filter`;
 CREATE TABLE `rule_filter` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the id column in the clinical_rules table',
   `include_flag` tinyint(1) NOT NULL default 0 COMMENT '0 is exclude and 1 is include',
   `required_flag` tinyint(1) NOT NULL default 0 COMMENT '0 is optional and 1 is required',
@@ -9461,6 +9490,7 @@ CREATE TABLE `rule_patient_data` (
 
 DROP TABLE IF EXISTS `rule_reminder`;
 CREATE TABLE `rule_reminder` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the id column in the clinical_rules table',
   `method` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list rule_reminder_methods',
   `method_detail` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list rule_reminder_intervals',
@@ -9577,6 +9607,7 @@ INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES 
 
 DROP TABLE IF EXISTS `rule_target`;
 CREATE TABLE `rule_target` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the id column in the clinical_rules table',
   `group_id` bigint(20) NOT NULL DEFAULT 1 COMMENT 'Contains group id to identify collection of targets in a rule',
   `include_flag` tinyint(1) NOT NULL default 0 COMMENT '0 is exclude and 1 is include',
@@ -9678,7 +9709,8 @@ INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `
 
 DROP TABLE IF EXISTS `sequences`;
 CREATE TABLE `sequences` (
-  `id` int(11) unsigned NOT NULL default '0'
+  `id` int(11) unsigned NOT NULL default '0',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 --
@@ -9740,12 +9772,13 @@ CREATE TABLE `payment_processing_audit` (
 
 DROP TABLE IF EXISTS `supported_external_dataloads`;
 CREATE TABLE `supported_external_dataloads` (
-  `load_id` SERIAL,
+  `load_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `load_type` varchar(24) NOT NULL DEFAULT '',
   `load_source` varchar(24) NOT NULL DEFAULT 'CMS',
   `load_release_date` date NOT NULL,
   `load_filename` varchar(256) NOT NULL DEFAULT '',
-  `load_checksum` varchar(32) NOT NULL DEFAULT ''
+  `load_checksum` varchar(32) NOT NULL DEFAULT '',
+  PRIMARY KEY (`load_id`)
 ) ENGINE=InnoDB;
 
 --
@@ -12567,6 +12600,7 @@ CREATE TABLE `extended_log` (
 
 DROP TABLE IF EXISTS `version`;
 CREATE TABLE version (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   v_major    int(11)     NOT NULL DEFAULT 0,
   v_minor    int(11)     NOT NULL DEFAULT 0,
   v_patch    int(11)     NOT NULL DEFAULT 0,
@@ -12941,6 +12975,7 @@ CREATE TABLE `external_encounters` (
 
 DROP TABLE IF EXISTS `form_care_plan`;
 CREATE TABLE `form_care_plan` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `id` bigint(20) NOT NULL,
   `date` datetime DEFAULT NULL,
   `pid` bigint(20) DEFAULT NULL,
@@ -12975,6 +13010,7 @@ CREATE TABLE `form_care_plan` (
 
 DROP TABLE IF EXISTS `form_functional_cognitive_status`;
 CREATE TABLE `form_functional_cognitive_status` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `id` bigint(20) NOT NULL,
   `date` date DEFAULT NULL,
   `pid` bigint(20) DEFAULT NULL,
@@ -12986,7 +13022,8 @@ CREATE TABLE `form_functional_cognitive_status` (
   `code` varchar(255) DEFAULT NULL,
   `codetext` text,
   `description` text,
-  `external_id` varchar(30) DEFAULT NULL
+  `external_id` varchar(30) DEFAULT NULL,
+  KEY `id` (`id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -13185,6 +13222,7 @@ CREATE TABLE `form_eye_mag_dispense` (
 
 DROP TABLE IF EXISTS `form_eye_mag_prefs`;
 CREATE TABLE `form_eye_mag_prefs` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `PEZONE` varchar(25) DEFAULT NULL,
   `LOCATION` varchar(25) DEFAULT NULL,
   `LOCATION_text` varchar(25) NOT NULL,
@@ -13337,7 +13375,7 @@ CREATE TABLE `form_eye_mag_wearing` (
   `LENS_TREATMENTS` varchar(100) DEFAULT NULL,
   `RX_TYPE` varchar(25) DEFAULT NULL,
   `COMMENTS` text,
-  UNIQUE KEY `id` (`id`),
+  PRIMARY KEY (`id`),
   UNIQUE KEY `FORM_ID` (`FORM_ID`,`ENCOUNTER`,`PID`,`RX_NUMBER`)
 ) ENGINE=InnoDB;
 
@@ -13629,6 +13667,7 @@ CREATE TABLE `medex_outgoing` (
 --
 DROP TABLE IF EXISTS `medex_prefs`;
 CREATE TABLE `medex_prefs` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `MedEx_id` int(11) DEFAULT '0',
   `ME_username` varchar(100) DEFAULT NULL,
   `ME_api_key` text,
@@ -14218,6 +14257,7 @@ CREATE TABLE `login_mfa_registrations` (
 
 DROP TABLE IF EXISTS `benefit_eligibility`;
 CREATE TABLE `benefit_eligibility` (
+  `row_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `response_id` bigint(20) NOT NULL,
     `verification_id` bigint(20) NOT NULL,
     `type` varchar(4) DEFAULT NULL,

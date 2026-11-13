@@ -309,6 +309,19 @@ repos:
     files: ^(composer\.json|.*\.php)$
     pass_filenames: false
 
+  - id: schema-primary-keys
+    name: Assert PRIMARY KEY on every CREATE TABLE
+    entry: tests/schema/assert-primary-keys.sh
+    language: system
+    # Trigger on any change to the core schema SQL files OR to the gate
+    # itself. pass_filenames=false because the script resolves its
+    # default file list from the repo root (sql/database.sql +
+    # contrib/util/language_translations/currentLanguage_utf8.sql) —
+    # scanning files git has staged would miss unstaged state in the
+    # OTHER core schema file.
+    files: ^(sql/database\.sql|contrib/util/language_translations/currentLanguage_utf8\.sql|tests/schema/assert-primary-keys\.sh)$
+    pass_filenames: false
+
   - id: conventional-commits
     name: Conventional Commits
     entry: bash -c 'composer conventional-commits:check -- "$(<"$1")"' --
