@@ -2522,11 +2522,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between string and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\-" between numeric\\-string and string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
@@ -7097,11 +7092,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between string and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\-" between string and string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
@@ -7374,11 +7364,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\*" between mixed and 60 results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between string and mixed results in an error\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../library/appointments.inc.php',
 ];
 $ignoreErrors[] = [
@@ -11048,7 +11033,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\*\' and mixed results in an error\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
 ];
 $ignoreErrors[] = [
@@ -11077,13 +11062,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\*XX\\*\' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 28,
+    'count' => 26,
     'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
 ];
 $ignoreErrors[] = [

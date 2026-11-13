@@ -211,10 +211,44 @@ incus init images:ubuntu/24.04/cloud claude-vm --vm \
 
 # virtiofs share of the host git directory, at the mirrored path inside the guest.
 # Path must match host-side exactly (no leading slash in the target: Incus adds it).
-incus config device add claude-vm git disk source=<git-dir> path=<git-dir>
+# io.cache=unsafe is required for execve against the share. It maps to virtiofsd
+# --cache=always, which allows mmap(MAP_SHARED) on cached data — the operation
+# execve uses to load an executable or #! script. Without it, every binary and
+# script on the share fails with rc=126 ("command invoked cannot execute"),
+# including the git pre-commit hook under .git/hooks/. Incus's virtiofs driver
+# only accepts [none, metadata, unsafe]; metadata caches metadata only, still
+# blocks mmap, so execve still fails — unsafe is the only working value.
+incus config device add claude-vm git disk source=<git-dir> path=<git-dir> io.cache=unsafe
 ```
 
+> **What "unsafe" means here.** The name refers to filesystem-consistency semantics, not data integrity or security. With `io.cache=unsafe` virtiofsd caches aggressively, which is unsafe only in one specific sense: **truly concurrent same-file writes from both the host and the VM in the same moment can lose data or interleave.** Sequential writes — host saves then VM reads, or VM writes then host reads — are coherent in practice (verified with a direct test: a file written on the host was readable with the new content from the VM in the same breath). virtiofsd handles invalidations on host-side changes; it just doesn't guarantee strict close-to-open consistency for the pathological concurrent-write case.
+>
+> What this is *not*: writes are never lost or corrupted outside that concurrent-write edge case, permissions and ownership are enforced, the share isn't more reachable from outside the appliance, and routine host-save-then-VM-read cycles work correctly. For the single-developer appliance workflow this guide targets — one person editing at a time, from either side — the "unsafe" label is more dramatic than the actual behavior.
+
 > **Sizing.** 16 GiB RAM and 8 vCPUs is a sensible starting point for a few parallel worktrees plus a small `kind` cluster. Scale down if you only ever run one stack at a time; scale up before expecting the full `openemr-devops` Kubernetes dev-stack to behave. Unlike the LXC appliance, these resources are dedicated to the guest while it is running — they do not float back to the host under load.
+
+> **If you already created the VM without `io.cache=unsafe`,** set it after the fact — but **stop the VM first**. `io.cache` is not a live-updatable disk field on Incus 6.x; setting it on a running VM triggers device remove + reattach, which kills virtiofsd immediately and can strand any in-flight access to the share. `io.cache` is read when virtiofsd (re)attaches, so the VM has to be stopped when the value changes:
+>
+> ```bash
+> # Skip the stop if already stopped; otherwise stop and halt the sequence if the stop fails.
+> # Setting io.cache on a still-running VM would trigger the device remove+reattach this is meant to avoid.
+> [ "$(incus list "^claude-vm$" --format csv --columns s)" = "STOPPED" ] || incus stop claude-vm &&
+>   incus config device set claude-vm git io.cache=unsafe &&
+>   incus start claude-vm
+> ```
+>
+> Verify from the host that execve now works against the share with a minimal isolated test (writes a two-line script to the share, runs it from inside the VM, cleans up):
+>
+> ```bash
+> t=$(mktemp <git-dir>/execve-test.XXXXXX.sh)
+> printf '#!/bin/sh\nexit 0\n' > "$t"
+> chmod +x "$t"
+> incus exec claude-vm -- "$t"; echo rc=$?
+> rm "$t"
+> # rc=0 → execve works. rc=126 → still broken (io.cache didn't take effect; check with `incus config device show claude-vm`).
+> ```
+>
+> Earlier versions of this guide suggested running the git pre-commit hook as the test. Don't — the hook routes through `openemr-cmd` and can return non-zero for stack-state reasons (`rc=255` and similar) that have nothing to do with execve or `io.cache`. Keep the test isolated.
 
 > **Boot time.** First boot takes ~30-60s while cloud-init runs (user creation, apt install for the base packages). Subsequent boots are ~10-20s. The LXC appliance is ~1s by comparison. Factor this into your "start a session" workflow.
 
@@ -380,6 +414,30 @@ Required permissions:
 ## Step 9a — Deploy key for fork pushes
 
 > 🖥️ **Inside guest** (as claude-agent)
+
+### Optional shortcut: copy `~/.ssh` from a running LXC appliance
+
+If you already have the [LXC appliance](claude-appliance-setup.md) set up with deploy keys and `~/.ssh/config` stanzas for one or more forks, you can copy the whole `.ssh/` directory into the VM in one command rather than re-running the deploy-key generation + SSH-config stanza for each fork. Big time-saver once you have more than one fork wired up.
+
+```bash
+# On the host:
+sudo lxc-attach -n claude-appliance -- su - claude-agent -c 'tar czf - .ssh' \
+  | incus exec claude-vm -- su - claude-agent -c 'tar xzf -'
+```
+
+Both `tar` invocations run as `claude-agent`, which matches ownership and permissions on both sides without any post-copy `chown`/`chmod` fixup. Verify from the host (the one-liner enters the VM and runs `ssh -T` as `claude-agent`):
+
+```bash
+incus exec claude-vm -- su - claude-agent -c 'ssh -T git@github-<your-username>-openemr'
+# Same "Hi <your-username>/openemr! You've successfully authenticated..." greeting
+# as on the LXC side — the deploy keys and SSH config transfer intact.
+```
+
+> **The same private deploy keys now live in both appliances.** Within the existing appliance threat model this is fine — both are agent-trust-level sandboxes you own, and a deploy key is repo-scoped by design. If you later want to unshare them (either appliance compromised or decommissioned), treat it as a key rotation per [Generating from scratch](#generating-from-scratch) below.
+
+If you don't have the LXC appliance (or you'd rather keep the two appliances' keys separate), skip this block and generate fresh keys per the next subsection.
+
+### Generating from scratch
 
 Identical to the LXC appliance's [Step 10a](claude-appliance-setup.md#step-10a--deploy-key-for-fork-pushes) — generate a per-repo SSH deploy key, register it with "Allow write access" on your fork, configure a repo-scoped `Host` alias in `~/.ssh/config`, rewrite origin to use it, and mirror the alias on the host side. The mechanism is unchanged in the VM.
 

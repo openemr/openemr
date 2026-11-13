@@ -218,7 +218,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
-    'count' => 8,
+    'count' => 7,
     'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
 ];
 $ignoreErrors[] = [

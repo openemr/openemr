@@ -807,11 +807,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$predisMaster \\(string\\) does not accept string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$predisMasterPassword \\(string\\|null\\) does not accept string\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',

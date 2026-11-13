@@ -99,7 +99,7 @@ services:
       timeout: 5s
   openemr-8-3:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.3@sha256:3ab116f637874d27e394200493d9b387dd0cbc776e80bdb75783f5d1ce3fa736
+    image: openemr/openemr:flex-3.24-php-8.3@sha256:8c906916bed8f332f9cf513c154e8ad162db6aa87af0bd24a5e8e541dc2fdb44
     ports:
     - 8085:80
     - 9085:443
@@ -132,7 +132,7 @@ services:
       timeout: 5s
   openemr-8-4:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.4@sha256:257bc6436677b20d11dfab00afaf8d3a8397e26af5c43aaa385ba7d763c2e60e
+    image: openemr/openemr:flex-3.24-php-8.4@sha256:53310c30bf4c671f1f0bf26d157e79cff652f789d650d3287e399ab3f2693c6b
     ports:
     - 8086:80
     - 9086:443
@@ -165,7 +165,7 @@ services:
       timeout: 5s
   openemr-8-5:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.5@sha256:0c8a84763549422a939fc1223799af4231b1a3eaa1f01671d227dde27325fd23
+    image: openemr/openemr:flex-3.24-php-8.5@sha256:f514851b1ec546dbfb00a959f15e3ef166d12157a27f35ed0511bc1d4d8f4274
     ports:
     - 8087:80
     - 9087:443
@@ -238,7 +238,7 @@ services:
       timeout: 5s
   openemr-edge:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:b5a3482f134a796a400e0bff23b9afdcd6a35930ce80c18d018dbb3824827bae
+    image: openemr/openemr:flex-edge@sha256:32832c31b72c0657c3d71429c7525cc5f3bae47335fa71d6ceab27ca0aadf8ba
     ports:
     - 8088:80
     - 9088:443
@@ -305,7 +305,7 @@ services:
       timeout: 5s
   openemr-8-3-redis:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.3@sha256:3ab116f637874d27e394200493d9b387dd0cbc776e80bdb75783f5d1ce3fa736
+    image: openemr/openemr:flex-3.24-php-8.3@sha256:8c906916bed8f332f9cf513c154e8ad162db6aa87af0bd24a5e8e541dc2fdb44
     ports:
     - 8095:80
     - 9095:443
@@ -339,7 +339,7 @@ services:
       timeout: 5s
   openemr-8-4-redis:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.4@sha256:257bc6436677b20d11dfab00afaf8d3a8397e26af5c43aaa385ba7d763c2e60e
+    image: openemr/openemr:flex-3.24-php-8.4@sha256:53310c30bf4c671f1f0bf26d157e79cff652f789d650d3287e399ab3f2693c6b
     ports:
     - 8096:80
     - 9096:443
@@ -373,7 +373,7 @@ services:
       timeout: 5s
   openemr-8-5-redis:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.5@sha256:0c8a84763549422a939fc1223799af4231b1a3eaa1f01671d227dde27325fd23
+    image: openemr/openemr:flex-3.24-php-8.5@sha256:f514851b1ec546dbfb00a959f15e3ef166d12157a27f35ed0511bc1d4d8f4274
     ports:
     - 8097:80
     - 9097:443
@@ -407,7 +407,7 @@ services:
       timeout: 5s
   openemr-edge-redis:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:b5a3482f134a796a400e0bff23b9afdcd6a35930ce80c18d018dbb3824827bae
+    image: openemr/openemr:flex-edge@sha256:32832c31b72c0657c3d71429c7525cc5f3bae47335fa71d6ceab27ca0aadf8ba
     ports:
     - 8098:80
     - 9098:443
@@ -441,7 +441,7 @@ services:
       timeout: 5s
   mariadb:
     restart: always
-    image: mariadb:12.3.3@sha256:2626e3d951d2a7efd3aa15c30fbcf5fb6b30f93df83d56f52adf3712d546ad16
+    image: mariadb:12.3.3@sha256:4ebbcf100a3ba320766dfa0e1af008df12261301db6ef72798c7650f70794aed
     command: [mariadbd, --character-set-server=utf8mb4]
     ports:
     - 8210:3306
@@ -461,7 +461,7 @@ services:
       retries: 3
   mariadb-ssl:
     restart: always
-    image: mariadb:12.3.3@sha256:2626e3d951d2a7efd3aa15c30fbcf5fb6b30f93df83d56f52adf3712d546ad16
+    image: mariadb:12.3.3@sha256:4ebbcf100a3ba320766dfa0e1af008df12261301db6ef72798c7650f70794aed
     command: [mariadbd, --character-set-server=utf8mb4, --ssl-ca=/etc/ssl/ca.pem, --ssl_cert=/etc/ssl/server-cert.pem, --ssl_key=/etc/ssl/server-key.pem]
     volumes:
     - ../library/sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
@@ -519,7 +519,7 @@ services:
       retries: 3
   mariadb-very-very-old:
     restart: always
-    image: mariadb:10.11.19@sha256:2293322732ec4b9e51182e54fd619b4c2727dd14f1242027b370c62663a7ddce
+    image: mariadb:10.11.19@sha256:7d829180b5b2a9ba74f6242876ab401a0d7dd338a807e522ef92bc9698760f20
     command: [mysqld, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root

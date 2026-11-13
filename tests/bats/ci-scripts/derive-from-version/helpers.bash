@@ -60,3 +60,45 @@ write_sql_fixture_with_distractors() {
     touch "${dir}/sql/currentLanguage_utf8.sql"
     echo "${dir}"
 }
+
+# Run `derive_from_version_fsupgrade <checkout_dir> <shipped_newline_list>`
+# in a subshell with the lib sourced. Uses `run --separate-stderr` so
+# `${output}` carries only the stdout (the resolved version string)
+# and `${stderr}` carries diagnostics (fallback-firing note) + errors.
+# The function emits a diagnostic to stderr on the fallback path even
+# when the overall result is success, so mixing streams would break
+# exact-match assertions on `${output}`.
+run_fsupgrade() {
+    local checkout_dir="$1"
+    local shipped="$2"
+    run --separate-stderr bash -c "source '${DERIVE_FROM_VERSION_LIB}' && derive_from_version_fsupgrade '${checkout_dir}' \"\$(printf '%s' '${shipped}')\""
+}
+
+# Build a fsupgrade fixture at ${CWD}/<name>/ with:
+#   - docker-version file containing <docker_version>
+#   - docker/release/upgrade/fsupgrade-<docker_version>.sh with
+#     priorOpenemrVersion="<prior_version>" (or custom body if $4+ given)
+#
+# Args:
+#   $1   Fixture name.
+#   $2   docker-version value (numeric).
+#   $3   priorOpenemrVersion value to seed into fsupgrade-N.sh. Pass
+#        empty string to produce a fsupgrade file with no
+#        priorOpenemrVersion line (negative-case).
+write_fsupgrade_fixture() {
+    local name="$1"
+    local docker_version="$2"
+    local prior="$3"
+    local dir="${CWD}/${name}"
+    mkdir -p "${dir}/docker/release/upgrade"
+    printf '%s\n' "${docker_version}" > "${dir}/docker-version"
+    local fs="${dir}/docker/release/upgrade/fsupgrade-${docker_version}.sh"
+    {
+        echo '#!/bin/bash'
+        echo "# Upgrade number ${docker_version} for OpenEMR docker"
+        if [[ -n "${prior}" ]]; then
+            echo "priorOpenemrVersion=\"${prior}\""
+        fi
+    } > "${fs}"
+    echo "${dir}"
+}
