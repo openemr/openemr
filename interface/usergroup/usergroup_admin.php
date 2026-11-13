@@ -34,7 +34,9 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\User\UserCreatedEvent;
 use OpenEMR\Events\User\UserUpdatedEvent;
 use OpenEMR\Services\UserService;
+use OpenEMR\Services\UserTaxonomyService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+use Symfony\Component\HttpFoundation\Request;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_REQUEST)) {
@@ -70,6 +72,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $alertmsg = '';
+$taxonomyAlert = '';
 $bg_msg = '';
 $set_active_msg = 0;
 $show_message = 0;
@@ -130,6 +133,17 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
 
         if ($_POST["taxonomy"]) {
             sqlStatement("update users set taxonomy = ? where id= ? ", [$_POST["taxonomy"], $_POST["id"]]);
+        }
+
+        // Additional taxonomies (a provider who practices in more than one specialty). The field is only posted
+        // when the form rendered it, so a missing field leaves the stored list alone.
+        $taxonomyPost = Request::createFromGlobals()->request;
+        $extraTaxonomyField = $taxonomyPost->all()['taxonomy_extra'] ?? null;
+        if (is_array($extraTaxonomyField)) {
+            $invalidTaxonomies = (new UserTaxonomyService())->saveExtras($taxonomyPost->getInt('id'), $extraTaxonomyField);
+            if ($invalidTaxonomies !== []) {
+                $taxonomyAlert = xl('The additional taxonomy codes were not saved. These are not taxonomy codes:') . ' ' . implode(', ', $invalidTaxonomies) . '.';
+            }
         }
 
         if ($_POST["lname"]) {
@@ -887,7 +901,7 @@ function resetMfaCounter(username) {
 </div>
 <script>
 <?php
-if ($alertmsg = trim($alertmsg)) {
+if ($alertmsg = trim($alertmsg . ' ' . $taxonomyAlert)) {
     echo "alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
