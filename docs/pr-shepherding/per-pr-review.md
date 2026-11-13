@@ -129,7 +129,9 @@ For every rabbit Actionable or Major on the PR:
    whole acknowledgement: "Review thread resolved" at its end says nothing about what else
    the reply carries, and rabbit can raise a new finding in the same reply it resolves the
    thread with — see [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding).
-   A new finding there starts its own raised → addressed → confirmed row.
+   A new finding there starts its own raised → addressed → confirmed row. The same holds
+   for its replies to PR comments (`issues/<N>/comments`), which sit outside every thread
+   — see [standing-rules §2.11](standing-rules.md#211-an-acceptance-can-carry-a-new-ask).
 4. **Scoped-out.** The author pushed back ("that's pre-existing", "that's out of
    scope", "the code already handles that") and rabbit accepted. Verify against the
    code and split by what the inspection shows:
@@ -465,7 +467,10 @@ baseline checks need to re-run against the new base tip).
 3. CI is still green.
 4. No new rabbit Actionable has been posted since the brief — including inside a reply
    in a thread rabbit resolved itself (see
-   [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding)).
+   [standing-rules §2.7](standing-rules.md#27-a-resolved-thread-can-carry-a-new-finding)),
+   and no new caveat or ask in any of its replies since the brief, inline or to a PR
+   comment, even one that is not an Actionable (see
+   [standing-rules §2.11](standing-rules.md#211-an-acceptance-can-carry-a-new-ask)).
 5. No new maintainer `CHANGES_REQUESTED` has been filed.
 6. No new maintainer inline comment carries a substantive ask on PR-introduced
    content. A maintainer may post an inline comment with a one-line edit request
