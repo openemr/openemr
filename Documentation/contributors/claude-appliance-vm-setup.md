@@ -227,20 +227,22 @@ incus config device add claude-vm git disk source=<git-dir> path=<git-dir> io.ca
 
 > **Sizing.** 16 GiB RAM and 8 vCPUs is a sensible starting point for a few parallel worktrees plus a small `kind` cluster. Scale down if you only ever run one stack at a time; scale up before expecting the full `openemr-devops` Kubernetes dev-stack to behave. Unlike the LXC appliance, these resources are dedicated to the guest while it is running — they do not float back to the host under load.
 
-> **If you already created the VM without `io.cache=unsafe`,** set it after the fact and restart — `io.cache=` is read by virtiofsd at device-attach time, so a running VM keeps the old setting until relaunch:
+> **If you already created the VM without `io.cache=unsafe`,** set it after the fact — but **stop the VM first**. `io.cache` is not a live-updatable disk field on Incus 6.x; setting it on a running VM triggers device remove + reattach, which kills virtiofsd immediately and can strand any in-flight access to the share. `io.cache` is read when virtiofsd (re)attaches, so the VM has to be stopped when the value changes:
 >
 > ```bash
+> incus stop claude-vm || true           # no-op if already stopped; || true keeps the next line reachable
 > incus config device set claude-vm git io.cache=unsafe
-> incus stop claude-vm && incus start claude-vm
+> incus start claude-vm
 > ```
 >
-> `incus stop` + `incus start` is slightly more reliable than `incus restart` — the latter sometimes doesn't fully recycle virtiofsd on all Incus versions. Verify from the host that execve now works against the share with a minimal isolated test (writes a two-line script to the share, runs it from inside the VM, cleans up):
+> Verify from the host that execve now works against the share with a minimal isolated test (writes a two-line script to the share, runs it from inside the VM, cleans up):
 >
 > ```bash
-> printf '#!/bin/sh\nexit 0\n' > <git-dir>/execve-test.sh
-> chmod +x <git-dir>/execve-test.sh
-> incus exec claude-vm -- <git-dir>/execve-test.sh; echo rc=$?
-> rm <git-dir>/execve-test.sh
+> t=$(mktemp <git-dir>/execve-test.XXXXXX.sh)
+> printf '#!/bin/sh\nexit 0\n' > "$t"
+> chmod +x "$t"
+> incus exec claude-vm -- "$t"; echo rc=$?
+> rm "$t"
 > # rc=0 → execve works. rc=126 → still broken (io.cache didn't take effect; check with `incus config device show claude-vm`).
 > ```
 >
