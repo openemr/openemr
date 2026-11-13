@@ -122,9 +122,28 @@ it in.
 - **Phase 3 runs after each PR's verdict is in** and after each merge the maintainer
   confirms. Details: [deliverables.md](deliverables.md).
 
-**Between passes**, keep the running shepherd log + follow-up register up to date as the
-maintainer reports `landed <PR#>`. Update the brief + log entry with the merge SHA + a
-"SHIPPED" marker.
+### 3.1 In-session triggers
+
+Three short phrases the maintainer uses to drive the loop between passes:
+
+- `take stock` / `stocktake [on <subject>]` — run Phase 1 (fresh GitHub pull +
+  classify). See [stocktake.md](stocktake.md). Bare `take stock` uses the active
+  session subject; naming a subject replaces it; with no active subject and none
+  supplied, ask before starting. Phase 1 requires a scope
+  ([§2](#2-the-subject-arg)).
+- `show dashboard` — lightweight view of current session state (bucket counts,
+  in-flight briefs, next-action). No fresh GitHub pull, no workstream-doc update.
+  Use to confirm the agent's working picture before spending tokens on a real
+  stocktake. Different from `take stock` in cost + authority: a dashboard reports
+  what the session already knows; a stocktake re-reads GitHub and rewrites the
+  snapshot.
+- `landed <N>` — record a merge the maintainer just performed. Update the brief +
+  log entry with the merge SHA + a 🚢 SHIPPED marker, and move the
+  workstream-doc entry to the shipped list. See
+  [deliverables §1.3](deliverables.md#13-updating-the-doc-as-prs-land) for the
+  update sequence, and
+  [per-pr-review §12](per-pr-review.md#12-handoff-to-phase-3) for why head +
+  base-tip re-verification is skipped post-merge.
 
 ---
 
