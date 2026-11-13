@@ -19,9 +19,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\PatientFinder;
 
+use DateTimeImmutable;
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
+use OpenEMR\Services\PatientFinder\PatientFinderAppointments;
 use OpenEMR\Services\PatientFinder\PatientFinderBuiltInColumns;
 use OpenEMR\Services\PatientFinder\PatientFinderDetailService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -58,7 +62,14 @@ class PatientFinderDetailServiceTest extends TestCase
             new PatientFinderBuiltInColumns(),
             static fn(string $section, string $value): bool => $appointmentAccess,
             static fn(string $layoutId, array $values): string
-                => $layoutId . ':' . json_encode($values, JSON_THROW_ON_ERROR)
+                => $layoutId . ':' . json_encode($values, JSON_THROW_ON_ERROR),
+            new PatientFinderAppointments(
+                static fn(string $sql, array $binds): array => [
+                    ['pc_eid' => 1, 'pc_eventDate' => '2026-12-01', 'pc_startTime' => '09:30:00', 'pc_recurrtype' => 0],
+                ],
+                static fn(string $from, string $to, int $eid): array => [],
+                new FrozenClock(new DateTimeImmutable('2026-11-13 12:00:00'))
+            )
         );
     }
 
@@ -152,13 +163,12 @@ class PatientFinderDetailServiceTest extends TestCase
      */
     public function testAppointmentFieldNeedsTheAppointmentAcl(): void
     {
-        $this->service(['sex', 'next_appointment'], [['pid' => 7, 'sex' => 'Male']], null, false)->values(7);
-        $denied = $this->lastSql();
-        $this->service(['sex', 'next_appointment'], [['pid' => 7, 'sex' => 'Male']])->values(7);
-        $allowed = $this->lastSql();
+        $denied = $this->service(['sex', 'next_appointment'], [['pid' => 7, 'sex' => 'Male']], null, false)->values(7);
+        $allowed = $this->service(['sex', 'next_appointment'], [['pid' => 7, 'sex' => 'Male']])->values(7);
 
-        $this->assertStringNotContainsString('openemr_postcalendar_events', $denied);
-        $this->assertStringContainsString('AS `next_appointment`', $allowed);
+        $this->assertSame(['sex' => 'Male'], $denied);
+        $this->assertSame(['sex' => 'Male', 'next_appointment' => '2026-12-01 09:30'], $allowed);
+        $this->assertStringNotContainsString('next_appointment', $this->lastSql(), 'worked out after the query, not in it');
     }
 
     /**
@@ -182,6 +192,36 @@ class PatientFinderDetailServiceTest extends TestCase
     public function testOnlyNationNotesFieldsLeaveTheDetailOff(): void
     {
         $this->assertFalse($this->service(['ss:34'], [])->isEnabled());
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function sessionPatientFieldProvider(): array
+    {
+        return [
+            'allergies' => ['allergies:24'],
+            'previous names' => ['previous_names:52'],
+            'address list' => ['addresses:54'],
+            'telecom list' => ['telecoms:55'],
+            'relation list' => ['relations:56'],
+        ];
+    }
+
+    /**
+     * A row the renderer fills from the open chart's patient would show that patient's data
+     * under the expanded one, so a layout with one is never shown, nor its patient read.
+     */
+    #[DataProvider('sessionPatientFieldProvider')]
+    public function testALayoutReadingTheSessionPatientIsNeverShown(string $field): void
+    {
+        $service = $this->service(['sex', $field], [['pid' => 7, 'sex' => 'Female']]);
+
+        $this->assertFalse($service->isEnabled());
+        $this->assertNull($service->html(7));
+        $this->assertStringNotContainsString('FROM patient_data', $this->lastSql());
     }
 
     /**

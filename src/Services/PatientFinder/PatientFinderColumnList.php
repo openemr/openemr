@@ -15,6 +15,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientFinder;
 
+use OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
 /**
  * Backed by the list id stored in list_options, which the finder page also sends back
  * to its endpoint as the `finderList` request parameter.
@@ -38,37 +41,73 @@ enum PatientFinderColumnList: string
 
     /**
      * Whether an option id names a column the finder can show: its Name column, one of
-     * the combined columns it builds itself, or a patient_data field.
+     * the combined columns it builds itself, a column a module adds, or a patient_data field.
      *
      * @param callable(string): bool $isPatientDataField
+     * @param list<string> $moduleColumnKeys see moduleColumnKeys()
      */
-    public static function isValidColumnId(string $optionId, callable $isPatientDataField): bool
-    {
+    public static function isValidColumnId(
+        string $optionId,
+        callable $isPatientDataField,
+        array $moduleColumnKeys = []
+    ): bool {
         if ($optionId === '' || $optionId === '*') {
             return false;
         }
         return $optionId === PatientFinderQueryBuilder::NAME_KEY
             || PatientFinderBuiltInColumns::has($optionId)
+            || in_array($optionId, $moduleColumnKeys, true)
             || $isPatientDataField($optionId);
     }
 
     /**
+     * The keys of the columns modules add to this list's tab, sorted, so the List editor can
+     * offer them: an entry with a module column's key sets that column's place, sort
+     * direction and width. Asks the modules through the same event the finder dispatches.
+     *
+     * @return list<string>
+     */
+    public function moduleColumnKeys(EventDispatcherInterface $dispatcher): array
+    {
+        $registry = new PatientFinderColumnRegistry();
+        $dispatcher->dispatch(
+            new PatientFinderColumnRegistrationEvent($registry, $this),
+            PatientFinderColumnRegistrationEvent::EVENT_HANDLE
+        );
+        $keys = array_values(array_filter(
+            $registry->keys(),
+            static fn(string $key): bool => $key !== PatientFinderQueryBuilder::NAME_KEY
+                && !PatientFinderBuiltInColumns::has($key)
+        ));
+        sort($keys);
+        return $keys;
+    }
+
+    /**
      * The choices the List editor's column picker offers for one entry: the finder's own
-     * columns (its Name column and the combined ones), the patient_data fields sorted by
-     * name, and the entry's own id when it is in neither, such as a module's, so saving
-     * the list never changes it.
+     * columns (its Name column and the combined ones), the columns modules add, the
+     * patient_data fields sorted by name, and the entry's own id when it is in none of
+     * those, such as a disabled module's, so saving the list never changes it.
      *
      * @param array<array-key, mixed> $patientDataFields the patient_data column names
-     * @return array{combined: list<string>, fields: list<string>, other: list<string>}
+     * @param array<array-key, mixed> $moduleColumnKeys see moduleColumnKeys()
+     * @return array{combined: list<string>, module: list<string>, fields: list<string>, other: list<string>}
      */
-    public static function columnChoices(string $currentId, array $patientDataFields): array
-    {
+    public static function columnChoices(
+        string $currentId,
+        array $patientDataFields,
+        array $moduleColumnKeys = []
+    ): array {
         $combined = array_merge([PatientFinderQueryBuilder::NAME_KEY], PatientFinderBuiltInColumns::keys());
         $fields = array_values(array_filter($patientDataFields, is_string(...)));
         sort($fields);
-        $isOther = $currentId !== '' && !in_array($currentId, $combined, true) && !in_array($currentId, $fields, true);
+        // A module's column with a patient_data field's name is listed with the fields.
+        $module = array_values(array_diff(array_filter($moduleColumnKeys, is_string(...)), $combined, $fields));
+        $known = array_merge($combined, $module, $fields);
+        $isOther = $currentId !== '' && !in_array($currentId, $known, true);
         return [
             'combined' => $combined,
+            'module' => $module,
             'fields' => $fields,
             'other' => $isOther ? [$currentId] : [],
         ];

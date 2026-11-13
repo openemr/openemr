@@ -68,9 +68,7 @@ final class PatientFinderColumnRegistryFactory
      * @param callable(string, array<int, string|int>): list<array<mixed>>|null $fetchRecords
      * @param callable(string): array<array-key, mixed>|null $listMapResolver
      *        Resolves a list id to a value => title map (defaults to generate_list_map()).
-     * @param PatientFinderBuiltInColumns|null $builtInColumns
-     *        The combined columns; the caller passes PatientFinderBuiltInColumns::fromGlobals() for
-     *        the site's date and time formats (defaults to YYYY-MM-DD and 24-hour times).
+     * @param PatientFinderBuiltInColumns|null $builtInColumns The combined columns.
      * @param callable(string, string): bool|null $aclCheck
      *        Whether the current user has an ACL section and value (defaults to AclMain::aclCheckCore()).
      * @param callable(): list<string>|null $patientDataFields
@@ -143,10 +141,14 @@ final class PatientFinderColumnRegistryFactory
         );
 
         // A place no listener filled, as for a disabled module or a field since removed, is
-        // left out, so it cannot break the query for everyone.
+        // left out, so it cannot break the query for everyone. A listener's column that fills
+        // one takes the list's width, unless it set its own.
         foreach ($placeholders as $key => $placeholder) {
-            if ($registry->get($key) === $placeholder) {
+            $filled = $registry->get($key);
+            if ($filled === $placeholder) {
                 $registry->remove($key);
+            } elseif ($filled !== null && $filled->width === '' && $placeholder->width !== '') {
+                $registry->add($filled->withWidth($placeholder->width));
             }
         }
 

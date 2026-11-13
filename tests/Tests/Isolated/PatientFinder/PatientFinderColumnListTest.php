@@ -14,9 +14,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\PatientFinder;
 
+use OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent;
+use OpenEMR\Services\PatientFinder\PatientFinderColumn;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class PatientFinderColumnListTest extends TestCase
 {
@@ -90,5 +93,42 @@ class PatientFinderColumnListTest extends TestCase
         $this->assertSame(['ihi'], PatientFinderColumnList::columnChoices('ihi', ['sex'])['other']);
         $this->assertSame([], PatientFinderColumnList::columnChoices('', ['sex'])['other'], 'a new, blank entry');
         $this->assertSame([], PatientFinderColumnList::columnChoices('age', ['sex'])['other'], 'a combined column');
+    }
+
+    /**
+     * The columns modules register are asked for through the registration event, for the
+     * list's own tab, leaving out the finder's own columns a listener might also add.
+     */
+    public function testModuleColumnKeysComeFromTheRegistrationEvent(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $seen = [];
+        $dispatcher->addListener(
+            PatientFinderColumnRegistrationEvent::EVENT_HANDLE,
+            static function (PatientFinderColumnRegistrationEvent $e) use (&$seen): void {
+                $seen[] = $e->getColumnList();
+                $e->addColumn(PatientFinderColumn::enriched('ihi', 'IHI'));
+                $e->addColumn(PatientFinderColumn::enriched('age', 'Age'));
+                $e->addColumn(PatientFinderColumn::enriched('allergy_count', 'Allergies'));
+            }
+        );
+
+        $this->assertSame(['allergy_count', 'ihi'], PatientFinderColumnList::Recent->moduleColumnKeys($dispatcher));
+        $this->assertSame([PatientFinderColumnList::Recent], $seen);
+    }
+
+    /**
+     * A module's column is offered in its own group and accepted as an entry id, so an
+     * administrator can place, sort and size it; it is no longer an unknown id.
+     */
+    public function testModuleColumnsAreOfferedAndAccepted(): void
+    {
+        $choices = PatientFinderColumnList::columnChoices('', ['sex'], ['ihi', 'sex']);
+
+        $this->assertSame(['ihi'], $choices['module'], "a module column named like a field is listed with the fields");
+        $this->assertSame([], PatientFinderColumnList::columnChoices('ihi', ['sex'], ['ihi'])['other']);
+        $noFields = static fn(string $field): bool => false;
+        $this->assertTrue(PatientFinderColumnList::isValidColumnId('ihi', $noFields, ['ihi']));
+        $this->assertFalse(PatientFinderColumnList::isValidColumnId('ihi', $noFields));
     }
 }

@@ -42,6 +42,11 @@ final class PatientFinderQueryBuilder
     /** The patient-name column, expanded to last/first/middle name parts. */
     public const NAME_KEY = 'name';
 
+    /** A patient's whole name, blank parts left out, in the orders a search may type it. */
+    private const FULL_NAME_FIRST_MIDDLE_LAST = "CONCAT_WS(' ', NULLIF(TRIM(fname), ''), NULLIF(TRIM(mname), ''), NULLIF(TRIM(lname), ''))";
+    private const FULL_NAME_FIRST_LAST = "CONCAT_WS(' ', NULLIF(TRIM(fname), ''), NULLIF(TRIM(lname), ''))";
+    private const FULL_NAME_LAST_FIRST = "CONCAT_WS(', ', NULLIF(TRIM(lname), ''), NULLIF(TRIM(fname), ''))";
+
     /** The date-of-birth column, which uses the fuzzy date search. */
     public const DOB_KEY = 'DOB';
 
@@ -218,7 +223,9 @@ final class PatientFinderQueryBuilder
             $mode = $request->searchMode;
             // The any-column mode matches anywhere; otherwise the search mode says where.
             $match = $request->anySearch ? PatientFinderTermMatch::Anywhere : $mode->termMatch();
-            $term = $mode->normalizeTerm($request->globalSearch);
+            // The dropdown's normalizing (digits only for a phone, say) is for its own modes; an
+            // any-column search matches the DEM fields with the term as typed.
+            $term = $request->anySearch ? $request->globalSearch : $mode->normalizeTerm($request->globalSearch);
             $ors = [];
             if ($term === '') {
                 // A phone or SSN search with no digits in it matches no one.
@@ -292,9 +299,10 @@ final class PatientFinderQueryBuilder
     /**
      * The WHERE fragment matching a name search, and its bind values. The whole term must
      * start (or, in an exact search, be) the last, first or middle name, as "Van Dyke" or
-     * "Mary Ann"; or, for a term of several words, each word must, so "Phil Belford" and
-     * "Belford, Phil" both find Phil Belford. Parenthesised as a whole so it can sit in an
-     * OR group or among ANDs.
+     * "Mary Ann"; or the whole name, as "Mary Ann Smith" (first, middle and last, first and
+     * last, or "last, first"); or, for a term of several words, each word must, so
+     * "Phil Belford" and "Belford, Phil" both find Phil Belford. Parenthesised as a whole so
+     * it can sit in an OR group or among ANDs.
      *
      * @return array{0: string, 1: list<string>}
      */
@@ -305,6 +313,13 @@ final class PatientFinderQueryBuilder
         if (count($words) < 2) {
             return ['( ' . $where . ' )', $binds];
         }
+        // A first or last name of several words ("Mary Ann") would fail the word-by-word
+        // match below, since "Ann" starts no name field; the whole name catches it.
+        $full = PatientFinderTermMatch::Start->pattern($term, $exact, $this->dateSearch);
+        $where .= ' OR ' . self::FULL_NAME_FIRST_MIDDLE_LAST . self::LIKE
+            . ' OR ' . self::FULL_NAME_FIRST_LAST . self::LIKE
+            . ' OR ' . self::FULL_NAME_LAST_FIRST . self::LIKE;
+        array_push($binds, $full, $full, $full);
         $clauses = [];
         foreach ($words as $word) {
             [$wordWhere, $wordBinds] = $this->anyNameWhere($word, $exact);

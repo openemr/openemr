@@ -10,15 +10,15 @@
  * {@see PatientFinderBuiltInColumn}); {@see PatientFinderColumnRegistryFactory} then seeds it
  * through {@see self::column()} instead of as a `patient_data` field.
  *
- * Every column is a {@see PatientFinderColumn::fromSql()} column, so it is searched
- * and sorted on the server like any other. Values from other tables come from
- * correlated subqueries that return at most one value per patient, so the
- * finder's row counts are unaffected. None of the expressions holds a `?`: the
+ * Every column but the appointment ones is a {@see PatientFinderColumn::fromSql()}
+ * column, so it is searched and sorted on the server like any other. Values from other
+ * tables come from correlated subqueries that return at most one value per patient, so
+ * the finder's row counts are unaffected. None of the expressions holds a `?`: the
  * finder re-embeds a search expression in WHERE and ORDER BY without binds.
  *
- * Appointment columns are shown in the site's date and time display formats but
- * searched and sorted on the stored date and time, so a search matches a
- * YYYY-MM-DD prefix and the sort is chronological whatever the display format.
+ * The appointment columns are display-only ({@see PatientFinderColumn::enriched()}):
+ * a repeating appointment's dates are worked out in PHP, as the calendar does, which SQL
+ * cannot sort or search on. {@see PatientFinderAppointments} fills them for the rows shown.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -33,41 +33,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientFinder;
 
-use OpenEMR\Core\OEGlobalsBag;
-
 final readonly class PatientFinderBuiltInColumns
 {
-    /** MySQL DATE_FORMAT patterns for the date_display_format global (0, 1, 2). */
-    private const DATE_FORMATS = ['%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y'];
-
-    /** MySQL DATE_FORMAT patterns for the time_display_format global (0 = 24 hr, 1 = 12 hr). */
-    private const TIME_FORMATS = ['%H:%i', '%l:%i %p'];
-
-    /**
-     * Appointment statuses that are not an appointment the patient has or had:
-     * "x" canceled and "%" canceled less than 24 hours ahead (apptstat list).
-     */
-    private const CANCELED_STATUSES = "'x', '%'";
-
-    private string $dateTimeFormat;
-
-    /**
-     * @param int $dateDisplayFormat the date_display_format global (0 YYYY-MM-DD, 1 MM/DD/YYYY, 2 DD/MM/YYYY)
-     * @param int $timeDisplayFormat the time_display_format global (0 24 hr, 1 12 hr)
-     */
-    public function __construct(int $dateDisplayFormat = 0, int $timeDisplayFormat = 0)
-    {
-        $this->dateTimeFormat = (self::DATE_FORMATS[$dateDisplayFormat] ?? self::DATE_FORMATS[0])
-            . ' ' . (self::TIME_FORMATS[$timeDisplayFormat] ?? self::TIME_FORMATS[0]);
-    }
-
-    /**
-     * The columns, using the site's date and time display formats.
-     */
-    public static function fromGlobals(OEGlobalsBag $globals): self
-    {
-        return new self($globals->getInt('date_display_format'), $globals->getInt('time_display_format'));
-    }
 
     /**
      * The option ids an administrator can give a finder column list entry to show one of
@@ -116,8 +83,9 @@ final readonly class PatientFinderBuiltInColumns
             return null;
         }
         $expression = match ($column) {
+            // Filled by PatientFinderAppointments once the page's rows are known.
             PatientFinderBuiltInColumn::NextAppointment, PatientFinderBuiltInColumn::LastAppointment
-                => $this->appointmentColumn($column, $title, $defaultSortDir),
+                => PatientFinderColumn::enriched($key, $title),
             PatientFinderBuiltInColumn::NameFirstLast => self::joined(' ', ['fname', 'lname']),
             PatientFinderBuiltInColumn::NameFirstLastMiddle => self::joined(' ', ['fname', 'mname', 'lname']),
             PatientFinderBuiltInColumn::CityState => self::joined(', ', ['city', 'state']),
@@ -133,29 +101,10 @@ final readonly class PatientFinderBuiltInColumns
         $built = $expression instanceof PatientFinderColumn
             ? $expression
             : PatientFinderColumn::fromSql($key, $title, $expression, defaultSortDir: $defaultSortDir);
-        // The appointment and insurance columns search through a correlated subquery. The
-        // search box would run it against every patient on each keystroke, so only their
-        // own column filters search them.
+        // The insurance columns search through a correlated subquery. The search box would
+        // run it against every patient on each keystroke, so only their own column filters
+        // search them.
         return $column->usesSubquery() ? $built->withoutGlobalSearch() : $built;
-    }
-
-    /**
-     * An appointment column: shown in the site's date and time formats, searched and sorted
-     * on the stored date and time.
-     */
-    private function appointmentColumn(
-        PatientFinderBuiltInColumn $column,
-        string $title,
-        string $defaultSortDir
-    ): PatientFinderColumn {
-        $when = $this->appointment($column === PatientFinderBuiltInColumn::NextAppointment);
-        return PatientFinderColumn::fromSql(
-            $column->value,
-            $title,
-            "DATE_FORMAT($when, '{$this->dateTimeFormat}')",
-            searchExpression: $when,
-            defaultSortDir: $defaultSortDir
-        );
     }
 
     /**
@@ -185,23 +134,6 @@ final readonly class PatientFinderBuiltInColumns
         return "CONCAT_WS(', ', " . self::field('street') . ', ' . self::field('street_line_2') . ', '
             . self::field('city') . ', ' . "NULLIF(CONCAT_WS('  ', " . self::field('state') . ', '
             . self::field('postal_code') . "), ''))";
-    }
-
-    /**
-     * The soonest appointment after now, or the latest one before now, leaving out canceled
-     * ones. pid is compared as text because pc_pid is a varchar; that keeps its index usable.
-     *
-     * A repeating appointment counts by its series' first date (pc_eventDate): its later
-     * dates are worked out in PHP (fetchEvents() in appointments.inc.php), which a SQL
-     * column cannot do. Kept as SQL so the list can sort and search on these columns.
-     */
-    private function appointment(bool $next): string
-    {
-        $at = "TIMESTAMP(e.pc_eventDate, COALESCE(e.pc_startTime, '00:00:00'))";
-        return '(SELECT ' . ($next ? 'MIN' : 'MAX') . "($at) FROM openemr_postcalendar_events e"
-            . ' WHERE e.pc_pid = CAST(patient_data.pid AS CHAR)'
-            . " AND $at " . ($next ? '>' : '<') . ' NOW()'
-            . ' AND e.pc_apptstatus NOT IN (' . self::CANCELED_STATUSES . '))';
     }
 
     /**

@@ -160,6 +160,11 @@
         if (pid.length === 0) {
             return;
         }
+        // A redraw while the request is out replaces the table's rows, and the row API
+        // would then point at whichever patient now sits in that place.
+        var stillShown = function () {
+            return document.body.contains(tr[0]) && tr.attr('id') === 'pid_' + pid;
+        };
         top.restoreSession();
         fetch(detail.url + '?' + new URLSearchParams({detail: pid}), {credentials: 'same-origin'})
             .then(function (response) {
@@ -169,10 +174,16 @@
                 return response.json();
             })
             .then(function (body) {
+                if (!stillShown()) {
+                    return;
+                }
                 row.child('<div class="finder-detail">' + (body.html || '') + '</div>').show();
                 setExpanded(button, true);
             })
             .catch(function () {
+                if (!stillShown()) {
+                    return;
+                }
                 var message = $('<div class="finder-detail text-danger"></div>').text(detail.errorText || '');
                 row.child(message).show();
                 setExpanded(button, true);
@@ -393,9 +404,11 @@
 
         // A row opens its patient. Its id is pid_{value}; the "No matching records
         // found" row has none, so it opens nothing.
-        $table.on('click', 'tbody tr', function () {
+        $table.on('click', 'tbody tr', function (e) {
             var pid = this.id.substring(4);
             if (pid.length > 0) {
+                // The name link has an empty href, which would reload the finder.
+                e.preventDefault();
                 openPatient(pid);
             }
         });

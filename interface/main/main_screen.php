@@ -438,6 +438,8 @@ if ((!AuthUtils::useActiveDirectory()) && (OEGlobalsBag::getInstance()->getInt('
 
 $listSvc = new ListService();
 $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
+// Set below when a patient opens in a new window; main.php shows it once.
+$session->remove('open_patient_tab');
 
 if ($is_expired) {
     //display the php file containing the password expiration message.
@@ -448,7 +450,9 @@ if ($is_expired) {
     ]);
 } elseif (!empty($_POST['patientID'])) {
     // A patient opened in a new window, as from the Patient Finder or Patient Tracker:
-    // the Dashboard goes first, because main.php shows only the first tab.
+    // main.php shows this Dashboard first, and only on the window's first load. It is kept
+    // out of default_open_tabs, which main.php reloads from: a reload would otherwise run
+    // set_pid again and switch the window back to this patient.
     $patientID = (int) $_POST['patientID'];
     $dashboardQuery = ['set_pid' => $patientID];
     if (!empty($_POST['encounterID'])) {
@@ -458,7 +462,7 @@ if ($is_expired) {
     // Tab paths start at the project root: main.php puts the web root in front of them
     // and drops any that DefaultTabsFilter cannot find under the root.
     $_notes = 'interface/patient_file/summary/demographics.php?' . http_build_query($dashboardQuery);
-    array_unshift($_tabs, [
+    $session->set('open_patient_tab', [
         'notes' => $_notes,
         'id' => "pat",
         'label' => xl("Dashboard"),

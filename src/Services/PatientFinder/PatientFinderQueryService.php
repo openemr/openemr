@@ -39,6 +39,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientFinder;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
@@ -79,7 +80,8 @@ final class PatientFinderQueryService
         ?callable $plaintext = null,
         ?PatientFinderColumnRegistryFactory $registryFactory = null,
         ?callable $recentPids = null,
-        private readonly ?bool $recentSharesColumns = null
+        private readonly ?bool $recentSharesColumns = null,
+        private ?PatientFinderAppointments $appointments = null
     ) {
         $this->builder = $builder ?? new PatientFinderQueryBuilder();
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
@@ -364,6 +366,18 @@ final class PatientFinderQueryService
             $pids[] = PatientFinderValue::int($row['pid'] ?? null);
         }
         $event = new PatientFinderRowEnrichEvent($pids, $enrichedColumns);
+        // Core's own Next and Last Appt columns, worked out for this page's patients.
+        $appointmentColumns = [];
+        foreach ($enrichedColumns as $column) {
+            $builtIn = PatientFinderBuiltInColumn::tryFrom($column->key);
+            if ($builtIn !== null && $builtIn->isAppointment()) {
+                $appointmentColumns[] = $builtIn;
+            }
+        }
+        if ($appointmentColumns !== []) {
+            $this->appointments ??= PatientFinderAppointments::fromGlobals(OEGlobalsBag::getInstance());
+            $event->addValues($this->appointments->values($pids, $appointmentColumns));
+        }
         // Only bother dispatching when there is something to enrich.
         if ($enrichedColumns !== []) {
             $this->dispatcher->dispatch($event, PatientFinderRowEnrichEvent::EVENT_HANDLE);
