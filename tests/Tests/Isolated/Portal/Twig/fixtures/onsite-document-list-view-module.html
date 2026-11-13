@@ -58,6 +58,13 @@
 var datepicker_format = 'Y-m-d';
 var datetimepicker_format = 'Y-m-d H:i:s';
 
+        // Messages shown after a document upload (see initFileDrop in onsitedocuments.js).
+        window.portalUploadMessages = {
+            saved: "Your upload was submitted. Our staff has not yet confirmed receipt. Please contact the office if confirmation does not arrive.",
+            someFailed: "Some files were not saved:",
+            failed: "Your upload was not saved. Please try again or contact the office.",
+            unknown: "We could not confirm that your upload was saved. Please try again or contact the office."
+        };
         $(function () {
             page.init();
             pageAudit.init();
