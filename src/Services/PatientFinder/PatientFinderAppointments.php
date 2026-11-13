@@ -6,9 +6,11 @@
  * The Next Appt and Last Appt values the Patient Finder shows: each patient's soonest
  * appointment after now and latest one before now, leaving out canceled ones. A repeating
  * appointment is stored as one row dated at its series' start, so its dates are worked out
- * the way the calendar works them out (fetchEvents() in appointments.inc.php): only a series
- * that spans the window is expanded, and only over one recurrence period (a year at most)
- * either side of now, which holds its nearest date.
+ * the way the calendar works them out (fetchEvents() in appointments.inc.php), which also
+ * leaves out a series' excluded dates. A series is expanded outward from today over its own
+ * recurrence period, then twice and four times that and so on, until its nearest date
+ * either side of now turns up or the series runs out, so a long period or a run of
+ * excluded dates is still found without expanding the whole series.
  *
  * Database access, the series expansion and the clock are injected, so the lookups are
  * unit-testable without a database.
@@ -45,8 +47,21 @@ final class PatientFinderAppointments
     /** PHP time formats for the time_display_format global (0 = 24 hr, 1 = 12 hr). */
     private const TIME_FORMATS = ['H:i', 'g:i A'];
 
-    /** How far from now a repeating series is expanded: its longest period, a year, and a day. */
-    private const SERIES_WINDOW = 'P1Y1D';
+    /**
+     * How many times a series' search window doubles before giving up: 2^7 periods, enough
+     * for a run of excluded dates, while a series with a broken spec stays bounded.
+     */
+    private const MAX_WINDOW_DOUBLINGS = 7;
+
+    /** The calendar's every-N units (event_repeat_freq_type in pc_recurrspec). */
+    private const REPEAT_EVERY_DAY = 0;
+    private const REPEAT_EVERY_WEEK = 1;
+    private const REPEAT_EVERY_MONTH = 2;
+    private const REPEAT_EVERY_YEAR = 3;
+    private const REPEAT_EVERY_WORK_DAY = 4;
+
+    /** The calendar's "on the Nth weekday every N months" recurrence (pc_recurrtype). */
+    private const RECURR_TYPE_ON = 2;
 
     /** @var callable(string, array<int, string|int>): list<array<mixed>> */
     private $fetchRecords;
@@ -130,33 +145,15 @@ final class PatientFinderAppointments
         $last = null;
         $canceled = implode(', ', array_fill(0, count(self::CANCELED_STATUSES), '?'));
         $rows = ($this->fetchRecords)(
-            'SELECT pc_eid, pc_eventDate, pc_endDate, pc_startTime, pc_recurrtype FROM openemr_postcalendar_events'
+            'SELECT pc_eid, pc_eventDate, pc_endDate, pc_startTime, pc_recurrtype, pc_recurrspec'
+            . ' FROM openemr_postcalendar_events'
             . ' WHERE pc_pid = ? AND pc_apptstatus NOT IN (' . $canceled . ')',
             array_merge([(string) $pid], self::CANCELED_STATUSES)
         );
-        $window = new \DateInterval(self::SERIES_WINDOW);
         foreach ($rows as $row) {
-            $eventDate = PatientFinderValue::string($row['pc_eventDate'] ?? null);
-            if (PatientFinderValue::int($row['pc_recurrtype'] ?? null) > 0) {
-                // A series: its next date after now falls within a period (a year at most)
-                // of now, and its last date before now within a period of now or of its end.
-                $endDate = PatientFinderValue::string($row['pc_endDate'] ?? null);
-                $today = $now->format('Y-m-d');
-                $horizon = $now->add($window)->format('Y-m-d');
-                $hasEnd = $endDate !== '' && $endDate !== '0000-00-00';
-                $to = $hasEnd ? min($endDate, $horizon) : $horizon;
-                $lastAnchor = $hasEnd ? min($endDate, $today) : $today;
-                $from = max(
-                    $eventDate,
-                    (new DateTimeImmutable($lastAnchor))->sub($window)->format('Y-m-d')
-                );
-                // A series that starts beyond the window has its first date as its next.
-                $occurrences = $from > $to
-                    ? [$row]
-                    : ($this->expandSeries)($from, $to, PatientFinderValue::int($row['pc_eid'] ?? null));
-            } else {
-                $occurrences = [$row];
-            }
+            $occurrences = PatientFinderValue::int($row['pc_recurrtype'] ?? null) > 0
+                ? $this->seriesOccurrences($row, $now)
+                : [$row];
             foreach ($occurrences as $occurrence) {
                 $at = self::startOf($occurrence);
                 if ($at === null) {
@@ -170,6 +167,96 @@ final class PatientFinderAppointments
             }
         }
         return ['next' => $next, 'last' => $last];
+    }
+
+    /**
+     * A series' dates nearest now: from today (or its start) forward until one after now, and
+     * from today (or its end) back until one before now, each search growing from one period.
+     *
+     * @param array<mixed> $row the series' event row
+     * @return list<array<mixed>>
+     */
+    private function seriesOccurrences(array $row, DateTimeImmutable $now): array
+    {
+        $eid = PatientFinderValue::int($row['pc_eid'] ?? null);
+        $start = PatientFinderValue::string($row['pc_eventDate'] ?? null);
+        $endDate = PatientFinderValue::string($row['pc_endDate'] ?? null);
+        $end = $endDate === '' || $endDate === '0000-00-00' ? null : $endDate;
+        $today = $now->format('Y-m-d');
+        [$count, $unit] = self::period($row);
+        $found = [];
+
+        // Forward: the first date after now.
+        $from = max($start, $today);
+        for ($k = 1; $k <= 1 << self::MAX_WINDOW_DOUBLINGS && ($end === null || $from <= $end); $k *= 2) {
+            $to = self::shift($from, $count * $k, $unit, +1);
+            $to = $end === null ? $to : min($to, $end);
+            $dates = ($this->expandSeries)($from, $to, $eid);
+            $after = array_filter($dates, static fn(array $d): bool => (self::startOf($d) ?? $now) > $now);
+            if ($after !== []) {
+                array_push($found, ...array_values($after));
+                break;
+            }
+            if ($end !== null && $to >= $end) {
+                break;
+            }
+        }
+
+        // Back: the last date before now, from today or from the series' end.
+        $anchor = $end === null ? $today : min($end, $today);
+        for ($k = 1; $k <= 1 << self::MAX_WINDOW_DOUBLINGS && $start <= $anchor; $k *= 2) {
+            $from = max($start, self::shift($anchor, $count * $k, $unit, -1));
+            $dates = ($this->expandSeries)($from, $anchor, $eid);
+            $before = array_filter($dates, static fn(array $d): bool => (self::startOf($d) ?? $now) < $now);
+            if ($before !== []) {
+                array_push($found, ...array_values($before));
+                break;
+            }
+            if ($from === $start) {
+                break;
+            }
+        }
+        return $found;
+    }
+
+    /**
+     * A series' recurrence period as a count and a date unit (D, M or Y), read from its
+     * pc_recurrspec the way fetchEvents() reads it, plus slack for work days. A spec that
+     * cannot be read counts as a day, so the doubling search still covers it.
+     *
+     * @param array<mixed> $row
+     * @return array{int, string}
+     */
+    private static function period(array $row): array
+    {
+        $spec = @unserialize(PatientFinderValue::string($row['pc_recurrspec'] ?? null), ['allowed_classes' => false]);
+        $spec = is_array($spec) ? $spec : [];
+        if (PatientFinderValue::int($row['pc_recurrtype'] ?? null) === self::RECURR_TYPE_ON) {
+            return [max(1, PatientFinderValue::int($spec['event_repeat_on_freq'] ?? null)), 'M'];
+        }
+        $freq = max(1, PatientFinderValue::int($spec['event_repeat_freq'] ?? null));
+        return match (PatientFinderValue::int($spec['event_repeat_freq_type'] ?? null)) {
+            self::REPEAT_EVERY_DAY => [$freq, 'D'],
+            self::REPEAT_EVERY_WEEK => [$freq * 7, 'D'],
+            self::REPEAT_EVERY_MONTH => [$freq, 'M'],
+            self::REPEAT_EVERY_YEAR => [$freq, 'Y'],
+            // N work days skip weekends: at most N + 2 days a week.
+            self::REPEAT_EVERY_WORK_DAY => [$freq + 2 * intdiv($freq, 5) + 3, 'D'],
+            // Days of the week (type 3) and anything else repeat within a week.
+            default => [7, 'D'],
+        };
+    }
+
+    /**
+     * A Y-m-d date moved by a count of days, months or years, and a day further, forward
+     * (+1) or back (-1).
+     */
+    private static function shift(string $date, int $count, string $unit, int $direction): string
+    {
+        $base = DateTimeImmutable::createFromFormat('!Y-m-d', $date) ?: new DateTimeImmutable('@0');
+        $interval = new \DateInterval('P' . $count . $unit);
+        $moved = $direction > 0 ? $base->add($interval) : $base->sub($interval);
+        return ($direction > 0 ? $moved->modify('+1 day') : $moved->modify('-1 day'))->format('Y-m-d');
     }
 
     /**
