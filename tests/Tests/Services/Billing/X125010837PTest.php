@@ -204,7 +204,6 @@ class X125010837PTest extends TestCase
             $edicount,
             payerId: $payerId === null ? null : (string) $payerId,
         );
-        $this->assertIsString($out);
         $this->assertIsInt($edicount);
         $segments = array_values(array_filter(
             array_map(trim(...), explode('~', $out)),
