@@ -232,7 +232,7 @@ incus config device add claude-vm git disk source=<git-dir> path=<git-dir> io.ca
 > ```bash
 > # Skip the stop if already stopped; otherwise stop and halt the sequence if the stop fails.
 > # Setting io.cache on a still-running VM would trigger the device remove+reattach this is meant to avoid.
-> [ "$(incus list claude-vm --format csv --columns s)" = "STOPPED" ] || incus stop claude-vm &&
+> [ "$(incus list "^claude-vm$" --format csv --columns s)" = "STOPPED" ] || incus stop claude-vm &&
 >   incus config device set claude-vm git io.cache=unsafe &&
 >   incus start claude-vm
 > ```
