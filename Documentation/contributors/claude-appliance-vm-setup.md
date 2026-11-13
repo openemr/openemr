@@ -704,11 +704,12 @@ The LXC appliance and the Incus VM appliance can run on the same host simultaneo
 |---|---|---|
 | Cold boot | ~1 s | ~10-20 s (first boot ~30-60 s while cloud-init runs) |
 | Shared git-dir I/O | Host-speed bind mount | virtiofs — host-speed read/write for *data*, slower for metadata ops (`stat`, large `ls`, `git status` across many files) |
+| Host → VM view consistency | Immediate — bind mount has no caching layer | Minute-scale lag — `io.cache=unsafe` is required for execve on the share (see Step 4); host-side edits are visible to the VM only after the guest kernel's cache naturally invalidates. `fsync` on the host doesn't push invalidation into the VM. VM → host writes are always immediate. |
 | Docker image I/O | On a path under LXC rootfs | On the guest's own virtual disk — dedicated, fast |
 | Compiled/installed deps (`vendor/`, `node_modules`) | In Docker volumes inside the stack | In Docker volumes inside the stack (same) |
 | RAM footprint | Shared with host, pay only for processes running | Dedicated to guest while running (16 GiB in the example) |
 
-The main day-to-day friction compared to the LXC appliance is boot time and `git status` latency on large trees. Neither is prohibitive.
+The main day-to-day friction compared to the LXC appliance is boot time, `git status` latency on large trees, and the host→VM view-consistency lag if you edit on the host. None is prohibitive; the view-consistency lag can be worked around by editing from inside the VM (see the mitigation list in [Step 4](#step-4--create-the-vm)).
 
 ### Stricter outbound isolation via Incus network ACLs
 
