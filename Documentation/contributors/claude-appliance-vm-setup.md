@@ -230,9 +230,11 @@ incus config device add claude-vm git disk source=<git-dir> path=<git-dir> io.ca
 > **If you already created the VM without `io.cache=unsafe`,** set it after the fact — but **stop the VM first**. `io.cache` is not a live-updatable disk field on Incus 6.x; setting it on a running VM triggers device remove + reattach, which kills virtiofsd immediately and can strand any in-flight access to the share. `io.cache` is read when virtiofsd (re)attaches, so the VM has to be stopped when the value changes:
 >
 > ```bash
-> incus stop claude-vm || true           # no-op if already stopped; || true keeps the next line reachable
-> incus config device set claude-vm git io.cache=unsafe
-> incus start claude-vm
+> # Skip the stop if already stopped; otherwise stop and halt the sequence if the stop fails.
+> # Setting io.cache on a still-running VM would trigger the device remove+reattach this is meant to avoid.
+> [ "$(incus list claude-vm --format csv --columns s)" = "STOPPED" ] || incus stop claude-vm &&
+>   incus config device set claude-vm git io.cache=unsafe &&
+>   incus start claude-vm
 > ```
 >
 > Verify from the host that execve now works against the share with a minimal isolated test (writes a two-line script to the share, runs it from inside the VM, cleans up):
