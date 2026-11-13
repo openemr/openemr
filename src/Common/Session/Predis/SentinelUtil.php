@@ -104,7 +104,9 @@ class SentinelUtil
         }
 
         // optional and will default to 'mymaster' if not provided
-        $this->predisMaster = getenv('REDIS_MASTER', true) ?? 'mymaster';
+        // (getenv() returns false, not null, when the variable is unset)
+        $predisMaster = getenv('REDIS_MASTER', true);
+        $this->predisMaster = ($predisMaster === false || $predisMaster === '') ? 'mymaster' : $predisMaster;
 
         // optional if have a password for sentinels
         $this->predisSentinelsPassword = getenv('REDIS_SENTINELS_PASSWORD', true) ?? null;
