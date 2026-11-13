@@ -31,6 +31,7 @@
     <script src="{{web_root}}/library/js/dwv/dwv_i18n.js?v={{ assetVersion|attr_url }}"></script>
     <!-- Launch the app -->
     <script src="{{web_root}}/library/js/dwv/dicom_gui.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{web_root}}/library/js/dwv/dicom_zip_images.js?v={{ assetVersion|attr_url }}"></script>
     <script src="{{web_root}}/library/js/dwv/dicom_launcher.js?v={{ assetVersion|attr_url }}"></script>
 </head>
 <style type="text/css">
@@ -388,7 +389,13 @@
         <!-- Title -->
         <h2>{{ "Dicom Viewer"|xlt }}<span>&nbsp;<em>( {{ "Not for Diagnostics"|xlt }} )</em></span></h2>
         <span class="editspan"></span>
-        <div class="toolbar"></div>
+        <div class="toolbar">
+            <span id="zipImageNav" class="d-none">
+                <button type="button" id="zipImagePrev" class="btn btn-sm btn-secondary" title="{{ "Previous image"|xla }}" aria-label="{{ "Previous image"|xla }}">&laquo;</button>
+                <span id="zipImageCount"></span>
+                <button type="button" id="zipImageNext" class="btn btn-sm btn-secondary" title="{{ "Next image"|xla }}" aria-label="{{ "Next image"|xla }}">&raquo;</button>
+            </span>
+        </div>
     </div><!-- /pageHeader -->
     <div id="pageMain">
         <!-- get state json data if file -->

@@ -330,10 +330,57 @@ function startApp() {
         oemrApp.addEventListener('wl-center-change', plotInfo.update);
     }
 
-    // if controller.php url for doc fetch
+    // A zip of DICOM files (document type application/dicom+zip) is shown one image at a time: see
+    // dicom_zip_images.js for why and for the helpers (tested in tests/js/dicom-zip-images.test.js).
+    const loadZipImages = function (url) {
+        const nav = document.getElementById('zipImageNav');
+        let navigator = null;
+        oemrApp.addEventListener('load-end', function () {
+            if (navigator) {
+                navigator.loadEnded();
+            }
+        });
+        window.fetch(url, {credentials: 'same-origin'}).then(function (response) {
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+            return response.arrayBuffer();
+        }).then(function (buffer) {
+            return JSZip.loadAsync(buffer);
+        }).then(function (zip) {
+            const entries = dwvOemr.zipImages.selectImageEntries(zip.files);
+            if (entries.length === 0) {
+                throw new Error('no files in the zip');
+            }
+            if (entries.length > 1) {
+                nav.classList.remove('d-none');
+            }
+            navigator = dwvOemr.zipImages.createNavigator(entries, {
+                prev: document.getElementById('zipImagePrev'),
+                next: document.getElementById('zipImageNext'),
+                count: document.getElementById('zipImageCount')
+            }, function (buffer, name, isFirst) {
+                if (!isFirst) {
+                    oemrApp.reset();
+                    toggle('loaderlist'); // the load end handler closes it again.
+                }
+                oemrApp.loadFiles([new File([buffer], name, {type: 'application/dicom'})]);
+            });
+            navigator.show(0);
+        }).catch(function (error) {
+            // fall back to the default loader of the zip
+            console.log("DICOM zip could not be read, using the default loader: " + error);
+            oemrApp.loadURLs([url]);
+        });
+    };
+
     if (dwvOemr.oemrDocumentUrl) {
         toggle('loaderlist'); // shows progress of file load.
-        oemrApp.loadURLs([dwvOemr.oemrDocumentUrl]);
+        if (dwvOemr.zipImages.isZipDocumentUrl(dwvOemr.oemrDocumentUrl) && typeof JSZip !== 'undefined') {
+            loadZipImages(dwvOemr.oemrDocumentUrl);
+        } else {
+            oemrApp.loadURLs([dwvOemr.oemrDocumentUrl]);
+        }
     } else {
         // possible load from location
         dwv.utils.loadFromUri(window.location.href, oemrApp);
