@@ -221,13 +221,15 @@ incus init images:ubuntu/24.04/cloud claude-vm --vm \
 incus config device add claude-vm git disk source=<git-dir> path=<git-dir> io.cache=unsafe
 ```
 
-> **What "unsafe" means here.** The name refers to filesystem-consistency semantics, not data integrity or security. With `io.cache=unsafe` the guest kernel caches file data from the share aggressively, which violates POSIX close-to-open consistency: if the host writes to a file *directly* (e.g. your editor on the host saves a source file) and the VM reads the same file within the cache-invalidation window, the VM may briefly see the old content. Three things make this a non-issue in practice for this appliance workflow:
+> **What "unsafe" means here.** The name refers to filesystem-consistency semantics, not data integrity or security. With `io.cache=unsafe` the guest kernel caches file attributes and data from the share aggressively with time-based invalidation; `fsync` on the host pushes writes to the host filesystem, but it does not push cache invalidation into the VM. The practical consequence: **host-side changes can take minutes to become visible to the VM.** If you save a source file in your editor on the host and immediately prompt the agent in the VM to re-read that file, the agent may see the old content until the VM's cache naturally invalidates.
 >
-> - Writes **from the VM through virtiofs** always land on the host filesystem authoritatively — no stale data ever ships from VM to host.
-> - Modern editors `fsync` on save; virtiofsd respects it, so host-side saves become visible to the VM within seconds.
-> - This is a single-developer appliance; concurrent-same-file-writes from both sides without an intervening `fsync` aren't part of the workflow.
+> Mitigations for workflows where that staleness window matters:
 >
-> If you need stricter consistency (e.g. you edit the same file from the host editor while the agent is reading it in a tight loop), the LXC appliance is the stricter configuration — its bind mount has no caching layer. That is part of the cost-of-isolation tradeoff the two configs trade on.
+> - **Do your editing from inside the VM.** Writes initiated in the VM go through virtiofsd and land authoritatively on the host — no staleness in the VM→host direction. If the agent is the primary editor and you review the diff from the host (read-only), you're never in the slow direction.
+> - **If you must edit on the host and read in the VM,** add a short pause after saving before prompting the agent, or `touch` the file inside the VM to force cache invalidation on that path.
+> - **If you need strict consistency** (host editor and VM agent working the same file in tight cycles), the LXC appliance is the stricter configuration — its bind mount has no caching layer, so host-side writes are immediately visible to the container. That is part of the cost-of-isolation tradeoff the two configs trade on.
+>
+> What this is *not*: writes are never lost or corrupted, permissions and ownership are still enforced, the share isn't more reachable from outside the appliance. The scope of "unsafe" is strictly the view-latency of host-originated changes to the VM.
 
 > **Sizing.** 16 GiB RAM and 8 vCPUs is a sensible starting point for a few parallel worktrees plus a small `kind` cluster. Scale down if you only ever run one stack at a time; scale up before expecting the full `openemr-devops` Kubernetes dev-stack to behave. Unlike the LXC appliance, these resources are dedicated to the guest while it is running — they do not float back to the host under load.
 
@@ -238,12 +240,17 @@ incus config device add claude-vm git disk source=<git-dir> path=<git-dir> io.ca
 > incus stop claude-vm && incus start claude-vm
 > ```
 >
-> `incus stop` + `incus start` is slightly more reliable than `incus restart` — the latter sometimes doesn't fully recycle virtiofsd on all Incus versions. Verify from inside the guest that execve now works against the share:
+> `incus stop` + `incus start` is slightly more reliable than `incus restart` — the latter sometimes doesn't fully recycle virtiofsd on all Incus versions. Verify from the host that execve now works against the share with a minimal isolated test (writes a two-line script to the share, runs it from inside the VM, cleans up):
 >
 > ```bash
-> incus exec claude-vm -- su - claude-agent -c '<git-dir>/openemr/.git/hooks/pre-commit --help >/dev/null 2>&1; echo rc=$?'
-> # rc=0 → execve works. rc=126 → still broken.
+> printf '#!/bin/sh\nexit 0\n' > <git-dir>/execve-test.sh
+> chmod +x <git-dir>/execve-test.sh
+> incus exec claude-vm -- <git-dir>/execve-test.sh; echo rc=$?
+> rm <git-dir>/execve-test.sh
+> # rc=0 → execve works. rc=126 → still broken (io.cache didn't take effect; check with `incus config device show claude-vm`).
 > ```
+>
+> Earlier versions of this guide suggested running the git pre-commit hook as the test. Don't — the hook routes through `openemr-cmd` and can return non-zero for stack-state reasons (`rc=255` and similar) that have nothing to do with execve or `io.cache`. Keep the test isolated.
 
 > **Boot time.** First boot takes ~30-60s while cloud-init runs (user creation, apt install for the base packages). Subsequent boots are ~10-20s. The LXC appliance is ~1s by comparison. Factor this into your "start a session" workflow.
 
