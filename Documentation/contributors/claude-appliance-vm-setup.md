@@ -211,23 +211,34 @@ incus init images:ubuntu/24.04/cloud claude-vm --vm \
 
 # virtiofs share of the host git directory, at the mirrored path inside the guest.
 # Path must match host-side exactly (no leading slash in the target: Incus adds it).
-# io.cache=metadata lets virtiofsd honor mmap(MAP_SHARED) for read-only mappings, which
-# is what execve needs to load an executable. Without this, every script and binary on
-# the share fails with rc=126 ("command invoked cannot execute"), including the git
-# pre-commit hook under .git/hooks/.
-incus config device add claude-vm git disk source=<git-dir> path=<git-dir> io.cache=metadata
+# io.cache=unsafe is required for execve against the share. It maps to virtiofsd
+# --cache=always, which allows mmap(MAP_SHARED) on cached data — the operation
+# execve uses to load an executable or #! script. Without it, every binary and
+# script on the share fails with rc=126 ("command invoked cannot execute"),
+# including the git pre-commit hook under .git/hooks/. Incus's virtiofs driver
+# only accepts [none, metadata, unsafe]; metadata caches metadata only, still
+# blocks mmap, so execve still fails — unsafe is the only working value.
+incus config device add claude-vm git disk source=<git-dir> path=<git-dir> io.cache=unsafe
 ```
+
+> **What "unsafe" means here.** The name refers to filesystem-consistency semantics, not data integrity or security. With `io.cache=unsafe` the guest kernel caches file data from the share aggressively, which violates POSIX close-to-open consistency: if the host writes to a file *directly* (e.g. your editor on the host saves a source file) and the VM reads the same file within the cache-invalidation window, the VM may briefly see the old content. Three things make this a non-issue in practice for this appliance workflow:
+>
+> - Writes **from the VM through virtiofs** always land on the host filesystem authoritatively — no stale data ever ships from VM to host.
+> - Modern editors `fsync` on save; virtiofsd respects it, so host-side saves become visible to the VM within seconds.
+> - This is a single-developer appliance; concurrent-same-file-writes from both sides without an intervening `fsync` aren't part of the workflow.
+>
+> If you need stricter consistency (e.g. you edit the same file from the host editor while the agent is reading it in a tight loop), the LXC appliance is the stricter configuration — its bind mount has no caching layer. That is part of the cost-of-isolation tradeoff the two configs trade on.
 
 > **Sizing.** 16 GiB RAM and 8 vCPUs is a sensible starting point for a few parallel worktrees plus a small `kind` cluster. Scale down if you only ever run one stack at a time; scale up before expecting the full `openemr-devops` Kubernetes dev-stack to behave. Unlike the LXC appliance, these resources are dedicated to the guest while it is running — they do not float back to the host under load.
 
-> **If you already created the VM without `io.cache=metadata`,** set it after the fact and restart — `io.cache=` is read by virtiofsd at device-attach time, so a running VM keeps the old setting until relaunch:
+> **If you already created the VM without `io.cache=unsafe`,** set it after the fact and restart — `io.cache=` is read by virtiofsd at device-attach time, so a running VM keeps the old setting until relaunch:
 >
 > ```bash
-> incus config device set claude-vm git io.cache=metadata
-> incus restart claude-vm
+> incus config device set claude-vm git io.cache=unsafe
+> incus stop claude-vm && incus start claude-vm
 > ```
 >
-> Verify from inside the guest that execve now works against the share:
+> `incus stop` + `incus start` is slightly more reliable than `incus restart` — the latter sometimes doesn't fully recycle virtiofsd on all Incus versions. Verify from inside the guest that execve now works against the share:
 >
 > ```bash
 > incus exec claude-vm -- su - claude-agent -c '<git-dir>/openemr/.git/hooks/pre-commit --help >/dev/null 2>&1; echo rc=$?'
