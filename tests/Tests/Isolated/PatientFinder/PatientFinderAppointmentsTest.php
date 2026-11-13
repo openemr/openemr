@@ -226,6 +226,112 @@ class PatientFinderAppointmentsTest extends TestCase
     }
 
     /**
+     * More than 129 daily dates in a row excluded, on both sides of now: the windows follow
+     * on from each other, so the search reaches past them in either direction.
+     */
+    public function testALongRunOfExcludedDailyDatesIsSearchedPast(): void
+    {
+        $dates = [];
+        $at = new DateTimeImmutable('2026-01-01');
+        while ($at->format('Y-m-d') <= '2027-12-31') {
+            $day = $at->format('Y-m-d');
+            // Excluded: 2026-06-01 through 2026-11-12 before now, 2026-11-13 through 2027-03-22 after.
+            if ($day < '2026-06-01' || $day > '2027-03-22') {
+                $dates[] = $day . ' 07:00:00';
+            }
+            $at = $at->modify('+1 day');
+        }
+        $values = $this->valuesFor(
+            [[
+                'pc_eid' => 2, 'pc_eventDate' => '2026-01-01', 'pc_endDate' => '2027-12-31', 'pc_startTime' => '07:00:00',
+                'pc_recurrtype' => 1, 'pc_recurrspec' => self::everySpec(1, 0),
+            ]],
+            [2 => $dates]
+        );
+
+        $this->assertSame(['next_appointment' => '2027-03-23 07:00', 'last_appointment' => '2026-05-31 07:00'], $values);
+        foreach (array_slice($this->expansions, 1) as $i => [$from, $to]) {
+            $previous = $this->expansions[$i];
+            if ($previous[0] >= '2026-11-13' && $from >= '2026-11-13') {
+                $this->assertGreaterThan($previous[1], $from, 'each forward window starts after the one before');
+            }
+        }
+    }
+
+    /**
+     * A series with every date excluded is searched only up to the reach, ten years from
+     * today, and then shows no date.
+     */
+    public function testTheSearchStopsAtItsReach(): void
+    {
+        $values = $this->valuesFor([[
+            'pc_eid' => 1, 'pc_eventDate' => '2026-11-20', 'pc_endDate' => '0000-00-00', 'pc_startTime' => '07:00:00',
+            'pc_recurrtype' => 1, 'pc_recurrspec' => self::everySpec(1, 0),
+        ]]);
+
+        $this->assertSame([], $values);
+        $last = end($this->expansions);
+        $this->assertNotFalse($last);
+        $this->assertSame('2036-11-13', $last[1], 'the last window ends at the reach');
+        $this->assertLessThan(20, count($this->expansions));
+    }
+
+    /**
+     * @return array<string, array{int, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unsupportedSpecProvider(): array
+    {
+        return [
+            'every N in freq type 5, as older code stored it' => [1, self::everySpec(2, 5)],
+            'every 0 days' => [1, self::everySpec(0, 0)],
+            'no interval unit' => [1, serialize(['event_repeat_freq' => '1', 'exdate' => ''])],
+            'not a spec' => [1, 'garbage'],
+            'Nth weekday every 0 months' => [2, serialize(['event_repeat_on_freq' => '0', 'event_repeat_on_num' => '1', 'event_repeat_on_day' => '1'])],
+            'days of the week with no days' => [3, self::everySpec(0, 6)],
+            'an unknown recurrence type' => [7, self::everySpec(1, 1)],
+        ];
+    }
+
+    /**
+     * A recurrence the calendar cannot step through never reaches its expansion, where its
+     * stepping would loop forever; the series shows no date.
+     */
+    #[DataProvider('unsupportedSpecProvider')]
+    public function testAnUnsupportedRecurrenceIsNeverExpanded(int $recurrType, string $spec): void
+    {
+        $values = $this->valuesFor(
+            [[
+                'pc_eid' => 7, 'pc_eventDate' => '2026-08-03', 'pc_endDate' => '0000-00-00', 'pc_startTime' => '09:00:00',
+                'pc_recurrtype' => $recurrType, 'pc_recurrspec' => $spec,
+            ]],
+            [7 => ['2026-11-16 09:00:00']]
+        );
+
+        $this->assertSame([], $values);
+        $this->assertSame([], $this->expansions);
+    }
+
+    /**
+     * A days-of-the-week series (type 3, freq type 6) is expanded week by week.
+     */
+    public function testADaysOfTheWeekSeriesIsExpanded(): void
+    {
+        $values = $this->valuesFor(
+            [[
+                'pc_eid' => 5, 'pc_eventDate' => '2026-09-01', 'pc_endDate' => '0000-00-00', 'pc_startTime' => '16:00:00',
+                'pc_recurrtype' => 3, 'pc_recurrspec' => serialize([
+                    'event_repeat_freq' => '3,5', 'event_repeat_freq_type' => '6', 'exdate' => '',
+                ]),
+            ]],
+            [5 => ['2026-11-10 16:00:00', '2026-11-12 16:00:00', '2026-11-17 16:00:00']]
+        );
+
+        $this->assertSame(['next_appointment' => '2026-11-17 16:00', 'last_appointment' => '2026-11-12 16:00'], $values);
+    }
+
+    /**
      * Only the asked-for columns are filled, and nothing is looked up when neither is asked.
      */
     public function testOnlyTheAskedForColumnsAreFilled(): void
