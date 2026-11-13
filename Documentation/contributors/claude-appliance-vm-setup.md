@@ -211,10 +211,28 @@ incus init images:ubuntu/24.04/cloud claude-vm --vm \
 
 # virtiofs share of the host git directory, at the mirrored path inside the guest.
 # Path must match host-side exactly (no leading slash in the target: Incus adds it).
-incus config device add claude-vm git disk source=<git-dir> path=<git-dir>
+# io.cache=metadata lets virtiofsd honor mmap(MAP_SHARED) for read-only mappings, which
+# is what execve needs to load an executable. Without this, every script and binary on
+# the share fails with rc=126 ("command invoked cannot execute"), including the git
+# pre-commit hook under .git/hooks/.
+incus config device add claude-vm git disk source=<git-dir> path=<git-dir> io.cache=metadata
 ```
 
 > **Sizing.** 16 GiB RAM and 8 vCPUs is a sensible starting point for a few parallel worktrees plus a small `kind` cluster. Scale down if you only ever run one stack at a time; scale up before expecting the full `openemr-devops` Kubernetes dev-stack to behave. Unlike the LXC appliance, these resources are dedicated to the guest while it is running — they do not float back to the host under load.
+
+> **If you already created the VM without `io.cache=metadata`,** set it after the fact and restart — `io.cache=` is read by virtiofsd at device-attach time, so a running VM keeps the old setting until relaunch:
+>
+> ```bash
+> incus config device set claude-vm git io.cache=metadata
+> incus restart claude-vm
+> ```
+>
+> Verify from inside the guest that execve now works against the share:
+>
+> ```bash
+> incus exec claude-vm -- su - claude-agent -c '<git-dir>/openemr/.git/hooks/pre-commit --help >/dev/null 2>&1; echo rc=$?'
+> # rc=0 → execve works. rc=126 → still broken.
+> ```
 
 > **Boot time.** First boot takes ~30-60s while cloud-init runs (user creation, apt install for the base packages). Subsequent boots are ~10-20s. The LXC appliance is ~1s by comparison. Factor this into your "start a session" workflow.
 
