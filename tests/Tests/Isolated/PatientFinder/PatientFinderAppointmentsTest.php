@@ -43,15 +43,53 @@ class PatientFinderAppointmentsTest extends TestCase
             static fn(string $sql, array $binds): array => $rows,
             function (string $from, string $to, int $eid) use ($series): array {
                 $this->expansions[] = [$from, $to, $eid];
-                return array_map(static function (string $at): array {
+                $dates = [];
+                foreach ($series[$eid] ?? [] as $at) {
                     [$date, $time] = explode(' ', $at);
-                    return ['pc_eventDate' => $date, 'pc_startTime' => $time];
-                }, $series[$eid] ?? []);
+                    if ($date >= $from && $date <= $to) {
+                        $dates[] = ['pc_eventDate' => $date, 'pc_startTime' => $time];
+                    }
+                }
+                return $dates;
             },
             new FrozenClock(new DateTimeImmutable(self::NOW)),
             $dateFormat,
             $timeFormat
         );
+    }
+
+    /**
+     * A pc_recurrspec for "every N units" (type 1), with any excluded dates.
+     */
+    private static function everySpec(int $freq, int $unit, string $exdate = ''): string
+    {
+        return serialize([
+            'event_repeat_freq' => (string) $freq,
+            'event_repeat_freq_type' => (string) $unit,
+            'event_repeat_on_num' => '1',
+            'event_repeat_on_day' => '0',
+            'event_repeat_on_freq' => '0',
+            'exdate' => $exdate,
+        ]);
+    }
+
+    /**
+     * A series' dates, every given number of days from a start, leaving out excluded dates.
+     *
+     * @param list<string> $excluded Y-m-d dates
+     * @return list<string>
+     */
+    private static function everyDays(string $start, int $days, int $count, string $time, array $excluded = []): array
+    {
+        $dates = [];
+        $at = new DateTimeImmutable($start);
+        for ($i = 0; $i < $count; $i++) {
+            if (!in_array($at->format('Y-m-d'), $excluded, true)) {
+                $dates[] = $at->format('Y-m-d') . ' ' . $time;
+            }
+            $at = $at->modify("+$days days");
+        }
+        return $dates;
     }
 
     /**
@@ -85,46 +123,106 @@ class PatientFinderAppointmentsTest extends TestCase
 
     /**
      * A weekly series that started months ago: its next date is next week, and its last
-     * date is last week, not the series' start.
+     * date is last week, not the series' start. Only a week or so either side is expanded.
      */
     public function testARunningSeriesCountsItsNearestDates(): void
     {
         $values = $this->valuesFor(
-            [['pc_eid' => 9, 'pc_eventDate' => '2026-08-03', 'pc_endDate' => '0000-00-00', 'pc_startTime' => '09:00:00', 'pc_recurrtype' => 1]],
-            [9 => ['2026-08-03 09:00:00', '2026-11-09 09:00:00', '2026-11-16 09:00:00', '2026-11-23 09:00:00']]
+            [[
+                'pc_eid' => 9, 'pc_eventDate' => '2026-08-03', 'pc_endDate' => '0000-00-00', 'pc_startTime' => '09:00:00',
+                'pc_recurrtype' => 1, 'pc_recurrspec' => self::everySpec(1, 1),
+            ]],
+            [9 => self::everyDays('2026-08-03', 7, 60, '09:00:00')]
         );
 
         $this->assertSame(['next_appointment' => '2026-11-16 09:00', 'last_appointment' => '2026-11-09 09:00'], $values);
-        // From its start (later than a year before now) to a year and a day after now.
-        $this->assertSame([['2026-08-03', '2027-11-14', 9]], $this->expansions);
+        $this->assertSame([['2026-11-13', '2026-11-21', 9], ['2026-11-05', '2026-11-13', 9]], $this->expansions);
     }
 
     /**
-     * A series that ended years ago is expanded over the year before its end, where its
-     * last date is.
+     * A series repeating every three years: its next date is years away, beyond any fixed
+     * window, and its last date is its start.
+     */
+    public function testALongPeriodSeriesFindsItsNextDate(): void
+    {
+        $values = $this->valuesFor(
+            [[
+                'pc_eid' => 4, 'pc_eventDate' => '2026-06-01', 'pc_endDate' => '0000-00-00', 'pc_startTime' => '10:00:00',
+                'pc_recurrtype' => 1, 'pc_recurrspec' => self::everySpec(3, 3),
+            ]],
+            [4 => ['2026-06-01 10:00:00', '2029-06-01 10:00:00', '2032-06-01 10:00:00']]
+        );
+
+        $this->assertSame(['next_appointment' => '2029-06-01 10:00', 'last_appointment' => '2026-06-01 10:00'], $values);
+    }
+
+    /**
+     * A run of excluded dates is searched past: the window doubles until a date turns up.
+     */
+    public function testARunOfExcludedDatesIsSearchedPast(): void
+    {
+        $excluded = ['2026-11-16', '2026-11-23', '2026-11-30', '2026-12-07', '2026-12-14'];
+        $values = $this->valuesFor(
+            [[
+                'pc_eid' => 3, 'pc_eventDate' => '2026-08-03', 'pc_endDate' => '0000-00-00', 'pc_startTime' => '09:00:00',
+                'pc_recurrtype' => 1, 'pc_recurrspec' => self::everySpec(1, 1, implode(',', $excluded)),
+            ]],
+            [3 => self::everyDays('2026-08-03', 7, 60, '09:00:00', $excluded)]
+        );
+
+        $this->assertSame('2026-12-21 09:00', $values['next_appointment'] ?? null);
+    }
+
+    /**
+     * A series that ended years ago is searched back from its end, where its last date is.
      */
     public function testASeriesThatEndedLongAgoStillGivesItsLastDate(): void
     {
         $values = $this->valuesFor(
-            [['pc_eid' => 5, 'pc_eventDate' => '2020-01-06', 'pc_endDate' => '2023-06-30', 'pc_startTime' => '11:00:00', 'pc_recurrtype' => 1]],
-            [5 => ['2023-06-26 11:00:00']]
+            [[
+                'pc_eid' => 5, 'pc_eventDate' => '2020-01-06', 'pc_endDate' => '2023-06-30', 'pc_startTime' => '11:00:00',
+                'pc_recurrtype' => 1, 'pc_recurrspec' => self::everySpec(1, 1),
+            ]],
+            [5 => self::everyDays('2020-01-06', 7, 183, '11:00:00')]
         );
 
         $this->assertSame(['last_appointment' => '2023-06-26 11:00'], $values);
-        $this->assertSame([['2022-06-29', '2023-06-30', 5]], $this->expansions);
+        $this->assertSame([['2023-06-22', '2023-06-30', 5]], $this->expansions, 'nothing is searched after its end');
     }
 
     /**
-     * A series that starts beyond the window is not expanded: its first date is its next.
+     * A series that starts in the future is expanded too, so an excluded first date is not
+     * shown as its next.
      */
-    public function testASeriesStartingBeyondTheWindowCountsItsFirstDate(): void
+    public function testAFutureSeriesSkipsItsExcludedFirstDate(): void
     {
-        $values = $this->valuesFor([
-            ['pc_eid' => 6, 'pc_eventDate' => '2028-02-01', 'pc_endDate' => '0000-00-00', 'pc_startTime' => '15:00:00', 'pc_recurrtype' => 2],
-        ]);
+        $values = $this->valuesFor(
+            [[
+                'pc_eid' => 6, 'pc_eventDate' => '2028-02-01', 'pc_endDate' => '0000-00-00', 'pc_startTime' => '15:00:00',
+                'pc_recurrtype' => 1, 'pc_recurrspec' => self::everySpec(1, 2, '2028-02-01'),
+            ]],
+            [6 => ['2028-03-01 15:00:00', '2028-04-01 15:00:00']]
+        );
 
-        $this->assertSame(['next_appointment' => '2028-02-01 15:00'], $values);
-        $this->assertSame([], $this->expansions);
+        $this->assertSame(['next_appointment' => '2028-03-01 15:00'], $values);
+    }
+
+    /**
+     * An "Nth weekday every N months" series (type 2) uses its month interval.
+     */
+    public function testAMonthlyWeekdaySeriesUsesItsMonthInterval(): void
+    {
+        $spec = serialize(['event_repeat_on_freq' => '2', 'event_repeat_on_num' => '1', 'event_repeat_on_day' => '1', 'exdate' => '']);
+        $values = $this->valuesFor(
+            [[
+                'pc_eid' => 8, 'pc_eventDate' => '2026-09-07', 'pc_endDate' => '0000-00-00', 'pc_startTime' => '08:30:00',
+                'pc_recurrtype' => 2, 'pc_recurrspec' => $spec,
+            ]],
+            [8 => ['2026-09-07 08:30:00', '2026-11-02 08:30:00', '2027-01-04 08:30:00']]
+        );
+
+        $this->assertSame(['next_appointment' => '2027-01-04 08:30', 'last_appointment' => '2026-11-02 08:30'], $values);
+        $this->assertSame(['2026-11-13', '2027-01-14', 8], $this->expansions[0], 'two months and a day');
     }
 
     /**
