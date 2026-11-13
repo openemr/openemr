@@ -95,8 +95,7 @@ class SMARTSessionTokenContextBuilderTest extends TestCase
         $token = new SMARTLaunchToken('other-patient-uuid');
         $token->setIntent(SMARTLaunchToken::INTENT_PATIENT_PORTAL);
 
-        $this->expectException(OAuthServerException::class);
-        $this->buildContext($token, ['user_id' => 'patient-uuid', 'puuid' => 'patient-uuid']);
+        $this->assertRefused($token, ['user_id' => 'patient-uuid', 'puuid' => 'patient-uuid'], 'Launch context is not for the logged in patient');
     }
 
     public function testPatientLoginCannotUseAStaffLaunchForAnotherPatient(): void
@@ -104,8 +103,7 @@ class SMARTSessionTokenContextBuilderTest extends TestCase
         $token = new SMARTLaunchToken('other-patient-uuid');
         $token->setIntent(SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG);
 
-        $this->expectException(OAuthServerException::class);
-        $this->buildContext($token, ['user_id' => 'patient-uuid', 'puuid' => 'patient-uuid']);
+        $this->assertRefused($token, ['user_id' => 'patient-uuid', 'puuid' => 'patient-uuid'], 'Launch context is not for the logged in patient');
     }
 
     public function testStaffLoginCannotUseAPortalLaunch(): void
@@ -113,8 +111,7 @@ class SMARTSessionTokenContextBuilderTest extends TestCase
         $token = new SMARTLaunchToken('patient-uuid');
         $token->setIntent(SMARTLaunchToken::INTENT_PATIENT_PORTAL);
 
-        $this->expectException(OAuthServerException::class);
-        $this->buildContext($token, ['user_id' => 'staff-user-uuid', 'puuid' => 'patient-uuid']);
+        $this->assertRefused($token, ['user_id' => 'staff-user-uuid', 'puuid' => 'patient-uuid'], 'A patient portal launch must be used by its patient');
     }
 
     public function testStaffLaunchIsUnchangedForStaffLogin(): void
@@ -125,6 +122,23 @@ class SMARTSessionTokenContextBuilderTest extends TestCase
         $context = $this->buildContext($token, ['user_id' => 'staff-user-uuid']);
 
         $this->assertSame('patient-uuid', $context['patient'], 'A staff EHR launch keeps the patient it names');
+    }
+
+    /**
+     * Asserts the launch is refused as an invalid launch context, for the given reason, not some other OAuth failure.
+     *
+     * @param array<string, string> $sessionValues session values other than the launch
+     */
+    private function assertRefused(SMARTLaunchToken $token, array $sessionValues, string $expectedMessage): void
+    {
+        try {
+            $this->buildContext($token, $sessionValues);
+        } catch (OAuthServerException $e) {
+            $this->assertSame('invalid_launch_context', $e->getErrorType());
+            $this->assertSame($expectedMessage, $e->getMessage());
+            return;
+        }
+        $this->fail('The launch should have been refused');
     }
 
     /**

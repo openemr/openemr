@@ -27,6 +27,8 @@ class PortalSmartAppLauncherTest extends TestCase
 
     /**
      * @return array<string, array{list<string>, bool, string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function clients(): array
     {
@@ -39,6 +41,11 @@ class PortalSmartAppLauncherTest extends TestCase
             'no patient scope' => [['openid', 'launch', 'fhirUser'], true, $launchUri, false],
             'disabled' => [['openid', 'launch', 'patient/Patient.rs'], false, $launchUri, false],
             'no launch uri' => [['openid', 'launch', 'patient/Patient.rs'], true, '', false],
+            'http launch uri' => [['openid', 'launch', 'patient/Patient.rs'], true, 'http://app.test/launch.php', false],
+            'javascript launch uri' => [['openid', 'launch', 'patient/Patient.rs'], true, 'javascript:alert(1)', false],
+            'relative launch uri' => [['openid', 'launch', 'patient/Patient.rs'], true, '/launch.php', false],
+            'https without host' => [['openid', 'launch', 'patient/Patient.rs'], true, 'https:///launch.php', false],
+            'uppercase https scheme' => [['openid', 'launch', 'patient/Patient.rs'], true, 'HTTPS://app.test/launch.php', true],
         ];
     }
 
@@ -78,6 +85,21 @@ class PortalSmartAppLauncherTest extends TestCase
         $token = SMARTLaunchToken::deserializeToken($query['launch']);
         $this->assertSame('patient-uuid', $token->getPatient());
         $this->assertSame(SMARTLaunchToken::INTENT_PATIENT_PORTAL, $token->getIntent());
+    }
+
+    public function testLaunchUrlPutsTheLaunchQueryBeforeAFragment(): void
+    {
+        $client = $this->client(['launch', 'patient/Patient.rs'], true, 'https://app.test/#/launch');
+        $launcher = new PortalSmartAppLauncher($this->createMock(ClientRepository::class), self::FHIR_URL);
+
+        $url = $launcher->launchUrl($client, 'patient-uuid');
+
+        $this->assertStringStartsWith('https://app.test/?launch=', $url);
+        $this->assertSame('/launch', parse_url($url, PHP_URL_FRAGMENT), 'The fragment stays after the query');
+        $query = [];
+        parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+        $this->assertSame(self::FHIR_URL, $query['iss']);
+        $this->assertIsString($query['launch']);
     }
 
     /**
