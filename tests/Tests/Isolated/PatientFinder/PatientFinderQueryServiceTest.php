@@ -29,7 +29,6 @@ use OpenEMR\Services\PatientFinder\PatientFinderQueryBuilder;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryService;
 use OpenEMR\Services\PatientFinder\PatientFinderRequest;
 use OpenEMR\Services\PatientFinder\PatientFinderValue;
-use OpenEMR\Services\PatientService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -380,9 +379,9 @@ class PatientFinderQueryServiceTest extends TestCase
      */
     public function testRecentPidsOfReadsThePatientServiceList(): void
     {
-        $patients = $this->createMock(PatientService::class);
-        $patients->method('getRecentPatientList')->willReturn([['pid' => 5], ['pid' => '2'], ['pid' => 0], 'junk']);
-
-        $this->assertSame([5, 2], PatientFinderQueryService::recentPidsOf($patients));
+        $this->assertSame(
+            [5, 2],
+            PatientFinderQueryService::recentPidsOf([['pid' => 5], ['pid' => '2'], ['pid' => 0], 'junk'])
+        );
     }
 }

@@ -225,8 +225,8 @@ final class PatientFinderQueryBuilder
                 $ors[] = '1 = 0';
             }
             foreach ($term === '' ? [] : ($globalSearchColumns ?? $columns) as $column) {
-                if (!$column->searchable) {
-                    continue; // enriched + any module display-only column
+                if (!$column->searchable || !$column->inGlobalSearch) {
+                    continue; // enriched, module display-only, or a costly subquery column
                 }
                 if ($column->key === self::NAME_KEY) {
                     [$nameWhere, $nameBinds] = $this->nameWhere($term, $request->exactSearch);

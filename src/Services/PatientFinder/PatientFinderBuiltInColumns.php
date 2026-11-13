@@ -130,9 +130,13 @@ final readonly class PatientFinderBuiltInColumns
             PatientFinderBuiltInColumn::InsurancePrimaryPolicy => self::primaryInsurance('ins.policy_number'),
         };
 
-        return $expression instanceof PatientFinderColumn
+        $built = $expression instanceof PatientFinderColumn
             ? $expression
             : PatientFinderColumn::fromSql($key, $title, $expression, defaultSortDir: $defaultSortDir);
+        // The appointment and insurance columns search through a correlated subquery. The
+        // search box would run it against every patient on each keystroke, so only their
+        // own column filters search them.
+        return $column->usesSubquery() ? $built->withoutGlobalSearch() : $built;
     }
 
     /**

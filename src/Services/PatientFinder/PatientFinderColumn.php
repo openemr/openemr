@@ -62,6 +62,8 @@ final readonly class PatientFinderColumn
      *        column ("asc" or "desc"); drives the DataTables "order" option.
      * @param string $width Display width as a CSS length ("8rem", "120px", "10%"), or "" to let
      *        the table size the column; see withWidth().
+     * @param bool $inGlobalSearch Whether the heading's search box searches this column
+     *        (when it is searchable at all); see withoutGlobalSearch().
      */
     private function __construct(
         public string $key,
@@ -76,7 +78,8 @@ final readonly class PatientFinderColumn
         public array $selectBoundValues = [],
         public array $joinBoundValues = [],
         public string $defaultSortDir = 'asc',
-        public string $width = ''
+        public string $width = '',
+        public bool $inGlobalSearch = true
     ) {
     }
 
@@ -216,7 +219,8 @@ final readonly class PatientFinderColumn
             $this->selectBoundValues,
             $this->joinBoundValues,
             $dir,
-            $this->width
+            $this->width,
+            $this->inGlobalSearch
         );
     }
 
@@ -243,7 +247,33 @@ final readonly class PatientFinderColumn
             $this->selectBoundValues,
             $this->joinBoundValues,
             $this->defaultSortDir,
-            $width
+            $width,
+            $this->inGlobalSearch
+        );
+    }
+
+    /**
+     * Return a copy of this column that the heading's search box leaves out, while its
+     * own column filter still searches it. For a column whose search runs a correlated
+     * subquery, which the search box would run against every patient on each keystroke.
+     */
+    public function withoutGlobalSearch(): self
+    {
+        return new self(
+            $this->key,
+            $this->title,
+            $this->type,
+            $this->searchable,
+            $this->sortable,
+            $this->table,
+            $this->selectExpression,
+            $this->joinClause,
+            $this->searchExpression,
+            $this->selectBoundValues,
+            $this->joinBoundValues,
+            $this->defaultSortDir,
+            $this->width,
+            false
         );
     }
 }

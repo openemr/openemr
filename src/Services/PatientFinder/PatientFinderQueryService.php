@@ -43,7 +43,6 @@ use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderRowEnrichEvent;
-use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 final class PatientFinderQueryService
@@ -95,14 +94,16 @@ final class PatientFinderQueryService
     }
 
     /**
-     * The logged-in user's recent patients, most recent first, for the Recent Patients tab.
+     * The pids in a recent patient list (PatientService::getRecentPatientList()), most
+     * recent first, for the Recent Patients tab.
      *
+     * @param array<mixed> $recentPatients
      * @return list<int>
      */
-    public static function recentPidsOf(PatientService $patients): array
+    public static function recentPidsOf(array $recentPatients): array
     {
         $pids = [];
-        foreach ($patients->getRecentPatientList() as $row) {
+        foreach ($recentPatients as $row) {
             $pid = PatientFinderValue::int(is_array($row) ? ($row['pid'] ?? null) : null);
             if ($pid > 0) {
                 $pids[] = $pid;

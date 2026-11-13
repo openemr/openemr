@@ -51,7 +51,7 @@ dynamic_finder.js), and the options below the list.
                             <button type="button" id="finder-font-size" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{ "Change the text size of the list"|xla }}">{{ "Font Size"|xlt }}</button>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="finder-font-size">
                                 {% for size, label in fontSizes %}
-                                    <button type="button" class="dropdown-item{{ size == fontSize ? ' active' : '' }}" data-font-size="{{ size|attr }}"{{ size == fontSize ? ' aria-current="true"' : '' }}>{{ label|text }}</button>
+                                    <button type="button" class="dropdown-item{{ size == fontSize ? ' active' : '' }}" data-font-size="{{ size|attr }}" aria-current="{{ size == fontSize ? 'true' : 'false' }}">{{ label|text }}</button>
                                 {% endfor %}
                             </div>
                         </div>

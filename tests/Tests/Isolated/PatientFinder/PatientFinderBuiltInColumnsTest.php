@@ -67,6 +67,20 @@ class PatientFinderBuiltInColumnsTest extends TestCase
     }
 
     /**
+     * The search box leaves out exactly the columns that search through a subquery on another
+     * table, which it would run against every patient on each keystroke.
+     */
+    #[DataProvider('builtInKeyProvider')]
+    public function testOnlySubqueryColumnsAreLeftOutOfTheSearchBox(string $key): void
+    {
+        $column = (new PatientFinderBuiltInColumns())->column($key, 'Title');
+
+        $this->assertNotNull($column);
+        $readsAnotherTable = str_contains((string) $column->searchExpression, 'FROM ');
+        $this->assertSame(!$readsAnotherTable, $column->inGlobalSearch);
+    }
+
+    /**
      * CONCAT_WS returns '' when every part is NULL, and an outer CONCAT_WS keeps '' with its
      * separator, so each nested CONCAT_WS has to become NULL when it is blank.
      */
