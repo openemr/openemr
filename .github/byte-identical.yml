@@ -349,25 +349,15 @@ files:
 # from acceptance-docker.yml at run-time against the branch's own
 # checkout, so every branch that carries the workflow must also carry
 # the scripts. Same rel-800 exclusion applies (that branch doesn't
-# carry acceptance-docker.yml). Third occurrence of the G45/G47 gap
-# class (script referenced by synced workflow but itself not in
-# manifest); adding the three entries preemptively per the pattern.
-- path: .github/scripts/detect-upgrade-cell-skip.sh
-  exclude-branches: [rel-800]
-# Sourced lib used by detect-upgrade-cell-skip.sh (and by
-# docker-release-orchestrator.yml's between-cycles tolerance step) --
-# both consumers rely on master_row_carries_next() reading
-# release-targets.yml identically, so the lib must sync with every
-# branch that carries either consumer.
-- path: .github/scripts/lib/release-targets-queries.sh
-  exclude-branches: [rel-800]
-# Sourced lib used by detect-acceptance-mode.sh (package side) AND
-# acceptance-docker.yml's resolve-from-tag step (docker side) --
-# both consumers derive per-row from_version from the checkout's
-# sql/*-to-*_upgrade.sql filenames via the same predicate, so the
-# lib must sync with every branch that carries either consumer.
-# Same rel-800 exclusion applies (rel-800 pre-dates the
-# acceptance-docker.yml surface and detect-acceptance-mode.sh too).
+# carry acceptance-docker.yml).
+# Sourced lib used by detect-acceptance-mode.sh (package side, sql-
+# derivation) AND acceptance-docker.yml's resolve-from-tag step
+# (docker side, fsupgrade-derivation via derive_from_version_fsupgrade).
+# Both consumers derive per-row from_version from the checkout's
+# own scaffolding, so the lib must sync with every branch that
+# carries either consumer. Same rel-800 exclusion applies (rel-800
+# pre-dates the acceptance-docker.yml surface and detect-acceptance-
+# mode.sh too).
 - path: .github/scripts/lib/derive-from-version.sh
   exclude-branches: [rel-800]
 - path: .github/scripts/parse-artifact-version.sh
