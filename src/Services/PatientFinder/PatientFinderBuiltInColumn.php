@@ -48,4 +48,18 @@ enum PatientFinderBuiltInColumn: string
             self::InsurancePrimaryPolicy => null,
         };
     }
+
+    /**
+     * Whether the column's value comes from a correlated subquery on another table, which
+     * runs once per patient when it is searched.
+     */
+    public function usesSubquery(): bool
+    {
+        return match ($this) {
+            self::NextAppointment, self::LastAppointment, self::InsurancePrimaryProviderName,
+            self::InsurancePrimaryPolicy => true,
+            self::NameFirstLast, self::NameFirstLastMiddle, self::CityState, self::AddressFull,
+            self::AddressFullCountry, self::Age => false,
+        };
+    }
 }

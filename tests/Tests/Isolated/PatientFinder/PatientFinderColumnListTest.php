@@ -25,6 +25,7 @@ class PatientFinderColumnListTest extends TestCase
         $this->assertTrue(PatientFinderColumnList::isColumnList('ptlistcols'));
         $this->assertTrue(PatientFinderColumnList::isColumnList('recent_patient_columns'));
         $this->assertFalse(PatientFinderColumnList::isColumnList('sex'));
+        $this->assertFalse(PatientFinderColumnList::isColumnList(null), 'a list id that is not a string');
     }
 
     public function testRequestValueRecentPicksTheRecentList(): void

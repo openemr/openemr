@@ -28,11 +28,12 @@ enum PatientFinderColumnList: string
 
     /**
      * Whether a list id is one of the finder's column lists, which the List editor
-     * shows with the column picker, sort direction and width.
+     * shows with the column picker, sort direction and width. Takes the List editor's
+     * untyped list id as it is, so its callers share one check.
      */
-    public static function isColumnList(string $listId): bool
+    public static function isColumnList(mixed $listId): bool
     {
-        return self::tryFrom($listId) !== null;
+        return is_string($listId) && self::tryFrom($listId) !== null;
     }
 
     /**

@@ -78,7 +78,7 @@ if ($query->has('detail')) {
 $service = new PatientFinderQueryService(
     $dispatcher,
     registryFactory: new PatientFinderColumnRegistryFactory($dispatcher, builtInColumns: $builtInColumns),
-    recentPids: static fn(): array => PatientFinderQueryService::recentPidsOf(new PatientService()),
+    recentPids: static fn(): array => PatientFinderQueryService::recentPidsOf((new PatientService())->getRecentPatientList()),
     recentSharesColumns: $globals->getBoolean('gbl_pt_list_recent_same_columns'),
 );
 $out = $service->handle($query->all());

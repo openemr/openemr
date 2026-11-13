@@ -61,7 +61,10 @@ $pageService = new PatientFinderPageService();
 $columns = $pageService->getColumns($registryFactory->create(PatientFinderColumnList::PatientList));
 $recentSharesColumns = OEGlobalsBag::getInstance()->getBoolean('gbl_pt_list_recent_same_columns');
 $recentColumnList = PatientFinderColumnList::Recent->columnsSource($recentSharesColumns);
-$recentColumns = $pageService->getColumns($registryFactory->create($recentColumnList));
+// Sharing reuses the Patient List's columns rather than building and announcing them again.
+$recentColumns = $recentColumnList === PatientFinderColumnList::PatientList
+    ? $columns
+    : $pageService->getColumns($registryFactory->create($recentColumnList));
 // A row can be expanded to show the Patient Finder Detail layout, when that layout shows anything.
 $detailEnabled = (new PatientFinderDetailService($eventDispatcher, builtInColumns: $builtInColumns))->isEnabled();
 

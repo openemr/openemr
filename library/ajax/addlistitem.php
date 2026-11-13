@@ -50,7 +50,7 @@ $option_value = 0;
 // column. Validate the identifier at the write seam so stored rows always resolve.
 // `escape_sql_column_name()` short-circuits `*` without checking the schema, so
 // isValidColumnId() rejects that before the schema check.
-if (is_string($list_id) && PatientFinderColumnList::isColumnList($list_id)) {
+if (PatientFinderColumnList::isColumnList($list_id)) {
     $isPatientDataField = static function (string $field): bool {
         try {
             escape_sql_column_name($field, ['patient_data'], false, true);

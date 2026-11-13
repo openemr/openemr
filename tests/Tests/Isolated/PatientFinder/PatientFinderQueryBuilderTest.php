@@ -174,6 +174,26 @@ class PatientFinderQueryBuilderTest extends TestCase
         $this->assertStringContainsString('SELECT COUNT(id) AS count FROM patient_data WHERE', $plan->filteredCountSql);
     }
 
+    /**
+     * A column left out of the search box is still searched by its own column filter.
+     */
+    public function testColumnWithoutGlobalSearchIsOnlySearchedByItsColumnFilter(): void
+    {
+        $expr = '(SELECT ins.policy_number FROM insurance_data ins WHERE ins.pid = patient_data.pid LIMIT 1)';
+        $columns = [
+            PatientFinderColumn::fromTable('DOB', 'DOB'),
+            PatientFinderColumn::fromSql('policy', 'Policy', $expr)->withoutGlobalSearch(),
+        ];
+
+        $global = $this->builder()->build($columns, $this->request(globalSearch: '539'), new BoundFilter());
+        $this->assertStringNotContainsString($expr . ') LIKE', $global->dataSql);
+        $this->assertStringNotContainsString($expr . ') LIKE', $global->filteredCountSql);
+        $this->assertStringContainsString('`DOB` LIKE ?', $global->dataSql);
+
+        $own = $this->builder()->build($columns, $this->request(columnSearches: [1 => '539']), new BoundFilter());
+        $this->assertStringContainsString('(' . $expr . ') LIKE ? ESCAPE '|'', $own->dataSql);
+    }
+
     public function testSqlJoinColumnAddsJoinAndDistinctCount(): void
     {
         $join = 'LEFT JOIN ihi_data ihi ON ihi.pid = patient_data.pid';

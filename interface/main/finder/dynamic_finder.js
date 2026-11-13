@@ -195,11 +195,17 @@
         top.RTop.location = cfg.webroot + "/interface/patient_file/summary/demographics.php?" + params;
     }
 
+    // Whether "Search with exact method" is ticked.
+    function isExactSearch() {
+        return $("#setting_search_type:checked").length > 0;
+    }
+
     // Redraw a tab's table with the heading's search when it last drew with another.
     function applySearch(tab) {
         var oTable = tables[tab.key];
         var last = drawnSearch[tab.key];
-        if (!oTable || (last && last.term === search.term && last.mode === search.mode)) {
+        if (!oTable || (last && last.term === search.term && last.mode === search.mode
+            && last.exact === isExactSearch())) {
             return;
         }
         oTable.api().search(search.term).draw();
@@ -237,7 +243,7 @@
         $('#finder-option-buttons [data-font-size]').on('click', function () {
             var $choice = $(this);
             var size = $choice.data('fontSize');
-            $choice.siblings().removeClass('active').removeAttr('aria-current');
+            $choice.siblings().removeClass('active').attr('aria-current', 'false');
             $choice.addClass('active').attr('aria-current', 'true');
             $('#finderTabs').attr('data-finder-font-size', size);
             top.restoreSession();
@@ -331,11 +337,11 @@
             // the new 'ajax' command to work.
             "sAjaxSource": serverUrl,
             "fnServerParams": function (aoData) {
-                var searchType = $("#setting_search_type:checked").length > 0;
+                var searchType = isExactSearch();
                 aoData.push({"name": "searchType", "value": searchType});
                 aoData.push({"name": "searchMode", "value": search.mode});
                 aoData.push({"name": "finderList", "value": tab.finderList});
-                drawnSearch[tab.key] = {term: search.term, mode: search.mode};
+                drawnSearch[tab.key] = {term: search.term, mode: search.mode, exact: searchType};
             },
             // dom invokes ColReorderWithResize. The heading's own search box replaces
             // DataTables' filter, and the options sit under the tables outside DataTables.
@@ -435,6 +441,12 @@
         });
         $("#setting_search_type").on('change', function (e) {
             persistCriteria(this, e);
+            // The showing list's matches change with the method; the other tab redraws
+            // when it is shown, since it last drew with the other method.
+            var oTable = tables[activeTab.key];
+            if (oTable) {
+                oTable.api().draw();
+            }
         });
     });
 })();
