@@ -399,7 +399,7 @@ incus exec claude-vm -- su - claude-agent -c 'ssh -T git@github-<your-username>-
 # as on the LXC side — the deploy keys and SSH config transfer intact.
 ```
 
-> **The same private deploy keys now live in both appliances.** That is within the existing appliance threat model — both are agent-trust-level sandboxes you own, and a deploy key is already repo-scoped by design, so the blast radius doesn't widen. But if you ever decommission one appliance (delete the LXC, or `incus delete claude-vm`), the orphaned copies on the other side are still registered on GitHub. The GitHub-side registration is what actually authorizes a push — deleting a local copy only reduces surface, it does not revoke the key. If the surviving appliance should keep pushing to those forks, first generate its **own** replacement keys per [Generating from scratch](#generating-from-scratch) below, register the new public keys on GitHub, and update its `~/.ssh/config` stanzas. *Then* remove the old shared deploy keys from the repository's **Settings → Deploy keys** on GitHub and delete the stale `.ssh/id_*` files on the surviving appliance. If neither appliance should push going forward, skip the replacement step and just revoke + delete.
+> **The same private deploy keys now live in both appliances.** Within the existing appliance threat model this is fine — both are agent-trust-level sandboxes you own, and a deploy key is repo-scoped by design. If you later want to unshare them (either appliance compromised or decommissioned), treat it as a key rotation per [Generating from scratch](#generating-from-scratch) below.
 
 If you don't have the LXC appliance (or you'd rather keep the two appliances' keys separate), skip this block and generate fresh keys per the next subsection.
 
