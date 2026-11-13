@@ -56,10 +56,24 @@ enum PatientFinderBuiltInColumn: string
     public function usesSubquery(): bool
     {
         return match ($this) {
-            self::NextAppointment, self::LastAppointment, self::InsurancePrimaryProviderName,
-            self::InsurancePrimaryPolicy => true,
+            self::InsurancePrimaryProviderName, self::InsurancePrimaryPolicy => true,
+            // The appointment columns are worked out in PHP and never searched.
+            self::NextAppointment, self::LastAppointment, self::NameFirstLast, self::NameFirstLastMiddle,
+            self::CityState, self::AddressFull, self::AddressFullCountry, self::Age => false,
+        };
+    }
+
+    /**
+     * Whether the column is a patient's next or last appointment, which
+     * PatientFinderAppointments works out after the query.
+     */
+    public function isAppointment(): bool
+    {
+        return match ($this) {
+            self::NextAppointment, self::LastAppointment => true,
             self::NameFirstLast, self::NameFirstLastMiddle, self::CityState, self::AddressFull,
-            self::AddressFullCountry, self::Age => false,
+            self::AddressFullCountry, self::Age, self::InsurancePrimaryProviderName,
+            self::InsurancePrimaryPolicy => false,
         };
     }
 }

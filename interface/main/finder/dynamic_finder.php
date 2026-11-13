@@ -29,7 +29,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\UserSettingsService;
-use OpenEMR\Services\PatientFinder\PatientFinderBuiltInColumns;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
 use OpenEMR\Services\PatientFinder\PatientFinderDetailService;
@@ -54,9 +53,7 @@ unset($_GET['search_any']);
 // DataTables column config is serialised to JSON below. Recent Patients uses the
 // Patient List's columns while the site's setting says so.
 $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
-// The combined columns, in the site's date and time formats.
-$builtInColumns = PatientFinderBuiltInColumns::fromGlobals(OEGlobalsBag::getInstance());
-$registryFactory = new PatientFinderColumnRegistryFactory($eventDispatcher, builtInColumns: $builtInColumns);
+$registryFactory = new PatientFinderColumnRegistryFactory($eventDispatcher);
 $pageService = new PatientFinderPageService();
 $columns = $pageService->getColumns($registryFactory->create(PatientFinderColumnList::PatientList));
 $recentSharesColumns = OEGlobalsBag::getInstance()->getBoolean('gbl_pt_list_recent_same_columns');
@@ -66,7 +63,7 @@ $recentColumns = $recentColumnList === PatientFinderColumnList::PatientList
     ? $columns
     : $pageService->getColumns($registryFactory->create($recentColumnList));
 // A row can be expanded to show the Patient Finder Detail layout, when that layout shows anything.
-$detailEnabled = (new PatientFinderDetailService($eventDispatcher, builtInColumns: $builtInColumns))->isEnabled();
+$detailEnabled = (new PatientFinderDetailService($eventDispatcher))->isEnabled();
 
 // Top-controls state for the finder form (rendered by the Twig template).
 $newWindowChecked = OEGlobalsBag::getInstance()->getBoolean('gbl_pt_list_new_window');

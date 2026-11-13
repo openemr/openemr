@@ -410,16 +410,22 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
     $id_name = "opt[" . attr($opt_line_no) . "][id]";
     if (PatientFinderColumnList::isColumnList($list_id)) {
         // A Patient Finder column (Patient List or Recent Patients): pick one of the finder's
-        // own columns or a patient_data field; an id in neither, such as a module's, is kept.
+        // own columns, a module's or a patient_data field; any other id is kept.
         $current_id = is_string($option_id) ? $option_id : '';
         // Read once per page, not once per row.
         static $patient_data_fields = null;
         if (!is_array($patient_data_fields)) {
             $patient_data_fields = QueryUtils::listTableFields('patient_data');
         }
-        $choices = PatientFinderColumnList::columnChoices($current_id, $patient_data_fields);
+        static $module_column_keys = null;
+        if (!is_array($module_column_keys)) {
+            $module_column_keys = PatientFinderColumnList::tryFrom(is_string($list_id) ? $list_id : '')
+                ?->moduleColumnKeys(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()) ?? [];
+        }
+        $choices = PatientFinderColumnList::columnChoices($current_id, $patient_data_fields, $module_column_keys);
         $id_groups = array_filter([
             xl('Combined columns') => $choices['combined'],
+            xl('Module columns') => $choices['module'],
             xl('Patient data fields') => $choices['fields'],
             xl('Other') => $choices['other'],
         ]);

@@ -47,9 +47,25 @@ class PatientFinderBuiltInColumnsTest extends TestCase
     }
 
     /**
-     * Each combined column is searchable and sortable SQL with no binds the finder would have to place.
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
-    #[DataProvider('builtInKeyProvider')]
+    public static function sqlKeyProvider(): array
+    {
+        $cases = [];
+        foreach (PatientFinderBuiltInColumn::cases() as $column) {
+            if (!$column->isAppointment()) {
+                $cases[$column->value] = [$column->value];
+            }
+        }
+        return $cases;
+    }
+
+    /**
+     * Each combined column but the appointment ones is searchable and sortable SQL with no binds the finder would have to place.
+     */
+    #[DataProvider('sqlKeyProvider')]
     public function testEveryKeyIsASearchableSortableSqlColumnWithoutBinds(string $key): void
     {
         $column = (new PatientFinderBuiltInColumns())->column($key, 'Title', 'desc');
@@ -109,52 +125,22 @@ class PatientFinderBuiltInColumnsTest extends TestCase
     }
 
     /**
-     * @return array<string, array{int, int, string}>
-     *
-     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     * Next and Last Appt are display-only: a repeating appointment's dates are worked out in
+     * PHP once the rows are known, which the database cannot sort or search on.
      */
-    public static function displayFormatProvider(): array
-    {
-        return [
-            'ISO, 24 hr' => [0, 0, "'%Y-%m-%d %H:%i'"],
-            'US, 12 hr' => [1, 1, "'%m/%d/%Y %l:%i %p'"],
-            'European, 24 hr' => [2, 0, "'%d/%m/%Y %H:%i'"],
-            'unknown falls back to ISO, 24 hr' => [9, 9, "'%Y-%m-%d %H:%i'"],
-        ];
-    }
-
-    /**
-     * Appointments show in the site formats and search and sort on the stored date and time.
-     */
-    #[DataProvider('displayFormatProvider')]
-    public function testAppointmentDisplaysInSiteFormatButSearchesStoredValue(
-        int $dateFormat,
-        int $timeFormat,
-        string $pattern
-    ): void {
-        $column = (new PatientFinderBuiltInColumns($dateFormat, $timeFormat))
-            ->column(PatientFinderBuiltInColumn::NextAppointment->value, 'Next Appt');
-
-        $this->assertNotNull($column);
-        $this->assertStringStartsWith('DATE_FORMAT(', (string) $column->selectExpression);
-        $this->assertStringEndsWith(", $pattern)", (string) $column->selectExpression);
-        $this->assertStringNotContainsString('DATE_FORMAT', (string) $column->searchExpression);
-    }
-
-    /**
-     * Next takes the soonest future appointment and last the latest past one, leaving out canceled ones.
-     */
-    public function testNextAndLastAppointmentLookInOppositeDirections(): void
+    public function testAppointmentColumnsAreDisplayOnly(): void
     {
         $columns = new PatientFinderBuiltInColumns();
-        $next = (string) $columns->column(PatientFinderBuiltInColumn::NextAppointment->value, 'Next')?->searchExpression;
-        $last = (string) $columns->column(PatientFinderBuiltInColumn::LastAppointment->value, 'Last')?->searchExpression;
+        foreach ([PatientFinderBuiltInColumn::NextAppointment, PatientFinderBuiltInColumn::LastAppointment] as $appointment) {
+            $column = $columns->column($appointment->value, 'Appt');
 
-        $this->assertStringStartsWith('(SELECT MIN(', $next);
-        $this->assertStringContainsString('> NOW()', $next);
-        $this->assertStringStartsWith('(SELECT MAX(', $last);
-        $this->assertStringContainsString('< NOW()', $last);
-        $this->assertStringContainsString("pc_apptstatus NOT IN ('x', '%')", $next);
+            $this->assertNotNull($column);
+            $this->assertTrue($column->isEnriched());
+            $this->assertFalse($column->searchable);
+            $this->assertFalse($column->sortable);
+            $this->assertTrue($appointment->isAppointment());
+        }
+        $this->assertFalse(PatientFinderBuiltInColumn::Age->isAppointment());
     }
 
     /**

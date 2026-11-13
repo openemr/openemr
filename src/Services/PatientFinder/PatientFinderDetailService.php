@@ -33,6 +33,7 @@ namespace OpenEMR\Services\PatientFinder;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -48,6 +49,14 @@ final class PatientFinderDetailService
     /** The NationNotes data type, which the layout renderer prints without escaping. */
     private const UNESCAPED_DATA_TYPE = 34;
 
+    /**
+     * Data types the layout renderer fills from the session's or the global patient rather
+     * than from the values it is given: allergies (24), previous names (52), and the
+     * address, telecom and relation lists (54, 55, 56). The renderer shows every row of the
+     * layout, so one of these would show the open chart's data under another patient.
+     */
+    private const SESSION_PATIENT_DATA_TYPES = [24, 52, 54, 55, 56];
+
     /** @var callable(string, array<int, string|int>): list<array<mixed>> */
     private $fetchRecords;
 
@@ -62,15 +71,19 @@ final class PatientFinderDetailService
 
     private readonly PatientFinderBuiltInColumns $builtInColumns;
 
+    /** @var list<array<mixed>>|null The detail layout's active rows, read once. */
+    private ?array $layoutRows = null;
+
     /**
      * @param callable(string, array<int, string|int>): list<array<mixed>>|null $fetchRecords
      * @param callable(): list<string>|null $patientDataFields the patient_data column names
-     * @param PatientFinderBuiltInColumns|null $builtInColumns the combined columns; the caller passes
-     *        PatientFinderBuiltInColumns::fromGlobals() for the site's date and time formats
+     * @param PatientFinderBuiltInColumns|null $builtInColumns the combined columns
      * @param callable(string, string): bool|null $aclCheck whether the current user has an ACL
      *        section and value (defaults to AclMain::aclCheckCore())
      * @param callable(string, array<string, string>): string|null $renderLayout a layout's HTML
      *        for the given values (defaults to display_layout_tabs_data() from options.inc.php)
+     * @param PatientFinderAppointments|null $appointments the Next and Last Appt values (defaults
+     *        to the site's date and time formats)
      */
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
@@ -78,7 +91,8 @@ final class PatientFinderDetailService
         ?callable $patientDataFields = null,
         ?PatientFinderBuiltInColumns $builtInColumns = null,
         ?callable $aclCheck = null,
-        ?callable $renderLayout = null
+        ?callable $renderLayout = null,
+        private ?PatientFinderAppointments $appointments = null
     ) {
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
         $this->patientDataFields = $patientDataFields ?? self::listPatientDataFields(...);
@@ -94,16 +108,49 @@ final class PatientFinderDetailService
      */
     public function html(int $pid): ?string
     {
+        if ($this->layoutReadsSessionPatient()) {
+            return null;
+        }
         $values = $this->values($pid);
         return $values === null ? null : ($this->renderLayout)(self::LAYOUT_ID, $values);
     }
 
     /**
      * Whether the detail layout shows anything; the finder offers to expand a row only then.
+     * A layout with a row that reads the session's patient is never shown (see
+     * SESSION_PATIENT_DATA_TYPES).
      */
     public function isEnabled(): bool
     {
-        return $this->layoutFieldIds() !== [];
+        return !$this->layoutReadsSessionPatient() && $this->layoutFieldIds() !== [];
+    }
+
+    /**
+     * Whether an active row of the detail layout has a data type the renderer fills from the
+     * session's or the global patient.
+     */
+    private function layoutReadsSessionPatient(): bool
+    {
+        foreach ($this->layoutRows() as $row) {
+            if (in_array(PatientFinderValue::int($row['data_type'] ?? null), self::SESSION_PATIENT_DATA_TYPES, true)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The detail layout's active rows, in its order.
+     *
+     * @return list<array<mixed>>
+     */
+    private function layoutRows(): array
+    {
+        return $this->layoutRows ??= ($this->fetchRecords)(
+            'SELECT field_id, data_type FROM layout_options WHERE form_id = ? AND uor > 0'
+            . ' ORDER BY group_id, seq',
+            [self::LAYOUT_ID]
+        );
     }
 
     /**
@@ -119,6 +166,7 @@ final class PatientFinderDetailService
         }
 
         $select = ['patient_data.pid'];
+        $appointmentColumns = [];
         $patientDataFields = ($this->patientDataFields)();
         foreach ($this->layoutFieldIds() as $fieldId) {
             if (PatientFinderBuiltInColumns::has($fieldId)) {
@@ -126,8 +174,14 @@ final class PatientFinderDetailService
                 if ($acl !== null && !($this->aclCheck)($acl[0], $acl[1])) {
                     continue;
                 }
+                $builtIn = PatientFinderBuiltInColumn::tryFrom($fieldId);
+                if ($builtIn !== null && $builtIn->isAppointment()) {
+                    // Worked out once the patient is found, as the list does.
+                    $appointmentColumns[] = $builtIn;
+                    continue;
+                }
                 $column = $this->builtInColumns->column($fieldId, $fieldId);
-                if ($column !== null) {
+                if ($column !== null && $column->selectExpression !== null) {
                     $select[] = $column->selectExpression . ' AS `' . $fieldId . '`';
                 }
             } elseif (in_array($fieldId, $patientDataFields, true)) {
@@ -152,6 +206,10 @@ final class PatientFinderDetailService
                 $values[(string) $key] = PatientFinderValue::string($value);
             }
         }
+        if ($appointmentColumns !== []) {
+            $this->appointments ??= PatientFinderAppointments::fromGlobals(OEGlobalsBag::getInstance());
+            $values += $this->appointments->values([$pid], $appointmentColumns)[$pid] ?? [];
+        }
         return $values;
     }
 
@@ -164,11 +222,7 @@ final class PatientFinderDetailService
      */
     private function layoutFieldIds(): array
     {
-        $rows = ($this->fetchRecords)(
-            'SELECT field_id, data_type FROM layout_options WHERE form_id = ? AND uor > 0'
-            . ' ORDER BY group_id, seq',
-            [self::LAYOUT_ID]
-        );
+        $rows = $this->layoutRows();
         $ids = [];
         $unescaped = [];
         foreach ($rows as $row) {

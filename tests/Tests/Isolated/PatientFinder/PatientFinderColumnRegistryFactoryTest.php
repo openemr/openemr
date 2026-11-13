@@ -82,7 +82,7 @@ class PatientFinderColumnRegistryFactoryTest extends TestCase
         $fetch = static fn(string $sql, array $binds): array => in_array('ptlistcols', $binds, true)
             ? [
                 ['option_id' => 'name', 'title' => 'Full Name', 'toggle_setting_1' => ''],
-                ['option_id' => 'ihi', 'title' => 'IHI', 'toggle_setting_1' => ''],
+                ['option_id' => 'ihi', 'title' => 'IHI', 'toggle_setting_1' => '', 'notes' => '9rem'],
                 ['option_id' => 'DOB', 'title' => 'DOB', 'toggle_setting_1' => ''],
             ]
             : [];
@@ -100,7 +100,10 @@ class PatientFinderColumnRegistryFactoryTest extends TestCase
         ))->create();
 
         $this->assertSame(['name', 'ihi', 'DOB'], $registry->keys());
-        $this->assertTrue($registry->get('ihi')?->isEnriched());
+        $ihi = $registry->get('ihi');
+        $this->assertNotNull($ihi);
+        $this->assertTrue($ihi->isEnriched());
+        $this->assertSame('9rem', $ihi->width, 'the list entry sets the module column width');
     }
 
     public function testSeedsColumnsWithSortDirectionAndRunsEvent(): void

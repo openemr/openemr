@@ -191,7 +191,7 @@ class PatientFinderQueryBuilderTest extends TestCase
         $this->assertStringContainsString('`DOB` LIKE ?', $global->dataSql);
 
         $own = $this->builder()->build($columns, $this->request(columnSearches: [1 => '539']), new BoundFilter());
-        $this->assertStringContainsString('(' . $expr . ') LIKE ? ESCAPE '|'', $own->dataSql);
+        $this->assertStringContainsString('(' . $expr . ") LIKE ? ESCAPE '|'", $own->dataSql);
     }
 
     public function testSqlJoinColumnAddsJoinAndDistinctCount(): void
@@ -335,6 +335,23 @@ class PatientFinderQueryBuilderTest extends TestCase
         $plan = $this->modeSearch(PatientFinderSearchMode::Ssn, '5544');
 
         $this->assertSame(['%5544'], $plan->filteredCountBinds);
+    }
+
+    /**
+     * The dropdown's phone normalizing keeps only digits; an any-column search is not a
+     * dropdown search, so "Main" still searches the DEM fields as typed.
+     */
+    public function testAnyColumnSearchIgnoresTheDropdownsNormalizing(): void
+    {
+        $plan = $this->builder()->build(
+            [PatientFinderColumn::fromTable('street', 'Street')],
+            $this->request(globalSearch: 'Main', any: true, searchMode: PatientFinderSearchMode::Phone),
+            new BoundFilter()
+        );
+
+        $this->assertStringNotContainsString('1 = 0', $plan->dataSql);
+        $this->assertStringContainsString("`street` LIKE ? ESCAPE '|'", $plan->dataSql);
+        $this->assertSame(['%Main%'], $plan->filteredCountBinds);
     }
 
     public function testPhoneSearchWithoutDigitsMatchesNoOne(): void
@@ -512,9 +529,16 @@ class PatientFinderQueryBuilderTest extends TestCase
 
         $like = "LIKE ? ESCAPE '|'";
         $anyName = "( lname $like OR fname $like OR mname $like )";
-        $this->assertStringContainsString("( $anyName OR ( $anyName AND $anyName ) )", $plan->dataSql);
+        $wholeName = "CONCAT_WS(' ', NULLIF(TRIM(fname), ''), NULLIF(TRIM(mname), ''), NULLIF(TRIM(lname), '')) $like"
+            . " OR CONCAT_WS(' ', NULLIF(TRIM(fname), ''), NULLIF(TRIM(lname), '')) $like"
+            . " OR CONCAT_WS(', ', NULLIF(TRIM(lname), ''), NULLIF(TRIM(fname), '')) $like";
+        $this->assertStringContainsString("( $anyName OR $wholeName OR ( $anyName AND $anyName ) )", $plan->dataSql);
         $this->assertSame(
-            ['Belford, Phil%', 'Belford, Phil%', 'Belford, Phil%', 'Belford%', 'Belford%', 'Belford%', 'Phil%', 'Phil%', 'Phil%'],
+            [
+                'Belford, Phil%', 'Belford, Phil%', 'Belford, Phil%',
+                'Belford, Phil%', 'Belford, Phil%', 'Belford, Phil%',
+                'Belford%', 'Belford%', 'Belford%', 'Phil%', 'Phil%', 'Phil%',
+            ],
             $plan->filteredCountBinds
         );
     }
@@ -551,9 +575,34 @@ class PatientFinderQueryBuilderTest extends TestCase
         );
 
         $this->assertSame(
-            ['Phil Belford', 'Phil Belford', 'Phil Belford', 'Phil', 'Phil', 'Phil', 'Belford', 'Belford', 'Belford'],
+            [
+                'Phil Belford', 'Phil Belford', 'Phil Belford',
+                'Phil Belford', 'Phil Belford', 'Phil Belford',
+                'Phil', 'Phil', 'Phil', 'Belford', 'Belford', 'Belford',
+            ],
             $plan->filteredCountBinds
         );
+    }
+
+    /**
+     * A first name of two words, as "Mary Ann Smith": "Ann" starts no name field, so only the
+     * whole-name comparison finds the patient. Prefix and exact searches alike.
+     */
+    public function testCompoundFirstNameMatchesTheWholeName(): void
+    {
+        foreach ([[false, 'Mary Ann Smith%'], [true, 'Mary Ann Smith']] as [$exact, $expected]) {
+            $plan = $this->builder()->build(
+                [PatientFinderColumn::fromTable(PatientFinderQueryBuilder::NAME_KEY, 'Name')],
+                $this->request(globalSearch: 'Mary Ann Smith', exact: $exact, searchMode: PatientFinderSearchMode::Name),
+                new BoundFilter()
+            );
+
+            $this->assertStringContainsString(
+                "CONCAT_WS(' ', NULLIF(TRIM(fname), ''), NULLIF(TRIM(lname), '')) LIKE ? ESCAPE '|'",
+                $plan->dataSql
+            );
+            $this->assertSame(array_fill(0, 6, $expected), array_slice($plan->filteredCountBinds, 0, 6));
+        }
     }
 
     public function testGlobalSearchSqlColumnJoinReachesDataQueryEvenWhenNotDisplayed(): void

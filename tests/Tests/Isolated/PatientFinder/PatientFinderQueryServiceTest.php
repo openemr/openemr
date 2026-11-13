@@ -20,8 +20,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\PatientFinder;
 
+use DateTimeImmutable;
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderRowEnrichEvent;
+use OpenEMR\Services\PatientFinder\PatientFinderAppointments;
 use OpenEMR\Services\PatientFinder\PatientFinderColumn;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistry;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
@@ -383,5 +386,57 @@ class PatientFinderQueryServiceTest extends TestCase
             [5, 2],
             PatientFinderQueryService::recentPidsOf([['pid' => 5], ['pid' => '2'], ['pid' => 0], 'junk'])
         );
+    }
+
+    /**
+     * The list's Next Appt cells come from PatientFinderAppointments for the page's patients,
+     * after the query, which never names the column.
+     */
+    public function testNextAppointmentIsFilledForThePagesPatients(): void
+    {
+        $dataSql = '';
+        $fetch = static function (string $sql, array $binds) use (&$dataSql): array {
+            if (in_array('ptlistcols', $binds, true)) {
+                return [
+                    ['option_id' => 'DOB', 'title' => 'DOB'],
+                    ['option_id' => 'next_appointment', 'title' => 'Next Appt'],
+                ];
+            }
+            if (str_contains($sql, 'FROM patient_data')) {
+                $dataSql = $sql;
+                return [['pid' => 7, 'DOB' => '1980-01-01']];
+            }
+            return [];
+        };
+        $dispatcher = $this->dispatcher();
+        $service = new PatientFinderQueryService(
+            $dispatcher,
+            new PatientFinderQueryBuilder(
+                static fn(string $col, array $tables): string => '`' . $col . '`',
+                static fn(string $term): string => $term
+            ),
+            $fetch,
+            static fn(string $sql, array $binds): array => ['count' => 1],
+            static fn(mixed $v): string => PatientFinderValue::string($v),
+            static fn(array $info, mixed $v): string => PatientFinderValue::string($v),
+            new PatientFinderColumnRegistryFactory(
+                $dispatcher,
+                $fetch,
+                aclCheck: static fn(string $section, string $value): bool => true,
+                patientDataFields: static fn(): array => ['DOB']
+            ),
+            appointments: new PatientFinderAppointments(
+                static fn(string $sql, array $binds): array => $binds[0] === '7'
+                    ? [['pc_eid' => 1, 'pc_eventDate' => '2026-12-01', 'pc_startTime' => '09:30:00', 'pc_recurrtype' => 0]]
+                    : [],
+                static fn(string $from, string $to, int $eid): array => [],
+                new FrozenClock(new DateTimeImmutable('2026-11-13 12:00:00'))
+            )
+        );
+
+        $out = $service->handle(['sEcho' => '1', 'sColumns' => 'DOB,next_appointment']);
+
+        $this->assertSame([['DT_RowId' => 'pid_7', 0 => '1980-01-01', 1 => '2026-12-01 09:30']], $out['aaData']);
+        $this->assertStringNotContainsString('next_appointment', $dataSql);
     }
 }

@@ -59,7 +59,9 @@ if (PatientFinderColumnList::isColumnList($list_id)) {
             return false;
         }
     };
-    if (!PatientFinderColumnList::isValidColumnId($option_id, $isPatientDataField)) {
+    $moduleColumnKeys = PatientFinderColumnList::tryFrom(is_string($list_id) ? $list_id : '')
+        ?->moduleColumnKeys(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()) ?? [];
+    if (!PatientFinderColumnList::isValidColumnId($option_id, $isPatientDataField, $moduleColumnKeys)) {
         echo json_encode(["error" => xl('Invalid column name')]);
         exit;
     }
