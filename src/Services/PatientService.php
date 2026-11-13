@@ -534,6 +534,8 @@ class PatientService extends BaseService
             $patientUuid = $record['uuid'];
             if (!isset($patientsByUuid[$patientUuid])) {
                 $patient = array_intersect_key($record, $patientFields);
+                // provider_uuid comes from the users join, not from patient_data, and FHIR needs it for Patient.generalPractitioner
+                $patient['provider_uuid'] = $record['provider_uuid'] ?? null;
                 $patient['suffix'] = $this->parseSuffixForPatientRecord($patient);
                 $patient['previous_names'] = [];
                 $patientOrderedList[] = $patientUuid;
