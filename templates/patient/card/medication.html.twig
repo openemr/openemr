@@ -1,3 +1,22 @@
+{#
+Medication card on the patient dashboard.
+
+The card lists each active medication and its dose, and can print that list.
+
+@package   OpenEMR
+@link      https://www.open-emr.org
+@author    Robert Down <robertdown@live.com>
+@author    Simon Quigley <squigley@altispeed.com>
+@author    Brady Miller <brady.g.miller@gmail.com>
+@author    Jerry Padgett <sjpadgett@gmail.com>
+@copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2022 Simon Quigley <squigley@altispeed.com>
+@copyright Copyright (c) 2022 Brady Miller <brady.g.miller@gmail.com>
+@copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
+@copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
+@license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+
 {% extends "patient/card/card_base.html.twig" %}
 
 {% block content %}
@@ -17,9 +36,20 @@
     {% for m in list %}
         <div class="list-group-item p-0 pl-1">
             <span class="font-weight-normal">{{ m.title|text }}</span>
-            <span>{{ m.drug_dosage_instructions|text }}</span>
+            <span>{{ m.dose|text }}</span>
         </div>
     {% endfor %}
 {% endif %}
 </div>
+{% if printPid is defined and printPid %}
+<div class="p-1">
+    <form method="get" action="active_medications_print.php" target="_blank" class="d-inline">
+        <input type="hidden" name="pid" value="{{ printPid|attr }}">
+        <button type="submit" class="btn btn-link p-0 border-0 align-baseline" onclick="top.restoreSession()">{{ "Print"|xlt }}</button>
+    </form>
+    {% if inactiveCount is defined and inactiveCount > 0 %}
+        <span class="text-muted">({{ inactiveCount|text }} {{ "inactive"|xlt }})</span>
+    {% endif %}
+</div>
+{% endif %}
 {% endblock %}
