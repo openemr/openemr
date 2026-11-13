@@ -72,6 +72,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $alertmsg = '';
+$taxonomyAlert = '';
 $bg_msg = '';
 $set_active_msg = 0;
 $show_message = 0;
@@ -139,7 +140,10 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         $taxonomyPost = Request::createFromGlobals()->request;
         $extraTaxonomyField = $taxonomyPost->all()['taxonomy_extra'] ?? null;
         if (is_array($extraTaxonomyField)) {
-            (new UserTaxonomyService())->saveExtras($taxonomyPost->getInt('id'), $extraTaxonomyField);
+            $invalidTaxonomies = (new UserTaxonomyService())->saveExtras($taxonomyPost->getInt('id'), $extraTaxonomyField);
+            if ($invalidTaxonomies !== []) {
+                $taxonomyAlert = xl('The additional taxonomy codes were not saved. These are not taxonomy codes:') . ' ' . implode(', ', $invalidTaxonomies) . '.';
+            }
         }
 
         if ($_POST["lname"]) {
@@ -897,7 +901,7 @@ function resetMfaCounter(username) {
 </div>
 <script>
 <?php
-if ($alertmsg = trim($alertmsg)) {
+if ($alertmsg = trim($alertmsg . ' ' . $taxonomyAlert)) {
     echo "alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
