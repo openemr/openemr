@@ -26,6 +26,7 @@ use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Zip\DicomZip;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
 use OpenEMR\Events\PatientDocuments\PatientRetrieveOffsiteDocument;
@@ -250,30 +251,8 @@ class C_Document extends Controller
                         $za = new ZipArchive();
                         $handler = $za->open($_FILES['file']['tmp_name'][$key]);
                         if ($handler) {
-                            $mimetype = "application/dicom+zip";
-                            for ($i = 0; $i < $za->numFiles; $i++) {
-                                $stat = $za->statIndex($i);
-                                $fp = $za->getStream($stat['name']);
-                                if ($fp) {
-                                    $head = fread($fp, 256);
-                                    fclose($fp);
-                                    if (substr((string) $head, 128, 4) !== 'DICM') { // Fixed at offset 128. even one non DICOM makes zip invalid.
-                                        $mimetype = "application/zip";
-                                        break;
-                                    }
-                                    unset($head);
-                                    // if here -then a DICOM
-                                    $parts = pathinfo($stat['name']);
-                                    if ($parts['extension'] != "dcm" || empty($parts['extension'])) { // required extension for viewer
-                                        $new_name = $parts['filename'] . ".dcm";
-                                        $za->renameIndex($i, $new_name);
-                                        $za->renameName($parts['filename'], $new_name);
-                                    }
-                                } else { // Rarely here
-                                    $mimetype = "application/zip";
-                                    break;
-                                }
-                            }
+                            // Folders and macOS metadata do not count; one non DICOM file makes the zip invalid.
+                            $mimetype = DicomZip::normalize($za) ? "application/dicom+zip" : "application/zip";
                             $za->close();
                             if ($mimetype == "application/dicom+zip") {
                                 sleep(1); // Timing insurance in case of re-compression. Only acted on index so...!

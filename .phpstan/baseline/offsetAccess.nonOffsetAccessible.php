@@ -307,11 +307,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on array\\{name\\: string, index\\: int, crc\\: int, size\\: int, mtime\\: int, comp_size\\: int, comp_method\\: int, encryption_method\\: int\\}\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../controllers/C_Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
