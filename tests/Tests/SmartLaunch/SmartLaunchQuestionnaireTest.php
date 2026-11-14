@@ -1477,28 +1477,57 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             // PATIENT scope profile is what authorizes this; a regression
             // on scope or on the assertLaunchMatchesLogin()-side binding
             // would surface here as a non-2xx on the FHIR POST and the
-            // runtime would never flip #sq-status to "completed".
+            // runtime would never flip #sq-status off its empty state.
+            //
+            // Portal mode flips `#sq-status` to "Waiting for review"
+            // (not "completed" — that's the non-patient-mode branch of
+            // the runtime). The companion app looks for the
+            // held-for-review meta.tag OpenEMR attaches to patient
+            // writes under fhir_patient_write_mode. That same tag is
+            // what also flips the patient alert to the "your care team
+            // reviews it" wording below, so matching both pins the
+            // held-write round-trip from the browser's angle.
             $this->panther->findElement(WebDriverBy::id('sq-complete'))->click();
             $this->panther->wait(20)->until(
                 static fn (WebDriver $d): bool => str_contains(
                     $d->findElement(WebDriverBy::id('sq-status'))->getText(),
-                    'completed',
+                    'Waiting for review',
                 ),
             );
 
             $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
             self::assertStringContainsString(
-                'Saved as completed',
+                'Your care team reviews it',
                 $bodyText,
-                '#sq-alert should confirm the portal-mode save landed — missing it means the FHIR POST '
-                . 'from the companion app under the portal bearer returned non-2xx',
+                '#sq-alert should confirm the portal-mode save landed held-for-review — '
+                . 'missing it means either the FHIR POST under the portal bearer returned non-2xx '
+                . '(scope / assertLaunchMatchesLogin / consent regression) or the server did not '
+                . 'tag the resource held-for-review (fhir_patient_write_mode regression)',
             );
-            self::assertMatchesRegularExpression(
-                '~QuestionnaireResponse/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}~',
-                $bodyText,
-                '#sq-working should name the created QuestionnaireResponse by FHIR uuid — proof the '
-                . 'portal-issued bearer carried enough scope for the create and the server stamped '
-                . 'a resource in response',
+
+            // DB-side cross-check: fhir_patient_write_mode writes land
+            // as a patient_review_request row (type='fhir-write',
+            // resource_type='QuestionnaireResponse', source='api',
+            // status='pending') plus the backing questionnaire_response
+            // row. Asserting the pending-review row exists for the
+            // fixture pid proves the write reached the server-side
+            // review queue — not just that the UI rendered the held
+            // badge. Catches any regression that drops the held-write
+            // on the OpenEMR side while the companion app still
+            // renders optimistically.
+            $pendingReviewRow = QueryUtils::querySingleRow(
+                "SELECT COUNT(*) AS n FROM patient_review_request "
+                    . "WHERE pid = ? AND type = 'fhir-write' "
+                    . "AND resource_type = 'QuestionnaireResponse' AND status = 'pending'",
+                [$pid]
+            );
+            $pendingCount = $pendingReviewRow['n'] ?? null;
+            self::assertIsNumeric($pendingCount);
+            self::assertEquals(
+                1,
+                $pendingCount,
+                'patient_review_request should carry exactly one pending fhir-write for this patient '
+                . '— proof the portal-issued bearer\'s POST reached the server-side held-for-review queue',
             );
         } finally {
             // The test creates patient-portal write artifacts (one
