@@ -5,7 +5,8 @@
   Only the padding, borders and margins of the frame's own containers are kept below it.
   Content that follows the frame's card, such as the SMART test launches card under an open
   assessment, can be scrolled to and does not shrink the frame. Frames refit when a tab is
-  shown, when a frame finishes loading and when the window is resized; call
+  shown, when a section above them finishes folding or unfolding, when a frame finishes loading
+  and when the window is resized; call
   window.assessmentFrameFit.fit() after showing a frame any other way.
 
   @package   OpenEMR
@@ -50,6 +51,8 @@
                 frame.addEventListener('load', fit)
             })
             $('a[data-toggle="tab"]').on('shown.bs.tab', fit)
+            // Folding a section above a frame (the SMART test launches card, say) moves the frame.
+            $(document).on('shown.bs.collapse hidden.bs.collapse', fit)
             fit()
         })
         window.addEventListener('resize', fit)

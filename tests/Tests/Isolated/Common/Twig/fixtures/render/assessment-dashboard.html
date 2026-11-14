@@ -539,6 +539,8 @@
                 frame.addEventListener('load', fit)
             })
             $('a[data-toggle="tab"]').on('shown.bs.tab', fit)
+            // Folding a section above a frame (the SMART test launches card, say) moves the frame.
+            $(document).on('shown.bs.collapse hidden.bs.collapse', fit)
             fit()
         })
         window.addEventListener('resize', fit)
