@@ -23,9 +23,20 @@ use PHPStan\Testing\RuleTestCase;
  */
 final class ForbiddenInstantiationsRuleTest extends RuleTestCase
 {
+    /**
+     * Use the production instantiation rule when analyzing test fixtures.
+     */
     protected function getRule(): Rule
     {
         return new ForbiddenInstantiationsRule();
+    }
+
+    /**
+     * Direct construction must remain permitted in the dedicated Twig container tests.
+     */
+    public function testAllowsTwigContainerConstructorTests(): void
+    {
+        $this->analyse([__DIR__ . '/../Common/Twig/TwigContainerIsolatedTest.php'], []);
     }
 
     public function testFlagsPhpMailerAndLeavesOtherInstantiationsAlone(): void
