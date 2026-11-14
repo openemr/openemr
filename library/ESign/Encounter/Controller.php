@@ -21,7 +21,9 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/En
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Signable.php';
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Log.php';
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -83,6 +85,15 @@ class Encounter_Controller extends Abstract_Controller
         $password = $this->getRequest()->getParam('password', '');
         $encounterId = $this->getRequest()->getParam('encounterId', '');
 
+        // Signing is an encounter authorization: "Authorize - any" (auth_a), or "Authorize - my encounters" (auth)
+        // for an encounter the user created or is the provider of.
+        if (!$this->canSignEncounter($encounterId)) {
+            $response = new Response($status, xlt("You are not authorized to sign this encounter"));
+            $response->encounterId = $encounterId;
+            echo json_encode($response);
+            exit;
+        }
+
         // If google sign-in enable
         $usedGoogleSignin = $this->getRequest()->getParam('used_google_signin', '');
         $googleSigninToken = $this->getRequest()->getParam('google_signin_token', '');
@@ -138,5 +149,38 @@ class Encounter_Controller extends Abstract_Controller
 
         echo json_encode($response);
         exit;
+    }
+
+    /**
+     * Whether the signed-in user may sign the encounter: auth_a for any encounter, auth for their own.
+     */
+    private function canSignEncounter(mixed $encounterId): bool
+    {
+        if (AclMain::aclCheckCore('encounters', 'auth_a')) {
+            return true;
+        }
+        if (!AclMain::aclCheckCore('encounters', 'auth')) {
+            return false;
+        }
+        $id = filter_var($encounterId, FILTER_VALIDATE_INT);
+        if ($id === false) {
+            return false;
+        }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $creator = QueryUtils::fetchSingleValue(
+            "SELECT `user` FROM `forms` WHERE `encounter` = ? AND `formdir` = 'newpatient' LIMIT 1",
+            'user',
+            [$id]
+        );
+        $provider = QueryUtils::fetchSingleValue(
+            'SELECT `provider_id` FROM `form_encounter` WHERE `encounter` = ? LIMIT 1',
+            'provider_id',
+            [$id]
+        );
+        if (is_string($creator) && $creator !== '' && $creator === $session->get('authUser')) {
+            return true;
+        }
+        $providerId = filter_var($provider, FILTER_VALIDATE_INT);
+        return $providerId !== false && $providerId > 0 && $providerId === filter_var($session->get('authUserID'), FILTER_VALIDATE_INT);
     }
 }
