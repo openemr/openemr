@@ -521,7 +521,7 @@
                     <span class="col-sm-1"><span>${escapeHtml(item.title)}</span></span>`;
 
             if (!isSelected) {
-                html += `<span class="col-sm px-1"><span>${limitTo(htmlToText(item.body), 35)}</span></span>`;
+                html += `<span class="col-sm px-1"><span>${escapeHtml(limitTo(htmlToText(item.body), 35))}</span></span>`;
             }
 
             html += `<span class='btn-group float-right m-0'>`;

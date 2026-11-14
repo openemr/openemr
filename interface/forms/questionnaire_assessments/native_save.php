@@ -37,7 +37,10 @@ try {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: false);
 
     $pid = PatientSessionUtil::getPid();
-    if ($pid < 1 || !AclMain::aclCheckCore('patients', 'med')) {
+    // Save endpoint accepts write or addonly for creating a new response;
+    // amending an existing response requires write (addonly = "may view and
+    // add but not modify", per the ACL contract).
+    if ($pid < 1 || !AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
         throw new RuntimeException(xlt('Not authorized to save patient assessments.'));
     }
 
@@ -62,6 +65,9 @@ try {
     $existingResponse = [];
 
     if ($responseId !== '') {
+        if (!AclMain::aclCheckCore('patients', 'med', '', ['write'])) {
+            throw new RuntimeException(xlt('Not authorized to amend an existing patient assessment.'));
+        }
         $existingResponse = $responseService->fetchQuestionnaireResponseByResponseId($responseId);
         if ($existingResponse === []) {
             throw new RuntimeException(xlt('The QuestionnaireResponse to update was not found.'));

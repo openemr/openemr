@@ -82,7 +82,7 @@ return [
     },
 
     "POST /api/patient" => function (HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "demo");
+        RestConfig::request_authorization_check($request, "patients", "demo", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new PatientRestController())->post($data, $request);
 
@@ -90,7 +90,7 @@ return [
     },
 
     "PUT /api/patient/:puuid" => function ($puuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "demo");
+        RestConfig::request_authorization_check($request, "patients", "demo", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new PatientRestController())->put($puuid, $data, $request);
 
@@ -110,7 +110,7 @@ return [
     },
 
     "POST /api/patient/:puuid/encounter" => function ($puuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "encounters", "auth_a");
+        RestConfig::request_authorization_check($request, "encounters", "auth_a", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new EncounterRestController($request->getSession()))->post($puuid, $data, $request);
 
@@ -118,7 +118,7 @@ return [
     },
 
     "PUT /api/patient/:puuid/encounter/:euuid" => function ($puuid, $euuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "encounters", "auth_a");
+        RestConfig::request_authorization_check($request, "encounters", "auth_a", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new EncounterRestController($request->getSession()))->put($puuid, $euuid, $data);
 
@@ -138,14 +138,14 @@ return [
     },
 
     "POST /api/patient/:pid/encounter/:eid/vital" => function ($pid, $eid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "encounters", "notes");
+        RestConfig::request_authorization_check($request, "encounters", "notes", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new EncounterRestController($request->getSession()))->postVital($pid, $eid, $data);
 
         return $return;
     },
     "PUT /api/patient/:pid/encounter/:eid/vital/:vid" => function ($pid, $eid, $vid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "encounters", "notes");
+        RestConfig::request_authorization_check($request, "encounters", "notes", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new EncounterRestController($request->getSession()))->putVital($pid, $eid, $vid, $data);
 
@@ -171,14 +171,14 @@ return [
     },
 
     "POST /api/patient/:pid/encounter/:eid/soap_note" => function ($pid, $eid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "encounters", "notes");
+        RestConfig::request_authorization_check($request, "encounters", "notes", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new EncounterRestController($request->getSession()))->postSoapNote($pid, $eid, $data);
 
         return $return;
     },
     "PUT /api/patient/:pid/encounter/:eid/soap_note/:sid" => function ($pid, $eid, $sid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "encounters", "notes");
+        RestConfig::request_authorization_check($request, "encounters", "notes", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new EncounterRestController($request->getSession()))->putSoapNote($pid, $eid, $sid, $data);
 
@@ -195,13 +195,13 @@ return [
         return $return;
     },
     "POST /api/practitioner" => function (HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new PractitionerRestController())->post($data, $request);
         return $return;
     },
     "PUT /api/practitioner/:pruuid" => function ($pruuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new PractitionerRestController())->patch($pruuid, $data, $request);
         return $return;
@@ -231,21 +231,21 @@ return [
     },
 
     "POST /api/patient/:puuid/medical_problem" => function ($puuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new ConditionRestController())->post($puuid, $data);
 
         return $return;
     },
     "PUT /api/patient/:puuid/medical_problem/:muuid" => function ($puuid, $muuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new ConditionRestController())->put($puuid, $muuid, $data);
 
         return $return;
     },
     "DELETE /api/patient/:puuid/medical_problem/:muuid" => function ($puuid, $muuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $return = (new ConditionRestController())->delete($puuid, $muuid);
 
         return $return;
@@ -276,21 +276,21 @@ return [
     },
 
     "POST /api/patient/:puuid/allergy" => function ($puuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new AllergyIntoleranceRestController())->post($puuid, $data);
 
         return $return;
     },
     "PUT /api/patient/:puuid/allergy/:auuid" => function ($puuid, $auuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new AllergyIntoleranceRestController())->put($puuid, $auuid, $data);
 
         return $return;
     },
     "DELETE /api/patient/:puuid/allergy/:auuid" => function ($puuid, $auuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $return = (new AllergyIntoleranceRestController())->delete($puuid, $auuid);
 
         return $return;
@@ -303,14 +303,14 @@ return [
     },
 
     "POST /api/patient/:pid/medication" => function ($pid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new ListRestController())->post($pid, "medication", $data);
 
         return $return;
     },
     "PUT /api/patient/:pid/medication/:mid" => function (string $pid, string $mid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new ListRestController())->put($pid, $mid, "medication", $data);
 
@@ -323,7 +323,7 @@ return [
         return $return;
     },
     "DELETE /api/patient/:pid/medication/:mid" => function ($pid, $mid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $return = (new ListRestController())->delete($pid, $mid, "medication");
 
         return $return;
@@ -341,21 +341,21 @@ return [
         return $return;
     },
     "DELETE /api/patient/:pid/surgery/:sid" => function ($pid, $sid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $return = (new ListRestController())->delete($pid, $sid, "surgery");
 
         return $return;
     },
 
     "POST /api/patient/:pid/surgery" => function ($pid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new ListRestController())->post($pid, "surgery", $data);
 
         return $return;
     },
     "PUT /api/patient/:pid/surgery/:sid" => function (string $pid, string $sid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new ListRestController())->put($pid, $sid, "surgery", $data);
 
@@ -374,21 +374,21 @@ return [
         return $return;
     },
     "DELETE /api/patient/:pid/dental_issue/:did" => function ($pid, $did, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $return = (new ListRestController())->delete($pid, $did, "dental");
 
         return $return;
     },
 
     "POST /api/patient/:pid/dental_issue" => function ($pid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new ListRestController())->post($pid, "dental", $data);
 
         return $return;
     },
     "PUT /api/patient/:pid/dental_issue/:did" => function (string $pid, string $did, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new ListRestController())->put($pid, $did, "dental", $data);
 
@@ -401,7 +401,7 @@ return [
         return $return;
     },
     "POST /api/patient/:pid/appointment" => function ($pid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "appt");
+        RestConfig::request_authorization_check($request, "patients", "appt", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new AppointmentRestController())->post($pid, $data);
 
@@ -420,7 +420,7 @@ return [
         return $return;
     },
     "DELETE /api/patient/:pid/appointment/:eid" => function (string $pid, string $eid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "appt");
+        RestConfig::request_authorization_check($request, "patients", "appt", 'write');
         $return = (new AppointmentRestController())->delete($pid, $eid);
 
         return $return;
@@ -582,7 +582,7 @@ return [
         return $return;
     },
     "POST /api/patient/:pid/message" => function ($pid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "notes");
+        RestConfig::request_authorization_check($request, "patients", "notes", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new MessageRestController())->post($pid, $data);
 
@@ -597,28 +597,28 @@ return [
     },
 
     "POST /api/patient/:pid/transaction" => function ($pid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "trans");
+        RestConfig::request_authorization_check($request, "patients", "trans", ['write', 'addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new TransactionRestController())->CreateTransaction($pid, $data);
 
         return $return;
     },
     "PUT /api/transaction/:tid" => function ($tid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "trans");
+        RestConfig::request_authorization_check($request, "patients", "trans", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new TransactionRestController())->UpdateTransaction($tid, $data);
 
         return $return;
     },
     "PUT /api/patient/:pid/message/:mid" => function ($pid, $mid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "notes");
+        RestConfig::request_authorization_check($request, "patients", "notes", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new MessageRestController())->put($pid, $mid, $data);
 
         return $return;
     },
     "DELETE /api/patient/:pid/message/:mid" => function ($pid, $mid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "notes");
+        RestConfig::request_authorization_check($request, "patients", "notes", 'write');
         $return = (new MessageRestController())->delete($pid, $mid);
 
         return $return;
