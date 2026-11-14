@@ -26,7 +26,9 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
+use OpenEMR\Tests\Fixtures\PortalPatientFixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\Client;
 use Symfony\Component\Panther\PantherTestCase;
@@ -54,6 +56,26 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
      * fails the write-round-trip test on the picker-click step.
      */
     private const SEEDED_QUESTIONNAIRE_TITLE = 'SMART Launch Smoke Questionnaire';
+
+    /**
+     * EHR-launch tests want the staff (non-portal) client's test-launch
+     * buttons on fhir_assessments.php. Since run.sh now registers both
+     * a staff client ("<app_name> (<site>)") AND a patient portal
+     * client ("<app_name> (<site>) - patient portal"), the unqualified
+     * `.smart-context-launch` selector would pick whichever comes first
+     * from `ClientRepository::listClientEntities()`. The portal client's
+     * patient-only scopes route patient-select differently from the
+     * staff client's user-scopes, so the EHR-launch tests must filter
+     * it out.
+     *
+     * `data-smart-name` is set to the full oauth_clients.client_name.
+     * The CSS `[attr*=...]` substring match works in Chromium (standard
+     * CSS3) and reliably excludes the portal client because its name
+     * always ends with " - patient portal" per
+     * `Registrar::portalClientName`.
+     */
+    private const STAFF_LAUNCH_BUTTON_SELECTOR =
+        '.smart-context-launch:not([data-smart-name*="- patient portal"])';
 
     private Client $panther;
 
@@ -379,8 +401,8 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             'GET',
             self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
         );
-        $this->panther->waitFor('.smart-context-launch', 10);
-        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector('.smart-context-launch'));
+        $this->panther->waitFor(self::STAFF_LAUNCH_BUTTON_SELECTOR, 10);
+        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector(self::STAFF_LAUNCH_BUTTON_SELECTOR));
         $clientId = $launchBtn->getAttribute('data-client-id');
         $intent = $launchBtn->getAttribute('data-intent');
         $this->assertNotEmpty(
@@ -506,8 +528,8 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             'GET',
             self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
         );
-        $this->panther->waitFor('.smart-context-launch', 10);
-        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector('.smart-context-launch'));
+        $this->panther->waitFor(self::STAFF_LAUNCH_BUTTON_SELECTOR, 10);
+        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector(self::STAFF_LAUNCH_BUTTON_SELECTOR));
         $clientId = $launchBtn->getAttribute('data-client-id');
         $intent = $launchBtn->getAttribute('data-intent');
         $this->assertNotEmpty($clientId);
@@ -964,5 +986,400 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
         );
 
         return $pickedPatientName;
+    }
+
+    /**
+     * Portal SMART launch: a signed-in portal patient clicks the Launch
+     * button on the Health Apps card the openemr/openemr#15272 subscriber
+     * adds to their dashboard. The launch token is minted server-side
+     * (via `PortalSmartAppLauncher::launchUrl`) carrying the patient's
+     * own uuid + `patient.portal` intent; the SMART app's launch.php
+     * routes `?mode=portal` through to /oauth2/default/authorize, the
+     * patient signs in again with the portal-api role, and the token
+     * exchange's new `SMARTSessionTokenContextBuilder::assertLaunchMatchesLogin()`
+     * gate passes (token patient == logged-in puuid) so the app lands
+     * with patient context on home.php.
+     *
+     * Together with the A1 api-tier gate (OAuth2PortalLaunchContextTest,
+     * openemr/openemr#15294) this closes the browser-side positive leg of
+     * the third SMART launch mode. The cross-patient negative — patient A
+     * gets a portal-launch URL, patient B replays it — fits in the same
+     * file as a sibling test on top of A2's infrastructure.
+     *
+     * Requires:
+     *   - rest_portal_api global on (ciLibrary.source::install_configure
+     *     already enables it, same as rest_fhir_api).
+     *   - A portal-eligible client registered + enabled (run.sh calls
+     *     `bin/register.php --portal` alongside `--all`).
+     *   - A portal patient fixture (installed per-test via
+     *     PortalPatientFixtureManager — unique username per run so a prior
+     *     failed run's orphan doesn't collide on the uname column).
+     */
+    #[Test]
+    public function testPortalLaunchFromDashboardLandsOnAppWithPatientContext(): void
+    {
+        $fixtures = new PortalPatientFixtureManager();
+        // Defensive sweep — patient_access_onsite can carry orphan rows
+        // from a prior failed run (the manager's own cleanup joins on
+        // patient_data.pid, so orphans whose patient_data is gone survive
+        // it and the next MAX(pid)+1 allocation collides). Same pattern
+        // OAuth2PortalLaunchContextTest uses in A1.
+        $this->sweepLingeringPortalArtifacts();
+
+        $suffix = bin2hex(random_bytes(3));
+        $username = 'portal-launch-wt-' . $suffix;
+        $password = 'PortalLaunchSmoke1!';
+        $email = "{$username}@test.example";
+        $fname = 'Portia';
+        $lname = 'LaunchSmoke-' . $suffix;
+
+        try {
+            $fixture = $fixtures->installPortalPatient(
+                portalLoginUsername: $username,
+                plainPassword: $password,
+                email: $email,
+                fname: $fname,
+                lname: $lname,
+            );
+            self::assertSame($username, $fixture['portal_login_username']);
+
+            $this->drivePortalLaunchFromDashboard($username, $password, $email, "$fname $lname");
+        } finally {
+            $fixtures->removePortalPatientFixtures();
+        }
+    }
+
+    /**
+     * Browser-side portal-launch flow — chains the two reusable
+     * sub-helpers below:
+     *   1. signInToPortalAndCaptureLaunchHref — portal session +
+     *      extract the Health Apps Launch anchor's href.
+     *   2. authorizeAsPortalPatient — follow the launch URL, log in at
+     *      /oauth2 with the portal-api role, approve consent.
+     *
+     * Then asserts the companion app landed on home.php with patient
+     * context + the portal-mode badge + the seeded Questionnaire. A3
+     * (cross-patient URL replay negative) reuses both helpers directly
+     * — captures patient A's launch URL, clears cookies, replays the
+     * URL while authorizing as patient B, and asserts the error-page
+     * landing on callback.php instead.
+     */
+    private function drivePortalLaunchFromDashboard(
+        string $username,
+        string $password,
+        string $email,
+        string $expectedPatientName,
+    ): void {
+        $launchHref = $this->signInToPortalAndCaptureLaunchHref($username, $password, $email);
+        $this->authorizeAsPortalPatient($launchHref, $username, $password, $email);
+
+        // Companion app landing — launch.php maps mode=portal to the
+        // app's internal mode=patient; index.php then redirects patient
+        // mode to home.php (patient-oriented workspace, not the staff-
+        // facing index). The lid query param proves the launch state
+        // made it through the server-side token exchange in callback.php.
+        $this->panther->wait(30)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/smart-questionnaire/home.php?lid='),
+        );
+        $this->panther->waitFor('body', 10);
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+
+        // Core assertion: the patient's name reaches the companion app's
+        // banner. That proves the full chain — subscriber-minted launch
+        // token → authorize → portal-api login → new
+        // assertLaunchMatchesLogin() gate accepts (puuid == launchToken
+        // patient) → callback exchanges code for bearer → app reads
+        // Patient via the bearer and renders their name. A regression
+        // that collapsed the gate to always-accept or dropped the launch-
+        // token-to-session-patient binding would show a wrong-patient
+        // banner, or no banner at all.
+        self::assertStringContainsString(
+            $expectedPatientName,
+            $bodyText,
+            "portal-launched SMART app must render the portal patient's name in its banner — proof the launch token's patient flowed through assertLaunchMatchesLogin() into the bearer's patient context",
+        );
+        // "patient portal" badge in the app's banner confirms the launch
+        // was recognized as a portal-mode one (as opposed to standalone
+        // or EHR, which show different badges).
+        self::assertStringContainsString(
+            'patient portal',
+            $bodyText,
+            'companion app should badge the session as portal mode',
+        );
+        // Seeded Questionnaire listed via the bearer's FHIR Questionnaire
+        // read — proves the token's patient-scoped Questionnaire grant
+        // reaches the FHIR endpoint, mirroring the standalone/EHR shape.
+        self::assertStringContainsString(
+            self::SEEDED_QUESTIONNAIRE_TITLE,
+            $bodyText,
+            'portal-launched app should list the seeded Questionnaire — proof the bearer token issued via the portal flow authorizes patient-scoped FHIR reads',
+        );
+    }
+
+    /**
+     * Portal patient login → extract the Health Apps card's Launch
+     * anchor href, with shape assertions. Returns the launch URL
+     * (mode=portal + launch token + iss + aud). Shared with A3.
+     *
+     * The `passaddon` (email) field is only rendered when the
+     * `enforce_signin_email` global is on — off by default, but
+     * accommodate both shapes so the test survives a stack config
+     * toggle elsewhere.
+     *
+     * Extracting the anchor's href and `request('GET', $href)`-ing it
+     * directly avoids the target="_blank" new-window-handling
+     * complication Panther would otherwise need to juggle — equivalent
+     * trip, less selenium plumbing.
+     */
+    private function signInToPortalAndCaptureLaunchHref(
+        string $username,
+        string $password,
+        string $email,
+    ): string {
+        $this->panther->request(
+            'GET',
+            self::OPENEMR_BASE . '/portal/index.php?site=default',
+        );
+        $this->panther->waitFor('form[action="get_patient_info.php"]', 15);
+        $this->panther->findElement(WebDriverBy::name('uname'))->sendKeys($username);
+        $this->panther->findElement(WebDriverBy::name('pass'))->sendKeys($password);
+        $emailFields = $this->panther->findElements(WebDriverBy::name('passaddon'));
+        if ($emailFields !== []) {
+            $emailFields[0]->sendKeys($email);
+        }
+        $this->panther->executeScript('document.forms[0].submit();');
+        $this->panther->wait(15)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/portal/home.php'),
+        );
+
+        $this->panther->waitFor('#smart-apps-card', 15);
+        $launchHref = $this->panther->findElement(
+            WebDriverBy::cssSelector('#smart-apps-card a.btn-success'),
+        )->getAttribute('href');
+        self::assertNotEmpty(
+            $launchHref,
+            'Health Apps card Launch anchor must expose an href the subscriber built from PortalSmartAppLauncher',
+        );
+        self::assertStringContainsString(
+            '/smart-questionnaire/launch.php',
+            $launchHref,
+            'launch href should point at the portal-client launch URI the companion app exposed via bin/register.php --portal',
+        );
+        self::assertStringContainsString(
+            'mode=portal',
+            $launchHref,
+            'launch URL must carry mode=portal so the companion app routes to its portal-launch branch',
+        );
+        self::assertStringContainsString(
+            'launch=',
+            $launchHref,
+            'launch URL must carry a launch token the subscriber minted via PortalSmartAppLauncher::launchUrl',
+        );
+        return $launchHref;
+    }
+
+    /**
+     * Given a portal-mode launch URL (as captured by
+     * `signInToPortalAndCaptureLaunchHref`), navigate to it, log in at
+     * the /oauth2 authorize endpoint with the portal-api role, and
+     * approve consent. Does NOT wait for final app landing — the
+     * caller asserts on that shape (home.php for success,
+     * callback.php error page for the A3 replay case).
+     *
+     * `user_role=portal-api` is a SUBMIT-BUTTON **value** on
+     * oauth2-login.html.twig (two buttons: "OpenEMR Login" with
+     * value=api and "Patient Login" with value=portal-api); clicking
+     * the latter submits the form with user_role=portal-api in the body.
+     *
+     * The consent wait is adaptive — on a fresh (user, client) pair
+     * the server renders the pre-checked consent form, but
+     * `saveTrustedUser` lets subsequent flows skip straight to
+     * issuance. The wait returns as soon as either `proceed` appears
+     * or we've already left /oauth2.
+     */
+    private function authorizeAsPortalPatient(
+        string $launchHref,
+        string $username,
+        string $password,
+        string $email,
+    ): void {
+        $this->panther->request('GET', $launchHref);
+        $this->panther->waitFor('form#userLogin', 15);
+
+        $this->panther->findElement(WebDriverBy::name('username'))->sendKeys($username);
+        $this->panther->findElement(WebDriverBy::name('password'))->sendKeys($password);
+        $emailOauthFields = $this->panther->findElements(WebDriverBy::name('email'));
+        if ($emailOauthFields !== []) {
+            $emailOauthFields[0]->sendKeys($email);
+        }
+        $loginForm = $this->panther->findElement(WebDriverBy::id('userLogin'));
+        $this->panther->executeScript(
+            "document.getElementById('userLogin').requestSubmit("
+            . "document.querySelector('form#userLogin button[name=\"user_role\"][value=\"portal-api\"]'));",
+        );
+        $this->panther->wait(15)->until(WebDriverExpectedCondition::stalenessOf($loginForm));
+
+        $this->panther->wait(15)->until(
+            static fn (WebDriver $d): bool => $d->findElements(WebDriverBy::name('proceed')) !== []
+                || !str_contains($d->getCurrentURL(), '/oauth2/'),
+        );
+        $proceedButtons = $this->panther->findElements(WebDriverBy::name('proceed'));
+        if ($proceedButtons !== []) {
+            $proceedButtons[0]->click();
+        }
+    }
+
+    /**
+     * Cross-patient portal-launch URL replay deny-path. Patient A
+     * signs into the portal and gets a launch URL (the subscriber
+     * minted the launch token bound to patient A). Patient B then
+     * presents that URL — signing in with their own portal
+     * credentials at /oauth2 — and expects the new
+     * SMARTSessionTokenContextBuilder::assertLaunchMatchesLogin()
+     * gate to refuse with `invalid_launch_context` at /token
+     * exchange time. The companion app's callback.php wraps the
+     * /token error in its own `View::error`, so the browser lands on
+     * /smart-questionnaire/callback.php with "Authorization failed"
+     * + the propagated error_description. Together with the api-tier
+     * A1 scenarios in OAuth2PortalLaunchContextTest (#15294) and the
+     * positive-path A2 test above (#15296), this closes the browser
+     * tier for the specific bleed openemr/openemr#15272 just plugged.
+     *
+     * The flow reuses the same two private helpers A2 uses:
+     * `signInToPortalAndCaptureLaunchHref` captures the launch URL
+     * from patient A's dashboard, and `authorizeAsPortalPatient`
+     * drives the /oauth2 login + consent for patient B. The cookie
+     * clear in between is the hinge — without it, patient A's
+     * portal session would still be present when B submits at
+     * /oauth2 (the authserverOpenEMR session cookie is scoped to
+     * /oauth2/ which is why the authorize endpoint always prompts
+     * for login even from an open portal session, but belt-and-
+     * suspenders cookie-clear eliminates any session-bleed scenario
+     * the test could hide).
+     */
+    #[Test]
+    public function testPortalLaunchCannotBeReplayedByADifferentPatient(): void
+    {
+        $fixtures = new PortalPatientFixtureManager();
+        $this->sweepLingeringPortalArtifacts();
+
+        $suffix = bin2hex(random_bytes(3));
+        $password = 'PortalLaunchReplaySmoke1!';
+        $aUsername = 'portal-replay-A-' . $suffix;
+        $bUsername = 'portal-replay-B-' . $suffix;
+        $aEmail = "{$aUsername}@test.example";
+        $bEmail = "{$bUsername}@test.example";
+
+        try {
+            $fixtures->installPortalPatient(
+                portalLoginUsername: $aUsername,
+                plainPassword: $password,
+                email: $aEmail,
+                fname: 'Alice',
+                lname: 'ReplayA-' . $suffix,
+            );
+            $fixtures->installPortalPatient(
+                portalLoginUsername: $bUsername,
+                plainPassword: $password,
+                email: $bEmail,
+                fname: 'Bob',
+                lname: 'ReplayB-' . $suffix,
+            );
+
+            // Step 1 — patient A signs into the portal, we capture the
+            // Launch anchor's href. The launch token inside the URL is
+            // the subscriber-minted blob bound to patient A's uuid +
+            // patient.portal intent.
+            $launchHrefForPatientA = $this->signInToPortalAndCaptureLaunchHref(
+                $aUsername,
+                $password,
+                $aEmail,
+            );
+
+            // Step 2 — clear every cookie before replaying. The portal
+            // session (portalOpenEMR cookie) and the authorize session
+            // (authserverOpenEMR cookie) are separate scopes so this is
+            // belt-and-suspenders, but the point of a cross-patient
+            // replay test is that patient B presents the URL fresh.
+            $this->panther->manage()->deleteAllCookies();
+
+            // Step 3 — patient B replays patient A's URL and logs in at
+            // /oauth2/default/authorize with their own portal credentials.
+            // The helper also handles the consent screen if shown.
+            $this->authorizeAsPortalPatient(
+                $launchHrefForPatientA,
+                $bUsername,
+                $password,
+                $bEmail,
+            );
+
+            // Step 4 — wait for the final landing. The flow should land
+            // on the companion app's callback.php error page (the /token
+            // exchange rejected at the builder gate, callback.php wraps
+            // it in a View::error). We also check it DID NOT land on
+            // home.php — the positive-path landing. Either landing
+            // satisfies the "we've left /oauth2" wait so we don't block
+            // forever on the wrong branch.
+            $this->panther->wait(30)->until(
+                static fn (WebDriver $d): bool =>
+                    str_contains($d->getCurrentURL(), '/smart-questionnaire/callback.php')
+                    || str_contains($d->getCurrentURL(), '/smart-questionnaire/home.php'),
+            );
+            $currentUrl = $this->panther->getCurrentURL();
+            self::assertStringNotContainsString(
+                '/smart-questionnaire/home.php',
+                $currentUrl,
+                'Cross-patient replay must NOT reach the companion app\'s patient-home page — '
+                . 'landing there would mean the launch-token-vs-logged-in-patient gate was bypassed. '
+                . "Current URL: {$currentUrl}",
+            );
+            self::assertStringContainsString(
+                '/smart-questionnaire/callback.php',
+                $currentUrl,
+                'Cross-patient replay should land on callback.php where the /token error gets wrapped into View::error',
+            );
+
+            // Step 5 — assert the error-page body carries the propagated
+            // error_description from the builder gate. callback.php's
+            // try/catch around exchangeCode only propagates the error's
+            // getMessage() — which is the "Launch context is not for the
+            // logged in patient" string (the error_description), NOT the
+            // RFC 6749 "invalid_launch_context" error field name.
+            $this->panther->waitFor('body', 10);
+            $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+            self::assertStringContainsString(
+                'Authorization failed',
+                $bodyText,
+                'callback.php View::error header should name the overall failure',
+            );
+            self::assertStringContainsString(
+                'Launch context is not for the logged in patient',
+                $bodyText,
+                'callback.php should surface the builder gate\'s error_description — proof the '
+                . 'SMARTSessionTokenContextBuilder::assertLaunchMatchesLogin() gate refused at /token time. '
+                . 'A regression that stopped checking the login-vs-launch patient alignment would land on '
+                . 'home.php with patient A\'s context (a cross-patient data-access regression) rather than '
+                . 'the callback error.',
+            );
+        } finally {
+            $fixtures->removePortalPatientFixtures();
+        }
+    }
+
+    /**
+     * Mirrors A1's defensive setUp sweep. `PortalPatientFixtureManager::removePortalPatientFixtures()`
+     * joins on `patient_data.pid` when it cleans `patient_access_onsite`,
+     * so a prior failed run that deleted the `patient_data` row but left
+     * the `patient_access_onsite` row behind creates an orphan. The
+     * fixture's next-pid allocation (`MAX(patient_data.pid) + 1`) then
+     * collides with that orphan's pid on insert. A direct not-exists
+     * sweep covers the orphan class regardless of portal_username pattern.
+     */
+    private function sweepLingeringPortalArtifacts(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM patient_access_onsite "
+                . "WHERE NOT EXISTS (SELECT 1 FROM patient_data WHERE patient_data.pid = patient_access_onsite.pid)"
+        );
     }
 }

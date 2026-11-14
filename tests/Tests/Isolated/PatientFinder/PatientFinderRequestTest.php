@@ -17,7 +17,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\PatientFinder;
 
+use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 use OpenEMR\Services\PatientFinder\PatientFinderRequest;
+use OpenEMR\Services\PatientFinder\PatientFinderSearchMode;
 use PHPUnit\Framework\TestCase;
 
 class PatientFinderRequestTest extends TestCase
@@ -97,6 +99,31 @@ class PatientFinderRequestTest extends TestCase
         $this->assertSame('smith', $both->globalSearch);
     }
 
+    public function testSearchModeParsesTheDropdownChoice(): void
+    {
+        $this->assertSame(
+            PatientFinderSearchMode::Name,
+            PatientFinderRequest::fromArray(['searchMode' => 'name'])->searchMode
+        );
+        $this->assertSame(
+            PatientFinderSearchMode::Address,
+            PatientFinderRequest::fromArray(['searchMode' => 'address'])->searchMode
+        );
+        $this->assertSame(
+            PatientFinderSearchMode::Zip,
+            PatientFinderRequest::fromArray(['searchMode' => 'zip'])->searchMode
+        );
+    }
+
+    public function testMissingOrUnknownSearchModeSearchesEverything(): void
+    {
+        $this->assertSame(PatientFinderSearchMode::All, PatientFinderRequest::fromArray([])->searchMode);
+        $this->assertSame(
+            PatientFinderSearchMode::All,
+            PatientFinderRequest::fromArray(['searchMode' => 'shoe_size'])->searchMode
+        );
+    }
+
     public function testSortOnlyIncludesSortableColumns(): void
     {
         $req = PatientFinderRequest::fromArray([
@@ -151,5 +178,14 @@ class PatientFinderRequestTest extends TestCase
         $this->assertSame([], $req->columnKeys);
         $this->assertSame([], $req->columnSearches);
         $this->assertSame([], $req->sortColumns);
+    }
+
+    public function testFinderListSaysWhichTabAsked(): void
+    {
+        $this->assertSame(
+            PatientFinderColumnList::Recent,
+            PatientFinderRequest::fromArray(['finderList' => 'recent'])->columnList
+        );
+        $this->assertSame(PatientFinderColumnList::PatientList, PatientFinderRequest::fromArray([])->columnList);
     }
 }

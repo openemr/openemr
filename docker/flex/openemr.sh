@@ -518,33 +518,68 @@ swarm_wait() {
     [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]
 }
 
-# Checks if the current leader container has stopped responding (become stale).
-# This detects crashed or frozen leader containers by checking when the leader
-# file was last updated. If older than the timeout (default 5 minutes), the
-# leader is considered stale.
-is_leader_stale() {
-    local leader_file="${OE_ROOT}/sites/docker-leader"
+# Leader lease files. The first claim is sites/docker-leader; each takeover
+# from a stale leader claims the next generation (docker-leader.1,
+# docker-leader.2, ...). Every claim is an exclusive create (noclobber, i.e.
+# O_CREAT|O_EXCL, which a shared NFS volume decides on the server), so exactly
+# one container wins each generation, and no container ever deletes a lease.
+# Deleting the stale lease and then creating a new one, as this used to do,
+# let a slower follower delete the lease a faster follower had just created
+# and become a second leader.
 
-    # No leader file means no active leader (not stale, just absent)
-    [[ ! -f "${leader_file}" ]] && return 0
-
-    # Check file age
-    local -i leader_timeout="${LEADER_TIMEOUT:-300}"  # Default: 5 minutes
-    local -i now
-    now=$(date +%s)
-    local -i leader_mtime
-    leader_mtime=$(stat -c %Y "${leader_file}" 2>/dev/null || stat -f %m "${leader_file}" 2>/dev/null || echo 0)
-    local -i age=$((now - leader_mtime))
-
-    # Leader is stale if file is older than timeout
-    (( age > leader_timeout ))
+# Prints the path of the newest leader lease file, or nothing if none exists.
+current_leader_file() {
+    local base="${OE_ROOT}/sites/docker-leader"
+    [[ -f "${base}" ]] || return 0
+    local current="${base}"
+    local -i gen=1
+    while [[ -f "${base}.${gen}" ]]; do
+        current="${base}.${gen}"
+        gen+=1
+    done
+    echo "${current}"
 }
 
-# Tries to become the leader container using atomic file creation.
-# Only one container can be leader at a time. Uses file locking via noclobber.
-try_become_leader() {
-    local leader_file="${OE_ROOT}/sites/docker-leader"
+# Prints the lease file that the next claim must create, given the newest one
+# (empty when there is no lease yet).
+next_leader_file() {
+    local current="$1"
+    local base="${OE_ROOT}/sites/docker-leader"
+    if [[ -z "${current}" ]]; then
+        echo "${base}"
+    elif [[ "${current}" = "${base}" ]]; then
+        echo "${base}.1"
+    else
+        echo "${base}.$(( ${current##*.} + 1 ))"
+    fi
+}
 
+# Returns 0 if the given lease file has not been refreshed within the leader
+# timeout (default 5 minutes), meaning its leader crashed or froze.
+is_lease_stale() {
+    local lease_file="$1"
+    local -i leader_timeout="${LEADER_TIMEOUT:-300}"
+    local -i now
+    now=$(date +%s)
+    local -i lease_mtime
+    lease_mtime=$(stat -c %Y "${lease_file}" 2>/dev/null || stat -f %m "${lease_file}" 2>/dev/null || echo 0)
+    (( now - lease_mtime > leader_timeout ))
+}
+
+# Checks if the current leader container has stopped responding (become stale).
+# No lease at all also counts: nobody is leading.
+is_leader_stale() {
+    local lease_file
+    lease_file=$(current_leader_file)
+    [[ -z "${lease_file}" ]] && return 0
+    # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
+    is_lease_stale "${lease_file}"
+}
+
+# Tries to become the leader container. Claims the first lease if there is
+# none, or the next generation if the newest lease is stale; otherwise this
+# container is a follower.
+try_become_leader() {
     # If setup is already complete, nobody needs to be leader
     if [[ -f "${OE_ROOT}/sites/docker-completed" ]]; then
         AUTHORITY=no
@@ -552,37 +587,38 @@ try_become_leader() {
         return 0
     fi
 
-    # Check if current leader is stale
-    # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-    if is_leader_stale; then
+    local current target
+    current=$(current_leader_file)
+    if [[ -n "${current}" ]]; then
+        # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
+        if ! is_lease_stale "${current}"; then
+            AUTHORITY=no
+            echo "This instance is a follower (AUTHORITY=no)"
+            return 0
+        fi
         echo "Current leader appears stale, attempting to take over..."
-        rm -f "${leader_file}" "${OE_ROOT}/sites/docker-initiated"
-        sleep 1  # Small delay to ensure file deletion is visible
     fi
+    target=$(next_leader_file "${current}")
 
-    # Try to create leader file atomically
+    # Claim the lease atomically; losing the race means another container won.
     set -o noclobber
-    if { date +%s > "${leader_file}"; } 2>/dev/null; then
-        # Success! We're the leader
+    if { date +%s > "${target}"; } 2>/dev/null; then
         AUTHORITY=yes
+        LEADER_FILE="${target}"
         echo "This instance is the docker-leader (AUTHORITY=yes)"
-        set +o noclobber
-        return 0
     else
-        # Someone else is the leader
         AUTHORITY=no
         echo "This instance is a follower (AUTHORITY=no)"
-        set +o noclobber
-        return 0
     fi
+    set +o noclobber
+    return 0
 }
 
-# Updates the leader file with current timestamp (heartbeat).
+# Updates this leader's lease file with the current timestamp (heartbeat).
 # This lets followers know the leader is still alive and working.
 update_leader_heartbeat() {
-    local leader_file="${OE_ROOT}/sites/docker-leader"
-    if [[ "${AUTHORITY}" = "yes" ]]; then
-        date +%s > "${leader_file}" 2>/dev/null || true
+    if [[ "${AUTHORITY}" = "yes" && -n "${LEADER_FILE:-}" ]]; then
+        date +%s > "${LEADER_FILE}" 2>/dev/null || true
     fi
 }
 
@@ -612,9 +648,9 @@ wait_for_swarm_completion() {
 
         # Try one more time to become leader (in case leader died just as we
         # timed out). Guard on AUTHORITY=no: if we already took over inside the
-        # wait loop above (break'd out with AUTHORITY=yes), we hold the leader
-        # file, so calling try_become_leader again would see its own file via
-        # noclobber-fail and demote us back to a follower.
+        # wait loop above (break'd out with AUTHORITY=yes), we hold the newest
+        # lease, so calling try_become_leader again would see that fresh lease
+        # and demote us back to a follower.
         if [[ "${AUTHORITY}" = "no" ]] && [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
             try_become_leader
             if [[ "${AUTHORITY}" = "yes" ]]; then
@@ -986,60 +1022,84 @@ fi
 #    /root/certs/ldap/ldap-cert (supported)
 #    /root/certs/ldap/ldap-key (supported)
 #    /root/certs/redis/.. (not yet supported)
+# Helper that copies certificate files from /root/certs/<service>/ into
+# the sites/certificates dir. Runs on every container start.
+#
+# Copy conditions — all three must hold:
+#   -f "${src}"  : source file exists (service didn't mount this cert)
+#   -s "${src}"  : source non-empty (defends against a partial Secret
+#                  projection where the key is created but the data
+#                  hasn't landed yet — copying a 0-byte cert would
+#                  break TLS silently)
+#   ! cmp -s     : source content differs from destination — on a
+#                  steady-state restart with no rotation, cmp -s
+#                  returns 0 and the copy is skipped. This closes the
+#                  cert-rotation path: the previous "! -f dst" guard
+#                  meant that once the sites copy existed, no
+#                  subsequent Secret rotation could overwrite it —
+#                  openemr kept reading the stale first-boot cert
+#                  indefinitely. Common failure shape in k8s with
+#                  cert-manager + stakater/reloader: Secret rotates,
+#                  pod rolls, pod reads stale cached cert from the
+#                  sites PVC, mTLS handshake uses the old cert,
+#                  connection breaks on the next CA rotation.
+#
+# Failure propagation: `set -e` is in effect for this script. When this
+# function reaches the cp, a cp failure (read-only sites volume, disk
+# full, permission denied, EACCES on the Secret mount, etc.) aborts
+# startup with cp's own error on stderr — half-copied cert material is
+# worse than failing loud. Benign paths (source absent, empty, or
+# identical to dst) return 0 so they don't trip `set -e` at bare call
+# sites; callers interested in whether a copy actually happened read
+# the LAST_COPIED side-effect flag.
+#
+# Prints "copied over <name>" ONLY after cp succeeds — never before,
+# since set -e would turn the pre-cp log line into a lie about state
+# that didn't happen.
+LAST_COPIED=0
+cp_cert_file() {
+    local subdir="${1}"   # e.g. mysql/server, couchdb, ldap
+    local name="${2}"     # e.g. mysql-ca
+    local src="/root/certs/${subdir}/${name}"
+    local dst="/var/www/localhost/htdocs/openemr/sites/default/documents/certificates/${name}"
+    LAST_COPIED=0
+    if [[ ! -f "${src}" || ! -s "${src}" ]] || cmp -s "${src}" "${dst}"; then
+        return 0
+    fi
+    # Atomic replace via sibling mktemp + rename. See the matching
+    # block in docker/release/openemr.sh for the full rationale —
+    # removes the concurrent-reader-sees-partial and crash-mid-cp
+    # races; mktemp's random suffix closes the symlink-prediction
+    # TOCTOU vs a `.tmp.$$` form. The chmod flex applies to mysql
+    # certs happens in a later gated block (around line ~1170)
+    # against the final dst, so no chmod on tmp needed here.
+    local tmp
+    tmp=$(mktemp "$(dirname "${dst}")/.cert.${name}.XXXXXXXX")
+    cp "${src}" "${tmp}"
+    mv "${tmp}" "${dst}"
+    echo "copied over ${name}"
+    LAST_COPIED=1
+}
+
+# for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
 MYSQLCA=false
-if [[ -f /root/certs/mysql/server/mysql-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca ]]; then
-    echo "copied over mysql-ca"
-    cp /root/certs/mysql/server/mysql-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLCA=true
-fi
 MYSQLCERT=false
-if [[ -f /root/certs/mysql/server/mysql-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-cert ]]; then
-    echo "copied over mysql-cert"
-    cp /root/certs/mysql/server/mysql-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-cert
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLCERT=true
-fi
 MYSQLKEY=false
-if [[ -f /root/certs/mysql/server/mysql-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-key ]]; then
-    echo "copied over mysql-key"
-    cp /root/certs/mysql/server/mysql-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-key
-    # for specific issue in docker and kubernetes that is required for successful openemr adodb/laminas connections
-    MYSQLKEY=true
-fi
-if [[ -f /root/certs/couchdb/couchdb-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca ]]; then
-    echo "copied over couchdb-ca"
-    cp /root/certs/couchdb/couchdb-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-ca
-fi
-if [[ -f /root/certs/couchdb/couchdb-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-cert ]]; then
-    echo "copied over couchdb-cert"
-    cp /root/certs/couchdb/couchdb-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-cert
-fi
-if [[ -f /root/certs/couchdb/couchdb-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-key ]]; then
-    echo "copied over couchdb-key"
-    cp /root/certs/couchdb/couchdb-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/couchdb-key
-fi
-if [[ -f /root/certs/ldap/ldap-ca ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca ]]; then
-    echo "copied over ldap-ca"
-    cp /root/certs/ldap/ldap-ca /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-ca
-fi
-if [[ -f /root/certs/ldap/ldap-cert ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-cert ]]; then
-    echo "copied over ldap-cert"
-    cp /root/certs/ldap/ldap-cert /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-cert
-fi
-if [[ -f /root/certs/ldap/ldap-key ]] &&
-   [[ ! -f /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-key ]]; then
-    echo "copied over ldap-key"
-    cp /root/certs/ldap/ldap-key /var/www/localhost/htdocs/openemr/sites/default/documents/certificates/ldap-key
-fi
+cp_cert_file mysql/server mysql-ca
+if ((LAST_COPIED)); then MYSQLCA=true; fi
+cp_cert_file mysql/server mysql-cert
+if ((LAST_COPIED)); then MYSQLCERT=true; fi
+cp_cert_file mysql/server mysql-key
+if ((LAST_COPIED)); then MYSQLKEY=true; fi
+
+# couchdb + ldap copies don't need flag tracking downstream — just run.
+cp_cert_file couchdb couchdb-ca
+cp_cert_file couchdb couchdb-cert
+cp_cert_file couchdb couchdb-key
+
+cp_cert_file ldap    ldap-ca
+cp_cert_file ldap    ldap-cert
+cp_cert_file ldap    ldap-key
 
 if [[ "${AUTHORITY}" = "yes" ]]; then
     if [[ "${CONFIG}" = "0" ]] &&
@@ -1158,7 +1218,7 @@ if [[ "${AUTHORITY}" = "yes" ]] &&
    [[ -f /var/www/localhost/htdocs/auto_configure.php ]]; then
     # Set flag that the docker-leader configuration is complete
     touch /var/www/localhost/htdocs/openemr/sites/docker-completed
-    rm -f /var/www/localhost/htdocs/openemr/sites/docker-leader
+    rm -f /var/www/localhost/htdocs/openemr/sites/docker-leader /var/www/localhost/htdocs/openemr/sites/docker-leader.[0-9]*
 fi
 
 # ensure the auto_configure.php script has been removed (unless in MANUAL_SETUP mode)

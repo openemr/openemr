@@ -20,7 +20,6 @@ return ['includes' => [
     __DIR__ . '/booleanNot.alwaysTrue.php',
     __DIR__ . '/booleanOr.alwaysFalse.php',
     __DIR__ . '/booleanOr.alwaysTrue.php',
-    __DIR__ . '/booleanOr.leftAlwaysFalse.php',
     __DIR__ . '/booleanOr.leftAlwaysTrue.php',
     __DIR__ . '/booleanOr.rightAlwaysFalse.php',
     __DIR__ . '/booleanOr.rightAlwaysTrue.php',

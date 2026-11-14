@@ -42,8 +42,19 @@ final class PatientFinderQueryBuilder
     /** The patient-name column, expanded to last/first/middle name parts. */
     public const NAME_KEY = 'name';
 
+    /** A patient's whole name, blank parts left out, in the orders a search may type it. */
+    private const FULL_NAME_FIRST_MIDDLE_LAST = "CONCAT_WS(' ', NULLIF(TRIM(fname), ''), NULLIF(TRIM(mname), ''), NULLIF(TRIM(lname), ''))";
+    private const FULL_NAME_FIRST_LAST = "CONCAT_WS(' ', NULLIF(TRIM(fname), ''), NULLIF(TRIM(lname), ''))";
+    private const FULL_NAME_LAST_FIRST = "CONCAT_WS(', ', NULLIF(TRIM(lname), ''), NULLIF(TRIM(fname), ''))";
+
     /** The date-of-birth column, which uses the fuzzy date search. */
     public const DOB_KEY = 'DOB';
+
+    /**
+     * A LIKE comparison with its bind placeholder. The escape character is given rather than
+     * left to the server, whose default changes with the NO_BACKSLASH_ESCAPES SQL mode.
+     */
+    private const LIKE = ' LIKE ? ESCAPE \'' . PatientFinderTermMatch::ESCAPE_CHARACTER . '\'';
 
     /** @var callable(string, array<int, string>): string */
     private $columnEscaper;
@@ -71,19 +82,28 @@ final class PatientFinderQueryBuilder
      *        term applies to, when it differs from the displayed set — the `search_any` any-column
      *        mode searches the DEM layout fields rather than the displayed columns. Null (the
      *        default) searches the displayed columns, as the normal mode does.
+     * @param list<int>|null $onlyPids Limit the results to these patients, ordered as given unless
+     *        the request sorts — the Recent Patients tab, most recent first. Null (the default)
+     *        searches every patient.
      */
     public function build(
         array $columns,
         PatientFinderRequest $request,
         BoundFilter $filter,
-        ?array $globalSearchColumns = null
+        ?array $globalSearchColumns = null,
+        ?array $onlyPids = null
     ): PatientFinderQueryPlan {
         [$selectList, $dataJoinMap, $selectBinds] = $this->buildSelect($columns);
         [$searchWhere, $searchBinds, $whereJoinMap] = $this->buildWhere($columns, $request, $globalSearchColumns);
-        $orderBy = $this->buildOrderBy($columns, $request);
+        [$orderBy, $orderBinds] = $this->buildOrderBy($columns, $request, $onlyPids);
 
-        $customWhere = $filter->getFilterClause();
-        $filterBinds = $filter->getBoundValues();
+        // The patient limit goes in front of the custom filter, so the total counts only
+        // those patients too.
+        [$pidWhere, $pidBinds] = $this->buildPidWhere($onlyPids);
+        $customWhere = $pidWhere === ''
+            ? $filter->getFilterClause()
+            : $pidWhere . ' AND ( ' . $filter->getFilterClause() . ' )';
+        $filterBinds = array_merge($pidBinds, $filter->getBoundValues());
 
         $fullWhere = $searchWhere === ''
             ? $customWhere
@@ -107,7 +127,7 @@ final class PatientFinderQueryBuilder
 
         // Bind values follow the SQL left-to-right: SELECT placeholders, then the
         // JOIN placeholders (once per distinct JOIN, in JOIN order), then the
-        // WHERE (filter then search), then LIMIT.
+        // WHERE (patient limit, filter, search), then ORDER BY, then LIMIT.
         $dataSql = 'SELECT ' . implode(', ', $selectList)
             . ' FROM patient_data' . $this->joinSql(array_keys($dataJoins))
             . ' WHERE ' . $fullWhere . $orderBy . $limitSql;
@@ -116,6 +136,7 @@ final class PatientFinderQueryBuilder
             $this->joinBinds($dataJoins),
             $filterBinds,
             $searchBinds,
+            $orderBinds,
             $limitBinds
         );
 
@@ -199,32 +220,41 @@ final class PatientFinderQueryBuilder
         // Global search: one OR group across every searchable column (the DEM
         // layout fields in search_any mode, otherwise the displayed columns).
         if ($request->hasGlobalSearch()) {
-            $term = $request->globalSearch;
+            $mode = $request->searchMode;
+            // The any-column mode matches anywhere; otherwise the search mode says where.
+            $match = $request->anySearch ? PatientFinderTermMatch::Anywhere : $mode->termMatch();
+            // The dropdown's normalizing (digits only for a phone, say) is for its own modes; an
+            // any-column search matches the DEM fields with the term as typed.
+            $term = $request->anySearch ? $request->globalSearch : $mode->normalizeTerm($request->globalSearch);
             $ors = [];
-            foreach (($globalSearchColumns ?? $columns) as $column) {
-                if (!$column->searchable) {
-                    continue; // enriched + any module display-only column
+            if ($term === '') {
+                // A phone or SSN search with no digits in it matches no one.
+                $ors[] = '1 = 0';
+            }
+            foreach ($term === '' ? [] : ($globalSearchColumns ?? $columns) as $column) {
+                if (!$column->searchable || !$column->inGlobalSearch) {
+                    continue; // enriched, module display-only, or a costly subquery column
                 }
                 if ($column->key === self::NAME_KEY) {
-                    $ors[] = 'lname LIKE ? OR fname LIKE ? OR mname LIKE ?';
-                    $value = $request->exactSearch ? $term : $term . '%';
-                    $binds[] = $value;
-                    $binds[] = $value;
-                    $binds[] = $value;
+                    [$nameWhere, $nameBinds] = $this->nameWhere($term, $request->exactSearch);
+                    $ors[] = $nameWhere;
+                    array_push($binds, ...$nameBinds);
                     continue;
                 }
-                $ors[] = $this->searchTarget($column) . ' LIKE ?';
+                $target = $this->searchTarget($column);
+                $ors[] = $target . self::LIKE;
                 if ($column->isSql()) {
                     $this->collectJoin($joins, $column);
                 }
-                // Match mode precedence matches the legacy script: exact wins,
-                // then the any-column "contains" mode, otherwise prefix.
-                if ($request->exactSearch) {
-                    $binds[] = $term;
-                } elseif ($request->anySearch) {
-                    $binds[] = '%' . $term . '%';
-                } else {
-                    $binds[] = $term . '%';
+                // An exact search matches the whole field, as in the legacy script;
+                // a date is always read as a date.
+                $binds[] = $match->pattern($term, $request->exactSearch, $this->dateSearch);
+                // A phone number typed with its country code also finds the number stored
+                // without it.
+                $withoutCountryCode = $request->anySearch ? [] : $mode->withoutCountryCode($term);
+                if ($withoutCountryCode !== []) {
+                    $ors[] = $target . ' IN (' . implode(', ', array_fill(0, count($withoutCountryCode), '?')) . ')';
+                    array_push($binds, ...$withoutCountryCode);
                 }
             }
             if ($ors !== []) {
@@ -246,32 +276,100 @@ final class PatientFinderQueryBuilder
                 // joining the other per-column filters; otherwise a first-/
                 // middle-name match could bypass another column's filter (and the
                 // data query and filtered count would then disagree).
-                $parts[] = '( lname LIKE ? OR fname LIKE ? OR mname LIKE ? )';
-                $value = $request->exactSearch ? $term : $term . '%';
-                $binds[] = $value;
-                $binds[] = $value;
-                $binds[] = $value;
+                [$nameWhere, $nameBinds] = $this->nameWhere($term, $request->exactSearch);
+                $parts[] = $nameWhere;
+                array_push($binds, ...$nameBinds);
                 continue;
             }
             if ($column->key === self::DOB_KEY) {
-                $parts[] = ($this->columnEscaper)($column->key, [$column->table]) . ' LIKE ?';
+                $parts[] = ($this->columnEscaper)($column->key, [$column->table]) . self::LIKE;
                 $binds[] = ($this->dateSearch)($term);
                 continue;
             }
-            $parts[] = $this->searchTarget($column) . ' LIKE ?';
+            $parts[] = $this->searchTarget($column) . self::LIKE;
             if ($column->isSql()) {
                 $this->collectJoin($joins, $column);
             }
-            $binds[] = $request->exactSearch ? $term : $term . '%';
+            $binds[] = PatientFinderTermMatch::Start->pattern($term, $request->exactSearch, $this->dateSearch);
         }
 
         return [implode(' AND ', $parts), $binds, $joins];
     }
 
     /**
-     * @param array<int, PatientFinderColumn> $columns
+     * The WHERE fragment matching a name search, and its bind values. The whole term must
+     * start (or, in an exact search, be) the last, first or middle name, as "Van Dyke" or
+     * "Mary Ann"; or the whole name, as "Mary Ann Smith" (first, middle and last, first and
+     * last, or "last, first"); or, for a term of several words, each word must, so
+     * "Phil Belford" and "Belford, Phil" both find Phil Belford. Parenthesised as a whole so
+     * it can sit in an OR group or among ANDs.
+     *
+     * @return array{0: string, 1: list<string>}
      */
-    private function buildOrderBy(array $columns, PatientFinderRequest $request): string
+    private function nameWhere(string $term, bool $exact): array
+    {
+        [$where, $binds] = $this->anyNameWhere($term, $exact);
+        $words = preg_split('/[\s,]+/', $term, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        if (count($words) < 2) {
+            return ['( ' . $where . ' )', $binds];
+        }
+        // A first or last name of several words ("Mary Ann") would fail the word-by-word
+        // match below, since "Ann" starts no name field; the whole name catches it.
+        $full = PatientFinderTermMatch::Start->pattern($term, $exact, $this->dateSearch);
+        $where .= ' OR ' . self::FULL_NAME_FIRST_MIDDLE_LAST . self::LIKE
+            . ' OR ' . self::FULL_NAME_FIRST_LAST . self::LIKE
+            . ' OR ' . self::FULL_NAME_LAST_FIRST . self::LIKE;
+        array_push($binds, $full, $full, $full);
+        $clauses = [];
+        foreach ($words as $word) {
+            [$wordWhere, $wordBinds] = $this->anyNameWhere($word, $exact);
+            $clauses[] = $wordWhere;
+            array_push($binds, ...$wordBinds);
+        }
+        return ['( ' . $where . ' OR ( ' . implode(' AND ', $clauses) . ' ) )', $binds];
+    }
+
+    /**
+     * The term matching the last, first or middle name, and its bind values.
+     *
+     * @return array{0: string, 1: list<string>}
+     */
+    private function anyNameWhere(string $text, bool $exact): array
+    {
+        $value = PatientFinderTermMatch::Start->pattern($text, $exact, $this->dateSearch);
+        return [
+            '( lname' . self::LIKE . ' OR fname' . self::LIKE . ' OR mname' . self::LIKE . ' )',
+            [$value, $value, $value],
+        ];
+    }
+
+    /**
+     * The WHERE fragment limiting the results to the given patients, and its bind values.
+     *
+     * @param list<int>|null $onlyPids
+     * @return array{0: string, 1: list<int>}
+     */
+    private function buildPidWhere(?array $onlyPids): array
+    {
+        if ($onlyPids === null) {
+            return ['', []];
+        }
+        if ($onlyPids === []) {
+            return ['1 = 0', []];
+        }
+        $placeholders = implode(', ', array_fill(0, count($onlyPids), '?'));
+        return ['patient_data.pid IN (' . $placeholders . ')', $onlyPids];
+    }
+
+    /**
+     * The ORDER BY clause and its bind values. With no sort requested, a patient limit
+     * keeps its own order.
+     *
+     * @param array<int, PatientFinderColumn> $columns
+     * @param list<int>|null $onlyPids
+     * @return array{0: string, 1: list<int>}
+     */
+    private function buildOrderBy(array $columns, PatientFinderRequest $request, ?array $onlyPids = null): array
     {
         $clauses = [];
         foreach ($request->sortColumns as $sort) {
@@ -289,7 +387,14 @@ final class PatientFinderQueryBuilder
             }
         }
 
-        return $clauses === [] ? '' : ' ORDER BY ' . implode(', ', $clauses);
+        if ($clauses !== []) {
+            return [' ORDER BY ' . implode(', ', $clauses), []];
+        }
+        if ($onlyPids === null || $onlyPids === []) {
+            return ['', []];
+        }
+        $placeholders = implode(', ', array_fill(0, count($onlyPids), '?'));
+        return [' ORDER BY FIELD(patient_data.pid, ' . $placeholders . ')', $onlyPids];
     }
 
     /**

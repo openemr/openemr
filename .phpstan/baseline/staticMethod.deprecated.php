@@ -20,18 +20,6 @@ Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#'
     'path' => __DIR__ . '/../../interface/billing/sl_eob_invoice.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method arPostAdjustment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
-Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method arPostPayment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
-Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method toNationalDigits\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
 Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>getNationalDigits\\(\\) instead$#',
     'count' => 2,

@@ -355,3 +355,122 @@ CREATE TABLE `referral_notice` (
 #IfRow3D layout_options form_id DEM field_id interpreter_needed edit_options interpreter_needed
 UPDATE `layout_options` SET `edit_options` = '' WHERE `form_id` = 'DEM' AND `field_id` = 'interpreter_needed' AND `edit_options` = 'interpreter_needed';
 #EndIf
+
+-- Receive X12 files (835, 277, 999) from X12 partners over SFTP (#15227).
+#IfMissingColumn x12_partners x12_sftp_receive_dir_835
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_dir_835` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 835 remittances from';
+#EndIf
+
+#IfMissingColumn x12_partners x12_sftp_receive_dir_277
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_dir_277` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 277 claim status files from';
+#EndIf
+
+#IfMissingColumn x12_partners x12_sftp_receive_dir_999
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_dir_999` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 999 acknowledgments from';
+#EndIf
+
+#IfMissingColumn x12_partners x12_sftp_receive_worked_dir
+ALTER TABLE `x12_partners` ADD COLUMN `x12_sftp_receive_worked_dir` varchar(255) DEFAULT NULL COMMENT 'remote folder a fetched file is moved to; empty leaves it in place';
+#EndIf
+
+#IfNotTable x12_remote_received
+CREATE TABLE `x12_remote_received` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `remote_key` char(64) NOT NULL COMMENT 'sha256 of partner, folder, name, size and modified time: one row per remote file',
+  `x12_partner_id` int(11) NOT NULL,
+  `remote_dir` varchar(255) NOT NULL,
+  `remote_name` varchar(255) NOT NULL,
+  `remote_size` bigint(20) NOT NULL,
+  `remote_mtime` bigint(20) NOT NULL DEFAULT 0 COMMENT 'modified time on the remote, Unix seconds',
+  `file_type` varchar(8) NOT NULL DEFAULT '' COMMENT 'X12FileType: f835, f277 or f997; empty when the file was none of the kinds its folder is for',
+  `status` varchar(31) NOT NULL COMMENT 'ReceivedStatus: stored, duplicate, rejected or failed',
+  `stored_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'file name it was stored under on the site',
+  `message` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it was not stored',
+  `received_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `remote_key` (`remote_key`),
+  KEY `partner_status` (`x12_partner_id`, `status`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow background_services name X12_SFTP_Receive
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('X12_SFTP_Receive', 'Receive X12 Files from X12 Partners Service', 0, 0, '2021-01-18 11:25:10', 60, 'OpenEMR\\Billing\\X12Receive\\X12ReceiveService::runBackgroundService', NULL, 100);
+#EndIf
+
+-- Patient Finder combined columns (PatientFinderBuiltInColumns). Added switched off, so a
+-- site's finder only changes once an administrator enables one in Patient List Columns.
+#IfNotRow2D list_options list_id ptlistcols option_id name_first_last
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'name_first_last', 'First Last', 60, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id name_first_last_middle
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'name_first_last_middle', 'First Middle Last', 70, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id city_state
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'city_state', 'City State', 80, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id address_full
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'address_full', 'Address', 90, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id address_full_country
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'address_full_country', 'Address and Country', 100, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id age
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'age', 'Age', 110, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id next_appointment
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'next_appointment', 'Next Appt', 120, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id last_appointment
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'last_appointment', 'Last Appt', 130, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id insurance_primary_provider_name
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'insurance_primary_provider_name', 'Primary Insurance', 140, 3, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id ptlistcols option_id insurance_primary_policy
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'insurance_primary_policy', 'Primary Policy Number', 150, 3, 0);
+#EndIf
+
+-- Patient Finder Detail: the layout an expanded Patient Finder row shows. Not an LBF id, since
+-- every active LBF layout is offered as an encounter form. Each part has its own guard so a
+-- rerun finishes an interrupted seed; the fields go in only while the layout has none, so a
+-- site that removed some of them keeps its changes.
+#IfNotRow layout_group_properties grp_form_id PTFINDER
+INSERT INTO `layout_group_properties` (`grp_form_id`, `grp_group_id`, `grp_title`, `grp_mapping`, `grp_columns`, `grp_size`) VALUES ('PTFINDER', '', 'Patient Finder Detail', 'Core', 8, 9);
+#EndIf
+
+#IfNotRow2D layout_group_properties grp_form_id PTFINDER grp_group_id 1
+INSERT INTO `layout_group_properties` (`grp_form_id`, `grp_group_id`, `grp_title`, `grp_mapping`) VALUES ('PTFINDER', '1', 'Main', '');
+#EndIf
+
+#IfNotRow layout_options form_id PTFINDER
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES
+    ('PTFINDER', 'insurance_primary_provider_name', '1', 'Insurance', 10, 2, 1, 20, 63, '', 1, 2, '', '', 'Primary insurance in effect today', 0),
+    ('PTFINDER', 'sex', '1', 'Sex', 20, 1, 1, 0, 0, 'sex', 1, 2, '', '', 'Sex', 0),
+    ('PTFINDER', 'insurance_primary_policy', '1', 'Insurance ID', 30, 2, 1, 20, 60, '', 1, 2, '', '["J"]', 'Policy number of the primary insurance in effect today', 0),
+    ('PTFINDER', 'address_full', '1', 'Address', 40, 2, 1, 20, 200, '', 1, 7, '', '["J"]', 'Street, city, state and postal code', 0);
+#EndIf
+
+-- Patient Finder column lists: named after the finder and its tabs, so they sit together in
+-- Administration > Lists. Only a name still at its default changes; a site's own name stays.
+UPDATE `list_options` SET `title` = 'Patient Finder – Patient List Columns' WHERE `list_id` = 'lists' AND `option_id` = 'ptlistcols' AND `title` = 'Patient List Columns';
+UPDATE `list_options` SET `title` = 'Patient Finder – Recent Patients Columns' WHERE `list_id` = 'lists' AND `option_id` = 'recent_patient_columns' AND `title` = 'Recent Patient Columns';
+
+-- Recent Patients Use Patient List Columns: on for new installs, off here so an existing
+-- site's Recent Patients tab keeps its own columns until an administrator turns it on.
+-- Only a site that has been set up is changed: the installer writes every global's
+-- default, so a bare database.sql (with no globals) gets the default, as a new install does.
+#IfNotRow globals gl_name gbl_pt_list_recent_same_columns
+INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`)
+SELECT 'gbl_pt_list_recent_same_columns', 0, '0' FROM DUAL
+WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
+#EndIf
