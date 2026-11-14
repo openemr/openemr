@@ -196,9 +196,16 @@ register_smart_client() {
     # idempotent: registerPortal() lives beside the confidential record
     # under the same issuer key and is a no-op if already present (same
     # shape as --all's existing-registration branch).
+    # `|| exit 1` on --portal keeps a failed registration from being
+    # masked by the trailing `chown` (which exits 0 regardless). The
+    # inner sh runs without `set -e`, so without this guard a broken
+    # upstream `register.php --portal` surfaces only as a selenium
+    # timeout when the portal test waits for the Health Apps card.
+    # The existing `--all` line has the same gap, but leaving it as-is
+    # here keeps this PR's change surface to the new command only.
     docker compose exec -T openemr sh -c '
         cd /opt/oe-smart-questionnaire/app && php bin/register.php --all
-        cd /opt/oe-smart-questionnaire/app && php bin/register.php --site=openemr --portal
+        cd /opt/oe-smart-questionnaire/app && php bin/register.php --site=openemr --portal || exit 1
         chown -R apache:apache var
     '
     # OpenEMR registers all clients disabled. Flip is_enabled=1 so the

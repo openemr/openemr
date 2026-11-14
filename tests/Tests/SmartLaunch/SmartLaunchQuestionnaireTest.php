@@ -57,6 +57,26 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
      */
     private const SEEDED_QUESTIONNAIRE_TITLE = 'SMART Launch Smoke Questionnaire';
 
+    /**
+     * EHR-launch tests want the staff (non-portal) client's test-launch
+     * buttons on fhir_assessments.php. Since run.sh now registers both
+     * a staff client ("<app_name> (<site>)") AND a patient portal
+     * client ("<app_name> (<site>) - patient portal"), the unqualified
+     * `.smart-context-launch` selector would pick whichever comes first
+     * from `ClientRepository::listClientEntities()`. The portal client's
+     * patient-only scopes route patient-select differently from the
+     * staff client's user-scopes, so the EHR-launch tests must filter
+     * it out.
+     *
+     * `data-smart-name` is set to the full oauth_clients.client_name.
+     * The CSS `[attr*=...]` substring match works in Chromium (standard
+     * CSS3) and reliably excludes the portal client because its name
+     * always ends with " - patient portal" per
+     * `Registrar::portalClientName`.
+     */
+    private const STAFF_LAUNCH_BUTTON_SELECTOR =
+        '.smart-context-launch:not([data-smart-name*="- patient portal"])';
+
     private Client $panther;
 
     protected function setUp(): void
@@ -381,8 +401,8 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             'GET',
             self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
         );
-        $this->panther->waitFor('.smart-context-launch', 10);
-        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector('.smart-context-launch'));
+        $this->panther->waitFor(self::STAFF_LAUNCH_BUTTON_SELECTOR, 10);
+        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector(self::STAFF_LAUNCH_BUTTON_SELECTOR));
         $clientId = $launchBtn->getAttribute('data-client-id');
         $intent = $launchBtn->getAttribute('data-intent');
         $this->assertNotEmpty(
@@ -508,8 +528,8 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             'GET',
             self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
         );
-        $this->panther->waitFor('.smart-context-launch', 10);
-        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector('.smart-context-launch'));
+        $this->panther->waitFor(self::STAFF_LAUNCH_BUTTON_SELECTOR, 10);
+        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector(self::STAFF_LAUNCH_BUTTON_SELECTOR));
         $clientId = $launchBtn->getAttribute('data-client-id');
         $intent = $launchBtn->getAttribute('data-intent');
         $this->assertNotEmpty($clientId);
@@ -1129,9 +1149,17 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
         // Stage 5 — consent screen. On a fresh portal/client pairing
         // the server renders the pre-checked consent form; once the
         // patient has approved before, `saveTrustedUser` lets subsequent
-        // flows skip straight to issuance. Handle both so the test
-        // doesn't become brittle to that state (which is write-once per
-        // (user, client) pair and persists across phpunit methods).
+        // flows skip straight to issuance. Wait until EITHER the
+        // `proceed` button appears OR the browser is already on the
+        // landing URL — otherwise the consent-form render can race the
+        // staleness signal from login submission, leaving `findElements`
+        // empty while the consent page is still coming in, and the
+        // landing-URL wait below times out for a page that still needs
+        // a submit.
+        $this->panther->wait(15)->until(
+            static fn (WebDriver $d): bool => $d->findElements(WebDriverBy::name('proceed')) !== []
+                || str_contains($d->getCurrentURL(), '/smart-questionnaire/home.php?lid='),
+        );
         $proceedButtons = $this->panther->findElements(WebDriverBy::name('proceed'));
         if ($proceedButtons !== []) {
             $proceedButtons[0]->click();
