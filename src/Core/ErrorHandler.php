@@ -31,12 +31,17 @@ use function is_string;
 use function set_error_handler;
 use function set_exception_handler;
 use function sprintf;
+use function strcasecmp;
 
 use const E_DEPRECATED;
 use const E_USER_DEPRECATED;
 
 readonly class ErrorHandler
 {
+    // Error bodies are plain text. Without this PHP sends text/html, and the
+    // exception string shown when error display is on would render as HTML.
+    private const BODY_CONTENT_TYPE = 'text/plain; charset=utf-8';
+
     private bool $isCli;
 
     public function __construct(
@@ -104,10 +109,8 @@ readonly class ErrorHandler
 
         if (!headers_sent()) {
             http_response_code($response->getStatusCode());
-            foreach ($response->getHeaders() as $name => $values) {
-                foreach ($values as $value) {
-                    header(sprintf('%s: %s', $name, $value), false);
-                }
+            foreach ($this->headerLines($response) as $header) {
+                header($header['line'], $header['replace']);
             }
         }
 
@@ -115,7 +118,33 @@ readonly class ErrorHandler
         exit();
     }
 
-    private function buildResponse(Throwable $e): ResponseInterface
+    /**
+     * The header() calls for a response. The first value of each header
+     * replaces one the page already set, such as a text/html Content-Type, so
+     * the client does not get two. Set-Cookie always adds, so cookies set
+     * earlier (e.g. the session) are kept. Separate from handleException() so
+     * it can be tested without exiting the process.
+     *
+     * @return list<array{line: string, replace: bool}>
+     */
+    public function headerLines(ResponseInterface $response): array
+    {
+        $lines = [];
+        foreach ($response->getHeaders() as $name => $values) {
+            $replace = strcasecmp($name, 'Set-Cookie') !== 0;
+            foreach ($values as $value) {
+                $lines[] = ['line' => sprintf('%s: %s', $name, $value), 'replace' => $replace];
+                $replace = false;
+            }
+        }
+        return $lines;
+    }
+
+    /**
+     * Builds the HTTP response for an uncaught exception. Separate from
+     * handleException() so it can be tested without exiting the process.
+     */
+    public function buildResponse(Throwable $e): ResponseInterface
     {
         // Future scope: create a body based on request context (e.g. accept
         // headers, etc).
@@ -124,7 +153,21 @@ readonly class ErrorHandler
             foreach ($e->getHeaders() as $header => $value) {
                 $response = $response->withAddedHeader($header, $this->normalizeHeaderValue($header, $value));
             }
-            return $response;
+            // Send the status text so clients get a readable error. The
+            // exception message can hold internal details, so it is only
+            // shown when error display is on, like the 500 path below.
+            $message = $response->getReasonPhrase();
+            if ($message === '') {
+                $message = 'An error has occurred.';
+            }
+            if ($this->shouldDisplayErrors) {
+                $message .= "\n$e";
+            }
+            // A Content-Length copied from the exception would not match the new body.
+            return $response
+                ->withoutHeader('Content-Length')
+                ->withHeader('Content-Type', self::BODY_CONTENT_TYPE)
+                ->withBody($this->sf->createStream($message));
         }
 
         // Default: nondescript 500 error.
@@ -134,6 +177,7 @@ readonly class ErrorHandler
         }
 
         return $this->rf->createResponse(500)
+            ->withHeader('Content-Type', self::BODY_CONTENT_TYPE)
             ->withBody($this->sf->createStream($message));
     }
 
