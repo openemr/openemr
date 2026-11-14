@@ -1,0 +1,153 @@
+{#
+  The assessments page's script: opens an assessment in the workspace, saves it by asking
+  the frame to submit, and launches SMART apps in a dialog. Include after
+  assessment_feedback.html.twig and frame_fit.html.twig, which it calls. Takes launcherUrl,
+  smartLaunchUrl, csrfToken and intents.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<script>
+    const assessmentWorkspace = document.getElementById('assessment-workspace')
+    const assessmentCatalog = document.getElementById('assessment-catalog')
+    const assessmentFrame = document.getElementById('assessment-frame')
+    const assessmentTitle = document.getElementById('assessment-title')
+    const assessmentSaveButton = document.getElementById('assessment-save')
+    const assessmentLauncherUrl = {{ launcherUrl|js_escape }};
+    const smartLaunchUrl = {{ smartLaunchUrl|js_escape }};
+    const smartLaunchCsrfToken = {{ csrfToken|js_escape }};
+    const smartLaunchIntent = {{ intents.questionnaire|js_escape }};
+    let assessmentSavePending = false
+
+    function openAssessment (url, title) {
+        top.restoreSession()
+        assessmentSavePending = false
+        assessmentFeedback.saving(false)
+        assessmentTitle.textContent = title
+        assessmentCatalog.classList.add('d-none')
+        assessmentWorkspace.classList.remove('d-none')
+        assessmentFrameFit.fit()
+        assessmentFeedback.loading(true)
+        assessmentFrame.src = url
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    function closeAssessment () {
+        assessmentSavePending = false
+        assessmentFeedback.saving(false)
+        assessmentFeedback.loading(false)
+        assessmentFrame.src = 'about:blank'
+        assessmentWorkspace.classList.add('d-none')
+        assessmentCatalog.classList.remove('d-none')
+    }
+
+    document.querySelectorAll('.assessment-launch').forEach((button) => {
+        button.addEventListener('click', () => {
+            openAssessment(button.dataset.assessmentUrl, button.dataset.assessmentTitle)
+        })
+    })
+
+    function openSmartDialog (params, title) {
+        dlgopen(
+            smartLaunchUrl + '?' + params.toString(),
+            '_blank',
+            'modal-full',
+            window.top.innerHeight,
+            '',
+            title,
+            { allowExternal: true }
+        )
+    }
+
+    function launchSmartContext (button, extraParams = {}) {
+        const clientId = button.dataset.clientId || ''
+        const intent = button.dataset.intent || ''
+        if (clientId === '' || intent === '') {
+            return
+        }
+
+        top.restoreSession()
+        const params = new URLSearchParams({
+            client_id: clientId,
+            csrf_token: smartLaunchCsrfToken,
+            intent
+        })
+        Object.entries(extraParams).forEach(([name, value]) => {
+            if (value !== '') {
+                params.set(name, value)
+            }
+        })
+        openSmartDialog(params, button.dataset.smartName || {{ 'SMART App'|xlj }})
+    }
+
+    document.querySelectorAll('.smart-context-launch').forEach((button) => {
+        button.addEventListener('click', () => {
+            const extraParams = {}
+            if (button.dataset.appointmentLaunch === 'true') {
+                const container = button.closest('.input-group')
+                const appointmentInput = container?.querySelector('.smart-appointment-id')
+                const appointmentId = appointmentInput?.value || ''
+                if (appointmentId === '') {
+                    appointmentInput?.focus()
+                    return
+                }
+                extraParams.appointment_id = appointmentId
+            }
+            launchSmartContext(button, extraParams)
+        })
+    })
+
+    document.querySelectorAll('.assessment-smart-launch').forEach((button) => {
+        button.addEventListener('click', () => {
+            const clientId = button.dataset.clientId || ''
+            const questionnaireId = button.dataset.questionnaireId || ''
+            const questionnaireResponseId = button.dataset.questionnaireResponseId || ''
+            if (clientId === '' || questionnaireId === '') {
+                return
+            }
+
+            top.restoreSession()
+            const params = new URLSearchParams({
+                client_id: clientId,
+                csrf_token: smartLaunchCsrfToken,
+                intent: smartLaunchIntent,
+                questionnaire_id: questionnaireId
+            })
+            if (questionnaireResponseId !== '') {
+                params.set('questionnaire_response_id', questionnaireResponseId)
+            }
+            openSmartDialog(params, button.dataset.smartName || {{ 'SMART Assessment App'|xlj }})
+        })
+    })
+
+    assessmentSaveButton.addEventListener('click', () => {
+        if (assessmentSavePending) {
+            return
+        }
+        top.restoreSession()
+        assessmentSavePending = true
+        assessmentFeedback.saving(true)
+        assessmentFrame.contentWindow.postMessage({ submitForm: true }, window.location.origin)
+    })
+
+    document.getElementById('assessment-close').addEventListener('click', closeAssessment)
+
+    window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin || event.source !== assessmentFrame.contentWindow) {
+            return
+        }
+
+        if (event.data?.assessmentSaved === true) {
+            window.location.href = assessmentFeedback.savedUrl
+            return
+        }
+
+        if (event.data?.assessmentValidationFailed === true || event.data?.assessmentSaveFailed === true) {
+            assessmentSavePending = false
+            assessmentFeedback.saving(false)
+        }
+    })
+</script>

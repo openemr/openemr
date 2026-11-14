@@ -1,0 +1,112 @@
+{#
+  The assessment workspace: one questionnaire in the native runtime, inside the Questionnaire
+  Assessments page's frame. Rendered by
+  OpenEMR\Controllers\Interface\PatientFile\Assessment\AssessmentWorkspaceController.
+
+  The page's Save button posts {submitForm: true} here. The form is validated and saved, and
+  the result goes back to the page as assessmentSaved, assessmentValidationFailed or
+  assessmentSaveFailed. With error set, the questionnaire could not be opened and only the
+  reason shows.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<!doctype html>
+<html>
+<head>
+    <title>{{ title|text }}</title>
+    {{ setupHeader() }}
+    {% include 'super/_questionnaire_runtime_assets.html.twig' with {runtime: runtime} only %}
+</head>
+<body class="bg-light">
+<div class="container-fluid py-2">
+    {% if error != '' %}
+        <div id="native-assessment-alert" class="alert alert-danger" role="alert">{{ error|text }}</div>
+    {% else %}
+        <div id="native-assessment-alert" class="d-none" role="alert"></div>
+        <div id="formContainer" class="bg-light text-dark"></div>
+    {% endif %}
+</div>
+{% if error == '' %}
+<script>
+    {# Encoded with JSON_HEX_TAG and friends, so it is safe inside this script element. #}
+    const questionnaire = {{ questionnaireJson }};
+    const questionnaireResponse = {{ responseJson }};
+    const questionnaireRecordId = {{ questionnaireId|js_escape }};
+    const responseId = {{ responseId|js_escape }};
+    const saveUrl = {{ saveUrl|js_escape }};
+    const csrfToken = {{ csrfToken|js_escape }};
+    const alertElement = document.getElementById('native-assessment-alert');
+
+    function showAssessmentAlert(message, type = 'danger') {
+        alertElement.className = 'alert alert-' + type;
+        alertElement.textContent = message;
+    }
+
+    function clearAssessmentAlert() {
+        alertElement.className = 'd-none';
+        alertElement.textContent = '';
+    }
+
+    const runtime = OpenEMRQuestionnaire.mount({
+        questionnaire,
+        questionnaireResponse,
+        container: document.getElementById('formContainer'),
+        options: {
+            questionLayout: 'vertical',
+        },
+    });
+
+    window.addEventListener('message', async (event) => {
+        // Control messages come only from the host page, so the sender must be the parent
+        // window, not just same-origin: any same-origin frame could otherwise post here. The
+        // page checks the source of the replies the same way.
+        if (event.source !== window.parent || event.origin !== window.location.origin || event.data?.submitForm !== true) {
+            return;
+        }
+
+        clearAssessmentAlert();
+        const validation = runtime.validate();
+        if (!validation.valid) {
+            const message = validation.issues.map((issue) => issue.message).join(' ');
+            showAssessmentAlert(message || {{ 'Form validation failed.'|xlj }});
+            parent.postMessage({assessmentValidationFailed: true}, window.location.origin);
+            return;
+        }
+
+        const data = new FormData();
+        data.append('csrf_token_form', csrfToken);
+        data.append('questionnaire_id', String(questionnaireRecordId));
+        data.append('response_id', responseId);
+        data.append('questionnaire_response', JSON.stringify(runtime.getQuestionnaireResponse({ complete: true })));
+
+        try {
+            top.restoreSession();
+            const response = await fetch(saveUrl, {
+                method: 'POST',
+                body: data,
+                credentials: 'same-origin',
+            });
+            const result = await response.json();
+            if (!response.ok || result.success !== true) {
+                throw new Error(result.message || {{ 'Assessment save failed.'|xlj }});
+            }
+
+            parent.postMessage({
+                assessmentSaved: true,
+                responseId: result.response_id,
+                recordId: result.id,
+            }, window.location.origin);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : {{ 'Assessment save failed.'|xlj }};
+            showAssessmentAlert(message);
+            parent.postMessage({assessmentSaveFailed: true}, window.location.origin);
+        }
+    });
+</script>
+{% endif %}
+</body>
+</html>
