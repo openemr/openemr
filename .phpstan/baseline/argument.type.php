@@ -14202,11 +14202,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$pid of function get_patient_balance expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr_url expects string, int given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes.php',
@@ -14314,11 +14309,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$pid of function getPatientData expects int, mixed given\\.$#',
     'count' => 4,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$pid of function get_patient_balance expects int, mixed given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes_full.php',
 ];
 $ignoreErrors[] = [
@@ -55253,16 +55243,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$opts of method OpenEMR\\\\Events\\\\Patient\\\\Summary\\\\Card\\\\CardModel\\:\\:__construct\\(\\) expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/BillingViewCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$pid of function get_patient_balance expects int, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Patient/Cards/BillingViewCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$eid of function get_patient_balance expects int, false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Patient/Cards/BillingViewCard.php',
 ];
