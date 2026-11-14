@@ -474,3 +474,11 @@ INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`)
 SELECT 'gbl_pt_list_recent_same_columns', 0, '0' FROM DUAL
 WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
 #EndIf
+
+-- Preload Translation Cache: the yes/no setting became Off ('0') / Auto ('auto') /
+-- Always ('1'). Off was only ever the default, so a site still on it moves to the new
+-- Auto default, which preloads only languages with few translations such as English.
+-- A site that chose Always ('1') keeps it.
+#IfRow2D globals gl_name translation_preload_cache gl_value 0
+UPDATE `globals` SET `gl_value` = 'auto' WHERE `gl_name` = 'translation_preload_cache' AND `gl_value` = '0';
+#EndIf

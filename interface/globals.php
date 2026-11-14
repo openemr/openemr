@@ -822,10 +822,9 @@ if (empty($skipAuditLog)) {
     EventAuditLogger::getInstance()->logHttpRequest();
 }
 
-// Warm translation cache if configured
-if ($globalsBag->getBoolean('translation_preload_cache')) {
-    xlWarmCache();
-}
+// Preload the language's translations when the translation_preload_cache
+// global calls for it (see xlWarmCache()).
+xlWarmCache();
 
 /**
  * Marker constant indicating globals.php has fully loaded.

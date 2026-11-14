@@ -3,8 +3,8 @@
 /**
  * Save a patient-context FHIR QuestionnaireResponse from the native Questionnaire runtime.
  *
- * Entry point only. The page is AssessmentEntryPoint::save(), with its markup in
- * templates/patient/assessment/.
+ * Entry point only. The save is AssessmentEntryPoint::save(), which checks the ACL (write or
+ * addonly for a new response, write to amend one) and hands off to AssessmentSaveController.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
