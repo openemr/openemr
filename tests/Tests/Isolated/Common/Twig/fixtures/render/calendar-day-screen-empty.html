@@ -213,6 +213,12 @@
         });
         $("#printview").click(function() { PrintView(this); });
         $(".event").dblclick(function() { EditEvent(this); });
+        // A Visit List row opens its patient's appointment. Kept from reaching the
+        // block, whose double click edits the block itself.
+        $(".visit-list-entry").on("click", function(e) {
+            e.stopPropagation();
+            oldEvt($(this).data("date"), $(this).data("eid"), $(this).data("cattype"));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
         $(".tdMonthName-small").click(function() {

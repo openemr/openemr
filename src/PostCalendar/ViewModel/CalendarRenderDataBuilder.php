@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\PostCalendar\ViewModel;
 
+use OpenEMR\Appointment\VisitList\VisitListSchedule;
+
 /**
  * Orchestration layer that turns the legacy consumer's raw inputs
  * (the existing `$A_EVENTS`, `$providers`, `$times`, etc. that
@@ -793,6 +795,8 @@ final readonly class CalendarRenderDataBuilder
      * @param  list<array<string, mixed>>                $facilities
      * @param  list<array{hour: int|string, minute: int|string, mer?: string}> $times
      * @param  list<string>                              $shortDayNames
+     * @param  ?VisitListSchedule                        $visitLists  the day's Visit Lists; null shows none
+     * @param  array<string, array{title: string, color: string}> $appointmentStatuses apptstat titles and colors by option_id
      *
      * @return array<string, mixed>
      */
@@ -816,7 +820,9 @@ final readonly class CalendarRenderDataBuilder
         string $monthSelectorHtml,
         bool $showAllFacilitiesOption,
         string $dayHeaderLabel,
-        bool $isTwelveHourFormat
+        bool $isTwelveHourFormat,
+        ?VisitListSchedule $visitLists = null,
+        array $appointmentStatuses = []
     ): array {
         $year = substr($dateYmd, 0, 4);
         $month = substr($dateYmd, 4, 2);
@@ -860,7 +866,18 @@ final readonly class CalendarRenderDataBuilder
             $providerIdRaw = $provider['id'] ?? null;
             $providerId = is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
 
-            $rawDayEvents = $aEvents[$eventDate] ?? [];
+            // Patients shown on a Visit List leave the timed grid; their blocks show the list.
+            $visitListColumn = VisitListDayColumn::build(
+                $this->viewModel,
+                $aEvents[$eventDate] ?? [],
+                $visitLists,
+                $providerId,
+                $eventDate,
+                $eventDateYmd,
+                $appointmentStatuses,
+                $isTwelveHourFormat
+            );
+            $rawDayEvents = $visitListColumn->gridEvents;
 
             $overlapPositions = $this->viewModel->detectEventOverlap(
                 $rawDayEvents,
@@ -887,6 +904,14 @@ final readonly class CalendarRenderDataBuilder
                 $webroot,
                 $isTwelveHourFormat
             );
+            foreach ($decoratedEvents as $index => $decoratedEvent) {
+                $eid = $decoratedEvent['eid'];
+                $list = is_int($eid) || is_string($eid) ? ($visitListColumn->lists[$eid] ?? null) : null;
+                if ($list !== null) {
+                    $decoratedEvents[$index]['evtClass'] = 'event_visit_list';
+                    $decoratedEvents[$index]['visitList'] = $list;
+                }
+            }
 
             $providersGrid[] = [
                 'id'              => $providerId,
@@ -1557,7 +1582,7 @@ final readonly class CalendarRenderDataBuilder
      * `background-color: ;` — visually equivalent to "no color" rather
      * than letting an admin escape into the surrounding style.
      */
-    private static function sanitizeCssColor(string $value): string
+    public static function sanitizeCssColor(string $value): string
     {
         $trimmed = trim($value);
         if ($trimmed === '') {

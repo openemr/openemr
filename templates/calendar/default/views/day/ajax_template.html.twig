@@ -26,6 +26,11 @@
            the geometry for the time-label DIV above the actual event
          - inLabelContent : only for catid 2; the pre-built
            "dispstarth:startm content" HTML for the label DIV
+         - visitList : only for a Visit List block; {title, timeLabel,
+           count, rows}, each row {eid, eventDate, pccattype,
+           sequenceLabel, patientName, categoryName, statusTitle,
+           bgColor, tooltip}. The block's patients are not among the
+           column's other events.
 #}
 
 {# Include the calendar header — emits <html><head>setupHeader()</head><body>
@@ -195,7 +200,31 @@
                                     </div>
                                 {% endif %}
 
-                                {% if event.catid != 6 %}
+                                {% if event.visitList is defined %}
+                                    {# Visit List block: its patients as a numbered list, in list order,
+                                       without times. Grows past its time span when the list is long. #}
+                                    <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                                         style="top:{{ event.evtTopCss }}; min-height:{{ event.evtHeightCss }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}"
+                                         title="{{ event.tooltip|attr }}"
+                                         id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
+                                        <div class="visit-list-header">
+                                            <span class="visit-list-title">{{ event.visitList.title|text }}</span>
+                                            <span class="visit-list-summary">{{ event.visitList.timeLabel|text }} · {{ event.visitList.count }} {% if event.visitList.count == 1 %}{{ 'patient'|xlt }}{% else %}{{ 'patients'|xlt }}{% endif %}</span>
+                                        </div>
+                                        <ol class="visit-list-entries">
+                                            {% for row in event.visitList.rows %}
+                                                <li class="visit-list-entry" style="background-color: {{ row.bgColor }}"
+                                                    data-eid="{{ row.eid|attr }}" data-date="{{ row.eventDate|attr }}" data-cattype="{{ row.pccattype|attr }}"
+                                                    title="{{ row.tooltip|attr }}">
+                                                    <span class="visit-list-sequence">{{ row.sequenceLabel|text }}</span>
+                                                    <span class="visit-list-patient">{{ row.patientName|text }}</span>
+                                                    <span class="visit-list-category">{{ row.categoryName|text }}</span>
+                                                    <span class="visit-list-status">{{ row.statusTitle|text }}</span>
+                                                </li>
+                                            {% endfor %}
+                                        </ol>
+                                    </div>
+                                {% elseif event.catid != 6 %}
                                     <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
                                          style="top:{{ event.evtTopCss }}; height:{{ event.evtHeightCss }}; background-color: {{ event.displayBgColor }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}"
                                          title="{{ event.tooltip|attr }}"

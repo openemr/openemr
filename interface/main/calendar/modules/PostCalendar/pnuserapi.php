@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
+use OpenEMR\Appointment\VisitList\VisitListService;
 use OpenEMR\Common\Calendar\Month;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -25,6 +26,7 @@ use OpenEMR\PostCalendar\LegacyInputNarrowing;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
 use OpenEMR\PostCalendar\ViewModel\ViewType;
+use OpenEMR\PostCalendar\ViewModel\VisitListDayColumn;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 
@@ -672,6 +674,26 @@ function postcalendar_userapi_buildView($args): string
             );
             $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
 
+            // The day's Visit Lists for the providers shown, and the appointment statuses
+            // their rows are colored and labeled by.
+            $visitListDate = DateTimeImmutable::createFromFormat('!Ymd', $dateStr);
+            $visitListProviderIds = [];
+            foreach ($providersList as $providerRow) {
+                $providerRowId = LegacyInputNarrowing::intValue($providerRow['id'] ?? null);
+                if ($providerRowId > 0) {
+                    $visitListProviderIds[] = $providerRowId;
+                }
+            }
+            $visitLists = $visitListDate === false
+                ? null
+                : (new VisitListService())->forDates($visitListDate, $visitListDate, $visitListProviderIds);
+            $appointmentStatuses = VisitListDayColumn::appointmentStatuses(
+                QueryUtils::fetchRecords(
+                    "SELECT `option_id`, `title`, `notes` FROM `list_options` WHERE `list_id` = 'apptstat' AND `activity` = 1"
+                ),
+                xl_list_label(...)
+            );
+
             $renderData = $builder->buildDayScreenRenderData(
                 $aEvents,
                 $providersList,
@@ -692,7 +714,9 @@ function postcalendar_userapi_buildView($args): string
                 LegacyInputNarrowing::stringValue($monthSelectorHtml),
                 !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
                 $dayHeaderLabel,
-                $isTwelveHourFormat
+                $isTwelveHourFormat,
+                $visitLists,
+                $appointmentStatuses
             );
         } elseif ($vmType === ViewType::Week) {
             // Week-screen: like day-screen but 7 day-columns per provider.

@@ -496,6 +496,85 @@ $side-calendar-date-padding: 0.3rem !default;
         color: $danger;
       }
     }
+
+    // A Visit List block. It grows past its time span when its list is long, so it
+    // is not clipped like a timed appointment.
+    &_visit_list {
+      background-color: $white;
+      border: 1px solid $primary;
+      border-radius: 0.25rem;
+      padding: 0.125rem;
+      z-index: 2;
+    }
+  }
+
+  /* the patients on a Visit List block, in list order */
+  .visit-list {
+    &-header {
+      align-items: baseline;
+      border-bottom: 1px solid $gray-300;
+      display: flex;
+      gap: 0.375rem;
+      overflow: hidden;
+      padding: 0 0.25rem 0.125rem;
+      white-space: nowrap;
+    }
+
+    &-title {
+      color: $primary;
+      font-weight: bold;
+    }
+
+    &-summary {
+      color: $gray-600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &-entries {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    // Rows sit on appointment-status colors, some of them strong (the default
+    // "@ Arrived" is bright red), in every theme. All their text uses one literal
+    // dark color that no theme redefines (as .month_daylink does), so it reads on
+    // any of them.
+    &-entry {
+      align-items: baseline;
+      border-radius: 0.25rem;
+      color: #111827;
+      cursor: pointer;
+      display: flex;
+      gap: 0.375rem;
+      margin-top: 0.125rem;
+      overflow: hidden;
+      padding: 0 0.25rem;
+      white-space: nowrap;
+
+      &:hover {
+        outline: 1px solid #4b5563;
+      }
+    }
+
+    &-sequence {
+      font-weight: bold;
+      min-width: 1.75rem;
+    }
+
+    &-patient {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &-category {
+      font-style: italic;
+    }
+
+    &-status {
+      margin-#{$left}: auto;
+    }
   }
 
   .userClose {

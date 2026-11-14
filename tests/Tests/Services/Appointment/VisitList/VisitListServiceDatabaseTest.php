@@ -103,7 +103,7 @@ class VisitListServiceDatabaseTest extends TestCase
                 $pid,
                 self::MARKER,
                 $date,
-                $options['endDate'] ?? '0000-00-00',
+                $options['endDate'] ?? null,
                 $duration,
                 $options['recurrtype'] ?? 0,
                 $recurrspec,
