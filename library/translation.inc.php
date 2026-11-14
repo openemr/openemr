@@ -1,20 +1,68 @@
 <?php
 
+/**
+ * Translation engine: xl() and its wrappers.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2009-2026 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Translation\TranslationCache;
+use OpenEMR\Common\Translation\TranslationPreloadMode;
+use OpenEMR\Common\Translation\TranslationPreloadPolicy;
 use OpenEMR\Core\OEGlobalsBag;
+
+if (!(function_exists('xlLanguageId'))) {
+    /**
+     * The session's language id, or 1 (English) when none is set.
+     */
+    function xlLanguageId(): int
+    {
+        $choice = SessionWrapperFactory::getInstance()->getActiveSession()->get('language_choice');
+        if (is_int($choice)) {
+            return $choice > 0 ? $choice : 1;
+        }
+        if (is_string($choice) && ctype_digit($choice) && (int) $choice > 0) {
+            return (int) $choice;
+        }
+        return 1;
+    }
+}
 
 if (!(function_exists('xlWarmCache'))) {
     /**
-     * Warm the translation cache by loading all translations for the current language.
-     * Call this early in the request lifecycle for best performance.
+     * Load all translations for the current language into the translation
+     * cache when the translation_preload_cache global calls for it (Always,
+     * or Auto for a language with few definitions such as English). Called
+     * early in each request from interface/globals.php.
      */
     function xlWarmCache(): void
     {
+        $globals = OEGlobalsBag::getInstance();
+        if ($globals->getBoolean('disable_translation')) {
+            return;
+        }
+        $mode = TranslationPreloadMode::fromGlobal($globals->getString('translation_preload_cache'));
+        if ($mode === TranslationPreloadMode::Off) {
+            return;
+        }
+
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $language_choice = $session->get('language_choice');
-        $lang_id = !empty($language_choice) ? (int)$language_choice : 1;
-        TranslationCache::warm($lang_id);
+        $lang_id = xlLanguageId();
+
+        $policy = new TranslationPreloadPolicy(TranslationCache::countDefinitions(...));
+        $decision = $policy->decide($mode, $lang_id, $session->get(TranslationPreloadPolicy::SESSION_KEY));
+        if ($decision->remember !== null) {
+            SessionUtil::setSession(TranslationPreloadPolicy::SESSION_KEY, $decision->remember);
+        }
+        if ($decision->preload) {
+            TranslationCache::warm($lang_id);
+        }
     }
 }
 
@@ -45,22 +93,19 @@ if (!(function_exists('xl'))) {
         if (OEGlobalsBag::getInstance()->getBoolean('disable_translation') || !empty(OEGlobalsBag::getInstance()->get('temp_skip_translations'))) {
             return xlCleanup($constant);
         }
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $language_choice = $session->get('language_choice');
-        // set language id
-        $lang_id = !empty($language_choice) ? $language_choice : 1;
+        $lang_id = xlLanguageId();
 
         // TRANSLATE
         // first, clean lines
         // convert new lines to spaces and remove windows end of lines
         $patterns =  ['/\n/','/\r/'];
         $replace =  [' ',''];
-        $constant = preg_replace($patterns, $replace, $constant);
+        $constant = preg_replace($patterns, $replace, $constant) ?? $constant;
 
         // Check cache first
         if (TranslationCache::has($lang_id, $constant)) {
             $string = TranslationCache::get($lang_id, $constant);
-        } elseif (TranslationCache::isWarmed()) {
+        } elseif (TranslationCache::isWarmed($lang_id)) {
             // Cache is warmed but constant not found - no translation exists
             $string = '';
         } else {
@@ -76,7 +121,8 @@ if (!(function_exists('xl'))) {
                 SQL;
             $res = sqlStatementNoLog($sql, [$lang_id, $constant]);
             $row = sqlFetchArray($res);
-            $string = $row['definition'] ?? '';
+            $definition = $row['definition'] ?? '';
+            $string = is_string($definition) ? $definition : '';
             // Cache for future lookups this request
             TranslationCache::set($lang_id, $constant, $string);
         }
@@ -85,7 +131,7 @@ if (!(function_exists('xl'))) {
             $string = "$constant";
         }
 
-        return xlCleanup((string) $string);
+        return xlCleanup($string);
     }
 }
 
