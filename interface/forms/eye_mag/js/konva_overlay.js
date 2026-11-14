@@ -16,6 +16,16 @@
         if (typeof window.Konva === 'undefined') {
             return;
         }
+        // Older touch devices can exhaust their shared canvas backing store
+        // when every zone allocates Retina-resolution Konva layers at once.
+        // The drawings already have fixed intrinsic dimensions, so a 1x backing
+        // store retains those dimensions while greatly reducing memory use.
+        if (typeof window.PointerEvent !== 'function'
+            && ('ontouchstart' in window || (window.navigator.maxTouchPoints || 0) > 0)
+            && (window.devicePixelRatio || 1) > 1
+            && (!window.Konva.pixelRatio || window.Konva.pixelRatio > 1)) {
+            window.Konva.pixelRatio = 1;
+        }
         window.eyeDrawingOverlays = window.eyeDrawingOverlays || {};
 
         $('.eye-konva-stage').each(function () {
@@ -247,7 +257,8 @@
             // Library images are stable local files. Never restore a data URL,
             // temporary upload URL, remote image, or a patient document URL.
             if (url.origin !== window.location.origin || url.username || url.password || url.search || url.hash ||
-                !/^(?:\/[a-z0-9_.~-]+)*\/sites\/[a-z0-9_.~-]+\/images\/eye_mag\/providers\/[1-9][0-9]*\/(HPI|PMH|EXT|ANTSEG|RETINA|SDRETINA|NEURO|IMPPLAN)\/(library\/[a-f0-9]{16}\.png|[a-f0-9]+\.jpe?g)$/i.test(url.pathname)) {
+                !/^(?:\/[a-z0-9_.~-]+)*\/sites\/[a-z0-9_.~-]+\/images\/eye_mag\/providers\/[1-9][0-9]*\/(HPI|PMH|EXT|ANTSEG|RETINA|SDRETINA|NEURO|IMPPLAN)\/(library\/[a-f0-9]{16}\.png|[a-f0-9]+\.jpe?g)$/i.test(url.pathname) &&
+                !/^\/interface\/forms\/eye_mag\/images\/eye_mag\/library\/[A-Z]+\/[a-z0-9_.~-]+\.png$/i.test(url.pathname)) {
                 throw new Error(drawT('chooseSavedImage', 'Choose an image from the saved drawing library.'));
             }
             return url.pathname;
@@ -801,6 +812,9 @@
             } else {
                 addShape(type);
             }
+        }).on('click', '[data-konva-action="library"]', function () {
+            activateZone();
+            setMode('select');
         }).on('click', '[data-konva-action="transparency"]', toggleTransparency)
             .on('click', '[data-konva-action="delete"]', deleteSelected)
             .on('click', '[data-konva-action="undo"]', undo)
