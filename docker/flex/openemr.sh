@@ -518,33 +518,68 @@ swarm_wait() {
     [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]
 }
 
-# Checks if the current leader container has stopped responding (become stale).
-# This detects crashed or frozen leader containers by checking when the leader
-# file was last updated. If older than the timeout (default 5 minutes), the
-# leader is considered stale.
-is_leader_stale() {
-    local leader_file="${OE_ROOT}/sites/docker-leader"
+# Leader lease files. The first claim is sites/docker-leader; each takeover
+# from a stale leader claims the next generation (docker-leader.1,
+# docker-leader.2, ...). Every claim is an exclusive create (noclobber, i.e.
+# O_CREAT|O_EXCL, which a shared NFS volume decides on the server), so exactly
+# one container wins each generation, and no container ever deletes a lease.
+# Deleting the stale lease and then creating a new one, as this used to do,
+# let a slower follower delete the lease a faster follower had just created
+# and become a second leader.
 
-    # No leader file means no active leader (not stale, just absent)
-    [[ ! -f "${leader_file}" ]] && return 0
-
-    # Check file age
-    local -i leader_timeout="${LEADER_TIMEOUT:-300}"  # Default: 5 minutes
-    local -i now
-    now=$(date +%s)
-    local -i leader_mtime
-    leader_mtime=$(stat -c %Y "${leader_file}" 2>/dev/null || stat -f %m "${leader_file}" 2>/dev/null || echo 0)
-    local -i age=$((now - leader_mtime))
-
-    # Leader is stale if file is older than timeout
-    (( age > leader_timeout ))
+# Prints the path of the newest leader lease file, or nothing if none exists.
+current_leader_file() {
+    local base="${OE_ROOT}/sites/docker-leader"
+    [[ -f "${base}" ]] || return 0
+    local current="${base}"
+    local -i gen=1
+    while [[ -f "${base}.${gen}" ]]; do
+        current="${base}.${gen}"
+        gen+=1
+    done
+    echo "${current}"
 }
 
-# Tries to become the leader container using atomic file creation.
-# Only one container can be leader at a time. Uses file locking via noclobber.
-try_become_leader() {
-    local leader_file="${OE_ROOT}/sites/docker-leader"
+# Prints the lease file that the next claim must create, given the newest one
+# (empty when there is no lease yet).
+next_leader_file() {
+    local current="$1"
+    local base="${OE_ROOT}/sites/docker-leader"
+    if [[ -z "${current}" ]]; then
+        echo "${base}"
+    elif [[ "${current}" = "${base}" ]]; then
+        echo "${base}.1"
+    else
+        echo "${base}.$(( ${current##*.} + 1 ))"
+    fi
+}
 
+# Returns 0 if the given lease file has not been refreshed within the leader
+# timeout (default 5 minutes), meaning its leader crashed or froze.
+is_lease_stale() {
+    local lease_file="$1"
+    local -i leader_timeout="${LEADER_TIMEOUT:-300}"
+    local -i now
+    now=$(date +%s)
+    local -i lease_mtime
+    lease_mtime=$(stat -c %Y "${lease_file}" 2>/dev/null || stat -f %m "${lease_file}" 2>/dev/null || echo 0)
+    (( now - lease_mtime > leader_timeout ))
+}
+
+# Checks if the current leader container has stopped responding (become stale).
+# No lease at all also counts: nobody is leading.
+is_leader_stale() {
+    local lease_file
+    lease_file=$(current_leader_file)
+    [[ -z "${lease_file}" ]] && return 0
+    # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
+    is_lease_stale "${lease_file}"
+}
+
+# Tries to become the leader container. Claims the first lease if there is
+# none, or the next generation if the newest lease is stale; otherwise this
+# container is a follower.
+try_become_leader() {
     # If setup is already complete, nobody needs to be leader
     if [[ -f "${OE_ROOT}/sites/docker-completed" ]]; then
         AUTHORITY=no
@@ -552,37 +587,38 @@ try_become_leader() {
         return 0
     fi
 
-    # Check if current leader is stale
-    # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-    if is_leader_stale; then
+    local current target
+    current=$(current_leader_file)
+    if [[ -n "${current}" ]]; then
+        # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
+        if ! is_lease_stale "${current}"; then
+            AUTHORITY=no
+            echo "This instance is a follower (AUTHORITY=no)"
+            return 0
+        fi
         echo "Current leader appears stale, attempting to take over..."
-        rm -f "${leader_file}" "${OE_ROOT}/sites/docker-initiated"
-        sleep 1  # Small delay to ensure file deletion is visible
     fi
+    target=$(next_leader_file "${current}")
 
-    # Try to create leader file atomically
+    # Claim the lease atomically; losing the race means another container won.
     set -o noclobber
-    if { date +%s > "${leader_file}"; } 2>/dev/null; then
-        # Success! We're the leader
+    if { date +%s > "${target}"; } 2>/dev/null; then
         AUTHORITY=yes
+        LEADER_FILE="${target}"
         echo "This instance is the docker-leader (AUTHORITY=yes)"
-        set +o noclobber
-        return 0
     else
-        # Someone else is the leader
         AUTHORITY=no
         echo "This instance is a follower (AUTHORITY=no)"
-        set +o noclobber
-        return 0
     fi
+    set +o noclobber
+    return 0
 }
 
-# Updates the leader file with current timestamp (heartbeat).
+# Updates this leader's lease file with the current timestamp (heartbeat).
 # This lets followers know the leader is still alive and working.
 update_leader_heartbeat() {
-    local leader_file="${OE_ROOT}/sites/docker-leader"
-    if [[ "${AUTHORITY}" = "yes" ]]; then
-        date +%s > "${leader_file}" 2>/dev/null || true
+    if [[ "${AUTHORITY}" = "yes" && -n "${LEADER_FILE:-}" ]]; then
+        date +%s > "${LEADER_FILE}" 2>/dev/null || true
     fi
 }
 
@@ -612,9 +648,9 @@ wait_for_swarm_completion() {
 
         # Try one more time to become leader (in case leader died just as we
         # timed out). Guard on AUTHORITY=no: if we already took over inside the
-        # wait loop above (break'd out with AUTHORITY=yes), we hold the leader
-        # file, so calling try_become_leader again would see its own file via
-        # noclobber-fail and demote us back to a follower.
+        # wait loop above (break'd out with AUTHORITY=yes), we hold the newest
+        # lease, so calling try_become_leader again would see that fresh lease
+        # and demote us back to a follower.
         if [[ "${AUTHORITY}" = "no" ]] && [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
             try_become_leader
             if [[ "${AUTHORITY}" = "yes" ]]; then
@@ -1182,7 +1218,7 @@ if [[ "${AUTHORITY}" = "yes" ]] &&
    [[ -f /var/www/localhost/htdocs/auto_configure.php ]]; then
     # Set flag that the docker-leader configuration is complete
     touch /var/www/localhost/htdocs/openemr/sites/docker-completed
-    rm -f /var/www/localhost/htdocs/openemr/sites/docker-leader
+    rm -f /var/www/localhost/htdocs/openemr/sites/docker-leader /var/www/localhost/htdocs/openemr/sites/docker-leader.[0-9]*
 fi
 
 # ensure the auto_configure.php script has been removed (unless in MANUAL_SETUP mode)
