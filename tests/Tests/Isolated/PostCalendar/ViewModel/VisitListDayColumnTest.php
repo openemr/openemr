@@ -141,6 +141,10 @@ final class VisitListDayColumnTest extends TestCase
         $list = $column->lists[40];
         $this->assertSame('Visit List', $list['title']);
         $this->assertSame('9:00–5:00', $list['timeLabel']);
+        $this->assertSame(self::PROVIDER, $list['providerId'], 'the + button adds to this provider');
+        $this->assertSame(self::DATE_YMD, $list['eventDate']);
+        $this->assertSame('9', $list['startHour'], '24-hour, as the popup reads it');
+        $this->assertSame('00', $list['startMinute']);
         $this->assertSame(2, $list['count']);
         $this->assertSame([41, 42], array_column($list['rows'], 'eid'));
         $this->assertSame(['#1', '#2'], array_column($list['rows'], 'sequenceLabel'));

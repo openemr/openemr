@@ -27,7 +27,8 @@
          - inLabelContent : only for catid 2; the pre-built
            "dispstarth:startm content" HTML for the label DIV
          - visitList : only for a Visit List block; {title, timeLabel,
-           count, rows}, each row {eid, eventDate, pccattype,
+           providerId, eventDate, startHour, startMinute, count, rows},
+           each row {eid, eventDate, pccattype,
            sequenceLabel, patientName, categoryName, statusTitle,
            bgColor, tooltip}. The block's patients are not among the
            column's other events.
@@ -210,6 +211,12 @@
                                         <div class="visit-list-header">
                                             <span class="visit-list-title">{{ event.visitList.title|text }}</span>
                                             <span class="visit-list-summary">{{ event.visitList.timeLabel|text }} · {{ event.visitList.count }} {% if event.visitList.count == 1 %}{{ 'patient'|xlt }}{% else %}{{ 'patients'|xlt }}{% endif %}</span>
+                                            <button type="button" class="visit-list-add btn btn-sm btn-primary"
+                                                    data-date="{{ event.visitList.eventDate|attr }}" data-provider="{{ event.visitList.providerId|attr }}"
+                                                    data-hour="{{ event.visitList.startHour|attr }}" data-minute="{{ event.visitList.startMinute|attr }}"
+                                                    title="{{ 'Add a patient to this Visit List'|xla }}" aria-label="{{ 'Add a patient to this Visit List'|xla }}">
+                                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                            </button>
                                         </div>
                                         <ol class="visit-list-entries">
                                             {% for row in event.visitList.rows %}

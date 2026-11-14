@@ -163,4 +163,25 @@ class VisitListServiceDatabaseTest extends TestCase
         $this->assertSame([$this->eids['other provider']], self::eids($schedule->lists[1]->entries));
         $this->assertSame([], $schedule->unplaced);
     }
+
+    public function testNextOrderAndPlacingAPatientOnTheList(): void
+    {
+        $start = new DateTimeImmutable('2031-03-10 09:00');
+        $this->assertSame(3, $this->service->nextSequence($this->providerId, $start), 'after #1 and #2; the inactive #3 does not count');
+
+        $this->service->place($this->eids['timed'], 3, 2);
+
+        $schedule = $this->service->forDates($start, $start, [$this->providerId]);
+        $this->assertSame(
+            [$this->eids['first'], $this->eids['second'], $this->eids['timed']],
+            self::eids($schedule->lists[0]->entries)
+        );
+        $this->assertSame(2, $schedule->lists[0]->entries[2]->stop);
+        $this->assertSame(
+            [['pc_duration' => 0, 'pc_endTime' => '09:00:00']],
+            QueryUtils::fetchRecords('SELECT pc_duration, pc_endTime FROM openemr_postcalendar_events WHERE pc_eid = ?', [$this->eids['timed']]),
+            'its 15 minutes are gone'
+        );
+        $this->assertSame(4, $this->service->nextSequence($this->providerId, $start));
+    }
 }

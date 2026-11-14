@@ -42,19 +42,27 @@ final class VisitListService
     /** @var callable(string, string, string, array<int, string|int>): list<array<mixed>> */
     private $fetchEvents;
 
+    /** @var callable(string, array<int, int|null>): void */
+    private $execute;
+
     /**
      * @param callable(string, array<int, string|int>): list<array<mixed>>|null $fetchRecords
      * @param callable(string, string, string, array<int, string|int>): list<array<mixed>>|null $fetchEvents
      *        events from one date to another (Y-m-d) with repeating ones expanded to each date,
      *        given an extra WHERE clause and its binds, as fetchEvents() returns them
+     * @param callable(string, array<int, int|null>): void|null $execute runs a statement that changes rows
      */
     public function __construct(
         ?callable $fetchRecords = null,
         ?callable $fetchEvents = null,
         private readonly VisitListMatcher $matcher = new VisitListMatcher(),
+        ?callable $execute = null,
     ) {
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
         $this->fetchEvents = $fetchEvents ?? self::fetchCalendarEvents(...);
+        $this->execute = $execute ?? static function (string $sql, array $binds): void {
+            QueryUtils::sqlStatementThrowException($sql, $binds);
+        };
     }
 
     /**
@@ -83,6 +91,56 @@ final class VisitListService
         return $this->matcher->match(
             $this->blocks($fromDate, $toDate, $providerIds),
             $this->entries($fromDate, $toDate, $providerIds)
+        );
+    }
+
+    /**
+     * The Order # a patient added to the Visit List of this provider at this time gets: one
+     * past the highest on that list, or 1 when the list is empty or there is no such block.
+     */
+    public function nextSequence(int $providerId, DateTimeImmutable $start): int
+    {
+        $schedule = $this->forDates($start, $start, [$providerId]);
+
+        // When blocks overlap, the matcher gives a patient to the block that starts last.
+        $claiming = null;
+        foreach ($schedule->lists as $list) {
+            if ($list->block->claims($providerId, $start)) {
+                $claiming = $list;
+            }
+        }
+        if ($claiming === null) {
+            return 1;
+        }
+
+        $highest = 0;
+        foreach ($claiming->entries as $entry) {
+            $highest = max($highest, $entry->sequence ?? 0);
+        }
+        return $highest + 1;
+    }
+
+    /**
+     * Mark an appointment as a Visit List patient with its Order # and Stop #. The appointment
+     * keeps its own provider, date and start time, which decide the list it belongs on, and
+     * loses any duration: a Visit List patient has no time of its own.
+     */
+    public function place(int $eventId, ?int $sequence, ?int $stop): void
+    {
+        if ($eventId <= 0) {
+            throw new DomainException('Visit List patient event ID must be positive');
+        }
+        if ($sequence !== null && $sequence <= 0) {
+            throw new DomainException('Visit List order must be positive');
+        }
+        if ($stop !== null && $stop <= 0) {
+            throw new DomainException('Visit List stop must be positive');
+        }
+
+        ($this->execute)(
+            'UPDATE `openemr_postcalendar_events` SET `pc_visit_list` = 1, `pc_visit_seq` = ?, `pc_visit_stop` = ?,'
+            . ' `pc_duration` = 0, `pc_endTime` = `pc_startTime`, `pc_alldayevent` = 0 WHERE `pc_eid` = ?',
+            [$sequence, $stop, $eventId]
         );
     }
 

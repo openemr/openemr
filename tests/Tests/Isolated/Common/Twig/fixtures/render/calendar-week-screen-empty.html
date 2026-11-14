@@ -125,6 +125,15 @@
    ,'_blank', 780, 675, '', '', {onClosed: 'refreshme'});
  }
 
+ // Add a patient to a Visit List: a new appointment with no time of its own, at the block's
+ // start (hour in 24-hour form), for the block's provider and date.
+ function newVisitListEvt(eventdate, providerid, starttimeh, starttimem) {
+  dlgopen('add_edit_event.php?visitlist=1&starttimeh=' + encodeURIComponent(starttimeh) +
+   '&starttimem=' + encodeURIComponent(starttimem) + '&userid=' + encodeURIComponent(providerid) +
+   '&date=' + encodeURIComponent(eventdate)
+   ,'_blank', 780, 675, '', '', {onClosed: 'refreshme'});
+ }
+
  function oldEvt(eventdate, eventid, pccattype) {
   dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 650);
  }
@@ -199,9 +208,14 @@
         });
         $("#printview").click(function() { PrintView(this); });
         $(".event").dblclick(function() { EditEvent(this); });
-        // A Visit List row opens its patient's appointment. Kept from reaching the
-        // block, whose double click edits the block itself.
-        $(".visit-list-entry").on("click", function(e) {
+        // A Visit List's + adds a patient to it, and a row opens its patient's
+        // appointment. Both are kept from reaching the block, whose double click
+        // edits the block itself.
+        $(".visit-list-add").on("click", function(e) {
+         e.stopPropagation();
+         newVisitListEvt($(this).data("date"), $(this).data("provider"), $(this).data("hour"), $(this).data("minute"));
+     }).on("dblclick", function(e) { e.stopPropagation(); });
+     $(".visit-list-entry").on("click", function(e) {
             e.stopPropagation();
             oldEvt($(this).data("date"), $(this).data("eid"), $(this).data("cattype"));
         }).on("dblclick", function(e) { e.stopPropagation(); });

@@ -47,12 +47,14 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/encounte
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient_tracker.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/group.inc.php');
 
+use OpenEMR\Appointment\VisitList\VisitListService;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Calendar\DayOfWeek;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -826,6 +828,26 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
     $appointmentService->deleteAppointment($eid, $_POST['recurr_affect'], $_POST['selected_date']);
 }
 
+// A Visit List patient: record its place on the list. It keeps the block's start time and no
+// duration, so the provider, date and time put it on the block's list.
+$visitListInput = CurrentRequest::get()->request;
+$visitListEventId = filter_var($eid, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+if (
+    in_array($visitListInput->getString('form_action'), ['save', 'duplicate'], true)
+    && $visitListInput->getString('form_visit_list') === '1'
+    && is_int($visitListEventId)
+) {
+    $visitListNumber = static function (string $value): ?int {
+        $number = filter_var(trim($value), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        return $number === false ? null : $number;
+    };
+    (new VisitListService())->place(
+        $visitListEventId,
+        $visitListNumber($visitListInput->getString('form_visit_seq')),
+        $visitListNumber($visitListInput->getString('form_visit_stop'))
+    );
+}
+
 if (!empty($_POST['form_action'])) {
     $closeEvent = new AppointmentDialogCloseEvent();
     $closeEvent->setDialogAction($_POST['form_action']);
@@ -972,6 +994,7 @@ if ($eid) {
     }
 }
 
+
  // If we have a patient ID, get the name and phone numbers to display.
 if ($patientid) {
     $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
@@ -1026,6 +1049,34 @@ if ($_GET['group'] == true) {
     $cattype = 3;
 }
 
+// Visit List mode: a patient on a Visit List has no time or duration of its own, only a place
+// on the list (Order #) and an optional Stop #. A new one comes from a Visit List block's +
+// button (visitlist=1), which passes the block's provider, date and start time. Patient
+// appointments only (category type 0).
+$visitListMode = false;
+$visitListSeq = '';
+$visitListStop = '';
+if ($cattype === 0) {
+    $visitListQuery = CurrentRequest::get()->query;
+    if ($eid) {
+        $visitListMode = ($row['pc_visit_list'] ?? 0) == 1;
+        $visitListValue = $row['pc_visit_seq'] ?? null;
+        $visitListSeq = is_int($visitListValue) || is_string($visitListValue) ? (string) $visitListValue : '';
+        $visitListValue = $row['pc_visit_stop'] ?? null;
+        $visitListStop = is_int($visitListValue) || is_string($visitListValue) ? (string) $visitListValue : '';
+    } elseif ($visitListQuery->getString('visitlist') === '1' && $visitListQuery->getInt('userid') > 0) {
+        $visitListMode = true;
+        $visitListStart = DateTimeImmutable::createFromFormat(
+            '!Y-m-d G:i',
+            sprintf('%s %d:%02d', $date, (int) $visitListQuery->getDigits('starttimeh'), (int) $visitListQuery->getDigits('starttimem'))
+        );
+        if ($visitListStart !== false) {
+            $visitListSeq = (string) (new VisitListService())->nextSequence($visitListQuery->getInt('userid'), $visitListStart);
+        }
+    }
+}
+$visitListHidden = $visitListMode ? ' d-none' : '';
+
 $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
 "pc_recurrtype, pc_duration, pc_end_all_day " .
 "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
@@ -1075,6 +1126,9 @@ while ($crow = sqlFetchArray($cres)) {
 
     $catoptions .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
 }
+if ($visitListMode) {
+    $thisduration = 0;
+}
 ?>
 <!-- Configuration object: pass PHP values to external JS (Issue #8057) -->
 <script>
@@ -1090,6 +1144,7 @@ $addEditEventConfig = [
     'webRoot' => OEGlobalsBag::getInstance()->getWebRoot(),
     'eid' => $eid,
     'userId' => $userid,
+    'visitList' => $visitListMode,
     'translations' => [
         'patientSearch' => xl('Patient Search'),
         'groupSearch' => xl('Group Search'),
@@ -1444,28 +1499,38 @@ function isRegularRepeat($repeat): bool
 ?>
 <div class="jumbotron jumbotron-fluid px-3 py-4 my-2">
     <div class="form-row mb-sm-2">
-        <div class='col-sm-2 form-check form-check-inline'>
+        <div class='col-sm-2 form-check form-check-inline<?php echo $visitListHidden; ?>'>
             <input type='radio' class='form-check-input' name='form_allday' onclick='set_allday()' value='1' id='rballday1'<?php echo ($thisduration == 1440) ? " checked" : ""; ?> />
             <label for="rballday1" class='form-check-label' id='tdallday1'><?php echo xlt('All day event'); ?></label>
         </div>
-        <label class='col-sm col-form-label' for='form_date'><?php echo xlt('Date'); ?>:</label>
+        <label class='<?php echo $visitListMode ? 'col-sm-2' : 'col-sm'; ?> col-form-label' for='form_date'><?php echo xlt('Date'); ?>:</label>
         <input class="col-sm-2 form-control datepicker" type='text' size='10' name='form_date' id='form_date' value='<?php echo attr(oeFormatShortDate($date)) ?>' title='<?php echo xla('event date or starting date'); ?>' onchange='dateChanged()' />
-        <div class='col-sm form-check form-check-inline'>
+        <div class='col-sm form-check form-check-inline<?php echo $visitListHidden; ?>'>
             <input class="form-check-input" type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2'<?php echo ($thisduration != 1440) ? " checked " : ""; ?> />
             <label class="form-check-label" for="rballday2" id='tdallday2'><?php echo xlt('Time'); ?></label>
         </div>
-        <input class='col-sm form-control' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>' title='<?php echo xla('Event start time'); ?>' />
-        <input class='col-sm form-control' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>' title='<?php echo xla('Event start time'); ?>' />
+        <input class='col-sm form-control<?php echo $visitListHidden; ?>' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>' title='<?php echo xla('Event start time'); ?>' />
+        <input class='col-sm form-control<?php echo $visitListHidden; ?>' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>' title='<?php echo xla('Event start time'); ?>' />
         <?php if (OEGlobalsBag::getInstance()->get('time_display_format') == 1) : ?>
-        <select class='input-sm' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
+        <select class='input-sm<?php echo $visitListHidden; ?>' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
             <option value='1'><?php echo xlt('AM'); ?></option>
             <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
         </select>
         <?php endif ?>
-        <label class='col-sm col-form-label' id='tdallday4'><?php echo xlt('duration'); ?></label>
-        <input class="col-sm form-control" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>' title='<?php echo xla('Event duration in minutes'); ?>' />
+        <label class='col-sm col-form-label<?php echo $visitListHidden; ?>' id='tdallday4'><?php echo xlt('duration'); ?></label>
+        <input class="col-sm form-control<?php echo $visitListHidden; ?>" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>' title='<?php echo xla('Event duration in minutes'); ?>' />
     </div>
+    <?php if ($visitListMode) : ?>
     <div class="form-row mb-sm-2">
+        <input type='hidden' name='form_visit_list' value='1' />
+        <label class='col-sm-2 col-form-label' for='form_visit_seq'><?php echo xlt('Order #'); ?>:</label>
+        <input class='col-sm-2 form-control' type='number' min='1' step='1' name='form_visit_seq' id='form_visit_seq' value='<?php echo attr($visitListSeq); ?>' title='<?php echo xla('Place on the Visit List'); ?>' />
+        <label class='col-sm-2 col-form-label' for='form_visit_stop'><?php echo xlt('Stop #'); ?>:</label>
+        <input class='col-sm-2 form-control' type='number' min='1' step='1' name='form_visit_stop' id='form_visit_stop' value='<?php echo attr($visitListStop); ?>' title='<?php echo xla('Optional; patients at one address share a stop'); ?>' />
+        <small class='col-sm form-text text-muted'><?php echo xlt('Visit List patient: no appointment time.'); ?></small>
+    </div>
+    <?php endif; ?>
+    <div class="form-row mb-sm-2<?php echo $visitListHidden; ?>">
         <div class="col-sm form-check-inline">
             <input class='form-check-input' type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php echo (isRegularRepeat($repeats)) ? " checked" : ""; ?>/>
             <label class='form-check-label' id='tdrepeat1'><?php echo xlt('Repeats'); ?></label>
@@ -1522,7 +1587,7 @@ function isRegularRepeat($repeat): bool
         ?>
     </div>
     <!-- Days of Week -->
-    <div class="form-row" id="days_every_week_row">
+    <div class="form-row<?php echo $visitListHidden; ?>" id="days_every_week_row">
         <div class="col-sm-4 form-check-inline">
             <input class="form-check-input" type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php echo (isDaysEveryWeek($repeats)) ? " checked" : ""; ?>/>
             <label class="form-check-label" for="days_every_week" id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></label>
@@ -1611,7 +1676,7 @@ if (empty($_GET['prov'])) { ?>
 </div>
 <div class="form-row mx-2 mt-3">
     <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-primary" type='button' name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />
-    <?php if (!(OEGlobalsBag::getInstance()->getBoolean('select_multi_providers'))) { //multi providers appt is not supported by check slot avail window, so skip ?>
+    <?php if (!(OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) && !$visitListMode) { //multi providers appt is not supported by check slot avail window, so skip ?>
         <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
     <?php } ?>
     <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-danger" type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
@@ -1738,7 +1803,7 @@ function validateform(event,value){
         }
     };
 
-    if (allDay == true || isInOffice == true || isOutOfOffice == true) {
+    if (allDay == true || isInOffice == true || isOutOfOffice == true || addEditEventConfig.visitList) {
         collectvalidation.form_duration ={};
     } else {
     collectvalidation.form_duration = {
@@ -1862,8 +1927,8 @@ function deleteEvent() {
 function SubmitForm() {
     var f = document.forms[0];
     <?php if (!(OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) && empty($_GET['prov'])) { // multi providers appt is not supported by check slot avail window, so skip. && is not provider tab. ?>
-    if (f.form_action.value != 'delete') {
-        // Check slot availability.
+    if (f.form_action.value != 'delete' && !addEditEventConfig.visitList) {
+        // Check slot availability (a Visit List patient has no slot of its own).
         var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
         <?php if (OEGlobalsBag::getInstance()->get('time_display_format')  == 1) :
             ?>if (f.form_ampm.value == '2' && mins < 720) mins += 720;<?php endif ?>

@@ -42,6 +42,10 @@ use OpenEMR\Appointment\VisitList\VisitListSchedule;
  * @phpstan-type VisitListData array{
  *     title: string,
  *     timeLabel: string,
+ *     providerId: int,
+ *     eventDate: string,
+ *     startHour: string,
+ *     startMinute: string,
  *     count: int,
  *     rows: list<VisitListRow>
  * }
@@ -114,6 +118,10 @@ final readonly class VisitListDayColumn
             $lists[$block->eventId] = [
                 'title' => self::string($blockEvent['catname'] ?? null),
                 'timeLabel' => self::timeLabel($list, $isTwelveHourFormat),
+                'providerId' => $block->providerId,
+                'eventDate' => $eventDateYmd,
+                'startHour' => $block->start->format('G'),
+                'startMinute' => $block->start->format('i'),
                 'count' => count($rows),
                 'rows' => $rows,
             ];

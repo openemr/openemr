@@ -56,15 +56,24 @@ final readonly class VisitListBlock
      */
     public function contains(VisitListEntry $entry): bool
     {
-        if ($entry->providerId !== $this->providerId) {
+        return $this->claims($entry->providerId, $entry->start);
+    }
+
+    /**
+     * Whether an appointment for this provider starting then would belong on this block, by
+     * the same rule as contains().
+     */
+    public function claims(int $providerId, DateTimeImmutable $start): bool
+    {
+        if ($providerId !== $this->providerId) {
             return false;
         }
 
-        if ($entry->start == $this->start) {
+        if ($start == $this->start) {
             return true;
         }
 
-        return $entry->start > $this->start && $entry->start < $this->end;
+        return $start > $this->start && $start < $this->end;
     }
 
     /**

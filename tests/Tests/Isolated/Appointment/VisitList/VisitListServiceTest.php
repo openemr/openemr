@@ -22,6 +22,7 @@ use DateTimeImmutable;
 use DomainException;
 use OpenEMR\Appointment\VisitList\VisitListEntry;
 use OpenEMR\Appointment\VisitList\VisitListService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class VisitListServiceTest extends TestCase
@@ -258,5 +259,100 @@ class VisitListServiceTest extends TestCase
     {
         $this->expectException(DomainException::class);
         $this->service([], [])->forDates(new DateTimeImmutable('2026-03-09'), new DateTimeImmutable('2026-03-09'), [0]);
+    }
+
+    public function testNextOrderIsOnePastTheHighestOnTheList(): void
+    {
+        $service = $this->service(
+            [self::blockRow(1, 7, '2026-03-09', '09:00:00', 28800)],
+            [
+                self::entryRow(10, 7, '2026-03-09', '09:00:00', '4', null),
+                self::entryRow(11, 7, '2026-03-09', '09:00:00', null, '2'),
+                self::entryRow(12, 7, '2026-03-09', '09:00:00', '2', null),
+            ]
+        );
+
+        $this->assertSame(5, $service->nextSequence(7, new DateTimeImmutable('2026-03-09 09:00')));
+        $this->assertSame([['2026-03-09', '2026-03-09']], array_map(
+            static fn (array $call): array => [$call[0], $call[1]],
+            $this->eventCalls
+        ), 'only the one date is read');
+    }
+
+    public function testNextOrderIsOneForAnEmptyListOrNoBlock(): void
+    {
+        $service = $this->service([self::blockRow(1, 7, '2026-03-09', '09:00:00', 3600)], []);
+
+        $this->assertSame(1, $service->nextSequence(7, new DateTimeImmutable('2026-03-09 09:00')), 'empty list');
+        $this->assertSame(1, $service->nextSequence(7, new DateTimeImmutable('2026-03-09 13:00')), 'after the block');
+        $this->assertSame(1, $service->nextSequence(8, new DateTimeImmutable('2026-03-09 09:00')), 'another provider');
+    }
+
+    public function testNextOrderComesFromTheBlockThatWouldClaimThePatient(): void
+    {
+        // An all-day block with a morning block inside it: a 9:00 patient goes on the morning one.
+        $service = $this->service(
+            [
+                self::blockRow(1, 7, '2026-03-09', '08:00:00', 36000),
+                self::blockRow(2, 7, '2026-03-09', '09:00:00', 7200),
+            ],
+            [
+                self::entryRow(10, 7, '2026-03-09', '08:00:00', '7', null),
+                self::entryRow(11, 7, '2026-03-09', '09:00:00', '2', null),
+            ]
+        );
+
+        $this->assertSame(3, $service->nextSequence(7, new DateTimeImmutable('2026-03-09 09:00')));
+        $this->assertSame(8, $service->nextSequence(7, new DateTimeImmutable('2026-03-09 08:00')));
+    }
+
+    public function testPlaceMarksTheAppointmentAsAVisitListPatient(): void
+    {
+        $statements = [];
+        $service = new VisitListService(
+            static fn (string $sql, array $binds): array => [],
+            static fn (string $from, string $to, string $where, array $binds): array => [],
+            execute: static function (string $sql, array $binds) use (&$statements): void {
+                $statements[] = [$sql, $binds];
+            }
+        );
+
+        $service->place(42, 3, null);
+        $service->place(43, null, 5);
+
+        $this->assertCount(2, $statements);
+        $this->assertStringContainsString('`pc_visit_list` = 1', $statements[0][0]);
+        $this->assertStringContainsString('`pc_duration` = 0', $statements[0][0], 'no time of its own');
+        $this->assertSame([3, null, 42], $statements[0][1]);
+        $this->assertSame([null, 5, 43], $statements[1][1]);
+    }
+
+    /**
+     * @return array<string, array{int, ?int, ?int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function invalidPlaceProvider(): array
+    {
+        return [
+            'event ID not positive' => [0, 1, null],
+            'order not positive' => [42, 0, null],
+            'stop not positive' => [42, 1, -1],
+        ];
+    }
+
+    #[DataProvider('invalidPlaceProvider')]
+    public function testPlaceRejectsNumbersThatAreNotPositive(int $eventId, ?int $sequence, ?int $stop): void
+    {
+        $service = new VisitListService(
+            static fn (string $sql, array $binds): array => [],
+            static fn (string $from, string $to, string $where, array $binds): array => [],
+            execute: static function (string $sql, array $binds): void {
+                self::fail('nothing is written');
+            }
+        );
+
+        $this->expectException(DomainException::class);
+        $service->place($eventId, $sequence, $stop);
     }
 }

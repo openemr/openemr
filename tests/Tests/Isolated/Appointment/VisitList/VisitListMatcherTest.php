@@ -107,6 +107,17 @@ class VisitListMatcherTest extends TestCase
         $this->assertSame([11], self::eids($schedule->unplaced));
     }
 
+    public function testBlockClaimsTimesInsideItsWindowForItsProvider(): void
+    {
+        $block = self::block(1, 7, '09:00', '17:00');
+
+        $this->assertTrue($block->claims(7, new DateTimeImmutable(self::DATE . ' 09:00')), 'its start');
+        $this->assertTrue($block->claims(7, new DateTimeImmutable(self::DATE . ' 16:59')), 'inside');
+        $this->assertFalse($block->claims(7, new DateTimeImmutable(self::DATE . ' 17:00')), 'its end');
+        $this->assertFalse($block->claims(7, new DateTimeImmutable(self::DATE . ' 08:59')), 'before');
+        $this->assertFalse($block->claims(8, new DateTimeImmutable(self::DATE . ' 10:00')), 'another provider');
+    }
+
     public function testBackToBackBlocksEachKeepTheirOwnPatients(): void
     {
         $schedule = (new VisitListMatcher())->match(

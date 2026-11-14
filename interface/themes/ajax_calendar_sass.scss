@@ -520,6 +520,12 @@ $side-calendar-date-padding: 0.3rem !default;
       white-space: nowrap;
     }
 
+    &-add {
+      line-height: 1;
+      margin-#{$left}: auto;
+      padding: 0.125rem 0.375rem;
+    }
+
     &-title {
       color: $primary;
       font-weight: bold;
