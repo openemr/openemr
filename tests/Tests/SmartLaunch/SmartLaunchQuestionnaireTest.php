@@ -1410,14 +1410,16 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
         $fname = 'Portia';
         $lname = 'RoundtripSmoke-' . $suffix;
 
+        $pid = null;
         try {
-            $fixtures->installPortalPatient(
+            $fixture = $fixtures->installPortalPatient(
                 portalLoginUsername: $username,
                 plainPassword: $password,
                 email: $email,
                 fname: $fname,
                 lname: $lname,
             );
+            $pid = $fixture['pid'];
 
             // Enter via the portal dashboard — same chain A2 exercises
             // (minted launch → authorize → portal-api login → consent →
@@ -1499,6 +1501,38 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
                 . 'a resource in response',
             );
         } finally {
+            // The test creates patient-portal write artifacts (one
+            // patient_review_request wrapping the submitted
+            // QuestionnaireResponse under fhir_patient_write_mode +
+            // the backing questionnaire_response row, plus the append-
+            // only patient_review_event history). PortalPatientFixtureManager
+            // only cleans portal-user + patient_data; it does not know
+            // about the write path. Sweep the pid-scoped artifacts
+            // here BEFORE removePortalPatientFixtures runs so the pid
+            // referenced by patient_review_request still resolves —
+            // if any step throws, downstream tests inherit a cleaner
+            // state than the fixture manager alone would leave.
+            if ($pid !== null) {
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM patient_review_event "
+                        . "WHERE request_id IN (SELECT id FROM patient_review_request WHERE pid = ?)",
+                    [$pid]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM patient_review_request WHERE pid = ?",
+                    [$pid]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM uuid_registry "
+                        . "WHERE table_name = 'questionnaire_response' "
+                        . "AND uuid IN (SELECT uuid FROM questionnaire_response WHERE patient_id = ?)",
+                    [$pid]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM questionnaire_response WHERE patient_id = ?",
+                    [$pid]
+                );
+            }
             $fixtures->removePortalPatientFixtures();
         }
     }
