@@ -75,7 +75,8 @@ case_heartbeat_refreshes_only_own_lease() {
     echo old > "$LEASE"
     age_file "$LEASE" 301
     try_become_leader
-    age_file "${LEASE}.1" 200
+    age_file "${LEASE}.1" 301
+    is_lease_stale "${LEASE}.1"
     update_leader_heartbeat
     is_leader_stale && return 1
     # The stale base lease must stay untouched (and stale).
