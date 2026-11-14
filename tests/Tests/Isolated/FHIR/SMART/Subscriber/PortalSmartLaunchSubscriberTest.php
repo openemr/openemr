@@ -54,21 +54,60 @@ class PortalSmartLaunchSubscriberTest extends TestCase
      */
     private array $originalCookie;
 
+    /**
+     * @var array<mixed>|null null when $_SESSION was unset on entry to the test.
+     */
+    private ?array $originalSession = null;
+
+    private bool $originalSessionWasSet = false;
+
+    /**
+     * @var array<class-string<SessionWrapperFactory>, SessionWrapperFactory>
+     */
+    private array $originalSessionFactoryInstances = [];
+
+    /**
+     * @var array<class-string<OEGlobalsBag>, OEGlobalsBag>
+     */
+    private array $originalGlobalsBagInstances = [];
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->originalServer = $_SERVER;
         $this->originalCookie = $_COOKIE;
+        $this->originalSessionWasSet = isset($_SESSION);
+        $this->originalSession = $this->originalSessionWasSet ? $_SESSION : null;
         $_SESSION = [];
-        $this->resetSessionWrapperSingleton();
+
+        // Save the full singleton maps so teardown can restore whatever state
+        // a prior fixture left — clearing without saving would drop any
+        // caller-installed activeSession/activeStorage on SessionWrapperFactory
+        // and any configured globals on OEGlobalsBag.
+        $this->originalSessionFactoryInstances = $this->readSingletonInstances(SessionWrapperFactory::class);
+        $this->originalGlobalsBagInstances = $this->readSingletonInstances(OEGlobalsBag::class);
+        $this->writeSingletonInstances(SessionWrapperFactory::class, []);
+
+        // Stub OEGlobalsBag with disable_translation=true so xl() called from
+        // renderTile() (for `navText`) short-circuits before reaching the
+        // SessionWrapperFactory + sqlStatementNoLog() translation path — that
+        // path needs a database the isolated tier doesn't have. The subscriber
+        // itself reads globals through the constructor-injected mock, so this
+        // stub only affects xl().
+        $this->installTranslationStubGlobalsBag();
     }
 
     protected function tearDown(): void
     {
+        $this->writeSingletonInstances(SessionWrapperFactory::class, $this->originalSessionFactoryInstances);
+        $this->writeSingletonInstances(OEGlobalsBag::class, $this->originalGlobalsBagInstances);
         $_SERVER = $this->originalServer;
         $_COOKIE = $this->originalCookie;
-        $this->resetSessionWrapperSingleton();
-        $_SESSION = [];
+        if ($this->originalSessionWasSet) {
+            $_SESSION = $this->originalSession ?? [];
+        } else {
+            unset($_SESSION);
+        }
         parent::tearDown();
     }
 
@@ -268,8 +307,7 @@ class PortalSmartLaunchSubscriberTest extends TestCase
         // and brings in the whole globals chain) by instantiating a fresh
         // factory with an empty web root and planting it as the singleton.
         $factory = new SessionWrapperFactory('');
-        $instances = (new ReflectionClass(SessionWrapperFactory::class))->getProperty('instances');
-        $instances->setValue(null, [SessionWrapperFactory::class => $factory]);
+        $this->writeSingletonInstances(SessionWrapperFactory::class, [SessionWrapperFactory::class => $factory]);
 
         $session = $this->createMock(SessionInterface::class);
         $session->method('get')
@@ -280,10 +318,34 @@ class PortalSmartLaunchSubscriberTest extends TestCase
         $factory->setActiveSession($session);
     }
 
-    private function resetSessionWrapperSingleton(): void
+    private function installTranslationStubGlobalsBag(): void
     {
-        $instances = (new ReflectionClass(SessionWrapperFactory::class))->getProperty('instances');
-        $instances->setValue(null, []);
+        $globals = new OEGlobalsBag(['disable_translation' => true]);
+        $this->writeSingletonInstances(OEGlobalsBag::class, [OEGlobalsBag::class => $globals]);
+    }
+
+    /**
+     * @template T of SessionWrapperFactory|OEGlobalsBag
+     * @param class-string<T> $singleton
+     * @return array<class-string<T>, T>
+     */
+    private function readSingletonInstances(string $singleton): array
+    {
+        $property = (new ReflectionClass($singleton))->getProperty('instances');
+        /** @var array<class-string<T>, T> $value */
+        $value = $property->getValue();
+        return $value;
+    }
+
+    /**
+     * @template T of SessionWrapperFactory|OEGlobalsBag
+     * @param class-string<T> $singleton
+     * @param array<class-string<T>, T> $instances
+     */
+    private function writeSingletonInstances(string $singleton, array $instances): void
+    {
+        $property = (new ReflectionClass($singleton))->getProperty('instances');
+        $property->setValue(null, $instances);
     }
 
     /**
