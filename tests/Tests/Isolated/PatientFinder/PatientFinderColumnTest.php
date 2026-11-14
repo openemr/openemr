@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\PatientFinder;
 
 use OpenEMR\Services\PatientFinder\PatientFinderColumn;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class PatientFinderColumnTest extends TestCase
@@ -87,5 +88,39 @@ class PatientFinderColumnTest extends TestCase
         $this->assertSame('desc', $desc->defaultSortDir);
         $this->assertSame('DOB', $desc->key);
         $this->assertNotSame($col, $desc);
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function widthProvider(): array
+    {
+        return [
+            'rem' => ['8rem', '8rem'],
+            'decimal em' => ['1.5em', '1.5em'],
+            'px, trimmed' => [' 120px ', '120px'],
+            'percent' => ['10%', '10%'],
+            'blank' => ['', ''],
+            'no unit' => ['120', ''],
+            'other unit' => ['3vw', ''],
+            'css injection' => ['8rem; background:url(x)', ''],
+            'markup' => ['"><script>', ''],
+        ];
+    }
+
+    /**
+     * Only a plain px, rem, em or % length is kept as a width; the other properties carry over.
+     */
+    #[DataProvider('widthProvider')]
+    public function testWithWidthKeepsOnlyAPlainCssLength(string $given, string $expected): void
+    {
+        $column = PatientFinderColumn::fromTable('sex', 'Sex', defaultSortDir: 'desc')->withWidth($given);
+
+        $this->assertSame($expected, $column->width);
+        $this->assertSame('desc', $column->defaultSortDir, 'the other properties are kept');
+        $this->assertSame('', $column->withDefaultSortDir('asc')->withWidth('')->width);
+        $this->assertSame($expected, $column->withDefaultSortDir('asc')->width, 'withDefaultSortDir keeps the width');
     }
 }

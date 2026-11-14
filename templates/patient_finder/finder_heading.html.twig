@@ -1,0 +1,44 @@
+{#
+The left part of the Patient Finder's heading bar, set as the OemrUI page heading's
+title nav content by dynamic_finder.php: the list tabs, a slot dynamic_finder.js
+moves the page-length menu into, the search box with its search-mode menu, and Add
+Patient. OemrUI adds the margins and search-row icons to the right of it.
+
+@package   OpenEMR
+@link      https://www.open-emr.org
+@author    David Eschelbacher <psoas@tampabay.rr.com>
+@copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+@license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div id="finder-heading-content" class="d-flex flex-wrap align-items-center">
+    <ul class="nav nav-tabs" id="finderTabsNav" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" id="listTab" data-toggle="tab" data-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true">{{ "Patient List"|xlt }}</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="recentTab" data-toggle="tab" data-target="#recent" type="button" role="tab" aria-controls="recent" aria-selected="false">{{ "Recent Patients"|xlt }}</button></li>
+    </ul>
+    <div id="finder-length-slot" class="d-flex align-items-center"></div>
+    <div id="finder-search" class="d-flex align-items-center">
+        <label for="finder-search-input" class="mb-0 mr-2">{{ "Search"|xlt }}:</label>
+        <div class="input-group input-group-sm">
+            <input type="search" id="finder-search-input" class="form-control" placeholder="{{ "All"|xla }}" aria-controls="pt_table" autocomplete="off" />
+            <div class="input-group-append">
+                <button type="button" id="finder-search-mode" class="btn btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{ "Choose what to search"|xla }}" aria-label="{{ "Choose what to search"|xla }}">
+                    <i class="fa fa-search" aria-hidden="true"></i><i class="fa fa-chevron-down ml-1" aria-hidden="true"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="finder-search-mode">
+                    <button type="button" class="dropdown-item active" data-search-mode="all" data-placeholder="{{ "All"|xla }}" aria-current="true">{{ "Search All"|xlt }}</button>
+                    <button type="button" class="dropdown-item" data-search-mode="name" data-placeholder="{{ "Name"|xla }}">{{ "Search Name"|xlt }}</button>
+                    <button type="button" class="dropdown-item" data-search-mode="dob" data-placeholder="{{ "Date of Birth"|xla }}">{{ "Search Date of Birth"|xlt }}</button>
+                    <button type="button" class="dropdown-item" data-search-mode="phone" data-placeholder="{{ "Phone"|xla }}">{{ "Search Phone"|xlt }}</button>
+                    <button type="button" class="dropdown-item" data-search-mode="address" data-placeholder="{{ "Address"|xla }}">{{ "Search Address"|xlt }}</button>
+                    <button type="button" class="dropdown-item" data-search-mode="zip" data-placeholder="{{ "ZIP"|xla }}">{{ "Search ZIP"|xlt }}</button>
+                    <button type="button" class="dropdown-item" data-search-mode="email" data-placeholder="{{ "Email"|xla }}">{{ "Search Email"|xlt }}</button>
+                    <button type="button" class="dropdown-item" data-search-mode="pubpid" data-placeholder="{{ "External ID"|xla }}">{{ "Search External ID"|xlt }}</button>
+                    <button type="button" class="dropdown-item" data-search-mode="ssn" data-placeholder="{{ "SSN Last 4"|xla }}">{{ "Search SSN (Last 4)"|xlt }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if canAddPatient %}
+        <a id="finder-add-patient" class="btn btn-primary" href="{{ webroot|attr }}/interface/new/new.php">{{ "Add Patient"|xlt }}</a>
+    {% endif %}
+</div>

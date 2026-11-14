@@ -992,16 +992,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/login/login.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getPageId\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setPrimaryMenuItem\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method MedExBank\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/messages.php',

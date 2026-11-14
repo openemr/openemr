@@ -3,7 +3,9 @@
 /**
  * dynamic_finder_ajax.php
  *
- * Server-side (DataTables) data source for the Patient Finder. This is now a
+ * Server-side (DataTables) data source for the Patient Finder, and, given a `detail`
+ * patient id, the details shown when a row is expanded: JSON {"html": "..."}, or 404
+ * when the patient does not exist or the finder hides them. This is now a
  * thin entry point: it enforces authentication/authorisation and delegates the
  * request parsing, query building and response assembly to
  * {@see \OpenEMR\Services\PatientFinder\PatientFinderQueryService}. The service
@@ -19,10 +21,12 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2012 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019, 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2026 Open Plan IT Ltd
+ * @copyright Copyright (c) 2022, 2026 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -32,7 +36,11 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientFinder\PatientFinderAppointments;
+use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
+use OpenEMR\Services\PatientFinder\PatientFinderDetailService;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryService;
+use OpenEMR\Services\PatientService;
 use Symfony\Component\HttpFoundation\Request;
 
 // Align the permission check with the Patient Finder page (`patients/demo`
@@ -47,8 +55,34 @@ if (!AclMain::aclCheckCore('patients', 'demo')) {
 //  1. cookie_samesite in OpenEMR is set to 'Strict', which is an effective security measure to stop csrf vulnerabilities.
 //  2. Additionally, in this script there are no state changes, thus it is not even sensitive to csrf vulnerabilities.
 
-$service = new PatientFinderQueryService(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
-$out = $service->handle(Request::createFromGlobals()->query->all());
+$query = Request::createFromGlobals()->query;
+$globals = OEGlobalsBag::getInstance();
+$dispatcher = $globals->getKernel()->getEventDispatcher();
+// Next and Last Appt, in the site's date and time formats.
+$appointments = PatientFinderAppointments::fromGlobals($globals);
+
+header('Content-Type: application/json');
+
+if ($query->has('detail')) {
+    // getInt() would throw on a value that is not a number; anything that is not a
+    // positive integer is simply not found.
+    $rawPid = $query->getString('detail');
+    $html = (new PatientFinderDetailService($dispatcher, appointments: $appointments))->html(ctype_digit($rawPid) ? intval($rawPid) : 0);
+    if ($html === null) {
+        http_response_code(404);
+    }
+    echo json_encode(['html' => $html ?? ''], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    exit;
+}
+
+$service = new PatientFinderQueryService(
+    $dispatcher,
+    registryFactory: new PatientFinderColumnRegistryFactory($dispatcher),
+    recentPids: static fn(): array => PatientFinderQueryService::recentPidsOf((new PatientService())->getRecentPatientList()),
+    recentSharesColumns: $globals->getBoolean('gbl_pt_list_recent_same_columns'),
+    appointments: $appointments,
+);
+$out = $service->handle($query->all());
 
 // Encoding with options for escaping a special chars - JSON_HEX_TAG (<)(>), JSON_HEX_AMP(&), JSON_HEX_APOS('), JSON_HEX_QUOT(").
 echo json_encode($out, 15);

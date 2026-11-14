@@ -20,10 +20,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\PatientFinder;
 
+use DateTimeImmutable;
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderRowEnrichEvent;
+use OpenEMR\Services\PatientFinder\PatientFinderAppointments;
 use OpenEMR\Services\PatientFinder\PatientFinderColumn;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistry;
+use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryBuilder;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryService;
 use OpenEMR\Services\PatientFinder\PatientFinderRequest;
@@ -46,6 +50,23 @@ class PatientFinderQueryServiceTest extends TestCase
             $dispatcher->addListener($eventName, $listener);
         }
         return $dispatcher;
+    }
+
+    /**
+     * A registry factory backed by the test's fetcher, with the patient_data fields the
+     * tests' column lists use, so nothing reads the database.
+     *
+     * @param callable(string, array<int, string|int>): list<array<mixed>> $fetch
+     */
+    private static function registryFactory(
+        EventDispatcherInterface $dispatcher,
+        callable $fetch
+    ): PatientFinderColumnRegistryFactory {
+        return new PatientFinderColumnRegistryFactory(
+            $dispatcher,
+            $fetch,
+            patientDataFields: static fn(): array => ['DOB', 'sex', 'postal_code', 'street', 'city', 'state']
+        );
     }
 
     public function testResolveActiveColumnsFollowsClientOrderAndDropsUnknown(): void
@@ -131,7 +152,7 @@ class PatientFinderQueryServiceTest extends TestCase
 
     public function testBuildColumnRegistrySeedsPtlistcolsAndRunsEvent(): void
     {
-        $fetch = static fn(string $sql, array $binds): array => str_contains($sql, 'ptlistcols')
+        $fetch = static fn(string $sql, array $binds): array => in_array('ptlistcols', $binds, true)
             ? [['option_id' => 'name', 'title' => 'Full Name'], ['option_id' => 'DOB', 'title' => 'DOB']]
             : [];
 
@@ -143,7 +164,12 @@ class PatientFinderQueryServiceTest extends TestCase
                 },
         ]);
 
-        $service = new PatientFinderQueryService($dispatcher, null, $fetch);
+        $service = new PatientFinderQueryService(
+            $dispatcher,
+            null,
+            $fetch,
+            registryFactory: self::registryFactory($dispatcher, $fetch)
+        );
         $registry = $service->buildColumnRegistry();
 
         $this->assertSame(['name', 'ihi'], $registry->keys());
@@ -153,7 +179,7 @@ class PatientFinderQueryServiceTest extends TestCase
     {
         $dataRow = ['pid' => 1, 'lname' => 'Smith', 'fname' => 'John', 'mname' => '', 'DOB' => '1980-01-01'];
         $fetch = static function (string $sql, array $binds) use ($dataRow): array {
-            if (str_contains($sql, 'ptlistcols')) {
+            if (in_array('ptlistcols', $binds, true)) {
                 return [['option_id' => 'name', 'title' => 'Name'], ['option_id' => 'DOB', 'title' => 'DOB']];
             }
             if (str_contains($sql, 'data_type')) { // fetchFieldsInfo
@@ -190,7 +216,8 @@ class PatientFinderQueryServiceTest extends TestCase
             $fetch,
             $sqlQuery,
             static fn(mixed $v): string => PatientFinderValue::string($v),
-            static fn(array $info, mixed $v): string => PatientFinderValue::string($v)
+            static fn(array $info, mixed $v): string => PatientFinderValue::string($v),
+            self::registryFactory($dispatcher, $fetch)
         );
 
         $out = $service->handle([
@@ -209,5 +236,207 @@ class PatientFinderQueryServiceTest extends TestCase
                 2 => 'IHI-123',
             ],
         ], $out['aaData']);
+    }
+
+    /**
+     * The data query the service runs for one global search in the given mode.
+     */
+    private function dataSqlForSearchMode(string $mode): string
+    {
+        $dataSql = '';
+        $fetch = static function (string $sql, array $binds) use (&$dataSql): array {
+            if (in_array('ptlistcols', $binds, true)) {
+                return [['option_id' => 'name', 'title' => 'Name'], ['option_id' => 'DOB', 'title' => 'DOB']];
+            }
+            if (str_contains($sql, 'FROM patient_data')) {
+                $dataSql = $sql;
+            }
+            return [];
+        };
+        $builder = new PatientFinderQueryBuilder(
+            static fn(string $col, array $tables): string => '`' . $col . '`',
+            static fn(string $term): string => $term
+        );
+        $service = new PatientFinderQueryService(
+            $this->dispatcher(),
+            $builder,
+            $fetch,
+            static fn(string $sql, array $binds): array => ['count' => 0],
+            static fn(mixed $v): string => PatientFinderValue::string($v),
+            registryFactory: self::registryFactory($this->dispatcher(), $fetch)
+        );
+        $service->handle(['sColumns' => 'name,DOB', 'sSearch' => '021', 'searchMode' => $mode]);
+        return $dataSql;
+    }
+
+    public function testSearchAllModeMatchesTheDisplayedColumns(): void
+    {
+        $sql = $this->dataSqlForSearchMode('all');
+
+        $this->assertStringContainsString('lname LIKE ? ESCAPE \'|\'', $sql);
+        $this->assertStringContainsString('`DOB` LIKE ? ESCAPE \'|\'', $sql);
+        $this->assertStringNotContainsString('postal_code', $sql);
+    }
+
+    public function testSearchNameModeMatchesOnlyTheName(): void
+    {
+        $sql = $this->dataSqlForSearchMode('name');
+
+        $this->assertStringContainsString('lname LIKE ? ESCAPE \'|\' OR fname LIKE ? ESCAPE \'|\' OR mname LIKE ? ESCAPE \'|\'', $sql);
+        $this->assertStringNotContainsString('`DOB` LIKE ? ESCAPE \'|\'', $sql);
+    }
+
+    public function testSearchZipModeMatchesOnlyThePostalCode(): void
+    {
+        $sql = $this->dataSqlForSearchMode('zip');
+
+        $this->assertStringContainsString('( `postal_code` LIKE ? ESCAPE \'|\' )', $sql);
+        $this->assertStringNotContainsString('lname LIKE ? ESCAPE \'|\'', $sql);
+        $this->assertStringNotContainsString('`DOB` LIKE ? ESCAPE \'|\'', $sql);
+    }
+
+    public function testSearchAddressModeMatchesEveryAddressField(): void
+    {
+        $sql = $this->dataSqlForSearchMode('address');
+
+        $this->assertStringContainsString(
+            '( `street` LIKE ? ESCAPE \'|\' OR `street_line_2` LIKE ? ESCAPE \'|\' OR `city` LIKE ? ESCAPE \'|\' OR `state` LIKE ? ESCAPE \'|\' OR `postal_code` LIKE ? ESCAPE \'|\' )',
+            $sql
+        );
+        $this->assertStringNotContainsString('lname LIKE ? ESCAPE \'|\'', $sql);
+        $this->assertStringNotContainsString('`DOB` LIKE ? ESCAPE \'|\'', $sql);
+    }
+
+    /**
+     * The column-list ids and data query the service uses for one Recent Patients request.
+     *
+     * @return array{lists: list<mixed>, dataSql: string, dataBinds: array<mixed>}
+     */
+    private function recentRequest(bool $shared): array
+    {
+        $seen = ['lists' => [], 'dataSql' => '', 'dataBinds' => []];
+        $fetch = static function (string $sql, array $binds) use (&$seen): array {
+            if (str_contains($sql, 'FROM list_options') && str_contains($sql, 'activity = 1')) {
+                $seen['lists'][] = $binds[0] ?? null;
+                return [['option_id' => 'name', 'title' => 'Name']];
+            }
+            if (str_contains($sql, 'FROM patient_data')) {
+                $seen['dataSql'] = $sql;
+                $seen['dataBinds'] = $binds;
+            }
+            return [];
+        };
+        $service = new PatientFinderQueryService(
+            $this->dispatcher(),
+            new PatientFinderQueryBuilder(
+                static fn(string $col, array $tables): string => '`' . $col . '`',
+                static fn(string $term): string => $term
+            ),
+            $fetch,
+            static fn(string $sql, array $binds): array => ['count' => 0],
+            static fn(mixed $v): string => PatientFinderValue::string($v),
+            null,
+            null,
+            static fn(): array => [12, 4],
+            $shared
+        );
+        $service->handle(['sColumns' => 'finder_detail,name', 'finderList' => 'recent']);
+        return $seen;
+    }
+
+    public function testRecentPatientsAreLimitedToTheUsersRecentListMostRecentFirst(): void
+    {
+        $seen = $this->recentRequest(false);
+
+        $this->assertStringContainsString('WHERE patient_data.pid IN (?, ?)', $seen['dataSql']);
+        $this->assertStringContainsString('ORDER BY FIELD(patient_data.pid, ?, ?)', $seen['dataSql']);
+        $this->assertSame([12, 4, 12, 4], $seen['dataBinds']);
+    }
+
+    public function testRecentPatientsUseTheirOwnListUnlessShared(): void
+    {
+        $this->assertSame(['recent_patient_columns'], $this->recentRequest(false)['lists']);
+        $this->assertSame(['ptlistcols'], $this->recentRequest(true)['lists']);
+    }
+
+    /**
+     * A Recent Patients request to a service built without the recent patients and the
+     * site's setting fails, rather than showing an empty list.
+     */
+    public function testRecentPatientsWithoutTheirSourceFails(): void
+    {
+        $service = new PatientFinderQueryService(
+            $this->dispatcher(),
+            null,
+            static fn(string $sql, array $binds): array => [],
+            static fn(string $sql, array $binds): array => ['count' => 0],
+            static fn(mixed $v): string => PatientFinderValue::string($v)
+        );
+
+        $this->expectException(\LogicException::class);
+        $service->handle(['sColumns' => 'name', 'finderList' => 'recent']);
+    }
+
+    /**
+     * The recent patient list becomes its pids, in order, leaving out anything that is not one.
+     */
+    public function testRecentPidsOfReadsThePatientServiceList(): void
+    {
+        $this->assertSame(
+            [5, 2],
+            PatientFinderQueryService::recentPidsOf([['pid' => 5], ['pid' => '2'], ['pid' => 0], 'junk'])
+        );
+    }
+
+    /**
+     * The list's Next Appt cells come from PatientFinderAppointments for the page's patients,
+     * after the query, which never names the column.
+     */
+    public function testNextAppointmentIsFilledForThePagesPatients(): void
+    {
+        $dataSql = '';
+        $fetch = static function (string $sql, array $binds) use (&$dataSql): array {
+            if (in_array('ptlistcols', $binds, true)) {
+                return [
+                    ['option_id' => 'DOB', 'title' => 'DOB'],
+                    ['option_id' => 'next_appointment', 'title' => 'Next Appt'],
+                ];
+            }
+            if (str_contains($sql, 'FROM patient_data')) {
+                $dataSql = $sql;
+                return [['pid' => 7, 'DOB' => '1980-01-01']];
+            }
+            return [];
+        };
+        $dispatcher = $this->dispatcher();
+        $service = new PatientFinderQueryService(
+            $dispatcher,
+            new PatientFinderQueryBuilder(
+                static fn(string $col, array $tables): string => '`' . $col . '`',
+                static fn(string $term): string => $term
+            ),
+            $fetch,
+            static fn(string $sql, array $binds): array => ['count' => 1],
+            static fn(mixed $v): string => PatientFinderValue::string($v),
+            static fn(array $info, mixed $v): string => PatientFinderValue::string($v),
+            new PatientFinderColumnRegistryFactory(
+                $dispatcher,
+                $fetch,
+                aclCheck: static fn(string $section, string $value): bool => true,
+                patientDataFields: static fn(): array => ['DOB']
+            ),
+            appointments: new PatientFinderAppointments(
+                static fn(string $sql, array $binds): array => $binds[0] === '7'
+                    ? [['pc_eid' => 1, 'pc_eventDate' => '2026-12-01', 'pc_startTime' => '09:30:00', 'pc_recurrtype' => 0]]
+                    : [],
+                static fn(string $from, string $to, int $eid): array => [],
+                new FrozenClock(new DateTimeImmutable('2026-11-13 12:00:00'))
+            )
+        );
+
+        $out = $service->handle(['sEcho' => '1', 'sColumns' => 'DOB,next_appointment']);
+
+        $this->assertSame([['DT_RowId' => 'pid_7', 0 => '1980-01-01', 1 => '2026-12-01 09:30']], $out['aaData']);
+        $this->assertStringNotContainsString('next_appointment', $dataSql);
     }
 }

@@ -6,15 +6,17 @@
  * Orchestrates the Patient Finder's server-side endpoint, replacing the body of
  * dynamic_finder_ajax.php. It:
  *
- *   1. builds the column registry — seeds the core `ptlistcols` columns, then
- *      dispatches PatientFinderColumnRegistrationEvent so modules can add,
- *      remove or reorder columns;
+ *   1. builds the column registry for the tab that asked — seeds the columns of
+ *      its list (Patient List, or Recent Patients unless that shares the Patient
+ *      List's), then dispatches PatientFinderColumnRegistrationEvent so modules
+ *      can add, remove or reorder columns;
  *   2. resolves the client's (possibly ColReorder-ed) column order against the
  *      registry into the active column list;
  *   3. dispatches the existing PatientFinderFilterEvent to obtain the custom
  *      WHERE BoundFilter (privacy / security / information-blocking exclusion);
  *   4. delegates SQL construction to PatientFinderQueryBuilder and runs the
- *      resulting plan;
+ *      resulting plan — for Recent Patients, limited to the user's recent
+ *      patients, most recent first unless the table is sorted;
  *   5. dispatches PatientFinderRowEnrichEvent with the current page's pids to
  *      populate display-only (enriched) columns, then assembles the DataTables
  *      response array.
@@ -26,7 +28,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2026 Open Plan IT Ltd
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -35,6 +39,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientFinder;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
@@ -59,6 +64,13 @@ final class PatientFinderQueryService
     /** @var (callable(array<mixed>, mixed): mixed)|null */
     private $plaintext;
 
+    /**
+     * @var (callable(): list<int>)|null The current user's recent patients, most recent first.
+     *      Needed for the Recent Patients tab, with $recentSharesColumns; the entry point
+     *      passes both, and a Recent Patients request without them fails loudly.
+     */
+    private $recentPids;
+
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         ?PatientFinderQueryBuilder $builder = null,
@@ -66,7 +78,10 @@ final class PatientFinderQueryService
         ?callable $singleRow = null,
         ?callable $attr = null,
         ?callable $plaintext = null,
-        ?PatientFinderColumnRegistryFactory $registryFactory = null
+        ?PatientFinderColumnRegistryFactory $registryFactory = null,
+        ?callable $recentPids = null,
+        private readonly ?bool $recentSharesColumns = null,
+        private ?PatientFinderAppointments $appointments = null
     ) {
         $this->builder = $builder ?? new PatientFinderQueryBuilder();
         $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
@@ -77,6 +92,26 @@ final class PatientFinderQueryService
         // the column set; default to one backed by this service's fetcher.
         $this->registryFactory = $registryFactory
             ?? new PatientFinderColumnRegistryFactory($dispatcher, $this->fetchRecords);
+        $this->recentPids = $recentPids;
+    }
+
+    /**
+     * The pids in a recent patient list (PatientService::getRecentPatientList()), most
+     * recent first, for the Recent Patients tab.
+     *
+     * @param array<mixed> $recentPatients
+     * @return list<int>
+     */
+    public static function recentPidsOf(array $recentPatients): array
+    {
+        $pids = [];
+        foreach ($recentPatients as $row) {
+            $pid = PatientFinderValue::int(is_array($row) ? ($row['pid'] ?? null) : null);
+            if ($pid > 0) {
+                $pids[] = $pid;
+            }
+        }
+        return $pids;
     }
 
     /**
@@ -89,13 +124,14 @@ final class PatientFinderQueryService
      */
     public function handle(array $get): array
     {
-        $registry = $this->buildColumnRegistry();
         $request = PatientFinderRequest::fromArray($get);
+        $registry = $this->buildColumnRegistry($request->columnList);
         $activeColumns = $this->resolveActiveColumns($registry, $request);
         $globalSearchColumns = $this->buildGlobalSearchColumns($request);
         $filter = $this->dispatchFilter($activeColumns, $request);
+        $onlyPids = $request->columnList === PatientFinderColumnList::Recent ? $this->recentPatients() : null;
 
-        $plan = $this->builder->build($activeColumns, $request, $filter, $globalSearchColumns);
+        $plan = $this->builder->build($activeColumns, $request, $filter, $globalSearchColumns, $onlyPids);
 
         $iTotal = $this->count($plan->totalCountSql, $plan->totalCountBinds);
         $iFiltered = $this->count($plan->filteredCountSql, $plan->filteredCountBinds);
@@ -117,13 +153,33 @@ final class PatientFinderQueryService
     }
 
     /**
-     * Build the shared column registry (core ptlistcols columns + module
-     * contributions). Delegates to the factory so the finder page and this
-     * endpoint produce an identical column set.
+     * Build a tab's column registry (its list's columns + module contributions).
+     * Delegates to the factory so the finder page and this endpoint produce an
+     * identical column set.
      */
-    public function buildColumnRegistry(): PatientFinderColumnRegistry
+    public function buildColumnRegistry(
+        PatientFinderColumnList $tab = PatientFinderColumnList::PatientList
+    ): PatientFinderColumnRegistry {
+        if ($tab === PatientFinderColumnList::PatientList) {
+            return $this->registryFactory->create($tab);
+        }
+        if ($this->recentSharesColumns === null) {
+            throw new \LogicException('The Recent Patients tab needs the recentSharesColumns setting.');
+        }
+        return $this->registryFactory->create($tab->columnsSource($this->recentSharesColumns));
+    }
+
+    /**
+     * The current user's recent patients, most recent first.
+     *
+     * @return list<int>
+     */
+    private function recentPatients(): array
     {
-        return $this->registryFactory->create();
+        if ($this->recentPids === null) {
+            throw new \LogicException('The Recent Patients tab needs the recentPids source.');
+        }
+        return ($this->recentPids)();
     }
 
     /**
@@ -234,15 +290,17 @@ final class PatientFinderQueryService
 
     /**
      * In search_any mode, build the wider set of searchable columns from the DEM
-     * layout fields (matching the legacy script's any-column search). Returns
-     * null in normal mode, so the global search targets the displayed columns.
+     * layout fields (matching the legacy script's any-column search). Otherwise
+     * the search mode decides: the name or ZIP columns, or null so the global
+     * search targets the displayed columns.
      *
      * @return array<int, PatientFinderColumn>|null
      */
     private function buildGlobalSearchColumns(PatientFinderRequest $request): ?array
     {
         if (!$request->anySearch) {
-            return null;
+            // The dropdown next to the search box can narrow it to the name or the ZIP.
+            return $request->searchMode->globalSearchColumns();
         }
         $rows = ($this->fetchRecords)(
             "SELECT field_id FROM layout_options WHERE form_id = 'DEM' "
@@ -308,6 +366,18 @@ final class PatientFinderQueryService
             $pids[] = PatientFinderValue::int($row['pid'] ?? null);
         }
         $event = new PatientFinderRowEnrichEvent($pids, $enrichedColumns);
+        // Core's own Next and Last Appt columns, worked out for this page's patients.
+        $appointmentColumns = [];
+        foreach ($enrichedColumns as $column) {
+            $builtIn = PatientFinderBuiltInColumn::tryFrom($column->key);
+            if ($builtIn !== null && $builtIn->isAppointment()) {
+                $appointmentColumns[] = $builtIn;
+            }
+        }
+        if ($appointmentColumns !== []) {
+            $this->appointments ??= PatientFinderAppointments::fromGlobals(OEGlobalsBag::getInstance());
+            $event->addValues($this->appointments->values($pids, $appointmentColumns));
+        }
         // Only bother dispatching when there is something to enrich.
         if ($enrichedColumns !== []) {
             $this->dispatcher->dispatch($event, PatientFinderRowEnrichEvent::EVENT_HANDLE);

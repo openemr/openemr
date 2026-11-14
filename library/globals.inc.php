@@ -364,6 +364,13 @@ $GLOBALS_METADATA = [
             xl('Default state of New Window checkbox in the patient list.')
         ],
 
+        'gbl_pt_list_recent_same_columns' => [
+            xl('Recent Patients Use Patient List Columns'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Show the Patient Finder\'s Recent Patients tab with the columns of Patient Finder – Patient List Columns. Turn off to choose its columns in Patient Finder – Recent Patients Columns.')
+        ],
+
         'right_justify_labels_demographics' => [
             xl('Right Justify Labels in Demographics'),
             'bool',                           // data type

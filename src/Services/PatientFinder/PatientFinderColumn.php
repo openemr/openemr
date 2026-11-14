@@ -7,8 +7,9 @@
  * (dynamic_finder.php) and its server-side DataTables endpoint
  * (dynamic_finder_ajax.php).
  *
- * Core seeds one column per active `ptlistcols` entry (all resolving against
- * `patient_data`). Modules may contribute additional columns via
+ * Core seeds one column per active `ptlistcols` entry: a `patient_data` field, or
+ * one of the combined SQL columns in {@see PatientFinderBuiltInColumns}. Modules
+ * may contribute additional columns via
  * {@see \OpenEMR\Events\PatientFinder\PatientFinderColumnRegistrationEvent},
  * in one of two flavours:
  *
@@ -59,6 +60,10 @@ final readonly class PatientFinderColumn
      * @param array<int, string|int> $joinBoundValues TYPE_SQL: values bound to the ?s in $joinClause.
      * @param string $defaultSortDir Initial sort direction the finder page requests for this
      *        column ("asc" or "desc"); drives the DataTables "order" option.
+     * @param string $width Display width as a CSS length ("8rem", "120px", "10%"), or "" to let
+     *        the table size the column; see withWidth().
+     * @param bool $inGlobalSearch Whether the heading's search box searches this column
+     *        (when it is searchable at all); see withoutGlobalSearch().
      */
     private function __construct(
         public string $key,
@@ -72,7 +77,9 @@ final readonly class PatientFinderColumn
         public ?string $searchExpression = null,
         public array $selectBoundValues = [],
         public array $joinBoundValues = [],
-        public string $defaultSortDir = 'asc'
+        public string $defaultSortDir = 'asc',
+        public string $width = '',
+        public bool $inGlobalSearch = true
     ) {
     }
 
@@ -178,11 +185,17 @@ final readonly class PatientFinderColumn
         return new self($key, $title, self::TYPE_ENRICHED, false, false);
     }
 
+    /**
+     * Whether the column is display-only, filled after the query by PatientFinderRowEnrichEvent.
+     */
     public function isEnriched(): bool
     {
         return $this->type === self::TYPE_ENRICHED;
     }
 
+    /**
+     * Whether the column comes from an author-supplied SQL expression.
+     */
     public function isSql(): bool
     {
         return $this->type === self::TYPE_SQL;
@@ -205,7 +218,62 @@ final readonly class PatientFinderColumn
             $this->searchExpression,
             $this->selectBoundValues,
             $this->joinBoundValues,
-            $dir
+            $dir,
+            $this->width,
+            $this->inGlobalSearch
+        );
+    }
+
+    /**
+     * Return a copy of this column with a display width. Anything that is not a plain CSS
+     * length in px, rem, em or % (such as "8rem") is ignored, leaving the width to the table.
+     */
+    public function withWidth(string $width): self
+    {
+        $width = trim($width);
+        if (preg_match('/^\d{1,4}(\.\d{1,2})?(px|rem|em|%)$/', $width) !== 1) {
+            $width = '';
+        }
+        return new self(
+            $this->key,
+            $this->title,
+            $this->type,
+            $this->searchable,
+            $this->sortable,
+            $this->table,
+            $this->selectExpression,
+            $this->joinClause,
+            $this->searchExpression,
+            $this->selectBoundValues,
+            $this->joinBoundValues,
+            $this->defaultSortDir,
+            $width,
+            $this->inGlobalSearch
+        );
+    }
+
+    /**
+     * Return a copy of this column that the heading's search box leaves out, while its
+     * own column filter still searches it. For a column whose search runs a correlated
+     * subquery, which the search box would run against every patient on each keystroke.
+     */
+    public function withoutGlobalSearch(): self
+    {
+        return new self(
+            $this->key,
+            $this->title,
+            $this->type,
+            $this->searchable,
+            $this->sortable,
+            $this->table,
+            $this->selectExpression,
+            $this->joinClause,
+            $this->searchExpression,
+            $this->selectBoundValues,
+            $this->joinBoundValues,
+            $this->defaultSortDir,
+            $this->width,
+            false
         );
     }
 }

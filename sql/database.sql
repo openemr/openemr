@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 574
+-- v_database: 575
 --
 
 --
@@ -3660,6 +3660,10 @@ INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_m
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('FACUSR', '' , 'Facility Specific User Information', 'Core');
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('FACUSR', '1', 'General'                           , ''    );
 
+-- Patient Finder Detail: what an expanded Patient Finder row shows (PatientFinderDetailService).
+INSERT INTO `layout_group_properties` (`grp_form_id`, `grp_group_id`, `grp_title`, `grp_mapping`, `grp_columns`, `grp_size`) VALUES ('PTFINDER', '', 'Patient Finder Detail', 'Core', 8, 9);
+INSERT INTO `layout_group_properties` (`grp_form_id`, `grp_group_id`, `grp_title`, `grp_mapping`) VALUES ('PTFINDER', '1', 'Main', '');
+
 -- --------------------------------------------------------
 
 --
@@ -3892,6 +3896,10 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'provider_id', '1', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'role_code', '1', 'Provider Role', 2, 43, 1, 0, 0, 'us-core-provider-role', 1, 1, '', '', 'Provider Role at Specified Facility', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'specialty_code', '1', 'Provider Specialty', 3, 43, 1, 0, 0, 'us-core-provider-specialty', 1, 1, '', '', 'Provider Specialty at Specified Facility', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('PTFINDER', 'insurance_primary_provider_name', '1', 'Insurance', 10, 2, 1, 20, 63, '', 1, 2, '', '', 'Primary insurance in effect today', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('PTFINDER', 'sex', '1', 'Sex', 20, 1, 1, 0, 0, 'sex', 1, 2, '', '', 'Sex', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('PTFINDER', 'insurance_primary_policy', '1', 'Insurance ID', 30, 2, 1, 20, 60, '', 1, 2, '', '["J"]', 'Policy number of the primary insurance in effect today', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('PTFINDER', 'address_full', '1', 'Address', 40, 2, 1, 20, 200, '', 1, 7, '', '["J"]', 'Street, city, state and postal code', 0);
 -- --------------------------------------------------------
 
 --
@@ -5171,12 +5179,23 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nat
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('lists','payment_gateways','Payment Gateways','297','1','0','','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('payment_gateways','authorize_net','Authorize.net','1','0','0','','');
 
-INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('lists','ptlistcols','Patient List Columns','1','0','','');
+INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('lists','ptlistcols','Patient Finder – Patient List Columns','1','0','','');
 INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','name'      ,'Full Name'     ,'10','3','','');
 INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','phone_home','Home Phone'    ,'20','3','','');
 INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','ss'        ,'SSN'           ,'30','3','','');
 INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','DOB'       ,'Date of Birth' ,'40','3','','');
 INSERT INTO list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','pubpid'    ,'External ID'   ,'50','3','','');
+-- Combined columns the finder builds itself (PatientFinderBuiltInColumns); off until enabled.
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'name_first_last', 'First Last', 60, 3, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'name_first_last_middle', 'First Middle Last', 70, 3, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'city_state', 'City State', 80, 3, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'address_full', 'Address', 90, 3, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'address_full_country', 'Address and Country', 100, 3, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'age', 'Age', 110, 3, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'next_appointment', 'Next Appt', 120, 3, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'last_appointment', 'Last Appt', 130, 3, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'insurance_primary_provider_name', 'Primary Insurance', 140, 3, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'insurance_primary_policy', 'Primary Policy Number', 150, 3, 0);
 
 -- Medical Problem Issue List
 INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','medical_problem_issue_list','Medical Problem Issue List');
@@ -14702,7 +14721,7 @@ INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `ac
 INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1', 'Flow Board', 40, 'flb', '0');
 INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/main/messages/messages.php?form_active=1', 'Message Inbox', 50, 'msg', '1');
 
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'recent_patient_columns', 'Recent Patient Columns');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'recent_patient_columns', 'Patient Finder – Recent Patients Columns');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'fname', 'First Name', '10');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'mname', 'Middle Name', '20');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'lname', 'Last Name', '30');
