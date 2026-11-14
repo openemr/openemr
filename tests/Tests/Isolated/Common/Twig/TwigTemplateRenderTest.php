@@ -236,6 +236,51 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/ehr-launch-autosubmit.html',
         ];
 
+        // SMART apps card (portal dashboard Health Apps list). The template
+        // escaping matters: app.url runs through |attr and app.name through
+        // |text because both come from admin-registered DCR data that could
+        // carry quotes/HTML. target="_blank" on the Launch link pairs with
+        // rel="noopener noreferrer" to block tabnapping. The three cases
+        // below pin: the empty-list structural shape, a single safe app,
+        // and a multi-app case whose inputs carry quotes + angle brackets
+        // so a regression on either filter surfaces in the fixture diff.
+
+        yield 'portal/partial/cards/_smart_apps_card empty apps list' => [
+            'portal/partial/cards/_smart_apps_card.html.twig',
+            [
+                'id' => 'smart-apps-card',
+                'apps' => [],
+            ],
+            $fixtureDir . '/smart-apps-card-empty.html',
+        ];
+
+        yield 'portal/partial/cards/_smart_apps_card single app' => [
+            'portal/partial/cards/_smart_apps_card.html.twig',
+            [
+                'id' => 'smart-apps-card',
+                'apps' => [
+                    ['name' => 'Visit Prep', 'url' => 'https://app.example/launch.php?mode=portal&launch=abc'],
+                ],
+            ],
+            $fixtureDir . '/smart-apps-card-single.html',
+        ];
+
+        yield 'portal/partial/cards/_smart_apps_card multiple apps with escaping' => [
+            'portal/partial/cards/_smart_apps_card.html.twig',
+            [
+                'id' => 'smart-apps-card',
+                'apps' => [
+                    // Plain app.
+                    ['name' => 'Visit Prep', 'url' => 'https://app.example/launch.php?mode=portal&launch=abc'],
+                    // Quotes + angle brackets in the name so a regression on |text surfaces.
+                    ['name' => 'Smart "Questionnaire" <app>', 'url' => 'https://q.example/launch.php?mode=portal&launch=xyz'],
+                    // Quotes in the URL so a regression on |attr surfaces.
+                    ['name' => 'Third app', 'url' => 'https://app.example/launch.php?mode=portal&launch="abc"'],
+                ],
+            ],
+            $fixtureDir . '/smart-apps-card-multiple.html',
+        ];
+
         yield 'portal/login/autologin pin required' => [
             'portal/login/autologin.html.twig',
             [
