@@ -181,17 +181,31 @@ seed_smoke_questionnaire() {
 }
 
 register_smart_client() {
-    echo 'Running oe-smart-questionnaire bin/register.php --all'
+    echo 'Running oe-smart-questionnaire bin/register.php --all + --portal'
     # DCR against the running OpenEMR via the app's own CLI entry point.
     # Non-interactive; no admin password needed (bin/register.php never
     # consults admin.json — that gate is only for public/admin.php).
+    #
+    # --all registers the confidential auth-code / standalone / EHR-launch
+    # client (what the existing standalone + EHR-launch tests drive).
+    # --portal additionally registers the patient portal client — a
+    # separate confidential client with `launch` + patient/ scopes only
+    # (no user/system), launch URI launch.php?mode=portal. That's the
+    # client the testPortalLaunchFromDashboardLandsOnAppWithPatientContext
+    # test needs on OpenEMR's portal dashboard. Both registrations are
+    # idempotent: registerPortal() lives beside the confidential record
+    # under the same issuer key and is a no-op if already present (same
+    # shape as --all's existing-registration branch).
     docker compose exec -T openemr sh -c '
         cd /opt/oe-smart-questionnaire/app && php bin/register.php --all
+        cd /opt/oe-smart-questionnaire/app && php bin/register.php --site=openemr --portal
         chown -R apache:apache var
     '
     # OpenEMR registers all clients disabled. Flip is_enabled=1 so the
-    # SMART launch can actually use it. Match on client_name (the only
-    # stable identifier we have — register.php chooses the client_id).
+    # SMART launch can actually use it. The portal-client name follows
+    # the pattern `<app_name> (<site>) - patient portal` so the catch-
+    # all LIKE here covers both clients in one UPDATE — matches the
+    # "stable identifier" invariant the comment above describes.
     docker compose exec -T mysql mariadb -u root --password=root openemr -e "
         UPDATE oauth_clients SET is_enabled=1
          WHERE client_name LIKE 'OpenEMR SMART Questionnaire smoke%';
