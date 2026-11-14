@@ -13602,11 +13602,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientNameHistoryService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientPortalService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "/" between mixed and 30 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
