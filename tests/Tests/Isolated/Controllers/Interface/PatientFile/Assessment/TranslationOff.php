@@ -42,6 +42,8 @@ trait TranslationOff
             $globals->set('disable_translation', $this->translationSetting['value']);
             return;
         }
+        // remove() clears only the bag; OEGlobalsBag reads $GLOBALS, which set() also wrote.
         $globals->remove('disable_translation');
+        unset($GLOBALS['disable_translation']);
     }
 }

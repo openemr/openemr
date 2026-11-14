@@ -21,11 +21,19 @@
     const smartLaunchCsrfToken = {{ csrfToken|js_escape }};
     const smartLaunchIntent = {{ intents.questionnaire|js_escape }};
     let assessmentSavePending = false
+    // Save waits for the workspace to say it can take submitForm. A refusal page never does.
+    let assessmentReady = false
+
+    function setAssessmentReady (ready) {
+        assessmentReady = ready
+        assessmentSaveButton.disabled = !ready
+    }
 
     function openAssessment (url, title) {
         top.restoreSession()
         assessmentSavePending = false
         assessmentFeedback.saving(false)
+        setAssessmentReady(false)
         assessmentTitle.textContent = title
         assessmentCatalog.classList.add('d-none')
         assessmentWorkspace.classList.remove('d-none')
@@ -39,6 +47,7 @@
         assessmentSavePending = false
         assessmentFeedback.saving(false)
         assessmentFeedback.loading(false)
+        setAssessmentReady(false)
         assessmentFrame.src = 'about:blank'
         assessmentWorkspace.classList.add('d-none')
         assessmentCatalog.classList.remove('d-none')
@@ -124,7 +133,7 @@
     })
 
     assessmentSaveButton.addEventListener('click', () => {
-        if (assessmentSavePending) {
+        if (assessmentSavePending || !assessmentReady) {
             return
         }
         top.restoreSession()
@@ -137,6 +146,11 @@
 
     window.addEventListener('message', (event) => {
         if (event.origin !== window.location.origin || event.source !== assessmentFrame.contentWindow) {
+            return
+        }
+
+        if (event.data?.assessmentReady === true) {
+            setAssessmentReady(true)
             return
         }
 

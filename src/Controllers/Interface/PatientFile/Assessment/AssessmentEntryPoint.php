@@ -110,7 +110,9 @@ final class AssessmentEntryPoint
             SessionWrapperFactory::getInstance()->getActiveSession(),
             ServiceContainer::getLogger(),
             PatientSessionUtil::getPid(),
-            AclMain::aclCheckCore(self::ACL_SECTION, self::ACL_VALUE),
+            // Saving a new response takes write or addonly; amending a saved one takes write.
+            AclMain::aclCheckCore(self::ACL_SECTION, self::ACL_VALUE, '', ['write', 'addonly']),
+            AclMain::aclCheckCore(self::ACL_SECTION, self::ACL_VALUE, '', ['write']),
         ))->dispatchAction($request);
     }
 

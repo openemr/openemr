@@ -34,7 +34,9 @@ final readonly class AssessmentSaveController
 {
     /**
      * @param int $pid the session patient, 0 when none is selected
-     * @param bool $authorized the user has patients/med
+     * @param bool $authorized the user may add to patients/med (write or addonly), enough for a new response
+     * @param bool $canAmend the user may change patients/med (write), needed to update a saved response;
+     *                       addonly means "may view and add but not modify"
      */
     public function __construct(
         private AssessmentStore $store,
@@ -43,6 +45,7 @@ final readonly class AssessmentSaveController
         private LoggerInterface $logger,
         private int $pid,
         private bool $authorized,
+        private bool $canAmend,
     ) {
     }
 
@@ -93,6 +96,9 @@ final readonly class AssessmentSaveController
         if ($questionnaireId === null) {
             throw new AssessmentUnavailable(xl('A Questionnaire repository id is required.'));
         }
+        if ($responseId !== '' && !$this->canAmend) {
+            throw new AssessmentUnavailable(xl('Not authorized to amend an existing patient assessment.'));
+        }
         $response = $this->processor->decodeAndValidateResponse($responseJson);
         $questionnaireJson = $responseId !== ''
             ? $this->savedQuestionnaire($responseId, $questionnaireId)
@@ -129,7 +135,14 @@ final readonly class AssessmentSaveController
             throw new AssessmentUnavailable(xl('QuestionnaireResponse repository linkage is invalid.'));
         }
 
-        return AssessmentValues::text($existing['questionnaire'] ?? null);
+        // A response saved through the FHIR API (by a SMART app, say) has no stored questionnaire;
+        // the workspace opened it with the linked repository questionnaire, so save it with that too.
+        $questionnaireJson = AssessmentValues::text($existing['questionnaire'] ?? null);
+        if ($questionnaireJson === '') {
+            $questionnaireJson = AssessmentValues::text($this->store->questionnaire($questionnaireId)['questionnaire'] ?? null);
+        }
+
+        return $questionnaireJson;
     }
 
     /**

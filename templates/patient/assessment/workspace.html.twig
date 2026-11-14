@@ -5,7 +5,8 @@
 
   The page's Save button posts {submitForm: true} here. The form is validated and saved, and
   the result goes back to the page as assessmentSaved, assessmentValidationFailed or
-  assessmentSaveFailed. With error set, the questionnaire could not be opened and only the
+  assessmentSaveFailed. Once the listener is installed it posts assessmentReady, and only then
+  does the page enable Save. With error set, the questionnaire could not be opened and only the
   reason shows.
 
   @package   OpenEMR
@@ -106,6 +107,9 @@
             parent.postMessage({assessmentSaveFailed: true}, window.location.origin);
         }
     });
+
+    // The listener is in place: the page may enable its Save button now.
+    parent.postMessage({assessmentReady: true}, window.location.origin);
 </script>
 {% endif %}
 </body>

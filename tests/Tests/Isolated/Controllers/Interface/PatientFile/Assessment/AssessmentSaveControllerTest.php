@@ -52,9 +52,9 @@ class AssessmentSaveControllerTest extends TestCase
     }
 
     /**
-     * The save for patient 7 with patients/med, against the sample store unless one is given.
+     * The save for patient 7 with patients/med write, against the sample store unless one is given.
      */
-    private function controller(int $pid = 7, bool $authorized = true, ?FakeAssessmentStore $store = null): AssessmentSaveController
+    private function controller(int $pid = 7, bool $authorized = true, ?FakeAssessmentStore $store = null, bool $canAmend = true): AssessmentSaveController
     {
         return new AssessmentSaveController(
             $store ?? $this->store,
@@ -63,6 +63,7 @@ class AssessmentSaveControllerTest extends TestCase
             new NullLogger(),
             $pid,
             $authorized,
+            $canAmend,
         );
     }
 
@@ -117,6 +118,36 @@ class AssessmentSaveControllerTest extends TestCase
 
         $this->assertSame(['success' => true, 'id' => 99, 'response_id' => 'qr-11', 'new' => false], self::body($response->getContent()));
         $this->assertSame('qr-11', $this->store->saved[0]['responseId']);
+    }
+
+    #[Test]
+    public function anUpdateOfAnApiSavedResponseUsesTheRepositoryQuestionnaire(): void
+    {
+        // qr-api was saved through the FHIR API, so it has no stored questionnaire; the workspace
+        // opened it with repository questionnaire 1.
+        $response = $this->controller()->dispatchAction($this->post(['response_id' => 'qr-api']));
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('qr-api', $this->store->saved[0]['responseId']);
+        $this->assertSame(FakeAssessmentStore::PHQ9, $this->store->saved[0]['questionnaire']);
+    }
+
+    /**
+     * patients/med addonly may add a response but not change a saved one.
+     */
+    #[Test]
+    public function addOnlyMaySaveANewResponseButNotAmendOne(): void
+    {
+        $controller = $this->controller(canAmend: false);
+
+        $new = $controller->dispatchAction($this->post([]));
+        $this->assertSame(200, $new->getStatusCode());
+
+        $amend = $controller->dispatchAction($this->post(['response_id' => 'qr-11']));
+        $this->assertSame(400, $amend->getStatusCode());
+        $this->assertSame(['success' => false, 'message' => 'Not authorized to amend an existing patient assessment.'], self::body($amend->getContent()));
+        $this->assertCount(1, $this->store->saved, 'only the new response was saved');
+        $this->assertNull($this->store->saved[0]['responseId']);
     }
 
     /**

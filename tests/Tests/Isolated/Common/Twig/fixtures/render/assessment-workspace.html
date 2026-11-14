@@ -85,6 +85,9 @@
             parent.postMessage({assessmentSaveFailed: true}, window.location.origin);
         }
     });
+
+    // The listener is in place: the page may enable its Save button now.
+    parent.postMessage({assessmentReady: true}, window.location.origin);
 </script>
 </body>
 </html>

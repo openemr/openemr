@@ -89,16 +89,26 @@ final readonly class AssessmentRepository implements AssessmentStore
 
     /**
      * Only this patient gets a UUID if missing, rather than a backfill of the whole table on
-     * every save; createMissingUuidForRow does nothing when the row already has one.
+     * every save; createMissingUuidForRow does nothing when the row already has one. Missing
+     * means what createMissingUuidForRow treats as missing: no row value, empty, or the nil
+     * UUID (16 zero bytes), which would otherwise stamp Patient/00000000-… on the response.
      */
     public function patientUuid(int $pid): string
     {
         $uuid = $this->patients->getUuid((string)$pid);
-        if ($uuid === false) {
+        if (self::isMissingUuid($uuid)) {
             UuidRegistry::createMissingUuidForRow('patient_data', 'pid', $pid);
             $uuid = $this->patients->getUuid((string)$pid);
         }
 
-        return $uuid !== false ? UuidRegistry::uuidToString($uuid) : '';
+        return self::isMissingUuid($uuid) ? '' : UuidRegistry::uuidToString($uuid);
+    }
+
+    /**
+     * @phpstan-assert-if-false string $uuid
+     */
+    private static function isMissingUuid(false|string $uuid): bool
+    {
+        return $uuid === false || $uuid === '' || $uuid === str_repeat("\0", 16);
     }
 }
