@@ -148,7 +148,20 @@ set_smoke_globals() {
           ON DUPLICATE KEY UPDATE gl_value=VALUES(gl_value);
         INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('smart_context_test_launches', 0, '1')
           ON DUPLICATE KEY UPDATE gl_value=VALUES(gl_value);
+        INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('portal_onsite_two_enable', 0, '1')
+          ON DUPLICATE KEY UPDATE gl_value=VALUES(gl_value);
     "
+    # portal_onsite_two_enable gates the browser-facing patient portal
+    # at /portal/index.php (not just the api — rest_portal_api is a
+    # different global that install_configure already enables). When it
+    # is off, the login page prints 'Patient Portal is turned off' and
+    # exits before rendering the login form. The
+    # testPortalLaunchFromDashboardLandsOnAppWithPatientContext test
+    # lands on that page as its first stage, so without this flag it
+    # times out waiting for the login form. install_configure does not
+    # set it (same reason site_addr_oath + smart_context_test_launches
+    # are also set here): the production footprint of a smoke-only
+    # global flip is zero, since it is scoped to this compose stack.
 }
 
 seed_smoke_questionnaire() {
