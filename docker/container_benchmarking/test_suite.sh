@@ -222,7 +222,7 @@ cleanup() {
         # Clean up all test projects
         # Note: We don't use run_docker_compose here because cleanup runs in a trap
         # and we don't have the test directories available
-        for project in fresh manual ssl redis swarm k8s xdebug docs upgrade; do
+        for project in fresh manual ssl redis swarm swarm-takeover k8s xdebug docs upgrade; do
             # Unset DOCKER_CONTEXT (Docker CLI variable) to avoid conflicts
             # We don't restore it because we use DOCKERFILE_CONTEXT internally, not DOCKER_CONTEXT
             unset DOCKER_CONTEXT
@@ -907,6 +907,190 @@ EOF
         log_test_result "${test_name}" "FAIL" "Completed marker: ${completed_marker}, Leader authority: ${leader_authority}"
         return 1
     fi
+}
+
+# Test 5b: Swarm mode leader takeover. The first container claims the leader
+# lease with no database running, so its setup fails and it exits still
+# holding the lease. Two followers with a shortened LEADER_TIMEOUT must see
+# the lease go stale, exactly one must take over, and setup must complete.
+# LEADER_TIMEOUT stays above the 60 s heartbeat the leader sends during
+# auto-configure, so a slow install is not mistaken for a stale leader.
+test_swarm_takeover() {
+    local test_name="Swarm Mode Leader Takeover"
+    log_test_start "${test_name}"
+
+    local test_dir="${TESTS_DIR}/swarm_takeover"
+    mkdir -p "${test_dir}"
+
+    local flex_env_vars
+    flex_env_vars=$(get_flex_env_vars)
+
+    local follower_service
+    local follower_services=""
+    for follower_service in openemr-a openemr-b; do
+        follower_services+="
+  ${follower_service}:
+    image: ${IMAGE_TAG}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      MYSQL_DATABASE: openemr
+      OE_USER: admin
+      OE_PASS: testpass123${flex_env_vars}
+      SWARM_MODE: \"yes\"
+      LEADER_TIMEOUT: \"90\"
+    volumes:
+      - swarm_sites:/var/www/localhost/htdocs/openemr/sites
+    healthcheck:
+      test: [\"CMD\", \"curl\", \"-fsSLo\", \"/dev/null\", \"http://localhost/\"]
+      start_period: 15m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+    networks:
+      - test-network
+"
+    done
+
+    cat > "${test_dir}/docker-compose.yml" <<EOF
+
+services:
+  mysql:
+    image: mariadb:11.4
+    command:
+      - mariadbd
+      - --character-set-server=utf8mb4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - test-network
+
+  openemr-first:
+    image: ${IMAGE_TAG}
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      MYSQL_DATABASE: openemr
+      OE_USER: admin
+      OE_PASS: testpass123${flex_env_vars}
+      SWARM_MODE: "yes"
+    volumes:
+      - swarm_sites:/var/www/localhost/htdocs/openemr/sites
+    networks:
+      - test-network
+${follower_services}
+volumes:
+  mysql_data:
+  swarm_sites:
+
+networks:
+  test-network:
+    driver: bridge
+EOF
+
+    cd "${test_dir}"
+
+    local project="${PROJECT_NAME}-swarm-takeover"
+    local first_name="${project}-openemr-first-1"
+    local a_name="${project}-openemr-a-1"
+    local b_name="${project}-openemr-b-1"
+
+    swarm_takeover_fail() {
+        log_test_result "${test_name}" "FAIL" "$1"
+        # shellcheck disable=SC2310  # Cleanup should not fail the test
+        run_docker_compose "${project}" -f docker-compose.yml down --volumes >/dev/null 2>&1 || true
+        cd - >/dev/null
+    }
+
+    log_info "Starting the first container alone (no database yet)..."
+    # shellcheck disable=SC2310  # Error handling is explicit via if/return
+    if ! run_docker_compose "${project}" -f docker-compose.yml up -d --no-deps openemr-first 2>&1 | tee -a "${LOG_FILE}"; then
+        swarm_takeover_fail "Failed to start the first container"
+        return 1
+    fi
+
+    # With no database the first container claims the lease, starts setup,
+    # fails to connect and exits while still holding the lease: a leader that
+    # crashed before configuring anything. Flex builds from source first, so
+    # allow for that.
+    local -i waited=0
+    local running
+    while true; do
+        running=$(docker inspect -f '{{.State.Running}}' "${first_name}" 2>/dev/null || true)
+        [[ "${running}" = "true" ]] || break
+        if (( waited >= 1800 )); then
+            docker kill "${first_name}" >/dev/null 2>&1 || true
+            break
+        fi
+        sleep 5
+        waited+=5
+    done
+    # Capture logs before grepping: under pipefail, `docker logs | grep -q`
+    # fails when grep exits early and docker logs gets SIGPIPE.
+    local logs
+    logs=$(docker logs "${first_name}" 2>&1 || true)
+    if ! grep -q "This instance is the docker-leader (AUTHORITY=yes)" <<<"${logs}"; then
+        swarm_takeover_fail "First container did not claim the leader lease"
+        return 1
+    fi
+    log_info "First container claimed the lease and stopped without finishing setup"
+
+    log_info "Starting the database and two followers (LEADER_TIMEOUT=90)..."
+    # shellcheck disable=SC2310  # Error handling is explicit via if/return
+    if ! run_docker_compose "${project}" -f docker-compose.yml up -d mysql openemr-a openemr-b 2>&1 | tee -a "${LOG_FILE}"; then
+        swarm_takeover_fail "Failed to start the followers"
+        return 1
+    fi
+
+    local name
+    for name in "${a_name}" "${b_name}"; do
+        # shellcheck disable=SC2310
+        if ! wait_for_healthy "${name}" 900; then
+            swarm_takeover_fail "${name} did not become healthy"
+            return 1
+        fi
+    done
+
+    local -i leaders=0 takeovers=0
+    for name in "${a_name}" "${b_name}"; do
+        logs=$(docker logs "${name}" 2>&1 || true)
+        if grep -q "This instance is the docker-leader (AUTHORITY=yes)" <<<"${logs}"; then
+            leaders+=1
+        fi
+        if grep -q "Current leader appears stale, attempting to take over" <<<"${logs}"; then
+            takeovers+=1
+        fi
+    done
+
+    local completed_marker leftover_leases
+    completed_marker=$(docker exec "${a_name}" sh -c 'test -f /var/www/localhost/htdocs/openemr/sites/docker-completed && echo 1 || echo 0')
+    leftover_leases=$(docker exec "${a_name}" sh -c 'ls /var/www/localhost/htdocs/openemr/sites/ | grep -c "^docker-leader" || true')
+
+    # shellcheck disable=SC2310  # Cleanup should not fail the test
+    run_docker_compose "${project}" -f docker-compose.yml down --volumes >/dev/null 2>&1 || true
+    cd - >/dev/null
+
+    if (( leaders == 1 && takeovers >= 1 )) && [[ "${completed_marker}" = "1" && "${leftover_leases}" = "0" ]]; then
+        log_test_result "${test_name}" "PASS" "One follower took over from the stale leader"
+        return 0
+    fi
+    log_test_result "${test_name}" "FAIL" "Leaders: ${leaders}, takeover attempts: ${takeovers}, completed marker: ${completed_marker}, leftover lease files: ${leftover_leases}"
+    return 1
 }
 
 # Test 6: Kubernetes mode (admin/worker roles)
@@ -1695,7 +1879,7 @@ main() {
     log_info "Cleaning up any leftover test containers and volumes..."
     # Note: We don't use run_docker_compose here because we're cleaning up at startup
     # and don't have test directories available yet
-    for project in fresh manual ssl redis swarm k8s xdebug docs upgrade; do
+    for project in fresh manual ssl redis swarm swarm-takeover k8s xdebug docs upgrade; do
         # Unset DOCKER_CONTEXT (Docker CLI variable) to avoid conflicts
         # We don't restore it because we use DOCKERFILE_CONTEXT internally, not DOCKER_CONTEXT
         unset DOCKER_CONTEXT
@@ -1753,6 +1937,7 @@ main() {
     run_test "ssl_configuration" "test_ssl_configuration"
     run_test "redis_sessions" "test_redis_sessions"
     run_test "swarm_mode" "test_swarm_mode"
+    run_test "swarm_takeover" "test_swarm_takeover"
     run_test "kubernetes_mode" "test_kubernetes_mode"
     run_test "xdebug_configuration" "test_xdebug_configuration"
     run_test "document_upload" "test_document_upload"
