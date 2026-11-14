@@ -14,6 +14,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Controllers\Interface\PatientFile\Assessment;
 
+use OpenEMR\Services\Questionnaire\AssessmentStore;
+use Symfony\Component\HttpFoundation\InputBag;
+
 final class AssessmentValues
 {
     /**
@@ -26,6 +29,40 @@ final class AssessmentValues
         }
 
         return is_int($value) || is_float($value) ? (string)$value : '';
+    }
+
+    /**
+     * A request field as a string; empty when missing or not a string. InputBag::getString()
+     * throws on an array (field[]=x), which would turn a refusal into a 500.
+     *
+     * @template T of string|int|float|bool
+     * @param InputBag<T> $bag
+     */
+    public static function input(InputBag $bag, string $key): string
+    {
+        $value = $bag->all()[$key] ?? '';
+        return is_string($value) ? $value : '';
+    }
+
+    /**
+     * The questionnaire a saved response answers: the one stored with it, else (a response saved
+     * through the FHIR API stores none) the linked repository questionnaire. The workspace shows
+     * and the save validates against the same one, so both call this.
+     *
+     * @param array<mixed> $response
+     * @throws AssessmentUnavailable when there is neither
+     */
+    public static function responseQuestionnaire(AssessmentStore $store, array $response, int $questionnaireId): string
+    {
+        $questionnaireJson = self::text($response['questionnaire'] ?? null);
+        if ($questionnaireJson === '') {
+            $questionnaireJson = self::text($store->questionnaire($questionnaireId)['questionnaire'] ?? null);
+        }
+        if ($questionnaireJson === '') {
+            throw new AssessmentUnavailable(xl('The Questionnaire this response answers was not found.'));
+        }
+
+        return $questionnaireJson;
     }
 
     /**

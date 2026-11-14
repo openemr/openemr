@@ -23,6 +23,11 @@
     let assessmentSavePending = false
     // Save waits for the workspace to say it can take submitForm. A refusal page never does.
     let assessmentReady = false
+    // The frame's window stays the same object across navigations, so a ready message from an
+    // assessment that was just closed would pass the source check. Each open gets its own URL
+    // (open=<n>) and only a ready message reporting that URL counts.
+    let assessmentOpenCount = 0
+    let assessmentOpenHref = ''
 
     function setAssessmentReady (ready) {
         assessmentReady = ready
@@ -37,9 +42,13 @@
         assessmentTitle.textContent = title
         assessmentCatalog.classList.add('d-none')
         assessmentWorkspace.classList.remove('d-none')
-        assessmentFrameFit.fit()
+        // Show the loading line first: it sits above the frame, so fit() has to account for it.
         assessmentFeedback.loading(true)
-        assessmentFrame.src = url
+        assessmentFrameFit.fit()
+        const openUrl = new URL(url, window.location.href)
+        openUrl.searchParams.set('open', String(++assessmentOpenCount))
+        assessmentOpenHref = openUrl.href
+        assessmentFrame.src = assessmentOpenHref
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
@@ -48,6 +57,7 @@
         assessmentFeedback.saving(false)
         assessmentFeedback.loading(false)
         setAssessmentReady(false)
+        assessmentOpenHref = ''
         assessmentFrame.src = 'about:blank'
         assessmentWorkspace.classList.add('d-none')
         assessmentCatalog.classList.remove('d-none')
@@ -150,7 +160,9 @@
         }
 
         if (event.data?.assessmentReady === true) {
-            setAssessmentReady(true)
+            if (assessmentOpenHref !== '' && event.data.href === assessmentOpenHref) {
+                setAssessmentReady(true)
+            }
             return
         }
 

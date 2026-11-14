@@ -56,8 +56,8 @@ final readonly class AssessmentWorkspaceController
     {
         try {
             $view = $this->buildView(
-                AssessmentValues::positiveInt($request->query->getString('questionnaire_id')),
-                trim($request->query->getString('response_id'))
+                AssessmentValues::positiveInt(AssessmentValues::input($request->query, 'questionnaire_id')),
+                trim(AssessmentValues::input($request->query, 'response_id'))
             );
             $status = Response::HTTP_OK;
         } catch (AssessmentUnavailable $e) {
@@ -132,10 +132,7 @@ final readonly class AssessmentWorkspaceController
             throw new AssessmentUnavailable(xl('Questionnaire repository link is missing from the response.'));
         }
 
-        $questionnaireJson = AssessmentValues::text($response['questionnaire'] ?? null);
-        if ($questionnaireJson === '') {
-            $questionnaireJson = AssessmentValues::text($this->store->questionnaire($questionnaireId)['questionnaire'] ?? null);
-        }
+        $questionnaireJson = AssessmentValues::responseQuestionnaire($this->store, $response, $questionnaireId);
 
         return [$questionnaireId, $questionnaireJson, AssessmentValues::text($response['questionnaire_response'] ?? null)];
     }

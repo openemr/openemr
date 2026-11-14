@@ -117,6 +117,7 @@ class AssessmentWorkspaceControllerTest extends TestCase
             "another patient's response" => [null, 'qr-other', 'Questionnaire response does not belong to the selected patient.'],
             'encounter response' => [null, 'qr-encounter', 'Encounter questionnaires cannot be edited from the patient assessment workspace.'],
             'unlinked response' => [null, 'qr-unlinked', 'Questionnaire repository link is missing from the response.'],
+            'API-saved, questionnaire gone' => [null, 'qr-api-orphan', 'The Questionnaire this response answers was not found.'],
             'no questionnaire anywhere' => [3, '', 'The repository record does not contain a FHIR Questionnaire.'],
         ];
     }
@@ -147,6 +148,18 @@ class AssessmentWorkspaceControllerTest extends TestCase
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame('Questionnaire response does not belong to the selected patient.|Questionnaire Assessment', $response->getContent());
+    }
+
+    /**
+     * questionnaire_id[]=1 used to make InputBag::getString() throw, a 500 instead of a refusal.
+     */
+    #[Test]
+    public function anArrayIdIsTreatedAsMissing(): void
+    {
+        $response = self::controller('{{ error }}')->dispatchAction(Request::create('/?questionnaire_id[]=1&response_id[]=qr-11'));
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame('A Questionnaire repository id is required.', $response->getContent());
     }
 
     #[Test]

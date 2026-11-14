@@ -74,7 +74,7 @@ final readonly class AssessmentRepository implements AssessmentStore
 
     public function savePatientResponse(int $pid, string $responseJson, ?string $responseId, string $questionnaireJson): array
     {
-        return $this->responses->saveQuestionnaireResponse(
+        $saved = $this->responses->saveQuestionnaireResponse(
             response: $responseJson,
             pid: $pid,
             encounter: 0,
@@ -85,6 +85,15 @@ final readonly class AssessmentRepository implements AssessmentStore
             form_response: null,
             add_report: true,
         );
+        // The service returns its ids loosely typed: an insert id, or the row value on update.
+        $id = filter_var($saved['id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $savedResponseId = $saved['response_id'];
+
+        return [
+            'id' => $id === false ? null : $id,
+            'response_id' => is_string($savedResponseId) ? $savedResponseId : '',
+            'new' => $saved['new'],
+        ];
     }
 
     /**

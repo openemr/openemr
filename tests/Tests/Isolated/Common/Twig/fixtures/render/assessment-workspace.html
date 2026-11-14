@@ -86,8 +86,9 @@
         }
     });
 
-    // The listener is in place: the page may enable its Save button now.
-    parent.postMessage({assessmentReady: true}, window.location.origin);
+    // The listener is in place: the page may enable its Save button now. The URL tells the page
+    // which opening of the frame this is, so a late message from a closed one is ignored.
+    parent.postMessage({assessmentReady: true, href: window.location.href}, window.location.origin);
 </script>
 </body>
 </html>

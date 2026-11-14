@@ -57,7 +57,7 @@ final readonly class AssessmentSaveController
     public function dispatchAction(Request $request): JsonResponse
     {
         $post = $request->request;
-        if (!CsrfUtils::verifyCsrfToken($post->getString('csrf_token_form'), $this->session)) {
+        if (!CsrfUtils::verifyCsrfToken(AssessmentValues::input($post, 'csrf_token_form'), $this->session)) {
             return self::refused(xl('Unable to save QuestionnaireResponse.'));
         }
         if ($this->pid < 1 || !$this->authorized) {
@@ -66,9 +66,9 @@ final readonly class AssessmentSaveController
 
         try {
             $saved = $this->save(
-                AssessmentValues::positiveInt($post->getString('questionnaire_id')),
-                $post->getString('questionnaire_response'),
-                trim($post->getString('response_id'))
+                AssessmentValues::positiveInt(AssessmentValues::input($post, 'questionnaire_id')),
+                AssessmentValues::input($post, 'questionnaire_response'),
+                trim(AssessmentValues::input($post, 'response_id'))
             );
         } catch (AssessmentUnavailable | InvalidQuestionnaireResponseException $e) {
             return self::refused($e->getMessage());
@@ -81,14 +81,14 @@ final readonly class AssessmentSaveController
 
         return new JsonResponse([
             'success' => true,
-            'id' => $saved['id'] ?? null,
-            'response_id' => $saved['response_id'] ?? '',
+            'id' => $saved['id'],
+            'response_id' => $saved['response_id'],
             'new' => $saved['new'],
         ]);
     }
 
     /**
-     * @return array{id: mixed, response_id: mixed, new: bool}
+     * @return array{id: ?int, response_id: string, new: bool}
      * @throws AssessmentUnavailable|InvalidQuestionnaireResponseException|JsonException when the save is refused
      */
     public function save(?int $questionnaireId, string $responseJson, string $responseId): array
@@ -135,14 +135,7 @@ final readonly class AssessmentSaveController
             throw new AssessmentUnavailable(xl('QuestionnaireResponse repository linkage is invalid.'));
         }
 
-        // A response saved through the FHIR API (by a SMART app, say) has no stored questionnaire;
-        // the workspace opened it with the linked repository questionnaire, so save it with that too.
-        $questionnaireJson = AssessmentValues::text($existing['questionnaire'] ?? null);
-        if ($questionnaireJson === '') {
-            $questionnaireJson = AssessmentValues::text($this->store->questionnaire($questionnaireId)['questionnaire'] ?? null);
-        }
-
-        return $questionnaireJson;
+        return AssessmentValues::responseQuestionnaire($this->store, $existing, $questionnaireId);
     }
 
     /**

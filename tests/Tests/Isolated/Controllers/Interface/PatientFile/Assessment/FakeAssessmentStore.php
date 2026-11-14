@@ -69,6 +69,7 @@ final class FakeAssessmentStore implements AssessmentStore
                 'qr-encounter' => ['patient_id' => 7, 'encounter' => 5, 'questionnaire_foreign_id' => 1, 'questionnaire' => self::PHQ9],
                 'qr-unlinked' => ['patient_id' => 7, 'encounter' => null, 'questionnaire_foreign_id' => 0],
                 'qr-api' => ['patient_id' => '7', 'encounter' => null, 'questionnaire_foreign_id' => '1', 'questionnaire' => '', 'questionnaire_response' => ''],
+                'qr-api-orphan' => ['patient_id' => 7, 'encounter' => null, 'questionnaire_foreign_id' => 404, 'questionnaire' => ''],
             ],
         );
     }

@@ -165,6 +165,7 @@ class AssessmentSaveControllerTest extends TestCase
             "another patient's response" => [['response_id' => 'qr-other'], 'The QuestionnaireResponse does not belong to the selected patient.'],
             'encounter response' => [['response_id' => 'qr-encounter'], 'Encounter questionnaires cannot be updated from the patient assessment workspace.'],
             'linked to another questionnaire' => [['response_id' => 'qr-11', 'questionnaire_id' => '2'], 'QuestionnaireResponse repository linkage is invalid.'],
+            'API-saved, questionnaire gone' => [['response_id' => 'qr-api-orphan', 'questionnaire_id' => '404'], 'The Questionnaire this response answers was not found.'],
         ];
     }
 
@@ -179,6 +180,29 @@ class AssessmentSaveControllerTest extends TestCase
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame(['success' => false, 'message' => $message], self::body($response->getContent()));
+        $this->assertSame([], $this->store->saved);
+    }
+
+    /**
+     * field[]=x used to make InputBag::getString() throw, a 500 HTML page instead of a JSON refusal.
+     */
+    #[Test]
+    public function arrayFieldsAreRefusedNotFatal(): void
+    {
+        $token = CsrfUtils::collectCsrfToken($this->session);
+        $arrayResponse = Request::create('/native_save.php', 'POST', [
+            'csrf_token_form' => $token,
+            'questionnaire_id' => '1',
+            'response_id' => '',
+            'questionnaire_response' => ['x'],
+        ]);
+        $response = $this->controller()->dispatchAction($arrayResponse);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame(['success' => false, 'message' => 'QuestionnaireResponse data is missing.'], self::body($response->getContent()));
+
+        $arrayToken = Request::create('/native_save.php', 'POST', ['csrf_token_form' => [$token]]);
+        $response = $this->controller()->dispatchAction($arrayToken);
+        $this->assertSame(['success' => false, 'message' => 'Unable to save QuestionnaireResponse.'], self::body($response->getContent()));
         $this->assertSame([], $this->store->saved);
     }
 

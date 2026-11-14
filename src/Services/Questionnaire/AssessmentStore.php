@@ -57,7 +57,7 @@ interface AssessmentStore
     /**
      * Save a patient-level response, updating $responseId when given.
      *
-     * @return array{id: mixed, response_id: mixed, new: bool}
+     * @return array{id: ?int, response_id: string, new: bool} the record id (null if unknown) and response id
      */
     public function savePatientResponse(int $pid, string $responseJson, ?string $responseId, string $questionnaireJson): array;
 
