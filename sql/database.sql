@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 576
+-- v_database: 577
 --
 
 --
@@ -8292,6 +8292,8 @@ INSERT INTO `openemr_postcalendar_categories`(`pc_catid`, `pc_constant_id`, `pc_
   VALUES (14,'ophthalmological_services', 'Ophthalmological Services', '#febe89', 'Ophthalmological Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,14,'encounters|notes');
 INSERT INTO `openemr_postcalendar_categories`(`pc_catid`, `pc_constant_id`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`, `aco_spec`)
   VALUES (15,'group_therapy', 'Group Therapy' , '#adb5bd' , 'Group Therapy', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 0, 0, 0, 0, 3, 1, 15,'encounters|notes');
+INSERT INTO `openemr_postcalendar_categories`(`pc_catid`, `pc_constant_id`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`, `aco_spec`)
+  VALUES (16,'visit_list', 'Visit List', '#9ec5fe', 'Provider block holding an untimed, ordered list of patients for the day.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 28800, 1, 3, 2, 0, 0, 1, 1, 16,'encounters|notes');
 
 -- --------------------------------------------------------
 
@@ -8340,10 +8342,14 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_billing_location` SMALLINT (6) NOT NULL DEFAULT '0',
   `pc_room` varchar(20) NOT NULL DEFAULT '',
   `uuid` binary(16) DEFAULT NULL,
+  `pc_visit_list` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = untimed patient on a Visit List block with the same provider, date and time window',
+  `pc_visit_seq` int(11) DEFAULT NULL COMMENT 'Order of the patient on the Visit List',
+  `pc_visit_stop` int(11) DEFAULT NULL COMMENT 'Optional stop number; patients at one address share it',
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`),
   KEY `pc_eventDate` (`pc_eventDate`),
   KEY `pc_pid` (`pc_pid`),
+  KEY `pc_visit_list` (`pc_aid`,`pc_eventDate`,`pc_visit_list`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7;
 

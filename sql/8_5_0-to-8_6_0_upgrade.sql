@@ -482,3 +482,27 @@ WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
 #IfRow2D globals gl_name translation_preload_cache gl_value 0
 UPDATE `globals` SET `gl_value` = 'auto' WHERE `gl_name` = 'translation_preload_cache' AND `gl_value` = '0';
 #EndIf
+
+-- Visit List: a provider block holding an untimed, ordered list of patients for the day. A patient
+-- appointment belongs to a Visit List when its provider, date and time window match the block's;
+-- pc_visit_seq is its order on the list and pc_visit_stop an optional stop number (home visits).
+#IfMissingColumn openemr_postcalendar_events pc_visit_list
+ALTER TABLE `openemr_postcalendar_events` ADD `pc_visit_list` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = untimed patient on a Visit List block with the same provider, date and time window';
+#EndIf
+
+#IfMissingColumn openemr_postcalendar_events pc_visit_seq
+ALTER TABLE `openemr_postcalendar_events` ADD `pc_visit_seq` int(11) DEFAULT NULL COMMENT 'Order of the patient on the Visit List';
+#EndIf
+
+#IfMissingColumn openemr_postcalendar_events pc_visit_stop
+ALTER TABLE `openemr_postcalendar_events` ADD `pc_visit_stop` int(11) DEFAULT NULL COMMENT 'Optional stop number; patients at one address share it';
+#EndIf
+
+#IfNotIndex openemr_postcalendar_events pc_visit_list
+CREATE INDEX `pc_visit_list` ON `openemr_postcalendar_events` (`pc_aid`, `pc_eventDate`, `pc_visit_list`);
+#EndIf
+
+#IfNotRow openemr_postcalendar_categories pc_constant_id visit_list
+INSERT INTO `openemr_postcalendar_categories` (`pc_constant_id`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`, `aco_spec`)
+SELECT 'visit_list', 'Visit List', '#9ec5fe', 'Provider block holding an untimed, ordered list of patients for the day.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 28800, 1, 3, 2, 0, 0, 1, 1, COALESCE(MAX(`pc_seq`), 0) + 1, 'encounters|notes' FROM `openemr_postcalendar_categories`;
+#EndIf
