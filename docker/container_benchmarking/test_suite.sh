@@ -911,8 +911,10 @@ EOF
 
 # Test 5b: Swarm mode leader takeover. The first container claims the leader
 # lease with no database running, so its setup fails and it exits still
-# holding the lease. Two followers with a short LEADER_TIMEOUT must
-# see the lease go stale, exactly one must take over, and setup must complete.
+# holding the lease. Two followers with a shortened LEADER_TIMEOUT must see
+# the lease go stale, exactly one must take over, and setup must complete.
+# LEADER_TIMEOUT stays above the 60 s heartbeat the leader sends during
+# auto-configure, so a slow install is not mistaken for a stale leader.
 test_swarm_takeover() {
     local test_name="Swarm Mode Leader Takeover"
     log_test_start "${test_name}"
@@ -941,7 +943,7 @@ test_swarm_takeover() {
       OE_USER: admin
       OE_PASS: testpass123${flex_env_vars}
       SWARM_MODE: \"yes\"
-      LEADER_TIMEOUT: \"30\"
+      LEADER_TIMEOUT: \"90\"
     volumes:
       - swarm_sites:/var/www/localhost/htdocs/openemr/sites
     healthcheck:
@@ -1048,7 +1050,7 @@ EOF
     fi
     log_info "First container claimed the lease and stopped without finishing setup"
 
-    log_info "Starting the database and two followers (LEADER_TIMEOUT=30)..."
+    log_info "Starting the database and two followers (LEADER_TIMEOUT=90)..."
     # shellcheck disable=SC2310  # Error handling is explicit via if/return
     if ! run_docker_compose "${project}" -f docker-compose.yml up -d mysql openemr-a openemr-b 2>&1 | tee -a "${LOG_FILE}"; then
         swarm_takeover_fail "Failed to start the followers"
