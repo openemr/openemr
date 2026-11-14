@@ -81,11 +81,15 @@
 #                                                  would defeat the master-
 #                                                  freshest-harness intent).
 #                                                  No rel-branch copy needed.
-#   .github/workflows/docker-acceptance-only.yml   same rationale as the
-#                                                  workflow above (Phase 10c
-#                                                  docker-side recovery
-#                                                  workflow, same master-ref
-#                                                  guard, same design intent).
+# NOTE: docker-acceptance-only.yml was previously listed here as
+# master-only-firing (same rationale as acceptance-only.yml above).
+# G56 (openemr/openemr#15261) refactored acceptance-docker.yml's
+# workflow_call surface, and actionlint-docker on rel-branch copies
+# started catching the stale workflow_call contract in the rel-branch
+# docker-acceptance-only.yml copy. Moved to the synced list below
+# (see the docker-acceptance-only.yml entry alongside acceptance-
+# docker.yml). Runtime stays master-only via the workflow's own
+# --ref guard; sync just keeps the lint contract valid everywhere.
 #   .github/workflows/check-vendored-contracts.yml master-only-firing
 #                                                  (workflow_call reusable
 #                                                  invoked by external
@@ -333,6 +337,21 @@ files:
 # active-release-line concern).
 - path: .github/workflows/acceptance-docker.yml
   exclude-branches: [rel-800]
+# docker-acceptance-only.yml only FIRES from master (Phase 10c
+# recovery workflow with a `--ref master` guard; dispatching from a
+# rel branch is refused by that guard). Pre-G56 (openemr/openemr#15261)
+# we intentionally left the file unsynced to rel branches since no
+# runtime invariant depended on the rel-branch copy. But the file is
+# a workflow_call consumer of acceptance-docker.yml: whenever that
+# reusable's input surface changes, actionlint-docker on EVERY rel
+# branch lints the stale copy against the NEW reusable contract and
+# flags any input that no longer exists -- failing the sync PR's
+# pre-commit even though the file would never actually run. Syncing
+# it preserves the runtime invariant (the --ref master guard still
+# refuses non-master dispatch) AND keeps the lint contract valid
+# everywhere. Same rel-800 exclusion as its sibling.
+- path: .github/workflows/docker-acceptance-only.yml
+  exclude-branches: [rel-800]
 - path: .github/workflows/acceptance-package.yml
   exclude-branches: [rel-800]
 # Phase 10e-4 (openemr/openemr#TBD, 2026-07-30): detect-acceptance-mode.sh
@@ -349,25 +368,15 @@ files:
 # from acceptance-docker.yml at run-time against the branch's own
 # checkout, so every branch that carries the workflow must also carry
 # the scripts. Same rel-800 exclusion applies (that branch doesn't
-# carry acceptance-docker.yml). Third occurrence of the G45/G47 gap
-# class (script referenced by synced workflow but itself not in
-# manifest); adding the three entries preemptively per the pattern.
-- path: .github/scripts/detect-upgrade-cell-skip.sh
-  exclude-branches: [rel-800]
-# Sourced lib used by detect-upgrade-cell-skip.sh (and by
-# docker-release-orchestrator.yml's between-cycles tolerance step) --
-# both consumers rely on master_row_carries_next() reading
-# release-targets.yml identically, so the lib must sync with every
-# branch that carries either consumer.
-- path: .github/scripts/lib/release-targets-queries.sh
-  exclude-branches: [rel-800]
-# Sourced lib used by detect-acceptance-mode.sh (package side) AND
-# acceptance-docker.yml's resolve-from-tag step (docker side) --
-# both consumers derive per-row from_version from the checkout's
-# sql/*-to-*_upgrade.sql filenames via the same predicate, so the
-# lib must sync with every branch that carries either consumer.
-# Same rel-800 exclusion applies (rel-800 pre-dates the
-# acceptance-docker.yml surface and detect-acceptance-mode.sh too).
+# carry acceptance-docker.yml).
+# Sourced lib used by detect-acceptance-mode.sh (package side, sql-
+# derivation) AND acceptance-docker.yml's resolve-from-tag step
+# (docker side, fsupgrade-derivation via derive_from_version_fsupgrade).
+# Both consumers derive per-row from_version from the checkout's
+# own scaffolding, so the lib must sync with every branch that
+# carries either consumer. Same rel-800 exclusion applies (rel-800
+# pre-dates the acceptance-docker.yml surface and detect-acceptance-
+# mode.sh too).
 - path: .github/scripts/lib/derive-from-version.sh
   exclude-branches: [rel-800]
 - path: .github/scripts/parse-artifact-version.sh
