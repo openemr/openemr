@@ -17,7 +17,14 @@ use OpenEMR\Common\Database\QueryUtils;
  */
 class TranslationCache
 {
-    /** @var array<int, array<string, string>> Cache indexed by language ID */
+    /**
+     * Name of the hidden global (not listed in globals.inc.php) whose value is
+     * part of every shared-cache key. Bumping it makes every server and pod
+     * ignore the languages it has cached.
+     */
+    public const VERSION_GLOBAL = 'translation_cache_version';
+
+    /** @var array<int, array<array-key, string>> Cache indexed by language ID */
     private static array $cache = [];
 
     /** @var array<int, true> Languages whose definitions have all been loaded */
@@ -31,7 +38,28 @@ class TranslationCache
         if (isset(self::$warmed[$langId])) {
             return;
         }
+        self::warmWith($langId, self::loadDefinitions($langId));
+    }
 
+    /**
+     * Mark a language as fully loaded with the given definitions (for example
+     * from a shared cache).
+     *
+     * @param array<array-key, string> $definitions Keyed by constant name
+     */
+    public static function warmWith(int $langId, array $definitions): void
+    {
+        self::$cache[$langId] = $definitions;
+        self::$warmed[$langId] = true;
+    }
+
+    /**
+     * Read all of a language's definitions from the database.
+     *
+     * @return array<array-key, string> Keyed by constant name
+     */
+    public static function loadDefinitions(int $langId): array
+    {
         // STRAIGHT_JOIN keeps MariaDB reading only this language's rows through
         // the lang_cons index. Without it, a large language sometimes got a plan
         // that scanned every constant and probed definitions in all languages
@@ -44,9 +72,28 @@ class TranslationCache
                 ON lang_constants.cons_id = lang_definitions.cons_id
              WHERE lang_definitions.lang_id = ?
             SQL;
-        $rows = QueryUtils::fetchRecordsNoLog($sql, [$langId]);
-        self::$cache[$langId] = array_column($rows, 'definition', 'constant_name');
-        self::$warmed[$langId] = true;
+        $definitions = [];
+        foreach (QueryUtils::fetchRecordsNoLog($sql, [$langId]) as $row) {
+            $constant = $row['constant_name'] ?? null;
+            $definition = $row['definition'] ?? null;
+            if ((is_string($constant) || is_int($constant)) && is_string($definition)) {
+                $definitions[$constant] = $definition;
+            }
+        }
+        return $definitions;
+    }
+
+    /**
+     * Invalidate every server's shared cache of translations. Call after
+     * changing lang_definitions.
+     */
+    public static function bumpSharedVersion(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES (?, 0, ?)'
+            . ' ON DUPLICATE KEY UPDATE `gl_value` = VALUES(`gl_value`)',
+            [self::VERSION_GLOBAL, bin2hex(random_bytes(8))]
+        );
     }
 
     /**

@@ -12,7 +12,9 @@
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Translation\ApcuTranslationStore;
 use OpenEMR\Common\Translation\TranslationCache;
+use OpenEMR\Common\Translation\TranslationDefinitionsLoader;
 use OpenEMR\Common\Translation\TranslationPreloadMode;
 use OpenEMR\Common\Translation\TranslationPreloadPolicy;
 use OpenEMR\Core\OEGlobalsBag;
@@ -38,8 +40,10 @@ if (!(function_exists('xlWarmCache'))) {
     /**
      * Load all translations for the current language into the translation
      * cache when the translation_preload_cache global calls for it (Always,
-     * or Auto for a language with few definitions such as English). Called
-     * early in each request from interface/globals.php.
+     * or Auto for a language with few definitions such as English, or for
+     * any language when APCu is available). With APCu the language is read
+     * from the shared cache, and the database only on a miss. Called early in
+     * each request from interface/globals.php.
      */
     function xlWarmCache(): void
     {
@@ -55,14 +59,29 @@ if (!(function_exists('xlWarmCache'))) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $lang_id = xlLanguageId();
 
+        $shared = ApcuTranslationStore::isAvailable() ? new ApcuTranslationStore() : null;
         $policy = new TranslationPreloadPolicy(TranslationCache::countDefinitions(...));
-        $decision = $policy->decide($mode, $lang_id, $session->get(TranslationPreloadPolicy::SESSION_KEY));
+        $decision = $policy->decide(
+            $mode,
+            $lang_id,
+            $session->get(TranslationPreloadPolicy::SESSION_KEY),
+            $shared !== null
+        );
         if ($decision->remember !== null) {
             SessionUtil::setSession(TranslationPreloadPolicy::SESSION_KEY, $decision->remember);
         }
-        if ($decision->preload) {
-            TranslationCache::warm($lang_id);
+        if (!$decision->preload || TranslationCache::isWarmed($lang_id)) {
+            return;
         }
+        $loader = new TranslationDefinitionsLoader(
+            $shared,
+            TranslationDefinitionsLoader::keyPrefix(
+                $globals->getString('OE_SITE_DIR'),
+                $globals->getString(TranslationCache::VERSION_GLOBAL)
+            ),
+            TranslationCache::loadDefinitions(...)
+        );
+        TranslationCache::warmWith($lang_id, $loader->load($lang_id));
     }
 }
 

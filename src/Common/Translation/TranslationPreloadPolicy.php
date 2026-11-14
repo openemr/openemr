@@ -8,8 +8,10 @@
  * few definitions (about 0.3 ms for English versus up to ~1,500 single-row
  * queries on a heavy page), but a fully translated language costs about
  * 40 ms and 3 MB per request, more than the ~20 lookups of a light page or
- * AJAX call. Auto mode therefore preloads only languages at or below
- * AUTO_MAX_DEFINITIONS, and counts a language's definitions once per session.
+ * AJAX call. Without a shared cache, Auto mode therefore preloads only
+ * languages at or below AUTO_MAX_DEFINITIONS, and counts a language's
+ * definitions once per session. With a shared cache (APCu) a full language
+ * copies in for a few milliseconds, so Auto preloads every language.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -46,12 +48,20 @@ final readonly class TranslationPreloadPolicy
      * @param mixed $remembered The session value stored under SESSION_KEY by
      *        an earlier request, or null.
      */
-    public function decide(TranslationPreloadMode $mode, int $langId, mixed $remembered): TranslationPreloadDecision
-    {
+    public function decide(
+        TranslationPreloadMode $mode,
+        int $langId,
+        mixed $remembered,
+        bool $sharedCacheAvailable = false,
+    ): TranslationPreloadDecision {
         return match ($mode) {
             TranslationPreloadMode::Off => new TranslationPreloadDecision(false),
             TranslationPreloadMode::Always => new TranslationPreloadDecision(true),
-            TranslationPreloadMode::Auto => $this->decideAuto($langId, $remembered),
+            // With a shared cache a full language costs a few milliseconds to
+            // copy in, so Auto preloads every language without counting.
+            TranslationPreloadMode::Auto => $sharedCacheAvailable
+                ? new TranslationPreloadDecision(true)
+                : $this->decideAuto($langId, $remembered),
         };
     }
 
