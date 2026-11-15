@@ -359,10 +359,20 @@
     }
     #bigCal .calendar_day .event:not(.event_visit_list) {
         line-height: 18px;
+        padding-inline-start: 0.25rem;
     }
-    /* The patient icon a little smaller than the name beside it. */
+    /* Hovering an appointment makes its text bold and its border darker, but leaves
+       the box where it is: the theme's hover style pulls it up and left (a negative
+       margin) and thickens two borders, which moved it off its time. */
+    #bigCal .calendar_day .event.event_highlight {
+        border-width: 1px;
+        margin: 0;
+    }
+    /* The patient icon a little smaller than the name beside it, with a space's room
+       on each side, as the dash before it has. */
     #bigCal .calendar_day .event .link_title > i {
         font-size: 0.8em;
+        margin-inline: 0.25rem;
     }
     /* Day view: the times' top row (the provider icon) and each provider's name bar
        above its appointments are the same height, so the first time and the top of
