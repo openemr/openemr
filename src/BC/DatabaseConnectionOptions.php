@@ -95,7 +95,7 @@ final readonly class DatabaseConnectionOptions
     /**
      * Creates options for a site by loading its sqlconf.php file.
      *
-     * The result is kept for the rest of the request (process). A request
+     * The result is kept for the rest of the request. A request
      * asks for it from several places (sql.inc.php, Database, the audit
      * logger, Gacl), and each read is a sqlconf.php load plus four cert file
      * checks, which on a network filesystem are round trips to the server.
