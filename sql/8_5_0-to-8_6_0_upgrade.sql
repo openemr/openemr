@@ -133,6 +133,12 @@ CREATE INDEX `list_id` ON `issue_encounter` (`list_id`);
 CREATE INDEX `response_id` ON `form_questionnaire_assessments` (`response_id`(64));
 #EndIf
 
+-- Drug sales are read by patient and encounter (balances, checkout, the encounters report),
+-- often once per encounter row, and without this each read scans the whole table.
+#IfNotIndex drug_sales pid_encounter
+CREATE INDEX `pid_encounter` ON `drug_sales` (`pid`, `encounter`);
+#EndIf
+
 -- No desire to become pregnant was seeded with the code for Ambivalent (454391000124108).
 -- 454401000124105 is No desire to become pregnant (finding).
 #IfRow3D list_options list_id pregnancy_intent option_id no_desire codes SNOMED-CT:454391000124108

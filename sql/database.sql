@@ -1574,7 +1574,8 @@ CREATE TABLE `drug_sales` (
   `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id for user that last updated this entry',
   `created_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id for user that created this entry',
   PRIMARY KEY  (`sale_id`),
-  UNIQUE INDEX `uuid` (`uuid`)
+  UNIQUE INDEX `uuid` (`uuid`),
+  KEY `pid_encounter` (`pid`, `encounter`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------

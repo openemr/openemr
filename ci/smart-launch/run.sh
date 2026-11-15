@@ -127,10 +127,10 @@ configure_smart_questionnaire_in_container() {
 }
 
 set_smoke_globals() {
-    echo 'Setting smoke-specific globals (site_addr_oath + smart_context_test_launches)'
+    echo 'Setting smoke-specific globals (site_addr_oath + smart_context_test_launches + patient-write mode)'
     # install_configure already enabled rest_api / rest_fhir_api /
     # rest_portal_api / oauth_password_grant / rest_system_scopes_api
-    # (see ciLibrary.source). Two globals it does not set that this
+    # (see ciLibrary.source). The globals it does not set that this
     # smoke needs:
     #   - site_addr_oath: the OAuth2 issuer URL. For this smoke it
     #     must match what both the browser (via selenium) and the SMART
@@ -143,12 +143,28 @@ set_smoke_globals() {
     #     interface/smart/ehr-launch-client.php with the client_id +
     #     csrf_token + intent those buttons expose; off-by-default
     #     elsewhere so no production footprint from flipping it here.
+    #   - fhir_patient_write_mode + fhir_patient_write_questionnaire_response:
+    #     off by default, which hides patient-tier `.cu` scopes from
+    #     OpenEMR's SMART discovery. `register.php --portal` then can't
+    #     register a portal client with QuestionnaireResponse write, and
+    #     the companion app's index.php renders `button#sq-new` hidden
+    #     (app.js: `buttons.new.hidden = !canSend`, where canSend reads
+    #     `$session->canCreate('QuestionnaireResponse')` which parses
+    #     the token's granted scopes). The portal round-trip test needs
+    #     these on so the user story (patient fills form → POST
+    #     QuestionnaireResponse) actually executes. `confidential` is
+    #     the narrow setting that admits the portal client (which is
+    #     client_secret_post-authenticated, not public).
     docker compose exec -T mysql mariadb -u root --password=root openemr -e "
         INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('site_addr_oath', 0, 'https://openemr')
           ON DUPLICATE KEY UPDATE gl_value=VALUES(gl_value);
         INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('smart_context_test_launches', 0, '1')
           ON DUPLICATE KEY UPDATE gl_value=VALUES(gl_value);
         INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('portal_onsite_two_enable', 0, '1')
+          ON DUPLICATE KEY UPDATE gl_value=VALUES(gl_value);
+        INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('fhir_patient_write_mode', 0, 'confidential')
+          ON DUPLICATE KEY UPDATE gl_value=VALUES(gl_value);
+        INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('fhir_patient_write_questionnaire_response', 0, '1')
           ON DUPLICATE KEY UPDATE gl_value=VALUES(gl_value);
     "
     # portal_onsite_two_enable gates the browser-facing patient portal
