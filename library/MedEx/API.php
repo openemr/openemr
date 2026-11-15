@@ -2471,7 +2471,7 @@ class Display extends Base
                 } elseif ($progress['msg_type'] == 'postcards') {
                     $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Postcard printed by') . " " . text($who_name) . "'><b>" . xlt('Postcard') . ":</b> " . text($when) . "</span></br />\n";
                 } elseif ($progress['msg_type'] == 'labels') {
-                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Label printed by') . " " . text($who) . "'><b>" . xlt('Label') . ":</b> " . text($when) . "</span></br />";
+                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Label printed by') . " " . text($who_name) . "'><b>" . xlt('Label') . ":</b> " . text($when) . "</span></br />";
                 }
             } else {
                 $who_name = "MedEx";
