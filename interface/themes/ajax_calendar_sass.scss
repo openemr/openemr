@@ -503,12 +503,15 @@ $side-calendar-date-padding: 0.3rem !default;
 
     // A Visit List block. It keeps its time span, like any appointment, so it never
     // covers what comes after it; a list longer than the span scrolls inside it.
+    // Layered like a timed appointment, so its header and rows, not what lies under
+    // them, get the pointer.
     &_visit_list {
       background-color: $white;
       border: 1px solid $primary;
       border-radius: 0.25rem;
       overflow-y: auto;
       padding: 0.125rem;
+      z-index: 2;
     }
   }
 
