@@ -91,15 +91,49 @@ dedicated flow in this smoke, and SMART launch is covered by the sibling
     `QueryUtils` that are awkward to replicate as raw SQL. The driver
     cleans up its fixture rows + its own `oauth_clients` row in a
     finally block.
+11. Runs **`driver-refresh.php`** (Guzzle, no browser): DCR a confidential
+    client with `offline_access`, DB-flip to `password refresh_token`,
+    mint an initial bearer + refresh_token via password grant, exchange
+    the refresh_token for a rotated access+refresh pair, GET FHIR Patient
+    with the rotated access_token (proves refresh-issued bearer carries
+    the original scope set), then exercise two negatives — (a) replay
+    the ORIGINAL refresh_token after rotation must return
+    `error=invalid_grant` (single-use enforcement in
+    `CustomRefreshTokenGrant`); (b) refresh with a DIFFERENT client's
+    credentials must return `error=invalid_grant` (refresh-token-to-
+    client binding). Closes the explicit "no dedicated refresh-token
+    flow" gap this README previously called out.
+12. Runs **`driver-introspection.php`** (Guzzle, no browser): DCR +
+    DB-flip to password-grant, mint a bearer, POST to
+    `/oauth2/default/introspect` and assert `active=true` + the scope
+    string includes the scope the bearer was issued with. Then two
+    negatives — (a) a bogus random-string token must return HTTP 200 +
+    `active=false` per RFC 7662 §2.2 (NOT a 4xx — the endpoint absorbs
+    bogus tokens by design); (b) introspection without client auth
+    must be rejected (anyone could probe arbitrary bearers otherwise).
+    Lifecycle-endpoint coverage none of the other drivers touch.
+13. Runs **`driver-pkce-negative.php`** (Guzzle, no browser, drives the
+    /authorize + login + consent flow via Guzzle + DomCrawler): DCR a
+    public client with patient-only scopes (triggers OpenEMR's public-
+    client DCR branch — no client_secret issued), generate PKCE
+    verifier A + S256 challenge A, drive /authorize + login + consent
+    to capture an authorization code, then POST /token with the code +
+    an INDEPENDENT verifier B. Asserts HTTP 400 + `error=invalid_grant`
+    at the token endpoint — proves the server computes SHA256(verifier)
+    and compares against the stored challenge instead of accepting any
+    verifier. Only negative driver in the api-explorer smoke; all other
+    drivers exercise happy paths.
 
-Total runtime ~4 min on top of the stack boot. The smoke exercises paths
+Total runtime ~5 min on top of the stack boot. The smoke exercises paths
 unit tests cannot reach (RFC 7591 DCR, JWT assertion generation + validation,
 system-scope FHIR reads, authorize + consent UI, PKCE verifier at the token
-endpoint, password-grant token issuance against user_role=users, FHIR
-write-path POST / PUT / GET with persistence verification, portal-API read
-with a patient-role bearer) from a client the server has no awareness of
-until registration time, which is as close to "real external app" as you
-can get in CI.
+endpoint — both happy and wrong-verifier-reject, password-grant token
+issuance against user_role=users, FHIR write-path POST / PUT / GET with
+persistence verification, portal-API read with a patient-role bearer,
+refresh-token rotation + single-use + wrong-client reject, RFC 7662 token
+introspection with client-auth gate) from a client the server has no
+awareness of until registration time, which is as close to "real external
+app" as you can get in CI.
 
 ## What the smoke does **not** do
 
@@ -109,6 +143,10 @@ can get in CI.
   is a round-trip, not a conformance sweep — it exercises one resource
   (CareTeam) at POST + PUT + GET to catch write-path OAuth regressions
   from an external client, not every write route.
+- No `/revoke` coverage. RFC 7009 is unimplemented / unadvertised in
+  OpenEMR as of this writing — see §8.3 of the OAuth2/FHIR API audit
+  doc. If/when it lands, a sibling driver exercises the shape this
+  file established for `/introspect`.
 
 ## Upstream tracking
 
@@ -141,12 +179,15 @@ those as the `api-explorer-driver-browser-postmortem` artifact.
 
 | File | Purpose |
 |------|---------|
-| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke all five drivers. |
+| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke all eight drivers. |
 | `driver.php` | Guzzle round-trip: DCR + JWT client-credentials FHIR Patient read. |
 | `driver-browser.php` | Panther/Selenium round-trip: confidential auth-code + public PKCE flows. |
 | `driver-password.php` | Guzzle round-trip: DCR + DB-flip + password-grant token + FHIR Patient read. |
 | `driver-fhir-writes.php` | Guzzle round-trip: DCR + DB-flip + password-grant token + FHIR CareTeam POST + PUT + GET persistence read-back. |
 | `driver-portal.php` | Guzzle round-trip + OE bootstrap: portal patient fixture + DCR + DB-flip + password-grant (user_role=patient) + `/apis/default/portal/patient` read. |
+| `driver-refresh.php` | Guzzle: DCR + DB-flip password+refresh_token + initial token with offline_access + refresh-token rotation + original-refresh-replay reject + wrong-client-refresh reject. |
+| `driver-introspection.php` | Guzzle: DCR + DB-flip password + mint bearer + `/introspect` live-bearer + bogus-token (active=false) + unauth (4xx reject). |
+| `driver-pkce-negative.php` | Guzzle: DCR public client + drive /authorize + login + consent to capture code + `/token` with WRONG code_verifier (expect `invalid_grant`). |
 | `seed-globals.sql` | REPLACE INTO globals rows the smoke requires. Keys backed by `src/Services/Globals/GlobalConnectorsEnum.php`. |
 
 ## Credits

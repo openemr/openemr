@@ -118,3 +118,12 @@ echo "==> Running driver-portal (portal patient password grant + /portal/patient
 # PortalPatientFixtureManager; globals.php's RootCliGuard refuses to run
 # under uid=0. Drop to apache (same uid phpunit tests run under).
 openemr-cmd e 'su -s /bin/sh apache -c "php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-portal.php"'
+
+echo "==> Running driver-refresh (refresh-token rotation + single-use + wrong-client negatives)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-refresh.php'
+
+echo "==> Running driver-introspection (RFC 7662 /introspect + bogus-token + unauth negatives)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-introspection.php'
+
+echo "==> Running driver-pkce-negative (public-client authorize + consent + /token wrong-verifier reject)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-pkce-negative.php'
