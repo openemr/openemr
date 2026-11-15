@@ -38,7 +38,9 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
  * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @author David Eschelbacher <psoas@tampabay.rr.com>
  * @link https://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . '/../../globals.php');
