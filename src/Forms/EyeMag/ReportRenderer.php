@@ -362,7 +362,8 @@ class ReportRenderer
         if ($pdfOutput) {
             // A one-cell table: mPDF shrinks a div's background to its text inside a
             // table cell, and carries the white text colour into the next line.
-            echo '<table style="width:100%;border-collapse:collapse;margin-bottom:3pt;"><tr><td class="rpt-h">' . text($title) . '</td></tr></table>';
+            // page-break-after:avoid keeps this header on the same page as the data below.
+            echo '<table style="width:100%;border-collapse:collapse;margin-bottom:3pt;"><tr style="page-break-after:avoid;"><td class="rpt-h">' . text($title) . '</td></tr></table>';
         } else {
             echo '<div class="eye-report-heading">' . text($title) . '</div>';
         }
@@ -458,8 +459,9 @@ class ReportRenderer
                 continue;
             }
             // The 10pt row gap and the 5mm gutter keep neighbouring zones visually apart.
+            // Keep the heading with the content that follows it.
             echo '<table class="rpt-pdf" style="width:100%;border-collapse:collapse;margin-top:10pt;">'
-            . ($heading !== '' ? '<tr><td colspan="2" style="padding:0;">' . $heading . '</td></tr>' : '')
+            . ($heading !== '' ? '<tr style="page-break-after:avoid;"><td colspan="2" style="padding:0;">' . $heading . '</td></tr>' : '')
             . '<tr>'
             . '<td style="width:50%;vertical-align:top;padding:0 2.5mm 0 0;">' . $left . '</td>'
             . '<td style="width:50%;vertical-align:' . ($is_drawing ? 'middle' : 'top') . ';text-align:' . ($is_drawing ? 'center' : 'left') . ';padding:0 0 0 2.5mm;">' . ($right ?? '') . '</td>'
