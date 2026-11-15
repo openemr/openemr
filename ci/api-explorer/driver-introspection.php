@@ -281,20 +281,36 @@ try {
 // RFC 7662 §2.1 requires authenticated introspection requests; §2.2
 // gives servers discretion on how to signal rejection. Two shapes are
 // acceptable: (a) 4xx status (hard reject), (b) 200 with
-// {"active":false} (absorb-as-bogus — the same shape a valid request
-// with an unknown token returns, which is actually preferable because
-// it leaks less about which clients + tokens the server knows). The
-// critical property is that the endpoint MUST NOT reveal the bearer's
-// details (scope, exp, sub, aud) without authenticated client proof —
-// that is what a 200+active:true response would mean.
+// {"active":false} AND NO bearer-claim fields (absorb-as-bogus — the
+// same shape a valid request with an unknown token returns, which is
+// actually preferable because it leaks less about which clients +
+// tokens the server knows).
+//
+// The critical property is that the endpoint MUST NOT reveal the
+// bearer's details (scope, exp, sub, aud, client_id, username)
+// without authenticated client proof. active=true would surface
+// them; active=false alongside scope/sub/exp claims would ALSO
+// surface them (same leak, different wrapper). Both failure modes
+// have to be rejected here — rabbit (correctly) flagged that an
+// earlier version of this check only caught active=true.
+$unauthStatus = $unauthResponse->getStatusCode();
 $unauthBody = json_decode((string) $unauthResponse->getBody(), true);
-$revealedBearerDetails = is_array($unauthBody) && ($unauthBody['active'] ?? null) === true;
-if ($revealedBearerDetails) {
-    fwrite(STDERR, "FAIL unauth introspect returned 200 + active=true — client-auth gate regression\n");
+$isRejected4xx = $unauthStatus >= 400 && $unauthStatus < 500;
+$isInactiveWithoutClaims = $unauthStatus === 200
+    && is_array($unauthBody)
+    && ($unauthBody['active'] ?? null) === false
+    && !array_intersect_key($unauthBody, array_flip(['scope', 'exp', 'sub', 'aud', 'client_id', 'username']));
+if (!$isRejected4xx && !$isInactiveWithoutClaims) {
+    fwrite(
+        STDERR,
+        "FAIL unauth introspect was neither a 4xx rejection nor a bare active=false "
+            . "(HTTP {$unauthStatus}) — a response that smuggles bearer claims alongside "
+            . "active=false still leaks what the client-auth gate was supposed to protect\n"
+    );
     fwrite(STDERR, substr((string) $unauthResponse->getBody(), 0, 2000) . "\n");
     exit(19);
 }
-echo "       OK  (HTTP {$unauthResponse->getStatusCode()}, bearer details not revealed)\n\n";
+echo "       OK  (HTTP {$unauthStatus}, bearer details not revealed)\n\n";
 
 echo "PASS  oe-module-api-explorer introspection round-trip + 2 negatives succeeded.\n";
 exit(0);

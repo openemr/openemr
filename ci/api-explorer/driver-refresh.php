@@ -294,6 +294,16 @@ echo "       OK  (Bundle total = {$m[1]})\n\n";
 // ---------------------------------------------------------------------------
 // 6. (NEGATIVE) The ORIGINAL refresh_token must no longer work — single-use
 //    enforcement.
+//
+//    Sequential replay only. A concurrent-redemption case (two refreshes
+//    firing against the same unused token before the first commits its
+//    invalidation) would strengthen this against a TOCTOU regression in
+//    CustomRefreshTokenGrant, but the server's single-use is DB-guarded at
+//    the row level and a timing-dependent test would introduce CI flake
+//    without materially improving regression detection. Rabbit flagged this
+//    as Trivial + Heavy lift — the trade-off doesn't pay off at the smoke
+//    tier. The in-tree PasswordGrantMfaRefreshFlowTest covers refresh-token
+//    single-use with a more controlled test harness.
 // ---------------------------------------------------------------------------
 echo "[5/7] NEGATIVE — reuse of the original refresh_token must be rejected...\n";
 try {
