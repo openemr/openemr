@@ -113,16 +113,44 @@ final class VisitListService
     }
 
     /**
+     * An appointment's copies as they are now, read before the editor saves it so that
+     * place() can find them and keep each one's start time afterwards.
+     */
+    public function copiesBefore(int $eventId): VisitListCopies
+    {
+        if ($eventId <= 0) {
+            throw new DomainException('Visit List patient event ID must be positive');
+        }
+
+        $multiple = null;
+        $startByProvider = [];
+        foreach ($this->copyRows($eventId, null) as $row) {
+            $multiple ??= self::positiveInt($row['pc_multiple'] ?? null);
+            $providerId = self::positiveInt($row['pc_aid'] ?? null);
+            $start = self::startOf($row);
+            if ($providerId !== null && $start !== null) {
+                $startByProvider[$providerId] = $start;
+            }
+        }
+        return new VisitListCopies($multiple, $startByProvider);
+    }
+
+    /**
      * Mark an appointment as a Visit List patient with its Order # and Stop #, along with the
      * copies of it for other providers (a multi-provider appointment shares pc_multiple). A
      * Visit List patient has no time of its own, so each loses any duration.
      *
-     * Each copy keeps its provider and date, which decide the list it belongs on. When no
-     * Visit List block of that provider claims its start time on that date (its date or
-     * provider was changed), it moves to the start of the provider's first block that day.
-     * With no block that day it keeps its time.
+     * Pass the copies as they were before the save ($before) when the editor saved an existing
+     * appointment. The copies are then found by their group even when the editor deleted the
+     * copy it opened, and a copy whose provider and date are unchanged keeps its own start time
+     * rather than the one the editor wrote to every copy.
+     *
+     * Each copy's provider and date decide the list it belongs on. When no Visit List block of
+     * that provider claims its start time on that date (its date or provider was changed), it
+     * moves to the start of the provider's first block that day. With no block that day it
+     * keeps its time.
      */
-    public function place(int $eventId, ?int $sequence, ?int $stop): void
+    public function place(int $eventId, ?int $sequence, ?int $stop, ?VisitListCopies $before = null): void
     {
         if ($eventId <= 0) {
             throw new DomainException('Visit List patient event ID must be positive');
@@ -134,23 +162,18 @@ final class VisitListService
             throw new DomainException('Visit List stop must be positive');
         }
 
-        $rows = ($this->fetchRecords)(
-            'SELECT `pc_eid`, `pc_aid`, `pc_eventDate`, `pc_startTime` FROM `openemr_postcalendar_events`'
-            . ' WHERE `pc_eid` = ? OR (`pc_multiple` > 0 AND `pc_multiple` ='
-            . ' (SELECT `m`.`pc_multiple` FROM `openemr_postcalendar_events` AS `m` WHERE `m`.`pc_eid` = ?))',
-            [$eventId, $eventId]
-        );
-
-        foreach ($rows as $row) {
+        foreach ($this->copyRows($eventId, $before?->multiple) as $row) {
             $copyId = self::positiveInt($row['pc_eid'] ?? null);
             if ($copyId === null) {
                 continue;
             }
             $start = self::startOf($row);
             $providerId = self::positiveInt($row['pc_aid'] ?? null);
-            $startTime = $start === null || $providerId === null
-                ? null
-                : $this->startOnABlock($providerId, $start)->format('H:i:s');
+            $startTime = null;
+            if ($start !== null && $providerId !== null) {
+                $start = $before?->startOn($providerId, $start) ?? $start;
+                $startTime = $this->startOnABlock($providerId, $start)->format('H:i:s');
+            }
 
             ($this->execute)(
                 'UPDATE `openemr_postcalendar_events` SET `pc_visit_list` = 1, `pc_visit_seq` = ?, `pc_visit_stop` = ?,'
@@ -159,6 +182,25 @@ final class VisitListService
                 [$sequence, $stop, $startTime, $copyId]
             );
         }
+    }
+
+    /**
+     * The appointment and the copies sharing its pc_multiple, or sharing the given group when
+     * one is known (the appointment itself may be gone).
+     *
+     * @return list<array<mixed>>
+     */
+    private function copyRows(int $eventId, ?int $multiple): array
+    {
+        $columns = 'SELECT `pc_eid`, `pc_aid`, `pc_multiple`, `pc_eventDate`, `pc_startTime` FROM `openemr_postcalendar_events`';
+        if ($multiple !== null) {
+            return ($this->fetchRecords)($columns . ' WHERE `pc_eid` = ? OR `pc_multiple` = ?', [$eventId, $multiple]);
+        }
+        return ($this->fetchRecords)(
+            $columns . ' WHERE `pc_eid` = ? OR (`pc_multiple` > 0 AND `pc_multiple` ='
+            . ' (SELECT `m`.`pc_multiple` FROM `openemr_postcalendar_events` AS `m` WHERE `m`.`pc_eid` = ?))',
+            [$eventId, $eventId]
+        );
     }
 
     /**

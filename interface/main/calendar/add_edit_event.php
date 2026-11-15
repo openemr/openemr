@@ -464,6 +464,17 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate")) {
     DOBandEncounter($eid);
 }
 
+// A Visit List patient being saved: note its copies before the save changes them, so that
+// they can be placed on their lists afterwards (see the end of the save).
+$visitListInput = CurrentRequest::get()->request;
+$visitListService = new VisitListService();
+$visitListEventId = filter_var($eid, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$visitListCopiesBefore = $visitListInput->getString('form_action') === 'save'
+    && $visitListInput->getString('form_visit_list') === '1'
+    && is_int($visitListEventId)
+    ? $visitListService->copiesBefore($visitListEventId)
+    : null;
+
 // If we are saving, then save and close the window.
 //
 if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
@@ -832,7 +843,6 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
 
 // A Visit List patient: record its place on the list. It keeps the block's start time and no
 // duration, so the provider, date and time put it on the block's list.
-$visitListInput = CurrentRequest::get()->request;
 $visitListEventId = filter_var($eid, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 if (
     in_array($visitListInput->getString('form_action'), ['save', 'duplicate'], true)
@@ -843,10 +853,11 @@ if (
         $number = filter_var(trim($value), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         return $number === false ? null : $number;
     };
-    (new VisitListService())->place(
+    $visitListService->place(
         $visitListEventId,
         $visitListNumber($visitListInput->getString('form_visit_seq')),
-        $visitListNumber($visitListInput->getString('form_visit_stop'))
+        $visitListNumber($visitListInput->getString('form_visit_stop')),
+        $visitListCopiesBefore
     );
 }
 

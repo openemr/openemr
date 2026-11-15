@@ -20,6 +20,7 @@ namespace OpenEMR\Tests\Isolated\Appointment\VisitList;
 
 use DateTimeImmutable;
 use DomainException;
+use OpenEMR\Appointment\VisitList\VisitListCopies;
 use OpenEMR\Appointment\VisitList\VisitListEntry;
 use OpenEMR\Appointment\VisitList\VisitListService;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -334,9 +335,103 @@ class VisitListServiceTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private static function appointmentRow(int $eid, int $provider, string $date, string $start): array
+    private static function appointmentRow(int $eid, int $provider, string $date, string $start, int $multiple = 0): array
     {
-        return ['pc_eid' => (string) $eid, 'pc_aid' => (string) $provider, 'pc_eventDate' => $date, 'pc_startTime' => $start];
+        return [
+            'pc_eid' => (string) $eid,
+            'pc_aid' => (string) $provider,
+            'pc_multiple' => (string) $multiple,
+            'pc_eventDate' => $date,
+            'pc_startTime' => $start,
+        ];
+    }
+
+    public function testCopiesBeforeNotesTheGroupAndEachProvidersStart(): void
+    {
+        $statements = [];
+        $service = $this->placingService(
+            [self::appointmentRow(42, 7, '2026-03-09', '09:00:00', 77), self::appointmentRow(43, 8, '2026-03-09', '13:00:00', 77)],
+            [],
+            $statements
+        );
+
+        $copies = $service->copiesBefore(42);
+
+        $this->assertSame(77, $copies->multiple);
+        $this->assertSame('2026-03-09 13:00', $copies->startByProvider[8]->format('Y-m-d H:i'));
+        $this->assertSame([], $statements, 'nothing is written');
+    }
+
+    public function testCopiesBeforeOfASingleProviderAppointmentHasNoGroup(): void
+    {
+        $statements = [];
+        $service = $this->placingService([self::appointmentRow(42, 7, '2026-03-09', '09:00:00')], [], $statements);
+
+        $this->assertNull($service->copiesBefore(42)->multiple);
+    }
+
+    public function testPlaceFindsTheCopiesByTheirGroupWhenTheOpenedCopyWasDeleted(): void
+    {
+        // The editor removed provider 7, deleting copy 42, and added provider 9 as copy 44.
+        $statements = [];
+        $service = $this->placingService(
+            [self::appointmentRow(43, 8, '2026-03-09', '09:00:00', 77), self::appointmentRow(44, 9, '2026-03-09', '09:00:00', 77)],
+            [],
+            $statements
+        );
+        $before = new VisitListCopies(77, [
+            7 => new DateTimeImmutable('2026-03-09 09:00'),
+            8 => new DateTimeImmutable('2026-03-09 09:00'),
+        ]);
+
+        $service->place(42, 2, null, $before);
+
+        $this->assertSame([42, 77], $this->queries[0][1], 'asks for the copies of the group noted before the save');
+        $this->assertSame([[2, null, '09:00:00', 43], [2, null, '09:00:00', 44]], array_column($statements, 1));
+    }
+
+    public function testPlaceKeepsEachCopysOwnStartWhenItsProviderAndDateAreUnchanged(): void
+    {
+        // Provider 8's copy was on their 13:00 list; the editor wrote the opened copy's 9:00 to it.
+        $statements = [];
+        $service = $this->placingService(
+            [self::appointmentRow(42, 7, '2026-03-09', '09:00:00', 77), self::appointmentRow(43, 8, '2026-03-09', '09:00:00', 77)],
+            [
+                self::blockRow(1, 7, '2026-03-09', '09:00:00', 14400),
+                self::blockRow(2, 8, '2026-03-09', '09:00:00', 10800),
+                self::blockRow(3, 8, '2026-03-09', '13:00:00', 14400),
+            ],
+            $statements
+        );
+        $before = new VisitListCopies(77, [
+            7 => new DateTimeImmutable('2026-03-09 09:00'),
+            8 => new DateTimeImmutable('2026-03-09 13:00'),
+        ]);
+
+        $service->place(42, 1, null, $before);
+
+        $this->assertSame([[1, null, '09:00:00', 42], [1, null, '13:00:00', 43]], array_column($statements, 1));
+    }
+
+    public function testPlaceUsesTheSavedStartForACopyMovedToAnotherDate(): void
+    {
+        $statements = [];
+        $service = $this->placingService(
+            [self::appointmentRow(43, 8, '2026-03-10', '09:00:00', 77)],
+            [self::blockRow(2, 8, '2026-03-10', '09:00:00', 14400)],
+            $statements
+        );
+        $before = new VisitListCopies(77, [8 => new DateTimeImmutable('2026-03-09 13:00')]);
+
+        $service->place(43, 1, null, $before);
+
+        $this->assertSame([1, null, '09:00:00', 43], $statements[0][1]);
+    }
+
+    public function testCopiesGroupMustBePositive(): void
+    {
+        $this->expectException(DomainException::class);
+        new VisitListCopies(0, []);
     }
 
     public function testPlaceMarksTheAppointmentAsAVisitListPatient(): void

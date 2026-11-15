@@ -81,7 +81,7 @@ class VisitListServiceDatabaseTest extends TestCase
     }
 
     /**
-     * @param array{recurrtype?: int, endDate?: string, exdate?: string, visitList?: int, seq?: int, stop?: int, eventStatus?: int} $options
+     * @param array{recurrtype?: int, endDate?: string, exdate?: string, visitList?: int, seq?: int, stop?: int, eventStatus?: int, multiple?: int} $options
      */
     private function insertEvent(int $providerId, int $categoryId, string $pid, string $date, string $start, int $duration, array $options = []): int
     {
@@ -96,9 +96,10 @@ class VisitListServiceDatabaseTest extends TestCase
         return QueryUtils::sqlInsert(
             'INSERT INTO openemr_postcalendar_events (uuid, pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_eventDate, pc_endDate,'
             . ' pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_eventstatus, pc_facility, pc_visit_list, pc_visit_seq, pc_visit_stop)'
-            . ' VALUES (UNHEX(REPLACE(UUID(), \'-\', \'\')), ?, 0, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, 3, ?, ?, ?)',
+            . ' VALUES (UNHEX(REPLACE(UUID(), \'-\', \'\')), ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, 3, ?, ?, ?)',
             [
                 $categoryId,
+                $options['multiple'] ?? 0,
                 (string) $providerId,
                 $pid,
                 self::MARKER,
@@ -193,5 +194,32 @@ class VisitListServiceDatabaseTest extends TestCase
         $schedule = $this->service->forDates(new DateTimeImmutable('2031-03-17'), new DateTimeImmutable('2031-03-17'), [$this->providerId]);
         $this->assertSame([$this->eids['on edited'], $this->eids['left behind']], self::eids($schedule->lists[0]->entries));
         $this->assertSame([], $schedule->unplaced);
+    }
+
+    public function testSavingAMultiProviderPatientKeepsTheOtherCopyOnItsOwnList(): void
+    {
+        // The other provider also has a 13:00 block on March 10, and their copy is on it.
+        $this->insertEvent($this->otherProviderId, $this->categoryId, '', '2031-03-10', '13:00:00', 14400);
+        $maxRows = QueryUtils::fetchRecords('SELECT MAX(pc_multiple) AS m FROM openemr_postcalendar_events', []);
+        $max = $maxRows[0]['m'] ?? null;
+        $multiple = (is_numeric($max) ? (int) $max : 0) + 1;
+        $opened = $this->insertEvent($this->providerId, 5, '1', '2031-03-10', '09:00:00', 0, ['visitList' => 1, 'seq' => 1, 'multiple' => $multiple]);
+        $other = $this->insertEvent($this->otherProviderId, 5, '1', '2031-03-10', '13:00:00', 0, ['visitList' => 1, 'seq' => 1, 'multiple' => $multiple]);
+
+        $before = $this->service->copiesBefore($opened);
+        // What the editor does when the opened copy's provider is removed: it deletes that copy
+        // and writes the opened copy's time to every remaining copy.
+        QueryUtils::sqlStatementThrowException('DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?', [$opened]);
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_startTime = ? WHERE pc_multiple = ?',
+            ['09:00:00', $multiple]
+        );
+
+        $this->service->place($opened, 4, null, $before);
+
+        $this->assertSame(
+            [['pc_startTime' => '13:00:00', 'pc_visit_seq' => 4]],
+            QueryUtils::fetchRecords('SELECT pc_startTime, pc_visit_seq FROM openemr_postcalendar_events WHERE pc_eid = ?', [$other])
+        );
     }
 }
