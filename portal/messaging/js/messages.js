@@ -301,6 +301,7 @@
                 state.selected = null;
             }
             search();
+            notifyParentUnreadMessageCount();
             getDeletedMessages();
         });
     }
@@ -335,6 +336,21 @@
         });
     }
 
+    function getUnreadMessageCount(items) {
+        return items.filter(item => item && item.message_status === 'New').length;
+    }
+
+    function notifyParentUnreadMessageCount(items = state.inboxItems) {
+        if (window.parent === window) {
+            return;
+        }
+
+        window.parent.postMessage({
+            type: 'openemr.portal.unread-message-count',
+            count: getUnreadMessageCount(items)
+        }, window.location.origin);
+    }
+
     function readMessage(item) {
         if (!item) return;
         if (item.message_status === 'New') {
@@ -344,6 +360,7 @@
                 csrf_token_form: state.csrf
             })).then(() => {
                 markReadById(item.id);
+                notifyParentUnreadMessageCount();
                 renderAll();
             });
         }
@@ -370,6 +387,7 @@
             csrf_token_form: state.csrf
         })))).then(() => {
             unread.forEach(item => markReadById(item.id));
+            notifyParentUnreadMessageCount();
             renderAll();
         }).catch(e => {
             console.error('Error marking all as read:', e);
@@ -749,6 +767,7 @@
             state.isInit = true;
         }
         selectInbox();
+        notifyParentUnreadMessageCount();
     }
 
     // --- DOM Ready ---
@@ -816,7 +835,9 @@
             secureMessageEditorOptions,
             renderMessageBody,
             paginate,
-            groupChain
+            groupChain,
+            getUnreadMessageCount,
+            notifyParentUnreadMessageCount
         };
     }
 })();
