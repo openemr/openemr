@@ -108,37 +108,40 @@
                         <div class="calendar_day">
 
                                                                                                         <div data-eid="40" class="event_visit_list event"
-                                         style="top:40px; min-height:320px; ; "
+                                         style="top:40px; height:320px; ; "
                                          title="Monday March 9 2026"
                                          id="20260309-40-1">
                                         <div class="visit-list-header">
                                             <span class="visit-list-title">Visit List</span>
-                                            <span class="visit-list-summary">9:00–5:00 · 2 patients</span>
-                                            <button type="button" class="visit-list-add btn btn-sm btn-primary"
-                                                    data-date="20260309" data-provider="7"
+                                            <span class="visit-list-summary">9:00am–5:00pm · 2 patients</span>
+                                            <button type="button" class="visit-list-add btn btn-sm btn-primary"                                                    data-date="20260309" data-provider="7"
                                                     data-hour="9" data-minute="00"
                                                     title="Add a patient to this Visit List" aria-label="Add a patient to this Visit List">
                                                 <i class="fa fa-plus" aria-hidden="true"></i>
                                             </button>
                                         </div>
                                         <ol class="visit-list-entries">
-                                                                                            <li class="visit-list-entry" style="background-color: #FF2414"
-                                                    data-eid="41" data-date="20260309" data-cattype="0"
-                                                    title="Hollis, Margaret
+                                                                                            <li>
+                                                    <button type="button" class="visit-list-entry" style="background-color: #FF2414"
+                                                            data-eid="41" data-date="20260309" data-cattype="0"
+                                                            title="Hollis, Margaret
 Established Patient">
-                                                    <span class="visit-list-sequence">#1</span>
-                                                    <span class="visit-list-patient">Hollis, Margaret</span>
-                                                    <span class="visit-list-category">Established Patient</span>
-                                                    <span class="visit-list-status">@ Arrived</span>
+                                                        <span class="visit-list-sequence">#1</span>
+                                                        <span class="visit-list-patient">Hollis, Margaret</span>
+                                                        <span class="visit-list-category">Established Patient</span>
+                                                        <span class="visit-list-status">@ Arrived</span>
+                                                    </button>
                                                 </li>
-                                                                                            <li class="visit-list-entry" style="background-color: #a2d9e2"
-                                                    data-eid="42" data-date="20260309" data-cattype="0"
-                                                    title="O&#039;Brien, Pat &lt;Jr&gt;
+                                                                                            <li>
+                                                    <button type="button" class="visit-list-entry" style="background-color: #a2d9e2"
+                                                            data-eid="42" data-date="20260309" data-cattype="0"
+                                                            title="O&#039;Brien, Pat &lt;Jr&gt;
 New Patient">
-                                                    <span class="visit-list-sequence">#2</span>
-                                                    <span class="visit-list-patient">O'Brien, Pat &lt;Jr&gt;</span>
-                                                    <span class="visit-list-category">New Patient</span>
-                                                    <span class="visit-list-status"></span>
+                                                        <span class="visit-list-sequence">#2</span>
+                                                        <span class="visit-list-patient">O'Brien, Pat &lt;Jr&gt;</span>
+                                                        <span class="visit-list-category">New Patient</span>
+                                                        <span class="visit-list-status"></span>
+                                                    </button>
                                                 </li>
                                                                                     </ol>
                                     </div>
@@ -166,15 +169,19 @@ New Patient">
   document.forms[0].submit();
  }
 
- function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
-  // Guard: holiday / clinic-closed days must not open create dialog from the time gutter.
+ // Holiday / clinic-closed days must not open the create dialog.
+ function isClosedDay(eventdate) {
   var holidayDate = String(eventdate || '');
   var $holidayCell = $('#bigCal td.schedule[data-holiday="1"][date="' + holidayDate + '"]');
   if (!$holidayCell.length && typeof pcIsHolidayDay !== 'undefined' && pcIsHolidayDay) {
     // Day view: single Date applies to the whole grid.
     $holidayCell = $('#bigCal td.schedule.schedule-holiday');
   }
-  if ($holidayCell.length) {
+  return $holidayCell.length > 0;
+ }
+
+ function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
+  if (isClosedDay(eventdate)) {
     return false;
   }
   dlgopen('add_edit_event.php?startampm=' + encodeURIComponent(startampm) +
@@ -186,6 +193,9 @@ New Patient">
  // Add a patient to a Visit List: a new appointment with no time of its own, at the block's
  // start (hour in 24-hour form), for the block's provider and date.
  function newVisitListEvt(eventdate, providerid, starttimeh, starttimem) {
+  if (isClosedDay(eventdate)) {
+    return false;
+  }
   dlgopen('add_edit_event.php?visitlist=1&starttimeh=' + encodeURIComponent(starttimeh) +
    '&starttimem=' + encodeURIComponent(starttimem) + '&userid=' + encodeURIComponent(providerid) +
    '&date=' + encodeURIComponent(eventdate)

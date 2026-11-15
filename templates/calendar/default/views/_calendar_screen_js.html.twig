@@ -1,6 +1,6 @@
 {# Shared JS for the three on-screen calendar templates (day, week, month).
    Pulled from the legacy template's inline [-php-] echo blocks. Defines
-   newEvt / oldEvt / oldGroupEvt for the appointment dialogs,
+   newEvt / newVisitListEvt / oldEvt / oldGroupEvt for the appointment dialogs,
    providerXclick for the provider-column close button, plus the
    document.ready jQuery handler that wires UI clicks to these.
 
@@ -25,15 +25,19 @@
   document.forms[0].submit();
  }
 
- function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
-  // Guard: holiday / clinic-closed days must not open create dialog from the time gutter.
+ // Holiday / clinic-closed days must not open the create dialog.
+ function isClosedDay(eventdate) {
   var holidayDate = String(eventdate || '');
   var $holidayCell = $('#bigCal td.schedule[data-holiday="1"][date="' + holidayDate + '"]');
   if (!$holidayCell.length && typeof pcIsHolidayDay !== 'undefined' && pcIsHolidayDay) {
     // Day view: single Date applies to the whole grid.
     $holidayCell = $('#bigCal td.schedule.schedule-holiday');
   }
-  if ($holidayCell.length) {
+  return $holidayCell.length > 0;
+ }
+
+ function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
+  if (isClosedDay(eventdate)) {
     return false;
   }
   dlgopen('add_edit_event.php?startampm=' + encodeURIComponent(startampm) +
@@ -45,6 +49,9 @@
  // Add a patient to a Visit List: a new appointment with no time of its own, at the block's
  // start (hour in 24-hour form), for the block's provider and date.
  function newVisitListEvt(eventdate, providerid, starttimeh, starttimem) {
+  if (isClosedDay(eventdate)) {
+    return false;
+  }
   dlgopen('add_edit_event.php?visitlist=1&starttimeh=' + encodeURIComponent(starttimeh) +
    '&starttimem=' + encodeURIComponent(starttimem) + '&userid=' + encodeURIComponent(providerid) +
    '&date=' + encodeURIComponent(eventdate)

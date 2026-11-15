@@ -532,7 +532,7 @@ class TwigTemplateRenderTest extends TestCase
                                 'divLeftCss'         => '',
                                 'visitList'          => [
                                     'title'       => 'Visit List',
-                                    'timeLabel'   => '9:00–5:00',
+                                    'timeLabel'   => '9:00am–5:00pm',
                                     'providerId'  => 7,
                                     'eventDate'   => '20260309',
                                     'startHour'   => '9',

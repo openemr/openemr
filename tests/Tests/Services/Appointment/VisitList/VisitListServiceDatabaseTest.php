@@ -184,4 +184,14 @@ class VisitListServiceDatabaseTest extends TestCase
         );
         $this->assertSame(4, $this->service->nextSequence($this->providerId, $start));
     }
+
+    public function testPlacingAPatientMovedToADayWithALaterBlockPutsThemOnIt(): void
+    {
+        // March 17's block was edited to 10:00; the patient left at 9:00 is not on it.
+        $this->service->place($this->eids['left behind'], 2, null);
+
+        $schedule = $this->service->forDates(new DateTimeImmutable('2031-03-17'), new DateTimeImmutable('2031-03-17'), [$this->providerId]);
+        $this->assertSame([$this->eids['on edited'], $this->eids['left behind']], self::eids($schedule->lists[0]->entries));
+        $this->assertSame([], $schedule->unplaced);
+    }
 }

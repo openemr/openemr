@@ -306,25 +306,111 @@ class VisitListServiceTest extends TestCase
         $this->assertSame(8, $service->nextSequence(7, new DateTimeImmutable('2026-03-09 08:00')));
     }
 
-    public function testPlaceMarksTheAppointmentAsAVisitListPatient(): void
+    /**
+     * A service whose appointment query returns the given rows, whose blocks are the given
+     * fetchEvents() rows, and which records each statement it runs.
+     *
+     * @param list<array<string, mixed>>       $appointmentRows
+     * @param list<array<string, mixed>>       $blockRows
+     * @param list<array{string, array<mixed>}> $statements
+     */
+    private function placingService(array $appointmentRows, array $blockRows, array &$statements): VisitListService
     {
-        $statements = [];
-        $service = new VisitListService(
-            static fn (string $sql, array $binds): array => [],
-            static fn (string $from, string $to, string $where, array $binds): array => [],
+        return new VisitListService(
+            function (string $sql, array $binds) use ($appointmentRows): array {
+                $this->queries[] = [$sql, $binds];
+                if (str_contains($sql, 'openemr_postcalendar_categories')) {
+                    return [['pc_catid' => (string) self::CATEGORY_ID]];
+                }
+                return str_contains($sql, '`pc_multiple`') ? $appointmentRows : [];
+            },
+            static fn (string $from, string $to, string $where, array $binds): array => $blockRows,
             execute: static function (string $sql, array $binds) use (&$statements): void {
                 $statements[] = [$sql, $binds];
             }
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function appointmentRow(int $eid, int $provider, string $date, string $start): array
+    {
+        return ['pc_eid' => (string) $eid, 'pc_aid' => (string) $provider, 'pc_eventDate' => $date, 'pc_startTime' => $start];
+    }
+
+    public function testPlaceMarksTheAppointmentAsAVisitListPatient(): void
+    {
+        $statements = [];
+        $service = $this->placingService(
+            [self::appointmentRow(42, 7, '2026-03-09', '09:00:00')],
+            [self::blockRow(1, 7, '2026-03-09', '09:00:00', 28800)],
+            $statements
+        );
 
         $service->place(42, 3, null);
-        $service->place(43, null, 5);
 
-        $this->assertCount(2, $statements);
+        $this->assertCount(1, $statements);
         $this->assertStringContainsString('`pc_visit_list` = 1', $statements[0][0]);
         $this->assertStringContainsString('`pc_duration` = 0', $statements[0][0], 'no time of its own');
-        $this->assertSame([3, null, 42], $statements[0][1]);
-        $this->assertSame([null, 5, 43], $statements[1][1]);
+        $this->assertSame([3, null, '09:00:00', 42], $statements[0][1], 'a block claims its time, so it keeps it');
+    }
+
+    public function testPlaceMarksEveryProvidersCopy(): void
+    {
+        $statements = [];
+        $service = $this->placingService(
+            [self::appointmentRow(42, 7, '2026-03-09', '09:00:00'), self::appointmentRow(43, 8, '2026-03-09', '09:00:00')],
+            [self::blockRow(1, 7, '2026-03-09', '09:00:00', 28800), self::blockRow(2, 8, '2026-03-09', '09:00:00', 28800)],
+            $statements
+        );
+
+        $service->place(42, null, 5);
+
+        $this->assertSame([[null, 5, '09:00:00', 42], [null, 5, '09:00:00', 43]], array_column($statements, 1));
+        $this->assertSame([42, 42], $this->queries[0][1], 'asks for the appointment and the copies sharing its pc_multiple');
+    }
+
+    public function testPlaceMovesAPatientWhoseDateHasABlockAtAnotherTime(): void
+    {
+        // Moved to a day whose block starts at 10:00: it goes to the start of that block.
+        $statements = [];
+        $service = $this->placingService(
+            [self::appointmentRow(42, 7, '2026-03-10', '09:00:00')],
+            [
+                self::blockRow(1, 7, '2026-03-10', '14:00:00', 3600),
+                self::blockRow(2, 7, '2026-03-10', '10:00:00', 7200),
+            ],
+            $statements
+        );
+
+        $service->place(42, 1, null);
+
+        $this->assertSame([1, null, '10:00:00', 42], $statements[0][1], "the day's first block");
+    }
+
+    public function testPlaceKeepsTheTimeWhenTheDayHasNoBlock(): void
+    {
+        $statements = [];
+        $service = $this->placingService([self::appointmentRow(42, 7, '2026-03-10', '09:30:00')], [], $statements);
+
+        $service->place(42, 1, 2);
+
+        $this->assertSame([1, 2, '09:30:00', 42], $statements[0][1]);
+    }
+
+    public function testNextOrderWithEqualStartsComesFromTheBlockThePatientGoesOn(): void
+    {
+        // Two blocks start at 9:00; the matcher puts patients on the lower pc_eid (4).
+        $service = $this->service(
+            [
+                self::blockRow(5, 7, '2026-03-09', '09:00:00', 3600),
+                self::blockRow(4, 7, '2026-03-09', '09:00:00', 3600),
+            ],
+            [self::entryRow(10, 7, '2026-03-09', '09:00:00', '4', null)]
+        );
+
+        $this->assertSame(5, $service->nextSequence(7, new DateTimeImmutable('2026-03-09 09:00')));
     }
 
     /**

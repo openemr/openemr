@@ -61,11 +61,12 @@ final readonly class VisitListBlock
 
     /**
      * Whether an appointment for this provider starting then would belong on this block, by
-     * the same rule as contains().
+     * the same rule as contains(). The appointment must be on the block's date: a block that
+     * runs past midnight does not claim the next day's patients.
      */
     public function claims(int $providerId, DateTimeImmutable $start): bool
     {
-        if ($providerId !== $this->providerId) {
+        if ($providerId !== $this->providerId || $start->format('Y-m-d') !== $this->date()) {
             return false;
         }
 

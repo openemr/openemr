@@ -207,15 +207,15 @@
 
                                 {% if event.visitList is defined %}
                                     {# Visit List block: its patients as a numbered list, in list order,
-                                       without times. Grows past its time span when the list is long. #}
+                                       without times. Keeps its time span; a long list scrolls inside it. #}
                                     <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
-                                         style="top:{{ event.evtTopCss }}; min-height:{{ event.evtHeightCss }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}"
+                                         style="top:{{ event.evtTopCss }}; height:{{ event.evtHeightCss }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}"
                                          title="{{ event.tooltip|attr }}"
                                          id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
                                         <div class="visit-list-header">
                                             <span class="visit-list-title">{{ event.visitList.title|text }}</span>
                                             <span class="visit-list-summary">{{ event.visitList.timeLabel|text }} · {{ event.visitList.count }} {% if event.visitList.count == 1 %}{{ 'patient'|xlt }}{% else %}{{ 'patients'|xlt }}{% endif %}</span>
-                                            <button type="button" class="visit-list-add btn btn-sm btn-primary"
+                                            <button type="button" class="visit-list-add btn btn-sm btn-primary"{% if isHolidayDay %} disabled{% endif %}
                                                     data-date="{{ event.visitList.eventDate|attr }}" data-provider="{{ event.visitList.providerId|attr }}"
                                                     data-hour="{{ event.visitList.startHour|attr }}" data-minute="{{ event.visitList.startMinute|attr }}"
                                                     title="{{ 'Add a patient to this Visit List'|xla }}" aria-label="{{ 'Add a patient to this Visit List'|xla }}">
@@ -224,13 +224,15 @@
                                         </div>
                                         <ol class="visit-list-entries">
                                             {% for row in event.visitList.rows %}
-                                                <li class="visit-list-entry" style="background-color: {{ row.bgColor }}"
-                                                    data-eid="{{ row.eid|attr }}" data-date="{{ row.eventDate|attr }}" data-cattype="{{ row.pccattype|attr }}"
-                                                    title="{{ row.tooltip|attr }}">
-                                                    <span class="visit-list-sequence">{{ row.sequenceLabel|text }}</span>
-                                                    <span class="visit-list-patient">{{ row.patientName|text }}</span>
-                                                    <span class="visit-list-category">{{ row.categoryName|text }}</span>
-                                                    <span class="visit-list-status">{{ row.statusTitle|text }}</span>
+                                                <li>
+                                                    <button type="button" class="visit-list-entry" style="background-color: {{ row.bgColor }}"
+                                                            data-eid="{{ row.eid|attr }}" data-date="{{ row.eventDate|attr }}" data-cattype="{{ row.pccattype|attr }}"
+                                                            title="{{ row.tooltip|attr }}">
+                                                        <span class="visit-list-sequence">{{ row.sequenceLabel|text }}</span>
+                                                        <span class="visit-list-patient">{{ row.patientName|text }}</span>
+                                                        <span class="visit-list-category">{{ row.categoryName|text }}</span>
+                                                        <span class="visit-list-status">{{ row.statusTitle|text }}</span>
+                                                    </button>
                                                 </li>
                                             {% endfor %}
                                         </ol>

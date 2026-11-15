@@ -875,7 +875,9 @@ final readonly class CalendarRenderDataBuilder
                 $eventDate,
                 $eventDateYmd,
                 $appointmentStatuses,
-                $isTwelveHourFormat
+                $isTwelveHourFormat,
+                $pcFacility,
+                $intervalMinutes
             );
             $rawDayEvents = $visitListColumn->gridEvents;
 

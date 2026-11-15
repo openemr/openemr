@@ -118,6 +118,14 @@ class VisitListMatcherTest extends TestCase
         $this->assertFalse($block->claims(8, new DateTimeImmutable(self::DATE . ' 10:00')), 'another provider');
     }
 
+    public function testBlockPastMidnightDoesNotClaimTheNextDaysPatients(): void
+    {
+        $block = new VisitListBlock(1, 7, 3, new DateTimeImmutable(self::DATE . ' 20:00'), new DateTimeImmutable('2026-03-10 04:00'));
+
+        $this->assertTrue($block->claims(7, new DateTimeImmutable(self::DATE . ' 23:00')));
+        $this->assertFalse($block->claims(7, new DateTimeImmutable('2026-03-10 01:00')), 'the next day is its own');
+    }
+
     public function testBackToBackBlocksEachKeepTheirOwnPatients(): void
     {
         $schedule = (new VisitListMatcher())->match(

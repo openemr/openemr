@@ -42,7 +42,7 @@ final class VisitListService
     /** @var callable(string, string, string, array<int, string|int>): list<array<mixed>> */
     private $fetchEvents;
 
-    /** @var callable(string, array<int, int|null>): void */
+    /** @var callable(string, array<int, int|string|null>): void */
     private $execute;
 
     /**
@@ -50,7 +50,7 @@ final class VisitListService
      * @param callable(string, string, string, array<int, string|int>): list<array<mixed>>|null $fetchEvents
      *        events from one date to another (Y-m-d) with repeating ones expanded to each date,
      *        given an extra WHERE clause and its binds, as fetchEvents() returns them
-     * @param callable(string, array<int, int|null>): void|null $execute runs a statement that changes rows
+     * @param callable(string, array<int, int|string|null>): void|null $execute runs a statement that changes rows
      */
     public function __construct(
         ?callable $fetchRecords = null,
@@ -100,15 +100,7 @@ final class VisitListService
      */
     public function nextSequence(int $providerId, DateTimeImmutable $start): int
     {
-        $schedule = $this->forDates($start, $start, [$providerId]);
-
-        // When blocks overlap, the matcher gives a patient to the block that starts last.
-        $claiming = null;
-        foreach ($schedule->lists as $list) {
-            if ($list->block->claims($providerId, $start)) {
-                $claiming = $list;
-            }
-        }
+        $claiming = self::claimingList($this->forDates($start, $start, [$providerId]), $providerId, $start);
         if ($claiming === null) {
             return 1;
         }
@@ -121,9 +113,14 @@ final class VisitListService
     }
 
     /**
-     * Mark an appointment as a Visit List patient with its Order # and Stop #. The appointment
-     * keeps its own provider, date and start time, which decide the list it belongs on, and
-     * loses any duration: a Visit List patient has no time of its own.
+     * Mark an appointment as a Visit List patient with its Order # and Stop #, along with the
+     * copies of it for other providers (a multi-provider appointment shares pc_multiple). A
+     * Visit List patient has no time of its own, so each loses any duration.
+     *
+     * Each copy keeps its provider and date, which decide the list it belongs on. When no
+     * Visit List block of that provider claims its start time on that date (its date or
+     * provider was changed), it moves to the start of the provider's first block that day.
+     * With no block that day it keeps its time.
      */
     public function place(int $eventId, ?int $sequence, ?int $stop): void
     {
@@ -137,11 +134,69 @@ final class VisitListService
             throw new DomainException('Visit List stop must be positive');
         }
 
-        ($this->execute)(
-            'UPDATE `openemr_postcalendar_events` SET `pc_visit_list` = 1, `pc_visit_seq` = ?, `pc_visit_stop` = ?,'
-            . ' `pc_duration` = 0, `pc_endTime` = `pc_startTime`, `pc_alldayevent` = 0 WHERE `pc_eid` = ?',
-            [$sequence, $stop, $eventId]
+        $rows = ($this->fetchRecords)(
+            'SELECT `pc_eid`, `pc_aid`, `pc_eventDate`, `pc_startTime` FROM `openemr_postcalendar_events`'
+            . ' WHERE `pc_eid` = ? OR (`pc_multiple` > 0 AND `pc_multiple` ='
+            . ' (SELECT `m`.`pc_multiple` FROM `openemr_postcalendar_events` AS `m` WHERE `m`.`pc_eid` = ?))',
+            [$eventId, $eventId]
         );
+
+        foreach ($rows as $row) {
+            $copyId = self::positiveInt($row['pc_eid'] ?? null);
+            if ($copyId === null) {
+                continue;
+            }
+            $start = self::startOf($row);
+            $providerId = self::positiveInt($row['pc_aid'] ?? null);
+            $startTime = $start === null || $providerId === null
+                ? null
+                : $this->startOnABlock($providerId, $start)->format('H:i:s');
+
+            ($this->execute)(
+                'UPDATE `openemr_postcalendar_events` SET `pc_visit_list` = 1, `pc_visit_seq` = ?, `pc_visit_stop` = ?,'
+                . ' `pc_startTime` = COALESCE(?, `pc_startTime`), `pc_endTime` = `pc_startTime`,'
+                . ' `pc_duration` = 0, `pc_alldayevent` = 0 WHERE `pc_eid` = ?',
+                [$sequence, $stop, $startTime, $copyId]
+            );
+        }
+    }
+
+    /**
+     * When a Visit List patient of this provider starting then should start: unchanged when a
+     * block claims that time, else the start of the provider's first block that day, else
+     * unchanged.
+     */
+    private function startOnABlock(int $providerId, DateTimeImmutable $start): DateTimeImmutable
+    {
+        $schedule = $this->forDates($start, $start, [$providerId]);
+        if (self::claimingList($schedule, $providerId, $start) !== null) {
+            return $start;
+        }
+        foreach ($schedule->lists as $list) {
+            if ($list->block->providerId === $providerId) {
+                return $list->block->start;
+            }
+        }
+        return $start;
+    }
+
+    /**
+     * The list the matcher puts a patient of this provider starting then on: of the blocks that
+     * claim the time, the one that starts last, and of equal starts the first (lower pc_eid,
+     * as the lists are sorted).
+     */
+    private static function claimingList(VisitListSchedule $schedule, int $providerId, DateTimeImmutable $start): ?VisitList
+    {
+        $claiming = null;
+        foreach ($schedule->lists as $list) {
+            if (!$list->block->claims($providerId, $start)) {
+                continue;
+            }
+            if ($claiming === null || $list->block->start > $claiming->block->start) {
+                $claiming = $list;
+            }
+        }
+        return $claiming;
     }
 
     /**

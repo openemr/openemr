@@ -7,9 +7,10 @@
  * List are taken out of the timed grid, and each Visit List block in the column gets the rows
  * of its list instead: list order, patient name, visit category and appointment status.
  *
- * A list is only shown when its block is among the column's events. When a filter (such as
- * the facility filter) leaves the block out, its patients stay in the timed grid at their
- * stored time rather than disappearing. Visit List patients no block claims stay there too.
+ * A list is only shown when its block is among the column's events and, when the calendar is
+ * filtered to one facility, the block is at that facility. Otherwise its patients stay in the
+ * timed grid at their stored time, as do Visit List patients no block claims. They have no
+ * duration, so the grid draws them one time slot tall rather than not at all.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -68,8 +69,10 @@ final readonly class VisitListDayColumn
     /**
      * Split one provider's day of events into the timed grid and the Visit Lists.
      *
-     * @param list<array<string, mixed>>     $dayEvents     the day's events, as the day view receives them
-     * @param array<string, AppointmentStatus> $statuses    appointment statuses by option_id
+     * @param list<array<string, mixed>>       $dayEvents       the day's events, as the day view receives them
+     * @param array<string, AppointmentStatus> $statuses        appointment statuses by option_id
+     * @param int                              $pcFacility      the facility the calendar is filtered to; 0 for all
+     * @param int                              $intervalMinutes the length of one time slot in the grid
      */
     public static function build(
         CalendarViewModel $viewModel,
@@ -79,7 +82,9 @@ final readonly class VisitListDayColumn
         string $eventDate,
         string $eventDateYmd,
         array $statuses,
-        bool $isTwelveHourFormat
+        bool $isTwelveHourFormat,
+        int $pcFacility = 0,
+        int $intervalMinutes = 15
     ): self {
         if ($schedule === null) {
             return new self($dayEvents, []);
@@ -98,6 +103,9 @@ final readonly class VisitListDayColumn
         foreach ($schedule->lists as $list) {
             $block = $list->block;
             if ($block->providerId !== $providerId || $block->date() !== $eventDate) {
+                continue;
+            }
+            if ($pcFacility !== 0 && $block->facilityId !== $pcFacility) {
                 continue;
             }
             $blockEvent = $eventsByEid[$block->eventId] ?? null;
@@ -127,10 +135,29 @@ final readonly class VisitListDayColumn
             ];
         }
 
-        $gridEvents = array_values(array_filter(
-            $dayEvents,
-            static fn (array $event): bool => !isset($shownEntryEids[self::eventId($event) ?? 0])
-        ));
+        // Visit List patients not shown on a list keep their place in the grid, one slot tall.
+        $entryEids = [];
+        foreach ($schedule->lists as $list) {
+            foreach ($list->entries as $entry) {
+                $entryEids[$entry->eventId] = true;
+            }
+        }
+        foreach ($schedule->unplaced as $entry) {
+            $entryEids[$entry->eventId] = true;
+        }
+        $slotSeconds = max(1, $intervalMinutes) * 60;
+
+        $gridEvents = [];
+        foreach ($dayEvents as $event) {
+            $eid = self::eventId($event) ?? 0;
+            if (isset($shownEntryEids[$eid])) {
+                continue;
+            }
+            if (isset($entryEids[$eid])) {
+                $event['duration'] = $slotSeconds;
+            }
+            $gridEvents[] = $event;
+        }
 
         return new self($gridEvents, $lists);
     }
@@ -216,7 +243,7 @@ final readonly class VisitListDayColumn
 
     private static function timeLabel(VisitList $list, bool $isTwelveHourFormat): string
     {
-        $format = $isTwelveHourFormat ? 'g:i' : 'H:i';
+        $format = $isTwelveHourFormat ? 'g:ia' : 'H:i';
         return $list->block->start->format($format) . '–' . $list->block->end->format($format);
     }
 

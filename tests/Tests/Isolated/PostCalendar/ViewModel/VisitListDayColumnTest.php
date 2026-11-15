@@ -47,7 +47,7 @@ final class VisitListDayColumnTest extends TestCase
     /**
      * @param list<array<string, mixed>> $events
      */
-    private static function column(array $events, ?VisitListSchedule $schedule, bool $twelveHour = true): VisitListDayColumn
+    private static function column(array $events, ?VisitListSchedule $schedule, bool $twelveHour = true, int $pcFacility = 0): VisitListDayColumn
     {
         return VisitListDayColumn::build(
             new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0),
@@ -57,7 +57,9 @@ final class VisitListDayColumnTest extends TestCase
             self::DATE,
             self::DATE_YMD,
             self::STATUSES,
-            $twelveHour
+            $twelveHour,
+            $pcFacility,
+            15
         );
     }
 
@@ -140,7 +142,7 @@ final class VisitListDayColumnTest extends TestCase
         $this->assertSame(['40', '50'], self::eids($column->gridEvents));
         $list = $column->lists[40];
         $this->assertSame('Visit List', $list['title']);
-        $this->assertSame('9:00–5:00', $list['timeLabel']);
+        $this->assertSame('9:00am–5:00pm', $list['timeLabel']);
         $this->assertSame(self::PROVIDER, $list['providerId'], 'the + button adds to this provider');
         $this->assertSame(self::DATE_YMD, $list['eventDate']);
         $this->assertSame('9', $list['startHour'], '24-hour, as the popup reads it');
@@ -200,12 +202,27 @@ final class VisitListDayColumnTest extends TestCase
     public function testPatientsStayInTheGridWhenTheirBlockIsNotInTheColumn(): void
     {
         $column = self::column(
-            [self::patientEvent(41, 'Hollis, Margaret')],
+            [self::patientEvent(41, 'Hollis, Margaret'), self::patientEvent(50, 'Timed, Tess')],
             self::schedule([[41, 1, null]])
         );
 
-        $this->assertSame(['41'], self::eids($column->gridEvents));
+        $this->assertSame(['41', '50'], self::eids($column->gridEvents));
         $this->assertSame([], $column->lists);
+        $this->assertSame(900, $column->gridEvents[0]['duration'], 'drawn one 15-minute slot tall, not 0');
+        $this->assertArrayNotHasKey('duration', $column->gridEvents[1], 'other events are untouched');
+    }
+
+    public function testBlockAtAnotherFacilityIsNotShownWhenTheCalendarIsFilteredToOne(): void
+    {
+        $events = [self::blockEvent(), self::patientEvent(41, 'Hollis, Margaret')];
+        $schedule = self::schedule([[41, 1, null]]);
+
+        $filtered = self::column($events, $schedule, true, 4);
+        $this->assertSame([], $filtered->lists, 'the block is at facility 3');
+        $this->assertSame(['40', '41'], self::eids($filtered->gridEvents));
+
+        $this->assertArrayHasKey(40, self::column($events, $schedule, true, 3)->lists, 'its own facility');
+        $this->assertArrayHasKey(40, self::column($events, $schedule, true, 0)->lists, 'all facilities');
     }
 
     public function testAnotherProvidersListIsNotShown(): void
