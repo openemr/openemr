@@ -81,14 +81,17 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
      * Selector for the two QuestionnaireResponse action checkboxes on
      * the scope-authorize-confirm consent screen that represent the
      * SMART v2 Create and Update permissions. The consent form posts
-     * `grant[<resource>][actions][]` with one entry per checked value
-     * (SMART v2 permission letters: c, r, u, s). Unchecking both c and
-     * u forces ScopeConsentResolver to intersect the requested
+     * `grant[<context>-<resource>][actions][]` with one entry per
+     * checked value (SMART v2 permission letters: c, r, u, s). The
+     * context prefix for portal patients is `patient` (matches
+     * AuthorizationController::isConsentCardScope's key shape
+     * `{context}-{resource}`). Unchecking both c and u forces
+     * ScopeConsentResolver to intersect the requested
      * `patient/QuestionnaireResponse.cu` scope down to .rs only.
      */
     private const QR_CONSENT_CHECKBOX_CSS =
-        'input.action-checkbox[name="grant[QuestionnaireResponse][actions][]"][value="c"], '
-        . 'input.action-checkbox[name="grant[QuestionnaireResponse][actions][]"][value="u"]';
+        'input.action-checkbox[name="grant[patient-QuestionnaireResponse][actions][]"][value="c"], '
+        . 'input.action-checkbox[name="grant[patient-QuestionnaireResponse][actions][]"][value="u"]';
 
     private Client $panther;
 
