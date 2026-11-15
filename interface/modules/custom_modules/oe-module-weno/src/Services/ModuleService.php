@@ -33,11 +33,43 @@ class ModuleService
      */
     public static function setTaskState($flag, bool $reset = false): array|bool|null
     {
+        // The module bootstrap calls this on every request, so write only when the stored
+        // state differs. A reset always writes because it also moves next_run.
+        if (!$reset) {
+            $rows = QueryUtils::fetchRecordsNoLog(
+                "SELECT `active` FROM `background_services` WHERE `name` = ? OR `name` = ?",
+                ['WenoExchange', 'WenoExchangePharmacies']
+            );
+            if (!self::stateDiffers($rows, ['active' => $flag])) {
+                return false;
+            }
+        }
         $sql_next = "UPDATE `background_services` SET `active` = ? WHERE `name` = ? OR `name` = ?";
         if ($reset) {
             $sql_next = "UPDATE `background_services` SET `active` = ?, next_run = NOW() WHERE `name` = ? OR `name` = ?";
         }
         return sqlQuery($sql_next, [$flag, 'WenoExchange', 'WenoExchangePharmacies']);
+    }
+
+    /**
+     * Whether any stored row differs from the wanted column values. Database values and
+     * flags may be strings or ints, so they are compared as strings.
+     *
+     * @param list<array<mixed>>  $rows   stored rows
+     * @param array<string, mixed> $wanted column => wanted value
+     * @return bool true when an update would change a row
+     */
+    public static function stateDiffers(array $rows, array $wanted): bool
+    {
+        foreach ($rows as $row) {
+            foreach ($wanted as $column => $value) {
+                $stored = $row[$column] ?? null;
+                if (!is_scalar($stored) || !is_scalar($value) || (string) $stored !== (string) $value) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -217,7 +249,14 @@ class ModuleService
             // set BG tasks to active if module is active.
             self::setTaskState('1', false);
         }
-        // set module state.
+        // set module state, only when it differs from the stored state.
+        $rows = QueryUtils::fetchRecordsNoLog(
+            "SELECT `mod_active`, `mod_ui_active` FROM `modules` WHERE `mod_id` = ? OR `mod_directory` = ?",
+            [$modId, $modId]
+        );
+        if (!self::stateDiffers($rows, ['mod_active' => $flag, 'mod_ui_active' => $flag_ui])) {
+            return false;
+        }
         $sql = "UPDATE `modules` SET `mod_active` = ?, `mod_ui_active` = ? WHERE `mod_id` = ? OR `mod_directory` = ?";
         return sqlQuery($sql, [$flag, $flag_ui, $modId, $modId]);
     }
