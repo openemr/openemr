@@ -339,6 +339,25 @@
         box-sizing: border-box;
         white-space: nowrap;
     }
+    /* Appointments are placed one slot height per slot, so each time row must be
+       exactly that tall for a time to line up with what starts then. A cell border
+       would add to the row (the table rounds 20px + 1px border to 20.2px, and the
+       times drift lower down the day), so the line between rows is drawn inside
+       the cell instead. */
+    #bigCal table.calendar-times-table td.timeslot {
+        border: 0;
+        box-shadow: inset 0 1px 0 var(--gray300, #dee2e6);
+        height: 20px;
+    }
+    /* Day view: the times' top row (the provider icon) and each provider's name bar
+       above its appointments are the same height, so the first time and the top of
+       the appointments start level. */
+    #bigCal table.calendar-times-table td.timeslot.providerXbtn,
+    #bigCal .providerheader.providerday {
+        box-sizing: border-box;
+        height: 1.75rem;
+        line-height: calc(1.75rem - 2px);
+    }
     /* Time gutter on holidays: show labels but do not offer new-appointment links. */
     #bigCal td.timeslot.timeslot-holiday .timeslot-holiday-label {
         color: var(--gray600, #6c757d);
