@@ -77,6 +77,19 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
     private const STAFF_LAUNCH_BUTTON_SELECTOR =
         '.smart-context-launch:not([data-smart-name*="- patient portal"])';
 
+    /**
+     * Selector for the two QuestionnaireResponse action checkboxes on
+     * the scope-authorize-confirm consent screen that represent the
+     * SMART v2 Create and Update permissions. The consent form posts
+     * `grant[<resource>][actions][]` with one entry per checked value
+     * (SMART v2 permission letters: c, r, u, s). Unchecking both c and
+     * u forces ScopeConsentResolver to intersect the requested
+     * `patient/QuestionnaireResponse.cu` scope down to .rs only.
+     */
+    private const QR_CONSENT_CHECKBOX_CSS =
+        'input.action-checkbox[name="grant[QuestionnaireResponse][actions][]"][value="c"], '
+        . 'input.action-checkbox[name="grant[QuestionnaireResponse][actions][]"][value="u"]';
+
     private Client $panther;
 
     protected function setUp(): void
@@ -1787,6 +1800,327 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
                     [$pid]
                 );
             }
+            $fixtures->removePortalPatientFixtures();
+        }
+    }
+
+    /**
+     * Portal consent-narrowing deny-path. A portal patient logs in and
+     * reaches the scope-authorize-confirm consent screen. Before clicking
+     * proceed, they uncheck both the Create and Update checkboxes for
+     * QuestionnaireResponse. The bearer OpenEMR issues drops `patient/
+     * QuestionnaireResponse.cu` from the granted scope set; the companion
+     * app sees `$session->canCreate('QuestionnaireResponse')` return false
+     * and renders index.php's write form in read-only mode:
+     *   - `button#sq-new` hidden (app.js line `buttons.new.hidden = !canSend`)
+     *   - `#sq-working` shows "answers can't be sent from this app right now."
+     *
+     * The regression this locks: consent-screen posts that silently grant
+     * unchecked scopes anyway (a ScopeConsentResolver bug), or a runtime
+     * that renders the write flow even when the bearer lacks the scope.
+     * Both would break the user's expectation that unchecking a scope
+     * means the app can't do that action.
+     */
+    #[Test]
+    public function testPortalLaunchWithScopeDowngradeOnConsentShowsReadOnly(): void
+    {
+        $fixtures = new PortalPatientFixtureManager();
+        $this->sweepLingeringPortalArtifacts();
+
+        $suffix = bin2hex(random_bytes(3));
+        $username = 'portal-downgrade-' . $suffix;
+        $password = 'PortalDowngradeSmoke1!';
+        $email = "{$username}@test.example";
+        $fname = 'Portia';
+        $lname = 'DowngradeSmoke-' . $suffix;
+
+        try {
+            $fixtures->installPortalPatient(
+                portalLoginUsername: $username,
+                plainPassword: $password,
+                email: $email,
+                fname: $fname,
+                lname: $lname,
+            );
+
+            // Entry mirrors A2 up through the point where the browser
+            // reaches the consent screen. We can't reuse authorizeAsPortalPatient
+            // directly because it clicks proceed with the default-all-
+            // checked state; this test needs to intercept and uncheck
+            // the QR create/update actions first.
+            $launchHref = $this->signInToPortalAndCaptureLaunchHref($username, $password, $email);
+            $this->panther->request('GET', $launchHref);
+            $this->panther->waitFor('form#userLogin', 15);
+
+            $this->panther->findElement(WebDriverBy::name('username'))->sendKeys($username);
+            $this->panther->findElement(WebDriverBy::name('password'))->sendKeys($password);
+            $emailFields = $this->panther->findElements(WebDriverBy::name('email'));
+            if ($emailFields !== []) {
+                $emailFields[0]->sendKeys($email);
+            }
+            $loginForm = $this->panther->findElement(WebDriverBy::id('userLogin'));
+            $this->panther->executeScript(
+                "document.getElementById('userLogin').requestSubmit("
+                . "document.querySelector('form#userLogin button[name=\"user_role\"][value=\"portal-api\"]'));",
+            );
+            $this->panther->wait(15)->until(WebDriverExpectedCondition::stalenessOf($loginForm));
+
+            // Wait for the consent screen's QR action checkboxes — these
+            // are only rendered when the client requested `patient/
+            // QuestionnaireResponse.*` scopes (which the portal client does).
+            // Action keys match SMART v2 permission letters: c=Create, u=Update.
+            $this->panther->waitFor(
+                self::QR_CONSENT_CHECKBOX_CSS,
+                15,
+            );
+
+            // Uncheck Create and Update for QuestionnaireResponse while
+            // leaving read/search checked. ScopeConsentResolver intersects
+            // requested scopes against the posted checkboxes, so this
+            // narrows the issued bearer to .rs only.
+            $this->panther->executeScript(
+                "Array.from(document.querySelectorAll('"
+                . self::QR_CONSENT_CHECKBOX_CSS
+                . "')).forEach((cb) => { if (cb.checked) cb.click(); });",
+            );
+
+            $this->panther->findElement(WebDriverBy::name('proceed'))->click();
+
+            // Land on home.php, then follow the Launch anchor into the
+            // app's index.php. The card still renders because the bearer
+            // still carries .rs (which is enough for isPortalApp — unchanged
+            // by the consent narrowing). The write flow is where the
+            // narrowing surfaces.
+            $this->panther->wait(30)->until(
+                static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/smart-questionnaire/home.php?lid='),
+            );
+            $this->panther->waitFor('#smart-apps-card', 15);
+            $indexHref = $this->panther->findElement(
+                WebDriverBy::cssSelector('#smart-apps-card a.btn-success'),
+            )->getAttribute('href');
+            self::assertNotEmpty($indexHref, 'Health Apps card Launch anchor should still render with .rs-only bearer');
+            $this->panther->request('GET', (string) $indexHref);
+
+            $this->panther->waitFor('a.list-group-item-action', 15);
+            $picker = null;
+            foreach ($this->panther->findElements(WebDriverBy::cssSelector('a.list-group-item-action')) as $item) {
+                if (str_contains($item->getText(), self::SEEDED_QUESTIONNAIRE_TITLE)) {
+                    $picker = $item;
+                    break;
+                }
+            }
+            self::assertNotNull($picker, 'seeded Questionnaire should still be listed when read scope is intact');
+            $picker->click();
+
+            // The runtime sees canSend=false (data.canSend is derived
+            // from $session->canCreate('QuestionnaireResponse') server-
+            // side, which parses the token's granted scope set). The
+            // branch at app.js:`if (!canSend && !(held && canChange))`
+            // fires: hides every action button and renders the "answers
+            // can't be sent" copy in #sq-working. #sq-new's `hidden`
+            // attribute reflects this.
+            $this->panther->waitFor('#sq-working', 15);
+            $this->panther->wait(10)->until(
+                static fn (WebDriver $d): bool => str_contains(
+                    $d->findElement(WebDriverBy::id('sq-working'))->getText(),
+                    'answers can\'t be sent from this app right now',
+                ),
+            );
+
+            // Belt-and-braces DOM check — #sq-new's hidden property is
+            // the direct expression of canSend=false. If the "answers
+            // can't be sent" copy fires but the button is still clickable,
+            // that would be a half-degraded state where the UI lies to
+            // the user about what the bearer can do.
+            $sqNew = $this->panther->findElement(WebDriverBy::id('sq-new'));
+            $hiddenAttr = $sqNew->getAttribute('hidden');
+            self::assertNotNull(
+                $hiddenAttr,
+                '#sq-new should carry a hidden attribute when canSend=false — '
+                . 'if it is still interactive, the consent narrowing did not propagate to the client runtime',
+            );
+        } finally {
+            $fixtures->removePortalPatientFixtures();
+        }
+    }
+
+    /**
+     * Portal dashboard OFF-switch (client-level): admin disables the
+     * portal-eligible client in `oauth_clients` (is_enabled=0). The next
+     * portal dashboard render should drop that client from the Health
+     * Apps card. With only one portal client registered in the smoke
+     * stack, the card itself disappears (the subscriber's portalApps()
+     * returns [], which short-circuits renderCard and renderTile).
+     *
+     * Browser-tier mirror of A5 (services-tier PortalSmartAppLauncher
+     * integration, openemr/openemr#15299) which asserts isPortalApp
+     * rejects an is_enabled=0 client at the filter layer. This test
+     * drives the full chain — admin toggles the flag, portal dashboard
+     * re-renders, UI reflects the toggle — so a regression in either
+     * the filter OR the subscriber OR the card template surfaces here.
+     */
+    #[Test]
+    public function testPortalDashboardHidesHealthAppsCardWhenClientIsDisabled(): void
+    {
+        $fixtures = new PortalPatientFixtureManager();
+        $this->sweepLingeringPortalArtifacts();
+
+        $suffix = bin2hex(random_bytes(3));
+        $username = 'portal-disabled-client-' . $suffix;
+        $password = 'PortalDisabledClientSmoke1!';
+        $email = "{$username}@test.example";
+
+        try {
+            $fixtures->installPortalPatient(
+                portalLoginUsername: $username,
+                plainPassword: $password,
+                email: $email,
+                fname: 'Portia',
+                lname: 'DisabledClientSmoke-' . $suffix,
+            );
+
+            // Disable the portal-eligible client. The register_smart_client
+            // step in ci/smart-launch/run.sh registers the client with
+            // name LIKE 'OpenEMR SMART Questionnaire smoke% - patient portal',
+            // so a targeted update by that pattern flips just the portal
+            // client (the staff --all client stays enabled, so other tests
+            // in this file that rely on it are unaffected).
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE oauth_clients SET is_enabled = 0 "
+                    . "WHERE client_name LIKE 'OpenEMR SMART Questionnaire smoke% - patient portal'"
+            );
+
+            $this->panther->request(
+                'GET',
+                self::OPENEMR_BASE . '/portal/index.php?site=default',
+            );
+            $this->panther->waitFor('form[action="get_patient_info.php"]', 15);
+            $this->panther->findElement(WebDriverBy::name('uname'))->sendKeys($username);
+            $this->panther->findElement(WebDriverBy::name('pass'))->sendKeys($password);
+            $emailFields = $this->panther->findElements(WebDriverBy::name('passaddon'));
+            if ($emailFields !== []) {
+                $emailFields[0]->sendKeys($email);
+            }
+            $this->panther->executeScript('document.forms[0].submit();');
+            $this->panther->wait(15)->until(
+                static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/portal/home.php'),
+            );
+            // Dashboard body renders. The sign-in-is-complete signal is
+            // that we're on home.php — if the card ever appears it would
+            // be rendered inline with the rest of the dashboard before
+            // this waitFor('body') would even see it absent. Panther's
+            // findElements returns [] for a missing selector, which is
+            // what we need.
+            $this->panther->waitFor('body', 10);
+            self::assertCount(
+                0,
+                $this->panther->findElements(WebDriverBy::cssSelector('#smart-apps-card')),
+                'Health Apps card must not render when the only portal-eligible client is disabled — '
+                . 'if it does, the oauth_clients.is_enabled=0 off-switch is being bypassed somewhere '
+                . 'between ClientRepository::listClientEntities and PortalSmartLaunchSubscriber::renderCard',
+            );
+            self::assertCount(
+                0,
+                $this->panther->findElements(WebDriverBy::cssSelector('#smart-apps-go')),
+                'Health Apps nav-icon tile (data-target=smart-apps-card) must not render when the card itself would not',
+            );
+        } finally {
+            // Restore is_enabled=1 so subsequent tests in the file (A2,
+            // A3, the write round-trip) still find the portal client
+            // enabled. Mirrors the shape register_smart_client uses.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE oauth_clients SET is_enabled = 1 "
+                    . "WHERE client_name LIKE 'OpenEMR SMART Questionnaire smoke% - patient portal'"
+            );
+            $fixtures->removePortalPatientFixtures();
+        }
+    }
+
+    /**
+     * Portal dashboard OFF-switch (global-level): admin toggles the
+     * `rest_fhir_api` global off. The subscriber reads this global at
+     * render time (`$this->globals()->getBoolean('rest_fhir_api')`); with
+     * it false, portalApps() returns [] before even reaching the client
+     * repository. Dashboard renders without the Health Apps card or tile.
+     *
+     * Browser-tier mirror of A4 (isolated PortalSmartLaunchSubscriberTest,
+     * openemr/openemr#15298) which asserts the branch at the subscriber
+     * level. This test drives the full chain — admin toggles the global,
+     * portal dashboard re-renders, UI reflects the toggle — so a
+     * regression in the subscriber OR the OEGlobalsBag read OR the
+     * card template surfaces here.
+     *
+     * Globals-table flip is scoped to this test's try/finally. The
+     * install_configure step in ciLibrary.source sets rest_fhir_api=1,
+     * so restoring that value in teardown keeps the stack in the state
+     * sibling tests expect.
+     */
+    #[Test]
+    public function testPortalDashboardHidesHealthAppsCardWhenFhirApiIsOff(): void
+    {
+        $fixtures = new PortalPatientFixtureManager();
+        $this->sweepLingeringPortalArtifacts();
+
+        $suffix = bin2hex(random_bytes(3));
+        $username = 'portal-fhir-off-' . $suffix;
+        $password = 'PortalFhirOffSmoke1!';
+        $email = "{$username}@test.example";
+
+        try {
+            $fixtures->installPortalPatient(
+                portalLoginUsername: $username,
+                plainPassword: $password,
+                email: $email,
+                fname: 'Portia',
+                lname: 'FhirOffSmoke-' . $suffix,
+            );
+
+            // Flip rest_fhir_api off. INSERT ... ON DUPLICATE KEY UPDATE
+            // mirrors the shape set_smoke_globals in run.sh uses, so the
+            // shape works whether the row exists already (install_configure
+            // set it to 1) or does not.
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('rest_fhir_api', 0, '0') "
+                    . "ON DUPLICATE KEY UPDATE gl_value = '0'"
+            );
+
+            $this->panther->request(
+                'GET',
+                self::OPENEMR_BASE . '/portal/index.php?site=default',
+            );
+            $this->panther->waitFor('form[action="get_patient_info.php"]', 15);
+            $this->panther->findElement(WebDriverBy::name('uname'))->sendKeys($username);
+            $this->panther->findElement(WebDriverBy::name('pass'))->sendKeys($password);
+            $emailFields = $this->panther->findElements(WebDriverBy::name('passaddon'));
+            if ($emailFields !== []) {
+                $emailFields[0]->sendKeys($email);
+            }
+            $this->panther->executeScript('document.forms[0].submit();');
+            $this->panther->wait(15)->until(
+                static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/portal/home.php'),
+            );
+            $this->panther->waitFor('body', 10);
+            self::assertCount(
+                0,
+                $this->panther->findElements(WebDriverBy::cssSelector('#smart-apps-card')),
+                'Health Apps card must not render when rest_fhir_api is off — '
+                . 'if it does, PortalSmartLaunchSubscriber::portalApps() is not reading the global or the '
+                . 'global\'s off state is not propagating into the render',
+            );
+            self::assertCount(
+                0,
+                $this->panther->findElements(WebDriverBy::cssSelector('#smart-apps-go')),
+                'Health Apps nav-icon tile must not render when rest_fhir_api is off',
+            );
+        } finally {
+            // Restore rest_fhir_api to the ciLibrary.source default
+            // install_configure sets. Any test following this one in the
+            // phpunit ordering that exercises /apis/default/fhir/* needs
+            // it back on.
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('rest_fhir_api', 0, '1') "
+                    . "ON DUPLICATE KEY UPDATE gl_value = '1'"
+            );
             $fixtures->removePortalPatientFixtures();
         }
     }
