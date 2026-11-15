@@ -1565,7 +1565,9 @@ function getAllinsurances($pid): array
  * PatientBalanceLedger once with PatientBalanceLoader and ask it for each:
  * every call here loads the patient's billing again.
  *
- * A patient or encounter id that isn't a whole number above 0 gives 0.00.
+ * An encounter id of false, 0, '0' or '' means every encounter, as it always
+ * has. Any other patient or encounter id that isn't a whole number above 0
+ * gives 0.00.
  *
  * @param mixed $pid The PID of the patient: an int or a digit string.
  * @param bool $with_insurance Indicates if amounts owed by insurance are to be included.

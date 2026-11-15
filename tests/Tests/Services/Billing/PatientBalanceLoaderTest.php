@@ -241,6 +241,14 @@ final class PatientBalanceLoaderTest extends TestCase
     }
 
     #[Test]
+    public function encounterZeroMeansEveryEncounter(): void
+    {
+        self::assertSame('185.00', get_patient_balance($this->pid, false, 0));
+        self::assertSame('185.00', get_patient_balance($this->pid, false, '0'));
+        self::assertSame('185.00', get_patient_balance($this->pid, false, ''));
+    }
+
+    #[Test]
     public function invalidIdsGiveZero(): void
     {
         self::assertSame('0.00', get_patient_balance(0, true));
