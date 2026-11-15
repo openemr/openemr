@@ -186,67 +186,6 @@ function eye_mag_drawing_background_options(mixed $zone, mixed $providerId, mixe
         // Defaults remain usable before a site's images directory has been provisioned.
     }
     $options[] = new DrawingBackgroundOption('blank', xl('Blank background'), $base . 'BLANK_BASE.jpg', false);
-
-    // System-shipped overlays available to all providers. These are anatomical
-    // drawing templates that serve as canvas backgrounds; they are read-only
-    // and cannot be renamed, archived, or deleted from the provider library.
-    foreach (eye_mag_drawing_background_system_options($zone) as $systemOption) {
-        $options[] = $systemOption;
-    }
-
-    return $options;
-}
-
-/**
- * Return system-shipped drawing background overlays for a zone.
- *
- * System overlays are anatomical drawing templates (optic disc, macula,
- * vascular arcades, clock hours, ROP zones, scleral depression guides) that
- * ship with OpenEMR and are available to every provider. They are stored in
- * images/eye_mag/library/<zone>/ and are read-only.
- *
- * @return list<DrawingBackgroundOption>
- */
-function eye_mag_drawing_background_system_options(mixed $zone): array
-{
-    if (!eye_mag_drawing_background_zone_valid($zone)) {
-        return [];
-    }
-    $base = eye_mag_drawing_background_webroot() . '/interface/forms/eye_mag/images/eye_mag/library/';
-    $zoneDir = strtoupper($zone);
-    $dir = __DIR__ . '/../../../images/eye_mag/library/' . $zoneDir . '/';
-    if (!is_dir($dir) || !is_readable($dir)) {
-        return [];
-    }
-    $options = [];
-    foreach (glob($dir . '*.json') ?: [] as $entry) {
-        $key = basename($entry, '.json');
-        if (!preg_match('/\Asys-[a-z0-9-]+\z/D', $key)) {
-            continue;
-        }
-        $metadata = json_decode((string) file_get_contents($entry), true);
-        if (!is_array($metadata) || ($metadata['version'] ?? null) !== 1
-            || ($metadata['key'] ?? '') !== $key
-            || !is_string($metadata['sha256'] ?? null)
-            || preg_match('/\A[a-f0-9]{64}\z/D', $metadata['sha256']) !== 1
-            || ($metadata['deleted'] ?? false) === true) {
-            continue;
-        }
-        $imageFile = $dir . substr($key, 4) . '.png';
-        if (!is_file($imageFile) || !is_readable($imageFile)) {
-            continue;
-        }
-        $options[] = new DrawingBackgroundOption(
-            $metadata['key'],
-            $metadata['label'],
-            $base . 'library/' . $zoneDir . '/' . substr($key, 4) . '.png',
-            false,
-            true,
-            false
-        );
-    }
-    usort($options, static fn(DrawingBackgroundOption $left, DrawingBackgroundOption $right): int =>
-        strnatcasecmp($left->label, $right->label) ?: strcmp($left->key, $right->key));
     return $options;
 }
 

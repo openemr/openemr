@@ -257,8 +257,7 @@
             // Library images are stable local files. Never restore a data URL,
             // temporary upload URL, remote image, or a patient document URL.
             if (url.origin !== window.location.origin || url.username || url.password || url.search || url.hash ||
-                !/^(?:\/[a-z0-9_.~-]+)*\/sites\/[a-z0-9_.~-]+\/images\/eye_mag\/providers\/[1-9][0-9]*\/(HPI|PMH|EXT|ANTSEG|RETINA|SDRETINA|NEURO|IMPPLAN)\/(library\/[a-f0-9]{16}\.png|[a-f0-9]+\.jpe?g)$/i.test(url.pathname) &&
-                !/^\/interface\/forms\/eye_mag\/images\/eye_mag\/library\/[A-Z]+\/[a-z0-9_.~-]+\.png$/i.test(url.pathname)) {
+                !/^(?:\/[a-z0-9_.~-]+)*\/sites\/[a-z0-9_.~-]+\/images\/eye_mag\/providers\/[1-9][0-9]*\/(HPI|PMH|EXT|ANTSEG|RETINA|SDRETINA|NEURO|IMPPLAN)\/(library\/[a-f0-9]{16}\.png|[a-f0-9]+\.jpe?g)$/i.test(url.pathname)) {
                 throw new Error(drawT('chooseSavedImage', 'Choose an image from the saved drawing library.'));
             }
             return url.pathname;
