@@ -213,7 +213,7 @@
                                          title="{{ event.tooltip|attr }}"
                                          id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
                                         <div class="visit-list-header">
-                                            <span class="visit-list-title">{{ event.visitList.title|text }}</span>
+                                            <button type="button" class="visit-list-title" title="{{ 'Click to edit'|xla }}">{{ event.visitList.title|text }}</button>
                                             <span class="visit-list-summary">{{ event.visitList.timeLabel|text }} · {{ event.visitList.count }} {% if event.visitList.count == 1 %}{{ 'patient'|xlt }}{% else %}{{ 'patients'|xlt }}{% endif %}</span>
                                             <button type="button" class="visit-list-add btn btn-sm btn-primary"{% if isHolidayDay %} disabled{% endif %}
                                                     data-date="{{ event.visitList.eventDate|attr }}" data-provider="{{ event.visitList.providerId|attr }}"
