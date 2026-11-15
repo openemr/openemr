@@ -627,6 +627,149 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
     }
 
     /**
+     * EHR-launch write round-trip. Staff user signs in, opens a patient
+     * chart, launches the SMART app via fhir_assessments.php's Launch
+     * button → authorize → login → consent → index.php landing →
+     * picks the seeded Questionnaire → sq-new → fill → sq-complete →
+     * asserts the FHIR POST stamped a QuestionnaireResponse.
+     *
+     * This closes the last three-mode write-path symmetry gap. Standalone
+     * has had the full write round-trip for a while, portal round-trip
+     * landed in openemr/openemr#15309, this is the EHR equivalent.
+     * Standalone and EHR both end up in non-patient-mode on index.php
+     * (patientMode=false in the companion app's runtime), so the write-
+     * side DOM flow is identical — the different launch entry paths
+     * are the only material divergence.
+     *
+     * Why both standalone AND EHR when both bearers carry user/ scopes:
+     * standalone exercises the cold `iss`-only entry, EHR exercises the
+     * `launch`-token-threading entry. Standalone's write round-trip
+     * proves user/QuestionnaireResponse.cu bearers can POST; EHR's write
+     * round-trip proves the same bearer shape issued through the launch-
+     * token path works too. Catches a regression narrow to launch-token
+     * handling that a shared /token exchange wouldn't surface in the
+     * standalone test.
+     *
+     * Signals of a successful save are the same shape as the standalone
+     * round-trip asserts (non-patient-mode DOM):
+     *   - #sq-status badge shows "completed"
+     *   - #sq-alert banner contains "Saved as completed"
+     *   - #sq-working line names the created QuestionnaireResponse by
+     *     FHIR id (format: `QuestionnaireResponse/<uuid>`)
+     */
+    #[Test]
+    public function testEhrLaunchCompletesQuestionnaireWriteRoundTrip(): void
+    {
+        // Sign into OpenEMR as admin — same entry as
+        // testEhrLaunchSkipsPatientSelectAndLandsOnApp.
+        $this->panther->request('GET', self::OPENEMR_BASE . '/interface/login/login.php?site=default');
+        $this->panther->waitFor('form', 10);
+        $this->panther->findElement(WebDriverBy::name('authUser'))->sendKeys('admin');
+        $this->panther->findElement(WebDriverBy::name('clearPass'))->sendKeys('pass');
+        $this->panther->executeScript('document.forms[0].submit();');
+        $this->panther->wait(15)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/interface/main/tabs/main.php'),
+        );
+
+        $this->openDemoPatientChart();
+
+        // Pull client_id + csrf + intent from fhir_assessments.php's
+        // test-launch buttons. The STAFF_LAUNCH_BUTTON_SELECTOR filter
+        // excludes the portal client (added by PR #15296 / openemr#15272)
+        // so this picks a staff-scoped client registered by `--all`.
+        $this->panther->request(
+            'GET',
+            self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
+        );
+        $this->panther->waitFor(self::STAFF_LAUNCH_BUTTON_SELECTOR, 10);
+        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector(self::STAFF_LAUNCH_BUTTON_SELECTOR));
+        $clientId = $launchBtn->getAttribute('data-client-id');
+        $intent = $launchBtn->getAttribute('data-intent');
+        if (preg_match('/smartLaunchCsrfToken\s*=\s*[\'"]([^\'"]+)/', $this->panther->getPageSource(), $m) !== 1) {
+            $this->fail('smartLaunchCsrfToken not found in fhir_assessments.php page source');
+        }
+        $csrf = $m[1];
+
+        // Fire the EHR launch.
+        $this->panther->request('GET', self::OPENEMR_BASE . '/interface/smart/ehr-launch-client.php?' . http_build_query([
+            'client_id' => $clientId,
+            'csrf_token' => $csrf,
+            'intent' => $intent,
+        ]));
+
+        // /authorize reauth prompt.
+        $this->panther->waitFor('form#userLogin', 15);
+        $this->panther->findElement(WebDriverBy::name('username'))->sendKeys('admin');
+        $this->panther->findElement(WebDriverBy::name('password'))->sendKeys('pass');
+        $loginForm = $this->panther->findElement(WebDriverBy::id('userLogin'));
+        $this->panther->executeScript(
+            "document.getElementById('userLogin').requestSubmit("
+            . "document.querySelector('form#userLogin button[type=\"submit\"], form#userLogin input[type=\"submit\"]'));",
+        );
+        $this->panther->wait(15)->until(WebDriverExpectedCondition::stalenessOf($loginForm));
+
+        // Consent → proceed → wait for app landing on index.php.
+        $this->panther->findElement(WebDriverBy::name('proceed'))->click();
+        $this->panther->wait(20)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/smart-questionnaire/index.php?lid='),
+        );
+
+        // Non-patient-mode write flow — same DOM shape as the standalone
+        // round-trip uses after its landing. The companion app's
+        // `refreshControls` (non-patient branch) renders the raw FHIR
+        // status + the QuestionnaireResponse/uuid in #sq-working; the
+        // save alert reads "Saved as completed. ...".
+        $this->panther->waitFor('a.list-group-item', 10);
+        $picker = $this->panther->findElement(WebDriverBy::cssSelector('a.list-group-item'));
+        $this->assertStringContainsString(
+            self::SEEDED_QUESTIONNAIRE_TITLE,
+            $picker->getText(),
+            'seeded Questionnaire should appear as the first (only) picker item',
+        );
+        $picker->click();
+
+        $this->panther->waitFor('button#sq-new', 15);
+        $this->panther->findElement(WebDriverBy::id('sq-new'))->click();
+        $this->panther->waitFor('input.form-control', 10);
+
+        // Fill the required string item. Same input/change/blur triple-
+        // dispatch as the standalone test — openemr_questionnaire.js
+        // watches all three before marking the field answered.
+        $input = $this->panther->findElement(WebDriverBy::cssSelector('input.form-control'));
+        $input->sendKeys('Doing great from the EHR');
+        $this->panther->executeScript(
+            'arguments[0].dispatchEvent(new Event("input", {bubbles: true}));'
+            . 'arguments[0].dispatchEvent(new Event("change", {bubbles: true}));'
+            . 'arguments[0].blur();',
+            [$input],
+        );
+
+        // Click Complete — fires api.php?action=save under the EHR-
+        // launch-issued bearer. A regression that broke launch-token
+        // threading into the user-scope bearer would surface here as
+        // a non-2xx on the FHIR POST and the status never flips.
+        $this->panther->findElement(WebDriverBy::id('sq-complete'))->click();
+        $this->panther->wait(20)->until(
+            static fn (WebDriver $d): bool => str_contains(
+                $d->findElement(WebDriverBy::id('sq-status'))->getText(),
+                'completed',
+            ),
+        );
+
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+        $this->assertStringContainsString(
+            'Saved as completed',
+            $bodyText,
+            '#sq-alert should confirm the EHR-launch save landed — missing it means api.php returned non-2xx under the EHR-launch bearer',
+        );
+        $this->assertMatchesRegularExpression(
+            '~QuestionnaireResponse/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}~',
+            $bodyText,
+            '#sq-working should name the created QuestionnaireResponse by FHIR uuid — proof the EHR-launch bearer carried user/QuestionnaireResponse.cu through the save',
+        );
+    }
+
+    /**
      * Tampered-launch error-path gate: an app-launch request that arrives
      * at /oauth2/default/authorize carrying a `launch=` value that is
      * either not valid base64 or decodes to ciphertext that fails
