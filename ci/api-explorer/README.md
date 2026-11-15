@@ -156,8 +156,27 @@ dedicated flow in this smoke, and SMART launch is covered by the sibling
     NEGATIVE admin creds + user_role=patient must be rejected (admin
     isn't a portal patient, the role lookup must come back empty).
     Catches a regression that stopped honoring the user_role claim.
+18. Runs **`driver-public-pkce-required.php`** (Guzzle, no browser):
+    public client (patient-scope DCR) submits /authorize WITHOUT any
+    `code_challenge`. SMART App Launch 2.x and OAuth 2.1 require PKCE
+    for public clients. Server must refuse — either 4xx JSON at
+    /authorize or 302 to redirect_uri with `?error=invalid_request`.
+    What must NOT happen: 200 serving the login page (would mean PKCE
+    check hasn't fired before user interaction) or 302 to redirect_uri
+    with a `?code=` (code issued without PKCE binding). Mirror of
+    driver-pkce-negative for the omit-entirely case.
+19. Runs **`driver-scope-upgrade.php`** (Guzzle, no browser): RFC 6749
+    §6 — refresh may request a NARROWER scope but MUST NOT request a
+    broader one. DCR + password-grant mint at a narrow scope, then
+    POST /token refresh_token with a BROADER scope. Two acceptable
+    refusal shapes: (a) 4xx + `error=invalid_scope` (preferred —
+    League OAuth2's built-in behavior), (b) 200 with silent narrowing
+    back to the original scope (RFC-compliant per §6, verified by
+    computing `array_diff(issued, original)`). What must NOT happen:
+    200 + issued scope that actually includes the upgrade — that
+    would be privilege escalation via the token endpoint.
 
-Total runtime ~6 min on top of the stack boot. The smoke exercises paths
+Total runtime ~7 min on top of the stack boot. The smoke exercises paths
 unit tests cannot reach (RFC 7591 DCR, JWT assertion generation + validation,
 system-scope FHIR reads, authorize + consent UI, PKCE verifier at the token
 endpoint — both happy and wrong-verifier-reject, password-grant token
@@ -214,7 +233,7 @@ those as the `api-explorer-driver-browser-postmortem` artifact.
 
 | File | Purpose |
 |------|---------|
-| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke all twelve drivers. |
+| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke all fourteen drivers. |
 | `driver.php` | Guzzle round-trip: DCR + JWT client-credentials FHIR Patient read. |
 | `driver-browser.php` | Panther/Selenium round-trip: confidential auth-code + public PKCE flows. |
 | `driver-password.php` | Guzzle round-trip: DCR + DB-flip + password-grant token + FHIR Patient read. |
@@ -227,6 +246,8 @@ those as the `api-explorer-driver-browser-postmortem` artifact.
 | `driver-code-reuse.php` | Guzzle: DCR public client + drive /authorize + login + consent to capture code + first `/token` succeeds + second `/token` with same code rejected (single-use). |
 | `driver-scope-insufficient.php` | Guzzle: DCR password-grant client with `user/QuestionnaireResponse.rs` scope + positive GET + NEGATIVE POST (refused 401/403). |
 | `driver-wrong-role.php` | Guzzle: DCR password-grant client + positive admin creds + user_role=users + NEGATIVE admin creds + user_role=patient (rejected). |
+| `driver-public-pkce-required.php` | Guzzle: DCR public client + GET /authorize WITHOUT code_challenge (expect refusal — 4xx or 302 with `?error=`, no `?code=`). |
+| `driver-scope-upgrade.php` | Guzzle: DCR password+refresh client at narrow scope, mint, refresh with BROADER scope (expect `invalid_scope` or silent narrowing back to original). |
 | `seed-globals.sql` | REPLACE INTO globals rows the smoke requires. Keys backed by `src/Services/Globals/GlobalConnectorsEnum.php`. |
 
 ## Credits

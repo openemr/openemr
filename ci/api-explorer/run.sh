@@ -139,3 +139,9 @@ openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-scop
 
 echo "==> Running driver-wrong-role (admin creds + user_role=patient → rejected)"
 openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-wrong-role.php'
+
+echo "==> Running driver-public-pkce-required (public client /authorize without code_challenge → refused)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-public-pkce-required.php'
+
+echo "==> Running driver-scope-upgrade (refresh with broader scope → refused or narrowed)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-scope-upgrade.php'
