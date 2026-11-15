@@ -145,8 +145,8 @@ class ImmunizationFhirApiTest extends TestCase
     /**
      * An _id search returns the seeded immunization exactly once.
      *
-     * CVX 197 is also a code number in another code system in the codes table. Joining on the
-     * code number alone returned the same immunization once per match, so the count matters.
+     * The fixture's site code is LA, which is also an option_id in the state and
+     * nationality_with_country lists. A site join without a list_id repeated the row once per match.
      */
     public function testSearchByIdReturnsOnlySeededImmunization(): void
     {
