@@ -91,15 +91,103 @@ dedicated flow in this smoke, and SMART launch is covered by the sibling
     `QueryUtils` that are awkward to replicate as raw SQL. The driver
     cleans up its fixture rows + its own `oauth_clients` row in a
     finally block.
+11. Runs **`driver-refresh.php`** (Guzzle, no browser): DCR a confidential
+    client with `offline_access`, DB-flip to `password refresh_token`,
+    mint an initial bearer + refresh_token via password grant, exchange
+    the refresh_token for a rotated access+refresh pair, GET FHIR Patient
+    with the rotated access_token (proves refresh-issued bearer carries
+    the original scope set), then exercise two negatives — (a) replay
+    the ORIGINAL refresh_token after rotation must return
+    `error=invalid_grant` (single-use enforcement in
+    `CustomRefreshTokenGrant`); (b) refresh with a DIFFERENT client's
+    credentials must return `error=invalid_grant` (refresh-token-to-
+    client binding). Closes the explicit "no dedicated refresh-token
+    flow" gap this README previously called out.
+12. Runs **`driver-introspection.php`** (Guzzle, no browser): DCR +
+    DB-flip to password-grant, mint a bearer, POST to
+    `/oauth2/default/introspect` and assert `active=true` + the scope
+    string includes the scope the bearer was issued with. Then two
+    negatives — (a) a bogus random-string token must return HTTP 200 +
+    `active=false` per RFC 7662 §2.2 (NOT a 4xx — the endpoint absorbs
+    bogus tokens by design); (b) introspection without client auth
+    must be rejected (anyone could probe arbitrary bearers otherwise).
+    Lifecycle-endpoint coverage none of the other drivers touch.
+13. Runs **`driver-pkce-negative.php`** (Guzzle, no browser, drives the
+    /authorize + login + consent flow via Guzzle + DomCrawler): DCR a
+    public client with patient-only scopes (triggers OpenEMR's public-
+    client DCR branch — no client_secret issued), generate PKCE
+    verifier A + S256 challenge A, drive /authorize + login + consent
+    to capture an authorization code, then POST /token with the code +
+    an INDEPENDENT verifier B. Asserts HTTP 400 + `error=invalid_grant`
+    at the token endpoint — proves the server computes SHA256(verifier)
+    and compares against the stored challenge instead of accepting any
+    verifier.
+14. Runs **`driver-invalid-secret.php`** (Guzzle, no browser): DCR +
+    enable password-grant confidential client, positive control with
+    the real secret, then two negatives — (a) wrong client_secret
+    (random 32-hex-byte); (b) empty client_secret. Both must return
+    4xx + `error=invalid_client` (or `invalid_request` for the empty
+    case, which some servers emit for missing-required-field).
+    Fundamental OAuth2 property no other driver covers.
+15. Runs **`driver-code-reuse.php`** (Guzzle, no browser, drives the
+    /authorize flow like driver-pkce-negative): DCR a public PKCE
+    client, drive /authorize + login + consent, capture authorization
+    code, POST /token with correct verifier (positive control — first
+    exchange must succeed), then POST /token AGAIN with the same code
+    + verifier. The second exchange must be rejected — single-use
+    enforcement on authorization codes per RFC 6749 §4.1.2 / §10.5.
+    Accepts either `invalid_grant` or `invalid_request` per the League
+    8.5.5 quirk documented in §8.1a of the audit doc. Sibling to
+    driver-refresh.php's refresh-token single-use test.
+16. Runs **`driver-scope-insufficient.php`** (Guzzle, no browser):
+    DCR + enable password-grant client with
+    `user/QuestionnaireResponse.rs` scope only (read + search, NO
+    create/update). Mint bearer, positive control GET
+    /fhir/QuestionnaireResponse (succeeds — read grant intact), then
+    NEGATIVE POST a minimal QuestionnaireResponse. Must be refused
+    HTTP 401 or 403. Catches a regression in the ScopeConstraintFilter
+    or AccessTokenAuthorization scope-vs-operation gate from a real
+    external client angle (in-tree unit tests cover the gate's PHP
+    logic; this covers the end-to-end FHIR-endpoint behavior).
+17. Runs **`driver-wrong-role.php`** (Guzzle, no browser): password
+    grant's `user_role` form parameter tells the server which identity
+    table to use (`users` → staff, `patient` → portal patient).
+    Positive control with admin creds + user_role=users must mint;
+    NEGATIVE admin creds + user_role=patient must be rejected (admin
+    isn't a portal patient, the role lookup must come back empty).
+    Catches a regression that stopped honoring the user_role claim.
+18. Runs **`driver-public-pkce-required.php`** (Guzzle, no browser):
+    public client (patient-scope DCR) submits /authorize WITHOUT any
+    `code_challenge`. SMART App Launch 2.x and OAuth 2.1 require PKCE
+    for public clients. Server must refuse — either 4xx JSON at
+    /authorize or 302 to redirect_uri with `?error=invalid_request`.
+    What must NOT happen: 200 serving the login page (would mean PKCE
+    check hasn't fired before user interaction) or 302 to redirect_uri
+    with a `?code=` (code issued without PKCE binding). Mirror of
+    driver-pkce-negative for the omit-entirely case.
+19. Runs **`driver-scope-upgrade.php`** (Guzzle, no browser): RFC 6749
+    §6 — refresh may request a NARROWER scope but MUST NOT request a
+    broader one. DCR + password-grant mint at a narrow scope, then
+    POST /token refresh_token with a BROADER scope. Two acceptable
+    refusal shapes: (a) 4xx + `error=invalid_scope` (preferred —
+    League OAuth2's built-in behavior), (b) 200 with silent narrowing
+    back to the original scope (RFC-compliant per §6, verified by
+    computing `array_diff(issued, original)`). What must NOT happen:
+    200 + issued scope that actually includes the upgrade — that
+    would be privilege escalation via the token endpoint.
 
-Total runtime ~4 min on top of the stack boot. The smoke exercises paths
+Total runtime ~7 min on top of the stack boot. The smoke exercises paths
 unit tests cannot reach (RFC 7591 DCR, JWT assertion generation + validation,
 system-scope FHIR reads, authorize + consent UI, PKCE verifier at the token
-endpoint, password-grant token issuance against user_role=users, FHIR
-write-path POST / PUT / GET with persistence verification, portal-API read
-with a patient-role bearer) from a client the server has no awareness of
-until registration time, which is as close to "real external app" as you
-can get in CI.
+endpoint — both happy and wrong-verifier-reject, password-grant token
+issuance against user_role=users + wrong-role reject, FHIR write-path POST
+/ PUT / GET with persistence verification, portal-API read with a patient-
+role bearer, refresh-token rotation + single-use + wrong-client reject,
+RFC 7662 token introspection with client-auth gate, authorization-code
+single-use enforcement, invalid-client_secret reject, scope-insufficient
+operation reject) from a client the server has no awareness of until
+registration time, which is as close to "real external app" as you can
+get in CI.
 
 ## What the smoke does **not** do
 
@@ -109,6 +197,10 @@ can get in CI.
   is a round-trip, not a conformance sweep — it exercises one resource
   (CareTeam) at POST + PUT + GET to catch write-path OAuth regressions
   from an external client, not every write route.
+- No `/revoke` coverage. RFC 7009 is unimplemented / unadvertised in
+  OpenEMR as of this writing — see §8.3 of the OAuth2/FHIR API audit
+  doc. If/when it lands, a sibling driver exercises the shape this
+  file established for `/introspect`.
 
 ## Upstream tracking
 
@@ -141,12 +233,21 @@ those as the `api-explorer-driver-browser-postmortem` artifact.
 
 | File | Purpose |
 |------|---------|
-| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke all five drivers. |
+| `run.sh` | Entry point: clone the explorer, seed demo data + globals, invoke all fourteen drivers. |
 | `driver.php` | Guzzle round-trip: DCR + JWT client-credentials FHIR Patient read. |
 | `driver-browser.php` | Panther/Selenium round-trip: confidential auth-code + public PKCE flows. |
 | `driver-password.php` | Guzzle round-trip: DCR + DB-flip + password-grant token + FHIR Patient read. |
 | `driver-fhir-writes.php` | Guzzle round-trip: DCR + DB-flip + password-grant token + FHIR CareTeam POST + PUT + GET persistence read-back. |
 | `driver-portal.php` | Guzzle round-trip + OE bootstrap: portal patient fixture + DCR + DB-flip + password-grant (user_role=patient) + `/apis/default/portal/patient` read. |
+| `driver-refresh.php` | Guzzle: DCR + DB-flip password+refresh_token + initial token with offline_access + refresh-token rotation + original-refresh-replay reject + wrong-client-refresh reject. |
+| `driver-introspection.php` | Guzzle: DCR + DB-flip password + mint bearer + `/introspect` live-bearer + bogus-token (active=false) + unauth (4xx reject). |
+| `driver-pkce-negative.php` | Guzzle: DCR public client + drive /authorize + login + consent to capture code + `/token` with WRONG code_verifier (expect `invalid_grant`). |
+| `driver-invalid-secret.php` | Guzzle: DCR confidential client + positive control with real secret + `/token` with WRONG secret + `/token` with EMPTY secret (expect `invalid_client`). |
+| `driver-code-reuse.php` | Guzzle: DCR public client + drive /authorize + login + consent to capture code + first `/token` succeeds + second `/token` with same code rejected (single-use). |
+| `driver-scope-insufficient.php` | Guzzle: DCR password-grant client with `user/QuestionnaireResponse.rs` scope + positive GET + NEGATIVE POST (refused 401/403). |
+| `driver-wrong-role.php` | Guzzle: DCR password-grant client + positive admin creds + user_role=users + NEGATIVE admin creds + user_role=patient (rejected). |
+| `driver-public-pkce-required.php` | Guzzle: DCR public client + GET /authorize WITHOUT code_challenge (expect refusal — 4xx or 302 with `?error=`, no `?code=`). |
+| `driver-scope-upgrade.php` | Guzzle: DCR password+refresh client at narrow scope, mint, refresh with BROADER scope (expect `invalid_scope` or silent narrowing back to original). |
 | `seed-globals.sql` | REPLACE INTO globals rows the smoke requires. Keys backed by `src/Services/Globals/GlobalConnectorsEnum.php`. |
 
 ## Credits
