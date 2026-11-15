@@ -1889,21 +1889,18 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
 
             $this->panther->findElement(WebDriverBy::name('proceed'))->click();
 
-            // Land on home.php, then follow the Launch anchor into the
-            // app's index.php. The card still renders because the bearer
-            // still carries .rs (which is enough for isPortalApp — unchanged
-            // by the consent narrowing). The write flow is where the
-            // narrowing surfaces.
+            // After proceed, the companion app's callback.php exchanges
+            // the code for the narrowed bearer and lands on its
+            // /smart-questionnaire/home.php (NOT OpenEMR's /portal/home.php
+            // — that page is the one we signed into earlier, before the
+            // /oauth2 handoff). The Questionnaire picker on the companion
+            // app's home.php renders each active Questionnaire as an
+            // a.list-group-item-action whose href navigates to
+            // index.php?q=<questionnaire-id>. The write-mode affordance
+            // check happens on index.php, so click through.
             $this->panther->wait(30)->until(
                 static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/smart-questionnaire/home.php?lid='),
             );
-            $this->panther->waitFor('#smart-apps-card', 15);
-            $indexHref = $this->panther->findElement(
-                WebDriverBy::cssSelector('#smart-apps-card a.btn-success'),
-            )->getAttribute('href');
-            self::assertNotEmpty($indexHref, 'Health Apps card Launch anchor should still render with .rs-only bearer');
-            $this->panther->request('GET', (string) $indexHref);
-
             $this->panther->waitFor('a.list-group-item-action', 15);
             $picker = null;
             foreach ($this->panther->findElements(WebDriverBy::cssSelector('a.list-group-item-action')) as $item) {
@@ -1912,7 +1909,11 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
                     break;
                 }
             }
-            self::assertNotNull($picker, 'seeded Questionnaire should still be listed when read scope is intact');
+            self::assertNotNull(
+                $picker,
+                'seeded Questionnaire should still be listed when read scope is intact — '
+                . 'the consent narrowing dropped .cu but left .rs, which is what Questionnaire search needs',
+            );
             $picker->click();
 
             // The runtime sees canSend=false (data.canSend is derived
