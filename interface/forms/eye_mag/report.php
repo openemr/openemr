@@ -1233,7 +1233,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
             if ((bool) ($reportRefractions)) { ?>
                 <br/>
                 <table class="refraction_tables" style="width:100%;<?php echo $PDF_OUTPUT ? 'page-break-inside:avoid;' : ''; ?>">
-                <tr>
+                <tr<?php echo $PDF_OUTPUT ? ' style="page-break-after:avoid;"' : ''; ?>>
                     <td colspan="10" style="text-align:left;">
                         <?php ReportRenderer::zoneHeading(xl('Refractive States'), (bool) $PDF_OUTPUT); ?>
                     </td>
@@ -2298,7 +2298,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
     ?>
     <!-- start of IMPPLAN exam -->
     <table class="report_exam_group" style="width:100%;max-width:none;">
-    <tr><td colspan="2"><?php ReportRenderer::zoneHeading(xl('Impression/Plan'), (bool) $PDF_OUTPUT); ?></td></tr>
+    <tr<?php echo $PDF_OUTPUT ? ' style="page-break-after:avoid;"' : ''; ?>><td colspan="2"><?php ReportRenderer::zoneHeading(xl('Impression/Plan'), (bool) $PDF_OUTPUT); ?></td></tr>
     <tr>
     <td style="text-align:left;padding:1px;vertical-align:top;width:480px;">
     <table style="">
