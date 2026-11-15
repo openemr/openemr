@@ -28,9 +28,9 @@
            "dispstarth:startm content" HTML for the label DIV
          - visitList : only for a Visit List block; {title, timeLabel,
            providerId, eventDate, startHour, startMinute, count, rows},
-           each row {eid, eventDate, pccattype,
+           each row {eid, pid, eventDate, pccattype,
            sequenceLabel, patientName, categoryName, statusTitle,
-           bgColor, tooltip}. The block's patients are not among the
+           bgColor, tooltip, patientTooltip}. The block's patients are not among the
            column's other events.
 
    @package   OpenEMR
@@ -224,15 +224,15 @@
                                         </div>
                                         <ol class="visit-list-entries">
                                             {% for row in event.visitList.rows %}
-                                                <li>
-                                                    <button type="button" class="visit-list-entry" style="background-color: {{ row.bgColor }}"
-                                                            data-eid="{{ row.eid|attr }}" data-date="{{ row.eventDate|attr }}" data-cattype="{{ row.pccattype|attr }}"
-                                                            title="{{ row.tooltip|attr }}">
-                                                        <span class="visit-list-sequence">{{ row.sequenceLabel|text }}</span>
-                                                        <span class="visit-list-patient">{{ row.patientName|text }}</span>
-                                                        <span class="visit-list-category">{{ row.categoryName|text }}</span>
-                                                        <span class="visit-list-status">{{ row.statusTitle|text }}</span>
-                                                    </button>
+                                                {# As on a timed appointment: the number (in place of a time) and a
+                                                   double click edit the appointment; the name opens the chart. #}
+                                                <li class="visit-list-entry" style="background-color: {{ row.bgColor }}"
+                                                    data-eid="{{ row.eid|attr }}" data-date="{{ row.eventDate|attr }}" data-cattype="{{ row.pccattype|attr }}"
+                                                    title="{{ row.tooltip|attr }}">
+                                                    <button type="button" class="visit-list-sequence" title="{{ 'Click to edit'|xla }}">{{ row.sequenceLabel|text }}</button>
+                                                    <a class="visit-list-patient" href="#" data-pid="{{ row.pid|attr }}" title="{{ row.patientTooltip|attr }}">{{ row.patientName|text }}</a>
+                                                    <span class="visit-list-category">{{ row.categoryName|text }}</span>
+                                                    <span class="visit-list-status">{{ row.statusTitle|text }}</span>
                                                 </li>
                                             {% endfor %}
                                         </ol>

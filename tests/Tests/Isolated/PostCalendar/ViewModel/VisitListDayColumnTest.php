@@ -197,6 +197,16 @@ final class VisitListDayColumnTest extends TestCase
         $this->assertStringContainsString("Hollis, Margaret\nEstablished Patient\nAVM Confirmed", $tooltip);
         $this->assertStringContainsString('Stop 6', $tooltip);
         $this->assertStringContainsString('Gate code 1234', $tooltip);
+        $this->assertStringEndsWith('(double click to edit)', $tooltip, 'as on a timed appointment');
+    }
+
+    public function testRowNameOpensThePatientsChart(): void
+    {
+        $column = self::column([self::blockEvent(), self::patientEvent(41, 'Hollis, Margaret')], self::schedule([[41, 1, null]]));
+
+        $row = $column->lists[40]['rows'][0];
+        $this->assertSame(541, $row['pid']);
+        $this->assertSame("Hollis, Margaret\n(Click to view)", $row['patientTooltip']);
     }
 
     public function testPatientsStayInTheGridWhenTheirBlockIsNotInTheColumn(): void

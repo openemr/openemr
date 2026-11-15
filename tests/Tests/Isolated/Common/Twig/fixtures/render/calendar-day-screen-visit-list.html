@@ -121,27 +121,25 @@
                                             </button>
                                         </div>
                                         <ol class="visit-list-entries">
-                                                                                            <li>
-                                                    <button type="button" class="visit-list-entry" style="background-color: #FF2414"
-                                                            data-eid="41" data-date="20260309" data-cattype="0"
-                                                            title="Hollis, Margaret
+                                                                                                                                            <li class="visit-list-entry" style="background-color: #FF2414"
+                                                    data-eid="41" data-date="20260309" data-cattype="0"
+                                                    title="Hollis, Margaret
 Established Patient">
-                                                        <span class="visit-list-sequence">#1</span>
-                                                        <span class="visit-list-patient">Hollis, Margaret</span>
-                                                        <span class="visit-list-category">Established Patient</span>
-                                                        <span class="visit-list-status">@ Arrived</span>
-                                                    </button>
+                                                    <button type="button" class="visit-list-sequence" title="Click to edit">#1</button>
+                                                    <a class="visit-list-patient" href="#" data-pid="541" title="Hollis, Margaret
+(Click to view)">Hollis, Margaret</a>
+                                                    <span class="visit-list-category">Established Patient</span>
+                                                    <span class="visit-list-status">@ Arrived</span>
                                                 </li>
-                                                                                            <li>
-                                                    <button type="button" class="visit-list-entry" style="background-color: #a2d9e2"
-                                                            data-eid="42" data-date="20260309" data-cattype="0"
-                                                            title="O&#039;Brien, Pat &lt;Jr&gt;
+                                                                                                                                            <li class="visit-list-entry" style="background-color: #a2d9e2"
+                                                    data-eid="42" data-date="20260309" data-cattype="0"
+                                                    title="O&#039;Brien, Pat &lt;Jr&gt;
 New Patient">
-                                                        <span class="visit-list-sequence">#2</span>
-                                                        <span class="visit-list-patient">O'Brien, Pat &lt;Jr&gt;</span>
-                                                        <span class="visit-list-category">New Patient</span>
-                                                        <span class="visit-list-status"></span>
-                                                    </button>
+                                                    <button type="button" class="visit-list-sequence" title="Click to edit">#2</button>
+                                                    <a class="visit-list-patient" href="#" data-pid="542" title="O&#039;Brien, Pat &lt;Jr&gt;
+(Click to view)">O'Brien, Pat &lt;Jr&gt;</a>
+                                                    <span class="visit-list-category">New Patient</span>
+                                                    <span class="visit-list-status"></span>
                                                 </li>
                                                                                     </ol>
                                     </div>
@@ -276,16 +274,35 @@ New Patient">
         });
         $("#printview").click(function() { PrintView(this); });
         $(".event").dblclick(function() { EditEvent(this); });
-        // A Visit List's + adds a patient to it, and a row opens its patient's
-        // appointment. Both are kept from reaching the block, whose double click
-        // edits the block itself.
+        // A Visit List's + adds a patient to it and a click on its header edits the
+        // block itself. A patient row works like a timed appointment: its number
+        // (in place of a time) and a double click edit the appointment, and the
+        // name opens the chart. All are kept from reaching the block, whose double
+        // click edits the block, and the number and name from the row's double
+        // click, so one double click cannot open two windows.
         $(".visit-list-add").on("click", function(e) {
-         e.stopPropagation();
-         newVisitListEvt($(this).data("date"), $(this).data("provider"), $(this).data("hour"), $(this).data("minute"));
-     }).on("dblclick", function(e) { e.stopPropagation(); });
-     $(".visit-list-entry").on("click", function(e) {
             e.stopPropagation();
-            oldEvt($(this).data("date"), $(this).data("eid"), $(this).data("cattype"));
+            newVisitListEvt($(this).data("date"), $(this).data("provider"), $(this).data("hour"), $(this).data("minute"));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
+        $(".visit-list-header").on("click", function(e) {
+            e.stopPropagation();
+            EditEvent($(this).closest(".event").get(0));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
+        var editVisitListPatient = function(row) {
+            oldEvt(row.data("date"), row.data("eid"), row.data("cattype"));
+        };
+        $(".visit-list-entry").on("dblclick", function(e) {
+            e.stopPropagation();
+            editVisitListPatient($(this));
+        });
+        $(".visit-list-sequence").on("click", function(e) {
+            e.stopPropagation();
+            editVisitListPatient($(this).closest(".visit-list-entry"));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
+        $(".visit-list-patient").on("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            goPid($(this).data("pid"));
         }).on("dblclick", function(e) { e.stopPropagation(); });
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });

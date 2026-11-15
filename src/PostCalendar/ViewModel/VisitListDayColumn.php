@@ -31,6 +31,7 @@ use OpenEMR\Appointment\VisitList\VisitListSchedule;
  * @phpstan-type AppointmentStatus array{title: string, color: string}
  * @phpstan-type VisitListRow array{
  *     eid: int,
+ *     pid: int,
  *     eventDate: string,
  *     pccattype: string,
  *     sequenceLabel: string,
@@ -38,7 +39,8 @@ use OpenEMR\Appointment\VisitList\VisitListSchedule;
  *     categoryName: string,
  *     statusTitle: string,
  *     bgColor: string,
- *     tooltip: string
+ *     tooltip: string,
+ *     patientTooltip: string
  * }
  * @phpstan-type VisitListData array{
  *     title: string,
@@ -226,10 +228,13 @@ final readonly class VisitListDayColumn
         if ($comment !== '') {
             $tooltip .= "\n" . $comment;
         }
-        $tooltip .= "\n(" . xl('Click to edit') . ')';
+        // As on a timed appointment: double click the row (or click its number, in place
+        // of a time) to edit the appointment, click the name to open the chart.
+        $tooltip .= "\n(" . xl('double click to edit') . ')';
 
         return [
             'eid' => $entry->eventId,
+            'pid' => $entry->patientId,
             'eventDate' => $eventDateYmd,
             'pccattype' => CalendarRenderDataBuilder::categoryTypeToken($event['pccattype'] ?? null),
             'sequenceLabel' => $entry->sequence === null ? '#' : '#' . $entry->sequence,
@@ -238,6 +243,7 @@ final readonly class VisitListDayColumn
             'statusTitle' => $statusTitle,
             'bgColor' => $bgColor,
             'tooltip' => $tooltip,
+            'patientTooltip' => $patientName . "\n(" . xl('Click to view') . ')',
         ];
     }
 

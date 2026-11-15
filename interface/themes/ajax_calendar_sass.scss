@@ -554,32 +554,48 @@ $side-calendar-date-padding: 0.3rem !default;
     // "@ Arrived" is bright red), in every theme. All their text uses one literal
     // dark color that no theme redefines (as .month_daylink does), so it reads on
     // any of them.
-    // A button, so keyboard users can open the patient's appointment too.
     &-entry {
       align-items: baseline;
-      border: 0;
       border-radius: 0.25rem;
       color: #111827;
-      cursor: pointer;
       display: flex;
-      font: inherit;
       gap: 0.375rem;
       margin-top: 0.125rem;
       overflow: hidden;
       padding: 0 0.25rem;
-      text-align: start;
       white-space: nowrap;
-      width: 100%;
 
-      &:hover,
+      &:hover {
+        outline: 1px solid #4b5563;
+      }
+    }
+
+    // The number edits the appointment and the name opens the chart, as a timed
+    // appointment's time and name do. A button and a link, so keyboard users can
+    // reach both.
+    &-sequence,
+    &-patient {
+      color: inherit;
+      cursor: pointer;
+
+      &:hover {
+        color: inherit;
+        text-decoration: underline;
+      }
+
       &:focus-visible {
         outline: 1px solid #4b5563;
       }
     }
 
     &-sequence {
+      background: none;
+      border: 0;
+      font: inherit;
       font-weight: bold;
       min-width: 1.75rem;
+      padding: 0;
+      text-align: start;
     }
 
     &-patient {

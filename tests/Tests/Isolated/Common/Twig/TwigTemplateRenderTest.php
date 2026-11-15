@@ -541,6 +541,7 @@ class TwigTemplateRenderTest extends TestCase
                                     'rows'        => [
                                         [
                                             'eid'           => 41,
+                                            'pid'           => 541,
                                             'eventDate'     => '20260309',
                                             'pccattype'     => '0',
                                             'sequenceLabel' => '#1',
@@ -549,9 +550,11 @@ class TwigTemplateRenderTest extends TestCase
                                             'statusTitle'   => '@ Arrived',
                                             'bgColor'       => '#FF2414',
                                             'tooltip'       => "Hollis, Margaret\nEstablished Patient",
+                                            'patientTooltip' => "Hollis, Margaret\n(Click to view)",
                                         ],
                                         [
                                             'eid'           => 42,
+                                            'pid'           => 542,
                                             'eventDate'     => '20260309',
                                             'pccattype'     => '0',
                                             'sequenceLabel' => '#2',
@@ -560,6 +563,7 @@ class TwigTemplateRenderTest extends TestCase
                                             'statusTitle'   => '',
                                             'bgColor'       => '#a2d9e2',
                                             'tooltip'       => "O'Brien, Pat <Jr>\nNew Patient",
+                                            'patientTooltip' => "O'Brien, Pat <Jr>\n(Click to view)",
                                         ],
                                     ],
                                 ],
