@@ -197,21 +197,47 @@ if ($authStatus === 200 && $sawLoginPage) {
     exit(8);
 }
 
-// At this point we have one of:
-//   - 4xx with an error body (preferred)
-//   - 302 to redirect_uri with ?error= (acceptable)
-//   - 302 elsewhere (e.g. internal error page) — still "no code issued"
-// All are acceptable refusals. Report what we got for diagnostic clarity.
+// Accept only the two RFC-compliant refusal shapes. Rabbit flagged
+// that a generic "else: pass" branch would silently accept server
+// faults (HTTP 500, empty 200 with no login page) as if they were
+// proper refusals — those shapes don't prove PKCE enforcement, they
+// just prove the server crashed or returned unrelated content before
+// reaching the auth code issuance.
 if ($authStatus === 302 && str_starts_with($location, $redirectUri)) {
+    // Branch A: 302 back to the client's redirect_uri with ?error=
+    //           in the query string. Any OAuth error code is acceptable
+    //           here (invalid_request is the RFC-mandated code for
+    //           missing required parameters per RFC 6749 §4.1.2.1).
     parse_str((string) parse_url($location, PHP_URL_QUERY), $locQuery);
-    $errCode = $locQuery['error'] ?? '(none)';
-    echo "       OK  (HTTP 302 → redirect_uri?error={$errCode})\n\n";
+    if (!isset($locQuery['error']) || !is_string($locQuery['error'])) {
+        fwrite(STDERR, "FAIL /authorize 302 to redirect_uri without an `error` query parameter — unexpected shape\n");
+        fwrite(STDERR, "Location: {$location}\n");
+        exit(9);
+    }
+    echo "       OK  (HTTP 302 → redirect_uri?error={$locQuery['error']})\n\n";
 } elseif ($authStatus >= 400 && $authStatus < 500) {
+    // Branch B: 4xx with a JSON error body. Must parse as JSON and
+    // carry an `error` field (OpenEMR renders via the League error
+    // handler which always emits this shape).
     $body = json_decode($authBody, true);
-    $errCode = is_array($body) ? ($body['error'] ?? '(no error field)') : '(non-JSON body)';
-    echo "       OK  (HTTP {$authStatus}, error={$errCode})\n\n";
+    if (!is_array($body) || !is_string($body['error'] ?? null)) {
+        fwrite(STDERR, "FAIL /authorize returned HTTP {$authStatus} but body was not a JSON OAuth error\n");
+        fwrite(STDERR, substr($authBody, 0, 2000) . "\n");
+        exit(10);
+    }
+    echo "       OK  (HTTP {$authStatus}, error={$body['error']})\n\n";
 } else {
-    echo "       OK  (HTTP {$authStatus}, non-200 non-302; code not issued, login page not served)\n\n";
+    // Any other shape (5xx, 3xx-not-to-redirect-uri, 200-without-
+    // login-page) is NOT a proper OAuth refusal and should fail the
+    // smoke so the actual response is surfaced for debugging.
+    fwrite(
+        STDERR,
+        "FAIL /authorize returned unexpected shape — neither a 4xx JSON OAuth error nor a 302 to "
+            . "the client's redirect_uri. HTTP {$authStatus}, Location header: "
+            . ($location !== '' ? $location : '(none)') . "\n"
+    );
+    fwrite(STDERR, substr($authBody, 0, 2000) . "\n");
+    exit(11);
 }
 
 echo "PASS  oe-module-api-explorer public-client-must-use-PKCE negative succeeded.\n";

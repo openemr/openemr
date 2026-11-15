@@ -210,16 +210,21 @@ $refreshStatus = $refreshResp->getStatusCode();
 $refreshBody = json_decode((string) $refreshResp->getBody(), true);
 
 if ($refreshStatus >= 400 && $refreshStatus < 500) {
-    // Branch (a) — hard refuse. Expect invalid_scope per RFC 6749 §5.2;
-    // accept invalid_request as a fallback since OpenEMR's League 8.5.5
-    // vendor-copy maps some validation errors to invalid_request (see §8.1a).
-    if (!is_array($refreshBody) || !in_array($refreshBody['error'] ?? null, ['invalid_scope', 'invalid_request', 'invalid_grant'], true)) {
-        fwrite(STDERR, "FAIL refresh rejected with unexpected error code\n");
+    // Branch (a) — hard refuse. Must be invalid_scope specifically (RFC
+    // 6749 §5.2). Rabbit flagged that accepting invalid_grant or
+    // invalid_request would let an earlier-firing error (bad refresh
+    // token, missing form field) masquerade as a scope-validation
+    // rejection. If OpenEMR's League 8.5.5 ever starts mapping
+    // scope-upgrade to one of those codes (§8.1a drift), this
+    // assertion fails loudly and we re-evaluate rather than quietly
+    // pass through a weaker property.
+    if (!is_array($refreshBody) || ($refreshBody['error'] ?? null) !== 'invalid_scope') {
+        fwrite(STDERR, "FAIL refresh rejected but not with invalid_scope — a different error fired before scope validation ran\n");
         fwrite(STDERR, "HTTP {$refreshStatus}\n");
         fwrite(STDERR, substr((string) $refreshResp->getBody(), 0, 2000) . "\n");
         exit(10);
     }
-    echo "       OK  (HTTP {$refreshStatus}, {$refreshBody['error']} — hard refuse of scope upgrade)\n\n";
+    echo "       OK  (HTTP {$refreshStatus}, invalid_scope — hard refuse of scope upgrade)\n\n";
 } elseif ($refreshStatus === 200) {
     // Branch (b) — silent narrowing. Verify the issued scope is a subset
     // of the original (initial-scope-granted + no new upgraded scopes).
