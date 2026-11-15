@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 576
+-- v_database: 577
 --
 
 --
@@ -1574,7 +1574,8 @@ CREATE TABLE `drug_sales` (
   `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id for user that last updated this entry',
   `created_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id for user that created this entry',
   PRIMARY KEY  (`sale_id`),
-  UNIQUE INDEX `uuid` (`uuid`)
+  UNIQUE INDEX `uuid` (`uuid`),
+  KEY `pid_encounter` (`pid`, `encounter`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
