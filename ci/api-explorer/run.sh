@@ -127,3 +127,15 @@ openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-intr
 
 echo "==> Running driver-pkce-negative (public-client authorize + consent + /token wrong-verifier reject)"
 openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-pkce-negative.php'
+
+echo "==> Running driver-invalid-secret (wrong + empty client_secret reject at /token)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-invalid-secret.php'
+
+echo "==> Running driver-code-reuse (authorization code single-use enforcement)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-code-reuse.php'
+
+echo "==> Running driver-scope-insufficient (.r-only bearer POST QuestionnaireResponse → refused)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-scope-insufficient.php'
+
+echo "==> Running driver-wrong-role (admin creds + user_role=patient → rejected)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-wrong-role.php'
