@@ -660,8 +660,11 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
     #[Test]
     public function testEhrLaunchCompletesQuestionnaireWriteRoundTrip(): void
     {
-        $answerText = 'Doing great from the EHR';
-        $responseUuid = null;
+        // Unique per-run marker so teardown can sweep by content even if
+        // assertions above it fail (the captured $responseUuid would stay
+        // null and the row would otherwise be orphaned). The suffix is
+        // short but collision-vanishing across concurrent CI runs.
+        $answerText = 'EHR write ' . bin2hex(random_bytes(4));
         try {
         // Sign into OpenEMR as admin — same entry as
         // testEhrLaunchSkipsPatientSelectAndLandsOnApp.
@@ -804,31 +807,47 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             . 'EHR launch token\'s patient context did not flow into the bearer that signed the write',
             );
             self::assertIsString($saved['questionnaire_response']);
-            self::assertStringContainsString(
-            $answerText,
-            $saved['questionnaire_response'],
-            'The stored questionnaire_response JSON should contain the answer text the browser typed. '
-            . 'Missing it would mean the companion app POSTed a different payload than the one the '
-            . 'fieldset was filled with — a server/client-state divergence this smoke exists to catch',
+            // Exact-match on the specific FHIR path answered by the form
+            // input, not a substring match on the JSON blob — a mangled
+            // payload that happened to include the marker string anywhere
+            // (metadata, extension, stray comment) would pass a substring
+            // check while hiding a server/client-state divergence. The
+            // seeded Questionnaire has one string item at linkId '1'; its
+            // answer.valueString is what the input renders into.
+            $decoded = json_decode($saved['questionnaire_response'], true);
+            self::assertIsArray($decoded);
+            self::assertIsArray($decoded['item'] ?? null);
+            self::assertIsArray($decoded['item'][0] ?? null);
+            self::assertIsArray($decoded['item'][0]['answer'] ?? null);
+            self::assertIsArray($decoded['item'][0]['answer'][0] ?? null);
+            self::assertSame(
+                $answerText,
+                $decoded['item'][0]['answer'][0]['valueString'] ?? null,
+                'item[0].answer[0].valueString should equal exactly what the input received — '
+                . 'any other value in that slot means the companion app POSTed a different payload '
+                . 'than the one the fieldset was filled with',
             );
         } finally {
             // The EHR-launch write persists directly to the record
             // (questionnaire_response + uuid_registry) — there is no
-            // review-queue to sweep like the portal round-trip. Scoped
-            // teardown deletes only the uuid captured above so other
-            // tests sharing pid=1 keep a clean slate; the pid itself
-            // (demo patient) is shared fixture and not removed.
-            if ($responseUuid !== null) {
-                QueryUtils::sqlStatementThrowException(
-                    "DELETE FROM uuid_registry WHERE table_name = 'questionnaire_response' "
-                        . "AND uuid IN (SELECT uuid FROM questionnaire_response WHERE response_id = ?)",
-                    [$responseUuid],
-                );
-                QueryUtils::sqlStatementThrowException(
-                    "DELETE FROM questionnaire_response WHERE response_id = ?",
-                    [$responseUuid],
-                );
-            }
+            // review-queue to sweep like the portal round-trip. Scope
+            // the delete by the unique answer marker so cleanup still
+            // fires when assertions upstream of the uuid capture fail
+            // (the uuid is only captured after the "Saved as completed"
+            // alert assertion; a regression there would leave the row
+            // behind without a recovery path). LIKE-match on the marker
+            // is safe because random_bytes(4) makes the suffix unique
+            // per run across concurrent CI invocations.
+            $sweepPattern = '%' . $answerText . '%';
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'questionnaire_response' "
+                    . "AND uuid IN (SELECT uuid FROM questionnaire_response WHERE questionnaire_response LIKE ?)",
+                [$sweepPattern],
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM questionnaire_response WHERE questionnaire_response LIKE ?",
+                [$sweepPattern],
+            );
         }
     }
 
