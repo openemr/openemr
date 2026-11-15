@@ -4,7 +4,9 @@
  * @package   openemr
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -93,15 +95,23 @@ final readonly class DatabaseConnectionOptions
     /**
      * Creates options for a site by loading its sqlconf.php file.
      *
+     * The result is kept for the rest of the request (process). A request
+     * asks for it from several places (sql.inc.php, Database, the audit
+     * logger, Gacl), and each read is a sqlconf.php load plus four cert file
+     * checks, which on a network filesystem are round trips to the server.
+     *
      * @param string $siteDir Site directory path (e.g., OE_SITE_DIR)
      */
     public static function forSite(
         string $siteDir,
     ): self {
-        $sqlconf = self::loadSqlconf($siteDir);
-        $sslPaths = self::inferSslPaths($siteDir);
+        /** @var array<string, self> $bySite */
+        static $bySite = [];
 
-        return self::fromSqlconf($sqlconf, $sslPaths);
+        return $bySite[$siteDir] ??= self::fromSqlconf(
+            self::loadSqlconf($siteDir),
+            self::inferSslPaths($siteDir),
+        );
     }
 
     /**
