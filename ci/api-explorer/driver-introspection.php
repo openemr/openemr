@@ -280,32 +280,37 @@ try {
 }
 // RFC 7662 §2.1 requires authenticated introspection requests; §2.2
 // gives servers discretion on how to signal rejection. Two shapes are
-// acceptable: (a) 4xx status (hard reject), (b) 200 with
-// {"active":false} AND NO bearer-claim fields (absorb-as-bogus — the
-// same shape a valid request with an unknown token returns, which is
-// actually preferable because it leaks less about which clients +
-// tokens the server knows).
+// acceptable:
+//   (a) 4xx status (hard reject) with NO bearer-claim fields in the
+//       body (an error JSON that smuggled scope/sub/exp would still
+//       leak what the client-auth gate was supposed to protect — an
+//       unusual pattern, but gated here defensively);
+//   (b) HTTP 200 with the EXACT body {"active":false} (absorb-as-bogus
+//       — the same shape a valid request with an unknown token returns,
+//       which is actually preferable because it leaks less about which
+//       clients + tokens the server knows). Strict-equal rather than
+//       denylist: a denylist misses future claim fields (e.g. fhirUser)
+//       the server might start emitting; strict-equal flags any shape
+//       change for human review.
 //
 // The critical property is that the endpoint MUST NOT reveal the
-// bearer's details (scope, exp, sub, aud, client_id, username)
-// without authenticated client proof. active=true would surface
-// them; active=false alongside scope/sub/exp claims would ALSO
-// surface them (same leak, different wrapper). Both failure modes
-// have to be rejected here — rabbit (correctly) flagged that an
-// earlier version of this check only caught active=true.
+// bearer's details (scope, exp, sub, aud, client_id, username, fhirUser,
+// or anything else) without authenticated client proof. Both failure
+// modes — a 4xx with smuggled claims OR a 200 with anything beyond
+// active=false — have to be rejected here. Rabbit (correctly) flagged
+// that an earlier version of this check only caught active=true.
 $unauthStatus = $unauthResponse->getStatusCode();
 $unauthBody = json_decode((string) $unauthResponse->getBody(), true);
-$isRejected4xx = $unauthStatus >= 400 && $unauthStatus < 500;
-$isInactiveWithoutClaims = $unauthStatus === 200
-    && is_array($unauthBody)
-    && ($unauthBody['active'] ?? null) === false
-    && !array_intersect_key($unauthBody, array_flip(['scope', 'exp', 'sub', 'aud', 'client_id', 'username']));
-if (!$isRejected4xx && !$isInactiveWithoutClaims) {
+$claimFields = ['scope', 'exp', 'sub', 'aud', 'client_id', 'username', 'fhirUser'];
+$hasClaimLeak = is_array($unauthBody) && array_intersect_key($unauthBody, array_flip($claimFields)) !== [];
+$isHardReject = $unauthStatus >= 400 && $unauthStatus < 500 && !$hasClaimLeak;
+$isCleanInactive = $unauthStatus === 200 && $unauthBody === ['active' => false];
+if (!$isHardReject && !$isCleanInactive) {
     fwrite(
         STDERR,
-        "FAIL unauth introspect was neither a 4xx rejection nor a bare active=false "
-            . "(HTTP {$unauthStatus}) — a response that smuggles bearer claims alongside "
-            . "active=false still leaks what the client-auth gate was supposed to protect\n"
+        "FAIL unauth introspect was neither a claim-free 4xx reject nor the exact "
+            . "{\"active\":false} shape (HTTP {$unauthStatus}) — any other shape risks "
+            . "leaking bearer details past the client-auth gate\n"
     );
     fwrite(STDERR, substr((string) $unauthResponse->getBody(), 0, 2000) . "\n");
     exit(19);
