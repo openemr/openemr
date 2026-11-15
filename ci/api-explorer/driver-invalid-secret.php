@@ -182,8 +182,12 @@ $assertRejected = static function (Client $http, string $clientId, string $wrong
         fwrite(STDERR, "FAIL {$label} request errored: " . $e->getMessage() . "\n");
         exit($exitBase);
     }
-    if ($resp->getStatusCode() === 200) {
-        fwrite(STDERR, "FAIL {$label} was ACCEPTED — client-secret validation regression\n");
+    $status = $resp->getStatusCode();
+    // Tightened per rabbit — require status in 400-401 AND the OAuth
+    // error code. A pure "not 200" check would let a 5xx server fault
+    // or a stray 201 pass as if it were a proper OAuth reject.
+    if ($status !== 400 && $status !== 401) {
+        fwrite(STDERR, "FAIL {$label} returned HTTP {$status} (expected 400 or 401)\n");
         fwrite(STDERR, substr((string) $resp->getBody(), 0, 2000) . "\n");
         exit($exitBase + 1);
     }
@@ -191,19 +195,25 @@ $assertRejected = static function (Client $http, string $clientId, string $wrong
     // RFC 6749 §5.2: invalid_client is the standard error for failed
     // client authentication. Some servers return invalid_request for
     // the empty-secret case (treating absence as malformed rather
-    // than wrong); accept either here. The critical property is the
-    // 2xx-vs-rejection distinction above.
+    // than wrong); accept either here.
     if (!is_array($body) || !in_array($body['error'] ?? null, ['invalid_client', 'invalid_request'], true)) {
         fwrite(STDERR, "FAIL {$label} rejected with unexpected error (expected invalid_client)\n");
-        fwrite(STDERR, "HTTP " . $resp->getStatusCode() . "\n");
+        fwrite(STDERR, "HTTP {$status}\n");
         fwrite(STDERR, substr((string) $resp->getBody(), 0, 2000) . "\n");
         exit($exitBase + 2);
     }
-    echo "       OK  ({$body['error']} as expected)\n\n";
+    echo "       OK  (HTTP {$status}, {$body['error']} as expected)\n\n";
 };
 
 echo "[3/4] NEGATIVE — wrong client_secret must be rejected...\n";
-$wrongSecret = bin2hex(random_bytes(32));
+// Derive from the real secret with one char flipped so the lengths match.
+// A random bin2hex(32) would be 64 chars; AuthorizationController::
+// generateClientSecret emits base64url-encoded 64 random bytes (~86 chars).
+// A length-only comparison regression would reject the random on length
+// alone, defeating the point of the test. Flipping one char keeps same
+// length and guarantees inequality. Rabbit-flagged on the first pass.
+$wrongSecret = $realSecret;
+$wrongSecret[0] = $wrongSecret[0] === 'A' ? 'B' : 'A';
 $assertRejected($http, $clientId, $wrongSecret, $scope, 'wrong-secret', 10);
 
 echo "[4/4] NEGATIVE — empty client_secret must be rejected...\n";

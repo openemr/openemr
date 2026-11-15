@@ -171,13 +171,30 @@ if (!is_array($tokenBody) || !is_string($tokenBody['access_token'] ?? null)) {
     exit(8);
 }
 $bearer = $tokenBody['access_token'];
-// Verify the server narrowed the issued scope to the requested read-only
-// set — if OpenEMR accidentally issued .cu scopes the client didn't ask
-// for, the negative test below would be testing the wrong property.
+// Verify the server narrowed the issued QuestionnaireResponse scope to
+// read-only. Scopes are space-separated and each may carry a combined
+// permission letter set like .rs / .rus / .cuds — parse the permission
+// letters for the QuestionnaireResponse scope specifically and assert
+// no write letter (c/u/d) is present. Substring matching against
+// literal ".c" / ".u" would miss combined forms like .rus (which has
+// u but no ".u" substring). Rabbit-flagged.
 $grantedScope = $tokenBody['scope'] ?? '';
-if (!is_string($grantedScope) || str_contains($grantedScope, 'QuestionnaireResponse.c') || str_contains($grantedScope, 'QuestionnaireResponse.u')) {
-    fwrite(STDERR, "FAIL issued bearer unexpectedly carries .c or .u on QuestionnaireResponse (got scope: {$grantedScope})\n");
+if (!is_string($grantedScope)) {
+    fwrite(STDERR, "FAIL issued scope is not a string\n");
     exit(9);
+}
+$writeLetterPresent = false;
+foreach (explode(' ', $grantedScope) as $s) {
+    if (preg_match('~^user/QuestionnaireResponse\.([crudsCRUDS]+)$~', $s, $m) === 1) {
+        if (preg_match('/[cudCUD]/', $m[1]) === 1) {
+            $writeLetterPresent = true;
+            break;
+        }
+    }
+}
+if ($writeLetterPresent) {
+    fwrite(STDERR, "FAIL issued bearer unexpectedly carries a write letter (c/u/d) on QuestionnaireResponse (got scope: {$grantedScope})\n");
+    exit(20);
 }
 echo "       OK  (bearer scope: " . substr($grantedScope, 0, 120) . ")\n\n";
 

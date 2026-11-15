@@ -174,6 +174,15 @@ echo "       OK\n\n";
 // -------------------------------------------------------------------------
 echo "[3/3] NEGATIVE — admin creds + user_role=patient must be rejected...\n";
 try {
+    // Pass an email field so the request reaches
+    // CustomPasswordGrant::validateUser →
+    // getCustomUserEntityByUserCredentials (role-specific lookup).
+    // Without an email the password grant can short-circuit on
+    // field-presence validation and reject with invalid_request
+    // BEFORE the role dispatch is exercised, which would turn this
+    // into a test of a different code path than the role-honoring
+    // property we care about. Use a plausibly-shaped address that
+    // won't match any real portal patient. Rabbit-flagged.
     $wrongRoleResp = $http->post('/oauth2/default/token', [
         'form_params' => [
             'grant_type' => 'password',
@@ -183,6 +192,7 @@ try {
             'user_role' => 'patient',
             'username' => 'admin',
             'password' => 'pass',
+            'email' => 'admin-not-a-portal-patient@test.example',
         ],
         'allow_redirects' => false,
     ]);
@@ -190,22 +200,29 @@ try {
     fwrite(STDERR, "FAIL wrong-role request errored: " . $e->getMessage() . "\n");
     exit(8);
 }
-if ($wrongRoleResp->getStatusCode() === 200) {
-    $wrongBody = json_decode((string) $wrongRoleResp->getBody(), true);
+$wrongStatus = $wrongRoleResp->getStatusCode();
+$wrongBody = json_decode((string) $wrongRoleResp->getBody(), true);
+// Tightened per rabbit — require BOTH status in 4xx AND the OAuth
+// error code. A pure 2xx-vs-else distinction would let a 5xx or
+// stray 201 pass as if it were a proper OAuth reject.
+if ($wrongStatus === 200) {
     if (is_array($wrongBody) && is_string($wrongBody['access_token'] ?? null)) {
         fwrite(STDERR, "FAIL admin credentials + user_role=patient minted a bearer — role-honoring regression\n");
         fwrite(STDERR, substr((string) $wrongRoleResp->getBody(), 0, 2000) . "\n");
         exit(9);
     }
 }
-$wrongBody = json_decode((string) $wrongRoleResp->getBody(), true);
-if (!is_array($wrongBody) || !in_array($wrongBody['error'] ?? null, ['invalid_grant', 'invalid_request'], true)) {
-    fwrite(STDERR, "FAIL wrong-role rejected with unexpected error\n");
-    fwrite(STDERR, "HTTP " . $wrongRoleResp->getStatusCode() . "\n");
+if ($wrongStatus < 400 || $wrongStatus >= 500) {
+    fwrite(STDERR, "FAIL wrong-role returned HTTP {$wrongStatus} (expected 4xx)\n");
     fwrite(STDERR, substr((string) $wrongRoleResp->getBody(), 0, 2000) . "\n");
     exit(10);
 }
-echo "       OK  ({$wrongBody['error']} as expected)\n\n";
+if (!is_array($wrongBody) || !in_array($wrongBody['error'] ?? null, ['invalid_grant', 'invalid_request'], true)) {
+    fwrite(STDERR, "FAIL wrong-role rejected with unexpected error (HTTP {$wrongStatus})\n");
+    fwrite(STDERR, substr((string) $wrongRoleResp->getBody(), 0, 2000) . "\n");
+    exit(11);
+}
+echo "       OK  (HTTP {$wrongStatus}, {$wrongBody['error']} as expected)\n\n";
 
 echo "PASS  oe-module-api-explorer wrong-user_role negative succeeded.\n";
 exit(0);
