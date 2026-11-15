@@ -660,113 +660,176 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
     #[Test]
     public function testEhrLaunchCompletesQuestionnaireWriteRoundTrip(): void
     {
+        $answerText = 'Doing great from the EHR';
+        $responseUuid = null;
+        try {
         // Sign into OpenEMR as admin — same entry as
         // testEhrLaunchSkipsPatientSelectAndLandsOnApp.
-        $this->panther->request('GET', self::OPENEMR_BASE . '/interface/login/login.php?site=default');
-        $this->panther->waitFor('form', 10);
-        $this->panther->findElement(WebDriverBy::name('authUser'))->sendKeys('admin');
-        $this->panther->findElement(WebDriverBy::name('clearPass'))->sendKeys('pass');
-        $this->panther->executeScript('document.forms[0].submit();');
-        $this->panther->wait(15)->until(
+            $this->panther->request('GET', self::OPENEMR_BASE . '/interface/login/login.php?site=default');
+            $this->panther->waitFor('form', 10);
+            $this->panther->findElement(WebDriverBy::name('authUser'))->sendKeys('admin');
+            $this->panther->findElement(WebDriverBy::name('clearPass'))->sendKeys('pass');
+            $this->panther->executeScript('document.forms[0].submit();');
+            $this->panther->wait(15)->until(
             static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/interface/main/tabs/main.php'),
-        );
+            );
 
-        $this->openDemoPatientChart();
+            $this->openDemoPatientChart();
 
         // Pull client_id + csrf + intent from fhir_assessments.php's
         // test-launch buttons. The STAFF_LAUNCH_BUTTON_SELECTOR filter
         // excludes the portal client (added by PR #15296 / openemr#15272)
         // so this picks a staff-scoped client registered by `--all`.
-        $this->panther->request(
+            $this->panther->request(
             'GET',
             self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
-        );
-        $this->panther->waitFor(self::STAFF_LAUNCH_BUTTON_SELECTOR, 10);
-        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector(self::STAFF_LAUNCH_BUTTON_SELECTOR));
-        $clientId = $launchBtn->getAttribute('data-client-id');
-        $intent = $launchBtn->getAttribute('data-intent');
-        if (preg_match('/smartLaunchCsrfToken\s*=\s*[\'"]([^\'"]+)/', $this->panther->getPageSource(), $m) !== 1) {
-            $this->fail('smartLaunchCsrfToken not found in fhir_assessments.php page source');
-        }
-        $csrf = $m[1];
+            );
+            $this->panther->waitFor(self::STAFF_LAUNCH_BUTTON_SELECTOR, 10);
+            $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector(self::STAFF_LAUNCH_BUTTON_SELECTOR));
+            $clientId = $launchBtn->getAttribute('data-client-id');
+            $intent = $launchBtn->getAttribute('data-intent');
+            if (preg_match('/smartLaunchCsrfToken\s*=\s*[\'"]([^\'"]+)/', $this->panther->getPageSource(), $m) !== 1) {
+                $this->fail('smartLaunchCsrfToken not found in fhir_assessments.php page source');
+            }
+            $csrf = $m[1];
 
         // Fire the EHR launch.
-        $this->panther->request('GET', self::OPENEMR_BASE . '/interface/smart/ehr-launch-client.php?' . http_build_query([
+            $this->panther->request('GET', self::OPENEMR_BASE . '/interface/smart/ehr-launch-client.php?' . http_build_query([
             'client_id' => $clientId,
             'csrf_token' => $csrf,
             'intent' => $intent,
-        ]));
+            ]));
 
         // /authorize reauth prompt.
-        $this->panther->waitFor('form#userLogin', 15);
-        $this->panther->findElement(WebDriverBy::name('username'))->sendKeys('admin');
-        $this->panther->findElement(WebDriverBy::name('password'))->sendKeys('pass');
-        $loginForm = $this->panther->findElement(WebDriverBy::id('userLogin'));
-        $this->panther->executeScript(
+            $this->panther->waitFor('form#userLogin', 15);
+            $this->panther->findElement(WebDriverBy::name('username'))->sendKeys('admin');
+            $this->panther->findElement(WebDriverBy::name('password'))->sendKeys('pass');
+            $loginForm = $this->panther->findElement(WebDriverBy::id('userLogin'));
+            $this->panther->executeScript(
             "document.getElementById('userLogin').requestSubmit("
             . "document.querySelector('form#userLogin button[type=\"submit\"], form#userLogin input[type=\"submit\"]'));",
-        );
-        $this->panther->wait(15)->until(WebDriverExpectedCondition::stalenessOf($loginForm));
+            );
+            $this->panther->wait(15)->until(WebDriverExpectedCondition::stalenessOf($loginForm));
 
         // Consent → proceed → wait for app landing on index.php.
-        $this->panther->findElement(WebDriverBy::name('proceed'))->click();
-        $this->panther->wait(20)->until(
+            $this->panther->findElement(WebDriverBy::name('proceed'))->click();
+            $this->panther->wait(20)->until(
             static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/smart-questionnaire/index.php?lid='),
-        );
+            );
 
         // Non-patient-mode write flow — same DOM shape as the standalone
         // round-trip uses after its landing. The companion app's
         // `refreshControls` (non-patient branch) renders the raw FHIR
         // status + the QuestionnaireResponse/uuid in #sq-working; the
         // save alert reads "Saved as completed. ...".
-        $this->panther->waitFor('a.list-group-item', 10);
-        $picker = $this->panther->findElement(WebDriverBy::cssSelector('a.list-group-item'));
-        $this->assertStringContainsString(
+            $this->panther->waitFor('a.list-group-item', 10);
+            $picker = $this->panther->findElement(WebDriverBy::cssSelector('a.list-group-item'));
+            $this->assertStringContainsString(
             self::SEEDED_QUESTIONNAIRE_TITLE,
             $picker->getText(),
             'seeded Questionnaire should appear as the first (only) picker item',
-        );
-        $picker->click();
+            );
+            $picker->click();
 
-        $this->panther->waitFor('button#sq-new', 15);
-        $this->panther->findElement(WebDriverBy::id('sq-new'))->click();
-        $this->panther->waitFor('input.form-control', 10);
+            $this->panther->waitFor('button#sq-new', 15);
+            $this->panther->findElement(WebDriverBy::id('sq-new'))->click();
+            $this->panther->waitFor('input.form-control', 10);
 
         // Fill the required string item. Same input/change/blur triple-
         // dispatch as the standalone test — openemr_questionnaire.js
         // watches all three before marking the field answered.
-        $input = $this->panther->findElement(WebDriverBy::cssSelector('input.form-control'));
-        $input->sendKeys('Doing great from the EHR');
-        $this->panther->executeScript(
+            $input = $this->panther->findElement(WebDriverBy::cssSelector('input.form-control'));
+            $input->sendKeys($answerText);
+            $this->panther->executeScript(
             'arguments[0].dispatchEvent(new Event("input", {bubbles: true}));'
             . 'arguments[0].dispatchEvent(new Event("change", {bubbles: true}));'
             . 'arguments[0].blur();',
             [$input],
-        );
+            );
 
         // Click Complete — fires api.php?action=save under the EHR-
         // launch-issued bearer. A regression that broke launch-token
         // threading into the user-scope bearer would surface here as
         // a non-2xx on the FHIR POST and the status never flips.
-        $this->panther->findElement(WebDriverBy::id('sq-complete'))->click();
-        $this->panther->wait(20)->until(
+            $this->panther->findElement(WebDriverBy::id('sq-complete'))->click();
+            $this->panther->wait(20)->until(
             static fn (WebDriver $d): bool => str_contains(
                 $d->findElement(WebDriverBy::id('sq-status'))->getText(),
                 'completed',
             ),
-        );
+            );
 
-        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
-        $this->assertStringContainsString(
+            $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+            $this->assertStringContainsString(
             'Saved as completed',
             $bodyText,
             '#sq-alert should confirm the EHR-launch save landed — missing it means api.php returned non-2xx under the EHR-launch bearer',
-        );
-        $this->assertMatchesRegularExpression(
-            '~QuestionnaireResponse/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}~',
-            $bodyText,
-            '#sq-working should name the created QuestionnaireResponse by FHIR uuid — proof the EHR-launch bearer carried user/QuestionnaireResponse.cu through the save',
-        );
+            );
+            if (
+            preg_match(
+                '~QuestionnaireResponse/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})~',
+                $bodyText,
+                $uuidMatch,
+            ) !== 1
+            ) {
+                $this->fail(
+                '#sq-working should name the created QuestionnaireResponse by FHIR uuid — proof the '
+                . 'EHR-launch bearer carried user/QuestionnaireResponse.cu through the save',
+                );
+            }
+            $responseUuid = $uuidMatch[1];
+
+        // DB-side cross-check: the EHR-launched write lands directly in
+        // the record (not the fhir_patient_write_mode hold queue — that
+        // is patient-tier only). Prove by pid + answer text that the
+        // response saved under the demo patient we opened in
+        // openDemoPatientChart (pid=1) carries the exact text we typed
+        // into the form. Without these assertions the test only proves
+        // the UI reported success and that a QuestionnaireResponse of
+        // some shape under some patient was created.
+            $saved = QueryUtils::querySingleRow(
+            "SELECT patient_id, questionnaire_response FROM questionnaire_response WHERE response_id = ?",
+            [$responseUuid],
+            );
+            self::assertIsArray(
+            $saved,
+            'A questionnaire_response row should exist for the uuid #sq-working displayed — '
+            . 'if it does not, the companion app rendered a uuid the server never persisted',
+            );
+            self::assertEquals(
+            1,
+            $saved['patient_id'],
+            'The saved QuestionnaireResponse must be linked to the demo patient (pid=1) '
+            . 'openDemoPatientChart installed into session — a different pid would mean the '
+            . 'EHR launch token\'s patient context did not flow into the bearer that signed the write',
+            );
+            self::assertIsString($saved['questionnaire_response']);
+            self::assertStringContainsString(
+            $answerText,
+            $saved['questionnaire_response'],
+            'The stored questionnaire_response JSON should contain the answer text the browser typed. '
+            . 'Missing it would mean the companion app POSTed a different payload than the one the '
+            . 'fieldset was filled with — a server/client-state divergence this smoke exists to catch',
+            );
+        } finally {
+            // The EHR-launch write persists directly to the record
+            // (questionnaire_response + uuid_registry) — there is no
+            // review-queue to sweep like the portal round-trip. Scoped
+            // teardown deletes only the uuid captured above so other
+            // tests sharing pid=1 keep a clean slate; the pid itself
+            // (demo patient) is shared fixture and not removed.
+            if ($responseUuid !== null) {
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM uuid_registry WHERE table_name = 'questionnaire_response' "
+                        . "AND uuid IN (SELECT uuid FROM questionnaire_response WHERE response_id = ?)",
+                    [$responseUuid],
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM questionnaire_response WHERE response_id = ?",
+                    [$responseUuid],
+                );
+            }
+        }
     }
 
     /**
