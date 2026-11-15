@@ -204,28 +204,32 @@ if ($authStatus === 200 && $sawLoginPage) {
 // just prove the server crashed or returned unrelated content before
 // reaching the auth code issuance.
 if ($authStatus === 302 && str_starts_with($location, $redirectUri)) {
-    // Branch A: 302 back to the client's redirect_uri with ?error=
-    //           in the query string. Any OAuth error code is acceptable
-    //           here (invalid_request is the RFC-mandated code for
-    //           missing required parameters per RFC 6749 §4.1.2.1).
+    // Branch A: 302 back to the client's redirect_uri with
+    //           ?error=invalid_request in the query. RFC 6749
+    //           §4.1.2.1 specifies invalid_request for missing
+    //           required parameters; pinning to exactly that code
+    //           (not accepting any error) catches a regression that
+    //           starts returning a different code (e.g. invalid_client
+    //           because the public-client check moved before the
+    //           PKCE check) which would mean the gate is firing on
+    //           a different code path than the one we meant to test.
     parse_str((string) parse_url($location, PHP_URL_QUERY), $locQuery);
-    if (!isset($locQuery['error']) || !is_string($locQuery['error'])) {
-        fwrite(STDERR, "FAIL /authorize 302 to redirect_uri without an `error` query parameter — unexpected shape\n");
+    if (($locQuery['error'] ?? null) !== 'invalid_request') {
+        fwrite(STDERR, "FAIL /authorize 302 error was not invalid_request — got: " . ($locQuery['error'] ?? '(none)') . "\n");
         fwrite(STDERR, "Location: {$location}\n");
         exit(9);
     }
-    echo "       OK  (HTTP 302 → redirect_uri?error={$locQuery['error']})\n\n";
+    echo "       OK  (HTTP 302 → redirect_uri?error=invalid_request)\n\n";
 } elseif ($authStatus >= 400 && $authStatus < 500) {
-    // Branch B: 4xx with a JSON error body. Must parse as JSON and
-    // carry an `error` field (OpenEMR renders via the League error
-    // handler which always emits this shape).
+    // Branch B: 4xx with a JSON error body. Same pinning — require
+    // error=invalid_request specifically.
     $body = json_decode($authBody, true);
-    if (!is_array($body) || !is_string($body['error'] ?? null)) {
-        fwrite(STDERR, "FAIL /authorize returned HTTP {$authStatus} but body was not a JSON OAuth error\n");
+    if (!is_array($body) || ($body['error'] ?? null) !== 'invalid_request') {
+        fwrite(STDERR, "FAIL /authorize 4xx error was not invalid_request — got: " . (is_array($body) ? ($body['error'] ?? '(no error field)') : '(non-JSON body)') . "\n");
         fwrite(STDERR, substr($authBody, 0, 2000) . "\n");
         exit(10);
     }
-    echo "       OK  (HTTP {$authStatus}, error={$body['error']})\n\n";
+    echo "       OK  (HTTP {$authStatus}, error=invalid_request)\n\n";
 } else {
     // Any other shape (5xx, 3xx-not-to-redirect-uri, 200-without-
     // login-page) is NOT a proper OAuth refusal and should fail the
