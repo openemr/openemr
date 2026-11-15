@@ -1,15 +1,15 @@
 <?php
 
-// Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Base class for the clinical decision rules controllers.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Aron Racho <aron@mi-squared.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
+ * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\ClinicalDecisionRules\Interface;
@@ -36,7 +36,10 @@ abstract class BaseController
 
     public function getControllerName()
     {
-        $class = static::class;
+        // An anonymous class name is "Parent@anonymous" followed by a null byte
+        // and the defining file's path. Drop that suffix: the name ends up in
+        // view paths, and PHP 8.6 throws on a null byte in a filesystem path.
+        $class = explode("\0", static::class)[0];
         $parts = explode('\\', $class);
         $name = str_replace('Controller', '', end($parts));
         return $name;
