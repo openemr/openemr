@@ -1,0 +1,246 @@
+{
+    "patients": [
+        {
+            "note": "An office visit, a referral on 2026-03-02 and the consultant's report received on 2026-04-10, related to it: denominator and numerator.",
+            "birthDatetime": "1970-04-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-02-10T09:00:00.000+00:00",
+                        "2026-02-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "ref": "referral",
+                    "type": "InterventionOrder",
+                    "valueSet": "Referral",
+                    "authorDatetime": "2026-03-02T10:00:00.000+00:00"
+                },
+                {
+                    "type": "CommunicationPerformed",
+                    "valueSet": "Consultant Report",
+                    "receivedDatetime": "2026-04-10T15:00:00.000+00:00",
+                    "relatedTo": [
+                        "referral"
+                    ]
+                }
+            ]
+        },
+        {
+            "note": "The report received on 2026-02-20, before the referral it is related to: denominator, not numerator.",
+            "birthDatetime": "1970-04-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-02-10T09:00:00.000+00:00",
+                        "2026-02-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "ref": "referral",
+                    "type": "InterventionOrder",
+                    "valueSet": "Referral",
+                    "authorDatetime": "2026-03-02T10:00:00.000+00:00"
+                },
+                {
+                    "type": "CommunicationPerformed",
+                    "valueSet": "Consultant Report",
+                    "receivedDatetime": "2026-02-20T15:00:00.000+00:00",
+                    "relatedTo": [
+                        "referral"
+                    ]
+                }
+            ]
+        },
+        {
+            "note": "The report received on 2027-01-15, after the measurement period: denominator, not numerator.",
+            "birthDatetime": "1970-04-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-02-10T09:00:00.000+00:00",
+                        "2026-02-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "ref": "referral",
+                    "type": "InterventionOrder",
+                    "valueSet": "Referral",
+                    "authorDatetime": "2026-03-02T10:00:00.000+00:00"
+                },
+                {
+                    "type": "CommunicationPerformed",
+                    "valueSet": "Consultant Report",
+                    "receivedDatetime": "2027-01-15T15:00:00.000+00:00",
+                    "relatedTo": [
+                        "referral"
+                    ]
+                }
+            ]
+        },
+        {
+            "note": "A referral and no report: denominator, not numerator.",
+            "birthDatetime": "1970-04-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-02-10T09:00:00.000+00:00",
+                        "2026-02-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "ref": "referral",
+                    "type": "InterventionOrder",
+                    "valueSet": "Referral",
+                    "authorDatetime": "2026-03-02T10:00:00.000+00:00"
+                }
+            ]
+        },
+        {
+            "note": "A report related to the referral but coded as a summary of episode note (LOINC 34133-9), which isn't a Consultant Report: denominator, not numerator.",
+            "birthDatetime": "1970-04-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-02-10T09:00:00.000+00:00",
+                        "2026-02-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "ref": "referral",
+                    "type": "InterventionOrder",
+                    "valueSet": "Referral",
+                    "authorDatetime": "2026-03-02T10:00:00.000+00:00"
+                },
+                {
+                    "type": "CommunicationPerformed",
+                    "valueSet": "Consultant Report",
+                    "receivedDatetime": "2026-04-10T15:00:00.000+00:00",
+                    "relatedTo": [
+                        "referral"
+                    ],
+                    "code": {
+                        "code": "34133-9",
+                        "system": "2.16.840.1.113883.6.1"
+                    }
+                }
+            ]
+        },
+        {
+            "note": "The year's first referral (2026-01-15) coded with a billing code (CPT 99213), not SNOMED CT, and answered by a report; the next one (2026-03-02) is coded in SNOMED CT and has none. Only the second is a Referral, so it is the first referral: denominator, not numerator.",
+            "birthDatetime": "1970-04-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-02-10T09:00:00.000+00:00",
+                        "2026-02-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "ref": "billing",
+                    "type": "InterventionOrder",
+                    "valueSet": "Referral",
+                    "authorDatetime": "2026-01-15T10:00:00.000+00:00",
+                    "code": {
+                        "code": "99213",
+                        "system": "2.16.840.1.113883.6.12"
+                    }
+                },
+                {
+                    "type": "CommunicationPerformed",
+                    "valueSet": "Consultant Report",
+                    "receivedDatetime": "2026-02-01T15:00:00.000+00:00",
+                    "relatedTo": [
+                        "billing"
+                    ]
+                },
+                {
+                    "ref": "referral",
+                    "type": "InterventionOrder",
+                    "valueSet": "Referral",
+                    "authorDatetime": "2026-03-02T10:00:00.000+00:00"
+                }
+            ]
+        },
+        {
+            "note": "Two referrals, 2026-03-02 and 2026-05-04, and a report related only to the second: the measure looks at the first referral only, so denominator, not numerator.",
+            "birthDatetime": "1970-04-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-02-10T09:00:00.000+00:00",
+                        "2026-02-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "ref": "first",
+                    "type": "InterventionOrder",
+                    "valueSet": "Referral",
+                    "authorDatetime": "2026-03-02T10:00:00.000+00:00"
+                },
+                {
+                    "ref": "second",
+                    "type": "InterventionOrder",
+                    "valueSet": "Referral",
+                    "authorDatetime": "2026-05-04T10:00:00.000+00:00"
+                },
+                {
+                    "type": "CommunicationPerformed",
+                    "valueSet": "Consultant Report",
+                    "receivedDatetime": "2026-06-01T15:00:00.000+00:00",
+                    "relatedTo": [
+                        "second"
+                    ]
+                }
+            ]
+        },
+        {
+            "note": "A report received after the referral and related to nothing: denominator, not numerator.",
+            "birthDatetime": "1970-04-01T08:00:00.000+00:00",
+            "sex": "F",
+            "elements": [
+                {
+                    "type": "EncounterPerformed",
+                    "valueSet": "Office Visit",
+                    "relevantPeriod": [
+                        "2026-02-10T09:00:00.000+00:00",
+                        "2026-02-10T09:30:00.000+00:00"
+                    ]
+                },
+                {
+                    "ref": "referral",
+                    "type": "InterventionOrder",
+                    "valueSet": "Referral",
+                    "authorDatetime": "2026-03-02T10:00:00.000+00:00"
+                },
+                {
+                    "type": "CommunicationPerformed",
+                    "valueSet": "Consultant Report",
+                    "receivedDatetime": "2026-04-10T15:00:00.000+00:00",
+                    "relatedTo": []
+                }
+            ]
+        }
+    ]
+}

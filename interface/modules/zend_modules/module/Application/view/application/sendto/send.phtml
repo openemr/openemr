@@ -124,6 +124,12 @@ $selected_period = $session->get('selected_ecqm_period') ?? $GLOBALS['cqm_perfor
                             <td><input type="radio" class="ap-st-st-3" name="phimail_format" value="html"><?php echo $this->listenerObject->z_xlt('HTML'); ?></td>
                         </tr>
                     </table>
+                    <div id="ccda_referral_row" style="display:none;padding-left:10px;">
+                        <label for="ccda_referral" style="padding-left:0px!important;"><?php echo $this->listenerObject->z_xlt('Referral') . ":"; ?></label>
+                        <select id="ccda_referral" name="ccda_referral">
+                            <option value=""><?php echo $this->listenerObject->z_xlt('Most recent referral'); ?></option>
+                        </select>
+                    </div>
                     <label style="padding-left:10px !important;"><?php echo $this->listenerObject->z_xlt('Reason for Referral') . ":"; ?></label>
                     <textarea id="referral_reason" class="referral_reason" name="referral_reason" style="max-width:500px!important;min-width:500px!important;margin-left:10px;"></textarea>
                     <div class="suggestions" id="suggestions1" style="display: none; float: left; position: absolute; width: 510px;left:18px;z-index: 1;top: 120px;">

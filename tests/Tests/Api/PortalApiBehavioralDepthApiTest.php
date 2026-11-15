@@ -123,13 +123,6 @@ class PortalApiBehavioralDepthApiTest extends TestCase
             }
             $this->markTestSkipped($message);
         }
-        if (stripos($probe->getHeaderLine('Server'), 'nginx') !== false) {
-            $this->markTestSkipped(
-                'Portal API routes not reachable under the nginx test config — '
-                . 'apache lane covers these invariants.'
-            );
-        }
-
         try {
             $globals = OEGlobalsBag::getInstance();
             $this->originalPasswordGrantBagWasSet = $globals->has('oauth_password_grant');

@@ -1,0 +1,15 @@
+{#
+ # What a Direct reply's Confirm button on the referral page submits (#15137). The button carries the
+ # reply's id.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+<form id="referral_reply_form" method="post" action="confirm_referral_reply.php" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="{{ csrf_token|attr }}" />
+    <input type="hidden" name="transid" value="{{ transaction_id|attr }}" />
+    <input type="hidden" name="task" value="{{ task_uuid|attr }}" />
+</form>

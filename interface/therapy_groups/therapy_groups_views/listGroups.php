@@ -18,12 +18,16 @@
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 /** @var array<int,array<string,mixed>> $groups */
 /** @var array<int,array<string,mixed>> $statuses */
 /** @var array<int,array<string,mixed>> $participations */
 /** @var array<int,array<string,mixed>> $types */
+
+$csrfToken = CsrfUtils::collectCsrfToken(SessionWrapperFactory::getInstance()->getActiveSession());
 
 ?>
 <?php $edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');?>
@@ -132,7 +136,7 @@ use OpenEMR\Core\OEGlobalsBag;
             <tbody>
             <?php foreach ($therapyGroups as $group) { ?>
                 <tr>
-                    <td><a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($group['group_id']); ?>"><?php echo text($group['group_name']);?></a></td>
+                    <td><a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($group['group_id']) . '&csrf_token_form=' . attr_url($csrfToken); ?>"><?php echo text($group['group_name']);?></a></td>
                     <td><?php echo text($group['group_id']);?></td>
                     <td><?php echo xlt($group_types[$group['group_type']]);?></td>
                     <td><?php echo xlt($statuses[$group['group_status']]);?></td>
@@ -148,7 +152,7 @@ use OpenEMR\Core\OEGlobalsBag;
                         <?php
                         //Enable deletion only for groups that weren't yet deleted.
                         if ($group['group_status'] == 10) { ?>
-                            <a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr_url($group['group_id']); ?>"><?php
+                            <a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr_url($group['group_id']) . '&csrf_token_form=' . attr_url($csrfToken); ?>"><?php
                             if ($edit) { ?>
                                 <button class="btn btn-danger">&times;</button><?php
                             } ?>

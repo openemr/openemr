@@ -28,11 +28,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/add_edit_drug.php',
 ];

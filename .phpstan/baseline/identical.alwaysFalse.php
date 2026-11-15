@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between ADORecordSet and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between false and int will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxSOAP.php',
@@ -102,29 +97,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between ADORecordSet and false will always evaluate to false\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between non\\-falsy\\-string and false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_io.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between \\(int\\|false\\) and \'\' will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between int\\<0, max\\>\\|false and true will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/ExceptionThrower.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between mixed~\'09\' and \'09\' will always evaluate to false\\.$#',
@@ -190,11 +165,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between array and null will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between float\\|int\\|string and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode and \'11341\\-5\' will always evaluate to false\\.$#',

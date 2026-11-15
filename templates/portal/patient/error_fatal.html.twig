@@ -1,0 +1,33 @@
+{#
+ # The portal/patient page for a failed request. It shows a generic message only.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+
+<div class="container">
+
+    <h1>{{ 'Oh Snap!'|xlt }}</h1>
+
+    <!-- this is used by app.js for scraping -->
+    <!-- ERROR {{ message|attr }} /ERROR -->
+
+    <h3 onclick="$('#stacktrace').show('slow');" class="jumbotron jumbotron-fluid" style="cursor: pointer;">{{ message|attr }}</h3>
+
+    <p>{{ 'You may want to try returning to the the previous page and verifying that all fields have been filled out correctly.'|xlt }}</p>
+
+    <p>{{ 'If you continue to experience this error please contact support.'|xlt }}</p>
+
+    <div id="stacktrace" class="jumbotron jumbotron-fluid hide">
+        <p class="font-weight-bold">{{ 'Stack Trace'|xlt }}:</p>
+        {% if stacktrace %}
+            <p style="white-space: nowrap; overflow: auto; padding-bottom: 15px; font-family: 'Courier New', 'Courier', sans-serif; font-size: 11px;"><pre>{{ stacktrace|attr }}</pre></p>
+        {% endif %}
+    </div>
+
+</div> <!-- /container -->
+
+{% include 'portal/patient/_footer.html.twig' %}

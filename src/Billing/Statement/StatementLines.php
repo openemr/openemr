@@ -23,7 +23,7 @@ final class StatementLines
     /**
      * Adds one encounter's invoice lines to the statement being built and
      * carries the encounter's balance into the amount due. The statement array
-     * is the one the statement run (interface/billing/sl_eob_search.php) hands
+     * is the one the statement run (interface/billing/patient_statements.php) hands
      * to the layouts in the site's statement.inc.php: `lines` is a list of
      * dos / desc / amount / adjust / paid / notice / detail / bill_date, `amount`
      * the total due as a "%.2f" string and `ins_paid` the running insurance total.

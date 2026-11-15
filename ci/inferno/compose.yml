@@ -100,7 +100,7 @@ services:
       dockerfile: Dockerfile.terminology
   couchdb:
     restart: always
-    image: couchdb:3.5.3@sha256:2e32766e96e08fafed9179d373ef4451866550c8736f3565ba0be3433a962f6f
+    image: couchdb:3.5.3@sha256:907eab5b7e55ab7cfd241d39b90b2a335ea40bef82acee5a37388c08bf201dda
     ports:
     - 5984:5984
     - 6984:6984

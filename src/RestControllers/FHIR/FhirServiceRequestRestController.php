@@ -13,6 +13,7 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -24,9 +25,17 @@ class FhirServiceRequestRestController
     private $fhirServiceRequestService;
     private $fhirService;
 
-    public function __construct()
+    /**
+     * Takes the request, not the limit, so no route can leave the limit off: a client limited to an
+     * address book entry reads only the referrals that entry is the current recipient of.
+     */
+    public function __construct(HttpRestRequest $request)
     {
         $this->fhirServiceRequestService = new FhirServiceRequestService();
+        $addressBookUuid = $request->getClientAddressBookUuid();
+        if ($addressBookUuid !== null) {
+            $this->fhirServiceRequestService->restrictToRecipient($addressBookUuid);
+        }
         $this->fhirService = new FhirResourcesService();
     }
 
@@ -220,6 +229,10 @@ class FhirServiceRequestRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirServiceRequestService->getAll($searchParams, $puuidBind);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

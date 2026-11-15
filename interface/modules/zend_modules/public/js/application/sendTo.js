@@ -289,6 +289,56 @@ function getComponents(val) {
     });
 }
 
+// The one patient selected to send for, or '' with none or several: one referral can't speak for several.
+function singleCcdaPid() {
+    var selected = $("#ccda_pid").val()
+        ? [$("#ccda_pid").val()]
+        : $('input[name="ccda_pid[]"]:checked').map(function () { return this.value; }).get();
+    return selected.length === 1 ? String(selected[0]).split('_')[0] : '';
+}
+
+// Counts referral fetches, so only the latest one may fill or reset the picker.
+var ccdaReferralFetch = 0;
+
+// Offers the selected patient's referrals, so a C-CDA goes with the one staff mean.
+function refreshCcdaReferrals() {
+    var pid = singleCcdaPid();
+    var picker = $("#ccda_referral");
+    // Same patient as last time: keep the list, and the referral staff picked from it.
+    if (picker.data("pid") === pid) {
+        return;
+    }
+    picker.data("pid", pid);
+    picker.find("option:not(:first)").remove();
+    picker.val('');
+    $("#ccda_referral_row").hide();
+    var fetch = ++ccdaReferralFetch;
+    if (pid === '') {
+        return;
+    }
+    $.getJSON(APP_URL + "/encountermanager/referrals?" + new URLSearchParams({pid: pid}), function (referrals) {
+        if (fetch !== ccdaReferralFetch || singleCcdaPid() !== pid) {
+            return;
+        }
+        referrals.forEach(function (referral) {
+            picker.append($("<option>").val(referral.id).text(referral.label));
+        });
+        $("#ccda_referral_row").toggle(referrals.length > 0);
+    }).fail(function (xhr) {
+        // No list means the send links the most recent referral; let the next click try again,
+        // unless a later fetch has taken over the picker since.
+        if (fetch === ccdaReferralFetch && picker.data("pid") === pid) {
+            picker.removeData("pid");
+        }
+        console.error("Could not load the patient's referrals", xhr.status);
+    });
+}
+
+$(function () {
+    $(document).on("change", 'input[name="ccda_pid[]"]', refreshCcdaReferrals);
+    $("#send_to_emrdirect, .send-to").on("click", refreshCcdaReferrals);
+});
+
 function sendToEmrDirect() {
     var latest_ccda = getLatestCcda();
     var format = $('input:radio[name="phimail_format"]:checked').val();
@@ -333,6 +383,7 @@ function sendToEmrDirect() {
             latest_ccda: latest_ccda,
             param: recipients,
             recipient: 'emr_direct',
+            referral_id: singleCcdaPid() !== '' ? ($("#ccda_referral").val() || '') : '',
             referral_reason: referral_reason,
             sections: components,
             view: 1
@@ -346,6 +397,7 @@ function sendToEmrDirect() {
         }).done(function () {
             const emrDirectParams = new URLSearchParams({
                 combination: combination,
+                csrf_token: $('input[name="csrf_token"]').first().val() || '',
                 downloadformat_type: downloadformat_type,
                 recipients: recipients,
                 xml_type: format

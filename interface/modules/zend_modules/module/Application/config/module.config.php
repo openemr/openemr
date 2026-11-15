@@ -106,7 +106,6 @@ return [
     ,'controller_plugins' => [
         'factories' => [
             'CommonPlugin' => fn(ContainerInterface $container, $requestedName): \Application\Plugin\CommonPlugin => new Plugin\CommonPlugin()
-            ,'Phimail' => fn(ContainerInterface $container): \Application\Plugin\Phimail => new Plugin\Phimail()
         ]
     ]
     ,'controllers' => [

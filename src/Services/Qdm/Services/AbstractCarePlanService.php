@@ -5,7 +5,7 @@
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
@@ -43,7 +43,8 @@ abstract class AbstractCarePlanService extends AbstractQdmService
         $carePlanType = $this->getCarePlanType();
         return "SELECT pid, `date`, date_end, code, codetext, description, care_plan_type, reason_code, reason_status
             FROM form_care_plan
-            WHERE care_plan_type = '" . add_escape_custom($carePlanType) . "'";
+            WHERE care_plan_type = '" . add_escape_custom($carePlanType) . "'
+            AND " . self::countedFormRow('form_care_plan.id', 'form_care_plan.pid', QdmForm::CarePlan);
     }
 
     /**

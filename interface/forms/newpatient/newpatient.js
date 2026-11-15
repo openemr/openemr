@@ -5,9 +5,11 @@
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2025 Mountain Valley Health <mvhinspire@mountainvalleyhealthinc.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @license   There are segments of code in this file that have been generated via Claude.ai and used common.php as its original source are licensed as Public Domain.  They have been marked with a header and footer.
  */
@@ -21,7 +23,6 @@ window.NewPatientForm = function(window) {
             webroot: config.webroot || '',
             pid: config.pid || '',
             encounter: config.encounter || '',
-            isPosEnabled: config.isPosEnabled || false,
             validationConstraints: config.validationConstraints || [],
             csrfToken: config.csrfToken || '',
             viewmode: config.viewmode || false,
@@ -86,8 +87,8 @@ window.NewPatientForm = function(window) {
                 // User pressed the cancel button, so redirect to today's encounter
                 top.restoreSession();
                 parent.left_nav.setEncounter(config.duplicate.dateStr, config.duplicate.encounter, window.name);
-                parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter='
-                    + encodeURIComponent(config.duplicate.encounter));
+                const params = new URLSearchParams({set_encounter: config.duplicate.encounter, csrf_token_form: top.csrf_token_js});
+                parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?' + params);
                 return;
             }
         }
@@ -166,9 +167,10 @@ window.NewPatientForm = function(window) {
             let facilitySelect = document.getElementById('facility_id_sel');
             let facilityHidden = document.getElementById('facility_id');
             facilityHidden.value = facilitySelect[facilitySelect.selectedIndex].value;
-            if (formConfig.isPosEnabled) {
-                getPOS();
-            }
+            // Until the lookup answers (or if it fails) post no POS, so save.php
+            // uses the new facility's default rather than the old facility's POS.
+            document.forms[0].pos_code.value = '';
+            getPOS();
         });
         $('#provider_id').on('change', newUserSelected);
 
@@ -215,12 +217,15 @@ window.NewPatientForm = function(window) {
         }
     };
 
-    // POS code handling
+    // POS code handling. The POS select is posted even when it's hidden
+    // (set_pos_code_encounter off), so it has to follow the facility either way.
+    // Facility and provider lookups share one counter so a late answer to an
+    // earlier change can't overwrite the current one.
+    let posRequestSequence = 0;
+    // The provider's billing facility doesn't depend on later facility changes.
+    let providerRequestSequence = 0;
     const getPOS = function() {
-        if (!formConfig.isPosEnabled) {
-            return false;
-        }
-
+        const requestSequence = ++posRequestSequence;
         const facility = document.forms[0].facility_id.value;
         $.ajax({
             url: formConfig.webroot + "/library/ajax/facility_ajax_code.php",
@@ -231,6 +236,9 @@ window.NewPatientForm = function(window) {
                 csrf_token_form: formConfig.csrfToken
             }
         }).done(function(fid) {
+            if (requestSequence !== posRequestSequence) {
+                return;
+            }
             document.forms[0].pos_code.value = JSON.parse(fid);
         }).fail(function(xhr) {
             console.error('Error fetching POS code:', xhr);
@@ -239,6 +247,8 @@ window.NewPatientForm = function(window) {
 
     // Provider selection handling
     const newUserSelected = function() {
+        const requestSequence = ++posRequestSequence;
+        const providerSequence = ++providerRequestSequence;
         const provider = document.getElementById('provider_id').value;
         $.ajax({
             url: formConfig.webroot + "/library/ajax/facility_ajax_code.php",
@@ -249,17 +259,26 @@ window.NewPatientForm = function(window) {
                 csrf_token_form: formConfig.csrfToken
             }
         }).done(function(data) {
+            if (providerSequence !== providerRequestSequence) {
+                return;
+            }
             const rtn = JSON.parse(data);
+            if (Number(rtn[2]) === 1) {
+                document.forms[0]['billing_facility'].value = rtn[0];
+            }
+            if (requestSequence !== posRequestSequence) {
+                return;
+            }
+            // Same facility: keep the POS, which may be an existing encounter's saved one,
+            // unless a pending facility lookup this request superseded left it empty.
+            const facilityChanged = String(document.forms[0].facility_id.value) !== String(rtn[0]);
             document.forms[0].facility_id.value = rtn[0];
             // facility_id can be hidden so we only set it if it exists
             if (document.forms[0].facility_id_sel) {
                 document.forms[0].facility_id_sel.value = rtn[0];
             }
-            if (formConfig.isPosEnabled) {
+            if (facilityChanged || document.forms[0].pos_code.value === '') {
                 document.forms[0].pos_code.value = rtn[1];
-            }
-            if (Number(rtn[2]) === 1) {
-                document.forms[0]['billing_facility'].value = rtn[0];
             }
         }).fail(function(xhr) {
             console.error('Error fetching provider data:', xhr);

@@ -384,6 +384,7 @@ class AppointmentNotificationRunnerTest extends TestCase
         $this->assertSame(0, $result->failed);
         $this->assertSame(1, $client->sendCalls);
         $this->assertCount(1, RunnerTestSpy::$logCalls);
+        $this->assertSame('SMS', RunnerTestSpy::$logCalls[0]['logData']['type']);
         $this->assertCount(1, RunnerTestSpy::$markCalls);
     }
 
@@ -472,6 +473,7 @@ class AppointmentNotificationRunnerTest extends TestCase
         $this->assertSame(0, $result->failed);
         $this->assertSame(1, $client->emailReminderCalls);
         $this->assertCount(1, RunnerTestSpy::$logCalls);
+        $this->assertSame('Email', RunnerTestSpy::$logCalls[0]['logData']['type']);
         $this->assertCount(1, RunnerTestSpy::$markCalls);
     }
 

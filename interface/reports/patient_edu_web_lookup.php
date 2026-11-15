@@ -13,7 +13,7 @@
  * @copyright Copyright (C) 2011-2018 Brady Miller   <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
 

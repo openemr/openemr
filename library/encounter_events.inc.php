@@ -314,7 +314,7 @@ function InsertEvent($args, $from = 'general')
         }
     }
 
-    $form_pid = empty($args['form_pid']) ? '' : $args['form_pid'];
+    $form_pid = empty($args['form_pid']) ? '' : (\OpenEMR\Services\AppointmentService::calendarPidOrNull($args['form_pid']) ?? '');
     $form_room = empty($args['form_room']) ? '' : $args['form_room'];
     $form_gid = empty($args['form_gid']) ? '' : $args['form_gid'];
     ;

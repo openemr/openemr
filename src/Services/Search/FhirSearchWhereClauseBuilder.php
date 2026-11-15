@@ -35,7 +35,7 @@ class FhirSearchWhereClauseBuilder
                     // developer logic error
                     // treat the field as an exact string match if they send us a primitive
                     if (is_string($field) || is_numeric($field)) {
-                        $field = new StringSearchField($key, $field, SearchModifier::EXACT);
+                        $field = self::exactFieldForValue($key, $field);
                     } else {
                         throw new \BadMethodCallException("Method called with invalid parameter.  Expected string, number, or SearchField object for parameter '" . $key . "'");
                     }
@@ -64,5 +64,16 @@ class FhirSearchWhereClauseBuilder
             $where = empty($orClauses) ? $where : $where . "(" . implode(" OR ", $orClauses) . ")";
         }
         return new SearchQueryFragment($where, $sqlBindArray);
+    }
+
+    /**
+     * The search field build() makes for a plain value a service passes in place of an ISearchField: an
+     * exact match. Given as text, it's a service's own lookup, which uses the column's index; a number
+     * keeps BINARY alone, since an ENUM column compares a number by the member's position (and a FLOAT
+     * column can't be compared exactly). A float is bound as its text, which StringSearchField takes.
+     */
+    public static function exactFieldForValue(string $key, string|int|float $value): StringSearchField
+    {
+        return new StringSearchField($key, is_float($value) ? (string) $value : $value, SearchModifier::EXACT, usesIndex: is_string($value));
     }
 }

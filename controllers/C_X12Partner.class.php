@@ -13,6 +13,8 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Billing\X12Receive\ReceivePartnerRepository;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Core\OEGlobalsBag;
 
 class C_X12Partner extends Controller
@@ -83,6 +85,15 @@ class C_X12Partner extends Controller
         }
 
         $this->x12_partners[0]->persist();
+        // persist() skips empty fields, so a receive folder that was emptied is cleared here.
+        $savedPartner = $this->x12_partners[0];
+        $partnerId = $savedPartner instanceof X12Partner ? $savedPartner->get_id() : null;
+        if (is_numeric($partnerId)) {
+            (new ReceivePartnerRepository())->clearFolders(
+                (int) $partnerId,
+                ReceivePartnerRepository::emptiedFolderColumns(CurrentRequest::get()->request->all())
+            );
+        }
         //insurance numbers need to be repopulated so that insurance_company_name receives a value
         $this->x12_partners[0]->populate();
 

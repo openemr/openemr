@@ -38,11 +38,13 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 use OpenEMR\Events\Encounter\EncounterMenuEvent;
+use OpenEMR\Forms\LockedEncounterBillingForms;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\Questionnaire\AvailabilityContext;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
@@ -575,8 +577,10 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     $old_category = '';
     $DivId = 1;
 
-    // To see if the encounter is locked. If it is, no new forms can be created
+    // To see if the encounter is locked. If it is, no new forms can be created,
+    // except its billing forms (LockedEncounterBillingForms).
     $encounterLocked = false;
+    $billingForms = new LockedEncounterBillingForms(OEGlobalsBag::getInstance()->getBoolean('lock_esign_individual'));
     if (
         $esignApi->lockEncounters() &&
         OEGlobalsBag::getInstance()->has('encounter') &&
@@ -588,14 +592,15 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         }
     }
 
+    $hideMiscBilling = $billingForms->hidesMiscBillingFromMenu(
+        is_numeric($encounter) ? (int) $encounter : null,
+        EncounterSessionUtil::getEncounter(),
+        $reviewMode
+    );
 
     // Convert the flat list of menu items into a multi-dimensional array based on the category
     // decide what will be displayed (name or nickname)
-    // A locked (e-signed) encounter takes no new forms, but its fee sheet stays
-    // available: coding often follows the provider's signature and the fee
-    // sheet isn't clinical documentation. The main menu's Fees > Fee Sheet
-    // makes the same exception (menuActionClick in tabs_view_model.js).
-    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($encounterLocked, $questionnaireAvailability, $questionnaireContext) {
+    $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) use ($encounterLocked, $billingForms, $hideMiscBilling, $questionnaireAvailability, $questionnaireContext) {
         $menuArray = $menuEvent->getMenuData();
         $reg = $questionnaireAvailability->filterEncounterFormRows(
             getFormsByCategory(),
@@ -612,7 +617,11 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         }
         foreach ($reg as $item) {
             // filterEncounterFormRows() returns array rows, so no is_array() guard here.
-            if ($encounterLocked && ($item['directory'] ?? null) !== 'fee_sheet') {
+            $directory = is_string($item['directory'] ?? null) ? $item['directory'] : '';
+            if ($encounterLocked && !$billingForms->isBillingForm($directory)) {
+                continue;
+            }
+            if ($hideMiscBilling && $directory === 'misc_billing_options') {
                 continue;
             }
             $tmp = explode('|', (string) $item['aco_spec']);
@@ -1008,8 +1017,15 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
             <div class='form_header_controls btn-group' role='group'>
     HTML;
 
-                // If the form is locked, it is no longer editable
-                if ($esign->isLocked()) {
+                // If the form is locked, it is no longer editable. A billing form
+                // locked only by the encounter's signature stays editable; one
+                // signed and locked on its own does not.
+                $formLocked = $esign->isLocked();
+                $formsId = is_array($iter) ? ($iter['id'] ?? null) : null;
+                if ($formLocked && $encounterLocked && is_string($formdir) && $billingForms->isBillingForm($formdir) && is_numeric($formsId)) {
+                    $formLocked = $billingForms->isLockedOnItsOwn((int) $formsId);
+                }
+                if ($formLocked) {
                     echo "<a href='#' class='btn btn-text btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><i class='fa fa-lock fa-fw'></i>&nbsp;" . xlt('Locked') . "</a>";
                 } else {
                     if (

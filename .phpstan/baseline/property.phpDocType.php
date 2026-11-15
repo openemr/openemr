@@ -11,15 +11,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Controller.class.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var for property Phreezable\\:\\:\\$PublicPropCache with type cache is incompatible with native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var for property Reporter\\:\\:\\$PublicPropCache with type cache is incompatible with native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

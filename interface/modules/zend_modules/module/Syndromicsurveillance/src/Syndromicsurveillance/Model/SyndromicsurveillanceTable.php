@@ -13,6 +13,7 @@
 namespace Syndromicsurveillance\Model;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Hl7\Hl7Units;
 
 class SyndromicsurveillanceTable
 {
@@ -429,7 +430,7 @@ class SyndromicsurveillanceTable
                     $row['code'] . "^^" . $row['table_code'] . "|" .    //3. Observation Identifier
                     "|" .    //4.
                     $row['ob_value'] . "|" .    //5. Observation Value
-                    $row['ob_unit'] . "^^UCUM|" .    //6. Units
+                    Hl7Units::obx6(is_string($row['ob_unit']) ? $row['ob_unit'] : '') . "|" .    //6. Units, coded as UCUM only when they are
                     "|" .    //7.
                     "|" .    //8.
                     "|" .    //9.

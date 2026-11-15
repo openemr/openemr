@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Session;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 
@@ -31,6 +32,31 @@ final class PortalPatientAccessGuardExitTest extends TestCase
             $process->getExitCode(),
             $process->getErrorOutput(),
         );
+        $this->assertSame('Access denied', $process->getOutput());
+        $this->assertSame('', $process->getErrorOutput());
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function documentChecksProvider(): array
+    {
+        return [
+            'read' => ['assertCanReadDocuments'],
+            'add' => ['assertCanAddDocument'],
+            'write' => ['assertCanWriteDocuments'],
+        ];
+    }
+
+    #[DataProvider('documentChecksProvider')]
+    public function testPortalPatientCannotReachAnotherPatientsDocuments(string $check): void
+    {
+        $process = new Process([PHP_BINARY, self::FIXTURE, '11', '22', $check]);
+        $process->run();
+
+        $this->assertSame(1, $process->getExitCode(), $process->getErrorOutput());
         $this->assertSame('Access denied', $process->getOutput());
         $this->assertSame('', $process->getErrorOutput());
     }

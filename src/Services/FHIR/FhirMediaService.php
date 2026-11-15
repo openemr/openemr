@@ -13,6 +13,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedia;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
 use OpenEMR\Services\DocumentService;
@@ -87,14 +88,17 @@ class FhirMediaService extends FhirServiceBase implements IFhirExportableResourc
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $fhirMedia->setMeta($fhirMeta);
 
         $fhirMedia->setId($dataRecord['uuid']);
-        $fhirMedia->setStatus('completed'); // if the file is uploaded it is completed
+        // if the file is uploaded it is completed; a deleted document is entered-in-error, as in
+        // FhirPatientDocumentReferenceService
+        $isDeleted = in_array($dataRecord['deleted'] ?? null, [1, '1'], true);
+        $fhirMedia->setStatus($isDeleted ? 'entered-in-error' : 'completed');
 
         if (!empty($dataRecord['puuid'])) {
             $fhirMedia->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));

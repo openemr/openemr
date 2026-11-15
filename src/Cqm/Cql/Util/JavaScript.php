@@ -176,15 +176,18 @@ final class JavaScript
 
     /**
      * parseInt() of a string of digits with an optional sign; NaN
-     * for anything else.
+     * for anything else. An int when the value fits one, decided on the
+     * digits, since PHP_INT_MAX as a float rounds up past it; a float
+     * otherwise.
      */
     public static function parseSignedDigits(string $string): int|float
     {
-        if (preg_match('/^[+-]?\d+$/D', $string) !== 1) {
+        if (preg_match('/^([+-]?)0*(\d+)$/D', $string, $m) !== 1) {
             return NAN;
         }
-        $value = (float) $string;
-        return abs($value) <= PHP_INT_MAX ? (int) $string : $value;
+        $limit = $m[1] === '-' ? substr((string) PHP_INT_MIN, 1) : (string) PHP_INT_MAX;
+        $fits = strlen($m[2]) < strlen($limit) || (strlen($m[2]) === strlen($limit) && strcmp($m[2], $limit) <= 0);
+        return $fits ? (int) $string : (float) $string;
     }
 
     /**

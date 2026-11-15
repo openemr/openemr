@@ -12,7 +12,9 @@
 namespace OpenEMR\Services\FHIR\DocumentReference;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\DocumentReference\Enum\DocumentReferenceCategoryEnum;
 use OpenEMR\Services\FHIR\DocumentReference\Trait\FhirDocumentReferenceTrait;
@@ -159,7 +161,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase i
         if ($this->hasValidAuthenticator($dataRecord)) {
             $extension = new FHIRExtension();
             $extension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-authentication-time");
-            $extension->setValueDateTime(UtilsService::getLocalDateAsUTC($dataRecord['authenticator']['date_reviewed']));
+            $extension->setValueDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['authenticator']['date_reviewed'])));
             $docReference->addExtension($extension);
         }
     }
@@ -197,7 +199,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase i
     public function populateDate(FHIRDocumentReference $docReference, array $dataRecord)
     {
         if (!empty($dataRecord['created_date'])) {
-            $docReference->setDate(UtilsService::getLocalDateAsUTC($dataRecord['created_date']));
+            $docReference->setDate(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['created_date'])));
         } else {
             $docReference->setDate(UtilsService::createDataMissingExtension());
         }

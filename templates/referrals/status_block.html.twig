@@ -1,0 +1,20 @@
+{#
+ # Where a saved referral stands, on its own page (#14710), with the button that sends it to a
+ # recipient who turned it down again (#15137). The button submits resend_form.html.twig, which
+ # is outside the page's form.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    anun333 <anun333@posteo.net>
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @copyright Copyright (c) 2026 anun333 <anun333@posteo.net>
+ # @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+<div class="col-sm-12 mt-3" id="referral_status">
+    <strong>{{ 'Status'|xlt }}:</strong>
+    {% include 'referrals/status.html.twig' %}
+    {% if resendable %}
+        <button type="submit" form="referral_resend_form" class="btn btn-secondary btn-sm ml-2">{{ 'Re-send'|xlt }}</button>
+    {% endif %}
+</div>

@@ -18,10 +18,14 @@
 
 namespace OpenEMR\Services;
 
+use DateTimeImmutable;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
+use OpenEMR\Services\Insurance\EffectiveInsurance;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRow;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
@@ -78,12 +82,16 @@ class InsuranceService extends BaseService
     {
         $sql = "SELECT `insurance_data`.*,
                        `puuid`,
-                       `insureruuid`
+                       `insureruuid`,
+                       `ins_type_code`,
+                       `cqm_sop`
                 FROM `insurance_data`
                 LEFT JOIN (
                     SELECT
                     `uuid` AS `insureruuid`,
-                    `id` AS `insurerid`
+                    `id` AS `insurerid`,
+                    `ins_type_code`,
+                    `cqm_sop`
                     FROM `insurance_companies`
                     ) `insurance_company_data` ON `insurance_data`.`provider` = `insurance_company_data`.`insurerid`
                 LEFT JOIN (
@@ -113,7 +121,7 @@ class InsuranceService extends BaseService
         return $processingResult;
     }
 
-    public function getOne($uuid)
+    public function getOne($uuid): ProcessingResult
     {
 
         $processingResult = new ProcessingResult();
@@ -139,16 +147,44 @@ class InsuranceService extends BaseService
         if (!empty($type)) {
             return sqlQuery("Select `id` From `insurance_data` Where pid = ? And type = ?", [$pid, $type])['id'] ?? null;
         }
-        return $this->getOne($pid) !== false;
+        return QueryUtils::fetchSingleValue("SELECT `id` FROM `insurance_data` WHERE `pid` = ? LIMIT 1", 'id', [$pid]) !== null;
     }
 
-    public function update($data)
+    public function update($data): ProcessingResult
     {
         $validationResult = $this->coverageValidator->validate($data, CoverageValidator::DATABASE_UPDATE_CONTEXT);
         if (!$validationResult->isValid()) {
             return $validationResult;
         }
+        return $this->writeUpdate($data);
+    }
 
+    /**
+     * Updates a policy from a document import (see insertImported()), checked in the import
+     * context. Like update(), it writes every column, so pass the stored row with the
+     * document's values over it: what the caller leaves out is written as NULL.
+     *
+     * @param array<mixed> $data
+     */
+    public function updateImported(array $data): ProcessingResult
+    {
+        $validationResult = $this->coverageValidator->validate($data, CoverageValidator::DATABASE_IMPORT_CONTEXT);
+        if (!$validationResult->isValid()) {
+            return $validationResult;
+        }
+        if (!is_string($data['uuid'] ?? null)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['uuid' => 'Coverage UUID must be provided']);
+            return $processingResult;
+        }
+        return $this->writeUpdate($data);
+    }
+
+    /**
+     * The update statement, for a record the caller has validated.
+     */
+    private function writeUpdate(mixed $data): ProcessingResult
+    {
         $processingResult = new ProcessingResult();
 
         // When the caller supplied a pid (REST patient-compartment path), confirm
@@ -251,7 +287,7 @@ class InsuranceService extends BaseService
             $this->getEventDispatcher()->dispatch($serviceSavePostEvent, ServiceSaveEvent::EVENT_POST_SAVE);
             $processingResult = $this->getOne($data['uuid']);
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
         return $processingResult;
     }
@@ -292,6 +328,7 @@ class InsuranceService extends BaseService
         $sql .= "   subscriber_employer_city=?,";
         $sql .= "   copay=?,";
         $sql .= "   date=?,";
+        $sql .= "   date_end=?,";
         $sql .= "   pid=?,";
         $sql .= "   subscriber_sex=?,";
         $sql .= "   accept_assignment=?,";
@@ -300,6 +337,9 @@ class InsuranceService extends BaseService
         $serviceSaveEvent = new ServiceSaveEvent($this, $data);
         $dispatchedEvent = $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_PRE_SAVE);
         $data = $dispatchedEvent->getSaveData();
+        // as update() writes it: a policy with no end date is open-ended (NULL)
+        $dateEnd = $data['date_end'] ?? null;
+        $dateEnd = is_string($dateEnd) && $dateEnd !== '' ? $dateEnd : null;
 
         $insuranceDataId = sqlInsert(
             $sql,
@@ -330,6 +370,7 @@ class InsuranceService extends BaseService
                 $data["subscriber_employer_city"] ?? '',
                 $data["copay"] ?? '',
                 $data["date"] ?? '',
+                $dateEnd,
                 $data['pid'],
                 $data["subscriber_sex"] ?? '',
                 $data["accept_assignment"] ?? '',
@@ -348,10 +389,44 @@ class InsuranceService extends BaseService
             $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_POST_SAVE);
             $processingResult = $this->getOne($stringUuid);
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
 
         return $processingResult;
+    }
+
+    /**
+     * Inserts a policy that a document import brings in, such as a QRDA Category I document's
+     * Patient Characteristic Payer: the patient, the policy type, the payer and its dates.
+     *
+     * Checked in CoverageValidator's import context, which asks only for those. The document has
+     * no policy number, plan name or subscriber, so those columns keep their defaults (NULL)
+     * rather than a value it doesn't state. insert() keeps the full rules for every other caller.
+     *
+     * @param array<mixed> $data pid, type, provider, date (Y-m-d) and date_end (Y-m-d or null; the key is
+     *                           required once there is a date, as in insert())
+     */
+    public function insertImported(array $data): ProcessingResult
+    {
+        $validationResult = $this->coverageValidator->validate($data, CoverageValidator::DATABASE_IMPORT_CONTEXT);
+        if (!$validationResult->isValid()) {
+            return $validationResult;
+        }
+
+        $uuid = UuidRegistry::getRegistryForTable(self::COVERAGE_TABLE)->createUuid();
+        $data['uuid'] = $uuid;
+        $serviceSaveEvent = new ServiceSaveEvent($this, $data);
+        $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_PRE_SAVE);
+        $data = $serviceSaveEvent->getSaveData();
+
+        $dateEnd = $data['date_end'] ?? null;
+        $data['id'] = QueryUtils::sqlInsert(
+            "INSERT INTO `insurance_data` (`uuid`, `pid`, `type`, `provider`, `date`, `date_end`) VALUES (?, ?, ?, ?, ?, ?)",
+            [$uuid, $data['pid'], $data['type'], $data['provider'], $data['date'], $dateEnd === '' ? null : $dateEnd]
+        );
+        $this->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $data), ServiceSaveEvent::EVENT_POST_SAVE);
+
+        return $this->getOne(UuidRegistry::uuidToString($uuid));
     }
 
     /**
@@ -426,7 +501,42 @@ class InsuranceService extends BaseService
         return $organizedResults;
     }
 
-    public function swapInsurance($pid, string $targetType, string $insuranceUuid)
+    /**
+     * The policies in force for a patient on a day, at most one per level and
+     * primary first, by the rule in EffectiveInsuranceRule: the claim's rule
+     * (Claim::loadPayerInfo()) with the three differences its docblock lists.
+     * A level with nothing in force is left out and the others are still
+     * returned, so a current secondary behind an ended primary comes back on
+     * its own. Each policy comes with its insurance_data row and its company's
+     * name; an inactive company's name comes back too, since inactive keeps a
+     * company off the pick lists, not off the policies already on file.
+     *
+     * getEffectiveInsurances() in library/patient.inc.php is a wrapper over
+     * this method and returns the rows.
+     *
+     * @param DateTimeImmutable $day the day asked about; its time is ignored
+     * @return list<EffectiveInsuranceRow>
+     */
+    public function getEffectiveInsuranceRows(int $pid, DateTimeImmutable $day): array
+    {
+        $rows = QueryUtils::fetchRecords("SELECT * FROM `insurance_data` WHERE `pid` = ?", [$pid]);
+        $policies = EffectiveInsuranceRule::choose($rows, $day);
+        if ($policies === []) {
+            return [];
+        }
+        $companyIds = array_values(array_unique(array_map(
+            static fn(EffectiveInsurance $policy): int => $policy->companyId,
+            $policies
+        )));
+        $companies = QueryUtils::fetchRecords(
+            "SELECT `id`, `name` FROM `insurance_companies` WHERE `id` IN ("
+                . implode(',', array_fill(0, count($companyIds), '?')) . ")",
+            $companyIds
+        );
+        return EffectiveInsuranceRow::forPolicies($policies, $rows, $companies);
+    }
+
+    public function swapInsurance($pid, string $targetType, string $insuranceUuid): ProcessingResult
     {
         $transactionCommitted = false;
         $validateData = ['pid' => $pid, 'type' => $targetType, 'uuid' => $insuranceUuid];
@@ -495,13 +605,22 @@ class InsuranceService extends BaseService
 
             // we have to do this in multiple steps due to the way the db constraint on the type and date are set
             $srcInsurance['type'] = $targetType;
-            $this->update($srcInsurance);
+            // Checked like the target update above: update() reports a failed
+            // write in its result rather than throwing, so an unchecked result
+            // would let a half-finished swap reach commitTransaction().
+            $srcUpdateResult = $this->update($srcInsurance);
+            if ($srcUpdateResult->hasErrors()) {
+                throw new \InvalidArgumentException("Failed to update insurance policy with uuid: $insuranceUuid");
+            }
 
             if (!empty($targetInsurance)) {
                 if (!empty($resetStartDate)) {
                     $targetInsurance["date"] = $resetStartDate;
                 }
-                $this->update($targetInsurance);
+                $targetDateResult = $this->update($targetInsurance);
+                if ($targetDateResult->hasErrors()) {
+                    throw new \InvalidArgumentException("Failed to update insurance policy with uuid: $insuranceUuid");
+                }
             }
             QueryUtils::commitTransaction();
             $transactionCommitted = true;

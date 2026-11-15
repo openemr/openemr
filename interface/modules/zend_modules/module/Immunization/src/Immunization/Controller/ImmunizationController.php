@@ -18,6 +18,7 @@ use Immunization\Model\ImmunizationTable;
 use Immunization\Model\PatientSelectionMarker;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Hl7\Hl7Units;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
@@ -542,7 +543,8 @@ class ImmunizationController extends AbstractActionController
                     $manufacturer_code = $this->getImmunizationTable()->getNotes($r['manufacturer'], 'Immunization_Manufacturer');
                     $immunization_info_source_code = $this->getImmunizationTable()->getNotes($r['information_source'], 'immunization_informationsource');
                     if ($administered_unit_title) {
-                        $units = $administered_unit_title . '^' . $administered_unit_title . '^UCUM^^^';
+                        // Coded as UCUM only when the Drug Units title is UCUM (mL is; mcg and mg/1cc aren't).
+                        $units = Hl7Units::rxa7(is_string($administered_unit_title) ? $administered_unit_title : '');
                     }
 
                     if ($r['manufacturer']) {
@@ -605,7 +607,7 @@ class ImmunizationController extends AbstractActionController
                     }
 
                     $imm_obs_res = $this->getImmunizationTable()->getImmunizationObservationResultsData($r['patientid'], $r['immunizationid']);
-                    if (count($imm_obs_res > 0)) {
+                    if (is_array($imm_obs_res) && $imm_obs_res !== []) {
                         $last_key = 1;
                         foreach ($imm_obs_res as $key_obs => $val_obs) {
                             $criteria_code = $criteria_notes = $obs_value_notes = $obs_value = $obs_method = $date_obs = $value_type = $criteria_value = '';

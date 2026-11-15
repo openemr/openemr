@@ -9,10 +9,12 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -26,6 +28,7 @@ use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
@@ -435,6 +438,8 @@ if ((!AuthUtils::useActiveDirectory()) && (OEGlobalsBag::getInstance()->getInt('
 
 $listSvc = new ListService();
 $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
+// Set below when a patient opens in a new window; main.php shows it once.
+$session->remove('open_patient_tab');
 
 if ($is_expired) {
     //display the php file containing the password expiration message.
@@ -444,18 +449,24 @@ if ($is_expired) {
         "label" => xl("Password Reset"),
     ]);
 } elseif (!empty($_POST['patientID'])) {
-    // Patient is open, so add this to the list of tabs, at the end
+    // A patient opened in a new window, as from the Patient Finder or Patient Tracker:
+    // main.php shows this Dashboard first, and only on the window's first load. It is kept
+    // out of default_open_tabs, which main.php reloads from: a reload would otherwise run
+    // set_pid again and switch the window back to this patient.
     $patientID = (int) $_POST['patientID'];
-    $_notes = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
+    $dashboardQuery = ['set_pid' => $patientID];
     if (!empty($_POST['encounterID'])) {
-        $encounterID = (int) $_POST['encounterID'];
-        $_notes = $_notes . "&set_encounterid=" . attr_url($encounterID);
+        $dashboardQuery['set_encounterid'] = (int) $_POST['encounterID'];
     }
-    $_tabs[] = [
+    $dashboardQuery['csrf_token_form'] = CsrfUtils::collectCsrfToken(session: $session);
+    // Tab paths start at the project root: main.php puts the web root in front of them
+    // and drops any that DefaultTabsFilter cannot find under the root.
+    $_notes = 'interface/patient_file/summary/demographics.php?' . http_build_query($dashboardQuery);
+    $session->set('open_patient_tab', [
         'notes' => $_notes,
         'id' => "pat",
         'label' => xl("Dashboard"),
-    ];
+    ]);
 } elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
     // Load the calendar, at the end
     $_notes = "calendar/index.php?pid=" . attr_url($_GET['pid']);
@@ -477,6 +488,8 @@ if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
 // Pass a unique token, so main.php script can not be run on its own
 $tokenMainPhp = RandomGenUtils::createUniqueToken();
 $session->set('token_main_php', $tokenMainPhp);
+// The previous acceptance time belongs to the previous token.
+SessionUtil::unsetSession('token_main_php_at');
 $siteId = $session->get('site_id');
 header(
     'Location: ' . OEGlobalsBag::getInstance()->getWebRoot() .

@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\Group;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGroup;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRGroup\FHIRGroupMember;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -71,9 +72,9 @@ class FhirPatientProviderGroupService extends FhirServiceBase implements IPatien
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
         if (!empty($dataRecord['last_modified_date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_modified_date']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_modified_date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $fhirGroup->setMeta($fhirMeta);
 

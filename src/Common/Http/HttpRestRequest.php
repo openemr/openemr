@@ -92,6 +92,9 @@ class HttpRestRequest extends Request implements Stringable
      */
     private ?string $clientId = null;
 
+    /** The address book entry the request's client is limited to (ClientEntity::getAddressBookUuid()), or null. */
+    private ?string $clientAddressBookUuid = null;
+
     /**
      * @var string
      */
@@ -485,6 +488,19 @@ class HttpRestRequest extends Request implements Stringable
     /**
      * @return string|null
      */
+    public function getClientAddressBookUuid(): ?string
+    {
+        return $this->clientAddressBookUuid;
+    }
+
+    /**
+     * Records the address book entry the calling client is limited to, or null for no limit.
+     */
+    public function setClientAddressBookUuid(?string $uuid): void
+    {
+        $this->clientAddressBookUuid = $uuid;
+    }
+
     public function getClientId(): ?string
     {
         return $this->clientId;

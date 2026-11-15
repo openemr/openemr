@@ -1,0 +1,5 @@
+{# Where a referral stands (#14710): its status, and Overdue while it is. #}
+{{ label|text }}
+{% if overdue %}
+    <span class="text-danger">{{ 'Overdue'|xlt }}</span>
+{% endif %}

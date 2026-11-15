@@ -44,8 +44,12 @@ class EncounterFixtureManager extends BaseFixtureManager
 
     protected function removeInstalledFixtures()
     {
+        // the fixtures register each encounter's uuid (uuid('form_encounter') in encounters.php)
+        $uuidSql = "DELETE FROM uuid_registry WHERE table_name = 'form_encounter' AND uuid IN "
+            . "(SELECT uuid FROM form_encounter WHERE reason LIKE 'test-fixture-%')";
         $sql = "DELETE FROM form_encounter WHERE reason LIKE 'test-fixture-%'";
         try {
+            QueryUtils::sqlStatementThrowException($uuidSql, []);
             QueryUtils::sqlStatementThrowException($sql, []);
         } catch (SqlQueryException $exception) {
             ServiceContainer::getLogger()->error("Failed to delete form_encounter data ", ['message' => $exception, 'trace' => $exception->getTraceAsString()]);

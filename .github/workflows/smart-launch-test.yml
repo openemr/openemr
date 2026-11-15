@@ -62,15 +62,11 @@ jobs:
         # See openemr/openemr#9233 (same mitigation inferno-test.yml uses).
         sudo chmod -R 0777 .
 
-    - name: Install PHP
-      uses: shivammathur/setup-php@v2
+    - name: Install PHP and Composer dependencies
+      uses: ./.github/actions/setup-php-composer
       with:
         php-version: ${{ matrix.php-version }}
-        tools: composer:v2
         extensions: curl, dom, mbstring, tokenizer, xml, zip
-
-    - name: Composer install
-      run: composer install --prefer-dist --no-progress --no-interaction
 
     - name: Install Node
       uses: actions/setup-node@v7

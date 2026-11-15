@@ -1,0 +1,361 @@
+/**
+ * dynamic_finder.css
+ *
+ * Styles for the Patient Finder (dynamic_finder.php): the one-row heading bar, the
+ * Patient List and Recent Patients tables, the row-detail toggle, and the
+ * jQuery-DataTables overrides. Rules are scoped by id so they win over Bootstrap's
+ * and DataTables' own rules without !important.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+/* These are DataTables-generated sorting/stripe overrides kept in their original
+   source order; the equal-specificity selector pairs trip no-descending-specificity. */
+/* stylelint-disable no-descending-specificity */
+
+/* Finder Processing style */
+div.dataTables_wrapper div.dataTables_processing {
+  width: auto;
+  margin: 0;
+  color: var(--danger);
+  transform: translateX(-50%);
+}
+
+.card {
+  border: 0;
+  border-radius: 0;
+}
+
+/* ==========================================================================
+   Heading bar: tabs, page length and search on the left (finder_heading.html.twig);
+   then Add Patient and the OemrUI margins and search-row icons on the right.
+   ========================================================================== */
+
+/* Let the page show through. Bootstrap's .bg-light utility on the OemrUI navbar is
+   itself !important, so only !important overrides it. */
+#finder-heading .navbar {
+  flex-wrap: wrap;
+  padding: 0;
+  background-color: transparent !important;
+}
+
+/* The OemrUI page title stays for screen readers; the tabs name the page on screen. */
+#finder-heading .navbar-brand {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+#finder-heading-content {
+  flex: 1 1 auto;
+}
+
+/* The page-length menu and the search box sit to the right of the tabs. */
+#finder-length-slot {
+  margin-right: 2rem;
+  margin-left: auto;
+}
+
+#finder-search {
+  margin-right: 1.5rem;
+}
+
+#finder-search .input-group {
+  flex-wrap: nowrap;
+  width: 15rem;
+}
+
+#finder-add-patient {
+  padding: 0.25rem 0.75rem;
+  white-space: nowrap;
+}
+
+/* Keep the icons visible at every width; OemrUI's navbar gives them no toggle
+   button, so Bootstrap's collapse would otherwise hide them. */
+#finder-heading .navbar-collapse {
+  display: flex;
+  flex-grow: 0;
+  align-items: center;
+}
+
+#finder-heading .navbar-nav {
+  flex-direction: row;
+  align-items: center;
+}
+
+#finder-heading #pageHeadingNav {
+  padding-left: 1rem;
+}
+
+#finder-heading #pageHeadingNav .nav-link {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: var(--primary);
+}
+
+#finder-heading #pageHeadingNav .nav-link:hover {
+  background-color: var(--light);
+}
+
+/* Show [10] entries */
+#finder-length-slot .dataTables_length label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+#finder-length-slot .dataTables_length select {
+  width: 4rem;
+  margin: 0 0.5rem;
+}
+
+@media screen and (width <= 640px) {
+  .dataTables_wrapper .dataTables_length {
+    float: inherit;
+    text-align: justify;
+  }
+}
+
+/* ==========================================================================
+   Patient List and Recent Patients tables. :is() keeps the id's specificity, which
+   wins over Bootstrap's and DataTables' own rules.
+   ========================================================================== */
+
+/* Blue column headings. */
+:is(#pt_table, #recent_table) > thead > tr {
+  background-color: var(--primary);
+}
+
+:is(#pt_table, #recent_table) > thead > tr > th {
+  padding: 0.25rem 0.75rem;
+  border: 0;
+  color: var(--white);
+}
+
+/* The per-column search boxes. */
+:is(#pt_table, #recent_table) > thead > tr > td {
+  padding: 5px 10px;
+  border: 0;
+}
+
+:is(#pt_table, #recent_table) > thead input.search_init {
+  height: 1.7rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* While the search boxes are on (the OemrUI search icon), they take the column titles' place. */
+:is(#pt_table, #recent_table) > thead > tr.finder-search-row:not(.d-none) + tr {
+  display: none;
+}
+
+/* A blue line under each row. */
+:is(#pt_table, #recent_table) > tbody > tr > td {
+  padding: 0.1rem 0.75rem;
+  border-top: 0;
+  border-bottom: 1px solid var(--primary);
+}
+
+:is(#pt_table, #recent_table).no-footer {
+  border-bottom: 0;
+}
+
+:is(#pt_table, #recent_table) > tbody > tr {
+  background-color: var(--white);
+  cursor: pointer;
+}
+
+/* Gray rows, odd ones a shade darker, as the finder update had them. The cells are
+   painted, because the theme gives tr.odd a white background with !important. DataTables'
+   stripe and sorted-column tints still darken them a little, as before. The expand
+   column has no stripe tint: lighter than its row, white on even rows. An expanded row's
+   details have no odd/even class and stay white. */
+:is(#pt_table, #recent_table) > tbody > tr.odd > td {
+  background-color: color-mix(in srgb, var(--gray100) 75%, var(--white));
+}
+
+:is(#pt_table, #recent_table) > tbody > tr.even > td:not(.finder-detail-control) {
+  background-color: color-mix(in srgb, var(--gray100) 50%, var(--white));
+}
+
+:is(#pt_table, #recent_table) > tbody > tr.odd > td.finder-detail-control {
+  background-color: var(--gray100);
+  box-shadow: none;
+}
+
+/* A patient row under the pointer turns gray with light text. Only result rows: an
+   expanded row's details (which have no odd/even class) stay as they are. The cells are
+   painted rather than the row, because the theme gives tr.odd a white background with
+   !important, which would leave odd rows white. Clearing the box-shadow drops the
+   DataTables stripe and sorted-column tints, so every cell is the same gray. */
+:is(#pt_table, #recent_table) > tbody > tr:is(.odd, .even):hover {
+  color: var(--light);
+}
+
+:is(#pt_table, #recent_table) > tbody > tr:is(.odd, .even):hover > td {
+  background-color: var(--gray500);
+  box-shadow: none;
+}
+
+:is(#pt_table, #recent_table) > tbody > tr:is(.odd, .even):hover a {
+  color: var(--light);
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   Row details
+   ========================================================================== */
+
+/* The narrow first column holding each row's expand button. A 1% width keeps it at its
+   content's width, so the spare width of a full-width table goes to the other columns. */
+:is(#pt_table, #recent_table) {
+  --finder-control-width: 1.375rem;
+}
+
+:is(#pt_table, #recent_table) .finder-detail-control {
+  box-sizing: border-box;
+  width: 1%;
+  min-width: var(--finder-control-width);
+  padding: 0.1rem 0.25rem;
+  text-align: center;
+}
+
+/* Blue square with a right arrow; red with a down arrow while the details are open.
+   The arrow is centered in the square by flexbox, not by the font's line box. */
+:is(#pt_table, #recent_table) .finder-detail-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  top: -1px;
+  width: 0.9rem;
+  height: 0.9rem;
+  padding: 0;
+  border: 0;
+  background-color: var(--primary);
+  box-shadow: 0 0 0.3em var(--gray700);
+  color: var(--white);
+  font-size: 0.6rem;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+/* U+FE0E keeps the arrows as text, not emoji. The right arrow's glyph sits above
+   its box's center, so it is nudged down. */
+:is(#pt_table, #recent_table) .finder-detail-toggle::before {
+  content: '\25B6\FE0E';
+  position: relative;
+  top: 1px;
+}
+
+:is(#pt_table, #recent_table) .finder-detail-toggle[aria-expanded='true'] {
+  background-color: var(--danger);
+}
+
+:is(#pt_table, #recent_table) .finder-detail-toggle[aria-expanded='true']::before {
+  content: '\25BC\FE0E';
+  top: 0;
+}
+
+/* An expanded row: the Patient Finder Detail layout, set off by a blue line on its left
+   that lines up with the first column after the expand buttons. */
+:is(#pt_table, #recent_table) > tbody > tr > td > .finder-detail {
+  margin-left: calc(var(--finder-control-width) - 0.75rem);
+  padding: 0.5rem 1rem 0.5rem 2rem;
+  border-left: 3px solid var(--primary);
+  background-color: var(--white);
+  cursor: default;
+}
+
+/* The layout's tab keeps its fields together without the empty space it has on other pages. */
+:is(#pt_table, #recent_table) .finder-detail .tab {
+  min-height: 0;
+  margin-bottom: 0;
+}
+
+:is(#pt_table, #recent_table) .finder-detail td {
+  padding: 0.1rem 0.5rem;
+  border: 0;
+}
+
+/* The theme sizes layout labels and values at 0.8rem. In em they keep that size at the
+   normal text size and follow the list's when the Font Size menu changes it. The theme
+   sets the labels' size with !important, so only !important can replace it. */
+:is(#pt_table, #recent_table) .finder-detail :is(.label_custom, .text) {
+  font-size: 0.8em !important;
+}
+
+/* ==========================================================================
+   Below the table: the options, the entry count and the pages
+   ========================================================================== */
+
+/* A blank line's worth of space separates the options from the entry count above. */
+#finder-options {
+  padding: 1.5rem 0 1rem;
+}
+
+#finder-options .form-check-inline {
+  margin-right: 2rem;
+}
+
+/* Font Size and Customize sit at the right end of the line. */
+#finder-option-buttons {
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+/* ==========================================================================
+   Text size of the lists, picked from the Font Size menu
+   ========================================================================== */
+
+#finderTabs[data-finder-font-size='small'] :is(#pt_table, #recent_table) {
+  font-size: 0.875rem;
+}
+
+#finderTabs[data-finder-font-size='large'] :is(#pt_table, #recent_table) {
+  font-size: 1.125rem;
+}
+
+#finderTabs[data-finder-font-size='x-large'] :is(#pt_table, #recent_table) {
+  font-size: 1.25rem;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dataTables_paginate {
+  color: var(--dark) !important;
+}
+
+.dataTables_wrapper .dataTables_processing {
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgb(var(--black), 0.9)), color-stop(75%, rgb(var(--black), 0.9)), color-stop(100%, transparent)) !important;
+  background: linear-gradient(to right, transparent 0%, rgb(var(--black), 0.9) 25%, rgb(var(--black), 0.9) 75%, transparent 100%) !important;
+}
+
+/* Pagination button Overrides for jQuery-DT */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+
+/* Sort indicator Overrides for jQuery-DT */
+table thead .sorting::before,
+table thead .sorting_asc::before,
+table thead .sorting_asc::after,
+table thead .sorting_desc::before,
+table thead .sorting_desc::after,
+table thead .sorting::after {
+  display: none !important;
+}

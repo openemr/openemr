@@ -571,7 +571,7 @@ if (!empty($_POST['form_refresh'])) {
                 receiptsByMethodLineItem(
                     $row['pid'],
                     $row['encounter'],
-                    $row['code_text'],
+                    '', // Reference column: a co-pay's billing row holds none
                     substr((string) $row['date'], 0, 10),
                     $rowmethod,
                     0 - $row['fee'],

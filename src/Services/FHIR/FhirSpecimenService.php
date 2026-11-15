@@ -16,8 +16,10 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSpecimen;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenCollection;
@@ -254,11 +256,11 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
         $meta->setVersionId('1');
 
         if (!empty($dataRecord['updated_at'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['updated_at']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['updated_at'])));
         } elseif (!empty($dataRecord['created_at'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['created_at']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['created_at'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
 
         $meta->addProfile(self::USCDI_PROFILE);
@@ -329,16 +331,16 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
             // Collection time
             if (!empty($dataRecord['collected_date'])) {
                 $collection->setCollectedDateTime(
-                    UtilsService::getLocalDateAsUTC($dataRecord['collected_date'])
+                    new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['collected_date']))
                 );
             } elseif (!empty($dataRecord['collection_start']) || !empty($dataRecord['collection_end'])) {
                 // Use period if available
                 $period = new FHIRPeriod();
                 if (!empty($dataRecord['collection_start'])) {
-                    $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['collection_start']));
+                    $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['collection_start'])));
                 }
                 if (!empty($dataRecord['collection_end'])) {
-                    $period->setEnd(UtilsService::getLocalDateAsUTC($dataRecord['collection_end']));
+                    $period->setEnd(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['collection_end'])));
                 }
                 $collection->setCollectedPeriod($period);
             }

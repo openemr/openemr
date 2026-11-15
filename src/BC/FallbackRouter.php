@@ -80,6 +80,18 @@ readonly class FallbackRouter
         $path = $uri->getPath();
         $this->logger->debug("Routing $path");
 
+        // An existing static asset is served as it is, even under a rewritten prefix, as the
+        // .htaccess rewrites only paths that are not files (portal/patient/scripts/*.js).
+        $literalFile = realpath($this->installRoot . $path);
+        if (
+            $literalFile !== false
+            && is_file($literalFile)
+            && self::isAllowedStaticAsset($literalFile)
+            && $this->isPathAllowed($literalFile)
+        ) {
+            return null;
+        }
+
         // Rewrite rules: prefix → handler
         $handler = $this->getRewriteHandler($path);
         if ($handler !== null) {
@@ -132,7 +144,6 @@ readonly class FallbackRouter
             str_starts_with($path, '/apis') => '/apis/dispatch.php',
             str_starts_with($path, '/oauth2') => '/oauth2/authorize.php',
             str_starts_with($path, '/meta/health') => '/meta/health/index.php',
-            str_starts_with($path, '/portal/patient/fwk/libs') => null,
             str_starts_with($path, '/portal/patient') => '/portal/patient/index.php',
             str_starts_with($path, '/interface/modules/zend_modules/public') => '/interface/modules/zend_modules/public/index.php',
             default => null,
@@ -239,7 +250,6 @@ readonly class FallbackRouter
             str_contains($rootRelative, '/templates') => false,
             // Historic `.htaccess` rules
             str_starts_with($rootRelative, '/bin') => false,
-            str_starts_with($rootRelative, '/portal/patient/fwk/libs') => false,
             preg_match('#^/sites/[^/]+/documents/#', $rootRelative) === 1 => false,
 
             default => true, // Future: default deny instead?

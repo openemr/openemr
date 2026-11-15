@@ -216,9 +216,13 @@ class ConditionFixtureManager
                 }
             }
 
+            // Each record's uuid_registry row is removed before the record, while its uuid can be read.
+
             // Remove condition records
             if (isset($this->createdRecords['conditions'])) {
                 foreach ($this->createdRecords['conditions'] as $listId) {
+                    $sql = "DELETE FROM uuid_registry WHERE table_name = 'lists' AND uuid IN (SELECT uuid FROM lists WHERE id = ?)";
+                    QueryUtils::sqlStatementThrowException($sql, [$listId]);
                     $sql = "DELETE FROM lists WHERE id = ?";
                     QueryUtils::sqlStatementThrowException($sql, [$listId]);
                 }
@@ -227,6 +231,8 @@ class ConditionFixtureManager
             // Remove encounter records
             if (isset($this->createdRecords['encounters'])) {
                 foreach ($this->createdRecords['encounters'] as $encounterId) {
+                    $sql = "DELETE FROM uuid_registry WHERE table_name = 'form_encounter' AND uuid IN (SELECT uuid FROM form_encounter WHERE id = ?)";
+                    QueryUtils::sqlStatementThrowException($sql, [$encounterId]);
                     $sql = "DELETE FROM form_encounter WHERE id = ?";
                     QueryUtils::sqlStatementThrowException($sql, [$encounterId]);
                 }
@@ -235,15 +241,20 @@ class ConditionFixtureManager
             // Remove patient records
             if (isset($this->createdRecords['patients'])) {
                 foreach ($this->createdRecords['patients'] as $pid) {
+                    $sql = "DELETE FROM uuid_registry WHERE table_name = 'patient_data' AND uuid IN (SELECT uuid FROM patient_data WHERE pid = ?)";
+                    QueryUtils::sqlStatementThrowException($sql, [$pid]);
                     $sql = "DELETE FROM patient_data WHERE pid = ?";
                     QueryUtils::sqlStatementThrowException($sql, [$pid]);
                 }
             }
-            // Remove user records
+            // Remove user records (created without a uuid, but a FHIR read may have given them one)
             if (isset($this->createdRecords['users'])) {
                 foreach ($this->createdRecords['users'] as $user) {
+                    $userId = $user['id'];
+                    $sql = "DELETE FROM uuid_registry WHERE table_name = 'users' AND uuid IN (SELECT uuid FROM users WHERE id = ?)";
+                    QueryUtils::sqlStatementThrowException($sql, [$userId]);
                     $sql = "DELETE FROM users WHERE id = ?";
-                    QueryUtils::sqlStatementThrowException($sql, [$user['id']]);
+                    QueryUtils::sqlStatementThrowException($sql, [$userId]);
                 }
             }
         } catch (\Throwable $e) {

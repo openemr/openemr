@@ -16,15 +16,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = $session->get('pid', 0);
+$pid = \OpenEMR\Common\Session\PatientSessionUtil::getPid();
 require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
@@ -36,10 +40,14 @@ if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
 }
 
 // Session pid must be right or bad things can happen when demographics are saved!
-//
-$set_pid = $_GET["set_pid"] ?? ($_GET["pid"] ?? null);
-if ($set_pid && $set_pid != $session->get("pid")) {
-    setpid($set_pid);
+// Switching to another patient needs a CSRF token in the link.
+$request = CurrentRequest::get();
+$set_pid = $request->query->getInt('set_pid') ?: $request->query->getInt('pid');
+if ($set_pid > 0) {
+    PatientSessionUtil::requireCsrfForLinkSwitch($request, $set_pid);
+    if ($set_pid !== PatientSessionUtil::getPid()) {
+        setpid($set_pid);
+    }
 }
 
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");

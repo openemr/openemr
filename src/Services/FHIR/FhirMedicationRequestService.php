@@ -24,6 +24,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
@@ -724,7 +725,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         // empty date
         if (!Utilities::isDateEmpty($dateAsserted)) {
             $formattedDate = UtilsService::getLocalDateAsUTC($dataRecord['medication_adherence_date_asserted']);
-            $dateExtension->setValueDateTime($formattedDate);
+            $dateExtension->setValueDateTime(new FHIRDateTime($formattedDate));
             $extension->addExtension($dateExtension);
         }
 
@@ -886,9 +887,9 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['date_modified'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_modified']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date_modified'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $medRequestResource->setMeta($meta);
     }

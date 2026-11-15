@@ -5,32 +5,25 @@
  *
  * This is the view for the screen inwhich we can add a therapy group.
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
- * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    https://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 /** @var array<string,mixed> $groupData */
 /** @var string $message */
 /** @var string $savingStatus */
+
+$csrfToken = CsrfUtils::collectCsrfToken(SessionWrapperFactory::getInstance()->getActiveSession());
 
 ?>
 
@@ -42,6 +35,7 @@ use OpenEMR\Core\OEGlobalsBag;
 <section id="add-group">
     <div class="container">
         <form method="post" name="addGroup">
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
             <input type="hidden" name="group_id" value="<?php echo isset($groupData['group_id']) ? attr($groupData['group_id']) : '';?>" />
             <div class="row group-row">
                 <div class="col-md-10">

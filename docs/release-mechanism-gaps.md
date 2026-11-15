@@ -3383,6 +3383,188 @@ Each capture isolated in its own `catch (WebDriverException | \JsonException)` s
 - **An `ERROR` line without a non-zero exit is CI-silent until something downstream fails on it.** `acl_upgrade.php` prints its error and completes. Comparable to G35's `ACCEPTANCE_EXPECTED_VERSION` mismatch (which also only surfaced when something downstream asserted on an expected invariant). The acceptance surface's growing collection of shell-level post-upgrade DB assertions (version-display per #13635, Clinicians-ACL per #14707) is the general-purpose catch for this class. Design implication: **when adding a new upgrade block that modifies a specific DB-state shape, add the matching post-upgrade acceptance assertion in the same PR** — the two-line `test -f` guard lets the assertion stay bounded to targets that ship the fix.
 - **Acceptance surfaced a bug the dev stack couldn't.** Dev-checkout tests spin up a fresh DB that doesn't share lineage with any shipped install's ACL state. Only the acceptance tarball matrix boots a shipped-release install and then runs the current branch's `sql_upgrade.php` against it — the only context where a 2026-07-cycle install can meet 2026-10-cycle code. Pattern echoes `artifact-acceptance-testing-plan.md`'s test-coverage philosophy ("validating that the shipped artifact behaves the same" — acceptance-side).
 
+### G53 — Docker acceptance upgrade cell on master-build fails post-cut: `check_schema_upgrade`'s `$v_database`-only gate + sql-derived FROM pointing at symmetric-scaffolded floating pre-release  *(OPEN — discovered 2026-10-27, root cause revised 2026-11-12; fix landing via G56)*
+
+**STATUS: OPEN as of 2026-11-12.** Original 2026-10-27 forensic in this entry traced the symptom to `BranchCutSqlUpgradeMutator`'s empty-stub seed and proposed a terminal `UPDATE version SET …` in the stub as the fix. **That diagnosis was wrong.** The actual mechanism was traced through the docker entrypoint's container-log output on the failing run (`40280527001`), which shows `[TIMING] Step 3-UpgradeCheck: 0.0s elapsed` — meaning neither `fsupgrade-N.sh` nor `sql_upgrade.php` ever ran. sql_upgrade.php's `$versionService->update()` at `sql_upgrade.php:569` isn't the issue — the entrypoint's decision engine decided no upgrade was needed and skipped everything.
+
+**Revised root cause:** the docker entrypoint's `check_upgrade` → `check_schema_upgrade` chain in `docker/release/openemr.sh:502-575` makes its "upgrade needed?" decision from exactly two signals:
+
+1. docker-version delta (image vs volume) → triggers `fsupgrade-N.sh` walk
+2. `$v_database` delta (version.php vs DB `version` row) → triggers `sql_upgrade.php` via `upgrade_site_schema` (added by #13905 to catch mid-cycle schema drift the docker-version marker misses)
+
+When BOTH signals are zero-delta, the entrypoint correctly no-ops. But version.php's `v_major`/`v_minor`/`v_patch` can move INDEPENDENTLY of `$v_database` — the branch-cut mutator bumps `v_minor` immediately but `$v_database` only moves when a real schema migration lands. During the window between branch-cut-master and the first schema-bumping migration on master, the DB `version` row never gets updated to reflect version.php's new target.
+
+**The second half of the mechanism** is the FROM selection. The pre-fix docker-side derivation (introduced in G50 to replace the earlier `from_tag=latest` flaw) used sql-latest-candidate: the max from-side version in `sql/<prior>-to-<new>_upgrade.sql`. On master during active-dev-cycle, that resolves to `8.5.0` (= rel-850's current dev target). Docker Hub's `openemr/openemr:8.5.0` during active-dev-cycle is the floating pre-release built from rel-850's TIP — which at cut time was byte-identical-scaffolded with master (same docker-version=16, same `$v_database=555`, same `fsupgrade-16.sh`). So the upgrade cell's FROM ended up being the SAME image class as TO, with the only delta being the cosmetic `v_minor` 5→6 bump — not enough for the entrypoint's decision engine to notice.
+
+On 2026-10-26 06:33 UTC:
+
+| | FROM (rel-850 TIP @ `a10ebfa8d3` served via `:8.5.0` floating tag) | TO (master build @ `1b480ab113`, right after cut) |
+|---|---|---|
+| docker-version | 16 | 16 |
+| `$v_database` | 555 | 555 |
+| version.php `v_minor` | 5 | 6 |
+
+Entrypoint: both signal-pairs at zero delta → no fsupgrade, no sql_upgrade. DB `v_major.v_minor.v_patch` stayed at `8.5.0` (install-time from the FROM image). Phase 7c's `/apis/default/api/version` assertion expected 8.6.0 → FAIL.
+
+**Why rel-850's own acceptance cell was unaffected:** rel-850's ship-time test is `8.4.1 → rel-850-build`. Docker Hub `:8.4.1` is the immutable shipped image (docker-version=15). Real delta vs rel-850-build's docker-version=16 → `fsupgrade-16.sh` runs → `sql_upgrade.php --from=8.4.1` applies real content from `8_4_1-to-8_5_0_upgrade.sql` → `$versionService->update()` bumps DB to 8.5.0. Passes.
+
+**Why `check_schema_upgrade` couldn't have fixed this directly:** even once real migrations landed on master (10-29+), `check_schema_upgrade` would have fired because `$v_database` would then differ between FROM (555) and TO (566+). But in the specific "fresh cycle, no migrations yet" window, both `$v_database` values were identical because the branch-cut mutator seeds a comment-only `sql/8_5_0-to-8_6_0_upgrade.sql` stub (no schema change ⇒ `$v_database` unchanged).
+
+**Why the upgrade-cell skip criteria didn't catch it:** `detect-upgrade-cell-skip.sh` had two criteria: (1) from_tag's OCI revision = master, (2) master row carries `next` in release-targets.yml (between-cycles state). Both are about *master not holding next*. During active-dev-cycle master doesn't hold `next` (rel-850 does), so criterion 2 doesn't fire. There was no criterion covering "symmetric-scaffolded floating pre-release, no real delta to walk."
+
+**Scope of exposure (revised):**
+
+- **Master docker-build-release's acceptance-gate during active-dev-cycle (post-cut, pre-ship of rel-NEW)**: **AFFECTED.** Window = ~2-3 days until either (a) first schema-bumping migration lands on master, OR (b) rel-NEW ships and master reacquires `next`. On 8.5.0 cycle the window was 2026-10-25 → 2026-10-27 18:51 UTC.
+- **Master docker-build-release during between-cycles (post-ship of rel-NEW, before next cut)**: **NOT affected** — skip-logic criterion 2 fires, upgrade cell skips tolerantly.
+- **rel-NEW's own ship-time acceptance-gate**: **NOT affected** — FROM is immutable prior-shipped version with real docker-version delta.
+- **Package side acceptance (both tarball `acceptance-package.yml` + ship-time build-release.yml)**: **NOT affected** — package side invokes `sql_upgrade.php` directly (doesn't go through the entrypoint's `check_upgrade`/`check_schema_upgrade` gate). sql_upgrade.php's foreach loop applies every file whose from-version is ≥ `--from`, regardless of `$v_database` state, and `$versionService->update()` at line 569 unconditionally bumps the DB `version` row. Package side has no coupling to docker-version or `$v_database` matching semantics.
+
+**Earlier mis-diagnosis (preserved for reference):** the original writeup attributed the stall to `sql_upgrade.php` short-circuiting on an empty upgrade file. That was wrong — `SQLUpgradeService::upgradeFromSqlFile` at `src/Services/Utils/SQLUpgradeService.php:223+` loops through file lines, `continue`s on comments and empty lines, returns normally. Comment-only files don't fail or short-circuit anywhere in the sql_upgrade.php flow. The actual stall is at the entrypoint's decision engine (BEFORE sql_upgrade.php gets invoked), not inside it. The container-log trace `[TIMING] Step 3-UpgradeCheck: 0.0s elapsed` is the definitive signal.
+
+**Fix (this PR — landing as G56):** docker-side upgrade-cell FROM derivation moves from sql-latest to fsupgrade-based. `fsupgrade-N.sh`'s `priorOpenemrVersion` encodes the version shipped at docker-version=N-1. On the fast path (the common case: the fsupgrade-named prior is itself shipped), FROM lands exactly at docker-version=TO-1 — the entrypoint's `check_upgrade` sees a single-step docker-version delta and runs one fsupgrade. On the fallback path (fsupgrade-named prior is unshipped — legacy branches with abandoned-cycle scaffolding like rel-820 pointing at 8.1.1), the walk continues to the highest shipped X.Y.Z below the prior, which may be at docker-version<N-1; the entrypoint's fsupgrade loop then traverses every intermediate `fsupgrade-K.sh` (K idempotent via `#IfX` guards), just over a longer chain than N-1→N. Either path gives `check_upgrade` a real docker-version delta — no more "same-docker-version, same-`$v_database`" collapse to no-op. See G56 for the full new-rule design.
+
+**Timing / impact on 8.5.0 ship:** none. Shipped 8.5.0 on 2026-10-27 without this fix; the active-dev-cycle window closed when rel-850 shipped and master reacquired `next` (criterion 2 took over). G56 lands post-ship as a proactive fix for all future minor-cut cycles.
+
+**Cross-check:** container-log output at `tests/acceptance-docker.yml` upgrade cell on run `40280527001` job `121441660482` shows `[TIMING] Step 3-UpgradeCheck: 0.0s elapsed` — the definitive signal that the entrypoint decided "no upgrade needed" in zero seconds without invoking fsupgrade or sql_upgrade. `gh api repos/openemr/openemr/contents/docker-version?ref=rel-850` and `?ref=1b480ab113` both return `16` (confirming the symmetric-scaffolded state at the moment of the fail). Both `version.php` tree-reads for the same SHAs show `$v_database = 555` (confirming the `$v_database` symmetry).
+
+**Systemic lesson:** when an entrypoint's "upgrade needed?" decision has multiple gate signals (`check_upgrade` has two: docker-version delta + `$v_database` delta), test infrastructure that expects downstream effects (DB `v_major.v_minor.v_patch` bump) must ensure the test setup produces a non-zero delta on at least one gate. The pre-G56 sql-derived FROM selection didn't enforce that invariant — it picked whatever was `max(sql-candidates)`, which on master during active-dev happens to collide with the byte-identical-scaffolded floating pre-release. G56's fsupgrade-based rule enforces the invariant by construction (fast path: FROM at docker-version=TO-1; fallback: FROM at docker-version<TO, same guarantee of a non-zero delta). Comparable to G50's lesson about `from_tag=latest` producing downgrade/vacuous shapes on rel branches that don't hold `latest` — the fix pattern is the same: move FROM selection from "max-of-whatever's-around" to "deterministically-step-back-by-at-least-one."
+
+### G54 — `recovery-path-smoketest.yml`'s `smoketest-docker` locate step races against GitHub `run_name` resolution, failing even when the dispatched canary run succeeds  *(OPEN — discovered 2026-10-27, deferred to post-8.5.0)*
+
+**STATUS: OPEN as of 2026-10-27.** Two consecutive nights (2026-10-26, 2026-10-27) of `smoketest-docker` job failure in `recovery-path-smoketest.yml` — matches G36's noise-handling policy "two-plus consecutive reds from the same failure class trigger investigation" exactly. In both cases the dispatched canary `docker-build-release.yml` run completed green and the Docker Hub guardrail (canary tag absent post-run) held; only the smoketest's own locate plumbing failed.
+
+**Root cause:** the `Locate the dispatched docker-build-release run` step filters `gh run list --workflow docker-build-release.yml --event workflow_dispatch` by `displayTitle contains CANARY_TAG`, with a 12 × 10s = 2-minute poll window. GitHub populates a workflow run's `displayTitle` from the `run-name` expression lazily — on fresh dispatches during busy periods, the title lags behind the run's existence by longer than 2 minutes. The dispatched run exists (visible by databaseId in the baseline-diff), but `displayTitle` is still empty or defaulted to the workflow name, so the `contains(CANARY_TAG)` filter misses it. Locate exits 1, workflow fails.
+
+Observed on two nights:
+- 2026-10-26 02:14 UTC — [run 40258082737](https://github.com/openemr/openemr/actions/runs/40258082737), dispatched canary `smoketest-canary-40258082737-20261026021412`
+- 2026-10-27 02:14 UTC — [run 40437067324](https://github.com/openemr/openemr/actions/runs/40437067324), dispatched canary `smoketest-canary-40437067324-20261027021231` (dispatched run `40437092684` completed green ~10 min after the smoketest gave up)
+
+In both cases Docker Hub-side cleanup confirmed `HTTP 404` for the canary tag — no tag was ever published, guardrail intact.
+
+**Scope of exposure:**
+
+- **Recovery workflow itself (`acceptance-only.yml` + `docker-acceptance-only.yml`)**: NOT affected. The actual recovery path a maintainer would invoke on a real ship-day failure doesn't go through the smoketest's locate step; the smoketest is the proactive warm-up (G36), not the real recovery path.
+- **False G36 "two reds same class" trigger**: AFFECTED. The exact signal G36 was designed to make legible is firing on a race in the smoketest's own plumbing, not on a real recovery-workflow regression. Future operators seeing this pattern will spend investigation cycles on a non-release-blocking plumbing bug until closed.
+- **Tarball-side smoketest (`smoketest` job)**: NOT affected today — passed both nights. Tarball locate uses a slightly different shape, but the same race could in principle apply if GitHub's run_name lag gets worse. Worth cross-checking for the same pattern during the fix.
+
+**Fix options (deferred — not fixing on this PR):**
+
+1. **Switch locate from `displayTitle contains CANARY_TAG` to "databaseId not in baseline".** The pre-dispatch `BASELINE_DOCKER_BUILD_IDS` snapshot already captures every pre-existing `workflow_dispatch` run against `docker-build-release.yml`; any ID appearing in `gh run list` that's not in the baseline is definitely a new run, regardless of whether its `displayTitle` has populated yet. The dispatch step is single-threaded within the smoketest, so "new since baseline" is unambiguous. Preferred — matches the pattern the sibling tarball `smoketest` job already uses on its locate step and eliminates the title-resolution dependency entirely.
+2. **Widen the locate window to 4-5 minutes.** Shortest-path mitigation but doesn't close the race, just makes it less likely to hit. The 2-minute cap was already a tolerance against GitHub API lag; GitHub's lag can grow further during busy periods, so this just defers the next collision.
+3. **Fall through to databaseId-match if `displayTitle` is empty.** Keeps the title-contains fast path but adds a late-arrival safety net. More code than option 1 for a weaker guarantee.
+
+Option 1 is the clean shape. Option 2 might ride along as belt-and-suspenders.
+
+**Timing / impact on 8.5.0 ship:** none. Doesn't gate the ship pipeline. Operator noise only — a daily `::error::` in the Actions tab until closed.
+
+**Cross-check:** confirmed by inspecting both failed runs' job logs — both reached `==> [attempt 1] gh workflow run docker-build-release.yml` → printed the dispatched run URL (so dispatch succeeded) → immediately followed by `Locate the dispatched build-release run` → 12 polls × 10s → `Could not locate a NEW docker-build-release run within 2 minutes (baseline=[...])` → variant A dispatch failed similarly → variant B dispatch failed similarly → final guardrail check: `cleanup OK: openemr/openemr:smoketest-canary-... already gone (HTTP 404)`. The sibling tarball `smoketest` job's locate (`.github/workflows/recovery-path-smoketest.yml:379-414`) uses the baseline-diff pattern option 1 proposes, so the fix is largely a shape-port from one job to the other.
+
+**Systemic lesson:** when a filter condition depends on asynchronously-populated state (GitHub `displayTitle`, `run_name` eval, etc.), prefer a filter that depends on synchronously-populated state (databaseId, created_at) with a diff-against-pre-dispatch baseline. The baseline capture is already the right shape; the smoketest-docker locate was patterned on the earlier (now-worse) design and should be ported forward.
+
+### G55 — `ChangelogMutator` SystemClock-driven dates can leave rel-branch and master with different `## [X.Y.Z] - YYYY-MM-DD` dates when Conductor force-push and Finalize post-tag re-run straddle a UTC day boundary  *(OPEN — discovered 2026-10-28, deferred to post-8.5.0)*
+
+**STATUS: OPEN as of 2026-10-28.** Surfaced while verifying the 8.5.0 release-amendment PRs. Direct read of both branches' CHANGELOGs after the ship but before the amendment showed a one-day drift on the `## [8.5.0]` heading date:
+
+| Branch | CHANGELOG heading |
+|---|---|
+| `rel-850` | `## [8.5.0] - 2026-10-26` |
+| `master` | `## [8.5.0] - 2026-10-27` |
+
+Design intent per `docs/RELEASE_PROCESS.md`: "finalize's post-tag re-run against vNEW produces the master and rel-branch identical CHANGELOG block." That invariant was not met on the 8.5.0 ship.
+
+**Root cause:** `ChangelogMutator` uses `SystemClock` and rewrites the `## [X.Y.Z] - YYYY-MM-DD` heading on every run — at Conductor force-push time (via `release-prep.yml`) and at Finalize post-tag re-run time (via the `finalize` job). The two runs read SystemClock independently, so the dates they produce can differ when the runs span a UTC day boundary.
+
+Observed sequence on the 8.5.0 ship:
+
+1. 2026-10-26 UTC — last `release-prep.yml` fire on rel-850 force-pushed the Conductor PR with `ChangelogMutator`-emitted heading `## [8.5.0] - 2026-10-26`.
+2. 2026-10-27 18:00 UTC — operator marked the Conductor PR ready-for-review. No further commits landed on rel-850 between step 1 and this point, so no re-fire of `release-prep.yml` and no regeneration of the heading.
+3. 2026-10-27 18:25 UTC — `ship-release.yml` merged the Conductor PR. **Merging doesn't regenerate the CHANGELOG** (by design — hand-edits must survive the final merge). rel-850 therefore landed with `2026-10-26` baked in from the step-1 force-push.
+4. 2026-10-27 18:28 UTC — `release-prep.yml`'s `finalize` job ran post-tag, re-executed master-scope mutators against `vNEW`. SystemClock at that moment returned `2026-10-27`, so the Finalize PR's CHANGELOG heading was written as `## [8.5.0] - 2026-10-27`.
+5. 2026-10-27 18:51 UTC — Finalize PR merged → master landed with `2026-10-27`.
+
+Pre-condition for the drift: no rel-branch commits land between the last `release-prep.yml` fire and the Conductor merge, AND those two moments span a UTC day boundary. Both conditions were met on 8.5.0.
+
+**Scope of exposure:** every future ship where the rel-branch is quiet for ≥24 hours before the Conductor merge, OR where the operator marks the Conductor ready-for-review and dispatches `ship-release.yml` the following UTC day without a new rel-branch commit intervening. Patch cycles with slow-moving rel-branches late in the cycle are the most likely class to hit this; minor cycles with regular commit activity through the final hour are less likely.
+
+**Impact:** cosmetic data-fidelity drift. Downstream artifacts are unaffected — the GitHub Release's `created_at` reflects the actual tag-creation moment, the annotated tag's commit date reflects the merge-commit timestamp, and Docker Hub tag `last_updated` reflects the publish moment. Only the CHANGELOG heading on the two long-lived branches can disagree about which calendar day the release "shipped."
+
+**Fix options (deferred — not fixing on this PR):**
+
+1. **Finalize job writes the authoritative date to BOTH rel-branch and master.** On post-tag re-run, read the annotated tag object's committer date (immutable, authoritative — tag was created in step 3 above and its date is the single ground-truth moment for "shipped"), then write identical headings on both branches. Requires the finalize job to also force-push a date-correction commit to the rel-branch after the Conductor merge, so the rel-branch's CHANGELOG matches master's. Changes the "Conductor PR's CHANGELOG is the final rel-branch content" assumption, but delivers true identicality.
+2. **Conductor merge regenerates the CHANGELOG date in-place pre-merge.** `ship-release.yml`'s Conductor merge step would run `ChangelogMutator` one more time against the branch head before merging, so the merged content always carries the merge-day date. Simpler mechanically but risks overwriting operator CHANGELOG hand-edits made during the final review window — contradicts the "hand-edits must survive after no further rel-branch pushes are expected" design in `RELEASE_PROCESS.md` runbook step 6.
+3. **Accept the drift at ship time; rely on the release-amendment workflow to resync.** The 8.5.0 experience shows the amendment's "restore existing date" logic effectively re-syncs master to rel-branch's date (both converged on `2026-10-26` after the two amendment PRs merged). The amendment is already run for most ships (GHSAs typically publish post-ship), so this piggy-backs on existing cadence. Weakest invariant (requires an amendment run to be dispatched) but zero new code.
+
+Option 1 is the cleanest fix. Option 3 is what we're already doing in practice; worth documenting as the explicit fallback until option 1 lands.
+
+**Timing / impact on 8.5.0 ship:** none — observed post-ship. The two 8.5.0 amendment PRs (openemr/openemr#14880 for rel-850, openemr/openemr#14881 for master) resynced both branches to `2026-10-26` on merge. Final shipped state is identical across both branches.
+
+**Cross-check:** confirmed via `gh api repos/openemr/openemr/contents/CHANGELOG.md?ref=<branch>` on both branches before the amendment merge — rel-850 heading was `2026-10-26`, master heading was `2026-10-27`. Post-amendment, both branches read `2026-10-26` and both carry the Security Fixes block.
+
+**Systemic lesson:** `SystemClock`-driven derivations in release mutators have two legitimate consumption points (force-push time and merge time) that can disagree when crossing a UTC day boundary. For derivations where the two points MUST agree (like the "shipped date" on a CHANGELOG heading), the mutator should read from a tag-object-anchored source (committer date of the annotated tag), not from `SystemClock`. The tag object is created at a single well-defined moment and is immutable, so any later re-run of the mutator reads the same date regardless of when it runs. Related to G33's "first automated ship surfaced latent assumptions" family — the "both branches land identical CHANGELOG blocks" invariant held through 8.3.0/8.4.0/8.4.1 because those ships' Conductor-last-push and Finalize-run happened on the same UTC day; 8.5.0 was the first to straddle.
+
+### G56 — Docker acceptance upgrade-cell FROM derivation moves from sql-latest to fsupgrade-based, with manifest-intersect fallback; removes `require_upgrade_cell` + master-row-carries-next skip criterion + `detect-upgrade-cell-skip.sh` entirely  *(SHIPPED \<date-TBD>)*
+
+**STATUS: SHIPPED \<date-TBD>.** Closes G53 at the source and supersedes G49 + G50's mechanisms (not the gap entries themselves — those stay as historical forensics). Removes four orchestration + script surfaces that existed only to work around the pre-G56 mechanism's shortcomings.
+
+**Design change:** docker-side upgrade-cell FROM derivation moves from "max sql candidate in checkout's `sql/*-to-*_upgrade.sql`" to "`fsupgrade-<docker-version>.sh`'s `priorOpenemrVersion`, manifest-intersect-validated with X.Y.Z-only fallback."
+
+New rule (`derive_from_version_fsupgrade` in `.github/scripts/lib/derive-from-version.sh`):
+
+1. Read `docker-version` from the checkout → N
+2. Read `docker/release/upgrade/fsupgrade-N.sh`'s `priorOpenemrVersion` → candidate
+3. Fetch the shipped-versions manifest from `openemr/website-openemr/data/releases.json`
+4. **Fast path:** if candidate ∈ manifest → return candidate
+5. **Fallback:** filter manifest to X.Y.Z-shaped only (strips X.Y.Z.N patch entries to avoid `sql_upgrade.php`'s `strcmp`-based filter quirks); walk for highest shipped version strictly less than candidate → return that
+6. **Fail loud** with override hint if nothing shipped below candidate
+
+**Why fsupgrade-based for docker:** the entrypoint's `check_upgrade` in `docker/release/openemr.sh` gates on docker-version delta (fsupgrade-N chain) and `$v_database` delta (check_schema_upgrade fallback). The pre-G56 sql-derived FROM on master during active-dev-cycle resolved to the floating pre-release tag symmetric-scaffolded with master (same docker-version, same `$v_database` at cut), making both gate signals zero-delta and the upgrade cell a vacuous no-op — but the version-row assertion still required a bump, producing the G53 false-fail. The fsupgrade-based rule picks a FROM at docker-version=TO-1 on the fast path (fsupgrade-N.priorOpenemrVersion is shipped), or at docker-version<TO on the fallback path (named prior unshipped, walks to highest shipped X.Y.Z below). Either way `check_upgrade` has a real fsupgrade walk to perform. Works uniformly across active-dev-cycle AND between-cycles states — no per-state skip logic needed.
+
+**Why X.Y.Z-only filter in the fallback:** `sql_upgrade.php`'s foreach uses `strcmp($file_from, $cli_from) < 0` to decide which upgrade files to skip. A patch-shaped `--from=8.0.0.3` lex-compares as > `"8.0.0"` / `"8.1.0"` / etc., causing sql_upgrade.php to skip upgrade files it should apply. Only X.Y.Z-shaped `--from` values interact correctly with the filter. The manifest can contain patch-overlay entries like `8.0.0.3` (shipped as standalone patches pre-automation), so the fallback must filter them out explicitly.
+
+**Why package side stays unchanged:** `acceptance-package.yml` invokes `sql_upgrade.php` directly via `docker compose exec` (see `tests/Acceptance/bin/upgrade-package.sh:290-292`). No reliance on the docker entrypoint's `check_upgrade`/`check_schema_upgrade` gate, no coupling to docker-version or `$v_database` matching semantics. The existing sql-latest + manifest-intersect rule in `detect-acceptance-mode.sh::derive_from_version` is proven to work across all legacy rel branches today. The new fsupgrade-based rule would also produce the same FROM on rel-820 (both rules apply the X.Y.Z-shaped manifest filter and resolve to `8.0.0`) — so switching the package side would be functionally equivalent, not regressive, but offers no benefit either. Keeping the proven sql-latest rule on the package side and the new fsupgrade-based rule on the docker side means each derivation matches its side's actual coupling requirements without churning the package-side wiring.
+
+**Walked-through behavior per branch under new rule:**
+
+| Branch | docker-version | `fsupgrade-N.priorOpenemrVersion` | Shipped? | Resolved FROM | vs pre-G56 sql-rule |
+|---|---|---|---|---|---|
+| rel-850 | 16 | 8.4.1 | Yes | **8.4.1** | same (sql-latest = 8.4.1) |
+| rel-840 | 15 | 8.4.0 | Yes | **8.4.0** | same (sql-latest = 8.4.0) |
+| rel-830 | 13 | 8.2.0 | Yes | **8.2.0** | same (sql-latest = 8.2.0) |
+| rel-820 | 12 | 8.1.1 | **No** (rel-810 abandoned) | fallback → **8.0.0** | sql-rule picked 8.1.1 (stale Docker Hub tag with docker-version=11); new rule picks shipped 8.0.0 at docker-version=9 |
+| master (active-dev) | 16 | 8.4.1 | Yes | **8.4.1** | sql-rule picked 8.5.0 (= floating pre-release = G53 trigger); new rule picks shipped 8.4.1 |
+| master (between-cycles) | 16 | 8.4.1 | Yes | **8.4.1** | same functional outcome as pre-G56 (previously skipped via criterion 2; now runs a real test against shipped 8.4.1) |
+
+Note on rel-820: the longer fsupgrade chain (9 → 10 → 11 → 12) is correct — each `fsupgrade-N.sh` runs its own `sql_upgrade.php --from=<N-1's prior>`, each sql file's `#IfX` guards make reapplication idempotent, and each `$versionService->update()` at `sql_upgrade.php:569` writes the DB `version` row to version.php's current values. The fsupgrade files on rel-820 were seeded at their respective cut times and encode the correct prior at each boundary; the chain reaches rel-820's target DB state at docker-version=12.
+
+**What this PR removes:**
+
+- `.github/scripts/detect-upgrade-cell-skip.sh` — deleted. Its criterion 1 (from_tag OCI revision == master) never fires under the new rule (FROM always derives to a shipped version, never to master's build). Criterion 2 (master row carries `next`) is unnecessary — the new rule produces a working test in between-cycles state (master always has a real delta against the shipped `fsupgrade.priorOpenemrVersion`).
+- `.github/scripts/lib/release-targets-queries.sh` + `master_row_carries_next` predicate — only consumers were criterion 2 and the orchestrator's `require_upgrade_cell` enrichment; both go away.
+- `require_upgrade_cell` input on `acceptance-docker.yml` + `docker-build-release.yml` + pass-through from orchestrator — existed only to loud-fail when criterion 2 silent-skipped during release-mode; no criterion 2 means no need for the guardrail.
+- `docker-release-orchestrator.yml`'s `master_row_carries_next` call in compute-matrix + `require_upgrade_cell` enrichment + dispatch arg handling — dead code.
+- BATS suites: `tests/bats/ci-scripts/detect-upgrade-cell-skip/` + `tests/bats/ci-scripts/release-targets-queries/` — tests for the deleted scripts.
+- Byte-identical manifest entries for the two deleted scripts.
+
+**What this PR adds:**
+
+- `derive_from_version_fsupgrade` function in the existing `.github/scripts/lib/derive-from-version.sh` shared lib.
+- `tests/bats/ci-scripts/derive-from-version/fsupgrade.bats` with positive cases (rel-850/rel-840/master shapes) + manifest-intersect fallback cases (rel-820 with abandoned rel-810 scaffolding) + X.Y.Z-only filter cases + distinct negative error paths.
+
+**Wired changes to existing files:**
+
+- `.github/workflows/acceptance-docker.yml::resolve-from-tag` — now fetches the manifest inline (curl + jq, same URL as `detect-acceptance-mode.sh`'s `SHIPPED_VERSIONS_MANIFEST_URL`) and calls `derive_from_version_fsupgrade` instead of the inline sql-based logic.
+
+**Historical context:** this is the fourth iteration of docker-side FROM derivation.
+
+| Iteration | Mechanism | Failure mode | Closed by |
+|---|---|---|---|
+| Original | Hardcoded `latest` default on from_tag | On rel branches not holding `latest`, FROM → downgrade (`8.4.1 → 8.2.0`) with no DB-downgrade machinery | G50 (2026-10-06) |
+| G50 | sql-latest (no manifest intersect on docker side) | On master during active-dev-cycle, FROM → floating pre-release that's byte-identical-scaffolded with master → no real delta → vacuous no-op → false version-row-assertion fail | G56 (this PR) |
+| G49 | Added `require_upgrade_cell` guardrail + between-cycles skip | Worked around G50's shortcomings but introduced the `master_row_carries_next` dependency on release-targets.yml state | superseded by G56 (no skip logic needed) |
+| G56 | fsupgrade-N.priorOpenemrVersion + manifest-intersect fallback | — | — |
+
+**Systemic lesson:** the pre-G56 docker-side derivation tried to use the SAME signal the package side uses (max sql-candidate) because the sql-upgrade file naming is a convenient shared source of truth. But docker and package have fundamentally different coupling to their FROM selection: package runs `sql_upgrade.php` directly (works for any X.Y.Z → next with a sql chain), docker gates on docker-version + `$v_database` delta inside the entrypoint (needs FROM at a specific docker-version boundary). Selecting FROM from the signal that matches THE actual coupling (fsupgrade-N scaffolding on the docker side; sql-latest on the package side) eliminates the cross-side design debt. The pattern generalizes: when a test's FROM must match a specific scaffolded invariant, derive FROM from the scaffolding metadata itself, not from an adjacent proxy.
+
 ## Followup opportunities (not yet gap-numbered)
 
 Items surfaced during planning discussions or from operator experience that don't yet warrant a full gap entry — typically because they're extrapolations from existing patterns rather than confirmed bugs, or because they're operator-side observations that haven't been formalized. Move to a real G-entry when concrete scope + investigation are lined up. Kept here so option-listing across future planning sessions doesn't depend on session context.

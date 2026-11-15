@@ -405,7 +405,7 @@ class FhirOperationExportRestController
         $processedJob = clone $job;
         // we will generate a bunch of documents here and then save them out to our folder....
         $categoryId = null;
-        $ouputResult = [];
+        $outputResult = [];
         $errorResult = [];
         $shutdownTime = new \DateTime();
         // don't allow the export to take longer than 2 minutes

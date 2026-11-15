@@ -264,7 +264,7 @@ class Practice extends Base
         while ($row = sqlFetchArray($result)) {
             $pid = trim((string) $row['msg_pc_eid'], "recall_");
             $query  = "SELECT pc_eid FROM openemr_postcalendar_events WHERE (pc_eventDate > CURDATE()) AND pc_pid=?";
-            $test3 = sqlStatement($query, [$pid]);
+            $test3 = sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($pid)]);
             $result3 = sqlFetchArray($test3);
             if ($result3) {
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'SCHEDULED', msg_extra_text=? WHERE msg_uid = ?";
@@ -1001,7 +1001,7 @@ class Events extends Base
                         $sql_NoFollowUp = "SELECT COUNT(*) AS num FROM openemr_postcalendar_events WHERE
                             pc_pid = ? AND
                             pc_eventDate > ( ? + INTERVAL " . (int) $no_interval . " DAY)";
-                        $result = sqlQuery($sql_NoFollowUp, [$appt['pc_pid'], $appt['pc_eventDate']]);
+                        $result = sqlQuery($sql_NoFollowUp, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($appt['pc_pid']), $appt['pc_eventDate']]);
                         if ($result['num'] > 0) {
                             continue;
                         }
@@ -1136,7 +1136,7 @@ class Events extends Base
             "pc_billing_location,pc_room " .
             ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)";
 
-            $pc_eid = sqlInsert($sql, [$appt['pc_catid'], $appt['pc_multiple'], $appt['pc_aid'], $appt['pc_pid'], $appt['pc_gid'], $appt['pc_title'],
+            $pc_eid = sqlInsert($sql, [$appt['pc_catid'], $appt['pc_multiple'], $appt['pc_aid'], \OpenEMR\Services\AppointmentService::calendarPidOrNull($appt['pc_pid']), $appt['pc_gid'], $appt['pc_title'],
             $appt['pc_hometext'], $appt['pc_informant'], $selected_date, $args['form_enddate'], $appt['pc_duration'], '0',
             serialize($noRecurrspec), $appt['pc_startTime'], $appt['pc_endTime'], $appt['pc_alldayevent'],
             $appt['pc_apptstatus'], $appt['pc_prefcatid'], $locationspec, (int)$appt['pc_facility'],
@@ -1231,6 +1231,9 @@ class Events extends Base
         return false;
     }
 
+    /**
+     * Occurrences of one repeat between the two dates.
+     */
     public function calculateEvents($event, $start_date, $stop_date): array
     {
 
@@ -1257,14 +1260,19 @@ class Events extends Base
 
                 // prep work to start cooking...
                 // ignore dates less than start_date
-                while (strtotime((string) $occurrence) < strtotime((string) $start_date)) {
+                while ($occurrence !== null && strtotime((string) $occurrence) < strtotime((string) $start_date)) {
                     // if the start date is later than the recur date start
                     // just go up a unit at a time until we hit start_date
-                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
+                    $nextOccurrence = $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    if (!is_string($nextOccurrence) || $nextOccurrence <= (string) $occurrence) {
+                        $occurrence = null;
+                        break;
+                    }
+                    $occurrence = $nextOccurrence;
+                    [$ny, $nm, $nd] = explode('-', $occurrence);
                 }
                 //now we are cooking...
-                while ($occurrence <= $stop_date) {
+                while ($occurrence !== null && $occurrence <= $stop_date) {
                     $excluded = false;
                     if (isset($exdate)) {
                         foreach (explode(",", (string) $exdate) as $exception) {
@@ -1279,8 +1287,12 @@ class Events extends Base
                     if ($excluded == false) {
                         $data[] = $occurrence;
                     }
-                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
+                    $nextOccurrence = $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    if (!is_string($nextOccurrence) || $nextOccurrence <= (string) $occurrence) {
+                        break;
+                    }
+                    $occurrence = $nextOccurrence;
+                    [$ny, $nm, $nd] = explode('-', $occurrence);
                 }
                 break;
 
@@ -1314,25 +1326,26 @@ class Events extends Base
                 // appointments set prior to fix $nd remains unchanged). This can be done since
                 // $nd has no influence past the mktime functions.
                 while ($occurenceYm < $from_dateYm) {
-                    $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    [$ny, $nm, $nd] = explode('-', $occurenceYmX);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, $occurenceYm);
+                    if ($nextMonth === null) {
+                        $occurenceYm = null;
+                        break;
+                    }
+                    [$ny, $nm, $nd] = explode('-', $nextMonth);
                     $occurenceYm = "$ny-$nm";
                 }
 
-                while ($occurenceYm <= $stop_dateYm) {
+                while ($occurenceYm !== null && $occurenceYm <= $stop_dateYm) {
                     // (YYYY-mm)-dd
-                    $dnum = $rnum;
-                    do {
-                        $occurrence = \Date_Calc::NWeekdayOfMonth((string) $dnum--, (string) $rday, $nm, $ny, $format = "%Y-%m-%d");
-                    } while ($occurrence === -1);
+                    $occurrence = \OpenEMR\Common\Calendar\RepeatAdvance::onDate($rnum, $rday, $nm, $ny);
 
-                    if ($occurrence >= $start_date && $occurrence <= $stop_date) {
+                    if (is_string($occurrence) && $occurrence >= $start_date && $occurrence <= $stop_date) {
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
+                                if (preg_replace("/-/", "", $occurrence) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -1346,8 +1359,11 @@ class Events extends Base
                         }
                     }
 
-                    $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    [$ny, $nm, $nd] = explode('-', $occurenceYmX);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, $occurenceYm);
+                    if ($nextMonth === null) {
+                        break;
+                    }
+                    [$ny, $nm, $nd] = explode('-', $nextMonth);
                     $occurenceYm = "$ny-$nm";
                 }
                 break;
@@ -2294,7 +2310,7 @@ class Display extends Base
                  id="recall_' . attr($recall['pid']) . '" style="display:none;">';
 
             $query = "SELECT cal.pc_eventDate,pat.DOB FROM openemr_postcalendar_events AS cal JOIN patient_data AS pat ON cal.pc_pid=pat.pid WHERE cal.pc_pid =? ORDER BY cal.pc_eventDate DESC LIMIT 1";
-            $result2 = sqlQuery($query, [$recall['pid']]);
+            $result2 = sqlQuery($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($recall['pid'])]);
             $last_visit = $result2['pc_eventDate'];
             if (empty($result2['DOB'] ?? '')) {
                 $result2['DOB'] = sqlQuery("Select DOB From patient_data Where `pid` = ?", [$recall['pid']])['DOB'];
@@ -2417,7 +2433,7 @@ class Display extends Base
         $show['DONE'] = '';
         $query = "SELECT * FROM openemr_postcalendar_events WHERE
                   pc_eventDate >= CURDATE() AND pc_pid =? AND pc_eventDate > (? - INTERVAL 90 DAY)  AND pc_time >  (CURDATE()- INTERVAL 16 HOUR)";
-        $count = sqlFetchArray(sqlStatement($query, [$recall['r_pid'],$recall['r_eventDate']]));
+        $count = sqlFetchArray(sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($recall['r_pid']), $recall['r_eventDate']]));
 
         if ($count) {
             $sqlDELETE = "DELETE FROM medex_outgoing WHERE msg_pc_eid = ?";
@@ -2545,7 +2561,7 @@ class Display extends Base
         }
 
         $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate > CURDATE() AND pc_pid =? AND pc_time >  CURDATE()- INTERVAL 16 HOUR";
-        $result = sqlFetchArray(sqlStatement($query, [$recall['r_pid']]));
+        $result = sqlFetchArray(sqlStatement($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($recall['r_pid'])]));
 
         if ($something_happened || $result) {
             if ($result) {

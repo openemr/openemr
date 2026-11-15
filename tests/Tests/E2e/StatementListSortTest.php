@@ -1,13 +1,12 @@
 <?php
 
 /**
- * E2e test: picking statements to send on EOB Posting - Search.
+ * E2e test: picking statements to send on Patient Statements.
  *
  * A Due Pt search lists every invoice the patient owes, whether or not a
  * statement went out last week. "Last Statement Before" lists only invoices
- * last sent a statement before the date given, or never sent one; the
- * results say what the search was limited to; and the column headers sort
- * the list without losing which rows are ticked. Four invoices: one never
+ * last sent a statement before the date given, or never sent one; and the
+ * column headers sort the list without losing which rows are ticked. Four invoices: one never
  * sent, one sent 2026-09-01, one sent on the cutoff date used (2026-10-01)
  * and one sent 2026-10-20 (two statements). Later patients get lower encounter numbers, so sorting the
  * Invoice column by patient then encounter differs from encounter alone.
@@ -62,12 +61,6 @@ class StatementListSortTest extends PantherTestCase
                 $this->listedEncounters(),
                 'Without the filter every invoice due from the patient is listed'
             );
-            $this->assertSame(
-                'Due Pt · Name: ' . self::LAST_NAME,
-                $this->searchFilters(),
-                'The results say what the search was limited to'
-            );
-
             $this->searchDuePt('2026-10-01');
             $this->assertEqualsCanonicalizing(
                 [$this->neverSent, $this->sentInSeptember],
@@ -79,7 +72,6 @@ class StatementListSortTest extends PantherTestCase
                 $this->client->executeScript('return document.getElementById("form_last_stmt_before").value;'),
                 'The date stays in the search form'
             );
-            $this->assertStringStartsWith('Due Pt · Name: ' . self::LAST_NAME . ' · Last statement before ', $this->searchFilters());
         } finally {
             try {
                 if (isset($this->client)) {
@@ -157,28 +149,17 @@ class StatementListSortTest extends PantherTestCase
 
     private function searchDuePt(string $lastStatementBefore): void
     {
-        $this->client->request('GET', '/interface/billing/sl_eob_search.php');
-        $this->client->waitFor('#formSearch', 30);
+        $this->client->request('GET', '/interface/billing/patient_statements.php');
+        $this->client->waitFor('#statement-form', 30);
         $this->client->executeScript(
             'document.getElementById("form_category").value = "Due Pt";'
             . ' document.getElementById("form_name").value = arguments[0];'
             . ' document.getElementById("form_last_stmt_before").value = arguments[1];'
-            . ' document.getElementById("formSearch").requestSubmit(document.getElementById("btn-inv-search"));',
+            . ' const form = document.getElementById("statement-form");'
+            . ' form.requestSubmit(form.querySelector("button[name=form_search]"));',
             [self::LAST_NAME, $lastStatementBefore]
         );
         $this->client->waitFor('#invoice-list', 30);
-    }
-
-    /**
-     * The filters line shown with the results, which stay visible after the
-     * search fields are hidden.
-     */
-    private function searchFilters(): string
-    {
-        $text = $this->client->executeScript(
-            'const e = document.getElementById("search-filters"); return e ? e.textContent.trim() : "";'
-        );
-        return is_string($text) ? $text : '';
     }
 
     /**

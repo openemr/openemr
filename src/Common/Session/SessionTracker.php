@@ -18,6 +18,7 @@
 
 namespace OpenEMR\Common\Session;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -61,6 +62,35 @@ class SessionTracker
 
         // session is not expired
         return false;
+    }
+
+    /**
+     * Return the server-authoritative number of seconds before the active session expires.
+     *
+     * A null result means the tracker value is unavailable and must not be interpreted as expiry.
+     */
+    public static function getSessionSecondsRemaining(): ?int
+    {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $sessionUuid = $session->get('session_database_uuid');
+        if (!is_string($sessionUuid) || $sessionUuid === '') {
+            return null;
+        }
+
+        $sessionTracker = QueryUtils::querySingleRow(
+            "SELECT GREATEST(0, ? - TIMESTAMPDIFF(SECOND, `last_updated`, NOW())) AS `seconds_remaining` " .
+            "FROM `session_tracker` WHERE `uuid` = ?",
+            [
+                OEGlobalsBag::getInstance()->getInt('timeout'),
+                $sessionUuid,
+            ],
+            log: false
+        );
+        if (!is_array($sessionTracker) || !isset($sessionTracker['seconds_remaining']) || !is_numeric($sessionTracker['seconds_remaining'])) {
+            return null;
+        }
+
+        return max(0, (int) $sessionTracker['seconds_remaining']);
     }
 
     public static function updateSessionExpiration(): void

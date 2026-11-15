@@ -86,6 +86,8 @@ if (OEGlobalsBag::getInstance()->get('payment_gateway') != 'Sphere') {
                 'status_name' => filter_input(INPUT_POST, 'status_name') ?? '',
                 'cc' => filter_input(INPUT_POST, 'cc') ?? '',
                 'ccBrand' => filter_input(INPUT_POST, 'ccBrand') ?? '',
+                // What Sphere charged, so paylib.php can compare it with the invoice selection.
+                'amount' => filter_input(INPUT_POST, 'amount') ?? '',
             ]);
             echo "<script>opener.sphereSuccess();dlgclose();</script>";
         } else { // $_GET['front'] == 'clinic-phone' || $_GET['front'] == 'clinic-retail'

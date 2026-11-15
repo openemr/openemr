@@ -5,6 +5,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationAddressBookService;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationFacilityService;
@@ -138,7 +139,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
             //  so will support both the array and the object
             if (is_array($type)) {
                 foreach ($type['coding'] as $coding) {
-                    if ($coding['code'] == self::ORGANIZATION_TYPE_INSURANCE) {
+                    if (self::isInsurerType($coding['code'] ?? null)) {
                         // insert into the insurance
                         return $this->insuranceService->insert($fhirResource);
                     }
@@ -146,7 +147,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
             } else {
                 $codings = $type->getCoding() ?? [];
                 foreach ($codings as $coding) {
-                    if ($coding->getCode() == self::ORGANIZATION_TYPE_INSURANCE) {
+                    if (self::isInsurerType($coding->getCode())) {
                         // insert into the insurance
                         return $this->insuranceService->insert($fhirResource);
                     }
@@ -155,6 +156,18 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         }
         // if its not an insurance company we are going to insert as a facility
         return $this->facilityService->insert($fhirResource);
+    }
+
+    /**
+     * Whether an organization type code is the insurer's. HL7's code, and the one an insurer
+     * reads back with, is 'ins'; 'Ins' is accepted as before.
+     */
+    private static function isInsurerType(mixed $code): bool
+    {
+        if ($code instanceof FHIRCode) {
+            $code = $code->getValue();
+        }
+        return is_string($code) && strcasecmp($code, self::ORGANIZATION_TYPE_INSURANCE) === 0;
     }
 
     /**

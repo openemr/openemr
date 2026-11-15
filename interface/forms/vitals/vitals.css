@@ -93,3 +93,22 @@ select {
   font-size: 0.8rem;
   margin-top: 2px;
 }
+
+.vitals-height-feet-inches {
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.vitals-height-feet-inches .form-control {
+  flex: 0 0 4rem;
+  width: 4rem;
+}
+
+.vitals-height-unit {
+  font-weight: normal;
+}
+
+.vitals-height-total-inches-hidden {
+  display: none;
+}

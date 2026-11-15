@@ -1,12 +1,12 @@
 <?php
 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-
-
+/**
+ * Forms administration page.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
@@ -16,6 +16,7 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\InfoTxt;
@@ -25,6 +26,19 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!AclMain::aclCheckCore('admin', 'forms')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/forms: Forms Administration", xl("Forms Administration"));
+}
+
+// Mutating form registration (the enable/disable/install_db/register GET
+// branches below + the POST metadata save at :87) must additionally require
+// the `write` return mode. The gate above accepts any grant on admin/forms
+// including read-only `view`; the stronger `write` mode matches the
+// mutation intent and stays consistent with how the UI composes the two.
+$formsRequest = CurrentRequest::get();
+// Use getRealMethod() so a POST carrying `X-HTTP-METHOD-OVERRIDE: GET` can't
+// trick `isMethod('POST')` into reporting GET while $_POST is still populated.
+$isMutating = $formsRequest->query->getAlpha('method') !== '' || $formsRequest->getRealMethod() === 'POST';
+if ($isMutating && !AclMain::aclCheckCore('admin', 'forms', '', ['write'])) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/forms write: Forms Administration", xl("Forms Administration"));
 }
 
 if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {

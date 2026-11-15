@@ -134,6 +134,10 @@ class FhirMedicationDispenseRestController
     public function getAll(array $searchParams, ?string $puuidBind = null): Response
     {
         $fhirSearchResult = $this->fhirMedicationDispenseService->getAll($searchParams, $puuidBind);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($fhirSearchResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
 
         foreach ($fhirSearchResult->getData() as $searchResult) {

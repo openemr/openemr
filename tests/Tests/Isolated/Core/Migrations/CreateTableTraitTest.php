@@ -4,7 +4,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,9 +16,11 @@ namespace OpenEMR\Tests\Isolated\Core\Migrations;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 use PHPUnit\Framework\Attributes\Group;
@@ -31,7 +35,7 @@ interface TestableCreateTableMigration
      * @param non-empty-string $column
      * @param non-empty-string ...$otherColumns
      */
-    public function runAddPrimaryKey(Table $table, string $column, string ...$otherColumns): void;
+    public function runAddPrimaryKey(Table $table, string $column, string ...$otherColumns): Table;
 
     /**
      * @return list<\Doctrine\Migrations\Query\Query>
@@ -46,8 +50,7 @@ class CreateTableTraitTest extends TestCase
 {
     public function testCreateTableSetsCharsetAndCollationAndAddsSql(): void
     {
-        $table = new Table('test_table');
-        $table->addColumn('id', 'integer');
+        $table = $this->table('id');
 
         $expectedSql = [
             'CREATE TABLE test_table (id INT NOT NULL)',
@@ -76,31 +79,76 @@ class CreateTableTraitTest extends TestCase
         ));
     }
 
+    public function testCreateTableKeepsTheTableOptionsItWasGiven(): void
+    {
+        $table = $this->table('id')->edit()
+            ->setOptions(['engine' => 'InnoDB', 'charset' => 'latin1'])
+            ->setComment('a table with options')
+            ->create();
+
+        $platform = $this->createMock(AbstractPlatform::class);
+        $platform->expects(self::once())
+            ->method('getCreateTableSQL')
+            ->with(self::callback(function (Table $t) {
+                self::assertSame('InnoDB', $t->getOption('engine'));
+                self::assertSame('a table with options', $t->getComment());
+                self::assertSame('utf8mb4', $t->getOption('charset'));
+                self::assertSame('utf8mb4_general_ci', $t->getOption('collation'));
+                return true;
+            }))
+            ->willReturn([]);
+
+        $connection = self::createStub(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn($platform);
+
+        $this->createMigration($connection)->runCreateTable($table);
+
+        self::assertSame('latin1', $table->getOption('charset'), 'the table given is not changed');
+    }
+
     public function testAddPrimaryKeyAddsSingleColumnPrimaryKey(): void
     {
-        $table = new Table('test_table');
-        $table->addColumn('id', 'integer');
+        $table = $this->table('id');
 
         $migration = $this->createMigration(self::createStub(Connection::class));
-        $migration->runAddPrimaryKey($table, 'id');
+        $keyed = $migration->runAddPrimaryKey($table, 'id');
 
-        $pk = $table->getPrimaryKeyConstraint();
+        $pk = $keyed->getPrimaryKeyConstraint();
         self::assertNotNull($pk);
         self::assertSame(['id'], $this->extractColumnNames($pk->getColumnNames()));
+        self::assertNull($table->getPrimaryKeyConstraint(), 'the table given is not changed');
     }
 
     public function testAddPrimaryKeyAddsCompositeKey(): void
     {
-        $table = new Table('test_table');
-        $table->addColumn('user_id', 'integer');
-        $table->addColumn('group_id', 'integer');
+        $table = $this->table('user_id', 'group_id');
 
         $migration = $this->createMigration(self::createStub(Connection::class));
-        $migration->runAddPrimaryKey($table, 'user_id', 'group_id');
+        $keyed = $migration->runAddPrimaryKey($table, 'user_id', 'group_id');
 
-        $pk = $table->getPrimaryKeyConstraint();
+        $pk = $keyed->getPrimaryKeyConstraint();
         self::assertNotNull($pk);
         self::assertSame(['user_id', 'group_id'], $this->extractColumnNames($pk->getColumnNames()));
+    }
+
+    /**
+     * A test_table with the given integer columns.
+     *
+     * @param non-empty-string $column
+     * @param non-empty-string ...$otherColumns
+     */
+    private function table(string $column, string ...$otherColumns): Table
+    {
+        $editor = Table::editor()->setUnquotedName('test_table');
+        foreach ([$column, ...$otherColumns] as $name) {
+            $editor->addColumn(
+                Column::editor()
+                    ->setUnquotedName($name)
+                    ->setTypeName(Types::INTEGER)
+                    ->create()
+            );
+        }
+        return $editor->create();
     }
 
     private function createMigration(Connection $connection): TestableCreateTableMigration
@@ -121,9 +169,9 @@ class CreateTableTraitTest extends TestCase
              * @param non-empty-string $column
              * @param non-empty-string ...$otherColumns
              */
-            public function runAddPrimaryKey(Table $table, string $column, string ...$otherColumns): void
+            public function runAddPrimaryKey(Table $table, string $column, string ...$otherColumns): Table
             {
-                $this->addPrimaryKey($table, $column, ...$otherColumns);
+                return $this->addPrimaryKey($table, $column, ...$otherColumns);
             }
         };
     }

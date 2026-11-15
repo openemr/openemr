@@ -103,6 +103,9 @@ function checkEvent($recurrtype, $recurrspec): int
     return $eFlag;
 }
 
+/**
+ * Events in the span, including repeats that can be stepped forward.
+ */
 function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null): array
 {
     $sqlBindArray = [];
@@ -230,11 +233,16 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 $occurrence = $event['pc_eventDate'];
 
                 while ($occurrence < $from_date) {
-                    $occurrence =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
+                    $nextOccurrence = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurrence);
+                    if ($nextOccurrence === null) {
+                        $occurrence = null;
+                        break;
+                    }
+                    $occurrence = $nextOccurrence;
+                    [$ny, $nm, $nd] = explode('-', $occurrence);
                 }
 
-                while ($occurrence <= $stopDate) {
+                while ($occurrence !== null && $occurrence <= $stopDate) {
                     $excluded = false;
                     if (isset($exdate)) {
                         foreach (explode(",", (string) $exdate) as $exception) {
@@ -261,8 +269,12 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                       //////
                     }
 
-                    $occurrence =& __increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
+                    $nextOccurrence = \OpenEMR\Common\Calendar\RepeatAdvance::nextDate($nd, $nm, $ny, $rfreq, $rtype, (string) $occurrence);
+                    if ($nextOccurrence === null) {
+                        break;
+                    }
+                    $occurrence = $nextOccurrence;
+                    [$ny, $nm, $nd] = explode('-', $occurrence);
                 }
                 break;
 
@@ -293,25 +305,26 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 // appointments set prior to fix $nd remains unchanged). This can be done since
                 // $nd has no influence past the mktime functions.
                 while ($occuranceYm < $from_dateYm) {
-                    $occuranceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    [$ny, $nm, $nd] = explode('-', $occuranceYmX);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, $occuranceYm);
+                    if ($nextMonth === null) {
+                        $occuranceYm = null;
+                        break;
+                    }
+                    [$ny, $nm, $nd] = explode('-', $nextMonth);
                     $occuranceYm = "$ny-$nm";
                 }
 
-                while ($occuranceYm <= $stopDateYm) {
+                while ($occuranceYm !== null && $occuranceYm <= $stopDateYm) {
                     // (YYYY-mm)-dd
-                    $dnum = $rnum;
-                    do {
-                        $occurrence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
-                    } while ($occurrence === -1);
+                    $occurrence = \OpenEMR\Common\Calendar\RepeatAdvance::onDate($rnum, $rday, $nm, $ny);
 
-                    if ($occurrence >= $from_date && $occurrence <= $stopDate) {
+                    if (is_string($occurrence) && $occurrence >= $from_date && $occurrence <= $stopDate) {
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
+                                if (preg_replace("/-/", "", $occurrence) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -333,8 +346,11 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                         }
                     }
 
-                    $occuranceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    [$ny, $nm, $nd] = explode('-', $occuranceYmX);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, $occuranceYm);
+                    if ($nextMonth === null) {
+                        break;
+                    }
+                    [$ny, $nm, $nd] = explode('-', $nextMonth);
                     $occuranceYm = "$ny-$nm";
                 }
                 break;
@@ -393,8 +409,10 @@ function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_i
     }
 
     if ($patient_id) {
+        // pc_pid is a varchar: compared with text, its index finds the patient's events; compared with a
+        // number, every event is read and converted.
         $where .= " AND e.pc_pid = ?";
-        array_push($sqlBindArray, $patient_id);
+        array_push($sqlBindArray, \OpenEMR\Services\AppointmentService::calendarPidOrNull($patient_id));
     } elseif ($group_id) {
         //if $group_id this means we want only the group events
         $where .= " AND e.pc_gid = ? AND e.pc_pid = ''";
@@ -462,7 +480,7 @@ function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1'): array
     $res2 = sqlStatement("SELECT MIN(pc_eventDate) as minDate " .
         "FROM openemr_postcalendar_events " .
         "WHERE pc_pid = ? " .
-        "AND pc_eventDate < ? ;", [$pid2, $currentDate]);
+        "AND pc_eventDate < ? ;", [\OpenEMR\Services\AppointmentService::calendarPidOrNull($pid2), $currentDate]);
     $row2 = sqlFetchArray($res2);
 
     if ($row2['minDate']) {
@@ -782,7 +800,7 @@ function fetchRecurrences($pid): array
                     . "JOIN openemr_postcalendar_categories AS pc ON pe.pc_catid=pc.pc_catid "
                     . "WHERE pe.pc_pid = ?  AND pe.pc_recurrtype > 0;";
     $sqlBindArray = [];
-    array_push($sqlBindArray, $pid);
+    array_push($sqlBindArray, \OpenEMR\Services\AppointmentService::calendarPidOrNull($pid));
     $res = sqlStatement($query, $sqlBindArray);
     $result_data = [];
     while ($row = sqlFetchArray($res)) {

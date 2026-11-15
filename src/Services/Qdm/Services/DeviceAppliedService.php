@@ -5,7 +5,7 @@
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Qdm\Services;
@@ -27,15 +27,11 @@ class DeviceAppliedService extends AbstractQdmService implements QdmServiceInter
                     OC.procedure_code
                 FROM procedure_order O
                     JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
-                WHERE O.procedure_order_type = 'device'
+                WHERE O.procedure_order_type = 'device' AND O.activity != 0
+                AND " . self::countedFormRow('O.procedure_order_id', 'O.patient_id', QdmForm::ProcedureOrder) . "
                 ";
 
         return $sql;
-    }
-
-    public function getPatientIdColumn(): string
-    {
-        return 'O.patient_id';
     }
 
     public function makeQdmModel(QdmRecord $recordObj): DeviceApplied

@@ -36,9 +36,17 @@ $currentPage = floor($offset / $N);
 $active = $_REQUEST['active'] ?? 1; // Default: Active Only
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-// Process form submissions
+// Process form submissions. The page-level gate above accepts any grant on
+// `encounters/notes` including read-only `view`; mutations need `write`
+// (edit / delete / enable-disable toggle on existing notes) or
+// `write`/`addonly` (new-note creation).
 if (isset($_POST['mode'])) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+    $requiredNotesLevel = $_POST['mode'] === 'new' ? ['write', 'addonly'] : ['write'];
+    if (!AclMain::aclCheckCore('encounters', 'notes', '', $requiredNotesLevel)) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/notes write: Office Notes", xl("Office Notes"));
+    }
 
     if ($_POST['mode'] == "update") {
         foreach ($_POST as $var => $val) {

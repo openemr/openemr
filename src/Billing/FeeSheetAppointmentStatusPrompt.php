@@ -56,7 +56,7 @@ final readonly class FeeSheetAppointmentStatusPrompt
             . ' FROM openemr_postcalendar_events AS e LEFT JOIN users AS u ON u.id = e.pc_aid'
             . ' WHERE e.pc_pid = ? AND e.pc_recurrtype = 0 AND e.pc_eventDate = ?'
             . ' ORDER BY e.pc_startTime DESC, e.pc_eid DESC LIMIT 1',
-            [$pid, $visitDate]
+            [\OpenEMR\Services\AppointmentService::calendarPid($pid), $visitDate]
         );
         if (!is_array($appointment) || !is_numeric($appointment['pc_eid'] ?? null)) {
             return null;

@@ -184,15 +184,18 @@ $selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
         $sqlBindArrayAppointment = $sqlBindArrayTotalVisit = $sqlBindArrayTotalPayment = $sqlBindArrayPaid = $sqlBindArrayNewPatient = [];
 
         // make all condition on by default today's date
+        // Dates are compared as ranges on the bare columns, so an index on the column can serve a short period:
+        // DATE(column) makes the database read every row (MySQL, and MariaDB before 11.1). payments.dtime has no
+        // index, so its range still reads every payment. pc_eventDate is already a date.
         if ($dateSet != 1 && $facilitySet != 1) {
-            $whereNewPatientConditions .= ' AND DATE(`OPE`.`pc_eventDate`) = ? ';
+            $whereNewPatientConditions .= ' AND `OPE`.`pc_eventDate` = ? ';
             array_push($sqlBindArrayNewPatient, date("Y-m-d"));
-            $whereTotalVisitConditions .= ' AND DATE(`fc`.`date`) = ? ';
-            array_push($sqlBindArrayTotalVisit, date("Y-m-d"));
-            $whereTotalPaymentConditions .= ' AND DATE(`b`.`date`)  = ? ';
-            array_push($sqlBindArrayTotalPayment, date("Y-m-d"));
-            $wherePaidConditions .= ' AND DATE(`p`.`dtime`)  = ? ';
-            array_push($sqlBindArrayPaid, date("Y-m-d"));
+            $whereTotalVisitConditions .= ' AND `fc`.`date` >= ? AND `fc`.`date` < DATE_ADD(?, INTERVAL 1 DAY) ';
+            array_push($sqlBindArrayTotalVisit, date("Y-m-d"), date("Y-m-d"));
+            $whereTotalPaymentConditions .= ' AND `b`.`date` >= ? AND `b`.`date` < DATE_ADD(?, INTERVAL 1 DAY) ';
+            array_push($sqlBindArrayTotalPayment, date("Y-m-d"), date("Y-m-d"));
+            $wherePaidConditions .= ' AND `p`.`dtime` >= ? AND `p`.`dtime` < DATE_ADD(?, INTERVAL 1 DAY) ';
+            array_push($sqlBindArrayPaid, date("Y-m-d"), date("Y-m-d"));
         }
 
         // if search based on facility then append condition for facility search
@@ -210,13 +213,13 @@ $selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
 
         // if date range wise search then append condition for date search
         if (1 === $dateSet) {
-            $whereNewPatientConditions .= ' AND DATE(`OPE`.`pc_eventDate`) BETWEEN ? AND ?';
+            $whereNewPatientConditions .= ' AND `OPE`.`pc_eventDate` BETWEEN ? AND ?';
             array_push($sqlBindArrayNewPatient, $from_date, $to_date);
-            $whereTotalVisitConditions .= ' AND DATE(`fc`.`date`) BETWEEN ? AND ?';
+            $whereTotalVisitConditions .= ' AND `fc`.`date` >= ? AND `fc`.`date` < DATE_ADD(?, INTERVAL 1 DAY)';
             array_push($sqlBindArrayTotalVisit, $from_date, $to_date);
-            $whereTotalPaymentConditions .= ' AND DATE(`b`.`date`) BETWEEN ? AND ?';
+            $whereTotalPaymentConditions .= ' AND `b`.`date` >= ? AND `b`.`date` < DATE_ADD(?, INTERVAL 1 DAY)';
             array_push($sqlBindArrayTotalPayment, $from_date, $to_date);
-            $wherePaidConditions .= ' AND DATE(`p`.`dtime`) BETWEEN ? AND ?';
+            $wherePaidConditions .= ' AND `p`.`dtime` >= ? AND `p`.`dtime` < DATE_ADD(?, INTERVAL 1 DAY)';
             array_push($sqlBindArrayPaid, $from_date, $to_date);
         }
 

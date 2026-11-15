@@ -19,15 +19,25 @@
 
 namespace OpenEMR\Tests\Isolated\Common\Twig;
 
+use OpenEMR\Common\DirectMessaging\DirectMessageLogRecord;
+use OpenEMR\Common\DirectMessaging\DirectMessageLogStatus;
+use OpenEMR\Common\DirectMessaging\DirectMessageType;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Interface\PatientFile\Assessment\AssessmentDashboardController;
+use OpenEMR\Controllers\Interface\PatientFile\Assessment\AssessmentWorkspaceController;
+use OpenEMR\Controllers\Interface\Reports\DirectMessageLogController;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\PostOutcome;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailabilityController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\PostCalendarTwigExtension;
+use OpenEMR\Services\Globals\CollapsedSections;
+use OpenEMR\Services\NativeQuestionnaireResponseProcessor;
 use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
 use OpenEMR\Services\Patient\DuplicatePatientRow;
 use OpenEMR\Services\Patient\PatientMergeResult;
+use OpenEMR\Tests\Isolated\Controllers\Interface\PatientFile\Assessment\AssessmentDashboardControllerTest;
+use OpenEMR\Tests\Isolated\Controllers\Interface\PatientFile\Assessment\FakeAssessmentStore;
 use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityLookups;
 use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityService;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -229,6 +239,51 @@ class TwigTemplateRenderTest extends TestCase
                 'endpoint' => '/oauth2/launch',
             ],
             $fixtureDir . '/ehr-launch-autosubmit.html',
+        ];
+
+        // SMART apps card (portal dashboard Health Apps list). The template
+        // escaping matters: app.url runs through |attr and app.name through
+        // |text because both come from admin-registered DCR data that could
+        // carry quotes/HTML. target="_blank" on the Launch link pairs with
+        // rel="noopener noreferrer" to block tabnapping. The three cases
+        // below pin: the empty-list structural shape, a single safe app,
+        // and a multi-app case whose inputs carry quotes + angle brackets
+        // so a regression on either filter surfaces in the fixture diff.
+
+        yield 'portal/partial/cards/_smart_apps_card empty apps list' => [
+            'portal/partial/cards/_smart_apps_card.html.twig',
+            [
+                'id' => 'smart-apps-card',
+                'apps' => [],
+            ],
+            $fixtureDir . '/smart-apps-card-empty.html',
+        ];
+
+        yield 'portal/partial/cards/_smart_apps_card single app' => [
+            'portal/partial/cards/_smart_apps_card.html.twig',
+            [
+                'id' => 'smart-apps-card',
+                'apps' => [
+                    ['name' => 'Visit Prep', 'url' => 'https://app.example/launch.php?mode=portal&launch=abc'],
+                ],
+            ],
+            $fixtureDir . '/smart-apps-card-single.html',
+        ];
+
+        yield 'portal/partial/cards/_smart_apps_card multiple apps with escaping' => [
+            'portal/partial/cards/_smart_apps_card.html.twig',
+            [
+                'id' => 'smart-apps-card',
+                'apps' => [
+                    // Plain app.
+                    ['name' => 'Visit Prep', 'url' => 'https://app.example/launch.php?mode=portal&launch=abc'],
+                    // Quotes + angle brackets in the name so a regression on |text surfaces.
+                    ['name' => 'Smart "Questionnaire" <app>', 'url' => 'https://q.example/launch.php?mode=portal&launch=xyz'],
+                    // Quotes in the URL so a regression on |attr surfaces.
+                    ['name' => 'Third app', 'url' => 'https://app.example/launch.php?mode=portal&launch="abc"'],
+                ],
+            ],
+            $fixtureDir . '/smart-apps-card-multiple.html',
         ];
 
         yield 'portal/login/autologin pin required' => [
@@ -748,6 +803,41 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/portal-lockout-tracker-populated.html',
         ];
 
+        yield 'reports/direct_message_log empty' => [
+            DirectMessageLogController::TEMPLATE,
+            [
+                'csrfToken' => 'test-csrf-token',
+                'records' => [],
+                'logstart' => 0,
+            ],
+            $fixtureDir . '/direct-message-log-empty.html',
+        ];
+
+        // One row per type and status label. Unknown, and codes the enums do not know (null),
+        // render blank.
+        yield 'reports/direct_message_log populated' => [
+            DirectMessageLogController::TEMPLATE,
+            [
+                'csrfToken' => 'test-csrf-token',
+                'records' => [
+                    self::directMessageLogRecord(id: 208, type: DirectMessageType::Sent, status: null),
+                    self::directMessageLogRecord(id: 207, type: null, status: DirectMessageLogStatus::Unknown, statusChangedAt: null),
+                    self::directMessageLogRecord(id: 206, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Failed),
+                    self::directMessageLogRecord(
+                        id: 205,
+                        type: DirectMessageType::Received,
+                        status: DirectMessageLogStatus::Received,
+                        sender: '<b>sender</b>@direct.example',
+                    ),
+                    self::directMessageLogRecord(id: 204, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Dispatched),
+                    self::directMessageLogRecord(id: 203, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Sent),
+                    self::directMessageLogRecord(id: 202, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Queued),
+                ],
+                'logstart' => 208,
+            ],
+            $fixtureDir . '/direct-message-log-populated.html',
+        ];
+
         yield 'forms/care_plan report' => [
             '/forms/care_plan/templates/care_plan_report.html.twig',
             [
@@ -838,6 +928,105 @@ class TwigTemplateRenderTest extends TestCase
             self::availabilityView(null, null, new PostOutcome(), new FakeAvailabilityService()),
             $fixtureDir . '/questionnaire-availability-empty.html',
         ];
+
+        $importRuntime = ['stylesheet' => '/q.css', 'script' => '/q.js', 'version' => '8.5.0', 'strings' => '{}'];
+        yield 'super/questionnaire_import administrator in the dashboard tab' => [
+            'super/questionnaire_import.html.twig',
+            [
+                'csrfToken' => 'token',
+                'runtime' => $importRuntime,
+                'categories' => ['survey' => 'Survey', 'sdoh' => 'Social Determinants'],
+                'surfaces' => [
+                    ['value' => 'dashboard', 'label' => 'Patient dashboard', 'checked' => true],
+                    ['value' => 'smart', 'label' => 'SMART launch', 'checked' => false],
+                ],
+                'canAssign' => true,
+                'portalEnabled' => true,
+                'showLoincNote' => true,
+                'templateCategories' => ['' => 'General', 'questionnaire' => 'Questionnaire'],
+                'templateCategory' => 'questionnaire',
+                'isDialog' => false,
+                'source' => '',
+                // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+                'webroot' => '',
+                'sections' => new CollapsedSections(),
+            ],
+            $fixtureDir . '/questionnaire-import-tab.html',
+        ];
+
+        yield 'super/questionnaire_import forms administrator in the portal dialog' => [
+            'super/questionnaire_import.html.twig',
+            [
+                'csrfToken' => 'token',
+                'runtime' => $importRuntime,
+                'categories' => ['survey' => 'Survey'],
+                'surfaces' => [],
+                'canAssign' => false,
+                'portalEnabled' => false,
+                'showLoincNote' => false,
+                'templateCategories' => [],
+                'templateCategory' => '',
+                'isDialog' => true,
+                'source' => 'paste',
+                // A user who folded the review away earlier.
+                // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+                'webroot' => '',
+                'sections' => new CollapsedSections(['questionnaire_import_review_expand']),
+            ],
+            $fixtureDir . '/questionnaire-import-dialog.html',
+        ];
+
+        yield 'super/questionnaire_preview active questionnaire' => [
+            'super/questionnaire_preview.html.twig',
+            ['runtime' => $importRuntime, 'name' => 'PHQ-9', 'questionnaireJson' => '{"resourceType":"Questionnaire"}'],
+            $fixtureDir . '/questionnaire-preview.html',
+        ];
+
+        yield 'super/questionnaire_preview unavailable' => [
+            'super/questionnaire_preview.html.twig',
+            ['runtime' => $importRuntime, 'name' => '', 'questionnaireJson' => ''],
+            $fixtureDir . '/questionnaire-preview-unavailable.html',
+        ];
+
+        yield 'patient/assessment/dashboard with assessments, history and SMART apps' => [
+            AssessmentDashboardController::TEMPLATE,
+            [
+                ...AssessmentDashboardControllerTest::controller(
+                    FakeAssessmentStore::sample(),
+                    collapsed: ['questionnaire_category_unassigned_expand'],
+                )->buildView(),
+                // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+                'webroot' => '',
+            ],
+            $fixtureDir . '/assessment-dashboard.html',
+        ];
+
+        yield 'patient/assessment/dashboard without patients/med' => [
+            AssessmentDashboardController::TEMPLATE,
+            AssessmentDashboardControllerTest::controller(FakeAssessmentStore::sample(), authorized: false)->buildView(),
+            $fixtureDir . '/assessment-dashboard-unauthorized.html',
+        ];
+
+        $workspace = new AssessmentWorkspaceController(
+            new Environment(new ArrayLoader()),
+            FakeAssessmentStore::sample(),
+            new NativeQuestionnaireResponseProcessor(),
+            7,
+            'token',
+            '/interface/forms/questionnaire_assessments/native_save.php',
+            $importRuntime,
+        );
+        yield 'patient/assessment/workspace continuing a response' => [
+            AssessmentWorkspaceController::TEMPLATE,
+            $workspace->buildView(null, 'qr-11'),
+            $fixtureDir . '/assessment-workspace.html',
+        ];
+
+        yield 'patient/assessment/workspace refused' => [
+            AssessmentWorkspaceController::TEMPLATE,
+            ['runtime' => $importRuntime, 'title' => 'Questionnaire Assessment', 'error' => 'Questionnaire response was not found.'],
+            $fixtureDir . '/assessment-workspace-refused.html',
+        ];
     }
 
     /**
@@ -859,9 +1048,11 @@ class TwigTemplateRenderTest extends TestCase
             new Environment(new ArrayLoader()),
             $session,
             new NullLogger(),
+            new CollapsedSections($selectedId !== null ? ['questionnaire_availability_category_rules_expand'] : []),
         );
 
-        return $controller->buildView($selectedId, $editId, $outcome);
+        // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+        return [...$controller->buildView($selectedId, $editId, $outcome), 'webroot' => ''];
     }
 
     /**
@@ -912,6 +1103,27 @@ class TwigTemplateRenderTest extends TestCase
             'regdate' => '2020-04-01',
             'street' => '12 Elm St',
         ], $overrides);
+    }
+
+    /**
+     * @codeCoverageIgnore Only reached from the data provider, which runs before instrumentation.
+     */
+    private static function directMessageLogRecord(
+        int $id,
+        ?DirectMessageType $type,
+        ?DirectMessageLogStatus $status,
+        string $sender = 'sender@direct.example',
+        ?string $statusChangedAt = '2026-01-05 09:30:00',
+    ): DirectMessageLogRecord {
+        return new DirectMessageLogRecord(
+            id: $id,
+            type: $type,
+            createdAt: '2026-01-05 09:00:00',
+            sender: $sender,
+            recipient: 'recipient@direct.example',
+            status: $status,
+            statusChangedAt: $statusChangedAt,
+        );
     }
 
     /**

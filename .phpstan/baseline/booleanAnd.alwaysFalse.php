@@ -9,11 +9,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always false\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/audit_log_tamper_report.php',
 ];
 $ignoreErrors[] = [
@@ -48,11 +43,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/ExceptionThrower.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../setup.php',
 ];
@@ -75,11 +65,6 @@ $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',

@@ -517,11 +517,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'date\' does not exist on non\\-empty\\-list\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'extension\' might not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/download_template.php',
@@ -727,11 +722,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'name\' might not exist on array\\{name\\?\\: string, phone\\?\\: string, fax\\?\\: string, street\\?\\: string, city\\?\\: string, state\\?\\: string, postal_code\\?\\: string, country_code\\?\\: string, \\.\\.\\.\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/facilities.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'username\' might not exist on array\\{password\\: \'NoLongerUsed\', username\\?\\: string, fname\\?\\: string, mname\\?\\: string, lname\\?\\: string, suffix\\?\\: string, email\\?\\: string, valedictory\\?\\: string, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
@@ -775,26 +765,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'total_patients\' might not exist on array\\{pass_target\\: \\(array\\|float\\|int\\), percentage\\: string\\}\\|array\\{total_patients\\: \\(array\\|float\\|int\\), excluded\\: \\(array\\|float\\|int\\), pass_filter\\: \\(array\\|float\\|int\\), pass_target\\: \\(array\\|float\\|int\\), percentage\\: string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'host\' might not exist on array\\{scheme\\: \'http\'\\|\'tcp\', host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'host\' might not exist on array\\{scheme\\: \'https\', host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'port\' might not exist on array\\{scheme\\: \'http\'\\|\'https\'\\|\'ssl\'\\|\'sslv3\'\\|\'tcp\'\\|\'tls\', host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'port\' might not exist on array\\{scheme\\: \'https\', host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-empty\\-string, non\\-empty\\-string, string\\}\\.$#',
@@ -920,21 +890,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'last4\' might not exist on array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'extension\' might not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/thumbnail.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'extension\' might not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'class\' might not exist on array\\{function\\: string, line\\?\\: int, file\\?\\: string, class\\?\\: class\\-string, type\\?\\: \'\\-\\>\'\\|\'\\:\\:\', args\\?\\: list\\<mixed\\>, object\\?\\: object\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'code\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
