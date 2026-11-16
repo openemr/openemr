@@ -51,6 +51,17 @@ class BulkFhirOperationsApiTest extends TestCase
     private BulkAPITestClient $testClient;
     private ?string $savedSiteAddrOath = null;
 
+    /**
+     * Export-job uuids created by kick-off tests. Each test that fires
+     * Patient/$export or /$export records the uuid here from the
+     * Content-Location so tearDown can delete the persisted job + its
+     * output documents before OAuth client cleanup — otherwise jobs
+     * accumulate in export_job across the api run.
+     *
+     * @var list<string>
+     */
+    private array $kickedOffJobs = [];
+
     protected function setUp(): void
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
@@ -78,8 +89,26 @@ class BulkFhirOperationsApiTest extends TestCase
     public function tearDown(): void
     {
         try {
-            $this->testClient->cleanupRevokeAuth();
-            $this->testClient->cleanupClient();
+            // Delete persisted export_job rows + their output documents
+            // before OAuth cleanup. Kick-off is synchronous in-process:
+            // every test that hits /$export leaves a completed row. The
+            // DELETE /$bulkdata-status round-trip in
+            // testDeleteOfCompletedJobReturnsAccepted already removes
+            // its own job, so skipping an already-deleted uuid here is
+            // not a failure. Use the authenticated route so service-
+            // layer document unlinking runs the same way the production
+            // path would.
+            $this->sweepKickedOffExportJobs();
+
+            // Nested finally so cleanupClient runs even if
+            // cleanupRevokeAuth throws (eg transient network error on
+            // the logout request). Rabbit-flagged; preserves OAuth
+            // client row cleanup regardless.
+            try {
+                $this->testClient->cleanupRevokeAuth();
+            } finally {
+                $this->testClient->cleanupClient();
+            }
         } finally {
             if ($this->savedSiteAddrOath !== null) {
                 QueryUtils::sqlStatementThrowException(
@@ -240,12 +269,18 @@ class BulkFhirOperationsApiTest extends TestCase
     }
 
     /**
-     * Start an export, then DELETE its job uuid. The spec allows the server
-     * to cancel an in-progress export; OpenEMR's `processDeleteExportForJob`
-     * returns 202 Accepted on successful delete. This locks the full
-     * start → cancel round-trip from the external-client angle.
+     * Start an export, then DELETE its job uuid. OpenEMR's
+     * `processExport` runs synchronously in-process, so by the time
+     * kick-off's 202 response returns the export_job row is already
+     * STATUS_COMPLETED; the subsequent DELETE exercises
+     * `processDeleteExportForJob`'s completed-job branch (removes the
+     * documents, unlinks, deletes the row) → 202 Accepted. A true
+     * active-job cancel would need to race DELETE against an
+     * in-progress export, which is inherently timing-dependent and
+     * belongs in a service-tier test with a controllable fixture
+     * state, not an api-tier smoke. Rabbit-flagged on initial review.
      */
-    public function testDeleteOfActiveJobReturnsAccepted(): void
+    public function testDeleteOfCompletedJobReturnsAccepted(): void
     {
         $this->testClient->setAuthToken(BulkAPITestClient::OPENEMR_AUTH_ENDPOINT);
         $this->setBulkExportHeaders();
@@ -281,19 +316,36 @@ class BulkFhirOperationsApiTest extends TestCase
 
     /**
      * Status with no `job` query param — currently returns 500 per the
-     * TODO in GroupExportFhirApiTest ("Should not throw a 500 error").
-     * Skip for now so the TODO stays visible and the flip-to-pass surfaces
-     * when the implementation lands. Same markTestSkipped pattern the FHIR
-     * search-modifier matrix uses for known-latent bugs.
+     * TODO in `GroupExportFhirApiTest` ("Should not throw a 500 error").
+     * `processExportStatusRequestForJob(null)` hits the catch-\Throwable
+     * arm (null-uuid isn't the InvalidArgumentException shape that
+     * would map to 404) and renders a 500 OperationOutcome. Pin
+     * current behavior rather than markTestSkipped so a code fix
+     * (returning 400 for missing-param) flips THIS test to failure —
+     * the reader then sees both the test and the referenced TODO
+     * were addressed together. Rabbit-flagged skip-only placeholder;
+     * replaced with executable assertions against the known-wrong
+     * state. Same shape the FHIR search-modifier matrix uses at
+     * `testStringMissingTrueCurrentlyReturns500`.
      */
-    public function testStatusWithoutJobQueryParamReturnsOperationOutcomeNot500(): void
+    public function testStatusWithoutJobQueryParamCurrentlyReturns500(): void
     {
-        $this->markTestSkipped(
-            'Known behavior: /$bulkdata-status without job=<uuid> currently throws 500. '
-            . 'Should return 400 or 404 OperationOutcome. Tracked in GroupExportFhirApiTest '
-            . 'as "TODO: need to fix a bulkdata-status test where there is no job id". '
-            . 'Flip this to assert the actual 400/404 + OperationOutcome shape when the '
-            . 'controller is fixed to distinguish missing-param from invalid-uuid.'
+        $this->testClient->setAuthToken(BulkAPITestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->testClient->setHeaders([
+            'Accept' => 'application/fhir+json',
+            'Authorization' => 'Bearer ' . $this->testClient->getAccessToken(),
+        ]);
+        // No `job` query param. The controller should return 400 with
+        // an OperationOutcome; it currently 500s. When the controller
+        // is fixed, this test should flip to asserting the 400
+        // OperationOutcome shape + the test should be renamed.
+        $response = $this->testClient->get('/apis/default/fhir/$bulkdata-status');
+        $this->assertSame(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            $response->getStatusCode(),
+            'Current (known-wrong) behavior: /$bulkdata-status without job returns 500. '
+                . 'Flip this assertion to HTTP_BAD_REQUEST when the controller is fixed to '
+                . 'distinguish missing-param from invalid-uuid; see TODO in GroupExportFhirApiTest.'
         );
     }
 
@@ -313,6 +365,7 @@ class BulkFhirOperationsApiTest extends TestCase
      * Content-Location on a kick-off response must point at the status
      * endpoint with a `job` query parameter. Shape pinned so a regression
      * in the status-URL format fails loudly rather than masquerading.
+     * Also tracks the uuid so tearDown can sweep the export_job row.
      */
     private function assertContentLocationShape(\Psr\Http\Message\ResponseInterface $response): void
     {
@@ -335,6 +388,50 @@ class BulkFhirOperationsApiTest extends TestCase
         );
         $this->assertIsString($query['job']);
         $this->assertNotSame('', $query['job']);
+        $this->kickedOffJobs[] = $query['job'];
+    }
+
+    /**
+     * Delete persisted export_job rows + output documents created by
+     * kick-off tests. Runs over the DELETE /$bulkdata-status route so
+     * document-unlink + job-delete fire the same way they would in
+     * production. Jobs already deleted by a test (eg
+     * testDeleteOfCompletedJobReturnsAccepted) return 404 on this
+     * sweep; non-200 is tolerated here because the goal is
+     * best-effort cleanup, not re-verification of the DELETE contract.
+     *
+     * Reuses the test client's bearer; must run BEFORE
+     * cleanupRevokeAuth/cleanupClient in tearDown, since those
+     * invalidate the bearer and remove the oauth_clients row.
+     */
+    private function sweepKickedOffExportJobs(): void
+    {
+        if ($this->kickedOffJobs === []) {
+            return;
+        }
+        $bearer = $this->testClient->getAccessToken();
+        if ($bearer === null || $bearer === '') {
+            return;
+        }
+        $this->testClient->setHeaders([
+            'Accept' => 'application/fhir+json',
+            'Authorization' => 'Bearer ' . $bearer,
+        ]);
+        foreach (array_unique($this->kickedOffJobs) as $job) {
+            try {
+                $this->testClient->deleteWithQuery(
+                    '/apis/default/fhir/$bulkdata-status',
+                    ['job' => $job]
+                );
+            } catch (\GuzzleHttp\Exception\GuzzleException) {
+                // Best effort — a transient Guzzle error during
+                // cleanup shouldn't mask a test assertion failure.
+                // Narrow to GuzzleException (not Throwable/Exception)
+                // so Error subclasses still propagate per the project's
+                // forbiddenCatchType rule.
+            }
+        }
+        $this->kickedOffJobs = [];
     }
 
     /**
