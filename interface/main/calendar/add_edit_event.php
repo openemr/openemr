@@ -1459,29 +1459,29 @@ function isRegularRepeat($repeat): bool
 ?>
 <div class="jumbotron jumbotron-fluid px-3 py-4 my-2">
     <div class="form-row mb-sm-2">
-        <div class='col-sm-2 form-check form-check-inline<?php echo $visitListHidden; ?>'>
+        <div class='col-sm-2 form-check form-check-inline<?php echo attr($visitListHidden); ?>'>
             <input type='radio' class='form-check-input' name='form_allday' onclick='set_allday()' value='1' id='rballday1'<?php echo ($thisduration == 1440) ? " checked" : ""; ?> />
             <label for="rballday1" class='form-check-label' id='tdallday1'><?php echo xlt('All day event'); ?></label>
         </div>
         <label class='<?php echo $visitListMode ? 'col-sm-2' : 'col-sm'; ?> col-form-label' for='form_date'><?php echo xlt('Date'); ?>:</label>
         <input class="col-sm-2 form-control datepicker" type='text' size='10' name='form_date' id='form_date' value='<?php echo attr(oeFormatShortDate($date)) ?>' title='<?php echo xla('event date or starting date'); ?>' onchange='dateChanged()' />
-        <div class='col-sm form-check form-check-inline<?php echo $visitListHidden; ?>'>
+        <div class='col-sm form-check form-check-inline<?php echo attr($visitListHidden); ?>'>
             <input class="form-check-input" type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2'<?php echo ($thisduration != 1440) ? " checked " : ""; ?> />
             <label class="form-check-label" for="rballday2" id='tdallday2'><?php echo xlt('Time'); ?></label>
         </div>
-        <input class='col-sm form-control<?php echo $visitListHidden; ?>' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>' title='<?php echo xla('Event start time'); ?>' />
-        <input class='col-sm form-control<?php echo $visitListHidden; ?>' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>' title='<?php echo xla('Event start time'); ?>' />
+        <input class='col-sm form-control<?php echo attr($visitListHidden); ?>' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>' title='<?php echo xla('Event start time'); ?>' />
+        <input class='col-sm form-control<?php echo attr($visitListHidden); ?>' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>' title='<?php echo xla('Event start time'); ?>' />
         <?php if (OEGlobalsBag::getInstance()->get('time_display_format') == 1) : ?>
-        <select class='input-sm<?php echo $visitListHidden; ?>' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
+        <select class='input-sm<?php echo attr($visitListHidden); ?>' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
             <option value='1'><?php echo xlt('AM'); ?></option>
             <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
         </select>
         <?php endif ?>
-        <label class='col-sm col-form-label<?php echo $visitListHidden; ?>' id='tdallday4'><?php echo xlt('duration'); ?></label>
-        <input class="col-sm form-control<?php echo $visitListHidden; ?>" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>' title='<?php echo xla('Event duration in minutes'); ?>' />
+        <label class='col-sm col-form-label<?php echo attr($visitListHidden); ?>' id='tdallday4'><?php echo xlt('duration'); ?></label>
+        <input class="col-sm form-control<?php echo attr($visitListHidden); ?>" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>' title='<?php echo xla('Event duration in minutes'); ?>' />
     </div>
     <?php echo ServiceContainer::getTwig()->render('calendar/add_edit_event/visit_list_fields.html.twig', ['form' => $visitListForm]); ?>
-    <div class="form-row mb-sm-2<?php echo $visitListHidden; ?>">
+    <div class="form-row mb-sm-2<?php echo attr($visitListHidden); ?>">
         <div class="col-sm form-check-inline">
             <input class='form-check-input' type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php echo (isRegularRepeat($repeats)) ? " checked" : ""; ?>/>
             <label class='form-check-label' id='tdrepeat1'><?php echo xlt('Repeats'); ?></label>
@@ -1538,7 +1538,7 @@ function isRegularRepeat($repeat): bool
         ?>
     </div>
     <!-- Days of Week -->
-    <div class="form-row<?php echo $visitListHidden; ?>" id="days_every_week_row">
+    <div class="form-row<?php echo attr($visitListHidden); ?>" id="days_every_week_row">
         <div class="col-sm-4 form-check-inline">
             <input class="form-check-input" type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php echo (isDaysEveryWeek($repeats)) ? " checked" : ""; ?>/>
             <label class="form-check-label" for="days_every_week" id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></label>
