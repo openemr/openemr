@@ -244,7 +244,8 @@ function generate_select_list(
         // Populate the options array with pertinent values
 
         while ($lrow = sqlFetchArray($lres)) {
-            $selectedValues = explode("|", $currvalue ?? '');
+            // Only a multiple select stores several values joined with "|".
+            $selectedValues = $multiple ? explode("|", $currvalue ?? '') : [$currvalue ?? ''];
             $isSelected = false;
 
             $optionValue = attr($lrow ['option_id']);

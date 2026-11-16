@@ -256,6 +256,20 @@ final class FieldRenderingSnapshotTest extends TestCase
     }
 
     /**
+     * A single select matches its stored value whole, so "opt1|opt2" is one
+     * unlisted value, not two selections.
+     */
+    #[Test]
+    public function aSingleSelectDoesNotSplitTheStoredValue(): void
+    {
+        $html = generate_select_list('test_unlisted', LayoutFieldFixtureManager::LIST_ID, 'opt1|opt2', '', 'Unassigned');
+
+        self::assertSame(1, substr_count($html, ' selected>'));
+        self::assertStringContainsString('<option value="opt1|opt2" selected>opt1|opt2</option>', $html);
+        self::assertStringContainsString('<span title="Please choose a valid selection from the list.">Fix this</span>', $html);
+    }
+
+    /**
      * A backup list that doesn't hold the stored value either still gets the
      * warning, as the multiple-select path already does.
      */
