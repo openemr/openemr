@@ -71,7 +71,7 @@ class ErxXmlBuilderTest extends TestCase
             'carriage return' => ['one' . chr(13) . chr(10) . 'two', 'one' . chr(10) . 'two'],
             'tab' => ['tw' . chr(9) . 'o', 'two'],
             'double quotes kept' => ['take "as needed"', 'take "as needed"'],
-            'markup characters kept' => ['HTN & HLD <2>', 'HTN & HLD <2>'],
+            'markup characters dropped' => ['HTN & HLD <20> ng/mL', 'HTN  HLD 20 ng/mL'],
             'other control characters dropped' => ['a' . chr(11) . 'b' . chr(27) . 'c', 'abc'],
             'invalid UTF-8 replaced' => ['bad' . chr(255) . 'byte', "bad\u{FFFD}byte"],
             'noncharacters U+FFFE and U+FFFF dropped' => ["a\u{FFFE}b\u{FFFF}c", 'abc'],
@@ -87,6 +87,39 @@ class ErxXmlBuilderTest extends TestCase
 
         $this->assertSame('sig', $element->tagName);
         $this->assertSame($expected, $element->textContent);
+    }
+
+    public function testIdsPassThroughUnchanged(): void
+    {
+        $this->assertSame('drsmith_2', ErxXmlBuilder::cleanId('drsmith_2'));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function alteredIdProvider(): array
+    {
+        return [
+            'ampersand' => ['a&b'],
+            'angle bracket' => ['a<b'],
+            'tab' => ['a' . chr(9) . 'b'],
+            'invalid UTF-8' => ['a' . chr(255)],
+        ];
+    }
+
+    #[DataProvider('alteredIdProvider')]
+    public function testIdsCleanTextWouldAlterBlockTheLaunch(string $id): void
+    {
+        $reason = null;
+        try {
+            ErxXmlBuilder::cleanId($id);
+        } catch (ErxLaunchBlockedException $e) {
+            $reason = $e->reason;
+        }
+
+        $this->assertSame(ErxLaunchBlock::InvalidId, $reason);
     }
 
     public function testInvalidUtf8IsReplacedWhateverTheMbstringSubstitution(): void
@@ -107,17 +140,17 @@ class ErxXmlBuilderTest extends TestCase
         $globals = $this->createStub(ErxGlobalsInterface::class);
         $globals->method('getPartnerName')->willReturn('partner');
         $globals->method('getAccountName')->willReturn('account');
-        $globals->method('getAccountPassword')->willReturn(new Plaintext('p' . chr(9) . 'ss<1'));
+        $globals->method('getAccountPassword')->willReturn(new Plaintext('p' . chr(9) . 'ss<1&'));
         $builder = new ErxXmlBuilder($globals, $this->createStub(ErxStoreInterface::class), new Client(), true);
         $builder->getNCScript()->appendChild($builder->getCredentials());
 
         $redacted = $builder->getRedactedXml();
 
-        $this->assertStringContainsString('<password>pss&lt;1</password>', $builder->getXml());
+        $this->assertStringContainsString('<password>pss1</password>', $builder->getXml());
         $this->assertStringContainsString('<password>[redacted]</password>', $redacted);
         $this->assertStringContainsString('<partnerName>partner</partnerName>', $redacted);
         $this->assertStringNotContainsString('pss', $redacted);
-        $this->assertSame('pss<1', $builder->getSentPassword()?->bytes);
+        $this->assertSame('pss1', $builder->getSentPassword()?->bytes);
     }
 
     public function testCheckErrorPostsTheXmlFormEncoded(): void

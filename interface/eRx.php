@@ -101,6 +101,7 @@ if (count($missingExtensions) > 0) {
         echo match ($blocked) {
             ErxLaunchBlock::UnauthorizedRole => xlt('Unauthorized access to ePrescription'),
             ErxLaunchBlock::MissingTaxId => xlt('Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.'),
+            ErxLaunchBlock::InvalidId => xlt('Ensora eRx cannot open because a value it needs, such as an NPI or username, holds &, <, > or a control character. Correct it, or contact your systems administrator.'),
         };
     } elseif (count($messages['demographics']) > 0) {
         ?>

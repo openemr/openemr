@@ -196,11 +196,13 @@ class ErxXmlBuilder
     }
 
     /**
-     * Drop carriage returns, tabs and the other control characters except line
-     * feeds, drop U+FFFE and U+FFFF, and replace invalid UTF-8 with U+FFFD
-     * whatever the mbstring substitution setting. DOM writes a value holding a
-     * control character XML forbids, or invalid UTF-8, as empty, and writes
-     * U+FFFE and U+FFFF raw, which XML parsers reject.
+     * Drop &, < and >, carriage returns, tabs and the other control characters
+     * except line feeds, drop U+FFFE and U+FFFF, and replace invalid UTF-8 with
+     * U+FFFD whatever the mbstring substitution setting. Ensora answers &amp;
+     * and &lt; with an RxInput XML parse error even though DOM escapes them
+     * correctly. DOM writes a value holding a control character XML forbids,
+     * or invalid UTF-8, as empty, and writes U+FFFE and U+FFFF raw, which XML
+     * parsers reject.
      */
     public static function cleanText(#[SensitiveParameter] string $value): string
     {
@@ -211,7 +213,22 @@ class ErxXmlBuilder
         }
 
         // The value is valid UTF-8 here, so \xEF\xBF[\xBE\xBF] is only ever U+FFFE or U+FFFF.
-        return self::regexRemove('/[\x00-\x09\x0B-\x1F]|\xEF\xBF[\xBE\xBF]/', $value);
+        return self::regexRemove('/[\x00-\x09\x0B-\x1F&<>]|\xEF\xBF[\xBE\xBF]/', $value);
+    }
+
+    /**
+     * An ID must reach Ensora unchanged, so refuse one cleanText() would alter
+     * rather than send a different ID or merge two into one.
+     *
+     * @throws ErxLaunchBlockedException when the ID holds a character cleanText() drops or replaces
+     */
+    public static function cleanId(string $value): string
+    {
+        if (self::cleanText($value) !== $value) {
+            throw new ErxLaunchBlockedException(ErxLaunchBlock::InvalidId);
+        }
+
+        return $value;
     }
 
     public function createElementTextFieldEmpty(string $name, #[SensitiveParameter] string $value, string $validationText): DOMElement
@@ -391,7 +408,7 @@ class ErxXmlBuilder
         }
 
         $element = $this->getDocument()->createElement('Account');
-        $element->setAttribute('ID', self::cleanText($this->getGlobals()->getAccountId()));
+        $element->setAttribute('ID', self::cleanId($this->getGlobals()->getAccountId()));
         $element->appendChild($this->createElementTextFieldEmpty('accountName', $this->trimData($this->stripSpecialCharacter(self::field($facility, 'name')), 35), xl('Facility Name')));
         $element->appendChild($this->createElementText('siteID', self::field($facility, 'federal_ein')));
         $element->appendChild($this->getAccountAddress($facility));
@@ -451,7 +468,7 @@ class ErxXmlBuilder
         $fax = self::regexRemove('/[^0-9]/', self::field($userFacility, 'fax'));
 
         $element = $this->getDocument()->createElement('Location');
-        $element->setAttribute('ID', self::cleanText(self::field($userFacility, 'id')));
+        $element->setAttribute('ID', self::cleanId(self::field($userFacility, 'id')));
         $element->appendChild($this->createElementText('locationName', $this->trimData($this->stripSpecialCharacter(self::field($userFacility, 'name')), 35)));
         $element->appendChild($this->getLocationAddress($userFacility));
         if (self::field($userFacility, 'phone') !== '') {
@@ -492,7 +509,7 @@ class ErxXmlBuilder
         $userDetails = $this->getStore()->getUserById($authUserId);
 
         $element = $this->getDocument()->createElement('Staff');
-        $element->setAttribute('ID', self::cleanText(self::field($userDetails, 'username')));
+        $element->setAttribute('ID', self::cleanId(self::field($userDetails, 'username')));
         $element->appendChild($this->getStaffName($userDetails));
         $element->appendChild($this->createElementText('license', self::field($userDetails, 'state_license_number')));
 
@@ -763,7 +780,7 @@ class ErxXmlBuilder
         $patientData = $this->getStore()->getPatientByPatientId($patientId);
 
         $element = $this->getDocument()->createElement('Patient');
-        $element->setAttribute('ID', self::cleanText(self::field($patientData, 'pid')));
+        $element->setAttribute('ID', self::cleanId(self::field($patientData, 'pid')));
         $element->appendChild($this->getPatientName($patientData));
         $element->appendChild($this->getPatientAddress($patientData));
         $element->appendChild($this->getPatientContact($patientData));
@@ -908,7 +925,7 @@ class ErxXmlBuilder
         $upin = self::field($userDetails, 'upin');
 
         $element = $this->getDocument()->createElement($tagName);
-        $element->setAttribute('ID', self::cleanText($npi));
+        $element->setAttribute('ID', self::cleanId($npi));
         $element->appendChild($this->getLicensedPrescriberName($userDetails, $prescriberType, $prefix));
         $element->appendChild($this->createElementTextFieldEmpty('dea', self::field($userDetails, 'federaldrugid'), $deaText));
         if ($upin !== '') {
