@@ -1,0 +1,29 @@
+##
+# The single required check for PRs. It runs on PRs only: on a push it would
+# gate nothing, and it would hold a runner while it waits on the other checks.
+# Pushes to master also skip test runs that a newer push supersedes (see
+# test-all.yml), and this aggregate would report those canceled runs as
+# failures.
+name: All Checks Passed
+
+on:
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+jobs:
+  all-checks:
+    name: All Checks Passed
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: lewagon/wait-on-check-action@v1.9.1
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        running-workflow-name: All Checks Passed
+        # Unlike master, rel-800's isolated-tests.yml and test matrix run the
+        # pre-release PHP version on every PR, so those check runs gate the
+        # merge here too.
+        ignore-checks: 'codecov/project,codecov/patch'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        wait-interval: 30
