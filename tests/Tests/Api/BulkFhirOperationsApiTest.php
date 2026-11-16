@@ -347,6 +347,13 @@ class BulkFhirOperationsApiTest extends TestCase
                 . 'Flip this assertion to HTTP_BAD_REQUEST when the controller is fixed to '
                 . 'distinguish missing-param from invalid-uuid; see TODO in GroupExportFhirApiTest.'
         );
+        // Body shape check matches the pattern every other error-path
+        // test in this file uses. Rabbit-flagged: a 500 with no body /
+        // an HTML error page would silently pass the status-only check,
+        // and the controller actually renders a proper OperationOutcome
+        // via its catch-Throwable arm — pin that shape so a regression
+        // to a bare HTTP 500 stub fails loudly.
+        $this->assertOperationOutcomeBody($response);
     }
 
     /**
