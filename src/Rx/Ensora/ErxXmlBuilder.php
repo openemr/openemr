@@ -413,7 +413,7 @@ class ErxXmlBuilder
         $element = $this->getDocument()->createElement('Account');
         $element->setAttribute('ID', self::cleanId($this->getGlobals()->getAccountId()));
         $element->appendChild($this->createElementTextFieldEmpty('accountName', $this->trimData($this->stripSpecialCharacter(self::field($facility, 'name')), 35), xl('Facility Name')));
-        $element->appendChild($this->createElementText('siteID', self::field($facility, 'federal_ein')));
+        $element->appendChild($this->createElementText('siteID', self::cleanId(self::field($facility, 'federal_ein'))));
         $element->appendChild($this->getAccountAddress($facility));
         $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryPhoneNumber', self::regexRemove('/[^0-9]/', self::field($facility, 'phone')), xl('Facility Phone')));
         $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryFaxNumber', self::regexRemove('/[^0-9]/', self::field($facility, 'fax')), xl('Facility Fax')));

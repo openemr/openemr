@@ -296,6 +296,21 @@ class ErxXmlBuilderTest extends TestCase
         $this->assertSame(ErxLaunchBlock::MissingTaxId, $reason);
     }
 
+    public function testATaxIdCleanTextWouldAlterBlocksTheLaunch(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->method('getFacilityPrimary')->willReturn(['federal_ein' => '12&3456789']);
+
+        $reason = null;
+        try {
+            $this->builder($store)->getAccount();
+        } catch (ErxLaunchBlockedException $e) {
+            $reason = $e->reason;
+        }
+
+        $this->assertSame(ErxLaunchBlock::InvalidId, $reason);
+    }
+
     public function testManagersSendStaffWithoutALocation(): void
     {
         $store = $this->createMock(ErxStoreInterface::class);
