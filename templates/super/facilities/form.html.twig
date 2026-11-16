@@ -120,9 +120,11 @@ function copyAddress(base) {
         let d = (base == "mailing") ? f[1] : f[0];
         let _s = document.querySelector("[name='" + s + "']");
         let _d = document.querySelector("[name='" + d + "']");
-        // A select can't hold a value it doesn't list; setting one would blank it.
+        // A select can't hold a value it doesn't list, such as an inactive or
+        // free-text state, so add the source's option rather than blank it.
         if (_d.tagName === "SELECT" && !Array.from(_d.options).some(o => o.value === _s.value)) {
-            return;
+            let label = (_s.tagName === "SELECT") ? _s.options[_s.selectedIndex].text : _s.value;
+            _d.add(new Option(label, _s.value));
         }
         _d.value = _s.value;
     });
