@@ -18,6 +18,7 @@ namespace OpenEMR\Tests\Isolated\Rx\Ensora;
 
 use DOMElement;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
@@ -188,12 +189,27 @@ class ErxXmlBuilderTest extends TestCase
         $this->assertSame(['RxInput' => $xml], $fields);
     }
 
-    public function testCheckErrorReturnsThePageOfAnErrorStatus(): void
+    public function testCheckErrorRefusesAnErrorStatus(): void
     {
         $client = new Client(['handler' => HandlerStack::create(new MockHandler([new Response(500, [], 'error page')]))]);
         $builder = new ErxXmlBuilder($this->globals(self::ERX_URL), $this->createStub(ErxStoreInterface::class), $client, true);
 
-        $this->assertSame('error page', $builder->checkError('<NCScript/>'));
+        $this->expectException(GuzzleException::class);
+
+        $builder->checkError('<NCScript/>');
+    }
+
+    public function testCheckErrorRefusesARedirectOffHttps(): void
+    {
+        $client = new Client(['handler' => HandlerStack::create(new MockHandler([
+            new Response(302, ['Location' => 'http://erx.example.test/RxEntry.aspx']),
+            new Response(200, [], 'eRx page'),
+        ]))]);
+        $builder = new ErxXmlBuilder($this->globals(self::ERX_URL), $this->createStub(ErxStoreInterface::class), $client, true);
+
+        $this->expectException(GuzzleException::class);
+
+        $builder->checkError('<NCScript/>');
     }
 
     /**

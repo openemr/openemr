@@ -82,7 +82,8 @@ class ErxXmlBuilder
      * Post the request server-side and return the page, which
      * ErxPage::checkError() searches for validation errors.
      *
-     * @throws GuzzleException when the eRx service cannot be reached
+     * @throws GuzzleException when the eRx service cannot be reached, answers
+     *                          with a 4xx or 5xx status, or redirects off https
      */
     public function checkError(string $xml): string
     {
@@ -92,11 +93,14 @@ class ErxXmlBuilder
         }
 
         $response = $this->httpClient->request('POST', $url, [
+            // The request carries Ensora credentials and patient data.
+            RequestOptions::ALLOW_REDIRECTS => ['protocols' => ['https']],
             RequestOptions::COOKIES => new CookieJar(),
             RequestOptions::FORM_PARAMS => ['RxInput' => $xml],
             RequestOptions::HEADERS => ['User-Agent' => 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'],
-            // ErxPage::checkError() reads the page whatever its status.
-            RequestOptions::HTTP_ERRORS => false,
+            // An error page with no error markers would pass as a clean check,
+            // and the launch would then mark the sent rows as uploaded.
+            RequestOptions::HTTP_ERRORS => true,
             RequestOptions::VERIFY => $this->verifySsl,
         ]);
 
