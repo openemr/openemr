@@ -16,7 +16,10 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
+use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
+use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,6 +45,7 @@ class EncounterFhirApiTest extends TestCase
 {
     private ApiTestClient $testClient;
     private EncounterFixtureManager $fixtureManager;
+    private FixtureManager $patientFixtureManager;
 
     /** FHIR uuid of the seeded encounter. */
     private string $encounterUuid;
@@ -55,7 +59,12 @@ class EncounterFhirApiTest extends TestCase
         $this->testClient = new ApiTestClient($baseUrl, false);
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
-        $this->fixtureManager = new EncounterFixtureManager();
+        // EncounterFixtureManager internally installs the patient fixtures
+        // through a FixtureManager it owns, but does not expose it. Keep
+        // our own reference so the cross-patient-exclusion test can look
+        // up a second patient's uuid.
+        $this->patientFixtureManager = new FixtureManager();
+        $this->fixtureManager = new EncounterFixtureManager(null, $this->patientFixtureManager);
         $this->fixtureManager->installFixtures();
 
         // The fixture seeds one encounter whose reason is prefixed 'test-fixture-'
@@ -78,9 +87,24 @@ class EncounterFhirApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeFixtures();
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+        try {
+            // The cross-patient-exclusion test seeds its extra encounter
+            // via FhirEncounterService using the same `test-fixture-`
+            // reason prefix EncounterFixtureManager uses, so the
+            // removeFixtures() sweep below cleans both setUp and
+            // per-test rows.
+            if (isset($this->fixtureManager)) {
+                $this->fixtureManager->removeFixtures();
+            }
+        } finally {
+            if (isset($this->testClient)) {
+                try {
+                    $this->testClient->cleanupRevokeAuth();
+                } finally {
+                    $this->testClient->cleanupClient();
+                }
+            }
+        }
     }
 
     // ---------------------------------------------------------------------
@@ -120,6 +144,58 @@ class EncounterFhirApiTest extends TestCase
             }
         }
         $this->assertTrue($found, "Search by patient should include the seeded encounter");
+    }
+
+    /**
+     * Searching by patient A must not return an encounter owned by patient B.
+     *
+     * The other search tests above only seed an encounter for one
+     * patient, so a server that silently ignored `?patient=` would
+     * still match — the seeded encounter would be the only row either
+     * way. This test seeds an encounter for patient A AND for a
+     * different patient B, then asserts patient A's `?patient=` search
+     * returns A's encounter but not B's.
+     */
+    public function testSearchByPatientExcludesOtherPatientsEncounter(): void
+    {
+        $patientBUuid = $this->resolveSecondPatientUuid();
+        $encounterBUuid = $this->seedEncounterForPatient($patientBUuid);
+        $this->assertNotSame(
+            $this->encounterUuid,
+            $encounterBUuid,
+            'The two seeded encounters must have distinct uuids'
+        );
+
+        $result = $this->testClient->get(
+            '/apis/default/fhir/Encounter',
+            ['patient' => $this->patientUuid]
+        );
+        $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
+
+        $bundle = json_decode((string) $result->getBody()->getContents(), true);
+        $this->assertIsArray($bundle);
+        $this->assertArrayHasKey('entry', $bundle);
+        $this->assertIsArray($bundle['entry']);
+
+        $ids = [];
+        foreach ($bundle['entry'] as $entry) {
+            $this->assertIsArray($entry);
+            $resource = $entry['resource'] ?? null;
+            $this->assertIsArray($resource);
+            $id = $resource['id'] ?? null;
+            $this->assertIsString($id);
+            $ids[] = $id;
+        }
+        $this->assertContains(
+            $this->encounterUuid,
+            $ids,
+            'Patient A ?patient= search must include patient A encounter'
+        );
+        $this->assertNotContains(
+            $encounterBUuid,
+            $ids,
+            'Patient A ?patient= search must NOT include patient B encounter'
+        );
     }
 
     /**
@@ -277,6 +353,65 @@ class EncounterFhirApiTest extends TestCase
             '401 should be an OAuth authorization denial, not a routing or server error'
         );
         $this->assertArrayNotHasKey('resourceType', $body, '401 body should not be a FHIR resource');
+    }
+
+    /**
+     * Resolve a second fixture patient's FHIR uuid. installFixtures() in
+     * setUp registered every patient listed in patients.php via the
+     * shared FixtureManager; the second entry gives us a distinct
+     * patient to seed an encounter against for the cross-patient-
+     * exclusion test.
+     */
+    private function resolveSecondPatientUuid(): string
+    {
+        $patients = $this->patientFixtureManager->getPatientFixtures();
+        $this->assertGreaterThan(
+            1,
+            count($patients),
+            'patients.php must seed at least two patients for the cross-patient test'
+        );
+        $secondPatient = $patients[1];
+        $this->assertIsArray($secondPatient);
+        $pubpid = $secondPatient['pubpid'] ?? null;
+        $this->assertIsString($pubpid, 'Second patient fixture must carry a pubpid');
+
+        $record = QueryUtils::querySingleRow(
+            'SELECT uuid FROM patient_data WHERE pubpid = ?',
+            [$pubpid]
+        );
+        $this->assertIsArray($record);
+        return UuidRegistry::uuidToString($record['uuid']);
+    }
+
+    /**
+     * Insert a form_encounter row bound to the given patient via
+     * FhirEncounterService (same path ObservationFhirApiTest uses for
+     * its encounter seeding). The reason prefix `test-fixture-` matches
+     * EncounterFixtureManager's sweep in removeInstalledFixtures(), so
+     * tearDown cleans this up without additional bookkeeping.
+     */
+    private function seedEncounterForPatient(string $patientUuid): string
+    {
+        $encounterFixtures = json_decode(
+            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/encounter.json'),
+            true
+        );
+        $this->assertIsArray($encounterFixtures);
+        $encounterPayload = $encounterFixtures[0];
+        $this->assertIsArray($encounterPayload);
+        $encounterPayload['subject'] = ['reference' => 'Patient/' . $patientUuid];
+        $encounterInsert = (new FhirEncounterService())->insert(new FHIREncounter($encounterPayload));
+        $this->assertTrue(
+            $encounterInsert->isValid(),
+            'Encounter insert (second patient) failed: ' . json_encode($encounterInsert->getValidationMessages())
+        );
+        $encounterData = $encounterInsert->getData();
+        $this->assertIsArray($encounterData);
+        $encounter = $encounterData[0];
+        $this->assertIsArray($encounter);
+        $encounterUuid = $encounter['euuid'] ?? null;
+        $this->assertIsString($encounterUuid);
+        return $encounterUuid;
     }
 
     /**

@@ -266,6 +266,45 @@ class AllergyIntoleranceFhirApiTest extends TestCase
         $this->assertArrayHasKey('validationErrors', $body);
     }
 
+    /**
+     * Searching by patient A must not return an allergy owned by patient B.
+     *
+     * The other search tests above only install one patient, so a server
+     * that silently ignored `?patient=` would still match — the seeded
+     * allergy would be the only row either way. This test seeds an
+     * allergy for patient A AND an allergy for a different patient B,
+     * then asserts patient A's `?patient=` search returns A's allergy
+     * but not B's.
+     */
+    public function testSearchByPatientExcludesOtherPatientsAllergy(): void
+    {
+        $uuidA = $this->createAllergy();
+
+        $patientBUuid = $this->resolveSecondPatientUuid();
+        $uuidB = $this->createAllergyForPatient($patientBUuid);
+        $this->assertNotSame($uuidA, $uuidB, 'The two seeded allergies must have distinct uuids');
+
+        $result = $this->testClient->get(self::ENDPOINT, ['patient' => $this->patientUuid]);
+        $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
+
+        $bundle = json_decode((string) $result->getBody()->getContents(), true);
+        $this->assertIsArray($bundle);
+        $this->assertArrayHasKey('entry', $bundle);
+        $this->assertIsArray($bundle['entry']);
+
+        $ids = $this->collectResourceIds($bundle['entry']);
+        $this->assertContains(
+            $uuidA,
+            $ids,
+            'Patient A ?patient= search must include patient A allergy'
+        );
+        $this->assertNotContains(
+            $uuidB,
+            $ids,
+            'Patient A ?patient= search must NOT include patient B allergy'
+        );
+    }
+
     // ---------------------------------------------------------------------
     // Authorization
     // ---------------------------------------------------------------------
@@ -299,7 +338,20 @@ class AllergyIntoleranceFhirApiTest extends TestCase
 
     private function createAllergy(): string
     {
-        $result = $this->testClient->post(self::ENDPOINT, $this->fhirFixture);
+        return $this->createAllergyForPatient($this->patientUuid);
+    }
+
+    /**
+     * POST a fixture AllergyIntolerance bound to the given patient and
+     * return its uuid. Used by the cross-patient-exclusion test to seed
+     * an allergy for a second patient; delegates to the same fhirFixture
+     * shape with the patient reference swapped.
+     */
+    private function createAllergyForPatient(string $patientUuid): string
+    {
+        $fixture = $this->fhirFixture;
+        $fixture['patient'] = ['reference' => 'Patient/' . $patientUuid];
+        $result = $this->testClient->post(self::ENDPOINT, $fixture);
         $body = (string) $result->getBody()->getContents();
         $this->assertSame(
             Response::HTTP_CREATED,
@@ -310,6 +362,55 @@ class AllergyIntoleranceFhirApiTest extends TestCase
         $this->assertIsArray($row);
         $this->assertIsString($row['uuid'] ?? null, 'Seeding AllergyIntolerance should return its uuid');
         return $row['uuid'];
+    }
+
+    /**
+     * Resolve a second fixture patient's FHIR uuid. installPatientFixtures()
+     * in setUp registers every patient listed in patients.php; the second
+     * entry gives us a distinct patient to seed an allergy against for
+     * the cross-patient-exclusion test.
+     */
+    private function resolveSecondPatientUuid(): string
+    {
+        $patients = $this->fixtureManager->getPatientFixtures();
+        $this->assertGreaterThan(
+            1,
+            count($patients),
+            'patients.php must seed at least two patients for the cross-patient test'
+        );
+        $secondPatient = $patients[1];
+        $this->assertIsArray($secondPatient);
+        $pubpid = $secondPatient['pubpid'] ?? null;
+        $this->assertIsString($pubpid, 'Second patient fixture must carry a pubpid');
+
+        $record = QueryUtils::querySingleRow(
+            'SELECT uuid FROM patient_data WHERE pubpid = ?',
+            [$pubpid]
+        );
+        $this->assertIsArray($record);
+        return UuidRegistry::uuidToString($record['uuid']);
+    }
+
+    /**
+     * Pluck the `resource.id` of each Bundle entry. Guarded shape-checks
+     * keep PHPStan narrow; the Bundle shape is already validated by the
+     * calling test via resourceType/type/entry assertions.
+     *
+     * @param array<array-key, mixed> $entries
+     * @return list<string>
+     */
+    private function collectResourceIds(array $entries): array
+    {
+        $ids = [];
+        foreach ($entries as $entry) {
+            $this->assertIsArray($entry);
+            $this->assertArrayHasKey('resource', $entry);
+            $this->assertIsArray($entry['resource']);
+            $id = $entry['resource']['id'] ?? null;
+            $this->assertIsString($id, 'Each Bundle entry resource must have a string id');
+            $ids[] = $id;
+        }
+        return $ids;
     }
 
     /**

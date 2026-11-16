@@ -41,6 +41,15 @@ class ImmunizationFhirApiTest extends TestCase
     private string $immunizationUuid;
 
     /**
+     * Additional immunization uuids seeded by tests beyond setUp (e.g. the
+     * cross-patient-exclusion test). tearDown sweeps every entry so a
+     * second-patient immunization does not leak between test runs.
+     *
+     * @var list<string>
+     */
+    private array $extraImmunizationUuids = [];
+
+    /**
      * Seeds a patient and an influenza immunization, and gets an API token.
      */
     protected function setUp(): void
@@ -97,13 +106,20 @@ class ImmunizationFhirApiTest extends TestCase
         // PHPUnit runs tearDown() even when setUp() fails part way, so every property is
         // checked before it is used.
         try {
-            // This run's immunization only, so parallel workers keep theirs.
+            // This run's immunizations only, so parallel workers keep theirs.
             if (isset($this->immunizationUuid)) {
                 QueryUtils::sqlStatementThrowException(
                     'DELETE FROM immunizations WHERE uuid = ?',
                     [UuidRegistry::uuidToBytes($this->immunizationUuid)]
                 );
             }
+            foreach ($this->extraImmunizationUuids as $extraUuid) {
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM immunizations WHERE uuid = ?',
+                    [UuidRegistry::uuidToBytes($extraUuid)]
+                );
+            }
+            $this->extraImmunizationUuids = [];
             if (isset($this->fixtureManager)) {
                 $this->fixtureManager->removePatientFixtures();
             }
@@ -140,6 +156,52 @@ class ImmunizationFhirApiTest extends TestCase
             }
         }
         $this->assertTrue($found, 'The search must include the seeded immunization');
+    }
+
+    /**
+     * Searching by patient A must not return an immunization owned by patient B.
+     *
+     * The other search tests above only install one patient-with-immunization,
+     * so a server that silently ignored `?patient=` would still match —
+     * the seeded immunization would be the only row either way. This
+     * test seeds an immunization for patient A AND for a different
+     * patient B, then asserts patient A's `?patient=` search returns
+     * A's immunization but not B's.
+     */
+    public function testSearchByPatientExcludesOtherPatientsImmunization(): void
+    {
+        $patientBUuid = $this->resolveSecondPatientUuid();
+        $immunizationBUuid = $this->seedImmunizationForPatient($patientBUuid);
+        $this->assertNotSame(
+            $this->immunizationUuid,
+            $immunizationBUuid,
+            'The two seeded immunizations must have distinct uuids'
+        );
+
+        $bundle = $this->assertCollectionBundle(
+            $this->testClient->get(self::ENDPOINT, ['patient' => $this->patientUuid])
+        );
+        $entries = $bundle['entry'] ?? null;
+        $this->assertIsArray($entries);
+        $ids = [];
+        foreach ($entries as $entry) {
+            $this->assertIsArray($entry);
+            $resource = $entry['resource'] ?? null;
+            $this->assertIsArray($resource);
+            $id = $resource['id'] ?? null;
+            $this->assertIsString($id);
+            $ids[] = $id;
+        }
+        $this->assertContains(
+            $this->immunizationUuid,
+            $ids,
+            'Patient A ?patient= search must include patient A immunization'
+        );
+        $this->assertNotContains(
+            $immunizationBUuid,
+            $ids,
+            'Patient A ?patient= search must NOT include patient B immunization'
+        );
     }
 
     /**
@@ -213,6 +275,70 @@ class ImmunizationFhirApiTest extends TestCase
     {
         $client = new ApiTestClient(self::baseUrl(), false);
         $this->assertUnauthorized($client->getOne(self::ENDPOINT, $this->immunizationUuid));
+    }
+
+    /**
+     * Resolve a second fixture patient's FHIR uuid. installPatientFixtures()
+     * in setUp registers every patient listed in patients.php; the second
+     * entry gives us a distinct patient to seed an immunization against
+     * for the cross-patient-exclusion test.
+     */
+    private function resolveSecondPatientUuid(): string
+    {
+        $patients = $this->fixtureManager->getPatientFixtures();
+        $this->assertGreaterThan(
+            1,
+            count($patients),
+            'patients.php must seed at least two patients for the cross-patient test'
+        );
+        $secondPatient = $patients[1];
+        $this->assertIsArray($secondPatient);
+        $pubpid = $secondPatient['pubpid'] ?? null;
+        $this->assertIsString($pubpid, 'Second patient fixture must carry a pubpid');
+
+        $record = QueryUtils::querySingleRow(
+            'SELECT uuid FROM patient_data WHERE pubpid = ?',
+            [$pubpid]
+        );
+        $this->assertIsArray($record);
+        return UuidRegistry::uuidToString($record['uuid']);
+    }
+
+    /**
+     * POST a fixture Immunization bound to the given patient, record its
+     * uuid for tearDown sweep, and return it. Mirrors the setUp seed
+     * flow, scoped to the per-test second-patient scenario.
+     */
+    private function seedImmunizationForPatient(string $patientUuid): string
+    {
+        $fixtures = json_decode(
+            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/immunization.json'),
+            true
+        );
+        $this->assertIsArray($fixtures);
+        $fixture = $fixtures[0];
+        $this->assertIsArray($fixture);
+        $fixture['patient'] = ['reference' => 'Patient/' . $patientUuid];
+        unset($fixture['id']);
+        $body = [];
+        foreach ($fixture as $key => $value) {
+            $this->assertIsString($key);
+            $body[$key] = $value;
+        }
+
+        $response = $this->testClient->post(self::ENDPOINT, $body);
+        $responseBody = $response->getBody()->getContents();
+        $this->assertSame(
+            Response::HTTP_CREATED,
+            $response->getStatusCode(),
+            'Seeding immunization for second patient should return 201. Body: ' . $responseBody
+        );
+        $created = json_decode($responseBody, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($created);
+        $uuid = $created['uuid'] ?? null;
+        $this->assertIsString($uuid);
+        $this->extraImmunizationUuids[] = $uuid;
+        return $uuid;
     }
 
     /**

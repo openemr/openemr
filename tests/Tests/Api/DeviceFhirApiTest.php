@@ -266,6 +266,44 @@ class DeviceFhirApiTest extends TestCase
         $this->assertArrayHasKey('validationErrors', $body);
     }
 
+    /**
+     * Searching by patient A must not return a device owned by patient B.
+     *
+     * The other search tests above only install one patient, so a server
+     * that silently ignored `?patient=` would still match — the seeded
+     * device would be the only row either way. This test seeds a device
+     * for patient A AND a device for a different patient B, then asserts
+     * patient A's `?patient=` search returns A's device but not B's.
+     */
+    public function testSearchByPatientExcludesOtherPatientsDevice(): void
+    {
+        $uuidA = $this->createDevice();
+
+        $patientBUuid = $this->resolveSecondPatientUuid();
+        $uuidB = $this->createDeviceForPatient($patientBUuid);
+        $this->assertNotSame($uuidA, $uuidB, 'The two seeded devices must have distinct uuids');
+
+        $result = $this->testClient->get(self::ENDPOINT, ['patient' => $this->patientUuid]);
+        $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
+
+        $bundle = json_decode((string) $result->getBody()->getContents(), true);
+        $this->assertIsArray($bundle);
+        $this->assertArrayHasKey('entry', $bundle);
+        $this->assertIsArray($bundle['entry']);
+
+        $ids = $this->collectResourceIds($bundle['entry']);
+        $this->assertContains(
+            $uuidA,
+            $ids,
+            'Patient A ?patient= search must include patient A device'
+        );
+        $this->assertNotContains(
+            $uuidB,
+            $ids,
+            'Patient A ?patient= search must NOT include patient B device'
+        );
+    }
+
     // ---------------------------------------------------------------------
     // Authorization
     // ---------------------------------------------------------------------
@@ -302,7 +340,20 @@ class DeviceFhirApiTest extends TestCase
      */
     private function createDevice(): string
     {
-        $result = $this->testClient->post(self::ENDPOINT, $this->fhirFixture);
+        return $this->createDeviceForPatient($this->patientUuid);
+    }
+
+    /**
+     * POST a fixture Device bound to the given patient and return its uuid.
+     * Used by the cross-patient-exclusion test to seed a device for a
+     * second patient; delegates to the same fhirFixture shape with the
+     * patient reference swapped.
+     */
+    private function createDeviceForPatient(string $patientUuid): string
+    {
+        $fixture = $this->fhirFixture;
+        $fixture['patient'] = ['reference' => 'Patient/' . $patientUuid];
+        $result = $this->testClient->post(self::ENDPOINT, $fixture);
         $body = (string) $result->getBody()->getContents();
         $this->assertSame(
             Response::HTTP_CREATED,
@@ -313,6 +364,55 @@ class DeviceFhirApiTest extends TestCase
         $this->assertIsArray($row);
         $this->assertIsString($row['uuid'] ?? null, 'Seeding Device should return its uuid');
         return $row['uuid'];
+    }
+
+    /**
+     * Resolve a second fixture patient's FHIR uuid. installPatientFixtures()
+     * in setUp registers every patient listed in patients.php; the second
+     * entry gives us a distinct patient to seed a device against for the
+     * cross-patient-exclusion test.
+     */
+    private function resolveSecondPatientUuid(): string
+    {
+        $patients = $this->fixtureManager->getPatientFixtures();
+        $this->assertGreaterThan(
+            1,
+            count($patients),
+            'patients.php must seed at least two patients for the cross-patient test'
+        );
+        $secondPatient = $patients[1];
+        $this->assertIsArray($secondPatient);
+        $pubpid = $secondPatient['pubpid'] ?? null;
+        $this->assertIsString($pubpid, 'Second patient fixture must carry a pubpid');
+
+        $record = QueryUtils::querySingleRow(
+            'SELECT uuid FROM patient_data WHERE pubpid = ?',
+            [$pubpid]
+        );
+        $this->assertIsArray($record);
+        return UuidRegistry::uuidToString($record['uuid']);
+    }
+
+    /**
+     * Pluck the `resource.id` of each Bundle entry. Guarded shape-checks
+     * keep PHPStan narrow; the Bundle shape is already validated by the
+     * calling test via resourceType/type/entry assertions.
+     *
+     * @param array<array-key, mixed> $entries
+     * @return list<string>
+     */
+    private function collectResourceIds(array $entries): array
+    {
+        $ids = [];
+        foreach ($entries as $entry) {
+            $this->assertIsArray($entry);
+            $this->assertArrayHasKey('resource', $entry);
+            $this->assertIsArray($entry['resource']);
+            $id = $entry['resource']['id'] ?? null;
+            $this->assertIsString($id, 'Each Bundle entry resource must have a string id');
+            $ids[] = $id;
+        }
+        return $ids;
     }
 
     /**
