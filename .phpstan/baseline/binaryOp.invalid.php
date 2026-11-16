@@ -1908,12 +1908,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\*" between mixed and \\(float\\|int\\) results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between mixed and float\\|int results in an error\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
 ];
 $ignoreErrors[] = [
@@ -4852,7 +4847,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_custom_full.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\-" between mixed and \\(float\\|int\\<0, max\\>\\) results in an error\\.$#',
+    'message' => '#^Binary operation "\\-" between mixed and \\(NAN\\|float\\<0\\.0, max\\>\\|int\\<0, max\\>\\) results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_custom_full.php',
 ];
@@ -6382,6 +6377,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/message_list.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'ICD9\\:\' and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/non_reported.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'OBX\\|1\\|CWE\\|8661\\-1\\^…\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/non_reported.php',
@@ -6393,7 +6393,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 10,
+    'count' => 9,
     'path' => __DIR__ . '/../../interface/reports/non_reported.php',
 ];
 $ignoreErrors[] = [
@@ -6972,7 +6972,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/FeeSheet.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between mixed and float\\|int\\<min, 1\\> results in an error\\.$#',
+    'message' => '#^Binary operation "\\*" between mixed and float\\<min, 0\\.99\\>\\|int\\<min, 0\\> results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/FeeSheet.class.php',
 ];
@@ -7022,7 +7022,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/FeeSheet.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between mixed and float\\|int\\<min, 1\\> results in an error\\.$#',
+    'message' => '#^Binary operation "\\*" between mixed and float\\<min, 0\\.99\\>\\|int\\<min, 0\\> results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/FeeSheetHtml.class.php',
 ];
@@ -10742,7 +10742,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\-" between \\(array\\|float\\|int\\<0, max\\>\\) and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\-" between \\(NAN\\|array\\|float\\<0\\.0, max\\>\\|int\\<0, max\\>\\) and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
@@ -13602,7 +13602,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between non\\-empty\\-string\\|numeric\\-string and 12 results in an error\\.$#',
+    'message' => '#^Binary operation "\\*" between non\\-empty\\-string and 12 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
@@ -13642,7 +13642,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\-" between non\\-empty\\-string\\|numeric\\-string and int results in an error\\.$#',
+    'message' => '#^Binary operation "\\-" between non\\-empty\\-string and int results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
