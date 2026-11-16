@@ -78,7 +78,8 @@
     }
 
     // The button that expands a row to show the Patient Finder Detail layout. CSS draws
-    // it as a blue square with a right arrow, and red with a down arrow while open.
+    // it as a primary-color square with a right arrow, and the danger color with a down
+    // arrow while open.
     function detailToggle() {
         var label = escapeAttr(detail.showLabel || '');
         return '<button type="button" class="finder-detail-toggle"'
