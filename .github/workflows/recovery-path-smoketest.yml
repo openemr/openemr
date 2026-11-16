@@ -323,7 +323,7 @@ jobs:
               sleep 10
               CANDIDATE_IDS=$(gh run list --workflow build-release.yml \
                 --event workflow_dispatch --limit 10 \
-                --created=">${TARBALL_DISPATCH_TS}" \
+                --created=">=${TARBALL_DISPATCH_TS}" \
                 --json databaseId \
                 --jq '[.[] | .databaseId] | .[]' \
                 | tr '\n' ' ')
@@ -415,7 +415,7 @@ jobs:
         for attempt in $(seq 1 12); do
           CANDIDATE_IDS=$(gh run list --workflow build-release.yml \
             --event workflow_dispatch --limit 10 \
-            --created=">${TARBALL_DISPATCH_TS}" \
+            --created=">=${TARBALL_DISPATCH_TS}" \
             --json databaseId \
             --jq '[.[] | .databaseId] | .[]' \
             | tr '\n' ' ')
@@ -479,7 +479,7 @@ jobs:
               sleep 10
               EXISTING=$(gh run list --workflow acceptance-only.yml \
                 --event workflow_dispatch --limit 5 \
-                --created=">${TARBALL_VARIANT_A_DISPATCH_TS}" \
+                --created=">=${TARBALL_VARIANT_A_DISPATCH_TS}" \
                 --json databaseId \
                 --jq '[.[]] | .[0].databaseId // empty')
               if [[ -n "${EXISTING}" ]]; then
@@ -524,7 +524,7 @@ jobs:
         for attempt in $(seq 1 12); do
           RUN_ID=$(gh run list --workflow acceptance-only.yml \
             --event workflow_dispatch --limit 10 \
-            --created=">${TARBALL_VARIANT_A_DISPATCH_TS}" \
+            --created=">=${TARBALL_VARIANT_A_DISPATCH_TS}" \
             --json databaseId \
             --jq '[.[]] | .[0].databaseId // empty')
           if [[ -n "${RUN_ID}" ]]; then
@@ -569,7 +569,7 @@ jobs:
               sleep 10
               EXISTING=$(gh run list --workflow acceptance-only.yml \
                 --event workflow_dispatch --limit 5 \
-                --created=">${TARBALL_VARIANT_B_DISPATCH_TS}" \
+                --created=">=${TARBALL_VARIANT_B_DISPATCH_TS}" \
                 --json databaseId \
                 --jq '[.[]] | .[0].databaseId // empty')
               if [[ -n "${EXISTING}" ]]; then
@@ -609,7 +609,7 @@ jobs:
         for attempt in $(seq 1 12); do
           RUN_ID=$(gh run list --workflow acceptance-only.yml \
             --event workflow_dispatch --limit 10 \
-            --created=">${TARBALL_VARIANT_B_DISPATCH_TS}" \
+            --created=">=${TARBALL_VARIANT_B_DISPATCH_TS}" \
             --json databaseId \
             --jq '[.[]] | .[0].databaseId // empty')
           if [[ -n "${RUN_ID}" ]]; then
@@ -848,7 +848,7 @@ jobs:
               sleep 10
               CANDIDATE_IDS=$(gh run list --workflow docker-build-release.yml \
                 --event workflow_dispatch --limit 10 \
-                --created=">${DOCKER_BUILD_DISPATCH_TS}" \
+                --created=">=${DOCKER_BUILD_DISPATCH_TS}" \
                 --json databaseId \
                 --jq '[.[] | .databaseId] | .[]' \
                 | tr '\n' ' ')
@@ -905,7 +905,7 @@ jobs:
         for attempt in $(seq 1 12); do
           CANDIDATE_IDS=$(gh run list --workflow docker-build-release.yml \
             --event workflow_dispatch --limit 10 \
-            --created=">${DOCKER_BUILD_DISPATCH_TS}" \
+            --created=">=${DOCKER_BUILD_DISPATCH_TS}" \
             --json databaseId \
             --jq '[.[] | .databaseId] | .[]' \
             | tr '\n' ' ')
@@ -978,7 +978,7 @@ jobs:
               sleep 10
               EXISTING=$(gh run list --workflow docker-acceptance-only.yml \
                 --event workflow_dispatch --limit 5 \
-                --created=">${VARIANT_A_DISPATCH_TS}" \
+                --created=">=${VARIANT_A_DISPATCH_TS}" \
                 --json databaseId \
                 --jq '[.[]] | .[0].databaseId // empty')
               if [[ -n "${EXISTING}" ]]; then
@@ -1025,7 +1025,7 @@ jobs:
         for attempt in $(seq 1 12); do
           RUN_ID=$(gh run list --workflow docker-acceptance-only.yml \
             --event workflow_dispatch --limit 10 \
-            --created=">${VARIANT_A_DISPATCH_TS}" \
+            --created=">=${VARIANT_A_DISPATCH_TS}" \
             --json databaseId \
             --jq '[.[]] | .[0].databaseId // empty')
           if [[ -n "${RUN_ID}" ]]; then
@@ -1059,7 +1059,7 @@ jobs:
               sleep 10
               EXISTING=$(gh run list --workflow docker-acceptance-only.yml \
                 --event workflow_dispatch --limit 5 \
-                --created=">${VARIANT_B_DISPATCH_TS}" \
+                --created=">=${VARIANT_B_DISPATCH_TS}" \
                 --json databaseId \
                 --jq '[.[]] | .[0].databaseId // empty')
               if [[ -n "${EXISTING}" ]]; then
@@ -1102,7 +1102,7 @@ jobs:
         for attempt in $(seq 1 12); do
           RUN_ID=$(gh run list --workflow docker-acceptance-only.yml \
             --event workflow_dispatch --limit 10 \
-            --created=">${VARIANT_B_DISPATCH_TS}" \
+            --created=">=${VARIANT_B_DISPATCH_TS}" \
             --json databaseId \
             --jq '[.[]] | .[0].databaseId // empty')
           if [[ -n "${RUN_ID}" ]]; then
