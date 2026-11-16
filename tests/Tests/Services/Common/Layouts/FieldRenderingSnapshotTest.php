@@ -240,6 +240,62 @@ final class FieldRenderingSnapshotTest extends TestCase
     }
 
     /**
+     * A stored value missing from the list (a facility state saved as free
+     * text) stays selected, so saving the form keeps it, and the field says
+     * it needs fixing.
+     */
+    #[Test]
+    public function listKeepsAStoredValueMissingFromTheListSelected(): void
+    {
+        $html = generate_select_list('test_unlisted', LayoutFieldFixtureManager::LIST_ID, 'Arkansas', '', 'Unassigned');
+
+        self::assertStringContainsString('<option value="" >Unassigned</option>', $html);
+        self::assertStringContainsString('<option value="Arkansas" selected>Arkansas</option>', $html);
+        self::assertSame(1, substr_count($html, ' selected>'));
+        self::assertStringContainsString('<span title="Please choose a valid selection from the list.">Fix this</span>', $html);
+    }
+
+    /**
+     * A single select matches its stored value whole, so "opt1|opt2" is one
+     * unlisted value, not two selections.
+     */
+    #[Test]
+    public function aSingleSelectDoesNotSplitTheStoredValue(): void
+    {
+        $html = generate_select_list('test_unlisted', LayoutFieldFixtureManager::LIST_ID, 'opt1|opt2', '', 'Unassigned');
+
+        self::assertSame(1, substr_count($html, ' selected>'));
+        self::assertStringContainsString('<option value="opt1|opt2" selected>opt1|opt2</option>', $html);
+        self::assertStringContainsString('<span title="Please choose a valid selection from the list.">Fix this</span>', $html);
+    }
+
+    /**
+     * A backup list that doesn't hold the stored value either still gets the
+     * warning, as the multiple-select path already does.
+     */
+    #[Test]
+    public function aStoredValueMissingFromTheBackupListTooSaysToFixIt(): void
+    {
+        $html = generate_select_list('test_unlisted', LayoutFieldFixtureManager::LIST_ID, 'Arkansas', '', 'Unassigned', backup_list: 'test_no_such_list');
+
+        self::assertStringContainsString('<option value="Arkansas" selected>Arkansas</option>', $html);
+        self::assertStringContainsString('<span title="Please choose a valid selection from the list.">Fix this</span>', $html);
+    }
+
+    /**
+     * With no empty option asked for and no list rows, keeping the stored
+     * value selected adds no blank option of its own.
+     */
+    #[Test]
+    public function aStoredValueAloneAddsNoEmptyOption(): void
+    {
+        $html = generate_select_list('test_unlisted', 'test_no_such_list', 'Arkansas', '', '');
+
+        self::assertSame(1, substr_count($html, '<option'));
+        self::assertStringContainsString('<option value="Arkansas" selected>Arkansas</option>', $html);
+    }
+
+    /**
      * Yields one tuple per (mode, data_type) snapshot case.
      *
      * @return iterable<string, array{string, int, array<string, mixed>, string, string}>
