@@ -2465,13 +2465,13 @@ class Display extends Base
                 $who_name = $who['fname'] . " " . $who['lname'];
                 //Manually generated actions
                 if ($progress['msg_type'] == 'phone') { //ie. a manual phone call, not an AVM
-                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Phone call made by') . " " . text($who_name) . "'><b>" . xlt('Phone') . "</b> " . text($when) . "</span></br />\n";
+                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Phone call made by') . " " . attr($who_name) . "'><b>" . xlt('Phone') . "</b> " . text($when) . "</span></br />\n";
                 } elseif ($progress['msg_type'] == 'notes') {
-                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Notes by') . " " . text($who_name) . " on " . text($when) . "'><b>" . xlt('Note') . ":</b> " . text($progress['msg_extra_text']) . "</span></br />\n";
+                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Notes by') . " " . attr($who_name) . " on " . attr($when) . "'><b>" . xlt('Note') . ":</b> " . text($progress['msg_extra_text']) . "</span></br />\n";
                 } elseif ($progress['msg_type'] == 'postcards') {
-                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Postcard printed by') . " " . text($who_name) . "'><b>" . xlt('Postcard') . ":</b> " . text($when) . "</span></br />\n";
+                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Postcard printed by') . " " . attr($who_name) . "'><b>" . xlt('Postcard') . ":</b> " . text($when) . "</span></br />\n";
                 } elseif ($progress['msg_type'] == 'labels') {
-                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Label printed by') . " " . text($who) . "'><b>" . xlt('Label') . ":</b> " . text($when) . "</span></br />";
+                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Label printed by') . " " . attr($who_name) . "'><b>" . xlt('Label') . ":</b> " . text($when) . "</span></br />";
                 }
             } else {
                 $who_name = "MedEx";

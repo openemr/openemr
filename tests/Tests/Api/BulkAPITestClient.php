@@ -120,13 +120,20 @@ class BulkAPITestClient extends ApiTestClient
      */
     public function registerClient(string $authURL, $jwks): ClientEntity
     {
+        // DCR with the active scope set so scopes a caller selected via
+        // setScopesForBulkData are actually registered on the client,
+        // not silently narrowed to SYSTEM_SCOPES at DCR time and then
+        // intersected-out at /token issuance. The pre-existing shape
+        // hardcoded SYSTEM_SCOPES here; any test that wanted V2 would
+        // mint a V1-scoped bearer and 401 on any route that needed a
+        // V2-only scope like Patient.$export.
         $clientBody = [
             "application_type" => 'private',
             "redirect_uris" => ["https://client.example.org/callback"],
             "client_name" => "Bulk API Private Test Client",
             "token_endpoint_auth_method" => "client_secret_post",
             "contacts" => ["me@example.org", "them@example.org"],
-            "scope" => self::SYSTEM_SCOPES
+            "scope" => $this->scopes
             ,'jwks' => $jwks
         ];
         $clientResponse = $this->post($authURL . '/registration', $clientBody);
@@ -152,5 +159,23 @@ class BulkAPITestClient extends ApiTestClient
         // @codeCoverageIgnoreEnd
         $clientRepository->saveIsEnabled($clientEntity, true);
         return $clientEntity;
+    }
+
+    /**
+     * Send a DELETE with query parameters (not a path-id DELETE).
+     *
+     * `ApiTestClient::delete()` is spec'd for `/resource/{id}`-shaped
+     * deletes and appends `$id` as a path segment. The Bulk Data IG
+     * `DELETE /$bulkdata-status?job=<uuid>` uses a query parameter, not
+     * a path segment, so this helper issues the DELETE directly against
+     * the Guzzle client with the query string appended to the URL.
+     *
+     * @param array<string, string> $query
+     */
+    public function deleteWithQuery(string $url, array $query): ResponseInterface
+    {
+        $qs = http_build_query($query);
+        $resourceUrl = $url . ($qs !== '' ? '?' . $qs : '');
+        return $this->client->delete($resourceUrl, ["headers" => $this->headers]);
     }
 }

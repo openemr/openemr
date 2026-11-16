@@ -81,7 +81,10 @@ class Bootstrap
         $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->selectedPatientPharmacy = new SelectedPatientPharmacy();
         $this->isWenoUser = !empty($this->isWenoUser());
-        $this->isAuthorized = AclMain::aclCheckCore('patients', 'rx');
+        // Without a signed-in user (API, portal, background services) the ACL check can only
+        // deny, so skip its queries.
+        $authUser = SessionWrapperFactory::getInstance()->getActiveSession()->get('authUser');
+        $this->isAuthorized = is_string($authUser) && $authUser !== '' && AclMain::aclCheckCore('patients', 'rx');
     }
 
     /**
@@ -404,6 +407,10 @@ class Bootstrap
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $id = $session->get('authUserID') ?? '';
+        if ($id === '') {
+            // No signed-in user, so no users row can match.
+            return '';
+        }
         // get the Weno User id from the user table (weno_prov_id)
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
 
