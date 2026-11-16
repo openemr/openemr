@@ -26,8 +26,12 @@
  *   - Status with NO `job` query param → 400 OperationOutcome (explicit
  *     missing-required-param branch; previously returned 500 via the
  *     catch-Throwable arm on a null-uuid)
+ *   - Status with empty `job=` → 400 OperationOutcome (shares the
+ *     missing-param branch with the null-uuid case)
  *   - DELETE with NO `job` query param → 400 OperationOutcome (same
  *     missing-required-param branch on the sibling route)
+ *   - DELETE with empty `job=` → 400 OperationOutcome (empty-string
+ *     arm on the sibling route)
  *
  * All tests use `BulkAPITestClient` (system-scope JWT client-credentials) and align
  * `site_addr_oath` with the test base URL at setUp, following the GroupExportFhirApiTest
@@ -64,6 +68,16 @@ class BulkFhirOperationsApiTest extends TestCase
      * @var list<string>
      */
     private array $kickedOffJobs = [];
+
+    /**
+     * Substring expected inside the OperationOutcome `issue[0].details.text`
+     * when `$bulkdata-status` is called without a `job=` parameter or with
+     * an empty value. Pinned so a regression to a generic "bad request"
+     * message fails loudly instead of silently passing the resourceType
+     * check. Matches the fixed string in
+     * `FhirOperationExportRestController`'s missing-param guards.
+     */
+    private const EXPECTED_REQUIRED_JOB_MESSAGE = 'query parameter is required';
 
     protected function setUp(): void
     {
@@ -338,7 +352,33 @@ class BulkFhirOperationsApiTest extends TestCase
             $response->getStatusCode(),
             '/$bulkdata-status without job query param should return 400, not 500'
         );
-        $this->assertOperationOutcomeBody($response);
+        $this->assertOperationOutcomeBody($response, self::EXPECTED_REQUIRED_JOB_MESSAGE);
+    }
+
+    /**
+     * GET /$bulkdata-status with an empty `job=` must share the branch
+     * with the missing-param case. Pins the empty-string arm of the
+     * controller guard (`$jobUuidString === ''`) separately from the
+     * null arm so a regression that only handles null (letting empty
+     * fall through to the 404 InvalidArgumentException path) fails.
+     */
+    public function testStatusWithEmptyJobQueryParamReturns400(): void
+    {
+        $this->testClient->setAuthToken(BulkAPITestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->testClient->setHeaders([
+            'Accept' => 'application/fhir+json',
+            'Authorization' => 'Bearer ' . $this->testClient->getAccessToken(),
+        ]);
+        $response = $this->testClient->get(
+            '/apis/default/fhir/$bulkdata-status',
+            ['job' => '']
+        );
+        $this->assertSame(
+            Response::HTTP_BAD_REQUEST,
+            $response->getStatusCode(),
+            '/$bulkdata-status with empty job= should return 400 (missing-param branch)'
+        );
+        $this->assertOperationOutcomeBody($response, self::EXPECTED_REQUIRED_JOB_MESSAGE);
     }
 
     /**
@@ -362,7 +402,31 @@ class BulkFhirOperationsApiTest extends TestCase
             $response->getStatusCode(),
             'DELETE /$bulkdata-status without job query param should return 400, not 500'
         );
-        $this->assertOperationOutcomeBody($response);
+        $this->assertOperationOutcomeBody($response, self::EXPECTED_REQUIRED_JOB_MESSAGE);
+    }
+
+    /**
+     * DELETE /$bulkdata-status with an empty `job=` must share the
+     * missing-param branch on the sibling route — matching the GET
+     * empty-string case.
+     */
+    public function testDeleteWithEmptyJobQueryParamReturns400(): void
+    {
+        $this->testClient->setAuthToken(BulkAPITestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->testClient->setHeaders([
+            'Accept' => 'application/fhir+json',
+            'Authorization' => 'Bearer ' . $this->testClient->getAccessToken(),
+        ]);
+        $response = $this->testClient->deleteWithQuery(
+            '/apis/default/fhir/$bulkdata-status',
+            ['job' => '']
+        );
+        $this->assertSame(
+            Response::HTTP_BAD_REQUEST,
+            $response->getStatusCode(),
+            'DELETE /$bulkdata-status with empty job= should return 400 (missing-param branch)'
+        );
+        $this->assertOperationOutcomeBody($response, self::EXPECTED_REQUIRED_JOB_MESSAGE);
     }
 
     /**
@@ -456,8 +520,10 @@ class BulkFhirOperationsApiTest extends TestCase
      * regression that returned a raw JSON error object (or empty body)
      * fails loudly.
      */
-    private function assertOperationOutcomeBody(\Psr\Http\Message\ResponseInterface $response): void
-    {
+    private function assertOperationOutcomeBody(
+        \Psr\Http\Message\ResponseInterface $response,
+        ?string $expectedDetailsText = null
+    ): void {
         $raw = (string) $response->getBody();
         $decoded = json_decode($raw, true);
         $this->assertIsArray($decoded, "Response body must be JSON; got: " . substr($raw, 0, 500));
@@ -466,5 +532,23 @@ class BulkFhirOperationsApiTest extends TestCase
             $decoded['resourceType'] ?? null,
             'Error response must be a FHIR OperationOutcome resource'
         );
+        if ($expectedDetailsText !== null) {
+            $issues = $decoded['issue'] ?? null;
+            $this->assertIsArray($issues, 'OperationOutcome must have an issue array');
+            $firstIssue = $issues[0] ?? null;
+            $this->assertIsArray($firstIssue, 'OperationOutcome issue[0] must be an object');
+            $details = $firstIssue['details'] ?? null;
+            $this->assertIsArray($details, 'OperationOutcome issue[0].details must be an object');
+            $detailsText = $details['text'] ?? null;
+            $this->assertIsString(
+                $detailsText,
+                'OperationOutcome issue[0].details.text must be a string'
+            );
+            $this->assertStringContainsString(
+                $expectedDetailsText,
+                $detailsText,
+                'OperationOutcome issue[0].details.text must contain the expected message'
+            );
+        }
     }
 }
