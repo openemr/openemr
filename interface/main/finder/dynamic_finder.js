@@ -211,17 +211,9 @@
         return $("#setting_search_type:checked").length > 0;
     }
 
-    // The criteria above the lists (sex, age, insurance, last visit) as request parameters.
-    // A choice left on "any" or a field left empty is not sent.
+    // The filters chosen in the Filter panel (finder_criteria.js) as request parameters.
     function criteriaParams() {
-        var params = [];
-        $('#finder-criteria').find('[data-criteria]').each(function () {
-            var value = $(this).val();
-            if (value !== '' && value !== null && !$(this).prop('disabled')) {
-                params.push({"name": 'criteria_' + $(this).data('criteria'), "value": value});
-            }
-        });
-        return params;
+        return window.finderCriteria ? window.finderCriteria.params() : [];
     }
 
     // Redraw a tab's table with the heading's search when it last drew with another.
@@ -445,7 +437,9 @@
             syncSearchRow();
             createTable(tab);
         } else if (tab === TABS.recent) {
-            tables[tab.key].api().search(search.term).draw(false);
+            // Keep the page unless the filters changed, which can leave fewer pages.
+            var filtersChanged = drawnSearch[tab.key].criteria !== JSON.stringify(criteriaParams());
+            tables[tab.key].api().search(search.term).draw(filtersChanged);
         } else {
             applySearch(tab);
         }
@@ -474,27 +468,13 @@
         $('#finder-customize').on('click', function () {
             openListEditor(activeTab.listId);
         });
-        // The criteria redraw the showing list; the other list redraws when it is shown.
-        function redrawActiveTable() {
+        // The filters narrow the showing list from the first page; the other list redraws
+        // when it is shown.
+        $(document).on('finder:criteria', function () {
             var oTable = tables[activeTab.key];
             if (oTable) {
                 oTable.api().draw();
             }
-        }
-        function syncVisitDays() {
-            $('#criteria_visit_days').prop('disabled', ['within', 'older'].indexOf($('#criteria_visit').val()) === -1);
-        }
-        syncVisitDays();
-        $('#finder-criteria').on('change', '[data-criteria]', function () {
-            syncVisitDays();
-            redrawActiveTable();
-        });
-        $('#finder-criteria-reset').on('click', function () {
-            $('#finder-criteria').find('[data-criteria]').each(function () {
-                $(this).val($(this).is('#criteria_visit_days') ? '365' : '');
-            });
-            syncVisitDays();
-            redrawActiveTable();
         });
         $("#setting_search_type").on('change', function (e) {
             persistCriteria(this, e);

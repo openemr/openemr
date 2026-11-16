@@ -38,6 +38,13 @@ Patient. OemrUI adds the margins and search-row icons to the right of it.
             </div>
         </div>
     </div>
+    {# The panel inside is drawn by finder_criteria.js. #}
+    <div class="dropdown" id="finder-filter">
+        <button type="button" id="finder-filter-button" class="btn btn-primary" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false" title="{{ "Filter the lists"|xla }}">
+            <i class="fa fa-filter" aria-hidden="true"></i> <span id="finder-filter-label" data-label="{{ "Filter"|xla }}">{{ "Filter"|xlt }}</span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-right p-3" id="finder-filter-panel" aria-labelledby="finder-filter-button" data-add="{{ "Add filter"|xla }}" data-clear="{{ "Clear all"|xla }}" data-apply="{{ "Apply"|xla }}" data-remove="{{ "Remove"|xla }}"></div>
+    </div>
     {% if canAddPatient %}
         <a id="finder-add-patient" class="btn btn-primary" href="{{ webroot|attr }}/interface/new/new.php">{{ "Add Patient"|xlt }}</a>
     {% endif %}
