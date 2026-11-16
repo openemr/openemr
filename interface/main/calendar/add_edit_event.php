@@ -49,7 +49,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/encounte
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient_tracker.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/group.inc.php');
 
-use OpenEMR\Appointment\VisitList\VisitListService;
+use OpenEMR\Appointment\VisitList\VisitListEditor;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -464,16 +464,8 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate")) {
     DOBandEncounter($eid);
 }
 
-// A Visit List patient being saved: note its copies before the save changes them, so that
-// they can be placed on their lists afterwards (see the end of the save).
-$visitListInput = CurrentRequest::get()->request;
-$visitListService = new VisitListService();
-$visitListEventId = filter_var($eid, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-$visitListCopiesBefore = $visitListInput->getString('form_action') === 'save'
-    && $visitListInput->getString('form_visit_list') === '1'
-    && is_int($visitListEventId)
-    ? $visitListService->copiesBefore($visitListEventId)
-    : null;
+$visitListEditor = new VisitListEditor();
+$visitListCopiesBefore = $visitListEditor->beforeSave(CurrentRequest::get()->request, VisitListEditor::eventId($eid));
 
 // If we are saving, then save and close the window.
 //
@@ -841,25 +833,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
     $appointmentService->deleteAppointment($eid, $_POST['recurr_affect'], $_POST['selected_date']);
 }
 
-// A Visit List patient: record its place on the list. It keeps the block's start time and no
-// duration, so the provider, date and time put it on the block's list.
-$visitListEventId = filter_var($eid, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-if (
-    in_array($visitListInput->getString('form_action'), ['save', 'duplicate'], true)
-    && $visitListInput->getString('form_visit_list') === '1'
-    && is_int($visitListEventId)
-) {
-    $visitListNumber = static function (string $value): ?int {
-        $number = filter_var(trim($value), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        return $number === false ? null : $number;
-    };
-    $visitListService->place(
-        $visitListEventId,
-        $visitListNumber($visitListInput->getString('form_visit_seq')),
-        $visitListNumber($visitListInput->getString('form_visit_stop')),
-        $visitListCopiesBefore
-    );
-}
+$visitListEditor->afterSave(CurrentRequest::get()->request, VisitListEditor::eventId($eid), $visitListCopiesBefore);
 
 if (!empty($_POST['form_action'])) {
     $closeEvent = new AppointmentDialogCloseEvent();
@@ -1007,7 +981,6 @@ if ($eid) {
     }
 }
 
-
  // If we have a patient ID, get the name and phone numbers to display.
 if ($patientid) {
     $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
@@ -1062,33 +1035,9 @@ if ($_GET['group'] == true) {
     $cattype = 3;
 }
 
-// Visit List mode: a patient on a Visit List has no time or duration of its own, only a place
-// on the list (Order #) and an optional Stop #. A new one comes from a Visit List block's +
-// button (visitlist=1), which passes the block's provider, date and start time. Patient
-// appointments only (category type 0).
-$visitListMode = false;
-$visitListSeq = '';
-$visitListStop = '';
-if ($cattype === 0) {
-    $visitListQuery = CurrentRequest::get()->query;
-    if ($eid) {
-        $visitListMode = ($row['pc_visit_list'] ?? 0) == 1;
-        $visitListValue = $row['pc_visit_seq'] ?? null;
-        $visitListSeq = is_int($visitListValue) || is_string($visitListValue) ? (string) $visitListValue : '';
-        $visitListValue = $row['pc_visit_stop'] ?? null;
-        $visitListStop = is_int($visitListValue) || is_string($visitListValue) ? (string) $visitListValue : '';
-    } elseif ($visitListQuery->getString('visitlist') === '1' && $visitListQuery->getInt('userid') > 0) {
-        $visitListMode = true;
-        $visitListStart = DateTimeImmutable::createFromFormat(
-            '!Y-m-d G:i',
-            sprintf('%s %d:%02d', $date, (int) $visitListQuery->getDigits('starttimeh'), (int) $visitListQuery->getDigits('starttimem'))
-        );
-        if ($visitListStart !== false) {
-            $visitListSeq = (string) (new VisitListService())->nextSequence($visitListQuery->getInt('userid'), $visitListStart);
-        }
-    }
-}
-$visitListHidden = $visitListMode ? ' d-none' : '';
+$visitListForm = $visitListEditor->form($cattype, VisitListEditor::eventId($eid), $row, CurrentRequest::get()->query, $date);
+$visitListMode = $visitListForm->active;
+$visitListHidden = $visitListForm->hiddenClass();
 
 $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
 "pc_recurrtype, pc_duration, pc_end_all_day " .
@@ -1139,9 +1088,7 @@ while ($crow = sqlFetchArray($cres)) {
 
     $catoptions .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
 }
-if ($visitListMode) {
-    $thisduration = 0;
-}
+$thisduration = $visitListMode ? 0 : $thisduration;
 ?>
 <!-- Configuration object: pass PHP values to external JS (Issue #8057) -->
 <script>
@@ -1533,16 +1480,7 @@ function isRegularRepeat($repeat): bool
         <label class='col-sm col-form-label<?php echo $visitListHidden; ?>' id='tdallday4'><?php echo xlt('duration'); ?></label>
         <input class="col-sm form-control<?php echo $visitListHidden; ?>" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>' title='<?php echo xla('Event duration in minutes'); ?>' />
     </div>
-    <?php if ($visitListMode) : ?>
-    <div class="form-row mb-sm-2">
-        <input type='hidden' name='form_visit_list' value='1' />
-        <label class='col-sm-2 col-form-label' for='form_visit_seq'><?php echo xlt('Order #'); ?>:</label>
-        <input class='col-sm-2 form-control' type='number' min='1' step='1' name='form_visit_seq' id='form_visit_seq' value='<?php echo attr($visitListSeq); ?>' title='<?php echo xla('Place on the Visit List'); ?>' />
-        <label class='col-sm-2 col-form-label' for='form_visit_stop'><?php echo xlt('Stop #'); ?>:</label>
-        <input class='col-sm-2 form-control' type='number' min='1' step='1' name='form_visit_stop' id='form_visit_stop' value='<?php echo attr($visitListStop); ?>' title='<?php echo xla('Optional; patients at one address share a stop'); ?>' />
-        <small class='col-sm form-text text-muted'><?php echo xlt('Visit List patient: no appointment time.'); ?></small>
-    </div>
-    <?php endif; ?>
+    <?php echo ServiceContainer::getTwig()->render('calendar/add_edit_event/visit_list_fields.html.twig', ['form' => $visitListForm]); ?>
     <div class="form-row mb-sm-2<?php echo $visitListHidden; ?>">
         <div class="col-sm form-check-inline">
             <input class='form-check-input' type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php echo (isRegularRepeat($repeats)) ? " checked" : ""; ?>/>

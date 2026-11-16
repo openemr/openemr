@@ -1,0 +1,20 @@
+{# The appointment editor's Visit List fields: the patient's place on the list (Order #) and
+   an optional Stop #, in place of the time and duration a Visit List patient does not have.
+
+   Input: form (OpenEMR\Appointment\VisitList\VisitListForm)
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @author    David Eschelbacher <psoas@tampabay.rr.com>
+   @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 #}
+{% if form.active %}
+    <div class="form-row mb-sm-2">
+        <input type='hidden' name='form_visit_list' value='1' />
+        <label class='col-sm-2 col-form-label' for='form_visit_seq'>{{ 'Order #'|xlt }}:</label>
+        <input class='col-sm-2 form-control' type='number' min='1' step='1' name='form_visit_seq' id='form_visit_seq' value='{{ form.sequence|attr }}' title='{{ 'Place on the Visit List'|xla }}' />
+        <label class='col-sm-2 col-form-label' for='form_visit_stop'>{{ 'Stop #'|xlt }}:</label>
+        <input class='col-sm-2 form-control' type='number' min='1' step='1' name='form_visit_stop' id='form_visit_stop' value='{{ form.stop|attr }}' title='{{ 'Optional; patients at one address share a stop'|xla }}' />
+        <small class='col-sm form-text text-muted'>{{ 'Visit List patient: no appointment time.'|xlt }}</small>
+    </div>
+{% endif %}
