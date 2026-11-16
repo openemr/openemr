@@ -73,6 +73,14 @@ export class InsurancePolicyModel {
         return this.date_end === null;
     }
 
+    /**
+     * The Secondary Medicare Type (837 SBR05) is sent only when Medicare is not the
+     * primary payer, so a primary policy has no use for the field.
+     */
+    usesSecondaryMedicareType() {
+        return this.type !== 'primary';
+    }
+
     validate() {
         // need to handle validation errors here.
     }
