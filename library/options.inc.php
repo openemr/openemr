@@ -318,7 +318,7 @@ function generate_select_list(
             'isSelected' => true,
             'label' => ($lrow > 0 && !empty($backup_list)) ? text(xl_list_label($lrow['title'])) : text($currvalue),
         ];
-        if (empty($lrow) && empty($backup_list)) {
+        if (!is_array($lrow)) {
             $_metadata['error'] = [
                 'title' => xlt('Please choose a valid selection from the list.'),
                 'text' => xlt('Fix this'),

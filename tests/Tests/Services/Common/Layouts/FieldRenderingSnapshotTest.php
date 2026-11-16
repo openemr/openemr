@@ -256,6 +256,19 @@ final class FieldRenderingSnapshotTest extends TestCase
     }
 
     /**
+     * A backup list that doesn't hold the stored value either still gets the
+     * warning, as the multiple-select path already does.
+     */
+    #[Test]
+    public function aStoredValueMissingFromTheBackupListTooSaysToFixIt(): void
+    {
+        $html = generate_select_list('test_unlisted', LayoutFieldFixtureManager::LIST_ID, 'Arkansas', '', 'Unassigned', backup_list: 'test_no_such_list');
+
+        self::assertStringContainsString('<option value="Arkansas" selected>Arkansas</option>', $html);
+        self::assertStringContainsString('<span title="Please choose a valid selection from the list.">Fix this</span>', $html);
+    }
+
+    /**
      * With no empty option asked for and no list rows, keeping the stored
      * value selected adds no blank option of its own.
      */
