@@ -20,11 +20,17 @@
  *   - Prefer-header gate (missing or non-`respond-async` → 400 OperationOutcome)
  *   - Status with nonexistent job uuid → 404 OperationOutcome
  *   - DELETE with nonexistent job uuid → 404 OperationOutcome
- *   - DELETE of an active job → 202 Accepted (cancel round-trip)
- *   - Status with NO `job` query param → currently 500 (markTestSkipped pending the
- *     `TODO: @adunsulag need to fix a bulkdata-status test where there is no job id.
- *     Should not throw a 500 error.` in GroupExportFhirApiTest). Skipping + comment
- *     documents current behavior so the flip-to-pass is visible when the fix lands.
+ *   - DELETE of a completed job → 202 Accepted (sync kick-off completes
+ *     the job before DELETE; a true active-cancel race belongs at the
+ *     service tier with a controllable fixture state, not api)
+ *   - Status with NO `job` query param → currently HTTP 500 +
+ *     OperationOutcome (known-wrong; the controller's catch-Throwable
+ *     arm catches the null-uuid path instead of distinguishing missing-
+ *     param → 400). Pinned as `testStatusWithoutJobQueryParamCurrentlyReturns500`;
+ *     when the controller is fixed to return 400 OperationOutcome for
+ *     missing-param, this test flips to failure and the reader is prompted
+ *     to update both. Matches the pattern `FhirSearchModifierMatrixApiTest`
+ *     uses at `testStringMissingTrueCurrentlyReturns500`.
  *
  * All tests use `BulkAPITestClient` (system-scope JWT client-credentials) and align
  * `site_addr_oath` with the test base URL at setUp, following the GroupExportFhirApiTest
