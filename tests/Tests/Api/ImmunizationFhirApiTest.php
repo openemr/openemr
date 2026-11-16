@@ -107,17 +107,14 @@ class ImmunizationFhirApiTest extends TestCase
         // checked before it is used.
         try {
             // This run's immunizations only, so parallel workers keep theirs.
+            // Each immunization row has a matching uuid_registry entry that
+            // must be removed first; otherwise the registry row outlives
+            // the immunization and tightens future UUID collisions.
             if (isset($this->immunizationUuid)) {
-                QueryUtils::sqlStatementThrowException(
-                    'DELETE FROM immunizations WHERE uuid = ?',
-                    [UuidRegistry::uuidToBytes($this->immunizationUuid)]
-                );
+                $this->deleteImmunizationAndUuid($this->immunizationUuid);
             }
             foreach ($this->extraImmunizationUuids as $extraUuid) {
-                QueryUtils::sqlStatementThrowException(
-                    'DELETE FROM immunizations WHERE uuid = ?',
-                    [UuidRegistry::uuidToBytes($extraUuid)]
-                );
+                $this->deleteImmunizationAndUuid($extraUuid);
             }
             $this->extraImmunizationUuids = [];
             if (isset($this->fixtureManager)) {
@@ -275,6 +272,24 @@ class ImmunizationFhirApiTest extends TestCase
     {
         $client = new ApiTestClient(self::baseUrl(), false);
         $this->assertUnauthorized($client->getOne(self::ENDPOINT, $this->immunizationUuid));
+    }
+
+    /**
+     * Remove an immunization row and its uuid_registry entry in the order
+     * that keeps the registry consistent: the registry row is deleted
+     * first, while the immunizations row still carries the uuid, then
+     * the immunizations row itself.
+     */
+    private function deleteImmunizationAndUuid(string $uuid): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE table_name = 'immunizations' AND uuid = ?",
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM immunizations WHERE uuid = ?',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
     }
 
     /**

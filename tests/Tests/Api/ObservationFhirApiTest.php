@@ -138,17 +138,17 @@ class ObservationFhirApiTest extends TestCase
                 $this->fixtureManager->removeObservationFixtures();
             }
             // This run's encounters only, so parallel workers keep theirs.
+            // FhirEncounterService::insert() writes three rows that must
+            // all come down: the form_encounter row, the forms row the
+            // EncounterService::insertEncounter addForm() call creates,
+            // and the uuid_registry entry for form_encounter. The sibling
+            // encounter fixture-manager sweep cleans only form_encounter
+            // rows, so this test file takes responsibility for all three.
             if (isset($this->encounterUuid)) {
-                QueryUtils::sqlStatementThrowException(
-                    'DELETE FROM form_encounter WHERE uuid = ?',
-                    [UuidRegistry::uuidToBytes($this->encounterUuid)]
-                );
+                $this->deleteEncounterAndCompanions($this->encounterUuid);
             }
             foreach ($this->extraEncounterUuids as $extraUuid) {
-                QueryUtils::sqlStatementThrowException(
-                    'DELETE FROM form_encounter WHERE uuid = ?',
-                    [UuidRegistry::uuidToBytes($extraUuid)]
-                );
+                $this->deleteEncounterAndCompanions($extraUuid);
             }
             $this->extraEncounterUuids = [];
             if (isset($this->fixtureManager)) {
@@ -325,6 +325,31 @@ class ObservationFhirApiTest extends TestCase
     {
         $client = new ApiTestClient(self::baseUrl(), false);
         $this->assertUnauthorized($client->getOne(self::ENDPOINT, $this->observationUuid));
+    }
+
+    /**
+     * Remove an encounter row + its forms row + its uuid_registry entry,
+     * in the order that keeps the registry consistent: the registry
+     * row first (while the uuid is still readable from form_encounter),
+     * then the forms row on the same encounter number, then the
+     * form_encounter row itself.
+     */
+    private function deleteEncounterAndCompanions(string $uuid): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE table_name = 'form_encounter' AND uuid = ?",
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE f FROM forms f"
+                . " JOIN form_encounter fe ON fe.encounter = f.encounter"
+                . " WHERE fe.uuid = ? AND f.formdir = 'newpatient'",
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM form_encounter WHERE uuid = ?',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
     }
 
     /**

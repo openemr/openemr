@@ -53,6 +53,22 @@ class EncounterFhirApiTest extends TestCase
     /** FHIR uuid of the patient that owns the seeded encounter. */
     private string $patientUuid;
 
+    /**
+     * Encounter uuids seeded by per-test helpers (e.g. the cross-patient-
+     * exclusion test). EncounterFixtureManager's `reason LIKE 'test-fixture-%'`
+     * sweep catches rows whose `reason` matches the hyphen prefix used in
+     * encounters.php, but FhirEncounterService::insert() maps the FHIR
+     * `reasonCode[0].text` straight into `form_encounter.reason`, and the
+     * shared encounter.json fixture uses "test-fixture encounter annual
+     * checkup" (space, no hyphen). tearDown deletes each tracked uuid
+     * explicitly, along with the companion `forms` row that
+     * EncounterService::insertEncounter addForm()s and the uuid_registry
+     * entry for the encounter uuid.
+     *
+     * @var list<string>
+     */
+    private array $extraEncounterUuids = [];
+
     protected function setUp(): void
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
@@ -88,11 +104,16 @@ class EncounterFhirApiTest extends TestCase
     protected function tearDown(): void
     {
         try {
-            // The cross-patient-exclusion test seeds its extra encounter
-            // via FhirEncounterService using the same `test-fixture-`
-            // reason prefix EncounterFixtureManager uses, so the
-            // removeFixtures() sweep below cleans both setUp and
-            // per-test rows.
+            // Explicit cleanup for the per-test second-patient encounter
+            // (and its companion forms + uuid_registry rows). The
+            // EncounterFixtureManager sweep that follows only matches
+            // `reason LIKE 'test-fixture-%'`; the FHIR encounter.json
+            // reasonCode text does not satisfy the hyphen-after-prefix
+            // pattern, so the sweep would leave the per-test row behind.
+            foreach ($this->extraEncounterUuids as $extraUuid) {
+                $this->deleteEncounterAndCompanions($extraUuid);
+            }
+            $this->extraEncounterUuids = [];
             if (isset($this->fixtureManager)) {
                 $this->fixtureManager->removeFixtures();
             }
@@ -411,7 +432,33 @@ class EncounterFhirApiTest extends TestCase
         $this->assertIsArray($encounter);
         $encounterUuid = $encounter['euuid'] ?? null;
         $this->assertIsString($encounterUuid);
+        $this->extraEncounterUuids[] = $encounterUuid;
         return $encounterUuid;
+    }
+
+    /**
+     * Remove an encounter row + its forms row + its uuid_registry entry,
+     * in the order that keeps the registry consistent: the registry
+     * row first (while the uuid is still readable from form_encounter),
+     * then the forms row on the same encounter number, then the
+     * form_encounter row itself.
+     */
+    private function deleteEncounterAndCompanions(string $uuid): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE table_name = 'form_encounter' AND uuid = ?",
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE f FROM forms f"
+                . " JOIN form_encounter fe ON fe.encounter = f.encounter"
+                . " WHERE fe.uuid = ? AND f.formdir = 'newpatient'",
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM form_encounter WHERE uuid = ?',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
     }
 
     /**
