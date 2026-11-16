@@ -120,6 +120,10 @@ function copyAddress(base) {
         let d = (base == "mailing") ? f[1] : f[0];
         let _s = document.querySelector("[name='" + s + "']");
         let _d = document.querySelector("[name='" + d + "']");
+        // A select can't hold a value it doesn't list; setting one would blank it.
+        if (_d.tagName === "SELECT" && !Array.from(_d.options).some(o => o.value === _s.value)) {
+            return;
+        }
         _d.value = _s.value;
     });
 }

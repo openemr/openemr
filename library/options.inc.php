@@ -310,7 +310,7 @@ function generate_select_list(
         $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", [$list_id, $currvalue]);
 
         // Keep the stored value selected, so saving the form doesn't replace it with the empty option.
-        if (($_options[0]['value'] ?? '') === '') {
+        if (($_options[0]['value'] ?? null) === '') {
             $_options[0]['isSelected'] = false;
         }
         $_options[] = [
