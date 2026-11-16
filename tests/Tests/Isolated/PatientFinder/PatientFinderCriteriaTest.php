@@ -138,7 +138,7 @@ class PatientFinderCriteriaTest extends TestCase
             'criteria_visit_days' => '30',
         ])->toWhere();
 
-        $this->assertSame(substr_count($where, '?'), count($binds));
+        $this->assertCount(substr_count($where, '?'), $binds);
         $this->assertSame(['Female', 40, 30], $binds);
     }
 
