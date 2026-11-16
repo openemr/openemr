@@ -82,21 +82,20 @@ class ErxXmlBuilder
      * Post the request server-side and return the page, which
      * ErxPage::checkError() searches for validation errors.
      *
-     * @throws GuzzleException when the eRx service cannot be reached
+     * @throws GuzzleException when the eRx service cannot be reached, answers
+     *                          with a 4xx or 5xx status, or redirects off https
      */
     public function checkError(string $xml): string
     {
-        $url = $this->getGlobals()->getPath();
-        if ($url === '') {
-            throw new UnexpectedValueException('The Ensora eRx path is not configured');
-        }
-
-        $response = $this->httpClient->request('POST', $url, [
+        $response = $this->httpClient->request('POST', $this->getGlobals()->getPath(), [
+            // The request carries Ensora credentials and patient data.
+            RequestOptions::ALLOW_REDIRECTS => ['protocols' => ['https']],
             RequestOptions::COOKIES => new CookieJar(),
             RequestOptions::FORM_PARAMS => ['RxInput' => $xml],
             RequestOptions::HEADERS => ['User-Agent' => 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'],
-            // ErxPage::checkError() reads the page whatever its status.
-            RequestOptions::HTTP_ERRORS => false,
+            // An error page with no error markers would pass as a clean check,
+            // and the launch would then mark the sent rows as uploaded.
+            RequestOptions::HTTP_ERRORS => true,
             RequestOptions::VERIFY => $this->verifySsl,
         ]);
 
@@ -196,11 +195,13 @@ class ErxXmlBuilder
     }
 
     /**
-     * Drop carriage returns, tabs and the other control characters except line
-     * feeds, drop U+FFFE and U+FFFF, and replace invalid UTF-8 with U+FFFD
-     * whatever the mbstring substitution setting. DOM writes a value holding a
-     * control character XML forbids, or invalid UTF-8, as empty, and writes
-     * U+FFFE and U+FFFF raw, which XML parsers reject.
+     * Drop &, < and >, carriage returns, tabs and the other control characters
+     * except line feeds, drop U+FFFE and U+FFFF, and replace invalid UTF-8 with
+     * U+FFFD whatever the mbstring substitution setting. Ensora answers &amp;
+     * and &lt; with an RxInput XML parse error even though DOM escapes them
+     * correctly. DOM writes a value holding a control character XML forbids,
+     * or invalid UTF-8, as empty, and writes U+FFFE and U+FFFF raw, which XML
+     * parsers reject.
      */
     public static function cleanText(#[SensitiveParameter] string $value): string
     {
@@ -211,21 +212,40 @@ class ErxXmlBuilder
         }
 
         // The value is valid UTF-8 here, so \xEF\xBF[\xBE\xBF] is only ever U+FFFE or U+FFFF.
-        return self::regexRemove('/[\x00-\x09\x0B-\x1F]|\xEF\xBF[\xBE\xBF]/', $value);
+        return self::regexRemove('/[\x00-\x09\x0B-\x1F&<>]|\xEF\xBF[\xBE\xBF]/', $value);
     }
 
+    /**
+     * An ID must reach Ensora unchanged, so refuse one cleanText() would alter
+     * rather than send a different ID or merge two into one.
+     *
+     * @throws ErxLaunchBlockedException when the ID holds a character cleanText() drops or replaces
+     */
+    public static function cleanId(string $value): string
+    {
+        if (self::cleanText($value) !== $value) {
+            throw new ErxLaunchBlockedException(ErxLaunchBlock::InvalidId);
+        }
+
+        return $value;
+    }
+
+    /** Check the cleaned text, so a value cleaned to nothing still counts as missing. */
     public function createElementTextFieldEmpty(string $name, #[SensitiveParameter] string $value, string $validationText): DOMElement
     {
-        $this->fieldEmpty($value, $validationText);
+        $text = self::cleanText($value);
+        $this->fieldEmpty($text, $validationText);
 
-        return $this->createElementText($name, $value);
+        return $this->createElementText($name, $text);
     }
 
+    /** Check the cleaned text, so a value cleaned to nothing still counts as missing. */
     public function createElementTextDemographicsCheck(string $name, string $value, string $validationText): DOMElement
     {
-        $this->demographicsCheck($value, $validationText);
+        $text = self::cleanText($value);
+        $this->demographicsCheck($text, $validationText);
 
-        return $this->createElementText($name, $value);
+        return $this->createElementText($name, $text);
     }
 
     /**
@@ -391,9 +411,9 @@ class ErxXmlBuilder
         }
 
         $element = $this->getDocument()->createElement('Account');
-        $element->setAttribute('ID', self::cleanText($this->getGlobals()->getAccountId()));
+        $element->setAttribute('ID', self::cleanId($this->getGlobals()->getAccountId()));
         $element->appendChild($this->createElementTextFieldEmpty('accountName', $this->trimData($this->stripSpecialCharacter(self::field($facility, 'name')), 35), xl('Facility Name')));
-        $element->appendChild($this->createElementText('siteID', self::field($facility, 'federal_ein')));
+        $element->appendChild($this->createElementText('siteID', self::cleanId(self::field($facility, 'federal_ein'))));
         $element->appendChild($this->getAccountAddress($facility));
         $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryPhoneNumber', self::regexRemove('/[^0-9]/', self::field($facility, 'phone')), xl('Facility Phone')));
         $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryFaxNumber', self::regexRemove('/[^0-9]/', self::field($facility, 'fax')), xl('Facility Fax')));
@@ -451,7 +471,7 @@ class ErxXmlBuilder
         $fax = self::regexRemove('/[^0-9]/', self::field($userFacility, 'fax'));
 
         $element = $this->getDocument()->createElement('Location');
-        $element->setAttribute('ID', self::cleanText(self::field($userFacility, 'id')));
+        $element->setAttribute('ID', self::cleanId(self::field($userFacility, 'id')));
         $element->appendChild($this->createElementText('locationName', $this->trimData($this->stripSpecialCharacter(self::field($userFacility, 'name')), 35)));
         $element->appendChild($this->getLocationAddress($userFacility));
         if (self::field($userFacility, 'phone') !== '') {
@@ -492,7 +512,7 @@ class ErxXmlBuilder
         $userDetails = $this->getStore()->getUserById($authUserId);
 
         $element = $this->getDocument()->createElement('Staff');
-        $element->setAttribute('ID', self::cleanText(self::field($userDetails, 'username')));
+        $element->setAttribute('ID', self::cleanId(self::field($userDetails, 'username')));
         $element->appendChild($this->getStaffName($userDetails));
         $element->appendChild($this->createElementText('license', self::field($userDetails, 'state_license_number')));
 
@@ -763,7 +783,7 @@ class ErxXmlBuilder
         $patientData = $this->getStore()->getPatientByPatientId($patientId);
 
         $element = $this->getDocument()->createElement('Patient');
-        $element->setAttribute('ID', self::cleanText(self::field($patientData, 'pid')));
+        $element->setAttribute('ID', self::cleanId(self::field($patientData, 'pid')));
         $element->appendChild($this->getPatientName($patientData));
         $element->appendChild($this->getPatientAddress($patientData));
         $element->appendChild($this->getPatientContact($patientData));
@@ -908,7 +928,7 @@ class ErxXmlBuilder
         $upin = self::field($userDetails, 'upin');
 
         $element = $this->getDocument()->createElement($tagName);
-        $element->setAttribute('ID', self::cleanText($npi));
+        $element->setAttribute('ID', self::cleanId($npi));
         $element->appendChild($this->getLicensedPrescriberName($userDetails, $prescriberType, $prefix));
         $element->appendChild($this->createElementTextFieldEmpty('dea', self::field($userDetails, 'federaldrugid'), $deaText));
         if ($upin !== '') {

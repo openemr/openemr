@@ -18,6 +18,7 @@ namespace OpenEMR\Tests\Isolated\Rx\Ensora;
 
 use DOMElement;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
@@ -71,7 +72,7 @@ class ErxXmlBuilderTest extends TestCase
             'carriage return' => ['one' . chr(13) . chr(10) . 'two', 'one' . chr(10) . 'two'],
             'tab' => ['tw' . chr(9) . 'o', 'two'],
             'double quotes kept' => ['take "as needed"', 'take "as needed"'],
-            'markup characters kept' => ['HTN & HLD <2>', 'HTN & HLD <2>'],
+            'markup characters dropped' => ['HTN & HLD <20> ng/mL', 'HTN  HLD 20 ng/mL'],
             'other control characters dropped' => ['a' . chr(11) . 'b' . chr(27) . 'c', 'abc'],
             'invalid UTF-8 replaced' => ['bad' . chr(255) . 'byte', "bad\u{FFFD}byte"],
             'noncharacters U+FFFE and U+FFFF dropped' => ["a\u{FFFE}b\u{FFFF}c", 'abc'],
@@ -87,6 +88,50 @@ class ErxXmlBuilderTest extends TestCase
 
         $this->assertSame('sig', $element->tagName);
         $this->assertSame($expected, $element->textContent);
+    }
+
+    public function testIdsPassThroughUnchanged(): void
+    {
+        $this->assertSame('drsmith_2', ErxXmlBuilder::cleanId('drsmith_2'));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function alteredIdProvider(): array
+    {
+        return [
+            'ampersand' => ['a&b'],
+            'angle bracket' => ['a<b'],
+            'tab' => ['a' . chr(9) . 'b'],
+            'invalid UTF-8' => ['a' . chr(255)],
+        ];
+    }
+
+    #[DataProvider('alteredIdProvider')]
+    public function testIdsCleanTextWouldAlterBlockTheLaunch(string $id): void
+    {
+        $reason = null;
+        try {
+            ErxXmlBuilder::cleanId($id);
+        } catch (ErxLaunchBlockedException $e) {
+            $reason = $e->reason;
+        }
+
+        $this->assertSame(ErxLaunchBlock::InvalidId, $reason);
+    }
+
+    public function testRequiredFieldsAreCheckedAfterCleaning(): void
+    {
+        $builder = $this->builder();
+
+        $builder->createElementTextFieldEmpty('city', '&', 'Facility City');
+        $builder->createElementTextDemographicsCheck('city', '<>', 'Patient City');
+
+        $this->assertSame(['Facility City'], $builder->getFieldEmptyMessages());
+        $this->assertSame(['Patient City'], $builder->getDemographicsCheckMessages());
     }
 
     public function testInvalidUtf8IsReplacedWhateverTheMbstringSubstitution(): void
@@ -107,17 +152,17 @@ class ErxXmlBuilderTest extends TestCase
         $globals = $this->createStub(ErxGlobalsInterface::class);
         $globals->method('getPartnerName')->willReturn('partner');
         $globals->method('getAccountName')->willReturn('account');
-        $globals->method('getAccountPassword')->willReturn(new Plaintext('p' . chr(9) . 'ss<1'));
+        $globals->method('getAccountPassword')->willReturn(new Plaintext('p' . chr(9) . 'ss<1&'));
         $builder = new ErxXmlBuilder($globals, $this->createStub(ErxStoreInterface::class), new Client(), true);
         $builder->getNCScript()->appendChild($builder->getCredentials());
 
         $redacted = $builder->getRedactedXml();
 
-        $this->assertStringContainsString('<password>pss&lt;1</password>', $builder->getXml());
+        $this->assertStringContainsString('<password>pss1</password>', $builder->getXml());
         $this->assertStringContainsString('<password>[redacted]</password>', $redacted);
         $this->assertStringContainsString('<partnerName>partner</partnerName>', $redacted);
         $this->assertStringNotContainsString('pss', $redacted);
-        $this->assertSame('pss<1', $builder->getSentPassword()?->bytes);
+        $this->assertSame('pss1', $builder->getSentPassword()?->bytes);
     }
 
     public function testCheckErrorPostsTheXmlFormEncoded(): void
@@ -144,12 +189,27 @@ class ErxXmlBuilderTest extends TestCase
         $this->assertSame(['RxInput' => $xml], $fields);
     }
 
-    public function testCheckErrorReturnsThePageOfAnErrorStatus(): void
+    public function testCheckErrorRefusesAnErrorStatus(): void
     {
         $client = new Client(['handler' => HandlerStack::create(new MockHandler([new Response(500, [], 'error page')]))]);
         $builder = new ErxXmlBuilder($this->globals(self::ERX_URL), $this->createStub(ErxStoreInterface::class), $client, true);
 
-        $this->assertSame('error page', $builder->checkError('<NCScript/>'));
+        $this->expectException(GuzzleException::class);
+
+        $builder->checkError('<NCScript/>');
+    }
+
+    public function testCheckErrorRefusesARedirectOffHttps(): void
+    {
+        $client = new Client(['handler' => HandlerStack::create(new MockHandler([
+            new Response(302, ['Location' => 'http://erx.example.test/RxEntry.aspx']),
+            new Response(200, [], 'eRx page'),
+        ]))]);
+        $builder = new ErxXmlBuilder($this->globals(self::ERX_URL), $this->createStub(ErxStoreInterface::class), $client, true);
+
+        $this->expectException(GuzzleException::class);
+
+        $builder->checkError('<NCScript/>');
     }
 
     /**
@@ -183,9 +243,13 @@ class ErxXmlBuilderTest extends TestCase
         $this->assertSame($verifySsl, $options['verify'] ?? null);
     }
 
-    public function testCheckErrorRequiresThePath(): void
+    public function testCheckErrorSendsNothingWithoutAUsablePath(): void
     {
-        $builder = new ErxXmlBuilder($this->globals(''), $this->createStub(ErxStoreInterface::class), new Client(), true);
+        $globals = $this->createStub(ErxGlobalsInterface::class);
+        $globals->method('getPath')->willThrowException(new UnexpectedValueException('The Ensora eRx path is not configured'));
+        // An empty queue throws OutOfBoundsException if a request is sent.
+        $client = new Client(['handler' => HandlerStack::create(new MockHandler())]);
+        $builder = new ErxXmlBuilder($globals, $this->createStub(ErxStoreInterface::class), $client, true);
 
         $this->expectException(UnexpectedValueException::class);
 
@@ -230,6 +294,21 @@ class ErxXmlBuilderTest extends TestCase
         }
 
         $this->assertSame(ErxLaunchBlock::MissingTaxId, $reason);
+    }
+
+    public function testATaxIdCleanTextWouldAlterBlocksTheLaunch(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->method('getFacilityPrimary')->willReturn(['federal_ein' => '12&3456789']);
+
+        $reason = null;
+        try {
+            $this->builder($store)->getAccount();
+        } catch (ErxLaunchBlockedException $e) {
+            $reason = $e->reason;
+        }
+
+        $this->assertSame(ErxLaunchBlock::InvalidId, $reason);
     }
 
     public function testManagersSendStaffWithoutALocation(): void
