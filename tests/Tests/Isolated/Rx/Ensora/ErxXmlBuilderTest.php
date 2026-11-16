@@ -440,10 +440,82 @@ class ErxXmlBuilderTest extends TestCase
         $this->assertSame('I10', $this->children($elements[0])['diagnosisID'] ?? null);
     }
 
-    private function builder(?ErxStoreInterface $store = null): ErxXmlBuilder
+    public function testFacilityAddressesSendStateAndCountryNamesAsCodes(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->expects($this->once())->method('getListOptions')->with('state')->willReturn([
+            ['option_id' => 'AR', 'title' => 'Arkansas'],
+        ]);
+        $builder = $this->builder($store, $this->stateListGlobals());
+        $facility = ['street' => '1 Main St', 'city' => 'Little Rock', 'state' => 'Arkansas', 'postal_code' => '72201', 'country_code' => 'United States'];
+
+        $account = $this->children($builder->getAccountAddress($facility));
+        $location = $this->children($builder->getLocationAddress($facility));
+
+        $this->assertSame(['AR', 'US'], [$account['state'] ?? null, $account['country'] ?? null]);
+        $this->assertSame(['AR', 'US'], [$location['state'] ?? null, $location['country'] ?? null]);
+        $this->assertSame([], $builder->getFieldEmptyMessages());
+    }
+
+    public function testFacilityAddressesWithoutCodesBlockTheLaunch(): void
+    {
+        $store = $this->createStub(ErxStoreInterface::class);
+        $store->method('getListOptions')->willReturn([]);
+        $builder = $this->builder($store, $this->stateListGlobals());
+        $facility = ['street' => '1 Main St', 'city' => 'Toronto', 'state' => 'Ontario', 'postal_code' => '72201', 'country_code' => 'Canada'];
+
+        $account = $this->children($builder->getAccountAddress($facility));
+        $location = $this->children($builder->getLocationAddress($facility));
+
+        $this->assertSame(['', ''], [$account['state'] ?? null, $account['country'] ?? null]);
+        $this->assertArrayNotHasKey('state', $location);
+        $this->assertArrayNotHasKey('country', $location);
+        $this->assertSame([
+            'Primary Facility State: use the two-letter state code, such as NY',
+            'Primary Facility Country code: use the two-letter country code, such as US',
+            'Facility State: use the two-letter state code, such as NY',
+            'Facility Country code: use the two-letter country code, such as US',
+        ], $builder->getFieldEmptyMessages());
+    }
+
+    public function testAnEmptyPrimaryFacilityStateAndCountryAreReportedOnce(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->expects($this->never())->method('getListOptions');
+        $builder = $this->builder($store);
+
+        $builder->getAccountAddress(['street' => '1 Main St', 'city' => 'Little Rock', 'postal_code' => '72201']);
+
+        $this->assertSame(['Primary Facility State', 'Primary Facility Country code'], $builder->getFieldEmptyMessages());
+    }
+
+    public function testAStateAndCountryOfOnlySpacesCountAsMissing(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->expects($this->never())->method('getListOptions');
+        $builder = $this->builder($store);
+        $facility = ['street' => '1 Main St', 'city' => 'Little Rock', 'state' => '  ', 'postal_code' => '72201', 'country_code' => ' '];
+
+        $builder->getAccountAddress($facility);
+        $location = $this->children($builder->getLocationAddress($facility));
+
+        $this->assertArrayNotHasKey('state', $location);
+        $this->assertArrayNotHasKey('country', $location);
+        $this->assertSame(['Primary Facility State', 'Primary Facility Country code'], $builder->getFieldEmptyMessages());
+    }
+
+    private function stateListGlobals(): ErxGlobalsInterface
+    {
+        $globals = $this->createStub(ErxGlobalsInterface::class);
+        $globals->method('getStateListId')->willReturn('state');
+
+        return $globals;
+    }
+
+    private function builder(?ErxStoreInterface $store = null, ?ErxGlobalsInterface $globals = null): ErxXmlBuilder
     {
         return new ErxXmlBuilder(
-            $this->createStub(ErxGlobalsInterface::class),
+            $globals ?? $this->createStub(ErxGlobalsInterface::class),
             $store ?? $this->createStub(ErxStoreInterface::class),
             new Client(),
             true,

@@ -217,6 +217,16 @@ class eRxGlobals implements ErxGlobalsInterface
     }
 
     /**
+     * Return the list the site picks states from, `state` when unset
+     */
+    public function getStateListId(): string
+    {
+        $value = $this->getGlobalValue('state_list');
+
+        return is_string($value) && $value !== '' ? $value : 'state';
+    }
+
+    /**
      * Return array containing Ensora eRx credentials
      * @return array Ensora eRx credentials: index [ 0 = Partner Name, 1 = Account Name, 2 = Password ]
      */

@@ -34,6 +34,7 @@ class ErxXmlBuilder
     private ?DOMDocument $document = null;
     private ?DOMElement $ncScript = null;
     private ?Plaintext $sentPassword = null;
+    private ?AddressCodes $addressCodes = null;
 
     /** @var list<int> */
     private array $sentAllergyIds = [];
@@ -390,13 +391,18 @@ class ErxXmlBuilder
         $element = $this->getDocument()->createElement('AccountAddress');
         $element->appendChild($this->createElementTextFieldEmpty('address1', $this->trimData($this->stripSpecialCharacter(self::field($facility, 'street')), 35), xl('Primary Facility Street Address')));
         $element->appendChild($this->createElementTextFieldEmpty('city', self::field($facility, 'city'), xl('Primary Facility City')));
-        $element->appendChild($this->createElementTextFieldEmpty('state', self::field($facility, 'state'), xl('Primary Facility State')));
+        // Trim, so a value of only spaces counts as missing rather than as an unknown code.
+        $state = trim(self::field($facility, 'state'));
+        $this->fieldEmpty($state, xl('Primary Facility State'));
+        $element->appendChild($this->createElementText('state', $this->stateCode($state, xl('Primary Facility State'))));
         $element->appendChild($this->createElementText('zip', $postalCode));
         if (strlen($postalCodePostfix) === 4) {
             $element->appendChild($this->createElementText('zip4', $postalCodePostfix));
         }
 
-        $element->appendChild($this->createElementTextFieldEmpty('country', substr(self::field($facility, 'country_code'), 0, 2), xl('Primary Facility Country code')));
+        $countryCode = trim(self::field($facility, 'country_code'));
+        $this->fieldEmpty($countryCode, xl('Primary Facility Country code'));
+        $element->appendChild($this->createElementText('country', $this->countryCode($countryCode, xl('Primary Facility Country code'))));
 
         return $element;
     }
@@ -436,8 +442,8 @@ class ErxXmlBuilder
 
         $street = self::field($facility, 'street');
         $city = self::field($facility, 'city');
-        $state = self::field($facility, 'state');
-        $countryCode = self::field($facility, 'country_code');
+        $state = $this->stateCode(trim(self::field($facility, 'state')), xl('Facility State'));
+        $countryCode = $this->countryCode(trim(self::field($facility, 'country_code')), xl('Facility Country code'));
 
         $element = $this->getDocument()->createElement('LocationAddress');
         if ($street !== '') {
@@ -458,7 +464,7 @@ class ErxXmlBuilder
         }
 
         if ($countryCode !== '') {
-            $element->appendChild($this->createElementText('country', substr($countryCode, 0, 2)));
+            $element->appendChild($this->createElementText('country', $countryCode));
         }
 
         return $element;
@@ -939,6 +945,47 @@ class ErxXmlBuilder
         $element->appendChild($this->createElementTextFieldEmpty('npi', $npi, $npiText));
 
         return $element;
+    }
+
+    /**
+     * Ensora takes two-letter state codes only, so a stored name ("Arkansas")
+     * becomes its code. A value with no code blocks the launch with a message
+     * naming the field, and comes back empty.
+     */
+    private function stateCode(string $value, string $label): string
+    {
+        if ($value === '') {
+            return '';
+        }
+
+        $this->addressCodes ??= AddressCodes::fromStateOptions(
+            $this->getStore()->getListOptions($this->getGlobals()->getStateListId())
+        );
+        $code = $this->addressCodes->state($value);
+        if ($code === null) {
+            $this->fieldEmptyMessages[] = $label . ': ' . xl('use the two-letter state code, such as NY');
+        }
+
+        return $code ?? '';
+    }
+
+    /**
+     * Ensora takes two-letter country codes only, so "United States" becomes
+     * US. A value with no code blocks the launch with a message naming the
+     * field, and comes back empty.
+     */
+    private function countryCode(string $value, string $label): string
+    {
+        if ($value === '') {
+            return '';
+        }
+
+        $code = AddressCodes::country($value);
+        if ($code === null) {
+            $this->fieldEmptyMessages[] = $label . ': ' . xl('use the two-letter country code, such as US');
+        }
+
+        return $code ?? '';
     }
 
     /**

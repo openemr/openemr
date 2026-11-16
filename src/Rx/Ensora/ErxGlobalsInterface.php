@@ -39,6 +39,9 @@ interface ErxGlobalsInterface
 
     public function getDefaultPatientCountry(): string;
 
+    /** The list the site picks states from (the state_list setting) */
+    public function getStateListId(): string;
+
     public function getPartnerName(): string;
 
     public function getAccountName(): string;
