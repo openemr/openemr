@@ -243,9 +243,13 @@ class ErxXmlBuilderTest extends TestCase
         $this->assertSame($verifySsl, $options['verify'] ?? null);
     }
 
-    public function testCheckErrorRequiresThePath(): void
+    public function testCheckErrorSendsNothingWithoutAUsablePath(): void
     {
-        $builder = new ErxXmlBuilder($this->globals(''), $this->createStub(ErxStoreInterface::class), new Client(), true);
+        $globals = $this->createStub(ErxGlobalsInterface::class);
+        $globals->method('getPath')->willThrowException(new UnexpectedValueException('The Ensora eRx path is not configured'));
+        // An empty queue throws OutOfBoundsException if a request is sent.
+        $client = new Client(['handler' => HandlerStack::create(new MockHandler())]);
+        $builder = new ErxXmlBuilder($globals, $this->createStub(ErxStoreInterface::class), $client, true);
 
         $this->expectException(UnexpectedValueException::class);
 

@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use GuzzleHttp\Psr7\Exception\MalformedUriException;
+use GuzzleHttp\Psr7\Uri;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Encryption\Plaintext;
 use OpenEMR\Rx\Ensora\ErxGlobalsInterface;
@@ -77,13 +79,29 @@ class eRxGlobals implements ErxGlobalsInterface
     }
 
     /**
-     * Return the Ensora eRx requests URL, or empty when unset
+     * Return the Ensora eRx requests URL as https.
+     *
+     * The launch carries Ensora credentials and patient data, so an http URL
+     * is upgraded to https and any other scheme is refused.
+     *
+     * @throws UnexpectedValueException when the path is unset or is not an http or https URL with a host
      */
     public function getPath(): string
     {
-        $value = $this->getGlobalValue('erx_newcrop_path');
+        $path = $this->getGlobalValue('erx_newcrop_path');
+        if (!is_string($path) || $path === '') {
+            throw new UnexpectedValueException('The Ensora eRx path is not configured');
+        }
+        try {
+            $uri = new Uri($path);
+        } catch (MalformedUriException $e) {
+            throw new UnexpectedValueException('The Ensora eRx path is not a valid URL', 0, $e);
+        }
+        if (!in_array($uri->getScheme(), ['http', 'https'], true) || $uri->getHost() === '') {
+            throw new UnexpectedValueException('The Ensora eRx path must be an https URL with a host');
+        }
 
-        return is_string($value) ? $value : '';
+        return (string) $uri->withScheme('https');
     }
 
     /**

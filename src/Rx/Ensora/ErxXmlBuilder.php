@@ -87,12 +87,7 @@ class ErxXmlBuilder
      */
     public function checkError(string $xml): string
     {
-        $url = $this->getGlobals()->getPath();
-        if ($url === '') {
-            throw new UnexpectedValueException('The Ensora eRx path is not configured');
-        }
-
-        $response = $this->httpClient->request('POST', $url, [
+        $response = $this->httpClient->request('POST', $this->getGlobals()->getPath(), [
             // The request carries Ensora credentials and patient data.
             RequestOptions::ALLOW_REDIRECTS => ['protocols' => ['https']],
             RequestOptions::COOKIES => new CookieJar(),
