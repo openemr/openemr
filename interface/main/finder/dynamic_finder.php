@@ -23,6 +23,7 @@
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -31,6 +32,7 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\UserSettingsService;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
+use OpenEMR\Services\PatientFinder\PatientFinderCriteria;
 use OpenEMR\Services\PatientFinder\PatientFinderDetailService;
 use OpenEMR\Services\PatientFinder\PatientFinderFontSize;
 use OpenEMR\Services\PatientFinder\PatientFinderPageService;
@@ -145,6 +147,14 @@ $pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
 <body>
 <?php
 
+$sexOptions = [];
+foreach (QueryUtils::fetchRecords("SELECT option_id, title FROM list_options WHERE list_id = 'sex' AND activity = 1 ORDER BY seq, title") as $sexRow) {
+    $sexOptions[] = [
+        'id' => PatientFinderValue::string($sexRow['option_id'] ?? null),
+        'title' => xl_list_label(PatientFinderValue::string($sexRow['title'] ?? null)),
+    ];
+}
+
 $templateVars = [
     'oeContainer' => $oemr_ui->oeContainer(),
     'oeBelowContainerDiv' => $oemr_ui->oeBelowContainerDiv(),
@@ -160,6 +170,9 @@ $templateVars = [
     'fontSize' => $fontSize->value,
     // The Font Size menu, from PatientFinderFontSize.
     'fontSizes' => PatientFinderFontSize::menu(),
+    // The Sex criterion: the sex list's active entries, then "Not recorded".
+    'sexOptions' => $sexOptions,
+    'sexNotRecorded' => PatientFinderCriteria::SEX_NOT_RECORDED,
 ];
 
 $t = ServiceContainer::getTwig();

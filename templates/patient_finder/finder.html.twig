@@ -15,6 +15,51 @@ dynamic_finder.js), and the options below the list.
          <div class="w-100">
             <div>
                 {# data-finder-font-size sets the lists' text size; the Font Size menu changes it. #}
+                {# Narrow either list by these choices; dynamic_finder.js sends them as criteria_* parameters. #}
+                <div id="finder-criteria" class="form-row align-items-end mb-2">
+                    <div class="form-group col-auto mb-1">
+                        <label for="criteria_sex" class="mb-0">{{ "Sex"|xlt }}</label>
+                        <select id="criteria_sex" class="form-control form-control-sm" data-criteria="sex">
+                            <option value="">{{ "Any"|xlt }}</option>
+                            {% for option in sexOptions %}
+                                <option value="{{ option.id|attr }}">{{ option.title|text }}</option>
+                            {% endfor %}
+                            <option value="{{ sexNotRecorded|attr }}">{{ "Not recorded"|xlt }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-auto mb-1">
+                        <label for="criteria_age_min" class="mb-0">{{ "Age from"|xlt }}</label>
+                        <input type="number" id="criteria_age_min" class="form-control form-control-sm" data-criteria="age_min" min="0" max="150" style="width: 5em;" />
+                    </div>
+                    <div class="form-group col-auto mb-1">
+                        <label for="criteria_age_max" class="mb-0">{{ "to"|xlt }}</label>
+                        <input type="number" id="criteria_age_max" class="form-control form-control-sm" data-criteria="age_max" min="0" max="150" style="width: 5em;" />
+                    </div>
+                    <div class="form-group col-auto mb-1">
+                        <label for="criteria_insurance" class="mb-0">{{ "Primary insurance"|xlt }}</label>
+                        <select id="criteria_insurance" class="form-control form-control-sm" data-criteria="insurance">
+                            <option value="">{{ "Any"|xlt }}</option>
+                            <option value="has">{{ "Has current primary"|xlt }}</option>
+                            <option value="none">{{ "No current primary"|xlt }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-auto mb-1">
+                        <label for="criteria_visit" class="mb-0">{{ "Last visit"|xlt }}</label>
+                        <select id="criteria_visit" class="form-control form-control-sm" data-criteria="visit">
+                            <option value="">{{ "Any"|xlt }}</option>
+                            <option value="within">{{ "Within the last"|xlt }}</option>
+                            <option value="older">{{ "Older than"|xlt }}</option>
+                            <option value="never">{{ "Never seen"|xlt }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-auto mb-1">
+                        <label for="criteria_visit_days" class="mb-0">{{ "Days"|xlt }}</label>
+                        <input type="number" id="criteria_visit_days" class="form-control form-control-sm" data-criteria="visit_days" value="365" min="1" max="3650" style="width: 6em;" disabled />
+                    </div>
+                    <div class="form-group col-auto mb-1">
+                        <button type="button" id="finder-criteria-reset" class="btn btn-secondary btn-sm">{{ "Reset"|xlt }}</button>
+                    </div>
+                </div>
                 <div class="tab-content" id="finderTabs" data-finder-font-size="{{ fontSize|attr }}">
                     <div class="tab-pane show active" id="list" role="tabpanel" aria-labelledby="listTab">
                         <div class="table-responsive">

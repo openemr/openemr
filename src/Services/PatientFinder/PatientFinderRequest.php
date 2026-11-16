@@ -55,7 +55,8 @@ final readonly class PatientFinderRequest
         public array $sortColumns,
         public array $columnSearches,
         public PatientFinderSearchMode $searchMode = PatientFinderSearchMode::All,
-        public PatientFinderColumnList $columnList = PatientFinderColumnList::PatientList
+        public PatientFinderColumnList $columnList = PatientFinderColumnList::PatientList,
+        public PatientFinderCriteria $criteria = new PatientFinderCriteria()
     ) {
     }
 
@@ -95,7 +96,8 @@ final readonly class PatientFinderRequest
             self::parseSort($get),
             self::parseColumnSearches($get, count($columnKeys)),
             PatientFinderSearchMode::fromRequestValue(PatientFinderValue::string($get['searchMode'] ?? null)),
-            PatientFinderColumnList::fromRequestValue(PatientFinderValue::string($get['finderList'] ?? null))
+            PatientFinderColumnList::fromRequestValue(PatientFinderValue::string($get['finderList'] ?? null)),
+            PatientFinderCriteria::fromArray($get)
         );
     }
 

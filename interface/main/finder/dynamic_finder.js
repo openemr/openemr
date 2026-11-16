@@ -211,12 +211,25 @@
         return $("#setting_search_type:checked").length > 0;
     }
 
+    // The criteria above the lists (sex, age, insurance, last visit) as request parameters.
+    // A choice left on "any" or a field left empty is not sent.
+    function criteriaParams() {
+        var params = [];
+        $('#finder-criteria').find('[data-criteria]').each(function () {
+            var value = $(this).val();
+            if (value !== '' && value !== null && !$(this).prop('disabled')) {
+                params.push({"name": 'criteria_' + $(this).data('criteria'), "value": value});
+            }
+        });
+        return params;
+    }
+
     // Redraw a tab's table with the heading's search when it last drew with another.
     function applySearch(tab) {
         var oTable = tables[tab.key];
         var last = drawnSearch[tab.key];
         if (!oTable || (last && last.term === search.term && last.mode === search.mode
-            && last.exact === isExactSearch())) {
+            && last.exact === isExactSearch() && last.criteria === JSON.stringify(criteriaParams()))) {
             return;
         }
         oTable.api().search(search.term).draw();
@@ -352,7 +365,16 @@
                 aoData.push({"name": "searchType", "value": searchType});
                 aoData.push({"name": "searchMode", "value": search.mode});
                 aoData.push({"name": "finderList", "value": tab.finderList});
-                drawnSearch[tab.key] = {term: search.term, mode: search.mode, exact: searchType};
+                var criteria = criteriaParams();
+                criteria.forEach(function (param) {
+                    aoData.push(param);
+                });
+                drawnSearch[tab.key] = {
+                    term: search.term,
+                    mode: search.mode,
+                    exact: searchType,
+                    criteria: JSON.stringify(criteria)
+                };
             },
             // dom invokes ColReorderWithResize. The heading's own search box replaces
             // DataTables' filter, and the options sit under the tables outside DataTables.
@@ -451,6 +473,28 @@
         wireFontSize();
         $('#finder-customize').on('click', function () {
             openListEditor(activeTab.listId);
+        });
+        // The criteria redraw the showing list; the other list redraws when it is shown.
+        function redrawActiveTable() {
+            var oTable = tables[activeTab.key];
+            if (oTable) {
+                oTable.api().draw();
+            }
+        }
+        function syncVisitDays() {
+            $('#criteria_visit_days').prop('disabled', ['within', 'older'].indexOf($('#criteria_visit').val()) === -1);
+        }
+        syncVisitDays();
+        $('#finder-criteria').on('change', '[data-criteria]', function () {
+            syncVisitDays();
+            redrawActiveTable();
+        });
+        $('#finder-criteria-reset').on('click', function () {
+            $('#finder-criteria').find('[data-criteria]').each(function () {
+                $(this).val($(this).is('#criteria_visit_days') ? '365' : '');
+            });
+            syncVisitDays();
+            redrawActiveTable();
         });
         $("#setting_search_type").on('change', function (e) {
             persistCriteria(this, e);
