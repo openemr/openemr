@@ -464,15 +464,14 @@ jobs:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
       run: |
         set -euo pipefail
-        # Pre-retry check: same rationale as build-release dispatch
-        # above. For acceptance-only lookups we don't need a
-        # snapshot -- the run-name template embeds source_run_id
-        # ("... (source run 12345)"), and each smoketest gets a
-        # fresh build-release => a unique SOURCE_RUN_ID. Filter
-        # on "(source run ${SOURCE_RUN_ID})" (including the
-        # closing paren so a numeric prefix collision can't
-        # false-match). SKIP-ACCEPTANCE substring disambiguates
-        # variant A (present) from variant B (absent).
+        # G54 (openemr/openemr#TBD): per-variant --created timestamp
+        # replaces the pre-fix `displayTitle contains "(source run X)"`
+        # + `contains("SKIP-ACCEPTANCE")` double-filter. displayTitle
+        # was lazy-populated by GitHub and the filter actively
+        # excluded the just-dispatched run from gh run list output
+        # when the title hadn't filled in yet.
+        # TARBALL_VARIANT_A_DISPATCH_TS captured before the gh workflow
+        # run call below; locate step reads it from $GITHUB_ENV.
         for attempt in 1 2; do
           if [[ ${attempt} -gt 1 ]]; then
             echo "  pre-retry: checking whether prior variant A dispatch actually landed..."
@@ -480,8 +479,9 @@ jobs:
               sleep 10
               EXISTING=$(gh run list --workflow acceptance-only.yml \
                 --event workflow_dispatch --limit 5 \
-                --json databaseId,displayTitle \
-                --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
+                --created=">${TARBALL_VARIANT_A_DISPATCH_TS}" \
+                --json databaseId \
+                --jq '[.[]] | .[0].databaseId // empty')
               if [[ -n "${EXISTING}" ]]; then
                 echo "==> Prior variant A dispatch actually succeeded (run ${EXISTING}); skipping retry"
                 exit 0
@@ -490,7 +490,9 @@ jobs:
             done
             echo "  no matching run after 30s -- prior dispatch really did fail; retrying"
           fi
-          echo "==> [attempt ${attempt}] gh workflow run acceptance-only.yml (variant A)"
+          TARBALL_VARIANT_A_DISPATCH_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "TARBALL_VARIANT_A_DISPATCH_TS=${TARBALL_VARIANT_A_DISPATCH_TS}" >> "${GITHUB_ENV}"
+          echo "==> [attempt ${attempt}] gh workflow run acceptance-only.yml (variant A, dispatch TS=${TARBALL_VARIANT_A_DISPATCH_TS})"
           if gh workflow run acceptance-only.yml \
               --repo "${{ github.repository }}" \
               --ref master \
@@ -514,25 +516,26 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        # Filter by "(source run ${SOURCE_RUN_ID})" -- unique per
-        # smoketest (each dispatches a fresh build-release for a
-        # unique source_run_id) so no baseline snapshot needed.
-        # SKIP-ACCEPTANCE substring distinguishes variant A from
-        # variant B (dispatched next, without that suffix).
+        # G54: --created > TARBALL_VARIANT_A_DISPATCH_TS replaces the
+        # pre-fix displayTitle contains filter. Variant B dispatches
+        # strictly after variant A's wait completes, so its locate's
+        # own timestamp will be later than variant A's -- no cross-
+        # contamination between the two variants' locate queries.
         for attempt in $(seq 1 12); do
           RUN_ID=$(gh run list --workflow acceptance-only.yml \
             --event workflow_dispatch --limit 10 \
-            --json databaseId,displayTitle \
-            --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and contains(\"SKIP-ACCEPTANCE\"))] | .[0].databaseId // empty")
+            --created=">${TARBALL_VARIANT_A_DISPATCH_TS}" \
+            --json databaseId \
+            --jq '[.[]] | .[0].databaseId // empty')
           if [[ -n "${RUN_ID}" ]]; then
             echo "ACCEPTANCE_RUN_ID_SKIP=${RUN_ID}" >> "${GITHUB_ENV}"
-            echo "==> Located variant A (skip_acceptance) run: ${RUN_ID}"
+            echo "==> Located variant A (skip_acceptance) run: ${RUN_ID} (created after ${TARBALL_VARIANT_A_DISPATCH_TS})"
             exit 0
           fi
           echo "  (attempt ${attempt}/12) waiting for variant A run to register..."
           sleep 10
         done
-        echo "::error::Could not locate variant A acceptance-only run within 2 minutes (looking for source run ${SOURCE_RUN_ID} + SKIP-ACCEPTANCE)"
+        echo "::error::Could not locate variant A acceptance-only run within 2 minutes (TARBALL_VARIANT_A_DISPATCH_TS=${TARBALL_VARIANT_A_DISPATCH_TS})"
         exit 1
 
     - name: Wait for variant A acceptance-only run to complete
@@ -554,12 +557,11 @@ jobs:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
       run: |
         set -euo pipefail
-        # Pre-retry check: same source-run-id filter approach as
-        # variant A. Variant B has NO "SKIP-ACCEPTANCE" marker in
-        # its display title (no skip_acceptance input); filter
-        # explicitly requires that substring to be ABSENT so we
-        # don't confuse variant A's already-dispatched run for
-        # variant B.
+        # G54: per-variant --created timestamp replaces the pre-fix
+        # displayTitle double-filter. TARBALL_VARIANT_B_DISPATCH_TS is
+        # strictly after TARBALL_VARIANT_A_DISPATCH_TS (variant A's
+        # dispatch + wait completed earlier), so variant B's locate
+        # can't misidentify variant A's run.
         for attempt in 1 2; do
           if [[ ${attempt} -gt 1 ]]; then
             echo "  pre-retry: checking whether prior variant B dispatch actually landed..."
@@ -567,8 +569,9 @@ jobs:
               sleep 10
               EXISTING=$(gh run list --workflow acceptance-only.yml \
                 --event workflow_dispatch --limit 5 \
-                --json databaseId,displayTitle \
-                --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
+                --created=">${TARBALL_VARIANT_B_DISPATCH_TS}" \
+                --json databaseId \
+                --jq '[.[]] | .[0].databaseId // empty')
               if [[ -n "${EXISTING}" ]]; then
                 echo "==> Prior variant B dispatch actually succeeded (run ${EXISTING}); skipping retry"
                 exit 0
@@ -577,7 +580,9 @@ jobs:
             done
             echo "  no matching run after 30s -- prior dispatch really did fail; retrying"
           fi
-          echo "==> [attempt ${attempt}] gh workflow run acceptance-only.yml (variant B)"
+          TARBALL_VARIANT_B_DISPATCH_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "TARBALL_VARIANT_B_DISPATCH_TS=${TARBALL_VARIANT_B_DISPATCH_TS}" >> "${GITHUB_ENV}"
+          echo "==> [attempt ${attempt}] gh workflow run acceptance-only.yml (variant B, dispatch TS=${TARBALL_VARIANT_B_DISPATCH_TS})"
           if gh workflow run acceptance-only.yml \
               --repo "${{ github.repository }}" \
               --ref master \
@@ -599,23 +604,23 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        # Filter by "(source run ${SOURCE_RUN_ID})" -- unique per
-        # smoketest -- with SKIP-ACCEPTANCE ABSENT to distinguish
-        # variant B from variant A's already-dispatched run.
+        # G54: --created > TARBALL_VARIANT_B_DISPATCH_TS replaces the
+        # pre-fix displayTitle double-filter.
         for attempt in $(seq 1 12); do
           RUN_ID=$(gh run list --workflow acceptance-only.yml \
             --event workflow_dispatch --limit 10 \
-            --json databaseId,displayTitle \
-            --jq "[.[] | select(.displayTitle | contains(\"(source run ${SOURCE_RUN_ID})\") and (contains(\"SKIP-ACCEPTANCE\") | not))] | .[0].databaseId // empty")
+            --created=">${TARBALL_VARIANT_B_DISPATCH_TS}" \
+            --json databaseId \
+            --jq '[.[]] | .[0].databaseId // empty')
           if [[ -n "${RUN_ID}" ]]; then
             echo "ACCEPTANCE_RUN_ID_FULL=${RUN_ID}" >> "${GITHUB_ENV}"
-            echo "==> Located variant B (full acceptance) run: ${RUN_ID}"
+            echo "==> Located variant B (full acceptance) run: ${RUN_ID} (created after ${TARBALL_VARIANT_B_DISPATCH_TS})"
             exit 0
           fi
           echo "  (attempt ${attempt}/12) waiting for variant B run to register..."
           sleep 10
         done
-        echo "::error::Could not locate variant B acceptance-only run within 2 minutes (looking for source run ${SOURCE_RUN_ID} + NOT SKIP-ACCEPTANCE)"
+        echo "::error::Could not locate variant B acceptance-only run within 2 minutes (TARBALL_VARIANT_B_DISPATCH_TS=${TARBALL_VARIANT_B_DISPATCH_TS})"
         exit 1
 
     - name: Wait for variant B acceptance-only run to complete
