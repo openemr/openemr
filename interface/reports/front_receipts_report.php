@@ -18,6 +18,7 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
@@ -150,10 +151,13 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
             <?php  # Build a drop-down list of providers.
                     # Added (TLH)
 
+                    # The posted provider stays in the list even if no longer authorized,
+                    # so the selection and the report's filter agree.
+                    $posted_provider = CurrentRequest::get()->request->getString('form_provider');
                     $query = "SELECT id, lname, fname FROM users WHERE " .
-                    "authorized = 1  ORDER BY lname, fname"; #(CHEMED) facility filter
+                    "(authorized = 1 OR id = ?) ORDER BY lname, fname"; #(CHEMED) facility filter
 
-                    $ures = sqlStatement($query);
+                    $ures = sqlStatement($query, [$posted_provider]);
 
                     echo "   <select name='form_provider' class='form-control'>\n";
                     echo "    <option value=''>-- " . xlt('All') . " --\n";
