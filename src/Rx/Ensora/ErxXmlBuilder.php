@@ -391,7 +391,8 @@ class ErxXmlBuilder
         $element = $this->getDocument()->createElement('AccountAddress');
         $element->appendChild($this->createElementTextFieldEmpty('address1', $this->trimData($this->stripSpecialCharacter(self::field($facility, 'street')), 35), xl('Primary Facility Street Address')));
         $element->appendChild($this->createElementTextFieldEmpty('city', self::field($facility, 'city'), xl('Primary Facility City')));
-        $state = self::field($facility, 'state');
+        // Trim, so a value of only spaces counts as missing rather than as an unknown code.
+        $state = trim(self::field($facility, 'state'));
         $this->fieldEmpty($state, xl('Primary Facility State'));
         $element->appendChild($this->createElementText('state', $this->stateCode($state, xl('Primary Facility State'))));
         $element->appendChild($this->createElementText('zip', $postalCode));
@@ -399,7 +400,7 @@ class ErxXmlBuilder
             $element->appendChild($this->createElementText('zip4', $postalCodePostfix));
         }
 
-        $countryCode = self::field($facility, 'country_code');
+        $countryCode = trim(self::field($facility, 'country_code'));
         $this->fieldEmpty($countryCode, xl('Primary Facility Country code'));
         $element->appendChild($this->createElementText('country', $this->countryCode($countryCode, xl('Primary Facility Country code'))));
 
@@ -441,8 +442,8 @@ class ErxXmlBuilder
 
         $street = self::field($facility, 'street');
         $city = self::field($facility, 'city');
-        $state = $this->stateCode(self::field($facility, 'state'), xl('Facility State'));
-        $countryCode = $this->countryCode(self::field($facility, 'country_code'), xl('Facility Country code'));
+        $state = $this->stateCode(trim(self::field($facility, 'state')), xl('Facility State'));
+        $countryCode = $this->countryCode(trim(self::field($facility, 'country_code')), xl('Facility Country code'));
 
         $element = $this->getDocument()->createElement('LocationAddress');
         if ($street !== '') {

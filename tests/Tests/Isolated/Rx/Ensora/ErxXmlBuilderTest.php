@@ -489,6 +489,21 @@ class ErxXmlBuilderTest extends TestCase
         $this->assertSame(['Primary Facility State', 'Primary Facility Country code'], $builder->getFieldEmptyMessages());
     }
 
+    public function testAStateAndCountryOfOnlySpacesCountAsMissing(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->expects($this->never())->method('getListOptions');
+        $builder = $this->builder($store);
+        $facility = ['street' => '1 Main St', 'city' => 'Little Rock', 'state' => '  ', 'postal_code' => '72201', 'country_code' => ' '];
+
+        $builder->getAccountAddress($facility);
+        $location = $this->children($builder->getLocationAddress($facility));
+
+        $this->assertArrayNotHasKey('state', $location);
+        $this->assertArrayNotHasKey('country', $location);
+        $this->assertSame(['Primary Facility State', 'Primary Facility Country code'], $builder->getFieldEmptyMessages());
+    }
+
     private function stateListGlobals(): ErxGlobalsInterface
     {
         $globals = $this->createStub(ErxGlobalsInterface::class);
