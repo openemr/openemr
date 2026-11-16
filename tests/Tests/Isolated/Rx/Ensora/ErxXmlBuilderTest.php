@@ -122,6 +122,17 @@ class ErxXmlBuilderTest extends TestCase
         $this->assertSame(ErxLaunchBlock::InvalidId, $reason);
     }
 
+    public function testRequiredFieldsAreCheckedAfterCleaning(): void
+    {
+        $builder = $this->builder();
+
+        $builder->createElementTextFieldEmpty('city', '&', 'Facility City');
+        $builder->createElementTextDemographicsCheck('city', '<>', 'Patient City');
+
+        $this->assertSame(['Facility City'], $builder->getFieldEmptyMessages());
+        $this->assertSame(['Patient City'], $builder->getDemographicsCheckMessages());
+    }
+
     public function testInvalidUtf8IsReplacedWhateverTheMbstringSubstitution(): void
     {
         $previous = mb_substitute_character();

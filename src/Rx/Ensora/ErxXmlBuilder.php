@@ -231,18 +231,22 @@ class ErxXmlBuilder
         return $value;
     }
 
+    /** Check the cleaned text, so a value cleaned to nothing still counts as missing. */
     public function createElementTextFieldEmpty(string $name, #[SensitiveParameter] string $value, string $validationText): DOMElement
     {
-        $this->fieldEmpty($value, $validationText);
+        $text = self::cleanText($value);
+        $this->fieldEmpty($text, $validationText);
 
-        return $this->createElementText($name, $value);
+        return $this->createElementText($name, $text);
     }
 
+    /** Check the cleaned text, so a value cleaned to nothing still counts as missing. */
     public function createElementTextDemographicsCheck(string $name, string $value, string $validationText): DOMElement
     {
-        $this->demographicsCheck($value, $validationText);
+        $text = self::cleanText($value);
+        $this->demographicsCheck($text, $validationText);
 
-        return $this->createElementText($name, $value);
+        return $this->createElementText($name, $text);
     }
 
     /**
