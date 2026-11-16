@@ -53,8 +53,10 @@
 
 {#
   Surface, permission and limit fields, shared by both rule forms. Ids are prefixed so the two
-  forms do not collide. Limit fields carry data-scope and are disabled for a surface that
-  cannot apply them, so they are not posted; the service refuses them too.
+  forms do not collide. Limit fields carry data-scope. A field the chosen surface cannot apply
+  stays open: picking a value in it switches the surface to one that can, and switching the
+  surface clears the fields it cannot apply, so they post as Any. The service refuses an
+  unsupported limit too.
 #}
 {% macro rule_fields(form, surfaces, permissionChoices, facilities, providers, visitCategories, smartApps) %}
     <div class="form-row">
@@ -96,6 +98,7 @@
                     <option value="{{ id|attr }}" {% if form.facility == id %}selected{% endif %}>{{ label|text }}</option>
                 {% endfor %}
             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="{{ form.prefix|attr }}-provider">{{ 'Only for provider'|xlt }}</label>
@@ -105,6 +108,7 @@
                     <option value="{{ id|attr }}" {% if form.provider == id %}selected{% endif %}>{{ label|text }}</option>
                 {% endfor %}
             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="{{ form.prefix|attr }}-visit">{{ 'Only for visit category'|xlt }}</label>
@@ -114,6 +118,7 @@
                     <option value="{{ id|attr }}" {% if form.visitCategory == id %}selected{% endif %}>{{ label|text }}</option>
                 {% endfor %}
             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="{{ form.prefix|attr }}-app">{{ 'Only for SMART app'|xlt }}</label>
@@ -126,6 +131,7 @@
                     <option value="{{ appId|attr }}" {% if form.clientId is not null and form.clientId == appId %}selected{% endif %}>{{ appName|text }}</option>
                 {% endfor %}
             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
     </div>
     {% if form.isEdit %}
@@ -145,7 +151,7 @@
 <div class="container-fluid">
     <h2 class="h5 mt-3">{{ 'Questionnaire Availability'|xlt }}</h2>
     <p class="text-muted mb-3">
-        {{ 'Tick where each questionnaire is offered. Open Limits to offer one only at a facility, for a provider, for a kind of visit or for one SMART app, or to change who may see it.'|xlt }}
+        {{ 'Tick where each questionnaire is offered. Open Limits to offer one only at a facility, for a provider, for a kind of visit or for one SMART app, to change who may see it, or to change its category.'|xlt }}
     </p>
 
     {% for notice in notices %}
@@ -260,6 +266,24 @@
                 <a class="btn btn-sm btn-link" href="manage_questionnaire_availability.php" onclick="top.restoreSession()">{{ 'Close'|xlt }}</a>
             </div>
             <div class="card-body">
+                <form method="post" action="manage_questionnaire_availability.php?q={{ selectedId|attr_url }}#limits" class="form-inline mb-3" onsubmit="return top.restoreSession()">
+                    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                    <input type="hidden" name="action" value="save_category" />
+                    <input type="hidden" name="questionnaire_id" value="{{ selectedId|attr }}" />
+                    <label class="mr-2" for="questionnaire-category">{{ 'Category'|xlt }}</label>
+                    <select class="form-control form-control-sm mr-2" id="questionnaire-category" name="category" required>
+                        {% if selectedCategory == '' %}
+                            <option value="" selected>{{ 'Choose a category'|xlt }}</option>
+                        {% elseif categoryChoices[selectedCategory] is not defined %}
+                            <option value="" selected>{{ selectedCategory|text }} {{ '(not in the category list)'|xlt }}</option>
+                        {% endif %}
+                        {% for value, title in categoryChoices %}
+                            <option value="{{ value|attr }}" {% if selectedCategory == value %}selected{% endif %}>{{ title|text }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">{{ 'Save category'|xlt }}</button>
+                    <small class="form-text text-muted ml-2">{{ 'Category rules offer it by this category.'|xlt }}</small>
+                </form>
                 <p class="text-muted">
                     {{ 'Each line is one rule. A rule offered Everywhere is the tick in the grid; a limited rule offers the questionnaire only where its limits match. Rules add up: it is offered if any rule that is on matches.'|xlt }}
                 </p>
@@ -370,30 +394,77 @@
 (function () {
     'use strict';
 
-    // In each rule form, limit fields the chosen surface never fills in are disabled, so they
-    // are not posted. The service refuses such a rule too; this keeps the form from offering it.
+    // Each surface fills in only some limits (QuestionnaireSurface::supportedScopes()). A limit
+    // field the chosen surface cannot apply stays usable: picking a value in it switches the
+    // surface to one that can, and switching the surface clears the fields it cannot apply,
+    // so they post as Any. The service refuses an unsupported limit as well.
+    const switchesTo = {{ 'Picking one switches to %s'|xlj }};
+    const scopesOf = function (option) {
+        try {
+            const scopes = JSON.parse(option?.dataset.scopes || '[]');
+            return Array.isArray(scopes) ? scopes : [];
+        } catch (e) {
+            return [];
+        }
+    };
     document.querySelectorAll('form[data-rule-form]').forEach(function (form) {
         const surface = form.querySelector('[data-surface-select]');
         const hint = form.querySelector('[data-scope-hint]');
-        const scopedFields = form.querySelectorAll('[data-scope]');
+        const scopedFields = Array.from(form.querySelectorAll('[data-scope]'));
         if (!surface) {
             return;
         }
+        const options = Array.from(surface.options);
+        // The first surface that can apply every limit named, or failing that this one alone.
+        const surfaceFor = function (scope, alsoWanted) {
+            return options.find(function (option) {
+                const scopes = scopesOf(option);
+                return scopes.includes(scope) && alsoWanted.every(function (other) {
+                    return scopes.includes(other);
+                });
+            }) || options.find(function (option) {
+                return scopesOf(option).includes(scope);
+            });
+        };
         const applySurface = function () {
-            const option = surface.options[surface.selectedIndex];
-            let allowed = [];
-            try {
-                allowed = JSON.parse(option?.dataset.scopes || '[]');
-            } catch (e) {
-                allowed = [];
-            }
+            const chosen = surface.options[surface.selectedIndex];
+            const allowed = scopesOf(chosen);
             scopedFields.forEach(function (field) {
-                field.disabled = !allowed.includes(field.dataset.scope);
+                const note = field.parentElement.querySelector('[data-scope-note]');
+                if (allowed.includes(field.dataset.scope)) {
+                    if (note) {
+                        note.textContent = '';
+                    }
+                    return;
+                }
+                field.value = '';
+                const target = surfaceFor(field.dataset.scope, []);
+                if (note) {
+                    note.textContent = target ? switchesTo.replace('%s', target.text) : '';
+                }
             });
             if (hint) {
-                hint.textContent = option?.dataset.hint || '';
+                hint.textContent = chosen?.dataset.hint || '';
             }
         };
+        scopedFields.forEach(function (field) {
+            field.addEventListener('change', function () {
+                const allowed = scopesOf(surface.options[surface.selectedIndex]);
+                if (field.value === '' || allowed.includes(field.dataset.scope)) {
+                    return;
+                }
+                const alsoWanted = scopedFields.filter(function (other) {
+                    return other !== field && other.value !== '';
+                }).map(function (other) {
+                    return other.dataset.scope;
+                });
+                const target = surfaceFor(field.dataset.scope, alsoWanted);
+                if (target) {
+                    surface.value = target.value;
+                    applySurface();
+                }
+            });
+        });
         surface.addEventListener('change', applySurface);
         applySurface();
     });
