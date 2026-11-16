@@ -74,7 +74,10 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
         // Runs when the receipt closes, so a deleted receipt leaves the list.
         // The report is the result of a POST, so reloading the page would make
         // the browser ask whether to send the form again; submit it instead.
+        // Reset first, so the criteria sent are those of the report on screen,
+        // not edits the user has not submitted yet.
         function refreshReport() {
+            document.getElementById('theform').reset();
             $("#form_refresh").attr("value", "true");
             $("#theform").submit();
         }
