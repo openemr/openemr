@@ -61,9 +61,6 @@
  *   relaxed     Less-private information (write,addonly optional)
  *               (e.g. the Sports Fitness encounter form)
  *
- * Section "squads" applies to sports team use only:
- *   acos in this section define the user-specified list of squads
- *
  * Section "sensitivities" (Sensitivities):
  *   normal     Normal
  *   high       High

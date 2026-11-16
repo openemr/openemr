@@ -488,3 +488,9 @@ WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
 #IfRow2D globals gl_name translation_preload_cache gl_value 0
 UPDATE `globals` SET `gl_value` = 'auto' WHERE `gl_name` = 'translation_preload_cache' AND `gl_value` = '0';
 #EndIf
+
+-- The Squad demographics field is no longer wired to any application code. Drop its
+-- layout_options row so existing deployments stop showing it on the demographics form.
+-- The patient_data.squad column is preserved to keep any historical values; it is
+-- unused by the application and may be dropped in a future release.
+DELETE FROM `layout_options` WHERE `form_id` = 'DEM' AND `field_id` = 'squad';

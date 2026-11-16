@@ -14,6 +14,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Empty array passed to foreach\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Empty array passed to foreach\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [

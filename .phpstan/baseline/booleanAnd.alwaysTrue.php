@@ -3,11 +3,6 @@
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];

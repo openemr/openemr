@@ -43,11 +43,6 @@ if ($pid) {
     if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
         AccessDeniedHelper::deny('Updating demographics is not authorized');
     }
-
-    $tmp = getPatientData($pid, "squad");
-    if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        AccessDeniedHelper::deny('Unauthorized access to patient squad');
-    }
 } else {
     if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
         AccessDeniedHelper::deny('Adding demographics is not authorized');

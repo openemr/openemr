@@ -77,11 +77,6 @@ $auth_med = AclMain::aclCheckCore('patients', 'med');
 $auth_demo = AclMain::aclCheckCore('patients', 'demo');
 $glog_view_write = AclMain::aclCheckCore("groups", "glog", false, ['view', 'write']);
 
-$tmp = getPatientData($pid, "squad");
-if (($tmp['squad'] ?? null) && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    $auth_notes_a = $auth_notes = $auth_coding_a = $auth_coding = $auth_med = $auth_demo = $auth_relaxed = 0;
-}
-
 // Perhaps the view choice should be saved as a session variable.
 //
 $tmp = sqlQuery("select authorized from users " .

@@ -75,11 +75,6 @@ if ($thistype && !$issue && !AclMain::aclCheckIssue($thistype, '', ['write', 'ad
     AccessDeniedHelper::deny('Not authorized to add issue of this type');
 }
 
-$tmp = getPatientData($thispid, "squad");
-if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
-}
-
 function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 {
     ///////////////////////////////////////////////////////////////////////
