@@ -240,6 +240,22 @@ final class FieldRenderingSnapshotTest extends TestCase
     }
 
     /**
+     * A stored value missing from the list (a facility state saved as free
+     * text) stays selected, so saving the form keeps it, and the field says
+     * it needs fixing.
+     */
+    #[Test]
+    public function listKeepsAStoredValueMissingFromTheListSelected(): void
+    {
+        $html = generate_select_list('test_unlisted', LayoutFieldFixtureManager::LIST_ID, 'Arkansas', '', 'Unassigned');
+
+        self::assertStringContainsString('<option value="" >Unassigned</option>', $html);
+        self::assertStringContainsString('<option value="Arkansas" selected>Arkansas</option>', $html);
+        self::assertSame(1, substr_count($html, ' selected>'));
+        self::assertStringContainsString('<span title="Please choose a valid selection from the list.">Fix this</span>', $html);
+    }
+
+    /**
      * Yields one tuple per (mode, data_type) snapshot case.
      *
      * @return iterable<string, array{string, int, array<string, mixed>, string, string}>

@@ -309,13 +309,17 @@ function generate_select_list(
         $list_id = $backup_list;
         $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", [$list_id, $currvalue]);
 
+        // Keep the stored value selected, so saving the form doesn't replace it with the empty option.
+        if (($_options[0]['value'] ?? '') === '') {
+            $_options[0]['isSelected'] = false;
+        }
         $_options[] = [
             'value' => attr($currvalue),
-            'selected' => true,
+            'isSelected' => true,
             'label' => ($lrow > 0 && !empty($backup_list)) ? text(xl_list_label($lrow['title'])) : text($currvalue),
         ];
         if (empty($lrow) && empty($backup_list)) {
-            $metadata['error'] = [
+            $_metadata['error'] = [
                 'title' => xlt('Please choose a valid selection from the list.'),
                 'text' => xlt('Fix this'),
             ];
