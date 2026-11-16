@@ -23,16 +23,21 @@ use OpenEMR\Common\DirectMessaging\DirectMessageLogRecord;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogStatus;
 use OpenEMR\Common\DirectMessaging\DirectMessageType;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Interface\PatientFile\Assessment\AssessmentDashboardController;
+use OpenEMR\Controllers\Interface\PatientFile\Assessment\AssessmentWorkspaceController;
 use OpenEMR\Controllers\Interface\Reports\DirectMessageLogController;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\PostOutcome;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailabilityController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\PostCalendarTwigExtension;
 use OpenEMR\Services\Globals\CollapsedSections;
+use OpenEMR\Services\NativeQuestionnaireResponseProcessor;
 use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
 use OpenEMR\Services\Patient\DuplicatePatientRow;
 use OpenEMR\Services\Patient\PatientMergeResult;
+use OpenEMR\Tests\Isolated\Controllers\Interface\PatientFile\Assessment\AssessmentDashboardControllerTest;
+use OpenEMR\Tests\Isolated\Controllers\Interface\PatientFile\Assessment\FakeAssessmentStore;
 use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityLookups;
 use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityService;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -981,6 +986,46 @@ class TwigTemplateRenderTest extends TestCase
             'super/questionnaire_preview.html.twig',
             ['runtime' => $importRuntime, 'name' => '', 'questionnaireJson' => ''],
             $fixtureDir . '/questionnaire-preview-unavailable.html',
+        ];
+
+        yield 'patient/assessment/dashboard with assessments, history and SMART apps' => [
+            AssessmentDashboardController::TEMPLATE,
+            [
+                ...AssessmentDashboardControllerTest::controller(
+                    FakeAssessmentStore::sample(),
+                    collapsed: ['questionnaire_category_unassigned_expand'],
+                )->buildView(),
+                // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+                'webroot' => '',
+            ],
+            $fixtureDir . '/assessment-dashboard.html',
+        ];
+
+        yield 'patient/assessment/dashboard without patients/med' => [
+            AssessmentDashboardController::TEMPLATE,
+            AssessmentDashboardControllerTest::controller(FakeAssessmentStore::sample(), authorized: false)->buildView(),
+            $fixtureDir . '/assessment-dashboard-unauthorized.html',
+        ];
+
+        $workspace = new AssessmentWorkspaceController(
+            new Environment(new ArrayLoader()),
+            FakeAssessmentStore::sample(),
+            new NativeQuestionnaireResponseProcessor(),
+            7,
+            'token',
+            '/interface/forms/questionnaire_assessments/native_save.php',
+            $importRuntime,
+        );
+        yield 'patient/assessment/workspace continuing a response' => [
+            AssessmentWorkspaceController::TEMPLATE,
+            $workspace->buildView(null, 'qr-11'),
+            $fixtureDir . '/assessment-workspace.html',
+        ];
+
+        yield 'patient/assessment/workspace refused' => [
+            AssessmentWorkspaceController::TEMPLATE,
+            ['runtime' => $importRuntime, 'title' => 'Questionnaire Assessment', 'error' => 'Questionnaire response was not found.'],
+            $fixtureDir . '/assessment-workspace-refused.html',
         ];
     }
 

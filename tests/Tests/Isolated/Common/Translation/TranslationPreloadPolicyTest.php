@@ -127,6 +127,34 @@ final class TranslationPreloadPolicyTest extends TestCase
         $this->assertSame([34], $this->counted);
     }
 
+    public function testAutoWithASharedCachePreloadsALargeLanguageWithoutCounting(): void
+    {
+        $decision = $this->policy([34 => 12382])->decide(TranslationPreloadMode::Auto, 34, null, true);
+
+        $this->assertTrue($decision->preload);
+        $this->assertNull($decision->remember);
+        $this->assertSame([], $this->counted);
+    }
+
+    public function testAutoWithASharedCacheIgnoresARememberedNo(): void
+    {
+        $decision = $this->policy([34 => 12382])->decide(
+            TranslationPreloadMode::Auto,
+            34,
+            ['lang_id' => 34, 'preload' => false],
+            true
+        );
+
+        $this->assertTrue($decision->preload);
+    }
+
+    public function testOffWithASharedCacheStillDoesNotPreload(): void
+    {
+        $decision = $this->policy([1 => 0])->decide(TranslationPreloadMode::Off, 1, null, true);
+
+        $this->assertFalse($decision->preload);
+    }
+
     /**
      * @return array<string, array{mixed}>
      *

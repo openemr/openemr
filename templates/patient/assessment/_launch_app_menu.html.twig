@@ -1,0 +1,23 @@
+{#
+  The Launch App menu on an assessment card or history row: one item per SMART app the
+  questionnaire may be launched into. Takes apps, questionnaireId, responseRecordId (the
+  response to continue, or null) and alignRight.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="btn-group ml-1">
+    <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{ 'Launch App'|xlt }}
+    </button>
+    <div class="dropdown-menu{{ alignRight ? ' dropdown-menu-right' : '' }}">
+        {% for app in apps %}
+            <button type="button" class="dropdown-item assessment-smart-launch" data-smart-name="{{ app.name|attr }}" data-client-id="{{ app.clientId|attr }}" data-questionnaire-id="{{ questionnaireId|attr }}" data-questionnaire-response-id="{{ (responseRecordId ?? '')|attr }}">
+                {{ app.name|text }}
+            </button>
+        {% endfor %}
+    </div>
+</div>

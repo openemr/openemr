@@ -86,6 +86,59 @@ final class TranslationCacheTest extends TestCase
         $this->assertFalse(TranslationCache::isWarmed($langId));
     }
 
+    public function testLoadDefinitionsMatchesWhatWarmCaches(): void
+    {
+        [$langId] = $this->largestLanguage();
+        // A few constant names exist twice in lang_constants; they share one key.
+        $distinct = QueryUtils::fetchRecordsNoLog(
+            'SELECT COUNT(DISTINCT BINARY lang_constants.constant_name) AS cnt'
+            . ' FROM lang_definitions JOIN lang_constants USING (cons_id)'
+            . ' WHERE lang_definitions.lang_id = ?',
+            [$langId]
+        )[0]['cnt'] ?? null;
+        $this->assertIsNumeric($distinct);
+
+        $definitions = TranslationCache::loadDefinitions($langId);
+        $this->assertCount((int) $distinct, $definitions);
+
+        TranslationCache::warmWith($langId, ['Only' => 'Solo']);
+        $this->assertTrue(TranslationCache::isWarmed($langId));
+        $this->assertSame('Solo', TranslationCache::get($langId, 'Only'));
+        $this->assertFalse(TranslationCache::has($langId, 'Save'));
+    }
+
+    public function testBumpSharedVersionChangesTheStoredVersion(): void
+    {
+        $read = static fn(): mixed => QueryUtils::fetchRecordsNoLog(
+            'SELECT gl_value FROM globals WHERE gl_name = ? AND gl_index = 0',
+            [TranslationCache::VERSION_GLOBAL]
+        )[0]['gl_value'] ?? null;
+        $before = $read();
+
+        try {
+            TranslationCache::bumpSharedVersion();
+            $first = $read();
+            TranslationCache::bumpSharedVersion();
+            $second = $read();
+
+            $this->assertIsString($first);
+            $this->assertNotSame($before, $first);
+            $this->assertNotSame($first, $second);
+        } finally {
+            if (is_string($before)) {
+                QueryUtils::sqlStatementThrowException(
+                    'UPDATE globals SET gl_value = ? WHERE gl_name = ? AND gl_index = 0',
+                    [$before, TranslationCache::VERSION_GLOBAL]
+                );
+            } else {
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM globals WHERE gl_name = ?',
+                    [TranslationCache::VERSION_GLOBAL]
+                );
+            }
+        }
+    }
+
     public function testAutoPreloadsEnglishButNotAFullLanguage(): void
     {
         [$langId, $count] = $this->largestLanguage();

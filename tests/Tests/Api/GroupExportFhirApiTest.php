@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * API-tier coverage for `/fhir/Group/{id}/$export`.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
@@ -90,5 +104,4 @@ class GroupExportFhirApiTest extends TestCase
         $bulkStatusData = json_decode((string) $bulkStatusResponse->getBody()->getContents(), true);
         $this->assertNotEmpty($bulkStatusData, "Bulk status data should not be empty");
     }
-    // TODO: @adunsulag need to fix a bulkdata-status test where there is no job id.  Should not throw a 500 error.
 }

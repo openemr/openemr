@@ -155,6 +155,50 @@ class CoverageFhirApiTest extends TestCase
         $this->assertSeededCoverage($this->decodeJson($response));
     }
 
+    /**
+     * Searching by patient A must not return a Coverage owned by patient B.
+     *
+     * The other search tests above only seed a single Coverage, so a
+     * server that silently ignored `?patient=` would still match. This
+     * test seeds a second Coverage for a different patient, then asserts
+     * patient A's `?patient=` search returns A's Coverage but not B's.
+     */
+    public function testSearchByPatientExcludesOtherPatientsCoverage(): void
+    {
+        $patientBUuid = $this->resolveSecondPatientUuid();
+        $coverageBUuid = $this->seedCoverageForPatient($patientBUuid);
+        $this->assertNotSame(
+            $this->coverageUuid,
+            $coverageBUuid,
+            'The two seeded Coverages must have distinct uuids'
+        );
+
+        $bundle = $this->assertCollectionBundle(
+            $this->testClient->get(self::ENDPOINT, ['patient' => $this->patientUuid])
+        );
+        $entries = $bundle['entry'] ?? null;
+        $this->assertIsArray($entries);
+        $ids = [];
+        foreach ($entries as $entry) {
+            $this->assertIsArray($entry);
+            $resource = $entry['resource'] ?? null;
+            $this->assertIsArray($resource);
+            $id = $resource['id'] ?? null;
+            $this->assertIsString($id);
+            $ids[] = $id;
+        }
+        $this->assertContains(
+            $this->coverageUuid,
+            $ids,
+            'Patient A ?patient= search must include patient A Coverage'
+        );
+        $this->assertNotContains(
+            $coverageBUuid,
+            $ids,
+            'Patient A ?patient= search must NOT include patient B Coverage'
+        );
+    }
+
     public function testSearchWithNoMatchReturnsEmptyBundle(): void
     {
         $bundle = $this->assertCollectionBundle(
@@ -188,6 +232,63 @@ class CoverageFhirApiTest extends TestCase
     {
         $client = new ApiTestClient(self::baseUrl(), false);
         $this->assertUnauthorized($client->getOne(self::ENDPOINT, $this->coverageUuid));
+    }
+
+    /**
+     * Resolve a second fixture patient's FHIR uuid. installPatientFixtures()
+     * in setUp registers every patient listed in patients.php; the second
+     * entry gives us a distinct patient to seed a Coverage against for
+     * the cross-patient-exclusion test.
+     */
+    private function resolveSecondPatientUuid(): string
+    {
+        $patients = $this->fixtureManager->getPatientFixtures();
+        $this->assertGreaterThan(
+            1,
+            count($patients),
+            'patients.php must seed at least two patients for the cross-patient test'
+        );
+        $secondPatient = $patients[1];
+        $this->assertIsArray($secondPatient);
+        $pubpid = $secondPatient['pubpid'] ?? null;
+        $this->assertIsString($pubpid, 'Second patient fixture must carry a pubpid');
+
+        $record = QueryUtils::querySingleRow(
+            'SELECT uuid FROM patient_data WHERE pubpid = ?',
+            [$pubpid]
+        );
+        $this->assertIsArray($record);
+        return UuidRegistry::uuidToString($record['uuid']);
+    }
+
+    /**
+     * POST a Coverage bound to the given patient (payor + subscriberId
+     * from the shared fixture) and return its uuid. Mirrors the setUp
+     * seed flow, scoped to the per-test second-patient scenario.
+     */
+    private function seedCoverageForPatient(string $patientUuid): string
+    {
+        $json = file_get_contents(__DIR__ . '/../Fixtures/FHIR/coverage.json');
+        $this->assertIsString($json);
+        $fixtures = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($fixtures);
+        $fixture = $fixtures[0];
+        $this->assertIsArray($fixture);
+        $fixture['beneficiary'] = ['reference' => 'Patient/' . $patientUuid];
+        $fixture['payor'] = [['reference' => 'Organization/' . $this->insurerUuid]];
+        unset($fixture['id']);
+        $body = [];
+        foreach ($fixture as $key => $value) {
+            $this->assertIsString($key);
+            $body[$key] = $value;
+        }
+
+        $response = $this->testClient->post(self::ENDPOINT, $body);
+        $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode());
+        $created = $this->decodeJson($response);
+        $uuid = $created['uuid'] ?? null;
+        $this->assertIsString($uuid);
+        return $uuid;
     }
 
     /** @param array<array-key, mixed> $resource */

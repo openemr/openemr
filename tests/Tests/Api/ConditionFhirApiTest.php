@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Api;
 
+use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -49,6 +50,14 @@ class ConditionFhirApiTest extends TestCase
     /** FHIR uuid of the patient that owns the seeded condition. */
     private string $patientUuid;
 
+    /**
+     * Second ConditionFixtureManager instance used by the cross-patient-
+     * exclusion test to seed a patient B + condition pair independently
+     * from the setUp-seeded pair. tearDown delegates its removeFixtures()
+     * call so the extra patient + condition do not leak between runs.
+     */
+    private ?ConditionFixtureManager $secondaryConditionFixtureManager = null;
+
     protected function setUp(): void
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
@@ -63,9 +72,21 @@ class ConditionFhirApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeConditionFixtures();
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+        try {
+            if (isset($this->fixtureManager)) {
+                $this->fixtureManager->removeConditionFixtures();
+            }
+            $this->secondaryConditionFixtureManager?->removeFixtures();
+            $this->secondaryConditionFixtureManager = null;
+        } finally {
+            if (isset($this->testClient)) {
+                try {
+                    $this->testClient->cleanupRevokeAuth();
+                } finally {
+                    $this->testClient->cleanupClient();
+                }
+            }
+        }
     }
 
     // ---------------------------------------------------------------------
@@ -148,6 +169,72 @@ class ConditionFhirApiTest extends TestCase
             "Condition subject must be the canonical FHIR reference Patient/{uuid}"
         );
         $this->assertConditionCodeText($resource);
+    }
+
+    /**
+     * Searching by patient A must not return a Condition owned by patient B.
+     *
+     * The other search tests above only install one patient + condition,
+     * so a server that silently ignored `?patient=` would still match
+     * — the seeded condition would be the only row either way. This
+     * test seeds a condition for patient A AND a condition for a
+     * different patient B (via a second ConditionFixtureManager), then
+     * asserts patient A's `?patient=` search returns A's condition but
+     * not B's.
+     */
+    public function testSearchByPatientExcludesOtherPatientsCondition(): void
+    {
+        $this->secondaryConditionFixtureManager = new ConditionFixtureManager();
+        $patientB = $this->secondaryConditionFixtureManager->createTestPatient();
+        $conditionB = $this->secondaryConditionFixtureManager->createTestCondition(
+            $patientB,
+            ['title' => 'Essential hypertension — patient B']
+        );
+        $patientBUuid = $patientB['uuid'];
+        $conditionBUuid = $conditionB['lists_uuid'] ?? null;
+        $this->assertIsString($patientBUuid);
+        $this->assertIsString($conditionBUuid);
+        $this->assertNotSame(
+            $this->conditionUuid,
+            $conditionBUuid,
+            'The two seeded conditions must have distinct uuids'
+        );
+        $this->assertNotSame(
+            $this->patientUuid,
+            $patientBUuid,
+            'The two seeded patients must have distinct uuids'
+        );
+
+        $result = $this->testClient->get(
+            '/apis/default/fhir/Condition',
+            ['patient' => $this->patientUuid]
+        );
+        $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
+
+        $bundle = json_decode((string) $result->getBody()->getContents(), true);
+        $this->assertIsArray($bundle);
+        $this->assertArrayHasKey('entry', $bundle);
+        $this->assertIsArray($bundle['entry']);
+
+        $ids = [];
+        foreach ($bundle['entry'] as $entry) {
+            $this->assertIsArray($entry);
+            $resource = $entry['resource'] ?? null;
+            $this->assertIsArray($resource);
+            $id = $resource['id'] ?? null;
+            $this->assertIsString($id);
+            $ids[] = $id;
+        }
+        $this->assertContains(
+            $this->conditionUuid,
+            $ids,
+            'Patient A ?patient= search must include patient A condition'
+        );
+        $this->assertNotContains(
+            $conditionBUuid,
+            $ids,
+            'Patient A ?patient= search must NOT include patient B condition'
+        );
     }
 
     // ---------------------------------------------------------------------

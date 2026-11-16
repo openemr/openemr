@@ -21,6 +21,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Translation\TranslationCache;
 
 if (!AclMain::aclCheckCore('admin', 'language')) {
     AccessDeniedHelper::deny(
@@ -84,6 +85,10 @@ if (!$errmsg) {
             $unchanged++;
         }
     }
+    // verify_translation() may have inserted, updated or deleted definitions.
+    // Bump even in preview: its duplicate-constant cleanup deletes rows
+    // regardless of the preview flag.
+    TranslationCache::bumpSharedVersion();
 }
 
 if ($errmsg) {
