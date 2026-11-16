@@ -446,7 +446,8 @@
             items.splice(items.indexOf(item), 1)
             if (current === item) {
                 current = null
-                const next = items.find((candidate) => candidate.status === 'pending')
+                // A busy item would refuse selection and leave the removed one on screen; it selects itself once checked.
+                const next = items.find((candidate) => candidate.status === 'pending' && !candidate.busy)
                 if (next) {
                     selectItem(next)
                 } else {
