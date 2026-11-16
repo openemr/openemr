@@ -67,9 +67,17 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
                 time: timestamp
             });
             dlgopen('../patient_file/front_payment.php?' + params, '_blank', 850, 550, '', '', {
-                onClosed: 'reload'
+                onClosed: 'refreshReport'
             });
          }
+
+        // Runs when the receipt closes, so a deleted receipt leaves the list.
+        // The report is the result of a POST, so reloading the page would make
+        // the browser ask whether to send the form again; submit it instead.
+        function refreshReport() {
+            $("#form_refresh").attr("value", "true");
+            $("#theform").submit();
+        }
     </script>
 
     <style>
