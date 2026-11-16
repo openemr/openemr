@@ -772,7 +772,6 @@ export class EditPolicyScreenController
                     this.#populateInsuranceProviderListForNode(insuranceInfoContainer, this.__insuranceProviderList);
                     // the select2 setup needs to occur after the data elements have been populated.
                     this.#populateInsuranceModelDataElements(insuranceInfoContainer, selectedInsurance);
-                    this.#showFieldsForInsuranceType(insuranceInfoContainer, selectedInsurance);
                     this.#setupModelSyncBinding(selectedInsurance);
                     this.#setupAddressValidation(selectedInsurance);
                     this.#setupInsuranceSwapButtons(selectedInsurance);
@@ -782,12 +781,6 @@ export class EditPolicyScreenController
                 console.error(error);
                 alert(window.top.xl("An error occurred while rendering the insurance policy. Please try again or contact your system administrator."));
             }
-        }
-    }
-    #showFieldsForInsuranceType(insuranceInfoContainer, selectedInsurance) {
-        let policyTypeRow = insuranceInfoContainer.querySelector('[data-insurance-field="policy_type"]');
-        if (policyTypeRow) {
-            policyTypeRow.classList.toggle('d-none', !selectedInsurance.usesSecondaryMedicareType());
         }
     }
     #setupInsuranceSwapButtons(selectedInsurance) {
