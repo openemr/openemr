@@ -439,8 +439,9 @@
             element('review-next').classList.toggle('d-none', nextUnreviewed() === null)
         }
 
+        // An item still being checked has no questionnaire to show yet, so it is not next.
         function nextUnreviewed () {
-            return items.find((item) => item.status === 'pending' && !item.reviewed && item !== current) ?? null
+            return items.find((item) => item.status === 'pending' && !item.reviewed && !item.busy && item !== current) ?? null
         }
 
         function removeItem (item) {
@@ -485,6 +486,10 @@
         }
 
         function selectItem (item) {
+            // Its review has not come back yet; mounting now would mark it invalid.
+            if (item.busy) {
+                return
+            }
             current = item
             // Choosing something to review shows it, even with the step folded away.
             window.openSectionForNow(element('questionnaire_import_review_expand'))
