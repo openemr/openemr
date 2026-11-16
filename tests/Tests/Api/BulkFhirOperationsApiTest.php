@@ -23,14 +23,15 @@
  *   - DELETE of a completed job → 202 Accepted (sync kick-off completes
  *     the job before DELETE; a true active-cancel race belongs at the
  *     service tier with a controllable fixture state, not api)
- *   - Status with NO `job` query param → currently HTTP 500 +
- *     OperationOutcome (known-wrong; the controller's catch-Throwable
- *     arm catches the null-uuid path instead of distinguishing missing-
- *     param → 400). Pinned as `testStatusWithoutJobQueryParamCurrentlyReturns500`;
- *     when the controller is fixed to return 400 OperationOutcome for
- *     missing-param, this test flips to failure and the reader is prompted
- *     to update both. Matches the pattern `FhirSearchModifierMatrixApiTest`
- *     uses at `testStringMissingTrueCurrentlyReturns500`.
+ *   - Status with NO `job` query param → 400 OperationOutcome (explicit
+ *     missing-required-param branch; previously returned 500 via the
+ *     catch-Throwable arm on a null-uuid)
+ *   - Status with empty `job=` → 400 OperationOutcome (shares the
+ *     missing-param branch with the null-uuid case)
+ *   - DELETE with NO `job` query param → 400 OperationOutcome (same
+ *     missing-required-param branch on the sibling route)
+ *   - DELETE with empty `job=` → 400 OperationOutcome (empty-string
+ *     arm on the sibling route)
  *
  * All tests use `BulkAPITestClient` (system-scope JWT client-credentials) and align
  * `site_addr_oath` with the test base URL at setUp, following the GroupExportFhirApiTest
@@ -67,6 +68,16 @@ class BulkFhirOperationsApiTest extends TestCase
      * @var list<string>
      */
     private array $kickedOffJobs = [];
+
+    /**
+     * Substring expected inside the OperationOutcome `issue[0].details.text`
+     * when `$bulkdata-status` is called without a `job=` parameter or with
+     * an empty value. Pinned so a regression to a generic "bad request"
+     * message fails loudly instead of silently passing the resourceType
+     * check. Matches the fixed string in
+     * `FhirOperationExportRestController`'s missing-param guards.
+     */
+    private const EXPECTED_REQUIRED_JOB_MESSAGE = 'query parameter is required';
 
     protected function setUp(): void
     {
@@ -321,45 +332,101 @@ class BulkFhirOperationsApiTest extends TestCase
     }
 
     /**
-     * Status with no `job` query param — currently returns 500 per the
-     * TODO in `GroupExportFhirApiTest` ("Should not throw a 500 error").
-     * `processExportStatusRequestForJob(null)` hits the catch-\Throwable
-     * arm (null-uuid isn't the InvalidArgumentException shape that
-     * would map to 404) and renders a 500 OperationOutcome. Pin
-     * current behavior rather than markTestSkipped so a code fix
-     * (returning 400 for missing-param) flips THIS test to failure —
-     * the reader then sees both the test and the referenced TODO
-     * were addressed together. Rabbit-flagged skip-only placeholder;
-     * replaced with executable assertions against the known-wrong
-     * state. Same shape the FHIR search-modifier matrix uses at
-     * `testStringMissingTrueCurrentlyReturns500`.
+     * GET /$bulkdata-status without a `job` query parameter must return
+     * 400 OperationOutcome, not 500. Prior to the controller guard, a
+     * null uuid fell through to the catch-\Throwable arm (via a type
+     * error on getJobForUuid) and surfaced as a generic 500. The
+     * explicit missing-param branch distinguishes "no job supplied" from
+     * "job supplied but not found" (which remains 404).
      */
-    public function testStatusWithoutJobQueryParamCurrentlyReturns500(): void
+    public function testStatusWithoutJobQueryParamReturns400(): void
     {
         $this->testClient->setAuthToken(BulkAPITestClient::OPENEMR_AUTH_ENDPOINT);
         $this->testClient->setHeaders([
             'Accept' => 'application/fhir+json',
             'Authorization' => 'Bearer ' . $this->testClient->getAccessToken(),
         ]);
-        // No `job` query param. The controller should return 400 with
-        // an OperationOutcome; it currently 500s. When the controller
-        // is fixed, this test should flip to asserting the 400
-        // OperationOutcome shape + the test should be renamed.
         $response = $this->testClient->get('/apis/default/fhir/$bulkdata-status');
         $this->assertSame(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
+            Response::HTTP_BAD_REQUEST,
             $response->getStatusCode(),
-            'Current (known-wrong) behavior: /$bulkdata-status without job returns 500. '
-                . 'Flip this assertion to HTTP_BAD_REQUEST when the controller is fixed to '
-                . 'distinguish missing-param from invalid-uuid; see TODO in GroupExportFhirApiTest.'
+            '/$bulkdata-status without job query param should return 400, not 500'
         );
-        // Body shape check matches the pattern every other error-path
-        // test in this file uses. Rabbit-flagged: a 500 with no body /
-        // an HTML error page would silently pass the status-only check,
-        // and the controller actually renders a proper OperationOutcome
-        // via its catch-Throwable arm — pin that shape so a regression
-        // to a bare HTTP 500 stub fails loudly.
-        $this->assertOperationOutcomeBody($response);
+        $this->assertOperationOutcomeBody($response, self::EXPECTED_REQUIRED_JOB_MESSAGE);
+    }
+
+    /**
+     * GET /$bulkdata-status with an empty `job=` must share the branch
+     * with the missing-param case. Pins the empty-string arm of the
+     * controller guard (`$jobUuidString === ''`) separately from the
+     * null arm so a regression that only handles null (letting empty
+     * fall through to the 404 InvalidArgumentException path) fails.
+     */
+    public function testStatusWithEmptyJobQueryParamReturns400(): void
+    {
+        $this->testClient->setAuthToken(BulkAPITestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->testClient->setHeaders([
+            'Accept' => 'application/fhir+json',
+            'Authorization' => 'Bearer ' . $this->testClient->getAccessToken(),
+        ]);
+        $response = $this->testClient->get(
+            '/apis/default/fhir/$bulkdata-status',
+            ['job' => '']
+        );
+        $this->assertSame(
+            Response::HTTP_BAD_REQUEST,
+            $response->getStatusCode(),
+            '/$bulkdata-status with empty job= should return 400 (missing-param branch)'
+        );
+        $this->assertOperationOutcomeBody($response, self::EXPECTED_REQUIRED_JOB_MESSAGE);
+    }
+
+    /**
+     * DELETE /$bulkdata-status without a `job` query parameter must
+     * mirror the GET branch — 400 OperationOutcome. The sibling route
+     * previously surfaced the same catch-\Throwable 500 on a null uuid.
+     */
+    public function testDeleteWithoutJobQueryParamReturns400(): void
+    {
+        $this->testClient->setAuthToken(BulkAPITestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->testClient->setHeaders([
+            'Accept' => 'application/fhir+json',
+            'Authorization' => 'Bearer ' . $this->testClient->getAccessToken(),
+        ]);
+        $response = $this->testClient->deleteWithQuery(
+            '/apis/default/fhir/$bulkdata-status',
+            []
+        );
+        $this->assertSame(
+            Response::HTTP_BAD_REQUEST,
+            $response->getStatusCode(),
+            'DELETE /$bulkdata-status without job query param should return 400, not 500'
+        );
+        $this->assertOperationOutcomeBody($response, self::EXPECTED_REQUIRED_JOB_MESSAGE);
+    }
+
+    /**
+     * DELETE /$bulkdata-status with an empty `job=` must share the
+     * missing-param branch on the sibling route — matching the GET
+     * empty-string case.
+     */
+    public function testDeleteWithEmptyJobQueryParamReturns400(): void
+    {
+        $this->testClient->setAuthToken(BulkAPITestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->testClient->setHeaders([
+            'Accept' => 'application/fhir+json',
+            'Authorization' => 'Bearer ' . $this->testClient->getAccessToken(),
+        ]);
+        $response = $this->testClient->deleteWithQuery(
+            '/apis/default/fhir/$bulkdata-status',
+            ['job' => '']
+        );
+        $this->assertSame(
+            Response::HTTP_BAD_REQUEST,
+            $response->getStatusCode(),
+            'DELETE /$bulkdata-status with empty job= should return 400 (missing-param branch)'
+        );
+        $this->assertOperationOutcomeBody($response, self::EXPECTED_REQUIRED_JOB_MESSAGE);
     }
 
     /**
@@ -453,8 +520,10 @@ class BulkFhirOperationsApiTest extends TestCase
      * regression that returned a raw JSON error object (or empty body)
      * fails loudly.
      */
-    private function assertOperationOutcomeBody(\Psr\Http\Message\ResponseInterface $response): void
-    {
+    private function assertOperationOutcomeBody(
+        \Psr\Http\Message\ResponseInterface $response,
+        ?string $expectedDetailsText = null
+    ): void {
         $raw = (string) $response->getBody();
         $decoded = json_decode($raw, true);
         $this->assertIsArray($decoded, "Response body must be JSON; got: " . substr($raw, 0, 500));
@@ -463,5 +532,23 @@ class BulkFhirOperationsApiTest extends TestCase
             $decoded['resourceType'] ?? null,
             'Error response must be a FHIR OperationOutcome resource'
         );
+        if ($expectedDetailsText !== null) {
+            $issues = $decoded['issue'] ?? null;
+            $this->assertIsArray($issues, 'OperationOutcome must have an issue array');
+            $firstIssue = $issues[0] ?? null;
+            $this->assertIsArray($firstIssue, 'OperationOutcome issue[0] must be an object');
+            $details = $firstIssue['details'] ?? null;
+            $this->assertIsArray($details, 'OperationOutcome issue[0].details must be an object');
+            $detailsText = $details['text'] ?? null;
+            $this->assertIsString(
+                $detailsText,
+                'OperationOutcome issue[0].details.text must be a string'
+            );
+            $this->assertStringContainsString(
+                $expectedDetailsText,
+                $detailsText,
+                'OperationOutcome issue[0].details.text must contain the expected message'
+            );
+        }
     }
 }
