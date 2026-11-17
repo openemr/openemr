@@ -37,6 +37,10 @@ use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\Insurance\CoverageDay;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
+use OpenEMR\Services\Insurance\InsuranceLevel;
+use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\PatientAdvanceDirectiveService;
 use OpenEMR\Services\PatientNameHistoryService;
 use OpenEMR\Services\PatientService;
@@ -4997,6 +5001,22 @@ class EncounterccdadispatchTable
         return $encounters;
     }
 
+    /**
+     * The insurance_data id of the policy the payers section shows at a
+     * level, or null when there is none: the one in force on the document's
+     * date, today (InsuranceService).
+     */
+    private function payerPolicyId(mixed $pid, string $type): ?int
+    {
+        $patientId = EffectiveInsuranceRule::storedId($pid);
+        $level = InsuranceLevel::tryFrom($type);
+        if ($patientId === null || $level === null) {
+            return null;
+        }
+        $today = CoverageDay::today(ServiceContainer::getClock());
+        return (new InsuranceService())->getEffectiveInsuranceAt($patientId, $level, $today)?->id;
+    }
+
     public function getPayers($pid): string
     {
         $xml = "<payers>";
@@ -5004,6 +5024,10 @@ class EncounterccdadispatchTable
         $types = ['primary'];
 
         foreach ($types as $type) {
+            $policyId = $this->payerPolicyId($pid, $type);
+            if ($policyId === null) {
+                continue; // no policy in force at this level
+            }
             $sql = "
             SELECT i.*, c.name AS company_name,
                    c.uuid as compuuid,
@@ -5012,15 +5036,20 @@ class EncounterccdadispatchTable
                    p.uuid AS piduuid,
                    p.fname AS patient_fname, p.mname AS patient_mname, p.lname AS patient_lname,
                    p.street AS patient_street, p.city AS patient_city, p.state AS patient_state,
-                   p.postal_code AS patient_postal_code, p.DOB AS patient_dob
+                   p.postal_code AS patient_postal_code, p.DOB AS patient_dob,
+                   CONCAT('(', pn.area_code, ')', pn.prefix, '-', pn.number) AS phone
             FROM insurance_data i
             JOIN insurance_companies c ON i.provider = c.id
-            JOIN addresses a ON c.id = a.foreign_id
+            LEFT JOIN addresses a ON c.id = a.foreign_id
+            LEFT JOIN phone_numbers pn ON pn.id = (
+                SELECT w.id FROM phone_numbers w
+                WHERE w.foreign_id = c.id AND w.type = 2 AND w.area_code <> '' AND w.prefix <> '' AND w.number <> ''
+                ORDER BY w.id DESC LIMIT 1
+            )
             JOIN patient_data p ON i.pid = p.pid
-            WHERE i.type = ? AND i.pid = ?
-            ORDER BY i.date DESC
+            WHERE i.type = ? AND i.pid = ? AND i.id = ?
         ";
-            $res = sqlStatement($sql, [$type, $pid]);
+            $res = sqlStatement($sql, [$type, $pid, $policyId]);
             $row = sqlFetchArray($res);
             if (!$row) {
                 continue; // no data for this type
