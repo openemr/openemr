@@ -75,7 +75,7 @@ class PatientFinderCriteriaTest extends TestCase
             'not json' => 'not json',
             'json scalar' => '"sex"',
             'unknown key' => '[{"key":"height","operator":"is","value":"1"}]',
-            'unknown operator' => '[{"key":"sex","operator":"isnt","value":"Male"}]',
+            'unknown operator' => '[{"key":"sex","operator":"is_not","value":"Male"}]',
             'sex without a value' => '[{"key":"sex","operator":"is","value":""}]',
             'age not a number' => '[{"key":"age","operator":"at_least","value":"abc"}]',
             'negative age' => '[{"key":"age","operator":"at_least","value":"-5"}]',

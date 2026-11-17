@@ -85,7 +85,7 @@ final readonly class AgeCriterion implements PatientFinderCriterion
             'between', 'at_least' => $values[0] ?? null,
             default => null,
         };
-        $atMost = match ($operator) {
+        $maximum = match ($operator) {
             'between' => $values[1] ?? null,
             'at_most' => $values[0] ?? null,
             default => null,
@@ -95,10 +95,10 @@ final readonly class AgeCriterion implements PatientFinderCriterion
             $parts[] = 'patient_data.DOB <= DATE_SUB(CURDATE(), INTERVAL ? YEAR)';
             $binds[] = (int) $atLeast;
         }
-        if ($atMost !== null) {
+        if ($maximum !== null) {
             // Aged N or less: born after the date N + 1 years ago.
             $parts[] = 'patient_data.DOB > DATE_SUB(CURDATE(), INTERVAL ? YEAR)';
-            $binds[] = (int) $atMost + 1;
+            $binds[] = (int) $maximum + 1;
         }
         return [implode(' AND ', $parts), $binds];
     }
