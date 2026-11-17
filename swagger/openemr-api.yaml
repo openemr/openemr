@@ -7469,7 +7469,7 @@ paths:
     post:
       tags:
         - fhir
-      description: 'Creates a new Observation resource. Only vital sign Observations are writable; Observations whose code belongs to a category OpenEMR derives from other records (social history, SDOH, patient and employer demographics) are rejected rather than dropped.'
+      description: "Creates a new Observation resource. Vital sign and laboratory Observations are writable; Observations whose code belongs to a category OpenEMR derives from other records (social history, SDOH, patient and employer demographics) are rejected rather than dropped. A laboratory result must reference its order in basedOn (one ServiceRequest for the same patient), and its LOINC code must be one of the order's codes."
       requestBody:
         required: true
         content:
@@ -7572,7 +7572,7 @@ paths:
     put:
       tags:
         - fhir
-      description: 'Modifies an Observation resource. The uuid identifies one vital sign on one vitals record, so Observation.code must match the code that uuid was issued for.'
+      description: 'Modifies an Observation resource. The uuid identifies one vital sign on one vitals record, or one laboratory result, so Observation.code must match the code that uuid was issued for. A laboratory result keeps its patient, order and dates; its value, status, range, interpretation and note change.'
       parameters:
         -
           name: uuid
