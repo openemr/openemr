@@ -551,4 +551,12 @@ class InsuranceCompanyServiceTest extends TestCase
         );
         $this->assertSame($cellId, $rows[1]['id']);
     }
+
+    #[Test]
+    public function testSetNumberRejectsTypesPersistCannotClear(): void
+    {
+        $co = new \InsuranceCompany();
+        $this->expectException(\InvalidArgumentException::class);
+        $co->set_number('5550001111', PhoneType::CELL);
+    }
 }

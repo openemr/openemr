@@ -162,6 +162,11 @@ class Pharmacy extends ORDataObject
     }
     public function set_number(string $num, PhoneType $type): void
     {
+        // persist() clears only the WORK and FAX rows before it re-inserts, so a
+        // number of any other type would gain a copy on every save.
+        if ($type !== PhoneType::WORK && $type !== PhoneType::FAX) {
+            throw new \InvalidArgumentException("Only WORK and FAX numbers can be set, not {$type->name}");
+        }
         $typed = TypedPhoneNumber::tryCreate($num, $type);
         if ($typed === null) {
             return;

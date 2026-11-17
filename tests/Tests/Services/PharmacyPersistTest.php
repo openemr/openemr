@@ -153,4 +153,12 @@ class PharmacyPersistTest extends TestCase
         );
         $this->assertSame($cellId, $rows[1]['id']);
     }
+
+    #[Test]
+    public function testSetNumberRejectsTypesPersistCannotClear(): void
+    {
+        $pharmacy = new \Pharmacy();
+        $this->expectException(\InvalidArgumentException::class);
+        $pharmacy->set_number('5550001111', PhoneType::CELL);
+    }
 }
