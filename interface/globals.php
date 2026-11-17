@@ -832,10 +832,10 @@ xlWarmCache();
 const OPENEMR_GLOBALS_LOADED = true;
 
 // Core event subscribers: always-on behaviour, registered in src/Core/CoreEventSubscribers.php.
-\$coreDispatcher = \$globalsBag->getKernel()->getEventDispatcher();
-(new CoreEventSubscribers())->register(\$coreDispatcher);
+$coreDispatcher = $globalsBag->getKernel()->getEventDispatcher();
+(new CoreEventSubscribers())->register($coreDispatcher);
 // Layout statements are always on, so they register with the other core listeners.
-Bootstrap::instantiate(\$coreDispatcher, \$globalsBag->getKernel());
+Bootstrap::instantiate($coreDispatcher, $globalsBag->getKernel());
 
 // Module configurations.
 // Runs after OPENEMR_GLOBALS_LOADED is defined so that module class files
