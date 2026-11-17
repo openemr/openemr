@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\Dorn;
 
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\Insurance\CoverageDay;
 
 class DornGenHl7Order extends GenHl7OrderBase
 {
@@ -79,8 +80,11 @@ class DornGenHl7Order extends GenHl7OrderBase
 
         $out .= $this->createPv1("U", $bill_type);
 
-        // Insurance stuff.
-        $payers = $this->loadPayerInfo($porow['pid'], $porow['date_ordered']);
+        // Insurance stuff: the payers in force on the collection date, else the order date.
+        $labDay = is_array($porow)
+            ? CoverageDay::forLabOrder($porow['date_collected'] ?? null, $porow['date_ordered'] ?? null)?->format('Y-m-d') ?? ''
+            : '';
+        $payers = $this->loadPayerInfo($porow['pid'], $labDay);
         $setid = 0;
         if ($bill_type == 'T') {
             // only send primary and secondary insurance
@@ -131,7 +135,8 @@ class DornGenHl7Order extends GenHl7OrderBase
         }
 
         // GT1 segment
-        $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
+        // The guarantor is the first policy sent, on the same lab day, so the message names one plan's people.
+        $guarantors = $this->loadGuarantorInfo($porow['pid'], $labDay);
         foreach ($guarantors as $guarantor) {
             $gType = $bill_type == "C" ? "C" : "P";
             $out .= $this->createGt1("1", $guarantor['data']['subscriber_fname'], $guarantor['data']['subscriber_lname'], $guarantor['data']['subscriber_mname'], $guarantor['data']['subscriber_street'], "", $guarantor['data']['subscriber_city'], $guarantor['data']['subscriber_state'], $guarantor['data']['subscriber_postal_code'], $gType, $guarantor['data']['subscriber_relationship']);
