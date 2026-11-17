@@ -161,7 +161,7 @@ class EmployerService extends BaseService
     // it needs to be escaped via whitelisting prior to using this function.
     public function getMostRecentEmployerData($pid, $given = "*"): array|false
     {
-        $sql = "select $given from employer_data where pid = ? order by date DESC limit 0,1";
+        $sql = "select $given from employer_data where pid = ? order by date DESC, id DESC limit 0,1";
         $resultSet = QueryUtils::fetchRecords($sql, [$pid]);
         if (!empty($resultSet)) {
             return $resultSet[0];
