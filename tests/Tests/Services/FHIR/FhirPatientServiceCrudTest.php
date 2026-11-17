@@ -165,6 +165,41 @@ class FhirPatientServiceCrudTest extends TestCase
         $this->assertSame([], $processingResult->getData());
     }
 
+    #[Test]
+    public function testInsertWithGeneralPractitionerWithoutNpiIsRejected(): void
+    {
+        $practitionerUuid = $this->installPractitionerFixture();
+        $this->removeNpi($practitionerUuid);
+        $this->fhirPatientFixture->setId(new FHIRId());
+        $this->fhirPatientFixture->addGeneralPractitioner(UtilsService::createRelativeReference('Practitioner', $practitionerUuid));
+
+        $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
+        $this->assertFalse($processingResult->isValid());
+        $this->assertSame([], $processingResult->getData());
+    }
+
+    #[Test]
+    public function testGeneralPractitionerWithoutNpiIsNotReadBack(): void
+    {
+        $practitionerUuid = $this->installPractitionerFixture();
+        $this->fhirPatientFixture->setId(new FHIRId());
+        $this->fhirPatientFixture->addGeneralPractitioner(UtilsService::createRelativeReference('Practitioner', $practitionerUuid));
+        $fhirId = $this->insertedUuid($this->fhirPatientService->insert($this->fhirPatientFixture));
+        $this->assertSame('Practitioner/' . $practitionerUuid, $this->readGeneralPractitionerReference($fhirId));
+
+        // without an NPI the provider is no Practitioner, so a reference to it would not resolve
+        $this->removeNpi($practitionerUuid);
+        $this->assertNull($this->readGeneralPractitionerReference($fhirId));
+    }
+
+    private function removeNpi(string $practitionerUuid): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE users SET npi = NULL WHERE uuid = ?',
+            [UuidRegistry::uuidToBytes($practitionerUuid)]
+        );
+    }
+
     /**
      * Installs the practitioner fixtures and returns the uuid of one of them.
      */

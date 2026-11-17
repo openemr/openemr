@@ -933,11 +933,12 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     /**
      * patient_data stores the general practitioner as providerID, so look up the users.id of the
-     * Practitioner that parseFhirResource() read from Patient.generalPractitioner.
+     * Practitioner that parseFhirResource() read from Patient.generalPractitioner. Only users with
+     * an NPI count, the same rule PatientService uses when it reads the provider back.
      *
      * @param array<mixed> $openEmrRecord OpenEMR patient record
      * @return array<mixed>|ProcessingResult the record with providerID set, or a validation result
-     *                                       when the Practitioner does not exist
+     *                                       when the Practitioner does not exist or has no NPI
      */
     private function resolveGeneralPractitioner(array $openEmrRecord): array|ProcessingResult
     {
@@ -949,7 +950,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $providerId = null;
         if (UuidRegistry::isValidStringUUID($providerUuid)) {
             $providerId = QueryUtils::fetchSingleValue(
-                'SELECT id FROM users WHERE uuid = ?',
+                "SELECT id FROM users WHERE uuid = ? AND npi IS NOT NULL AND npi != ''",
                 'id',
                 [UuidRegistry::uuidToBytes($providerUuid)]
             );
