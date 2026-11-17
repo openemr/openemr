@@ -1922,80 +1922,95 @@ class BillingUtilities
             return false;
         }
 
-        try {
-            $assigned = QueryUtils::inTransaction(function () use ($patientId, $encounterId, $version, $filename): bool {
-                QueryUtils::sqlStatementThrowException(
-                    "UPDATE claims SET process_file = ?, process_time = NOW() "
-                    . "WHERE patient_id = ? AND encounter_id = ? AND version = ? AND status = ? "
-                    . "AND (process_file = '' OR process_file IS NULL OR process_file = ?)",
-                    [
-                        $filename,
-                        $patientId,
-                        $encounterId,
-                        $version,
-                        BillingClaim::STATUS_LEAVE_UNBILLED,
-                        $filename,
-                    ]
-                );
-                $row = QueryUtils::querySingleRow(
-                    "SELECT process_file, status FROM claims"
-                    . " WHERE patient_id = ? AND encounter_id = ? AND version = ?",
-                    [$patientId, $encounterId, $version]
-                );
-                if (!is_array($row) || ($row['process_file'] ?? null) !== $filename) {
-                    return false;
-                }
-                $status = $row['status'] ?? null;
-                if ($status !== BillingClaim::STATUS_LEAVE_UNBILLED && $status !== '1') {
-                    return false;
-                }
-
-                $otherFiles = QueryUtils::fetchRecords(
-                    "SELECT process_file FROM billing WHERE pid = ? AND encounter = ? AND activity = 1 "
-                    . "AND process_file IS NOT NULL AND process_file <> '' AND process_file <> ?",
-                    [$patientId, $encounterId, $filename]
-                );
-                if ($otherFiles !== []) {
-                    $openOwners = QueryUtils::fetchRecords(
-                        "SELECT version FROM claims WHERE patient_id = ? AND encounter_id = ? "
-                        . "AND status = ? AND process_file IS NOT NULL AND process_file <> '' "
-                        . "AND process_file <> ?",
-                        [
-                            $patientId,
-                            $encounterId,
-                            BillingClaim::STATUS_LEAVE_UNBILLED,
-                            $filename,
-                        ]
-                    );
-                    if ($openOwners !== []) {
-                        throw new \RuntimeException('Another unbilled claim still names these billing rows');
-                    }
-                }
-
-                QueryUtils::sqlStatementThrowException(
-                    "UPDATE billing SET process_file = ?, process_date = NOW()"
-                    . " WHERE encounter = ? AND pid = ? AND activity = 1",
-                    [$filename, $encounterId, $patientId]
-                );
-                $billingRows = QueryUtils::fetchRecords(
-                    "SELECT process_file FROM billing WHERE pid = ? AND encounter = ? AND activity = 1",
-                    [$patientId, $encounterId]
-                );
-                if (!self::billingFileNamed($billingRows, $filename)) {
-                    throw new \RuntimeException('Billing rows were not named with the claim file');
-                }
-
-                return true;
-            });
-        } catch (\RuntimeException $exception) {
+        // Two payers share these billing rows. The lock makes their assignments wait.
+        $lockName = 'claim-file-' . (int) $patientId . '-' . (int) $encounterId;
+        $acquired = QueryUtils::fetchSingleValue('SELECT GET_LOCK(?, 10) AS locked', 'locked', [$lockName]);
+        if ((int) $acquired !== 1) {
             ServiceContainer::getLogger()->error('Held claim file was not assigned', [
-                'exception' => $exception,
+                'reason' => 'The encounter file lock was not acquired',
             ]);
 
             return false;
         }
 
-        return $assigned === true;
+        try {
+            try {
+                $assigned = QueryUtils::inTransaction(function () use ($patientId, $encounterId, $version, $filename): bool {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE claims SET process_file = ?, process_time = NOW() "
+                        . "WHERE patient_id = ? AND encounter_id = ? AND version = ? AND status = ? "
+                        . "AND (process_file = '' OR process_file IS NULL OR process_file = ?)",
+                        [
+                            $filename,
+                            $patientId,
+                            $encounterId,
+                            $version,
+                            BillingClaim::STATUS_LEAVE_UNBILLED,
+                            $filename,
+                        ]
+                    );
+                    $row = QueryUtils::querySingleRow(
+                        "SELECT process_file, status FROM claims"
+                        . " WHERE patient_id = ? AND encounter_id = ? AND version = ?",
+                        [$patientId, $encounterId, $version]
+                    );
+                    if (!is_array($row) || ($row['process_file'] ?? null) !== $filename) {
+                        return false;
+                    }
+                    $status = $row['status'] ?? null;
+                    if ($status !== BillingClaim::STATUS_LEAVE_UNBILLED && $status !== '1') {
+                        return false;
+                    }
+
+                    $otherFiles = QueryUtils::fetchRecords(
+                        "SELECT process_file FROM billing WHERE pid = ? AND encounter = ? AND activity = 1 "
+                        . "AND process_file IS NOT NULL AND process_file <> '' AND process_file <> ?",
+                        [$patientId, $encounterId, $filename]
+                    );
+                    if ($otherFiles !== []) {
+                        $openOwners = QueryUtils::fetchRecords(
+                            "SELECT version FROM claims WHERE patient_id = ? AND encounter_id = ? "
+                            . "AND status = ? AND process_file IS NOT NULL AND process_file <> '' "
+                            . "AND process_file <> ?",
+                            [
+                                $patientId,
+                                $encounterId,
+                                BillingClaim::STATUS_LEAVE_UNBILLED,
+                                $filename,
+                            ]
+                        );
+                        if ($openOwners !== []) {
+                            throw new \RuntimeException('Another unbilled claim still names these billing rows');
+                        }
+                    }
+
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE billing SET process_file = ?, process_date = NOW()"
+                        . " WHERE encounter = ? AND pid = ? AND activity = 1",
+                        [$filename, $encounterId, $patientId]
+                    );
+                    $billingRows = QueryUtils::fetchRecords(
+                        "SELECT process_file FROM billing WHERE pid = ? AND encounter = ? AND activity = 1",
+                        [$patientId, $encounterId]
+                    );
+                    if (!self::billingFileNamed($billingRows, $filename)) {
+                        throw new \RuntimeException('Billing rows were not named with the claim file');
+                    }
+
+                    return true;
+                });
+            } catch (\RuntimeException $exception) {
+                ServiceContainer::getLogger()->error('Held claim file was not assigned', [
+                    'exception' => $exception,
+                ]);
+
+                return false;
+            }
+
+            return $assigned === true;
+        } finally {
+            QueryUtils::fetchSingleValue('SELECT RELEASE_LOCK(?) AS released', 'released', [$lockName]);
+        }
     }
 
     /**
