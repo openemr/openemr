@@ -115,6 +115,78 @@ final class EffectiveInsuranceRule
     }
 
     /**
+     * The runs of days within a range on which each policy heads one level:
+     * the days choose() returns it at that level, as runs of consecutive days.
+     * The answer at a level changes only on a day one of its policies starts
+     * or the day after one ends, so choose() is asked on the range's first day
+     * and on each such day within the range. A run can't disagree with it.
+     *
+     * Runs are cut to the range: one that began before it starts on its first
+     * day. The policy keeps its own start and end, as EffectiveInsurance gives
+     * them.
+     *
+     * @param list<array<mixed>> $rows one patient's insurance_data rows, as for choose()
+     * @param DateTimeImmutable  $from the range's first day, included; its time is ignored
+     * @param DateTimeImmutable  $to   the range's last day, included; its time is ignored
+     * @return list<CoverageSegment> oldest first; none when $to is before $from
+     */
+    public static function segments(array $rows, InsuranceLevel $level, DateTimeImmutable $from, DateTimeImmutable $to): array
+    {
+        $first = $from->format('Y-m-d');
+        $last = $to->format('Y-m-d');
+        if (strcmp($first, $last) > 0) {
+            return [];
+        }
+        // Levels are independent, so the level's own rows give the same answer at it, without choosing the others.
+        $levelRows = [];
+        foreach ($rows as $row) {
+            $type = $row['type'] ?? null;
+            if (is_string($type) && InsuranceLevel::tryFrom($type) === $level) {
+                $levelRows[] = $row;
+            }
+        }
+        $changes = [$first => new DateTimeImmutable($first)];
+        foreach ($levelRows as $row) {
+            $start = self::storedDate($row['date'] ?? null);
+            $end = self::storedDate($row['date_end'] ?? null);
+            $days = [];
+            if ($start !== '') {
+                $days[] = self::firstDayFrom($start);
+            }
+            if ($end !== '' && $end !== self::ZERO_DATE) {
+                $days[] = self::firstDayAfter($end);
+            }
+            foreach ($days as $day) {
+                $ymd = $day->format('Y-m-d');
+                if (strcmp($ymd, $first) > 0 && strcmp($ymd, $last) <= 0) {
+                    $changes[$ymd] = $day;
+                }
+            }
+        }
+        ksort($changes, SORT_STRING);
+        $changes = array_values($changes);
+
+        $segments = [];
+        $run = null;
+        foreach ($changes as $i => $day) {
+            $held = self::choose($levelRows, $day)[0] ?? null;
+            $runEnd = isset($changes[$i + 1]) ? $changes[$i + 1]->modify('-1 day') : new DateTimeImmutable($last);
+            if ($run !== null && $held !== null && $held->id === $run->policy->id) {
+                $run = new CoverageSegment($run->policy, $run->from, $runEnd);
+                continue;
+            }
+            if ($run !== null) {
+                $segments[] = $run;
+            }
+            $run = $held === null ? null : new CoverageSegment($held, $day, $runEnd);
+        }
+        if ($run !== null) {
+            $segments[] = $run;
+        }
+        return $segments;
+    }
+
+    /**
      * The first calendar day on or after a stored date, as SQL compares them:
      * the date itself when it is a real day, else the next real one (a zero
      * day, 2026-05-00, gives 2026-05-01; a zero month, 2026-00-00, gives
