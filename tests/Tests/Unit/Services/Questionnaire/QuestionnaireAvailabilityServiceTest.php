@@ -1001,6 +1001,25 @@ class QuestionnaireAvailabilityServiceTest extends TestCase
     }
 
     /**
+     * Refiling a questionnaire moves it from one category rule's reach to another's.
+     */
+    public function testSetQuestionnaireCategoryMovesItBetweenCategoryRules(): void
+    {
+        $moved = $this->addQuestionnaire('availability refiled');
+        $this->addAssignment([
+            'resource_id' => null,
+            'category' => self::CATEGORY_OTHER,
+            'surface' => 'portal',
+        ]);
+        $portal = new AvailabilityContext(QuestionnaireSurface::Portal);
+        $this->assertNotContains($moved, $this->ownAssignedIds($portal));
+
+        $this->service->setQuestionnaireCategory($moved, self::CATEGORY_OTHER);
+
+        $this->assertContains($moved, $this->ownAssignedIds($portal), 'now in the category the rule names');
+    }
+
+    /**
      * The full public path, end to end, against the real schema.
      *
      * getAvailableIds() and getAvailableQuestionnaires() both run the ACL check, which
