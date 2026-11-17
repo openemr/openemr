@@ -2,10 +2,14 @@
  * Tests for the insurance editor's policy ordering (InsurancePolicyService.sortInsurancesByDate).
  *
  * The editor opens on the first policy of each type, so the order must match the server's
- * (`InsuranceService`): active policies first, then most recent start date, with a policy
- * that has no start date last, as MySQL and MariaDB order NULLs in a DESC sort.
+ * (`InsuranceService`): the policies in force today first, then most recent start date, with a
+ * policy that has no start date last, as MySQL and MariaDB order NULLs in a DESC sort.
  *
  * Run with: npm run test:js
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 const fs = require('fs');
@@ -25,7 +29,14 @@ const src = fs.readFileSync(
 const InsurancePolicyService = new Function(src + '\nreturn InsurancePolicyService;')();
 
 const day = (iso) => new Date(iso + 'T00:00:00');
-const policy = (policy_number, date, date_end = null) => ({ policy_number, date, date_end });
+// A day relative to today, at local midnight as the policy model holds its dates.
+const fromToday = (days) => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + days);
+    return d;
+};
+const policy = (policy_number, date, date_end = null, id = null) => ({ policy_number, date, date_end, id });
 
 function sorted(policies) {
     const service = new InsurancePolicyService('token', '/apis', [], ['primary'], 'puuid');
@@ -72,6 +83,42 @@ describe('sortInsurancesByDate', () => {
             policy('ENDED', day('2025-01-01'), day('2025-06-30')),
             policy('ACTIVE', day('2020-01-01')),
         ])).toEqual(['ACTIVE', 'ENDED']);
+    });
+
+    test("next year's card, entered in advance, comes after the policy in force today", () => {
+        expect(sorted([
+            policy('NEXT-YEAR', fromToday(60)),
+            policy('CURRENT', fromToday(-1000)),
+        ])).toEqual(['CURRENT', 'NEXT-YEAR']);
+    });
+
+    test('a policy added in the editor (starting now, with the time of day) is in force and comes first', () => {
+        const now = new Date();
+        expect(sorted([
+            policy('CURRENT', fromToday(-1000)),
+            policy('NEW', now),
+        ])).toEqual(['NEW', 'CURRENT']);
+    });
+
+    test('a policy ending today is still in force today', () => {
+        expect(sorted([
+            policy('OLDER', fromToday(-1000)),
+            policy('ENDS-TODAY', fromToday(-100), fromToday(0)),
+        ])).toEqual(['ENDS-TODAY', 'OLDER']);
+    });
+
+    test('a policy with an end still to come does not outrank one with no end', () => {
+        expect(sorted([
+            policy('ENDS-NEXT-YEAR', fromToday(-1000), fromToday(300)),
+            policy('NO-END', fromToday(-500)),
+        ])).toEqual(['NO-END', 'ENDS-NEXT-YEAR']);
+    });
+
+    test('of two undated policies, the later entry comes first, as the coverage rule picks it', () => {
+        expect(sorted([
+            policy('A-FIRST-ENTERED', null, null, 10),
+            policy('B-ENTERED-LATER', null, null, 11),
+        ])).toEqual(['B-ENTERED-LATER', 'A-FIRST-ENTERED']);
     });
 
     test('ties fall through to the policy number', () => {

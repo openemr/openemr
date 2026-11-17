@@ -7922,11 +7922,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$date of method OpenEMR\\\\Modules\\\\Dorn\\\\GenHl7OrderBase\\:\\:loadPayerInfo\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$length of function substr expects int\\|null, int\\<0, max\\>\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/DornGenHl7Order.php',
@@ -7948,11 +7943,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$string of function trim expects string, array\\<string\\>\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GenHl7OrderBase.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string1 of function strcmp expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/GenHl7OrderBase.php',
 ];
@@ -11208,11 +11198,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function intval expects array\\|bool\\|float\\|GMP\\|int\\|resource\\|SimpleXMLElement\\|string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$encdate of function getEffectiveInsurances expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
 ];
@@ -14982,11 +14967,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$encdate of function getEffectiveInsurances expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\.\\.\\.\\$args of method phpseclib3\\\\Net\\\\SSH2\\:\\:login\\(\\) expects array\\<array\\>\\|phpseclib3\\\\Crypt\\\\Common\\\\PrivateKey\\|phpseclib3\\\\System\\\\SSH\\\\Agent\\|string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
@@ -15193,11 +15173,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function intval expects array\\|bool\\|float\\|GMP\\|int\\|resource\\|SimpleXMLElement\\|string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$encdate of function getEffectiveInsurances expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
 ];
