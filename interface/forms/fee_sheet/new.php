@@ -1617,9 +1617,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             $newcode = $arrcode[1];
                                             $newsel  = $arrcode[2];
                                             if ($newtype == 'COPAY') {
-                                                $tmp = sqlQuery("SELECT copay FROM insurance_data WHERE pid = ? " .
-                                                "AND type = 'primary' ORDER BY date DESC LIMIT 1", [$fs->pid]);
-                                                $code = formatMoneyNumber($tmp['copay'] ?? 0);
+                                                $code = formatMoneyNumber($fs->primaryPolicy()['copay'] ?? 0);
                                                 $fs->addServiceLineItem([
                                                 'codetype'    => $newtype,
                                                 'code'        => $code,
