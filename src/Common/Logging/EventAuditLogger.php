@@ -131,6 +131,14 @@ class EventAuditLogger implements AuditLoggerInterface
         if ($pid !== null && $pid < 1) {
             throw new \InvalidArgumentException('Patient id must be positive');
         }
+        if ($pid === $this->requestPatientId) {
+            return;
+        }
+        // A later patient in the same request must not inherit the summary
+        // already collected for the previous one.
+        if (!$this->pendingSelects->isEmpty()) {
+            $this->flushPendingQuerySummary();
+        }
         $this->requestPatientId = $pid;
     }
 
@@ -904,6 +912,15 @@ class EventAuditLogger implements AuditLoggerInterface
 
         $this->sink->record($auditEvent);
         $this->armQueryFlush();
+        // The caller can read this entry back before the request ends.
+        // A SELECT summary stays buffered until it is flushed on purpose.
+        try {
+            $this->sink->flush();
+        } catch (\RuntimeException $failure) {
+            ServiceContainer::getLogger()->error('OpenEMR audit log was not written', [
+                'exception' => $failure,
+            ]);
+        }
     }
 
     /**

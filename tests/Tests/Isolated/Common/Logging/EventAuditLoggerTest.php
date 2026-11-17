@@ -504,6 +504,37 @@ class EventAuditLoggerTest extends TestCase
         self::assertStringNotContainsString('pid = ?', $comments);
     }
 
+    public function testRequestModeFlushesWhenTheAttributedPatientChanges(): void
+    {
+        $captured = [];
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->exactly(2))
+            ->method('record')
+            ->willReturnCallback(function (Event $event) use (&$captured): void {
+                $captured[] = $event;
+            });
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'drwho',
+                'authProvider' => 'default',
+                'pid' => '4',
+                default => null,
+            });
+
+        $logger = $this->loggerWith($sink, AuditQueryDetail::Request, false);
+        $logger->setRequestPatientId(4);
+        $logger->auditSQLEvent('SELECT id FROM patient_data WHERE pid = ?', true, [4]);
+        $logger->setRequestPatientId(9);
+        $logger->auditSQLEvent('SELECT id FROM patient_data WHERE pid = ?', true, [9]);
+        $logger->flushPendingQuerySummary();
+
+        self::assertCount(2, $captured);
+        self::assertSame(4, $captured[0]->patientId);
+        self::assertSame(9, $captured[1]->patientId);
+        self::assertSame('patient-record-select', $captured[0]->event);
+        self::assertSame('patient-record-select', $captured[1]->event);
+    }
+
     public function testStatementModeStillRecordsEachSelect(): void
     {
         $sink = $this->createMock(SinkInterface::class);
