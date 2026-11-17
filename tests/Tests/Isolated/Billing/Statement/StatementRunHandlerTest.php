@@ -211,7 +211,7 @@ class StatementRunHandlerTest extends TestCase
     #[RunInSeparateProcess]
     public function testABadCustomEnvelopeStopsPrintAndNotThePortal(): void
     {
-        eval('final class StatementSiteTemplate { public static function supportsEnvelopeWindows(): bool { return true; } }');
+        require __DIR__ . '/fixtures/StatementSiteTemplate.php';
         $bag = OEGlobalsBag::getInstance();
         $bag->set('statement_envelope', 'custom');
         foreach (
