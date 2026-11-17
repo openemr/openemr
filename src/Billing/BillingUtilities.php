@@ -1906,6 +1906,24 @@ class BillingUtilities
     }
 
     /**
+     * Digits for a claim-file lock. Zero and anything else are refused.
+     */
+    private static function claimFileId(mixed $value): ?string
+    {
+        if (is_int($value)) {
+            return $value > 0 ? (string) $value : null;
+        }
+        if (!is_string($value) || $value === '' || !ctype_digit($value)) {
+            return null;
+        }
+        if (ltrim($value, '0') === '') {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
      * Store this file name only while no other unbilled claim owns the rows.
      *
      * A billed claim's file name can be replaced. An open claim's name
@@ -1918,14 +1936,16 @@ class BillingUtilities
         int $version,
         string $filename
     ): bool {
-        if ($filename === '' || $version <= 0) {
+        $patientPart = self::claimFileId($patientId);
+        $encounterPart = self::claimFileId($encounterId);
+        if ($filename === '' || $version <= 0 || $patientPart === null || $encounterPart === null) {
             return false;
         }
 
         // Two payers share these billing rows. The lock makes their assignments wait.
-        $lockName = 'claim-file-' . (int) $patientId . '-' . (int) $encounterId;
+        $lockName = 'claim-file-' . $patientPart . '-' . $encounterPart;
         $acquired = QueryUtils::fetchSingleValue('SELECT GET_LOCK(?, 10) AS locked', 'locked', [$lockName]);
-        if ((int) $acquired !== 1) {
+        if ($acquired !== 1 && $acquired !== '1') {
             ServiceContainer::getLogger()->error('Held claim file was not assigned', [
                 'reason' => 'The encounter file lock was not acquired',
             ]);
