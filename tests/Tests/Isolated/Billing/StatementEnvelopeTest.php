@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Billing;
 
 use OpenEMR\Billing\StatementEnvelope;
+use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\TestCase;
 
 final class StatementEnvelopeTest extends TestCase
@@ -537,5 +538,27 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertSame(1, substr_count($again, '<style>'));
 
         $this->assertSame('not a sheet', $env->individualDocument('not a sheet'));
+    }
+
+    /**
+     * #9 and #10 follow the PDF paper size instead of a fixed letter sheet.
+     */
+    public function testHash9FollowsThePdfPaperSize(): void
+    {
+        $bag = OEGlobalsBag::getInstance();
+        $previous = $bag->get('pdf_size');
+        $bag->set('pdf_size', 'A4');
+        try {
+            $g = StatementEnvelope::presetHash9();
+            $this->assertEqualsWithDelta(210 / 25.4, $g['page_w'], 0.01);
+            $this->assertEqualsWithDelta(297 / 25.4, $g['page_h'], 0.01);
+            $this->assertEqualsWithDelta($g['page_h'] / 3.0, $g['panel'], 0.0001);
+        } finally {
+            if ($previous === null) {
+                $bag->remove('pdf_size');
+            } else {
+                $bag->set('pdf_size', $previous);
+            }
+        }
     }
 }
