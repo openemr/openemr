@@ -361,7 +361,11 @@ class OAuth2AttackScenarioTest extends TestCase
         // rejected rather than issue a token in the redirect fragment.
         [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('ImplicitResponseType');
         $resp = $this->authorizeGet($cid, ['response_type' => 'token']);
-        $this->assertAuthorizeRejected($resp, 'Authorize must reject response_type=token (implicit grant disabled)');
+        $this->assertAuthorizeRejected(
+            $resp,
+            'Authorize must reject response_type=token (implicit grant disabled)',
+            'unsupported_response_type'
+        );
     }
 
     #[Test]
@@ -374,7 +378,11 @@ class OAuth2AttackScenarioTest extends TestCase
         // return an id_token in the fragment.
         [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('IdTokenResponseType');
         $resp = $this->authorizeGet($cid, ['response_type' => 'id_token']);
-        $this->assertAuthorizeRejected($resp, 'Authorize must reject response_type=id_token (OIDC implicit flow disabled)');
+        $this->assertAuthorizeRejected(
+            $resp,
+            'Authorize must reject response_type=id_token (OIDC implicit flow disabled)',
+            'unsupported_response_type'
+        );
     }
 
     #[Test]
@@ -385,7 +393,11 @@ class OAuth2AttackScenarioTest extends TestCase
         // must be rejected rather than default to any known behavior.
         [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('UnknownResponseType');
         $resp = $this->authorizeGet($cid, ['response_type' => 'foo']);
-        $this->assertAuthorizeRejected($resp, 'Authorize must reject an unknown response_type value');
+        $this->assertAuthorizeRejected(
+            $resp,
+            'Authorize must reject an unknown response_type value',
+            'unsupported_response_type'
+        );
     }
 
     #[Test]
@@ -396,7 +408,17 @@ class OAuth2AttackScenarioTest extends TestCase
         // rather than default to response_type=code.
         [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('EmptyResponseType');
         $resp = $this->authorizeGet($cid, ['response_type' => '']);
-        $this->assertAuthorizeRejected($resp, 'Authorize must reject an empty response_type parameter');
+        // Spec-perfect would be `invalid_request` per §4.1.2.1 for a
+        // missing-REQUIRED-param case, but league routes empty/missing
+        // response_type through the same no-grant-matches path as
+        // unknown response_type, so the server emits the
+        // unsupported_response_type code for all three. Pinned as-is;
+        // splitting empty/missing from unknown is a separate audit item.
+        $this->assertAuthorizeRejected(
+            $resp,
+            'Authorize must reject an empty response_type parameter',
+            'unsupported_response_type'
+        );
     }
 
     #[Test]
@@ -407,7 +429,14 @@ class OAuth2AttackScenarioTest extends TestCase
         // response_type=code.
         [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('MissingResponseType');
         $resp = $this->authorizeGet($cid, ['response_type' => null]);
-        $this->assertAuthorizeRejected($resp, 'Authorize must reject a request that omits response_type entirely');
+        // Same shared no-grant-matches path as the empty-string case
+        // above; see that test for the spec-perfect vs league-emitted
+        // note.
+        $this->assertAuthorizeRejected(
+            $resp,
+            'Authorize must reject a request that omits response_type entirely',
+            'unsupported_response_type'
+        );
     }
 
     #[Test]
@@ -1345,16 +1374,25 @@ class OAuth2AttackScenarioTest extends TestCase
      *
      * @param AttackResponse $response
      */
-    private function assertAuthorizeRejected(array $response, string $context): void
+    private function assertAuthorizeRejected(array $response, string $context, ?string $expectedError = null): void
     {
         $status = $response['status'];
         if ($status >= 300 && $status < 400) {
             $location = $response['headers']['Location'][0] ?? '';
-            $this->assertStringContainsString(
-                'error=',
-                (string) parse_url($location, PHP_URL_QUERY),
+            $query = [];
+            parse_str((string) parse_url($location, PHP_URL_QUERY), $query);
+            $this->assertArrayHasKey(
+                'error',
+                $query,
                 $context . ' — 3xx redirect must carry an `error` query parameter. Location: ' . $location
             );
+            if ($expectedError !== null) {
+                $this->assertSame(
+                    $expectedError,
+                    $query['error'],
+                    $context . ' — 3xx redirect error= must match RFC-specified code. Location: ' . $location
+                );
+            }
             return;
         }
         $this->assertGreaterThanOrEqual(400, $status, $context . ' — status ' . $status . ' body: ' . $response['body']);
@@ -1362,6 +1400,13 @@ class OAuth2AttackScenarioTest extends TestCase
         $body = json_decode($response['body'], true);
         $this->assertIsArray($body, $context . ' — response body is not JSON: ' . $response['body']);
         $this->assertArrayHasKey('error', $body, $context . ' — response body has no `error` field: ' . $response['body']);
+        if ($expectedError !== null) {
+            $this->assertSame(
+                $expectedError,
+                $body['error'],
+                $context . ' — JSON error body `error` must match RFC-specified code. Body: ' . $response['body']
+            );
+        }
     }
 
     /**

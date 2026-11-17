@@ -825,6 +825,7 @@ class AuthorizationController implements LoggerAwareInterface
                 );
             }
         } catch (OAuthServerException $exception) {
+            $exception = $this->remapAuthorizeEndpointErrorCode($exception);
             $logger->error(
                 "AuthorizationController->oauthAuthorizationFlow() OAuthServerException",
                 ["hint" => $exception->getHint(), "message" => $exception->getMessage()
@@ -842,6 +843,37 @@ class AuthorizationController implements LoggerAwareInterface
             $body->write($exception->getMessage());
             return $response->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)->withBody($body);
         }
+    }
+
+    /**
+     * Remap token-endpoint-shaped error codes that league/oauth2-server
+     * emits from the authorize endpoint path onto their authorize-endpoint
+     * equivalents per RFC 6749 §4.1.2.1.
+     *
+     * league's AuthorizationServer::validateAuthorizationRequest() throws
+     * OAuthServerException::unsupportedGrantType() when no enabled grant
+     * matches the request's response_type (see AuthorizationServer.php:167).
+     * That factory tags the exception as `unsupported_grant_type`, which is
+     * the token-endpoint error code per §5.2. The authorize endpoint's own
+     * error code for the same condition is `unsupported_response_type`.
+     *
+     * Any other OAuthServerException types pass through unchanged — the
+     * remap is only for the specific authorize/token error-code aliasing.
+     */
+    private function remapAuthorizeEndpointErrorCode(OAuthServerException $exception): OAuthServerException
+    {
+        if ($exception->getErrorType() !== 'unsupported_grant_type') {
+            return $exception;
+        }
+        return new OAuthServerException(
+            $exception->getMessage(),
+            $exception->getCode(),
+            'unsupported_response_type',
+            $exception->getHttpStatusCode(),
+            $exception->getHint(),
+            $exception->getRedirectUri(),
+            $exception->getPrevious()
+        );
     }
 
     /**
