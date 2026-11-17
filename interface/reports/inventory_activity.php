@@ -98,7 +98,8 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
  * Render a line item for the inventory activity report HTML table.
  *
  * @param int $product_id
- * @param int $warehouse_id
+ * @param string $warehouse_id the lot's warehouse, a list option id ('' for none); '~' in the
+ *     closing call, which prints the last totals
  * @param int $patient_id
  * @param int $encounter_id
  * @param string $rowprod
@@ -110,7 +111,7 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
  */
 function inventoryActivityLineItem(
     int $product_id,
-    int $warehouse_id,
+    string $warehouse_id,
     int $patient_id,
     int $encounter_id,
     string $rowprod,
@@ -668,6 +669,8 @@ if ($form_action) { // if submit or export
 
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
+        // di.warehouse_id is a list option id, '' for none.
+        $warehouseId = is_string($row['warehouse_id']) ? $row['warehouse_id'] : '';
         // If new lot and it was destroyed during the reporting period,
         // generate a pseudo-adjustment for that.
         if ($row['inventory_id'] != $last_inventory_id) {
@@ -678,11 +681,11 @@ if ($form_action) { // if submit or export
             ) {
                 inventoryActivityLineItem(
                     $row['drug_id'],
-                    $row['warehouse_id'],
+                    $warehouseId,
                     0,
                     0,
                     $row['name'],
-                    $row['title'],
+                    $row['title'] ?? '',
                     $row['destroy_date'],
                     [0, 0, 0, 0, 0 - $row['on_hand']],
                     xl('Destroyed')
@@ -708,14 +711,14 @@ if ($form_action) { // if submit or export
 
         inventoryActivityLineItem(
             $row['drug_id'],
-            $row['warehouse_id'],
+            $warehouseId,
             $row['pid'] + 0,
             $row['encounter'] + 0,
             $row['name'],
-            $row['title'],
-            $row['sale_date'],
+            $row['title'] ?? '',
+            $row['sale_date'] ?? '',
             $qtys,
-            $row['invoice_refno']
+            $row['invoice_refno'] ?? ''
         );
     }
 

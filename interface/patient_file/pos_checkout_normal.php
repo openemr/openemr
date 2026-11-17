@@ -380,7 +380,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                             $charges += sprintf('%01.2f', $inrow['fee']);
                             receiptDetailLine(
                                 $inrow['sale_date'],
-                                $inrow['name'],
+                                $inrow['name'] ?? '',
                                 $inrow['fee'],
                                 $inrow['quantity']
                             );
@@ -400,7 +400,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                             receiptDetailLine(
                                 $svcdate,
                                 $inrow['code_text'],
-                                $inrow['fee'],
+                                $inrow['fee'] ?? 0,
                                 (int) $inrow['units']
                             );
                         }
