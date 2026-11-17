@@ -487,6 +487,7 @@ WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
 -- A site that chose Always ('1') keeps it.
 #IfRow2D globals gl_name translation_preload_cache gl_value 0
 UPDATE `globals` SET `gl_value` = 'auto' WHERE `gl_name` = 'translation_preload_cache' AND `gl_value` = '0';
+#EndIf
 -- Sites already on 8.5.0 skip the 8.4.1 upgrade. The same guarded
 -- blocks create the statement tables and leave the NPI flag off.
 -- Address Book NPI requirement. NPI is US-only (CMS/NPPES). New installs use
