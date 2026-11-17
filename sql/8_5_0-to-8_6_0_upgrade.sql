@@ -488,3 +488,10 @@ WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
 #IfRow2D globals gl_name translation_preload_cache gl_value 0
 UPDATE `globals` SET `gl_value` = 'auto' WHERE `gl_name` = 'translation_preload_cache' AND `gl_value` = '0';
 #EndIf
+
+-- addresses.id now comes only from the sequences counter. AddressService and
+-- ContactRelationService took MAX(id)+1, which can be above the counter; move the
+-- counter past every id in use, so the Address object's INSERT ... ON DUPLICATE KEY
+-- UPDATE never takes one and overwrites another owner's address. It never moves the
+-- counter back, so it is safe to run again.
+UPDATE `sequences` SET `id` = (SELECT MAX(`id`) FROM `addresses`) WHERE `id` < (SELECT MAX(`id`) FROM `addresses`);
