@@ -263,12 +263,17 @@ final readonly class StatementEnvelope
      */
     public function geometry(): ?array
     {
-        return match ($this->profile) {
+        $geometry = match ($this->profile) {
             self::PROFILE_HASH9 => self::presetHash9(),
             self::PROFILE_HASH10 => self::presetHash10(),
             self::PROFILE_CUSTOM => $this->customGeometry(),
             default => null,
         };
+        if ($geometry === null || $this->profile === self::PROFILE_CUSTOM) {
+            return $geometry;
+        }
+
+        return self::geometryFitsPage($geometry) ? $geometry : null;
     }
 
     /**

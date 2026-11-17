@@ -545,20 +545,58 @@ final class StatementEnvelopeTest extends TestCase
      */
     public function testHash9FollowsThePdfPaperSize(): void
     {
-        $bag = OEGlobalsBag::getInstance();
-        $previous = $bag->get('pdf_size');
-        $bag->set('pdf_size', 'A4');
+        $had = array_key_exists('pdf_size', $GLOBALS);
+        $previous = $had ? $GLOBALS['pdf_size'] : null;
+        OEGlobalsBag::getInstance()->set('pdf_size', 'A4');
         try {
             $g = StatementEnvelope::presetHash9();
             $this->assertEqualsWithDelta(210 / 25.4, $g['page_w'], 0.01);
             $this->assertEqualsWithDelta(297 / 25.4, $g['page_h'], 0.01);
             $this->assertEqualsWithDelta($g['page_h'] / 3.0, $g['panel'], 0.0001);
         } finally {
-            if ($previous === null) {
-                $bag->remove('pdf_size');
-            } else {
-                $bag->set('pdf_size', $previous);
-            }
+            self::restorePdfSize($had, $previous);
         }
+        $this->assertSame($had, array_key_exists('pdf_size', $GLOBALS));
+        if (!$had) {
+            $this->assertNull(OEGlobalsBag::getInstance()->get('pdf_size'));
+        }
+    }
+
+    /**
+     * A #9 or #10 cut that starts above an A5 sheet is not a window.
+     */
+    public function testPresetThatDoesNotFitThePaperIsMisconfigured(): void
+    {
+        $had = array_key_exists('pdf_size', $GLOBALS);
+        $previous = $had ? $GLOBALS['pdf_size'] : null;
+        OEGlobalsBag::getInstance()->set('pdf_size', 'A5');
+        try {
+            $hash9 = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+            $this->assertNull($hash9->geometry());
+            $this->assertFalse($hash9->isWindowed());
+            $this->assertTrue($hash9->isMisconfigured());
+            $this->assertSame('', $hash9->windowHtml('Clinic', '1 Main', 'Town, ND, 00000', ['Pat']));
+
+            $hash10 = new StatementEnvelope(StatementEnvelope::PROFILE_HASH10);
+            $this->assertNull($hash10->geometry());
+            $this->assertTrue($hash10->isMisconfigured());
+        } finally {
+            self::restorePdfSize($had, $previous);
+        }
+        $this->assertSame($had, array_key_exists('pdf_size', $GLOBALS));
+    }
+
+    /**
+     * Put pdf_size back, including the global array when the key was absent.
+     */
+    private static function restorePdfSize(bool $had, mixed $previous): void
+    {
+        $bag = OEGlobalsBag::getInstance();
+        if (!$had) {
+            $bag->remove('pdf_size');
+            unset($GLOBALS['pdf_size']);
+            return;
+        }
+        $bag->set('pdf_size', $previous);
     }
 }
