@@ -650,7 +650,10 @@ if (!empty($_POST['form_refresh'])) {
             }
 
           // Compute reporting key: insurance company name or payment method.
+            // The reference and the patient's insurance are this row's own, not the last row's.
             $rowmethod = '';
+            $rowreference = '';
+            $insurance_id = null;
             if ($form_report_by == '1') {
                 if (empty($row['payer_id'])) {
                     // 'ar_session' is not capturing payer_id when entering payments through invoice or era posting
@@ -698,7 +701,7 @@ if (!empty($_POST['form_refresh'])) {
             receiptsByMethodLineItem(
                 $row['pid'],
                 $row['encounter'],
-                ($rowreference ?? ''),
+                $rowreference,
                 $thedate,
                 $rowmethod,
                 $row['pay_amount'],
