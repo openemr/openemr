@@ -489,18 +489,12 @@ WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
 UPDATE `globals` SET `gl_value` = 'auto' WHERE `gl_name` = 'translation_preload_cache' AND `gl_value` = '0';
 #EndIf
 
--- The data_type=13 "Squads" layout selector has been removed because the squads
--- access-control feature is gone. The default layouts only used it for the
--- DEM/squad demographics field, but the edit_layout admin UI accepted data_type=13
--- for any layout/field, so an admin could have added such rows elsewhere. Convert
--- every data_type=13 row to a plain textbox (data_type=2) so the stored value
--- renders as text instead of as a broken selector. Fill in sensible length
--- defaults only where the original row left them at zero (the DEM/squad default);
--- admin-customised lengths are preserved. The patient_data.squad column stays
--- in the schema so historical values are retained; it is no longer referenced
--- by application code and may be dropped in a future release.
+-- The Squad demographics field is no longer wired to any application code. Convert
+-- its layout_options row from the removed ACL-selector (data_type 13) to a plain
+-- textbox (data_type 2) so existing deployments that had the field visible see the
+-- stored value as text instead of a broken selector. The patient_data.squad column
+-- is preserved to keep any historical values; it is unused by the application and
+-- may be dropped in a future release.
 UPDATE `layout_options`
-    SET `data_type`  = 2,
-        `fld_length` = CASE WHEN `fld_length` = 0 THEN 15 ELSE `fld_length` END,
-        `max_length` = CASE WHEN `max_length` = 0 THEN 32 ELSE `max_length` END
-    WHERE `data_type` = 13;
+    SET `data_type` = 2, `fld_length` = 15, `max_length` = 32
+    WHERE `form_id` = 'DEM' AND `field_id` = 'squad' AND `data_type` = 13;
