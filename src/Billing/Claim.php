@@ -1211,6 +1211,17 @@ class Claim
         }
     }
 
+    /**
+     * Whether SBR05 will go out empty where the 837 requires it: Medicare Part B as a payer
+     * other than primary, with no Secondary Medicare Type on the policy.
+     */
+    public function secondaryMedicareTypeMissing(int $ins = 0): bool
+    {
+        return $this->claimType($ins) === 'MB'
+            && $this->payerSequence($ins) !== 'P'
+            && in_array($this->insuredTypeCode($ins), ['', null], true);
+    }
+
   // Is the patient also the subscriber?
   //
     public function isSelfOfInsured($ins = 0): bool

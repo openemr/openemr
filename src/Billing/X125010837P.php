@@ -44,6 +44,9 @@ class X125010837P
     private const SERVICE_POSTAL_LOSS_LOG = '*** Service facility postal code lost letters when reduced to digits. '
         . 'This 837P does not send the country code (N404), so the stored postal code was not sent.';
 
+    /** SBR05 is required when Medicare is not the primary payer; payers reject the claim without it. */
+    private const MSP_TYPE_LOG = '*** Medicare is not the primary payer and its Secondary Medicare Type is empty.';
+
     /**
      * Service-facility ZIP, loop 2310C. The 837P guide requires 9 digits for a US address.
      */
@@ -466,6 +469,10 @@ class X125010837P
             "*" .
             "*" . $claim->claimType() .
             "~\n";
+
+        if ($claim->secondaryMedicareTypeMissing()) {
+            $log .= self::MSP_TYPE_LOG . "\n";
+        }
 
         // Segment PAT omitted.
 
@@ -1178,6 +1185,10 @@ class X125010837P
                 "*" .
                 "*" . $claim->claimType($ins) .
                 "~\n";
+
+            if ($claim->secondaryMedicareTypeMissing($ins)) {
+                $log .= self::MSP_TYPE_LOG . "\n";
+            }
 
             // Things that apply only to previous payers, not future payers.
             if ($claim->payerSequence($ins) < $claim->payerSequence()) {

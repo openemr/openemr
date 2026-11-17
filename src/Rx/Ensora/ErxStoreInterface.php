@@ -36,6 +36,11 @@ interface ErxStoreInterface
     public function getUserFacility(int $id): array;
 
     /**
+     * @return list<array<mixed>> active `list_options` rows (option_id, title) of the list
+     */
+    public function getListOptions(string $listId): array;
+
+    /**
      * @return array<mixed> `patient_data` row
      */
     public function getPatientByPatientId(int $patientId): array;

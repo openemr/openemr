@@ -4,7 +4,9 @@
  # @package   OpenEMR
  # @link      https://www.open-emr.org
  # @author    Simon Quigley <squigley@altispeed.com>
+ # @author    Michael A. Smith <michael@opencoreemr.com>
  # @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
+ # @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  #}
 <html>
@@ -116,8 +118,14 @@ function copyAddress(base) {
     _map.forEach(f => {
         let s = (base == "mailing") ? f[0] : f[1];
         let d = (base == "mailing") ? f[1] : f[0];
-        let _s = document.querySelector("input[name='" + s + "']");
-        let _d = document.querySelector("input[name='" + d + "']");
+        let _s = document.querySelector("[name='" + s + "']");
+        let _d = document.querySelector("[name='" + d + "']");
+        // A select can't hold a value it doesn't list, such as an inactive or
+        // free-text state, so add the source's option rather than blank it.
+        if (_d.tagName === "SELECT" && !Array.from(_d.options).some(o => o.value === _s.value)) {
+            let label = (_s.tagName === "SELECT") ? _s.options[_s.selectedIndex].text : _s.value;
+            _d.add(new Option(label, _s.value));
+        }
         _d.value = _s.value;
     });
 }
@@ -225,7 +233,7 @@ function displayAlert() {
                                     <div class="col-sm-2">
                                         <div class="form-group">
                                             <label for='state' class='col-form-label sr-only'>{{ 'State'|xlt }}</label>
-                                            <input type='text' class='form-control' name='state' placeholder="{{ 'State'|xla }}" value="{{ facility.state|default('')|attr }}">
+                                            {{ selectList('state', stateListId, facility.state|default(''), 'State'|xl, {empty_name: 'State'}) }}
                                         </div>
                                     </div>
                                     <div class="col-sm-2">
@@ -237,7 +245,7 @@ function displayAlert() {
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for='country_code' class='col-form-label sr-only'>{{ 'Country'|xlt }}</label>
-                                            <input type='text' class='form-control' placeholder="{{ 'Country'|xla }}" name='country_code' value="{{ facility.country_code|default('')|attr }}">
+                                            {{ selectList('country_code', countryListId, facility.country_code|default(''), 'Country'|xl, {empty_name: 'Country'}) }}
                                         </div>
                                     </div>
                                     <div class="col-sm-12">
@@ -272,7 +280,7 @@ function displayAlert() {
                                     </div>
                                     <div class="col-sm-4">
                                         <label for="mail_state" class="col-form-label sr-only">{{ 'State'|xlt }}</label>
-                                        <input type="text" class="form-control" placeholder="{{ 'State'|xla }}" name="mail_state" value="{{ facility.mail_state|default('')|attr }}">
+                                        {{ selectList('mail_state', stateListId, facility.mail_state|default(''), 'State'|xl, {empty_name: 'State'}) }}
                                     </div>
                                     <div class="col-sm-4">
                                         <label for="mail_zip" class="col-form-label sr-only">{{ 'Zip'|xlt }}</label>
