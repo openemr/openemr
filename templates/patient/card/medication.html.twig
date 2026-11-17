@@ -43,7 +43,8 @@ The card lists each active medication and its dose, and can print that list.
 </div>
 {% if printPid is defined and printPid %}
 <div class="p-1">
-    <form method="get" action="active_medications_print.php" target="_blank" class="d-inline">
+    <form method="get" action="demographics.php" target="_blank" class="d-inline">
+        <input type="hidden" name="print_medications" value="1">
         <input type="hidden" name="pid" value="{{ printPid|attr }}">
         <button type="submit" class="btn btn-link p-0 border-0 align-baseline" onclick="top.restoreSession()">{{ "Print"|xlt }}</button>
     </form>
