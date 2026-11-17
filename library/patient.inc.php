@@ -1049,6 +1049,7 @@ function newPatientData(
     $phone_cell = "",
     $hipaa_mail = "",
     $hipaa_voice = "",
+    string $squad = "",
     $pharmacy_id = 0,
     $drivers_license = "",
     $hipaa_notice = "",
@@ -1091,7 +1092,7 @@ function newPatientData(
             genericname2 = ?, genericval2 = ?, billing_note = ?,
             phone_cell = ?, pharmacy_id = ?, hipaa_mail = ?,
             hipaa_voice = ?, hipaa_notice = ?, hipaa_message = ?,
-            fitness = ?, referral_source = ?,
+            squad = ?, fitness = ?, referral_source = ?,
             regdate = ?, pricelevel = ?, date = NOW()",
         [
             $db_id, $title, $fname, $lname, $mname,
@@ -1106,7 +1107,7 @@ function newPatientData(
             $genericname2, $genericval2, $billing_note,
             $phone_cell, $pharmacy_id, $hipaa_mail,
             $hipaa_voice, $hipaa_notice, $hipaa_message,
-            $fitness, $referral_source,
+            $squad, $fitness, $referral_source,
             $regdate, $pricelevel,
         ]
     );

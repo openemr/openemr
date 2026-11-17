@@ -259,6 +259,7 @@ function isColumnReserved($tablename, $field_id): bool
             'email',
             'pubpid',
             'pid',
+            'squad',
             'home_facility',
             'deceased_date',
             'deceased_reason',

@@ -127,6 +127,8 @@ if (!empty($_POST['form_import'])) {
     xml_parser_free($parser);
 
     $olddata = getPatientData($pid);
+    $oldSquad = $olddata['squad'] ?? '';
+    $oldSquad = is_string($oldSquad) ? $oldSquad : '';
 
     newPatientData(
         ($olddata['id'] ?? ''),
@@ -170,17 +172,8 @@ if (!empty($_POST['form_import'])) {
         ($apatient['phone_cell'] ?? ''),
         ($apatient['hipaa_mail'] ?? ''),
         ($apatient['hipaa_voice'] ?? ''),
+        $oldSquad,
     );
-
-    // newPatientData uses REPLACE INTO and no longer carries the squad
-    // column in its SET list, so the column reverts to its '' default on
-    // re-import of an existing patient. Restore the prior value so any
-    // historical data recorded while the squads feature was active is
-    // retained.
-    $oldSquad = $olddata['squad'] ?? '';
-    if (($olddata['id'] ?? '') !== '' && is_string($oldSquad) && $oldSquad !== '') {
-        sqlStatement("UPDATE patient_data SET squad = ? WHERE pid = ?", [$oldSquad, $pid]);
-    }
 
     newEmployerData(
         $pid,
