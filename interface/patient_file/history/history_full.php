@@ -135,7 +135,7 @@ function radioChange(rbutton)
      }
      //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
      if(rbutton!=""){
-         if(code_options_js[rbutton]!="")
+         if(code_options_js[rbutton])
             $("#smoke_code").html(" ( "+code_options_js[rbutton]+" )");
          else
              $("#smoke_code").html("");
@@ -195,7 +195,7 @@ function sel_related(e) {
 /// todo, move this to a common library
 $(function () {
     if($("#form_tobacco").val()!=""){
-        if(code_options_js[$("#form_tobacco").val()]!=""){
+        if(code_options_js[$("#form_tobacco").val()]){
             $("#smoke_code").html(" ( "+code_options_js[$("#form_tobacco").val()]+" )");
         }
     }
