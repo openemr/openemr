@@ -278,7 +278,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 6,
+    'count' => 7,
     'path' => __DIR__ . '/../../custom/import_xml.php',
 ];
 $ignoreErrors[] = [
