@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -50,6 +52,8 @@ $args = [
     'mode' => 'edit',
     'my_fid' => $my_fid,
     'organization_types' => $listService->getOptionsByListName('organization-type', ['activity' => '1']),
+    'stateListId' => OEGlobalsBag::getInstance()->getString('state_list'),
+    'countryListId' => OEGlobalsBag::getInstance()->getString('country_list'),
     'facility' => $facilityService->getById($my_fid),
 ];
 
