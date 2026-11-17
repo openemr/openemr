@@ -482,6 +482,7 @@ foreach ($pid_list as $pid) {
             if (empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                 $html .= xlt('Insurance') . ":";
                 if ($form_fill) {
+                    $insurerListed = false;
                     foreach (['primary', 'secondary', 'tertiary'] as $instype) {
                         $query = "SELECT * FROM insurance_data WHERE " .
                                 "pid = ? AND type = ? " .
@@ -491,9 +492,10 @@ foreach ($pid_list as $pid) {
                             $icobj = new InsuranceCompany($row['provider']);
                             $adobj = $icobj->get_address();
                             $insco_name = trim((string) $icobj->get_name());
-                            if ($instype != 'primary') {
+                            if ($insurerListed) {
                                 $html .= ",";
                             }
+                            $insurerListed = true;
 
                             if ($insco_name) {
                                 $html .= "&nbsp;" . text($insco_name);
