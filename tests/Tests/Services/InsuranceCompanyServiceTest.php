@@ -20,6 +20,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\AddressService;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\PhoneType;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -515,5 +516,39 @@ class InsuranceCompanyServiceTest extends TestCase
         $this->assertSame('555', $faxRow['area_code']);
         $this->assertSame('987', $faxRow['prefix']);
         $this->assertSame('6543', $faxRow['number']);
+    }
+
+    #[Test]
+    public function testLegacyPersistKeepsPhoneRowsOfOtherTypes(): void
+    {
+        // persist() rewrites only the WORK and FAX rows. A row of another
+        // type, written by other code, must survive a save of the reloaded
+        // company with its id intact and without gaining a copy.
+        $co = new \InsuranceCompany();
+        $co->set_name('test-fixture-LegacyPersistOtherType');
+        $co->set_phone('5551234567');
+        $co->set_fax('5559876543');
+        $co->persist();
+        $insuranceId = $co->id;
+        $this->assertTrue(is_int($insuranceId) || is_string($insuranceId));
+        $this->createdIds[] = $insuranceId;
+
+        $cellService = new PhoneNumberService();
+        $cellService->type = PhoneType::CELL->value;
+        $cellId = $cellService->insert(['phone' => '5550001111'], $insuranceId);
+
+        $reloaded = new \InsuranceCompany($insuranceId);
+        $reloaded->set_phone('5551112222');
+        $reloaded->persist();
+
+        $rows = QueryUtils::fetchRecordsNoLog(
+            'SELECT id, type FROM phone_numbers WHERE foreign_id = ? ORDER BY type',
+            [$insuranceId]
+        );
+        $this->assertSame(
+            [PhoneType::WORK->value, PhoneType::CELL->value, PhoneType::FAX->value],
+            array_column($rows, 'type')
+        );
+        $this->assertSame($cellId, $rows[1]['id']);
     }
 }

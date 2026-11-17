@@ -326,8 +326,12 @@ class InsuranceCompany extends ORDataObject
             $prefix = (string) ($record['prefix'] ?? '');
             $number = (string) ($record['number'] ?? '');
             $phoneStr = $areaCode . $prefix . $number;
-            $typeValue = is_int($record['type']) ? $record['type'] : PhoneType::WORK->value;
-            $type = PhoneType::tryFrom($typeValue) ?? PhoneType::WORK;
+            $type = is_int($record['type']) ? PhoneType::tryFrom($record['type']) : null;
+            // persist() rewrites only the work and fax rows. Load no other
+            // type, or the next save would insert a copy of that row.
+            if ($type !== PhoneType::WORK && $type !== PhoneType::FAX) {
+                continue;
+            }
             $typed = TypedPhoneNumber::tryCreate($phoneStr, $type);
             if ($typed !== null) {
                 $this->phone_numbers[] = $typed;
@@ -347,16 +351,18 @@ class InsuranceCompany extends ORDataObject
             $ret = parent::persist();
             $this->address->persist($this->id);
             $phoneService = new PhoneNumberService();
-            // Reset phone_numbers rows for this company so the table mirrors
+            // Reset this company's WORK and FAX rows so they mirror
             // $this->phone_numbers after the loop. PhoneNumberService::insert
             // is a plain INSERT (contrary to the earlier "handles upsert
             // logic" comment), so without the clear persist() accumulates a
             // fresh WORK + FAX row on every save and the list-view LEFT JOINs
             // on phone_numbers multiply each company across
-            // (work_count * fax_count) result rows.
+            // (work_count * fax_count) result rows. Rows of other types were
+            // written by other code, which persist() cannot recreate, so the
+            // clear leaves them alone.
             QueryUtils::sqlStatementThrowException(
-                "DELETE FROM phone_numbers WHERE foreign_id = ?",
-                [$this->id]
+                'DELETE FROM phone_numbers WHERE foreign_id = ? AND type IN (?, ?)',
+                [$this->id, PhoneType::WORK->value, PhoneType::FAX->value]
             );
             foreach ($this->phone_numbers as $phone) {
                 $nationalDigits = $phone->phoneNumber->getNationalDigits();

@@ -12,13 +12,16 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Claude Code
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\PhoneType;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -115,5 +118,39 @@ class PharmacyPersistTest extends TestCase
         $this->assertSame('555', $faxRow['area_code']);
         $this->assertSame('987', $faxRow['prefix']);
         $this->assertSame('6543', $faxRow['number']);
+    }
+
+    #[Test]
+    public function testLegacyPersistKeepsPhoneRowsOfOtherTypes(): void
+    {
+        // Same contract as the matching InsuranceCompany test: persist()
+        // rewrites only the WORK and FAX rows, so a row of another type keeps
+        // its id across a save of the reloaded pharmacy and gains no copy.
+        $pharmacy = new \Pharmacy();
+        $pharmacy->set_name('test-fixture-LegacyPersistOtherType');
+        $pharmacy->set_phone('5551234567');
+        $pharmacy->set_fax('5559876543');
+        $pharmacy->persist();
+        $pharmacyId = $pharmacy->id;
+        $this->assertTrue(is_int($pharmacyId) || is_string($pharmacyId));
+        $this->createdIds[] = $pharmacyId;
+
+        $cellService = new PhoneNumberService();
+        $cellService->type = PhoneType::CELL->value;
+        $cellId = $cellService->insert(['phone' => '5550001111'], $pharmacyId);
+
+        $reloaded = new \Pharmacy($pharmacyId);
+        $reloaded->set_phone('5551112222');
+        $reloaded->persist();
+
+        $rows = QueryUtils::fetchRecordsNoLog(
+            'SELECT id, type FROM phone_numbers WHERE foreign_id = ? ORDER BY type',
+            [$pharmacyId]
+        );
+        $this->assertSame(
+            [PhoneType::WORK->value, PhoneType::CELL->value, PhoneType::FAX->value],
+            array_column($rows, 'type')
+        );
+        $this->assertSame($cellId, $rows[1]['id']);
     }
 }
