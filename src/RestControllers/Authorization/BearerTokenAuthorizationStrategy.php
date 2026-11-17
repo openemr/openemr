@@ -604,9 +604,6 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
      *      at `PatientContextSearchController::checkUserAccessPatientData` for the
      *      SMART patient picker and at `interface/patient_file/summary/demographics.php`
      *      for chart access in the core UI).
-     *   4. If the patient carries a `squad` tag, the user must additionally hold
-     *      the matching `squads / <squad>` ACL, mirroring the squad-gate enforced
-     *      by `interface/patient_file/summary/demographics.php`.
      *
      * Returns false on any missing input, invalid UUID, unresolved user, or
      * unresolved patient. Called during SMART launch context mapping in
@@ -665,8 +662,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             return false;
         }
 
-        // Resolve the patient. We need the row (not just the pid) so we can check
-        // the optional per-patient `squad` ACL scope.
+        // Resolve the patient to confirm the UUID is a real patient row.
         $patient = $this->findPatientByUuid($patientUuid);
         if ($patient === null) {
             $this->auditLogger()->error(
@@ -683,10 +679,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             );
             return false;
         }
-        $squadRaw = $patient['squad'] ?? '';
-        $squad = is_string($squadRaw) ? $squadRaw : '';
 
-        return $this->aclCheckUserPatientAccess($username, $squad);
+        return $this->aclCheckUserPatientAccess($username);
     }
 
     /**
@@ -730,22 +724,14 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     }
 
     /**
-     * Applies OpenEMR's user-to-patient ACL policy: base `patients / demo`
-     * plus, when the patient carries a squad tag, the matching `squads / <squad>`
-     * ACL. Split out so isolated tests can stub the AclMain interaction without
-     * standing up the gACL database.
+     * Applies OpenEMR's user-to-patient ACL policy: `patients / demo`. Split
+     * out so isolated tests can stub the AclMain interaction without standing
+     * up the gACL database.
      *
      * @param string $username The user whose access is being checked.
-     * @param string $squad    The patient's squad tag (empty string when unset).
      */
-    protected function aclCheckUserPatientAccess(string $username, string $squad): bool
+    protected function aclCheckUserPatientAccess(string $username): bool
     {
-        if (!AclMain::aclCheckCore('patients', 'demo', $username)) {
-            return false;
-        }
-        if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad, $username)) {
-            return false;
-        }
-        return true;
+        return AclMain::aclCheckCore('patients', 'demo', $username);
     }
 }

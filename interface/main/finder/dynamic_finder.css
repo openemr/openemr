@@ -4,7 +4,8 @@
  * Styles for the Patient Finder (dynamic_finder.php): the one-row heading bar, the
  * Patient List and Recent Patients tables, the row-detail toggle, and the
  * jQuery-DataTables overrides. Rules are scoped by id so they win over Bootstrap's
- * and DataTables' own rules without !important.
+ * and DataTables' own rules without !important. Every color is a theme variable, so
+ * the finder follows the selected theme (the dark theme swaps --white and --black).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -132,7 +133,7 @@ div.dataTables_wrapper div.dataTables_processing {
    wins over Bootstrap's and DataTables' own rules.
    ========================================================================== */
 
-/* Blue column headings. */
+/* Column headings in the theme's primary color. */
 :is(#pt_table, #recent_table) > thead > tr {
   background-color: var(--primary);
 }
@@ -159,7 +160,7 @@ div.dataTables_wrapper div.dataTables_processing {
   display: none;
 }
 
-/* A blue line under each row. */
+/* A primary-color line under each row. */
 :is(#pt_table, #recent_table) > tbody > tr > td {
   padding: 0.1rem 0.75rem;
   border-top: 0;
@@ -175,11 +176,11 @@ div.dataTables_wrapper div.dataTables_processing {
   cursor: pointer;
 }
 
-/* Gray rows, odd ones a shade darker, as the finder update had them. The cells are
-   painted, because the theme gives tr.odd a white background with !important. DataTables'
+/* Rows tinted toward --gray100, odd ones a shade more, as the finder update had them. The
+   cells are painted, because the theme gives tr.odd a background with !important. DataTables'
    stripe and sorted-column tints still darken them a little, as before. The expand
-   column has no stripe tint: lighter than its row, white on even rows. An expanded row's
-   details have no odd/even class and stay white. */
+   column has no stripe tint: lighter than its row, the plain background on even rows. An
+   expanded row's details have no odd/even class and keep the plain background. */
 :is(#pt_table, #recent_table) > tbody > tr.odd > td {
   background-color: color-mix(in srgb, var(--gray100) 75%, var(--white));
 }
@@ -193,11 +194,11 @@ div.dataTables_wrapper div.dataTables_processing {
   box-shadow: none;
 }
 
-/* A patient row under the pointer turns gray with light text. Only result rows: an
+/* A patient row under the pointer takes --gray500 with --light text. Only result rows: an
    expanded row's details (which have no odd/even class) stay as they are. The cells are
-   painted rather than the row, because the theme gives tr.odd a white background with
-   !important, which would leave odd rows white. Clearing the box-shadow drops the
-   DataTables stripe and sorted-column tints, so every cell is the same gray. */
+   painted rather than the row, because the theme gives tr.odd a background with
+   !important, which would leave odd rows unchanged. Clearing the box-shadow drops the
+   DataTables stripe and sorted-column tints, so every cell is the same color. */
 :is(#pt_table, #recent_table) > tbody > tr:is(.odd, .even):hover {
   color: var(--light);
 }
@@ -230,7 +231,8 @@ div.dataTables_wrapper div.dataTables_processing {
   text-align: center;
 }
 
-/* Blue square with a right arrow; red with a down arrow while the details are open.
+/* A primary-color square with a right arrow; the danger color with a down arrow while
+   the details are open.
    The arrow is centered in the square by flexbox, not by the font's line box. */
 :is(#pt_table, #recent_table) .finder-detail-toggle {
   display: inline-flex;
@@ -268,8 +270,8 @@ div.dataTables_wrapper div.dataTables_processing {
   top: 0;
 }
 
-/* An expanded row: the Patient Finder Detail layout, set off by a blue line on its left
-   that lines up with the first column after the expand buttons. */
+/* An expanded row: the Patient Finder Detail layout, set off by a primary-color line on
+   its left that lines up with the first column after the expand buttons. */
 :is(#pt_table, #recent_table) > tbody > tr > td > .finder-detail {
   margin-left: calc(var(--finder-control-width) - 0.75rem);
   padding: 0.5rem 1rem 0.5rem 2rem;
@@ -338,9 +340,10 @@ div.dataTables_wrapper div.dataTables_processing {
   color: var(--dark) !important;
 }
 
+/* DataTables' Bootstrap styling makes the "Processing..." indicator a .card, which the
+   theme paints; keep it see-through over the table, as it has always shown. */
 .dataTables_wrapper .dataTables_processing {
-  background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgb(var(--black), 0.9)), color-stop(75%, rgb(var(--black), 0.9)), color-stop(100%, transparent)) !important;
-  background: linear-gradient(to right, transparent 0%, rgb(var(--black), 0.9) 25%, rgb(var(--black), 0.9) 75%, transparent 100%) !important;
+  background: transparent;
 }
 
 /* Pagination button Overrides for jQuery-DT */
