@@ -4,6 +4,7 @@ namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Tests\Support\Fixtures\UuidRegistryCleanup;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -628,8 +629,9 @@ class FixtureManager
         );
         if ($teamIds !== []) {
             $tplaceholders = implode(',', array_fill(0, count($teamIds), '?'));
-            QueryUtils::sqlStatementThrowException(
-                "DELETE FROM care_team_member WHERE care_team_id IN ($tplaceholders)",
+            UuidRegistryCleanup::sweepRowsAndUuidEntries(
+                'care_team_member',
+                "care_team_id IN ($tplaceholders)",
                 $teamIds
             );
         }
@@ -709,12 +711,14 @@ class FixtureManager
             return;
         }
         $placeholders = implode(',', array_fill(0, count($pids), '?'));
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM form_care_plan WHERE pid IN ($placeholders)",
+        UuidRegistryCleanup::sweepRowsAndUuidEntries(
+            'form_care_plan',
+            "pid IN ($placeholders)",
             $pids
         );
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM forms WHERE pid IN ($placeholders) AND formdir = 'care_plan'",
+        UuidRegistryCleanup::sweepRowsAndUuidEntries(
+            'forms',
+            "pid IN ($placeholders) AND formdir = 'care_plan'",
             $pids
         );
     }
@@ -1008,9 +1012,8 @@ class FixtureManager
 
         if ($pids !== []) {
             $count = count($pids) - 1;
-            $where = "WHERE pid = ? " . str_repeat("OR pid = ? ", $count);
-            $sqlStatement = "DELETE FROM `lists` " . $where;
-            QueryUtils::sqlStatementThrowException($sqlStatement, $pids);
+            $where = "pid = ? " . str_repeat("OR pid = ? ", $count);
+            UuidRegistryCleanup::sweepRowsAndUuidEntries('lists', $where, $pids);
         }
         $this->removePatientFixtures();
     }

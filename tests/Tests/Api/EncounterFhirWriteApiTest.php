@@ -23,6 +23,7 @@ namespace OpenEMR\Tests\Api;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Tests\Support\Fixtures\UuidRegistryCleanup;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -80,8 +81,23 @@ class EncounterFhirWriteApiTest extends TestCase
         // after a failed setUp(), and touching a typed property before initialization raises an
         // Error that aborts the rest of the cleanup -- taking the OAuth client teardown below
         // with it and leaking a registered client per failed run.
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM form_encounter WHERE reason LIKE 'test-fixture%'"
+        // EncounterService::insertEncounter addForm()s a `forms`
+        // row with formdir='newpatient' alongside each form_encounter
+        // row. Sweep the companion forms rows FIRST (both the
+        // uuid_registry entry and the row itself) while the owning
+        // form_encounter is still present — the sweep's subselect
+        // joins through `forms.encounter = form_encounter.encounter`
+        // and would see nothing after the encounter is gone. Then
+        // sweep the form_encounter rows + their uuid_registry entries.
+        UuidRegistryCleanup::sweepRowsAndUuidEntries(
+            'forms',
+            "formdir = 'newpatient' AND encounter IN ("
+                . "SELECT encounter FROM form_encounter WHERE reason LIKE 'test-fixture%'"
+                . ")"
+        );
+        UuidRegistryCleanup::sweepRowsAndUuidEntries(
+            'form_encounter',
+            "reason LIKE 'test-fixture%'"
         );
         if (isset($this->fixtureManager)) {
             $this->fixtureManager->removePatientFixtures();

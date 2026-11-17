@@ -31,6 +31,7 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
+use OpenEMR\Tests\Support\Fixtures\UuidRegistryCleanup;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -79,12 +80,16 @@ class SoapNoteApiTest extends TestCase
         );
         if (count($pids) > 0) {
             $placeholders = implode(',', array_fill(0, count($pids), '?'));
-            QueryUtils::sqlStatementThrowException(
-                "DELETE FROM form_soap WHERE pid IN ($placeholders)",
+            // Each sweep runs the uuid_registry delete first because
+            // its subselect reads the owning row's uuid.
+            UuidRegistryCleanup::sweepRowsAndUuidEntries(
+                'form_soap',
+                "pid IN ($placeholders)",
                 $pids
             );
-            QueryUtils::sqlStatementThrowException(
-                "DELETE FROM forms WHERE pid IN ($placeholders) AND formdir = 'soap'",
+            UuidRegistryCleanup::sweepRowsAndUuidEntries(
+                'forms',
+                "pid IN ($placeholders) AND formdir = 'soap'",
                 $pids
             );
         }

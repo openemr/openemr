@@ -27,6 +27,7 @@ namespace OpenEMR\Tests\Api;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
+use OpenEMR\Tests\Support\Fixtures\UuidRegistryCleanup;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -93,8 +94,12 @@ class EncounterApiTest extends TestCase
         );
         if (count($pids) > 0) {
             $placeholders = implode(',', array_fill(0, count($pids), '?'));
-            QueryUtils::sqlStatementThrowException(
-                "DELETE FROM forms WHERE pid IN ($placeholders) AND formdir = 'newpatient'",
+            // uuid_registry rows must come down first — the sweep
+            // reads the forms uuid, so deleting the forms row first
+            // would orphan the registry entry.
+            UuidRegistryCleanup::sweepRowsAndUuidEntries(
+                'forms',
+                "pid IN ($placeholders) AND formdir = 'newpatient'",
                 $pids
             );
         }
