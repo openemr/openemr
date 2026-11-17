@@ -310,7 +310,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
     $sqlParam = [];
     $sqlParam[] = $patient_id;
     $res_allergies = sqlStatement("SELECT `title` FROM `lists` WHERE `type`='allergy' " .
-                                "AND `activity`=1 " .
+                                "AND (`activity` IS NULL OR `activity` <> 0) " .
                                 "AND ( " .
                                 dateEmptySql('enddate') .
                                 "OR `enddate` > NOW() ) " .
@@ -340,7 +340,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
         $conflicts = [];
         $sqlParam[] = $patient_id;
         $res_meds = sqlStatement("SELECT `title` FROM `lists` WHERE `type`='medication' " .
-                             "AND `activity`=1 " .
+                             "AND (`activity` IS NULL OR `activity` <> 0) " .
                              "AND ( " .
                              dateEmptySql('enddate') .
                              "OR `enddate` > NOW() )" .
