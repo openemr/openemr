@@ -488,3 +488,9 @@ WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
 #IfRow2D globals gl_name translation_preload_cache gl_value 0
 UPDATE `globals` SET `gl_value` = 'auto' WHERE `gl_name` = 'translation_preload_cache' AND `gl_value` = '0';
 #EndIf
+
+-- The UUID service's mapping check joins on target_uuid, resource and resource_path; with only the
+-- single-column target_uuid key it reads every mapping row of a record to keep one (15 per vitals form).
+#IfNotIndex uuid_mapping idx_target_res_path
+CREATE INDEX `idx_target_res_path` ON `uuid_mapping` (`target_uuid`, `resource`, `resource_path`);
+#EndIf
