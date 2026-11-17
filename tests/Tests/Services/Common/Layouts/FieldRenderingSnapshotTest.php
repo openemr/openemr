@@ -493,11 +493,6 @@ final class FieldRenderingSnapshotTest extends TestCase
             'frow'      => self::baseFrow(12, 'test_pharmacies'),
             'currvalue' => '',
         ];
-        yield 'squads' => [
-            'data_type' => 13,
-            'frow'      => self::baseFrow(13, 'test_squads'),
-            'currvalue' => '',
-        ];
         yield 'address-book' => [
             'data_type' => 14,
             'frow'      => self::baseFrow(14, 'test_address_book'),

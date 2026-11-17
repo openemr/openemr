@@ -461,7 +461,7 @@ class PrescriptionService extends BaseService
             // PrescriptionApiTest::testGetOneNotFound pins. Orphaned rows
             // (prescription exists but owner patient row is missing) do
             // NOT hit this branch; findPatientForPrescription returns a
-            // row with null pid/squad/uuid in that case, and the SELECT
+            // row with null pid/uuid in that case, and the SELECT
             // below still surfaces the prescription.
             $processingResult->setValidationMessages([
                 'uuid' => ['invalid or nonexisting value' => 'value ' . $uuid],
@@ -549,7 +549,6 @@ class PrescriptionService extends BaseService
      * Returns a validation-failure result on any of:
      *   - unresolved `patient_id` (no such patient)
      *   - caller lacks the base `patients / demo` ACL
-     *   - patient carries a `squad` tag the caller does not hold
      *
      * @param array<string, mixed> $data The prescription data.
      * @return ProcessingResult containing the new prescription id and uuid, or validation errors.
@@ -571,11 +570,10 @@ class PrescriptionService extends BaseService
 
         // Per-patient ACL check on the supplied patient_id. Prescriptions.patient_id
         // is a pid (not a uuid — see sql/database.sql). Resolve the pid to a
-        // patient row, then verify the caller holds `patients / demo` (plus
-        // any patient-specific `squads/<squad>` scope). Return a validation
-        // failure if the pid does not resolve or the caller lacks access — a
-        // tenant-wide `patients/rx write` grant must not translate to "can
-        // create a prescription for any patient".
+        // patient row, then verify the caller holds `patients / demo`. Return a
+        // validation failure if the pid does not resolve or the caller lacks
+        // access — a tenant-wide `patients/rx write` grant must not translate
+        // to "can create a prescription for any patient".
         // Require an integer LEXICAL form for patient_id. `is_numeric`
         // accepts things like "1.5", "1e2", "+1", and "  1  "; the (int)
         // cast then narrows to 1, so ACL runs against patient 1 while
@@ -604,9 +602,7 @@ class PrescriptionService extends BaseService
             ]);
             return $processingResult;
         }
-        $squadRaw = $patient['squad'] ?? '';
-        $squad = is_string($squadRaw) ? $squadRaw : '';
-        if (!$this->aclCheckUserPatientAccess($squad)) {
+        if (!$this->aclCheckUserPatientAccess()) {
             $processingResult->setValidationMessages([
                 'patient_id' => 'User does not have access to this patient.',
             ]);
@@ -705,17 +701,15 @@ class PrescriptionService extends BaseService
         // Naming the right patient is not the same as being allowed to open their chart.
         // insert() runs this check and update() did not, so an unbound token carrying only
         // tenant-wide MedicationRequest.write could modify a prescription in a chart its user
-        // has no access to -- including one gated behind a squad ACL. Reported as a denial
-        // rather than not-found: the caller has already matched the row's owner, so there is
-        // nothing left to probe for.
+        // has no access to. Reported as a denial rather than not-found: the caller has already
+        // matched the row's owner, so there is nothing left to probe for.
         $rowPatient = $this->findPatientByPid($rowPatientId);
         if ($rowPatient === null) {
             $processingResult = new ProcessingResult();
             $processingResult->setValidationMessages(['uuid' => 'MedicationRequest not found']);
             return $processingResult;
         }
-        $rowSquadRaw = $rowPatient['squad'] ?? '';
-        if (!$this->aclCheckUserPatientAccess(is_string($rowSquadRaw) ? $rowSquadRaw : '')) {
+        if (!$this->aclCheckUserPatientAccess()) {
             $processingResult = new ProcessingResult();
             $processingResult->setValidationMessages([
                 'patient_id' => 'User does not have access to this patient.',
@@ -893,7 +887,7 @@ class PrescriptionService extends BaseService
             return null;
         }
         $rows = QueryUtils::fetchRecords(
-            "SELECT pid, squad, uuid FROM " . self::PATIENT_TABLE . " WHERE uuid = ? LIMIT 1",
+            "SELECT pid, uuid FROM " . self::PATIENT_TABLE . " WHERE uuid = ? LIMIT 1",
             [$uuidBytes]
         );
         if (!isset($rows[0])) {
@@ -906,16 +900,16 @@ class PrescriptionService extends BaseService
 
     /**
      * Given a prescription uuid, return the row for the prescription and
-     * its owning patient (pid, squad, uuid). Handles both the
-     * `prescriptions` table (patient_id column) and the `lists`
-     * medication rows (pid column) via a UNION mirror of the
-     * `combined_prescriptions` shape used by the SELECT SQL.
+     * its owning patient (pid, uuid). Handles both the `prescriptions`
+     * table (patient_id column) and the `lists` medication rows (pid
+     * column) via a UNION mirror of the `combined_prescriptions` shape
+     * used by the SELECT SQL.
      *
      * Returns null ONLY when the prescription uuid does not resolve at
      * all. When the prescription exists but the owner patient row is
-     * missing (orphaned data), the returned row has `pid`/`squad`/`uuid`
-     * as null — mirroring the LEFT JOIN in {@see self::getBaseSql()} so
-     * callers can still surface the prescription. The REST controller's
+     * missing (orphaned data), the returned row has `pid`/`uuid` as null
+     * — mirroring the LEFT JOIN in {@see self::getBaseSql()} so callers
+     * can still surface the prescription. The REST controller's
      * per-patient ACL check treats a null pid as "no owner to gate
      * against" and skips (matching the historical no-ACL behavior).
      *
@@ -934,7 +928,7 @@ class PrescriptionService extends BaseService
             return null;
         }
         $rows = QueryUtils::fetchRecords(
-            "SELECT patient_data.pid, patient_data.squad, patient_data.uuid"
+            "SELECT patient_data.pid, patient_data.uuid"
             . " FROM (
                     SELECT prescriptions.uuid, prescriptions.patient_id AS owner_pid FROM prescriptions
                     UNION
@@ -998,24 +992,14 @@ class PrescriptionService extends BaseService
     }
 
     /**
-     * Applies OpenEMR's user-to-patient ACL policy: base `patients / demo`
-     * plus, when the patient carries a squad tag, the matching `squads / <squad>`
-     * ACL. Mirrors
+     * Applies OpenEMR's user-to-patient ACL policy: `patients / demo`. Mirrors
      * {@see \OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy::aclCheckUserPatientAccess()}.
      * Split out so isolated tests can stub the AclMain interaction without
      * standing up the gACL database. The caller identity is pulled from the
-     * active session by `AclMain::aclCheckCore()` when no username is passed.
-     *
-     * @param string $squad The patient's squad tag (empty string when unset).
+     * active session by `AclMain::aclCheckCore()`.
      */
-    protected function aclCheckUserPatientAccess(string $squad): bool
+    protected function aclCheckUserPatientAccess(): bool
     {
-        if (!AclMain::aclCheckCore('patients', 'demo')) {
-            return false;
-        }
-        if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
-            return false;
-        }
-        return true;
+        return AclMain::aclCheckCore('patients', 'demo');
     }
 }
