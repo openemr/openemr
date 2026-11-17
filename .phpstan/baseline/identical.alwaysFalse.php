@@ -32,6 +32,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\=\\=\\= between mixed and true will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/Javascript.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between \'\' and \'BR\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',

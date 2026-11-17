@@ -18,13 +18,18 @@ declare(strict_types=1);
 namespace OpenEMR\Rx\Ensora;
 
 use OpenEMR\Encryption\Plaintext;
+use UnexpectedValueException;
 
 interface ErxGlobalsInterface
 {
     /** Empty when unset */
     public function getOpenEMRSiteDirectory(): string;
 
-    /** The URL eRx requests post to; empty when unset */
+    /**
+     * The https URL eRx requests post to
+     *
+     * @throws UnexpectedValueException when the path is unset or unusable
+     */
     public function getPath(): string;
 
     public function getAccountId(): string;
@@ -33,6 +38,9 @@ interface ErxGlobalsInterface
     public function getUploadActive(): bool;
 
     public function getDefaultPatientCountry(): string;
+
+    /** The list the site picks states from (the state_list setting) */
+    public function getStateListId(): string;
 
     public function getPartnerName(): string;
 

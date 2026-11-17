@@ -1903,7 +1903,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$currvalue \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 8,
+    'count' => 7,
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
@@ -1993,7 +1993,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$smallform \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 18,
+    'count' => 17,
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [

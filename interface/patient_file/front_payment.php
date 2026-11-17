@@ -545,8 +545,11 @@ function toencounter(enc, datestr, topframe) {
                             <bold class="bg-color"><?php echo text($frow['name']) ?></bold> <br /> <br />
                             <?php echo text($frow['street']) ?><br />
                             <?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code']) ?><br />
-                            <?php echo text("[Phone]" . $frow['phone']) ?><br />
-                            <?php echo text("[Email] " . $frow['email']) ?><br />
+                            <?php foreach ([$frow['phone'] ?? '', $frow['email'] ?? ''] as $facilityContact) { ?>
+                                <?php if (is_string($facilityContact) && $facilityContact !== '') { ?>
+                                    <?php echo text($facilityContact) ?><br />
+                                <?php } ?>
+                            <?php } ?>
 
                             <br />
                             <?php echo xlt('Patient'); ?>:
