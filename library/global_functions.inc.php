@@ -17,6 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Billing\Statement\StatementPortal;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -592,6 +593,18 @@ function hl7Zip($s)
 }
 
 /**
+ * The patient may use the patient portal, and is now the session's portal user.
+ * The statements pages' site statement.inc.php files call this when sending a
+ * statement to the portal.
+ *
+ * @param mixed $pid patient_data.pid
+ */
+function is_auth_portal($pid = 0): bool
+{
+    return StatementPortal::authorize(is_numeric($pid) ? (int) $pid : 0);
+}
+
+/**
  * Given an issue type as a string, compute its index.
  *
  * @param string $tstr The issue type string
@@ -829,7 +842,7 @@ function User_Id_Look($thisField): string
  * @param bool $create Whether to create new (true) or overwrite existing (false)
  * @return bool True on success, false on failure
  */
-function zip_content($source, $destination, $content = '', $create = true)
+function zip_content($source, $destination, $content = '', $create = true): bool
 {
     if (!extension_loaded('zip')) {
         return false;

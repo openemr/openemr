@@ -29,13 +29,6 @@ if (!empty($module_call_pid)) {
 }
 
 // Check authorization.
-if (AclMain::aclCheckCore('patients', 'med')) {
-    $tmp = getPatientData($pid, "squad");
-    if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
-    }
-}
-
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to patient history save');
 }

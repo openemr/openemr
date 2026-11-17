@@ -64,17 +64,6 @@ class PrescriptionRestControllerAclIsolatedTest extends TestCase
         );
     }
 
-    public function testDenyHelperCallsSquadCheck(): void
-    {
-        // When the patient carries a squad tag, additionally gate on
-        // `squads / <squad>`. Mirrors BearerTokenAuthorizationStrategy.
-        $this->assertMatchesRegularExpression(
-            "/AclMain::aclCheckCore\\(\\s*['\"]squads['\"]\\s*,\\s*\\\$squad\\s*\\)/",
-            $this->controllerContent,
-            'denyIfNoChartAccess must gate on squads/<squad> when the patient carries a squad tag'
-        );
-    }
-
     /**
      * @return array<string, array{string}>
      *
@@ -106,8 +95,8 @@ class PrescriptionRestControllerAclIsolatedTest extends TestCase
     public function testGetAllResolvesPatientByUuidBeforeGate(): void
     {
         // getAll receives the patient uuid via query param. It must resolve
-        // the row (for the squad tag) via findPatientByPatientUuid before
-        // handing to the gate.
+        // the row via findPatientByPatientUuid before handing to the gate so
+        // the gate can confirm the uuid resolves to a real patient.
         $this->assertMatchesRegularExpression(
             '/public function getAll[\s\S]{0,1500}?\$this->prescriptionService->findPatientByPatientUuid\(/',
             $this->controllerContent,

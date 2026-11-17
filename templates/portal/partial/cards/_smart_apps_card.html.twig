@@ -1,0 +1,25 @@
+{#
+* _smart_apps_card.html.twig: the patient's SMART apps on the portal dashboard, each with a Launch button.
+* Rendered by OpenEMR\FHIR\SMART\Subscriber\PortalSmartLaunchSubscriber.
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<!-- Health Apps Card -->
+<div class="card collapse overflow-auto" data-parent="#cardgroup" id="{{ id|attr }}">
+    <header class="card-header p-1 bg-dark text-light h3">{{ 'Health Apps' | xlt }}</header>
+    <div class="card-body">
+        <p class="text-muted">{{ 'These apps work with your health record. An app opens in a new window and asks you to sign in and allow it access.' | xlt }}</p>
+        <ul class="list-group">
+            {% for app in apps %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ app.name | text }}</span>
+                    <a class="btn btn-success btn-sm" href="{{ app.url | attr }}" target="_blank" rel="noopener noreferrer">{{ 'Launch' | xlt }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

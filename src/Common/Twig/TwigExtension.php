@@ -98,13 +98,28 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         ];
     }
 
+    /**
+     * The page header for a Twig template, returned and never echoed.
+     *
+     * Header::setupHeader() echoes its markup as well as returning it, and Twig prints the
+     * return. Rendering buffers the echo, so letting it echo put every script and stylesheet
+     * in the page twice, and Bootstrap then handled each click twice. A second argument
+     * from a template, as in setupHeader([...], false), is accepted and ignored.
+     *
+     * @param array<string>|string $assets
+     */
+    public static function setupHeader(array|string $assets = []): string
+    {
+        return Header::setupHeader($assets, false);
+    }
+
     public function getFunctions(): array
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return [
             new TwigFunction(
                 'setupHeader',
-                Header::setupHeader(...)
+                self::setupHeader(...)
             ),
 
             new TwigFunction(

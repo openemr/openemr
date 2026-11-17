@@ -24,6 +24,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
+use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
 use OpenEMR\Services\VersionService;
 
@@ -213,6 +214,10 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * #IfCareTeamsV1MigrationNeeded
      *  desc: Migrate care teams v1 data to care teams v2 structure.
+     *  arguments: none
+     *
+     * #IfPatientReviewMigrationNeeded
+     *  desc: Copy onsite_portal_activity rows not yet copied into the patient review queue tables.
      *  arguments: none
      *
      * #EndIf
@@ -764,6 +769,20 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (empty($is_migrated) && !empty($is_version)) {
                     $skipping = false;
                     $this->migrateCareTeamsV1ToV2();
+                } else {
+                    $skipping = true;
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
+            } elseif (str_starts_with($line, '#IfPatientReviewMigrationNeeded')) {
+                $migrator = ReviewQueueFactory::portalActivityMigrator();
+                if ($migrator->isNeeded()) {
+                    $skipping = false;
+                    $report = $migrator->migrate();
+                    $this->echo("<p class='text-success'>" . xlt('Copied portal review activity to the review queue') . ': ' . text((string) $report->migrated) . "</p>\n");
+                    if ($report->skipped !== [] || $report->failed !== [] || $report->unrecognised !== []) {
+                        $this->echo("<p class='text-warning'>" . xlt('Some portal activity rows need attention; see the system log') . "</p>\n");
+                    }
+                    $this->flush_echo();
                 } else {
                     $skipping = true;
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");

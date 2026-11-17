@@ -122,6 +122,41 @@ class FhirDateTimeParserTest extends TestCase
         $this->assertSame('2024-03-01', FhirDateTimeParser::toDbDate('2024-03', 'Goal.startDate', true));
     }
 
+    /**
+     * A Period's end is inclusive, so a partial end stands for the last day it covers.
+     */
+    #[DataProvider('periodEndProvider')]
+    public function testPeriodEndIsTheLastDayItCovers(?string $input, ?string $expected): void
+    {
+        $this->assertSame($expected, FhirDateTimeParser::toDbPeriodEndDate($input, 'Coverage.period.end'));
+    }
+
+    /**
+     * @return array<string, array{0: ?string, 1: ?string}>
+     * @codeCoverageIgnore
+     */
+    public static function periodEndProvider(): array
+    {
+        return [
+            'year' => ['2024', '2024-12-31'],
+            'december' => ['2024-12', '2024-12-31'],
+            'leap february' => ['2024-02', '2024-02-29'],
+            'february' => ['2023-02', '2023-02-28'],
+            'thirty-day month' => ['2024-04', '2024-04-30'],
+            'full date' => ['2024-12-15', '2024-12-15'],
+            'date time, in the server timezone' => ['2024-03-15T01:30:00Z', '2024-03-14'],
+            'absent' => [null, null],
+            'blank' => ['', null],
+        ];
+    }
+
+    public function testPeriodEndRejectsWhatToDbDateRejects(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/Coverage\.period\.end/');
+        FhirDateTimeParser::toDbPeriodEndDate('2024-13', 'Coverage.period.end');
+    }
+
     #[DataProvider('invalidValueProvider')]
     public function testInvalidValuesThrow(mixed $input): void
     {

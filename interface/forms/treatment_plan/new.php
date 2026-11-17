@@ -65,7 +65,7 @@ echo "<form method='post' name='my_form' " .
 <td align="left" class="forms" class="forms"><?php echo xlt('Client Name'); ?>:</td>
         <td class="forms">
             <label class="forms-data"> <?php if (is_numeric($pid)) {
-                $result = getPatientData($pid, "fname,lname,squad");
+                $result = getPatientData($pid, "fname,lname");
                 echo text($result['fname']) . " " . text($result['lname']);
                                        }
 

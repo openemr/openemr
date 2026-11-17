@@ -42,6 +42,7 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -51,9 +52,8 @@ class BillingProcessor
     /**
      * Our logger instance that we use and also pass down
      * to the processing tasks
-     * @var mixed
      */
-    protected $logger;
+    protected BillingLogger $logger;
 
     /**
      * The following constants are the options for processing tasks, which are the actions
@@ -109,10 +109,19 @@ class BillingProcessor
         foreach ($this->post['claims'] as $claimId => $partner_and_payor) {
             if (isset($partner_and_payor['bill'])) {
                 // The format coming in from POST is like this:
-                // [ encounter-pid => [ 'partner' => partnerId, 'payor' => 'p'.payorId ], ... ]
+                // [ pid-encounter => [ 'partner' => partnerId, 'payor' => 'p'.payorId ], ... ]
                 // Since the format is cryptic, we use the BillingClaim constructor to parse that into meaningful
                 // attributes
                 $billingClaim = new BillingClaim($claimId, $partner_and_payor, $processing_task_action);
+                // A claim without a valid patient ID can't be audited against its
+                // patient, and isn't one the billing page lists, so don't process it.
+                // The round trip through int rejects IDs beyond PHP_INT_MAX, which
+                // the cast would otherwise turn into a different patient ID.
+                $pid = $billingClaim->getPid();
+                if (!ctype_digit($pid) || (string) (int) $pid !== $pid || (int) $pid < 1) {
+                    $this->logger->printToScreen(xl('Skipped a claim with an invalid patient ID') . ': ' . $pid);
+                    continue;
+                }
                 if (($billingClaim->getPartner() == -1) && $bn_x12) {
                     // If the x-12 partner is unassigned, don't process it.
                     $this->logger->printToScreen(xl("No X-12 partner assigned for claim " . $billingClaim->getId()));
@@ -126,6 +135,9 @@ class BillingProcessor
         return $claims;
     }
 
+    /**
+     * @param array<BillingClaim> $claims from prepareClaims()
+     */
     protected function processClaims(ProcessingTaskInterface $processingTask, array $claims)
     {
         // Call setup on our processing task. If the task is a file-generator,
@@ -135,11 +147,20 @@ class BillingProcessor
             'post' => $this->post
         ]);
 
-        // Go through each claim and process it while organizing them into batches
-        foreach ($claims as $claim) {
-            // Call the execute method on the task we created below based on user input
-            // If the task is generating a file, one of the Generator* file's execute methods is called
-            $processingTask->execute($claim);
+        // Go through each claim and process it while organizing them into batches.
+        // Each claim's statements are audited against its own patient, not the
+        // chart open in the session.
+        $auditLogger = EventAuditLogger::getInstance();
+        try {
+            foreach ($claims as $claim) {
+                $pid = $claim->getPid();
+                $auditLogger->setRequestPatientId(ctype_digit($pid) && (int) $pid > 0 ? (int) $pid : null);
+                // Call the execute method on the task we created below based on user input
+                // If the task is generating a file, one of the Generator* file's execute methods is called
+                $processingTask->execute($claim);
+            }
+        } finally {
+            $auditLogger->setRequestPatientId(null);
         }
 
         // Call the task's complete method so it can produce it's output

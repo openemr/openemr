@@ -6,6 +6,7 @@
  * @package OpenEMR
  * @link https://www.open-emr.org/wiki
  * @author Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2026 OpenEMR Foundation
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -30,7 +31,7 @@ $v_realpatch = '0';
 //
 // Keep in sync with the v_database comment in sql/database.sql.
 // CI will fail if they don't match.
-$v_database = 555;
+$v_database = 578;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -49,5 +50,5 @@ if (($_ENV['OPENEMR__ENVIRONMENT'] ?? '') === 'dev') {
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping
-    $v_js_includes = 83;
+    $v_js_includes = 95;
 }

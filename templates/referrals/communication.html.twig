@@ -1,0 +1,35 @@
+{#
+ # What passed between the practice and a saved referral's recipient (#15137): how the recipient was
+ # told about their Task, Direct sends with the referral whose delivery failed, and Direct replies
+ # filed with it. A reply's Confirm button submits reply_confirm_form.html.twig, which is outside the
+ # page's form.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+<div class="col-sm-12 mt-2" id="referral_communication">
+    {% if notice %}
+        <div class="{{ notice.needsStaff() ? 'text-danger' : 'text-muted' }}">
+            {{ notice.createdAt|text }}: {{ notice.label()|text }}{% if notice.address %} ({{ notice.address|text }}){% endif %}.
+            {% if notice.detail %}{{ notice.detail|text }}{% endif %}
+            {% if notice.deliveryFailed() and notice.deliveryInfo %}{{ notice.deliveryInfo|text }}{% endif %}
+            {% if notice.needsStaff() %}{{ 'Please contact the recipient.'|xlt }}{% endif %}
+        </div>
+    {% endif %}
+    {% for send in failed_sends %}
+        <div class="text-danger">
+            {{ send.sent_at|text }}: {{ 'Direct delivery failed to'|xlt }} {{ send.recipient|text }}.
+        </div>
+    {% endfor %}
+    {% for reply in replies %}
+        <div>
+            {{ reply.receivedAt|text }}: {{ 'Direct reply received from'|xlt }} {{ reply.sender|text }}.
+            {% if confirmable %}
+                <button type="submit" form="referral_reply_form" name="reply" value="{{ reply.id|attr }}" class="btn btn-secondary btn-sm ml-2">{{ 'Confirm it completes the referral'|xlt }}</button>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>

@@ -210,6 +210,66 @@ the specified document is opened, the user can optionally categorize the documen
 appropriate, assign the document to a specific patient using the "Move to Patient #" feature in the
 Documents interface.
 
+K. Referrals (added in OpenEMR 8.6.0):
+
+Direct messages can be tied to a referral saved on a patient's Transactions screen. This needs the
+Care Coordination module. See Documentation/REFERRAL_WORKFLOWS.md for the full workflow.
+
+1. Telling the recipient: With the "Track Referrals with FHIR Tasks" and "Notify Referral
+Recipients" settings on (Connectors tab of the Global Settings), saving a referral sends its
+recipient the Referral C-CDA by Direct when the recipient's address book entry has a Direct
+address. That address is the "Trusted Email" field of the address book entry. The C-CDA carries
+the referral sections only: allergies, medications, problems, plan of care and reason for referral.
+An entry with only a regular email address gets a plain email with no patient details. The
+referral's page shows how the recipient was told, and a Direct send whose delivery failed.
+
+A notice is sent only when a save creates a new Task for a recipient, and on Re-send. A save that
+creates no new Task sends nothing, so turning the notice setting on later and saving again does
+not send the referral. A save that changes Refer To creates a Task for the new recipient,
+and so notifies them, when the referral has no Reply Date, the new recipient can own a Task, and
+they do not already have a Task for this referral that still counts (see "When a Task is made" in
+Documentation/REFERRAL_WORKFLOWS.md). A recipient who rejected the referral earlier keeps that
+Task, so sending it back to them makes no Task and no notice; use Re-send, which is offered
+only while their latest Task that counts is rejected, failed or cancelled. The notice is the
+C-CDA only for a recipient with a Direct address and when the Direct send succeeds; an email-only
+recipient gets the plain email, and one with no address gets nothing. Check Refer To before
+saving, and check the referral's page afterwards for how the recipient was told: if no Task was
+made, nothing was sent. Direct messaging itself must be enabled (section F); without it
+the referral's page says that Direct was not available.
+
+2. Sending by hand: The Direct section of the Care Coordination send form offers the selected
+patient's referrals, so the C-CDA is linked to the referral it is sent for. It defaults to the
+patient's most recent referral. With several patients selected, each keeps their most recent.
+
+3. Replies: A received message that answers a message sent from here about a patient (matched by
+its In-Reply-To or References header) is filed to that patient instead of being left unassigned.
+The reply must come from the address the original message was sent to; a reply from any other
+address stays unassigned. It is filed with a referral, and shown on that referral's page, only
+when the message it answers was itself linked to that referral (a notice, or a C-CDA sent for a
+chosen referral). A message that answers nothing sent is processed as described in section J.2.
+
+4. Completing the referral: A matched reply never completes the referral on its own, since it may
+be a question or a refusal. On the referral's page, each reply has a "Confirm it completes the
+referral" button. Confirming files the reply's documents as the referral's consult note, sets the
+Reply Date and completes the recipient's Task.
+
+The button is shown only when all of these are true: "Track Referrals with FHIR Tasks" is on, the
+recipient's Task is still open, the referral has no Reply Date, and the user may edit
+transactions. Without a button, record the reply by hand in the referral's Counter-Referral tab. A user who may
+not edit transactions can do neither, and needs someone who can.
+There is no button, and one on a page opened earlier does nothing, when:
+
+  - the recipient has already completed, rejected, failed or cancelled the Task. The reply stays
+    in the patient's chart, but it is not added to the Task and the Reply Date is not set.
+  - the referral already has a Reply Date, even if its Task is still open. That happens when a
+    reply typed on the referral could not be filed (see "If the reply cannot be filed" in
+    Documentation/REFERRAL_WORKFLOWS.md). Saving the referral again files that typed reply, not
+    the Direct reply's documents.
+
+Limitations: This is modeled on IHE 360X but is not 360X conformant; there is no XDM packaging
+and no HL7 v2 status messages. Reply matching depends on the recipient's system returning the
+message id of the message it answers, and has not been tested against a production HISP.
+
 
 Trademark Notice: phiMail is a registered trademark of EMR Direct.
 

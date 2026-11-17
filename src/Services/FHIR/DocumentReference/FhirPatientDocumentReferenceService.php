@@ -13,8 +13,10 @@ namespace OpenEMR\Services\FHIR\DocumentReference;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
@@ -136,9 +138,9 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase implements IPa
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         $docReference->setMeta($fhirMeta);
 
@@ -153,7 +155,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase implements IPa
         // TODO: @adunsulag need to support content.attachment.url
 
         if (!empty($dataRecord['date'])) {
-            $docReference->setDate(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $docReference->setDate(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
         } else {
             $docReference->setDate(UtilsService::createDataMissingExtension());
         }
@@ -164,7 +166,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase implements IPa
             // we currently don't track anything dealing with start and end date for the context
             if (!empty($dataRecord['encounter_date'])) {
                 $period = new FHIRPeriod();
-                $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['encounter_date']));
+                $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['encounter_date'])));
                 $context->setPeriod($period);
             }
             $context->addEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['euuid']));

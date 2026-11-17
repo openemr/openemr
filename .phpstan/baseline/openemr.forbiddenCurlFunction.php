@@ -4,31 +4,6 @@ $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Raw curl_\\* function curl_close\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Raw curl_\\* function curl_error\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Raw curl_\\* function curl_exec\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Raw curl_\\* function curl_init\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Raw curl_\\* function curl_setopt\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Raw curl_\\* function curl_close\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
 ];
 $ignoreErrors[] = [

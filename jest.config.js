@@ -1,3 +1,11 @@
+/**
+ * Jest configuration for the JavaScript unit tests (npm run test:js).
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 /** @type {import('jest').Config} */
 const config = {
     modulePathIgnorePatterns: [
@@ -16,7 +24,6 @@ const config = {
         'interface/forms/eye_mag/js/jquery-1-10-2',
         'interface/modules/zend_modules/public/js/lib',
         'interface/super/rules/www/js/cdr-multiselect',
-        'portal/patient/scripts/libs',
         'public/assets',
         'swagger',
         'tests',

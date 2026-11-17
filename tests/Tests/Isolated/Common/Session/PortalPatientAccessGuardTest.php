@@ -69,6 +69,16 @@ final class PortalPatientAccessGuardTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    public function testPortalPatientCanReachOwnDocuments(): void
+    {
+        $this->configurePortalSession(11);
+
+        PortalPatientAccessGuard::assertCanReadDocuments('11');
+        PortalPatientAccessGuard::assertCanAddDocument(11);
+        PortalPatientAccessGuard::assertCanWriteDocuments('11');
+        $this->addToAssertionCount(3);
+    }
+
     #[DataProvider('staffAccessCases')]
     public function testStaffAccessPredicate(bool $portalAccess, bool $demographicsAccess, bool $expected): void
     {

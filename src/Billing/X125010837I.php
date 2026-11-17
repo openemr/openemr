@@ -6,7 +6,9 @@
  * @package OpenEMR
  * @link    https://www.open-emr.org
  * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @author  Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2017-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,12 +18,86 @@ use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
 
 class X125010837I
 {
+    /**
+     * An 837 date from an MMDDYY form date, with the century set to 20.
+     */
     public static function x12Date($frmdate): string
     {
         return ('20' . substr((string) $frmdate, 4, 2) . substr((string) $frmdate, 0, 2) . substr((string) $frmdate, 2, 2));
     }
 
+    /**
+     * Build CLM05 from UB-04 box 4, the type of bill (e.g. 0771, or 771 without the leading zero).
+     * CLM05 is the two-digit facility type code, the qualifier A and the claim frequency code,
+     * so 0771 becomes 77:A:1. The frequency code may be a letter (e.g. 081A). Returns an empty
+     * string when the type of bill is not in that form or the facility type starts with zero.
+     */
+    public static function claimFacilityCode(string $typeOfBill): string
+    {
+        if (preg_match('/^0?([1-9]\d)([0-9A-Z])$/', strtoupper(trim($typeOfBill)), $matches) !== 1) {
+            return '';
+        }
+        return $matches[1] . ':A:' . $matches[2];
+    }
+
     public $ub04id = [];
+
+
+    /**
+     * Digits for a UB04 physician NPI before it is written to NM109.
+     *
+     * Qualifier fields are not passed here. A value that is not an NPI is blank.
+     * A zero placeholder is blank.
+     */
+    public static function physicianNpi(mixed $value): string
+    {
+        if (is_int($value)) {
+            $value = strval($value);
+        }
+        if (!is_string($value)) {
+            return '';
+        }
+
+        $digits = Claim::npiDigits($value);
+        if ($digits === '0') {
+            return '';
+        }
+
+        return $digits;
+    }
+
+    /**
+     * Qualifier text for a UB04 physician NM108.
+     *
+     * The text is not rewritten. A zero placeholder is absent.
+     */
+    public static function physicianQualifier(mixed $value): string
+    {
+        if (!is_string($value) || $value === '' || $value === '0') {
+            return '';
+        }
+
+        return $value;
+    }
+
+    /**
+     * The 837I text for one encounter. A UB04 physician NPI is digits in NM109.
+     */
+
+    /**
+     * NM108 and NM109 for a physician segment.
+     *
+     * A hyphen in the NPI is not sent. A missing qualifier or NPI leaves both empty.
+     */
+    public static function physicianIdentifier(string $qualifier, mixed $npi): string
+    {
+        $digits = self::physicianNpi($npi);
+        if ($qualifier === '' || $digits === '') {
+            return '**';
+        }
+
+        return '*' . $qualifier . '*' . $digits;
+    }
 
     public static function generateX12837I($pid, $encounter, $x12_partner, &$log, $ub04id)
     {
@@ -358,10 +434,13 @@ class X125010837I
             "*" . sprintf("%.2f", $clm_total_charges) . // Zirmed computes and replaces this
             "*" .
             "*";
-        // Service location this need to be bill type from ub form type_of_bill
-        if (strlen($ub04id[7] ?? '') >= 3) {
-            $out .= "*" . substr((string) $ub04id[7], 1, 1) . ":" . substr((string) $ub04id[7], 2, 1) . ":" . substr((string) $ub04id[7], 3, 1);
+        // CLM05 service location, from the UB-04 type of bill (box 4)
+        $typeOfBill = $ub04id[7] ?? '';
+        $facilityCode = self::claimFacilityCode(is_string($typeOfBill) || is_int($typeOfBill) ? (string) $typeOfBill : '');
+        if ($facilityCode === '') {
+            $log .= "*** Error: Missing or invalid Type of Bill (UB-04 box 4)!\n";
         }
+        $out .= "*" . $facilityCode;
 
         $out .= "*" .
             "*" . "A" .
@@ -669,10 +748,9 @@ class X125010837I
             ++$edicount;
             // Loop 2310A Attending Physician
             $out .= "NM1" . "*71" . "*1" . "*" . $ub04id[388] . "*" . $ub04id[389] . "*" . "*";
-            if ($ub04id[379]) { // NPI
-                $out .= "*" . "XX" . "*" . $ub04id[379];
-            } else {
-                $out .= "*" . "*";
+            $attendingId = self::physicianIdentifier('XX', $ub04id[379] ?? null);
+            $out .= $attendingId;
+            if ($attendingId === '**') {
                 $log .= "*** Attending Physician has no NPI.\n";
             }
             $out .= "~\n";
@@ -691,10 +769,9 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310B operating Physician
                 "*72" . "*1" . "*" . $ub04id[400] . "*" . $ub04id[400] . "*" . "*";
-            if ($ub04id[390]) {
-                $out .= "*" . "XX" . "*" . $ub04id[390];
-            } else {
-                $out .= "*" . "*";
+            $operatingId = self::physicianIdentifier('XX', $ub04id[390] ?? null);
+            $out .= $operatingId;
+            if ($operatingId === '**') {
                 $log .= "*** Operating Physician has no NPI qualifier.\n";
             }
             $out .= "~\n";
@@ -713,10 +790,12 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310C other operating Physician
                 "*73" . "*1" . "*" . $ub04id[413] . "*" . $ub04id[414] . "*" . "*";
-            if ($ub04id[405]) {
-                $out .= "*" . $ub04id[405] . "*" . $ub04id[406];
-            } else {
-                $out .= "*" . "*";
+            $otherId = self::physicianIdentifier(
+                self::physicianQualifier($ub04id[405] ?? null),
+                $ub04id[406] ?? null
+            );
+            $out .= $otherId;
+            if ($otherId === '**') {
                 $log .= "*** Other Operating Physician has no NPI.\n";
             }
             $out .= "~\n";
@@ -732,10 +811,12 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310C other operating Physician
                 "*73" . "*1" . "*" . $ub04id[427] . "*" . $ub04id[428] . "*" . "*";
-            if ($ub04id[420]) {
-                $out .= "*" . $ub04id[419] . "*" . $ub04id[420];
-            } else {
-                $out .= "*" . "*";
+            $secondOtherId = self::physicianIdentifier(
+                self::physicianQualifier($ub04id[419] ?? null),
+                $ub04id[420] ?? null
+            );
+            $out .= $secondOtherId;
+            if ($secondOtherId === '**') {
                 $log .= "*** Other Operating Physician has no NPI.\n";
             }
             $out .= "~\n";

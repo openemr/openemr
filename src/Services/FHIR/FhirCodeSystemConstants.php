@@ -78,6 +78,11 @@ class FhirCodeSystemConstants
 
     public const HL7_V3_ACT_CODE = "http://terminology.hl7.org/CodeSystem/v3-ActCode";
 
+    // Source of Payment Typology (OID 2.16.840.1.113883.3.221.5), the codes of the Payer Type value set
+    // that US Core binds Coverage.type to
+    // @see https://hl7.org/fhir/us/core/STU8.0.1/Coverage-coverage-example.json.html
+    public const SOURCE_OF_PAYMENT_TYPOLOGY = "https://nahdo.org/sopt";
+
     public const HL7_PARTICIPATION_TYPE = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType";
 
     public const RFC_3986 = "urn:ietf:rfc:3986";

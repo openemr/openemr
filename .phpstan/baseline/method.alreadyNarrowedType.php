@@ -87,6 +87,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/Traits/SingletonTraitTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertLessThan\\(\\) with 0 and \\-100 will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Events/CodeImportEventTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) with 3 and array\\{\'apple\', \'banana\', \'cherry\'\\} will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/ExampleIsolatedTest.php',
@@ -105,16 +110,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEmpty\\(\\) with array\\{\\} and \'Empty patient_id…\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Immunization/ImmunizationSqlInjectionFixTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true and \'Test structure…\' will always evaluate to true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Portal/PatientControllerSecurityTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true and string will always evaluate to true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Portal/PatientControllerSecurityTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'OpenEMR\\\\\\\\Validators\\\\\\\\Rules\\\\\\\\ListOptionRule\' and OpenEMR\\\\Tests\\\\Isolated\\\\Validators\\\\Rules\\\\ListOptionRuleStub will always evaluate to true\\.$#',
@@ -165,6 +160,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRReference will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Observation/FhirObservationQuestionnaireItemServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertGreaterThan\\(\\) with 0 and 1\\|2\\|3\\|4\\|5 will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/PhoneTypeTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'OpenEMR\\\\\\\\Services\\\\\\\\Search\\\\\\\\SearchQueryConfig\' and OpenEMR\\\\Services\\\\Search\\\\SearchQueryConfig will always evaluate to true\\.$#',
@@ -265,6 +265,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/BillingClaimBatchControlNumberTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertGreaterThan\\(\\) with 255 and 319 will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/Billing/EraDenialRecordedTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#',

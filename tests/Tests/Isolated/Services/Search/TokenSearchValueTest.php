@@ -17,7 +17,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Search;
 
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class TokenSearchValueTest extends TestCase
@@ -77,6 +79,63 @@ class TokenSearchValueTest extends TestCase
         $token = TokenSearchValue::buildFromFHIRString('system|subsystem|code');
         $this->assertSame('code', $token->getCode());
         $this->assertSame('system', $token->getSystem());
+    }
+
+    /**
+     * @return array<string, array{string, ?string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function escapedFHIRStringProvider(): array
+    {
+        return [
+            'escaped pipe in the code' => ['http://example.org|a\|b', 'http://example.org', 'a|b'],
+            'escaped pipe in the system' => ['urn:a\|b|code', 'urn:a|b', 'code'],
+            'escaped pipe and no system' => ['a\|b', null, 'a|b'],
+            'escaped comma and dollar in the code' => ['http://example.org|a\,b\$c', 'http://example.org', 'a,b$c'],
+            'escaped backslash before the separator' => ['urn:a\\\\|code', 'urn:a\\', 'code'],
+        ];
+    }
+
+    #[DataProvider('escapedFHIRStringProvider')]
+    public function testBuildFromEscapedFHIRStringReadsEscapedCharacters(string $fhirString, ?string $expectedSystem, string $expectedCode): void
+    {
+        $token = TokenSearchValue::buildFromEscapedFHIRString($fhirString);
+        $this->assertSame($expectedSystem, $token->getSystem());
+        $this->assertSame($expectedCode, $token->getCode());
+    }
+
+    /**
+     * Internal and standard API callers pass plain strings, where a backslash is not an escape.
+     *
+     * @return array<string, array{string, ?string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function plainStringWithBackslashProvider(): array
+    {
+        return [
+            'backslash before a pipe' => ['urn:a\\|b', 'urn:a\\', 'b'],
+            'backslash before a comma' => ['a\\,b', null, 'a\\,b'],
+            'double backslash' => ['a\\\\b', null, 'a\\\\b'],
+        ];
+    }
+
+    #[DataProvider('plainStringWithBackslashProvider')]
+    public function testBuildFromFHIRStringKeepsBackslashes(string $value, ?string $expectedSystem, string $expectedCode): void
+    {
+        $token = TokenSearchValue::buildFromFHIRString($value);
+        $this->assertSame($expectedSystem, $token->getSystem());
+        $this->assertSame($expectedCode, $token->getCode());
+    }
+
+    #[DataProvider('plainStringWithBackslashProvider')]
+    public function testTokenSearchFieldKeepsBackslashesInPlainStrings(string $value, ?string $expectedSystem, string $expectedCode): void
+    {
+        $token = (new TokenSearchField('code', [$value]))->getValues()[0];
+        $this->assertInstanceOf(TokenSearchValue::class, $token);
+        $this->assertSame($expectedSystem, $token->getSystem());
+        $this->assertSame($expectedCode, $token->getCode());
     }
 
     // =========================================================================

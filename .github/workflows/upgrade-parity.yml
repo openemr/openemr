@@ -1,0 +1,74 @@
+# Checks that upgrading a database gives the same result as a fresh install.
+#
+# Loads the previous release's sql/database.sql into one database and this
+# checkout's into another, runs the newest upgrade file over the first with
+# OpenEMR's SQLUpgradeService, and compares tables, columns, indexes and
+# seeded rows (.github/scripts/upgrade-parity.sh). A database.sql change with
+# no matching upgrade SQL shows up whatever statement it is.
+#
+# Differences fail the job, and the job summary lists them.
+#
+# Cost: it runs only when database.sql or an upgrade file changes, uses the
+# MySQL preinstalled on the runner (no image pull), and fetches only the one
+# release tag it compares against (or, between the branch's cut and the tag,
+# master's tip for release-targets.yml and the release branch it names).
+name: Upgrade Parity
+
+on:
+  pull_request:
+    branches:
+    - master
+    - rel-*
+    paths:
+    - sql/database.sql
+    - sql/*-to-*_upgrade.sql
+    - .github/workflows/upgrade-parity.yml
+    - .github/scripts/upgrade-parity.sh
+    - .github/scripts/upgrade-parity-run.php
+    - .github/scripts/lib/derive-from-version.sh
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  parity:
+    name: Upgrade matches fresh install
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v7
+
+    - name: Setup PHP
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.5'
+
+    - name: Start MySQL
+      # Preinstalled on the runner image, root/root.
+      run: sudo systemctl start mysql.service
+
+    - name: Point OpenEMR at the fresh database
+      run: |
+        cat > sites/default/sqlconf.php << 'EOF'
+        <?php
+        $sqlconf = [
+            'host' => '127.0.0.1',
+            'port' => 3306,
+            'login' => 'root',
+            'pass' => 'root',
+            'dbase' => 'parity_fresh',
+            'db_encoding' => 'utf8mb4',
+        ];
+        $config = 1;
+        EOF
+
+    - name: Compare an upgraded database with a fresh install
+      env:
+        HTTP_HOST: localhost
+      run: .github/scripts/upgrade-parity.sh

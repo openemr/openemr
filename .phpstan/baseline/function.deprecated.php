@@ -272,12 +272,6 @@ Use FormService\\:\\:addForm\\(\\) instead$#',
     'path' => __DIR__ . '/../../interface/forms/treatment_plan/save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function prevSetting\\(\\)\\:
-7\\.0\\.3 see UserSettingsService\\:\\:prevSetting$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function privQuery\\(\\)\\:
 Use the standard DB connections instead\\.$#',
     'count' => 1,
@@ -562,7 +556,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
 Use FormService\\:\\:addForm\\(\\) instead$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/encounter_events.inc.php',
 ];
 $ignoreErrors[] = [

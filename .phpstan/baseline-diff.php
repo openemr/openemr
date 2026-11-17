@@ -13,15 +13,21 @@
  *   - Identifiers that did not change, collapsed inside a <details> block.
  *   - A totals row (base, head, delta).
  *
- * The baseline files are valid PHP that assemble `$ignoreErrors = [...]`;
- * this script loads them via `require` inside an isolated function scope
- * and sums `count` across entries.
+ * The baseline files are PHP that assemble `$ignoreErrors = [...]`; this
+ * script reads them as text and sums the `count` across entries.
  *
  * Usage:
  *   php .phpstan/baseline-diff.php <base-dir> <head-dir>
  *
  * Intended for the PHPStan Baseline Diff workflow, but runnable locally
  * against any two baseline directories.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 declare(strict_types=1);
@@ -45,18 +51,27 @@ if (!is_dir($headDir)) {
 }
 
 /**
- * Load a baseline file in an isolated scope and return the sum of `count`
- * fields. Returns 0 for a missing file so identifiers that only exist on
- * one side are handled naturally.
+ * Return the sum of a baseline file's `count` fields, or 0 for a missing file
+ * so identifiers that only exist on one side are handled naturally.
  */
 function count_occurrences(string $file): int
 {
     if (!is_file($file)) {
         return 0;
     }
-    $ignoreErrors = [];
-    require $file;
-    return array_sum(array_column($ignoreErrors, 'count'));
+    // SECURITY: do not `require` or `include` the file, even though it is PHP.
+    // The PHPStan Baseline Diff workflow runs this script in a privileged
+    // workflow_run job on the baseline artifact a pull request's own PHPStan
+    // run uploaded, so a fork PR controls the file's contents. Loading it would
+    // run the PR author's code with the job's write token. Reading the
+    // generator's `'count' => N,` lines as text means a hostile file can at
+    // worst misreport its counts.
+    $contents = file_get_contents($file);
+    if ($contents === false) {
+        throw new RuntimeException("Cannot read baseline file: {$file}");
+    }
+    preg_match_all("/^    'count' => (\d+),$/m", $contents, $matches);
+    return array_sum(array_map(intval(...), $matches[1]));
 }
 
 /**
@@ -67,7 +82,8 @@ function list_identifiers(string $dir): array
     $ids = [];
     foreach (glob($dir . '/*.php') ?: [] as $path) {
         $name = basename($path, '.php');
-        if ($name === 'loader') {
+        // A PR picks these file names, and they're echoed into the PR comment.
+        if ($name === 'loader' || preg_match('/^[A-Za-z0-9.-]+$/', $name) !== 1) {
             continue;
         }
         $ids[] = $name;

@@ -75,11 +75,6 @@ if ($thistype && !$issue && !AclMain::aclCheckIssue($thistype, '', ['write', 'ad
     AccessDeniedHelper::deny('Not authorized to add issue of this type');
 }
 
-$tmp = getPatientData($thispid, "squad");
-if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
-}
-
 function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 {
     ///////////////////////////////////////////////////////////////////////
@@ -602,7 +597,8 @@ function getCodeText($code)
                         $pos = strpos($url, $item);
                         if ($pos === false) {
                             $item = urlencode($item);
-                            $url .= ",$item&default=$item";
+                            // Keep every medication code type inside the codetype query parameter.
+                            $url .= ",$item";
                         }
                     }
                 }

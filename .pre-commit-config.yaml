@@ -255,6 +255,13 @@ repos:
     language: system
     files: \.php$
 
+  - id: license-headers
+    name: License headers
+    # Exemptions live in .license-headers.yaml, which the command reads itself.
+    entry: php bin/console --skip-globals openemr:license-headers
+    language: system
+    files: \.(php|js|mjs|css|scss|twig)$
+
   - id: composer-validate
     name: Validate composer.json
     entry: composer validate --strict

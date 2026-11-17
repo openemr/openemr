@@ -1,99 +1,56 @@
 <?php
 
 /**
- * @package    Patient Portal
+ * Patient portal front controller for portal/patient: the profile, portal documents and the
+ * staff review pages, and their JSON API.
  *
- * From phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * _machine_config.php sorts out the session first: a portal patient, a visitor registering for
+ * the portal, or a staff user with the patientportal/portal ACL. PortalFrontController then
+ * checks the CSRF token on writes, decides who is calling, and hands the request to
+ * OpenEMR\Portal\Routing\PortalRouter, which applies each route's access rule; the controllers
+ * in OpenEMR\Controllers\Portal\Patient serve it.
  *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Session\PortalSessionPidGuard;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Controllers\Portal\Patient\LazyPageRenderer;
+use OpenEMR\Controllers\Portal\Patient\PortalFrontController;
+use OpenEMR\Controllers\Portal\Patient\PortalPatientApp;
+use OpenEMR\Controllers\Portal\Patient\PortalValues;
+use OpenEMR\Controllers\Portal\Patient\TwigPageRenderer;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\VersionService;
 
 require_once(__DIR__ . "/../../vendor/autoload.php");
 
+// Chooses the portal or the staff session, checks the staff ACL, and loads globals.
+require_once(__DIR__ . "/_machine_config.php");
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-
-//require_once ("./../verify_session.php");
-/* GlobalConfig object contains all configuration information for the app */
-require_once("_global_config.php");
-require_once("_app_config.php");
-require_once("_machine_config.php"); // This include auth any framework calls
-
-if (!GlobalConfig::$CONNECTION_SETTING) {
-    throw new Exception('GlobalConfig::$CONNECTION_SETTING is not configured.  Are you missing _machine_config.php?');
-}
-
-// the global config is used for all dependency injection
-$gc = GlobalConfig::GetInstance();
-
 $globalsBag = OEGlobalsBag::getInstance();
+// The base URL the pages use, with trailing slash.
+$portalRootUrl = ($globalsBag->getBoolean('portal_onsite_two_basepath')
+    ? $globalsBag->getString('qualified_site_addr')
+    : $globalsBag->getString('web_root')) . '/portal/patient/';
+// Built on the first page render: a JSON API call never needs it.
+$pages = new LazyPageRenderer(static fn(): TwigPageRenderer => new TwigPageRenderer(ServiceContainer::getTwig(), [
+    'ROOT_URL' => $portalRootUrl,
+    'web_root' => $globalsBag->getString('web_root'),
+    'assets_static_relative' => $globalsBag->getString('assets_static_relative'),
+    'v_js_includes' => $globalsBag->getString('v_js_includes'),
+    'is_portal_session' => PortalValues::isFilled($session->get('patient_portal_onsite_two')),
+    'software_version' => (new VersionService())->getSoftwareVersion(),
+    'current_year' => date('Y'),
+]));
+$app = new PortalPatientApp($pages);
 
-try {
-    if (!empty($session->get('register', null))) {
-        // Need to bootstrap for registration
-        $globalsBag->set('bootstrap_register', true);
-    } else {
-        $globalsBag->set('bootstrap_register', false);
-    }
-    if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
-        // Bootstrap the session pid so downstream code can bind to it.
-        $globalsBag->set('bootstrap_pid', $session->get('pid'));
-        $sqlCollectPatientId = sqlQuery("SELECT `id` FROM `patient_data` WHERE `pid` = ?", [$globalsBag->get('bootstrap_pid')]);
-        $globalsBag->set('bootstrap_uri_id', $sqlCollectPatientId['id']);
-        // Scan every request source for any pid-family key that disagrees with
-        // the bootstrap pid (including Phreez ORM variant suffixes like Pid_Equals).
-        PortalSessionPidGuard::assertRequestKeysMatchSession($_POST, $_GET, $_REQUEST);
-    }
-    Dispatcher::Dispatch(
-        $gc->GetPhreezer(),
-        $gc->GetRenderEngine(),
-        '',
-        $gc->GetContext(),
-        $gc->GetRouter()
-    );
-} catch (\Throwable $ex) {
-    // This is the global error handler which will be called in the event of
-    // uncaught errors.  If the endpoint appears to be an API request then
-    // render it as JSON, otherwise attempt to render a friendly HTML page
-
-    ServiceContainer::getLogger()->error(
-        'Portal request failed',
-        ['exception' => $ex],
-    );
-
-    $publicMessage = xl('An unexpected error occurred');
-    $url = RequestUtil::GetCurrentURL();
-    $isApiRequest = (str_contains($url, 'api/'));
-
-    if ($isApiRequest) {
-        $result = new stdClass();
-        $result->success = false;
-        $result->message = $publicMessage;
-
-        @header('HTTP/1.1 401 Unauthorized');
-        echo json_encode($result);
-    } else {
-        $gc->GetRenderEngine()->assign("message", $publicMessage);
-        $gc->GetRenderEngine()->assign("stacktrace", '');
-        $gc->GetRenderEngine()->assign("code", 0);
-
-        try {
-            $gc->GetRenderEngine()->display("DefaultErrorFatal.tpl");
-        } catch (\Throwable $ex2) {
-            ServiceContainer::getLogger()->error(
-                'Portal error template failed',
-                ['exception' => $ex2],
-            );
-
-            // This means there is an error with the template, in which case
-            // render a minimal response without exposing either exception.
-            echo "<style>* { font-family: verdana, arial, helvetica, sans-serif; }</style>\n";
-            echo "<h1>Fatal Error:</h1>\n";
-            echo '<h3>' . text($publicMessage) . "</h3>\n";
-        }
-    }
-}
+(new PortalFrontController($pages, ServiceContainer::getLogger(), $app->handle(...)))
+    ->handle(CurrentRequest::get(), $session, $globalsBag, $globalsBag->getString('web_root') . '/portal/patient/')
+    ->send();

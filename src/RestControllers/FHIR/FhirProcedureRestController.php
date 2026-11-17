@@ -171,6 +171,10 @@ class FhirProcedureRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirProcedureService->getAll($searchParams, $puuidBind);
+        $searchError = RestControllerHelper::getFhirSearchErrorResponse($processingResult);
+        if ($searchError !== null) {
+            return $searchError;
+        }
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

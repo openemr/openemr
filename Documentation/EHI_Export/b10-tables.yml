@@ -149,6 +149,11 @@ groups:
     - questionnaire_response
     - questionnaire_repository
 
+  task:
+    - task
+    - task_input
+    - task_output
+
   therapy_patient:
     - therapy_groups_participant_attendance
     - therapy_groups_participants
@@ -174,3 +179,7 @@ groups:
     - onsite_documents
     - onsite_signatures
     - onsite_portal_activity
+    # Patient-submitted requests and their review history. patient_review_secret is left
+    # out: it holds encrypted payment card data only while a request is open.
+    - patient_review_request
+    - patient_review_event

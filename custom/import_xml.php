@@ -127,10 +127,8 @@ if (!empty($_POST['form_import'])) {
     xml_parser_free($parser);
 
     $olddata = getPatientData($pid);
-
-    if ($olddata['squad'] && ! AclMain::aclCheckCore('squads', $olddata['squad'])) {
-        AccessDeniedHelper::deny('Unauthorized access to patient squad');
-    }
+    $oldSquad = $olddata['squad'] ?? '';
+    $oldSquad = is_string($oldSquad) ? $oldSquad : '';
 
     newPatientData(
         ($olddata['id'] ?? ''),
@@ -174,7 +172,7 @@ if (!empty($_POST['form_import'])) {
         ($apatient['phone_cell'] ?? ''),
         ($apatient['hipaa_mail'] ?? ''),
         ($apatient['hipaa_voice'] ?? ''),
-        ($olddata['squad'] ?? 0)
+        $oldSquad,
     );
 
     newEmployerData(

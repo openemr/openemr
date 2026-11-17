@@ -171,6 +171,27 @@ class AppointmentApiTest extends TestCase
             $eids,
             'the pid-scoped route must not surface another patient\'s appointment'
         );
+
+        // An appointment posted through the pid with a leading zero is stored as the plain pid, so the
+        // patient's list finds it.
+        $zeroPostResponse = $this->testClient->post(
+            self::PATIENT_APPOINTMENT_API_ENDPOINT . "/0{$pid}/appointment",
+            $this->fixtureManager->getSecondAppointmentFixture($dependencies['facility_id'])
+        );
+        $this->assertEquals(200, $zeroPostResponse->getStatusCode());
+        $zeroPostBody = json_decode((string) $zeroPostResponse->getBody(), true);
+        $this->assertIsArray($zeroPostBody);
+        $this->assertIsNumeric($zeroPostBody['id'] ?? null);
+        $zeroPostEid = (int) $zeroPostBody['id'];
+        $this->assertSame(
+            (string) $pid,
+            QueryUtils::fetchSingleValue('SELECT pc_pid FROM openemr_postcalendar_events WHERE pc_eid = ?', 'pc_pid', [$zeroPostEid])
+        );
+        $plainEids = $this->listedEids("/{$pid}/appointment");
+        $this->assertContains($zeroPostEid, $plainEids);
+
+        // The pid with a leading zero names the same patient, as the numeric comparison found it.
+        $this->assertSame($plainEids, $this->listedEids("/0{$pid}/appointment"));
     }
 
     #[Test]
@@ -251,5 +272,24 @@ class AppointmentApiTest extends TestCase
             (string) $this->appointmentEid
         );
         $this->assertEquals(404, $postDelete->getStatusCode(), 'deleted appointment should 404 on subsequent single-GET');
+    }
+
+    /**
+     * The sorted pc_eids a patient appointment list returns.
+     *
+     * @return list<int>
+     */
+    private function listedEids(string $path): array
+    {
+        $response = $this->testClient->get(self::PATIENT_APPOINTMENT_API_ENDPOINT . $path);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $eids = array_values(array_map(
+            static fn($row): int => is_array($row) && is_numeric($row['pc_eid'] ?? null) ? (int) $row['pc_eid'] : -1,
+            $body
+        ));
+        sort($eids);
+        return $eids;
     }
 }

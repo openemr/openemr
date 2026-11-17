@@ -38,6 +38,8 @@
  *     in `tests/Tests/Isolated/Modules/FaxSMS/Notification/`.
  */
 
+declare(strict_types=1);
+
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Enums\NotificationChannel;
@@ -120,10 +122,6 @@ if (!function_exists('faxsms_getAlertPatientData')) {
         // by all occurrences, so they cannot distinguish individual occurrence
         // dates. Check the notification_log instead, keyed on
         // (pc_eid, pc_eventDate, type).
-        // $channel is the PHP enum NotificationChannel ('SMS'/'EMAIL').
-        // notification_log.type is a MySQL enum('SMS','Email'). MySQL enum
-        // comparisons are case-insensitive, so the PHP value matches regardless
-        // of casing differences between the two enums.
         $channelType = $channel->value;
 
         // Collect recurring event IDs so we can batch-check notification_log

@@ -4,6 +4,7 @@
  * Functions to transmit a CCD as a Direct Protocol Message
  *
  * Copyright (C) 2013, 2021 EMR Direct <https://www.emrdirect.com/>
+ * Copyright (C) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  *
  * Use of these functions requires an active phiMail Direct messaging
  * account with EMR Direct.  For information regarding this service,
@@ -22,13 +23,19 @@
  *
  * @package OpenEMR
  * @author  EMR Direct <https://www.emrdirect.com/>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
  * @link    https://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-require_once(__DIR__ . "/../library/direct_message_check.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
+use OpenEMR\Common\DirectMessaging\PhiMailAttachmentType;
+use OpenEMR\Common\DirectMessaging\PhiMailOutgoingAttachment;
+use OpenEMR\Common\DirectMessaging\PhiMailOutgoingMessage;
+use OpenEMR\Common\DirectMessaging\PhiMailRequester;
+use OpenEMR\Common\DirectMessaging\PhiMailSender;
+use OpenEMR\Common\DirectMessaging\PhiMailUserRepository;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -44,90 +51,18 @@ use OpenEMR\Core\OEGlobalsBag;
  */
 function transmitMessage($message, $recipient, $verifyFinalDelivery = false): string
 {
-    $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    $reqBy = $session->get('authUser');
-    $reqID = $session->get('authUserID');
-
-    $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-    if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
-        return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
-    }
-
-    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
-    $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('phimail_password'));
-
-    $fp = phimail_connect($err);
-    if ($fp === false) {
-        return("$config_err $err");
-    }
-
-    try {
-        $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
-        if ($ret !== true) {
-            return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
-        }
-
-        $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
-        if ($ret !== true) {
-            return( xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . " " . $ret );
-        }
-
-        $ret = fgets($fp); //ignore extra server data
-
-        $text_out = $message;
-
-        $text_len = strlen((string) $text_out);
-        phimail_write($fp, "TEXT $text_len\n");
-        $ret = @fgets($fp);
-        if ($ret != "BEGIN\n") {
-            return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_FAILED);
-        }
-
-        $ret = phimail_write_expect_OK($fp, $text_out);
-        if ($ret !== true) {
-            return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_OK_FAILED);
-        }
-
-        $finalFlag = $verifyFinalDelivery ? '1' : '0';
-        $ret = phimail_write_expect_OK($fp, "SET FINAL $finalFlag\n");
-        if ($ret !== true) {
-            return( xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . " " . $ret );
-        }
-
-        phimail_write($fp, "SEND\n");
-        $ret = fgets($fp);
-        phimail_write($fp, "OK\n");
-    } finally {
-        phimail_close($fp);
-    }
-
-
-    if (substr($ret, 5) == "ERROR") {
-        //log the failure
-
-        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $session->get('authProvider'), 0, $ret);
-        return( xl(ErrorConstants::ERROR_MESSAGE_FILE_SEND_FAILED));
-    }
-
-    /**
-     * If we get here, the message was successfully sent and the return
-     * value $ret is of the form "QUEUED recipient message-id" which
-     * is suitable for logging.
-     */
-    $msg_id = explode(" ", trim($ret), 4);
-    if ($msg_id[0] != "QUEUED" || !isset($msg_id[2])) { //unexpected response
-        $ret = "UNEXPECTED RESPONSE: " . $ret;
-        EventAuditLogger::getInstance()->newEvent("transmit-message", $reqBy, $session->get('authProvider'), 0, $ret);
-        return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
-    }
-
-    EventAuditLogger::getInstance()->newEvent("transmit-message", $reqBy, $session->get('authProvider'), 1, $ret);
-    $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
-        "VALUES ('S', ?, ?, ?, 'S', NOW(), ?)";
-    $res = @sqlStatementNoLog($sql, [$msg_id[2],$phimail_username,$recipient,$reqID]);
-
-    return("SUCCESS");
+    $sender = PhiMailSender::fromGlobals(
+        OEGlobalsBag::getInstance(),
+        ServiceContainer::getCrypto(),
+        ServiceContainer::getLogger(),
+        EventAuditLogger::getInstance(),
+    );
+    return $sender->send(
+        new PhiMailOutgoingMessage(recipient: $recipient, text: $message, verifyFinalDelivery: $verifyFinalDelivery),
+        PhiMailRequester::fromSession(SessionWrapperFactory::getInstance()->getActiveSession()),
+        failureEvent: 'transmit-message',
+        successEvent: 'transmit-message',
+    );
 }
 
 /**
@@ -143,9 +78,10 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false): st
  * @param string $message The message body the clinician wants to send
  * @param string $filename The filename to use as the name of the attachment (must included file extension as part of filename)
  * @param bool $verifyFinalDelivery Whether to force receipt confirmation that the message was delivered.  Can cause message delivery failures if recipient system does not support the option.
+ * @param ?int $referralId the referral (transactions.id) the document goes with, logged with the message so a reply can be filed with it
  * @return string result of operation
  */
-function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml', $message = '', $filename = '', $verifyFinalDelivery = false): string
+function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml', $message = '', $filename = '', $verifyFinalDelivery = false, ?int $referralId = null): string
 {
     //get patient name in Last_First format (used for CCDA filename) and
     //First Last for the message text.
@@ -177,137 +113,49 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
         $extension = "." . $format_type;
     }
 
-    $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-    if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
-        return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
-    }
-
-    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
-    $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('phimail_password'));
-
-    $fp = phimail_connect($err);
-    if ($fp === false) {
-        return("$config_err $err");
-    }
-
-    try {
-        $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
-        if ($ret !== true) {
-            return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
-        }
-
-        $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
-        if ($ret !== true) {
-            return( xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . " " . $ret );
-        }
-
-        $ret = fgets($fp); //ignore extra server data
-
-        // add whatever the clinican added as a message to be sent.
-        $text_out = "";
-        if (is_string($message) && trim($message) != "") {
-            $text_out = $message . "\n";
-        }
-
-        if ($requested_by == "patient") {
-            $text_out .= xl("Delivery of the attached clinical document was requested by the patient") .
-                ($patientName2 == "" ? "." : ", " . $patientName2 . ".");
-        } else {
-            $text_out .= xl("A clinical document is attached") .
-                ($patientName2 == "" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
-        }
-
-
-        $text_len = strlen($text_out);
-        phimail_write($fp, "TEXT $text_len\n");
-        $ret = @fgets($fp);
-        if ($ret != "BEGIN\n") {
-            return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_FAILED);
-        }
-
-        $ret = phimail_write_expect_OK($fp, $text_out);
-        if ($ret !== true) {
-            return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_OK_FAILED);
-        }
-
-        // MU2 CareCoordination added the need to send CCDAs formatted as html,pdf, or xml
-        $add_type = match ($format_type) {
-            'html' => "TEXT",
-            'pdf' => "RAW",
-            'xml' => $xml_type == "CCR" ? "CCR" : "CDA",
-            default => null,
-        };
-        if ($add_type === null) {
-            // unsupported format
-            return ("$config_err " . ErrorConstants::ERROR_CODE_INVALID_FORMAT_TYPE);
-        }
-
-        $ccd_len = strlen((string) $ccd_out);
-
-        phimail_write($fp, "ADD " . $add_type . " " . $ccd_len . " " . $att_filename . $extension . "\n");
-        $ret = fgets($fp);
-        if ($ret != "BEGIN\n") {
-            return("$config_err " . ErrorConstants::ERROR_CODE_ADD_FILE_FAILED);
-        }
-
-        $ret = phimail_write_expect_OK($fp, $ccd_out);
-        if ($ret !== true) {
-            return("$config_err " . ErrorConstants::ERROR_CODE_ADD_FILE_CONFIRM_FAILED);
-        }
-
-        $finalFlag = $verifyFinalDelivery ? '1' : '0';
-        $ret = phimail_write_expect_OK($fp, "SET FINAL $finalFlag\n");
-        if ($ret !== true) {
-            return( xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . " " . $ret );
-        }
-
-        phimail_write($fp, "SEND\n");
-        $ret = fgets($fp);
-        phimail_write($fp, "OK\n");
-    } finally {
-        phimail_close($fp);
+    // add whatever the clinician added as a message to be sent.
+    $text_out = "";
+    if (is_string($message) && trim($message) != "") {
+        $text_out = $message . "\n";
     }
 
     if ($requested_by == "patient") {
-        $reqBy = "portal-user";
-        $sql = "SELECT id FROM users WHERE username='portal-user'";
-        if (
-            ($r = sqlStatementNoLog($sql)) === false ||
-            ($u = sqlFetchArray($r)) === false
-        ) {
-             $reqID = 1; //default if we don't have a service user
-        } else {
-            $reqID = $u['id'];
-        }
+        $text_out .= xl("Delivery of the attached clinical document was requested by the patient") .
+            ($patientName2 == "" ? "." : ", " . $patientName2 . ".");
     } else {
-        $reqBy = $session->get('authUser');
-        $reqID = $session->get('authUserID');
+        $text_out .= xl("A clinical document is attached") .
+            ($patientName2 == "" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
     }
 
-    if (substr($ret, 5) == "ERROR") {
-        //log the failure
-
-        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $session->get('authProvider'), 0, $ret, $pid);
-        return( xl(ErrorConstants::ERROR_MESSAGE_FILE_SEND_FAILED));
+    // MU2 CareCoordination added the need to send CCDAs formatted as html,pdf, or xml
+    $add_type = PhiMailAttachmentType::forDocument($format_type, $xml_type);
+    if ($add_type === null) {
+        return xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ": "
+            . ErrorConstants::ERROR_CODE_INVALID_FORMAT_TYPE;
     }
 
-   /**
-    * If we get here, the message was successfully sent and the return
-    * value $ret is of the form "QUEUED recipient message-id" which
-    * is suitable for logging.
-    */
-    $msg_id = explode(" ", trim($ret), 4);
-    if ($msg_id[0] != "QUEUED" || !isset($msg_id[2])) { //unexpected response
-        $ret = "UNEXPECTED RESPONSE: " . $ret;
-        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $session->get('authProvider'), 0, $ret, $pid);
-        return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
+    $requester = PhiMailRequester::fromSession($session);
+    if ($requested_by == "patient") {
+        $requester = $requester->onBehalfOf(PhiMailUserRepository::PORTAL_USERNAME, (new PhiMailUserRepository())->portalUserId());
     }
 
-    EventAuditLogger::getInstance()->newEvent("transmit-" . $xml_type, $reqBy, $session->get('authProvider'), 1, $ret, $pid);
-    $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .
-    "VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)";
-    $res = @sqlStatementNoLog($sql, [$msg_id[2],$phimail_username,$recipient,$pid,$reqID]);
-
-    return("SUCCESS");
+    $sender = PhiMailSender::fromGlobals(
+        OEGlobalsBag::getInstance(),
+        ServiceContainer::getCrypto(),
+        ServiceContainer::getLogger(),
+        EventAuditLogger::getInstance(),
+    );
+    return $sender->send(
+        new PhiMailOutgoingMessage(
+            recipient: $recipient,
+            text: $text_out,
+            attachment: new PhiMailOutgoingAttachment($add_type, $att_filename . $extension, $ccd_out),
+            verifyFinalDelivery: $verifyFinalDelivery,
+            patientId: $pid,
+            referralId: $referralId,
+        ),
+        $requester,
+        failureEvent: 'transmit-ccd',
+        successEvent: 'transmit-' . $xml_type,
+    );
 }

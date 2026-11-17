@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Cannot assign offset 1 to list\\<string\\>\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot assign offset \'CLM01\' to array\\<string, mixed\\>\\|string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
@@ -70,6 +65,11 @@ $ignoreErrors[] = [
     'message' => '#^Cannot assign offset mixed to array\\<int\\<0, max\\>, array\\<string, mixed\\>\\>\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot assign offset \'name\' to array\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot assign new offset to list\\<string\\>\\|string\\.$#',

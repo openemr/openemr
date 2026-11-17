@@ -11,7 +11,8 @@
  *  - Questionnaires: "where is this offered?" One tick per surface, meaning offered
  *    everywhere on that surface. This is the common case and needs nothing else.
  *  - Limits for one questionnaire: "only at this facility / for this kind of visit / for
- *    this SMART app", and who may see it. Opened from the questionnaire's row.
+ *    this SMART app", and who may see it, plus which category it is filed under. Opened
+ *    from the questionnaire's row.
  *  - Category rules: "every questionnaire in this category", including ones imported
  *    later. A separate list, because it targets a category rather than a questionnaire.
  *
@@ -44,6 +45,7 @@ use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\PostOutcome;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\RuleDescriber;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\RuleForm;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\SurfaceOption;
+use OpenEMR\Services\Globals\CollapsedSections;
 use OpenEMR\Services\Questionnaire\AssignmentRecord;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityLookups;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
@@ -59,15 +61,27 @@ class QuestionnaireAvailabilityController
 {
     public const TEMPLATE = 'super/questionnaire_availability.html.twig';
 
+    /** Parts of the screen that fold away and stay that way for the user. */
+    public const SECTIONS = [
+        'questionnaire_availability_grid_expand',
+        'questionnaire_availability_category_rules_expand',
+    ];
+
     public function __construct(
         private readonly QuestionnaireAvailabilityService $service,
         private readonly QuestionnaireAvailabilityLookups $lookups,
         private readonly Environment $twig,
         private readonly SessionInterface $session,
         private readonly LoggerInterface $logger,
+        private readonly CollapsedSections $sections = new CollapsedSections(),
     ) {
     }
 
+    /**
+     * Show the availability manager, applying a posted change first.
+     *
+     * Requires admin/super, and a valid CSRF token for any POST.
+     */
     public function dispatchAction(Request $request): Response
     {
         if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -114,6 +128,7 @@ class QuestionnaireAvailabilityController
                 'save_rule' => $this->saveRule($request->request),
                 'toggle_rule' => $this->toggleRule($request->request),
                 'delete_rule' => $this->deleteRule($request->request),
+                'save_category' => $this->saveCategory($request->request),
                 default => new PostOutcome(),
             };
         } catch (InvalidArgumentException $e) {
@@ -146,8 +161,10 @@ class QuestionnaireAvailabilityController
         $assignments = $this->service->listAssignments();
 
         $questionnaireNames = [];
+        $questionnaireCategories = [];
         foreach ($questionnaires as $questionnaire) {
             $questionnaireNames[$questionnaire['id']] = $questionnaire['name'];
+            $questionnaireCategories[$questionnaire['id']] = $questionnaire['category'];
         }
 
         $editing = null;
@@ -172,6 +189,8 @@ class QuestionnaireAvailabilityController
         $visitCategories = $this->lookups->visitCategories();
         $smartApps = $this->lookups->smartApps();
         $categoryTitles = $this->lookups->categoryTitles();
+        // What a questionnaire can be filed under, before the list below picks up legacy values.
+        $categoryChoices = $categoryTitles;
         $permissionChoices = $this->lookups->permissionChoices();
         $encounterFormIds = $this->lookups->encounterFormIds();
 
@@ -320,6 +339,7 @@ class QuestionnaireAvailabilityController
             'gridRows' => $gridRows,
             'selectedId' => $selectedId,
             'selectedName' => $selectedId !== null ? $questionnaireNames[$selectedId] : '',
+            'selectedCategory' => $selectedId !== null ? $questionnaireCategories[$selectedId] : '',
             'selectedRules' => $selectedRules,
             'categoryRules' => $categoryRules,
             'limitForm' => self::ruleForm('limit', $editingLimit, $permissionLabels),
@@ -329,7 +349,9 @@ class QuestionnaireAvailabilityController
             'visitCategories' => $visitCategories,
             'smartApps' => $smartApps,
             'categories' => $categoryTitles,
+            'categoryChoices' => $categoryChoices,
             'permissionChoices' => $permissionChoices,
+            'sections' => $this->sections,
         ];
     }
 
@@ -485,6 +507,27 @@ class QuestionnaireAvailabilityController
     }
 
     /**
+     * File the open questionnaire under another category. Only a category from the list is
+     * accepted: category rules match on it, so a free-typed value would match nothing.
+     *
+     * @param InputBag<string> $post
+     */
+    private function saveCategory(InputBag $post): PostOutcome
+    {
+        $id = self::positiveId($post, 'questionnaire_id');
+        $category = self::text($post, 'category');
+        if ($id === null) {
+            return new PostOutcome();
+        }
+        if ($category === null || !isset($this->lookups->categoryTitles()[$category])) {
+            return new PostOutcome(errors: [xl('Choose a category from the list')]);
+        }
+        $this->service->setQuestionnaireCategory($id, $category);
+
+        return new PostOutcome(notices: [xl('Category saved')]);
+    }
+
+    /**
      * @param InputBag<string> $post
      */
     private function toggleRule(InputBag $post): PostOutcome
@@ -577,6 +620,9 @@ class QuestionnaireAvailabilityController
             : sprintf(xl('%s can be limited by %s.'), $label, implode(', ', $names));
     }
 
+    /**
+     * The message shown for an error code from QuestionnaireAvailabilityService.
+     */
     private static function refusalMessage(mixed $code): string
     {
         return match ($code) {

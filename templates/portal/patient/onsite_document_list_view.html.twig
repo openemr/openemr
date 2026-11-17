@@ -1,0 +1,627 @@
+{#
+ # Patient Portal Documents: the documents and forms page (GET onsitedocuments), for a portal
+ # patient, for staff reviewing a patient's documents, and for the document templates module.
+ #
+ # Variables, from OnsiteDocumentController::ListView():
+ # - cpid: the patient's pid; cuser: the session user (`-patient-` for a portal patient);
+ #   pt_name: the patient's name, or the pid when the session has none;
+ # - is_portal (0|1), is_module, doc_edit, recid, docid, help_id, new_filename, save_catid,
+ #   auto_render, audit_render, auto_render_name, referer_flag: the request, as given;
+ # - category_name: the name of category save_catid, or null when there is none;
+ # - language_defs: the i18next translations; datetimepicker_js: the date picker translations;
+ # - form_names_whitelist: the portal-compliant encounter form directories;
+ # - template_menu: the Select Form menu HTML (module and portal only);
+ # - allow_portal_uploads (bool); portal_home_url, exit_url: the exit links;
+ # and the shared portal page context (ROOT_URL, web_root, assets_static_relative, v_js_includes).
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ # @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
+ # @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+{% set is_dashboard = not is_module and not is_portal %}
+{% set catname = category_name ?? ('Onsite Portal Reviewed'|xlt) %}
+{% set docid = docid ?: 'Privacy Document' %}
+{% set auto_render = auto_render ?? 0 %}
+{% set audit_render = audit_render ?? 0 %}
+{% set auto_render_name = auto_render_name ?? '' %}
+{% set referer_flag = referer_flag ?? 0 %}
+{% set csrf_token = csrfTokenRaw() %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if is_dashboard %}{{ 'Portal Document Review'|xlt }}{% elseif not is_module %}{{ 'Patient Portal Documents'|xlt }}{% else %}{{ 'Patient Document Templates'|xlt }}{% endif %}
+    </title>
+    <meta name="description" content="Developed By sjpadgett@gmail.com">
+    <script>var cpid={{ cpid|js_escape }};var cuser={{ cuser|js_escape }};var ptName={{ pt_name|js_escape }};var autoRender={{ auto_render|js_escape }};var auditRender={{ audit_render|js_escape }};var renderDocumentName={{ auto_render_name|js_escape }};var catid={{ save_catid|js_escape }};var catname={{ catname|js_escape }};</script>
+    {{- '' -}}
+    <script>var recid={{ recid|js_escape }};var docid={{ docid|js_escape }};var isNewDoc={{ 0|js_escape }};var newFilename={{ new_filename|js_escape }};var help_id={{ help_id|js_escape }};</script>
+    {{- '' -}}
+    <script>var isPortal={{ is_portal|js_escape }};var isModule={{ is_module|js_escape }};var isDashboard={{ (is_dashboard ? 1 : 0)|js_escape }};var webRoot={{ web_root|js_escape }};var doc_edit={{ doc_edit|js_escape }};var webroot_url = webRoot;</script>
+    {{- '' -}}
+    <script>var csrfTokenDoclib={{ csrf_token|js_escape }};</script>
+    {{- '' -}}
+    <script>var alertMsg1='{{ 'Saved to Patient Documents'|xlt }}->{{ 'Category'|xlt }}: {{ catname|attr }}';</script>
+    {{- '' -}}
+    <script>var msgSuccess='{{ 'Updates Successful'|xlt }}';</script>
+    {{- '' -}}
+    <script>var msgDelete='{{ 'Delete Successful'|xlt }}';</script>
+    {{- '' -}}
+    <script>var formNamesWhitelist={{ form_names_whitelist|js_escape }};</script>
+    {{- '' -}}
+    {% if is_portal %}{{ setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker', 'i18next'], false) }}{% else %}{{ setupHeader(['datetime-picker', 'i18next'], false) }}{% endif %}
+    <link rel="stylesheet" href="{{ web_root }}/portal/sign/css/signer_modal.css?v={{ v_js_includes }}">
+    <link rel="stylesheet" href="{{ assets_static_relative }}/dropzone/dist/dropzone.css?v={{ v_js_includes }}">
+    <script src="{{ assets_static_relative }}/dropzone/dist/dropzone.js?v={{ v_js_includes }}"></script>
+    <script src="{{ web_root }}/portal/sign/assets/signature_pad.umd.js?v={{ v_js_includes }}"></script>
+    <script src="{{ web_root }}/portal/sign/assets/signer_api.js?v={{ v_js_includes }}"></script>
+    <script>window.portalApiCsrfToken = {{ csrf_token|js_escape }};</script>
+    <script src="{{ assets_static_relative }}/moment/moment.js?v={{ v_js_includes|attr_url }}"></script>
+    <script src="{{ web_root }}/portal/patient/scripts/portal-page.js?v={{ v_js_includes|attr_url }}"></script>
+    <script src="{{ web_root }}/portal/patient/scripts/portal-api.js?v={{ v_js_includes|attr_url }}"></script>
+    <script>
+        i18next.init({
+            lng: 'selected',
+            debug: false,
+            nsSeparator: false,
+            keySeparator: false,
+            resources: {
+                selected: {
+                    translation: {{ (language_defs ?? [])|js_escape }}
+                }
+            }
+        }).catch(error => {
+            console.log(error.message);
+        });
+    </script>
+    <style>
+      @media print {
+        #templatecontent {
+          width: 1220px;
+        }
+      }
+
+      .nav-pills-ovr > li > a {
+        border: 1px solid !important;
+        border-radius: .25rem !important;
+      }
+
+      .dz-remove {
+        font-size: 16px;
+        color: var(--danger);
+      }
+
+      .dz-progress {
+        opacity: 0.2 !important;
+      }
+    </style>
+</head>
+<body class="p-0 m-0 mt-1">
+    <script src="{{ web_root }}/portal/patient/scripts/app/onsitedocuments.js?v={{ v_js_includes|attr_url }}"></script>
+    <script src="{{ web_root }}/portal/patient/scripts/app/onsiteportalactivities.js?v={{ v_js_includes|attr_url }}"></script>
+    <script>
+        {{ datetimepicker_js }}
+        $(function () {
+            page.init();
+            pageAudit.init();
+            if ((isPortal || !newFilename) && !isDashboard) {
+                $(".template-body").addClass("bg-light");
+                $(".template-body").addClass("text-dark");
+                $('#Help').on('click', function (e) {
+                    e.preventDefault();
+                    $(".helpHide").addClass("d-none");
+                });
+                $(".helpHide").addClass("d-none");
+                $(parent.document.getElementById('topNav')).addClass("d-none");
+                if (autoRender < 1 && auditRender < 1) {
+                    $("#Help").click();
+                }
+            }
+            setTimeout(function () {
+                if (!page.isInitialized) {
+                    page.init();
+                    if (!pageAudit.isInitialized) {
+                        pageAudit.init();
+                        console.log('secondary init done!');
+                    }
+                }
+                if (isPortal) {
+                    /* Render may start a new document onetime request however, for the sake
+                    *  of allowing the patient to stay in portal when finished of edit or the patient uses
+                    *  same onetime access code that started as a new doc and saved as draft to come back and
+                    *  continue the form edit and then submit for review. i.e. persisting the docid.
+                    *  auditRender is the history doc id for a previous edit or submission.
+                    *
+                    *  CONFUSED! Welcome.
+                    * */
+                    if (autoRender > 0 && auditRender <= 0) {
+                        // is it in menu?
+                        if ($("#" + autoRender).data('history_id') > 0) {
+                            // has it been submitted?
+                            let historyId = $("#" + autoRender).data('history_id');
+                            page.editHistoryDocument(historyId);
+                            console.log('Onetime history template id ' + historyId);
+                        } else {
+                            page.newDocument(cpid, "-patient-", renderDocumentName, autoRender);
+                            console.log('Onetime new template init');
+                        }
+                    } else if (auditRender > 0) {
+                        page.editHistoryDocument(auditRender);
+                        console.log('Onetime history template init');
+                    }
+                    if (!newFilename) { // autoload new on init. once only.
+                        page.initFileDrop();
+                    }
+                }
+                if (newFilename) {
+                    console.log('Call template from module');
+                    if ((doc_edit === '0' || doc_edit === '1') && recid > 0) {
+                        // is it in menu?
+                        if ($("#" + recid).data('history_id') > 0) {
+                            // has it been submitted?
+                            let historyId = $("#" + recid).data('history_id');
+                            console.log('Module history template id = ' + newFilename);
+                            page.editHistoryDocument(historyId);
+                        } else {
+                            console.log('Module new template init id = ' + newFilename);
+                            page.newDocument(cpid, "-patient-", newFilename, recid);
+                        }
+                    }
+                }
+            }, 1000);
+        });
+
+        function printaDocHtml(divName) {
+            page.updateModel();
+            setTimeout("flattenDocument();", 3000);
+            divName = 'templatediv';
+            let printContents = document.getElementById(divName).innerHTML;
+            let originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            location.reload();
+        }
+
+        function printaDoc(divName) {
+            // We'll return to the same editing state as before print
+            // In dashboard document is already flatten to prevent
+            // auditor from changing patient entries!
+            if (page.isQuestionnaire && !isPortal) {
+                url = webroot_url +
+                    "/interface/forms/questionnaire_assessments/patient_portal.php" +
+                    "?formid=" + encodeURIComponent(page.encounterFormId);
+                fetch(url).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network Error.');
+                    }
+                    return response.json()
+                }).then(content => {
+                    if (content) {
+                        let docid = document.getElementById('docid').value;
+                        fetchPdf(divName, docid, content);
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert(error);
+                });
+            } else {
+                let docid = document.getElementById('docid').value;
+                fetchPdf(divName, docid);
+            }
+        }
+
+        function fetchPdf(divName, docid, printContents = null) {
+            let csrf_token_js = {{ csrf_token|js_escape }};
+            top.restoreSession();
+            if (document.getElementById('tempFrame')) {
+                let killFrame = document.getElementById('tempFrame');
+                killFrame.parentNode.removeChild(killFrame);
+            }
+            if (!printContents) {
+                printContents = document.getElementById(divName).innerHTML;
+            }
+            const request = new FormData;
+            request.append("handler", "fetch_pdf");
+            request.append("docid", docid);
+            request.append("content", printContents);
+            request.append("csrf_token_form", csrf_token_js);
+            fetch(webroot_url + "/portal/lib/doc_lib.php", {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: request
+            }).then((response) => {
+                if (response.status !== 200) {
+                    console.log('Background Service start failed. Status Code: ' + response.status);
+                }
+                return response.text();
+            }).then((base64) => {
+                const binary = atob(base64.replace(/\s/g, ''));
+                const len = binary.length;
+                const buffer = new ArrayBuffer(len);
+                const view = new Uint8Array(buffer);
+                for (let i = 0; i < len; i++) {
+                    view[i] = binary.charCodeAt(i);
+                }
+                const blob = new Blob([view], {type: "application/pdf"});
+                const url = URL.createObjectURL(blob);
+                let iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.width = '0';
+                iframe.height = '0';
+                iframe.id = 'tempFrame';
+                document.body.appendChild(iframe);
+                iframe.onload = function () {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                }
+                // write the content
+                iframe.src = url;
+            }).catch(function (error) {
+                console.log('PHP PDF Background Service Request failed: ', error);
+                return false;
+            });
+        }
+
+        // Many of these functions are now deprecated and will stay for legacy.
+        function templateText(el) {
+            $(el).data('textvalue', $(el).val());
+            $(el).attr("data-textvalue", $(el).val())
+            return false;
+        }
+
+        function templateCheckMark(el) {
+            if ($(el).data('value') === 'Yes') {
+                $(el).data('value', 'No');
+                $(el).attr('data-value', 'No');
+            } else {
+                $(el).data('value', 'Yes');
+                $(el).attr('data-value', 'Yes');
+            }
+            return false;
+        }
+
+        function templateRadio(el) {
+            let rid = $(el).data('id')
+            $('#rgrp' + rid).data('value', $(el).val());
+            $('#rgrp' + rid).attr('data-value', $(el).val());
+            $(el).prop('checked', true)
+            return false;
+        }
+
+        function tfTemplateRadio(el) {
+            let rid = $(el).data('id')
+            $('#tfrgrp' + rid).data('value', $(el).val());
+            $('#tfrgrp' + rid).attr('data-value', $(el).val());
+            $(el).prop('checked', true);
+            return false;
+        }
+
+        function replaceTextInputs() {
+            $('.templateInput').each(function () {
+                let rv = $(this).data('textvalue');
+                $(this).replaceWith(jsText(rv));
+            });
+        }
+
+        function replaceRadioValues() {
+            $('.ynuGroup').each(function () {
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let rv = $('input:radio[name="ynradio' + jsAttr(gid) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
+
+            $('.tfuGroup').each(function () {
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let rv = $('input:radio[name="tfradio' + jsAttr(gid) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
+        }
+
+        function replaceCheckMarks() {
+            $('.checkMark').each(function () {
+                let ckid = $(this).data('id');
+                let v = $('#' + ckid).data('value');
+                if (v === 'Yes')
+                    $(this).replaceWith('[\u2713]')
+                else {
+                    $(this).replaceWith("[ ]")
+                }
+            });
+        }
+
+        function restoreTextInputs() {
+            $('.templateInput').each(function () {
+                let rv = $(this).data('textvalue');
+                $(this).val(rv)
+            });
+        }
+
+        function restoreRadioValues() {
+            $('.ynuGroup').each(function () {
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let value = $(this).data('value');
+                $("input[name=ynradio" + gid + "][value='" + value + "']").prop('checked', true);
+            });
+
+            $('.tfuGroup').each(function () {
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let value = $(this).data('value');
+                $("input[name=tfradio" + gid + "][value='" + value + "']").prop('checked', true);
+            });
+        }
+
+        function restoreCheckMarks() {
+            $('.checkMark').each(function () {
+                let ckid = $(this).data('id');
+                if ($('#' + ckid).data('value') === 'Yes')
+                    $('#' + ckid).prop('checked', true);
+                else {
+                    $('#' + ckid).prop('checked', false);
+                }
+            });
+        }
+
+        function replaceSignatures() {
+            $('.signature').each(function () {
+                if ($(this).attr('src') !== signhere && $(this).attr('src')) {
+                    $(this).removeAttr('data-action');
+                }
+                if (!isPortal) {
+                    $(this).attr('data-user', cuser);
+                }
+            });
+        }
+
+        function formReplaceCheckMarks() {
+            $('.checkMark').each(function () {
+                let v = $(this).is(':checked');
+                if (v)
+                    $(this).replaceWith(' [\u2713] ')
+                else {
+                    $(this).replaceWith(" [ ] ")
+                }
+            });
+        }
+
+        function formReplaceRadioValues() {
+            $('.ynuGroup').each(function () {
+                let name = $(this).prop('id');
+                let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
+
+            $('.tfuGroup').each(function () {
+                let name = $(this).prop('id');
+                let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
+
+            $('.fcuGroup').each(function () {
+                let name = $(this).prop('id');
+                let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
+        }
+
+        function formReplaceTextInputs() {
+            $('.templateInput').each(function () {
+                let rv = $(this).val();
+                $(this).replaceWith(jsText(rv));
+            });
+        }
+
+        // A simple (being facetious!) await!.
+        const flattenDocumentAsync = async () => {
+            if (page.version === 'Legacy') {
+                replaceCheckMarks();
+                replaceRadioValues();
+                replaceTextInputs();
+                replaceSignatures();
+            } else {
+                formReplaceTextInputs();
+                formReplaceCheckMarks();
+                formReplaceRadioValues();
+                replaceSignatures()
+            }
+            page.isFlattened = true;
+        }
+
+        const flattenDocument = async () => {
+            await flattenDocumentAsync();
+            page.isFlattened = true;
+        }
+
+        function restoreDocumentEdits() {
+            restoreCheckMarks();
+            restoreRadioValues();
+            restoreTextInputs();
+            page.isFlatten = false;
+            page.isSaved = false;
+        }
+    </script>
+    <div class="container-xl px-1">
+        <div class="text-center"><span class="h3 mt-1 mr-1">{{ 'Documents and Forms'|xlt }}</span>
+            {% if is_portal %}
+                <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace({{ portal_home_url|attr_js }})'>{{ 'Exit to Dashboard'|xlt }}</a>
+            {% endif %}
+        </div>
+        <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="topmenu" class="collapse navbar-collapse">
+                <ul class="navbar-nav navCollapse mr-auto">
+                    <!-- Sticky actions toolbar -->
+                    <div class='helpHide d-none'>
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature">{{ 'Signature'|xlt }}</a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="#" onclick="printaDoc('templatecontent');">{{ 'Print'|xlt }}</a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="submitTemplate" href="#">{{ 'Download'|xlt }}</a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartTemplate" href="#">{{ 'Chart to'|xlt }} {{ catname|text }}</a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="downloadTemplate" href="#">{{ 'Download'|xlt }}</a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartHistory" href="#">{{ 'Chart History'|xlt }}</a></li>
+                        </ul>
+                    </div>
+                    {% if is_module or is_portal %}
+                        <div class="dropdown mb-1">
+                            <a class="dropdown-toggle nav-link btn btn-outline-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ 'Select Form'|xlt }}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                {{ template_menu }}
+                            </div>
+                        </div>
+                        <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="saveTemplate" href="#">{{ 'Save as Draft'|xlt }}</a></li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary" id="sendTemplate" href="#">{{ 'Submit Completed'|xlt }}</a>
+                    </li>
+                    <li class='nav-item mb-1'>
+                        <a class='nav-link btn btn-outline-success' onclick="page.handleHistoryView()">
+                            {{ 'Activities'|xlt }}
+                        </a>
+                    </li>
+                    {% if not is_dashboard %}
+                        <li class="nav-item mb-1">
+                            <a id="Help" class="nav-link text-primary btn btn-outline-primary d-none" onclick='page.newDocument(cpid, cuser, "Help", help_id);'>{{ 'Help'|xlt }}</a>
+                        </li>
+                    {% endif %}
+                </ul>
+                <a class='btn btn-outline-primary btn-refresh mr-0 mb-1' title='Refresh' id='refreshPage' href='#' onclick='window.location.reload()'>{{ 'Reload'|xlt }}</a>
+                {% if allow_portal_uploads %}
+                    <!--Infeg : Added event.preventDefault to prevent page reload on click.-->
+                    <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='#' onclick="event.preventDefault();$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i>{{ 'Upload'|xlt }}</a>
+                {% endif %}
+                {% if is_portal and not auto_render %}
+                    <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace({{ portal_home_url|attr_js }})'>{{ 'Exit to Dashboard'|xlt }}</a>
+                {% elseif not is_module and not is_dashboard %}
+                    <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace({{ exit_url|attr_js }})'>{{ 'Exit'|xlt }}</a>
+                {% endif %}
+                {% if is_module %}
+                    <a class="text-danger btn btn-outline-secondary mb-1" id="a_docReturn" href="#" onclick='window.location.replace("{{ web_root }}/controller.php?document&upload&patient_id={{ cpid|attr_url }}&parent_id={{ save_catid|attr_url }}&referer_flag={{ referer_flag|attr_url }}")'>{{ 'Return'|xlt }}</a>
+                {% endif %}
+            </div>
+        </nav>
+        <div class="d-flex flex-row justify-content-center">
+            <!-- Pending documents left menu Deprecated and removed 01/13/22 -->
+            <div class="clearfix" id="topNav">
+                <div id="collectionAlert"></div>
+            </div>
+            <!-- Right editor container -->
+            <div id="editorContainer" class="d-flex flex-column w-100 h-auto">
+                <!-- document editor and action toolbar template -->
+                <template id="onsiteDocumentModelTemplate">
+                    <div class="card m-0 p-0" id="docpanel">
+                        <!-- Document edit container -->
+                        <header class="card-header font-weight-bold bg-dark text-light p-1 helpHide" id='docPanelHeader'>{{ 'Editing'|xlt }}
+                            <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-right" onclick="window.location.reload()">{{ 'Dismiss Form'|xlt }}</button>
+                        </header>
+                        <!-- File upload -->
+                        {% if allow_portal_uploads %}
+                            <div class="card col-12 col-lg-5 col-md-3">
+                                <div id="hideUpload" class="card-body" style="display: none;">
+                                    <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i>{{ 'Uploads'|xlt }}</h4>
+                                    <div class="row">
+                                        <div class="container-fluid h-25" id="file-queue-container">
+                                            <div id="file-queue">
+                                                <form id="patientFileDrop" method="post" enctype="multipart/form-data" class="dropzone bg-dark" action='{{ web_root }}/library/ajax/upload.php?parent_id=Patient&patient_id={{ cpid|attr_url }}'>
+                                                    <input type="hidden" name="csrf_token_form" value="{{ csrf_token|attr }}" />
+                                                </form>
+                                                <button name="file_submit" id="idSubmit" class="btn btn-success mt-2 d-none" type="submit" value="upload">{{ 'Upload to Clinic'|xlt }}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <!-- editor form -->
+                        <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
+                            <div id="templatediv" class="card-body border overflow-auto">
+                                <div id="templatecontent" class="template-body bg-light">
+                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="{{ csrf_token|attr }}" />
+                            <input type="hidden" name="content" id="content" value="" />
+                            <input type="hidden" name="cpid" id="cpid" value="" />
+                            <input type="hidden" name="docid" id="docid" value="" />
+                            <input type='hidden' name='template_id' id='template_id' value='' />
+                            <input type="hidden" name="handler" id="handler" value="download" />
+                            <input type="hidden" name="status" id="status" value="Open" />
+                        </form>
+                        <div class="clearfix">
+                            <span>
+                                <button id="dismissOnsiteDocumentButton" class="dismissOnsiteDocumentButton btn btn-sm btn-outline-danger float-right m-1" onclick="window.location.reload()">{{ 'Dismiss Form'|xlt }}</button>
+                            </span>
+                            <span>
+                            </span>
+                            <!-- delete button is a separate form to prevent enter key from triggering a delete-->
+                            <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
+                                <fieldset>
+                                    <div class="form-group">
+                                        <label class="col-form-label"></label>
+                                        <div class="controls">
+                                            <button id="deleteOnsiteDocumentButton" class="btn btn-delete btn-sm btn-danger mt-1">{{ 'Delete Document'|xlt }}</button>
+                                            <span id="confirmDeleteOnsiteDocumentContainer">
+                                                <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-link btn-sm">{{ 'Cancel'|xlt }}</button>
+                                                <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-sm btn-danger">{{ 'Confirm'|xlt }}</button>
+                                          </span>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                </template>
+                <div id="onsiteDocumentModelContainer" class="modelContainer">
+                    <!-- rendered edit document and action toolbar template -->
+                </div>
+            </div><!-- close flex right-->
+        </div><!-- close flex row -->
+        <!-- Now history table container template; onsitedocuments.js adds a row per document -->
+        <template id="onsiteDocumentCollectionTemplate">
+            <div class="table-responsive pt-3">
+                <h4 class="text-sm-center">{{ 'Document and Forms Activity'|xlt }}</h4><small data-slot="pager-top"></small><cite data-slot="active-filter"></cite>
+
+                <table class="collection table table-sm table-hover">
+                    <thead class='thead-dark'>
+                    <tr class='cursor-pointer' role="button">
+                        <th scope="col" id="header_Id">{{ 'Id'|xlt }}</th>
+                        <th scope="col" id="header_DocType">{{ 'Document'|xlt }}</th>
+                        <th scope="col" id="header_CreateDate">{{ 'Create Date'|xlt }}</th>
+                        <th scope="col" id="header_ReviewDate">{{ 'Reviewed Date'|xlt }}</th>
+                        <th scope="col" id="header_DenialReason">{{ 'Status'|xlt }}</th>
+                        <th scope="col" id="header_PatientSignedStatus">{{ 'Signed'|xlt }}</th>
+                        <th scope="col" id="header_PatientSignedTime">{{ 'Signed Date'|xlt }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+        <template id="onsiteDocumentRowTemplate">
+            <tr role="button">
+                <th scope="row" data-field="id"></th>
+                <td>
+                    <button type="button" class='btn btn-sm btn-outline-success history-btn' data-field="docType"></button>
+                </td>
+                <td data-field="createDate"></td>
+                <td data-field="reviewDate"></td>
+                <td data-field="denialReason"></td>
+                <td data-field="patientSignedStatus"></td>
+                <td data-field="patientSignedTime"></td>
+            </tr>
+        </template>
+        <div class="container-lg px-3 pt-3 historyHide d-none" id="historyTable">
+            <div id="onsiteDocumentCollectionContainer" class="collectionContainer"><!-- rendered history template --></div>
+        </div>
+    </div>

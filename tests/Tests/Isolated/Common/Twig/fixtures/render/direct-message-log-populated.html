@@ -1,0 +1,149 @@
+<html>
+
+<head>
+    <!-- setupHeader stub -->
+
+    <title>Direct Message Log</title>
+
+    <style>
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results table {
+                margin-top: 0;
+            }
+        }
+
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="body_top">
+
+<span class='title'>Direct Message Log</span>
+
+<form method='post' name='theform' id='theform' action='direct_message_log.php' onsubmit='return top.restoreSession()'>
+    <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+    <input type='hidden' name='lognext' id='lognext' value=''>
+
+    <div id="report_parameters">
+        <table>
+            <tr>
+                <td width='470px'>
+                    <div class="btn-group float-left" role="group">
+                        <a id='refresh_button' href='#' class='btn btn-secondary btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+                            Refresh
+                        </a>
+                        <a id='prev_button' href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#lognext").val(-100); $("#theform").submit()'>
+                            Older
+                        </a>
+                        <a id='next_button' href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#lognext").val(100); $("#theform").submit()'>
+                            Newer
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- end of search parameters -->
+
+    <br />
+
+    <div id="report_results">
+        <table class='table'>
+            <thead class='thead-light'>
+                <th align='center'>ID</th>
+                <th align='center'>Type</th>
+                <th align='center'>Date Created</th>
+                <th align='center'>Sender</th>
+                <th align='center'>Recipient</th>
+                <th align='center'>Status</th>
+                <th align='center'>Date of Status Change</th>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td align='center'>208</td>
+                        <td align='center'>Sent</td>
+                        <td align='center'>2026-01-05 09:00:00</td>
+                        <td align='center'>sender@direct.example</td>
+                        <td align='center'>recipient@direct.example</td>
+                        <td align='center'>&nbsp;</td>
+                        <td align='center'>2026-01-05 09:30:00</td>
+                    </tr>
+                    <tr>
+                        <td align='center'>207</td>
+                        <td align='center'>&nbsp;</td>
+                        <td align='center'>2026-01-05 09:00:00</td>
+                        <td align='center'>sender@direct.example</td>
+                        <td align='center'>recipient@direct.example</td>
+                        <td align='center'>&nbsp;</td>
+                        <td align='center'></td>
+                    </tr>
+                    <tr>
+                        <td align='center'>206</td>
+                        <td align='center'>Sent</td>
+                        <td align='center'>2026-01-05 09:00:00</td>
+                        <td align='center'>sender@direct.example</td>
+                        <td align='center'>recipient@direct.example</td>
+                        <td align='center'>Failed</td>
+                        <td align='center'>2026-01-05 09:30:00</td>
+                    </tr>
+                    <tr>
+                        <td align='center'>205</td>
+                        <td align='center'>Received</td>
+                        <td align='center'>2026-01-05 09:00:00</td>
+                        <td align='center'>&lt;b&gt;sender&lt;/b&gt;@direct.example</td>
+                        <td align='center'>recipient@direct.example</td>
+                        <td align='center'>Received</td>
+                        <td align='center'>2026-01-05 09:30:00</td>
+                    </tr>
+                    <tr>
+                        <td align='center'>204</td>
+                        <td align='center'>Sent</td>
+                        <td align='center'>2026-01-05 09:00:00</td>
+                        <td align='center'>sender@direct.example</td>
+                        <td align='center'>recipient@direct.example</td>
+                        <td align='center'>Sent - Confirmed</td>
+                        <td align='center'>2026-01-05 09:30:00</td>
+                    </tr>
+                    <tr>
+                        <td align='center'>203</td>
+                        <td align='center'>Sent</td>
+                        <td align='center'>2026-01-05 09:00:00</td>
+                        <td align='center'>sender@direct.example</td>
+                        <td align='center'>recipient@direct.example</td>
+                        <td align='center'>Sent</td>
+                        <td align='center'>2026-01-05 09:30:00</td>
+                    </tr>
+                    <tr>
+                        <td align='center'>202</td>
+                        <td align='center'>Sent</td>
+                        <td align='center'>2026-01-05 09:00:00</td>
+                        <td align='center'>sender@direct.example</td>
+                        <td align='center'>recipient@direct.example</td>
+                        <td align='center'>Queued</td>
+                        <td align='center'>2026-01-05 09:30:00</td>
+                    </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- end of search results -->
+
+    <input type='hidden' name='logstart' id='logstart' value='208'>
+</form>
+
+</body>
+</html>

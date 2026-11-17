@@ -6,7 +6,7 @@
  * Tests the NotificationChannel enum's fromLegacyType() factory, which
  * normalizes the legacy stringly-typed $TYPE global into the typed enum.
  * The factory's behavior gates which WHERE clause runs in
- * cron_GetAlertPatientData(), so its mapping must be exhaustively covered.
+ * faxsms_getAlertPatientData(), so its mapping must be exhaustively covered.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

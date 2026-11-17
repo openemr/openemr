@@ -55,6 +55,8 @@ class SMARTSessionTokenContextBuilder
                 ['patient' => $launchToken->getPatient(), 'encounter' => $launchToken->getEncounter(), 'intent' => $launchToken->getIntent()]
             );
 
+            $this->assertLaunchMatchesLogin($launchToken);
+
             // we assume that if a patient is provided we are already displaying the patient
             // we may in the future need to adjust the need_patient_banner depending on the 'intent' chosen.
             if (!empty($launchToken->getPatient())) {
@@ -89,6 +91,31 @@ class SMARTSessionTokenContextBuilder
         }
         $this->getSystemLogger()->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() ehr launch context is ", $context);
         return $context;
+    }
+
+    /**
+     * A patient may only use a launch for themselves, and a portal launch only by that patient.
+     *
+     * A patient login sets the session's user_id to the patient's uuid and its puuid to the same value; a staff login
+     * (with or without a selected patient) never does. A launch naming another patient, or a portal launch used by
+     * anyone but its patient, is refused rather than handed to the app as its context.
+     *
+     * @throws OAuthServerException
+     */
+    private function assertLaunchMatchesLogin(SMARTLaunchToken $launchToken): void
+    {
+        $userId = $this->session->get('user_id');
+        $loggedInPatient = $this->session->get('puuid');
+        $isPatientLogin = is_string($userId) && $userId !== '' && $userId === $loggedInPatient;
+        $launchPatient = $launchToken->getPatient();
+        $isPortalLaunch = $launchToken->getIntent() === SMARTLaunchToken::INTENT_PATIENT_PORTAL;
+
+        if ($isPatientLogin && $launchPatient !== $loggedInPatient) {
+            throw new OAuthServerException("Launch context is not for the logged in patient", 0, 'invalid_launch_context');
+        }
+        if ($isPortalLaunch && !$isPatientLogin) {
+            throw new OAuthServerException("A patient portal launch must be used by its patient", 0, 'invalid_launch_context');
+        }
     }
 
     public function getContextForScopesWithExistingContext(array $context, array $scopes): array

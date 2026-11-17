@@ -138,6 +138,31 @@ class FileUtilsTest extends TestCase
     }
 
     // =========================================================================
+    // fileGetMimeType
+    // =========================================================================
+
+    public function testFileGetMimeTypeSniffsContentAndAddsTheExtension(): void
+    {
+        $content = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n";
+
+        $this->assertSame(['type' => 'application/pdf', 'filePath' => 'report.pdf'], FileUtils::fileGetMimeType('report', $content));
+    }
+
+    public function testFileGetMimeTypeSniffsAFileWhenThereIsNoContent(): void
+    {
+        $content = '';
+
+        $this->assertSame(['type' => 'text/x-php', 'filePath' => __FILE__], FileUtils::fileGetMimeType(__FILE__, $content));
+    }
+
+    public function testFileGetMimeTypeIsFalseForAMissingFile(): void
+    {
+        $content = '';
+
+        $this->assertFalse(FileUtils::fileGetMimeType(__DIR__ . '/no-such-file', $content));
+    }
+
+    // =========================================================================
     // ensureExtension
     // =========================================================================
 

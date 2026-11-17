@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Authorizes an API request from its bearer token.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\RestControllers\Authorization;
 
 use League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator;
@@ -168,7 +179,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $attributes = $tokenRaw->getAttributes();
         // collect openemr user uuid
         $userId = $attributes['oauth_user_id'];
-        // collect client id (will be empty for PKCE)
+        // collect client id: every token this server issues names its client in aud, PKCE ones included
         $clientId = $attributes['oauth_client_id'] ?? null;
         // collect token id
         $tokenId = $attributes['oauth_access_token_id'];
@@ -191,18 +202,33 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             );
             throw OAuthServerException::accessDenied('Access token has been revoked');
         }
+        // A token that names no client can't be held to its client's limits, so it is refused.
+        if (!is_string($clientId) || $clientId === '') {
+            $logger->error(
+                "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: token names no client",
+                ['tokenId' => $tokenId, 'userId' => $userId]
+            );
+            throw OAuthServerException::accessDenied('Access token names no client');
+        }
         // A client an administrator disabled (or deleted) loses API access now, not when the
         // tokens it already holds expire; disabling a client does not revoke its tokens.
-        if (is_string($clientId) && $clientId !== '') {
-            $client = $this->getClientRepository()->getClientEntity($clientId);
-            if (!$client instanceof ClientEntity || !$client->isEnabled()) {
-                $logger->error(
-                    "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: client disabled or not registered",
-                    ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
-                );
-                throw OAuthServerException::accessDenied('Client is not enabled');
-            }
+        $client = $this->getClientRepository()->getClientEntity($clientId);
+        if (!$client instanceof ClientEntity || !$client->isEnabled()) {
+            $logger->error(
+                "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: client disabled or not registered",
+                ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
+            );
+            throw OAuthServerException::accessDenied('Client is not enabled');
         }
+        $addressBookUuid = $client->getAddressBookUuid();
+        if ($addressBookUuid !== null && !self::addressBookClientMayCall($request->getMethod(), $request->getRequestPathWithoutSite())) {
+            $logger->error(
+                "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: route is outside what a client limited to an address book entry may call",
+                ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
+            );
+            throw new HttpException(403, "This client is limited to its own Tasks and referrals.");
+        }
+        $request->setClientAddressBookUuid($addressBookUuid);
         $logger->debug("BearerTokenAuthorizationStrategy->authorizeRequest() - Access token verified, authenticating user");
 
         // verify that user tokens haven't been revoked
@@ -276,6 +302,20 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return true;
     }
 
+
+    /**
+     * What a client limited to an address book entry may call, whatever its scopes say: reading and
+     * updating Tasks, and reading ServiceRequests. Each of those keeps to the entry's own (FhirTaskService,
+     * FhirServiceRequestReferralService). Anything else is refused, a route added later included.
+     */
+    public static function addressBookClientMayCall(?string $method, ?string $path): bool
+    {
+        return match ($method) {
+            'GET' => preg_match('#^/fhir/(Task|ServiceRequest)(/[^/]+)?$#D', (string)$path) === 1,
+            'PUT' => preg_match('#^/fhir/Task/[^/]+$#D', (string)$path) === 1,
+            default => false,
+        };
+    }
 
     private function setupSessionForUserRole(string $userRole, string $userUuid, array $user, HttpRestRequest $request): void
     {
@@ -547,7 +587,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         try {
             return json_decode($context, true);
         } catch (\Throwable $exception) {
-            $this->getSystemLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
+            $this->auditLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
                 , 'tokenId' => $restRequest->getAccessTokenId()]);
         }
         return [];
@@ -564,9 +604,6 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
      *      at `PatientContextSearchController::checkUserAccessPatientData` for the
      *      SMART patient picker and at `interface/patient_file/summary/demographics.php`
      *      for chart access in the core UI).
-     *   4. If the patient carries a `squad` tag, the user must additionally hold
-     *      the matching `squads / <squad>` ACL, mirroring the squad-gate enforced
-     *      by `interface/patient_file/summary/demographics.php`.
      *
      * Returns false on any missing input, invalid UUID, unresolved user, or
      * unresolved patient. Called during SMART launch context mapping in
@@ -625,8 +662,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             return false;
         }
 
-        // Resolve the patient. We need the row (not just the pid) so we can check
-        // the optional per-patient `squad` ACL scope.
+        // Resolve the patient to confirm the UUID is a real patient row.
         $patient = $this->findPatientByUuid($patientUuid);
         if ($patient === null) {
             $this->auditLogger()->error(
@@ -643,10 +679,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             );
             return false;
         }
-        $squadRaw = $patient['squad'] ?? '';
-        $squad = is_string($squadRaw) ? $squadRaw : '';
 
-        return $this->aclCheckUserPatientAccess($username, $squad);
+        return $this->aclCheckUserPatientAccess($username);
     }
 
     /**
@@ -690,22 +724,14 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     }
 
     /**
-     * Applies OpenEMR's user-to-patient ACL policy: base `patients / demo`
-     * plus, when the patient carries a squad tag, the matching `squads / <squad>`
-     * ACL. Split out so isolated tests can stub the AclMain interaction without
-     * standing up the gACL database.
+     * Applies OpenEMR's user-to-patient ACL policy: `patients / demo`. Split
+     * out so isolated tests can stub the AclMain interaction without standing
+     * up the gACL database.
      *
      * @param string $username The user whose access is being checked.
-     * @param string $squad    The patient's squad tag (empty string when unset).
      */
-    protected function aclCheckUserPatientAccess(string $username, string $squad): bool
+    protected function aclCheckUserPatientAccess(string $username): bool
     {
-        if (!AclMain::aclCheckCore('patients', 'demo', $username)) {
-            return false;
-        }
-        if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad, $username)) {
-            return false;
-        }
-        return true;
+        return AclMain::aclCheckCore('patients', 'demo', $username);
     }
 }

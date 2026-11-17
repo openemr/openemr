@@ -208,11 +208,11 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         if (isset($openEMRSearchParameters['code']) && $openEMRSearchParameters['code'] instanceof TokenSearchField) {
-            $openEMRSearchParameters['code']->transformValues($this->addLOINCPrefix(...));
+            $this->addLOINCPrefixToCodes($openEMRSearchParameters['code']);
         }
 
         if (isset($openEMRSearchParameters['category_code']) && $openEMRSearchParameters['category_code'] instanceof TokenSearchField) {
-            $openEMRSearchParameters['category_code']->transformValues($this->addLOINCPrefix(...));
+            $this->addLOINCPrefixToCodes($openEMRSearchParameters['category_code']);
         } else {
             // we need to make sure we only include things with a category code in our clinical notes
             $openEMRSearchParameters['category_code'] = new TokenSearchField('category_code', [new TokenSearchValue(false)]);
@@ -220,6 +220,14 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
         }
         $result = $this->service->search($openEMRSearchParameters);
         return $result;
+    }
+
+    private function addLOINCPrefixToCodes(TokenSearchField $field): void
+    {
+        // :missing carries true or false, not a LOINC code
+        if ($field->getModifier() !== SearchModifier::MISSING) {
+            $field->transformValues($this->addLOINCPrefix(...));
+        }
     }
 
     public function addLOINCPrefix(TokenSearchValue $val)
@@ -261,9 +269,9 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
         if (!empty($dataRecordReport['last_updated'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecordReport['last_updated']));
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecordReport['last_updated'])));
         } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $fhirMeta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
         // Set profile (required, mustSupport)
         $this->addProfilesToMeta($fhirMeta, $dataRecordReport);

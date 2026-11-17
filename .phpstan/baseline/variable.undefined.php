@@ -1053,7 +1053,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$readonly might not be defined\\.$#',
-    'count' => 2,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/groupDetailsParticipants.php',
 ];
 $ignoreErrors[] = [
@@ -1548,7 +1548,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$new_str might not be defined\\.$#',
-    'count' => 2,
+    'count' => 4,
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
 ];
 $ignoreErrors[] = [
@@ -1717,76 +1717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/messaging/messages.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$sn might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$x might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Undefined variable\\: \\$attachment$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$output might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/templates/DefaultError404.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../portal/patient/templates/DefaultErrorFatal.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/patient/templates/OnsiteActivityViewListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../portal/patient/templates/OnsiteDocumentListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/templates/OnsitePortalActivityListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../portal/patient/templates/PatientListView.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../portal/patient/templates/ProviderHome.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/templates/_FormsHeader.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/templates/_Header.tpl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$this might not be defined\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../portal/patient/templates/_modalFormHeader.tpl.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$form_pid might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
@@ -1849,11 +1779,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$OE_SITES_BASE might not be defined\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../setup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$memory_limit_mb might not be defined\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../setup.php',
 ];
 $ignoreErrors[] = [
@@ -1948,6 +1873,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$v_patch might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../sql_upgrade.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$v_realpatch might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sql_upgrade.php',
 ];
@@ -2145,16 +2075,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$trxcustidRetailLicensekey might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SpherePayment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$zip might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Pharmacy/Services/ImportPharmacies.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$outputResult might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$all might not be defined\\.$#',

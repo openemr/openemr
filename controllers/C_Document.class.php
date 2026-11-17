@@ -257,7 +257,7 @@ class C_Document extends Controller
                                 if ($fp) {
                                     $head = fread($fp, 256);
                                     fclose($fp);
-                                    if (!str_contains($head, 'DICM')) { // Fixed at offset 128. even one non DICOM makes zip invalid.
+                                    if (substr((string) $head, 128, 4) !== 'DICM') { // Fixed at offset 128. even one non DICOM makes zip invalid.
                                         $mimetype = "application/zip";
                                         break;
                                     }
@@ -298,7 +298,7 @@ class C_Document extends Controller
                         $fname = basename((string) $_POST['destination']);
                     }
                     // test for single DICOM and assign extension if missing.
-                    if (str_contains($filetext, 'DICM')) {
+                    if (substr((string) $filetext, 128, 4) === 'DICM') { // the DICOM marker is only valid at offset 128, not anywhere in the file (a stored zip can contain it)
                         $mimetype = 'application/dicom';
                         $parts = pathinfo((string) $fname);
                         if (!$parts['extension']) {

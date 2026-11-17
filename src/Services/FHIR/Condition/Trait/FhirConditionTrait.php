@@ -16,8 +16,10 @@ use DateTimeZone;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategory;
@@ -54,9 +56,9 @@ trait FhirConditionTrait
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['last_updated_time'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time']));
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time'])));
         } else {
-            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+            $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         }
 
         // Add profile reference for US Core Problems and Health Concerns
@@ -106,8 +108,9 @@ trait FhirConditionTrait
             return 'inactive';
         }
 
-        // Check occurrence and outcome for additional status
-        if ($dataRecord['occurrence'] == 1 || $dataRecord['outcome'] == 1) {
+        // Outcome 1 is "Resolved". Occurrence 1 is "First", not a status; the
+        // occurrence values above it are the recurrence kinds.
+        if ($dataRecord['outcome'] == 1) {
             return 'resolved';
         } elseif ($dataRecord['occurrence'] > 1) {
             return 'recurrence';
@@ -202,7 +205,7 @@ trait FhirConditionTrait
         // Use encounter date as recorded date for encounter diagnoses
         $recordedDate = $dataRecord['date'] ?? $dataRecord['begdate'];
         if ($recordedDate) {
-            $conditionResource->setRecordedDate(UtilsService::getLocalDateAsUTC($recordedDate));
+            $conditionResource->setRecordedDate(new FHIRDateTime(UtilsService::getLocalDateAsUTC($recordedDate)));
         }
     }
     // end AI Generated
@@ -212,7 +215,7 @@ trait FhirConditionTrait
     protected function populateOnsetDateTime($dataRecord, FHIRCondition $conditionResource)
     {
         if (!empty($dataRecord['begdate'])) {
-            $conditionResource->setOnsetDateTime(UtilsService::getLocalDateAsUTC($dataRecord['begdate']));
+            $conditionResource->setOnsetDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['begdate'])));
         }
     }
 
@@ -221,7 +224,7 @@ trait FhirConditionTrait
         if (!empty($dataRecord['date'])) { // created date
             $fhirExtension = new FHIRExtension();
             $fhirExtension->setUrl('http://hl7.org/fhir/StructureDefinition/condition-assertedDate');
-            $fhirExtension->setValueDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $fhirExtension->setValueDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
             $conditionResource->addExtension($fhirExtension);
         }
     }
@@ -229,7 +232,7 @@ trait FhirConditionTrait
     protected function populateAbatementDateTime($dataRecord, FHIRCondition $conditionResource)
     {
         if (!empty($dataRecord['enddate'])) {
-            $conditionResource->setAbatementDateTime(UtilsService::getLocalDateAsUTC($dataRecord['enddate']));
+            $conditionResource->setAbatementDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['enddate'])));
         }
     }
 

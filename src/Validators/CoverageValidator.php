@@ -30,6 +30,21 @@ class CoverageValidator extends BaseValidator
 {
     const DATABASE_SWAP_CONTEXT = "database-swap";
 
+    /**
+     * A policy a document import brings in (a QRDA Category I Patient Characteristic Payer): the
+     * patient, the policy type, the payer and its dates. The document has no policy number and
+     * nothing about the subscriber, so this context doesn't ask for them. Only
+     * InsuranceService::insertImported() and updateImported() use it; REST, FHIR and the
+     * screens keep the insert and update contexts.
+     */
+    const DATABASE_IMPORT_CONTEXT = "database-import";
+
+    /**
+     * The insert context's fields a document import supplies, checked with the insert
+     * context's own rules.
+     */
+    private const IMPORT_FIELDS = ['pid', 'type', 'provider', 'date', 'date_end'];
+
 
     protected function getInnerValidator(): Validator
     {
@@ -44,7 +59,7 @@ class CoverageValidator extends BaseValidator
     protected function configureValidator(): void
     {
         parent::configureValidator();
-        array_push($this->supportedContexts, self::DATABASE_SWAP_CONTEXT);
+        array_push($this->supportedContexts, self::DATABASE_SWAP_CONTEXT, self::DATABASE_IMPORT_CONTEXT);
 
 
         // insert validations
@@ -237,6 +252,23 @@ class CoverageValidator extends BaseValidator
                 );
                 // additional uuid validation
                 $context->required("uuid", "Coverage UUID")->callback(fn($value) => $this->validateId("uuid", "insurance_data", $value, true))->uuid();
+            }
+        );
+
+        // import validations: the insert context's rules for the fields a document supplies, and
+        // none for the policy number or the subscriber, which it doesn't carry
+        $this->validator->context(
+            self::DATABASE_IMPORT_CONTEXT,
+            function (Validator $context): void {
+                $context->copyContext(
+                    self::DATABASE_INSERT_CONTEXT,
+                    // by reference: Validator::runChainCallback() keeps the array the callback leaves
+                    function (array &$rules): void {
+                        $rules = array_intersect_key($rules, array_flip(self::IMPORT_FIELDS));
+                    }
+                );
+                // an update names the stored policy; an insert has no uuid yet
+                $context->optional("uuid", "Coverage UUID")->callback(fn($value) => $this->validateId("uuid", "insurance_data", $value, true))->uuid();
             }
         );
 
