@@ -36,6 +36,9 @@ ARG PHP_MIN_VERSION=8.5.12
 ARG PHP_VERSION_ABBR=${PHP_VERSION//./}
 ENV PHP_VERSION_ABBR=${PHP_VERSION_ABBR}
 
+# Any non-dev value makes bootstrap.php use a compiled DI container.
+ENV ENVIRONMENT=production
+
 # ============================================================================
 # SYSTEM PACKAGE INSTALLATION
 # ============================================================================
@@ -196,6 +199,12 @@ until composer install --no-dev --optimize-autoloader; do
     sleep 15
 done
 composer dump-autoload --optimize --apcu
+# Pre-flight check: loading bootstrap.php compiles the DI container. `list`
+# is only a placeholder until there's a real check to run. Older
+# OPENEMR_VERSION refs predate ./cli.
+if [ -f cli ]; then
+    ./cli list
+fi
 EOF
 
 # Stage 3: Build frontend assets (npm)
