@@ -489,8 +489,12 @@ WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
 UPDATE `globals` SET `gl_value` = 'auto' WHERE `gl_name` = 'translation_preload_cache' AND `gl_value` = '0';
 #EndIf
 
--- The Squad demographics field is no longer wired to any application code. Drop its
--- layout_options row so existing deployments stop showing it on the demographics form.
--- The patient_data.squad column is preserved to keep any historical values; it is
--- unused by the application and may be dropped in a future release.
-DELETE FROM `layout_options` WHERE `form_id` = 'DEM' AND `field_id` = 'squad';
+-- The Squad demographics field is no longer wired to any application code. Convert
+-- its layout_options row from the removed ACL-selector (data_type 13) to a plain
+-- textbox (data_type 2) so existing deployments that had the field visible see the
+-- stored value as text instead of a broken selector. The patient_data.squad column
+-- is preserved to keep any historical values; it is unused by the application and
+-- may be dropped in a future release.
+UPDATE `layout_options`
+    SET `data_type` = 2, `fld_length` = 15, `max_length` = 32
+    WHERE `form_id` = 'DEM' AND `field_id` = 'squad' AND `data_type` = 13;
