@@ -440,6 +440,27 @@ class OAuth2AttackScenarioTest extends TestCase
     }
 
     #[Test]
+    public function testAuthorizePreservesInvalidClientErrorCode(): void
+    {
+        // The remap in AuthorizationController::remapAuthorizeEndpointErrorCode
+        // targets `unsupported_grant_type` specifically; every other
+        // OAuth error code must pass through unchanged. An authorize
+        // request with a well-formed but unregistered client_id trips
+        // the `invalid_client` path inside league's validateAuthorizationRequest
+        // (not the no-grant-matches path the remap handles). A
+        // regression that widened the remap to swallow every error
+        // type would silently relabel this `invalid_client` as
+        // `unsupported_response_type` — this test catches that.
+        $bogusClientId = 'nonexistent-client-' . bin2hex(random_bytes(8));
+        $resp = $this->authorizeGet($bogusClientId, ['response_type' => 'code']);
+        $this->assertAuthorizeRejected(
+            $resp,
+            'Authorize must reject an unregistered client_id with invalid_client',
+            'invalid_client'
+        );
+    }
+
+    #[Test]
     public function testAuthorizeCodeResponseTypeIsAcceptedControl(): void
     {
         // Positive control for the four deny-path tests above. With
