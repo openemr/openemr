@@ -31,6 +31,11 @@
 
 require_once("../../globals.php");
 
+if (\OpenEMR\Common\Http\CurrentRequest::get()->query->getString('print_medications') === '1') {
+    \OpenEMR\Services\ActiveMedicationPrintPage::emit();
+}
+
+
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 // fetchNextXAppts() (in library/appointments.inc.php) writes $resNotNull via the

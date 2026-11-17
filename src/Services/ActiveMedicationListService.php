@@ -315,8 +315,8 @@ class ActiveMedicationListService extends BaseService
      */
     public static function printHref(string $webRoot, int $pid): string
     {
-        $base = rtrim($webRoot, '/') . '/interface/patient_file/summary/active_medications_print.php';
-        return $pid > 0 ? ($base . '?pid=' . $pid) : $base;
+        $base = rtrim($webRoot, '/') . '/interface/patient_file/summary/demographics.php?print_medications=1';
+        return $pid > 0 ? ($base . '&pid=' . $pid) : $base;
     }
 
     /**

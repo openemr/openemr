@@ -207,7 +207,7 @@ final class ActiveMedicationListServiceTest extends TestCase
         $this->assertSame(99, ActiveMedicationListService::requestedPatientId('1e3', 99));
         $this->assertSame(0, ActiveMedicationListService::requestedPatientId('0', 'nope'));
         $this->assertSame(
-            '/interface/patient_file/summary/active_medications_print.php?pid=7',
+            '/interface/patient_file/summary/demographics.php?print_medications=1&pid=7',
             ActiveMedicationListService::printHref('', 7)
         );
     }
@@ -340,12 +340,12 @@ final class ActiveMedicationListServiceTest extends TestCase
     }
 
     /**
-     * A missing patient id has no query string. A web root keeps a single slash.
+     * A missing patient id still names the print page. A web root keeps a single slash.
      */
     public function testPrintHrefOmitsPidWhenNoneIsSelected(): void
     {
         $this->assertSame(
-            '/openemr/interface/patient_file/summary/active_medications_print.php',
+            '/openemr/interface/patient_file/summary/demographics.php?print_medications=1',
             ActiveMedicationListService::printHref('/openemr/', 0)
         );
     }
