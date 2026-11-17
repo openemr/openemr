@@ -202,6 +202,27 @@ class StatementRunHandlerTest extends TestCase
         $this->assertSame([], $this->output->calls);
     }
 
+    public function testAPrintRunNamesThePatientsAModuleLeftEveryInvoiceOffFor(): void
+    {
+        $this->steps->leftOff = [101 => 11];
+
+        $message = $this->handle([self::invoice(1, 11, 101), self::invoice(2, 21)], StatementDelivery::Print);
+
+        $this->assertSame('Now printing 1 statements and updating invoices. No statement for Ann Patient1: a module left all of their invoices off the statement.', $message);
+        $this->assertSame('statement 2|', file_get_contents($this->batchFile));
+        $this->assertSame([[21]], $this->steps->recorded);
+    }
+
+    public function testAPortalRunNamesThePatientsAModuleLeftEveryInvoiceOffFor(): void
+    {
+        $this->steps->leftOff = [101 => 11];
+
+        $message = $this->handle([self::invoice(1, 11, 101), self::invoice(2, 21)], StatementDelivery::Portal);
+
+        $this->assertSame('Sending Invoice to Patient Portal Completed No statement for Ann Patient1: a module left all of their invoices off the statement.', $message);
+        $this->assertSame([[21]], $this->steps->recorded);
+    }
+
     /**
      * @param list<array<string, mixed>> $invoices
      */
@@ -247,9 +268,19 @@ final class HandlerTestSteps implements StatementRunSteps
     public array $emptyFor = [];
     /** @var list<list<int>> */
     public array $recorded = [];
+    /** @var array<int, int> encounter => invoice id, for the encounters a module leaves off */
+    public array $leftOff = [];
 
     public function appendInvoice(array &$stmt, int $pid, int $encounter, string $serviceDate, int $notice): void
     {
+        if (isset($this->leftOff[$encounter])) {
+            // Kept the way StatementLines::append() keeps an encounter a module left off.
+            $kept = is_array($stmt['excluded'] ?? null) ? $stmt['excluded'] : ['pid' => $pid, 'encounters' => []];
+            $left = is_array($kept['encounters'] ?? null) ? $kept['encounters'] : [];
+            $left[] = ['encounter' => $encounter, 'id' => $this->leftOff[$encounter], 'dos' => $serviceDate, 'lines' => [], 'amount' => '0.00'];
+            $stmt['excluded'] = ['pid' => $pid, 'encounters' => $left];
+            return;
+        }
         $amount = is_numeric($stmt['amount'] ?? null) ? (float) $stmt['amount'] : 0.0;
         $stmt['amount'] = sprintf('%.2f', $amount + ($this->owed[$encounter] ?? 10.0));
     }

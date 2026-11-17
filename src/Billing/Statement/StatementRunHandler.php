@@ -39,20 +39,26 @@ final readonly class StatementRunHandler
         $result = $this->run->run($invoices, $delivery, !$test && !$withoutUpdate, $skipNothingDue, $today);
         file_put_contents($this->batchFile, $result->output);
 
-        // Patients who got no statement: nothing due after their credits, or under the print minimum.
+        // Patients who got no statement: nothing due after their credits, under the print minimum,
+        // or every checked invoice left off by a module.
         $skipped = $result->skippedNothingDue === [] ? '' : xl('No statement for') . ' ' . implode(', ', $result->skippedNothingDue)
             . ': ' . xl('nothing is due after their credits.');
         if ($result->skippedBelowMinimum !== []) {
             $skipped = self::join($skipped, xl('No statement for') . ' ' . implode(', ', $result->skippedBelowMinimum)
                 . ': ' . xl('the amount due does not meet the minimum amount to print set in Globals.'));
         }
+        if ($result->skippedLeftOff !== []) {
+            $skipped = self::join($skipped, xl('No statement for') . ' ' . implode(', ', $result->skippedLeftOff)
+                . ': ' . xl('a module left all of their invoices off the statement.'));
+        }
 
         if ($delivery === StatementDelivery::Portal) {
-            return match ($result->portalError) {
+            // A portal run skips only the patients a module left everything off for.
+            return self::join(match ($result->portalError) {
                 StatementRunResult::PORTAL_NOT_AUTHORIZED => xl('Notification FAILED: Not Portal Authorized'),
                 StatementRunResult::PORTAL_FAILED => xl('Notification FAILED'),
                 default => xl('Sending Invoice to Patient Portal Completed'),
-            };
+            }, $skipped);
         }
         if ($delivery === StatementDelivery::Email) {
             // An email run only emails; nothing goes to the printer.
