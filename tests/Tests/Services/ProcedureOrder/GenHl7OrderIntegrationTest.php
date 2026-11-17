@@ -64,6 +64,12 @@ class GenHl7OrderIntegrationTest extends TestCase
         '85025' => 'Complete Blood Count',
     ];
 
+    /** Insurance company the IN1-3 test owns, by id. */
+    private const int IN1_COMPANY_ID = 970311;
+
+    /** Marker on the insurance_data row the IN1-3 test owns (its plan name). */
+    private const string IN1_POLICY_MARKER = 'test-fixture-gen-hl7-order-in1-company';
+
     private ProcedureProviderFixtureManager $providerFixtures;
 
     private ProcedureOrderFixtureManager $orderFixtures;
@@ -420,6 +426,26 @@ class GenHl7OrderIntegrationTest extends TestCase
         labcorp_gen_hl7_order($this->orderId);
     }
 
+    /**
+     * IN1-3 carries the insurance company's id, the value the default
+     * generator sends there and the one a lab maps to its own payer list.
+     */
+    #[Test]
+    #[DataProvider('insuranceBillingGeneratorProvider')]
+    public function testInsuranceCompanyIdIsSentInIn1(Hl7OrderGenerator $generator): void
+    {
+        $this->setOrderColumns(['billing_type' => 'T']);
+        $this->addIn1Policy();
+        try {
+            $in1 = self::onlySegment(self::segments($generator->generate($this->orderId)->hl7), 'IN1');
+        } finally {
+            $this->removeIn1Policy();
+        }
+
+        // LabCorp sends the company's CMS id as a second component.
+        $this->assertSame((string) self::IN1_COMPANY_ID, explode('^', self::fields($in1)[3])[0], 'IN1-3: the insurance company id');
+    }
+
     #[Test]
     #[DataProvider('insuranceBillingGeneratorProvider')]
     public function testInsuranceBilledOrderWithoutPayersThrows(Hl7OrderGenerator $generator): void
@@ -747,5 +773,54 @@ class GenHl7OrderIntegrationTest extends TestCase
         );
         $this->assertIsString($value, "procedure_providers.{$column} should be a string");
         return $value;
+    }
+
+    /**
+     * A primary policy for the order's patient, in force on the fixture
+     * order's dates (2025-01-15), with a company of its own, filling every
+     * column IN1 sends.
+     */
+    private function addIn1Policy(): void
+    {
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?',
+            'patient_id',
+            [$this->orderId]
+        );
+        $this->assertIsInt($pid);
+        QueryUtils::sqlInsert(
+            'INSERT INTO insurance_companies (id, name, cms_id, ins_type_code) VALUES (?, ?, ?, ?)',
+            [self::IN1_COMPANY_ID, 'TEST-FIXTURE IN1 MUTUAL', 'TF' . self::IN1_COMPANY_ID, 1]
+        );
+        QueryUtils::sqlInsert(
+            <<<'SQL'
+            INSERT INTO insurance_data (pid, type, provider, date, plan_name, policy_number, group_number,
+                subscriber_relationship, subscriber_lname, subscriber_fname, subscriber_mname, subscriber_DOB,
+                subscriber_sex, subscriber_street, subscriber_city, subscriber_state, subscriber_postal_code)
+            VALUES (?, 'primary', ?, '2025-01-01', ?, 'TF-1', 'G-1', 'self', 'Fixture', 'Test', '', '1980-01-01',
+                'Female', '1 Main St', 'Springfield', 'CA', '90001')
+            SQL,
+            [$pid, (string) self::IN1_COMPANY_ID, self::IN1_POLICY_MARKER]
+        );
+    }
+
+    /**
+     * Remove what addIn1Policy() added, with any uuid registry entries the
+     * insurance service's backfill gave its rows.
+     */
+    private function removeIn1Policy(): void
+    {
+        foreach (
+            [
+                'insurance_data' => ['SELECT uuid FROM insurance_data WHERE plan_name = ? AND uuid IS NOT NULL', self::IN1_POLICY_MARKER],
+                'insurance_companies' => ['SELECT uuid FROM insurance_companies WHERE id = ? AND uuid IS NOT NULL', self::IN1_COMPANY_ID],
+            ] as $table => [$sql, $key]
+        ) {
+            foreach (QueryUtils::fetchTableColumn($sql, 'uuid', [$key]) as $uuid) {
+                QueryUtils::sqlStatementThrowException('DELETE FROM uuid_registry WHERE table_name = ? AND uuid = ?', [$table, $uuid]);
+            }
+        }
+        QueryUtils::sqlStatementThrowException('DELETE FROM insurance_data WHERE plan_name = ?', [self::IN1_POLICY_MARKER]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM insurance_companies WHERE id = ?', [self::IN1_COMPANY_ID]);
     }
 }
