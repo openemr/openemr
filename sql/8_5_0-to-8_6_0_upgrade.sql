@@ -488,3 +488,11 @@ WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
 #IfRow2D globals gl_name translation_preload_cache gl_value 0
 UPDATE `globals` SET `gl_value` = 'auto' WHERE `gl_name` = 'translation_preload_cache' AND `gl_value` = '0';
 #EndIf
+
+-- A policy's end stored as 0000-00-00 (what sql_mode '' saves for a mistyped date) becomes no end, so
+-- the policy is open, as the coverage rule (#15038) reads it; the claim's own query read it as ended. A
+-- 0000-00-00 start is left: both read it as always.
+-- It changes stored policy dates: back up first. Safe to rerun; once no zero end is left it does nothing.
+#IfRow insurance_data date_end 0000-00-00
+UPDATE `insurance_data` SET `date_end` = NULL WHERE `date_end` = '0000-00-00';
+#EndIf

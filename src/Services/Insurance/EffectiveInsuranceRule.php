@@ -43,14 +43,15 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
  * a start of 2026-05-00 from 2026-05-01. Every date returned is midnight in
  * PHP's default time zone.
  *
- * This is the claim's rule (Claim::loadPayerInfo()), with three differences:
+ * The claim (Claim::loadPayerInfo()) reads this rule. It began as the
+ * claim's own query, which differed in three ways:
  *
- * - a 0000-00-00 end is open here, where the claim compares it as a day in
- *   year 0, so the policy has ended;
- * - between two blank starts the claim takes whichever row the database
- *   returns first;
- * - a company that isn't a whole number ('Acme') is no company here, where
- *   the claim bills it.
+ * - a 0000-00-00 end is open here, where the query compared it as a day in
+ *   year 0, so the policy had ended (the 8.6.0 upgrade clears those ends);
+ * - between two blank starts the query took whichever row the database
+ *   returned first;
+ * - a company that isn't a whole number ('Acme', '12abc') is no company
+ *   here, where the query billed it.
  *
  * getEffectiveInsurances() in library/patient.inc.php is a wrapper over the
  * service, so it follows this rule too; its docblock lists where it differs
@@ -112,6 +113,78 @@ final class EffectiveInsuranceRule
             }
         }
         return $inForce;
+    }
+
+    /**
+     * The runs of days within a range on which each policy heads one level:
+     * the days choose() returns it at that level, as runs of consecutive days.
+     * The answer at a level changes only on a day one of its policies starts
+     * or the day after one ends, so choose() is asked on the range's first day
+     * and on each such day within the range. A run can't disagree with it.
+     *
+     * Runs are cut to the range: one that began before it starts on its first
+     * day. The policy keeps its own start and end, as EffectiveInsurance gives
+     * them.
+     *
+     * @param list<array<mixed>> $rows one patient's insurance_data rows, as for choose()
+     * @param DateTimeImmutable  $from the range's first day, included; its time is ignored
+     * @param DateTimeImmutable  $to   the range's last day, included; its time is ignored
+     * @return list<CoverageSegment> oldest first; none when $to is before $from
+     */
+    public static function segments(array $rows, InsuranceLevel $level, DateTimeImmutable $from, DateTimeImmutable $to): array
+    {
+        $first = $from->format('Y-m-d');
+        $last = $to->format('Y-m-d');
+        if (strcmp($first, $last) > 0) {
+            return [];
+        }
+        // Levels are independent, so the level's own rows give the same answer at it, without choosing the others.
+        $levelRows = [];
+        foreach ($rows as $row) {
+            $type = $row['type'] ?? null;
+            if (is_string($type) && InsuranceLevel::tryFrom($type) === $level) {
+                $levelRows[] = $row;
+            }
+        }
+        $changes = [$first => new DateTimeImmutable($first)];
+        foreach ($levelRows as $row) {
+            $start = self::storedDate($row['date'] ?? null);
+            $end = self::storedDate($row['date_end'] ?? null);
+            $days = [];
+            if ($start !== '') {
+                $days[] = self::firstDayFrom($start);
+            }
+            if ($end !== '' && $end !== self::ZERO_DATE) {
+                $days[] = self::firstDayAfter($end);
+            }
+            foreach ($days as $day) {
+                $ymd = $day->format('Y-m-d');
+                if (strcmp($ymd, $first) > 0 && strcmp($ymd, $last) <= 0) {
+                    $changes[$ymd] = $day;
+                }
+            }
+        }
+        ksort($changes, SORT_STRING);
+        $changes = array_values($changes);
+
+        $segments = [];
+        $run = null;
+        foreach ($changes as $i => $day) {
+            $held = self::choose($levelRows, $day)[0] ?? null;
+            $runEnd = isset($changes[$i + 1]) ? $changes[$i + 1]->modify('-1 day') : new DateTimeImmutable($last);
+            if ($run !== null && $held !== null && $held->id === $run->policy->id) {
+                $run = new CoverageSegment($run->policy, $run->from, $runEnd);
+                continue;
+            }
+            if ($run !== null) {
+                $segments[] = $run;
+            }
+            $run = $held === null ? null : new CoverageSegment($held, $day, $runEnd);
+        }
+        if ($run !== null) {
+            $segments[] = $run;
+        }
+        return $segments;
     }
 
     /**
