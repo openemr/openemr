@@ -21,6 +21,7 @@ namespace OpenEMR\Services\Insurance;
 
 use DateTimeImmutable;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+use Psr\Clock\ClockInterface;
 
 final class CoverageDay
 {
@@ -34,5 +35,26 @@ final class CoverageDay
     {
         $ymd = is_string($value) ? DateFormatterUtils::dbDateToYmd(substr($value, 0, 10)) : null;
         return $ymd === null ? null : new DateTimeImmutable($ymd);
+    }
+
+    /**
+     * A lab order's bill-to day (the HL7 order's IN1, the requisition): the
+     * specimen's collection date, else the order date. With neither readable
+     * there is no day, and the caller decides, rather than billing the plan in
+     * force today. A lab test's date of service is its collection date
+     * (42 CFR 414.510(a)).
+     */
+    public static function forLabOrder(mixed $collected, mixed $ordered): ?DateTimeImmutable
+    {
+        return self::fromStored($collected) ?? self::fromStored($ordered);
+    }
+
+    /**
+     * Today, for the screens and documents that show the coverage in force
+     * now: the clock's calendar day, at midnight in PHP's default time zone.
+     */
+    public static function today(ClockInterface $clock): DateTimeImmutable
+    {
+        return new DateTimeImmutable($clock->now()->format('Y-m-d'));
     }
 }
