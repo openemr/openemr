@@ -1416,7 +1416,7 @@ $GLOBALS_METADATA = [
                 'custom' => xl('Custom')
             ],
             'default',
-            xl('Fits printed and PDF statements to a double-window envelope. None keeps the stock layout and the physical remit address. Portal statements stay on screen and are not windowed. The plain-text window positions are for the PDF download; a printer has its own offsets. #9 and #10 are US letter cuts. The folded sheet is taken to rest on the bottom of the envelope, so a #9 sheet can sit about 7/32 in below the flap. The PDF uses the paper size in Globals. A site that still has its own statement.inc.php is not moved into the windows. Custom measurements that are blank or do not fit are refused instead of printing the stock layout.')
+            xl('Fits printed and PDF statements to a double-window envelope. None keeps the stock layout and the physical remit address. Portal statements stay on screen and are not windowed, and a bad Custom envelope does not stop a portal run. The plain-text window positions are for the PDF download; a printer has its own offsets. #9 and #10 place their carton offsets on the paper size in Globals, measured from the bottom of that page. On Letter they are the US letter cuts. The folded sheet is taken to rest on the bottom of the envelope, so a #9 letter sheet can sit about 7/32 in below the flap. A site that still has its own statement.inc.php is not moved into the windows. Custom measurements that are blank or do not fit are refused for print, PDF, and email instead of printing the stock layout.')
         ],
 
         'statement_envelope_help' => [

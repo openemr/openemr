@@ -5,7 +5,8 @@
  *
  * None keeps the stock layout and the physical remit address. A windowed
  * profile zeroes the margins only when the site template draws the windows,
- * and places the addresses in the first trifold. The folded sheet is taken
+ * and places the addresses in the first trifold. #9 and #10 use their carton
+ * offsets on the PDF paper size. The folded sheet is taken
  * to rest on the bottom of the envelope. mPDF ignores position:absolute, so
  * the windows are table rows. Type is measured in the font the PDF embeds.
  *
@@ -425,6 +426,7 @@ body { margin: 0; padding: 0; }
      */
     public static function presetHash9(): array
     {
+        [$pageW, $pageH] = self::pageSizeInches();
         return self::fromBottomOrigin(
             left: 0.375,
             returnH: 1.1875,
@@ -432,7 +434,9 @@ body { margin: 0; padding: 0; }
             returnFromBottom: 2.000,
             toH: 1.000,
             toW: 4.000,
-            toFromBottom: 0.500
+            toFromBottom: 0.500,
+            pageW: $pageW,
+            pageH: $pageH
         );
     }
 
@@ -450,6 +454,7 @@ body { margin: 0; padding: 0; }
      */
     public static function presetHash10(): array
     {
+        [$pageW, $pageH] = self::pageSizeInches();
         return self::fromBottomOrigin(
             left: 0.5,
             returnH: 1.0,
@@ -457,7 +462,9 @@ body { margin: 0; padding: 0; }
             returnFromBottom: 2.5,
             toH: 1.375,
             toW: 4.0,
-            toFromBottom: 0.75
+            toFromBottom: 0.75,
+            pageW: $pageW,
+            pageH: $pageH
         );
     }
 

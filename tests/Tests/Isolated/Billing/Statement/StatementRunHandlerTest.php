@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,6 +22,7 @@ use OpenEMR\Billing\Statement\StatementRun;
 use OpenEMR\Billing\Statement\StatementRunHandler;
 use OpenEMR\Billing\Statement\StatementRunSteps;
 use OpenEMR\Core\OEGlobalsBag;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
@@ -200,6 +203,42 @@ class StatementRunHandlerTest extends TestCase
         $this->steps->portalFails = true;
         $this->assertSame('Notification FAILED', $this->handle([self::invoice(1, 11)], StatementDelivery::Portal));
         $this->assertSame([], $this->output->calls);
+    }
+
+    /**
+     * Portal statements are not printed, so a blank Custom envelope must not stop them.
+     */
+    #[RunInSeparateProcess]
+    public function testABadCustomEnvelopeStopsPrintAndNotThePortal(): void
+    {
+        eval('final class StatementSiteTemplate { public static function supportsEnvelopeWindows(): bool { return true; } }');
+        $bag = OEGlobalsBag::getInstance();
+        $bag->set('statement_envelope', 'custom');
+        foreach (
+            [
+                'statement_env_height',
+                'statement_env_return_left',
+                'statement_env_return_bottom',
+                'statement_env_return_width',
+                'statement_env_return_height',
+                'statement_env_to_left',
+                'statement_env_to_bottom',
+                'statement_env_to_width',
+                'statement_env_to_height',
+            ] as $key
+        ) {
+            $bag->set($key, '');
+        }
+
+        $this->assertSame(
+            'Sending Invoice to Patient Portal Completed',
+            $this->handle([self::invoice(1, 11)], StatementDelivery::Portal)
+        );
+        $this->assertSame(
+            'The custom envelope measurements are blank or do not fit the page. No statements were printed.',
+            $this->handle([self::invoice(1, 11)], StatementDelivery::Print)
+        );
+        $this->assertSame([[11]], $this->steps->recorded);
     }
 
     /**

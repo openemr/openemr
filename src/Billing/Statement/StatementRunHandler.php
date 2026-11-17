@@ -7,7 +7,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -36,9 +38,12 @@ final readonly class StatementRunHandler
      */
     public function handle(array $invoices, StatementDelivery $delivery, bool $withoutUpdate, bool $test, bool $skipNothingDue, string $today): string
     {
-        $refused = StatementEnvelopeDocuments::refusalMessage();
-        if ($refused !== null) {
-            return $refused;
+        // Portal statements are on screen, not in an envelope window.
+        if ($delivery !== StatementDelivery::Portal) {
+            $refused = StatementEnvelopeDocuments::refusalMessage();
+            if ($refused !== null) {
+                return $refused;
+            }
         }
 
         $result = $this->run->run($invoices, $delivery, !$test && !$withoutUpdate, $skipNothingDue, $today);
