@@ -2,8 +2,8 @@
 
 /**
  * InsuranceService::getEffectiveInsuranceRows(): each policy in force with its stored row and its
- * company's name. Which policies it chooses is the comparison test's subject
- * (InsuranceServiceEffectiveInsurancesTest).
+ * company's name; getEffectiveInsuranceAt(): the policy in force at one level. Which policies they
+ * choose is the comparison test's subject (InsuranceServiceEffectiveInsurancesTest).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -150,5 +150,31 @@ final class InsuranceServiceCoverageReadsTest extends TestCase
         self::assertSame(InsuranceLevel::Secondary, $second->policy->level);
         self::assertSame($secondary, $second->columns['id']);
         self::assertNull($second->companyName, 'company 102 has no row');
+    }
+
+    /**
+     * The policy at one level is the one getEffectiveInsuranceRows() returns at that level, whatever the
+     * other levels hold: an ended primary leaves the primary empty and the secondary still answers.
+     */
+    #[Test]
+    public function thePolicyAtALevelIsTheRowsChoiceAtThatLevel(): void
+    {
+        [$pid] = $this->pids;
+        $this->addPolicy($pid, 'primary', '101', '2020-01-01', '2026-01-31');
+        $this->addPolicy($pid, 'secondary', '102', null, null);
+        $secondary = $this->addPolicy($pid, 'secondary', '103', null, '0000-00-00');
+        $this->addPolicy($pid, 'tertiary', '', '2026-01-01', null);
+
+        self::assertNull($this->service->getEffectiveInsuranceAt($pid, InsuranceLevel::Primary, $this->day()));
+        $atSecondary = $this->service->getEffectiveInsuranceAt($pid, InsuranceLevel::Secondary, $this->day());
+        self::assertSame($secondary, $atSecondary?->id, 'of two undated policies, the later entry; a zero end is open');
+        self::assertSame(103, $atSecondary->companyId);
+        self::assertNull($this->service->getEffectiveInsuranceAt($pid, InsuranceLevel::Tertiary, $this->day()), 'no company: no coverage');
+        self::assertEquals(
+            array_map(static fn($row) => $row->policy, $this->service->getEffectiveInsuranceRows($pid, $this->day())),
+            [$atSecondary],
+            'the same policy, with the same dates, as the rows give'
+        );
+        self::assertSame(101, $this->service->getEffectiveInsuranceAt($pid, InsuranceLevel::Primary, new DateTimeImmutable('2026-01-31'))?->companyId);
     }
 }
