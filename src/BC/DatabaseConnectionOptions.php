@@ -130,17 +130,27 @@ final readonly class DatabaseConnectionOptions
 
     /**
      * Creates options from the OPENEMR_DB_* environment variables. A null
-     * argument means the corresponding variable is not set.
+     * argument means the corresponding variable is not set. Returns null when
+     * none are set, so callers can fall back to sqlconf.php.
      */
     public static function fromEnvironment(
-        string $dbname,
-        string $user,
+        ?string $dbname,
+        ?string $user,
         #[SensitiveParameter]
-        string $password,
+        ?string $password,
         ?string $host,
         ?string $port,
         ?string $socket,
-    ): self {
+    ): ?self {
+        if ($dbname === null) {
+            if ($user !== null || $password !== null || $host !== null || $port !== null || $socket !== null) {
+                throw new InvalidArgumentException('OPENEMR_DB_NAME is required when any OPENEMR_DB_* variable is set');
+            }
+            return null;
+        }
+        if ($user === null || $password === null) {
+            throw new InvalidArgumentException('OPENEMR_DB_USER and OPENEMR_DB_PASSWORD are required');
+        }
         if ($dbname === '' || $user === '') {
             throw new InvalidArgumentException('OPENEMR_DB_NAME and OPENEMR_DB_USER must not be empty');
         }
