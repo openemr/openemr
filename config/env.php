@@ -21,11 +21,12 @@ return [
     // FIXME: this works only for the CLI path, not actual multi-site.
     'OPENEMR_SITE' => env('OPENEMR_SITE', 'default'),
 
-    // Database connection. When unset, sites/<OPENEMR_SITE>/sqlconf.php is used.
-    'OPENEMR_DB_HOST' => env('OPENEMR_DB_HOST', null),
+    // Database connection. If OPENEMR_DB_NAME is set, these values will be
+    // used over sqlconf.php; if left blank, it will be ignored.
     'OPENEMR_DB_NAME' => env('OPENEMR_DB_NAME', null),
-    'OPENEMR_DB_PASSWORD' => env('OPENEMR_DB_PASSWORD', null),
-    'OPENEMR_DB_PORT' => env('OPENEMR_DB_PORT', null),
+    'OPENEMR_DB_USER' => env('OPENEMR_DB_USER'),
+    'OPENEMR_DB_PASSWORD' => env('OPENEMR_DB_PASSWORD'),
+    'OPENEMR_DB_HOST' => env('OPENEMR_DB_HOST', null),
+    'OPENEMR_DB_PORT' => env('OPENEMR_DB_PORT', '3306')->asInt(),
     'OPENEMR_DB_SOCKET' => env('OPENEMR_DB_SOCKET', null),
-    'OPENEMR_DB_USER' => env('OPENEMR_DB_USER', null),
 ];
