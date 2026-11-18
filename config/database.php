@@ -81,8 +81,20 @@ return [
 
     // DB connection config
     DatabaseConnectionOptions::class => function (TC $c) {
+        $env = static function (string $name) use ($c): ?string {
+            $value = $c->get($name);
+            assert($value === null || is_string($value));
+            return $value;
+        };
         $site = $c->getString('OPENEMR_SITE');
-        return DatabaseConnectionOptions::forSite("sites/$site");
+        return DatabaseConnectionOptions::fromEnvironment(
+            dbname: $env('OPENEMR_DB_NAME'),
+            user: $env('OPENEMR_DB_USER'),
+            password: $env('OPENEMR_DB_PASSWORD'),
+            host: $env('OPENEMR_DB_HOST'),
+            port: $env('OPENEMR_DB_PORT'),
+            socket: $env('OPENEMR_DB_SOCKET'),
+        ) ?? DatabaseConnectionOptions::forSite("sites/$site");
     },
 
     // Doctrine Migrations
