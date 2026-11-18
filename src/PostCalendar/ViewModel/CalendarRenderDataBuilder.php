@@ -31,6 +31,12 @@ use OpenEMR\Appointment\VisitList\VisitListSchedule;
  * buildDayScreenRenderData, buildWeekScreenRenderData, and the
  * three matching print variants. Each is called from pnuserapi.php
  * by viewtype dispatch.
+ *
+ * Every view shows Visit Lists the same way: VisitListDayColumn takes a list's patients out of
+ * one provider's day, and attachVisitLists() gives the list to its block's event.
+ *
+ * @phpstan-import-type AppointmentStatus from VisitListDayColumn
+ * @phpstan-import-type VisitListData from VisitListDayColumn
  */
 final readonly class CalendarRenderDataBuilder
 {
@@ -70,6 +76,7 @@ final readonly class CalendarRenderDataBuilder
      * @param  string                                    $dateYmd     YYYYMMDD form of the current date.
      * @param  list<string>                              $shortDayNames Localized day-name labels indexed 0..6.
      * @param  int                                       $calendarApptStyle  $GLOBALS['calendar_appt_style'] passed in.
+     * @param  ?VisitListSchedule                        $visitLists  the Visit Lists of the dates shown; null shows none
      *
      * @return array<string, mixed>
      */
@@ -78,7 +85,9 @@ final readonly class CalendarRenderDataBuilder
         array $providers,
         string $dateYmd,
         array $shortDayNames,
-        int $calendarApptStyle
+        int $calendarApptStyle,
+        ?VisitListSchedule $visitLists = null,
+        bool $isTwelveHourFormat = false
     ): array {
         // Mini-calendars for the current month and the subsequent
         // month. Anchor = YYYY-MM-15 to guarantee mktime success
@@ -120,6 +129,23 @@ final readonly class CalendarRenderDataBuilder
         foreach ($aEvents as $date => $events) {
             $eventDateYmd = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
             $decoratedEvents[$date] = [];
+            // One cell holds every provider's events (the template picks each provider's),
+            // so take out the patients on each provider's Visit Lists in turn.
+            $lists = [];
+            foreach ($providers as $provider) {
+                $visitListDay = VisitListDayColumn::build(
+                    $this->viewModel,
+                    $events,
+                    $visitLists,
+                    self::providerId($provider),
+                    $date,
+                    $eventDateYmd,
+                    [],
+                    $isTwelveHourFormat
+                );
+                $events = $visitListDay->gridEvents;
+                $lists += $visitListDay->lists;
+            }
             foreach ($events as $event) {
                 $catidRaw = $event['catid'] ?? 0;
                 $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
@@ -143,6 +169,7 @@ final readonly class CalendarRenderDataBuilder
                     'content'      => $content,
                 ]);
             }
+            $decoratedEvents[$date] = self::attachVisitLists($decoratedEvents[$date], $lists);
         }
 
         // Date label "March 2026" — single combined string for the
@@ -174,6 +201,7 @@ final readonly class CalendarRenderDataBuilder
      * @param  array<string, list<array<string, mixed>>> $aEvents       Date-keyed events array.
      * @param  list<array<string, mixed>>                $providers
      * @param  list<string>                              $shortDayNames
+     * @param  ?VisitListSchedule                        $visitLists    the Visit Lists of the dates shown; null shows none
      *
      * @return array<string, mixed>
      */
@@ -183,7 +211,9 @@ final readonly class CalendarRenderDataBuilder
         string $dateYmd,
         array $shortDayNames,
         int $calendarApptStyle,
-        string $tplImagePath
+        string $tplImagePath,
+        ?VisitListSchedule $visitLists = null,
+        bool $isTwelveHourFormat = false
     ): array {
         $year = substr($dateYmd, 0, 4);
         $month = substr($dateYmd, 4, 2);
@@ -233,9 +263,25 @@ final readonly class CalendarRenderDataBuilder
                 $datePlusFourTs = $dateTs !== false ? $dateTs + (4 * 86400) : false;
                 $datePlusFour = $datePlusFourTs !== false ? date('Y-m-d', $datePlusFourTs) : '';
 
-                $leftEvents = $this->decorateWeekPrintEventsForDay($events, $date, $providerId, $calendarApptStyle, $tplImagePath);
+                $leftEvents = $this->decorateWeekPrintDay(
+                    $events,
+                    $date,
+                    $providerId,
+                    $calendarApptStyle,
+                    $tplImagePath,
+                    $visitLists,
+                    $isTwelveHourFormat
+                );
                 $rightDayEvents = $aEvents[$datePlusFour] ?? [];
-                $rightEvents = $this->decorateWeekPrintEventsForDay($rightDayEvents, $datePlusFour, $providerId, $calendarApptStyle, $tplImagePath);
+                $rightEvents = $this->decorateWeekPrintDay(
+                    $rightDayEvents,
+                    $datePlusFour,
+                    $providerId,
+                    $calendarApptStyle,
+                    $tplImagePath,
+                    $visitLists,
+                    $isTwelveHourFormat
+                );
 
                 $left = [
                     'weekdayLabel' => $dateTs !== false ? date('D', $dateTs) : '',
@@ -283,6 +329,7 @@ final readonly class CalendarRenderDataBuilder
      * @param  list<array<string, mixed>>                $providers
      * @param  list<array{hour: int|string, minute: int|string, mer?: string}> $times
      * @param  list<string>                              $shortDayNames
+     * @param  ?VisitListSchedule                        $visitLists  the day's Visit Lists; null shows none
      *
      * @return array<string, mixed>
      */
@@ -295,7 +342,8 @@ final readonly class CalendarRenderDataBuilder
         array $shortDayNames,
         int $calendarApptStyle,
         string $tplImagePath,
-        bool $isTwelveHourFormat
+        bool $isTwelveHourFormat,
+        ?VisitListSchedule $visitLists = null
     ): array {
         $year = substr($dateYmd, 0, 4);
         $month = substr($dateYmd, 4, 2);
@@ -361,7 +409,20 @@ final readonly class CalendarRenderDataBuilder
             $providerIdRaw = $provider['id'] ?? null;
             $providerId = is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
 
-            $rawDayEvents = $aEvents[$eventDate] ?? [];
+            // Patients shown on a Visit List leave the timed grid; their blocks show the list.
+            $visitListColumn = VisitListDayColumn::build(
+                $this->viewModel,
+                $aEvents[$eventDate] ?? [],
+                $visitLists,
+                $providerId,
+                $eventDate,
+                $eventDateYmd,
+                [],
+                $isTwelveHourFormat,
+                0,
+                $intervalMinutes
+            );
+            $rawDayEvents = $visitListColumn->gridEvents;
 
             $overlapPositions = $this->viewModel->detectEventOverlap(
                 $rawDayEvents,
@@ -393,7 +454,7 @@ final readonly class CalendarRenderDataBuilder
                 'lname'    => is_string($provider['lname'] ?? null) ? $provider['lname'] : '',
                 'username' => is_string($provider['username'] ?? null) ? $provider['username'] : '',
                 'classForWeekend' => 'work-day', // print views don't legacy-distinguish; preserved as work-day
-                'events'   => $decoratedEvents,
+                'events'   => self::attachVisitLists($decoratedEvents, $visitListColumn->lists),
             ];
         }
 
@@ -549,6 +610,8 @@ final readonly class CalendarRenderDataBuilder
      * @param  list<array<string, mixed>>                $provinfo    All providers (for the picker dropdown).
      * @param  list<array<string, mixed>>                $facilities
      * @param  list<string>                              $shortDayNames
+     * @param  ?VisitListSchedule                        $visitLists  the Visit Lists of the dates shown; null shows none
+     * @param  array<string, AppointmentStatus>          $appointmentStatuses apptstat titles and colors by option_id
      *
      * @return array<string, mixed>
      */
@@ -569,7 +632,10 @@ final readonly class CalendarRenderDataBuilder
         string $chevronIconRight,
         string $monthSelectorHtml,
         bool $showAllFacilitiesOption,
-        string $currentMonthLabel
+        string $currentMonthLabel,
+        ?VisitListSchedule $visitLists = null,
+        array $appointmentStatuses = [],
+        bool $isTwelveHourFormat = false
     ): array {
         $year = substr($dateYmd, 0, 4);
         $month = substr($dateYmd, 4, 2);
@@ -621,8 +687,20 @@ final readonly class CalendarRenderDataBuilder
                 $eventDateYmd = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
 
                 $isWeekend = $dayOfWeek === 0 || $dayOfWeek === 6;
-                $decoratedEvents = $this->decorateMonthScreenEvents(
+                // Patients shown on a Visit List leave the cell's events; their blocks show the list.
+                $visitListDay = VisitListDayColumn::build(
+                    $this->viewModel,
                     $dateEvents,
+                    $visitLists,
+                    $providerId,
+                    $date,
+                    $eventDateYmd,
+                    $appointmentStatuses,
+                    $isTwelveHourFormat,
+                    $pcFacility
+                );
+                $decoratedEvents = $this->decorateMonthScreenEvents(
+                    $visitListDay->gridEvents,
                     $date,
                     $eventDateYmd,
                     $providerId,
@@ -643,7 +721,8 @@ final readonly class CalendarRenderDataBuilder
                     'classForWeekend' => $isWeekend ? 'weekend-day' : 'work-day',
                     'isStartOfWeek'   => $dayOfWeek === $dowList[0],
                     'isEndOfWeek'     => $dayOfWeek === $dowList[6],
-                    'events'          => $decoratedEvents,
+                    'isHolidayDay'    => $this->dayHasHolidayOrClosed($dateEvents),
+                    'events'          => self::attachVisitLists($decoratedEvents, $visitListDay->lists),
                 ];
             }
 
@@ -906,14 +985,7 @@ final readonly class CalendarRenderDataBuilder
                 $webroot,
                 $isTwelveHourFormat
             );
-            foreach ($decoratedEvents as $index => $decoratedEvent) {
-                $eid = $decoratedEvent['eid'];
-                $list = is_int($eid) || is_string($eid) ? ($visitListColumn->lists[$eid] ?? null) : null;
-                if ($list !== null) {
-                    $decoratedEvents[$index]['evtClass'] = 'event_visit_list';
-                    $decoratedEvents[$index]['visitList'] = $list;
-                }
-            }
+            $decoratedEvents = self::attachVisitLists($decoratedEvents, $visitListColumn->lists);
 
             $providersGrid[] = [
                 'id'              => $providerId,
@@ -973,6 +1045,8 @@ final readonly class CalendarRenderDataBuilder
      * @param  list<array<string, mixed>>                $facilities
      * @param  list<array{hour: int|string, minute: int|string, mer?: string}> $times
      * @param  list<string>                              $shortDayNames
+     * @param  ?VisitListSchedule                        $visitLists  the week's Visit Lists; null shows none
+     * @param  array<string, AppointmentStatus>          $appointmentStatuses apptstat titles and colors by option_id
      *
      * @return array<string, mixed>
      */
@@ -997,7 +1071,9 @@ final readonly class CalendarRenderDataBuilder
         bool $showAllFacilitiesOption,
         string $weekHeaderLabel,
         bool $isTwelveHourFormat,
-        string $apptToggle = ''
+        string $apptToggle = '',
+        ?VisitListSchedule $visitLists = null,
+        array $appointmentStatuses = []
     ): array {
         $year = substr($dateYmd, 0, 4);
         $month = substr($dateYmd, 4, 2);
@@ -1052,15 +1128,30 @@ final readonly class CalendarRenderDataBuilder
                 $dayOfWeek = (int) date('w', $columnTs);
                 $isWeekend = $dayOfWeek === 0 || $dayOfWeek === 6;
 
-                $overlapPositions = $this->viewModel->detectEventOverlap(
+                // Patients shown on a Visit List leave the timed grid; their blocks show the list.
+                $visitListColumn = VisitListDayColumn::build(
+                    $this->viewModel,
                     $dateEvents,
+                    $visitLists,
+                    $providerId,
+                    $columnDate,
+                    $columnYmd,
+                    $appointmentStatuses,
+                    $isTwelveHourFormat,
+                    $pcFacility,
+                    $intervalMinutes
+                );
+                $gridEvents = $visitListColumn->gridEvents;
+
+                $overlapPositions = $this->viewModel->detectEventOverlap(
+                    $gridEvents,
                     $times,
                     $intervalMinutes,
                     $providerId
                 );
 
                 $columnEvents = $this->decorateWeekScreenEvents(
-                    $dateEvents,
+                    $gridEvents,
                     $columnYmd,
                     $columnDate,
                     $providerId,
@@ -1090,7 +1181,7 @@ final readonly class CalendarRenderDataBuilder
                     'classForWeekend' => $isWeekend ? 'weekend-day' : 'work-day',
                     'isCurrentDay'    => $columnYmd === $dateYmd,
                     'isHolidayDay'    => $this->dayHasHolidayOrClosed($dateEvents),
-                    'events'          => $columnEvents,
+                    'events'          => self::attachVisitLists($columnEvents, $visitListColumn->lists),
                 ];
             }
 
@@ -1779,5 +1870,73 @@ final readonly class CalendarRenderDataBuilder
         }
 
         return $decorated;
+    }
+
+    /**
+     * One provider's day of week_print events, with the patients shown on a Visit List
+     * taken out and each list given to its block.
+     *
+     * @param  list<array<string, mixed>> $events
+     * @return list<array<string, mixed>>
+     */
+    private function decorateWeekPrintDay(
+        array $events,
+        string $date,
+        int $providerId,
+        int $calendarApptStyle,
+        string $tplImagePath,
+        ?VisitListSchedule $visitLists,
+        bool $isTwelveHourFormat
+    ): array {
+        $visitListDay = VisitListDayColumn::build(
+            $this->viewModel,
+            $events,
+            $visitLists,
+            $providerId,
+            $date,
+            substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2),
+            [],
+            $isTwelveHourFormat
+        );
+        return self::attachVisitLists(
+            $this->decorateWeekPrintEventsForDay(
+                $visitListDay->gridEvents,
+                $date,
+                $providerId,
+                $calendarApptStyle,
+                $tplImagePath
+            ),
+            $visitListDay->lists
+        );
+    }
+
+    /**
+     * Mark each Visit List block among a day's decorated events and give it its list, which
+     * the templates show in place of the block's usual content.
+     *
+     * @param  list<array<string, mixed>> $decoratedEvents
+     * @param  array<int, VisitListData>  $lists each shown list, keyed by its block's pc_eid
+     * @return list<array<string, mixed>>
+     */
+    private static function attachVisitLists(array $decoratedEvents, array $lists): array
+    {
+        foreach ($decoratedEvents as $index => $event) {
+            $eid = $event['eid'] ?? null;
+            $list = is_int($eid) || is_string($eid) ? ($lists[$eid] ?? null) : null;
+            if ($list !== null) {
+                $decoratedEvents[$index]['evtClass'] = 'event_visit_list';
+                $decoratedEvents[$index]['visitList'] = $list;
+            }
+        }
+        return $decoratedEvents;
+    }
+
+    /**
+     * @param array<string, mixed> $provider
+     */
+    private static function providerId(array $provider): int
+    {
+        $providerIdRaw = $provider['id'] ?? null;
+        return is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
     }
 }

@@ -227,7 +227,7 @@
         }).on("dblclick", function(e) { e.stopPropagation(); });
         $(".visit-list-header").on("click", function(e) {
             e.stopPropagation();
-            EditEvent($(this).closest(".event").get(0));
+            EditEvent($(this).closest(".event_visit_list").get(0));
         }).on("dblclick", function(e) { e.stopPropagation(); });
         var editVisitListPatient = function(row) {
             oldEvt(row.data("date"), row.data("eid"), row.data("cattype"));

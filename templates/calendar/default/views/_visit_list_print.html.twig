@@ -1,0 +1,28 @@
+{# The inside of a Visit List block in the print views: a header (title, time range and
+   patient count), then its patients in list order, each with its number, its stop when it
+   has one, the patient's name and the visit category, so the page can serve as a route
+   sheet. Nothing on it is clickable.
+
+   Inputs:
+   - visitList : {title, timeLabel, count, rows}, as VisitListDayColumn builds it
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @author    David Eschelbacher <psoas@tampabay.rr.com>
+   @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="visit-list-header">
+    <span class="visit-list-title">{{ visitList.title|text }}</span>
+    <span class="visit-list-summary">{{ visitList.timeLabel|text }} · {{ visitList.count }} {% if visitList.count == 1 %}{{ 'patient'|xlt }}{% else %}{{ 'patients'|xlt }}{% endif %}</span>
+</div>
+<ol class="visit-list-entries">
+    {% for row in visitList.rows %}
+        <li class="visit-list-entry">
+            <span class="visit-list-sequence">{{ row.sequenceLabel|text }}</span>
+            {% if row.stopLabel != '' %}<span class="visit-list-stop">{{ row.stopLabel|text }}</span>{% endif %}
+            <span class="visit-list-patient">{{ row.patientName|text }}</span>
+            <span class="visit-list-category">{{ row.categoryName|text }}</span>
+        </li>
+    {% endfor %}
+</ol>

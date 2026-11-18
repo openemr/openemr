@@ -18,6 +18,9 @@
        evtTop / evtHeight (CSS strings with unit baked in),
        divWidth / divLeft (CSS fragments like "width: 50%" / "left: 50%"
        or empty strings), bodyContent (HTML).
+       A Visit List block additionally carries visitList (see
+       _visit_list_print.html.twig); its patients are not among the
+       provider's other events.
        IN events (catid == 2) additionally carry:
          inLabelTop, inLabelHeight (CSS strings with unit),
          inLabelContent (HTML string — the legacy's "dispstarth:startm
@@ -90,6 +93,8 @@
         .event_out      { position: absolute; background-color: lightgray; width: 100%; font-size: 0.8em; color: #ddd; border-top: 1px dashed #ddd; }
         .event_appointment { position: absolute; background-color: white; overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
         .event_noshow      { position: absolute; background-color: pink;  overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
+        {% include 'calendar/default/views/_visit_list_print_styles.html.twig' %}
+        .event_visit_list  { position: absolute; width: 100%; z-index: 1; }
         .event_reserved    { position: absolute; background-color: pink;  overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
     </style>
     {{ setupHeader(['no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_dialog']) }}
@@ -158,6 +163,15 @@
                                 {{ event.inLabelContent|raw }}
                             </div>
                         {% endif %}
+                        {% if event.visitList is defined %}
+                            {# Visit List block: at least its time span tall, and taller when its
+                               list needs more room, so no patient is cut off the page. #}
+                            <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                                 style="top:{{ event.evtTop }}; min-height:{{ event.evtHeight }}; {{ event.divWidth }}; {{ event.divLeft }}"
+                                 id="{{ event.eventDate|attr }}-{{ event.eid|attr }}">
+                                {% include 'calendar/default/views/_visit_list_print.html.twig' with {visitList: event.visitList} only %}
+                            </div>
+                        {% else %}
                         <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
                              style="top:{{ event.evtTop }}; height:{{ event.evtHeight }}; background-color:{{ event.catcolor|attr }}; {{ event.divWidth }}; {{ event.divLeft }}"
                              id="{{ event.eventdate|attr }}-{{ event.eid|attr }}">
@@ -165,6 +179,7 @@
                                 {{ event.bodyContent|raw }}
                             {% endif %}
                         </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </td>

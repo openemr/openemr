@@ -19,6 +19,7 @@
            dayHeaderLabel,       localized weekday + date
            classForWeekend,      'weekend-day' or 'work-day'
            isCurrentDay,         bool — adds week_currday class
+           isHolidayDay,         bool — a holiday or closed day; no new appointments
            events,               decorated events for this date+provider
          }
        Each event uses the same shape day-screen builds, with the
@@ -26,6 +27,9 @@
          - displayContentHtml may include the show-appointment toggle
            anchor and an appointment-{apptToggle} class on the wrapping
            span (consumer pre-built via buildWeekScreenEventContent).
+         - visitList : only for a Visit List block, the same shape as in
+           day-screen; the block's patients are not among the column's
+           other events.
 #}
 
 {# Include the calendar header — emits <html><head>setupHeader()</head><body>
@@ -220,7 +224,16 @@
                                     </div>
                                 {% endif %}
 
-                                {% if event.catid != 6 and event.catid != 4 %}
+                                {% if event.visitList is defined %}
+                                    {# Visit List block, as in the day view: its patients in list order,
+                                       number and name only in the narrow column. #}
+                                    <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event visit-list-compact"
+                                         style="top:{{ event.evtTopCss }}; height:{{ event.evtHeightCss }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}"
+                                         title="{{ event.tooltip|attr }}"
+                                         id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
+                                        {% include 'calendar/default/views/_visit_list.html.twig' with {visitList: event.visitList, compact: true, addDisabled: column.isHolidayDay} only %}
+                                    </div>
+                                {% elseif event.catid != 6 and event.catid != 4 %}
                                     <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
                                          style="top:{{ event.evtTopCss }}; height:{{ event.evtHeightCss }}; background-color: {{ event.displayBgColor }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}"
                                          title="{{ event.tooltip|attr }}"

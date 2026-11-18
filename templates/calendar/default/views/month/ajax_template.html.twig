@@ -39,6 +39,7 @@
            classForWeekend,          'weekend-day' or 'work-day'
            isStartOfWeek,            bool (opens <tr>)
            isEndOfWeek,              bool (closes </tr>)
+           isHolidayDay,             bool — a holiday or closed day; no new appointments
            events                    list of decorated events for this cell
        }
        Each event: {
@@ -49,6 +50,9 @@
                                      content, OR the filtered-out span when the
                                      event's facility != pc_facility)
            tooltip                   from buildMonthScreenEventContent
+           visitList                 only for a Visit List block, the same shape as
+                                     in day-screen; the block's patients are not
+                                     among the cell's other events
        }
 #}
 
@@ -197,6 +201,15 @@
                         {% set rendered = 0 %}
                         {% for event in day.events %}
                             {% set rendered = rendered + 1 %}
+                            {% if event.visitList is defined %}
+                                {# Visit List block: its patients in list order, number and name only. #}
+                                <div data-eid="{{ event.eid|attr }}"
+                                     class="{{ event.evtClass|attr }} month_event visit-list-compact"
+                                     title="{{ event.tooltip|attr }}"
+                                     id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
+                                    {% include 'calendar/default/views/_visit_list.html.twig' with {visitList: event.visitList, compact: true, addDisabled: day.isHolidayDay} only %}
+                                </div>
+                            {% else %}
                             <div data-eid="{{ event.eid|attr }}"
                                  class="{{ event.evtClass|attr }} month_event"
                                  style="background-color: {{ event.displayBgColor }};"
@@ -204,6 +217,7 @@
                                  id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
                                 {{ event.displayContentHtml|raw }}
                             </div>
+                            {% endif %}
                         {% endfor %}
                         {% if rendered == 0 %}&nbsp;{% endif %}
                     </div>

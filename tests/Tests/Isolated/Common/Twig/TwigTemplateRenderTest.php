@@ -499,6 +499,47 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/calendar-day-screen-empty.html',
         ];
 
+        // One Visit List, as VisitListDayColumn builds it, shown by every calendar view.
+        $visitList = [
+            'title'       => 'Visit List',
+            'timeLabel'   => '9:00am–5:00pm',
+            'providerId'  => 7,
+            'eventDate'   => '20260309',
+            'startHour'   => '9',
+            'startMinute' => '00',
+            'count'       => 2,
+            'rows'        => [
+                [
+                    'eid'           => 41,
+                    'pid'           => 541,
+                    'eventDate'     => '20260309',
+                    'pccattype'     => '0',
+                    'sequenceLabel' => '#1',
+                    'stopLabel'     => 'Stop 1',
+                    'patientName'   => 'Hollis, Margaret',
+                    'categoryName'  => 'Established Patient',
+                    'statusTitle'   => '@ Arrived',
+                    'bgColor'       => '#FF2414',
+                    'tooltip'       => "Hollis, Margaret\nEstablished Patient",
+                    'patientTooltip' => "Hollis, Margaret\n(Click to view)",
+                ],
+                [
+                    'eid'           => 42,
+                    'pid'           => 542,
+                    'eventDate'     => '20260309',
+                    'pccattype'     => '0',
+                    'sequenceLabel' => '#2',
+                    'stopLabel'     => '',
+                    'patientName'   => 'O\'Brien, Pat <Jr>',
+                    'categoryName'  => 'New Patient',
+                    'statusTitle'   => '',
+                    'bgColor'       => '#a2d9e2',
+                    'tooltip'       => "O'Brien, Pat <Jr>\nNew Patient",
+                    'patientTooltip' => "O'Brien, Pat <Jr>\n(Click to view)",
+                ],
+            ],
+        ];
+
         yield 'calendar day-screen with a Visit List' => [
             'calendar/default/views/day/ajax_template.html.twig',
             array_merge($screenCommon, [
@@ -530,43 +571,7 @@ class TwigTemplateRenderTest extends TestCase
                                 'evtHeightCss'       => '320px',
                                 'divWidthCss'        => '',
                                 'divLeftCss'         => '',
-                                'visitList'          => [
-                                    'title'       => 'Visit List',
-                                    'timeLabel'   => '9:00am–5:00pm',
-                                    'providerId'  => 7,
-                                    'eventDate'   => '20260309',
-                                    'startHour'   => '9',
-                                    'startMinute' => '00',
-                                    'count'       => 2,
-                                    'rows'        => [
-                                        [
-                                            'eid'           => 41,
-                                            'pid'           => 541,
-                                            'eventDate'     => '20260309',
-                                            'pccattype'     => '0',
-                                            'sequenceLabel' => '#1',
-                                            'patientName'   => 'Hollis, Margaret',
-                                            'categoryName'  => 'Established Patient',
-                                            'statusTitle'   => '@ Arrived',
-                                            'bgColor'       => '#FF2414',
-                                            'tooltip'       => "Hollis, Margaret\nEstablished Patient",
-                                            'patientTooltip' => "Hollis, Margaret\n(Click to view)",
-                                        ],
-                                        [
-                                            'eid'           => 42,
-                                            'pid'           => 542,
-                                            'eventDate'     => '20260309',
-                                            'pccattype'     => '0',
-                                            'sequenceLabel' => '#2',
-                                            'patientName'   => 'O\'Brien, Pat <Jr>',
-                                            'categoryName'  => 'New Patient',
-                                            'statusTitle'   => '',
-                                            'bgColor'       => '#a2d9e2',
-                                            'tooltip'       => "O'Brien, Pat <Jr>\nNew Patient",
-                                            'patientTooltip' => "O'Brien, Pat <Jr>\n(Click to view)",
-                                        ],
-                                    ],
-                                ],
+                                'visitList'          => $visitList,
                             ],
                         ],
                     ],
@@ -588,6 +593,168 @@ class TwigTemplateRenderTest extends TestCase
                 'providers'       => [],
             ]),
             $fixtureDir . '/calendar-week-screen-empty.html',
+        ];
+
+        // The Visit List block's event, as the timed screen views decorate it.
+        $visitListScreenEvent = [
+            'eid'                => 40,
+            'catid'              => 16,
+            'eventDate'          => '20260309',
+            'pccattype'          => '1',
+            'evtClass'           => 'event_visit_list',
+            'displayBgColor'     => '#9ec5fe',
+            'displayContentHtml' => 'Visit List',
+            'tooltip'            => 'Monday March 9 2026',
+            'evtTopCss'          => '40px',
+            'evtHeightCss'       => '320px',
+            'divWidthCss'        => '',
+            'divLeftCss'         => '',
+            'visitList'          => $visitList,
+        ];
+
+        yield 'calendar week-screen with a Visit List' => [
+            'calendar/default/views/week/ajax_template.html.twig',
+            array_merge($screenCommon, [
+                'viewtype'        => 'week',
+                'Date'            => '20260309',
+                'weekHeaderLabel' => 'Mar 08 - Mar 14',
+                'PREV_WEEK_URL'   => '?prev',
+                'NEXT_WEEK_URL'   => '?next',
+                'timeRows'        => [],
+                'timeslotCss'     => '20px',
+                'providers'       => [
+                    [
+                        'id'         => 7,
+                        'fname'      => 'Alex',
+                        'lname'      => 'Rivera',
+                        'username'   => 'arivera',
+                        'dayColumns' => [
+                            [
+                                'dateYmd'         => '20260309',
+                                'dateAttrTitle'   => '09 Mar 2026',
+                                'gotoUrl'         => '?day=20260309',
+                                'dayHeaderLabel'  => 'Mon 03/09',
+                                'classForWeekend' => 'work-day',
+                                'isCurrentDay'    => true,
+                                'isHolidayDay'    => false,
+                                'events'          => [$visitListScreenEvent],
+                            ],
+                        ],
+                    ],
+                ],
+            ]),
+            $fixtureDir . '/calendar-week-screen-visit-list.html',
+        ];
+
+        yield 'calendar month-screen with a Visit List on a holiday' => [
+            'calendar/default/views/month/ajax_template.html.twig',
+            array_merge($screenCommon, [
+                'viewtype'          => 'month',
+                'Date'              => '20260309',
+                'currentMonthLabel' => 'March 2026',
+                'PREV_MONTH_URL'    => '?prev',
+                'NEXT_MONTH_URL'    => '?next',
+                'providersGrid'     => [
+                    [
+                        'id'               => 7,
+                        'fname'            => 'Alex',
+                        'lname'            => 'Rivera',
+                        'dateHeaderLabels' => ['Mon'],
+                        'days'             => [
+                            [
+                                'dateYmd'         => '20260309',
+                                'dateDisplay'     => '09',
+                                'dateAttrTitle'   => '09 Mar 2026',
+                                'gotoUrl'         => '?day=20260309',
+                                'classForWeekend' => 'work-day',
+                                'isStartOfWeek'   => true,
+                                'isEndOfWeek'     => true,
+                                'isHolidayDay'    => true,
+                                'events'          => [[
+                                    'eid'                => 40,
+                                    'eventDate'          => '20260309',
+                                    'pccattype'          => '1',
+                                    'evtClass'           => 'event_visit_list',
+                                    'displayBgColor'     => '#9ec5fe',
+                                    'displayContentHtml' => 'Visit List',
+                                    'tooltip'            => 'Visit List',
+                                    'visitList'          => $visitList,
+                                ]],
+                            ],
+                        ],
+                    ],
+                ],
+            ]),
+            $fixtureDir . '/calendar-month-screen-visit-list.html',
+        ];
+
+        // The Visit List block's event, as the print views decorate it.
+        $visitListPrintEvent = [
+            'eid'         => 40,
+            'aid'         => 1,
+            'catid'       => 16,
+            'eventDate'   => '20260309',
+            'evtClass'    => 'event_visit_list',
+            'catcolor'    => '#9ec5fe',
+            'content'     => 'Visit List',
+            'bodyContent' => 'Visit List',
+            'evtTop'      => '40px',
+            'evtHeight'   => '320px',
+            'divWidth'    => '',
+            'divLeft'     => '',
+            'visitList'   => $visitList,
+        ];
+
+        yield 'calendar day_print with a Visit List' => [
+            'calendar/default/views/day_print/outlook_ajax_template.html.twig',
+            [
+                'providers'         => [['id' => 1, 'fname' => 'Alice', 'lname' => 'Smith', 'events' => [$visitListPrintEvent]]],
+                'dowList'           => $defaultDowList,
+                'A_SHORT_DAY_NAMES' => $defaultDayNames,
+                'dateHeader'        => ['dateLabel' => '09 March 2026', 'weekdayLabel' => 'Monday'],
+                'currentMonthMini'  => $emptyMini,
+                'nextMonthMini'     => ['monthLabel' => 'April 2026', 'weeks' => []],
+                'timeRows'          => [],
+                'timeslotCss'       => '20px',
+            ],
+            $fixtureDir . '/calendar-day-print-visit-list.html',
+        ];
+
+        yield 'calendar week_print with a Visit List' => [
+            'calendar/default/views/week_print/outlook_ajax_template.html.twig',
+            [
+                'providers'         => [[
+                    'id'       => 1,
+                    'fname'    => 'Alice',
+                    'lname'    => 'Smith',
+                    'dayPairs' => [[
+                        'left'  => ['weekdayLabel' => 'Mon', 'dateMD' => '03/09', 'events' => [$visitListPrintEvent]],
+                        'right' => null,
+                    ]],
+                ]],
+                'dowList'           => $defaultDowList,
+                'A_SHORT_DAY_NAMES' => $defaultDayNames,
+                'dateRange'         => ['firstMonth' => 'March', 'firstDay' => '09', 'lastMonth' => 'March', 'lastDay' => '15'],
+                'currentMonthMini'  => $emptyMini,
+                'nextMonthMini'     => ['monthLabel' => 'April 2026', 'weeks' => []],
+            ],
+            $fixtureDir . '/calendar-week-print-visit-list.html',
+        ];
+
+        yield 'calendar month_print with a Visit List' => [
+            'calendar/default/views/month_print/outlook_ajax_template.html.twig',
+            [
+                'providers'         => [['id' => 1, 'fname' => 'Alice', 'lname' => 'Smith']],
+                'dowList'           => $defaultDowList,
+                'A_SHORT_DAY_NAMES' => $defaultDayNames,
+                'dateLabel'         => 'March 2026',
+                'dayHeaderDates'    => [],
+                'currentMonthMini'  => $emptyMini,
+                'nextMonthMini'     => ['monthLabel' => 'April 2026', 'weeks' => []],
+                'A_EVENTS'          => ['2026-03-09' => [$visitListPrintEvent]],
+                'dowOfDate'         => ['2026-03-09' => 1],
+            ],
+            $fixtureDir . '/calendar-month-print-visit-list.html',
         ];
 
         yield 'patient/card/appointments with future appointments' => [

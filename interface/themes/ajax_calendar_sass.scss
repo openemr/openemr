@@ -625,6 +625,39 @@ $side-calendar-date-padding: 0.3rem !default;
     &-status {
       margin-#{$left}: auto;
     }
+
+    // The week and month views have narrow blocks: their rows show only the number and
+    // the name, and the header gives up the title and summary text, not the + button.
+    &-compact {
+      .visit-list-header {
+        gap: 0.25rem;
+        padding: 0 0.125rem 0.125rem;
+      }
+
+      .visit-list-title,
+      .visit-list-summary {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      // The title keeps its room; the time range and count get what is left.
+      .visit-list-summary {
+        flex: 1 1 0;
+      }
+
+      .visit-list-add {
+        flex-shrink: 0;
+      }
+
+      .visit-list-entry {
+        gap: 0.25rem;
+      }
+
+      .visit-list-sequence {
+        min-width: 1.5rem;
+      }
+    }
   }
 
   .userClose {

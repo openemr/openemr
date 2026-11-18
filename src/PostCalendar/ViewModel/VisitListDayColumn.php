@@ -3,9 +3,11 @@
 /**
  * VisitListDayColumn
  *
- * The Visit List part of one provider's column in the calendar day view. Patients on a Visit
- * List are taken out of the timed grid, and each Visit List block in the column gets the rows
- * of its list instead: list order, patient name, visit category and appointment status.
+ * The Visit List part of one provider's day in a calendar view: a column of the day or week
+ * view, a cell of the month view, or a day of a print view. Patients on a Visit List are taken
+ * out of the day's other events, and each Visit List block of the day gets the rows of its list
+ * instead: list order, stop, patient name, visit category and appointment status. Each view
+ * shows as many of those as it has room for.
  *
  * A list is only shown when its block is among the column's events and, when the calendar is
  * filtered to one facility, the block is at that facility. Otherwise its patients stay in the
@@ -35,6 +37,7 @@ use OpenEMR\Appointment\VisitList\VisitListSchedule;
  *     eventDate: string,
  *     pccattype: string,
  *     sequenceLabel: string,
+ *     stopLabel: string,
  *     patientName: string,
  *     categoryName: string,
  *     statusTitle: string,
@@ -238,6 +241,7 @@ final readonly class VisitListDayColumn
             'eventDate' => $eventDateYmd,
             'pccattype' => CalendarRenderDataBuilder::categoryTypeToken($event['pccattype'] ?? null),
             'sequenceLabel' => $entry->sequence === null ? '#' : '#' . $entry->sequence,
+            'stopLabel' => $entry->stop === null ? '' : xl('Stop') . ' ' . $entry->stop,
             'patientName' => $patientName,
             'categoryName' => $categoryName,
             'statusTitle' => $statusTitle,
