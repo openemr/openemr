@@ -70,12 +70,15 @@ class BillingCodeType implements IOptionFormType
             return '';
         }
 
+        $codeType = $this->configuredCodeType($frow);
         $s = '';
         foreach (explode(';', $value) as $codestring) {
             if ($codestring === '') {
                 continue;
             }
-            $tmp = lookup_code_descriptions($codestring);
+            // Read an unprefixed code as the field's configured type, as the form view does.
+            $lookup = ($codeType === '' || str_contains($codestring, ':')) ? $codestring : $codeType . ':' . $codestring;
+            $tmp = lookup_code_descriptions($lookup);
             if ($s !== '') {
                 $s .= '; ';
             }

@@ -24917,11 +24917,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$currvalue of method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:getSmokingData\\(\\) expects string, mixed given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$restype of method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:smokingDetailsDisabled\\(\\) expects string, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',

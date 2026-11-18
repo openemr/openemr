@@ -28302,26 +28302,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Forms/Types/LocalProviderListType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildDisplayView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildFormView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildPlaintextView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildPrintView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildPrintView\\(\\) has parameter \\$value_allowed with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',

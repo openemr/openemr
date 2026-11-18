@@ -1344,7 +1344,7 @@ function generate_form_field($frow, $currvalue): void
     } elseif ($data_type == 28 || $data_type == SmokingStatusType::OPTIONS_TYPE_INDEX) { // special case for history of lifestyle status; 3 radio buttons
         if ($data_type == SmokingStatusType::OPTIONS_TYPE_INDEX) {
             $obj = new SmokingStatusType();
-            echo $obj->buildFormView($frow, $currvalue);
+            echo $obj->buildFormView($frow, is_scalar($currvalue) ? (string) $currvalue : null);
             return;
         }
         // and a date text field:
@@ -2112,7 +2112,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
     } elseif ($data_type == 28 || $data_type == 32) {
         if ($data_type === SmokingStatusType::OPTIONS_TYPE_INDEX) {
             $smokingType = new SmokingStatusType();
-            echo $smokingType->buildPrintView($frow, $currvalue, $value_allowed);
+            echo $smokingType->buildPrintView($frow, is_scalar($currvalue) ? (string) $currvalue : null, $value_allowed);
             return;
         }
         $tmp = explode('|', (string) $currvalue);
@@ -2633,7 +2633,7 @@ function generate_display_field($frow, $currvalue): string
     } elseif ($data_type == 28 || $data_type == SmokingStatusType::OPTIONS_TYPE_INDEX) { // special case for history of lifestyle status; 3 radio buttons
         if ($data_type === SmokingStatusType::OPTIONS_TYPE_INDEX) {
             $smokingType = new SmokingStatusType();
-            $s .= $smokingType->buildDisplayView($frow, $currvalue);
+            $s .= $smokingType->buildDisplayView($frow, is_scalar($currvalue) ? (string) $currvalue : null);
             return $s;
         }
         // and a date text field:
@@ -3052,7 +3052,7 @@ function generate_plaintext_field($frow, $currvalue)
         if ($data_type == SmokingStatusType::OPTIONS_TYPE_INDEX) {
             // support for SmokingStatusType
             $smokingType = new SmokingStatusType();
-            $s = $smokingType->buildPlaintextView($frow, $currvalue);
+            $s = $smokingType->buildPlaintextView($frow, is_scalar($currvalue) ? (string) $currvalue : null);
             return $s;
         }
 
