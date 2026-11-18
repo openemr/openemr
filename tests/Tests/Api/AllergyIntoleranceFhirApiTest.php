@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Api;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Tests\Support\Fixtures\UuidRegistryCleanup;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -86,11 +87,16 @@ class AllergyIntoleranceFhirApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM lists WHERE type = 'allergy' AND title LIKE 'test-fixture%'"
+        // uuid_registry rows must come down first — the helper's
+        // subselect reads the lists uuid, so deleting the lists row
+        // first would orphan the registry entry.
+        UuidRegistryCleanup::sweepRowsAndUuidEntries(
+            'lists',
+            "type = 'allergy' AND title LIKE 'test-fixture%'"
         );
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM lists WHERE type = 'allergy' AND comments LIKE 'test-fixture%'"
+        UuidRegistryCleanup::sweepRowsAndUuidEntries(
+            'lists',
+            "type = 'allergy' AND comments LIKE 'test-fixture%'"
         );
         if (isset($this->fixtureManager)) {
             $this->fixtureManager->removePatientFixtures();

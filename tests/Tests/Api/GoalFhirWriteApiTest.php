@@ -25,6 +25,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Tests\Support\Fixtures\UuidRegistryCleanup;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -115,12 +116,11 @@ class GoalFhirWriteApiTest extends TestCase
         }
         // This run's encounter only. A reason LIKE 'test-fixture%' sweep also deletes the
         // encounters of any other worker running this suite concurrently; setUp() already
-        // captured the uuid.
+        // captured the uuid. Helper also sweeps the companion `forms.newpatient` row and
+        // the uuid_registry entry — the FHIR encounter insert lands all three, teardown
+        // must take all three down.
         if (isset($this->encounterUuid)) {
-            QueryUtils::sqlStatementThrowException(
-                "DELETE FROM form_encounter WHERE uuid = ?",
-                [UuidRegistry::uuidToBytes($this->encounterUuid)]
-            );
+            UuidRegistryCleanup::deleteEncounterAndCompanions($this->encounterUuid);
         }
         if (isset($this->fixtureManager)) {
             $this->fixtureManager->removePatientFixtures();
