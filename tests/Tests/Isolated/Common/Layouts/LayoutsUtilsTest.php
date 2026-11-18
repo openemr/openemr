@@ -21,13 +21,13 @@ use PHPUnit\Framework\TestCase;
 class LayoutsUtilsTest extends TestCase
 {
     #[DataProvider('isOptionProvider')]
-    public function testIsOption(mixed $options, string $test, bool $expected): void
+    public function testIsOption(?string $options, string $test, bool $expected): void
     {
         self::assertSame($expected, LayoutsUtils::isOption($options, $test));
     }
 
     /**
-     * @return array<string, array{mixed, string, bool}>
+     * @return array<string, array{?string, string, bool}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
@@ -52,8 +52,6 @@ class LayoutsUtilsTest extends TestCase
             'string null'                     => ['null', 'n', false],
             'empty string'                    => ['', 'E', false],
             'null'                            => [null, 'E', false],
-            'int'                             => [2, '2', false],
-            'array'                           => [['E'], 'E', false],
         ];
     }
 }

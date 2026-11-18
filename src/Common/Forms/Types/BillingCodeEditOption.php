@@ -28,9 +28,9 @@ enum BillingCodeEditOption: string
     case ReadOnly = '0';
 
     /**
-     * @return list<self> the cases set in a layout row's raw edit_options value
+     * @return list<self> the cases set in a layout row's edit_options value
      */
-    public static function enabledIn(mixed $editOptions): array
+    public static function enabledIn(?string $editOptions): array
     {
         return array_values(array_filter(
             self::cases(),

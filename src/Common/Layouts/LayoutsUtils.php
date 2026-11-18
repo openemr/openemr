@@ -24,7 +24,7 @@ class LayoutsUtils
     /**
      * Returns the (translated) title of an active list option, or $option itself when it has none.
      */
-    public static function getListItemTitle(mixed $list, mixed $option): mixed
+    public static function getListItemTitle(string $list, ?string $option): ?string
     {
         $title = QueryUtils::fetchSingleValue(
             'SELECT `title` FROM `list_options` WHERE `list_id` = ? AND `option_id` = ? AND activity = 1',
@@ -43,9 +43,9 @@ class LayoutsUtils
      * A legacy string that also parses as a JSON number, such as "2" or "2E0",
      * has never matched anything.
      *
-     * @param mixed $options JSON such as ["G","P","T"], or a legacy string of one-letter modifiers such as "GPT"
+     * @param ?string $options JSON such as ["G","P","T"], or a legacy string of one-letter modifiers such as "GPT"
      */
-    public static function isOption(mixed $options, string $test): bool
+    public static function isOption(?string $options, string $test): bool
     {
         return in_array($test, self::parseOptions($options), true);
     }
@@ -53,21 +53,21 @@ class LayoutsUtils
     /**
      * @return list<string>
      */
-    private static function parseOptions(mixed $options): array
+    private static function parseOptions(?string $options): array
     {
         // "0" and "null" have always meant no options here.
-        if (!is_string($options) || $options === '' || $options === '0' || $options === 'null') {
+        if ($options === null || $options === '' || $options === '0' || $options === 'null') {
             return [];
         }
 
         try {
-            $decoded = JsonUtils::decode($options);
+            $decoded = JsonUtils::decodeArray($options);
         } catch (\JsonException) {
             // Not JSON. Without a comma it is a legacy string of one-letter modifiers.
             return str_contains($options, ',') ? [] : str_split(trim($options));
         }
 
-        if (!is_array($decoded)) {
+        if ($decoded === null) {
             return [];
         }
         return array_values(array_filter($decoded, is_string(...)));

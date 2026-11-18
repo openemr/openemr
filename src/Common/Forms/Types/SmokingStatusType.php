@@ -215,6 +215,7 @@ class SmokingStatusType implements IOptionFormType {
     {
         $formView = '';
         $edit_options = $frow['edit_options'] ?? null;
+        $edit_options = is_string($edit_options) ? $edit_options : null;
         $field_id    = $frow['field_id'];
         $list_id     = $frow['list_id'] ?? null;
         $form_id = $frow['form_id'] ?? null;

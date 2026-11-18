@@ -28,15 +28,21 @@ class BillingCodeType implements IOptionFormType
     ) {
     }
 
-    public function buildPrintView(mixed $frow, mixed $currvalue, mixed $value_allowed = true): string
+    /**
+     * @param array<mixed> $frow
+     */
+    public function buildPrintView(array $frow, ?string $currvalue, bool $value_allowed = true): string
     {
         return '';
     }
 
-    public function getAccumActionConditions(mixed $frow, mixed $condition_str, mixed $action): string
+    /**
+     * @param array<mixed> $frow
+     */
+    public function getAccumActionConditions(array $frow, string $condition_str, string $action): string
     {
         // For billing codes handle requirement to display its description.
-        $code = explode('=', self::stringValue($action), 2)[1] ?? '';
+        $code = explode('=', $action, 2)[1] ?? '';
         if (self::isBlank($code)) {
             return '';
         }
@@ -44,14 +50,20 @@ class BillingCodeType implements IOptionFormType
         return 'valdesc:' . js_escape(is_string($description) ? $description : '') . ', ';
     }
 
-    public function buildPlaintextView(mixed $frow, mixed $currvalue): mixed
+    /**
+     * @param array<mixed> $frow
+     */
+    public function buildPlaintextView(array $frow, ?string $currvalue): ?string
     {
         return $currvalue;
     }
 
-    public function buildDisplayView(mixed $frow, mixed $currvalue): string
+    /**
+     * @param array<mixed> $frow
+     */
+    public function buildDisplayView(array $frow, ?string $currvalue): string
     {
-        $value = self::stringValue($currvalue);
+        $value = $currvalue ?? '';
         if (self::isBlank($value)) {
             return '';
         }
@@ -74,30 +86,33 @@ class BillingCodeType implements IOptionFormType
         return $s;
     }
 
-    public function buildFormView(mixed $frow, mixed $currvalue): string
+    /**
+     * @param array<mixed> $frow
+     */
+    public function buildFormView(array $frow, ?string $currvalue): string
     {
-        $frow = is_array($frow) ? $frow : [];
-        $options = BillingCodeEditOption::enabledIn($frow['edit_options'] ?? null);
-        $currentValue = self::stringValue($currvalue);
+        $editOptions = $frow['edit_options'] ?? null;
+        $options = BillingCodeEditOption::enabledIn(is_string($editOptions) ? $editOptions : null);
+        $currentValue = $currvalue ?? '';
         $currescaped = htmlspecialchars($currentValue, ENT_QUOTES);
-        $fieldDescription = self::stringValue($frow['description'] ?? null);
-        $formId = self::stringValue($frow['form_id'] ?? null);
+        $fieldDescription = self::field($frow, 'description');
+        $formId = self::field($frow, 'form_id');
 
         // 'smallform' can be 'true' if we want a smaller form field, otherwise
         // can be used to assign arbitrary CSS classes to data entry fields.
         $rawSmallform = $frow['smallform'] ?? null;
-        $smallform = $rawSmallform === 'true' ? ' form-control-sm' : self::stringValue($rawSmallform);
+        $smallform = $rawSmallform === 'true' ? ' form-control-sm' : self::field($frow, 'smallform');
 
         // historically we've used smallform to append classes if the value is NOT true
         // to make it EXPLICIT what we are doing and to aid maintainability we are supporting
         // an actual 'classNames' attribute for assigning arbitrary CSS classes to data entry fields
-        $classesToAppend = self::stringValue($frow['classNames'] ?? null);
+        $classesToAppend = self::field($frow, 'classNames');
         if (!self::isBlank($classesToAppend)) {
             $smallform = $rawSmallform === null ? $classesToAppend : $smallform . ' ' . $classesToAppend;
         }
 
         // escaped variables to use in html
-        $field_id_esc = htmlspecialchars(self::stringValue($frow['field_id'] ?? null), ENT_QUOTES);
+        $field_id_esc = htmlspecialchars(self::field($frow, 'field_id'), ENT_QUOTES);
 
         // Added 5-09 by BM - Translate description if applicable
         $description = isset($frow['description']) ? htmlspecialchars(xl_layout_label($fieldDescription), ENT_QUOTES) : '';
@@ -129,12 +144,12 @@ class BillingCodeType implements IOptionFormType
             $codetype = $fieldDescription;
         }
         $string_maxlength = '';
-        $maxlength = self::stringValue($frow['max_length'] ?? null);
+        $maxlength = self::field($frow, 'max_length');
         // if max_length is set to zero, then do not set a maxlength
         if (!self::isBlank($maxlength)) {
             $string_maxlength = "maxlength='" . attr($maxlength) . "'";
         }
-        $fldlength = attr(self::stringValue($frow['fld_length'] ?? null));
+        $fldlength = attr(self::field($frow, 'fld_length'));
         // Edit option E means allow multiple (Extra) billing codes in a field.
         // We invent a class name for this because JavaScript needs to know.
         $className = in_array(BillingCodeEditOption::MultipleCodes, $options, true) ? 'EditOptionE' : '';
@@ -201,9 +216,12 @@ class BillingCodeType implements IOptionFormType
 
     /**
      * Layout rows store values as strings or numbers; anything else counts as no value.
+     *
+     * @param array<mixed> $frow
      */
-    private static function stringValue(mixed $value): string
+    private static function field(array $frow, string $key): string
     {
+        $value = $frow[$key] ?? null;
         if (is_string($value)) {
             return $value;
         }

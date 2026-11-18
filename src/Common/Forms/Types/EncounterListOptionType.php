@@ -56,6 +56,7 @@ class EncounterListOptionType implements IOptionFormType
     {
         $field_id = $frow['field_id'];
         $edit_options = $frow['edit_options'] ?? null;
+        $edit_options = is_string($edit_options) ? $edit_options : null;
         $title = $frow['title'] ?? null;
 
         // 'smallform' can be 'true' if we want a smaller form field, otherwise

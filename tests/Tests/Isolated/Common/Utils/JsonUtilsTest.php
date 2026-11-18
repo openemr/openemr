@@ -15,23 +15,45 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Utils;
 
 use OpenEMR\Common\Utils\JsonUtils;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class JsonUtilsTest extends TestCase
 {
-    public function testDecodeReturnsObjectsAsArrays(): void
+    public function testDecodeArrayReturnsObjectsAsArrays(): void
     {
-        self::assertSame(['a' => [1, 'b']], JsonUtils::decode('{"a":[1,"b"]}'));
+        self::assertSame(['a' => [1, 'b']], JsonUtils::decodeArray('{"a":[1,"b"]}'));
     }
 
-    public function testDecodeReturnsJsonNullAsNull(): void
+    public function testDecodeArrayReturnsLists(): void
     {
-        self::assertNull(JsonUtils::decode('null'));
+        self::assertSame(['G', 'P'], JsonUtils::decodeArray('["G","P"]'));
     }
 
-    public function testDecodeThrowsOnInvalidJson(): void
+    #[DataProvider('nonArrayJsonProvider')]
+    public function testDecodeArrayReturnsNullForOtherJson(string $json): void
+    {
+        self::assertNull(JsonUtils::decodeArray($json));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function nonArrayJsonProvider(): array
+    {
+        return [
+            'null'   => ['null'],
+            'number' => ['2'],
+            'string' => ['"T"'],
+            'bool'   => ['true'],
+        ];
+    }
+
+    public function testDecodeArrayThrowsOnInvalidJson(): void
     {
         $this->expectException(\JsonException::class);
-        JsonUtils::decode('GPT');
+        JsonUtils::decodeArray('GPT');
     }
 }

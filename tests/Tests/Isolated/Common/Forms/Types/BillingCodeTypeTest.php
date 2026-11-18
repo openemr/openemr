@@ -124,16 +124,16 @@ class BillingCodeTypeTest extends TestCase
     }
 
     #[DataProvider('blankValueProvider')]
-    public function testBlankValuesSkipTheCodeLookups(mixed $value): void
+    public function testBlankValuesSkipTheCodeLookups(?string $value): void
     {
         $type = new BillingCodeType();
 
         self::assertSame('', $type->buildDisplayView([], $value));
-        self::assertSame('', $type->getAccumActionConditions([], '', 'field=' . (is_string($value) ? $value : '')));
+        self::assertSame('', $type->getAccumActionConditions([], '', 'field=' . ($value ?? '')));
     }
 
     /**
-     * @return array<string, array{mixed}>
+     * @return array<string, array{?string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
@@ -143,7 +143,6 @@ class BillingCodeTypeTest extends TestCase
             'null'         => [null],
             'empty string' => [''],
             'zero string'  => ['0'],
-            'false'        => [false],
         ];
     }
 

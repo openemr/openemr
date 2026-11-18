@@ -17,12 +17,14 @@ namespace OpenEMR\Common\Utils;
 final class JsonUtils
 {
     /**
-     * Decodes JSON objects as associative arrays.
+     * Decodes a JSON array or object, with objects as associative arrays.
      *
+     * @return array<array-key, mixed>|null null when $json is valid JSON but a scalar or null
      * @throws \JsonException when $json is not valid JSON
      */
-    public static function decode(string $json): mixed
+    public static function decodeArray(string $json): ?array
     {
-        return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        $decoded = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        return is_array($decoded) ? $decoded : null;
     }
 }
