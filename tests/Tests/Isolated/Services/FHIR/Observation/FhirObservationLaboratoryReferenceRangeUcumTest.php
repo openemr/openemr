@@ -5,8 +5,8 @@
  * and .high for laboratory results.
  *
  * `FhirObservationLaboratoryService::parseOpenEMRRecord` builds the
- * reference range through two `UtilsService::createQuantity` calls —
- * one for low, one for high — using the same `units` value on both.
+ * reference range through two `UtilsService::createQuantity` calls -
+ * one for low, one for high - using the same `units` value on both.
  * PR #14933 tightened `createQuantity` + `ucumCodeFor` so UCUM's
  * system+code only go out for a unit the engine accepts. The
  * existing `UtilsServiceQuantityTest` covers the helper in isolation
@@ -16,7 +16,7 @@
  * instead of the actual code, swapping low/high, dropping one side)
  * surfaces independently from the helper-level tests.
  *
- * Expects a service-tier regression here — not a helper-tier one —
+ * Expects a service-tier regression here - not a helper-tier one -
  * to catch reference-range-specific drift.
  *
  * @package   OpenEMR
@@ -38,11 +38,14 @@ use PHPUnit\Framework\TestCase;
 class FhirObservationLaboratoryReferenceRangeUcumTest extends TestCase
 {
     private const UCUM_SYSTEM = 'http://unitsofmeasure.org';
+    private const RANGE_LOW = 3.5;
+    private const RANGE_HIGH = 7.5;
+    private const RANGE_STRING = '3.5-7.5';
 
     /**
      * Cases named by the unit shape. The expected shape is what the
      * reference-range low/high should carry in the FHIR Observation
-     * — the same contract `UtilsServiceQuantityTest` locks at the
+     * - the same contract `UtilsServiceQuantityTest` locks at the
      * helper tier, projected onto the reference-range path.
      *
      * @return array<string, array{string, string, ?string}> units input, expected unit text, expected UCUM code (null when unit is not UCUM)
@@ -55,7 +58,7 @@ class FhirObservationLaboratoryReferenceRangeUcumTest extends TestCase
             'UCUM-valid lab unit (mg/dL)' => ['mg/dL', 'mg/dL', 'mg/dL'],
             'uppercase variant of a UCUM unit (MG/DL)' => ['MG/DL', 'MG/DL', null],
             'cell-count unit as labs send it' => ['Thous/CU.MM', 'Thous/CU.MM', null],
-            'Drug Units alias (mcg → ug)' => ['mcg', 'mcg', 'ug'],
+            'Drug Units alias (mcg -> ug)' => ['mcg', 'mcg', 'ug'],
             'bracketed UCUM annotation ({score})' => ['{score}', '{score}', '{score}'],
             'unit with trailing whitespace trims under UCUM' => ['mg/dL ', 'mg/dL', 'mg/dL'],
         ];
@@ -70,7 +73,9 @@ class FhirObservationLaboratoryReferenceRangeUcumTest extends TestCase
      *   - swaps low/high (e.g. assigns `$ranges[0]` to high and `$ranges[1]` to low),
      *   - stops emitting one of the two sides,
      *   - caches the UCUM lookup across calls and corrupts it,
-     * will fail at least one of the four assertSame calls below.
+     * will fail at least one of the assertions below. Explicit
+     * value checks (3.5 vs 7.5) guard against a bound-swap even
+     * when the units carry UCUM metadata.
      */
     #[DataProvider('unitCases')]
     public function testReferenceRangeLowAndHighFollowUcumContract(
@@ -78,8 +83,7 @@ class FhirObservationLaboratoryReferenceRangeUcumTest extends TestCase
         string $expectedUnit,
         ?string $expectedCode
     ): void {
-        $referenceRange = $this->extractReferenceRangeJson($units, '3.5-7.5');
-        $this->assertNotNull($referenceRange, 'A well-formed low-high range should produce one referenceRange');
+        $referenceRange = $this->extractSoleReferenceRange($units, self::RANGE_STRING);
 
         $low = $referenceRange['low'] ?? null;
         $high = $referenceRange['high'] ?? null;
@@ -88,29 +92,30 @@ class FhirObservationLaboratoryReferenceRangeUcumTest extends TestCase
 
         $expectedSystem = $expectedCode === null ? null : self::UCUM_SYSTEM;
 
+        $this->assertSame(self::RANGE_LOW, $low['value'] ?? null, 'low.value - pin the numeric bound so a low/high swap fails here');
+        $this->assertSame(self::RANGE_HIGH, $high['value'] ?? null, 'high.value - pin the numeric bound so a low/high swap fails here');
         $this->assertSame($expectedUnit, $low['unit'] ?? null, 'low.unit text');
         $this->assertSame($expectedUnit, $high['unit'] ?? null, 'high.unit text');
-        $this->assertSame($expectedCode, $low['code'] ?? null, 'low.code — UCUM only when the unit is UCUM');
-        $this->assertSame($expectedCode, $high['code'] ?? null, 'high.code — UCUM only when the unit is UCUM');
-        $this->assertSame($expectedSystem, $low['system'] ?? null, 'low.system — present only alongside a UCUM code');
-        $this->assertSame($expectedSystem, $high['system'] ?? null, 'high.system — present only alongside a UCUM code');
+        $this->assertSame($expectedCode, $low['code'] ?? null, 'low.code - UCUM only when the unit is UCUM');
+        $this->assertSame($expectedCode, $high['code'] ?? null, 'high.code - UCUM only when the unit is UCUM');
+        $this->assertSame($expectedSystem, $low['system'] ?? null, 'low.system - present only alongside a UCUM code');
+        $this->assertSame($expectedSystem, $high['system'] ?? null, 'high.system - present only alongside a UCUM code');
     }
 
     public function testEmptyUnitEmitsSimpleQuantityOnBothSides(): void
     {
-        // An empty-string unit degenerates to a SimpleQuantity — only
+        // An empty-string unit degenerates to a SimpleQuantity - only
         // the numeric value survives. This covers the branch where
         // ucumCodeFor returns null without even consulting the engine.
-        $referenceRange = $this->extractReferenceRangeJson('', '3.5-7.5');
-        $this->assertNotNull($referenceRange);
+        $referenceRange = $this->extractSoleReferenceRange('', self::RANGE_STRING);
 
         $low = $referenceRange['low'] ?? null;
         $high = $referenceRange['high'] ?? null;
         $this->assertIsArray($low);
         $this->assertIsArray($high);
 
-        $this->assertSame(['value' => 3.5], $low, 'low degenerates to SimpleQuantity on empty unit');
-        $this->assertSame(['value' => 7.5], $high, 'high degenerates to SimpleQuantity on empty unit');
+        $this->assertSame(['value' => self::RANGE_LOW], $low, 'low degenerates to SimpleQuantity on empty unit');
+        $this->assertSame(['value' => self::RANGE_HIGH], $high, 'high degenerates to SimpleQuantity on empty unit');
     }
 
     public function testMalformedRangeEmitsNoReferenceRange(): void
@@ -118,46 +123,86 @@ class FhirObservationLaboratoryReferenceRangeUcumTest extends TestCase
         // A single number (e.g. "0.5") has no high bound, so the
         // controller does not add a referenceRange. Pin this control
         // so a regression that treated a single value as both low
-        // and high fails loudly here.
-        $referenceRange = $this->extractReferenceRangeJson('mg/dL', '0.5');
-        $this->assertNull(
-            $referenceRange,
-            'A single-value range produces no referenceRange — both low AND high are required'
+        // and high fails loudly here. Use assertArrayNotHasKey
+        // directly on the decoded Observation - "missing key" and
+        // "key present with a null/scalar/garbage value" are different
+        // bugs, and this gate catches only the missing-key shape.
+        $observation = $this->decodeObservation('mg/dL', '0.5');
+        $this->assertArrayNotHasKey(
+            'referenceRange',
+            $observation,
+            'A single-value range must omit the referenceRange key entirely - both low AND high are required'
         );
     }
 
     /**
-     * Mirror a key invariant from `UtilsServiceQuantityTest` at the
-     * service tier: the helper is the source of truth for the UCUM
-     * mapping, so the reference-range path and the helper must agree
-     * for every unit the data provider covers. If the service tier
-     * drifts from the helper tier, both suites must be updated
-     * together.
+     * Pin the invariant that the service's emitted UCUM code matches
+     * what the helper (`UtilsService::ucumCodeFor`) resolves for the
+     * same input. This proves the reference-range path actually uses
+     * the helper rather than diverging - a parallel implementation
+     * in the service that drifted from the helper would fail here.
+     * If both are updated consistently, both this test and
+     * `UtilsServiceQuantityTest` must change together.
      */
     #[DataProvider('unitCases')]
-    public function testServiceAgreesWithHelperOnUcumCode(
+    public function testServiceEmittedCodeMatchesHelperMapping(
         string $units,
         string $expectedUnit,
         ?string $expectedCode
     ): void {
+        $referenceRange = $this->extractSoleReferenceRange($units, self::RANGE_STRING);
+        $low = $referenceRange['low'] ?? null;
+        $high = $referenceRange['high'] ?? null;
+        $this->assertIsArray($low);
+        $this->assertIsArray($high);
+        $emittedLowCode = $low['code'] ?? null;
+        $emittedHighCode = $high['code'] ?? null;
+        $helperCode = UtilsService::ucumCodeFor($units);
+
         $this->assertSame(
-            $expectedCode,
-            UtilsService::ucumCodeFor($units),
-            'UtilsServiceQuantityTest and this test must agree on the UCUM mapping'
+            $helperCode,
+            $emittedLowCode,
+            'Reference-range low.code must match UtilsService::ucumCodeFor for the same unit'
+        );
+        $this->assertSame(
+            $helperCode,
+            $emittedHighCode,
+            'Reference-range high.code must match UtilsService::ucumCodeFor for the same unit'
         );
     }
 
     /**
      * Drive the lab service with a minimal dataRecord and return the
-     * first referenceRange (JSON-decoded), or null when none exists.
-     * Decoding to JSON sidesteps PHPStan's PHPDoc-typed getters that
-     * claim non-null for always-present FHIR fields; the resource's
-     * wire shape is what the server actually sends, so that's what
-     * we lock.
+     * sole decoded referenceRange. Asserts there is EXACTLY one -
+     * extra entries fail the test rather than silently taking [0].
      *
-     * @return array<array-key, mixed>|null
+     * @return array<array-key, mixed>
      */
-    private function extractReferenceRangeJson(string $units, string $range): ?array
+    private function extractSoleReferenceRange(string $units, string $range): array
+    {
+        $observation = $this->decodeObservation($units, $range);
+        $ranges = $observation['referenceRange'] ?? null;
+        $this->assertIsArray($ranges, 'A well-formed low-high range should produce a referenceRange array');
+        $this->assertCount(
+            1,
+            $ranges,
+            'referenceRange must contain exactly one entry - extra entries indicate a regression'
+        );
+        $first = $ranges[0] ?? null;
+        $this->assertIsArray($first);
+        return $first;
+    }
+
+    /**
+     * Drive the lab service with a minimal dataRecord and return the
+     * JSON-decoded FHIR Observation. Decoding to JSON sidesteps
+     * PHPStan's PHPDoc-typed getters that claim non-null for
+     * always-present FHIR fields; the resource's wire shape is what
+     * the server actually sends.
+     *
+     * @return array<array-key, mixed>
+     */
+    private function decodeObservation(string $units, string $range): array
     {
         $service = new FhirObservationLaboratoryService();
         $observation = $service->parseOpenEMRRecord([
@@ -167,12 +212,6 @@ class FhirObservationLaboratoryReferenceRangeUcumTest extends TestCase
         ]);
         $decoded = json_decode((string) json_encode($observation), true);
         $this->assertIsArray($decoded);
-        $ranges = $decoded['referenceRange'] ?? null;
-        if (!is_array($ranges) || $ranges === []) {
-            return null;
-        }
-        $first = $ranges[0] ?? null;
-        $this->assertIsArray($first);
-        return $first;
+        return $decoded;
     }
 }
