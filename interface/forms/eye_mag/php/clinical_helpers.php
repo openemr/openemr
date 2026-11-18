@@ -615,7 +615,10 @@ function eye_mag_material_ids(array $materials): array
     return eye_mag_document_ids($ids);
 }
 
-/** Normalize a JSON or posted list of document IDs without accepting nested values. */
+/**
+ * Normalize a JSON or posted list of document IDs without accepting nested values.
+ * @return list<int>
+ */
 function eye_mag_document_ids(mixed $ids): array
 {
     if (is_string($ids)) {
@@ -667,6 +670,7 @@ function eye_mag_report_documents(int $pid, int $encounter): array
         [$pid, $encounter]
     );
     $documents = [];
+    $denied = [];
     foreach ($rows as $row) {
         $id = EyeFormData::integer($row['id'] ?? 0);
         $name = EyeFormData::text($row['name'] ?? '');
@@ -682,7 +686,15 @@ function eye_mag_report_documents(int $pid, int $encounter): array
             continue;
         }
         $aco = EyeFormData::text($row['aco_spec'] ?? '');
-        if (!$portal && $aco !== '' && !AclMain::aclCheckAcoSpec($aco)) {
+        // A document may belong to more than one category; like Document::can_access(),
+        // deny it if any category is restricted. Portal sessions cannot establish
+        // a staff category permission.
+        if ($aco !== '' && ($portal || !AclMain::aclCheckAcoSpec($aco))) {
+            $denied[$id] = true;
+            unset($documents[$id]);
+            continue;
+        }
+        if (isset($denied[$id])) {
             continue;
         }
         $documents[$id] = ['id' => $id, 'name' => $name !== '' ? $name : basename($url), 'mimetype' => $mime,
@@ -796,8 +808,15 @@ function eye_mag_materials_for_report(int $formId, int $pid): PatientMaterials
         }
         $handouts[] = new PatientHandout($documentId, $name, $pdfData);
     }
-    $reportIds = eye_mag_document_ids($materials['report_document_ids'] ?? []);
-    $available = $reportIds !== [] ? array_column(eye_mag_report_documents($pid, eye_mag_material_encounter($formId, $pid)), null, 'id') : [];
+    // Documents belong in this report only when explicitly tagged to this
+    // patient's encounter. Untagged files can be uploaded at any time and are
+    // not reliable evidence that they belong to the visit.
+    $encounter = eye_mag_material_encounter($formId, $pid);
+    $available = array_column(array_filter(
+        eye_mag_report_documents($pid, $encounter),
+        static fn(array $row): bool => EyeFormData::integer($row['encounter_id'] ?? 0) === $encounter
+    ), null, 'id');
+    $reportIds = array_keys($available);
     $documents = [];
     foreach ($reportIds as $documentId) {
         $metadata = $available[$documentId] ?? null;

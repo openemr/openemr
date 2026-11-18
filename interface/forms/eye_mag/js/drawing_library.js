@@ -6,6 +6,16 @@
     function drawT(key, fallback) {
         return typeof strings[key] === 'string' && strings[key] !== '' ? strings[key] : fallback;
     }
+    /** Use a readable, translated clinical section name in the drawing library. */
+    function zoneName(zone) {
+        var names = {
+            HPI: drawT('zoneHpi', 'HPI'), PMH: drawT('zonePmh', 'PMH'),
+            EXT: drawT('zoneExternal', 'External'), ANTSEG: drawT('zoneAnterior', 'Anterior Segment'),
+            RETINA: drawT('zoneRetina', 'Retina'), SDRETINA: drawT('zoneLargeRetina', 'Large Retina'),
+            NEURO: drawT('zoneNeuro', 'Neuro'), IMPPLAN: drawT('zoneImpressionPlan', 'Impression/Plan')
+        };
+        return names[zone] || zone;
+    }
     var activeDialog = null;
     var operation = Object.create(null);
     /** Find the zone configuration emitted by PHP; reject unavailable drawing zones. */
@@ -42,8 +52,30 @@
     /** Open one accessible image dialog and restore its invoking control on close. */
     function dialog(className, title) {
         if (activeDialog) activeDialog.close();
-        var element = document.createElement('dialog');
+        var nativeDialog = document.createElement('dialog');
+        var fullscreen = document.querySelector('.eye-drawing-fullscreen');
+        // An iPad can expand the containing iframe beyond the visible screen.
+        // Keep fullscreen dialogs inside the explicitly sized drawing panel.
+        var supported = !fullscreen && typeof nativeDialog.showModal === 'function' && typeof nativeDialog.close === 'function';
+        var host = fullscreen || document.body;
+        var element = supported ? nativeDialog : document.createElement('div');
+        var backdrop = null;
         element.className = 'eye-image-modal ' + className;
+        if (!supported) {
+            element.classList.add('eye-image-modal-fallback');
+            element.setAttribute('role', 'dialog');
+            element.setAttribute('aria-modal', 'true');
+            element.tabIndex = -1;
+            backdrop = document.createElement('div');
+            backdrop.className = 'eye-image-modal-backdrop';
+            backdrop.setAttribute('aria-hidden', 'true');
+            host.appendChild(backdrop);
+            element.close = function () {
+                if (!element.hasAttribute('open')) return;
+                element.removeAttribute('open');
+                element.dispatchEvent(new Event('close'));
+            };
+        }
         var heading = document.createElement('div');
         heading.className = 'eye-image-modal-heading';
         var label = document.createElement('h3');
@@ -64,16 +96,48 @@
         status.className = 'eye-image-modal-status';
         status.setAttribute('role', 'status');
         element.appendChild(status);
-        document.body.appendChild(element);
+        host.appendChild(element);
         activeDialog = element;
         var previousFocus = document.activeElement;
+        /** Keep keyboard focus within the fallback dialog and support Escape. */
+        function fallbackKeydown(event) {
+            if (event.key === 'Escape' && !event.defaultPrevented) {
+                event.preventDefault();
+                element.close();
+                return;
+            }
+            if (event.key !== 'Tab') return;
+            var controls = Array.prototype.filter.call(element.querySelectorAll('button, input, select, textarea, a[href], [tabindex]'), function (node) {
+                return !node.disabled && node.tabIndex >= 0 && node.getClientRects().length > 0;
+            });
+            if (!controls.length) { event.preventDefault(); element.focus(); return; }
+            var index = controls.indexOf(document.activeElement);
+            if (event.shiftKey && index <= 0) { event.preventDefault(); controls[controls.length - 1].focus(); }
+            else if (!event.shiftKey && (index < 0 || index === controls.length - 1)) { event.preventDefault(); controls[0].focus(); }
+        }
+        /** Return focus to the fallback dialog if it leaves through a script or tap. */
+        function fallbackFocus(event) {
+            if (!element.contains(event.target)) element.focus();
+        }
         close.onclick = function () { element.close(); };
         element.addEventListener('close', function () {
             if (activeDialog === element) activeDialog = null;
+            if (backdrop) {
+                document.removeEventListener('keydown', fallbackKeydown);
+                document.removeEventListener('focusin', fallbackFocus, true);
+                backdrop.remove();
+            }
             element.remove();
-            if (previousFocus && previousFocus.isConnected) previousFocus.focus();
+            if (previousFocus && document.contains(previousFocus)) previousFocus.focus();
         });
-        element.showModal();
+        if (supported) {
+            element.showModal();
+        } else {
+            element.setAttribute('open', '');
+            document.addEventListener('keydown', fallbackKeydown);
+            document.addEventListener('focusin', fallbackFocus, true);
+            element.focus();
+        }
         return {element: element, body: body, status: status};
     }
     /** Create a non-submitting action button using text rather than HTML. */
@@ -119,7 +183,7 @@
     }
     /** Open the zone-specific library for insertion, background choice, rename and deletion. */
     function openLibrary(zone) {
-        var modal = dialog('eye-drawing-library-modal', drawT('libraryTitle', 'Saved overlays · {zone}').replace('{zone}', zone));
+        var modal = dialog('eye-drawing-library-modal', drawT('libraryTitle', 'Draw Library: {zone}').replace('{zone}', zoneName(zone)));
         var selection = null;
         var tab = 'saved';
         var tabs = document.createElement('div');
@@ -129,6 +193,14 @@
         savedTab.setAttribute('data-library-tab', 'saved');
         backgroundTab.setAttribute('data-library-tab', 'backgrounds');
         tabs.append(savedTab, backgroundTab);
+        var toolbar = document.createElement('div');
+        toolbar.className = 'eye-library-toolbar';
+        var search = document.createElement('input');
+        search.type = 'search';
+        search.className = 'eye-library-search';
+        search.setAttribute('aria-label', drawT('searchLibrary', 'Search images'));
+        search.placeholder = drawT('searchLibrary', 'Search images');
+        toolbar.append(tabs, search);
         var grid = document.createElement('div');
         grid.className = 'eye-library-grid';
         var actions = document.createElement('div');
@@ -136,7 +208,8 @@
         var insert = button(drawT('insertOverlay', 'Insert overlay'), 'insert');
         var background = button(drawT('useBackground', 'Use as background'), 'background');
         var makeDefault = button(drawT('setDefault', 'Set my default'), 'default');
-        actions.append(insert, background, makeDefault);
+        var share = button(drawT('shareCopy', 'Share a copy'), 'share');
+        actions.append(insert, background, makeDefault, share);
         var renameKey = null;
         var renameForm = document.createElement('form');
         renameForm.className = 'eye-library-rename';
@@ -158,14 +231,82 @@
         renameCancel.setAttribute('data-library-rename-cancel', '');
         renameButtons.append(renameSave, renameCancel);
         renameForm.append(renameLabel, renameButtons);
+        var sharePanel = document.createElement('div');
+        sharePanel.className = 'eye-library-share';
+        sharePanel.hidden = true;
+        var shareHeading = document.createElement('strong');
+        var shareUsers = document.createElement('div');
+        shareUsers.className = 'eye-library-share-users';
+        var shareActions = document.createElement('div');
+        shareActions.className = 'eye-library-actions';
+        var shareSubmit = button(drawT('shareSelected', 'Share with selected users'));
+        shareSubmit.setAttribute('data-library-share-submit', '');
+        var shareCancel = button(drawT('cancel', 'Cancel'));
+        shareCancel.setAttribute('data-library-share-cancel', '');
+        shareActions.append(shareSubmit, shareCancel);
+        sharePanel.append(shareHeading, shareUsers, shareActions);
         /** Dismiss the nested rename editor and discard its pending image key. */
         function closeRename() { renameKey = null; renameForm.hidden = true; }
+        /** Hide recipient controls when a different image or tab is selected. */
+        function closeShare() { sharePanel.hidden = true; }
         /** Enable actions only when the current selection supports them. */
         function refreshActions() {
             insert.disabled = !selection || selection.saved !== true;
             background.disabled = !selection;
             makeDefault.disabled = !selection;
+            share.disabled = !selection || !(selection.saved === true || /^(?:x-)?custom-/.test(selection.key));
         }
+        shareCancel.onclick = function () { closeShare(); share.focus(); };
+        /** Let the sender select active colleagues without changing anyone's default. */
+        share.onclick = function () {
+            if (!selection || share.disabled) return;
+            closeRename();
+            sharePanel.hidden = false;
+            shareHeading.textContent = drawT('shareImageWith', 'Share a copy of “{name}” with:').replace('{name}', function () { return selection.label; });
+            while (shareUsers.firstChild) shareUsers.removeChild(shareUsers.firstChild);
+            modal.status.textContent = drawT('loading', 'Loading…');
+            busy(modal, true);
+            request(zone, 'users').then(function (result) {
+                var users = Array.isArray(result.users) ? result.users : [];
+                if (!users.length) {
+                    shareUsers.textContent = drawT('noShareUsers', 'No other active users are available.');
+                }
+                users.forEach(function (user) {
+                    var label = document.createElement('label');
+                    var checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = String(user.id);
+                    checkbox.setAttribute('data-share-user', '');
+                    label.append(checkbox, document.createTextNode(' ' + String(user.label || '')));
+                    shareUsers.appendChild(label);
+                });
+                modal.status.textContent = '';
+            }).catch(function (error) { modal.status.textContent = error.message; })
+                .finally(function () { busy(modal, false); refreshActions(); });
+        };
+        /** Send independent copies one recipient at a time and report any failures. */
+        shareSubmit.onclick = function () {
+            if (!selection) return;
+            var recipients = Array.prototype.slice.call(shareUsers.querySelectorAll('[data-share-user]:checked'));
+            if (!recipients.length) { modal.status.textContent = drawT('chooseShareUser', 'Select at least one user.'); return; }
+            var key = selection.key;
+            var sent = 0;
+            var failed = [];
+            busy(modal, true);
+            recipients.reduce(function (pending, checkbox) {
+                return pending.then(function () {
+                    return request(zone, 'share', {key: key, recipient: checkbox.value}).then(function () {
+                        sent++;
+                    }).catch(function () {
+                        failed.push(checkbox.parentNode.textContent.trim());
+                    });
+                });
+            }, Promise.resolve()).then(function () {
+                closeShare();
+                modal.status.textContent = drawT('copiesShared', 'Copies shared: {count}.').replace('{count}', String(sent))
+                    + (failed.length ? ' ' + drawT('shareFailed', 'Could not share with: {users}.').replace('{users}', failed.join(', ')) : '');
+            }).finally(function () { busy(modal, false); refreshActions(); });
+        };
         renameCancel.onclick = function () {
             var key = renameKey;
             closeRename();
@@ -213,15 +354,20 @@
         var uploadButton = button(drawT('saveImage', 'Save image'));
         uploadButton.setAttribute('data-library-upload', '');
         upload.append(summary, file, uploadName, uploadButton);
-        modal.body.append(tabs, grid, renameForm, actions, upload);
+        modal.body.append(toolbar, upload, grid, renameForm, actions, sharePanel);
         /** Rebuild the selected library tab and retain selection by stable image key. */
         function render(selectedKey) {
             closeRename();
-            grid.replaceChildren();
+            closeShare();
+            while (grid.firstChild) grid.removeChild(grid.firstChild);
             selection = null;
             savedTab.setAttribute('aria-pressed', String(tab === 'saved'));
             backgroundTab.setAttribute('aria-pressed', String(tab !== 'saved'));
-            var entries = options(zone).filter(function (item) { return tab === 'saved' ? item.saved === true : item.saved !== true; });
+            var query = search.value.trim().toLocaleLowerCase();
+            var entries = options(zone).filter(function (item) {
+                return (tab === 'saved' ? item.saved === true : item.saved !== true)
+                    && (!query || String(item.label || '').toLocaleLowerCase().indexOf(query) !== -1);
+            });
             entries.forEach(function (item) {
                 var tile = document.createElement('div');
                 tile.className = 'eye-library-tile';
@@ -242,11 +388,13 @@
                 }
                 card.onclick = function () {
                     closeRename();
+                    closeShare();
                     selection = item;
                     grid.querySelectorAll('[data-library-key]').forEach(function (node) { node.setAttribute('aria-pressed', String(node === card)); });
                     insert.disabled = item.saved !== true;
                     background.disabled = false;
                     makeDefault.disabled = false;
+                    refreshActions();
                 };
                 tile.appendChild(card);
                 if (item.saved === true) {
@@ -269,7 +417,10 @@
                         renameInput.focus();
                         renameInput.select();
                     };
-                    tile.append(remove, rename);
+                    var tileActions = document.createElement('div');
+                    tileActions.className = 'eye-library-tile-actions';
+                    tileActions.append(rename, remove);
+                    tile.appendChild(tileActions);
                 }
                 grid.appendChild(tile);
                 if (item.key === selectedKey) card.click();
@@ -277,13 +428,15 @@
             if (!entries.length) {
                 var empty = document.createElement('p');
                 empty.className = 'eye-library-empty';
-                empty.textContent = drawT('emptyOverlays', 'Use Save As below the canvas to save an overlay here.');
+                empty.textContent = query ? drawT('noLibraryMatches', 'No images match your search.')
+                    : drawT('emptyOverlays', 'Use Save As below the canvas to save an overlay here.');
                 grid.appendChild(empty);
             }
             refreshActions();
         }
         savedTab.onclick = function () { tab = 'saved'; render(); };
         backgroundTab.onclick = function () { tab = 'backgrounds'; render(); };
+        search.oninput = function () { render(); };
         /** Insert a selected saved image as an editable annotation while retaining the current background. */
         insert.onclick = function () {
             if (!selection) return;
@@ -319,6 +472,7 @@
             request(zone, 'save', {name: uploadName.value.trim(), image_file: file.files[0]}).then(function (result) {
                 update(zone, result, false);
                 tab = 'saved';
+                search.value = '';
                 file.value = ''; uploadName.value = ''; upload.open = false;
                 render(result.key);
                 modal.status.textContent = drawT('imageSaved', 'Image saved.');
@@ -397,7 +551,8 @@
         var dragStart = null;
         /** Display the prepared pixels with their original aspect ratio. */
         function showPreview(canvas) {
-            cropStage.style.width = 'min(100%, ' + Math.max(1, 300 * canvas.width / canvas.height) + 'px)';
+            cropStage.style.width = '100%';
+            cropStage.style.maxWidth = Math.max(1, 300 * canvas.width / canvas.height) + 'px';
             preview.src = canvas.toDataURL('image/png');
         }
         /** Project image-pixel crop coordinates onto the scaled preview. */
@@ -487,6 +642,25 @@
             if (cropStage.hasPointerCapture(event.pointerId)) cropStage.releasePointerCapture(event.pointerId);
         });
         cropStage.addEventListener('pointercancel', function () { dragStart = null; });
+        // iOS 12 has touch events but no PointerEvent API. Keep crop selection
+        // usable there without changing the native-pointer path on newer devices.
+        if (typeof window.PointerEvent !== 'function') {
+            cropStage.addEventListener('touchstart', function (event) {
+                if (!cropActive || !prepared || event.touches.length !== 1) return;
+                event.preventDefault();
+                dragStart = cropPoint(event.touches[0]);
+            }, {passive: false});
+            cropStage.addEventListener('touchmove', function (event) {
+                if (!dragStart || !cropActive || event.touches.length !== 1) return;
+                event.preventDefault();
+                var point = cropPoint(event.touches[0]);
+                cropRect = {x: Math.min(dragStart.x, point.x), y: Math.min(dragStart.y, point.y),
+                    width: Math.max(1, Math.abs(point.x - dragStart.x)), height: Math.max(1, Math.abs(point.y - dragStart.y))};
+                showCropSelection();
+            }, {passive: false});
+            cropStage.addEventListener('touchend', function () { dragStart = null; });
+            cropStage.addEventListener('touchcancel', function () { dragStart = null; });
+        }
         cropStage.addEventListener('keydown', function (event) {
             if (!cropActive || !cropRect) return;
             if (event.key === 'Enter') { event.preventDefault(); applyCrop(); cropButton.focus(); return; }

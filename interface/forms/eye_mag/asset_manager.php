@@ -13,6 +13,7 @@
 declare(strict_types=1);
 
 require_once(__DIR__ . '/../../globals.php');
+require_once(__DIR__ . '/php/practice_logo.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -24,6 +25,11 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\EyeFormData;
 use OpenEMR\Forms\EyeMag\ProviderSignature;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Contracts\EventDispatcher\Event;
+use function OpenEMR\Forms\EyeMag\Assets\eye_mag_logo_path;
+use function OpenEMR\Forms\EyeMag\Assets\eye_mag_logo_preview;
+use function OpenEMR\Forms\EyeMag\Assets\eye_mag_logo_site_path;
+use function OpenEMR\Forms\EyeMag\Assets\eye_mag_save_practice_logo;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $authUserId = EyeFormData::integer($session->get('authUserID'));
@@ -64,10 +70,7 @@ $providerSignature = ProviderSignature::fromGlobals(OEGlobalsBag::getInstance())
 $signaturePath = $providerSignature->sitePath($providerId);
 $signatureUrl = $providerSignature->siteUrl($providerId);
 $siteDirectory = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
-$logoDirectory = $siteDirectory . '/images';
-$logoPath = $logoDirectory . '/practice_logo.gif';
-$siteName = basename($siteDirectory);
-$logoUrl = $webroot . '/sites/' . rawurlencode($siteName) . '/images/practice_logo.gif';
+$logoPath = eye_mag_logo_site_path($siteDirectory);
 
 if ($request->isMethod('POST')) {
     header('Content-Type: application/json');
@@ -110,12 +113,9 @@ if ($request->isMethod('POST')) {
     }
 
     if ($asset === 'logo') {
-        if (!is_dir($logoDirectory)) {
-            @mkdir($logoDirectory, 0755, true);
-        }
-        $saved = @imagegif($image, $logoPath);
+        $saved = eye_mag_save_practice_logo($image, $siteDirectory);
         $savedPath = $logoPath;
-        $previewUrl = $logoUrl;
+        $previewUrl = $saved ? eye_mag_logo_preview($siteDirectory, $webroot) : '';
     } else {
         $signatureDirectory = dirname($signaturePath);
         $directoryReady = is_dir($signatureDirectory)
@@ -144,10 +144,14 @@ if ($request->isMethod('POST')) {
 
     @chmod($savedPath, 0644);
     clearstatcache(true, $savedPath);
+    if ($isLogo && OEGlobalsBag::getInstance()->hasKernel()) {
+        // Optional integrations can refresh their delivery cache from the saved site logo.
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new Event(), 'openemr.practice_logo.updated');
+    }
     echo json_encode([
         'success' => true,
         'message' => xlt('Saved.'),
-        'preview' => $previewUrl . '?t=' . (int)@filemtime($savedPath),
+        'preview' => $isLogo ? $previewUrl : $previewUrl . '?t=' . (int)@filemtime($savedPath),
     ]);
     exit;
 }
@@ -158,10 +162,10 @@ $providerName = trim(
     EyeFormData::text($provider['lname'] ?? '') . ' ' .
     EyeFormData::text($provider['suffix'] ?? '')
 );
-$currentPath = $isSignature ? $providerSignature->path($providerId) : $logoPath;
-$currentUrl = $isSignature ? $providerSignature->url($providerId) : $logoUrl;
-$hasCurrent = file_exists($currentPath);
-$currentPreview = $hasCurrent ? $currentUrl . '?t=' . (int)@filemtime($currentPath) : '';
+$currentPath = $isSignature ? $providerSignature->path($providerId) : eye_mag_logo_path($siteDirectory);
+$currentUrl = $isSignature ? $providerSignature->url($providerId) : eye_mag_logo_preview($siteDirectory, $webroot);
+$hasCurrent = $isSignature ? file_exists($currentPath) : $currentUrl !== '';
+$currentPreview = $hasCurrent ? ($isSignature ? $currentUrl . '?t=' . (int)@filemtime($currentPath) : $currentUrl) : '';
 ?>
 <!doctype html>
 <html lang="<?php echo attr(OEGlobalsBag::getInstance()->getString('language_iso_code', 'en')); ?>">

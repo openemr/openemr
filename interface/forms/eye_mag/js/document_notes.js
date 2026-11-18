@@ -93,7 +93,7 @@
                 var printWindow = window.open('', 'eye_materials_print', 'width=850,height=700');
                 if (!printWindow) return;
                 printWindow.document.title = docT('materialsToPrint', 'Materials to Print');
-                printWindow.document.body.replaceChildren();
+                while (printWindow.document.body.firstChild) printWindow.document.body.removeChild(printWindow.document.body.firstChild);
                 var heading = printWindow.document.createElement('h2');
                 heading.textContent = docT('materialsToPrint', 'Materials to Print');
                 var content = printWindow.document.createElement('div');
@@ -151,7 +151,7 @@
 
         /** Render unique selected documents and preserve unavailable IDs for later removal. */
         function renderHandouts() {
-            addedHandouts.replaceChildren();
+            while (addedHandouts.firstChild) addedHandouts.removeChild(addedHandouts.firstChild);
             selectedIds.forEach(function (id) {
                 var option = Array.from(handout.options).find(function (item) { return item.value === id; });
                 var row = handoutTemplate.content.firstElementChild.cloneNode(true);

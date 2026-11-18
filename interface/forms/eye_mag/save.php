@@ -41,7 +41,6 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Forms\ReportPdfAppendQueue;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -55,6 +54,7 @@ use OpenEMR\Forms\EyeMag\SqlFragment;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
+use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_append_report_materials;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_prior_refractions;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_report_filename;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_save_materials;
@@ -99,6 +99,26 @@ if (!AclMain::aclCheckCore('patients', 'med', '', $requiredAccess)) {
 }
 
 $is92060Selection = ($posted['action'] ?? '') === 'set_92060';
+if (($posted['action'] ?? '') === 'store_IMPPLAN') {
+    $planPatient = EyeFormData::identifier($session->get('pid'));
+    $planEncounter = EyeFormData::identifier($session->get('encounter'));
+    $planForm = EyeFormData::identifier($posted['form_id'] ?? null);
+    $planToken = $posted['csrf_token_form'] ?? null;
+    if (!$request->isMethod('POST') || $requestMode !== 'update' || !is_string($planToken)
+        || !CsrfUtils::verifyCsrfToken($planToken, $session)) {
+        http_response_code(403);
+        exit;
+    }
+    if (!$planPatient || !$planEncounter || !$planForm
+        || EyeFormData::identifier($posted['encounter'] ?? null) !== $planEncounter
+        || !QueryUtils::querySingleRow(
+            "SELECT form_id FROM forms WHERE form_id=? AND pid=? AND encounter=? AND formdir='eye_mag' AND deleted=0 LIMIT 1",
+            [$planForm, $planPatient, $planEncounter]
+        )) {
+        http_response_code(404);
+        exit;
+    }
+}
 if ($is92060Selection) {
     $selectionPatient = EyeFormData::identifier($session->get('pid'));
     $selectionEncounter = EyeFormData::identifier($session->get('encounter'));
@@ -757,7 +777,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         //$pdf->writeHTML($content, 2);
 
         $pdf->writeHTML($content);
-        ReportPdfAppendQueue::append($pdf);
+        eye_mag_append_report_materials($pdf, EyeFormData::integer($form_id), EyeFormData::integer($pid));
         $tmpdir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
         $temp_filename = $tmpdir . $filename;
         $content_pdf = $pdf->Output($temp_filename, 'F');
@@ -776,17 +796,34 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     // Store the IMPPLAN area.  This is separate from the rest of the form
     // It is in a separate table due to its one-to-many relationship with the form_id.
     if (($_REQUEST['action'] ?? '') == "store_IMPPLAN") {
-        $IMPPLAN = json_decode((string) $_REQUEST['parameter'], true);
-        //remove what is there and replace it with this data.
-        $query = "DELETE from form_" . $form_folder . "_impplan where form_id=? and pid=?";
-        sqlQuery($query, [$form_id, $pid]);
-
-        for ($i = 0; $i < count($IMPPLAN); $i++) {
-            $query = "INSERT IGNORE INTO form_" . $form_folder . "_impplan (form_id, pid, title, code, codetype, codedesc, codetext, plan, IMPPLAN_order, PMSFH_link) VALUES(?,?,?,?,?,?,?,?,?,?) ";
-            $response = sqlQuery($query, [$form_id, $pid, $IMPPLAN[$i]['title'], $IMPPLAN[$i]['code'], $IMPPLAN[$i]['codetype'], $IMPPLAN[$i]['codedesc'], $IMPPLAN[$i]['codetext'], $IMPPLAN[$i]['plan'], $i, $IMPPLAN[$i]['PMSFH_link']]);
-            //if it is a duplicate then delete this from the array and return the array via json.
-            //or rebuild it from mysql
+        $IMPPLAN = json_decode(EyeFormData::text($posted['parameter'] ?? ''), true);
+        if (!is_array($IMPPLAN) || !array_is_list($IMPPLAN) || count($IMPPLAN) > 128) {
+            http_response_code(400);
+            exit;
         }
+        $fields = ['title', 'code', 'codetype', 'codedesc', 'codetext', 'plan', 'PMSFH_link'];
+        foreach ($IMPPLAN as $item) {
+            if (!is_array($item)) {
+                http_response_code(400);
+                exit;
+            }
+            foreach ($fields as $field) {
+                if (isset($item[$field]) && !is_scalar($item[$field])) {
+                    http_response_code(400);
+                    exit;
+                }
+            }
+        }
+        QueryUtils::inTransaction(static function () use ($IMPPLAN, $fields, $form_id, $pid): void {
+            QueryUtils::sqlStatementThrowException('DELETE FROM form_eye_mag_impplan WHERE form_id=? AND pid=?', [$form_id, $pid]);
+            foreach ($IMPPLAN as $i => $item) {
+                $values = array_map(static fn(string $field): string => EyeFormData::text($item[$field] ?? ''), $fields);
+                QueryUtils::sqlStatementThrowException(
+                    'INSERT IGNORE INTO form_eye_mag_impplan (form_id,pid,title,code,codetype,codedesc,codetext,plan,IMPPLAN_order,PMSFH_link) VALUES (?,?,?,?,?,?,?,?,?,?)',
+                    [$form_id, $pid, $values[0], $values[1], $values[2], $values[3], $values[4], $values[5], $i, $values[6]]
+                );
+            }
+        });
 
         //Since we are potentially ignoring duplicates, build json IMPPLAN_items and return it to the user to rebuild IMP/Plan area
         $IMPPLAN_items = build_IMPPLAN_items($pid, $form_id);
@@ -1195,36 +1232,36 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 QueryUtils::sqlStatementThrowException('DELETE FROM billing WHERE pid=? AND encounter=? AND activity=1', [$pid, $encounter]);
                 $dups = [];
                 foreach ($CODING as $item) { //need toremove duplicate codes
-            if (!is_array($item)) {
-                continue;
-            }
-            if (($choice['CPT_92060_SELECTED'] ?? null) !== null && EyeFormData::integer($choice['CPT_92060_SELECTED']) === 0
-                && ($item['codetype'] ?? '') === 'CPT4' && ($item['code'] ?? '') === '92060') {
-                continue;
-            }
-            if (($dups[$item["code"]] ?? '') == '1') {
-                continue;
-            }
+                    if (!is_array($item)) {
+                        continue;
+                    }
+                    if (($choice['CPT_92060_SELECTED'] ?? null) !== null && EyeFormData::integer($choice['CPT_92060_SELECTED']) === 0
+                    && ($item['codetype'] ?? '') === 'CPT4' && ($item['code'] ?? '') === '92060') {
+                        continue;
+                    }
+                    if (($dups[$item["code"]] ?? '') == '1') {
+                        continue;
+                    }
 
-            $dups[$item["code"]] = "1";
+                    $dups[$item["code"]] = "1";
             // Same code row, price, units, NDC and modifier the fee sheet would use for this code.
-            $codeType = is_string($item['codetype'] ?? null) ? $item['codetype'] : '';
-            $code = is_string($item['code'] ?? null) ? $item['code'] : '';
-            $ndc_info = '';
-            $patientId = filter_var($pid, FILTER_VALIDATE_INT);
-            $charge = is_int($patientId) ? (new FeeSheetChargeLookup())->find($codeType, $code, $patientId) : null;
-            if ($charge !== null) {
-                $drug = $codeType === 'HCPCS' ? HcpcsDrugDefaults::forCode($code) : null;
-                $line = FeeSheetLine::fromCharge($charge, $drug, is_string($item['modifier'] ?? null) ? $item['modifier'] : '');
-                $item["codedesc"] = $line->codeText;// eg. = "NP EYE intermediate exam"
-                $item["units"] = $line->units;
-                $item["fee"] = $line->fee;
-                $item["modifier"] = $line->modifier;
-                $ndc_info = $line->ndcInfo;
-            }
-            $billed = "0";
-            $item["justify"] .= ":";
-            BillingUtilities::addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
+                    $codeType = is_string($item['codetype'] ?? null) ? $item['codetype'] : '';
+                    $code = is_string($item['code'] ?? null) ? $item['code'] : '';
+                    $ndc_info = '';
+                    $patientId = filter_var($pid, FILTER_VALIDATE_INT);
+                    $charge = is_int($patientId) ? (new FeeSheetChargeLookup())->find($codeType, $code, $patientId) : null;
+                    if ($charge !== null) {
+                        $drug = $codeType === 'HCPCS' ? HcpcsDrugDefaults::forCode($code) : null;
+                        $line = FeeSheetLine::fromCharge($charge, $drug, is_string($item['modifier'] ?? null) ? $item['modifier'] : '');
+                        $item["codedesc"] = $line->codeText;// eg. = "NP EYE intermediate exam"
+                        $item["units"] = $line->units;
+                        $item["fee"] = $line->fee;
+                        $item["modifier"] = $line->modifier;
+                        $ndc_info = $line->ndcInfo;
+                    }
+                    $billed = "0";
+                    $item["justify"] .= ":";
+                    BillingUtilities::addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
                 }
             });
         } catch (\DomainException) {
@@ -1729,7 +1766,7 @@ if ($_REQUEST['canvas'] ?? '') {
         exit;
     }
     $backgroundKey = EyeFormData::text($posted['backgroundKey'] ?? '');
-    if (!eye_mag_drawing_background_key_valid($backgroundKey)) {
+    if (!eye_mag_drawing_background_key_valid($backgroundKey, $zone)) {
         http_response_code(400);
         echo "Invalid drawing background.";
         exit;

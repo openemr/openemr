@@ -33,7 +33,6 @@ use function OpenEMR\Forms\EyeMag\Clinical\display_wear_header_cells;
 use function OpenEMR\Forms\EyeMag\Clinical\display_wear_lower_cells;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_dilation_med_options;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_ensure_handout_category;
-use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_document_ids;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_iop_method_options;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_material_ids;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_motility_display_preference;
@@ -252,7 +251,6 @@ $materialsRow = QueryUtils::querySingleRow(
 $materialsToPrint = $materialsRow['content'] ?? '';
 $materialsTextIncluded = EyeFormData::integer($materialsRow['include_text'] ?? 0) === 1;
 $materialsHandoutIds = eye_mag_material_ids($materialsRow ?: []);
-$materialsReportIds = eye_mag_document_ids($materialsRow['report_document_ids'] ?? []);
 $materialsReportDocuments = eye_mag_report_documents($pid, $encounter);
 $materialsHandouts = [];
 $materialsHandoutResult = QueryUtils::sqlStatementThrowException(
@@ -362,7 +360,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
 
       <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'chart' ]); ?>
-      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;vfutp=1&amp;overaction=6" type="text/css">
+      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;vfutp=1&amp;overaction=6&amp;impplan=2&amp;vitals=1&amp;drawing-dialog=1&amp;fullscreen=4&amp;panel-layout=1&amp;pencil-body=1&amp;fullwidth=1&amp;share=3&amp;canvas-header=2" type="text/css">
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/dotphrases.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/css">
       <script>window.eyeMagDpCssV = "<?php echo attr(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>";</script>
 
@@ -1154,12 +1152,12 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                     .join(' ');
                             }
                             if (field === 'ODADD') {
-                                return data.ODADD ?? data.ODADD2 ?? '';
+                                return data.ODADD != null ? data.ODADD : (data.ODADD2 != null ? data.ODADD2 : '');
                             }
                             if (field === 'OSADD') {
-                                return data.OSADD ?? data.OSADD2 ?? '';
+                                return data.OSADD != null ? data.OSADD : (data.OSADD2 != null ? data.OSADD2 : '');
                             }
-                            return data[field] ?? '';
+                            return data[field] != null ? data[field] : '';
                         }
 
                         /** Fill a Wear panel from an imported prescription, including lens type and treatments. */
@@ -1173,9 +1171,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                 }
                             });
 
-                            let rxType = data.RX_TYPE ?? data.RXTYPE ?? '0';
+                            let rxType = data.RX_TYPE != null ? data.RX_TYPE : (data.RXTYPE != null ? data.RXTYPE : '0');
                             const rxTypeMap = {Single: '0', Bifocal: '1', Trifocal: '2', Progressive: '3'};
-                            rxType = rxTypeMap[rxType] ?? String(rxType);
+                            rxType = rxTypeMap[rxType] != null ? rxTypeMap[rxType] : String(rxType);
                             $('input[name="RX_TYPE_' + slot + '"][value="' + rxType + '"]').prop('checked', true);
 
                             const treatments = String(data.LENS_TREATMENTS || '').split('|').filter(Boolean);
@@ -1195,7 +1193,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                         });
 
                         $(document).on('click', '#Import_Prior_Wear', function() {
-                            const priorWear = window.eyeMagWearImports?.prior || [];
+                            const priorWear = (window.eyeMagWearImports && window.eyeMagWearImports.prior) || [];
                             if (!priorWear.length) {
                                 alert(<?php echo xlj('No prior Wear prescriptions were found.'); ?>);
                                 return;
@@ -1214,7 +1212,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                         });
 
                         $(document).on('click', '#Import_Last_Rx', function() {
-                            const lastRx = window.eyeMagWearImports?.lastRx || null;
+                            const lastRx = (window.eyeMagWearImports && window.eyeMagWearImports.lastRx) || null;
                             if (!lastRx) {
                                 alert(<?php echo xlj('No previously dispensed spectacle refraction was found.'); ?>);
                                 return;
@@ -4824,33 +4822,12 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                               </template>
                                           </div>
                                           <div class="mt-3" id="MATERIALS_REPORT_DOCUMENTS">
-                                              <div class="bold mb-1"><?php echo xlt('Documents to include in the report'); ?></div>
-                                              <small class="text-muted d-block mb-1"><?php echo xlt('Select encounter files or untagged patient files. Other encounters are not listed.'); ?></small>
-                                              <small id="MATERIALS_REPORT_SAVE_STATUS" class="text-muted" role="status" style="display:none;"><?php echo xlt('Saving report selections…'); ?></small>
-                                              <input type="hidden" name="MATERIALS_REPORT_DOCUMENTS_PRESENT" value="1">
+                                              <div class="bold mb-1"><?php echo xlt('Encounter documents'); ?></div>
+                                              <small class="text-muted d-block mb-1"><?php echo xlt('PDFs and images tagged to this encounter are included automatically in the report.'); ?></small>
                                               <?php foreach ($materialsReportDocuments as $document) {
-                                                  $documentId = EyeFormData::integer($document['id'] ?? 0); ?>
-                                                  <label class="d-block mb-1">
-                                                      <input type="checkbox" name="MATERIALS_REPORT_DOCUMENT_IDS[]" value="<?php echo attr($documentId); ?>"
-                                                          <?php echo in_array($documentId, $materialsReportIds, true) ? 'checked' : ''; ?>>
-                                                      <?php echo text($document['name'] ?? ''); ?>
-                                                      <small class="text-muted">
-                                                          (<?php echo EyeFormData::integer($document['encounter_id'] ?? 0) === $encounter ? xlt('This encounter') : xlt('Not tagged to an encounter'); ?>
-                                                          <?php if (!empty($document['category'])) { echo ' · ' . text($document['category']); } ?>
-                                                          <?php $documentDate = EyeFormData::text($document['docdate'] ?? '') ?: substr(EyeFormData::text($document['date'] ?? ''), 0, 10);
-                                                          if ($documentDate !== '' && $documentDate !== '0000-00-00') { echo ' · ' . text($documentDate); } ?>)
-                                                      </small>
-                                                  </label>
-                                              <?php }
-                                              $availableReportIds = array_column($materialsReportDocuments, 'id');
-                                              foreach (array_diff($materialsReportIds, $availableReportIds) as $documentId) { ?>
-                                                  <label class="d-block mb-1">
-                                                      <input type="checkbox" name="MATERIALS_REPORT_DOCUMENT_IDS[]" value="<?php echo attr($documentId); ?>" checked>
-                                                      <?php echo xlt('Unavailable document') . ' #' . text($documentId); ?>
-                                                  </label>
-                                              <?php }
-                                              if ($materialsReportDocuments === [] && $materialsReportIds === []) { ?>
-                                                  <small class="text-muted"><?php echo xlt('No eligible PDF or image documents are available for this encounter.'); ?></small>
+                                                    if (EyeFormData::integer($document['encounter_id'] ?? 0) !== $encounter) {
+                                                        continue; } ?>
+                                                  <div><?php echo text($document['name'] ?? ''); ?></div>
                                               <?php } ?>
                                           </div>
                                           <?php if (($materialsHandouts === [])) { ?>
@@ -4948,12 +4925,22 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
          * This is for callback by the find-code popup in IMPPLAN area.
          * Appends to or erases the current list of diagnoses.
          */
+        var impPlanCodeSearchSignature = '';
+        /** Identify the diagnosis while a code-search dialog is open. */
+        function impPlanCodeSignature(item) {
+            return JSON.stringify([item.title || '', item.plan || '', item.PMSFH_link || '', item.code || '']);
+        }
         function set_related(codetype, code, selector, codedesc) {
             //target is the index of IMPRESSION[index].code we are searching for.
+            if (!obj.IMPPLAN_items || !obj.IMPPLAN_items[IMP_target]
+                || impPlanCodeSignature(obj.IMPPLAN_items[IMP_target]) !== impPlanCodeSearchSignature) {
+                return <?php echo xlj('This diagnosis is no longer available. Open the code search again.'); ?>;
+            }
+            code = String(code || '').trim();
             var span = document.getElementById('CODE_'+IMP_target);
-            if ('textContent' in span) {
+            if (span && 'textContent' in span) {
                 span.textContent = code;
-            } else {
+            } else if (span) {
                 span.innerText = code;
             }
             $('#CODE_'+IMP_target).attr('title',codetype + ':' + code + ' ('+codedesc+')');
@@ -4968,7 +4955,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
             if (obj.IMPPLAN_items[IMP_target].PMSFH_link > '') {
                 var data = obj.IMPPLAN_items[IMP_target].PMSFH_link.match(/(.*)_(.*)/);
-                if ((data[1] == "POH")||(data[1] == "PMH")) {
+                if (data && ((data[1] == "POH")||(data[1] == "PMH")) && obj.PMSFH && obj.PMSFH[data[1]] && obj.PMSFH[data[1]][data[2]]) {
                     obj.PMSFH[data[1]][data[2]].code= code;
                     obj.PMSFH[data[1]][data[2]].codetype = codetype;
                     obj.PMSFH[data[1]][data[2]].codedesc = codedesc;
@@ -4997,7 +4984,8 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         }
         /** Open the dispense-prescription dialog for the selected refraction and current lens type. */
         function doscript(type,id,encounter,rx_number) {
-            let rxType = document.querySelector('input[name="RX_TYPE_1"]:checked')?.value;
+            let selectedRxType = document.querySelector('input[name="RX_TYPE_1"]:checked');
+            let rxType = selectedRxType ? selectedRxType.value : undefined;
             const params = new URLSearchParams({
                 encounter: encounter,
                 form_id: <?php echo js_escape($form_id); ?>,
@@ -5023,6 +5011,8 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             target = "0";
                         }
                         IMP_target = target;
+                        if (!obj.IMPPLAN_items || !obj.IMPPLAN_items[target]) return;
+                        impPlanCodeSearchSignature = impPlanCodeSignature(obj.IMPPLAN_items[target]);
                         <?php
                         if (($irow['type'] ?? null) == 'PMH') { //or POH
                             ?>
@@ -5139,7 +5129,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
     </script>
     <?php require __DIR__ . '/php/neuro_pattern_strings.php'; ?>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/neuro_patterns.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;overaction=1"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>&v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;feedback=13"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>&v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;feedback=16"></script>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/visual_acuity_history.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
     <script>
       window.eyeMagDocumentNotesStrings = {
@@ -5159,11 +5149,19 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         pdfHandoutToPrint: <?php echo xlj('PDF handout to print'); ?>
       };
     </script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/document_notes.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;report-documents=4"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;touch=2"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/document_notes.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;report-documents=5"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;touch=5"></script>
     <script>
       window.eyeMagDrawingStrings = {
-        libraryTitle: <?php echo xlj('Saved overlays · {zone}'); ?>,
+        libraryTitle: <?php echo xlj('Draw Library: {zone}'); ?>,
+        zoneHpi: <?php echo xlj('HPI'); ?>,
+        zonePmh: <?php echo xlj('PMH'); ?>,
+        zoneExternal: <?php echo xlj('External'); ?>,
+        zoneAnterior: <?php echo xlj('Anterior Segment'); ?>,
+        zoneRetina: <?php echo xlj('Retina'); ?>,
+        zoneLargeRetina: <?php echo xlj('Large Retina'); ?>,
+        zoneNeuro: <?php echo xlj('Neuro'); ?>,
+        zoneImpressionPlan: <?php echo xlj('Impression/Plan'); ?>,
         saveAsTitle: <?php echo xlj('Save As · {zone}'); ?>,
         deleteOverlayConfirm: <?php echo xlj('Delete “{name}” from Saved overlays?'); ?>,
         deleteNamedOverlay: <?php echo xlj('Delete {name}'); ?>,
@@ -5181,6 +5179,15 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         insertOverlay: <?php echo xlj('Insert overlay'); ?>,
         useBackground: <?php echo xlj('Use as background'); ?>,
         setDefault: <?php echo xlj('Set my default'); ?>,
+        shareCopy: <?php echo xlj('Share a copy'); ?>,
+        shareSelected: <?php echo xlj('Share with selected users'); ?>,
+        shareImageWith: <?php echo xlj('Share a copy of “{name}” with:'); ?>,
+        noShareUsers: <?php echo xlj('No other active users are available.'); ?>,
+        searchLibrary: <?php echo xlj('Search images'); ?>,
+        noLibraryMatches: <?php echo xlj('No images match your search.'); ?>,
+        chooseShareUser: <?php echo xlj('Select at least one user.'); ?>,
+        copiesShared: <?php echo xlj('Copies shared: {count}.'); ?>,
+        shareFailed: <?php echo xlj('Could not share with: {users}.'); ?>,
         renameOverlay: <?php echo xlj('Rename saved overlay'); ?>,
         saveName: <?php echo xlj('Save name'); ?>,
         cancel: <?php echo xlj('Cancel'); ?>,
@@ -5221,8 +5228,9 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
       };
     </script>
     <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/public/assets/konva/konva.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/konva_overlay.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;overaction=3&amp;pencil=1"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/drawing_library.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/konva_overlay.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;overaction=3&amp;pencil=3"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/drawing_library.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;dialog=6"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/drawing_fullscreen.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;fullscreen=5"></script>
     <div id="right-panel" name="right-panel" class="panel_side" >
       <div class="text-center" style="margin-top: 10px;">
         <span class="fa fa-file-alt" id="PANEL_TEXT" name="PANEL_TEXT"></span>

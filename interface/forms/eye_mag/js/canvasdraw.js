@@ -92,6 +92,7 @@ function InitThis(zone)
     clearEyeCanvasDirty(zone);
     var canvas = document.getElementById('myCanvas_' + zone);
     var activeTouchId = null;
+    var touchStartRevision = 0;
     ctx[zone] = canvas.getContext("2d");
 
     /** Locate the active touch in the browser's changed-touch list. */
@@ -117,12 +118,25 @@ function InitThis(zone)
         if (!touch) return;
         e.preventDefault();
         activeTouchId = touch.identifier;
+        touchStartRevision = getEyeCanvasRevision(zone);
         mousePressed = true;
         drawTouch(touch, false);
     });
 
     $('#myCanvas_' + zone).on('touchmove',function (e) {
         if (activeTouchId === null) return;
+        if (e.originalEvent.touches && e.originalEvent.touches.length > 1
+            && $('#Draw_' + zone).hasClass('eye-drawing-fullscreen')) {
+            // A two-finger gesture pans the full-screen drawing rather than
+            // extending the active freehand stroke across the page.
+            activeTouchId = null;
+            mousePressed = false;
+            if (getEyeCanvasRevision(zone) !== touchStartRevision) {
+                cPush(zone);
+                if (isEyeCanvasDirty(zone) && typeof window.submit_canvas === 'function') window.submit_canvas(zone);
+            }
+            return;
+        }
         var touch = changedTouch(e, activeTouchId);
         if (!touch) return;
         e.preventDefault();
@@ -139,13 +153,20 @@ function InitThis(zone)
         }
     });
 
+    /** Map mouse coordinates through the same display scaling as touch. */
+    function drawMouse(event, down) {
+        var rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        Draw((event.clientX - rect.left) * canvas.width / rect.width,
+            (event.clientY - rect.top) * canvas.height / rect.height, down, zone);
+    }
     $('#myCanvas_' + zone).mousedown(function (e) {
         mousePressed = true;
-        Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false, zone);
+        drawMouse(e, false);
     });
     $('#myCanvas_' + zone).mousemove(function (e) {
         if (mousePressed) {
-            Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, true, zone);
+            drawMouse(e, true);
         }
     });
     $('#myCanvas_' + zone).mouseup(function (e) {
@@ -282,16 +303,27 @@ function Draw(x, y, isDown,zone)
         ctx[zone].closePath();
         ctx[zone].stroke();
         var ink = eyeDrawingInkCanvas(zone);
-        if (ink) {
-            var inkContext = ink.getContext('2d');
-            inkContext.beginPath();
-            inkContext.strokeStyle = ctx[zone].strokeStyle;
-            inkContext.lineWidth = ctx[zone].lineWidth;
-            inkContext.lineJoin = ctx[zone].lineJoin;
-            inkContext.moveTo(lastX, lastY);
-            inkContext.lineTo(x, y);
-            inkContext.closePath();
-            inkContext.stroke();
+        var inkContext = null;
+        try {
+            inkContext = ink && ink.getContext('2d');
+            if (inkContext) {
+                inkContext.beginPath();
+                inkContext.strokeStyle = ctx[zone].strokeStyle;
+                inkContext.lineWidth = ctx[zone].lineWidth;
+                inkContext.lineJoin = ctx[zone].lineJoin;
+                inkContext.moveTo(lastX, lastY);
+                inkContext.lineTo(x, y);
+                inkContext.closePath();
+                inkContext.stroke();
+            }
+        } catch (error) {
+            inkContext = null;
+        }
+        if (!inkContext) {
+            // Preserve the visible composite as the authoritative image when
+            // the separate transparent canvas cannot be allocated. Save As
+            // will include that background rather than exporting blank ink.
+            eyeCanvasFlattened[zone] = true;
         }
     }
     lastX = x;
@@ -315,7 +347,16 @@ function cPush(zone)
     eyeCanvasInkHistory[zone].length = cStep[zone];
     eyeCanvasFlattenedHistory[zone].length = cStep[zone];
     var ink = eyeDrawingInkCanvas(zone);
-    eyeCanvasInkHistory[zone].push(ink ? ink.toDataURL('image/png') : '');
+    var inkSnapshot = '';
+    if (ink && !eyeCanvasFlattened[zone]) {
+        try {
+            if (ink.getContext('2d')) inkSnapshot = ink.toDataURL('image/png');
+            if (!/^data:image\/png;base64,/.test(inkSnapshot)) eyeCanvasFlattened[zone] = true;
+        } catch (error) {
+            eyeCanvasFlattened[zone] = true;
+        }
+    }
+    eyeCanvasInkHistory[zone].push(eyeCanvasFlattened[zone] ? '' : inkSnapshot);
     eyeCanvasFlattenedHistory[zone].push(eyeCanvasFlattened[zone] === true);
 }
 
@@ -343,12 +384,16 @@ function restoreEyeDrawingStep(zone) {
         ctx[zone].clearRect(0, 0, ctx[zone].canvas.width, ctx[zone].canvas.height);
         ctx[zone].drawImage(pictures[0], 0, 0);
         var ink = eyeDrawingInkCanvas(zone);
-        if (ink) {
-            var inkContext = ink.getContext('2d');
+        var flattened = !!(eyeCanvasFlattenedHistory[zone] || [])[step];
+        var inkContext = null;
+        try { inkContext = ink && ink.getContext('2d'); } catch (error) { inkContext = null; }
+        if (inkContext) {
             inkContext.clearRect(0, 0, ink.width, ink.height);
             if (pictures[1]) inkContext.drawImage(pictures[1], 0, 0);
+        } else {
+            flattened = true;
         }
-        eyeCanvasFlattened[zone] = !!(eyeCanvasFlattenedHistory[zone] || [])[step];
+        eyeCanvasFlattened[zone] = flattened;
     }).catch(function (error) {
         if (eyeCanvasRestoreGeneration[zone] === generation) eyeCanvasRestoreError[zone] = error;
     }).finally(function () {

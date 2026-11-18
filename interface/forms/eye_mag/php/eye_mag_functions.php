@@ -16,6 +16,7 @@
 
 require_once(__DIR__ . "/drawing_backgrounds.php");
 require_once(__DIR__ . "/clinical_helpers.php");
+require_once(__DIR__ . "/practice_logo.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
@@ -30,6 +31,8 @@ use OpenEMR\Forms\EyeMag\PmsfhPanel;
 use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+use function OpenEMR\Forms\EyeMag\Assets\eye_mag_logo_path;
+use function OpenEMR\Forms\EyeMag\Assets\eye_mag_logo_preview;
 use function OpenEMR\Forms\EyeMag\Clinical\display_wear_colgroup;
 use function OpenEMR\Forms\EyeMag\Clinical\display_wear_comment_tail_cells;
 use function OpenEMR\Forms\EyeMag\Clinical\display_wear_distance_cells;
@@ -2237,14 +2240,23 @@ function canvas_select($zone, $encounter, $pid): string
             $canvi[] = $doc;
         }
     }
-    usort($canvi, fn($a, $b): int => $b['encounter_date'] <=> $a['encounter_date']);
+    usort($canvi, static function ($a, $b): int {
+        return EyeFormData::integer($b['encounter_timestamp'] ?? 0) <=> EyeFormData::integer($a['encounter_timestamp'] ?? 0)
+            ?: EyeFormData::integer($b['document_id'] ?? 0) <=> EyeFormData::integer($a['document_id'] ?? 0);
+    });
     if (!empty($canvi)) {
-        if ($canvi[0]['encounter_id'] != $encounter) {
-            //put today on the front as current, item "0"
-            //echo "<pre style='text-align:left;'>".$canvi[0]['id'] ." and ". $encounter['encounter_id'];var_dump($canvi);echo "</pre>";
-            //$today_doc = ["Hi"];
-            $today_doc['encounter_date'] = 'New';
-            array_unshift($canvi, $today_doc);
+        $currentIndex = null;
+        foreach ($canvi as $index => $drawing) {
+            if (EyeFormData::integer($drawing['encounter_id'] ?? 0) === EyeFormData::integer($encounter)) {
+                $currentIndex = $index;
+                break;
+            }
+        }
+        if ($currentIndex === null) {
+            array_unshift($canvi, ['encounter_date' => 'New']);
+        } elseif ($currentIndex > 0) {
+            $currentDrawing = array_splice($canvi, $currentIndex, 1)[0];
+            array_unshift($canvi, $currentDrawing);
         }
    //
         if (count($canvi) > '1') {
@@ -2344,18 +2356,18 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
 
     ?>
     <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" class="Draw_class canvas">
-        <?php
-        if ($zone != "SDRETINA") {
-            ?>
-        <span class="far fa-file-alt closeButton" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
-        <i class="closeButton_2 fas fa-database" id="BUTTON_QP_<?php echo attr($zone); ?>_2" name="BUTTON_QP_<?php echo attr($zone); ?>"></i>
-        <i class="closeButton_3 fas fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open the Shorthand Window and display Shorthand Codes"); ?>"></i>
-
-            <?php
-        } ?>
-        <?php
-            $output = canvas_select($zone, $encounter, $pid);
-        ?>
+        <div class="eye-fullscreen-heading">
+            <strong><?php echo xlt('Full-screen drawing'); ?></strong>
+            <small class="eye-fullscreen-scroll-hint" hidden><?php echo xlt('Use two fingers to scroll the drawing'); ?></small>
+            <button type="button" data-drawing-fullscreen-close title="<?php echo xla('Close full screen'); ?>" aria-label="<?php echo xla('Close full screen'); ?>"><i class="fas fa-times" aria-hidden="true"></i></button>
+        </div>
+        <div class="eye-drawing-panel-controls">
+        <?php echo canvas_select($zone, $encounter, $pid); ?>
+        <button type="button" class="eye-drawing-panel-control eye-fullscreen-panel-close" data-drawing-panel-close="<?php echo attr($zone); ?>"
+                title="<?php echo xla('Close drawing panel'); ?>" aria-label="<?php echo xla('Close drawing panel'); ?>"><i class="fas fa-times" aria-hidden="true"></i></button>
+        <button type="button" class="eye-drawing-panel-control eye-fullscreen-open" data-drawing-fullscreen="<?php echo attr($zone); ?>"
+                title="<?php echo xla('Open drawing full screen'); ?>" aria-label="<?php echo xla('Open drawing full screen'); ?>"><i class="fas fa-expand" aria-hidden="true"></i></button>
+        </div>
                 <?php
 
                 $sql = "SELECT * from documents where name like ? AND foreign_id = ? AND deleted = 0 ORDER by id DESC";
@@ -2369,7 +2381,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                     $drawingBackground = $backgroundPreference;
                 }
                 $activeBackground = $backgroundOptionsByKey[$drawingBackground] ?? null;
-                if (!$activeBackground && str_starts_with($drawingBackground, 'saved-')) {
+                if (!$activeBackground && (str_starts_with($drawingBackground, 'saved-') || str_starts_with($drawingBackground, 'x-saved-'))) {
                     // Deleted library entries still supply backgrounds already used in exams.
                     $archivedBackgrounds = array_column(eye_mag_drawing_background_options($zone, $backgroundProviderId, $side, true), null, 'key');
                     $activeBackground = $archivedBackgrounds[$drawingBackground] ?? null;
@@ -2379,6 +2391,8 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 $structuredBackground = !in_array($drawingBackground, ['blank', 'practice'], true)
                     && !str_starts_with($drawingBackground, 'custom-')
                     && !str_starts_with($drawingBackground, 'saved-')
+                    && !str_starts_with($drawingBackground, 'x-custom-')
+                    && !str_starts_with($drawingBackground, 'x-saved-')
                     && $activeBackground->structured;
                 if ($has_saved_drawing && $zone === 'NEURO' && is_string($rasterBase) && $rasterBase !== '') {
                     // Restore the original ink/background without previously flattened structured marks.
@@ -2402,7 +2416,6 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
 
                 <input type="hidden" id="<?php echo attr($zone); ?>_KONVA_JSON" value="<?php echo attr($drawingOverlayJson); ?>" />
                 <div class="eye-drawing-command-row">
-                <?php echo $output; ?>
                 <div id="<?php echo attr($zone); ?>_KONVA_TOOLS" class="eye-konva-tools" data-zone="<?php echo attr($zone); ?>"
                      data-tool="<?php echo attr($drawingTool); ?>"
                      data-preference-url="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/eye_mag/save.php'); ?>"
@@ -2419,7 +2432,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                     <button type="button" data-konva-action="delete" title="<?php echo xla('Delete selected annotation'); ?>"><i class="fas fa-trash-alt"></i></button>
                 </div>
                 </div>
-        <div id="<?php echo attr($zone); ?>_canvas">
+        <div id="<?php echo attr($zone); ?>_canvas" class="eye-canvas-body">
                 <div class="eye-drawing-library-config" hidden data-zone="<?php echo attr($zone); ?>"
                      data-url="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/forms/eye_mag/drawing_background.php'); ?>"
                      data-csrf="<?php echo attr(\OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken(session: $drawingSession)); ?>"
@@ -2460,7 +2473,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 </div>
             </div>
 
-            <div class="borderShadow">
+            <div class="borderShadow eye-drawing-stage-frame">
                 <div class="eye-drawing-stage" data-structured-background="<?php echo $structuredBackground ? '1' : '0'; ?>" data-has-saved-drawing="<?php echo $has_saved_drawing ? '1' : '0'; ?>" data-raster-base="<?php echo !$has_saved_drawing || $hasRasterBase ? '1' : '0'; ?>" data-raster-legacy="<?php echo $legacyRaster ? '1' : '0'; ?>">
                 <canvas id="myCanvas_<?php echo attr($zone); ?>"
                         name="myCanvas_<?php echo attr($zone); ?>"
@@ -2517,7 +2530,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <?php } ?>
                 </div>
             </div>
-            <div style="margin-top: 7px;">
+            <div class="eye-drawing-actions" style="margin-top: 7px;">
                 <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
                 <button onclick="javascript:cRedo('<?php echo attr($zone); ?>');return false;" id="Redo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Redo"); ?></button>
                 <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Revert_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Revert"); ?></button>
@@ -2676,9 +2689,13 @@ function document_engine($pid): array
         $row2['display_url'] = preg_replace("|file:///.*/sites/|", OEGlobalsBag::getInstance()->getWebRoot() . "/sites/", (string) $row2['url']);
         if ($row2['encounter_id']) {
             $visit = getEncounterDateByEncounter($row2['encounter_id']);
-            $row2['encounter_date'] = oeFormatSDFT(strtotime($visit['date'] ?? ''));
+            $timestamp = strtotime($visit['date'] ?? '');
+            $row2['encounter_timestamp'] = $timestamp === false ? 0 : $timestamp;
+            $row2['encounter_date'] = oeFormatSDFT($timestamp);
         } else {
             $row2['encounter_date'] = $row2['docdate'];
+            $timestamp = strtotime(EyeFormData::text($row2['docdate'] ?? ''));
+            $row2['encounter_timestamp'] = $timestamp === false ? 0 : $timestamp;
         }
 
         $documents[] = $row2;
@@ -2758,9 +2775,8 @@ function display($pid, $encounter, $category_value): array
         }
         $categoryId = $documents['zones'][$category_value][$j]['id'] ?? '';
         $uploadUrl = OEGlobalsBag::getInstance()->getWebRoot()
-            . '/controller.php?document&upload&patient_id=' . urlencode((string) $pid)
-            . '&parent_id=' . urlencode((string) $categoryId)
-            . '&';
+            . '/interface/forms/eye_mag/encounter_document_upload.php?encounter=' . urlencode((string) $encounter)
+            . '&category=' . urlencode((string) $categoryId);
         $viewUrl = OEGlobalsBag::getInstance()->getWebRoot()
             . '/controller.php?document&view&patient_id=' . urlencode((string) $pid)
             . '&doc_id=' . urlencode((string) $id_to_show);
@@ -2852,7 +2868,6 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
                              <li class="nav-lik" id="menu_PRINT_narrative" name="menu_PRINT_report"><a class="nav-link black" id="BUTTON_PRINT_report" target="_new" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?><span class="menu_icon"><i class="fa fa-print"></i></span></a></li>
-                            <li class="nav-item"><a class="nav-link black" id="OPEN_REPORT_ATTACHMENTS" href="#"><?php echo xlt('Report Attachments'); ?><span class="menu_icon"><i class="fa fa-paperclip"></i></span></a></li>
                             <li class="nav-ite" id="menu_PRINT_narrative_2" name="menu_PRINT_report_2"><a class="nav-link black" id="BUTTON_PRINT_report_2" target="_new" href="#"
                                 onclick="top.restoreSession(); create_task('<?php echo attr($provider_id); ?>','Report','menu'); return false;">
                                 <?php echo xlt("Save Report as PDF"); ?><span class="menu_icon"><i class="fa fa-file-pdf"></i></span></a></li>
@@ -3164,7 +3179,6 @@ function report_header($pid, $direction = 'shell', $allowLogoEdit = false)
 {
     global $encounter;
     global $visit_date;
-    global $OE_SITE_DIR;
 
     /*******************************************************************
     $titleres = getPatientData($pid, "fname,lname,providerID");
@@ -3183,21 +3197,18 @@ function report_header($pid, $direction = 'shell', $allowLogoEdit = false)
     $logoStyle = $direction === 'web'
         ? 'display:block;width:100%;max-width:100%;height:auto;'
         : 'width:55mm;max-width:100%;height:auto;';
+    $siteDirectory = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
     /******************************************************************/
     ob_start();
-    // Use logo if it exists as 'practice_logo.gif' in the site dir
-    // old code used the global custom dir which is no longer a valid
-    //need to fix logo for multi-site
+    // Prefer the shared practice logo for this site, with the OpenEMR logo as fallback.
     ?>
     <table style="width:100%;table-layout:fixed;">
         <tr>
             <td style='width:33%;vertical-align:top;padding-right:12px;'>
                 <?php
                 if ($direction == "web") {
-                    $practiceLogoPath = $OE_SITE_DIR . "/images/practice_logo.gif";
-                    $practice_logo = OEGlobalsBag::getInstance()->getWebRoot() . "/sites/" . rawurlencode(basename((string)$OE_SITE_DIR)) . "/images/practice_logo.gif";
-                    if (file_exists($practiceLogoPath)) {
-                        $practice_logo .= '?t=' . (int)@filemtime($practiceLogoPath);
+                    $practice_logo = eye_mag_logo_preview($siteDirectory, OEGlobalsBag::getInstance()->getWebRoot());
+                    if ($practice_logo !== '') {
                         echo "<img src='" . attr($practice_logo) . "' style='" . attr($logoStyle) . "'><br />\n";
                     }
                     if ($allowLogoEdit) { ?>
@@ -3206,11 +3217,11 @@ function report_header($pid, $direction = 'shell', $allowLogoEdit = false)
                         <?php
                     }
                 } else {
-                    $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+                    $practice_logo = eye_mag_logo_path($siteDirectory);
                     if (file_exists($practice_logo)) {
                         echo "<img src='" . attr($practice_logo) . "' style='" . attr($logoStyle) . "'><br />\n";
                     } else {
-                        $practice_logo = "$OE_SITE_DIR/images/login_logo.gif";
+                        $practice_logo = $siteDirectory . '/images/login_logo.gif';
                         if (file_exists($practice_logo)) {
                             echo "<img src='" . attr($practice_logo) . "' style='" . attr($logoStyle) . "'><br />\n";
                         }

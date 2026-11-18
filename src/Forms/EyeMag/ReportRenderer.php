@@ -459,7 +459,9 @@ class ReportRenderer
                 continue;
             }
             // The 10pt row gap and the 5mm gutter keep neighbouring zones visually apart.
-            // Keep the heading with the content that follows it.
+            // A zone heading must never be the last row on a page: mPDF honours
+            // page-break-after:avoid by extending the keep-with-next lookahead to the
+            // row beneath it, so the heading travels onto the next page with its data.
             echo '<table class="rpt-pdf" style="width:100%;border-collapse:collapse;margin-top:10pt;">'
             . ($heading !== '' ? '<tr style="page-break-after:avoid;"><td colspan="2" style="padding:0;">' . $heading . '</td></tr>' : '')
             . '<tr>'

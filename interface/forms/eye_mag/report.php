@@ -36,8 +36,8 @@ require_once(__DIR__ . "/../../../library/options.inc.php");
 require_once(__DIR__ . "/../../../controllers/C_Document.class.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Forms\ReportPdfAppendQueue;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -47,7 +47,6 @@ use OpenEMR\Forms\EyeMag\ProviderSignature;
 use OpenEMR\Forms\EyeMag\ReportRenderer;
 use OpenEMR\Services\FacilityService;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_embed_materials;
-use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_append_report_materials;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_iop_method_labels;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_materials_for_report;
 use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_motility_display_preference;
@@ -919,32 +918,18 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                 for ($z = 1; $z < 5; $z++) {
                     $ODzone = "ODVF" . $z;
                     if (${$ODzone} == '1') {
-                        $ODVF[$z] = '<i class="fa fa-square fa-5">X</i>';
-                        if ($PDF_OUTPUT) {
-                            $ODVF[$z] = 'X';
-                        }
-
+                        $ODVF[$z] = 'X';
                         $bad++;
                     } else {
-                        $ODVF[$z] = '<i class="fa fa-square-o fa-5"></i>';
-                        if ($PDF_OUTPUT) {
-                            $ODVF[$z] = 'O';
-                        }
+                        $ODVF[$z] = 'O';
                     }
 
                     $OSzone = "OSVF" . $z;
                     if (${$OSzone} == "1") {
-                        $OSVF[$z] = '<i class="fa fa-square fa-5">X</i>';
-                        if ($PDF_OUTPUT) {
-                            $OSVF[$z] = 'X';
-                        }
-
+                        $OSVF[$z] = 'X';
                         $bad++;
                     } else {
-                        $OSVF[$z] = '<i class="fa fa-square-o fa-5"></i>';
-                        if ($PDF_OUTPUT) {
-                            $OSVF[$z] = 'O';
-                        }
+                        $OSVF[$z] = 'O';
                     }
                 }
                 ?>
@@ -1797,8 +1782,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                             <?php if ($hasAdditionalValues($additionalEyeFields)) { ?>
                             <table class="report_section report-additional report-bilateral">
                                 <?php ReportRenderer::rlHeader((bool) $PDF_OUTPUT); ?>
-                            <?php
-                            if ($RLF || $LLF) { ?>
+                                <?php
+                                if ($RLF || $LLF) { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1810,16 +1795,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LLF); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if (($RMRD ?? '') !== '' || ($LMRD ?? '') !== '') { ?>
+                                if (($RMRD ?? '') !== '' || ($LMRD ?? '') !== '') { ?>
                                         <tr>
                                             <td style="text-align:right;
                                                         flex-wrap: wrap;
                                                         padding: 2px 10px;
                                                         width: 200px;">
-                                                <?php echo text($RMRD); ?>
+                                                    <?php echo text($RMRD); ?>
                                             </td>
                                             <td style="text-align:center;font-weight:bold;"
                                                 title="<?php echo xla('Marginal Reflex Distance'); ?>"><?php echo xlt('MRD{{marginal reflex distance}}'); ?></td>
@@ -1828,10 +1813,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LMRD); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if (($RVFISSURE ?? '') !== '' || ($LVFISSURE ?? '') !== '') { ?>
+                                if (($RVFISSURE ?? '') !== '' || ($LVFISSURE ?? '') !== '') { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1844,10 +1829,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LVFISSURE); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($RCAROTID || $LCAROTID) { ?>
+                                if ($RCAROTID || $LCAROTID) { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1860,10 +1845,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LCAROTID); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($RTEMPART || $LTEMPART) { ?>
+                                if ($RTEMPART || $LTEMPART) { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1876,10 +1861,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LTEMPART); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($RCNV || $LCNV) { ?>
+                                if ($RCNV || $LCNV) { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1892,10 +1877,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LCNV); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($RCNVII || $LCNVII) { ?>
+                                if ($RCNVII || $LCNVII) { ?>
                                         <tr>
                                             <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1908,10 +1893,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($LCNVII); ?></td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($HERTELBASE) { ?>
+                                if ($HERTELBASE) { ?>
                                         <tr>
                                             <td colspan="3" style="text-align:center;padding-top:15px;">
                                                 <b style="font-weight:bold;padding-bottom:5px;">
@@ -1935,13 +1920,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                                         ?>
                                             </td>
                                         </tr>
-                                        <?php
-                            }
+                                            <?php
+                                }
 
-                            if ($ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || ($NPA ?? null) || $NPC || $STEREOPSIS || $STEREO_FLY || $STEREO_ANIMALS || $STEREO_CIRCLES || $STEREO_FIXATION_PREF) { ?>
+                                if ($ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || ($NPA ?? null) || $NPC || $STEREOPSIS || $STEREO_FLY || $STEREO_ANIMALS || $STEREO_CIRCLES || $STEREO_FIXATION_PREF) { ?>
                                         <!-- start of NEURO exam -->
-                                        <?php
-                                        if ($ODCOLOR or $OSCOLOR) { ?>
+                                            <?php
+                                            if ($ODCOLOR or $OSCOLOR) { ?>
                                             <tr>
                                                 <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1953,10 +1938,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($OSCOLOR); ?></td>
                                             </tr>
-                                            <?php
-                                        }
+                                                <?php
+                                            }
 
-                                        if ($ODREDDESAT or $OSREDDESAT) { ?>
+                                            if ($ODREDDESAT or $OSREDDESAT) { ?>
                                             <tr>
                                                 <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1970,10 +1955,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($OSREDDESAT); ?></td>
                                             </tr>
-                                            <?php
-                                        }
+                                                <?php
+                                            }
 
-                                        if ($ODCOINS or $OSCOINS) { ?>
+                                            if ($ODCOINS or $OSCOINS) { ?>
                                             <tr>
                                                 <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -1987,10 +1972,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($OSCOINS); ?></td>
                                             </tr>
-                                            <?php
-                                        }
+                                                <?php
+                                            }
 
-                                        if ($ODNPA or $OSNPA) { ?>
+                                            if ($ODNPA or $OSNPA) { ?>
                                             <tr>
                                                 <td style="text-align:right;
                                         flex-wrap: wrap;
@@ -2004,10 +1989,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($OSNPA); ?></td>
                                             </tr>
-                                            <?php
-                                        }
+                                                <?php
+                                            }
 
-                            } ?>
+                                } ?>
                             </table>
                             <?php } ?>
                             <?php
@@ -2376,7 +2361,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                 <?php
         }
     }
-        ?>
+    ?>
             </td>
             </tr>
             </table>
@@ -2385,18 +2370,18 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                     echo '<div class="eye-report-signature" style="text-align:left;margin-top:12px;">';
                     $providerSignature = ProviderSignature::fromGlobals(OEGlobalsBag::getInstance());
                     $signature = $providerSignature->path(EyeFormData::integer($providerID));
-                if (file_exists($signature)) {
-                    $signatureSource = $PDF_OUTPUT ? $signature : $providerSignature->url(EyeFormData::integer($providerID));
-                    echo "<img style='width:50mm;' src='" . attr($signatureSource) . "'><hr style='width:40mm;margin-left:0;' />";
-                } else {
-                    echo "<br /><br />";
-                }
+                    if (file_exists($signature)) {
+                        $signatureSource = $PDF_OUTPUT ? $signature : $providerSignature->url(EyeFormData::integer($providerID));
+                        echo "<img style='width:50mm;' src='" . attr($signatureSource) . "'><hr style='width:40mm;margin-left:0;' />";
+                    } else {
+                        echo "<br /><br />";
+                    }
                     echo "<br /><i style='font-size:9px;'>" . xlt('electronically signed on') . " " . oeFormatShortDate() . "</i>";
 
-                ?>
+                    ?>
                 <br/>
                 <span><?php echo text($providerNAME); ?></span>
-                <?php
+                    <?php
                     echo '</div>';
                 }
                 ?>
@@ -2417,19 +2402,38 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
             </table>
             </div>
             <?php
-    ReportRenderer::materialsText(EyeFormData::integer($pid), EyeFormData::integer($form_id), $reportPdf, (bool) $PDF_OUTPUT, eye_mag_materials_for_report(...), eye_mag_embed_materials(...), CurrentRequest::get()->query->getBoolean('printable'));
-    if ($PDF_OUTPUT && $reportPdf instanceof Mpdf) {
-        $patientId = EyeFormData::integer($pid);
-        $eyeFormId = EyeFormData::integer($form_id);
-        $materials = eye_mag_materials_for_report($eyeFormId, $patientId);
-        if ($materials->handouts !== [] || $materials->documents !== []) {
-            ReportPdfAppendQueue::register($reportPdf, 'eye-mag:' . $patientId . ':' . $eyeFormId,
-                static function (Mpdf $pdf) use ($eyeFormId, $patientId): void {
-                    eye_mag_append_report_materials($pdf, $eyeFormId, $patientId);
-                });
-        }
-    }
-    ReportRenderer::flushPdf((bool) $PDF_OUTPUT);
+            $patientId = EyeFormData::integer($pid);
+            $eyeFormId = EyeFormData::integer($form_id);
+            $materials = eye_mag_materials_for_report($eyeFormId, $patientId);
+            $canReadDocumentNotes = !$session->get('patient_portal_onsite_two') && AclMain::aclCheckCore('patients', 'notes');
+            foreach ($canReadDocumentNotes ? $materials->documents : [] as $document) {
+                $notes = QueryUtils::fetchRecords(
+                    "SELECT p.date,p.user,p.body FROM pnotes p JOIN gprelations r ON r.type1=1 AND r.id1=? AND r.type2=6 AND r.id2=p.id
+              WHERE p.pid=? AND p.deleted!=1 AND p.title='Clinical' ORDER BY p.date,p.id",
+                    [$document->documentId, $patientId]
+                );
+                if ($notes !== []) {
+                    echo '<div class="report_exam_group"><b>' . xlt('Document interpretation') . ': ' . text($document->name) . '</b>';
+                    foreach ($notes as $note) {
+                        echo '<p>' . text($note['user'] ?? '') . ' · ' . text($note['date'] ?? '') . '<br>'
+                            . nl2br(text($note['body'] ?? '')) . '</p>';
+                    }
+                    echo '</div>';
+                }
+            }
+            ReportRenderer::materialsText($patientId, $eyeFormId, $reportPdf, (bool) $PDF_OUTPUT, eye_mag_materials_for_report(...), eye_mag_embed_materials(...), CurrentRequest::get()->query->getBoolean('printable'));
+            if (!$PDF_OUTPUT && !CurrentRequest::get()->query->getBoolean('printable')) {
+                foreach ($materials->documents as $document) {
+                    if ($document->data !== '' && str_starts_with($document->mimeType, 'image/')) {
+                        $url = OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&retrieve&patient_id='
+                            . urlencode((string) $patientId) . '&document_id=' . urlencode((string) $document->documentId)
+                            . '&as_file=false&original_file=true&disable_exit=false&show_original=true';
+                        echo '<div class="report_exam_group"><b>' . text($document->name) . '</b><br><img src="'
+                            . attr($url) . '" alt="' . attr($document->name) . '" style="max-width:100%;height:auto;"></div>';
+                    }
+                }
+            }
+            ReportRenderer::flushPdf((bool) $PDF_OUTPUT);
 }
 
 

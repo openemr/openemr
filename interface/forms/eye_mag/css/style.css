@@ -354,13 +354,223 @@ a:active {
   pointer-events: none;
 }
 
+/* The browser's Fullscreen API is unavailable on older iPads; this expands
+   the existing drawing and its host frame without replacing either canvas. */
+.eye-fullscreen-heading {
+  display: none;
+}
+
+.eye-drawing-panel-controls {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.eye-drawing-panel-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-left: 2px;
+  padding: 0;
+  border: 1px solid #718096;
+  border-radius: 3px;
+  background: #f7f9fb;
+  color: #18324f;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* The wide retinal canvas can extend under the fixed patient sidebar on a
+   tablet. Keep its controls reachable at the right edge of the visible area. */
+@media (max-width: 1200px) {
+  #Draw_SDRETINA:not(.eye-drawing-fullscreen) .eye-drawing-panel-controls {
+    right: auto;
+    left: 0;
+    justify-content: flex-end;
+    width: calc(100vw - 220px);
+  }
+
+  #Draw_SDRETINA:not(.eye-drawing-fullscreen) .eye-drawing-command-row {
+    padding-top: 0;
+  }
+}
+
+.Draw_class.eye-drawing-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 2147483000 !important;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.eye-drawing-fullscreen > .eye-drawing-panel-controls {
+  position: absolute;
+  top: 48px;
+  right: 8px;
+  left: auto;
+  display: flex !important;
+  justify-content: flex-end;
+  width: auto;
+}
+
+.eye-drawing-fullscreen > .eye-drawing-panel-controls > .eye-drawing-panel-control {
+  display: none;
+}
+
+.eye-drawing-fullscreen .eye-fullscreen-heading {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 40px;
+}
+
+.eye-drawing-fullscreen .eye-fullscreen-heading button {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 4px 10px;
+}
+
+.eye-drawing-fullscreen .eye-drawing-command-row {
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  padding: 0 190px 0 0;
+}
+
+.eye-drawing-fullscreen .eye-canvas-body {
+  display: block !important;
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.eye-drawing-fullscreen.is-viewing-prior .eye-canvas-body {
+  display: none !important;
+}
+
+.eye-drawing-fullscreen.is-viewing-prior > [id$="_olddrawing"] {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+}
+
+.eye-drawing-fullscreen.is-viewing-prior .prior-canvas-image-wrap {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.eye-drawing-fullscreen.is-viewing-prior .prior-canvas-image {
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.eye-drawing-fullscreen.is-viewing-prior #SDRETINA_olddrawing .prior-canvas-image-wrap {
+  min-width: 0;
+  min-height: 0;
+}
+
+.eye-drawing-fullscreen .eye-drawing-actions {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  left: 8px;
+  margin-top: 0 !important;
+  text-align: center;
+  z-index: 5;
+}
+
+.eye-drawing-fullscreen .eye-drawing-stage-frame {
+  position: absolute;
+  right: 8px;
+  bottom: 52px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.eye-drawing-fullscreen .eye-drawing-stage {
+  flex: 0 0 auto;
+  margin: auto;
+  width: var(--eye-fullscreen-width);
+  height: var(--eye-fullscreen-height);
+  touch-action: none;
+}
+
+.eye-drawing-fullscreen .eye-drawing-stage > canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  touch-action: none;
+}
+
+.eye-drawing-fullscreen .eye-konva-stage > .konvajs-content {
+  transform-origin: top left;
+}
+
+body.eye-fullscreen-active .eye-image-modal-backdrop {
+  z-index: 2147483001;
+}
+
+body.eye-fullscreen-active .eye-image-modal-fallback {
+  z-index: 2147483002;
+}
+
+.eye-drawing-fullscreen > .eye-image-modal-backdrop {
+  position: absolute;
+}
+
+.eye-drawing-fullscreen > .eye-image-modal-fallback {
+  position: absolute;
+  width: calc(100% - 32px);
+  max-height: calc(100% - 40px);
+}
+
 .eye-drawing-command-row {
   align-items: center;
   display: flex;
-  gap: 10px;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-start;
   min-height: 30px;
-  padding: 0 82px 0 8px;
+  padding: 0 2px;
   width: 100%;
 }
 
@@ -370,7 +580,7 @@ a:active {
   display: inline-flex;
   float: none;
   gap: 2px;
-  margin: 0 8px;
+  margin: 0;
   position: relative;
   vertical-align: middle;
   z-index: 2;
@@ -416,11 +626,34 @@ a:active {
 .eye-canvas-history {
   align-items: center;
   display: flex;
-  gap: 8px;
+  gap: 2px;
   justify-content: center;
   flex: 0 0 auto;
   margin: 0;
+  pointer-events: auto;
+  white-space: nowrap;
   width: auto;
+}
+
+.eye-canvas-history .hand {
+  margin: 2px 1px;
+}
+
+@media (max-width: 600px) {
+  .eye-drawing-command-row,
+  #Draw_SDRETINA:not(.eye-drawing-fullscreen) .eye-drawing-command-row {
+    padding-top: 34px;
+  }
+
+  .eye-drawing-fullscreen > .eye-drawing-panel-controls {
+    position: static;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .eye-drawing-fullscreen .eye-drawing-command-row {
+    padding: 0;
+  }
 }
 
 .prior-canvas-image-wrap {
@@ -1484,6 +1717,66 @@ body {
   clear: both;
 }
 
+/* Keep paired exam panels centered when the available tablet width wraps them. */
+@media (max-width: 1366px) {
+  #Layer1 #DA_EXAM_sections {
+    display: inline-block;
+    width: 90%;
+  }
+
+  #HPI_1,
+  #PMH_1,
+  #EXT_1,
+  #ANTSEG_1,
+  #RETINA_1,
+  #NEURO_1,
+  #IMPPLAN_1 {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    max-width: 1120px;
+  }
+
+  #HPI_1 > .exam_section_left, #HPI_1 > .exam_section_right,
+  #PMH_1 > .exam_section_left, #PMH_1 > .exam_section_right,
+  #EXT_1 > .exam_section_left, #EXT_1 > .exam_section_right,
+  #ANTSEG_1 > .exam_section_left, #ANTSEG_1 > .exam_section_right,
+  #RETINA_1 > .exam_section_left, #RETINA_1 > .exam_section_right,
+  #NEURO_1 > .exam_section_left, #NEURO_1 > .exam_section_right,
+  #IMPPLAN_1 > .exam_section_left, #IMPPLAN_1 > .size50 > .exam_section_right {
+    float: none;
+    box-sizing: border-box;
+    max-width: calc(100% - 10px);
+  }
+
+  #PMH_1 {
+    height: auto !important;
+  }
+
+  #IMPPLAN_1 > .size50 {
+    display: flex;
+    justify-content: center;
+    min-height: 0;
+    max-width: 100%;
+  }
+
+  #SDRETINA_1 {
+    display: inline-block;
+    width: 100%;
+    max-width: 1048px;
+  }
+
+  #SDRETINA_right {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1048px;
+    margin: 5px auto;
+    overflow-x: auto;
+  }
+}
+
 textarea.EXTTEXT {
   font-size: 1em;
   height: 0.4in;
@@ -1731,12 +2024,12 @@ display: block;
 
 .color_indicator {
   border: 1pt solid #c0c0c0;
-  border-bottom: var(--white);
+  border-bottom: 0;
   border-top: unset;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   display: block;
-  height: 20px;
+  height: 32px;
   left: 3px;
   position: relative;
   top: 18px;
@@ -2727,6 +3020,7 @@ input[type=text].fullscreen {
 
 .Draw_class {
   padding: 2px;
+  position: relative;
 }
 
 .navbar-custom {
@@ -2955,6 +3249,33 @@ a:focus {
 #IMPPLAN_zone div i {
   margin-left: 15px;
   margin-top: 2px;
+}
+
+#IMPPLAN_zone .impplan-drag-handle {
+  cursor: grab;
+  display: inline-block;
+  min-width: 32px;
+  padding: 6px;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#IMPPLAN_zone .impplan-drag-handle:active {
+  cursor: grabbing;
+}
+
+#IMPPLAN_zone .impplan-drag-handle i,
+#IMPPLAN_zone .impplan-code-search i {
+  margin: 0;
+}
+
+#IMPPLAN_zone .impplan-code-search {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px 4px;
 }
 
 .panel_side {
@@ -3483,6 +3804,22 @@ View.php
 #LayerTechnical_sections_1 {
   display: inline-block;
   margin: 10px auto;
+}
+
+@media (max-width: 1366px) {
+  #LayerTechnical_sections_1 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  #LayerTechnical_sections_1 > .vitals {
+    flex: 0 0 auto;
+  }
+
+  #LayerTechnical_sections_1 > br {
+    display: none;
+  }
 }
 
 #LayerTension {
@@ -4982,40 +5319,62 @@ input[type="checkbox"] {
   box-shadow: 0 12px 48px #0004;
 }
 .eye-image-modal::backdrop { background: #14243580; }
-.eye-image-modal-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #d8e0e7; }
-.eye-image-modal-heading h3 { margin: 0; font-size: 18px; }
-.eye-image-modal-heading button { font-size: 24px; line-height: 1; background: transparent; border: 0; padding: 3px 8px; }
-.eye-image-modal-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.eye-image-modal-backdrop { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: rgba(20, 36, 53, .5); z-index: 1000000; }
+.eye-image-modal-fallback { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: calc(100vw - 32px); max-width: 720px; overflow-y: auto; -webkit-overflow-scrolling: touch; z-index: 1000001; }
+.eye-image-modal-fallback.eye-drawing-save-modal { max-width: 550px; }
+.eye-image-modal-heading { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; border-bottom: 1px solid rgba(0, 0, 0, .2); background: var(--primary, #1a5870); color: #fff; text-align: left; }
+.eye-image-modal-heading h3 { margin: 0; color: #fff; font-size: 1.1em; font-weight: bold; text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
+.eye-image-modal-heading button { min-width: 40px; min-height: 40px; margin-left: 12px; padding: 3px 8px; border: 0; border-radius: 4px; background: transparent; color: #fff; font-size: 24px; line-height: 1; }
+.eye-image-modal-heading button:hover, .eye-image-modal-heading button:focus { background: rgba(255, 255, 255, .18); }
+.eye-image-modal-body { padding: 14px 18px 16px; display: flex; flex-direction: column; background: var(--light, #f8f9fa); text-align: left; }
+.eye-image-modal-body > * + * { margin-top: 12px; }
 .eye-image-modal button { cursor: pointer; }
 .eye-image-modal button:disabled { cursor: default; opacity: .55; }
 .eye-image-modal button:focus-visible, .eye-image-modal input:focus-visible { outline: 2px solid #176c9b; outline-offset: 2px; }
 .eye-image-modal input[type=text] { display: block; width: 100%; box-sizing: border-box; padding: 7px 9px; margin-top: 4px; border: 1px solid #8e9eac; border-radius: 4px; }
 .eye-image-modal label { font-weight: normal; margin: 0; }
-.eye-image-modal-status { margin: 0 16px 12px; min-height: 1.3em; font-size: 13px; }
-.eye-library-tabs, .eye-library-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.eye-library-tabs button, .eye-library-actions button, [data-library-save], [data-library-upload] { padding: 7px 12px; border: 1px solid #8e9eac; border-radius: 4px; background: #f2f5f7; color: #172b3d; }
-.eye-library-tabs button[aria-pressed=true] { background: #deedf5; border-color: #176c9b; }
-.eye-library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; max-height: min(48vh, 420px); overflow-y: auto; padding: 3px; }
-.eye-library-card { display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: 0; padding: 6px; border: 2px solid #d8e0e7; border-radius: 5px; background: #fff; text-align: center; }
-.eye-library-card[aria-pressed=true] { border-color: #176c9b; box-shadow: 0 0 0 1px #176c9b; }
+.eye-drawing-library-modal .eye-library-rename,
+.eye-drawing-library-modal .eye-library-upload,
+.eye-drawing-save-modal label { text-align: left; }
+.eye-image-modal input[name="upload_name"],
+.eye-image-modal input[name="rename_overlay"],
+.eye-image-modal input[name="library_name"] { display: block; width: 220px; max-width: 100%; margin-left: 0; margin-right: 0; text-align: left; }
+.eye-image-modal-status { margin: 0; padding: 0 18px 12px; background: var(--light, #f8f9fa); font-size: 13px; text-align: left; }
+.eye-image-modal-status:empty { display: none; }
+.eye-library-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.eye-library-tabs, .eye-library-actions { display: flex; flex-wrap: wrap; }
+.eye-library-search { box-sizing: border-box; width: 220px; max-width: 100%; min-height: 36px; margin: 0 0 6px 0; padding: 6px 9px; border: 1px solid #8e9eac; border-radius: 4px; background: #fff; color: var(--dark, #343a40); text-align: left; }
+.eye-library-share { padding: 12px; border: 1px solid #c8d8e3; border-radius: 6px; background: #fff; text-align: left; }
+.eye-library-share-users { max-height: 180px; overflow-y: auto; margin: 8px 0; }
+.eye-library-share-users label { display: block; padding: 4px; }
+.eye-library-tabs button, .eye-library-actions button, [data-library-save], [data-library-upload] { min-height: 36px; margin: 0 8px 6px 0; padding: 7px 12px; border: 1px solid #8e9eac; border-radius: 4px; background: #fff; color: var(--dark, #343a40); }
+.eye-library-tabs button[aria-pressed=true], .eye-library-actions [data-library-action="insert"], [data-library-save], [data-library-upload] { border-color: var(--primary, #1a5870); background: var(--primary, #1a5870); color: #fff; }
+.eye-library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); grid-gap: 12px; gap: 12px; max-height: 44vh; overflow-y: auto; padding: 12px; border: 1px solid var(--dark, #343a40); border-radius: 6px; background: #fff; box-shadow: 5px 5px 9px #dad7d7; }
+.eye-library-card { display: flex; flex-direction: column; align-items: stretch; min-width: 0; padding: 6px; border: 2px solid #d8e0e7; border-radius: 5px; background: #fff; text-align: center; }
+.eye-library-card:hover { border-color: #8eabb9; }
+.eye-library-card[aria-pressed=true] { border-color: var(--primary, #1a5870); background: #eef7fa; box-shadow: 0 0 0 1px var(--primary, #1a5870); }
 .eye-library-card img, .eye-save-preview { object-fit: contain; background-color: #fff; background-image: linear-gradient(45deg,#e7ebee 25%,transparent 25%),linear-gradient(-45deg,#e7ebee 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e7ebee 75%),linear-gradient(-45deg,transparent 75%,#e7ebee 75%); background-size: 16px 16px; background-position: 0 0,0 8px,8px -8px,-8px 0; }
 .eye-library-card img { width: 100%; height: 90px; }
-.eye-library-card span { overflow-wrap: anywhere; font-size: 13px; }
+.eye-library-card span { margin-top: 6px; overflow-wrap: anywhere; font-size: 13px; font-weight: 600; }
 .eye-library-card small { color: #176c9b; font-size: 11px; }
-.eye-library-empty { grid-column: 1 / -1; padding: 24px 4px; margin: 0; }
-.eye-library-upload { border-top: 1px solid #d8e0e7; padding-top: 12px; }
-.eye-library-upload summary { cursor: pointer; }
+.eye-library-empty { grid-column: 1 / -1; padding: 18px 4px; margin: 0; color: var(--secondary, #6c757d); text-align: center; }
+.eye-library-upload { text-align: left; }
+.eye-library-upload[open] { padding: 12px; border: 1px solid #c8d8e3; border-radius: 6px; background: #fff; }
+.eye-library-upload summary { display: inline-block; padding: 7px 12px; border: 1px solid var(--primary, #1a5870); border-radius: 4px; background: var(--primary, #1a5870); color: #fff; cursor: pointer; list-style: none; }
+.eye-library-upload summary::-webkit-details-marker { display: none; }
+.eye-library-upload summary::before { content: '+ '; font-weight: bold; }
 .eye-library-upload[open] input, .eye-library-upload[open] button { margin-top: 10px; max-width: 100%; }
 .eye-save-preview { width: 100%; max-height: 300px; border: 1px solid #d8e0e7; border-radius: 4px; }
 .eye-save-note { color: #526575; }
 .eye-drawing-save-modal { width: min(550px, calc(100vw - 32px)); }
 [data-library-save] { align-self: flex-end; }
 
-.eye-library-tile { position: relative; display: flex; flex-direction: column; min-width: 0; gap: 3px; }
+.eye-library-tile { position: relative; display: flex; flex-direction: column; min-width: 0; }
 .eye-library-tile .eye-library-card { width: 100%; flex: 1; }
-.eye-library-delete { position: absolute; top: 6px; right: 6px; width: 25px; height: 25px; padding: 0; border: 1px solid #aab6bf; border-radius: 50%; background: #fff; color: #743333; font-size: 21px; line-height: 21px; }
-.eye-library-delete:hover { background: #fff0f0; border-color: #a33b3b; }
-.eye-library-rename-button { align-self: flex-end; padding: 3px 5px; border: 0; background: transparent; color: #176c9b; text-decoration: underline; font-size: 12px; }
+.eye-library-tile-actions { display: flex; justify-content: flex-end; align-items: center; margin-top: 6px; }
+.eye-library-delete { width: 34px; height: 34px; padding: 0; border: 1px solid var(--danger, #b93131); border-radius: 4px; background: var(--danger, #b93131); color: #fff; font-size: 21px; line-height: 1; }
+.eye-library-delete:hover { filter: brightness(.9); }
+.eye-library-rename-button { min-height: 34px; margin-right: 6px; padding: 4px 10px; border: 1px solid var(--primary, #1a5870); border-radius: 4px; background: var(--primary, #1a5870); color: #fff; font-size: 12px; }
 .eye-library-rename:not([hidden]) { display: flex; flex-direction: column; gap: 9px; padding: 12px; border: 1px solid #c8d8e3; border-radius: 4px; background: #f5f9fc; }
 
 .eye-save-crop-stage { position: relative; align-self: center; width: 100%; overflow: hidden; line-height: 0; }

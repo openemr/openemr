@@ -120,6 +120,10 @@ function submit_form(action) {
         $("#" + newValue).val($(this).val());
         $("#" + newValue + "_copy_brd").val($(this).val());
     });
+    // Format numeric fields before serializing, so unformatted entries (e.g. "3")
+    // are converted to their full form (e.g. "+3.00") even when save happens
+    // before the field's blur handler runs.
+    $("input[class^='sphere'],input[name$='SPH'],input[class^='presbyopia'],input[name$='ADD'],#ODADD_1,#ODADD_2,#OSADD_1,#OSADD_2,input[name$='PRISM'],input[class^='prism'],input[name$='CYL'],input[name$='AXIS']").trigger('blur');
 formData = $("form#eye_mag").serialize();
     if (formData =='') return;
     $("#menustate").val('0');
@@ -1077,8 +1081,8 @@ function show_PRIOR_CANVAS_section(section, newValue) {
     var pid    =  $('#pid').val();
     var zone   = section;
     const params = new URLSearchParams({
-        document_id: newValue,
         patient_id: pid,
+        document_id: newValue,
         as_file: 'false',
         original_file: 'true',
         disable_exit: 'false',
@@ -1104,11 +1108,27 @@ function show_CURRENT_CANVAS_section(zone) {
 
 /** Replace a zone canvas image and switch its drawing selector back to the current visit. */
 function replace_CANVAS(zone, url) {
-    $("#url_"+zone).val(url);
-    $('#myCanvas_' + zone).closest('.eye-drawing-stage').attr('data-raster-base', '0').attr('data-raster-legacy', '1');
-    cReplace(zone);
-    $("#SELECT_CANVAS_"+zone).val('current');
-    show_CURRENT_CANVAS_section(zone);
+    var button = document.querySelector('#' + zone + '_olddrawing button');
+    if (button && button.disabled) return;
+    if (button) button.disabled = true;
+    top.restoreSession();
+    return eyeDrawingPrepareBackground({url: url}).then(function (image) {
+        var strings = window.eyeMagDrawingStrings || {};
+        if (!eyeDrawingBackgroundIsFresh(zone) && !window.confirm(strings.replaceDrawingConfirm || 'Replace the current drawing and annotations with this background?')) return;
+        var overlay = window.eyeDrawingOverlays && window.eyeDrawingOverlays[zone];
+        if (overlay && overlay.clear) overlay.clear();
+        $('#url_' + zone).val(url);
+        $('#myCanvas_' + zone).closest('.eye-drawing-stage').attr('data-raster-base', '0').attr('data-raster-legacy', '1');
+        markEyeCanvasDirty(zone);
+        if (!drawImage(zone, image)) throw new Error(strings.imageUnavailable || 'This image is no longer available.');
+        $('#SELECT_CANVAS_' + zone).val('current').data('step', 0);
+        show_CURRENT_CANVAS_section(zone);
+        return submit_canvas(zone, true);
+    }).catch(function (error) {
+        window.alert(error.message);
+    }).finally(function () {
+        if (button) button.disabled = false;
+    });
 }
 /**
  * Function to show one of the Quick Picks section on the right side of its section.
@@ -1121,7 +1141,7 @@ function show_QP_section(zone,scroll) {
     $("#PREFS_"+zone+"_RIGHT").val('QP');
     if (!scroll) {
         scroll = zone;
-        scrollTo(zone+"_left");
+        scrollToRightPanelAfterLayout(zone);
     }
    }
 
@@ -1622,15 +1642,15 @@ function build_IMPPLAN(items,nodisplay) {
             if (typeof nodisplay !== "undefined") {
               return;
             }
-               var title2 = value.title.replace(/(\')/g, '');
-               contents_here = "<span class='bold' contenteditable title='<?php echo xla('Click to edit'); ?>' id='IMPRESSION_"+index+"'>" +
+               contents_here = "<span class='impplan-drag-handle' role='button' tabindex='0' title='"+jsAttr(<?php echo xlj('Drag to reorder; use arrow keys to move'); ?>)+"' aria-label='"+jsAttr(<?php echo xlj('Reorder diagnosis'); ?>)+"'><i class='fas fa-grip-vertical' aria-hidden='true'></i></span> " +
+               "<span class='bold' contenteditable title='"+jsAttr(<?php echo xlj('Click to edit'); ?>)+"' id='IMPRESSION_"+index+"'>" +
                jsText(value.title) +"</span>"+
-               " <span contenteditable class='float-right' data-code-placeholder='"+(missingCode ? '1' : '0')+"' onclick='sel_diagnosis("+index+","+jsAttr(JSON.stringify(title2))+");' title='"+jsAttr(value.codetext)+"' id='CODE_"+index+"'>"+
-               (missingCode ? "<i class='fa fa-search-plus'></i>&nbsp;Code" : jsText(value.code)) + "</span>"+
+               " <span class='float-right impplan-code-controls'><span contenteditable title='"+jsAttr(value.codetext)+"' id='CODE_"+index+"'>"+jsText(value.code)+"</span>"+
+               " <button type='button' class='impplan-code-search' id='SEARCH_CODE_"+index+"' title='"+jsAttr(<?php echo xlj('Search diagnosis codes'); ?>)+"' aria-label='"+jsAttr(<?php echo xlj('Search diagnosis codes'); ?>)+"'><i class='fa fa-search-plus' aria-hidden='true'></i>"+(missingCode ? " "+jsText(<?php echo xlj('Code'); ?>) : "")+"</button></span>"+
                "<br /><textarea id='PLAN_"+index+"' name='PLAN_"+index+
                "' style='width:100%;max-width:100%;height:auto;min-height:3em;overflow-y: hidden;padding-top: 1.1em; '>"+
                jsText(value.plan) +"</textarea><br /></li>";
-               $('#IMPPLAN_zone').append('<div id="IMPPLAN_zone_'+index+'" class="IMPPLAN_class">'+
+               $('#IMPPLAN_zone').append('<div id="IMPPLAN_zone_'+index+'" data-impplan-index="'+index+'" class="IMPPLAN_class">'+
                                          '<i class="float-right fa fa-times" id="BUTTON_IMPPLAN_'+index+'"></i>'+
                                          contents_here+'</div>');
                $('#BUTTON_IMPPLAN_'+index).on('click', function() {//delete/close icon
@@ -1640,6 +1660,9 @@ function build_IMPPLAN(items,nodisplay) {
                                                  store_IMPPLAN(obj.IMPPLAN_items,'1');
                                                  });
                $('#PLAN_'+index).css("background-color","#F0F8FF");
+               $('#SEARCH_CODE_'+index).on('click', function() {
+                   sel_diagnosis(index, obj.IMPPLAN_items[index].title);
+               });
         });
         //end each
         //now attach visit_justifier(s) to each TEST
@@ -1664,7 +1687,7 @@ function build_IMPPLAN(items,nodisplay) {
 
             // The IMPRESSION DXs are "contenteditable" spans.
             // If the user changes the words in an IMPRESSION Diagnosis area, store it.
-        $('[id^=IMPRESSION_]').on('blur', function(e) {
+        $('[id^=IMPRESSION_]').off('blur.impPlan').on('blur.impPlan', function(e) {
                                     e.preventDefault();
                                     var item = this.id.match(/IMPRESSION_(.*)/)[1];
                                     var content = this.innerText || this.innerHTML;
@@ -1682,13 +1705,10 @@ function build_IMPPLAN(items,nodisplay) {
                                     //$(this).css('background-color','#F0F8FF');
                                     return false;
                                     });
-        $('[id^=CODE_]').on('focus', function() {
-                              if ($(this).attr('data-code-placeholder') === '1') {
-                                  $(this).empty().attr('data-code-placeholder', '0');
-                              }
-                            }).on('blur', function() {
+        $('[id^=CODE_]').off('blur.impPlan').on('blur.impPlan', function() {
                               var item = this.id.match(/CODE_(.*)/)[1];
-                              var new_code = $(this).attr('data-code-placeholder') === '1' ? '' : (this.innerText || '').trim();
+                              var new_code = (this.innerText || '').trim();
+                              if (new_code === String(obj.IMPPLAN_items[item].code || '')) return;
                               obj.IMPPLAN_items[item].code =  new_code;
                               //obj.IMPPLAN_items[item].codetext = '';
                               //obj.IMPPLAN_items[item].codedesc = '';
@@ -1696,20 +1716,80 @@ function build_IMPPLAN(items,nodisplay) {
                               store_IMPPLAN(obj.IMPPLAN_items);
                             });
 
-        $('[id^=PLAN_]').on('change', function() {
+        $('[id^=PLAN_]').off('change.impPlan').on('change.impPlan', function() {
                                 var item = this.id.match(/PLAN_(.*)/)[1];
                                 obj.IMPPLAN_items[item].plan =  $(this).val();
                                 store_IMPPLAN(obj.IMPPLAN_items,'1');
                                 $(this).css('background-color','#F0F8FF');
                                 });
 
-        $('#IMPPLAN_zone').on( 'keyup', 'textarea', function (e){
+        $('#IMPPLAN_zone').off('keyup.impPlan', 'textarea').on( 'keyup.impPlan', 'textarea', function (e){
                               //$(this).css('height', 'auto' );
                              // $(this).height( this.scrollHeight );
                               });
         $('#IMPPLAN_zone').find( 'textarea' ).keyup();
         obj.IMPPLAN_items = items;
+        if (typeof nodisplay === 'undefined') setupImpPlanReordering();
     }
+}
+
+/** Persist the current DOM order, retaining each diagnosis and its plan together. */
+function saveImpPlanOrder() {
+    var current = obj.IMPPLAN_items;
+    if (!Array.isArray(current)) return;
+    var reordered = $('#IMPPLAN_zone > .IMPPLAN_class').map(function () {
+        return current[Number($(this).attr('data-impplan-index'))];
+    }).get();
+    if (reordered.length !== current.length || reordered.some(function (item) { return !item; })) return;
+    obj.IMPPLAN_items = reordered;
+    build_IMPPLAN(reordered);
+    store_IMPPLAN(reordered, '1');
+}
+
+/** Enable mouse, touch and keyboard reordering without dragging editable fields. */
+function setupImpPlanReordering() {
+    var zone = $('#IMPPLAN_zone');
+    if (typeof zone.sortable === 'function') {
+        if (zone.hasClass('ui-sortable')) zone.sortable('destroy');
+        zone.sortable({items: '> .IMPPLAN_class', handle: '.impplan-drag-handle', axis: 'y',
+            update: saveImpPlanOrder});
+    }
+    zone.off('.impplanReorder');
+    zone.on('keydown.impplanReorder', '.impplan-drag-handle', function (event) {
+        var row = $(this).closest('.IMPPLAN_class');
+        if (event.key === 'ArrowUp' && row.prev('.IMPPLAN_class').length) row.insertBefore(row.prev());
+        else if (event.key === 'ArrowDown' && row.next('.IMPPLAN_class').length) row.insertAfter(row.next());
+        else return;
+        event.preventDefault();
+        var newIndex = row.index();
+        saveImpPlanOrder();
+        zone.children('.IMPPLAN_class').eq(newIndex).find('.impplan-drag-handle').trigger('focus');
+    });
+    var touchRow = null;
+    var touchOriginal = '';
+    zone.on('touchstart.impplanReorder', '.impplan-drag-handle', function (event) {
+        if (event.originalEvent.touches.length !== 1) return;
+        touchRow = $(this).closest('.IMPPLAN_class');
+        touchOriginal = zone.children('.IMPPLAN_class').map(function () { return this.id; }).get().join(',');
+    });
+    zone.on('touchmove.impplanReorder', '.impplan-drag-handle', function (event) {
+        if (!touchRow || event.originalEvent.touches.length !== 1) return;
+        var touch = event.originalEvent.touches[0];
+        var target = $(document.elementFromPoint(touch.clientX, touch.clientY)).closest('.IMPPLAN_class');
+        if (target.length && target.parent()[0] === zone[0] && target[0] !== touchRow[0]) {
+            var rect = target[0].getBoundingClientRect();
+            if (touch.clientY < rect.top + rect.height / 2) touchRow.insertBefore(target);
+            else touchRow.insertAfter(target);
+        }
+        event.preventDefault();
+    });
+    zone.on('touchend.impplanReorder touchcancel.impplanReorder', '.impplan-drag-handle', function (event) {
+        if (!touchRow) return;
+        var changed = touchOriginal !== zone.children('.IMPPLAN_class').map(function () { return this.id; }).get().join(',');
+        touchRow = null;
+        if (changed && event.type === 'touchend') saveImpPlanOrder();
+        else if (changed) build_IMPPLAN(obj.IMPPLAN_items);
+    });
 }
 
 
@@ -1743,34 +1823,43 @@ function update_PMSFH_code(the_issue,new_code){
 /*
  *  This function sends the obj.IMPPLAN_items to the server for storage
  */
+var impPlanSavePending = null;
+var impPlanSaveActive = false;
 function store_IMPPLAN(storage,nodisplay) {
-    if (typeof storage !== "undefined") {
-        var url = "../../forms/eye_mag/save.php?mode=update&store_IMPPLAN";
-        var formData =  JSON.stringify(storage);
+    if (!Array.isArray(storage)) return;
+    // A newer snapshot supersedes a queued one, but never overtakes an in-flight save.
+    impPlanSavePending = {parameter: JSON.stringify(storage), nodisplay: nodisplay};
+    if (impPlanSaveActive) return;
+    function saveNextImpPlan() {
+        if (!impPlanSavePending) return;
+        var pending = impPlanSavePending;
+        impPlanSavePending = null;
+        impPlanSaveActive = true;
         top.restoreSession();
         $.ajax({
-               type         : 'POST',
-               url          :  url,
-               dataType     : 'json',
-               data         : {
-                 parameter     : formData,
-                 action        : 'store_IMPPLAN',
-                 pid           : $('#pid').val(),
-                 form_id       : $('#form_id').val(),
-                 encounter     : $('#encounter').val(),
-                 uniqueID      : $('#uniqueID').val()
-               }
-               }).done(function(result) {
-                       if (result == "Code 400") {
-                       code_400(); //the user does not have write privileges!
-                       return;
-                       }
-                       obj.IMPPLAN_items = result;
-                    //   if (typeof nodisplay === "undefined") {
-                          build_IMPPLAN(obj.IMPPLAN_items,nodisplay);
-                      // }
-                       });
+            type: 'POST', url: '../../forms/eye_mag/save.php?mode=update&store_IMPPLAN', dataType: 'json',
+            data: {parameter: pending.parameter, action: 'store_IMPPLAN', pid: $('#pid').val(),
+                form_id: $('#form_id').val(), encounter: $('#encounter').val(), uniqueID: $('#uniqueID').val(),
+                csrf_token_form: $('#csrf_token_form').val()}
+        }).done(function(result) {
+            if (!Array.isArray(result)) {
+                window.alert(<?php echo xlj('The Impression/Plan could not be saved. Please try again.'); ?>);
+                return;
+            }
+            // Do not let an old acknowledgement replace more recent edits.
+            if (!impPlanSavePending) {
+                obj.IMPPLAN_items = result;
+                build_IMPPLAN(result, pending.nodisplay);
+            }
+        }).fail(function(response) {
+            if (response.responseText === 'Code 400') code_400();
+            else window.alert(<?php echo xlj('The Impression/Plan could not be saved. Please try again.'); ?>);
+        }).always(function() {
+            impPlanSaveActive = false;
+            saveNextImpPlan();
+        });
     }
+    saveNextImpPlan();
 }
 
 
@@ -1816,9 +1905,12 @@ function CODING_to_feesheet(CODING_items) {
  * This item is appended to the $('#IMPPLAN_zone').
  */
 function dragto_IMPPLAN_zone(event, ui) {
-    var findme = ui.draggable.find("span").attr("id");
-    var group = findme.match(/DX_(.*)_(.*)/)[1];
-    var location = findme.match(/DX_(.*)_(.*)/)[2];
+    var findme = ui.draggable.find("span[id^='DX_']").attr("id") || '';
+    var source = findme.match(/^DX_(Clinical|POH|POS|PMH)_(.*)$/);
+    // The zone also receives its own sortable items; they are not Builder diagnoses.
+    if (!source) return;
+    var group = source[1];
+    var location = source[2];
     var the_code ='';
     var the_codedesc ='';
     var the_codetext ='';
@@ -2417,6 +2509,24 @@ function scrollToAfterLayout(target) {
   window.requestAnimationFrame(function() {
     window.requestAnimationFrame(function() {
       scrollTo(target);
+    });
+  });
+}
+
+/** Bring the newly opened right panel into view after its layout settles. */
+function scrollToRightPanelAfterLayout(zone) {
+  window.requestAnimationFrame(function() {
+    window.requestAnimationFrame(function() {
+      var panel = document.getElementById(zone + '_right');
+      if (!panel || !$(panel).is(':visible')) return;
+      panel.scrollIntoView(true);
+      var navbar = document.querySelector('nav.fixed-top');
+      var padding = (navbar ? navbar.getBoundingClientRect().height : 0) + 12;
+      var before = window.pageYOffset;
+      window.scrollBy(0, -padding);
+      if (window.pageYOffset === before) {
+        try { if (window.parent !== window) window.parent.scrollBy(0, -padding); } catch (error) { /* cross-origin frame */ }
+      }
     });
   });
 }
@@ -3536,19 +3646,19 @@ $(function () {
                                                                                                               add= "+" + add;
                                                                                                               }
                                                                                                               $(this).val(add);
-                                                                                                              if (this.id=="ODADD_1") $('#OSADD_1').val(add);
-                                                                                                              if (this.id=="ODMIDADD_1") $('#OSMIDADD_1').val(add);
-                                                                                                              if (this.id=="ODADD_2") $('#OSADD_2').val(add);
-                                                                                                              if (this.id=="ODMIDADD_2") $('#OSMIDADD_2').val(add);
-                                                                                                              if (this.id=="ODADD_3") $('#OSADD_3').val(add);
-                                                                                                              if (this.id=="ODMIDADD_3") $('#OSMIDADD_3').val(add);
-                                                                                                              if (this.id=="ODADD_4") $('#OSADD_4').val(add);
-                                                                                                              if (this.id=="ODMIDADD_4") $('#OSMIDADD_4').val(add);
-                                                                                                              if (this.id=="ODADD_5") $('#OSADD_5').val(add);
-                                                                                                              if (this.id=="ODMIDADD_5") $('#OSMIDADD_5').val(add);
-                                                                                                              if (this.id=="MRODADD") $('#MROSADD').val(add);
-                                                                                                              if (this.id=="ARODADD") $('#AROSADD').val(add);
-                                                                                                              if (this.id=="CTLODADD") $('#CTLOSADD').val(add);
+                                                                                                              if (this.id=="ODADD_1") $('#OSADD_1').val(add).trigger('change');
+                                                                                                              if (this.id=="ODMIDADD_1") $('#OSMIDADD_1').val(add).trigger('change');
+                                                                                                              if (this.id=="ODADD_2") $('#OSADD_2').val(add).trigger('change');
+                                                                                                              if (this.id=="ODMIDADD_2") $('#OSMIDADD_2').val(add).trigger('change');
+                                                                                                              if (this.id=="ODADD_3") $('#OSADD_3').val(add).trigger('change');
+                                                                                                              if (this.id=="ODMIDADD_3") $('#OSMIDADD_3').val(add).trigger('change');
+                                                                                                              if (this.id=="ODADD_4") $('#OSADD_4').val(add).trigger('change');
+                                                                                                              if (this.id=="ODMIDADD_4") $('#OSMIDADD_4').val(add).trigger('change');
+                                                                                                              if (this.id=="ODADD_5") $('#OSADD_5').val(add).trigger('change');
+                                                                                                              if (this.id=="ODMIDADD_5") $('#OSMIDADD_5').val(add).trigger('change');
+                                                                                                              if (this.id=="MRODADD") $('#MROSADD').val(add).trigger('change');
+                                                                                                              if (this.id=="ARODADD") $('#AROSADD').val(add).trigger('change');
+                                                                                                              if (this.id=="CTLODADD") $('#CTLOSADD').val(add).trigger('change');
                                                                                                               });
 
                   $("input[class^='axis'],input[name$='AXIS']").on("blur", function() {
@@ -3739,7 +3849,9 @@ $(function () {
                                      $('#EXAM_QP').trigger("click");
 
                                    } else {
-                                      $('#BUTTON_QP_'+new_section[1]).trigger("click").trigger("click");//double click intended RM
+                                      if (!$('#QP_' + new_section[1]).is(':visible')) {
+                                          $('#BUTTON_QP_' + new_section[1]).trigger('click');
+                                      }
                                    }
                                  $("#LayerTechnical_sections_1").css("clear","both");
                                  return;
@@ -3757,10 +3869,11 @@ $(function () {
                                     show_PRIORS_section("RETINA",newValue);
                                     show_PRIORS_section("NEURO",newValue);
                                     show_PRIORS_section("IMPPLAN",newValue);
-                                    scrollTo("EXT_left");
-                                } else {
-                                    show_PRIORS_section(new_section[1],newValue);
-                                }
+                                    scrollToRightPanelAfterLayout('EXT');
+                                 } else {
+                                     show_PRIORS_section(new_section[1],newValue);
+                                     scrollToRightPanelAfterLayout(new_section[1]);
+                                 }
                             }
                         });
 
@@ -4978,10 +5091,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             });
                   $("[id^='BUTTON_DRAW_']").on("click", function() {
                                                   var zone =this.id.match(/BUTTON_DRAW_(.*)$/)[1];
-                                                  if (zone =="ALL") {
+                                                  if (zone =="ALL" || zone == 'menu') {
                                                   } else {
-                                                  if ($('#PREFS_'+zone+'_RIGHT').val() =="DRAW") {
-                                                    $('#BUTTON_TEXTD_'+zone).trigger("click");//closes draw
+                                                  if ($('#Draw_'+zone).is(':visible')) {
+                                                    $('#BUTTON_TEXTD_'+(zone === 'PMH' ? 'HPI' : zone)).trigger("click");//closes draw
                                                     update_PREFS();
                                                     //maybe this should revert to last right panel state (qp,text)?');
                                                     return;
@@ -4998,7 +5111,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   }
 
                                                   update_PREFS();
-                                                  scrollToAfterLayout(zone === 'SDRETINA' ? 'RETINA_left' : zone+"_left");
+                                                  scrollToRightPanelAfterLayout(zone);
                                                   }
                                                   });
                   $("[id^='BUTTON_QP_']").on("click", function() {
@@ -5007,9 +5120,15 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   $('#IMP_start_acc').slideDown();
                                                   zone='IMPPLAN';
                                                 }
-                                                if (($("#PREFS_"+zone+"_RIGHT").val() =='QP')&&(zone !='IMPPLAN')) {
-                                                  $('#BUTTON_TEXTD_'+zone).trigger("click");
+                                                if (zone !== 'IMPPLAN' && $('#QP_' + zone).is(':visible')) {
+                                                  $('#BUTTON_TEXTD_' + (zone === 'PMH' ? 'HPI' : zone)).trigger('click');
                                                   return;
+                                                }
+                                                if (($("#PREFS_"+zone+"_RIGHT").val() =='QP')&&(zone !='IMPPLAN')) {
+                                                  if ($('#QP_'+zone).is(':visible')) {
+                                                    $('#BUTTON_TEXTD_'+(zone === 'PMH' ? 'HPI' : zone)).trigger("click");
+                                                    return;
+                                                  }
                                                 }
                                                 $("#PRIORS_"+zone+"_left_text").addClass('nodisplay');
                                                 $("#Draw_"+zone).addClass('nodisplay');
@@ -5044,6 +5163,7 @@ $("body").on("click","[name^='old_canvas']", function() {
 
                                                 }
                                                 update_PREFS();
+                                                if (zone !== 'menu') scrollToRightPanelAfterLayout(zone);
                                                 });
 
                   // set default to ccDist.  Change as desired.
@@ -5180,6 +5300,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                 $("[name='CANVAS_selector']").on("change", function(){
                     //we are going to display an old image from a previous encounter
                     var zone = this.id.match(/CANVAS_(.*)/)[1];
+                    $(this).data('step', this.selectedIndex);
                     if (this.value != 'current') {
                         show_PRIOR_CANVAS_section(zone, this.value);
                     } else {
