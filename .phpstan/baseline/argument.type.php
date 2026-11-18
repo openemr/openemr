@@ -2827,11 +2827,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$options of function isOption expects array, mixed given\\.$#',
-    'count' => 13,
-    'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$section of static method OpenEMR\\\\Common\\\\Acl\\\\AclMain\\:\\:aclCheckCore\\(\\) expects string, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
@@ -2912,11 +2907,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$options of function isOption expects array, mixed given\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$section of static method OpenEMR\\\\Common\\\\Acl\\\\AclMain\\:\\:aclCheckCore\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
@@ -2960,11 +2950,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$value of static method OpenEMR\\\\Common\\\\Acl\\\\AclMain\\:\\:aclCheckCore\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$options of function isOption expects array, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/LBF/report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$section of static method OpenEMR\\\\Common\\\\Acl\\\\AclMain\\:\\:aclCheckCore\\(\\) expects string, mixed given\\.$#',
