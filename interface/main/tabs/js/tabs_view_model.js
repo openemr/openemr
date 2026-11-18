@@ -474,6 +474,33 @@ function reportMenuClickData(data, evt = 'menuClick') {
     });
 }
 
+/**
+ * Whether the user may close the patient chart: true unless one of its tabs has
+ * unsaved changes and the user declines to discard them.
+ */
+function patientChartCanClose()
+{
+    if (top.timed_out) {
+        return true;
+    }
+    // The tabs clearPatient() closes along with the patient.
+    const chartTabs = ['enc', 'rev', 'pop', 'pat'];
+    const dirty = app_view_model.application_data.tabs.tabsList().some(
+        (tab) => chartTabs.includes(tab.name()) && tabHasUnsavedChanges(tab.window)
+    );
+    return !dirty || confirm(xl('You have unsaved changes. Do you want to proceed without saving?'));
+}
+
+// The user closes the patient chart (its close button or shortcut). Code that
+// clears the patient itself, after a delete or to switch patients, calls
+// clearPatient() directly and is not asked.
+function closePatientChart()
+{
+    if (patientChartCanClose()) {
+        clearPatient();
+    }
+}
+
 function clearPatient(openFinder = true)
 {
     top.restoreSession();

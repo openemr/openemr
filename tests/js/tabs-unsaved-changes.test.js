@@ -25,8 +25,8 @@ const source = fs.readFileSync(
 );
 
 // The script declares its functions at the top level; hand back the ones under test.
-const { tabClose, tabCloseByName, tabHasUnsavedChanges } = new Function(
-    source + '\nreturn { tabClose, tabCloseByName, tabHasUnsavedChanges };'
+const { patientChartCanClose, tabClose, tabCloseByName, tabHasUnsavedChanges } = new Function(
+    source + '\nreturn { patientChartCanClose, tabClose, tabCloseByName, tabHasUnsavedChanges };'
 )();
 
 const clickEvent = { type: 'click' };
@@ -140,5 +140,42 @@ describe('tabClose', () => {
         tabCloseByName('enc');
         expect(window.confirm).not.toHaveBeenCalled();
         expect(tabs).toEqual([]);
+    });
+});
+
+describe('patientChartCanClose', () => {
+    test('closes without asking when no chart tab has unsaved changes', () => {
+        tabs = [fakeTab('pat', frameWindow({ somethingChanged: false })), fakeTab('enc', frameWindow())];
+        expect(patientChartCanClose()).toBe(true);
+        expect(window.confirm).not.toHaveBeenCalled();
+    });
+
+    test('ignores unsaved changes in a tab that is not part of the chart', () => {
+        tabs = [fakeTab('adm', frameWindow({ somethingChanged: true }))];
+        expect(patientChartCanClose()).toBe(true);
+        expect(window.confirm).not.toHaveBeenCalled();
+    });
+
+    test('asks once when a chart tab has unsaved changes, and honors cancel', () => {
+        tabs = [
+            fakeTab('pat', frameWindow({ somethingChanged: true })),
+            fakeTab('enc', frameWindow({ frames: [frameWindow({ somethingChanged: true })] })),
+        ];
+        window.confirm.mockReturnValue(false);
+        expect(patientChartCanClose()).toBe(false);
+        expect(window.confirm).toHaveBeenCalledTimes(1);
+    });
+
+    test('closes when the user confirms', () => {
+        tabs = [fakeTab('enc', frameWindow({ somethingChanged: true }))];
+        window.confirm.mockReturnValue(true);
+        expect(patientChartCanClose()).toBe(true);
+    });
+
+    test('does not ask after the session timed out', () => {
+        tabs = [fakeTab('pat', frameWindow({ somethingChanged: true }))];
+        window.timed_out = true;
+        expect(patientChartCanClose()).toBe(true);
+        expect(window.confirm).not.toHaveBeenCalled();
     });
 });
