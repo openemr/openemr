@@ -33,7 +33,23 @@ jobs:
         php-version: ${{ matrix.php-version }}
 
     - name: "Validate Composer"
-      run: composer validate --strict
+      shell: bash
+      run: |
+        out="${RUNNER_TEMP}/composer-validate.txt"
+        if composer validate --strict > "${out}" 2>&1; then
+          cat "${out}"
+          exit 0
+        fi
+        .github/scripts/composer-annotations.sh validate "${out}"
+        exit 1
 
     - name: "Check Composer Normalized"
-      run: composer normalize --dry-run
+      shell: bash
+      run: |
+        out="${RUNNER_TEMP}/composer-normalize.txt"
+        if composer normalize --dry-run > "${out}" 2>&1; then
+          cat "${out}"
+          exit 0
+        fi
+        .github/scripts/composer-annotations.sh normalize "${out}"
+        exit 1

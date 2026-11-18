@@ -8,6 +8,7 @@ on:
     paths:
     - '**.php'
     - .composer-require-checker.json
+    - .github/scripts/composer-annotations.sh
     - .github/workflows/composer-require-checker.yml
     - composer.json
     - composer.lock
@@ -18,6 +19,7 @@ on:
     paths:
     - '**.php'
     - .composer-require-checker.json
+    - .github/scripts/composer-annotations.sh
     - .github/workflows/composer-require-checker.yml
     - composer.json
     - composer.lock
@@ -44,4 +46,12 @@ jobs:
         extensions: bcmath, calendar, ctype, curl, dom, fileinfo, filter, gd, iconv, imagick, intl, json, ldap, libxml, mbstring, mysqli, openssl, pdo, pdo_mysql, phar, redis, session, simplexml, soap, sockets, sodium, tokenizer, xml, xmlreader, xmlwriter, xsl, zip, zlib
 
     - name: Run Composer Require Checker
-      run: composer require-checker
+      shell: bash
+      run: |
+        out="${RUNNER_TEMP}/composer-require-checker.json"
+        if composer require-checker -- --output=json > "${out}"; then
+          echo 'Composer Require Checker found no unknown symbols.'
+          exit 0
+        fi
+        .github/scripts/composer-annotations.sh require-checker "${out}"
+        exit 1
