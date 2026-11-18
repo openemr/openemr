@@ -12,9 +12,11 @@
 
 namespace OpenEMR\Services\Cda;
 
-use CURLFile;
 use DOMDocument;
 use Exception;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
@@ -27,8 +29,11 @@ class CdaValidateDocuments
     public $externalValidatorUrl;
     public $externalValidatorEnabled;
 
-    public function __construct()
+    private readonly ClientInterface $httpClient;
+
+    public function __construct(?ClientInterface $httpClient = null)
     {
+        $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
         $this->externalValidatorEnabled = OEGlobalsBag::getInstance()->getBoolean('mdht_conformance_server_enable');
         if (empty(OEGlobalsBag::getInstance()->getString('mdht_conformance_server'))) {
             $this->externalValidatorEnabled = false;
@@ -124,52 +129,63 @@ class CdaValidateDocuments
             return $reply;
         }
 
-        $headers = [
-            "Content-Type: multipart/form-data",
-            "Accept: application/json",
-        ];
-        $post_url = $this->externalValidatorUrl;
-        // I know there's a better way to do this but, not seeing it just now.
-        $post_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/ccda.xml';
-        file_put_contents($post_file, $xml);
-        $file = new CURLFile($post_file, 'application/xhtml+xml', 'ccda.xml');
-
-        $post_this = [
-            'validationObjective' => 'C-CDA_IG_Plus_Vocab',
-            'referenceFileName' => 'noscenariofile',
-            'vocabularyConfig' => 'ccdaReferenceValidatorConfig',
-            'severityLevel' => 'ERROR',
-            'curesUpdate' => true,
-            'ccdaFile' => $file
-        ];
-        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $post_url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_this);
-
-        $response = curl_exec($ch);
-        $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        if (empty($response) || $status !== '200') {
-            $reply['resultsMetaData']["resultMetaData"][0]["count"] = 1;
-            $reply['ccdaValidationResults'][] = [
-                'description' => xlt('Validation Request failed') .
-                    ': Error ' . (curl_error($ch) ?: xlt('Unknown')) . ' ' .
-                    xlt('Request Status') . ':' . $status
-            ];
-        }
-        if ($status == '200') {
-            $reply = json_decode($response, true);
+        $url = $this->externalValidatorUrl;
+        if (!is_string($url) || $url === '') {
+            return $this->ettFailureReply(0);
         }
 
-        return $reply;
+        try {
+            $response = $this->httpClient->request('POST', $url, [
+                RequestOptions::HEADERS => ['Accept' => 'application/json'],
+                RequestOptions::MULTIPART => [
+                    ['name' => 'validationObjective', 'contents' => 'C-CDA_IG_Plus_Vocab'],
+                    ['name' => 'referenceFileName', 'contents' => 'noscenariofile'],
+                    ['name' => 'vocabularyConfig', 'contents' => 'ccdaReferenceValidatorConfig'],
+                    ['name' => 'severityLevel', 'contents' => 'ERROR'],
+                    ['name' => 'curesUpdate', 'contents' => '1'],
+                    [
+                        'name' => 'ccdaFile',
+                        'contents' => $xml,
+                        'filename' => 'ccda.xml',
+                        'headers' => ['Content-Type' => 'application/xhtml+xml'],
+                    ],
+                ],
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::CONNECT_TIMEOUT => 10,
+                // Validating a large document takes longer than the shared client's default.
+                RequestOptions::TIMEOUT => 120,
+                RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
+            ]);
+        } catch (GuzzleException $e) {
+            ServiceContainer::getLogger()->error('C-CDA validation request failed', ['exception' => $e]);
+            return $this->ettFailureReply(0);
+        }
+
+        $status = $response->getStatusCode();
+        $body = (string) $response->getBody();
+        if ($status !== 200 || $body === '') {
+            return $this->ettFailureReply($status);
+        }
+
+        return json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * Shape a failed validation request like a validator reply reporting one error.
+     *
+     * @return array{resultsMetaData: array{resultMetaData: list<array{count: int}>}, ccdaValidationResults: list<array{type: string, description: string, documentLineNumber: string, xPath: string}>}
+     */
+    private function ettFailureReply(int $status): array
+    {
+        return [
+            'resultsMetaData' => ['resultMetaData' => [['count' => 1]]],
+            'ccdaValidationResults' => [[
+                'type' => 'error',
+                'description' => xlt('Validation Request failed') . ' ' . xlt('Request Status') . ': ' . $status,
+                'documentLineNumber' => '',
+                'xPath' => '',
+            ]],
+        ];
     }
 
     /**

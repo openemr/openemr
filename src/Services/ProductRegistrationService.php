@@ -15,6 +15,10 @@
 
 namespace OpenEMR\Services;
 
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 
@@ -22,11 +26,11 @@ require_once(__DIR__ . '/../../interface/product_registration/exceptions/generic
 
 class ProductRegistrationService
 {
-    /**
-     * Default constructor.
-     */
-    public function __construct()
+    private readonly ClientInterface $httpClient;
+
+    public function __construct(?ClientInterface $httpClient = null)
     {
+        $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
     }
 
     public function getProductDialogStatus(): array
@@ -117,16 +121,16 @@ class ProductRegistrationService
             $info['distribution'] = getenv('OPENEMR_DOCKER_ENV_TAG', true);
         }
 
-        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
-        $curl = curl_init('https://reg.open-emr.org/api/registration');
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($info));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
-        $responseBodyRaw = curl_exec($curl);
-        $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
+        try {
+            $reply = $this->httpClient->request('POST', 'https://reg.open-emr.org/api/registration', [
+                RequestOptions::FORM_PARAMS => $info,
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
+            ]);
+        } catch (GuzzleException $e) {
+            throw new \GenericProductRegistrationException(xl("Server error: try again later"), 0, $e);
+        }
+        $responseCode = $reply->getStatusCode();
 
         $currentVersion = (string) (new VersionService())->getSoftwareVersion();
         switch ($responseCode) {

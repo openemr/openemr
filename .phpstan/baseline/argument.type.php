@@ -56667,11 +56667,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$json of function json_decode expects string, bool\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$json of function json_decode expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
@@ -56688,11 +56683,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\.\\.\\.\\$arrays of function array_merge expects array, bool given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$value of function curl_setopt expects non\\-empty\\-string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
@@ -64830,11 +64820,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#5 \\$length of function file_get_contents expects int\\<0, max\\>\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$payload of method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:executeCurlRequest\\(\\) expects string, string\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$subject of function preg_replace expects array\\<float\\|int\\|string\\>\\|string, mixed given\\.$#',

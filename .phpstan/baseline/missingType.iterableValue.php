@@ -15752,11 +15752,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryRepository.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:executeCurlRequest\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:reportClickEvent\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',

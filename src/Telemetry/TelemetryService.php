@@ -10,6 +10,9 @@
 
 namespace OpenEMR\Telemetry;
 
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\DatabaseQueryTrait;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
@@ -32,19 +35,16 @@ class TelemetryService
 
     protected LoggerInterface $logger;
 
-    /**
-     * TelemetryService constructor.
-     *
-     * @param TelemetryRepository     $repository
-     * @param VersionServiceInterface $versionService
-     * @param ?LoggerInterface         $logger
-     */
+    private readonly ClientInterface $httpClient;
+
     public function __construct(
         protected TelemetryRepository $repository = new TelemetryRepository(),
         protected VersionServiceInterface $versionService = new VersionService(),
         ?LoggerInterface $logger = null,
+        ?ClientInterface $httpClient = null,
     ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
+        $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
     }
 
     /**
@@ -204,17 +204,25 @@ class TelemetryService
             'localeData' => $localeData,
         ];
 
-        $payload = json_encode($payload_data);
+        $payload = json_encode($payload_data, JSON_THROW_ON_ERROR);
 
-        $curlResult = $this->executeCurlRequest($endpoint, $payload);
-        $response = $curlResult['response'];
-        $httpStatus = $curlResult['httpStatus'];
-        if (!empty($curlResult['error'])) {
-            $this->logger->error("cURL error: {error}", ['error' => $curlResult['error']]);
+        try {
+            $reply = $this->httpClient->request('POST', $endpoint, [
+                RequestOptions::BODY => $payload,
+                RequestOptions::HEADERS => ['Content-Type' => 'application/json'],
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
+            ]);
+        } catch (GuzzleException $e) {
+            // No response, as when cURL failed to connect: report status 0.
+            $this->logger->error('Telemetry usage report request failed', ['exception' => $e]);
+            return 0;
         }
+        $httpStatus = $reply->getStatusCode();
+        $response = (string) $reply->getBody();
 
         if (in_array($httpStatus, [200, 201, 204])) {
-            $responseData = json_decode((string)$response, true);
+            $responseData = json_decode($response, true);
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report //TODO: REMOVE comment RELEASE
             } else {
@@ -272,40 +280,5 @@ class TelemetryService
     protected function createGeoTelemetry(): GeoTelemetryInterface
     {
         return new GeoTelemetry();
-    }
-
-    /**
-     * A stubbable wrapper around cURL operations.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param string $endpoint
-     * @param string $payload
-     * @return array
-     */
-    protected function executeCurlRequest(string $endpoint, string $payload): array
-    {
-        $httpVerifySsl = (bool)(OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
-        $ch = curl_init($endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/json",
-            "Content-Length: " . strlen($payload)
-        ]);
-
-        $response = curl_exec($ch);
-        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_errno($ch) ? curl_error($ch) : null;
-        curl_close($ch);
-
-        return [
-            'response' => $response,
-            'httpStatus' => $httpStatus,
-            'error' => $error
-        ];
     }
 }

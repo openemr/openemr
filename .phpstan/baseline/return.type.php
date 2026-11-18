@@ -8537,11 +8537,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Telemetry\\\\TelemetryService\\:\\:reportUsageData\\(\\) should return bool\\|int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\USPS\\\\USPSAddressVerifyV3\\:\\:doRequest\\(\\) should return array but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
