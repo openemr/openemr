@@ -162,6 +162,11 @@ class Pharmacy extends ORDataObject
     }
     public function set_number(string $num, PhoneType $type): void
     {
+        // persist() clears only the WORK and FAX rows before it re-inserts, so a
+        // number of any other type would gain a copy on every save.
+        if ($type !== PhoneType::WORK && $type !== PhoneType::FAX) {
+            throw new \InvalidArgumentException("Only WORK and FAX numbers can be set, not {$type->name}");
+        }
         $typed = TypedPhoneNumber::tryCreate($num, $type);
         if ($typed === null) {
             return;
@@ -206,8 +211,12 @@ class Pharmacy extends ORDataObject
             $prefix = (string) ($record['prefix'] ?? '');
             $number = (string) ($record['number'] ?? '');
             $phoneStr = $areaCode . $prefix . $number;
-            $typeValue = is_int($record['type']) ? $record['type'] : PhoneType::WORK->value;
-            $type = PhoneType::tryFrom($typeValue) ?? PhoneType::WORK;
+            $type = is_int($record['type']) ? PhoneType::tryFrom($record['type']) : null;
+            // persist() rewrites only the work and fax rows. Load no other
+            // type, or the next save would insert a copy of that row.
+            if ($type !== PhoneType::WORK && $type !== PhoneType::FAX) {
+                continue;
+            }
             $typed = TypedPhoneNumber::tryCreate($phoneStr, $type);
             if ($typed !== null) {
                 $this->phone_numbers[] = $typed;
@@ -227,9 +236,11 @@ class Pharmacy extends ORDataObject
             $ret = parent::persist();
             $this->address->persist($this->id);
             $phoneService = new PhoneNumberService();
+            // Clear only the WORK and FAX rows this method rewrites; see
+            // InsuranceCompany::persist().
             QueryUtils::sqlStatementThrowException(
-                "DELETE FROM phone_numbers WHERE foreign_id = ?",
-                [$this->id]
+                'DELETE FROM phone_numbers WHERE foreign_id = ? AND type IN (?, ?)',
+                [$this->id, PhoneType::WORK->value, PhoneType::FAX->value]
             );
             foreach ($this->phone_numbers as $phone) {
                 $nationalDigits = $phone->phoneNumber->getNationalDigits();
