@@ -1090,10 +1090,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none' onclick='top.restoreSession()'></a>
         <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($session->get('authUserID')); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
-        if ($thisauth) :
-            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
-            require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");
-        endif;
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
+        require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");
 
         $list_id = "dashboard"; // to indicate nav item is active, count and give correct id
         // Collect the patient menu then build it
@@ -1114,9 +1112,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $allergy = (AclMain::aclCheckIssue('allergy') ? 1 : 0) && !in_array('card_allergies', $hiddenCards) ? 1 : 0;
                 $pl = (AclMain::aclCheckIssue('medical_problem') ? 1 : 0) && !in_array('card_medicalproblems', $hiddenCards) ? 1 : 0;
                 $meds = (AclMain::aclCheckIssue('medication') ? 1 : 0) && !in_array('card_medication', $hiddenCards) ? 1 : 0;
-                if (!$thisauth) {
-                    $meds = 0;
-                }
                 $rx = !OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions') && AclMain::aclCheckCore('patients', 'rx') && !in_array('card_prescriptions', $hiddenCards) ? 1 : 0;
                 $cards = max(1, ($allergy + $pl + $meds));
                 $col = "p-1 ";
@@ -2100,14 +2095,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ]);
                     }  // end track_anything
 
-                    if ($thisauth) :
-                        echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
-                            'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
-                            'allowPatientDelete' => OEGlobalsBag::getInstance()->getBoolean('allow_pat_delete'),
-                            'csrf' => CsrfUtils::collectCsrfToken(session: $session),
-                            'pid' => $pid
-                        ]);
-                    endif;
+                    echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
+                        'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
+                        'allowPatientDelete' => OEGlobalsBag::getInstance()->getBoolean('allow_pat_delete'),
+                        'csrf' => CsrfUtils::collectCsrfToken(session: $session),
+                        'pid' => $pid
+                    ]);
                     ?>
                 </div> <!-- end right column div -->
             </div> <!-- end div.main > row:first  -->

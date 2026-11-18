@@ -18,11 +18,8 @@ Printable medication list for one patient.
 {{ activeHtml|raw }}
 {{ inactiveHtml|raw }}
 <script>
-if (window.opener && window.opener.top && typeof window.opener.top.printLogPrint === "function") {
-    window.opener.top.printLogPrint(window);
-} else {
-    window.print();
-}
+{{ printLog|raw }}
+printLogPrint(window);
 </script>
 </body>
 </html>

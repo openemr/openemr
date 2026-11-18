@@ -21,6 +21,7 @@ use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\PatientDemographics\ViewEvent;
 
 final class ActiveMedicationPrintPage
 {
@@ -37,17 +38,19 @@ final class ActiveMedicationPrintPage
         if ($pid < 1) {
             AccessDeniedHelper::deny('No patient selected');
         }
+
+        $viewEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
+            new ViewEvent($pid),
+            ViewEvent::EVENT_HANDLE
+        );
+        if ($viewEvent->authorized() !== true) {
+            AccessDeniedHelper::deny('Unauthorized access to medication list');
+        }
         if (!AclMain::aclCheckCore('patients', 'med')) {
             AccessDeniedHelper::deny('Unauthorized access to medication list');
         }
 
         $patient = self::patientRow($pid);
-        $squadValue = $patient['squad'] ?? null;
-        $squad = is_string($squadValue) ? $squadValue : '';
-        if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
-            AccessDeniedHelper::deny('Not authorized for squad: ' . $squad);
-        }
-
         $includePrescriptions = !OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions')
             && AclMain::aclCheckCore('patients', 'rx');
         $service = new ActiveMedicationListService();
@@ -59,12 +62,16 @@ final class ActiveMedicationPrintPage
         );
         $section = new ActiveMedicationSectionView(ServiceContainer::getTwig());
         ob_start();
-        Header::setupHeader();
+        Header::setupHeader(['common']);
         $header = ob_get_clean();
+        ob_start();
+        require OEGlobalsBag::getInstance()->getSrcDir() . '/restoreSession.php';
+        $printLog = ob_get_clean();
         echo ServiceContainer::getTwig()->render(
             'patient/active_medications_print.html.twig',
             [
                 'header' => is_string($header) ? $header : '',
+                'printLog' => is_string($printLog) ? $printLog : '',
                 'patientName' => ActiveMedicationListService::patientName($patient),
                 'activeHtml' => $section->render(
                     'Active',
@@ -86,14 +93,14 @@ final class ActiveMedicationPrintPage
     }
 
     /**
-     * Name and squad columns for the print page. A missing row is empty.
+     * Name columns for the print page. A missing row is empty.
      *
      * @return array<string, mixed>
      */
     private static function patientRow(int $pid): array
     {
         $patient = [];
-        foreach (getPatientData($pid, 'squad, title, fname, mname, lname') as $column => $value) {
+        foreach (getPatientData($pid, 'title, fname, mname, lname') as $column => $value) {
             if (!is_string($column)) {
                 continue;
             }
