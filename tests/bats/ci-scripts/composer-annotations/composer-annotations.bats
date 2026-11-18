@@ -5,8 +5,11 @@
 #     dependency when the tool gives one; summary table; non-JSON output
 #   - validate: one annotation per "- " finding, lock-file findings on
 #     composer.lock; fallback annotation; summary
-#   - normalize: one annotation; diff in the summary
-#   - workflow-command escaping of % and newlines
+#   - normalize: one annotation; diff in the summary; output that is not a
+#     diff reported as a failed run
+#   - validate: Composer's real section order (lock errors, then general
+#     warnings) puts each finding on the right file
+#   - workflow-command escaping of % and CR
 #   - annotations only under GITHUB_ACTIONS=true, summary only with
 #     GITHUB_STEP_SUMMARY set
 #   - usage errors
@@ -122,12 +125,38 @@ TEXT
     [[ ${summary} == *'```diff'$'\n''--- original'* ]]
 }
 
+@test "normalize: output that is not a diff is reported as a failed run" {
+    printf 'Command "normalize" is not defined.\n' > "${SCRATCH}/normalize.txt"
+    GITHUB_ACTIONS=true GITHUB_STEP_SUMMARY="${SCRATCH}/summary.md" run bash "${COMPOSER_ANNOTATIONS_SCRIPT}" normalize "${SCRATCH}/normalize.txt"
+    [[ ${status} -eq 0 ]]
+    [[ ${output} == *'::error file=composer.json,title=composer normalize::composer normalize failed without a diff; see the job log.'* ]]
+    [[ ${output} != *'is not normalized'* ]]
+    summary=$(< "${SCRATCH}/summary.md")
+    [[ ${summary} == *'## composer normalize failed'* ]]
+    [[ ${summary} == *'Command "normalize" is not defined.'* ]]
+}
+
+@test "validate: lock errors then general warnings each land on their own file" {
+    cat > "${SCRATCH}/validate.txt" <<'TEXT'
+./composer.json is valid but your composer.lock has some errors
+# Lock file errors
+- The lock file is not up to date with the latest changes in composer.json.
+# General warnings
+- require.foo/bar : unbound version constraints (*) should be avoided
+TEXT
+    GITHUB_ACTIONS=true run bash "${COMPOSER_ANNOTATIONS_SCRIPT}" validate "${SCRATCH}/validate.txt"
+    [[ ${status} -eq 0 ]]
+    [[ ${output} == *'::error file=composer.lock,title=composer validate::The lock file is not up to date'* ]]
+    [[ ${output} == *'::error file=composer.json,title=composer validate::require.foo/bar : unbound'* ]]
+}
+
 @test "summary fence outgrows backticks in the content" {
-    printf 'a ``` b\n' > "${SCRATCH}/normalize.txt"
+    printf -- '--- original\n+++ normalized\n+  "a": "``` b"\n' > "${SCRATCH}/normalize.txt"
     GITHUB_STEP_SUMMARY="${SCRATCH}/summary.md" run bash "${COMPOSER_ANNOTATIONS_SCRIPT}" normalize "${SCRATCH}/normalize.txt"
     [[ ${status} -eq 0 ]]
     summary=$(< "${SCRATCH}/summary.md")
-    [[ ${summary} == *'````diff'$'\n''a ``` b'$'\n''````'* ]]
+    [[ ${summary} == *'````diff'$'\n''--- original'* ]]
+    [[ ${summary} == *'+  "a": "``` b"'$'\n''````'* ]]
 }
 
 @test "annotation messages escape percent signs" {
@@ -135,6 +164,13 @@ TEXT
     GITHUB_ACTIONS=true run bash "${COMPOSER_ANNOTATIONS_SCRIPT}" validate "${SCRATCH}/validate.txt"
     [[ ${status} -eq 0 ]]
     [[ ${output} == *'::error file=composer.json,title=composer validate::100%25 of the time'* ]]
+}
+
+@test "annotation messages escape a carriage return" {
+    printf -- '- finding from a CRLF line\r\n' > "${SCRATCH}/validate.txt"
+    GITHUB_ACTIONS=true run bash "${COMPOSER_ANNOTATIONS_SCRIPT}" validate "${SCRATCH}/validate.txt"
+    [[ ${status} -eq 0 ]]
+    [[ ${output} == *'::error file=composer.json,title=composer validate::finding from a CRLF line%0D'* ]]
 }
 
 @test "usage errors exit 2" {

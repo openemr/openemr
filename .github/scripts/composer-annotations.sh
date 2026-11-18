@@ -13,6 +13,7 @@
 #                    composer.json, or on composer.lock for lock-file findings.
 #   normalize        <output-file> holds `composer normalize --dry-run`. The
 #                    diff goes in the summary under one error on composer.json.
+#                    Output that is not a diff means normalize itself failed.
 #
 # The caller runs the check and calls this only when it failed; the script
 # reports and leaves the exit status to the caller. Annotations are printed
@@ -125,6 +126,15 @@ report_validate() {
 report_normalize() {
     local output_file=$1
     cat "${output_file}"
+    if ! grep -qE '^(---|\+\+\+) ' "${output_file}"; then
+        # No diff: normalize could not run (a missing plugin, a parse error).
+        annotate composer.json 'composer normalize' 'composer normalize failed without a diff; see the job log.'
+        {
+            printf '## composer normalize failed\n\n'
+            fenced text < "${output_file}"
+        } | summarize
+        return 0
+    fi
     annotate composer.json 'composer normalize' 'composer.json is not normalized. Run `composer normalize` and commit the result.'
 
     {
