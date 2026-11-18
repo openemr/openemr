@@ -362,19 +362,6 @@ class InsuranceCompany extends ORDataObject
             $ret = parent::persist();
             $this->address->persist($this->id);
             $phoneService = new PhoneNumberService();
-            // Reset this company's WORK and FAX rows so they mirror
-            // $this->phone_numbers after the loop. PhoneNumberService::insert
-            // is a plain INSERT (contrary to the earlier "handles upsert
-            // logic" comment), so without the clear persist() accumulates a
-            // fresh WORK + FAX row on every save and the list-view LEFT JOINs
-            // on phone_numbers multiply each company across
-            // (work_count * fax_count) result rows. Rows of other types were
-            // written by other code, which persist() cannot recreate, so the
-            // clear leaves them alone.
-            QueryUtils::sqlStatementThrowException(
-                'DELETE FROM phone_numbers WHERE foreign_id = ? AND type IN (?, ?)',
-                [$this->id, PhoneType::WORK->value, PhoneType::FAX->value]
-            );
             foreach ($this->phone_numbers as $phone) {
                 $nationalDigits = $phone->phoneNumber->getNationalDigits();
                 if ($nationalDigits === null) {
@@ -384,6 +371,22 @@ class InsuranceCompany extends ORDataObject
                     // from PhoneNumberService::getPhoneParts().
                     continue;
                 }
+                // Replace this company's rows of this type with the one
+                // number it holds. PhoneNumberService::insert is a plain
+                // INSERT (contrary to the earlier "handles upsert logic"
+                // comment), so without the clear persist() accumulates a
+                // fresh WORK + FAX row on every save and the list-view LEFT
+                // JOINs on phone_numbers multiply each company across
+                // (work_count * fax_count) result rows. A type the company
+                // holds no number for keeps its saved rows: populate() skips
+                // a row it cannot load, such as one without a 10-digit
+                // number, and clearing it would lose that number. set_number()
+                // admits only WORK and FAX, so rows of other types, written by
+                // other code, are never touched.
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM phone_numbers WHERE foreign_id = ? AND type = ?',
+                    [$this->id, $phone->type->value]
+                );
                 $phoneData = ['phone' => $nationalDigits];
                 $phoneService->type = $phone->type->value;
                 $phoneService->insert($phoneData, $this->id);

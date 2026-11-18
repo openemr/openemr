@@ -242,12 +242,6 @@ class Pharmacy extends ORDataObject
             $ret = parent::persist();
             $this->address->persist($this->id);
             $phoneService = new PhoneNumberService();
-            // Clear only the WORK and FAX rows this method rewrites; see
-            // InsuranceCompany::persist().
-            QueryUtils::sqlStatementThrowException(
-                'DELETE FROM phone_numbers WHERE foreign_id = ? AND type IN (?, ?)',
-                [$this->id, PhoneType::WORK->value, PhoneType::FAX->value]
-            );
             foreach ($this->phone_numbers as $phone) {
                 $nationalDigits = $phone->phoneNumber->getNationalDigits();
                 if ($nationalDigits === null) {
@@ -257,6 +251,12 @@ class Pharmacy extends ORDataObject
                     // from PhoneNumberService::getPhoneParts().
                     continue;
                 }
+                // Replace only the rows of a type this pharmacy holds a
+                // number for; see InsuranceCompany::persist().
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM phone_numbers WHERE foreign_id = ? AND type = ?',
+                    [$this->id, $phone->type->value]
+                );
                 $phoneData = ['phone' => $nationalDigits];
                 $phoneService->type = $phone->type->value;
                 $phoneService->insert($phoneData, $this->id);
