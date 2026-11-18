@@ -269,7 +269,6 @@ if (is_dir($OE_SITE_DIR)) {
 }
 
 // Include the sqlconf file if it exists yet.
-$config = 0;
 if (file_exists($installer->conffile)) {
     require_once($installer->conffile);
 } elseif ($state > 3) {
@@ -279,8 +278,7 @@ if (file_exists($installer->conffile)) {
     die("Internal error, site directory is missing.");
 }
 
-// Should never have $config set when state less than 4
-//  (this means already installed)
+// Should never be installed when state less than 4
 if (ServiceContainer::getSiteInstallState()->isInstalled && (($state ?? 0) < 4)) {
     SessionUtil::setupScriptSessionStart();
     SessionUtil::setupScriptSessionCookieDestroy();
