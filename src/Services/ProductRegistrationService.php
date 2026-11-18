@@ -125,6 +125,7 @@ class ProductRegistrationService
             $reply = $this->httpClient->request('POST', 'https://reg.open-emr.org/api/registration', [
                 RequestOptions::FORM_PARAMS => $info,
                 RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::ALLOW_REDIRECTS => false,
                 RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
             ]);
         } catch (GuzzleException $e) {

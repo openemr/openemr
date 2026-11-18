@@ -108,11 +108,28 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
             $this->assertSame([$this->failureFinding(0)], $results['errors']);
         }
 
-        public function testAReplyThatIsNotJsonYieldsNoResults(): void
+        public function testAReplyThatIsNotJsonIsReportedAsOneFinding(): void
         {
-            $validator = $this->validatorReplying(new Response(200, [], 'not json'));
+            $validator = $this->validatorReplying(new Response(200, [], '<html>Gateway error</html>'));
 
-            $this->assertSame([], $validator->ettValidateCcda(self::DOCUMENT));
+            $results = $validator->ettValidateCcda(self::DOCUMENT);
+
+            $this->assertSame(1, $results['errorCount']);
+            $this->assertSame([$this->failureFinding(200)], $results['errors']);
+        }
+
+        public function testARedirectIsNotFollowed(): void
+        {
+            $requests = [];
+            $validator = $this->validatorReplying(
+                new Response(302, ['Location' => 'https://elsewhere.example.test/']),
+                $requests
+            );
+
+            $results = $validator->ettValidateCcda(self::DOCUMENT);
+
+            $this->assertCount(1, $requests);
+            $this->assertSame([$this->failureFinding(302)], $results['errors']);
         }
 
         /**

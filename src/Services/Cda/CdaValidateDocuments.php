@@ -120,9 +120,9 @@ class CdaValidateDocuments
 
     /**
      * @param $xml
-     * @return array|mixed
+     * @return mixed[]
      */
-    private function ettValidateDocumentRequest($xml)
+    private function ettValidateDocumentRequest($xml): array
     {
         $reply = [];
         if (empty($xml)) {
@@ -151,6 +151,7 @@ class CdaValidateDocuments
                     ],
                 ],
                 RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::ALLOW_REDIRECTS => false,
                 RequestOptions::CONNECT_TIMEOUT => 10,
                 // Validating a large document takes longer than the shared client's default.
                 RequestOptions::TIMEOUT => 120,
@@ -167,7 +168,14 @@ class CdaValidateDocuments
             return $this->ettFailureReply($status);
         }
 
-        return json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+        // A reply that isn't a JSON object (a proxy's HTML error page, say) is a failed
+        // validation, not a document with no findings.
+        $decoded = json_decode($body, true);
+        if (!is_array($decoded)) {
+            ServiceContainer::getLogger()->error('C-CDA validator reply was not JSON', ['status' => $status]);
+            return $this->ettFailureReply($status);
+        }
+        return $decoded;
     }
 
     /**

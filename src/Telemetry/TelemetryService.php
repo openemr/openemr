@@ -211,6 +211,7 @@ class TelemetryService
                 RequestOptions::BODY => $payload,
                 RequestOptions::HEADERS => ['Content-Type' => 'application/json'],
                 RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::ALLOW_REDIRECTS => false,
                 RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
             ]);
         } catch (GuzzleException $e) {
