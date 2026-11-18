@@ -21,11 +21,12 @@ use PHPUnit\Framework\TestCase;
 
 class LayoutsUtilsListItemTitleTest extends TestCase
 {
-    private const LIST_ID = 'zz_layouts_utils_test';
+    // A list ID of its own per test, so cleanup never touches rows this test did not write.
+    private string $listId;
 
     protected function setUp(): void
     {
-        $this->cleanUp();
+        $this->listId = 'zz_layouts_utils_test_' . bin2hex(random_bytes(8));
         $rows = [
             ['active', 'Active title', 1],
             ['untitled', '', 1],
@@ -35,20 +36,20 @@ class LayoutsUtilsListItemTitleTest extends TestCase
         foreach ($rows as [$optionId, $title, $activity]) {
             QueryUtils::sqlStatementThrowException(
                 'INSERT INTO list_options (list_id, option_id, title, activity) VALUES (?, ?, ?, ?)',
-                [self::LIST_ID, $optionId, $title, $activity]
+                [$this->listId, $optionId, $title, $activity]
             );
         }
     }
 
     protected function tearDown(): void
     {
-        $this->cleanUp();
+        QueryUtils::sqlStatementThrowException('DELETE FROM list_options WHERE list_id = ?', [$this->listId]);
     }
 
     #[DataProvider('titleProvider')]
     public function testGetListItemTitle(string $optionId, string $expected, bool $translated): void
     {
-        self::assertSame($translated ? xl_list_label($expected) : $expected, LayoutsUtils::getListItemTitle(self::LIST_ID, $optionId));
+        self::assertSame($translated ? xl_list_label($expected) : $expected, LayoutsUtils::getListItemTitle($this->listId, $optionId));
     }
 
     /**
@@ -65,10 +66,5 @@ class LayoutsUtilsListItemTitleTest extends TestCase
             'inactive option falls back to the option' => ['inactive', 'inactive', false],
             'unknown option falls back to the option' => ['missing', 'missing', false],
         ];
-    }
-
-    private function cleanUp(): void
-    {
-        QueryUtils::sqlStatementThrowException('DELETE FROM list_options WHERE list_id = ?', [self::LIST_ID]);
     }
 }

@@ -48,6 +48,7 @@ class LayoutsUtilsTest extends TestCase
             'legacy "0"'                      => ['0', '0', false],
             'legacy JSON exponent number'     => ['2E0', 'E', false],
             'comma but not JSON'              => ['G,P', 'P', false],
+            'non-ASCII legacy string'         => ['é0', '0', false],
             'JSON scalar'                     => ['"T"', 'T', false],
             'string null'                     => ['null', 'n', false],
             'empty string'                    => ['', 'E', false],

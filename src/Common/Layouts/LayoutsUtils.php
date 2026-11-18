@@ -64,7 +64,11 @@ class LayoutsUtils
             $decoded = JsonUtils::decodeArray($options);
         } catch (\JsonException) {
             // Not JSON. Without a comma it is a legacy string of one-letter modifiers.
-            return str_contains($options, ',') ? [] : str_split(trim($options));
+            // Modifiers are ASCII; any other byte has always made the whole value unreadable.
+            if (str_contains($options, ',') || !mb_check_encoding($options, 'ASCII')) {
+                return [];
+            }
+            return str_split(trim($options));
         }
 
         if ($decoded === null) {

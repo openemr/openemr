@@ -46,7 +46,9 @@ class BillingCodeType implements IOptionFormType
         if (self::isBlank($code)) {
             return '';
         }
-        $description = getCodeDescription($code);
+        // Match the field's own lookup; with no type configured, keep the ICD10 default.
+        $codeType = $this->configuredCodeType($frow);
+        $description = $codeType === '' ? getCodeDescription($code) : getCodeDescription($code, $codeType);
         return 'valdesc:' . js_escape(is_string($description) ? $description : '') . ', ';
     }
 
@@ -138,11 +140,7 @@ class BillingCodeType implements IOptionFormType
         ) ? 'checkSkipConditions();' : '';
         $lbfonchange = $lbfchange === '' ? '' : "onchange='$lbfchange'";
 
-        // A description naming an installed code type limits the picker to that type.
-        $codetype = '';
-        if (!self::isBlank($fieldDescription) && $this->codeTypes->isInstalledCodeType($fieldDescription)) {
-            $codetype = $fieldDescription;
-        }
+        $codetype = $this->configuredCodeType($frow);
         $string_maxlength = '';
         $maxlength = self::field($frow, 'max_length');
         // if max_length is set to zero, then do not set a maxlength
@@ -212,6 +210,20 @@ class BillingCodeType implements IOptionFormType
             $result[] = " $lbfonchange readonly $disabled />";
         }
         return implode("", $result);
+    }
+
+    /**
+     * A description naming an installed code type limits the field to that type; otherwise ''.
+     *
+     * @param array<mixed> $frow
+     */
+    private function configuredCodeType(array $frow): string
+    {
+        $description = self::field($frow, 'description');
+        if (self::isBlank($description) || !$this->codeTypes->isInstalledCodeType($description)) {
+            return '';
+        }
+        return $description;
     }
 
     /**
