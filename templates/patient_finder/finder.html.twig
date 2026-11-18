@@ -1,75 +1,62 @@
+{#
+Patient Finder page, rendered by interface/main/finder/dynamic_finder.php: the heading
+bar, the patient list and recent patients tabs (each a server-side DataTable filled by
+dynamic_finder.js), and the options below the list.
+
+@package   OpenEMR
+@link      https://www.open-emr.org
+@license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% import _self as finder %}
 <body>
     <div id="container_div" class="{{ oeContainer|attr }} mt-3">
-        {{ pageHeading }}
+        {# The heading bar holds the list tabs, page-length menu, search, Add Patient and the OemrUI icons. #}
+        <div id="finder-heading">{{ pageHeading }}</div>
          <div class="w-100">
             <div>
-                <ul class="nav nav-tabs mt-3" id="finderTabsNav" role="tablist">
-                    <li class="nav-item" role="presentation"><button class="nav-link active" id="listTab" data-toggle="tab" data-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true">{{ "Patient List"|xlt }}</button></li>
-                    <li class="nav-item" role="presentation"><button class="nav-link" id="recentTab" data-toggle="tab" data-target="#recent" type="button" role="tab" aria-controls="recent" aria-selected="true">{{ "Recent Patients"|xlt }}</button></li>
-                </ul>
-                <div class="tab-content" id="finderTabs">
+                {# data-finder-font-size sets the lists' text size; the Font Size menu changes it. #}
+                <div class="tab-content" id="finderTabs" data-finder-font-size="{{ fontSize|attr }}">
                     <div class="tab-pane show active" id="list" role="tabpanel" aria-labelledby="listTab">
-                        <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
-                            <!-- Class "display" is defined in demo_table.css -->
-                            <div class="table-responsive">
-                                <table class="table" class="border-0 display" id="pt_table">
-                                    <thead class="thead-light">
-                                        <tr id="advanced_search" class="hideaway d-none">
-                                            {% for column in columns %}
-                                                <td><input type="text" size="20" value="" class="form-control search_init" placeholder="{{ "Search by"|xla }} {{ column.link ? "Name"|xla : column.title|attr }}"/></td>
-                                            {% endfor %}
-                                        </tr>
-                                        <tr class="">
-                                            {% for column in columns %}
-                                                <th>{{ column.title|text }}</th>
-                                            {% endfor %}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-                                            <td class="dataTables_empty" colspan="{{ columns|length|attr }}">...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="table-responsive">
+                            {# OemrUI's search icon shows and hides the first .hideaway on the page: this row. #}
+                            {{ finder.finder_table('pt_table', 'advanced_search', 'hideaway', columns, detailEnabled) }}
                         </div>
                     </div>
                     <div class="tab-pane" id="recent" role="tabpanel" aria-labelledby="recentTab">
-                        {% if rp|length > 0 %}
-                        <div class="table mt-2">
-                            <table class="w-100">
-                                <thead class="thead-light">
-                                    <tr>
-                                        {% for h in headers %}
-                                            <th scope="col">{{ h.title|xlListLabel }}</th>
-                                        {% endfor %}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for p in rp %}
-                                        <tr class="clickable-row" style="cursor:pointer;" data-pid="{{ p.pid|attr }}">
-                                            {% for h in headers %}
-                                                {% set value = p[h.option_id] %}
-                                                <td>
-                                                    {% if loop.first %}
-                                                        <a href="#">{{ value|text }}</a>
-                                                    {% else %}
-                                                        {{ value|text }}
-                                                    {% endif %}
-                                                </td>
-                                            {% endfor %}
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                        <div class="table-responsive">
+                            {# dynamic_finder.js shows and hides this search row with the Patient List's. #}
+                            {{ finder.finder_table('recent_table', 'recent_advanced_search', '', recentColumns, detailEnabled) }}
                         </div>
-                        {% else %}
-                        <div class="row">
-                            <div class="col-12">
-                                <p class="text-center bg-light p-5">{{ "No recent patients"|xlt }}</p>
+                    </div>
+                </div>
+                {# Options for both tabs, under the entry count and the pages. #}
+                <div id="finder-options" class="d-flex flex-wrap align-items-center">
+                    <form name="myform">
+                        <div class="form-check form-check-inline">
+                            <label for="form_new_window" class="form-check-label" id="form_new_window_label">
+                                <input type="checkbox" class="form-check-input" id="form_new_window" name="form_new_window" value="1"{{ newWindowChecked ? ' checked' : '' }} />
+                                {{ "Open in New Browser Tab"|xlt }}
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label for="setting_search_type" class="form-check-label" id="setting_search_type_label">
+                                <input type="checkbox" class="form-check-input" id="setting_search_type" name="setting_search_type" value="{{ exactSearch|attr }}"{{ exactChecked ? ' checked' : '' }} />
+                                {{ "Search with exact method"|xlt }}
+                            </label>
+                        </div>
+                    </form>
+                    {# Font Size and Customize sit together at the right end of the line. #}
+                    <div id="finder-option-buttons" class="d-flex align-items-center">
+                        <div class="dropdown">
+                            <button type="button" id="finder-font-size" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{ "Change the text size of the list"|xla }}">{{ "Font Size"|xlt }}</button>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="finder-font-size">
+                                {% for size, label in fontSizes %}
+                                    <button type="button" class="dropdown-item{{ size == fontSize ? ' active' : '' }}" data-font-size="{{ size|attr }}" aria-current="{{ size == fontSize ? 'true' : 'false' }}">{{ label|text }}</button>
+                                {% endfor %}
                             </div>
                         </div>
+                        {% if canCustomize %}
+                            <button type="button" id="finder-customize" class="btn btn-primary btn-sm" title="{{ "Choose the columns this list shows"|xla }}">{{ "Customize"|xlt }}</button>
                         {% endif %}
                     </div>
                 </div>
@@ -81,57 +68,55 @@
             {{ csrfToken('', 'csrf_token_form') }}
             <input type='hidden' name='patientID' value='0'/>
         </form>
-        <!-- Top controls; dynamic_finder.js moves this form into the DataTables toolbar. -->
-        <div id="finder-topform" class="d-none">
-            <form name="myform">
-                <div class="form-check form-check-inline">
-                    <label for="form_new_window" class="form-check-label" id="form_new_window_label">
-                        <input type="checkbox" class="form-check-input" id="form_new_window" name="form_new_window" value="1"{{ newWindowChecked ? ' checked' : '' }} />
-                        {{ "Open in New Browser Tab"|xlt }}
-                    </label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <label for="setting_search_type" class="form-check-label" id="setting_search_type_label">
-                        <input type="checkbox" class="form-check-input" id="setting_search_type" name="setting_search_type" value="{{ exactSearch|attr }}"{{ exactChecked ? ' checked' : '' }} />
-                        {{ "Search with exact method"|xlt }}
-                    </label>
-                </div>
-            </form>
-        </div>
     </div> <!--End of Container div-->
     {{ oeBelowContainerDiv }}
 
     <script>
     $(window).on("resize", function() { //portrait vs landscape
-        $("#pt_table").removeAttr("style");
+        $("#pt_table, #recent_table").removeAttr("style");
     });
 
     $(function() {
         $("#exp_cont_icon").click(function () {
-            $("#pt_table").removeAttr("style");
+            $("#pt_table, #recent_table").removeAttr("style");
         });
-        $("#pt_table_filter").addClass("d-md-initial");
-        $("#pt_table_length").addClass("d-md-initial");
         $("#show_hide").addClass("d-md-initial");
         $("#search_hide").addClass("d-md-initial");
-        $("#pt_table_length").addClass("d-none");
         $("#show_hide").addClass("d-none");
         $("#search_hide").addClass("d-none");
-        $('div.dataTables_filter input').focus();
-    });
-
-    let elements = document.querySelectorAll("[data-pid]");
-
-    function ptLinkClick(e)
-    {
-        let pid = this.getAttribute('data-pid');
-        const params = new URLSearchParams({set_pid: pid, csrf_token_form: {{ csrfTokenRaw()|js_escape }}});
-        top.RTop.location = "{{ webroot }}/interface/patient_file/summary/demographics.php?" + params;
-    }
-
-    Array.from(elements).forEach(function(elem) {
-        elem.addEventListener('click', ptLinkClick);
+        $('#finder-search-input').focus();
     });
 
     document.addEventListener('touchstart', {});
     </script>
+
+{#
+One finder table: the search-box row, which takes the column titles' place while it is
+on, the column titles, and an empty body DataTables fills. With row details on, a narrow
+first column holds each row's expand button.
+#}
+{% macro finder_table(tableId, searchRowId, searchRowClass, columns, detailEnabled) %}
+    <table class="table border-0 display" id="{{ tableId|attr }}">
+        <thead>
+            <tr id="{{ searchRowId|attr }}" class="finder-search-row {{ searchRowClass|attr }} d-none">
+                {% if detailEnabled %}<td class="finder-detail-control"></td>{% endif %}
+                {% for column in columns %}
+                    {% set searchLabel = column.link ? "Name"|xla : column.title|attr %}
+                    <td><input type="text" size="20" value="" class="form-control search_init" placeholder="{{ searchLabel }}" aria-label="{{ "Search by"|xla }} {{ searchLabel }}"/></td>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% if detailEnabled %}<th><span class="sr-only">{{ "Details"|xlt }}</span></th>{% endif %}
+                {% for column in columns %}
+                    <th>{{ column.title|text }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
+                <td class="dataTables_empty" colspan="{{ (columns|length + (detailEnabled ? 1 : 0))|attr }}">...</td>
+            </tr>
+        </tbody>
+    </table>
+{% endmacro %}

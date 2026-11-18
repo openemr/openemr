@@ -67,11 +67,6 @@ if (!AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to patient notes');
 }
 
-$tmp = getPatientData($patient_id, "squad");
-if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
-}
-
 //the number of records to display per screen
 $N = 15;
 $M = 15;

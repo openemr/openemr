@@ -364,6 +364,13 @@ $GLOBALS_METADATA = [
             xl('Default state of New Window checkbox in the patient list.')
         ],
 
+        'gbl_pt_list_recent_same_columns' => [
+            xl('Recent Patients Use Patient List Columns'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Show the Patient Finder\'s Recent Patients tab with the columns of Patient Finder – Patient List Columns. Turn off to choose its columns in Patient Finder – Recent Patients Columns.')
+        ],
+
         'right_justify_labels_demographics' => [
             xl('Right Justify Labels in Demographics'),
             'bool',                           // data type
@@ -675,9 +682,13 @@ $GLOBALS_METADATA = [
 
         'translation_preload_cache' => [
             xl('Preload Translation Cache'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Load all translations into memory at the start of each request. This uses more memory but eliminates database queries for translations, improving performance for sites with many translated strings.')
+            [
+                '0' => xl('Off'),
+                'auto' => xl('Auto'),
+                '1' => xl('Always'),
+            ],
+            'auto',                           // default
+            xl('Load all of a language\'s translations with one query at the start of each request instead of one query per translated string. Auto does this only for languages with few translations, such as English; Always does it for every language, which speeds up heavy pages but slows light pages for fully translated languages.')
         ],
 
         'translate_layout' => [

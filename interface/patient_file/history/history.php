@@ -85,14 +85,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div class="row">
         <div class="col-12">
             <?php
-            if (AclMain::aclCheckCore('patients', 'med')) {
-                $tmp = getPatientData($pid, "squad");
-                if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-                    echo "<p>(" . xlt('History not authorized') . ")</p>\n";
-                    echo "</body>\n</html>\n";
-                    exit();
-                }
-            } else {
+            if (!AclMain::aclCheckCore('patients', 'med')) {
                 echo "<p>(" . xlt('History not authorized') . ")</p>\n";
                 echo "</body>\n</html>\n";
                 exit();

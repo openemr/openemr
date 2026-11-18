@@ -41,12 +41,6 @@ if (isset($_GET['docUpdateId'])) {
     $N = OEGlobalsBag::getInstance()->getInt('num_of_messages_displayed');
     $has_note = 0;
     $thisauth = AclMain::aclCheckCore('patients', 'notes');
-    if ($thisauth) {
-        $tmp = getPatientData($pid, "squad");
-        if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
-            $thisauth = 0;
-        }
-    }
 
     if (!$thisauth) {
         echo "<p>(" . xlt('Notes not authorized') . ")</p>\n";

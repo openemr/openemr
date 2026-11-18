@@ -26,7 +26,9 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
+use OpenEMR\Tests\Fixtures\PortalPatientFixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\Client;
 use Symfony\Component\Panther\PantherTestCase;
@@ -54,6 +56,42 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
      * fails the write-round-trip test on the picker-click step.
      */
     private const SEEDED_QUESTIONNAIRE_TITLE = 'SMART Launch Smoke Questionnaire';
+
+    /**
+     * EHR-launch tests want the staff (non-portal) client's test-launch
+     * buttons on fhir_assessments.php. Since run.sh now registers both
+     * a staff client ("<app_name> (<site>)") AND a patient portal
+     * client ("<app_name> (<site>) - patient portal"), the unqualified
+     * `.smart-context-launch` selector would pick whichever comes first
+     * from `ClientRepository::listClientEntities()`. The portal client's
+     * patient-only scopes route patient-select differently from the
+     * staff client's user-scopes, so the EHR-launch tests must filter
+     * it out.
+     *
+     * `data-smart-name` is set to the full oauth_clients.client_name.
+     * The CSS `[attr*=...]` substring match works in Chromium (standard
+     * CSS3) and reliably excludes the portal client because its name
+     * always ends with " - patient portal" per
+     * `Registrar::portalClientName`.
+     */
+    private const STAFF_LAUNCH_BUTTON_SELECTOR =
+        '.smart-context-launch:not([data-smart-name*="- patient portal"])';
+
+    /**
+     * Selector for the two QuestionnaireResponse action checkboxes on
+     * the scope-authorize-confirm consent screen that represent the
+     * SMART v2 Create and Update permissions. The consent form posts
+     * `grant[<context>-<resource>][actions][]` with one entry per
+     * checked value (SMART v2 permission letters: c, r, u, s). The
+     * context prefix for portal patients is `patient` (matches
+     * AuthorizationController::isConsentCardScope's key shape
+     * `{context}-{resource}`). Unchecking both c and u forces
+     * ScopeConsentResolver to intersect the requested
+     * `patient/QuestionnaireResponse.cu` scope down to .rs only.
+     */
+    private const QR_CONSENT_CHECKBOX_CSS =
+        'input.action-checkbox[name="grant[patient-QuestionnaireResponse][actions][]"][value="c"], '
+        . 'input.action-checkbox[name="grant[patient-QuestionnaireResponse][actions][]"][value="u"]';
 
     private Client $panther;
 
@@ -379,8 +417,8 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             'GET',
             self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
         );
-        $this->panther->waitFor('.smart-context-launch', 10);
-        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector('.smart-context-launch'));
+        $this->panther->waitFor(self::STAFF_LAUNCH_BUTTON_SELECTOR, 10);
+        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector(self::STAFF_LAUNCH_BUTTON_SELECTOR));
         $clientId = $launchBtn->getAttribute('data-client-id');
         $intent = $launchBtn->getAttribute('data-intent');
         $this->assertNotEmpty(
@@ -506,8 +544,8 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             'GET',
             self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
         );
-        $this->panther->waitFor('.smart-context-launch', 10);
-        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector('.smart-context-launch'));
+        $this->panther->waitFor(self::STAFF_LAUNCH_BUTTON_SELECTOR, 10);
+        $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector(self::STAFF_LAUNCH_BUTTON_SELECTOR));
         $clientId = $launchBtn->getAttribute('data-client-id');
         $intent = $launchBtn->getAttribute('data-intent');
         $this->assertNotEmpty($clientId);
@@ -602,6 +640,231 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
             $bodyText,
             'response body must not echo the submitted client_id — would be an information-disclosure regression',
         );
+    }
+
+    /**
+     * EHR-launch write round-trip. Staff user signs in, opens a patient
+     * chart, launches the SMART app via fhir_assessments.php's Launch
+     * button → authorize → login → consent → index.php landing →
+     * picks the seeded Questionnaire → sq-new → fill → sq-complete →
+     * asserts the FHIR POST stamped a QuestionnaireResponse.
+     *
+     * This closes the last three-mode write-path symmetry gap. Standalone
+     * has had the full write round-trip for a while, portal round-trip
+     * landed in openemr/openemr#15309, this is the EHR equivalent.
+     * Standalone and EHR both end up in non-patient-mode on index.php
+     * (patientMode=false in the companion app's runtime), so the write-
+     * side DOM flow is identical — the different launch entry paths
+     * are the only material divergence.
+     *
+     * Why both standalone AND EHR when both bearers carry user/ scopes:
+     * standalone exercises the cold `iss`-only entry, EHR exercises the
+     * `launch`-token-threading entry. Standalone's write round-trip
+     * proves user/QuestionnaireResponse.cu bearers can POST; EHR's write
+     * round-trip proves the same bearer shape issued through the launch-
+     * token path works too. Catches a regression narrow to launch-token
+     * handling that a shared /token exchange wouldn't surface in the
+     * standalone test.
+     *
+     * Signals of a successful save are the same shape as the standalone
+     * round-trip asserts (non-patient-mode DOM):
+     *   - #sq-status badge shows "completed"
+     *   - #sq-alert banner contains "Saved as completed"
+     *   - #sq-working line names the created QuestionnaireResponse by
+     *     FHIR id (format: `QuestionnaireResponse/<uuid>`)
+     */
+    #[Test]
+    public function testEhrLaunchCompletesQuestionnaireWriteRoundTrip(): void
+    {
+        // Unique per-run marker so teardown can sweep by content even if
+        // assertions above it fail (the captured $responseUuid would stay
+        // null and the row would otherwise be orphaned). The suffix is
+        // short but collision-vanishing across concurrent CI runs.
+        $answerText = 'EHR write ' . bin2hex(random_bytes(4));
+        try {
+        // Sign into OpenEMR as admin — same entry as
+        // testEhrLaunchSkipsPatientSelectAndLandsOnApp.
+            $this->panther->request('GET', self::OPENEMR_BASE . '/interface/login/login.php?site=default');
+            $this->panther->waitFor('form', 10);
+            $this->panther->findElement(WebDriverBy::name('authUser'))->sendKeys('admin');
+            $this->panther->findElement(WebDriverBy::name('clearPass'))->sendKeys('pass');
+            $this->panther->executeScript('document.forms[0].submit();');
+            $this->panther->wait(15)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/interface/main/tabs/main.php'),
+            );
+
+            $this->openDemoPatientChart();
+
+        // Pull client_id + csrf + intent from fhir_assessments.php's
+        // test-launch buttons. The STAFF_LAUNCH_BUTTON_SELECTOR filter
+        // excludes the portal client (added by PR #15296 / openemr#15272)
+        // so this picks a staff-scoped client registered by `--all`.
+            $this->panther->request(
+            'GET',
+            self::OPENEMR_BASE . '/interface/patient_file/assessment/fhir_assessments.php',
+            );
+            $this->panther->waitFor(self::STAFF_LAUNCH_BUTTON_SELECTOR, 10);
+            $launchBtn = $this->panther->findElement(WebDriverBy::cssSelector(self::STAFF_LAUNCH_BUTTON_SELECTOR));
+            $clientId = $launchBtn->getAttribute('data-client-id');
+            $intent = $launchBtn->getAttribute('data-intent');
+            if (preg_match('/smartLaunchCsrfToken\s*=\s*[\'"]([^\'"]+)/', $this->panther->getPageSource(), $m) !== 1) {
+                $this->fail('smartLaunchCsrfToken not found in fhir_assessments.php page source');
+            }
+            $csrf = $m[1];
+
+        // Fire the EHR launch.
+            $this->panther->request('GET', self::OPENEMR_BASE . '/interface/smart/ehr-launch-client.php?' . http_build_query([
+            'client_id' => $clientId,
+            'csrf_token' => $csrf,
+            'intent' => $intent,
+            ]));
+
+        // /authorize reauth prompt.
+            $this->panther->waitFor('form#userLogin', 15);
+            $this->panther->findElement(WebDriverBy::name('username'))->sendKeys('admin');
+            $this->panther->findElement(WebDriverBy::name('password'))->sendKeys('pass');
+            $loginForm = $this->panther->findElement(WebDriverBy::id('userLogin'));
+            $this->panther->executeScript(
+            "document.getElementById('userLogin').requestSubmit("
+            . "document.querySelector('form#userLogin button[type=\"submit\"], form#userLogin input[type=\"submit\"]'));",
+            );
+            $this->panther->wait(15)->until(WebDriverExpectedCondition::stalenessOf($loginForm));
+
+        // Consent → proceed → wait for app landing on index.php.
+            $this->panther->findElement(WebDriverBy::name('proceed'))->click();
+            $this->panther->wait(20)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/smart-questionnaire/index.php?lid='),
+            );
+
+        // Non-patient-mode write flow — same DOM shape as the standalone
+        // round-trip uses after its landing. The companion app's
+        // `refreshControls` (non-patient branch) renders the raw FHIR
+        // status + the QuestionnaireResponse/uuid in #sq-working; the
+        // save alert reads "Saved as completed. ...".
+            $this->panther->waitFor('a.list-group-item', 10);
+            $picker = $this->panther->findElement(WebDriverBy::cssSelector('a.list-group-item'));
+            $this->assertStringContainsString(
+            self::SEEDED_QUESTIONNAIRE_TITLE,
+            $picker->getText(),
+            'seeded Questionnaire should appear as the first (only) picker item',
+            );
+            $picker->click();
+
+            $this->panther->waitFor('button#sq-new', 15);
+            $this->panther->findElement(WebDriverBy::id('sq-new'))->click();
+            $this->panther->waitFor('input.form-control', 10);
+
+        // Fill the required string item. Same input/change/blur triple-
+        // dispatch as the standalone test — openemr_questionnaire.js
+        // watches all three before marking the field answered.
+            $input = $this->panther->findElement(WebDriverBy::cssSelector('input.form-control'));
+            $input->sendKeys($answerText);
+            $this->panther->executeScript(
+            'arguments[0].dispatchEvent(new Event("input", {bubbles: true}));'
+            . 'arguments[0].dispatchEvent(new Event("change", {bubbles: true}));'
+            . 'arguments[0].blur();',
+            [$input],
+            );
+
+        // Click Complete — fires api.php?action=save under the EHR-
+        // launch-issued bearer. A regression that broke launch-token
+        // threading into the user-scope bearer would surface here as
+        // a non-2xx on the FHIR POST and the status never flips.
+            $this->panther->findElement(WebDriverBy::id('sq-complete'))->click();
+            $this->panther->wait(20)->until(
+            static fn (WebDriver $d): bool => str_contains(
+                $d->findElement(WebDriverBy::id('sq-status'))->getText(),
+                'completed',
+            ),
+            );
+
+            $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+            $this->assertStringContainsString(
+            'Saved as completed',
+            $bodyText,
+            '#sq-alert should confirm the EHR-launch save landed — missing it means api.php returned non-2xx under the EHR-launch bearer',
+            );
+            if (
+            preg_match(
+                '~QuestionnaireResponse/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})~',
+                $bodyText,
+                $uuidMatch,
+            ) !== 1
+            ) {
+                $this->fail(
+                '#sq-working should name the created QuestionnaireResponse by FHIR uuid — proof the '
+                . 'EHR-launch bearer carried user/QuestionnaireResponse.cu through the save',
+                );
+            }
+            $responseUuid = $uuidMatch[1];
+
+        // DB-side cross-check: the EHR-launched write lands directly in
+        // the record (not the fhir_patient_write_mode hold queue — that
+        // is patient-tier only). Prove by pid + answer text that the
+        // response saved under the demo patient we opened in
+        // openDemoPatientChart (pid=1) carries the exact text we typed
+        // into the form. Without these assertions the test only proves
+        // the UI reported success and that a QuestionnaireResponse of
+        // some shape under some patient was created.
+            $saved = QueryUtils::querySingleRow(
+            "SELECT patient_id, questionnaire_response FROM questionnaire_response WHERE response_id = ?",
+            [$responseUuid],
+            );
+            self::assertIsArray(
+            $saved,
+            'A questionnaire_response row should exist for the uuid #sq-working displayed — '
+            . 'if it does not, the companion app rendered a uuid the server never persisted',
+            );
+            self::assertEquals(
+            1,
+            $saved['patient_id'],
+            'The saved QuestionnaireResponse must be linked to the demo patient (pid=1) '
+            . 'openDemoPatientChart installed into session — a different pid would mean the '
+            . 'EHR launch token\'s patient context did not flow into the bearer that signed the write',
+            );
+            self::assertIsString($saved['questionnaire_response']);
+            // Exact-match on the specific FHIR path answered by the form
+            // input, not a substring match on the JSON blob — a mangled
+            // payload that happened to include the marker string anywhere
+            // (metadata, extension, stray comment) would pass a substring
+            // check while hiding a server/client-state divergence. The
+            // seeded Questionnaire has one string item at linkId '1'; its
+            // answer.valueString is what the input renders into.
+            $decoded = json_decode($saved['questionnaire_response'], true);
+            self::assertIsArray($decoded);
+            self::assertIsArray($decoded['item'] ?? null);
+            self::assertIsArray($decoded['item'][0] ?? null);
+            self::assertIsArray($decoded['item'][0]['answer'] ?? null);
+            self::assertIsArray($decoded['item'][0]['answer'][0] ?? null);
+            self::assertSame(
+                $answerText,
+                $decoded['item'][0]['answer'][0]['valueString'] ?? null,
+                'item[0].answer[0].valueString should equal exactly what the input received — '
+                . 'any other value in that slot means the companion app POSTed a different payload '
+                . 'than the one the fieldset was filled with',
+            );
+        } finally {
+            // The EHR-launch write persists directly to the record
+            // (questionnaire_response + uuid_registry) — there is no
+            // review-queue to sweep like the portal round-trip. Scope
+            // the delete by the unique answer marker so cleanup still
+            // fires when assertions upstream of the uuid capture fail
+            // (the uuid is only captured after the "Saved as completed"
+            // alert assertion; a regression there would leave the row
+            // behind without a recovery path). LIKE-match on the marker
+            // is safe because random_bytes(4) makes the suffix unique
+            // per run across concurrent CI invocations.
+            $sweepPattern = '%' . $answerText . '%';
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'questionnaire_response' "
+                    . "AND uuid IN (SELECT uuid FROM questionnaire_response WHERE questionnaire_response LIKE ?)",
+                [$sweepPattern],
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM questionnaire_response WHERE questionnaire_response LIKE ?",
+                [$sweepPattern],
+            );
+        }
     }
 
     /**
@@ -964,5 +1227,922 @@ final class SmartLaunchQuestionnaireTest extends PantherTestCase
         );
 
         return $pickedPatientName;
+    }
+
+    /**
+     * Portal SMART launch: a signed-in portal patient clicks the Launch
+     * button on the Health Apps card the openemr/openemr#15272 subscriber
+     * adds to their dashboard. The launch token is minted server-side
+     * (via `PortalSmartAppLauncher::launchUrl`) carrying the patient's
+     * own uuid + `patient.portal` intent; the SMART app's launch.php
+     * routes `?mode=portal` through to /oauth2/default/authorize, the
+     * patient signs in again with the portal-api role, and the token
+     * exchange's new `SMARTSessionTokenContextBuilder::assertLaunchMatchesLogin()`
+     * gate passes (token patient == logged-in puuid) so the app lands
+     * with patient context on home.php.
+     *
+     * Together with the A1 api-tier gate (OAuth2PortalLaunchContextTest,
+     * openemr/openemr#15294) this closes the browser-side positive leg of
+     * the third SMART launch mode. The cross-patient negative — patient A
+     * gets a portal-launch URL, patient B replays it — fits in the same
+     * file as a sibling test on top of A2's infrastructure.
+     *
+     * Requires:
+     *   - rest_portal_api global on (ciLibrary.source::install_configure
+     *     already enables it, same as rest_fhir_api).
+     *   - A portal-eligible client registered + enabled (run.sh calls
+     *     `bin/register.php --portal` alongside `--all`).
+     *   - A portal patient fixture (installed per-test via
+     *     PortalPatientFixtureManager — unique username per run so a prior
+     *     failed run's orphan doesn't collide on the uname column).
+     */
+    #[Test]
+    public function testPortalLaunchFromDashboardLandsOnAppWithPatientContext(): void
+    {
+        $fixtures = new PortalPatientFixtureManager();
+        // Defensive sweep — patient_access_onsite can carry orphan rows
+        // from a prior failed run (the manager's own cleanup joins on
+        // patient_data.pid, so orphans whose patient_data is gone survive
+        // it and the next MAX(pid)+1 allocation collides). Same pattern
+        // OAuth2PortalLaunchContextTest uses in A1.
+        $this->sweepLingeringPortalArtifacts();
+
+        $suffix = bin2hex(random_bytes(3));
+        $username = 'portal-launch-wt-' . $suffix;
+        $password = 'PortalLaunchSmoke1!';
+        $email = "{$username}@test.example";
+        $fname = 'Portia';
+        $lname = 'LaunchSmoke-' . $suffix;
+
+        try {
+            $fixture = $fixtures->installPortalPatient(
+                portalLoginUsername: $username,
+                plainPassword: $password,
+                email: $email,
+                fname: $fname,
+                lname: $lname,
+            );
+            self::assertSame($username, $fixture['portal_login_username']);
+
+            $this->drivePortalLaunchFromDashboard($username, $password, $email, "$fname $lname");
+        } finally {
+            $fixtures->removePortalPatientFixtures();
+        }
+    }
+
+    /**
+     * Browser-side portal-launch flow — chains the two reusable
+     * sub-helpers below:
+     *   1. signInToPortalAndCaptureLaunchHref — portal session +
+     *      extract the Health Apps Launch anchor's href.
+     *   2. authorizeAsPortalPatient — follow the launch URL, log in at
+     *      /oauth2 with the portal-api role, approve consent.
+     *
+     * Then asserts the companion app landed on home.php with patient
+     * context + the portal-mode badge + the seeded Questionnaire. A3
+     * (cross-patient URL replay negative) reuses both helpers directly
+     * — captures patient A's launch URL, clears cookies, replays the
+     * URL while authorizing as patient B, and asserts the error-page
+     * landing on callback.php instead.
+     */
+    private function drivePortalLaunchFromDashboard(
+        string $username,
+        string $password,
+        string $email,
+        string $expectedPatientName,
+    ): void {
+        $launchHref = $this->signInToPortalAndCaptureLaunchHref($username, $password, $email);
+        $this->authorizeAsPortalPatient($launchHref, $username, $password, $email);
+
+        // Companion app landing — launch.php maps mode=portal to the
+        // app's internal mode=patient; index.php then redirects patient
+        // mode to home.php (patient-oriented workspace, not the staff-
+        // facing index). The lid query param proves the launch state
+        // made it through the server-side token exchange in callback.php.
+        $this->panther->wait(30)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/smart-questionnaire/home.php?lid='),
+        );
+        $this->panther->waitFor('body', 10);
+        $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+
+        // Core assertion: the patient's name reaches the companion app's
+        // banner. That proves the full chain — subscriber-minted launch
+        // token → authorize → portal-api login → new
+        // assertLaunchMatchesLogin() gate accepts (puuid == launchToken
+        // patient) → callback exchanges code for bearer → app reads
+        // Patient via the bearer and renders their name. A regression
+        // that collapsed the gate to always-accept or dropped the launch-
+        // token-to-session-patient binding would show a wrong-patient
+        // banner, or no banner at all.
+        self::assertStringContainsString(
+            $expectedPatientName,
+            $bodyText,
+            "portal-launched SMART app must render the portal patient's name in its banner — proof the launch token's patient flowed through assertLaunchMatchesLogin() into the bearer's patient context",
+        );
+        // "patient portal" badge in the app's banner confirms the launch
+        // was recognized as a portal-mode one (as opposed to standalone
+        // or EHR, which show different badges).
+        self::assertStringContainsString(
+            'patient portal',
+            $bodyText,
+            'companion app should badge the session as portal mode',
+        );
+        // Seeded Questionnaire listed via the bearer's FHIR Questionnaire
+        // read — proves the token's patient-scoped Questionnaire grant
+        // reaches the FHIR endpoint, mirroring the standalone/EHR shape.
+        self::assertStringContainsString(
+            self::SEEDED_QUESTIONNAIRE_TITLE,
+            $bodyText,
+            'portal-launched app should list the seeded Questionnaire — proof the bearer token issued via the portal flow authorizes patient-scoped FHIR reads',
+        );
+    }
+
+    /**
+     * Portal patient login → extract the Health Apps card's Launch
+     * anchor href, with shape assertions. Returns the launch URL
+     * (mode=portal + launch token + iss + aud). Shared with A3.
+     *
+     * The `passaddon` (email) field is only rendered when the
+     * `enforce_signin_email` global is on — off by default, but
+     * accommodate both shapes so the test survives a stack config
+     * toggle elsewhere.
+     *
+     * Extracting the anchor's href and `request('GET', $href)`-ing it
+     * directly avoids the target="_blank" new-window-handling
+     * complication Panther would otherwise need to juggle — equivalent
+     * trip, less selenium plumbing.
+     */
+    private function signInToPortalAndCaptureLaunchHref(
+        string $username,
+        string $password,
+        string $email,
+    ): string {
+        $this->panther->request(
+            'GET',
+            self::OPENEMR_BASE . '/portal/index.php?site=default',
+        );
+        $this->panther->waitFor('form[action="get_patient_info.php"]', 15);
+        $this->panther->findElement(WebDriverBy::name('uname'))->sendKeys($username);
+        $this->panther->findElement(WebDriverBy::name('pass'))->sendKeys($password);
+        $emailFields = $this->panther->findElements(WebDriverBy::name('passaddon'));
+        if ($emailFields !== []) {
+            $emailFields[0]->sendKeys($email);
+        }
+        $this->panther->executeScript('document.forms[0].submit();');
+        $this->panther->wait(15)->until(
+            static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/portal/home.php'),
+        );
+
+        $this->panther->waitFor('#smart-apps-card', 15);
+        $launchHref = $this->panther->findElement(
+            WebDriverBy::cssSelector('#smart-apps-card a.btn-success'),
+        )->getAttribute('href');
+        self::assertNotEmpty(
+            $launchHref,
+            'Health Apps card Launch anchor must expose an href the subscriber built from PortalSmartAppLauncher',
+        );
+        self::assertStringContainsString(
+            '/smart-questionnaire/launch.php',
+            $launchHref,
+            'launch href should point at the portal-client launch URI the companion app exposed via bin/register.php --portal',
+        );
+        self::assertStringContainsString(
+            'mode=portal',
+            $launchHref,
+            'launch URL must carry mode=portal so the companion app routes to its portal-launch branch',
+        );
+        self::assertStringContainsString(
+            'launch=',
+            $launchHref,
+            'launch URL must carry a launch token the subscriber minted via PortalSmartAppLauncher::launchUrl',
+        );
+        return $launchHref;
+    }
+
+    /**
+     * Given a portal-mode launch URL (as captured by
+     * `signInToPortalAndCaptureLaunchHref`), navigate to it, log in at
+     * the /oauth2 authorize endpoint with the portal-api role, and
+     * approve consent. Does NOT wait for final app landing — the
+     * caller asserts on that shape (home.php for success,
+     * callback.php error page for the A3 replay case).
+     *
+     * `user_role=portal-api` is a SUBMIT-BUTTON **value** on
+     * oauth2-login.html.twig (two buttons: "OpenEMR Login" with
+     * value=api and "Patient Login" with value=portal-api); clicking
+     * the latter submits the form with user_role=portal-api in the body.
+     *
+     * The consent wait is adaptive — on a fresh (user, client) pair
+     * the server renders the pre-checked consent form, but
+     * `saveTrustedUser` lets subsequent flows skip straight to
+     * issuance. The wait returns as soon as either `proceed` appears
+     * or we've already left /oauth2.
+     */
+    private function authorizeAsPortalPatient(
+        string $launchHref,
+        string $username,
+        string $password,
+        string $email,
+    ): void {
+        $this->panther->request('GET', $launchHref);
+        $this->panther->waitFor('form#userLogin', 15);
+
+        $this->panther->findElement(WebDriverBy::name('username'))->sendKeys($username);
+        $this->panther->findElement(WebDriverBy::name('password'))->sendKeys($password);
+        $emailOauthFields = $this->panther->findElements(WebDriverBy::name('email'));
+        if ($emailOauthFields !== []) {
+            $emailOauthFields[0]->sendKeys($email);
+        }
+        $loginForm = $this->panther->findElement(WebDriverBy::id('userLogin'));
+        $this->panther->executeScript(
+            "document.getElementById('userLogin').requestSubmit("
+            . "document.querySelector('form#userLogin button[name=\"user_role\"][value=\"portal-api\"]'));",
+        );
+        $this->panther->wait(15)->until(WebDriverExpectedCondition::stalenessOf($loginForm));
+
+        $this->panther->wait(15)->until(
+            static fn (WebDriver $d): bool => $d->findElements(WebDriverBy::name('proceed')) !== []
+                || !str_contains($d->getCurrentURL(), '/oauth2/'),
+        );
+        $proceedButtons = $this->panther->findElements(WebDriverBy::name('proceed'));
+        if ($proceedButtons !== []) {
+            $proceedButtons[0]->click();
+        }
+    }
+
+    /**
+     * Cross-patient portal-launch URL replay deny-path. Patient A
+     * signs into the portal and gets a launch URL (the subscriber
+     * minted the launch token bound to patient A). Patient B then
+     * presents that URL — signing in with their own portal
+     * credentials at /oauth2 — and expects the new
+     * SMARTSessionTokenContextBuilder::assertLaunchMatchesLogin()
+     * gate to refuse with `invalid_launch_context` at /token
+     * exchange time. The companion app's callback.php wraps the
+     * /token error in its own `View::error`, so the browser lands on
+     * /smart-questionnaire/callback.php with "Authorization failed"
+     * + the propagated error_description. Together with the api-tier
+     * A1 scenarios in OAuth2PortalLaunchContextTest (#15294) and the
+     * positive-path A2 test above (#15296), this closes the browser
+     * tier for the specific bleed openemr/openemr#15272 just plugged.
+     *
+     * The flow reuses the same two private helpers A2 uses:
+     * `signInToPortalAndCaptureLaunchHref` captures the launch URL
+     * from patient A's dashboard, and `authorizeAsPortalPatient`
+     * drives the /oauth2 login + consent for patient B. The cookie
+     * clear in between is the hinge — without it, patient A's
+     * portal session would still be present when B submits at
+     * /oauth2 (the authserverOpenEMR session cookie is scoped to
+     * /oauth2/ which is why the authorize endpoint always prompts
+     * for login even from an open portal session, but belt-and-
+     * suspenders cookie-clear eliminates any session-bleed scenario
+     * the test could hide).
+     */
+    #[Test]
+    public function testPortalLaunchCannotBeReplayedByADifferentPatient(): void
+    {
+        $fixtures = new PortalPatientFixtureManager();
+        $this->sweepLingeringPortalArtifacts();
+
+        $suffix = bin2hex(random_bytes(3));
+        $password = 'PortalLaunchReplaySmoke1!';
+        $aUsername = 'portal-replay-A-' . $suffix;
+        $bUsername = 'portal-replay-B-' . $suffix;
+        $aEmail = "{$aUsername}@test.example";
+        $bEmail = "{$bUsername}@test.example";
+
+        try {
+            $fixtures->installPortalPatient(
+                portalLoginUsername: $aUsername,
+                plainPassword: $password,
+                email: $aEmail,
+                fname: 'Alice',
+                lname: 'ReplayA-' . $suffix,
+            );
+            $fixtures->installPortalPatient(
+                portalLoginUsername: $bUsername,
+                plainPassword: $password,
+                email: $bEmail,
+                fname: 'Bob',
+                lname: 'ReplayB-' . $suffix,
+            );
+
+            // Step 1 — patient A signs into the portal, we capture the
+            // Launch anchor's href. The launch token inside the URL is
+            // the subscriber-minted blob bound to patient A's uuid +
+            // patient.portal intent.
+            $launchHrefForPatientA = $this->signInToPortalAndCaptureLaunchHref(
+                $aUsername,
+                $password,
+                $aEmail,
+            );
+
+            // Step 2 — clear every cookie before replaying. The portal
+            // session (portalOpenEMR cookie) and the authorize session
+            // (authserverOpenEMR cookie) are separate scopes so this is
+            // belt-and-suspenders, but the point of a cross-patient
+            // replay test is that patient B presents the URL fresh.
+            $this->panther->manage()->deleteAllCookies();
+
+            // Step 3 — patient B replays patient A's URL and logs in at
+            // /oauth2/default/authorize with their own portal credentials.
+            // The helper also handles the consent screen if shown.
+            $this->authorizeAsPortalPatient(
+                $launchHrefForPatientA,
+                $bUsername,
+                $password,
+                $bEmail,
+            );
+
+            // Step 4 — wait for the final landing. The flow should land
+            // on the companion app's callback.php error page (the /token
+            // exchange rejected at the builder gate, callback.php wraps
+            // it in a View::error). We also check it DID NOT land on
+            // home.php — the positive-path landing. Either landing
+            // satisfies the "we've left /oauth2" wait so we don't block
+            // forever on the wrong branch.
+            $this->panther->wait(30)->until(
+                static fn (WebDriver $d): bool =>
+                    str_contains($d->getCurrentURL(), '/smart-questionnaire/callback.php')
+                    || str_contains($d->getCurrentURL(), '/smart-questionnaire/home.php'),
+            );
+            $currentUrl = $this->panther->getCurrentURL();
+            self::assertStringNotContainsString(
+                '/smart-questionnaire/home.php',
+                $currentUrl,
+                'Cross-patient replay must NOT reach the companion app\'s patient-home page — '
+                . 'landing there would mean the launch-token-vs-logged-in-patient gate was bypassed. '
+                . "Current URL: {$currentUrl}",
+            );
+            self::assertStringContainsString(
+                '/smart-questionnaire/callback.php',
+                $currentUrl,
+                'Cross-patient replay should land on callback.php where the /token error gets wrapped into View::error',
+            );
+
+            // Step 5 — assert the error-page body carries the propagated
+            // error_description from the builder gate. callback.php's
+            // try/catch around exchangeCode only propagates the error's
+            // getMessage() — which is the "Launch context is not for the
+            // logged in patient" string (the error_description), NOT the
+            // RFC 6749 "invalid_launch_context" error field name.
+            $this->panther->waitFor('body', 10);
+            $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+            self::assertStringContainsString(
+                'Authorization failed',
+                $bodyText,
+                'callback.php View::error header should name the overall failure',
+            );
+            self::assertStringContainsString(
+                'Launch context is not for the logged in patient',
+                $bodyText,
+                'callback.php should surface the builder gate\'s error_description — proof the '
+                . 'SMARTSessionTokenContextBuilder::assertLaunchMatchesLogin() gate refused at /token time. '
+                . 'A regression that stopped checking the login-vs-launch patient alignment would land on '
+                . 'home.php with patient A\'s context (a cross-patient data-access regression) rather than '
+                . 'the callback error.',
+            );
+        } finally {
+            $fixtures->removePortalPatientFixtures();
+        }
+    }
+
+    /**
+     * Portal-mode write-path round-trip. Mirror of the standalone
+     * `testStandaloneLaunchCompletesQuestionnaireWriteRoundTrip` but
+     * entered through the portal dashboard: portal patient signs in →
+     * clicks Launch → authorizes → lands on home.php → picks the seeded
+     * Questionnaire → index.php's `openemr_questionnaire.js` runtime
+     * takes over → fill the single required string item → Complete →
+     * assert the FHIR POST landed with a stamped QuestionnaireResponse
+     * uuid in the UI alert.
+     *
+     * What this closes: the standalone smoke has had the full
+     * questionnaire-submit journey for a while; A2's landing assertion
+     * proved the portal launch handshake works through the new gate,
+     * but didn't push the bearer through a FHIR POST. That's the actual
+     * user story openemr/openemr#7115 is about — portal patient fills
+     * out a form from the portal and the care team sees it. A regression
+     * that broke the `patient/QuestionnaireResponse.cu` scope on
+     * portal-issued bearers (or stripped the scope on consent) would
+     * leave A2 passing while silently blocking the write path. This
+     * test wires that gap closed.
+     *
+     * The standalone sibling does `driveStandaloneLaunchToAppIndex()` +
+     * picks from the index.php list. The portal sibling lands on
+     * home.php instead; home.php's Questionnaire list renders each
+     * entry as `a.list-group-item-action` with `href="index.php?lid=...
+     * &q=<id>"`. Clicking that navigates to index.php in
+     * questionnaire-form mode, from which the standalone test's
+     * `sq-new` + `input.form-control` + `sq-complete` DOM flow carries
+     * over unchanged. Any divergence would surface as a timeout at one
+     * of the explicit waitFor selectors.
+     */
+    #[Test]
+    public function testPortalLaunchCompletesQuestionnaireWriteRoundTrip(): void
+    {
+        $fixtures = new PortalPatientFixtureManager();
+        $this->sweepLingeringPortalArtifacts();
+
+        $suffix = bin2hex(random_bytes(3));
+        $username = 'portal-roundtrip-' . $suffix;
+        $password = 'PortalRoundtripSmoke1!';
+        $email = "{$username}@test.example";
+        $fname = 'Portia';
+        $lname = 'RoundtripSmoke-' . $suffix;
+
+        $pid = null;
+        try {
+            $fixture = $fixtures->installPortalPatient(
+                portalLoginUsername: $username,
+                plainPassword: $password,
+                email: $email,
+                fname: $fname,
+                lname: $lname,
+            );
+            $pid = $fixture['pid'];
+
+            // Enter via the portal dashboard — same chain A2 exercises
+            // (minted launch → authorize → portal-api login → consent →
+            // assertLaunchMatchesLogin passes → home.php landing). Both
+            // sub-helpers return the caller to home.php; the launch URL
+            // is captured but not needed again after authorize.
+            $launchHref = $this->signInToPortalAndCaptureLaunchHref($username, $password, $email);
+            $this->authorizeAsPortalPatient($launchHref, $username, $password, $email);
+            $this->panther->wait(30)->until(
+                static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/smart-questionnaire/home.php?lid='),
+            );
+
+            // Pick the seeded Questionnaire off home.php's picker. The
+            // picker renders each active Questionnaire as an
+            // `a.list-group-item-action` whose href navigates to
+            // index.php?q=<questionnaire-id>. Match by title because
+            // the DOM order is not a load-bearing guarantee.
+            $this->panther->waitFor('a.list-group-item-action', 15);
+            $picker = null;
+            foreach ($this->panther->findElements(WebDriverBy::cssSelector('a.list-group-item-action')) as $item) {
+                if (str_contains($item->getText(), self::SEEDED_QUESTIONNAIRE_TITLE)) {
+                    $picker = $item;
+                    break;
+                }
+            }
+            self::assertNotNull(
+                $picker,
+                'home.php Questionnaire picker should include the seeded Questionnaire — '
+                . 'without it the FHIR Questionnaire search under the portal bearer returned no results '
+                . '(scope regression) or the Questionnaire was not seeded (CI state regression)',
+            );
+            $picker->click();
+
+            // From here the DOM shape matches the standalone round-trip.
+            // openemr_questionnaire.js watches input/change/blur to mark
+            // the required string item answered; sendKeys alone is not
+            // enough so dispatch all three.
+            $this->panther->waitFor('button#sq-new', 15);
+            $this->panther->findElement(WebDriverBy::id('sq-new'))->click();
+            $this->panther->waitFor('input.form-control', 10);
+
+            $input = $this->panther->findElement(WebDriverBy::cssSelector('input.form-control'));
+            $input->sendKeys('Doing great from the portal');
+            $this->panther->executeScript(
+                'arguments[0].dispatchEvent(new Event("input", {bubbles: true}));'
+                . 'arguments[0].dispatchEvent(new Event("change", {bubbles: true}));'
+                . 'arguments[0].blur();',
+                [$input],
+            );
+
+            // Click Complete — fires POST api.php?action=save which the
+            // app's PHP forwards to OpenEMR's FHIR API as a POST
+            // QuestionnaireResponse with the portal-issued bearer. The
+            // `patient/QuestionnaireResponse.cu` scope on the portal
+            // PATIENT scope profile is what authorizes this; a regression
+            // on scope or on the assertLaunchMatchesLogin()-side binding
+            // would surface here as a non-2xx on the FHIR POST and the
+            // runtime would never flip #sq-status off its empty state.
+            //
+            // Portal mode flips `#sq-status` to "Waiting for review"
+            // (not "completed" — that's the non-patient-mode branch of
+            // the runtime). The companion app looks for the
+            // held-for-review meta.tag OpenEMR attaches to patient
+            // writes under fhir_patient_write_mode. That same tag is
+            // what also flips the patient alert to the "your care team
+            // reviews it" wording below, so matching both pins the
+            // held-write round-trip from the browser's angle.
+            $this->panther->findElement(WebDriverBy::id('sq-complete'))->click();
+            $this->panther->wait(20)->until(
+                static fn (WebDriver $d): bool => str_contains(
+                    $d->findElement(WebDriverBy::id('sq-status'))->getText(),
+                    'Waiting for review',
+                ),
+            );
+
+            $bodyText = $this->panther->findElement(WebDriverBy::tagName('body'))->getText();
+            self::assertStringContainsString(
+                'Your care team reviews it',
+                $bodyText,
+                '#sq-alert should confirm the portal-mode save landed held-for-review — '
+                . 'missing it means either the FHIR POST under the portal bearer returned non-2xx '
+                . '(scope / assertLaunchMatchesLogin / consent regression) or the server did not '
+                . 'tag the resource held-for-review (fhir_patient_write_mode regression)',
+            );
+
+            // DB-side cross-check: fhir_patient_write_mode writes land
+            // as a patient_review_request row (type='fhir-write',
+            // resource_type='QuestionnaireResponse', source='api',
+            // status='pending') plus the backing questionnaire_response
+            // row. Asserting the pending-review row exists for the
+            // fixture pid proves the write reached the server-side
+            // review queue — not just that the UI rendered the held
+            // badge. Catches any regression that drops the held-write
+            // on the OpenEMR side while the companion app still
+            // renders optimistically.
+            $pendingReviewRow = QueryUtils::querySingleRow(
+                "SELECT COUNT(*) AS n FROM patient_review_request "
+                    . "WHERE pid = ? AND type = 'fhir-write' "
+                    . "AND resource_type = 'QuestionnaireResponse' AND status = 'pending'",
+                [$pid]
+            );
+            $pendingCount = $pendingReviewRow['n'] ?? null;
+            self::assertIsNumeric($pendingCount);
+            self::assertEquals(
+                1,
+                $pendingCount,
+                'patient_review_request should carry exactly one pending fhir-write for this patient '
+                . '— proof the portal-issued bearer\'s POST reached the server-side held-for-review queue',
+            );
+        } finally {
+            // The test creates patient-portal write artifacts (one
+            // patient_review_request wrapping the submitted
+            // QuestionnaireResponse under fhir_patient_write_mode +
+            // the backing questionnaire_response row, plus the append-
+            // only patient_review_event history). PortalPatientFixtureManager
+            // only cleans portal-user + patient_data; it does not know
+            // about the write path. Sweep the pid-scoped artifacts
+            // here BEFORE removePortalPatientFixtures runs so the pid
+            // referenced by patient_review_request still resolves —
+            // if any step throws, downstream tests inherit a cleaner
+            // state than the fixture manager alone would leave.
+            if ($pid !== null) {
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM patient_review_event "
+                        . "WHERE request_id IN (SELECT id FROM patient_review_request WHERE pid = ?)",
+                    [$pid]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM patient_review_request WHERE pid = ?",
+                    [$pid]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM uuid_registry "
+                        . "WHERE table_name = 'questionnaire_response' "
+                        . "AND uuid IN (SELECT uuid FROM questionnaire_response WHERE patient_id = ?)",
+                    [$pid]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM questionnaire_response WHERE patient_id = ?",
+                    [$pid]
+                );
+            }
+            $fixtures->removePortalPatientFixtures();
+        }
+    }
+
+    /**
+     * Portal consent-narrowing deny-path. A portal patient logs in and
+     * reaches the scope-authorize-confirm consent screen. Before clicking
+     * proceed, they uncheck both the Create and Update checkboxes for
+     * QuestionnaireResponse. The bearer OpenEMR issues drops `patient/
+     * QuestionnaireResponse.cu` from the granted scope set; the companion
+     * app sees `$session->canCreate('QuestionnaireResponse')` return false
+     * and renders index.php's write form in read-only mode:
+     *   - `button#sq-new` hidden (app.js line `buttons.new.hidden = !canSend`)
+     *   - `#sq-working` shows "answers can't be sent from this app right now."
+     *
+     * The regression this locks: consent-screen posts that silently grant
+     * unchecked scopes anyway (a ScopeConsentResolver bug), or a runtime
+     * that renders the write flow even when the bearer lacks the scope.
+     * Both would break the user's expectation that unchecking a scope
+     * means the app can't do that action.
+     */
+    #[Test]
+    public function testPortalLaunchWithScopeDowngradeOnConsentShowsReadOnly(): void
+    {
+        $fixtures = new PortalPatientFixtureManager();
+        $this->sweepLingeringPortalArtifacts();
+
+        $suffix = bin2hex(random_bytes(3));
+        $username = 'portal-downgrade-' . $suffix;
+        $password = 'PortalDowngradeSmoke1!';
+        $email = "{$username}@test.example";
+        $fname = 'Portia';
+        $lname = 'DowngradeSmoke-' . $suffix;
+
+        try {
+            $fixtures->installPortalPatient(
+                portalLoginUsername: $username,
+                plainPassword: $password,
+                email: $email,
+                fname: $fname,
+                lname: $lname,
+            );
+
+            // Entry mirrors A2 up through the point where the browser
+            // reaches the consent screen. We can't reuse authorizeAsPortalPatient
+            // directly because it clicks proceed with the default-all-
+            // checked state; this test needs to intercept and uncheck
+            // the QR create/update actions first.
+            $launchHref = $this->signInToPortalAndCaptureLaunchHref($username, $password, $email);
+            $this->panther->request('GET', $launchHref);
+            $this->panther->waitFor('form#userLogin', 15);
+
+            $this->panther->findElement(WebDriverBy::name('username'))->sendKeys($username);
+            $this->panther->findElement(WebDriverBy::name('password'))->sendKeys($password);
+            $emailFields = $this->panther->findElements(WebDriverBy::name('email'));
+            if ($emailFields !== []) {
+                $emailFields[0]->sendKeys($email);
+            }
+            $loginForm = $this->panther->findElement(WebDriverBy::id('userLogin'));
+            $this->panther->executeScript(
+                "document.getElementById('userLogin').requestSubmit("
+                . "document.querySelector('form#userLogin button[name=\"user_role\"][value=\"portal-api\"]'));",
+            );
+            $this->panther->wait(15)->until(WebDriverExpectedCondition::stalenessOf($loginForm));
+
+            // Wait for the consent screen's QR action checkboxes — these
+            // are only rendered when the client requested `patient/
+            // QuestionnaireResponse.*` scopes (which the portal client does).
+            // Action keys match SMART v2 permission letters: c=Create, u=Update.
+            $this->panther->waitFor(
+                self::QR_CONSENT_CHECKBOX_CSS,
+                15,
+            );
+
+            // Uncheck Create and Update for QuestionnaireResponse while
+            // leaving read/search checked. ScopeConsentResolver intersects
+            // requested scopes against the posted checkboxes, so this
+            // narrows the issued bearer to .rs only.
+            $this->panther->executeScript(
+                "Array.from(document.querySelectorAll('"
+                . self::QR_CONSENT_CHECKBOX_CSS
+                . "')).forEach((cb) => { if (cb.checked) cb.click(); });",
+            );
+
+            $this->panther->findElement(WebDriverBy::name('proceed'))->click();
+
+            // After proceed, the companion app's callback.php exchanges
+            // the code for the narrowed bearer and lands on its
+            // /smart-questionnaire/home.php (NOT OpenEMR's /portal/home.php
+            // — that page is the one we signed into earlier, before the
+            // /oauth2 handoff). The Questionnaire picker on the companion
+            // app's home.php renders each active Questionnaire as an
+            // a.list-group-item-action whose href navigates to
+            // index.php?q=<questionnaire-id>. The write-mode affordance
+            // check happens on index.php, so click through.
+            $this->panther->wait(30)->until(
+                static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/smart-questionnaire/home.php?lid='),
+            );
+            $this->panther->waitFor('a.list-group-item-action', 15);
+            $picker = null;
+            foreach ($this->panther->findElements(WebDriverBy::cssSelector('a.list-group-item-action')) as $item) {
+                if (str_contains($item->getText(), self::SEEDED_QUESTIONNAIRE_TITLE)) {
+                    $picker = $item;
+                    break;
+                }
+            }
+            self::assertNotNull(
+                $picker,
+                'seeded Questionnaire should still be listed when read scope is intact — '
+                . 'the consent narrowing dropped .cu but left .rs, which is what Questionnaire search needs',
+            );
+            $picker->click();
+
+            // The runtime sees canSend=false (data.canSend is derived
+            // from $session->canCreate('QuestionnaireResponse') server-
+            // side, which parses the token's granted scope set). The
+            // branch at app.js:`if (!canSend && !(held && canChange))`
+            // fires: hides every action button and renders the "answers
+            // can't be sent" copy in #sq-working. #sq-new's `hidden`
+            // attribute reflects this.
+            $this->panther->waitFor('#sq-working', 15);
+            $this->panther->wait(10)->until(
+                static fn (WebDriver $d): bool => str_contains(
+                    $d->findElement(WebDriverBy::id('sq-working'))->getText(),
+                    'answers can\'t be sent from this app right now',
+                ),
+            );
+
+            // Belt-and-braces DOM check — #sq-new's hidden property is
+            // the direct expression of canSend=false. If the "answers
+            // can't be sent" copy fires but the button is still clickable,
+            // that would be a half-degraded state where the UI lies to
+            // the user about what the bearer can do.
+            $sqNew = $this->panther->findElement(WebDriverBy::id('sq-new'));
+            $hiddenAttr = $sqNew->getAttribute('hidden');
+            self::assertNotNull(
+                $hiddenAttr,
+                '#sq-new should carry a hidden attribute when canSend=false — '
+                . 'if it is still interactive, the consent narrowing did not propagate to the client runtime',
+            );
+        } finally {
+            $fixtures->removePortalPatientFixtures();
+        }
+    }
+
+    /**
+     * Portal dashboard OFF-switch (client-level): admin disables the
+     * portal-eligible client in `oauth_clients` (is_enabled=0). The next
+     * portal dashboard render should drop that client from the Health
+     * Apps card. With only one portal client registered in the smoke
+     * stack, the card itself disappears (the subscriber's portalApps()
+     * returns [], which short-circuits renderCard and renderTile).
+     *
+     * Browser-tier mirror of A5 (services-tier PortalSmartAppLauncher
+     * integration, openemr/openemr#15299) which asserts isPortalApp
+     * rejects an is_enabled=0 client at the filter layer. This test
+     * drives the full chain — admin toggles the flag, portal dashboard
+     * re-renders, UI reflects the toggle — so a regression in either
+     * the filter OR the subscriber OR the card template surfaces here.
+     */
+    #[Test]
+    public function testPortalDashboardHidesHealthAppsCardWhenClientIsDisabled(): void
+    {
+        $fixtures = new PortalPatientFixtureManager();
+        $this->sweepLingeringPortalArtifacts();
+
+        $suffix = bin2hex(random_bytes(3));
+        $username = 'portal-disabled-client-' . $suffix;
+        $password = 'PortalDisabledClientSmoke1!';
+        $email = "{$username}@test.example";
+
+        try {
+            $fixtures->installPortalPatient(
+                portalLoginUsername: $username,
+                plainPassword: $password,
+                email: $email,
+                fname: 'Portia',
+                lname: 'DisabledClientSmoke-' . $suffix,
+            );
+
+            // Disable the portal-eligible client. The register_smart_client
+            // step in ci/smart-launch/run.sh registers the client with
+            // name LIKE 'OpenEMR SMART Questionnaire smoke% - patient portal',
+            // so a targeted update by that pattern flips just the portal
+            // client (the staff --all client stays enabled, so other tests
+            // in this file that rely on it are unaffected).
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE oauth_clients SET is_enabled = 0 "
+                    . "WHERE client_name LIKE 'OpenEMR SMART Questionnaire smoke% - patient portal'"
+            );
+
+            $this->panther->request(
+                'GET',
+                self::OPENEMR_BASE . '/portal/index.php?site=default',
+            );
+            $this->panther->waitFor('form[action="get_patient_info.php"]', 15);
+            $this->panther->findElement(WebDriverBy::name('uname'))->sendKeys($username);
+            $this->panther->findElement(WebDriverBy::name('pass'))->sendKeys($password);
+            $emailFields = $this->panther->findElements(WebDriverBy::name('passaddon'));
+            if ($emailFields !== []) {
+                $emailFields[0]->sendKeys($email);
+            }
+            $this->panther->executeScript('document.forms[0].submit();');
+            $this->panther->wait(15)->until(
+                static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/portal/home.php'),
+            );
+            // Dashboard body renders. The sign-in-is-complete signal is
+            // that we're on home.php — if the card ever appears it would
+            // be rendered inline with the rest of the dashboard before
+            // this waitFor('body') would even see it absent. Panther's
+            // findElements returns [] for a missing selector, which is
+            // what we need.
+            $this->panther->waitFor('body', 10);
+            self::assertCount(
+                0,
+                $this->panther->findElements(WebDriverBy::cssSelector('#smart-apps-card')),
+                'Health Apps card must not render when the only portal-eligible client is disabled — '
+                . 'if it does, the oauth_clients.is_enabled=0 off-switch is being bypassed somewhere '
+                . 'between ClientRepository::listClientEntities and PortalSmartLaunchSubscriber::renderCard',
+            );
+            self::assertCount(
+                0,
+                $this->panther->findElements(WebDriverBy::cssSelector('#smart-apps-go')),
+                'Health Apps nav-icon tile (data-target=smart-apps-card) must not render when the card itself would not',
+            );
+        } finally {
+            // Restore is_enabled=1 so subsequent tests in the file (A2,
+            // A3, the write round-trip) still find the portal client
+            // enabled. Mirrors the shape register_smart_client uses.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE oauth_clients SET is_enabled = 1 "
+                    . "WHERE client_name LIKE 'OpenEMR SMART Questionnaire smoke% - patient portal'"
+            );
+            $fixtures->removePortalPatientFixtures();
+        }
+    }
+
+    /**
+     * Portal dashboard OFF-switch (global-level): admin toggles the
+     * `rest_fhir_api` global off. The subscriber reads this global at
+     * render time (`$this->globals()->getBoolean('rest_fhir_api')`); with
+     * it false, portalApps() returns [] before even reaching the client
+     * repository. Dashboard renders without the Health Apps card or tile.
+     *
+     * Browser-tier mirror of A4 (isolated PortalSmartLaunchSubscriberTest,
+     * openemr/openemr#15298) which asserts the branch at the subscriber
+     * level. This test drives the full chain — admin toggles the global,
+     * portal dashboard re-renders, UI reflects the toggle — so a
+     * regression in the subscriber OR the OEGlobalsBag read OR the
+     * card template surfaces here.
+     *
+     * Globals-table flip is scoped to this test's try/finally. The
+     * install_configure step in ciLibrary.source sets rest_fhir_api=1,
+     * so restoring that value in teardown keeps the stack in the state
+     * sibling tests expect.
+     */
+    #[Test]
+    public function testPortalDashboardHidesHealthAppsCardWhenFhirApiIsOff(): void
+    {
+        $fixtures = new PortalPatientFixtureManager();
+        $this->sweepLingeringPortalArtifacts();
+
+        $suffix = bin2hex(random_bytes(3));
+        $username = 'portal-fhir-off-' . $suffix;
+        $password = 'PortalFhirOffSmoke1!';
+        $email = "{$username}@test.example";
+
+        try {
+            $fixtures->installPortalPatient(
+                portalLoginUsername: $username,
+                plainPassword: $password,
+                email: $email,
+                fname: 'Portia',
+                lname: 'FhirOffSmoke-' . $suffix,
+            );
+
+            // Flip rest_fhir_api off. INSERT ... ON DUPLICATE KEY UPDATE
+            // mirrors the shape set_smoke_globals in run.sh uses, so the
+            // shape works whether the row exists already (install_configure
+            // set it to 1) or does not.
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('rest_fhir_api', 0, '0') "
+                    . "ON DUPLICATE KEY UPDATE gl_value = '0'"
+            );
+
+            $this->panther->request(
+                'GET',
+                self::OPENEMR_BASE . '/portal/index.php?site=default',
+            );
+            $this->panther->waitFor('form[action="get_patient_info.php"]', 15);
+            $this->panther->findElement(WebDriverBy::name('uname'))->sendKeys($username);
+            $this->panther->findElement(WebDriverBy::name('pass'))->sendKeys($password);
+            $emailFields = $this->panther->findElements(WebDriverBy::name('passaddon'));
+            if ($emailFields !== []) {
+                $emailFields[0]->sendKeys($email);
+            }
+            $this->panther->executeScript('document.forms[0].submit();');
+            $this->panther->wait(15)->until(
+                static fn (WebDriver $d): bool => str_contains($d->getCurrentURL(), '/portal/home.php'),
+            );
+            $this->panther->waitFor('body', 10);
+            self::assertCount(
+                0,
+                $this->panther->findElements(WebDriverBy::cssSelector('#smart-apps-card')),
+                'Health Apps card must not render when rest_fhir_api is off — '
+                . 'if it does, PortalSmartLaunchSubscriber::portalApps() is not reading the global or the '
+                . 'global\'s off state is not propagating into the render',
+            );
+            self::assertCount(
+                0,
+                $this->panther->findElements(WebDriverBy::cssSelector('#smart-apps-go')),
+                'Health Apps nav-icon tile must not render when rest_fhir_api is off',
+            );
+        } finally {
+            // Restore rest_fhir_api to the ciLibrary.source default
+            // install_configure sets. Any test following this one in the
+            // phpunit ordering that exercises /apis/default/fhir/* needs
+            // it back on.
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('rest_fhir_api', 0, '1') "
+                    . "ON DUPLICATE KEY UPDATE gl_value = '1'"
+            );
+            $fixtures->removePortalPatientFixtures();
+        }
+    }
+
+    /**
+     * Mirrors A1's defensive setUp sweep. `PortalPatientFixtureManager::removePortalPatientFixtures()`
+     * joins on `patient_data.pid` when it cleans `patient_access_onsite`,
+     * so a prior failed run that deleted the `patient_data` row but left
+     * the `patient_access_onsite` row behind creates an orphan. The
+     * fixture's next-pid allocation (`MAX(patient_data.pid) + 1`) then
+     * collides with that orphan's pid on insert. A direct not-exists
+     * sweep covers the orphan class regardless of portal_username pattern.
+     */
+    private function sweepLingeringPortalArtifacts(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM patient_access_onsite "
+                . "WHERE NOT EXISTS (SELECT 1 FROM patient_data WHERE patient_data.pid = patient_access_onsite.pid)"
+        );
     }
 }

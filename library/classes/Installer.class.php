@@ -925,8 +925,6 @@ $config = ' . $configMarker . '; /////////////
         // xl('Lists')
         $gacl->add_object_section('Patients', 'patients', 10, 0, 'ACO');
         // xl('Patients')
-        $gacl->add_object_section('Squads', 'squads', 10, 0, 'ACO');
-        // xl('Squads')
         $gacl->add_object_section('Sensitivities', 'sensitivities', 10, 0, 'ACO');
         // xl('Sensitivities')
         $gacl->add_object_section('Placeholder', 'placeholder', 10, 0, 'ACO');

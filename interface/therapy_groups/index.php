@@ -5,65 +5,65 @@
  *
  * Contains the routing for therapy groups controllers.
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
- * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    https://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 require_once __DIR__ . '/../globals.php';
 require_once __DIR__ . '/therapy_groups_controllers/therapy_groups_controller.php';
 require_once __DIR__ . '/therapy_groups_controllers/participants_controller.php';
 
-$method = $_GET['method'];
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\TherapyGroupSessionUtil;
+
+$request = CurrentRequest::get();
+$method = $request->query->getString('method');
 
 switch ($method) {
     case 'addGroup':
-        $controller = new TherapyGroupsController();
+        $controller = new TherapyGroupsController($request);
         $controller->index();
         break;
 
     case 'listGroups':
-        $controller = new TherapyGroupsController();
+        $controller = new TherapyGroupsController($request);
         $controller->listGroups();
         break;
 
     case 'groupDetails':
-        if (!isset($_GET['group_id'])) {
+        if (!$request->query->has('group_id')) {
             die('Missing group ID');
         }
 
-        $controller = new TherapyGroupsController();
-        if ($_GET['group_id'] == 'from_session') {
-            $controller->index(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('therapy_group'));
-        } else {
-            $controller->index($_GET['group_id']);
-        }
+        $groupId = $request->query->getString('group_id') === 'from_session'
+            ? TherapyGroupSessionUtil::getGroupId()
+            : $request->query->getInt('group_id');
+        $controller = new TherapyGroupsController($request);
+        $controller->index($groupId);
         break;
     case 'groupParticipants':
-        if (!isset($_GET['group_id'])) {
+        if (!$request->query->has('group_id')) {
             die('Missing group ID');
         }
 
-        $controller = new ParticipantsController();
-        $controller->index($_GET['group_id']);
+        $controller = new ParticipantsController($request);
+        $controller->index($request->query->getInt('group_id'));
         break;
     case 'addParticipant':
-        $controller = new ParticipantsController();
-        $controller->add($_GET['group_id']);
+        if (!$request->query->has('group_id')) {
+            die('Missing group ID');
+        }
+
+        $controller = new ParticipantsController($request);
+        $controller->add($request->query->getInt('group_id'));
         break;
 }

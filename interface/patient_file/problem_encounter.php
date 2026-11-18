@@ -33,15 +33,11 @@ use OpenEMR\Services\PatientIssuesService;
 $pid ??= null;
 $webroot = OEGlobalsBag::getInstance()->getWebRoot();
 $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
-$patdata = getPatientData($pid, "fname,lname,squad");
+$patdata = getPatientData($pid, "fname,lname");
 
 $thisauth = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') ||
             AclMain::aclCheckCore('encounters', 'notes_a', '', 'write')) &&
             AclMain::aclCheckCore('patients', 'med', '', 'write'));
-
-if ($patdata['squad'] && ! AclMain::aclCheckCore('squads', $patdata['squad'])) {
-     $thisauth = 0;
-}
 
 if (!$thisauth) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/notes or patients/med: Issues and Encounters", xl("Issues and Encounters"));

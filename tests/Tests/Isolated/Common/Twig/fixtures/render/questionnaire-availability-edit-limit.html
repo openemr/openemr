@@ -7,9 +7,9 @@
 </head>
 <body class="body_top">
 <div class="container-fluid">
-    <h2 class="mt-3">Questionnaire Availability</h2>
+    <h2 class="h5 mt-3">Questionnaire Availability</h2>
     <p class="text-muted mb-3">
-        Tick where each questionnaire is offered. Open Limits to offer one only at a facility, for a provider, for a kind of visit or for one SMART app, or to change who may see it.
+        Tick where each questionnaire is offered. Open Limits to offer one only at a facility, for a provider, for a kind of visit or for one SMART app, to change who may see it, or to change its category.
     </p>
 
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -204,6 +204,18 @@
                 <a class="btn btn-sm btn-link" href="manage_questionnaire_availability.php" onclick="top.restoreSession()">Close</a>
             </div>
             <div class="card-body">
+                <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="form-inline mb-3" onsubmit="return top.restoreSession()">
+                    <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                    <input type="hidden" name="action" value="save_category" />
+                    <input type="hidden" name="questionnaire_id" value="50" />
+                    <label class="mr-2" for="questionnaire-category">Category</label>
+                    <select class="form-control form-control-sm mr-2" id="questionnaire-category" name="category" required>
+                                                                            <option value="assessment" selected>Assessment</option>
+                                                    <option value="sdoh" >SDOH</option>
+                                            </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Save category</button>
+                    <small class="form-text text-muted ml-2">Category rules offer it by this category.</small>
+                </form>
                 <p class="text-muted">
                     Each line is one rule. A rule offered Everywhere is the tick in the grid; a limited rule offers the questionnaire only where its limits match. Rules add up: it is offered if any rule that is on matches.
                 </p>
@@ -419,6 +431,7 @@
                                     <option value="3" selected>Main Clinic</option>
                                     <option value="4" >North Office</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="limit-provider">Only for provider</label>
@@ -428,6 +441,7 @@
                                     <option value="8" >Smith, Jane</option>
                                     <option value="77" selected>#77 (inactive or removed)</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="limit-visit">Only for visit category</label>
@@ -437,6 +451,7 @@
                                     <option value="9" >Well Child</option>
                                     <option value="7" >New Patient</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="limit-app">Only for SMART app</label>
@@ -445,6 +460,7 @@
                                                     <option value="app-a" >Growth Chart</option>
                                     <option value="app-b" >PRO Collector</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
     </div>
             <input type="hidden" name="assignment_id" value="4" />
@@ -572,6 +588,7 @@
                                     <option value="3" >Main Clinic</option>
                                     <option value="4" >North Office</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="category-provider">Only for provider</label>
@@ -581,6 +598,7 @@
                                     <option value="8" >Smith, Jane</option>
                                     <option value="77" >#77 (inactive or removed)</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="category-visit">Only for visit category</label>
@@ -590,6 +608,7 @@
                                     <option value="9" >Well Child</option>
                                     <option value="7" >New Patient</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="category-app">Only for SMART app</label>
@@ -598,6 +617,7 @@
                                                     <option value="app-a" >Growth Chart</option>
                                     <option value="app-b" >PRO Collector</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
     </div>
 
@@ -662,30 +682,77 @@
 (function () {
     'use strict';
 
-    // In each rule form, limit fields the chosen surface never fills in are disabled, so they
-    // are not posted. The service refuses such a rule too; this keeps the form from offering it.
+    // Each surface fills in only some limits (QuestionnaireSurface::supportedScopes()). A limit
+    // field the chosen surface cannot apply stays usable: picking a value in it switches the
+    // surface to one that can, and switching the surface clears the fields it cannot apply,
+    // so they post as Any. The service refuses an unsupported limit as well.
+    const switchesTo = "Picking one switches to %s";
+    const scopesOf = function (option) {
+        try {
+            const scopes = JSON.parse(option?.dataset.scopes || '[]');
+            return Array.isArray(scopes) ? scopes : [];
+        } catch (e) {
+            return [];
+        }
+    };
     document.querySelectorAll('form[data-rule-form]').forEach(function (form) {
         const surface = form.querySelector('[data-surface-select]');
         const hint = form.querySelector('[data-scope-hint]');
-        const scopedFields = form.querySelectorAll('[data-scope]');
+        const scopedFields = Array.from(form.querySelectorAll('[data-scope]'));
         if (!surface) {
             return;
         }
+        const options = Array.from(surface.options);
+        // The first surface that can apply every limit named, or failing that this one alone.
+        const surfaceFor = function (scope, alsoWanted) {
+            return options.find(function (option) {
+                const scopes = scopesOf(option);
+                return scopes.includes(scope) && alsoWanted.every(function (other) {
+                    return scopes.includes(other);
+                });
+            }) || options.find(function (option) {
+                return scopesOf(option).includes(scope);
+            });
+        };
         const applySurface = function () {
-            const option = surface.options[surface.selectedIndex];
-            let allowed = [];
-            try {
-                allowed = JSON.parse(option?.dataset.scopes || '[]');
-            } catch (e) {
-                allowed = [];
-            }
+            const chosen = surface.options[surface.selectedIndex];
+            const allowed = scopesOf(chosen);
             scopedFields.forEach(function (field) {
-                field.disabled = !allowed.includes(field.dataset.scope);
+                const note = field.parentElement.querySelector('[data-scope-note]');
+                if (allowed.includes(field.dataset.scope)) {
+                    if (note) {
+                        note.textContent = '';
+                    }
+                    return;
+                }
+                field.value = '';
+                const target = surfaceFor(field.dataset.scope, []);
+                if (note) {
+                    note.textContent = target ? switchesTo.replace('%s', target.text) : '';
+                }
             });
             if (hint) {
-                hint.textContent = option?.dataset.hint || '';
+                hint.textContent = chosen?.dataset.hint || '';
             }
         };
+        scopedFields.forEach(function (field) {
+            field.addEventListener('change', function () {
+                const allowed = scopesOf(surface.options[surface.selectedIndex]);
+                if (field.value === '' || allowed.includes(field.dataset.scope)) {
+                    return;
+                }
+                const alsoWanted = scopedFields.filter(function (other) {
+                    return other !== field && other.value !== '';
+                }).map(function (other) {
+                    return other.dataset.scope;
+                });
+                const target = surfaceFor(field.dataset.scope, alsoWanted);
+                if (target) {
+                    surface.value = target.value;
+                    applySurface();
+                }
+            });
+        });
         surface.addEventListener('change', applySurface);
         applySurface();
     });

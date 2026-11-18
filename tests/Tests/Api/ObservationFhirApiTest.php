@@ -45,6 +45,16 @@ class ObservationFhirApiTest extends TestCase
     private string $observationUuid;
 
     /**
+     * Additional encounter uuids seeded by tests beyond setUp (e.g. the
+     * cross-patient-exclusion test which needs an encounter for a
+     * second patient). tearDown sweeps every entry so the extra
+     * form_encounter rows do not leak between test runs.
+     *
+     * @var list<string>
+     */
+    private array $extraEncounterUuids = [];
+
+    /**
      * Seeds a patient, an encounter and a heart rate observation, and gets an API token.
      */
     protected function setUp(): void
@@ -127,13 +137,20 @@ class ObservationFhirApiTest extends TestCase
             if (isset($this->fixtureManager)) {
                 $this->fixtureManager->removeObservationFixtures();
             }
-            // This run's encounter only, so parallel workers keep theirs.
+            // This run's encounters only, so parallel workers keep theirs.
+            // FhirEncounterService::insert() writes three rows that must
+            // all come down: the form_encounter row, the forms row the
+            // EncounterService::insertEncounter addForm() call creates,
+            // and the uuid_registry entry for form_encounter. The sibling
+            // encounter fixture-manager sweep cleans only form_encounter
+            // rows, so this test file takes responsibility for all three.
             if (isset($this->encounterUuid)) {
-                QueryUtils::sqlStatementThrowException(
-                    'DELETE FROM form_encounter WHERE uuid = ?',
-                    [UuidRegistry::uuidToBytes($this->encounterUuid)]
-                );
+                $this->deleteEncounterAndCompanions($this->encounterUuid);
             }
+            foreach ($this->extraEncounterUuids as $extraUuid) {
+                $this->deleteEncounterAndCompanions($extraUuid);
+            }
+            $this->extraEncounterUuids = [];
             if (isset($this->fixtureManager)) {
                 $this->fixtureManager->removePatientFixtures();
             }
@@ -196,6 +213,51 @@ class ObservationFhirApiTest extends TestCase
                 'A laboratory search must not return the seeded vital sign'
             );
         }
+    }
+
+    /**
+     * Searching by patient A must not return an observation owned by patient B.
+     *
+     * The other search tests above only seed observations for one
+     * patient, so a server that silently ignored `?patient=` would
+     * still match. This test seeds an encounter + observation for
+     * patient A AND for a different patient B, then asserts patient
+     * A's `?patient=` search returns A's observation but not B's.
+     */
+    public function testSearchByPatientExcludesOtherPatientsObservation(): void
+    {
+        $patientBUuid = $this->resolveSecondPatientUuid();
+        $observationBUuid = $this->seedObservationForPatient($patientBUuid);
+        $this->assertNotSame(
+            $this->observationUuid,
+            $observationBUuid,
+            'The two seeded observations must have distinct uuids'
+        );
+
+        $bundle = $this->assertCollectionBundle(
+            $this->testClient->get(self::ENDPOINT, ['patient' => $this->patientUuid])
+        );
+        $entries = $bundle['entry'] ?? null;
+        $this->assertIsArray($entries);
+        $ids = [];
+        foreach ($entries as $entry) {
+            $this->assertIsArray($entry);
+            $resource = $entry['resource'] ?? null;
+            $this->assertIsArray($resource);
+            $id = $resource['id'] ?? null;
+            $this->assertIsString($id);
+            $ids[] = $id;
+        }
+        $this->assertContains(
+            $this->observationUuid,
+            $ids,
+            'Patient A ?patient= search must include patient A observation'
+        );
+        $this->assertNotContains(
+            $observationBUuid,
+            $ids,
+            'Patient A ?patient= search must NOT include patient B observation'
+        );
     }
 
     /**
@@ -263,6 +325,118 @@ class ObservationFhirApiTest extends TestCase
     {
         $client = new ApiTestClient(self::baseUrl(), false);
         $this->assertUnauthorized($client->getOne(self::ENDPOINT, $this->observationUuid));
+    }
+
+    /**
+     * Remove an encounter row + its forms row + its uuid_registry entry,
+     * in the order that keeps the registry consistent: the registry
+     * row first (while the uuid is still readable from form_encounter),
+     * then the forms row on the same encounter number, then the
+     * form_encounter row itself.
+     */
+    private function deleteEncounterAndCompanions(string $uuid): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE table_name = 'form_encounter' AND uuid = ?",
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE f FROM forms f"
+                . " JOIN form_encounter fe ON fe.encounter = f.encounter"
+                . " WHERE fe.uuid = ? AND f.formdir = 'newpatient'",
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM form_encounter WHERE uuid = ?',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+    }
+
+    /**
+     * Resolve a second fixture patient's FHIR uuid. installPatientFixtures()
+     * in setUp registers every patient listed in patients.php; the second
+     * entry gives us a distinct patient to seed an observation against
+     * for the cross-patient-exclusion test.
+     */
+    private function resolveSecondPatientUuid(): string
+    {
+        $patients = $this->fixtureManager->getPatientFixtures();
+        $this->assertGreaterThan(
+            1,
+            count($patients),
+            'patients.php must seed at least two patients for the cross-patient test'
+        );
+        $secondPatient = $patients[1];
+        $this->assertIsArray($secondPatient);
+        $pubpid = $secondPatient['pubpid'] ?? null;
+        $this->assertIsString($pubpid, 'Second patient fixture must carry a pubpid');
+
+        $record = QueryUtils::querySingleRow(
+            'SELECT uuid FROM patient_data WHERE pubpid = ?',
+            [$pubpid]
+        );
+        $this->assertIsArray($record);
+        return UuidRegistry::uuidToString($record['uuid']);
+    }
+
+    /**
+     * Seed an encounter + heart-rate observation bound to the given
+     * patient. Mirrors setUp's seed flow, with the encounter uuid
+     * recorded in extraEncounterUuids for tearDown sweep. The
+     * observation itself is covered by removeObservationFixtures()
+     * since that sweeps by patient-fixture-prefix.
+     */
+    private function seedObservationForPatient(string $patientUuid): string
+    {
+        $encounterFixtures = json_decode(
+            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/encounter.json'),
+            true
+        );
+        $this->assertIsArray($encounterFixtures);
+        $encounterPayload = $encounterFixtures[0];
+        $this->assertIsArray($encounterPayload);
+        $encounterPayload['subject'] = ['reference' => 'Patient/' . $patientUuid];
+        $encounterInsert = (new FhirEncounterService())->insert(new FHIREncounter($encounterPayload));
+        $this->assertTrue(
+            $encounterInsert->isValid(),
+            'Encounter insert (second patient) failed: ' . json_encode($encounterInsert->getValidationMessages())
+        );
+        $encounterData = $encounterInsert->getData();
+        $this->assertIsArray($encounterData);
+        $encounter = $encounterData[0];
+        $this->assertIsArray($encounter);
+        $encounterUuid = $encounter['euuid'] ?? null;
+        $this->assertIsString($encounterUuid);
+        $this->extraEncounterUuids[] = $encounterUuid;
+
+        $observationFixtures = json_decode(
+            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/observation.json'),
+            true
+        );
+        $this->assertIsArray($observationFixtures);
+        $fixture = $observationFixtures[1];
+        $this->assertIsArray($fixture);
+        $fixture['subject'] = ['reference' => 'Patient/' . $patientUuid];
+        $fixture['encounter'] = ['reference' => 'Encounter/' . $encounterUuid];
+        unset($fixture['id']);
+        $body = [];
+        foreach ($fixture as $key => $value) {
+            $this->assertIsString($key);
+            $body[$key] = $value;
+        }
+
+        $response = $this->testClient->post(self::ENDPOINT, $body);
+        $responseBody = $response->getBody()->getContents();
+        $this->assertSame(
+            Response::HTTP_CREATED,
+            $response->getStatusCode(),
+            'Seeding observation for second patient should return 201. Body: ' . $responseBody
+        );
+        $created = json_decode($responseBody, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($created);
+        $uuid = $created['uuid'] ?? null;
+        $this->assertIsString($uuid);
+        return $uuid;
     }
 
     /**

@@ -221,13 +221,6 @@ if (!$thisauth) {
     }
 }
 
-if ($thisauth) {
-    $tmp = getPatientData($pid, "squad");
-    if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        $thisauth = 0;
-    }
-}
-
 if (!$thisauth) {
     echo "<p>(" . xlt('Coding not authorized') . ")</p>\n";
     echo "</body>\n</html>\n";

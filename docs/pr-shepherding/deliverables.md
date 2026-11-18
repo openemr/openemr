@@ -30,7 +30,7 @@ subsection updated per shepherd pass.
 **Shipped since <reference-date> (<count> <subject> PRs merged):**
 
 - #NNNN — <commit-type>(<scope>): <title> — <author> (<merge-date> at `<merge-sha-short>`).
-  <One-sentence summary>. Brief: `/path/to/pr-NNNN-review-brief.md`. **🚢 SHIPPED.**
+  <One-sentence summary>. Brief: `pr-NNNN-review-brief.md`. **🚢 SHIPPED.**
 - ...
 
 **Open as of <YYYY-MM-DD> (<count> PRs):**
@@ -39,7 +39,7 @@ Changes since the <prior-date> snapshot:
 - <delta bullets — see stocktake.md §4>
 
 ✅ Shepherd-reviewed, merge-ready:
-- #NNNN — <title> — <author>. <one-sentence verdict>. Brief: `/path/...`.
+- #NNNN — <title> — <author>. <one-sentence verdict>. Brief: `pr-NNNN-review-brief.md`.
 
 🔶 Shepherd-reviewed, merge-ready with known residual:
 - #NNNN — ... <reason for residual>. Brief: ...
@@ -56,6 +56,11 @@ Changes since the <prior-date> snapshot:
 Outside primary scope (visibility only):
 - #NNNN — ... <why out of scope>.
 ```
+
+**Point at a brief by file name only** (`pr-NNNN-review-brief.md`), never by absolute
+path. The workstream doc is committed and public; the brief is private and its directory
+differs per machine ([§5](#5-filesystem-locations)), so a full path helps no other reader
+and publishes a local layout. The shepherd log is not committed and can carry the full path.
 
 ### 1.3 Updating the doc as PRs land
 
@@ -122,10 +127,17 @@ Standing rules:
 
 ## Legend
 
-- ✅ **Merge-ready** — verified locally + no rabbit concerns + aligns with register
-- 🔶 **Minor concern** — merge-ready-with-note; brief captures the concern
-- 🔴 **Substantive concern** — hold or request change; private brief
-- ⏸️ **Deferred** — not reviewed this pass (feature chains / out of scope / needs maintainer judgment)
+Same emojis and meanings as standing-rules §9 (`docs/pr-shepherding/standing-rules.md` in the repo):
+
+- ⏳ **Awaiting shepherd review** — metadata passes; no brief yet, or the brief's reviewed head or base tip no longer matches
+- ✅ **Merge-ready** — brief with approve verdict; decision gate passes
+- 🔶 **Merge-ready with known residual** — as ✅; the brief captures one non-blocking concern
+- 🔴 **Held** — a decision-gate row fails; the entry names the blocker and its owner
+- ⏸️ **Author-declared draft** — scan only; no deep review
+- 🚢 **Shipped** — appended once the maintainer confirms the merge
+
+A PR that is outside primary scope, or that the maintainer deferred, gets no emoji: say
+so in its verdict line.
 
 ## Review outcomes
 
@@ -317,9 +329,9 @@ header to the brief rather than rewriting the body. Preserves the
 verified-at-head-X evidence trail while making the current state scannable.
 
 ```markdown
-## 🔴/🟡 STATE DELTA — <YYYY-MM-DD>
+## STATE DELTA — <YYYY-MM-DD>
 
-**Current verdict:** <new verdict if changed, or "unchanged ✅/🔶/🔴" if preserved>.
+**Current verdict:** <bucket emoji + new verdict if changed, or "unchanged ✅/🔶/🔴" if preserved>.
 **Observed head:** `<new-head-sha>` (set when head moved; mark "re-verified" once
 checks run against it).
 **Observed base-tip:** `<new-base-tip-sha>` (same convention).
@@ -396,6 +408,11 @@ whatever persistent-memory mechanism that agent provides.
 - After each merge-ready verdict (so the maintainer can read the doc + brief together).
 - After each `landed <N>` from the maintainer (move entry to shipped).
 - After adding a follow-up register entry.
+
+These commits go on a branch and reach `master` through a PR like any other change;
+never commit the workstream doc on `master` directly
+([standing-rules §1.5](standing-rules.md#15-no-destructive-git-actions-on-mastermain)).
+Several of them can ride in one PR.
 
 Each commit should be one of these three kinds of change, not a mix. One-sentence commit
 message in the `docs(<area>): <action>` shape:

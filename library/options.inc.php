@@ -244,7 +244,8 @@ function generate_select_list(
         // Populate the options array with pertinent values
 
         while ($lrow = sqlFetchArray($lres)) {
-            $selectedValues = explode("|", $currvalue ?? '');
+            // Only a multiple select stores several values joined with "|".
+            $selectedValues = $multiple ? explode("|", $currvalue ?? '') : [$currvalue ?? ''];
             $isSelected = false;
 
             $optionValue = attr($lrow ['option_id']);
@@ -309,13 +310,17 @@ function generate_select_list(
         $list_id = $backup_list;
         $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", [$list_id, $currvalue]);
 
+        // Keep the stored value selected, so saving the form doesn't replace it with the empty option.
+        if (($_options[0]['value'] ?? null) === '') {
+            $_options[0]['isSelected'] = false;
+        }
         $_options[] = [
             'value' => attr($currvalue),
-            'selected' => true,
+            'isSelected' => true,
             'label' => ($lrow > 0 && !empty($backup_list)) ? text(xl_list_label($lrow['title'])) : text($currvalue),
         ];
-        if (empty($lrow) && empty($backup_list)) {
-            $metadata['error'] = [
+        if (!is_array($lrow)) {
+            $_metadata['error'] = [
                 'title' => xlt('Please choose a valid selection from the list.'),
                 'text' => xlt('Fix this'),
             ];
@@ -884,25 +889,6 @@ function generate_form_field($frow, $currvalue): void
          * they would have to listen to this event.
         */
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION);
-    } elseif ($data_type == 13) { // squads
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
-        echo " $lbfonchange $disabled>";
-        echo "<option value=''>&nbsp;</option>";
-        $squads = AclExtended::aclGetSquads();
-        if ($squads) {
-            foreach ($squads as $key => $value) {
-                $optionValue = htmlspecialchars((string) $key, ENT_QUOTES);
-                $optionLabel = htmlspecialchars((string) $value[3], ENT_NOQUOTES);
-                echo "<option value='$optionValue'";
-                if ($currvalue == $key) {
-                    echo " selected";
-                }
-
-                echo ">$optionLabel</option>\n";
-            }
-        }
-
-        echo "</select>";
     } elseif ($data_type == 14) {
         // Address book, preferring organization name if it exists and is not in
         // parentheses, and excluding local users who are not providers.
@@ -1847,25 +1833,6 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
             echo $tmp;
-    } elseif ($data_type == 13) { // squads
-        $tmp = '';
-        if ($currvalue) {
-            $squads = AclExtended::aclGetSquads();
-            if ($squads) {
-                foreach ($squads as $key => $value) {
-                    if ($currvalue == $key) {
-                        $tmp = $value[3];
-                    }
-                }
-            }
-
-            if (empty($tmp)) {
-                $tmp = "($currvalue)";
-            }
-        }
-        $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars((string) $tmp, ENT_QUOTES);
-
-            echo $tmp;
     } elseif ($data_type == 14) { // Address book.
         $tmp = '';
         if ($currvalue) {
@@ -2451,15 +2418,6 @@ function generate_display_field($frow, $currvalue): string
          * they would have to listen to this event.
         */
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION);
-    } elseif ($data_type == 13) { // squads
-        $squads = AclExtended::aclGetSquads();
-        if ($squads) {
-            foreach ($squads as $key => $value) {
-                if ($currvalue == $key) {
-                    $s .= htmlspecialchars((string) $value[3], ENT_NOQUOTES);
-                }
-            }
-        }
     } elseif ($data_type == 14) { // address book
         $urow = sqlQuery("SELECT fname, lname, specialty, organization FROM users " .
         "WHERE id = ?", [$currvalue]);
@@ -4376,7 +4334,6 @@ function generate_layout_validation($form_id): void
                 case 1:
                 case 11:
                 case 12:
-                case 13:
                 case 14:
                 case 26:
                     echo
