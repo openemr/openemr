@@ -18747,11 +18747,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$foreignId of method OpenEMR\\\\Services\\\\PhoneNumberService\\:\\:getPhonesByForeignId\\(\\) expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$num of method InsuranceCompany\\:\\:set_number\\(\\) expects string, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
@@ -18810,11 +18805,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#8 \\.\\.\\.\\$values of function sprintf expects bool\\|float\\|int\\|string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/PDF_Label.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$foreignId of method OpenEMR\\\\Services\\\\PhoneNumberService\\:\\:getPhonesByForeignId\\(\\) expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$num of method Pharmacy\\:\\:set_number\\(\\) expects string, mixed given\\.$#',

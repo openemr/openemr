@@ -19,6 +19,7 @@ namespace OpenEMR\Services;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ValueObjects\PhoneNumber;
+use OpenEMR\Common\ValueObjects\TypedPhoneNumber;
 use Particle\Validator\Validator;
 
 class PhoneNumberService extends BaseService
@@ -148,12 +149,73 @@ class PhoneNumberService extends BaseService
      * Get all phone numbers for a given foreign ID.
      *
      * @param int $foreignId The foreign ID to search for
-     * @return array Array of phone number records ordered by type, then id
+     * @return list<array<mixed>> Array of phone number records ordered by type, then id
      */
     public function getPhonesByForeignId(int $foreignId): array
     {
         $sql = 'SELECT * FROM phone_numbers WHERE foreign_id = ? ORDER BY type, id';
         return QueryUtils::fetchRecords($sql, [$foreignId]);
+    }
+
+    /**
+     * The newest saved WORK and FAX number of a record, at most one of each.
+     *
+     * Older saves could leave several rows of a type; only the newest counts.
+     * A type whose newest row has no 10-digit national number is left out
+     * rather than answered with an older row, so replaceNumbers() keeps that
+     * type's saved rows instead of overwriting the newest with an older one.
+     *
+     * @return list<TypedPhoneNumber>
+     */
+    public function getWorkAndFaxNumbers(int $foreignId): array
+    {
+        $newest = [];
+        foreach ($this->getPhonesByForeignId($foreignId) as $record) {
+            $type = is_int($record['type']) ? PhoneType::tryFrom($record['type']) : null;
+            if ($type !== PhoneType::WORK && $type !== PhoneType::FAX) {
+                continue;
+            }
+            $parts = '';
+            foreach (['area_code', 'prefix', 'number'] as $column) {
+                $parts .= is_string($record[$column] ?? null) ? $record[$column] : '';
+            }
+            // Rows arrive in id order within a type, so the last one wins.
+            $newest[$type->value] = [$type, $parts];
+        }
+        $numbers = [];
+        foreach ($newest as [$type, $parts]) {
+            $typed = TypedPhoneNumber::tryCreate($parts, $type);
+            if ($typed?->phoneNumber->getNationalDigits() !== null) {
+                $numbers[] = $typed;
+            }
+        }
+        return $numbers;
+    }
+
+    /**
+     * Replace a record's saved rows of each type in $numbers with that number.
+     *
+     * Each type's rows are cleared before its number is inserted, which
+     * collapses duplicate rows that older saves left. A type with no entry
+     * in $numbers keeps its rows, as does an entry with no 10-digit national
+     * number, which the area_code/prefix/number columns cannot store.
+     *
+     * @param list<TypedPhoneNumber> $numbers at most one per type
+     */
+    public function replaceNumbers(int $foreignId, array $numbers): void
+    {
+        foreach ($numbers as $phone) {
+            $nationalDigits = $phone->phoneNumber->getNationalDigits();
+            if ($nationalDigits === null) {
+                continue;
+            }
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM phone_numbers WHERE foreign_id = ? AND type = ?',
+                [$foreignId, $phone->type->value]
+            );
+            $this->type = $phone->type->value;
+            $this->insert(['phone' => $nationalDigits], $foreignId);
+        }
     }
 
     /**

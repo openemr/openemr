@@ -655,4 +655,40 @@ class InsuranceCompanyServiceTest extends TestCase
             )
         );
     }
+
+    #[Test]
+    public function testLegacyPersistKeepsNewestPhoneItCannotLoadOverOlderOne(): void
+    {
+        // The newest WORK row has no 10-digit number, and an older one does.
+        // Loading the older number would let the save overwrite the newer
+        // one, so the company loads no WORK number and keeps both rows.
+        $co = new \InsuranceCompany();
+        $co->set_name('test-fixture-LegacyPersistUnloadableNewestRow');
+        $co->set_phone('5551234567');
+        $co->persist();
+        $insuranceId = $co->id;
+        $this->assertTrue(is_int($insuranceId) || is_string($insuranceId));
+        $this->createdIds[] = $insuranceId;
+
+        QueryUtils::sqlInsert(
+            'INSERT INTO phone_numbers (id, country_code, area_code, prefix, number, type, foreign_id)'
+            . ' SELECT COALESCE(MAX(id), 0) + 1, ?, ?, ?, ?, ?, ? FROM phone_numbers',
+            [PhoneNumberService::COUNTRY_CODE, '', '555', '1234', PhoneType::WORK->value, $insuranceId]
+        );
+
+        $reloaded = new \InsuranceCompany($insuranceId);
+        $this->assertSame('', $reloaded->get_phone());
+        $reloaded->persist();
+
+        $this->assertSame(
+            [
+                ['area_code' => '555', 'prefix' => '123', 'number' => '4567'],
+                ['area_code' => '', 'prefix' => '555', 'number' => '1234'],
+            ],
+            QueryUtils::fetchRecordsNoLog(
+                'SELECT area_code, prefix, number FROM phone_numbers WHERE foreign_id = ? AND type = ? ORDER BY id',
+                [$insuranceId, PhoneType::WORK->value]
+            )
+        );
+    }
 }

@@ -28,7 +28,7 @@ use OpenEMR\Services\PhoneType;
 class Pharmacy extends ORDataObject
 {
     public $name;
-    /** @var TypedPhoneNumber[] */
+    /** @var list<TypedPhoneNumber> */
     public array $phone_numbers = [];
     public $address;
     public $transmit_method;
@@ -210,24 +210,10 @@ class Pharmacy extends ORDataObject
     {
         parent::populate();
         $this->address = Address::factory_address($this->id);
-        $phoneService = new PhoneNumberService();
-        $this->phone_numbers = [];
-        foreach ($phoneService->getPhonesByForeignId($this->id) as $record) {
-            $areaCode = (string) ($record['area_code'] ?? '');
-            $prefix = (string) ($record['prefix'] ?? '');
-            $number = (string) ($record['number'] ?? '');
-            $phoneStr = $areaCode . $prefix . $number;
-            $type = is_int($record['type']) ? PhoneType::tryFrom($record['type']) : null;
-            // persist() rewrites only the work and fax rows. Load no other
-            // type, or the next save would insert a copy of that row.
-            if ($type !== PhoneType::WORK && $type !== PhoneType::FAX) {
-                continue;
-            }
-            // Rows arrive in id order, and set_number() replaces an earlier
-            // number of the same type, so duplicate rows left by older saves
-            // load as the newest one and collapse to it on the next save.
-            $this->set_number($phoneStr, $type);
-        }
+        // persist() rewrites only the work and fax rows, so load no other
+        // type, or the next save would insert a copy of that row.
+        $id = filter_var($this->id, FILTER_VALIDATE_INT);
+        $this->phone_numbers = $id === false ? [] : (new PhoneNumberService())->getWorkAndFaxNumbers($id);
     }
 
     public function persist(): mixed
@@ -241,26 +227,12 @@ class Pharmacy extends ORDataObject
         return QueryUtils::inTransaction(function (): mixed {
             $ret = parent::persist();
             $this->address->persist($this->id);
-            $phoneService = new PhoneNumberService();
-            foreach ($this->phone_numbers as $phone) {
-                $nationalDigits = $phone->phoneNumber->getNationalDigits();
-                if ($nationalDigits === null) {
-                    // The legacy phone_numbers table stores 10-digit NANP parts
-                    // (area_code / prefix / number). Skip numbers we can't
-                    // represent in that schema rather than throwing a TypeError
-                    // from PhoneNumberService::getPhoneParts().
-                    continue;
-                }
-                // Replace only the rows of a type this pharmacy holds a
-                // number for; see InsuranceCompany::persist().
-                QueryUtils::sqlStatementThrowException(
-                    'DELETE FROM phone_numbers WHERE foreign_id = ? AND type = ?',
-                    [$this->id, $phone->type->value]
-                );
-                $phoneData = ['phone' => $nationalDigits];
-                $phoneService->type = $phone->type->value;
-                $phoneService->insert($phoneData, $this->id);
+            // See InsuranceCompany::persist().
+            $id = filter_var($this->id, FILTER_VALIDATE_INT);
+            if ($id === false) {
+                throw new \UnexpectedValueException('The saved pharmacy has no integer id');
             }
+            (new PhoneNumberService())->replaceNumbers($id, $this->phone_numbers);
             return $ret;
         });
     }
