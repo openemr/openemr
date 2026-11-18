@@ -28,6 +28,9 @@ class ParseERATest extends TestCase
     // Fixtures
     // -------------------------------------------------------------------------
 
+    /** What the last parseFixture() call's parseERA() returned: empty unless it rejected the file. */
+    private string $parseError = '';
+
     /**
      * Minimal 835 with zero paid and a non-contractual adjustment (OA*96).
      */
@@ -160,7 +163,7 @@ class ParseERATest extends TestCase
             $out = $o;
         };
 
-        ParseERA::parseERA($tmp, $cb);
+        $this->parseError = ParseERA::parseERA($tmp, $cb);
         unlink($tmp);
 
         return $out;
@@ -372,7 +375,7 @@ class ParseERATest extends TestCase
             'SVC*HC:70471:26*100.00*20.00~',
             'DTM*472*20260101~',
             ...$second,
-            'SE*20*0001~',
+            'SE*' . (14 + count($first) + count($second)) . '*0001~',
             'GE*1*1~',
             'IEA*1*000000001~',
         ]);
@@ -384,6 +387,7 @@ class ParseERATest extends TestCase
      */
     private function lineControlNumbers(array $out): array
     {
+        $this->assertSame('', $this->parseError, 'the parser accepts the fixture');
         $this->assertIsArray($out['svc']);
         $found = [];
         foreach ($out['svc'] as $svc) {
