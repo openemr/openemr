@@ -116,24 +116,22 @@ class StatementRepository
         if (in_array($op, ['ratio_lt', 'ratio_gt'], true) && $source2 === '') {
             throw new \InvalidArgumentException('A ratio rule needs a second field.');
         }
-        self::assertOpenOrNumeric($data['min_value'] ?? null);
-        self::assertOpenOrNumeric($data['max_value'] ?? null);
-        $lockName = null;
+        $data['min_value'] = self::storedBound($data['min_value'] ?? null);
+        $data['max_value'] = self::storedBound($data['max_value'] ?? null);
+        // The advisory lock has to come before any rule-row lock. Two saves
+        // that lock different rows first, then wait on each other, fail a
+        // valid save.
+        $lockName = static::bandLockName($formId, $source);
         $lockAcquired = false;
         try {
-            return $this->sql->inTransaction(function () use ($data, $id, &$lockName, &$lockAcquired): int {
-                if ($id !== null && $id > 0) {
-                    $this->requireRuleRow($id);
-                }
-                $lockName = static::bandLockName(
-                    Values::asString($data['form_id'] ?? ''),
-                    Values::asString($data['source_field_id'] ?? ''),
-                    Values::asString($data['source_field_id_2'] ?? '')
-                );
+            return $this->sql->inTransaction(function () use ($data, $id, $lockName, &$lockAcquired): int {
                 if (!$this->sql->acquireLock($lockName, 10)) {
                     throw new BandLockException('Could not lock this field to save the rule.');
                 }
                 $lockAcquired = true;
+                if ($id !== null && $id > 0) {
+                    $this->requireRuleRow($id);
+                }
                 $this->assertBandDoesNotOverlap($data, $id);
                 return $this->writeRule($data, $id);
             });
@@ -160,6 +158,20 @@ class StatementRepository
         if (!is_string($value) || (trim($value) !== '' && !is_numeric(trim($value)))) {
             throw new \InvalidArgumentException('A bound must be a number.');
         }
+    }
+
+    /**
+     * Empty is an open end. A number is stored at DECIMAL(12,4).
+     */
+    private static function storedBound(mixed $value): ?float
+    {
+        self::assertOpenOrNumeric($value);
+        $number = Values::asFloatOrNull($value);
+        if ($number === null) {
+            return null;
+        }
+
+        return round($number, 4);
     }
 
     /**
@@ -213,25 +225,37 @@ class StatementRepository
      */
     public function setEnabled(int $id, bool $enabled): void
     {
-        $lockName = null;
+        if (!$enabled) {
+            $this->sql->inTransaction(function () use ($id): void {
+                $this->requireRuleRow($id);
+                $this->writeEnabled($id, false);
+            });
+            return;
+        }
+        $preview = $this->getRule($id);
+        if ($preview === null || Values::rowInt($preview, 'id') !== $id) {
+            throw new RuleNotFoundException('Rule not found.');
+        }
+        $lockName = static::bandLockName(
+            Values::asString($preview['form_id'] ?? ''),
+            Values::asString($preview['source_field_id'] ?? '')
+        );
         $lockAcquired = false;
         try {
-            $this->sql->inTransaction(function () use ($id, $enabled, &$lockName, &$lockAcquired): void {
-                $rule = $this->requireRuleRow($id);
-                if (!$enabled) {
-                    $this->writeEnabled($id, false);
-                    return;
-                }
-                $rule['enabled'] = 1;
-                $lockName = static::bandLockName(
-                    Values::asString($rule['form_id'] ?? ''),
-                    Values::asString($rule['source_field_id'] ?? ''),
-                    Values::asString($rule['source_field_id_2'] ?? '')
-                );
+            $this->sql->inTransaction(function () use ($id, $lockName, &$lockAcquired): void {
                 if (!$this->sql->acquireLock($lockName, 10)) {
                     throw new BandLockException('Could not lock this field to save the rule.');
                 }
                 $lockAcquired = true;
+                $rule = $this->requireRuleRow($id);
+                $lockedName = static::bandLockName(
+                    Values::asString($rule['form_id'] ?? ''),
+                    Values::asString($rule['source_field_id'] ?? '')
+                );
+                if ($lockedName !== $lockName) {
+                    throw new BandLockException('Could not lock this field to save the rule.');
+                }
+                $rule['enabled'] = 1;
                 $this->assertBandDoesNotOverlap($rule, $id);
                 $this->writeEnabled($id, true);
             });
@@ -316,11 +340,32 @@ class StatementRepository
     }
 
     /**
-     * Advisory lock name for one form and source-field pair.
+     * Advisory lock for every band that can read this field.
+     *
+     * The second field is only a fallback, so it does not get its own lock.
      */
-    public static function bandLockName(string $formId, string $source, string $source2): string
+    public static function bandLockName(string $formId, string $source): string
     {
-        return 'lbfstmt_' . md5($formId . "\0" . $source . "\0" . $source2);
+        return 'lbfstmt_' . md5($formId . "\0" . $source);
+    }
+
+    /**
+     * True when both bands can apply to one patient.
+     *
+     * A blank sex applies to every patient. Two different sexes do not.
+     *
+     * @param array<string, mixed> $left
+     * @param array<string, mixed> $right
+     */
+    public static function sexesCanMatchSamePatient(array $left, array $right): bool
+    {
+        $leftSex = trim(Values::asString($left['match_token'] ?? ''));
+        $rightSex = trim(Values::asString($right['match_token'] ?? ''));
+        if ($leftSex === '' || $rightSex === '') {
+            return true;
+        }
+
+        return strcasecmp($leftSex, $rightSex) === 0;
     }
 
     /**
@@ -341,9 +386,11 @@ class StatementRepository
         }
         $formId = Values::asString($data['form_id'] ?? '');
         $source = Values::asString($data['source_field_id'] ?? '');
-        $source2 = Values::asString($data['source_field_id_2'] ?? '');
-        foreach ($this->lockedEnabledBands($formId, $source, $source2) as $other) {
+        foreach ($this->lockedEnabledBands($formId, $source) as $other) {
             if ($id !== null && Values::rowInt($other, 'id') === $id) {
+                continue;
+            }
+            if (!self::sexesCanMatchSamePatient($data, $other)) {
                 continue;
             }
             if (BandOverlap::rangesOverlap($data, $other)) {
@@ -355,19 +402,22 @@ class StatementRepository
     }
 
     /**
-     * Enabled bands for one source-field pair, locked for the rest of the
+     * Enabled bands that can read this field, locked for the rest of the
      * transaction so a concurrent insert is visible after GET_LOCK.
+     *
+     * A second field does not split the set. It is a fallback for a blank
+     * primary, and both bands can fire on the same measurement.
      *
      * @return list<array<string, mixed>>
      */
-    private function lockedEnabledBands(string $formId, string $source, string $source2): array
+    private function lockedEnabledBands(string $formId, string $source): array
     {
         $rows = $this->sql->fetchRecords(
             "SELECT id, form_id, source_field_id, source_field_id_2, op, min_value, max_value, " .
             "min_inclusive, max_inclusive, match_token, statement_text, seq, enabled " .
             "FROM module_lbf_statement_rules WHERE form_id = ? AND source_field_id = ? " .
-            "AND IFNULL(source_field_id_2, '') = ? AND enabled = 1 AND op = 'band' FOR UPDATE",
-            [$formId, $source, $source2]
+            "AND enabled = 1 AND op = 'band' FOR UPDATE",
+            [$formId, $source]
         );
         $out = [];
         foreach ($rows as $raw) {

@@ -141,5 +141,28 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             $this->assertFalse(GenerateController::layoutWriteDecision('patients|demo', true, true, false));
         }
 
+        /**
+         * Any-encounter notes open every encounter. Own notes do not.
+         */
+        public function testEncounterVisibleFollowsTheEncounterList(): void
+        {
+            $this->assertTrue(GenerateController::encounterVisible(true, false, 'other', 'drwho', true));
+            $this->assertTrue(GenerateController::encounterVisible(false, true, 'drwho', 'drwho', true));
+            $this->assertFalse(GenerateController::encounterVisible(false, true, 'other', 'drwho', true));
+            $this->assertFalse(GenerateController::encounterVisible(true, true, 'drwho', 'drwho', false));
+            $this->assertFalse(GenerateController::encounterVisible(false, true, '', 'drwho', true));
+        }
+
+        /**
+         * A save is current only when the stored paragraph still matches the loaded hash.
+         */
+        public function testParagraphIsCurrentMatchesTheLoadedText(): void
+        {
+            $stored = "Mild note.\nEF is mildly reduced.";
+            $this->assertTrue(GenerateController::paragraphIsCurrent(hash('sha256', $stored), $stored));
+            $this->assertFalse(GenerateController::paragraphIsCurrent(hash('sha256', $stored), $stored . ' more'));
+            $this->assertFalse(GenerateController::paragraphIsCurrent('', $stored));
+        }
+
     }
 }
