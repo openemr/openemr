@@ -128,22 +128,22 @@
      * @returns {string}
      */
     function instanceIndexUrl(instanceId) {
-        return 'index.php?form_id=' + encodeURIComponent(pickFormId())
+        return 'new.php?statement=generate&form_id=' + encodeURIComponent(pickFormId())
             + '&pid=' + encodeURIComponent(pickPid())
             + '&instance_id=' + encodeURIComponent(String(instanceId || ''));
     }
 
     /**
-     * CSRF-protected open_form.php URL for print or encounter view.
+     * CSRF-protected layout-form URL for print or encounter view.
      * @param {Element} el
      * @returns {string}
      */
     function openFormUrl(el) {
         if (!el) {
-            return 'open_form.php';
+            return 'new.php?statement=open';
         }
         const dest = el.getAttribute('data-dest') || 'form';
-        return 'open_form.php?form_id=' + encodeURIComponent(el.getAttribute('data-form-id') || '')
+        return 'new.php?statement=open&form_id=' + encodeURIComponent(el.getAttribute('data-form-id') || '')
             + '&pid=' + encodeURIComponent(el.getAttribute('data-pid') || '')
             + '&instance_id=' + encodeURIComponent(el.getAttribute('data-instance-id') || '')
             + '&dest=' + encodeURIComponent(dest)

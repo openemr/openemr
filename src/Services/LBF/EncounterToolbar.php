@@ -38,7 +38,7 @@ class EncounterToolbar
         if ($items === []) {
             return;
         }
-        $base = OEGlobalsBag::getInstance()->getWebRoot() . Bootstrap::PUBLIC_PATH . 'index.php';
+        $base = Bootstrap::pageUrl('generate');
         $payload = [];
         foreach ($items as $item) {
             $payload[] = [

@@ -366,8 +366,8 @@ class GenerateController
                 . '&pid=' . $pid
                 . '&instance_id=' . $instanceId
                 . '&csrf_token_form=' . rawurlencode($csrfTokenValue);
-            $formUrl = $this->bootstrap->getPublicUrl() . 'open_form.php?' . $openQuery . '&dest=form';
-            $printUrl = $this->bootstrap->getPublicUrl() . 'open_form.php?' . $openQuery . '&dest=print';
+            $formUrl = $this->bootstrap->pageUrl('open') . '&' . $openQuery . '&dest=form';
+            $printUrl = $this->bootstrap->pageUrl('open') . '&' . $openQuery . '&dest=print';
             if ($encounter > 0) {
                 $patientSetUrl = OEGlobalsBag::getInstance()->getWebRoot()
                     . '/interface/patient_file/summary/demographics.php?set_pid=' . $pid
@@ -402,9 +402,9 @@ class GenerateController
             'csrfTokenValue' => $csrfTokenValue,
             'canAdmin' => AclMain::aclCheckCore('admin', 'super'),
             'activeTab' => 'generate',
-            'postUrl' => $this->bootstrap->getPublicUrl() . 'index.php',
-            'generateUrl' => $this->bootstrap->getPublicUrl() . 'index.php',
-            'adminUrl' => $this->bootstrap->getPublicUrl() . 'admin.php',
+            'postUrl' => $this->bootstrap->pageUrl('generate'),
+            'generateUrl' => $this->bootstrap->pageUrl('generate'),
+            'adminUrl' => $this->bootstrap->pageUrl('admin'),
             'assetBase' => $this->bootstrap->getPublicUrl() . 'assets/',
         ]);
     }
@@ -440,7 +440,7 @@ class GenerateController
         } catch (\RuntimeException) {
             $token = '';
         }
-        $url = $this->bootstrap->getPublicUrl() . 'open_form.php?form_id=' . rawurlencode($formId)
+        $url = $this->bootstrap->pageUrl('open') . '&form_id=' . rawurlencode($formId)
             . '&pid=' . $pid
             . '&instance_id=' . $instanceId
             . '&dest=' . rawurlencode($dest)
@@ -531,19 +531,6 @@ class GenerateController
     }
 
     /**
-     * True when this user may see this patient's encounters.
-     */
-    private function squadAllows(LbfReader $reader, int $pid): bool
-    {
-        $squad = $reader->patientSquad($pid);
-        if ($squad === '') {
-            return true;
-        }
-
-        return AclMain::aclCheckCore('squads', $squad);
-    }
-
-    /**
      * Form layouts that have at least one encounter this user may open.
      *
      * @param list<string> $formIds
@@ -557,9 +544,6 @@ class GenerateController
         bool $notesOwn,
         string $authUser
     ): array {
-        if (!$this->squadAllows($reader, $pid)) {
-            return [];
-        }
         $have = [];
         foreach ($reader->encountersForPatient($pid, $formIds) as $row) {
             if (!$this->rowVisible($row, $notesAny, $notesOwn, $authUser)) {
@@ -605,9 +589,6 @@ class GenerateController
         bool $notesOwn,
         string $authUser
     ): bool {
-        if (!$this->squadAllows($reader, $pid)) {
-            return false;
-        }
         $policy = $reader->encounterPolicy($pid, $encounter);
         if ($policy === null) {
             return false;
