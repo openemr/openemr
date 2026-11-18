@@ -281,7 +281,7 @@ if (file_exists($installer->conffile)) {
 
 // Should never have $config set when state less than 4
 //  (this means already installed)
-if (!empty($config) && (($state ?? 0) < 4)) {
+if (ServiceContainer::getSiteInstallState()->isInstalled && (($state ?? 0) < 4)) {
     SessionUtil::setupScriptSessionStart();
     SessionUtil::setupScriptSessionCookieDestroy();
     error_log("OpenEMR has already been installed. If you wish to force re-installation, then edit " . errorLogEscape($installer->conffile) . " (change the 'config' variable to 0), and re-run the setup.php script.");
@@ -295,7 +295,7 @@ if (!empty($config) && (($state ?? 0) < 4)) {
 //   - only the next state csrf is handed out in the form
 if (empty($state)) {
     // ensure not already installed
-    if (!empty($config)) {
+    if (ServiceContainer::getSiteInstallState()->isInstalled) {
         SessionUtil::setupScriptSessionStart();
         SessionUtil::setupScriptSessionCookieDestroy();
         error_log("OpenEMR has already been installed. If you wish to force re-installation, then edit " . errorLogEscape($installer->conffile) . " (change the 'config' variable to 0), and re-run the setup.php script.");

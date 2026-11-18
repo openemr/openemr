@@ -13,6 +13,8 @@
  * Use an IIFE to ensure no variables leak.
  */
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 (function (): void {
     // Any directory name in sites that contains a sqlconf.php can be a site id.
     $sites_dirs = glob('sites/*', GLOB_ONLYDIR) ?: [];
@@ -34,7 +36,7 @@
                 throw new RuntimeException('Invalid site id');
             };
     }
-    require_once "sites/{$site_id}/sqlconf.php";
-    /** @var int $config Defined in sqlconf.php */
-    header('Location: ' . ($config === 1 ? 'interface/login/login.php' : 'setup.php') . "?site=$site_id");
+    \OpenEMR\Core\OEGlobalsBag::getInstance()->set('OE_SITE_DIR', __DIR__ . "/sites/{$site_id}");
+    $isInstalled = \OpenEMR\BC\ServiceContainer::getSiteInstallState()->isInstalled;
+    header('Location: ' . ($isInstalled ? 'interface/login/login.php' : 'setup.php') . "?site=$site_id");
 })();
