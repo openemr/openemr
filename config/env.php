@@ -27,6 +27,6 @@ return [
     'OPENEMR_DB_USER' => env('OPENEMR_DB_USER'),
     'OPENEMR_DB_PASSWORD' => env('OPENEMR_DB_PASSWORD'),
     'OPENEMR_DB_HOST' => env('OPENEMR_DB_HOST', null),
-    'OPENEMR_DB_PORT' => env('OPENEMR_DB_PORT', '3306')->asInt(),
+    'OPENEMR_DB_PORT' => env('OPENEMR_DB_PORT', null),
     'OPENEMR_DB_SOCKET' => env('OPENEMR_DB_SOCKET', null),
 ];

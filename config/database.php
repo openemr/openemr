@@ -86,14 +86,24 @@ return [
             $site = $c->getString('OPENEMR_SITE');
             return DatabaseConnectionOptions::forSite("sites/$site");
         }
+        $host = $c->get('OPENEMR_DB_HOST');
+        $port = $c->get('OPENEMR_DB_PORT');
+        $socket = $c->get('OPENEMR_DB_SOCKET');
         assert(is_string($dbName));
+        assert(is_string($host) || $host === null);
+        assert(is_string($socket) || $socket === null);
+        if (is_string($port)) {
+            $port = (int)$port;
+        } else {
+            assert($port === null);
+        }
         return new DatabaseConnectionOptions(
             dbname: $dbName,
             user: $c->getString('OPENEMR_DB_USER'),
             password: $c->getString('OPENEMR_DB_PASSWORD'),
-            host: $c->getString('OPENEMR_DB_HOST'),
-            port: $c->getInt('OPENEMR_DB_PORT'),
-            unixSocket: $c->getString('OPENEMR_DB_SOCKET'),
+            host: $host,
+            port: $port,
+            unixSocket: $socket,
         );
     },
 
