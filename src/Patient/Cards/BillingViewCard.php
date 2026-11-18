@@ -12,9 +12,12 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Billing\PatientBalance\PatientBalanceLedger;
+use OpenEMR\Billing\PatientBalance\PatientBalanceLoader;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
+use OpenEMR\Services\Insurance\EffectiveInsuranceRule;
 
 class BillingViewCard extends CardModel
 {
@@ -52,11 +55,15 @@ class BillingViewCard extends CardModel
         $pid = $this->pid;
         $ed = $this->getEventDispatcher();
         $forceBillingExpandAlways = OEGlobalsBag::getInstance()->getBoolean('force_billing_widget_open');
-        $patientbalance = get_patient_balance($pid, false);
-        $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
+        $patientId = EffectiveInsuranceRule::storedId($pid);
+        $ledger = $patientId === null
+            ? new PatientBalanceLedger([])
+            : (new PatientBalanceLoader())->load($patientId);
+        $patientbalance = $ledger->balance(false);
+        $insurancebalance = $ledger->balance(true) - $patientbalance;
         $totalbalance = $patientbalance + $insurancebalance;
         $unallocated_amt = get_unallocated_patient_balance($pid);
-        $collectionbalance = get_patient_balance($pid, false, false, true);
+        $collectionbalance = $ledger->balance(false, true);
 
         $id = self::CARD_ID . "_ps_expand";
         $dispatchResult = $ed->dispatch(new RenderEvent('billing'), RenderEvent::EVENT_HANDLE);
