@@ -218,6 +218,7 @@ class DatabaseConnectionOptionsTest extends TestCase
             socket: $socket,
         );
 
+        self::assertNotNull($options, 'options should be built when OPENEMR_DB_NAME is set');
         self::assertSame('testdb', $options->dbname);
         self::assertSame('testuser', $options->user);
         self::assertSame('secret', $options->password);
@@ -243,10 +244,26 @@ class DatabaseConnectionOptionsTest extends TestCase
         ];
     }
 
+    public function testFromEnvironmentReturnsNullWhenNothingIsSet(): void
+    {
+        self::assertNull(
+            DatabaseConnectionOptions::fromEnvironment(
+                dbname: null,
+                user: null,
+                password: null,
+                host: null,
+                port: null,
+                socket: null,
+            ),
+            'callers should fall back to sqlconf.php when no OPENEMR_DB_* variable is set',
+        );
+    }
+
     #[DataProvider('invalidEnvironmentProvider')]
     public function testFromEnvironmentRejects(
-        string $dbname,
-        string $user,
+        ?string $dbname,
+        ?string $user,
+        ?string $password,
         ?string $host,
         ?string $port,
         ?string $socket,
@@ -256,7 +273,7 @@ class DatabaseConnectionOptionsTest extends TestCase
         DatabaseConnectionOptions::fromEnvironment(
             dbname: $dbname,
             user: $user,
-            password: 'secret',
+            password: $password,
             host: $host,
             port: $port,
             socket: $socket,
@@ -264,28 +281,32 @@ class DatabaseConnectionOptionsTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string, string, ?string, ?string, ?string}>
+     * @return array<string, array{?string, ?string, ?string, ?string, ?string, ?string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function invalidEnvironmentProvider(): array
     {
         return [
-            'no host or socket' => ['testdb', 'testuser', null, null, null],
-            'port without host' => ['testdb', 'testuser', null, '3306', null],
-            'socket and host' => ['testdb', 'testuser', 'db', null, '/run/mysqld/mysqld.sock'],
-            'socket and port' => ['testdb', 'testuser', null, '3306', '/run/mysqld/mysqld.sock'],
-            'localhost' => ['testdb', 'testuser', 'localhost', null, null],
-            'localhost, any case' => ['testdb', 'testuser', 'LocalHost', null, null],
-            'non-numeric port' => ['testdb', 'testuser', 'db', 'abc', null],
-            'port with whitespace' => ['testdb', 'testuser', 'db', ' 3306', null],
-            'port zero' => ['testdb', 'testuser', 'db', '0', null],
-            'port too large' => ['testdb', 'testuser', 'db', '65536', null],
-            'empty port' => ['testdb', 'testuser', 'db', '', null],
-            'empty host' => ['testdb', 'testuser', '', null, null],
-            'empty socket' => ['testdb', 'testuser', null, null, ''],
-            'empty dbname' => ['', 'testuser', 'db', null, null],
-            'empty user' => ['testdb', '', 'db', null, null],
+            'host without dbname' => [null, null, null, 'db', null, null],
+            'user without dbname' => [null, 'testuser', null, null, null, null],
+            'missing user' => ['testdb', null, 'secret', 'db', null, null],
+            'missing password' => ['testdb', 'testuser', null, 'db', null, null],
+            'no host or socket' => ['testdb', 'testuser', 'secret', null, null, null],
+            'port without host' => ['testdb', 'testuser', 'secret', null, '3306', null],
+            'socket and host' => ['testdb', 'testuser', 'secret', 'db', null, '/run/mysqld/mysqld.sock'],
+            'socket and port' => ['testdb', 'testuser', 'secret', null, '3306', '/run/mysqld/mysqld.sock'],
+            'localhost' => ['testdb', 'testuser', 'secret', 'localhost', null, null],
+            'localhost, any case' => ['testdb', 'testuser', 'secret', 'LocalHost', null, null],
+            'non-numeric port' => ['testdb', 'testuser', 'secret', 'db', 'abc', null],
+            'port with whitespace' => ['testdb', 'testuser', 'secret', 'db', ' 3306', null],
+            'port zero' => ['testdb', 'testuser', 'secret', 'db', '0', null],
+            'port too large' => ['testdb', 'testuser', 'secret', 'db', '65536', null],
+            'empty port' => ['testdb', 'testuser', 'secret', 'db', '', null],
+            'empty host' => ['testdb', 'testuser', 'secret', '', null, null],
+            'empty socket' => ['testdb', 'testuser', 'secret', null, null, ''],
+            'empty dbname' => ['', 'testuser', 'secret', 'db', null, null],
+            'empty user' => ['testdb', '', 'secret', 'db', null, null],
         ];
     }
 
