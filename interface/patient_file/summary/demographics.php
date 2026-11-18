@@ -1112,9 +1112,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $allergy = (AclMain::aclCheckIssue('allergy') ? 1 : 0) && !in_array('card_allergies', $hiddenCards) ? 1 : 0;
                 $pl = (AclMain::aclCheckIssue('medical_problem') ? 1 : 0) && !in_array('card_medicalproblems', $hiddenCards) ? 1 : 0;
                 $meds = (AclMain::aclCheckIssue('medication') ? 1 : 0) && !in_array('card_medication', $hiddenCards) ? 1 : 0;
-                if (!$thisauth) {
-                    $meds = 0;
-                }
                 $rx = !OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions') && AclMain::aclCheckCore('patients', 'rx') && !in_array('card_prescriptions', $hiddenCards) ? 1 : 0;
                 $cards = max(1, ($allergy + $pl + $meds));
                 $col = "p-1 ";
@@ -2098,14 +2095,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ]);
                     }  // end track_anything
 
-                    if ($thisauth) :
-                        echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
-                            'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
-                            'allowPatientDelete' => OEGlobalsBag::getInstance()->getBoolean('allow_pat_delete'),
-                            'csrf' => CsrfUtils::collectCsrfToken(session: $session),
-                            'pid' => $pid
-                        ]);
-                    endif;
+                    echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
+                        'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
+                        'allowPatientDelete' => OEGlobalsBag::getInstance()->getBoolean('allow_pat_delete'),
+                        'csrf' => CsrfUtils::collectCsrfToken(session: $session),
+                        'pid' => $pid
+                    ]);
                     ?>
                 </div> <!-- end right column div -->
             </div> <!-- end div.main > row:first  -->
