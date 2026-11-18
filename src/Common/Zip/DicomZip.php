@@ -33,7 +33,7 @@ final class DicomZip
 
     /**
      * True when every entry other than the ignored ones is a DICOM file (the "DICM" marker at offset 128),
-     * and there is at least one. Entries without the .dcm extension are renamed, keeping their folder, so
+     * and there is at least one. Entries whose extension is not exactly lowercase .dcm (none, or e.g. .DCM) are renamed, keeping their folder, so
      * the viewer accepts them.
      */
     public static function normalize(ZipArchive $zip): bool
@@ -61,7 +61,7 @@ final class DicomZip
             }
             $images++;
             $info = pathinfo($name);
-            if (strtolower($info['extension'] ?? '') !== 'dcm') {
+            if (($info['extension'] ?? '') !== 'dcm') {
                 $folder = ($info['dirname'] ?? '.') === '.' ? '' : $info['dirname'] . '/';
                 $renames[$i] = $folder . $info['filename'] . '.dcm';
             }

@@ -114,6 +114,16 @@ class DicomZipTest extends TestCase
         $this->assertSame(['a/IM0001.dcm', 'b/IM0001.dcm'], [$check->getNameIndex(0), $check->getNameIndex(1)]);
     }
 
+    public function testUppercaseDcmExtensionIsNormalizedToLowercaseForTheViewer(): void
+    {
+        $zip = $this->zip(['a/IM0001.DCM' => self::dicom(), 'b/IM0002.dcm' => self::dicom()]);
+        $this->assertTrue(DicomZip::normalize($zip));
+        $zip->close();
+        $check = new ZipArchive();
+        $check->open($this->path);
+        $this->assertSame(['a/IM0001.dcm', 'b/IM0002.dcm'], [$check->getNameIndex(0), $check->getNameIndex(1)]);
+    }
+
     public function testDicomFileWithADotNameDoesNotCrash(): void
     {
         $zip = $this->zip(['1.dcm' => self::dicom(), '.hidden' => self::dicom()]);
