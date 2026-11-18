@@ -6,47 +6,70 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2023 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Common\Layouts;
+
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Utils\JsonUtils;
 
 class LayoutsUtils
 {
-    public static function getListItemTitle($list, $option)
+    /**
+     * Returns the (translated) title of an active list option, or $option itself when it has none.
+     */
+    public static function getListItemTitle(mixed $list, mixed $option): mixed
     {
-        $row = sqlQuery("SELECT `title` FROM `list_options` WHERE `list_id` = ? AND `option_id` = ? AND activity = 1", [$list, $option]);
-        if (empty($row['title'])) {
+        $title = QueryUtils::fetchSingleValue(
+            'SELECT `title` FROM `list_options` WHERE `list_id` = ? AND `option_id` = ? AND activity = 1',
+            'title',
+            [$list, $option]
+        );
+        if (!is_string($title) || $title === '' || $title === '0') {
             return $option;
         }
-        return xl_list_label($row['title']);
+        return xl_list_label($title);
     }
 
     /**
-     * Test if modifier($test) is in array of options for data type.
+     * Test if modifier $test is set in a layout row's edit options.
      *
-     * @param array $options json ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
-     * @param string $test
-     * @return bool
+     * A legacy string that also parses as a JSON number, such as "2" or "2E0",
+     * has never matched anything.
+     *
+     * @param mixed $options JSON such as ["G","P","T"], or a legacy string of one-letter modifiers such as "GPT"
      */
-    public static function isOption($options, string $test): bool
+    public static function isOption(mixed $options, string $test): bool
     {
-        if (empty($options) || !isset($test) || $options == "null") {
-            return false; // why bother?
-        }
-        if (!str_contains((string) $options, ',')) { // not json array of modifiers.
-            // could be string of char's or single element of json ["RO"] or "TP" or "P" e.t.c.
-            json_decode((string) $options, true); // test if options json. json_last_error() will return JSON_ERROR_SYNTAX if not.
-            // if of form ["RO"] (single modifier) means not legacy so continue on.
-            if (is_string($options) && (json_last_error() !== JSON_ERROR_NONE)) { // nope, it's string.
-                $t = str_split(trim($options)); // very good chance it's legacy modifier string.
-                $options = json_encode($t); // make it json array to convert from legacy to new modifier json schema.
-            }
+        return in_array($test, self::parseOptions($options), true);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function parseOptions(mixed $options): array
+    {
+        // "0" and "null" have always meant no options here.
+        if (!is_string($options) || $options === '' || $options === '0' || $options === 'null') {
+            return [];
         }
 
-        $options = json_decode((string) $options, true); // all should now be json
+        try {
+            $decoded = JsonUtils::decode($options);
+        } catch (\JsonException) {
+            // Not JSON. Without a comma it is a legacy string of one-letter modifiers.
+            return str_contains($options, ',') ? [] : str_split(trim($options));
+        }
 
-        return is_array($options) && in_array($test, $options, true); // finally the truth!
+        if (!is_array($decoded)) {
+            return [];
+        }
+        return array_values(array_filter($decoded, is_string(...)));
     }
 }

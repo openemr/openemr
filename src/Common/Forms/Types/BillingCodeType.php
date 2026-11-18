@@ -7,90 +7,105 @@
  * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Common\Forms\Types;
 
-use OpenEMR\Common\Layouts\LayoutsUtils;
+use OpenEMR\Services\CodeTypesService;
 
 class BillingCodeType implements IOptionFormType
 {
     const OPTIONS_TYPE_INDEX = 15;
 
-    public function buildPrintView($frow, $currvalue, $value_allowed = true)
-    {
+    public function __construct(
+        private readonly CodeTypesService $codeTypes = new CodeTypesService(),
+    ) {
     }
-    public function getAccumActionConditions($frow, $condition_str, $action): string
+
+    public function buildPrintView(mixed $frow, mixed $currvalue, mixed $value_allowed = true): string
+    {
+        return '';
+    }
+
+    public function getAccumActionConditions(mixed $frow, mixed $condition_str, mixed $action): string
     {
         // For billing codes handle requirement to display its description.
-        $tmp = explode('=', (string) $action, 2);
-        if (!empty($tmp[1])) {
-            return "valdesc:" . js_escape(getCodeDescription($tmp[1])) . ", ";
+        $code = explode('=', self::stringValue($action), 2)[1] ?? '';
+        if (self::isBlank($code)) {
+            return '';
         }
-        return "";
+        $description = getCodeDescription($code);
+        return 'valdesc:' . js_escape(is_string($description) ? $description : '') . ', ';
     }
-    public function buildPlaintextView($frow, $currvalue)
+
+    public function buildPlaintextView(mixed $frow, mixed $currvalue): mixed
     {
         return $currvalue;
     }
-    public function buildDisplayView($frow, $currvalue): string
+
+    public function buildDisplayView(mixed $frow, mixed $currvalue): string
     {
+        $value = self::stringValue($currvalue);
+        if (self::isBlank($value)) {
+            return '';
+        }
+
         $s = '';
-        if (!empty($currvalue)) {
-            $relcodes = explode(';', (string) $currvalue);
-            foreach ($relcodes as $codestring) {
-                if ($codestring === '') {
-                    continue;
-                }
-                $tmp = lookup_code_descriptions($codestring);
-                if ($s !== '') {
-                    $s .= '; ';
-                }
-                if (!empty($tmp)) {
-                    $s .= text($tmp);
-                } else {
-                    $s .= text($codestring) . ' (' . xlt('not found') . ')';
-                }
+        foreach (explode(';', $value) as $codestring) {
+            if ($codestring === '') {
+                continue;
+            }
+            $tmp = lookup_code_descriptions($codestring);
+            if ($s !== '') {
+                $s .= '; ';
+            }
+            if (self::isBlank($tmp)) {
+                $s .= text($codestring) . ' (' . xlt('not found') . ')';
+            } else {
+                $s .= text($tmp);
             }
         }
         return $s;
     }
 
-    public function buildFormView($frow, $currvalue): string
+    public function buildFormView(mixed $frow, mixed $currvalue): string
     {
-        $currescaped = htmlspecialchars($currvalue ?? '', ENT_QUOTES);
-        $field_id = $frow['field_id'];
-        $list_id = $frow['list_id'] ?? null;
-        $edit_options = $frow['edit_options'] ?? null;
-        $form_id = $frow['form_id'] ?? null;
+        $frow = is_array($frow) ? $frow : [];
+        $options = BillingCodeEditOption::enabledIn($frow['edit_options'] ?? null);
+        $currentValue = self::stringValue($currvalue);
+        $currescaped = htmlspecialchars($currentValue, ENT_QUOTES);
+        $fieldDescription = self::stringValue($frow['description'] ?? null);
+        $formId = self::stringValue($frow['form_id'] ?? null);
 
         // 'smallform' can be 'true' if we want a smaller form field, otherwise
         // can be used to assign arbitrary CSS classes to data entry fields.
-        $smallform = $frow['smallform'] ?? null;
-        if ($smallform === 'true') {
-            $smallform = ' form-control-sm';
-        }
+        $rawSmallform = $frow['smallform'] ?? null;
+        $smallform = $rawSmallform === 'true' ? ' form-control-sm' : self::stringValue($rawSmallform);
 
         // historically we've used smallform to append classes if the value is NOT true
         // to make it EXPLICIT what we are doing and to aid maintainability we are supporting
         // an actual 'classNames' attribute for assigning arbitrary CSS classes to data entry fields
-        $classesToAppend = $frow['classNames'] ?? '';
-        if (!empty($classesToAppend)) {
-            $smallform = isset($smallform) ? $smallform . ' ' . $classesToAppend : $classesToAppend;
+        $classesToAppend = self::stringValue($frow['classNames'] ?? null);
+        if (!self::isBlank($classesToAppend)) {
+            $smallform = $rawSmallform === null ? $classesToAppend : $smallform . ' ' . $classesToAppend;
         }
 
         // escaped variables to use in html
-        $field_id_esc = htmlspecialchars((string) $field_id, ENT_QUOTES);
+        $field_id_esc = htmlspecialchars(self::stringValue($frow['field_id'] ?? null), ENT_QUOTES);
 
         // Added 5-09 by BM - Translate description if applicable
-        $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
+        $description = isset($frow['description']) ? htmlspecialchars(xl_layout_label($fieldDescription), ENT_QUOTES) : '';
 
         // Support edit option T which assigns the (possibly very long) description as
         // the default value.
-        if ($this->isOption($edit_options, 'T') !== false) {
-            if (strlen($currescaped) == 0) {
+        if (in_array(BillingCodeEditOption::DescriptionIsDefault, $options, true)) {
+            if ($currescaped === '') {
                 $currescaped = $description;
             }
 
@@ -98,56 +113,51 @@ class BillingCodeType implements IOptionFormType
             $description = '';
         }
 
-        $disabled = $this->isOption($edit_options, '0') === false ? '' : 'disabled';
+        $disabled = in_array(BillingCodeEditOption::ReadOnly, $options, true) ? 'disabled' : '';
 
         $lbfchange = (
-            !empty($form_id) &&
-            (
-                str_starts_with((string) $form_id, 'LBF') ||
-                str_starts_with((string) $form_id, 'LBT') ||
-                str_starts_with((string) $form_id, 'DEM') ||
-                str_starts_with((string) $form_id, 'HIS')
-            )
-        ) ? "checkSkipConditions();" : "";
-        $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
+            str_starts_with($formId, 'LBF') ||
+            str_starts_with($formId, 'LBT') ||
+            str_starts_with($formId, 'DEM') ||
+            str_starts_with($formId, 'HIS')
+        ) ? 'checkSkipConditions();' : '';
+        $lbfonchange = $lbfchange === '' ? '' : "onchange='$lbfchange'";
 
+        // A description naming an installed code type limits the picker to that type.
         $codetype = '';
-        if (!empty($frow['description']) && isset($code_types[$frow['description']])) {
-            $codetype = $frow['description'];
+        if (!self::isBlank($fieldDescription) && $this->codeTypes->isInstalledCodeType($fieldDescription)) {
+            $codetype = $fieldDescription;
         }
-        $string_maxlength = "";
-        $maxlength = $frow['max_length'];
+        $string_maxlength = '';
+        $maxlength = self::stringValue($frow['max_length'] ?? null);
         // if max_length is set to zero, then do not set a maxlength
-        if ($maxlength) {
+        if (!self::isBlank($maxlength)) {
             $string_maxlength = "maxlength='" . attr($maxlength) . "'";
         }
-        $fldlength = attr($frow['fld_length']);
+        $fldlength = attr(self::stringValue($frow['fld_length'] ?? null));
         // Edit option E means allow multiple (Extra) billing codes in a field.
         // We invent a class name for this because JavaScript needs to know.
-        $className = '';
-        if ($this->isOption($edit_options, 'E')) {
-            $className = 'EditOptionE';
-        }
-        //
-        if ($this->isOption($edit_options, '2') !== false) {
+        $className = in_array(BillingCodeEditOption::MultipleCodes, $options, true) ? 'EditOptionE' : '';
+
+        $result = [];
+        if (in_array(BillingCodeEditOption::ShowDescriptions, $options, true)) {
             // Option "2" generates a hidden input for the codes, and a matching visible field
             // displaying their descriptions. First step is computing the description string.
             $currdescstring = '';
-            if (!empty($currvalue)) {
-                $relcodes = explode(';', (string) $currvalue);
-                foreach ($relcodes as $codestring) {
+            if (!self::isBlank($currentValue)) {
+                foreach (explode(';', $currentValue) as $codestring) {
                     if ($codestring === '') {
                         continue;
                     }
                     if ($currdescstring !== '') {
                         $currdescstring .= '; ';
                     }
-                    $currdescstring .= getCodeDescription($codestring, $codetype);
+                    $codeDescription = getCodeDescription($codestring, $codetype);
+                    $currdescstring .= is_string($codeDescription) ? $codeDescription : '';
                 }
             }
 
             $currdescstring = attr($currdescstring);
-            $result = [];
             $result[] = "<div>"; // wrapper for myHideOrShow()
             $result[] = "<input type='text'" .
                 " name='form_$field_id_esc'" .
@@ -163,7 +173,7 @@ class BillingCodeType implements IOptionFormType
                 " size='$fldlength'" .
                 " title='$description'" .
                 " value='$currdescstring'";
-            if (!$disabled) {
+            if ($disabled === '') {
                 $result[] = " onclick='sel_related(this," . attr_js($codetype) . ")'";
             }
 
@@ -179,7 +189,7 @@ class BillingCodeType implements IOptionFormType
                 " $string_maxlength" .
                 " title='$description'" .
                 " value='$currescaped'";
-            if (!$disabled) {
+            if ($disabled === '') {
                 $result[] = " onclick='sel_related(this," . attr_js($codetype) . ")'";
             }
 
@@ -189,8 +199,25 @@ class BillingCodeType implements IOptionFormType
         return implode("", $result);
     }
 
-    private function isOption($options, $test): bool
+    /**
+     * Layout rows store values as strings or numbers; anything else counts as no value.
+     */
+    private static function stringValue(mixed $value): string
     {
-        return LayoutsUtils::isOption($options, $test);
+        if (is_string($value)) {
+            return $value;
+        }
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+        return '';
+    }
+
+    /**
+     * True for '' and '0', the two strings this class has always treated as no value.
+     */
+    private static function isBlank(string $value): bool
+    {
+        return $value === '' || $value === '0';
     }
 }

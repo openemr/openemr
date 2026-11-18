@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Isolated tests for BillingCodeType's handling of edit option E
+ * Isolated tests for BillingCodeType
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -14,25 +14,18 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Forms\Types;
 
+use OpenEMR\Common\Forms\Types\BillingCodeEditOption;
 use OpenEMR\Common\Forms\Types\BillingCodeType;
+use OpenEMR\Services\CodeTypesService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-
-require_once __DIR__ . '/../../../../../../library/htmlspecialchars.inc.php';
 
 class BillingCodeTypeTest extends TestCase
 {
     #[DataProvider('editOptionEProvider')]
     public function testEditOptionEClassFollowsTheEOption(?string $editOptions, bool $expectMultiple): void
     {
-        $frow = [
-            'field_id' => 'codes',
-            'max_length' => 0,
-            'fld_length' => 20,
-            'edit_options' => $editOptions,
-        ];
-
-        $html = (new BillingCodeType())->buildFormView($frow, '');
+        $html = (new BillingCodeType())->buildFormView(self::frow($editOptions), '');
 
         self::assertSame($expectMultiple, str_contains($html, 'EditOptionE'));
     }
@@ -52,7 +45,118 @@ class BillingCodeTypeTest extends TestCase
             'legacy E'                => ['E', true],
             'legacy 2E'               => ['2E', true],
             'legacy 2 without E'      => ['2', false],
+            // A JSON number, so isOption() reads no modifiers, as for every other option.
+            'legacy 2E0'              => ['2E0', false],
             'no options'              => [null, false],
+        ];
+    }
+
+    /**
+     * @param list<BillingCodeEditOption> $expected
+     */
+    #[DataProvider('enabledOptionsProvider')]
+    public function testEnabledInReadsEveryCase(?string $editOptions, array $expected): void
+    {
+        self::assertSame($expected, BillingCodeEditOption::enabledIn($editOptions));
+    }
+
+    /**
+     * @return array<string, array{?string, list<BillingCodeEditOption>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function enabledOptionsProvider(): array
+    {
+        return [
+            'all four, JSON'   => [
+                '["0","2","E","T","EP"]',
+                [
+                    BillingCodeEditOption::MultipleCodes,
+                    BillingCodeEditOption::ShowDescriptions,
+                    BillingCodeEditOption::DescriptionIsDefault,
+                    BillingCodeEditOption::ReadOnly,
+                ],
+            ],
+            'legacy string'    => ['T0', [BillingCodeEditOption::DescriptionIsDefault, BillingCodeEditOption::ReadOnly]],
+            'other types only' => ['["EP","DAP"]', []],
+            'no options'       => [null, []],
+        ];
+    }
+
+    public function testOptionTwoAddsTheDescriptionField(): void
+    {
+        $html = (new BillingCodeType())->buildFormView(self::frow('["2"]'), '');
+
+        self::assertStringContainsString("name='form_codes__desc'", $html);
+    }
+
+    public function testReadOnlyDisablesThePicker(): void
+    {
+        $html = (new BillingCodeType())->buildFormView(self::frow('["0"]'), '');
+
+        self::assertStringContainsString('disabled', $html);
+        self::assertStringNotContainsString('sel_related', $html);
+    }
+
+    #[DataProvider('codeTypeProvider')]
+    public function testPickerUsesTheDescriptionWhenItIsAnInstalledCodeType(bool $installed, string $expectedType): void
+    {
+        $codeTypes = $this->createMock(CodeTypesService::class);
+        $codeTypes->method('isInstalledCodeType')->with('CPT4')->willReturn($installed);
+        $frow = self::frow(null) + ['description' => 'CPT4'];
+
+        $html = (new BillingCodeType($codeTypes))->buildFormView($frow, '');
+
+        self::assertStringContainsString('sel_related(this,' . attr_js($expectedType) . ')', $html);
+    }
+
+    /**
+     * @return array<string, array{bool, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function codeTypeProvider(): array
+    {
+        return [
+            'installed'     => [true, 'CPT4'],
+            'not installed' => [false, ''],
+        ];
+    }
+
+    #[DataProvider('blankValueProvider')]
+    public function testBlankValuesSkipTheCodeLookups(mixed $value): void
+    {
+        $type = new BillingCodeType();
+
+        self::assertSame('', $type->buildDisplayView([], $value));
+        self::assertSame('', $type->getAccumActionConditions([], '', 'field=' . (is_string($value) ? $value : '')));
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function blankValueProvider(): array
+    {
+        return [
+            'null'         => [null],
+            'empty string' => [''],
+            'zero string'  => ['0'],
+            'false'        => [false],
+        ];
+    }
+
+    /**
+     * @return array{field_id: string, max_length: int, fld_length: int, edit_options: ?string}
+     */
+    private static function frow(?string $editOptions): array
+    {
+        return [
+            'field_id' => 'codes',
+            'max_length' => 0,
+            'fld_length' => 20,
+            'edit_options' => $editOptions,
         ];
     }
 }
