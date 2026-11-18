@@ -785,6 +785,20 @@ class AuthorizationController implements LoggerAwareInterface
         $this->grantType = 'authorization_code';
         $server = $this->getAuthorizationServer($this->getScopeRepository($this->session));
         try {
+            // RFC 6749 §4.1.2.1 — a missing or empty response_type is
+            // `invalid_request` (REQUIRED parameter), not
+            // `unsupported_response_type` (which is reserved for
+            // present-but-unsupported values). Short-circuit here
+            // because league's validateAuthorizationRequest routes
+            // the empty/missing/unknown cases through a shared
+            // no-grant-matches path that emits the same error code
+            // for all three — without this guard the three cases
+            // collapse to `unsupported_response_type` after the
+            // remap in the catch arm below.
+            $responseType = $request->getQueryParams()['response_type'] ?? null;
+            if (!is_string($responseType) || $responseType === '') {
+                throw OAuthServerException::invalidRequest('response_type');
+            }
             // Validate the HTTP request and return an AuthorizationRequest object.
             $logger->debug("AuthorizationController->oauthAuthorizationFlow() attempting to validate auth request");
             $authRequest = $server->validateAuthorizationRequest($request);

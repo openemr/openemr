@@ -408,16 +408,17 @@ class OAuth2AttackScenarioTest extends TestCase
         // rather than default to response_type=code.
         [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('EmptyResponseType');
         $resp = $this->authorizeGet($cid, ['response_type' => '']);
-        // Spec-perfect would be `invalid_request` per §4.1.2.1 for a
-        // missing-REQUIRED-param case, but league routes empty/missing
-        // response_type through the same no-grant-matches path as
-        // unknown response_type, so the server emits the
-        // unsupported_response_type code for all three. Pinned as-is;
-        // splitting empty/missing from unknown is a separate audit item.
+        // RFC 6749 §4.1.2.1 — empty REQUIRED parameter is
+        // `invalid_request`, not `unsupported_response_type`.
+        // AuthorizationController short-circuits ahead of league's
+        // no-grant-matches path so the empty/missing cases emit the
+        // spec-correct code; the three unknown-value cases above
+        // continue to emit `unsupported_response_type` via the
+        // remap in the OAuthServerException catch arm.
         $this->assertAuthorizeRejected(
             $resp,
             'Authorize must reject an empty response_type parameter',
-            'unsupported_response_type'
+            'invalid_request'
         );
     }
 
@@ -429,13 +430,13 @@ class OAuth2AttackScenarioTest extends TestCase
         // response_type=code.
         [$cid, $_csec] = $this->dcrConfidentialAuthCodeClient('MissingResponseType');
         $resp = $this->authorizeGet($cid, ['response_type' => null]);
-        // Same shared no-grant-matches path as the empty-string case
-        // above; see that test for the spec-perfect vs league-emitted
-        // note.
+        // Shares the AuthorizationController's response_type guard
+        // with the empty-string case above — missing REQUIRED param
+        // emits `invalid_request` per RFC 6749 §4.1.2.1.
         $this->assertAuthorizeRejected(
             $resp,
             'Authorize must reject a request that omits response_type entirely',
-            'unsupported_response_type'
+            'invalid_request'
         );
     }
 
