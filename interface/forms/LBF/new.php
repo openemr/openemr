@@ -37,6 +37,10 @@ if ($patientPortalSession) {
 }
 
 require_once "../../globals.php";
+if (isset($_GET['statement']) && is_string($_GET['statement']) && $_GET['statement'] !== '') {
+    \OpenEMR\Services\LBF\StatementEntry::dispatch($_GET['statement']);
+    exit;
+}
 require_once "$srcdir/options.inc.php";
 require_once OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 require_once "$srcdir/FeeSheetHtml.class.php";

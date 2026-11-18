@@ -227,25 +227,6 @@ class LbfReader
     }
 
     /**
-     * Squad stored on the patient, or an empty string when there is none.
-     */
-    public function patientSquad(int $pid): string
-    {
-        if ($pid <= 0) {
-            return '';
-        }
-        $row = Values::assocRow($this->sql->querySingleRow(
-            "SELECT squad FROM patient_data WHERE pid = ?",
-            [$pid]
-        ));
-        if ($row === null) {
-            return '';
-        }
-
-        return trim(Values::rowString($row, 'squad'));
-    }
-
-    /**
      * Sensitivity and the encounter's author, or null when the encounter is gone.
      *
      * @return array{sensitivity:string,encounter_user:string}|null

@@ -74,7 +74,7 @@ class Bootstrap
         $menuItem->target = 'mod';
         $menuItem->menu_id = 'lbfstmt0';
         $menuItem->label = xl('Form statements');
-        $menuItem->url = $this->getPublicUrl() . 'index.php';
+        $menuItem->url = self::pageUrl('generate');
         $menuItem->children = [];
         $menuItem->acl_req = ["encounters", "notes"];
         $menuItem->global_req = [];
@@ -137,5 +137,14 @@ class Bootstrap
     public function getPublicUrl(): string
     {
         return OEGlobalsBag::getInstance()->getWebRoot() . self::PUBLIC_PATH;
+    }
+
+    /**
+     * The existing layout form script, with which statement page to run.
+     */
+    public static function pageUrl(string $page): string
+    {
+        return OEGlobalsBag::getInstance()->getWebRoot()
+            . '/interface/forms/LBF/new.php?statement=' . rawurlencode($page);
     }
 }

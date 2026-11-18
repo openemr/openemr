@@ -217,9 +217,9 @@ class AdminController
             'error' => $error,
             'canAdmin' => true,
             'activeTab' => 'rules',
-            'postUrl' => $this->bootstrap->getPublicUrl() . 'admin.php',
-            'generateUrl' => $this->bootstrap->getPublicUrl() . 'index.php',
-            'adminUrl' => $this->bootstrap->getPublicUrl() . 'admin.php',
+            'postUrl' => $this->bootstrap->pageUrl('admin'),
+            'generateUrl' => $this->bootstrap->pageUrl('generate'),
+            'adminUrl' => $this->bootstrap->pageUrl('admin'),
             'assetBase' => $this->bootstrap->getPublicUrl() . 'assets/',
             'assetVersion' => OEGlobalsBag::getInstance()->getString('v_js_includes'),
         ]);
