@@ -28,9 +28,16 @@ class AuditRequestLabelTest extends TestCase
         );
 
         self::assertSame(
-            'GET /interface/main/finder/dynamic_finder.php?searchparm=Smith&set_pid=1',
+            'GET /interface/main/finder/dynamic_finder.php?searchparm&set_pid',
             $label->label,
         );
+    }
+
+    public function testAnUnparsedUriDropsTheQuery(): void
+    {
+        $label = AuditRequestLabel::fromParts('GET', '///x.php?password=abc', null);
+
+        self::assertSame('GET ///x.php', $label->label);
     }
 
     public function testCommandLabelUsesTheScriptName(): void

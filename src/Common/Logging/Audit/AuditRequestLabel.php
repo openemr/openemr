@@ -3,8 +3,8 @@
 /**
  * A short description of the user action being audited.
  *
- * The label is the page or command, not the SQL. Secrets that ride on the
- * query string are left out.
+ * The label is the page or command, not the SQL. Query values are left out.
+ * A search term or a secret must not be written into the audit comment.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -79,7 +79,9 @@ final readonly class AuditRequestLabel
     {
         $parts = parse_url($uri);
         if (!is_array($parts)) {
-            return $uri;
+            $cut = strpos($uri, '?');
+
+            return $cut === false ? $uri : substr($uri, 0, $cut);
         }
 
         $path = $parts['path'] ?? '';
@@ -90,18 +92,18 @@ final readonly class AuditRequestLabel
 
         $params = [];
         parse_str($query, $params);
-        $clean = [];
+        $names = [];
         foreach ($params as $name => $value) {
             if (!is_string($name) || self::isSecret($name) || !is_scalar($value)) {
                 continue;
             }
-            $clean[$name] = (string) $value;
+            $names[] = $name;
         }
-        if ($clean === []) {
+        if ($names === []) {
             return $path === '' ? '/' : $path;
         }
 
-        return $path . '?' . http_build_query($clean);
+        return $path . '?' . implode('&', $names);
     }
 
     private static function isSecret(string $name): bool

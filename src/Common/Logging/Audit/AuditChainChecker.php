@@ -27,7 +27,7 @@ final class AuditChainChecker
     {
     }
 
-    public function add(string $logId, string $checksum, ?string $chain): void
+    public function add(string $logId, string $checksum, ?string $chain, string $checksumApi = ''): void
     {
         if ($chain === null || $chain === '') {
             $this->note(AuditChainFailure::Missing, $logId);
@@ -35,7 +35,7 @@ final class AuditChainChecker
             return;
         }
 
-        $expected = AuditChain::link($this->previous, $logId, $checksum, $this->key);
+        $expected = AuditChain::link($this->previous, $logId, $checksum, $this->key, $checksumApi);
         if (strlen($expected) !== strlen($chain) || !hash_equals($expected, $chain)) {
             $this->note(AuditChainFailure::Break, $logId);
         }
