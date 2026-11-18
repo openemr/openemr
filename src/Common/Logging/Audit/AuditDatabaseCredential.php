@@ -57,15 +57,17 @@ final readonly class AuditDatabaseCredential
 
     public function write(string $siteDir): void
     {
+        // The web server has to read an account file that setup may have
+        // written as root. Owner-only mode hides that password from Apache.
         $directory = $siteDir . '/documents/logs_and_misc';
-        if (!is_dir($directory) && !mkdir($directory, 0750, true) && !is_dir($directory)) {
+        if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
             throw new \RuntimeException('Unable to store the audit database account.');
         }
         $encoded = json_encode(['user' => $this->user, 'password' => $this->password]);
         if (!is_string($encoded)) {
             throw new \RuntimeException('Unable to store the audit database account.');
         }
-        $previousUmask = umask(0027);
+        $previousUmask = umask(0022);
         try {
             $written = file_put_contents(self::path($siteDir), $encoded, LOCK_EX);
         } finally {
@@ -74,7 +76,7 @@ final readonly class AuditDatabaseCredential
         if ($written === false) {
             throw new \RuntimeException('Unable to store the audit database account.');
         }
-        if (!chmod(self::path($siteDir), 0640)) {
+        if (!chmod(self::path($siteDir), 0644)) {
             throw new \RuntimeException('Unable to store the audit database account.');
         }
     }

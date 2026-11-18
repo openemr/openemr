@@ -97,6 +97,13 @@ class AuditChainCheckerTest extends TestCase
             self::assertSame($first->value(), $second->value());
             self::assertSame(64, strlen($first->value()));
             self::assertTrue(ctype_xdigit($first->value()));
+            $keyFile = $directory . '/documents/logs_and_misc/audit-chain.key';
+            $mode = fileperms($keyFile);
+            self::assertIsInt($mode);
+            self::assertSame(0004, $mode & 0004);
+            $directoryMode = fileperms($directory . '/documents/logs_and_misc');
+            self::assertIsInt($directoryMode);
+            self::assertSame(0001, $directoryMode & 0001);
         } finally {
             $keyFile = $directory . '/documents/logs_and_misc/audit-chain.key';
             if (is_file($keyFile)) {
