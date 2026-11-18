@@ -1,0 +1,144 @@
+<?php
+
+/**
+ * Values and Identifiers tests.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Simon Quigley <squigley@altispeed.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Isolated\Services\LBF {
+
+    use OpenEMR\Services\LBF\Identifiers;
+    use OpenEMR\Services\LBF\StatementParagraph;
+    use OpenEMR\Services\LBF\Values;
+    use PHPUnit\Framework\TestCase;
+
+    final class ValuesTest extends TestCase
+    {
+        /**
+         * Cast null, strings, numbers, and booleans to strings.
+         */
+        public function testAsStringCastsScalars(): void
+        {
+            $this->assertSame('', Values::asString(null));
+            $this->assertSame('fallback', Values::asString(null, 'fallback'));
+            $this->assertSame('keep', Values::asString('keep'));
+            $this->assertSame('3', Values::asString(3));
+            $this->assertSame('1.5', Values::asString(1.5));
+            $this->assertSame('1', Values::asString(true));
+            $this->assertSame('0', Values::asString(false));
+            $this->assertSame('', Values::asString(['nope']));
+        }
+
+        /**
+         * Cast numeric scalars to integers and reject junk.
+         */
+        public function testAsIntCastsScalars(): void
+        {
+            $this->assertSame(4, Values::asInt(4));
+            $this->assertSame(12, Values::asInt('12'));
+            $this->assertSame(3, Values::asInt(3.9));
+            $this->assertSame(0, Values::asInt('nope'));
+            $this->assertSame(9, Values::asInt(false, 9));
+        }
+
+        /**
+         * Parse boolean flags and optional floats.
+         */
+        public function testAsBoolAndFloat(): void
+        {
+            $this->assertTrue(Values::asBool(true));
+            $this->assertTrue(Values::asBool(1));
+            $this->assertTrue(Values::asBool('1'));
+            $this->assertFalse(Values::asBool(0));
+            $this->assertFalse(Values::asBool('0'));
+            $this->assertNull(Values::asFloatOrNull(null));
+            $this->assertSame(1.5, Values::asFloatOrNull(1.5));
+            $this->assertSame(2.0, Values::asFloatOrNull(2));
+            $this->assertSame(3.25, Values::asFloatOrNull(' 3.25 '));
+            $this->assertNull(Values::asFloatOrNull(''));
+            $this->assertNull(Values::asFloatOrNull('abc'));
+            $this->assertNull(Values::asFloatOrNull([]));
+        }
+
+        /**
+         * Keep string-keyed SQL rows and typed column helpers.
+         */
+        public function testAssocRowAndRowHelpers(): void
+        {
+            $this->assertNull(Values::assocRow('nope'));
+            $this->assertSame(['a' => 1], Values::assocRow([0 => 'skip', 'a' => 1]));
+            $row = ['n' => '7', 's' => 'hi'];
+            $this->assertSame('hi', Values::rowString($row, 's'));
+            $this->assertSame('', Values::rowString($row, 'missing'));
+            $this->assertSame(7, Values::rowInt($row, 'n'));
+            $this->assertSame(0, Values::rowInt($row, 'missing'));
+        }
+
+        /**
+         * Read a percent, a unit, or a hyphenated range as a closed span.
+         */
+        public function testMeasurementSpanReadsTypedBoxes(): void
+        {
+            $this->assertSame([55.0, 55.0], Values::measurementSpan('55%'));
+            $this->assertSame([35.0, 35.0], Values::measurementSpan('35 mmHg'));
+            $this->assertSame([35.0, 35.0], Values::measurementSpan('35 mm Hg'));
+            $this->assertSame([60.0, 65.0], Values::measurementSpan('60-65%'));
+            $this->assertSame([45.0, 50.0], Values::measurementSpan('45-50mmHg'));
+            $this->assertSame([60.0, 65.0], Values::measurementSpan('60 - 65'));
+            $this->assertSame([-5.0, -5.0], Values::measurementSpan('-5'));
+            $this->assertSame([-5.0, -5.0], Values::measurementSpan('-5 mmHg'));
+            $this->assertSame([-10.0, -2.0], Values::measurementSpan('-10--2'));
+            $this->assertSame([-10.0, 0.0], Values::measurementSpan('-10 - 0'));
+            $this->assertNull(Values::measurementSpan('WNL'));
+            $this->assertNull(Values::measurementSpan('-'));
+            $this->assertNull(Values::measurementSpan('65-60'));
+            $this->assertNull(Values::measurementSpan('-2--10'));
+            $this->assertNull(Values::measurementSpan(''));
+        }
+
+        /**
+         * Accept layout ids and reject identifiers with spaces.
+         */
+        public function testIdentifiers(): void
+        {
+            $this->assertSame('LBFecho', Identifiers::assertFieldId('LBFecho'));
+            $this->assertSame('stmt_paragraph', Identifiers::assertFieldId('stmt_paragraph'));
+            $this->expectException(\InvalidArgumentException::class);
+            Identifiers::assertFieldId('bad id');
+        }
+
+        /**
+         * Allow spaces and plus in stored list option ids.
+         */
+        public function testUnsafeOptionId(): void
+        {
+            $this->assertTrue(Identifiers::isSafeStoredOptionId('mild + dilated'));
+            $this->assertFalse(Identifiers::isSafeStoredOptionId(''));
+            $this->assertFalse(Identifiers::isSafeStoredOptionId('../x'));
+            $this->assertFalse(Identifiers::isSafeStoredOptionId('a/b'));
+            $this->assertFalse(Identifiers::isSafeStoredOptionId('a\\b'));
+        }
+
+        /**
+         * Join action sentences and add a missing period.
+         */
+        public function testParagraphJoinsSentences(): void
+        {
+            $this->assertSame('', StatementParagraph::fromActions([['sentence' => '  ']]));
+            $this->assertSame(
+                'One. Two!',
+                StatementParagraph::fromActions([
+                    ['sentence' => 'One'],
+                    ['sentence' => 'Two!'],
+                ])
+            );
+        }
+    }
+}
