@@ -56,7 +56,10 @@ class QueryPagination implements \JsonSerializable
         return $this->searchUri;
     }
 
-    public function setSearchUri($searchUri)
+    /**
+     * Set the search URI used as the base for pagination links.
+     */
+    public function setSearchUri(string $searchUri): void
     {
         $this->searchUri = $searchUri;
     }
@@ -123,6 +126,11 @@ class QueryPagination implements \JsonSerializable
         return $this->currentOffsetId;
     }
 
+    /**
+     * Return the available pagination links for the current query.
+     *
+     * @return array{first: string, previous?: string, next?: string}
+     */
     public function getLinks(): array
     {
         $searchQueryUri = $this->searchUri;
@@ -141,7 +149,7 @@ class QueryPagination implements \JsonSerializable
 
     /**
      * Returns the fhir pagination for this query pagination result.
-     * @return FHIRBundleLink[]
+     * @return list<FHIRBundleLink>
      */
     public function getFhirLinks(): array
     {
@@ -156,7 +164,12 @@ class QueryPagination implements \JsonSerializable
         return $links;
     }
 
-    public function jsonSerialize(): mixed
+    /**
+     * Return the available pagination links for the current query.
+     *
+     * @return array{first: string, previous?: string, next?: string}
+     */
+    public function jsonSerialize(): array
     {
         return $this->getLinks();
     }
