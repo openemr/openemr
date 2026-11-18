@@ -9,10 +9,12 @@
  * @author    Ivan Googla <ivan.jo.dev@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2024 Ivan Googla
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -179,6 +181,7 @@ class PrescriptionService extends BaseService
                 ,combined_prescriptions.date_modified
                 ,combined_prescriptions.medication_adherence_date_asserted
                 ,combined_prescriptions.prescription_drug_size
+                ,combined_prescriptions.form
                 ,combined_prescriptions.quantity
                 ,combined_prescriptions.diagnosis
                 ,patient.puuid
@@ -193,6 +196,10 @@ class PrescriptionService extends BaseService
                 ,units_list.unit_id
                 ,units_list.unit_title
                 ,units_list.unit_codes
+
+                ,forms_list.form_id
+                ,forms_list.form_title
+                ,forms_list.form_codes
 
                 ,intervals_list.interval_id
                 ,intervals_list.interval_title
@@ -231,6 +238,7 @@ class PrescriptionService extends BaseService
                             ,prescriptions.`interval`
                             ,COALESCE(prescriptions.`route`,drugs.`route`) AS 'route'
                             ,prescriptions.size AS prescription_drug_size
+                            ,prescriptions.form
                             ,prescriptions.`note`
                             ,patient_id
                             ,encounter
@@ -285,6 +293,7 @@ class PrescriptionService extends BaseService
                         ,NULL as 'interval'
                         ,NULL as `route`
                         ,NULL as `prescription_drug_size`
+                        ,NULL as form
                         ,lists.comments as 'note'
                         ,pid AS patient_id
                         ,issues_encounter.issues_encounter_encounter as encounter
@@ -351,6 +360,15 @@ class PrescriptionService extends BaseService
                   FROM list_options
                   WHERE list_id='drug_units'
                 ) units_list ON units_list.unit_id = combined_prescriptions.unit
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS form_id
+                    ,title AS form_title
+                    ,codes AS form_codes
+                  FROM list_options
+                  WHERE list_id='drug_form'
+                ) forms_list ON forms_list.form_id = combined_prescriptions.form
                 LEFT JOIN
                 (
                   SELECT
