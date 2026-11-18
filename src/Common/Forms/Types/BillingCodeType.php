@@ -125,7 +125,7 @@ class BillingCodeType implements IOptionFormType
         // Edit option E means allow multiple (Extra) billing codes in a field.
         // We invent a class name for this because JavaScript needs to know.
         $className = '';
-        if (str_contains((string) $frow['edit_options'], 'E')) {
+        if ($this->isOption($edit_options, 'E')) {
             $className = 'EditOptionE';
         }
         //
