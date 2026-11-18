@@ -246,7 +246,8 @@ $patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pub
 
 $alertmsg = ''; // anything here pops up in an alert box
 
-if ($request->isMethod('POST')) {
+// getRealMethod(), not isMethod(): a POST carrying X-HTTP-Method-Override must not skip the check.
+if ($request->getRealMethod() === 'POST') {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
 }
 
@@ -297,8 +298,9 @@ if ($isSave) {
         }
     }
 
-    $upay = $request->request->all('form_upay');
-    if ($upay !== [] && $radio_type_of_payment != 'pre_payment') {
+    // Read form_upay only for an invoice payment: all() throws on a scalar, and a prepayment is already recorded.
+    $upay = $radio_type_of_payment === 'pre_payment' ? [] : $request->request->all('form_upay');
+    if ($upay !== []) {
         foreach ($upay as $enc => $payment) {
             if (!is_numeric($payment) || (float) $payment <= 0) {
                 continue;
