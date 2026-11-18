@@ -129,65 +129,6 @@ final readonly class DatabaseConnectionOptions
     }
 
     /**
-     * Creates options from the OPENEMR_DB_* environment variables. A null
-     * argument means the corresponding variable is not set. Returns null when
-     * none are set, so callers can fall back to sqlconf.php.
-     */
-    public static function fromEnvironment(
-        ?string $dbname,
-        ?string $user,
-        #[SensitiveParameter]
-        ?string $password,
-        ?string $host,
-        ?string $port,
-        ?string $socket,
-    ): ?self {
-        if ($dbname === null) {
-            if ($user !== null || $password !== null || $host !== null || $port !== null || $socket !== null) {
-                throw new InvalidArgumentException('OPENEMR_DB_NAME is required when any OPENEMR_DB_* variable is set');
-            }
-            return null;
-        }
-        if ($user === null || $password === null) {
-            throw new InvalidArgumentException('OPENEMR_DB_USER and OPENEMR_DB_PASSWORD are required');
-        }
-        if ($dbname === '' || $user === '') {
-            throw new InvalidArgumentException('OPENEMR_DB_NAME and OPENEMR_DB_USER must not be empty');
-        }
-
-        if ($socket !== null) {
-            if ($host !== null || $port !== null) {
-                throw new InvalidArgumentException(
-                    'OPENEMR_DB_SOCKET cannot be combined with OPENEMR_DB_HOST or OPENEMR_DB_PORT'
-                );
-            }
-            if ($socket === '') {
-                throw new InvalidArgumentException('OPENEMR_DB_SOCKET must not be empty');
-            }
-            return new self(dbname: $dbname, user: $user, password: $password, unixSocket: $socket);
-        }
-
-        if ($host === null || $host === '') {
-            throw new InvalidArgumentException('Set either OPENEMR_DB_HOST or OPENEMR_DB_SOCKET');
-        }
-        // PHP's MySQL drivers connect to "localhost" through the default
-        // Unix socket rather than TCP, which is rarely what was intended.
-        if (strcasecmp($host, 'localhost') === 0) {
-            throw new InvalidArgumentException(
-                'OPENEMR_DB_HOST must not be localhost; use 127.0.0.1 for TCP or OPENEMR_DB_SOCKET for a socket'
-            );
-        }
-
-        return new self(
-            dbname: $dbname,
-            user: $user,
-            password: $password,
-            host: $host,
-            port: self::parsePort($port),
-        );
-    }
-
-    /**
      * Detects MySQL SSL certificate files in site directory.
      *
      * @return SslConfig
@@ -217,18 +158,6 @@ final readonly class DatabaseConnectionOptions
         }
 
         return $config;
-    }
-
-    private static function parsePort(?string $port): int
-    {
-        if ($port === null) {
-            return 3306;
-        }
-        // ctype_digit rejects signs and whitespace, which int parsing would accept.
-        if (!ctype_digit($port) || (int) $port < 1 || (int) $port > 65535) {
-            throw new InvalidArgumentException('OPENEMR_DB_PORT must be a port number from 1 to 65535');
-        }
-        return (int) $port;
     }
 
     /**
