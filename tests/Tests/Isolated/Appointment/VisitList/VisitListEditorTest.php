@@ -1,0 +1,290 @@
+<?php
+
+/**
+ * Isolated VisitListEditor Test
+ *
+ * The Visit List part of the appointment editor without a database: what the form shows for
+ * an existing or new appointment, and when a save places the appointment on its list.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Isolated\Appointment\VisitList;
+
+use OpenEMR\Appointment\VisitList\VisitListCopies;
+use OpenEMR\Appointment\VisitList\VisitListEditor;
+use OpenEMR\Appointment\VisitList\VisitListService;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\ParameterBag;
+
+class VisitListEditorTest extends TestCase
+{
+    /** @var list<array{string, array<mixed>}> Each query run: SQL and binds. */
+    private array $queries = [];
+
+    /** @var list<array{string, array<mixed>}> Each statement run: SQL and binds. */
+    private array $statements = [];
+
+    /**
+     * An editor whose appointment query returns the given rows, whose blocks are the given
+     * fetchEvents() rows, and which records each query and statement it runs.
+     *
+     * @param list<array<string, mixed>> $appointmentRows
+     * @param list<array<string, mixed>> $blockRows
+     * @param list<array<string, mixed>> $entryRows the Visit List patients already on lists
+     */
+    private function editor(array $appointmentRows = [], array $blockRows = [], array $entryRows = []): VisitListEditor
+    {
+        return new VisitListEditor(new VisitListService(
+            function (string $sql, array $binds) use ($appointmentRows, $entryRows): array {
+                $this->queries[] = [$sql, $binds];
+                if (str_contains($sql, 'openemr_postcalendar_categories')) {
+                    return [['pc_catid' => '21']];
+                }
+                return str_contains($sql, '`pc_multiple`') ? $appointmentRows : $entryRows;
+            },
+            static fn (string $from, string $to, string $where, array $binds): array => $blockRows,
+            execute: function (string $sql, array $binds): void {
+                $this->statements[] = [$sql, $binds];
+            }
+        ));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function appointmentRow(int $eid, int $provider): array
+    {
+        return [
+            'pc_eid' => (string) $eid,
+            'pc_aid' => (string) $provider,
+            'pc_multiple' => '0',
+            'pc_eventDate' => '2026-03-09',
+            'pc_startTime' => '09:00:00',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function blockRow(int $eid, int $provider): array
+    {
+        return [
+            'pc_eid' => (string) $eid,
+            'uprovider_id' => (string) $provider,
+            'pc_eventDate' => '2026-03-09',
+            'pc_startTime' => '09:00:00',
+            'pc_duration' => '28800',
+            'pc_facility' => '3',
+        ];
+    }
+
+    /**
+     * @param array<string, string> $fields
+     */
+    private static function post(string $action, array $fields = []): ParameterBag
+    {
+        return new ParameterBag(['form_action' => $action, 'form_visit_list' => '1'] + $fields);
+    }
+
+    public function testAnExistingVisitListPatientShowsItsOrderAndStop(): void
+    {
+        $form = $this->editor()->form(0, 42, ['pc_visit_list' => 1, 'pc_visit_seq' => 3, 'pc_visit_stop' => '2'], new ParameterBag(), '2026-03-09');
+
+        $this->assertTrue($form->active);
+        $this->assertSame('3', $form->sequence);
+        $this->assertSame('2', $form->stop);
+        $this->assertSame(' d-none', $form->hiddenClass());
+    }
+
+    public function testAnExistingTimedAppointmentIsNotAVisitListPatient(): void
+    {
+        $form = $this->editor()->form(0, 42, ['pc_visit_list' => '0', 'pc_visit_seq' => null, 'pc_visit_stop' => null], new ParameterBag(), '2026-03-09');
+
+        $this->assertFalse($form->active);
+        $this->assertSame('', $form->sequence);
+        $this->assertSame('', $form->stop);
+        $this->assertSame('', $form->hiddenClass());
+    }
+
+    public function testAnExistingAppointmentThatCouldNotBeReadIsNotAVisitListPatient(): void
+    {
+        $this->assertFalse($this->editor()->form(0, 42, false, new ParameterBag(), '2026-03-09')->active);
+    }
+
+    public function testOnlyPatientAppointmentsCanBeOnAVisitList(): void
+    {
+        $query = new ParameterBag(['visitlist' => '1', 'userid' => '7', 'starttimeh' => '9', 'starttimem' => '00']);
+
+        $this->assertFalse($this->editor()->form(1, null, null, $query, '2026-03-09')->active, 'a provider event');
+        $this->assertFalse($this->editor()->form(3, 42, ['pc_visit_list' => 1], $query, '2026-03-09')->active, 'a group event');
+        $this->assertSame([], $this->queries, 'nothing is read');
+    }
+
+    public function testANewPatientFromAVisitListBlockGetsTheNextOrder(): void
+    {
+        $editor = $this->editor(
+            blockRows: [self::blockRow(1, 7)],
+            entryRows: [[
+                'pc_eid' => '10',
+                'pc_pid' => '510',
+                'pc_aid' => '7',
+                'pc_eventDate' => '2026-03-09',
+                'pc_startTime' => '09:00:00',
+                'pc_visit_seq' => '4',
+                'pc_visit_stop' => null,
+            ]]
+        );
+        $query = new ParameterBag(['visitlist' => '1', 'userid' => '7', 'starttimeh' => '9', 'starttimem' => '00']);
+
+        $form = $editor->form(0, null, null, $query, '2026-03-09');
+
+        $this->assertTrue($form->active);
+        $this->assertSame('5', $form->sequence);
+        $this->assertSame('', $form->stop);
+    }
+
+    public function testANewAppointmentNotFromAVisitListBlockIsTimed(): void
+    {
+        $query = new ParameterBag(['userid' => '7', 'starttimeh' => '9', 'starttimem' => '00']);
+
+        $this->assertFalse($this->editor()->form(0, null, null, $query, '2026-03-09')->active);
+    }
+
+    public function testANewVisitListPatientNeedsAProvider(): void
+    {
+        $query = new ParameterBag(['visitlist' => '1', 'starttimeh' => '9', 'starttimem' => '00']);
+
+        $this->assertFalse($this->editor()->form(0, null, null, $query, '2026-03-09')->active);
+    }
+
+    public function testANewVisitListPatientWithAnUnreadableDateHasNoOrderYet(): void
+    {
+        $query = new ParameterBag(['visitlist' => '1', 'userid' => '7', 'starttimeh' => '9', 'starttimem' => '00']);
+
+        $form = $this->editor()->form(0, null, null, $query, null);
+
+        $this->assertTrue($form->active);
+        $this->assertSame('', $form->sequence);
+    }
+
+    public function testBeforeSavingAVisitListPatientNotesItsCopies(): void
+    {
+        $copies = $this->editor([self::appointmentRow(42, 7)])->beforeSave(self::post('save'), 42);
+
+        $this->assertInstanceOf(VisitListCopies::class, $copies);
+        $this->assertSame('2026-03-09 09:00', $copies->startByProvider[7]->format('Y-m-d H:i'));
+    }
+
+    /**
+     * @return array<string, array{ParameterBag, ?int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function nothingToNoteProvider(): array
+    {
+        return [
+            'a new appointment' => [self::post('save'), null],
+            'a timed appointment' => [new ParameterBag(['form_action' => 'save']), 42],
+            'a duplicate' => [self::post('duplicate'), 42],
+            'a delete' => [self::post('delete'), 42],
+        ];
+    }
+
+    #[DataProvider('nothingToNoteProvider')]
+    public function testBeforeSavingNotesNothingForAnythingElse(ParameterBag $post, ?int $eventId): void
+    {
+        $this->assertNull($this->editor([self::appointmentRow(42, 7)])->beforeSave($post, $eventId));
+        $this->assertSame([], $this->queries);
+    }
+
+    public function testSavingAVisitListPatientPlacesItWithItsOrderAndStop(): void
+    {
+        $editor = $this->editor([self::appointmentRow(42, 7)], [self::blockRow(1, 7)]);
+
+        $editor->afterSave(self::post('save', ['form_visit_seq' => ' 3 ', 'form_visit_stop' => '2']), 42, null);
+
+        $this->assertCount(1, $this->statements);
+        $this->assertSame([3, 2, '09:00:00', 42], $this->statements[0][1]);
+    }
+
+    public function testDuplicatingAVisitListPatientPlacesTheCopy(): void
+    {
+        $editor = $this->editor([self::appointmentRow(42, 7)], [self::blockRow(1, 7)]);
+
+        $editor->afterSave(self::post('duplicate', ['form_visit_seq' => '3']), 42, null);
+
+        $this->assertCount(1, $this->statements);
+    }
+
+    public function testOrderAndStopThatAreNotPositiveNumbersAreLeftEmpty(): void
+    {
+        $editor = $this->editor([self::appointmentRow(42, 7)], [self::blockRow(1, 7)]);
+
+        $editor->afterSave(self::post('save', ['form_visit_seq' => 'x', 'form_visit_stop' => '0']), 42, null);
+
+        $this->assertSame([null, null, '09:00:00', 42], $this->statements[0][1]);
+    }
+
+    public function testSavingUsesTheCopiesNotedBefore(): void
+    {
+        $editor = $this->editor([self::appointmentRow(43, 8)]);
+
+        $editor->afterSave(self::post('save'), 42, new VisitListCopies(77, []));
+
+        $this->assertSame([42, 77], $this->queries[0][1]);
+    }
+
+    /**
+     * @return array<string, array{ParameterBag, ?int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function nothingToPlaceProvider(): array
+    {
+        return [
+            'no appointment' => [self::post('save'), null],
+            'a timed appointment' => [new ParameterBag(['form_action' => 'save']), 42],
+            'a delete' => [self::post('delete'), 42],
+        ];
+    }
+
+    #[DataProvider('nothingToPlaceProvider')]
+    public function testSavingPlacesNothingForAnythingElse(ParameterBag $post, ?int $eventId): void
+    {
+        $this->editor([self::appointmentRow(42, 7)])->afterSave($post, $eventId, null);
+
+        $this->assertSame([], $this->statements);
+    }
+
+    /**
+     * @return array<string, array{mixed, ?int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function eventIdProvider(): array
+    {
+        return [
+            'an int' => [42, 42],
+            'a numeric string' => ['42', 42],
+            'zero, a new appointment' => [0, null],
+            'a negative' => [-1, null],
+            'not a number' => ['abc', null],
+            'null' => [null, null],
+            'false' => [false, null],
+        ];
+    }
+
+    #[DataProvider('eventIdProvider')]
+    public function testEventId(mixed $eid, ?int $expected): void
+    {
+        $this->assertSame($expected, VisitListEditor::eventId($eid));
+    }
+}

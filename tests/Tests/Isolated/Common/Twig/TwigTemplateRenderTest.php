@@ -499,6 +499,82 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/calendar-day-screen-empty.html',
         ];
 
+        yield 'calendar day-screen with a Visit List' => [
+            'calendar/default/views/day/ajax_template.html.twig',
+            array_merge($screenCommon, [
+                'viewtype'        => 'day',
+                'Date'            => '20260309',
+                'dayHeaderLabel'  => 'Monday March 9 2026',
+                'PREV_DAY_URL'    => '?prev',
+                'NEXT_DAY_URL'    => '?next',
+                'timeRows'        => [],
+                'timeslotCss'     => '20px',
+                'providers'       => [
+                    [
+                        'id'              => 7,
+                        'fname'           => 'Alex',
+                        'lname'           => 'Rivera',
+                        'username'        => 'arivera',
+                        'classForWeekend' => 'work-day',
+                        'events'          => [
+                            [
+                                'eid'                => 40,
+                                'catid'              => 16,
+                                'eventDate'          => '20260309',
+                                'pccattype'          => '1',
+                                'evtClass'           => 'event_visit_list',
+                                'displayBgColor'     => '#9ec5fe',
+                                'displayContentHtml' => 'Visit List',
+                                'tooltip'            => 'Monday March 9 2026',
+                                'evtTopCss'          => '40px',
+                                'evtHeightCss'       => '320px',
+                                'divWidthCss'        => '',
+                                'divLeftCss'         => '',
+                                'visitList'          => [
+                                    'title'       => 'Visit List',
+                                    'timeLabel'   => '9:00am–5:00pm',
+                                    'providerId'  => 7,
+                                    'eventDate'   => '20260309',
+                                    'startHour'   => '9',
+                                    'startMinute' => '00',
+                                    'count'       => 2,
+                                    'rows'        => [
+                                        [
+                                            'eid'           => 41,
+                                            'pid'           => 541,
+                                            'eventDate'     => '20260309',
+                                            'pccattype'     => '0',
+                                            'sequenceLabel' => '#1',
+                                            'patientName'   => 'Hollis, Margaret',
+                                            'categoryName'  => 'Established Patient',
+                                            'statusTitle'   => '@ Arrived',
+                                            'bgColor'       => '#FF2414',
+                                            'tooltip'       => "Hollis, Margaret\nEstablished Patient",
+                                            'patientTooltip' => "Hollis, Margaret\n(Click to view)",
+                                        ],
+                                        [
+                                            'eid'           => 42,
+                                            'pid'           => 542,
+                                            'eventDate'     => '20260309',
+                                            'pccattype'     => '0',
+                                            'sequenceLabel' => '#2',
+                                            'patientName'   => 'O\'Brien, Pat <Jr>',
+                                            'categoryName'  => 'New Patient',
+                                            'statusTitle'   => '',
+                                            'bgColor'       => '#a2d9e2',
+                                            'tooltip'       => "O'Brien, Pat <Jr>\nNew Patient",
+                                            'patientTooltip' => "O'Brien, Pat <Jr>\n(Click to view)",
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]),
+            $fixtureDir . '/calendar-day-screen-visit-list.html',
+        ];
+
         yield 'calendar week-screen empty' => [
             'calendar/default/views/week/ajax_template.html.twig',
             array_merge($screenCommon, [
