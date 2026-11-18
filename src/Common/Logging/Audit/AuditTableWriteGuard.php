@@ -26,8 +26,12 @@ final class AuditTableWriteGuard
     public static function rejects(string $sql): bool
     {
         $statement = self::withoutLeadingComments($sql);
-        if (preg_match('/^(?:update|delete|replace|truncate|drop)\b/i', $statement) !== 1) {
+        if (preg_match('/^(?:update|delete|replace|truncate|drop|alter|rename)\b/i', $statement) !== 1) {
             return false;
+        }
+
+        if (self::dropTargetsGuardedTable($statement) || self::renameTargetsGuardedTable($statement)) {
+            return true;
         }
 
         foreach (self::TABLES as $table) {
@@ -39,6 +43,60 @@ final class AuditTableWriteGuard
         }
 
         return false;
+    }
+
+    /**
+     * DROP TABLE IF EXISTS and a multi-table list both name the target after
+     * the first keyword the simpler pattern looks for.
+     */
+    private static function dropTargetsGuardedTable(string $statement): bool
+    {
+        if (preg_match('/^drop\s+(?:temporary\s+)?table\b/i', $statement) !== 1) {
+            return false;
+        }
+
+        $rest = preg_replace('/^drop\s+(?:temporary\s+)?table\s+(?:if\s+exists\s+)?/i', '', $statement);
+        if (!is_string($rest)) {
+            return false;
+        }
+        $rest = preg_replace('/\s+(?:restrict|cascade)\s*;?\s*$/i', '', $rest) ?? $rest;
+        $targets = preg_split('/\s*,\s*/', trim($rest)) ?: [];
+        foreach ($targets as $target) {
+            if (self::targetIsGuarded($target)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function renameTargetsGuardedTable(string $statement): bool
+    {
+        if (preg_match('/^rename\s+table\b/i', $statement) !== 1) {
+            return false;
+        }
+
+        $rest = preg_replace('/^rename\s+table\s+/i', '', $statement);
+        if (!is_string($rest)) {
+            return false;
+        }
+        $parts = preg_split('/\s*,\s*|\s+to\s+/i', $rest) ?: [];
+        foreach ($parts as $target) {
+            if (self::targetIsGuarded($target)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function targetIsGuarded(string $target): bool
+    {
+        if (preg_match('/`?([A-Za-z0-9_]+)`?\s*$/', trim($target), $match) !== 1) {
+            return false;
+        }
+
+        return in_array(strtolower($match[1]), self::TABLES, true);
     }
 
     /**

@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Logging\Audit;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception as DbalException;
 
 readonly class LogTablesSink implements SinkInterface
 {
@@ -112,7 +113,32 @@ readonly class LogTablesSink implements SinkInterface
             throw new \RuntimeException('The audit chain key file is not usable.');
         }
 
+        $path = $this->siteDir . '/documents/logs_and_misc/audit-chain.key';
+        if (is_file($path)) {
+            return AuditChainKey::fromSiteDirectory($this->siteDir, false)->value();
+        }
+        if ($this->ledgerAlreadyChained()) {
+            throw new \RuntimeException('The audit chain key file is not usable.');
+        }
+
         return AuditChainKey::fromSiteDirectory($this->siteDir)->value();
+    }
+
+    /**
+     * A chain that already has links cannot be extended with a new key.
+     */
+    private function ledgerAlreadyChained(): bool
+    {
+        try {
+            $row = $this->conn->fetchAssociative(
+                "SELECT 1 AS found FROM log_comment_encrypt"
+                . " WHERE version >= 5 AND chain IS NOT NULL AND chain <> '' LIMIT 1",
+            );
+        } catch (DbalException) {
+            return false;
+        }
+
+        return is_array($row);
     }
 
     private function write(Event $event, string $previous, string $chainKey): string
@@ -167,7 +193,7 @@ readonly class LogTablesSink implements SinkInterface
             $checksumGenerateApi = hash('sha3-512', implode('', array_values($apiLogData)));
         }
 
-        $chain = AuditChain::link($previous, $this->buffer->lastLogId, $checksum, $chainKey);
+        $chain = AuditChain::link($previous, $this->buffer->lastLogId, $checksum, $chainKey, $checksumGenerateApi);
 
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $logCommentData = [

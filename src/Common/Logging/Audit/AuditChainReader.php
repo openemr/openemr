@@ -36,6 +36,7 @@ final class AuditChainReader
         try {
             $key = AuditChainKey::fromSiteDirectory(
                 OEGlobalsBag::getInstance()->getString('OE_SITE_DIR'),
+                false,
             )->value();
         } catch (\RuntimeException) {
             return [new AuditChainFailureItem(AuditChainFailure::Key)];
@@ -54,8 +55,12 @@ final class AuditChainReader
     private static function check(string $start, string $end, string $key): array
     {
         $bounds = [$start, $end];
-        $min = QueryUtils::querySingleRow(
-            'SELECT MIN(c.log_id) AS min_id'
+        // The date window picks the first and last log id to report. The walk
+        // then includes every link between those ids. A row whose date falls
+        // outside the window can still sit between them, and dropping it
+        // would look like a break in the chain.
+        $span = QueryUtils::querySingleRow(
+            'SELECT MIN(c.log_id) AS min_id, MAX(c.log_id) AS max_id'
             . ' FROM log_comment_encrypt c'
             . ' INNER JOIN log l ON l.id = c.log_id'
             . ' WHERE c.version >= 5 AND l.date >= ? AND l.date <= ?',
@@ -64,8 +69,10 @@ final class AuditChainReader
         );
 
         $previous = AuditChain::genesis();
-        $minId = self::scalar(is_array($min) ? ($min['min_id'] ?? null) : null);
-        if ($minId !== '') {
+        $minId = self::scalar(is_array($span) ? ($span['min_id'] ?? null) : null);
+        $maxId = self::scalar(is_array($span) ? ($span['max_id'] ?? null) : null);
+        $checker = new AuditChainChecker($previous, $key);
+        if ($minId !== '' && $maxId !== '') {
             $earlier = QueryUtils::querySingleRow(
                 'SELECT c.chain FROM log_comment_encrypt c'
                 . ' WHERE c.version >= 5 AND c.chain IS NOT NULL AND c.chain != \'\''
@@ -76,27 +83,27 @@ final class AuditChainReader
             );
             $earlierChain = is_array($earlier) ? ($earlier['chain'] ?? null) : null;
             if (is_string($earlierChain) && $earlierChain !== '') {
-                $previous = $earlierChain;
+                $checker = new AuditChainChecker($earlierChain, $key);
             }
-        }
 
-        $checker = new AuditChainChecker($previous, $key);
-        $rows = QueryUtils::fetchRecordsNoLog(
-            'SELECT c.log_id, c.checksum, c.chain'
-            . ' FROM log_comment_encrypt c'
-            . ' INNER JOIN log l ON l.id = c.log_id'
-            . ' WHERE c.version >= 5 AND l.date >= ? AND l.date <= ?'
-            . ' ORDER BY c.log_id ASC',
-            $bounds,
-        );
-        foreach ($rows as $row) {
-            $checksum = $row['checksum'] ?? null;
-            $chain = $row['chain'] ?? null;
-            $checker->add(
-                self::scalar($row['log_id'] ?? null),
-                is_string($checksum) ? $checksum : '',
-                is_string($chain) ? $chain : null,
+            $rows = QueryUtils::fetchRecordsNoLog(
+                'SELECT c.log_id, c.checksum, c.checksum_api, c.chain'
+                . ' FROM log_comment_encrypt c'
+                . ' WHERE c.version >= 5 AND c.log_id >= ? AND c.log_id <= ?'
+                . ' ORDER BY c.log_id ASC',
+                [$minId, $maxId],
             );
+            foreach ($rows as $row) {
+                $checksum = $row['checksum'] ?? null;
+                $chain = $row['chain'] ?? null;
+                $checksumApi = $row['checksum_api'] ?? null;
+                $checker->add(
+                    self::scalar($row['log_id'] ?? null),
+                    is_string($checksum) ? $checksum : '',
+                    is_string($chain) ? $chain : null,
+                    is_string($checksumApi) ? $checksumApi : '',
+                );
+            }
         }
 
         $failures = $checker->failures();
@@ -106,6 +113,10 @@ final class AuditChainReader
             false,
         );
         if (!is_array($anchor)) {
+            if ($minId !== '') {
+                $failures[] = new AuditChainFailureItem(AuditChainFailure::Anchor);
+            }
+
             return $failures;
         }
 

@@ -34,6 +34,11 @@ class AuditTableWriteGuardTest extends TestCase
             'update comment' => ['UPDATE log_comment_encrypt SET checksum = 1', true],
             'truncate anchor' => ['TRUNCATE TABLE log_chain_anchor', true],
             'drop log' => ['DROP TABLE log', true],
+            'drop if exists' => ['DROP TABLE IF EXISTS log', true],
+            'drop listed with another table' => ['DROP TABLE other_table, log', true],
+            'alter anchor' => ['ALTER TABLE log_chain_anchor ADD COLUMN extra int', true],
+            'rename log away' => ['RENAME TABLE log TO log_backup', true],
+            'rename onto log' => ['RENAME TABLE other_table TO log', true],
             'select log' => ['SELECT id FROM log WHERE id = 1', false],
             'insert log' => ['INSERT INTO log (event) VALUES (1)', false],
             'delete other' => ['DELETE FROM login_mfa_registrations WHERE user_id = 1', false],
@@ -66,6 +71,7 @@ class AuditTableWriteGuardTest extends TestCase
         self::assertStringContainsString('BEFORE DELETE ON `log_comment_encrypt`', $sql);
         self::assertStringContainsString('BEFORE DELETE ON `log_chain_anchor`', $sql);
         self::assertStringNotContainsString('BEFORE UPDATE ON `log_chain_anchor`', $sql);
+        self::assertStringNotContainsString('DROP TRIGGER', $sql);
     }
 
     public function testAccountStatementsKeepTheAnchorUpdate(): void

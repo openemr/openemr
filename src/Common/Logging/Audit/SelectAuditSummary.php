@@ -22,6 +22,8 @@ final readonly class SelectAuditSummary
         public string $comments,
         public ?int $patientId,
         public int $success,
+        public string $user = '',
+        public string $group = '',
     ) {
     }
 }

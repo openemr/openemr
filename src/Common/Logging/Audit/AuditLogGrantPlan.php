@@ -72,7 +72,6 @@ final readonly class AuditLogGrantPlan
         ];
         $statements = [];
         foreach ($blocks as [$name, $table, $event]) {
-            $statements[] = 'DROP TRIGGER IF EXISTS `' . $name . '`';
             $statements[] = 'CREATE TRIGGER `' . $name . '` BEFORE ' . $event
                 . ' ON `' . $table . '` FOR EACH ROW'
                 . " SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed.'";

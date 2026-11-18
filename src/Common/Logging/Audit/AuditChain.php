@@ -29,8 +29,17 @@ final class AuditChain
      * The next link. The key is not stored in the database, so repairing a
      * gap requires the site key as well as the row contents.
      */
-    public static function link(string $previous, string $logId, string $checksum, string $key): string
-    {
-        return hash_hmac('sha3-512', $previous . '|' . $logId . '|' . $checksum, $key);
+    public static function link(
+        string $previous,
+        string $logId,
+        string $checksum,
+        string $key,
+        string $checksumApi = '',
+    ): string {
+        return hash_hmac(
+            'sha3-512',
+            $previous . '|' . $logId . '|' . $checksum . '|' . $checksumApi,
+            $key,
+        );
     }
 }

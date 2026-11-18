@@ -26,10 +26,34 @@ final class AuditLogPrivilegeApplicator
 {
     public static function ensure(): string
     {
+        $locked = false;
         try {
+            $row = QueryUtils::querySingleRow(
+                "SELECT GET_LOCK('openemr_audit_provision', 10) AS locked",
+                [],
+                false,
+            );
+            $got = is_array($row) ? ($row['locked'] ?? null) : null;
+            $locked = $got === 1 || $got === '1';
+            if (!$locked) {
+                return 'Audit table protections were not changed.';
+            }
+
             return self::apply();
-        } catch (\RuntimeException | \InvalidArgumentException) {
+        } catch (\RuntimeException | \InvalidArgumentException | \LogicException) {
             return 'Audit table protections were not changed.';
+        } finally {
+            if ($locked) {
+                try {
+                    QueryUtils::sqlStatementThrowException(
+                        "SELECT RELEASE_LOCK('openemr_audit_provision')",
+                        [],
+                        true,
+                    );
+                } catch (\Throwable) {
+                    // The upgrade already has its result.
+                }
+            }
         }
     }
 
@@ -47,7 +71,7 @@ final class AuditLogPrivilegeApplicator
             return 'Audit table protections were not changed.';
         }
         $notes = [];
-        $triggers = self::run(AuditLogGrantPlan::triggerStatements());
+        $triggers = self::run(self::missingTriggers(AuditLogGrantPlan::triggerStatements()));
         $notes[] = $triggers === 0
             ? 'Audit rows reject updates and deletes.'
             : 'Audit row triggers could not all be installed.';
@@ -84,6 +108,35 @@ final class AuditLogPrivilegeApplicator
         $notes[] = 'A separate audit database account now appends audit rows.';
 
         return implode(' ', $notes);
+    }
+
+    /**
+     * Keep a trigger that is already installed. Dropping it before a create
+     * that then fails would leave the table unprotected.
+     *
+     * @param list<string> $statements
+     * @return list<string>
+     */
+    private static function missingTriggers(array $statements): array
+    {
+        $missing = [];
+        foreach ($statements as $statement) {
+            if (preg_match('/^CREATE TRIGGER `([A-Za-z0-9_]+)`/', $statement, $match) !== 1) {
+                $missing[] = $statement;
+                continue;
+            }
+            $found = QueryUtils::querySingleRow(
+                'SELECT TRIGGER_NAME FROM information_schema.TRIGGERS'
+                . ' WHERE TRIGGER_SCHEMA = DATABASE() AND TRIGGER_NAME = ?',
+                [$match[1]],
+                false,
+            );
+            if (!is_array($found)) {
+                $missing[] = $statement;
+            }
+        }
+
+        return $missing;
     }
 
     /**

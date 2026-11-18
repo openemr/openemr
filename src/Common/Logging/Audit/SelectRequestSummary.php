@@ -51,13 +51,33 @@ final class SelectRequestSummary
 
     private ?int $patientId = null;
 
+    private string $user = '';
+
+    private string $group = '';
+
     public function isEmpty(): bool
     {
         return $this->count === 0;
     }
 
-    public function add(string $table, string $category, bool $success, ?int $patientId, string $detail = ''): void
+    public function user(): string
     {
+        return $this->user;
+    }
+
+    public function add(
+        string $table,
+        string $category,
+        bool $success,
+        ?int $patientId,
+        string $detail = '',
+        string $user = '',
+        string $group = '',
+    ): void {
+        if ($this->count === 0) {
+            $this->user = $user;
+            $this->group = $group;
+        }
         $this->count++;
         if (!$success) {
             $this->failures++;
@@ -113,6 +133,8 @@ final class SelectRequestSummary
             comments: $comments,
             patientId: $this->patientId,
             success: $this->failures === 0 ? 1 : 0,
+            user: $this->user,
+            group: $this->group,
         );
 
         $this->count = 0;
@@ -122,6 +144,8 @@ final class SelectRequestSummary
         $this->categories = [];
         $this->details = [];
         $this->patientId = null;
+        $this->user = '';
+        $this->group = '';
 
         return $summary;
     }

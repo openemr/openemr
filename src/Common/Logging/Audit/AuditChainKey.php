@@ -29,7 +29,7 @@ final readonly class AuditChainKey
         return $this->key;
     }
 
-    public static function fromSiteDirectory(string $siteDir): self
+    public static function fromSiteDirectory(string $siteDir, bool $create = true): self
     {
         if ($siteDir === '' || !is_dir($siteDir)) {
             throw new \RuntimeException('The site directory is not available for the audit chain key.');
@@ -47,6 +47,9 @@ final readonly class AuditChainKey
         $existing = self::read($path);
         if ($existing !== null) {
             return new self($existing);
+        }
+        if (!$create) {
+            throw new \RuntimeException('The audit chain key file is not usable.');
         }
 
         $created = self::create($path);

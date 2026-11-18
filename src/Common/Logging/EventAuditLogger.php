@@ -518,8 +518,16 @@ class EventAuditLogger implements AuditLoggerInterface
             || (stripos($statement, "FROM `log` ") !== false)       // avoid infinite loop
             || (str_contains($statement, "sequences"))          // Don't log sequences - to avoid the affect due to GenID calls
             || (stripos($statement, "SELECT count(") === 0)         // Skip SELECT count() statements.
-            || (stripos($statement, "log_comment_encrypt") !== false) // the checksum row for this event
-            || (stripos($statement, "log_chain_anchor") !== false)  // the chain tip for this event
+        ) {
+            return;
+        }
+
+        // Reads of the chain tables would record the check itself. A statement
+        // that changes those tables still has to be recorded.
+        if (
+            (stripos($statement, "log_comment_encrypt") !== false
+                || stripos($statement, "log_chain_anchor") !== false)
+            && self::readsWithoutWriting($statement)
         ) {
             return;
         }
@@ -637,7 +645,20 @@ class EventAuditLogger implements AuditLoggerInterface
             && !$breakglass
         ) {
             $patientId = $pid > 0 ? $pid : null;
-            $this->pendingSelects->add($matchedTable, $eventCategory->value, $outcome !== false, $patientId, $category);
+            $groupForSelect = $this->session->get('authProvider');
+            $groupName = is_string($groupForSelect) ? $groupForSelect : '';
+            if (!$this->pendingSelects->isEmpty() && $this->pendingSelects->user() !== $user) {
+                $this->flushPendingQuerySummary();
+            }
+            $this->pendingSelects->add(
+                $matchedTable,
+                $eventCategory->value,
+                $outcome !== false,
+                $patientId,
+                $category,
+                $user,
+                $groupName,
+            );
             $this->armQueryFlush();
             return;
         }
@@ -687,6 +708,19 @@ class EventAuditLogger implements AuditLoggerInterface
     }
 
     /**
+     * A statement that only reads. Writes, including a WITH clause that
+     * updates, are not reads.
+     */
+    private static function readsWithoutWriting(string $statement): bool
+    {
+        if (preg_match('/^(?:select|show|explain|describe|desc|with)\b/i', $statement) !== 1) {
+            return false;
+        }
+
+        return preg_match('/\b(?:insert|update|delete|replace|alter|drop|truncate|rename)\b/i', $statement) !== 1;
+    }
+
+    /**
      * The patient set for this request, else the session's open chart, else 0.
      */
     private function patientRecordPatientId(): int
@@ -717,13 +751,11 @@ class EventAuditLogger implements AuditLoggerInterface
         }
 
         $summary = $this->pendingSelects->consume(AuditRequestLabel::fromServer()->label);
-        $user = $this->session->get('authUser');
-        $group = $this->session->get('authProvider');
         $this->recordLogItem(
             $summary->success,
             $summary->event,
-            is_string($user) ? $user : '',
-            is_string($group) ? $group : '',
+            $summary->user,
+            $summary->group,
             $summary->comments,
             $summary->patientId,
             $summary->category,

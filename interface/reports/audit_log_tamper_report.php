@@ -347,8 +347,8 @@ $check_sum = isset($_GET['check_sum']);
         }
     }
 
+    $chainWarnings = 0;
     foreach (AuditChainReader::failures($start_date, $end_date) as $chainFailure) {
-        $dispArr[] = $icnt++;
         $chainId = $chainFailure->id;
         $chainText = match ($chainFailure->kind) {
             AuditChainFailure::Break => xl('Audit log') . ' ' . $chainId . ' ' . xl('does not continue the chain.'),
@@ -358,10 +358,18 @@ $check_sum = isset($_GET['check_sum']);
             AuditChainFailure::Key => xl('The audit chain key is not available, so chained rows were not checked.'),
             AuditChainFailure::Omitted => xl('Further chain breaks were omitted.'),
         };
+        if (
+            $chainFailure->kind === AuditChainFailure::Key
+            || $chainFailure->kind === AuditChainFailure::Upgrade
+        ) {
+            $chainWarnings++;
+        } else {
+            $dispArr[] = $icnt++;
+        }
         echo '<tr><td colspan="6" class="text tamperColor">' . text($chainText) . '</td></tr>';
     }
 
-    if (count($dispArr) == 0) {?>
+    if (count($dispArr) == 0 && $chainWarnings === 0) {?>
      <TR class="oneresult">
                 <?php
                 $colspan = 4;
@@ -372,7 +380,7 @@ $check_sum = isset($_GET['check_sum']);
         <TD class="text" colspan="<?php echo attr($colspan);?>" align="center"><?php echo xlt('No audit log tampering detected in the selected date range.'); ?></TD>
      </TR>
         <?php
-    } else {?>
+    } elseif (count($dispArr) > 0) {?>
     <script>$('#display_tamper').css('display', 'block');</script>
         <?php
     }
