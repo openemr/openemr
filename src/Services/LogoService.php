@@ -8,8 +8,10 @@
  * @package     OpenEMR
  * @subpackage  Login
  * @author      Robert Down <robertdown@live.com>
+ * @author      Brady Miller <brady.g.miller@gmail.com>
  * @copyright   Copyright (c) 2023 Robert Down
  * @copyright   Providence Healthtech
+ * @copyright   Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -24,6 +26,15 @@ use Symfony\Component\Finder\Finder;
 
 class LogoService
 {
+    /**
+     * Logo files already found in this request, by search. Finding one lists
+     * the logo directories, which on a network filesystem is several round
+     * trips, and a request can look up the same logo more than once.
+     *
+     * @var array<string, string>
+     */
+    private static array $found = [];
+
     /**
      * Finder class
      *
@@ -56,7 +67,7 @@ class LogoService
         $this->finder = new Finder();
     }
 
-    public function reset()
+    public function reset(): void
     {
         $this->resetFinder();
     }
@@ -74,8 +85,29 @@ class LogoService
      */
     public function getLogo(string $type, string $filename = "logo.*"): string
     {
-        $siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/logos/" . $type . "/";
+        $siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/logos/" . $type . "/";
         $publicDir = OEGlobalsBag::getInstance()->getKernel()->getImagesAbsolute() . "/logos/" . $type . "/";
+        $logo = self::$found[$publicDir . "\0" . $siteDir . "\0" . $filename]
+            ??= $this->locateLogo($publicDir, $siteDir, $filename);
+
+        $webPath = $this->convertToWebPath($logo);
+        $logoFilterEvent = new LogoFilterEvent($type, $logo, $webPath);
+        $filteredEvent = $this->dispatcher->dispatch($logoFilterEvent, LogoFilterEvent::EVENT_NAME);
+        $updatedWebPath = $filteredEvent->getWebPath();
+        // make sure the web path is safe for the logo
+        if ($updatedWebPath != $webPath) {
+            $safePaths = ModulesApplication::filterSafeLocalModuleFiles([$updatedWebPath]);
+            return $safePaths[0] ?? '';
+        }
+        return $webPath;
+    }
+
+    /**
+     * Search the public and site logo directories, in that order, so a site
+     * logo wins over the stock one.
+     */
+    private function locateLogo(string $publicDir, string $siteDir, string $filename): string
+    {
         $paths = [];
 
         if ($this->fs->exists($publicDir)) {
@@ -96,16 +128,7 @@ class LogoService
         // This is critical, the finder must be completely re-instantiated to ensure the proper directories are searched next time.
         $this->resetFinder();
 
-        $webPath = $this->convertToWebPath($logo);
-        $logoFilterEvent = new LogoFilterEvent($type, $logo, $webPath);
-        $filteredEvent = $this->dispatcher->dispatch($logoFilterEvent, LogoFilterEvent::EVENT_NAME);
-        $updatedWebPath = $filteredEvent->getWebPath();
-        // make sure the web path is safe for the logo
-        if ($updatedWebPath != $webPath) {
-            $safePaths = ModulesApplication::filterSafeLocalModuleFiles([$updatedWebPath]);
-            return $safePaths[0] ?? '';
-        }
-        return $webPath;
+        return $logo;
     }
 
     /**
@@ -146,13 +169,12 @@ class LogoService
 
         $this->finder->files()->in($directory)->name($filename);
 
+        // One pass over the directories: hasResults() would list them a
+        // second time.
         $return = "";
-        if ($this->finder->hasResults()) {
-            // There is at least 1 file in the sites directory for the given logo
-            foreach ($this->finder as $f) {
-                $return = $f->getRealPath();
-                $return = ($timestamp) ? $return . "?t=" . $f->getMTime() : $return;
-            }
+        foreach ($this->finder as $f) {
+            $return = $f->getRealPath();
+            $return = ($timestamp) ? $return . "?t=" . $f->getMTime() : $return;
         }
 
         return $return;
