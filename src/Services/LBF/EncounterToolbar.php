@@ -43,7 +43,7 @@ class EncounterToolbar
         foreach ($items as $item) {
             $payload[] = [
                 'holder' => $item['form_id'] . '~' . $item['instance_id'],
-                'url' => $base . '?form_id=' . rawurlencode($item['form_id'])
+                'url' => $base . '&form_id=' . rawurlencode($item['form_id'])
                     . '&pid=' . $pid . '&instance_id=' . $item['instance_id'],
             ];
         }
