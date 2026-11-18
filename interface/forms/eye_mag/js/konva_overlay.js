@@ -1,12 +1,6 @@
 /**
  * Editable drawing annotations backed by OpenEMR's shared Konva asset.
  * The object JSON remains editable; save.php separately stores a flattened JPEG.
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Ray Magauran <rmagauran@gmail.com>
- * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 (function ($, window) {
     'use strict';

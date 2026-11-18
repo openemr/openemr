@@ -66,7 +66,7 @@ if ((!is_int($authId) && !is_string($authId)) || !preg_match('/\A[1-9][0-9]*\z/D
     $reply(403, ['success' => false, 'error' => xl('Sign in to change your background.')]);
 }
 $providerId = (int) $authId;
-$requiredAccess = ($post['action'] ?? null) === 'list' ? '' : 'write';
+$requiredAccess = in_array($post['action'] ?? null, ['list', 'users'], true) ? '' : 'write';
 if (!AclMain::aclCheckCore('patients', 'med', '', $requiredAccess)) {
     $reply(403, ['success' => false, 'error' => xl('You are not authorized to edit Eye Form drawings.')]);
 }

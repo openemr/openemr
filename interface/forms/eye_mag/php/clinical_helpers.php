@@ -497,7 +497,7 @@ function display_VisualAcuitiesModern(mixed $pid = 0, array $priors = [], string
                                         }
                                     },
                                     grid: {color: 'rgba(127,127,127,0.16)'},
-                                    title: {display: true, color: chartTextColor, text: <?php echo xlj('Snellen 20/x (worse toward top)'); ?>}
+                                    title: {display: true, color: chartTextColor, text: <?php echo xlj('Visual Acuity (worse toward top)'); ?>}
                                 }
                             }
                         }
@@ -734,7 +734,7 @@ function eye_mag_save_materials(int $formId, int $pid, array $posted): void
 {
 
     $previous = QueryUtils::querySingleRow(
-        "SELECT handout_document_id, handout_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
+        "SELECT handout_document_id, handout_document_ids, report_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
         [$formId, $pid]
     ) ?: [];
     $oldIds = eye_mag_material_ids($previous);
@@ -752,12 +752,21 @@ function eye_mag_save_materials(int $formId, int $pid, array $posted): void
         // both viewing and report generation independently recheck document access.
         /** Retain existing handout selections or newly selected documents the patient may access. */
         static fn(int $id): bool => in_array($id, $oldIds, true) || eye_mag_material_handout($id, $pid) !== []));
+    $oldReportIds = eye_mag_document_ids($previous['report_document_ids'] ?? []);
+    $reportIds = $oldReportIds;
+    if (($posted['MATERIALS_REPORT_DOCUMENTS_PRESENT'] ?? '') === '1') {
+        $allowed = array_column(eye_mag_report_documents($pid, eye_mag_material_encounter($formId, $pid)), 'id');
+        $reportIds = array_values(array_filter(
+            eye_mag_document_ids($posted['MATERIALS_REPORT_DOCUMENT_IDS'] ?? []),
+            static fn(int $id): bool => in_array($id, $oldReportIds, true) || in_array($id, $allowed, true)
+        ));
+    }
     QueryUtils::sqlStatementThrowException(
-        "REPLACE INTO form_eye_mag_materials (form_id,pid,content,include_text,handout_document_id,handout_document_ids,updated_at)
-         VALUES (?,?,?,?,?,?,NOW())",
+        "REPLACE INTO form_eye_mag_materials (form_id,pid,content,include_text,handout_document_id,handout_document_ids,report_document_ids,updated_at)
+         VALUES (?,?,?,?,?,?,?,NOW())",
         [$formId, $pid, EyeFormData::text($posted['MATERIALS_TO_PRINT'] ?? ''),
             EyeFormData::integer($posted['MATERIALS_TEXT_INCLUDED'] ?? 0) === 1 ? 1 : 0,
-            $ids[0] ?? null, json_encode($ids)]
+            $ids[0] ?? null, json_encode($ids), json_encode($reportIds)]
     );
 }
 
@@ -776,7 +785,7 @@ function eye_mag_materials_for_report(int $formId, int $pid): PatientMaterials
     }
 
     $materials = QueryUtils::querySingleRow(
-        "SELECT content, include_text, handout_document_id, handout_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
+        "SELECT content, include_text, handout_document_id, handout_document_ids, report_document_ids FROM form_eye_mag_materials WHERE form_id=? AND pid=?",
         [$formId, $pid]
     ) ?: [];
     $handouts = [];
@@ -822,7 +831,7 @@ function eye_mag_materials_for_report(int $formId, int $pid): PatientMaterials
                     $data = $bytes;
                 } elseif (is_string($bytes)) {
                     $image = @getimagesizefromstring($bytes);
-                    $detected = is_array($image) ? EyeFormData::text($image['mime']) : '';
+                    $detected = is_array($image) ? EyeFormData::text($image['mime'] ?? '') : '';
                     if (in_array($detected, ['image/jpeg', 'image/png', 'image/gif'], true)) {
                         $mime = $detected;
                         $data = $bytes;

@@ -14,7 +14,6 @@ require_once __DIR__ . '/../../globals.php';
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/sanitize.inc.php';
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -38,8 +37,7 @@ if ($pid <= 0 || $encounter <= 0 || $categoryId <= 0
     AccessDeniedHelper::deny('Not authorized to upload encounter documents');
 }
 $patient = EyeFormData::row(getPatientData($pid, 'squad'));
-$squad = EyeFormData::text($patient['squad'] ?? '');
-if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
+if (($patient['squad'] ?? '') !== '' && !AclMain::aclCheckCore('squads', $patient['squad'])) {
     AccessDeniedHelper::deny('Not authorized for patient squad');
 }
 $visit = QueryUtils::querySingleRow(
@@ -51,10 +49,9 @@ $category = QueryUtils::querySingleRow(
     "SELECT name,aco_spec FROM categories WHERE id=? AND value IN ('EXT','ANTSEG','POSTSEG','RETINA','NEURO')",
     [$categoryId]
 );
-if (!$visit || !$category || !AclMain::aclCheckAcoSpec(EyeFormData::text($category['aco_spec'] ?? ''))) {
+if (!$visit || !$category || !AclMain::aclCheckAcoSpec($category['aco_spec'] ?? '')) {
     AccessDeniedHelper::deny('Invalid encounter or document category');
 }
-$categoryName = EyeFormData::text($category['name'] ?? '');
 
 $uploaded = [];
 $error = '';
@@ -66,8 +63,6 @@ if ($request->isMethod('POST')) {
     if (!is_array($files) || $files === []) {
         $error = xl('Choose at least one PDF or image.');
     } else {
-        /** @var list<array{file: UploadedFile, mime: string}> $validatedFiles */
-        $validatedFiles = [];
         foreach ($files as $file) {
             if (!$file instanceof UploadedFile || !$file->isValid() || !$file->getSize()
                 || (OEGlobalsBag::getInstance()->getBoolean('secure_upload') && !isWhiteFile($file->getPathname()))) {
@@ -75,19 +70,15 @@ if ($request->isMethod('POST')) {
                 break;
             }
             $mime = mime_content_type($file->getPathname());
-            if (!is_string($mime) || !in_array($mime, ['application/pdf', 'image/jpeg', 'image/png', 'image/gif'], true)) {
+            if (!in_array($mime, ['application/pdf', 'image/jpeg', 'image/png', 'image/gif'], true)) {
                 $error = xl('Choose PDF, JPEG, PNG, or GIF files.');
                 break;
             }
-            $validatedFiles[] = ['file' => $file, 'mime' => $mime];
         }
         if ($error === '') {
-            foreach ($validatedFiles as $validatedFile) {
-                $uploadFile = $validatedFile['file'];
-                $uploadMime = $validatedFile['mime'];
-                $pathname = $uploadFile->getPathname();
-                $bytes = file_get_contents($pathname);
-                $name = basename(str_replace('\\', '/', (string) $uploadFile->getClientOriginalName()));
+            foreach ($files as $file) {
+                $bytes = file_get_contents($file->getPathname());
+                $name = basename(str_replace('\\', '/', $file->getClientOriginalName()));
                 if (!is_string($bytes) || $bytes === '' || $name === '') {
                     $error = xl('One or more files could not be uploaded.');
                     break;
@@ -95,19 +86,16 @@ if ($request->isMethod('POST')) {
                 try {
                     $document = new Document();
                     $result = $document->createDocument(
-                        (string) $pid, $categoryId, $name, $uploadMime, $bytes,
-                        '', 1, 0, $pathname, null, null, null, (string) $encounter
+                        (string) $pid, $categoryId, $name, mime_content_type($file->getPathname()), $bytes,
+                        '', 1, 0, $file->getPathname(), null, null, null, (string) $encounter
                     );
                     if ($result !== '') {
                         $error = xl('One or more files could not be uploaded.');
                         break;
                     }
                     $uploaded[] = $name;
-                } catch (\Exception $exception) {
-                    ServiceContainer::getLogger()->error(
-                        'Eye Form encounter document upload failed',
-                        ['exception' => $exception::class]
-                    );
+                } catch (Throwable $exception) {
+                    error_log('Eye Form encounter document upload failed: ' . get_class($exception));
                     $error = xl('One or more files could not be uploaded.');
                     break;
                 }
@@ -119,7 +107,7 @@ if ($request->isMethod('POST')) {
 <!doctype html>
 <html><head><?php Header::setupHeader(); ?><title><?php echo xlt('Upload encounter documents'); ?></title></head>
 <body class="body_top"><main class="container-fluid p-3">
-    <h3><?php echo xlt('Upload encounter documents'); ?> — <?php echo text($categoryName); ?></h3>
+    <h3><?php echo xlt('Upload encounter documents'); ?> — <?php echo text($category['name']); ?></h3>
     <p><?php echo xlt('Files uploaded here are linked to this encounter and included in its Eye Form report.'); ?></p>
     <?php if ($error !== '') {
         ?><p class="text-danger" role="alert"><?php echo text($error); ?></p><?php } ?>

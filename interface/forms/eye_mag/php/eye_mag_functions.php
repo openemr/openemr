@@ -45,9 +45,6 @@ use function OpenEMR\Forms\EyeMag\Clinical\eye_mag_patient_photo;
 use function OpenEMR\Forms\EyeMag\Drawing\eye_mag_drawing_background_options;
 use function OpenEMR\Forms\EyeMag\Drawing\eye_mag_drawing_background_preference;
 
-// build_PMSFH() calls generate_display_field(); report.php doesn't load it otherwise
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
-
 $facilityService = new FacilityService();
 
 
@@ -695,8 +692,11 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <strong><?php echo xlt('Prior Exam'); ?>:</strong>
         <?php
         // Read the current chart style without seeding preferences while viewing a prior exam.
-        $priorMotilityPreference = eye_mag_motility_display_preference();
-        echo eye_mag_neuro_prior(EyeFormData::row($result), $priorMotilityPreference);
+        $priorMotilityPreference = sqlQuery(
+            "SELECT option_id FROM list_options WHERE list_id = 'Eye_Motility_Display'
+             AND is_default = 1 AND activity = 1 ORDER BY seq LIMIT 1"
+        );
+        echo eye_mag_neuro_prior(EyeFormData::row($result), (string)($priorMotilityPreference['option_id'] ?? 'X'));
     } elseif ($zone == "IMPPLAN") {
         if ($report == '0') {
             $output =  priors_select($zone, $orig_id, $id_to_show, $pid);
@@ -2240,8 +2240,10 @@ function canvas_select($zone, $encounter, $pid): string
             $canvi[] = $doc;
         }
     }
-    usort($canvi, static fn($a, $b): int => EyeFormData::integer(EyeFormData::text($b['encounter_timestamp'] ?? '')) <=> EyeFormData::integer($a['encounter_timestamp'] ?? 0)
-        ?: EyeFormData::integer($b['document_id'] ?? 0) <=> EyeFormData::integer($a['document_id'] ?? 0));
+    usort($canvi, static function ($a, $b): int {
+        return EyeFormData::integer($b['encounter_timestamp'] ?? 0) <=> EyeFormData::integer($a['encounter_timestamp'] ?? 0)
+            ?: EyeFormData::integer($b['document_id'] ?? 0) <=> EyeFormData::integer($a['document_id'] ?? 0);
+    });
     if (!empty($canvi)) {
         $currentIndex = null;
         foreach ($canvi as $index => $drawing) {
@@ -2278,7 +2280,7 @@ function canvas_select($zone, $encounter, $pid): string
                 if ($count == '0') {
                     $select .= "<option value='current'>" . text($hit['encounter_date']) . "</option>\n";
                 } else {
-                    $select .= "<option value='" . attr(EyeFormData::text($hitEyeFormData::text($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'] ?? ''))) . "'>" . text($hit['encounter_date']) . "</option>\n";
+                    $select .= "<option value='" . attr($hit['document_id']) . "'>" . text($hit['encounter_date']) . "</option>\n";
                 }
                 $count++;
             }
@@ -2762,7 +2764,7 @@ function display($pid, $encounter, $category_value): array
     for ($j = 0; $j < count($documents['zones'][$category_value]); $j++) {
         $count_here = empty($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) ? 0 : count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
 
-        $id_to_show = EyeFormData::text($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'] ?? '');
+        $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'] ?? '';
         $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", (string) $documents['zones'][$category_value][$j]['name']);
         $categoryName = is_string($documents['zones'][$category_value][$j]['name'] ?? null)
             ? $documents['zones'][$category_value][$j]['name']
@@ -3820,7 +3822,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday', mixed $currentDate =
             $visit['exam_date'] = date('Y-m-d', $old_date_timestamp);
             $VISITS_date[$i] = $visit['exam_date'];
 
-            $time_here = explode(":", $visit['IOPTIME']);
+            $time_here = explode(":", (string) $visit['IOPTIME']);
             $time = $time_here[0] . ":" . $time_here[1];
             $time_OU[$i] = $time;
 
@@ -4211,7 +4213,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday', mixed $currentDate =
                             }
                         }
                         if (!empty($GONIO[$i]['list'])) {
-                            $GONIO = rtrim(($GONIO[$i]['list']), ",");
+                            $GONIO = rtrim(((string) $GONIO[$i]['list']), ",");
                         }
                         if ($count == 0) {
                             $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
@@ -5149,7 +5151,7 @@ function findProvider($pid, $encounter)
        //find the default providerID from the calendar
         $visit_date = date('Y-m-d', strtotime($find_provider['date'] ?? ''));
         $query = "select * from openemr_postcalendar_events where pc_pid=? and pc_eventDate=?";
-        $find_provider3 = sqlQuery($query, [\OpenEMR\Services\AppointmentService::calendarPidOrNull($pid), $visit_date]);
+        $find_provider3 = QueryUtils::querySingleRow($query, [$pid,$visit_date]);
         $new_providerid = $find_provider3['pc_aid'] ?? '';
         if (($new_providerid < '1') || (!$new_providerid)) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();

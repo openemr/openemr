@@ -1,12 +1,4 @@
-/**
- * Provider-owned, zone-specific reusable drawing images.
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Ray Magauran <rmagauran@gmail.com>
- * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
+/** Provider-owned, zone-specific reusable drawing images. */
 (function ($, window, document) {
     'use strict';
     var strings = window.eyeMagDrawingStrings || {};

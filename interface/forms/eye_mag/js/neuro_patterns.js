@@ -1,12 +1,6 @@
 /**
  * Measurement-pattern guidance, not a diagnosis or billing decision.
  * Pure analysis is exported for regression tests; bind() connects the current exam.
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Ray Magauran <rmagauran@gmail.com>
- * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 (function (root, factory) {
     'use strict';

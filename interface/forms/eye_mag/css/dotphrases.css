@@ -1,16 +1,10 @@
-/**
+/*
  * dotphrases.css — My Phrases Builder styles.
  * This sheet is loaded by the eye form frame AND injected into the top
  * OpenEMR document when the builder opens, so the modal can cover the
  * whole application window. Every rule is scoped to #DOTPHRASE_MANAGER
  * or .DF_class (the builder's capture sections) — nothing leaks into
  * the surrounding UI.
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Ray Magauran <rmagauran@gmail.com>
- * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 .DF_class .df_popover-item:hover {

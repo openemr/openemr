@@ -5286,6 +5286,7 @@ $("body").on("click","[name^='old_canvas']", function() {
 
                   $("input,textarea,text,checkbox").on("change", function(){
                                                            $(this).css("background-color","#F0F8FF");
+                                                           if (this.name === 'MATERIALS_REPORT_DOCUMENT_IDS[]') return;
                                                            if (this.name.match(/IOP/)) { color_IOP(this); }
                                                            if ( ($(this).id != 'IMP') &&
                                                                 (!this.name.match(/^inc_/)) &&

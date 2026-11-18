@@ -1,12 +1,4 @@
-/**
- * Eye Form document-note dialog. Replaces the sparse read-only pnotes summary.
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Ray Magauran <rmagauran@gmail.com>
- * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
+/* Eye Form document-note dialog. Replaces the sparse read-only pnotes summary. */
 (function () {
     var strings = window.eyeMagDocumentNotesStrings || {};
     /** Read a translated document label with an English fallback for older callers. */
@@ -147,6 +139,9 @@
                 }, 250);
             });
         }
+        document.querySelectorAll('input[name="MATERIALS_REPORT_DOCUMENT_IDS[]"]').forEach(function (checkbox) {
+            checkbox.addEventListener('change', saveMaterialsSelection);
+        });
         if (!handout || !includedHandouts || !openHandout || !addedHandouts || !handoutTemplate) return;
         var selectedIds;
         try { selectedIds = JSON.parse(includedHandouts.value); } catch { selectedIds = []; }

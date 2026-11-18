@@ -22,7 +22,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\EyeMag\BaseDrawing;
 use OpenEMR\Forms\EyeMag\DrawingBackgroundOption;
-use OpenEMR\Forms\EyeMag\EyeFormData;
 use OpenEMR\Forms\EyeMag\SavedOverlayMetadata;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -239,8 +238,8 @@ function eye_mag_drawing_background_save_preference(mixed $zone, mixed $provider
     $location = $zone . '_BACKGROUND';
     [$shortKey, $longKey] = eye_mag_drawing_background_preference_storage($key);
     QueryUtils::sqlStatementThrowException(
-        "REPLACE INTO form_eye_mag_prefs (PEZONE, LOCATION, LOCATION_text, id, selection, ZONE_ORDER, GOVALUE, GORIGHT, GOLEFT, UNSPEC, ordering)
-         VALUES ('DRAW_BACKGROUND', ?, 'Drawing background', ?, ?, 0, ?, ?, '', '', 0)",
+        "REPLACE INTO form_eye_mag_prefs (PEZONE, LOCATION, LOCATION_text, id, selection, ZONE_ORDER, GOVALUE, GORIGHT, ordering)
+         VALUES ('DRAW_BACKGROUND', ?, 'Drawing background', ?, ?, 0, ?, ?, 0)",
         [$location, (int) $providerId, $location, $shortKey, $longKey]
     );
 }
@@ -473,7 +472,7 @@ function eye_mag_drawing_background_library_manage(mixed $zone, mixed $providerI
         $metadata = eye_mag_drawing_background_library_metadata($paths, $sourceKey, $action === 'delete');
         if ($action === 'rename') {
             if ($metadata->label !== $name) {
-                eye_mag_drawing_background_library_replace($paths, $metadata->withLabel(EyeFormData::text($name)));
+                eye_mag_drawing_background_library_replace($paths, $metadata->withLabel($name));
             }
             return;
         }
@@ -529,7 +528,6 @@ function eye_mag_drawing_background_library_store(string $destination, string $b
             throw new RuntimeException('The image library could not be stored.');
         }
         if (!@link($temporary, $destination)) {
-            clearstatcache(true, $destination);
             if (!eye_mag_drawing_background_library_matches($destination, $bytes)) {
                 throw new RuntimeException('The image library could not be stored.');
             }

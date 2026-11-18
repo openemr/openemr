@@ -1,12 +1,4 @@
-/**
- * Dynamic Visual Acuity History refresh and controls.
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Ray Magauran <rmagauran@gmail.com>
- * @copyright Copyright (c) 2026 Ray Magauran <rmagauran@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
+/* Dynamic Visual Acuity History refresh and controls. */
 (function () {
     /** Reload saved visual-acuity history and replace the previous chart instance. */
     function refreshVisualAcuityHistory() {
