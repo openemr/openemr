@@ -462,6 +462,29 @@ class OAuth2AttackScenarioTest extends TestCase
     }
 
     #[Test]
+    public function testAuthorizeBogusClientNoResponseTypeReturnsInvalidRequest(): void
+    {
+        // When a request is BOTH malformed (missing response_type) AND
+        // uses a bogus client_id, two error codes could fire —
+        // invalid_request from the response_type guard at the top of
+        // AuthorizationController::oauthAuthorizationFlow, or
+        // invalid_client from league's validateAuthorizationRequest.
+        // RFC 6749 §4.1.2.1 does not fix the order. OpenEMR's guard
+        // runs first because it is purely a request-structure check
+        // that does not require any database lookup; the league
+        // client resolution runs after. Pin the current ordering so
+        // a refactor that swaps the two checks surfaces here rather
+        // than silently flipping the diagnostic code.
+        $bogusClientId = 'nonexistent-client-' . bin2hex(random_bytes(8));
+        $resp = $this->authorizeGet($bogusClientId, ['response_type' => null]);
+        $this->assertAuthorizeRejected(
+            $resp,
+            'Authorize with bogus client + missing response_type should emit invalid_request first (structure check before client lookup)',
+            'invalid_request'
+        );
+    }
+
+    #[Test]
     public function testAuthorizeCodeResponseTypeIsAcceptedControl(): void
     {
         // Positive control for the four deny-path tests above. With
