@@ -359,11 +359,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Twig\\\\TwigContainer is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getTwig\\(\\) instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Twig/TwigContainerIsolatedTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Twig\\\\TwigContainer is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getTwig\\(\\) instead\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Twig/TwigTemplateCompilationTest.php',
 ];
 $ignoreErrors[] = [
