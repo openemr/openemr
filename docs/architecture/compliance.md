@@ -70,7 +70,7 @@ standard, not just CI.
 | **(g)(7)** — App access: patient selection | API returns a patient context to an app | the REST/FHIR API (`src/RestControllers/`, `src/FHIR/`) |
 | **(g)(9)** — App access: all data request | API returns all USCDI data for a patient | the REST/FHIR API, `src/FHIR/` |
 | **(g)(10)** — Standardized API (FHIR) | **FHIR R4 + US Core**, **SMART App Launch**, **Bulk Data**, client registration + **manual app approval** | `src/FHIR/` (incl. `src/FHIR/SMART/ClientAdminController.php` — approve/enable/revoke) and `src/RestControllers/SMART/`, `interface/smart/register-app.php`, `src/FHIR/Export/` (`$export`), OAuth2 (`src/RestControllers/AuthorizationController.php`). *Beyond the certified read surface:* a site can optionally let SMART patient apps **write** `QuestionnaireResponse` (global **Patient App FHIR Writes**, off by default, #15162), held for staff review in `src/Services/PatientReview/FhirWrite/`; the client-type rule is in `PatientWritePolicy`, over the same SMART scopes and app registration. |
-| **(h)(1)** — Direct Project transport | Direct secure, trusted exchange of clinical documents | EMR Direct **phiMail**: `interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php`, `library/direct_message_check.inc.php`, trust certs `public/certs/phimail/` + **EMR Direct** (relied-upon) |
+| **(h)(1)** — Direct Project transport | Direct secure, trusted exchange of clinical documents | EMR Direct **phiMail**: `src/Common/DirectMessaging/` (`PhiMailSender`, `PhiMailReceiver`, …), trust certs `public/certs/phimail/` + **EMR Direct** (relied-upon) |
 | **(d)(1)–(d)(9), (d)(12), (d)(13)** — Privacy & security | Auth, access control, audit, encryption, trusted connections | ACL ([subsystems.md](subsystems.md#permissions-and-authorization)), OAuth2 ([subsystems.md](subsystems.md#oauth2-scopes-and-api-authorization)), encryption ([subsystems.md](subsystems.md#security-encryption-keys-and-api-authorization)), audit logging |
 | **(e)(3)** — Patient health information capture | Patient-entered / -uploaded health data (questionnaires, PRO, document upload) captured and shared with the provider | the patient portal ([portal.md](portal.md)). *(Note: **(e)(1)** View/Download/Transmit and **(e)(2)** secure messaging are **not** part of this certification.)* |
 | **(g)(3) / (g)(4) / (g)(5)** — SED / QMS / accessibility | Safety-enhanced design, quality management, accessibility-centered design | process & documentation criteria, not a single code surface |
@@ -158,7 +158,7 @@ compliance-sensitive.
 OpenEMR runs under many regulatory regimes. Jurisdiction-specific interoperability — national
 patient identifiers, country code systems, local document/exchange standards — belongs in
 **modules**, not hardcoded into core, and carries its **own** compliance regime distinct from
-US ONC (examples in-tree include the Irish/UK OPIT and IHI integrations). Two rules follow:
+US ONC. Two rules follow:
 
 - **Keep jurisdiction-specific compliance logic in the owning module** and wire it to core via
   events, not by branching core on a country (the core↔module rule, [README.md](README.md#2-target-architecture-at-a-glance)).

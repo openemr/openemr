@@ -178,6 +178,14 @@ retired this way, the file itself is removed.
 
 ### Removal policy and versioning
 
+> **Status: proposed, not yet ratified.** The specific window below (one-to-two `Y` releases)
+> and the SemVer trade-off are a *proposed* policy put forward with these docs, not a decision
+> the maintainers have formally adopted and published. Treat it as a direction under review —
+> like the portal core-module plan in [portal.md](portal.md) — until a maintainer decision is
+> linked here. The underlying principle (deprecate with a facade, give consumers a published
+> runway, remove only after it elapses) is what to rely on; the exact number of releases may
+> change when the policy is settled.
+
 Removal is gated on **both** conditions, not just one:
 
 1. **Zero remaining callers** in the codebase (and no reasonable expectation of external

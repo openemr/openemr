@@ -227,9 +227,9 @@ Make upgrade-script statements **idempotent and conditional** using the directiv
 `sql_upgrade.php` understands — `#IfMissingColumn`, `#IfNotTable`, `#IfNotRow`,
 `#IfNotIndex`, `#IfColumn`, `#IfNotColumnType`, … each closed by `#EndIf` — so re-running an
 upgrade (or upgrading from an intermediate point) is safe. Mind the parser's constraints:
-per the `AGENTS.md`/module gotchas, keep comments on their own full lines — a trailing
-`-- comment` after a DDL statement can break the installer; only full-line comments are
-safe.
+`SQLUpgradeService::upgradeFromSqlFile()` ends a statement only at a line ending in `;`, so
+keep comments on their own full lines — a trailing `-- comment` after a DDL statement leaves
+the statement unterminated and it runs into the next one. Only full-line comments are safe.
 
 > **Soon: Doctrine Migrations.** The plan is to move schema change management onto Doctrine
 > Migrations. It is **not adopted yet** — `AGENTS.md` is explicit that Doctrine Migrations

@@ -172,8 +172,12 @@ form demonstrates (see the hub's reference table and [migration.md](migration.md
   and `*.html.twig` templates — with the form directory's `new.php`/`view.php` reduced to thin
   entry points ([migration.md → the thin entry point](migration.md#the-thin-entry-point)).
 - **Tables defined in `sql/database.sql`** (and the versioned upgrade script, see
-  [layers.md → schema](layers.md#database-schema-design-and-governance)), not a standalone
-  `table.sql` the installer runs in isolation.
+  [layers.md → schema](layers.md#database-schema-design-and-governance)) as the authoritative
+  schema — rather than defining a form's tables *only* in its `table.sql`. Keep the per-form
+  `table.sql` as a synced copy of that DDL: Admin → Forms "install DB"
+  (`installSQL()` in `library/registry.inc.php`) reads `<form>/table.sql`, so a form that
+  ships without one fails to install. The model Care Plan form still ships a synced
+  `interface/forms/care_plan/table.sql`.
 - **Reuse the service through the API** where possible ([api.md](api.md)), so the same form
   logic backs the UI, the REST surface, and any CLI consumer.
 

@@ -293,7 +293,7 @@ When in doubt, read working code rather than this document:
 | MVC form (target) | `interface/forms/care_plan/` + `src/Controllers/Interface/Forms/CarePlan/` |
 | Layout Based Forms (LBF/LBT) | `interface/forms/LBF/` + `library/options.inc.php` (`generate_form_field`); `sites/<site>/LBF/*.plugin.php` |
 | Patient portal | [portal.md](portal.md) |
-| Compliance / certification map | [compliance.md](compliance.md); `src/Cqm/`, `src/Services/Cda/`, `src/FHIR/`, phiMail (`.../Application/.../Phimail.php`), `src/Reports/RealWorldTesting.php` |
+| Compliance / certification map | [compliance.md](compliance.md); `src/Cqm/`, `src/Services/Cda/`, `src/FHIR/`, phiMail (`src/Common/DirectMessaging/`), `src/Reports/RealWorldTesting.php` |
 
 ---
 
