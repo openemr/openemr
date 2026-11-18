@@ -1,0 +1,26 @@
+{#
+  The workspace card an assessment opens in, hidden until one does. The frame fills the window
+  below it (frame_fit.html.twig).
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div id="assessment-workspace" class="card my-2 d-none">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span id="assessment-title" class="font-weight-bold"></span>
+        <div class="btn-group btn-group-sm">
+            <button type="button" id="assessment-save" class="btn btn-primary">
+                {{ 'Save Assessment'|xlt }}
+            </button>
+            <button type="button" id="assessment-close" class="btn btn-secondary">
+                {{ 'Close'|xlt }}
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <iframe id="assessment-frame" title="{{ 'Questionnaire Assessment'|xla }}" data-fit-window></iframe>
+    </div>
+</div>

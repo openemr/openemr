@@ -18,8 +18,8 @@
 
 namespace OpenEMR\Tests\Api;
 
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Tests\Support\Fixtures\UuidRegistryCleanup;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -48,9 +48,13 @@ class InsuranceEmployerSearchApiTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->createdCompanyIds as $id) {
-            QueryUtils::fetchRecordsNoLog("DELETE FROM `addresses` WHERE `foreign_id` = ?", [$id]);
-            QueryUtils::fetchRecordsNoLog("DELETE FROM `phone_numbers` WHERE `foreign_id` = ?", [$id]);
-            QueryUtils::fetchRecordsNoLog("DELETE FROM `insurance_companies` WHERE `id` = ?", [$id]);
+            // addresses + phone_numbers have no uuid column in the
+            // live schema — plain row sweeps. insurance_companies
+            // owns uuids + the registry entries referencing them
+            // get swept via the full helper.
+            UuidRegistryCleanup::sweepRows('addresses', 'foreign_id = ?', [$id]);
+            UuidRegistryCleanup::sweepRows('phone_numbers', 'foreign_id = ?', [$id]);
+            UuidRegistryCleanup::sweepRowsAndUuidEntries('insurance_companies', 'id = ?', [$id]);
         }
         $this->client->cleanupRevokeAuth();
         $this->client->cleanupClient();

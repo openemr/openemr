@@ -23,16 +23,21 @@ use OpenEMR\Common\DirectMessaging\DirectMessageLogRecord;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogStatus;
 use OpenEMR\Common\DirectMessaging\DirectMessageType;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Interface\PatientFile\Assessment\AssessmentDashboardController;
+use OpenEMR\Controllers\Interface\PatientFile\Assessment\AssessmentWorkspaceController;
 use OpenEMR\Controllers\Interface\Reports\DirectMessageLogController;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\PostOutcome;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailabilityController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\PostCalendarTwigExtension;
 use OpenEMR\Services\Globals\CollapsedSections;
+use OpenEMR\Services\NativeQuestionnaireResponseProcessor;
 use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
 use OpenEMR\Services\Patient\DuplicatePatientRow;
 use OpenEMR\Services\Patient\PatientMergeResult;
+use OpenEMR\Tests\Isolated\Controllers\Interface\PatientFile\Assessment\AssessmentDashboardControllerTest;
+use OpenEMR\Tests\Isolated\Controllers\Interface\PatientFile\Assessment\FakeAssessmentStore;
 use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityLookups;
 use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityService;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -234,6 +239,51 @@ class TwigTemplateRenderTest extends TestCase
                 'endpoint' => '/oauth2/launch',
             ],
             $fixtureDir . '/ehr-launch-autosubmit.html',
+        ];
+
+        // SMART apps card (portal dashboard Health Apps list). The template
+        // escaping matters: app.url runs through |attr and app.name through
+        // |text because both come from admin-registered DCR data that could
+        // carry quotes/HTML. target="_blank" on the Launch link pairs with
+        // rel="noopener noreferrer" to block tabnapping. The three cases
+        // below pin: the empty-list structural shape, a single safe app,
+        // and a multi-app case whose inputs carry quotes + angle brackets
+        // so a regression on either filter surfaces in the fixture diff.
+
+        yield 'portal/partial/cards/_smart_apps_card empty apps list' => [
+            'portal/partial/cards/_smart_apps_card.html.twig',
+            [
+                'id' => 'smart-apps-card',
+                'apps' => [],
+            ],
+            $fixtureDir . '/smart-apps-card-empty.html',
+        ];
+
+        yield 'portal/partial/cards/_smart_apps_card single app' => [
+            'portal/partial/cards/_smart_apps_card.html.twig',
+            [
+                'id' => 'smart-apps-card',
+                'apps' => [
+                    ['name' => 'Visit Prep', 'url' => 'https://app.example/launch.php?mode=portal&launch=abc'],
+                ],
+            ],
+            $fixtureDir . '/smart-apps-card-single.html',
+        ];
+
+        yield 'portal/partial/cards/_smart_apps_card multiple apps with escaping' => [
+            'portal/partial/cards/_smart_apps_card.html.twig',
+            [
+                'id' => 'smart-apps-card',
+                'apps' => [
+                    // Plain app.
+                    ['name' => 'Visit Prep', 'url' => 'https://app.example/launch.php?mode=portal&launch=abc'],
+                    // Quotes + angle brackets in the name so a regression on |text surfaces.
+                    ['name' => 'Smart "Questionnaire" <app>', 'url' => 'https://q.example/launch.php?mode=portal&launch=xyz'],
+                    // Quotes in the URL so a regression on |attr surfaces.
+                    ['name' => 'Third app', 'url' => 'https://app.example/launch.php?mode=portal&launch="abc"'],
+                ],
+            ],
+            $fixtureDir . '/smart-apps-card-multiple.html',
         ];
 
         yield 'portal/login/autologin pin required' => [
@@ -447,6 +497,82 @@ class TwigTemplateRenderTest extends TestCase
                 'providers'       => [],
             ]),
             $fixtureDir . '/calendar-day-screen-empty.html',
+        ];
+
+        yield 'calendar day-screen with a Visit List' => [
+            'calendar/default/views/day/ajax_template.html.twig',
+            array_merge($screenCommon, [
+                'viewtype'        => 'day',
+                'Date'            => '20260309',
+                'dayHeaderLabel'  => 'Monday March 9 2026',
+                'PREV_DAY_URL'    => '?prev',
+                'NEXT_DAY_URL'    => '?next',
+                'timeRows'        => [],
+                'timeslotCss'     => '20px',
+                'providers'       => [
+                    [
+                        'id'              => 7,
+                        'fname'           => 'Alex',
+                        'lname'           => 'Rivera',
+                        'username'        => 'arivera',
+                        'classForWeekend' => 'work-day',
+                        'events'          => [
+                            [
+                                'eid'                => 40,
+                                'catid'              => 16,
+                                'eventDate'          => '20260309',
+                                'pccattype'          => '1',
+                                'evtClass'           => 'event_visit_list',
+                                'displayBgColor'     => '#9ec5fe',
+                                'displayContentHtml' => 'Visit List',
+                                'tooltip'            => 'Monday March 9 2026',
+                                'evtTopCss'          => '40px',
+                                'evtHeightCss'       => '320px',
+                                'divWidthCss'        => '',
+                                'divLeftCss'         => '',
+                                'visitList'          => [
+                                    'title'       => 'Visit List',
+                                    'timeLabel'   => '9:00am–5:00pm',
+                                    'providerId'  => 7,
+                                    'eventDate'   => '20260309',
+                                    'startHour'   => '9',
+                                    'startMinute' => '00',
+                                    'count'       => 2,
+                                    'rows'        => [
+                                        [
+                                            'eid'           => 41,
+                                            'pid'           => 541,
+                                            'eventDate'     => '20260309',
+                                            'pccattype'     => '0',
+                                            'sequenceLabel' => '#1',
+                                            'patientName'   => 'Hollis, Margaret',
+                                            'categoryName'  => 'Established Patient',
+                                            'statusTitle'   => '@ Arrived',
+                                            'bgColor'       => '#FF2414',
+                                            'tooltip'       => "Hollis, Margaret\nEstablished Patient",
+                                            'patientTooltip' => "Hollis, Margaret\n(Click to view)",
+                                        ],
+                                        [
+                                            'eid'           => 42,
+                                            'pid'           => 542,
+                                            'eventDate'     => '20260309',
+                                            'pccattype'     => '0',
+                                            'sequenceLabel' => '#2',
+                                            'patientName'   => 'O\'Brien, Pat <Jr>',
+                                            'categoryName'  => 'New Patient',
+                                            'statusTitle'   => '',
+                                            'bgColor'       => '#a2d9e2',
+                                            'tooltip'       => "O'Brien, Pat <Jr>\nNew Patient",
+                                            'patientTooltip' => "O'Brien, Pat <Jr>\n(Click to view)",
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]),
+            $fixtureDir . '/calendar-day-screen-visit-list.html',
         ];
 
         yield 'calendar week-screen empty' => [
@@ -936,6 +1062,46 @@ class TwigTemplateRenderTest extends TestCase
             'super/questionnaire_preview.html.twig',
             ['runtime' => $importRuntime, 'name' => '', 'questionnaireJson' => ''],
             $fixtureDir . '/questionnaire-preview-unavailable.html',
+        ];
+
+        yield 'patient/assessment/dashboard with assessments, history and SMART apps' => [
+            AssessmentDashboardController::TEMPLATE,
+            [
+                ...AssessmentDashboardControllerTest::controller(
+                    FakeAssessmentStore::sample(),
+                    collapsed: ['questionnaire_category_unassigned_expand'],
+                )->buildView(),
+                // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+                'webroot' => '',
+            ],
+            $fixtureDir . '/assessment-dashboard.html',
+        ];
+
+        yield 'patient/assessment/dashboard without patients/med' => [
+            AssessmentDashboardController::TEMPLATE,
+            AssessmentDashboardControllerTest::controller(FakeAssessmentStore::sample(), authorized: false)->buildView(),
+            $fixtureDir . '/assessment-dashboard-unauthorized.html',
+        ];
+
+        $workspace = new AssessmentWorkspaceController(
+            new Environment(new ArrayLoader()),
+            FakeAssessmentStore::sample(),
+            new NativeQuestionnaireResponseProcessor(),
+            7,
+            'token',
+            '/interface/forms/questionnaire_assessments/native_save.php',
+            $importRuntime,
+        );
+        yield 'patient/assessment/workspace continuing a response' => [
+            AssessmentWorkspaceController::TEMPLATE,
+            $workspace->buildView(null, 'qr-11'),
+            $fixtureDir . '/assessment-workspace.html',
+        ];
+
+        yield 'patient/assessment/workspace refused' => [
+            AssessmentWorkspaceController::TEMPLATE,
+            ['runtime' => $importRuntime, 'title' => 'Questionnaire Assessment', 'error' => 'Questionnaire response was not found.'],
+            $fixtureDir . '/assessment-workspace-refused.html',
         ];
     }
 

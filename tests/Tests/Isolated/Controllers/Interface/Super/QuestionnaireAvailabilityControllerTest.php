@@ -367,6 +367,39 @@ class QuestionnaireAvailabilityControllerTest extends TestCase
         $this->assertSame([8], $this->service->deleted, 'an empty id deletes nothing');
     }
 
+    #[Test]
+    public function limitsPanelOffersOnlyListedCategoriesAndShowsTheCurrentOne(): void
+    {
+        $view = $this->controller->buildView(57, null, new PostOutcome());
+
+        $this->assertSame('legacy_cat', $view['selectedCategory']);
+        $this->assertSame(['assessment' => 'Assessment', 'sdoh' => 'SDOH'], $view['categoryChoices']);
+        $this->assertIsArray($view['categories']);
+        $this->assertArrayHasKey('legacy_cat', $view['categories'], 'the grid still names a legacy category');
+    }
+
+    #[Test]
+    public function savingACategoryFilesTheQuestionnaireUnderIt(): void
+    {
+        $outcome = $this->post(['action' => 'save_category', 'questionnaire_id' => '57', 'category' => 'sdoh']);
+
+        $this->assertSame([[57, 'sdoh']], $this->service->categoryChanges);
+        $this->assertSame(['Category saved'], $outcome->notices);
+    }
+
+    #[Test]
+    public function aCategoryNotInTheListIsRefused(): void
+    {
+        $unknown = $this->post(['action' => 'save_category', 'questionnaire_id' => '57', 'category' => 'legacy_cat']);
+        $empty = $this->post(['action' => 'save_category', 'questionnaire_id' => '57', 'category' => '']);
+        $noQuestionnaire = $this->post(['action' => 'save_category', 'questionnaire_id' => '', 'category' => 'sdoh']);
+
+        $this->assertSame([], $this->service->categoryChanges);
+        $this->assertSame(['Choose a category from the list'], $unknown->errors);
+        $this->assertSame(['Choose a category from the list'], $empty->errors);
+        $this->assertSame([], $noQuestionnaire->errors, 'no questionnaire named, nothing to do');
+    }
+
     /**
      * @param array<string, mixed> $fields
      */

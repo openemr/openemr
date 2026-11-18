@@ -401,6 +401,22 @@ class QuestionnaireAvailabilityService
     }
 
     /**
+     * File a questionnaire under a category.
+     *
+     * Category rules read `questionnaire_repository`.`category`, so this changes which of
+     * them reach the questionnaire. The caller checks the category is one it offers.
+     *
+     * @throws SqlQueryException if the write cannot run
+     */
+    public function setQuestionnaireCategory(int $questionnaireId, string $category): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `questionnaire_repository` SET `category` = ? WHERE `id` = ?',
+            [$category, $questionnaireId]
+        );
+    }
+
+    /**
      * Create or update an assignment and return its id.
      *
      * An existing row for the same target, surface and scope is updated rather than

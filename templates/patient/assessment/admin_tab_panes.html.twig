@@ -4,8 +4,8 @@
   Each screen is embedded rather than merged into the page: it has its own forms, CSRF tokens
   and POST handling, and keeping it a separate document means neither page's submit can reach
   the other's handler. A screen loads the first time its tab opens, so ordinary dashboard
-  visits pay nothing for it, and shows a loading line until it arrives. The frame fills the
-  window below the tabs and scrolls inside itself, so the page does not scroll as well.
+  visits pay nothing for it, and shows a loading line over the frame until it arrives. The
+  frame fills the window below the tabs (frame_fit.html.twig) and scrolls inside itself.
 
   @package   OpenEMR
   @link      https://www.open-emr.org
@@ -14,11 +14,12 @@
   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
 {% macro pane(id, frameId, title, url) %}
-    <div class="tab-pane fade" id="{{ id|attr }}" role="tabpanel" aria-labelledby="{{ (id ~ '-tab')|attr }}">
-        <div class="text-center text-muted py-5 d-none frame-loading" data-frame="{{ frameId|attr }}" role="status">
+    <div class="tab-pane fade position-relative" id="{{ id|attr }}" role="tabpanel" aria-labelledby="{{ (id ~ '-tab')|attr }}">
+        {# Laid over the frame, not above it, so it does not push the frame down while it shows. #}
+        <div class="position-absolute text-center text-muted py-5 d-none frame-loading" style="top: 0; left: 0; right: 0;" data-frame="{{ frameId|attr }}" role="status">
             <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span>{{ 'Loading...'|xlt }}
         </div>
-        <iframe id="{{ frameId|attr }}" title="{{ title|attr }}" class="w-100 border-0 assessment-tab-frame" style="height: 80vh;" data-src="{{ url|attr }}"></iframe>
+        <iframe id="{{ frameId|attr }}" title="{{ title|attr }}" class="w-100 border-0 d-block assessment-tab-frame" style="height: 80vh;" data-fit-window data-src="{{ url|attr }}"></iframe>
     </div>
 {% endmacro %}
 {% import _self as tabs %}
@@ -57,28 +58,6 @@
         loadOnFirstOpen(document.getElementById('questionnaire-availability-tab'), availabilityFrame)
         loadOnFirstOpen(document.getElementById('questionnaire-import-tab'), importFrame)
         loadOnFirstOpen(document.getElementById('document-templates-tab'), document.getElementById('document-templates-frame'))
-
-        // An embedded screen fills the window below the tabs and scrolls inside itself, so the
-        // page does not scroll as well. The frame's document offset does not change with
-        // scrolling, so neither does its height.
-        function fitFrames () {
-            document.querySelectorAll('.assessment-tab-frame').forEach((frame) => {
-                if (frame.offsetParent === null) {
-                    return
-                }
-                const frameTop = frame.getBoundingClientRect().top + window.scrollY
-                let height = window.innerHeight - frameTop - 24
-                frame.style.height = Math.max(400, height) + 'px'
-                // Take back whatever padding below still makes the page taller than the window.
-                const over = document.documentElement.scrollHeight - window.innerHeight
-                if (over > 0) {
-                    height -= over
-                    frame.style.height = Math.max(400, height) + 'px'
-                }
-            })
-        }
-        $('#assessment-tabs a[data-toggle="tab"]').on('shown.bs.tab', fitFrames)
-        window.addEventListener('resize', fitFrames)
 
         // The first load is the screen itself; any later load is the screen coming back from a
         // save, which can change what this patient's dashboard offers.

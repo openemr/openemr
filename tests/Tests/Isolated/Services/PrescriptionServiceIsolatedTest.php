@@ -309,7 +309,7 @@ class PrescriptionServiceIsolatedTest extends TestCase
                 return null; // No such patient
             }
 
-            protected function aclCheckUserPatientAccess(string $squad): bool
+            protected function aclCheckUserPatientAccess(): bool
             {
                 // `PHPUnit\Framework\TestCase::fail()` is not accessible from
                 // an anonymous non-TestCase subclass, so raise a LogicException
@@ -356,10 +356,10 @@ class PrescriptionServiceIsolatedTest extends TestCase
              */
             protected function findPatientByPid(int $pid): array
             {
-                return ['pid' => $pid, 'squad' => ''];
+                return ['pid' => $pid];
             }
 
-            protected function aclCheckUserPatientAccess(string $squad): bool
+            protected function aclCheckUserPatientAccess(): bool
             {
                 $this->aclChecked = true;
                 return false; // Caller lacks patients/demo for this patient
@@ -408,7 +408,7 @@ class PrescriptionServiceIsolatedTest extends TestCase
                 return null;
             }
 
-            protected function aclCheckUserPatientAccess(string $squad): bool
+            protected function aclCheckUserPatientAccess(): bool
             {
                 throw new \LogicException(
                     'ACL check must not run when the prescription has no resolvable owner'
@@ -461,7 +461,7 @@ class PrescriptionServiceIsolatedTest extends TestCase
                 return null;
             }
 
-            protected function aclCheckUserPatientAccess(string $squad): bool
+            protected function aclCheckUserPatientAccess(): bool
             {
                 throw new \LogicException('ACL check must not run when the owner is unresolvable');
             }
@@ -495,7 +495,7 @@ class PrescriptionServiceIsolatedTest extends TestCase
              */
             public function findPatientForPrescription(string $prescriptionUuid): array
             {
-                return ['pid' => 1, 'squad' => '', 'uuid' => 'patient-bytes'];
+                return ['pid' => 1, 'uuid' => 'patient-bytes'];
             }
 
             protected function prescriptionUuidExists(string $uuid): bool
@@ -518,51 +518,4 @@ class PrescriptionServiceIsolatedTest extends TestCase
         );
     }
 
-    public function testInsertPassesSquadTagToAclCheck(): void
-    {
-        // When the patient carries a squad tag, the ACL seam must be told
-        // about it so the `squads/<squad>` gate can run. Locks the plumbing
-        // between findPatientByPid and aclCheckUserPatientAccess.
-        $capturedSquad = null;
-        $service = new class ($capturedSquad) extends PrescriptionService {
-            public ?string $captured = null;
-
-            /**
-             * @param string|null $captured Passed by reference so the outer
-             *                              test scope observes what
-             *                              aclCheckUserPatientAccess captured.
-             */
-            public function __construct(?string &$captured)
-            {
-                // Skip parent constructor: it hits the DB.
-                $this->captured = &$captured;
-            }
-
-            /**
-             * Return type narrowed to `array` (parent declares `?array`) so
-             * PHPStan does not flag the never-null override as an unused
-             * type. PHP covariant returns permit this narrowing.
-             *
-             * @return array<string,mixed>
-             */
-            protected function findPatientByPid(int $pid): array
-            {
-                return ['pid' => $pid, 'squad' => 'oncology'];
-            }
-
-            protected function aclCheckUserPatientAccess(string $squad): bool
-            {
-                $this->captured = $squad;
-                return false; // Reject so we don't reach the INSERT SQL
-            }
-        };
-
-        $result = $service->insert([
-            'drug' => 'aspirin',
-            'patient_id' => 42,
-        ]);
-
-        $this->assertSame('oncology', $capturedSquad, 'Squad tag from patient row must be forwarded to the ACL check');
-        $this->assertFalse($result->isValid());
-    }
 }

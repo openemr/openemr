@@ -31,6 +31,7 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
+use OpenEMR\Tests\Support\Fixtures\UuidRegistryCleanup;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -79,12 +80,16 @@ class SoapNoteApiTest extends TestCase
         );
         if (count($pids) > 0) {
             $placeholders = implode(',', array_fill(0, count($pids), '?'));
-            QueryUtils::sqlStatementThrowException(
-                "DELETE FROM form_soap WHERE pid IN ($placeholders)",
+            // Neither `form_soap` nor `forms` has a uuid column in
+            // the live schema; plain row sweeps only.
+            UuidRegistryCleanup::sweepRows(
+                'form_soap',
+                "pid IN ($placeholders)",
                 $pids
             );
-            QueryUtils::sqlStatementThrowException(
-                "DELETE FROM forms WHERE pid IN ($placeholders) AND formdir = 'soap'",
+            UuidRegistryCleanup::sweepRows(
+                'forms',
+                "pid IN ($placeholders) AND formdir = 'soap'",
                 $pids
             );
         }

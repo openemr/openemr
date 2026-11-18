@@ -691,17 +691,12 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     // Check for group encounter
     if ($attendant_type == 'pid' && is_numeric($pid)) {
         $groupEncounter = false;
-        $result = getPatientData($pid, "fname,lname,squad");
+        $result = getPatientData($pid, "fname,lname");
         $patientName = getPatientFullNameAsString($pid);
     } else {
         $groupEncounter = true;
         $result = getGroup($groupId);
         $patientName = $result['group_name'];
-    }
-
-    // Check for no access to the patient's squad.
-    if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
-        $pass_sens_squad = false;
     }
 
     $encounterMenuEvent = new EncounterMenuEvent();

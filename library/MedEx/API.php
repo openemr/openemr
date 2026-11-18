@@ -1231,6 +1231,9 @@ class Events extends Base
         return false;
     }
 
+    /**
+     * Occurrences of one repeat between the two dates.
+     */
     public function calculateEvents($event, $start_date, $stop_date): array
     {
 
@@ -1257,14 +1260,19 @@ class Events extends Base
 
                 // prep work to start cooking...
                 // ignore dates less than start_date
-                while (strtotime((string) $occurrence) < strtotime((string) $start_date)) {
+                while ($occurrence !== null && strtotime((string) $occurrence) < strtotime((string) $start_date)) {
                     // if the start date is later than the recur date start
                     // just go up a unit at a time until we hit start_date
-                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
+                    $nextOccurrence = $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    if (!is_string($nextOccurrence) || $nextOccurrence <= (string) $occurrence) {
+                        $occurrence = null;
+                        break;
+                    }
+                    $occurrence = $nextOccurrence;
+                    [$ny, $nm, $nd] = explode('-', $occurrence);
                 }
                 //now we are cooking...
-                while ($occurrence <= $stop_date) {
+                while ($occurrence !== null && $occurrence <= $stop_date) {
                     $excluded = false;
                     if (isset($exdate)) {
                         foreach (explode(",", (string) $exdate) as $exception) {
@@ -1279,8 +1287,12 @@ class Events extends Base
                     if ($excluded == false) {
                         $data[] = $occurrence;
                     }
-                    $occurrence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                    [$ny, $nm, $nd] = explode('-', (string) $occurrence);
+                    $nextOccurrence = $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    if (!is_string($nextOccurrence) || $nextOccurrence <= (string) $occurrence) {
+                        break;
+                    }
+                    $occurrence = $nextOccurrence;
+                    [$ny, $nm, $nd] = explode('-', $occurrence);
                 }
                 break;
 
@@ -1314,25 +1326,26 @@ class Events extends Base
                 // appointments set prior to fix $nd remains unchanged). This can be done since
                 // $nd has no influence past the mktime functions.
                 while ($occurenceYm < $from_dateYm) {
-                    $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    [$ny, $nm, $nd] = explode('-', $occurenceYmX);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, $occurenceYm);
+                    if ($nextMonth === null) {
+                        $occurenceYm = null;
+                        break;
+                    }
+                    [$ny, $nm, $nd] = explode('-', $nextMonth);
                     $occurenceYm = "$ny-$nm";
                 }
 
-                while ($occurenceYm <= $stop_dateYm) {
+                while ($occurenceYm !== null && $occurenceYm <= $stop_dateYm) {
                     // (YYYY-mm)-dd
-                    $dnum = $rnum;
-                    do {
-                        $occurrence = \Date_Calc::NWeekdayOfMonth((string) $dnum--, (string) $rday, $nm, $ny, $format = "%Y-%m-%d");
-                    } while ($occurrence === -1);
+                    $occurrence = \OpenEMR\Common\Calendar\RepeatAdvance::onDate($rnum, $rday, $nm, $ny);
 
-                    if ($occurrence >= $start_date && $occurrence <= $stop_date) {
+                    if (is_string($occurrence) && $occurrence >= $start_date && $occurrence <= $stop_date) {
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", (string) $occurrence) == $exception) {
+                                if (preg_replace("/-/", "", $occurrence) == $exception) {
                                     $excluded = true;
                                 }
                             }
@@ -1346,8 +1359,11 @@ class Events extends Base
                         }
                     }
 
-                    $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
-                    [$ny, $nm, $nd] = explode('-', $occurenceYmX);
+                    $nextMonth = \OpenEMR\Common\Calendar\RepeatAdvance::nextMonth($ny, $nm, $nd, $rfreq, $occurenceYm);
+                    if ($nextMonth === null) {
+                        break;
+                    }
+                    [$ny, $nm, $nd] = explode('-', $nextMonth);
                     $occurenceYm = "$ny-$nm";
                 }
                 break;
@@ -2449,13 +2465,13 @@ class Display extends Base
                 $who_name = $who['fname'] . " " . $who['lname'];
                 //Manually generated actions
                 if ($progress['msg_type'] == 'phone') { //ie. a manual phone call, not an AVM
-                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Phone call made by') . " " . text($who_name) . "'><b>" . xlt('Phone') . "</b> " . text($when) . "</span></br />\n";
+                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Phone call made by') . " " . attr($who_name) . "'><b>" . xlt('Phone') . "</b> " . text($when) . "</span></br />\n";
                 } elseif ($progress['msg_type'] == 'notes') {
-                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Notes by') . " " . text($who_name) . " on " . text($when) . "'><b>" . xlt('Note') . ":</b> " . text($progress['msg_extra_text']) . "</span></br />\n";
+                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Notes by') . " " . attr($who_name) . " on " . attr($when) . "'><b>" . xlt('Note') . ":</b> " . text($progress['msg_extra_text']) . "</span></br />\n";
                 } elseif ($progress['msg_type'] == 'postcards') {
-                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Postcard printed by') . " " . text($who_name) . "'><b>" . xlt('Postcard') . ":</b> " . text($when) . "</span></br />\n";
+                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Postcard printed by') . " " . attr($who_name) . "'><b>" . xlt('Postcard') . ":</b> " . text($when) . "</span></br />\n";
                 } elseif ($progress['msg_type'] == 'labels') {
-                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Label printed by') . " " . text($who) . "'><b>" . xlt('Label') . ":</b> " . text($when) . "</span></br />";
+                    $show['progression'] .= "<span class='left' data-toggle='tooltip' data-placement='auto'  title='" . xla('Label printed by') . " " . attr($who_name) . "'><b>" . xlt('Label') . ":</b> " . text($when) . "</span></br />";
                 }
             } else {
                 $who_name = "MedEx";

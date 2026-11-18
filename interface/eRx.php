@@ -43,9 +43,10 @@ set_time_limit(0);
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $GLOBALS_REF = $GLOBALS;
+$eRxGlobals = new eRxGlobals($GLOBALS_REF);
 $eRxPage = new ErxPage(
     new ErxXmlBuilder(
-        new eRxGlobals($GLOBALS_REF),
+        $eRxGlobals,
         new eRxStore(),
         ServiceContainer::getGuzzle(),
         OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
@@ -101,6 +102,7 @@ if (count($missingExtensions) > 0) {
         echo match ($blocked) {
             ErxLaunchBlock::UnauthorizedRole => xlt('Unauthorized access to ePrescription'),
             ErxLaunchBlock::MissingTaxId => xlt('Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.'),
+            ErxLaunchBlock::InvalidId => xlt('Ensora eRx cannot open because a value it needs, such as an NPI or username, holds &, <, > or a control character. Correct it, or contact your systems administrator.'),
         };
     } elseif (count($messages['demographics']) > 0) {
         ?>
@@ -171,7 +173,7 @@ if (count($missingExtensions) > 0) {
         <script>
             <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/restoreSession.php'); ?>
         </script>
-        <form name="info" method="post" action="<?php echo OEGlobalsBag::getInstance()->getString('erx_newcrop_path'); ?>" onsubmit="return top.restoreSession()">
+        <form name="info" method="post" action="<?php echo attr($eRxGlobals->getPath()); ?>" onsubmit="return top.restoreSession()">
             <input type="submit" style="display:none">
             <input type="hidden" id="RxInput" name="RxInput" value="<?php echo attr($xml); ?>">
         </form>

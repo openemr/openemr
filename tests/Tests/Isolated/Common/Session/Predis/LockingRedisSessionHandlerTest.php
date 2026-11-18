@@ -520,6 +520,64 @@ class LockingRedisSessionHandlerTest extends TestCase
         $handler->destroy('sess123');
     }
 
+    // Lock down the production value (openemr-devops#931 sets
+    // REDIS_SESSION_WAIT_REPLICAS=2) at the mocked-\Redis tier: the three
+    // tests below assert that \Redis::wait() is called with replica count
+    // of 2 when waitReplicas=2 is configured. The matching integration-
+    // tier tests (LockingRedisSessionHandlerIntegrationTest::testWrite
+    // WithWaitReplicasTwoAgainstHealthyCluster and the UpdateTimestamp /
+    // Destroy sibling tests) assert end-to-end behavior against a real
+    // cluster; these isolated tests assert the handler threads the
+    // argument through structurally.
+
+    public function testWriteCallsWaitWithReplicasTwoWhenConfigured(): void
+    {
+        /** @var list<array{cmd: string, args: list<mixed>}> $calls */
+        $calls = [];
+        $this->configureRedisTracking($calls);
+        $this->redis->expects($this->once())
+            ->method('wait')
+            ->with(2, 500)
+            ->willReturn(2);
+        $this->inner->method('write')->willReturn(true);
+
+        $handler = $this->handlerWithWait(2, 500);
+        $handler->read('sess123');
+        $this->assertTrue($handler->write('sess123', 'data'));
+    }
+
+    public function testUpdateTimestampCallsWaitWithReplicasTwoWhenConfigured(): void
+    {
+        /** @var list<array{cmd: string, args: list<mixed>}> $calls */
+        $calls = [];
+        $this->configureRedisTracking($calls);
+        $this->redis->expects($this->once())
+            ->method('wait')
+            ->with(2, 500)
+            ->willReturn(2);
+        $this->inner->method('updateTimestamp')->willReturn(true);
+
+        $handler = $this->handlerWithWait(2, 500);
+        $handler->read('sess123');
+        $handler->updateTimestamp('sess123', 'data');
+    }
+
+    public function testDestroyCallsWaitWithReplicasTwoWhenConfigured(): void
+    {
+        /** @var list<array{cmd: string, args: list<mixed>}> $calls */
+        $calls = [];
+        $this->configureRedisTracking($calls);
+        $this->redis->expects($this->once())
+            ->method('wait')
+            ->with(2, 500)
+            ->willReturn(2);
+        $this->inner->method('destroy')->willReturn(true);
+
+        $handler = $this->handlerWithWait(2, 500);
+        $handler->read('sess123');
+        $handler->destroy('sess123');
+    }
+
     public function testWriteDoesNotCallWaitWhenInnerWriteReturnsFalse(): void
     {
         // If the inner write failed, there's nothing to replicate — calling

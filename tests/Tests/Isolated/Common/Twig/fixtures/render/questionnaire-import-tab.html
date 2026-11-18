@@ -49,7 +49,7 @@
                             <div class="tab-pane fade" id="source-loinc" role="tabpanel">
                                 <label for="loinc-terms">Search LOINC forms</label>
                                 <input type="search" id="loinc-terms" class="form-control" autocomplete="off" placeholder="Type a form name or LOINC code" />
-                                <div id="loinc-results" class="list-group mt-2" style="max-height: 16rem; overflow-y: auto;"></div>
+                                <div id="loinc-results" class="list-group mt-2"></div>
                                 <small id="loinc-status" class="form-text text-muted"></small>
                                                                     <small class="form-text text-muted">
                                         LOINC form definitions are subject to the LOINC
@@ -464,15 +464,17 @@
             element('review-next').classList.toggle('d-none', nextUnreviewed() === null)
         }
 
+        // An item still being checked has no questionnaire to show yet, so it is not next.
         function nextUnreviewed () {
-            return items.find((item) => item.status === 'pending' && !item.reviewed && item !== current) ?? null
+            return items.find((item) => item.status === 'pending' && !item.reviewed && !item.busy && item !== current) ?? null
         }
 
         function removeItem (item) {
             items.splice(items.indexOf(item), 1)
             if (current === item) {
                 current = null
-                const next = items.find((candidate) => candidate.status === 'pending')
+                // A busy item would refuse selection and leave the removed one on screen; it selects itself once checked.
+                const next = items.find((candidate) => candidate.status === 'pending' && !candidate.busy)
                 if (next) {
                     selectItem(next)
                 } else {
@@ -510,6 +512,10 @@
         }
 
         function selectItem (item) {
+            // Its review has not come back yet; mounting now would mark it invalid.
+            if (item.busy) {
+                return
+            }
             current = item
             // Choosing something to review shows it, even with the step folded away.
             window.openSectionForNow(element('questionnaire_import_review_expand'))

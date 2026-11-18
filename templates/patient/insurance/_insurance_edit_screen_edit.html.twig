@@ -145,7 +145,8 @@ Partial twig file that represents the insurance edit screen for a patient
             {% endif %}
         {% endfor %}
         {# We don't use generate_form_field because there currently isn't a way to generate a select drop down with an already existing static array #}
-        <div class="form-row">
+        {# Hidden on the primary tab by a style rule in insurance_edit.html.twig: the 837 sends this code only when Medicare is not primary. #}
+        <div class="form-row" data-insurance-field="policy_type">
             <div class="col-md-3 pb-1 label_custom">
                 <span data-validation-field="policy_type">{{ 'Secondary Medicare Type'|xlt }}:</span>
             </div>

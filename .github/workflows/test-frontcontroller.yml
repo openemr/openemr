@@ -49,7 +49,7 @@ jobs:
         php-version: ${{ matrix.php }}
 
     - name: Run CLI installer
-      run: ./cli install --db-root-user=root --db-root-password=root --db-host=127.0.0.1 --db-port=3306 --db-user=ci --db-password=topsecret --db-name=openemr_test --oe-admin-username=admin --oe-admin-password=pass --enable-rest-api --enable-fhir-api --enable-portal-api --enable-password-grant --enable-system-scopes --site-address=http://localhost:8080 --no-interaction -vvv
+      run: ./cli install --db-host=127.0.0.1 --db-port=3306 --db-user=ci --db-password=topsecret --db-name=openemr_test --oe-admin-username=admin --oe-admin-password=pass --enable-rest-api --enable-fhir-api --enable-portal-api --enable-password-grant --enable-system-scopes --site-address=http://localhost:8080 --no-interaction -vvv
 
     - name: Suppress product registration prompt
       run: |

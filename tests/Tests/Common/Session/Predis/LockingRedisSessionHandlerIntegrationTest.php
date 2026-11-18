@@ -528,7 +528,15 @@ class LockingRedisSessionHandlerIntegrationTest extends TestCase
         $seed->write(self::SESSION_ID, 'seed|s:4:"data";');
 
         $logger = $this->capturingLogger();
-        $handler = $this->makeRealWaitHandler(waitReplicas: 1, waitTimeoutMs: 2000, logger: $logger);
+        // Matches the production value set by openemr-devops#931:
+        // REDIS_SESSION_WAIT_REPLICAS=2 on the k8s stack's
+        // 1-primary+2-replica Sentinel cluster. The dedicated
+        // replica-count tests above (testWriteWithWaitReplicasOne*
+        // and testWriteWithWaitReplicasTwo*) establish that =1
+        // and =2 both work end-to-end against the real cluster;
+        // using =2 here aligns the lazy_write path's coverage
+        // with what actually runs in production.
+        $handler = $this->makeRealWaitHandler(waitReplicas: 2, waitTimeoutMs: 2000, logger: $logger);
         $handler->open('', 'test');
         $handler->read(self::SESSION_ID);
 
@@ -553,7 +561,9 @@ class LockingRedisSessionHandlerIntegrationTest extends TestCase
         $seed->write(self::SESSION_ID, 'seed|s:4:"data";');
 
         $logger = $this->capturingLogger();
-        $handler = $this->makeRealWaitHandler(waitReplicas: 1, waitTimeoutMs: 2000, logger: $logger);
+        // Same production-alignment rationale as
+        // testUpdateTimestampCallsWaitWithConfiguredReplicas above.
+        $handler = $this->makeRealWaitHandler(waitReplicas: 2, waitTimeoutMs: 2000, logger: $logger);
         $handler->open('', 'test');
         $handler->read(self::SESSION_ID);
 
