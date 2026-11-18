@@ -773,7 +773,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                 <td><?php echo text($SCOSVA); ?></td>
                             </tr>
                         <?php }
-                        if ($ODVA_1 || $OSVA_1) { ?>
+                        if (trim((string)$ODVA_1) !== '' || trim((string)$OSVA_1) !== '') { ?>
                                 <tr>
                                     <td><?php echo xlt('cc{{with correction}}'); ?></td>
                                     <td><?php echo text($ODVA_1); ?></td>
@@ -1290,7 +1290,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                 }
 
                 if ($hasReportRefraction('Auto Refraction')) { ?>
-                    <tr style="border-bottom:1pt solid black;">
+                    <tr>
                         <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Auto Refraction'); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($ARODSPH) ?: "-"); ?></td>
