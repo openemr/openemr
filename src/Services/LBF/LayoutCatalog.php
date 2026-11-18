@@ -85,13 +85,13 @@ class LayoutCatalog
     /**
      * Visible fields on one layout, keyed by field_id.
      *
-     * @return array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string}>
+     * @return array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string,source:string}>
      */
     public function fieldMeta(string $formId): array
     {
         Identifiers::assertFieldId($formId);
         $rows = $this->sql->fetchRecords(
-            "SELECT field_id, data_type, title, list_id, seq, group_id FROM layout_options " .
+            "SELECT field_id, data_type, title, list_id, seq, group_id, source FROM layout_options " .
             "WHERE form_id = ? AND field_id != '' AND uor > 0 ORDER BY group_id, seq",
             [$formId]
         );
@@ -111,6 +111,7 @@ class LayoutCatalog
                 'list_id' => Values::rowString($row, 'list_id'),
                 'seq' => Values::rowInt($row, 'seq'),
                 'group_id' => Values::rowString($row, 'group_id'),
+                'source' => Values::rowString($row, 'source'),
             ];
         }
         return $out;
@@ -165,14 +166,27 @@ class LayoutCatalog
     }
 
     /**
-     * @param array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string}> $meta
+     * @param array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string,source:string}> $meta
      */
     private static function textareaId(array $meta, string $fieldId): string
     {
-        if ($fieldId !== '' && isset($meta[$fieldId]) && $meta[$fieldId]['data_type'] === 3) {
-            return $fieldId;
+        if ($fieldId === '' || !isset($meta[$fieldId])) {
+            return '';
         }
-        return '';
+        $field = $meta[$fieldId];
+        if ($field['data_type'] !== 3 || !self::storesInLayout($field['source'])) {
+            return '';
+        }
+
+        return $fieldId;
+    }
+
+    /**
+     * A blank source and F are stored on the layout. D, H, and E are not.
+     */
+    public static function storesInLayout(string $source): bool
+    {
+        return $source === '' || $source === 'F';
     }
 
     /**
@@ -183,7 +197,7 @@ class LayoutCatalog
         $this->assertActiveLbfForm($formId);
         Identifiers::assertFieldId($fieldId);
         $meta = $this->fieldMeta($formId);
-        if (!isset($meta[$fieldId]) || $meta[$fieldId]['data_type'] !== 3) {
+        if (!isset($meta[$fieldId]) || $meta[$fieldId]['data_type'] !== 3 || !self::storesInLayout($meta[$fieldId]['source'])) {
             throw new \InvalidArgumentException('Paragraph field must be a textarea on this layout.');
         }
         $this->sql->sqlStatementThrowException(

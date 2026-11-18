@@ -103,7 +103,7 @@ class GenerateController
             $formChoices = $limited[0];
             $formId = Values::asString($limited[1]);
             $instanceId = Values::asInt($limited[2]);
-            if (!$invalidFormId && $formId === '' && count($formChoices) === 1) {
+            if (!$invalidFormId && !$request->isMethod('POST') && $formId === '' && count($formChoices) === 1) {
                 $formId = Values::asString($formChoices[0]['form_id'] ?? '');
             }
         }
@@ -131,7 +131,7 @@ class GenerateController
                 $notesOwn,
                 $authUser
             );
-            if ($instanceId === 0 && count($instances) === 1) {
+            if (!$request->isMethod('POST') && $instanceId === 0 && count($instances) === 1) {
                 $instanceId = Values::asInt($instances[0]['instance_id']);
             }
         }
@@ -191,7 +191,7 @@ class GenerateController
                 if ($error === '') {
                     $error = xl('This form is not on this patient.');
                 }
-            } elseif (!$invalidFormId && $formId === '' && count($formChoices) === 1) {
+            } elseif (!$invalidFormId && !$request->isMethod('POST') && $formId === '' && count($formChoices) === 1) {
                 $formId = Values::asString($formChoices[0]['form_id'] ?? '');
             }
             $patient = $reader->patientName($pid);
@@ -246,6 +246,12 @@ class GenerateController
                     $authUser
                 )) {
                     $error = xl('Access Denied');
+                } elseif (!$this->categoryAllows($this->categoryId($reader, Values::rowInt($row, 'pid'), Values::rowInt($row, 'encounter')), true)) {
+                    $error = xl('Access Denied');
+                } elseif ($this->writeIsLocked($reader, Values::rowInt($row, 'id'), Values::rowInt($row, 'encounter'))) {
+                    $error = xl('This form is locked.');
+                } elseif ($this->stringParam($request, 'paragraph_field') !== $paragraphField) {
+                    $error = xl('The paragraph field changed after this page was opened. Reload it and try again.');
                 } else {
                     $edited = $this->stringParam($request, 'paragraph_text');
                     $baseline = $this->stringParam($request, 'paragraph_baseline');
@@ -267,8 +273,9 @@ class GenerateController
                             $pid,
                             $authUser
                         ): void {
+                            $reader->lockFormRow($instanceId, $formId);
                             $storedNow = $reader->paragraphValueForUpdate($instanceId, $paragraphField);
-                            if (!self::paragraphIsCurrent($baseline, $storedNow)) {
+                            if (!self::paragraphIsCurrent($baseline, $instanceId, $paragraphField, $storedNow)) {
                                 throw new StaleParagraphException('The paragraph changed after this page was opened.');
                             }
                             $oldValues = $values;
@@ -389,7 +396,7 @@ class GenerateController
             'paragraphField' => $paragraphField,
             'paragraphTitle' => $paragraphTitle,
             'paragraphCurrent' => $paragraphCurrent,
-            'paragraphBaseline' => hash('sha256', $paragraphCurrent),
+            'paragraphBaseline' => self::paragraphBaseline($instanceId, $paragraphField, $paragraphCurrent),
             'paragraphProposed' => $paragraphProposed,
             'paragraphEditor' => $paragraphEditor,
             'measurements' => $measurements,
@@ -549,6 +556,9 @@ class GenerateController
             if (!$this->rowVisible($row, $notesAny, $notesOwn, $authUser)) {
                 continue;
             }
+            if (!$this->categoryAllows(Values::asInt($row['pc_catid'] ?? 0), false)) {
+                continue;
+            }
             $dir = $row['formdir'];
             if (!in_array($dir, $have, true)) {
                 $have[] = $dir;
@@ -571,9 +581,13 @@ class GenerateController
     ): array {
         $kept = [];
         foreach ($instances as $instance) {
-            if ($this->rowVisible($instance, $notesAny, $notesOwn, $authUser)) {
-                $kept[] = $instance;
+            if (!$this->rowVisible($instance, $notesAny, $notesOwn, $authUser)) {
+                continue;
             }
+            if (!$this->categoryAllows(Values::asInt($instance['pc_catid'] ?? 0), false)) {
+                continue;
+            }
+            $kept[] = $instance;
         }
         return $kept;
     }
@@ -591,6 +605,9 @@ class GenerateController
     ): bool {
         $policy = $reader->encounterPolicy($pid, $encounter);
         if ($policy === null) {
+            return false;
+        }
+        if (!$this->categoryAllows(Values::asInt($policy['pc_catid'] ?? 0), false)) {
             return false;
         }
 
@@ -638,15 +655,82 @@ class GenerateController
     }
 
     /**
-     * True when the stored paragraph is still the text the editor loaded.
+     * Hash of the instance, the paragraph field, and the text the editor loaded.
      */
-    public static function paragraphIsCurrent(string $baseline, string $stored): bool
+    public static function paragraphBaseline(int $instanceId, string $fieldId, string $stored): string
+    {
+        return hash('sha256', $instanceId . "\n" . $fieldId . "\n" . $stored);
+    }
+
+    /**
+     * True when the stored paragraph is still the field and text the editor loaded.
+     */
+    public static function paragraphIsCurrent(string $baseline, int $instanceId, string $fieldId, string $stored): bool
     {
         if (strlen($baseline) !== 64) {
             return false;
         }
 
-        return hash_equals($baseline, hash('sha256', $stored));
+        return hash_equals($baseline, self::paragraphBaseline($instanceId, $fieldId, $stored));
+    }
+
+    /**
+     * An empty category rule does not restrict the encounter.
+     */
+    public static function categorySpecAllows(string $acoSpec, bool $permitted): bool
+    {
+        if ($acoSpec === '') {
+            return true;
+        }
+
+        return $permitted;
+    }
+
+    /**
+     * Calendar-category read for a list or preview, and write for a save.
+     */
+    private function categoryAllows(int $pcCatId, bool $write): bool
+    {
+        if ($pcCatId <= 0) {
+            return true;
+        }
+        $spec = AclMain::fetchPostCalendarCategoryACO($pcCatId);
+        if (!is_string($spec) || !str_contains($spec, '|')) {
+            return self::categorySpecAllows('', false);
+        }
+        [$section, $value] = explode('|', $spec, 2);
+        if ($section === '' || $value === '') {
+            return self::categorySpecAllows('', false);
+        }
+        $permitted = $write
+            ? AclMain::aclCheckCore($section, $value, '', 'write')
+            : AclMain::aclCheckCore($section, $value);
+
+        return self::categorySpecAllows($spec, $permitted === true);
+    }
+
+    private function categoryId(LbfReader $reader, int $pid, int $encounter): int
+    {
+        $policy = $reader->encounterPolicy($pid, $encounter);
+        if ($policy === null) {
+            return 0;
+        }
+
+        return Values::asInt($policy['pc_catid'] ?? 0);
+    }
+
+    /**
+     * Same lock decision as the encounter form: the form's own lock, then
+     * the encounter lock when that setting is on.
+     */
+    private function writeIsLocked(LbfReader $reader, int $formsId, int $encounter): bool
+    {
+        $globals = OEGlobalsBag::getInstance();
+        if ($globals->getBoolean('lock_esign_individual') && $reader->signatureIsLock($formsId, 'forms')) {
+            return true;
+        }
+
+        return $globals->getBoolean('lock_esign_all') && $reader->signatureIsLock($encounter, 'form_encounter');
     }
 
     /**

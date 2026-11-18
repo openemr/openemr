@@ -147,7 +147,7 @@ class LbfReader
         Identifiers::assertFieldId($formId);
         $rows = $this->sql->fetchRecords(
             "SELECT f.form_id, f.encounter, f.date, f.form_name, " .
-            "fe.date AS encounter_date, fe.reason, fe.sensitivity, " .
+            "fe.date AS encounter_date, fe.reason, fe.sensitivity, fe.pc_catid, " .
             "(SELECT np.user FROM forms np WHERE np.pid = f.pid AND np.encounter = f.encounter " .
             "AND np.formdir = 'newpatient' AND np.deleted = 0 ORDER BY np.id LIMIT 1) AS encounter_user " .
             "FROM forms f " .
@@ -184,6 +184,7 @@ class LbfReader
                 'form_name' => Values::rowString($row, 'form_name'),
                 'sensitivity' => Values::rowString($row, 'sensitivity'),
                 'encounter_user' => Values::rowString($row, 'encounter_user'),
+                'pc_catid' => Values::rowInt($row, 'pc_catid'),
             ];
         }
         return $out;
@@ -229,7 +230,7 @@ class LbfReader
     /**
      * Sensitivity and the encounter's author, or null when the encounter is gone.
      *
-     * @return array{sensitivity:string,encounter_user:string}|null
+     * @return array{sensitivity:string,encounter_user:string,pc_catid:int}|null
      */
     public function encounterPolicy(int $pid, int $encounter): ?array
     {
@@ -237,7 +238,7 @@ class LbfReader
             return null;
         }
         $row = Values::assocRow($this->sql->querySingleRow(
-            "SELECT fe.sensitivity, " .
+            "SELECT fe.sensitivity, fe.pc_catid, " .
             "(SELECT np.user FROM forms np WHERE np.pid = fe.pid AND np.encounter = fe.encounter " .
             "AND np.formdir = 'newpatient' AND np.deleted = 0 ORDER BY np.id LIMIT 1) AS encounter_user " .
             "FROM form_encounter fe WHERE fe.pid = ? AND fe.encounter = ?",
@@ -250,6 +251,7 @@ class LbfReader
         return [
             'sensitivity' => Values::rowString($row, 'sensitivity'),
             'encounter_user' => Values::rowString($row, 'encounter_user'),
+            'pc_catid' => Values::rowInt($row, 'pc_catid'),
         ];
     }
 
@@ -257,7 +259,7 @@ class LbfReader
      * One row per saved form, with the encounter restrictions that hide it.
      *
      * @param list<string> $formIds
-     * @return list<array{formdir:string,encounter:int,sensitivity:string,encounter_user:string}>
+     * @return list<array{formdir:string,encounter:int,sensitivity:string,encounter_user:string,pc_catid:int}>
      */
     public function encountersForPatient(int $pid, array $formIds): array
     {
@@ -271,7 +273,7 @@ class LbfReader
         $placeholders = implode(',', array_fill(0, count($safe), '?'));
         $bind = array_merge([$pid], $safe);
         $rows = $this->sql->fetchRecords(
-            "SELECT f.formdir, f.encounter, fe.sensitivity, " .
+            "SELECT f.formdir, f.encounter, fe.sensitivity, fe.pc_catid, " .
             "(SELECT np.user FROM forms np WHERE np.pid = f.pid AND np.encounter = f.encounter " .
             "AND np.formdir = 'newpatient' AND np.deleted = 0 ORDER BY np.id LIMIT 1) AS encounter_user " .
             "FROM forms f " .
@@ -295,6 +297,7 @@ class LbfReader
                 'encounter' => Values::rowInt($row, 'encounter'),
                 'sensitivity' => Values::rowString($row, 'sensitivity'),
                 'encounter_user' => Values::rowString($row, 'encounter_user'),
+                'pc_catid' => Values::rowInt($row, 'pc_catid'),
             ];
         }
         return $out;
@@ -327,5 +330,35 @@ class LbfReader
             [$pid, $encounter]
         ));
         return $row !== null && Values::rowInt($row, 'encounter') === $encounter;
+    }
+
+    /**
+     * Lock the forms row so two first-time paragraph writes cannot pass
+     * the stale check together. The layout row is missing until the first
+     * save, so locking that row does not hold under READ COMMITTED.
+     */
+    public function lockFormRow(int $instanceId, string $formDir): void
+    {
+        Identifiers::assertFieldId($formDir);
+        $this->sql->querySingleRow(
+            "SELECT id FROM forms WHERE form_id = ? AND formdir = ? AND deleted = 0 FOR UPDATE",
+            [$instanceId, $formDir]
+        );
+    }
+
+    /**
+     * True when an e-sign lock row exists for this id and table.
+     */
+    public function signatureIsLock(int $tid, string $table): bool
+    {
+        if ($tid <= 0 || ($table !== 'forms' && $table !== 'form_encounter')) {
+            return false;
+        }
+        $row = Values::assocRow($this->sql->querySingleRow(
+            "SELECT id FROM esign_signatures WHERE tid = ? AND `table` = ? AND is_lock = 1 LIMIT 1",
+            [$tid, $table]
+        ));
+
+        return $row !== null;
     }
 }

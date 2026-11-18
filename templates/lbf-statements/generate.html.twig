@@ -61,6 +61,7 @@
         {% endif %}
 
         <form method="get" action="{{ postUrl|attr }}" class="mb-3" id="lbf-stmt-pick">
+            <input type="hidden" name="statement" value="generate" />
             <div class="form-row align-items-end">
                 <div class="form-group col-md-6">
                     <label for="patient_display">{{ "Patient"|xlt }}</label>
@@ -191,6 +192,7 @@
                 <input type="hidden" name="pid" value="{{ pid|attr }}" />
                 <input type="hidden" name="instance_id" value="{{ instance_id|attr }}" />
                 <input type="hidden" name="generate" value="1" />
+                <input type="hidden" name="paragraph_field" value="{{ paragraphField|attr }}" />
                 <input type="hidden" name="paragraph_baseline" value="{{ paragraphBaseline|attr }}" />
                 <div class="form-group">
                     <label for="paragraph_text">{% if paragraphTitle %}{{ paragraphTitle|text }}{% else %}{{ "Paragraph"|xlt }}{% endif %}</label>

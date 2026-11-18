@@ -23,6 +23,7 @@
         {% endif %}
 
         <form method="get" action="{{ postUrl|attr }}" class="mb-3">
+            <input type="hidden" name="statement" value="admin" />
             <div class="form-group">
                 <label for="form_id">{{ "Layout"|xlt }}</label>
                 <select class="form-control" id="form_id" name="form_id" onchange="this.form.submit()">
@@ -43,7 +44,7 @@
                 <label for="paragraph_field_id">{{ "Paragraph field"|xlt }}</label>
                 <select class="form-control" id="paragraph_field_id" name="paragraph_field_id">
                     {% for fid, meta in fields %}
-                        {% if meta.data_type == 3 %}
+                        {% if meta.data_type == 3 and (meta.source == '' or meta.source == 'F') %}
                             <option value="{{ fid|attr }}" {% if paragraphField == fid %}selected{% endif %}>{{ meta.title|text }} ({{ fid|text }})</option>
                         {% endif %}
                     {% endfor %}

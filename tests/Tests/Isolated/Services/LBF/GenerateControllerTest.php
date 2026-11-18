@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Services\LBF {
 
     use OpenEMR\Services\LBF\Controller\GenerateController;
+    use OpenEMR\Services\LBF\LayoutCatalog;
     use PHPUnit\Framework\TestCase;
 
     final class GenerateControllerTest extends TestCase
@@ -159,9 +160,28 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         public function testParagraphIsCurrentMatchesTheLoadedText(): void
         {
             $stored = "Mild note.\nEF is mildly reduced.";
-            $this->assertTrue(GenerateController::paragraphIsCurrent(hash('sha256', $stored), $stored));
-            $this->assertFalse(GenerateController::paragraphIsCurrent(hash('sha256', $stored), $stored . ' more'));
-            $this->assertFalse(GenerateController::paragraphIsCurrent('', $stored));
+            $baseline = GenerateController::paragraphBaseline(4, 'summary_a', $stored);
+            $this->assertTrue(GenerateController::paragraphIsCurrent($baseline, 4, 'summary_a', $stored));
+            $this->assertFalse(GenerateController::paragraphIsCurrent($baseline, 4, 'summary_a', $stored . ' more'));
+            $this->assertFalse(GenerateController::paragraphIsCurrent($baseline, 4, 'summary_b', $stored));
+            $this->assertFalse(GenerateController::paragraphIsCurrent($baseline, 9, 'summary_a', $stored));
+            $this->assertFalse(GenerateController::paragraphIsCurrent('', 4, 'summary_a', $stored));
+        }
+
+        public function testCategorySpecAllowsAnOpenCategory(): void
+        {
+            $this->assertTrue(GenerateController::categorySpecAllows('', false));
+            $this->assertTrue(GenerateController::categorySpecAllows('encounters|notes', true));
+            $this->assertFalse(GenerateController::categorySpecAllows('encounters|notes', false));
+        }
+
+        public function testStoresInLayoutRejectsEncounterAttributes(): void
+        {
+            $this->assertTrue(LayoutCatalog::storesInLayout(''));
+            $this->assertTrue(LayoutCatalog::storesInLayout('F'));
+            $this->assertFalse(LayoutCatalog::storesInLayout('E'));
+            $this->assertFalse(LayoutCatalog::storesInLayout('D'));
+            $this->assertFalse(LayoutCatalog::storesInLayout('H'));
         }
 
     }
