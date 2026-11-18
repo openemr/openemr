@@ -559,4 +559,65 @@ class InsuranceCompanyServiceTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $co->set_number('5550001111', PhoneType::CELL);
     }
+
+    #[Test]
+    public function testLegacyPersistCollapsesDuplicateRowsOfReloadedCompany(): void
+    {
+        // Older saves left extra WORK and FAX rows. Saving the reloaded
+        // company keeps one row per type, holding the newest number.
+        $co = new \InsuranceCompany();
+        $co->set_name('test-fixture-LegacyPersistReloadDuplicates');
+        $co->set_phone('5551234567');
+        $co->set_fax('5559876543');
+        $co->persist();
+        $insuranceId = $co->id;
+        $this->assertTrue(is_int($insuranceId) || is_string($insuranceId));
+        $this->createdIds[] = $insuranceId;
+
+        $service = new PhoneNumberService();
+        $service->type = PhoneType::WORK->value;
+        $service->insert(['phone' => '5552223333'], $insuranceId);
+        $service->type = PhoneType::FAX->value;
+        $service->insert(['phone' => '5554445555'], $insuranceId);
+
+        (new \InsuranceCompany($insuranceId))->persist();
+
+        $this->assertSame(
+            [
+                ['type' => PhoneType::WORK->value, 'area_code' => '555', 'prefix' => '222', 'number' => '3333'],
+                ['type' => PhoneType::FAX->value, 'area_code' => '555', 'prefix' => '444', 'number' => '5555'],
+            ],
+            QueryUtils::fetchRecordsNoLog(
+                'SELECT type, area_code, prefix, number FROM phone_numbers WHERE foreign_id = ? ORDER BY type',
+                [$insuranceId]
+            )
+        );
+    }
+
+    #[Test]
+    public function testLegacyPersistKeepsSavedPhoneWhenReplacementCannotBeStored(): void
+    {
+        // "555-1234" parses but has no 10-digit national number, so persist()
+        // could not store it. The saved number stays rather than being
+        // deleted by the save.
+        $co = new \InsuranceCompany();
+        $co->set_name('test-fixture-LegacyPersistUnstorableReplacement');
+        $co->set_phone('5551234567');
+        $co->persist();
+        $insuranceId = $co->id;
+        $this->assertTrue(is_int($insuranceId) || is_string($insuranceId));
+        $this->createdIds[] = $insuranceId;
+
+        $reloaded = new \InsuranceCompany($insuranceId);
+        $reloaded->set_phone('555-1234');
+        $reloaded->persist();
+
+        $this->assertSame(
+            [['area_code' => '555', 'prefix' => '123', 'number' => '4567']],
+            QueryUtils::fetchRecordsNoLog(
+                'SELECT area_code, prefix, number FROM phone_numbers WHERE foreign_id = ? AND type = ?',
+                [$insuranceId, PhoneType::WORK->value]
+            )
+        );
+    }
 }

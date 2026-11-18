@@ -148,11 +148,11 @@ class PhoneNumberService extends BaseService
      * Get all phone numbers for a given foreign ID.
      *
      * @param int $foreignId The foreign ID to search for
-     * @return array Array of phone number records ordered by type
+     * @return array Array of phone number records ordered by type, then id
      */
     public function getPhonesByForeignId(int $foreignId): array
     {
-        $sql = "SELECT * FROM phone_numbers WHERE foreign_id = ? ORDER BY type";
+        $sql = 'SELECT * FROM phone_numbers WHERE foreign_id = ? ORDER BY type, id';
         return QueryUtils::fetchRecords($sql, [$foreignId]);
     }
 

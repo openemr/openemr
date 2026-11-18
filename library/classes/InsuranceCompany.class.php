@@ -256,6 +256,12 @@ class InsuranceCompany extends ORDataObject
         if ($typed === null) {
             return;
         }
+        // persist() deletes the saved row before it writes this one, and it
+        // cannot store a number without a 10-digit national number, so keep
+        // the saved number rather than lose it.
+        if ($typed->phoneNumber->getNationalDigits() === null) {
+            return;
+        }
 
         // Replace existing phone of same type, or add new
         foreach ($this->phone_numbers as $i => $phone) {
@@ -337,10 +343,10 @@ class InsuranceCompany extends ORDataObject
             if ($type !== PhoneType::WORK && $type !== PhoneType::FAX) {
                 continue;
             }
-            $typed = TypedPhoneNumber::tryCreate($phoneStr, $type);
-            if ($typed !== null) {
-                $this->phone_numbers[] = $typed;
-            }
+            // Rows arrive in id order, and set_number() replaces an earlier
+            // number of the same type, so duplicate rows left by older saves
+            // load as the newest one and collapse to it on the next save.
+            $this->set_number($phoneStr, $type);
         }
     }
 
