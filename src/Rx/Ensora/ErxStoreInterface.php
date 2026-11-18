@@ -82,7 +82,15 @@ interface ErxStoreInterface
 
     public function updatePatientImportStatusByPatientId(int $patientId, int $status): void;
 
-    public function updateAllergyUploadedByPatientIdAllergyId(int $uploaded, int $patientId, int $allergyId): void;
+    /**
+     * Mark the allergy uploaded unless it was edited after it was sent.
+     */
+    public function markAllergyUploaded(int $patientId, SentAllergy $allergy): void;
+
+    /**
+     * Mark the medication uploaded unless it was edited after it was sent.
+     */
+    public function markMedicationUploaded(SentMedication $medication): void;
 
     public function updatePrescriptionsUploadActiveByPatientIdPrescriptionId(int $upload, int $active, int $patientId, int $prescriptionId): void;
 
