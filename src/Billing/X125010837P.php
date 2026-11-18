@@ -595,41 +595,28 @@ class X125010837P
         if ($claim->hasPayerAddress()) {
             ++$edicount;
             $out .= "N3" .
-                "*";
-            if ($claim->payerStreet()) {
-                $out .= $claim->payerStreet();
-            } else {
-                $log .= "*** Missing payer street.\n";
-            }
-            $out .= "~\n";
+                "*" . $claim->payerStreet() .
+                "~\n";
 
             ++$edicount;
             $out .= "N4" .
-                "*";
-            if ($claim->payerCity()) {
-                $out .= $claim->payerCity();
-            } else {
+                "*" . $claim->payerCity() .
+                "*" . $claim->payerState() .
+                "*" . $claim->x12Zip($claim->payerZip()) .
+                "~\n";
+        } else {
+            if (!$claim->payerStreet()) {
+                $log .= "*** Missing payer street.\n";
+            }
+            if (!$claim->payerCity()) {
                 $log .= "*** Missing payer city.\n";
             }
-            $out .= "*";
-            if ($claim->payerState()) {
-                $out .= $claim->payerState();
-            } else {
+            if (!$claim->payerState()) {
                 $log .= "*** Missing payer state.\n";
             }
-            $out .= "*";
-            if (
-                !(
-                    (strlen((string) $claim->payerZip()) == 5)
-                    || (strlen((string) $claim->payerZip()) == 9)
-                )
-            ) {
+            if (!in_array(strlen((string) $claim->payerZip()), [5, 9], true)) {
                 $log .= "*** Payer zip is not 5 or 9 digits.\n";
             }
-
-            $out .= $claim->x12Zip($claim->payerZip());
-            $out .= "~\n";
-        } else {
             $log .= "*** Payer address is incomplete (street, city, state and a 5 or 9 digit zip are needed): N3/N4 omitted.\n";
         }
 
@@ -1325,41 +1312,28 @@ class X125010837P
             if ($claim->hasPayerAddress($ins)) {
                 ++$edicount;
                 $out .= "N3" .
-                    "*";
-                if ($claim->payerStreet($ins)) {
-                    $out .= $claim->payerStreet($ins);
-                } else {
-                    $log .= "*** Missing other insco street.\n";
-                }
-                $out .= "~\n";
+                    "*" . $claim->payerStreet($ins) .
+                    "~\n";
 
                 ++$edicount;
                 $out .= "N4" .
-                    "*";
-                if ($claim->payerCity($ins)) {
-                    $out .= $claim->payerCity($ins);
-                } else {
+                    "*" . $claim->payerCity($ins) .
+                    "*" . $claim->payerState($ins) .
+                    "*" . $claim->x12Zip($claim->payerZip($ins)) .
+                    "~\n";
+            } else {
+                if (!$claim->payerStreet($ins)) {
+                    $log .= "*** Missing other insco street.\n";
+                }
+                if (!$claim->payerCity($ins)) {
                     $log .= "*** Missing other insco city.\n";
                 }
-                $out .= "*";
-                if ($claim->payerState($ins)) {
-                    $out .= $claim->payerState($ins);
-                } else {
+                if (!$claim->payerState($ins)) {
                     $log .= "*** Missing other payer state.\n";
                 }
-                $out .= "*";
-                if (
-                    !(
-                        (strlen((string) $claim->payerZip($ins)) == 5)
-                        || (strlen((string) $claim->payerZip($ins)) == 9)
-                    )
-                ) {
+                if (!in_array(strlen((string) $claim->payerZip($ins)), [5, 9], true)) {
                     $log .= "*** Other payer zip is not 5 or 9 digits.\n";
                 }
-
-                $out .= $claim->x12Zip($claim->payerZip($ins));
-                $out .= "~\n";
-            } else {
                 $log .= "*** Other payer address is incomplete (street, city, state and a 5 or 9 digit zip are needed): N3/N4 omitted.\n";
             }
 
