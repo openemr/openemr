@@ -90,16 +90,27 @@ class FhirObservationLaboratoryReferenceRangeUcumTest extends TestCase
         $this->assertIsArray($low, 'referenceRange.low must be present when range is well-formed');
         $this->assertIsArray($high, 'referenceRange.high must be present when range is well-formed');
 
-        $expectedSystem = $expectedCode === null ? null : self::UCUM_SYSTEM;
-
         $this->assertSame(self::RANGE_LOW, $low['value'] ?? null, 'low.value - pin the numeric bound so a low/high swap fails here');
         $this->assertSame(self::RANGE_HIGH, $high['value'] ?? null, 'high.value - pin the numeric bound so a low/high swap fails here');
         $this->assertSame($expectedUnit, $low['unit'] ?? null, 'low.unit text');
         $this->assertSame($expectedUnit, $high['unit'] ?? null, 'high.unit text');
-        $this->assertSame($expectedCode, $low['code'] ?? null, 'low.code - UCUM only when the unit is UCUM');
-        $this->assertSame($expectedCode, $high['code'] ?? null, 'high.code - UCUM only when the unit is UCUM');
-        $this->assertSame($expectedSystem, $low['system'] ?? null, 'low.system - present only alongside a UCUM code');
-        $this->assertSame($expectedSystem, $high['system'] ?? null, 'high.system - present only alongside a UCUM code');
+
+        if ($expectedCode === null) {
+            // FHIR's convention is that absent fields are omitted from
+            // the JSON; a key set to null signals something different
+            // and should not pass this gate. assertArrayNotHasKey
+            // catches both the "accidentally emitted null" and the
+            // "always-set-to-empty" regressions.
+            $this->assertArrayNotHasKey('code', $low, 'low.code must be omitted when the unit is not UCUM');
+            $this->assertArrayNotHasKey('code', $high, 'high.code must be omitted when the unit is not UCUM');
+            $this->assertArrayNotHasKey('system', $low, 'low.system must be omitted when there is no UCUM code');
+            $this->assertArrayNotHasKey('system', $high, 'high.system must be omitted when there is no UCUM code');
+        } else {
+            $this->assertSame($expectedCode, $low['code'] ?? null, 'low.code - matches UCUM mapping for the unit');
+            $this->assertSame($expectedCode, $high['code'] ?? null, 'high.code - matches UCUM mapping for the unit');
+            $this->assertSame(self::UCUM_SYSTEM, $low['system'] ?? null, 'low.system - UCUM system alongside the code');
+            $this->assertSame(self::UCUM_SYSTEM, $high['system'] ?? null, 'high.system - UCUM system alongside the code');
+        }
     }
 
     public function testEmptyUnitEmitsSimpleQuantityOnBothSides(): void
@@ -136,13 +147,14 @@ class FhirObservationLaboratoryReferenceRangeUcumTest extends TestCase
     }
 
     /**
-     * Pin the invariant that the service's emitted UCUM code matches
-     * what the helper (`UtilsService::ucumCodeFor`) resolves for the
-     * same input. This proves the reference-range path actually uses
-     * the helper rather than diverging - a parallel implementation
-     * in the service that drifted from the helper would fail here.
-     * If both are updated consistently, both this test and
-     * `UtilsServiceQuantityTest` must change together.
+     * For each unit case, the UCUM code emitted on the reference-range
+     * low and high must agree with `UtilsService::ucumCodeFor` on the
+     * same input. This is an observational agreement, not a proof the
+     * service calls the helper - a parallel implementation that
+     * happens to agree on every covered input would still pass. The
+     * test is still useful because the practical regression shape is
+     * "the service and helper diverged on a case", and that one is
+     * caught here.
      */
     #[DataProvider('unitCases')]
     public function testServiceEmittedCodeMatchesHelperMapping(
@@ -182,7 +194,11 @@ class FhirObservationLaboratoryReferenceRangeUcumTest extends TestCase
     {
         $observation = $this->decodeObservation($units, $range);
         $ranges = $observation['referenceRange'] ?? null;
-        $this->assertIsArray($ranges, 'A well-formed low-high range should produce a referenceRange array');
+        $this->assertIsArray($ranges, 'referenceRange must be present when the range is well-formed');
+        $this->assertTrue(
+            array_is_list($ranges),
+            'referenceRange must serialize as a JSON array (list-shaped), not an object with numeric keys'
+        );
         $this->assertCount(
             1,
             $ranges,
@@ -211,7 +227,12 @@ class FhirObservationLaboratoryReferenceRangeUcumTest extends TestCase
             'units' => $units,
         ]);
         $decoded = json_decode((string) json_encode($observation), true);
-        $this->assertIsArray($decoded);
+        $this->assertIsArray($decoded, 'FHIR Observation must serialize to a JSON object');
+        $this->assertSame(
+            'Observation',
+            $decoded['resourceType'] ?? null,
+            'Decoded resource must be a FHIR Observation - a wrong resourceType would mean the service drifted elsewhere'
+        );
         return $decoded;
     }
 }
