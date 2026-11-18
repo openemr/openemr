@@ -80,14 +80,14 @@ class SoapNoteApiTest extends TestCase
         );
         if (count($pids) > 0) {
             $placeholders = implode(',', array_fill(0, count($pids), '?'));
-            // Each sweep runs the uuid_registry delete first because
-            // its subselect reads the owning row's uuid.
-            UuidRegistryCleanup::sweepRowsAndUuidEntries(
+            // Neither `form_soap` nor `forms` has a uuid column in
+            // the live schema; plain row sweeps only.
+            UuidRegistryCleanup::sweepRows(
                 'form_soap',
                 "pid IN ($placeholders)",
                 $pids
             );
-            UuidRegistryCleanup::sweepRowsAndUuidEntries(
+            UuidRegistryCleanup::sweepRows(
                 'forms',
                 "pid IN ($placeholders) AND formdir = 'soap'",
                 $pids

@@ -94,10 +94,9 @@ class EncounterApiTest extends TestCase
         );
         if (count($pids) > 0) {
             $placeholders = implode(',', array_fill(0, count($pids), '?'));
-            // uuid_registry rows must come down first — the sweep
-            // reads the forms uuid, so deleting the forms row first
-            // would orphan the registry entry.
-            UuidRegistryCleanup::sweepRowsAndUuidEntries(
+            // `forms` has no uuid column in the live schema, so no
+            // uuid_registry entries reference it; plain row sweep only.
+            UuidRegistryCleanup::sweepRows(
                 'forms',
                 "pid IN ($placeholders) AND formdir = 'newpatient'",
                 $pids

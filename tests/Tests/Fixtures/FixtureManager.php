@@ -629,7 +629,10 @@ class FixtureManager
         );
         if ($teamIds !== []) {
             $tplaceholders = implode(',', array_fill(0, count($teamIds), '?'));
-            UuidRegistryCleanup::sweepRowsAndUuidEntries(
+            // care_team_member has no uuid column, so the registry-
+            // aware helper would correlate incorrectly; plain row
+            // sweep only.
+            UuidRegistryCleanup::sweepRows(
                 'care_team_member',
                 "care_team_id IN ($tplaceholders)",
                 $teamIds
@@ -711,12 +714,14 @@ class FixtureManager
             return;
         }
         $placeholders = implode(',', array_fill(0, count($pids), '?'));
-        UuidRegistryCleanup::sweepRowsAndUuidEntries(
+        // Neither `form_care_plan` nor `forms` has a uuid column in
+        // the live schema; plain row sweeps only.
+        UuidRegistryCleanup::sweepRows(
             'form_care_plan',
             "pid IN ($placeholders)",
             $pids
         );
-        UuidRegistryCleanup::sweepRowsAndUuidEntries(
+        UuidRegistryCleanup::sweepRows(
             'forms',
             "pid IN ($placeholders) AND formdir = 'care_plan'",
             $pids

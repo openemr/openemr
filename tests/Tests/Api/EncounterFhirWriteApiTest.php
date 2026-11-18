@@ -83,13 +83,13 @@ class EncounterFhirWriteApiTest extends TestCase
         // with it and leaking a registered client per failed run.
         // EncounterService::insertEncounter addForm()s a `forms`
         // row with formdir='newpatient' alongside each form_encounter
-        // row. Sweep the companion forms rows FIRST (both the
-        // uuid_registry entry and the row itself) while the owning
-        // form_encounter is still present — the sweep's subselect
+        // row. Sweep the companion forms rows FIRST — the subselect
         // joins through `forms.encounter = form_encounter.encounter`
-        // and would see nothing after the encounter is gone. Then
-        // sweep the form_encounter rows + their uuid_registry entries.
-        UuidRegistryCleanup::sweepRowsAndUuidEntries(
+        // and would see nothing after the encounter is gone. `forms`
+        // has no uuid column in the live schema, so plain row sweep
+        // only. Then sweep the form_encounter rows + their
+        // uuid_registry entries.
+        UuidRegistryCleanup::sweepRows(
             'forms',
             "formdir = 'newpatient' AND encounter IN ("
                 . "SELECT encounter FROM form_encounter WHERE reason LIKE 'test-fixture%'"

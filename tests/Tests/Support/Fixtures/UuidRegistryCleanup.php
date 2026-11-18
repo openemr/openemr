@@ -74,12 +74,44 @@ final class UuidRegistryCleanup
         array $whereBindings = []
     ): void {
         self::assertSafeIdentifier($tableName);
+        // The inner `uuid` is qualified with its table name so MySQL
+        // raises a missing-column error when the caller hands us a
+        // table that does not own a uuid column. An unqualified
+        // `SELECT uuid FROM X` silently correlates to the outer
+        // `uuid_registry.uuid` (MySQL bug #111475), which would turn
+        // the DELETE into "wipe every uuid_registry row where
+        // table_name = X and the inner WHERE matches anything" —
+        // silent cross-table corruption. Qualifying forces the
+        // caller to use `sweepRows()` instead for tables without a
+        // uuid column.
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM uuid_registry WHERE table_name = ? AND uuid IN ("
-                . "SELECT uuid FROM `{$tableName}` WHERE {$whereClause}"
+                . "SELECT `{$tableName}`.`uuid` FROM `{$tableName}` WHERE {$whereClause}"
                 . ")",
             array_merge([$tableName], $whereBindings)
         );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM `{$tableName}` WHERE {$whereClause}",
+            $whereBindings
+        );
+    }
+
+    /**
+     * Sweep rows in `$tableName` matching the given WHERE clause,
+     * WITHOUT touching uuid_registry. Use for tables that do not own
+     * a uuid column (e.g. `care_team_member`, `form_care_plan`).
+     *
+     * $tableName + $whereClause are both interpolated — same identifier
+     * whitelist applies.
+     *
+     * @param list<mixed> $whereBindings
+     */
+    public static function sweepRows(
+        string $tableName,
+        string $whereClause,
+        array $whereBindings = []
+    ): void {
+        self::assertSafeIdentifier($tableName);
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM `{$tableName}` WHERE {$whereClause}",
             $whereBindings

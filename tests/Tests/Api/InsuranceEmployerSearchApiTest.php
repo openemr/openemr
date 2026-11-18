@@ -48,10 +48,12 @@ class InsuranceEmployerSearchApiTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->createdCompanyIds as $id) {
-            // Each sweep deletes the uuid_registry entry first so the
-            // registry subselect can still read the owning row's uuid.
-            UuidRegistryCleanup::sweepRowsAndUuidEntries('addresses', 'foreign_id = ?', [$id]);
-            UuidRegistryCleanup::sweepRowsAndUuidEntries('phone_numbers', 'foreign_id = ?', [$id]);
+            // addresses + phone_numbers have no uuid column in the
+            // live schema — plain row sweeps. insurance_companies
+            // owns uuids + the registry entries referencing them
+            // get swept via the full helper.
+            UuidRegistryCleanup::sweepRows('addresses', 'foreign_id = ?', [$id]);
+            UuidRegistryCleanup::sweepRows('phone_numbers', 'foreign_id = ?', [$id]);
             UuidRegistryCleanup::sweepRowsAndUuidEntries('insurance_companies', 'id = ?', [$id]);
         }
         $this->client->cleanupRevokeAuth();
