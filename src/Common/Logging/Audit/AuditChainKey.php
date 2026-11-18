@@ -35,8 +35,11 @@ final readonly class AuditChainKey
             throw new \RuntimeException('The site directory is not available for the audit chain key.');
         }
 
+        // Setup and cron can run as root while the web server runs as
+        // another user. A directory or key that only the owner can read
+        // then makes every later audit write fail closed.
         $directory = $siteDir . '/documents/logs_and_misc';
-        if (!is_dir($directory) && !mkdir($directory, 0750, true) && !is_dir($directory)) {
+        if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
             throw new \RuntimeException('Unable to store the audit chain key.');
         }
 
@@ -85,7 +88,7 @@ final readonly class AuditChainKey
     {
         $key = bin2hex(random_bytes(32));
         $temp = $path . '.' . bin2hex(random_bytes(4)) . '.tmp';
-        $previousUmask = umask(0027);
+        $previousUmask = umask(0022);
         try {
             $written = file_put_contents($temp, $key, LOCK_EX);
         } finally {
@@ -97,7 +100,7 @@ final readonly class AuditChainKey
             }
             throw new \RuntimeException('Unable to store the audit chain key.');
         }
-        if (!chmod($temp, 0640)) {
+        if (!chmod($temp, 0644)) {
             unlink($temp);
             throw new \RuntimeException('Unable to store the audit chain key.');
         }
