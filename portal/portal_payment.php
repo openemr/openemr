@@ -106,7 +106,8 @@ if ($cardGateway === 'AuthorizeNet' || $cardGateway === 'Stripe') {
 $recorder = new Recorder();
 
 $reviewWorkflows = ReviewQueueFactory::portalWorkflows();
-$recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
+$request = CurrentRequest::get();
+$recid = $request->query->getInt('recid');
 
 // Staff open a patient's portal payment from Portal Activity (recid). It is that
 // record's patient's payment, whichever chart is open in the session (or none), so
@@ -120,7 +121,8 @@ $recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 // below. Two saves of the same payment at once cannot both post it, and the patient cannot
 // replace it mid-posting (paylib.php takes the same lock): whoever comes second waits, then sees
 // what the first left. The record is read once to find its patient, then again under the lock.
-$isStaffSave = !$isPortal && CurrentRequest::get()->request->getString('form_save') !== '';
+$isSave = $request->request->getString('form_save') !== '';
+$isStaffSave = !$isPortal && $isSave;
 $postingLock = null;
 if (!$isPortal && $recid) {
     $paymentRecord = $reviewWorkflows->payment($recid);
@@ -244,18 +246,18 @@ $patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pub
 
 $alertmsg = ''; // anything here pops up in an alert box
 
-if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+if ($request->isMethod('POST')) {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
 }
 
-$radio_type_of_payment = $_POST['radio_type_of_payment'] ?? '';
+$radio_type_of_payment = $request->request->getString('radio_type_of_payment');
 
 // If the Save button was clicked...
-if ($_POST['form_save'] ?? '') {
+if ($isSave) {
     // Pin the payment to the session patient; ignore any body-supplied form_pid.
     $form_pid = $pid;
-    $form_method = trim((string) $_POST['form_method']);
-    $form_source = trim((string) $_POST['form_source']);
+    $form_method = trim($request->request->getString('form_method'));
+    $form_source = trim($request->request->getString('form_source'));
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
     // Set once a payment is written to the ledger; a save that writes none closes nothing.
@@ -263,7 +265,7 @@ if ($_POST['form_save'] ?? '') {
 
     if ($radio_type_of_payment == 'pre_payment') {
         // At most two decimals, as the payment page allows: the amount posted is the amount charged.
-        $prepaymentInput = trim(CurrentRequest::get()->request->getString('form_prepayment'));
+        $prepaymentInput = trim($request->request->getString('form_prepayment'));
         $prepayment = preg_match('/^\d+(\.\d{1,2})?$/', $prepaymentInput) === 1
             ? ValidationUtils::parsePositiveAmount($prepaymentInput)
             : null;
@@ -295,8 +297,9 @@ if ($_POST['form_save'] ?? '') {
         }
     }
 
-    if (isset($_POST['form_upay']) && is_array($_POST['form_upay']) && $_POST['form_upay'] !== [] && $radio_type_of_payment != 'pre_payment') {
-        foreach ($_POST['form_upay'] as $enc => $payment) {
+    $upay = $request->request->all('form_upay');
+    if ($upay !== [] && $radio_type_of_payment != 'pre_payment') {
+        foreach ($upay as $enc => $payment) {
             if (!is_numeric($payment) || (float) $payment <= 0) {
                 continue;
             }
@@ -472,7 +475,7 @@ if ($_POST['form_save'] ?? '') {
                 //--------------------------------------------------------------------------------------------------------------------
             }//invoice_balance
         }//foreach
-    }//if ($_POST['form_upay'])
+    }//if ($upay)
 
     // A payment was recorded; close the portal request staff were posting, and only now, so a
     // posting that failed above, or a save with no amount to post, leaves it pending (with its
@@ -493,13 +496,14 @@ if ($_POST['form_save'] ?? '') {
     }
     // Posted and closed, or refused: either way the next save of this payment may go ahead.
     $postingLock?->release();
-}//if ($_POST['form_save'])
+}//if ($isSave)
 
 // Skip the receipt when the payment was rejected; there is nothing to receipt for.
-if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET, 'receipt'))) {
-    if (filter_input(INPUT_GET, 'receipt')) {
+$isReceipt = $request->query->getString('receipt') !== '';
+if ($alertmsg === '' && ($isSave || $isReceipt)) {
+    if ($isReceipt) {
         $form_pid = $pid;
-        $timestamp = decorateString('....-..-.. ..:..:..', filter_input(INPUT_GET, 'time') ?: '');
+        $timestamp = decorateString('....-..-.. ..:..:..', $request->query->getString('time'));
     }
 
 // Get details for what we guess is the primary facility.
