@@ -353,17 +353,28 @@ describe('messages.js lockReplyRecipient', () => {
         expect(select.selectedOptions[0].textContent).toBe('gone');
     });
 
-    test('leaves the dropdown alone when there is no sender id', () => {
+    test('clears and disables the dropdown when there is no sender id', () => {
+        // The browser preselects the first entry; a reply with no sender must
+        // not fall through to that unrelated recipient.
         const select = buildSelect([['admin', 'Admin User'], ['pat1', 'Patient One']]);
-
-        lockReplyRecipient(select, '', 'Nobody');
-
         expect(select.value).toBe('admin');
-        expect(select.disabled).toBe(false);
+
+        const locked = lockReplyRecipient(select, '', 'Nobody');
+
+        expect(locked).toBe(false);
+        expect(select.value).toBe('');
+        expect(select.selectedOptions).toHaveLength(0);
+        expect(select.disabled).toBe(true);
         expect(select.options).toHaveLength(2);
     });
 
+    test('reports whether the reply has a recipient', () => {
+        const select = buildSelect([['admin', 'Admin User'], ['pat1', 'Patient One']]);
+
+        expect(lockReplyRecipient(select, 'pat1', 'Patient One')).toBe(true);
+    });
+
     test('tolerates a missing dropdown', () => {
-        expect(() => lockReplyRecipient(null, 'pat1', 'Patient One')).not.toThrow();
+        expect(lockReplyRecipient(null, 'pat1', 'Patient One')).toBe(false);
     });
 });
