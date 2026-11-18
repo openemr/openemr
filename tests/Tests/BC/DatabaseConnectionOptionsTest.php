@@ -15,6 +15,7 @@ namespace OpenEMR\Tests\BC;
 use InvalidArgumentException;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use PDO;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -196,6 +197,113 @@ class DatabaseConnectionOptionsTest extends TestCase
             host: 'localhost',
             port: 3306,
             unixSocket: '/var/run/mysqld/mysqld.sock',
+        );
+    }
+
+    #[DataProvider('validEnvironmentProvider')]
+    public function testFromEnvironment(
+        ?string $host,
+        ?string $port,
+        ?string $socket,
+        ?string $expectedHost,
+        ?int $expectedPort,
+        ?string $expectedSocket,
+    ): void {
+        $options = DatabaseConnectionOptions::fromEnvironment(
+            dbname: 'testdb',
+            user: 'testuser',
+            password: 'secret',
+            host: $host,
+            port: $port,
+            socket: $socket,
+        );
+
+        self::assertSame('testdb', $options->dbname);
+        self::assertSame('testuser', $options->user);
+        self::assertSame('secret', $options->password);
+        self::assertSame($expectedHost, $options->host, 'host should pass through unchanged');
+        self::assertSame($expectedPort, $options->port, 'port should be parsed or defaulted');
+        self::assertSame($expectedSocket, $options->unixSocket, 'socket should pass through unchanged');
+    }
+
+    /**
+     * @return array<string, array{?string, ?string, ?string, ?string, ?int, ?string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function validEnvironmentProvider(): array
+    {
+        return [
+            'host, default port' => ['db', null, null, 'db', 3306, null],
+            'host and port' => ['db', '3307', null, 'db', 3307, null],
+            'managed service hostname' => ['my-db-instance.cloud.internal', '3306', null, 'my-db-instance.cloud.internal', 3306, null],
+            'hostname with underscore' => ['my_db', null, null, 'my_db', 3306, null],
+            'ipv4' => ['10.0.0.5', null, null, '10.0.0.5', 3306, null],
+            'socket' => [null, null, '/run/mysqld/mysqld.sock', null, null, '/run/mysqld/mysqld.sock'],
+        ];
+    }
+
+    #[DataProvider('invalidEnvironmentProvider')]
+    public function testFromEnvironmentRejects(
+        string $dbname,
+        string $user,
+        ?string $host,
+        ?string $port,
+        ?string $socket,
+    ): void {
+        $this->expectException(InvalidArgumentException::class);
+
+        DatabaseConnectionOptions::fromEnvironment(
+            dbname: $dbname,
+            user: $user,
+            password: 'secret',
+            host: $host,
+            port: $port,
+            socket: $socket,
+        );
+    }
+
+    /**
+     * @return array<string, array{string, string, ?string, ?string, ?string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function invalidEnvironmentProvider(): array
+    {
+        return [
+            'no host or socket' => ['testdb', 'testuser', null, null, null],
+            'port without host' => ['testdb', 'testuser', null, '3306', null],
+            'socket and host' => ['testdb', 'testuser', 'db', null, '/run/mysqld/mysqld.sock'],
+            'socket and port' => ['testdb', 'testuser', null, '3306', '/run/mysqld/mysqld.sock'],
+            'localhost' => ['testdb', 'testuser', 'localhost', null, null],
+            'localhost, any case' => ['testdb', 'testuser', 'LocalHost', null, null],
+            'non-numeric port' => ['testdb', 'testuser', 'db', 'abc', null],
+            'port with whitespace' => ['testdb', 'testuser', 'db', ' 3306', null],
+            'port zero' => ['testdb', 'testuser', 'db', '0', null],
+            'port too large' => ['testdb', 'testuser', 'db', '65536', null],
+            'empty port' => ['testdb', 'testuser', 'db', '', null],
+            'empty host' => ['testdb', 'testuser', '', null, null],
+            'empty socket' => ['testdb', 'testuser', null, null, ''],
+            'empty dbname' => ['', 'testuser', 'db', null, null],
+            'empty user' => ['testdb', '', 'db', null, null],
+        ];
+    }
+
+    public function testFromEnvironmentPasswordParameterHasSensitiveAttribute(): void
+    {
+        $method = (new ReflectionClass(DatabaseConnectionOptions::class))->getMethod('fromEnvironment');
+        $passwordParam = null;
+        foreach ($method->getParameters() as $param) {
+            if ($param->getName() === 'password') {
+                $passwordParam = $param;
+            }
+        }
+
+        self::assertNotNull($passwordParam, 'password parameter not found');
+        self::assertCount(
+            1,
+            $passwordParam->getAttributes(SensitiveParameter::class),
+            'password parameter should have #[SensitiveParameter] attribute',
         );
     }
 
