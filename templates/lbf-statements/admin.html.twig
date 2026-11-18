@@ -39,7 +39,6 @@
         <form method="post" action="{{ postUrl|attr }}" class="mb-4">
             {{ csrfToken('default', 'csrf_token_form') }}
             <input type="hidden" name="form_id" value="{{ form_id|attr }}" />
-            <input type="hidden" name="action" value="paragraph" />
             <div class="form-group">
                 <label for="paragraph_field_id">{{ "Paragraph field"|xlt }}</label>
                 <select class="form-control" id="paragraph_field_id" name="paragraph_field_id">
@@ -49,8 +48,10 @@
                         {% endif %}
                     {% endfor %}
                 </select>
+                <small class="form-text text-muted">{{ "A layout with no textarea can be given one here. An existing field named stmt_paragraph has to already be a textarea."|xlt }}</small>
             </div>
-            <button type="submit" class="btn btn-secondary">{{ "Save paragraph field"|xlt }}</button>
+            <button type="submit" class="btn btn-secondary" name="action" value="paragraph">{{ "Save paragraph field"|xlt }}</button>
+            <button type="submit" class="btn btn-outline-secondary" name="action" value="ensure_paragraph">{{ "Add a paragraph field"|xlt }}</button>
         </form>
         {% endif %}
 
@@ -192,8 +193,10 @@
 
                             <div id="band-fields" class="form-row">
                                 <div class="form-group col-md-4">
-                                    <label for="min_value">{{ "From"|xlt }}</label>
+                                    <label for="min_value" id="min-label-band">{{ "From"|xlt }}</label>
+                                    <label for="min_value" id="min-label-ratio" class="d-none">{{ "Each value is above"|xlt }}</label>
                                     <input class="form-control" id="min_value" name="min_value" inputmode="decimal" />
+                                    <small class="form-text text-muted d-none" id="min-help-ratio">{{ "For a ratio less than the limit, this number applies to each source value and does not include the number itself."|xlt }}</small>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label for="max_value">{{ "To"|xlt }}</label>
@@ -201,7 +204,7 @@
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="d-block">{{ "Include endpoints"|xlt }}</label>
-                                    <label class="mr-2"><input type="checkbox" id="min_inclusive" name="min_inclusive" value="1" checked /> {{ "from"|xlt }}</label>
+                                    <label class="mr-2" id="min-inclusive-wrap"><input type="checkbox" id="min_inclusive" name="min_inclusive" value="1" checked /> {{ "from"|xlt }}</label>
                                     <label><input type="checkbox" id="max_inclusive" name="max_inclusive" value="1" checked /> {{ "to"|xlt }}</label>
                                     <small class="form-text text-muted">{{ "Ranges on the same field cannot overlap. Save is rejected if they do."|xlt }}</small>
                                 </div>
@@ -234,6 +237,6 @@
             </div>
         </div>
     </div>
-    <script src="{{ assetBase|attr }}admin.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{ assetBase|attr }}admin.js?v={{ assetVersion|attr_url }}-stmt"></script>
 </body>
 </html>

@@ -24,6 +24,8 @@ use OpenEMR\Services\LBF\Identifiers;
 use OpenEMR\Services\LBF\LayoutCatalog;
 use OpenEMR\Services\LBF\LbfReader;
 use OpenEMR\Services\LBF\LbfWriter;
+use OpenEMR\Services\LBF\Queries;
+use OpenEMR\Services\LBF\StaleParagraphException;
 use OpenEMR\Services\LBF\StatementApplier;
 use OpenEMR\Services\LBF\StatementEngine;
 use OpenEMR\Services\LBF\StatementParagraph;
@@ -55,6 +57,11 @@ class GenerateController
             ]);
             return;
         }
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUser = Values::asString($session->get('authUser'));
+        $notesAny = AclMain::aclCheckCore('encounters', 'notes_a');
+        $notesOwn = AclMain::aclCheckCore('encounters', 'notes');
 
         $catalog = new LayoutCatalog();
         $repo = new StatementRepository();
@@ -91,7 +98,7 @@ class GenerateController
             $invalidFormId = true;
         }
         if ($pid > 0) {
-            $have = $reader->formdirsForPatient($pid, $ruleFormIds);
+            $have = $this->visibleFormdirs($reader, $pid, $ruleFormIds, $notesAny, $notesOwn, $authUser);
             $limited = self::limitFormsToPatient($formChoices, $have, $formId, $instanceId);
             $formChoices = $limited[0];
             $formId = Values::asString($limited[1]);
@@ -118,9 +125,14 @@ class GenerateController
             $error = xl('Access Denied');
         }
         if ($layoutWrite && $formId !== '' && $pid > 0) {
-            $instances = $reader->instancesForPatient($formId, $pid);
+            $instances = $this->visibleInstances(
+                $reader->instancesForPatient($formId, $pid),
+                $notesAny,
+                $notesOwn,
+                $authUser
+            );
             if ($instanceId === 0 && count($instances) === 1) {
-                $instanceId = $instances[0]['instance_id'];
+                $instanceId = Values::asInt($instances[0]['instance_id']);
             }
         }
 
@@ -137,16 +149,21 @@ class GenerateController
             } else {
                 $pid = Values::rowInt($row, 'pid');
                 $encounter = Values::rowInt($row, 'encounter');
-                $values = $reader->readValues($instanceId);
-                $meta = $catalog->fieldMeta($formId);
-                $paragraphField = $catalog->paragraphField($formId);
-                if ($paragraphField === '') {
-                    $error = $error !== '' ? $error : xl('No paragraph field is configured for this form.');
+                if (!$this->mayReadEncounter($reader, $pid, $encounter, $notesAny, $notesOwn, $authUser)) {
+                    $error = xl('Access Denied');
+                    $instanceId = 0;
                 } else {
-                    $paragraphTitle = $meta[$paragraphField]['title'] ?? $paragraphField;
-                    $paragraphCurrent = $values[$paragraphField] ?? '';
-                    $rules = $repo->rulesForForm($formId, true);
-                    $actions = $engine->evaluate($formId, $values, $rules, $reader->patientSex($pid));
+                    $values = $reader->readValues($instanceId);
+                    $meta = $catalog->fieldMeta($formId);
+                    $paragraphField = $catalog->paragraphField($formId);
+                    if ($paragraphField === '') {
+                        $error = $error !== '' ? $error : xl('No paragraph field is configured for this form.');
+                    } else {
+                        $paragraphTitle = $meta[$paragraphField]['title'] ?? $paragraphField;
+                        $paragraphCurrent = $values[$paragraphField] ?? '';
+                        $rules = $repo->rulesForForm($formId, true);
+                        $actions = $engine->evaluate($formId, $values, $rules, $reader->patientSex($pid));
+                    }
                 }
             }
         } elseif (!$layoutWrite) {
@@ -155,7 +172,7 @@ class GenerateController
         }
 
         if ($pid > 0) {
-            $have = $reader->formdirsForPatient($pid, $ruleFormIds);
+            $have = $this->visibleFormdirs($reader, $pid, $ruleFormIds, $notesAny, $notesOwn, $authUser);
             $previousFormId = $formId;
             $limited = self::limitFormsToPatient($formChoices, $have, $formId, $instanceId);
             $formChoices = $limited[0];
@@ -186,7 +203,12 @@ class GenerateController
                     $error = xl('Access Denied');
                 }
             } elseif ($formId !== '' && $instances === []) {
-                $instances = $reader->instancesForPatient($formId, $pid);
+                $instances = $this->visibleInstances(
+                $reader->instancesForPatient($formId, $pid),
+                $notesAny,
+                $notesOwn,
+                $authUser
+                );
             }
         }
 
@@ -215,25 +237,62 @@ class GenerateController
                     $error = xl('That form does not belong to this patient.');
                 } elseif (!$reader->encounterOwnedBy(Values::rowInt($row, 'pid'), Values::rowInt($row, 'encounter'))) {
                     $error = xl('Encounter does not belong to this patient.');
+                } elseif (!$this->mayReadEncounter(
+                    $reader,
+                    Values::rowInt($row, 'pid'),
+                    Values::rowInt($row, 'encounter'),
+                    $notesAny,
+                    $notesOwn,
+                    $authUser
+                )) {
+                    $error = xl('Access Denied');
                 } else {
                     $edited = $this->stringParam($request, 'paragraph_text');
+                    $baseline = $this->stringParam($request, 'paragraph_baseline');
                     $newValues = $applier->apply($values, $actions, 'overwrite', $paragraphField, $edited);
-                    $writer->write($instanceId, $newValues, $values, $applier->writeActions($paragraphField));
-                    $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                    $repo->logRun(
-                        $formId,
-                        $pid,
-                        $instanceId,
-                        Values::asString($session->get('authUser')),
-                        'overwrite'
-                    );
-                    $values = $reader->readValues($instanceId);
-                    $paragraphCurrent = $values[$paragraphField] ?? '';
-                    $instances = $reader->instancesForPatient($formId, $pid);
-                    $message = xl('Saved.');
-                    $after = $this->stringParam($request, 'after');
-                    if ($after === 'print' || $after === 'form') {
-                        $this->redirectAfterSave($formId, $pid, $instanceId, $after);
+                    $actionsToWrite = $applier->writeActions($paragraphField);
+                    try {
+                        $sql = new Queries();
+                        $sql->inTransaction(function () use (
+                            $reader,
+                            $writer,
+                            $repo,
+                            $instanceId,
+                            $paragraphField,
+                            $baseline,
+                            $newValues,
+                            $values,
+                            $actionsToWrite,
+                            $formId,
+                            $pid,
+                            $authUser
+                        ): void {
+                            $storedNow = $reader->paragraphValueForUpdate($instanceId, $paragraphField);
+                            if (!self::paragraphIsCurrent($baseline, $storedNow)) {
+                                throw new StaleParagraphException('The paragraph changed after this page was opened.');
+                            }
+                            $oldValues = $values;
+                            $oldValues[$paragraphField] = $storedNow;
+                            $writer->apply($instanceId, $newValues, $oldValues, $actionsToWrite);
+                            $repo->logRun($formId, $pid, $instanceId, $authUser, 'overwrite');
+                        });
+                        $values = $reader->readValues($instanceId);
+                        $paragraphCurrent = $values[$paragraphField] ?? '';
+                        $instances = $this->visibleInstances(
+                            $reader->instancesForPatient($formId, $pid),
+                            $notesAny,
+                            $notesOwn,
+                            $authUser
+                        );
+                        $message = xl('Saved.');
+                        $after = $this->stringParam($request, 'after');
+                        if ($after === 'print' || $after === 'form') {
+                            $this->redirectAfterSave($formId, $pid, $instanceId, $after);
+                        }
+                    } catch (StaleParagraphException) {
+                        $error = xl('The paragraph changed after this page was opened. Reload it and try again.');
+                        $values = $reader->readValues($instanceId);
+                        $paragraphCurrent = $values[$paragraphField] ?? '';
                     }
                 }
             }
@@ -249,7 +308,9 @@ class GenerateController
         }
 
         $paragraphProposed = StatementParagraph::fromActions($actions);
-        $paragraphEditor = self::editorParagraph($paragraphCurrent, $paragraphProposed);
+        $paragraphEditor = ($message !== '' && $error === '')
+            ? $paragraphCurrent
+            : self::editorParagraph($paragraphCurrent, $paragraphProposed);
         $measurements = [];
         $traces = [];
         if ($values !== [] && $rules !== []) {
@@ -328,6 +389,7 @@ class GenerateController
             'paragraphField' => $paragraphField,
             'paragraphTitle' => $paragraphTitle,
             'paragraphCurrent' => $paragraphCurrent,
+            'paragraphBaseline' => hash('sha256', $paragraphCurrent),
             'paragraphProposed' => $paragraphProposed,
             'paragraphEditor' => $paragraphEditor,
             'measurements' => $measurements,
@@ -466,6 +528,144 @@ class GenerateController
         }
 
         return $hasLayoutWrite;
+    }
+
+    /**
+     * True when this user may see this patient's encounters.
+     */
+    private function squadAllows(LbfReader $reader, int $pid): bool
+    {
+        $squad = $reader->patientSquad($pid);
+        if ($squad === '') {
+            return true;
+        }
+
+        return AclMain::aclCheckCore('squads', $squad);
+    }
+
+    /**
+     * Form layouts that have at least one encounter this user may open.
+     *
+     * @param list<string> $formIds
+     * @return list<string>
+     */
+    private function visibleFormdirs(
+        LbfReader $reader,
+        int $pid,
+        array $formIds,
+        bool $notesAny,
+        bool $notesOwn,
+        string $authUser
+    ): array {
+        if (!$this->squadAllows($reader, $pid)) {
+            return [];
+        }
+        $have = [];
+        foreach ($reader->encountersForPatient($pid, $formIds) as $row) {
+            if (!$this->rowVisible($row, $notesAny, $notesOwn, $authUser)) {
+                continue;
+            }
+            $dir = $row['formdir'];
+            if (!in_array($dir, $have, true)) {
+                $have[] = $dir;
+            }
+        }
+        return $have;
+    }
+
+    /**
+     * Drop instances the user cannot open.
+     *
+     * @param list<array<string, mixed>> $instances
+     * @return list<array<string, mixed>>
+     */
+    private function visibleInstances(
+        array $instances,
+        bool $notesAny,
+        bool $notesOwn,
+        string $authUser
+    ): array {
+        $kept = [];
+        foreach ($instances as $instance) {
+            if ($this->rowVisible($instance, $notesAny, $notesOwn, $authUser)) {
+                $kept[] = $instance;
+            }
+        }
+        return $kept;
+    }
+
+    /**
+     * True when this user may read or change the encounter.
+     */
+    private function mayReadEncounter(
+        LbfReader $reader,
+        int $pid,
+        int $encounter,
+        bool $notesAny,
+        bool $notesOwn,
+        string $authUser
+    ): bool {
+        if (!$this->squadAllows($reader, $pid)) {
+            return false;
+        }
+        $policy = $reader->encounterPolicy($pid, $encounter);
+        if ($policy === null) {
+            return false;
+        }
+
+        return $this->rowVisible($policy, $notesAny, $notesOwn, $authUser);
+    }
+
+    /**
+     * Encounter-list rule: any-encounter notes, or this user's own encounter,
+     * and a sensitivity the user is allowed to see.
+     *
+     * @param array<string, mixed> $row
+     */
+    private function rowVisible(array $row, bool $notesAny, bool $notesOwn, string $authUser): bool
+    {
+        $sensitivity = Values::asString($row['sensitivity'] ?? '');
+        $sensitivityAllowed = $sensitivity === '' || AclMain::aclCheckCore('sensitivities', $sensitivity);
+
+        return self::encounterVisible(
+            $notesAny,
+            $notesOwn,
+            Values::asString($row['encounter_user'] ?? ''),
+            $authUser,
+            $sensitivityAllowed
+        );
+    }
+
+    /**
+     * Own-encounter notes do not open someone else's encounter.
+     */
+    public static function encounterVisible(
+        bool $notesAny,
+        bool $notesOwn,
+        string $encounterUser,
+        string $authUser,
+        bool $sensitivityAllowed
+    ): bool {
+        if (!$sensitivityAllowed) {
+            return false;
+        }
+        if ($notesAny) {
+            return true;
+        }
+
+        return $notesOwn && $encounterUser !== '' && $encounterUser === $authUser;
+    }
+
+    /**
+     * True when the stored paragraph is still the text the editor loaded.
+     */
+    public static function paragraphIsCurrent(string $baseline, string $stored): bool
+    {
+        if (strlen($baseline) !== 64) {
+            return false;
+        }
+
+        return hash_equals($baseline, hash('sha256', $stored));
     }
 
     /**

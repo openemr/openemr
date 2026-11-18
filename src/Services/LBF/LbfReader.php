@@ -147,7 +147,9 @@ class LbfReader
         Identifiers::assertFieldId($formId);
         $rows = $this->sql->fetchRecords(
             "SELECT f.form_id, f.encounter, f.date, f.form_name, " .
-            "fe.date AS encounter_date, fe.reason " .
+            "fe.date AS encounter_date, fe.reason, fe.sensitivity, " .
+            "(SELECT np.user FROM forms np WHERE np.pid = f.pid AND np.encounter = f.encounter " .
+            "AND np.formdir = 'newpatient' AND np.deleted = 0 ORDER BY np.id LIMIT 1) AS encounter_user " .
             "FROM forms f " .
             "LEFT JOIN form_encounter fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
             "WHERE f.formdir = ? AND f.pid = ? AND f.deleted = 0 " .
@@ -180,6 +182,8 @@ class LbfReader
                 'date' => $date,
                 'reason' => $reason,
                 'form_name' => Values::rowString($row, 'form_name'),
+                'sensitivity' => Values::rowString($row, 'sensitivity'),
+                'encounter_user' => Values::rowString($row, 'encounter_user'),
             ];
         }
         return $out;
@@ -220,6 +224,116 @@ class LbfReader
             $out[$fieldId] = Values::rowString($row, 'field_value');
         }
         return $out;
+    }
+
+    /**
+     * Squad stored on the patient, or an empty string when there is none.
+     */
+    public function patientSquad(int $pid): string
+    {
+        if ($pid <= 0) {
+            return '';
+        }
+        $row = Values::assocRow($this->sql->querySingleRow(
+            "SELECT squad FROM patient_data WHERE pid = ?",
+            [$pid]
+        ));
+        if ($row === null) {
+            return '';
+        }
+
+        return trim(Values::rowString($row, 'squad'));
+    }
+
+    /**
+     * Sensitivity and the encounter's author, or null when the encounter is gone.
+     *
+     * @return array{sensitivity:string,encounter_user:string}|null
+     */
+    public function encounterPolicy(int $pid, int $encounter): ?array
+    {
+        if ($pid <= 0 || $encounter <= 0) {
+            return null;
+        }
+        $row = Values::assocRow($this->sql->querySingleRow(
+            "SELECT fe.sensitivity, " .
+            "(SELECT np.user FROM forms np WHERE np.pid = fe.pid AND np.encounter = fe.encounter " .
+            "AND np.formdir = 'newpatient' AND np.deleted = 0 ORDER BY np.id LIMIT 1) AS encounter_user " .
+            "FROM form_encounter fe WHERE fe.pid = ? AND fe.encounter = ?",
+            [$pid, $encounter]
+        ));
+        if ($row === null) {
+            return null;
+        }
+
+        return [
+            'sensitivity' => Values::rowString($row, 'sensitivity'),
+            'encounter_user' => Values::rowString($row, 'encounter_user'),
+        ];
+    }
+
+    /**
+     * One row per saved form, with the encounter restrictions that hide it.
+     *
+     * @param list<string> $formIds
+     * @return list<array{formdir:string,encounter:int,sensitivity:string,encounter_user:string}>
+     */
+    public function encountersForPatient(int $pid, array $formIds): array
+    {
+        if ($pid <= 0 || $formIds === []) {
+            return [];
+        }
+        $safe = [];
+        foreach ($formIds as $id) {
+            $safe[] = Identifiers::assertFieldId($id);
+        }
+        $placeholders = implode(',', array_fill(0, count($safe), '?'));
+        $bind = array_merge([$pid], $safe);
+        $rows = $this->sql->fetchRecords(
+            "SELECT f.formdir, f.encounter, fe.sensitivity, " .
+            "(SELECT np.user FROM forms np WHERE np.pid = f.pid AND np.encounter = f.encounter " .
+            "AND np.formdir = 'newpatient' AND np.deleted = 0 ORDER BY np.id LIMIT 1) AS encounter_user " .
+            "FROM forms f " .
+            "LEFT JOIN form_encounter fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
+            "WHERE f.pid = ? AND f.deleted = 0 AND f.formdir IN ($placeholders) " .
+            "ORDER BY f.date DESC, f.form_id DESC",
+            $bind
+        );
+        $out = [];
+        foreach ($rows as $raw) {
+            $row = Values::assocRow($raw);
+            if ($row === null) {
+                continue;
+            }
+            $dir = Values::rowString($row, 'formdir');
+            if ($dir === '') {
+                continue;
+            }
+            $out[] = [
+                'formdir' => $dir,
+                'encounter' => Values::rowInt($row, 'encounter'),
+                'sensitivity' => Values::rowString($row, 'sensitivity'),
+                'encounter_user' => Values::rowString($row, 'encounter_user'),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Paragraph text locked for the rest of this transaction.
+     */
+    public function paragraphValueForUpdate(int $instanceId, string $fieldId): string
+    {
+        Identifiers::assertFieldId($fieldId);
+        $row = Values::assocRow($this->sql->querySingleRow(
+            "SELECT field_value FROM lbf_data WHERE form_id = ? AND field_id = ? FOR UPDATE",
+            [$instanceId, $fieldId]
+        ));
+        if ($row === null) {
+            return '';
+        }
+
+        return Values::rowString($row, 'field_value');
     }
 
     /**

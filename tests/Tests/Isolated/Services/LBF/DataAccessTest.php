@@ -417,6 +417,7 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             ], 7));
 
             $this->sql->queue[] = ['id' => 7, 'form_id' => 'LBFecho', 'source_field_id' => 'n', 'op' => 'parse_severity', 'enabled' => 0];
+            $this->sql->queue[] = ['id' => 7, 'form_id' => 'LBFecho', 'source_field_id' => 'n', 'op' => 'parse_severity', 'enabled' => 0];
             $this->sql->queue[] = ['id' => 7];
             $repo->setEnabled(7, true);
 
@@ -512,7 +513,7 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
                 'statement_text' => 'In range.',
                 'enabled' => 1,
             ]);
-            $expected = StatementRepository::bandLockName('LBFecho', 'n', '');
+            $expected = StatementRepository::bandLockName('LBFecho', 'n');
             $this->assertSame(1, $this->sql->transactions);
             $this->assertSame(
                 [['op' => 'get', 'name' => $expected], ['op' => 'release', 'name' => $expected]],
@@ -520,7 +521,7 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             );
 
             $this->sql->locks = [];
-            $this->sql->queue[] = [
+            $preview = [
                 'id' => 9,
                 'form_id' => 'LBFecho',
                 'source_field_id' => 'n',
@@ -532,6 +533,8 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
                 'max_inclusive' => 1,
                 'enabled' => 0,
             ];
+            $this->sql->queue[] = $preview;
+            $this->sql->queue[] = $preview;
             $this->sql->queue[] = [];
             $this->sql->queue[] = ['id' => 9];
             $repo->setEnabled(9, true);
@@ -810,7 +813,7 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
                 'enabled' => 1,
             ]);
             $this->assertSame(42, $id);
-            $lockName = StatementRepository::bandLockName('LBFecho', 'n', '');
+            $lockName = StatementRepository::bandLockName('LBFecho', 'n');
             $this->assertSame(
                 [
                     ['op' => 'get', 'name' => $lockName],
@@ -848,6 +851,105 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             $this->sql->queue[] = ['grp_aco_spec' => ''];
             $catalog = new LayoutCatalog($this->sql);
             $this->assertSame('', $catalog->acoSpec('LBFecho'));
+        }
+
+        /**
+         * Male and female bands on the same numbers are not the same patient.
+         */
+        public function testMaleAndFemaleBandsMayUseTheSameNumbers(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [[
+                'id' => 1,
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 10,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'match_token' => 'Female',
+                'enabled' => 1,
+            ]];
+            $id = $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 10,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'match_token' => 'Male',
+                'enabled' => 1,
+                'statement_text' => 'Male range.',
+            ]);
+            $this->assertSame(42, $id);
+        }
+
+        /**
+         * A fallback field does not make an overlapping band legal.
+         */
+        public function testFallbackFieldDoesNotSplitAnOverlappingBand(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [[
+                'id' => 1,
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'source_field_id_2' => '',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 10,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'match_token' => '',
+                'enabled' => 1,
+            ]];
+            $this->expectException(BandOverlapException::class);
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'source_field_id_2' => 'num',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 10,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'enabled' => 1,
+                'statement_text' => 'Same numbers.',
+            ]);
+        }
+
+        /**
+         * A bound that rounds onto an existing edge is an overlap.
+         */
+        public function testStoredPrecisionRejectsABoundThatRoundsOntoAnEdge(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [[
+                'id' => 1,
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 1,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'match_token' => '',
+                'enabled' => 1,
+            ]];
+            $this->expectException(BandOverlapException::class);
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => 1.00004,
+                'max_value' => 2,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'enabled' => 1,
+                'statement_text' => 'Rounded.',
+            ]);
         }
 
     }

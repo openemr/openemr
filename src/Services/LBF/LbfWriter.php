@@ -34,37 +34,49 @@ class LbfWriter
     public function write(int $instanceId, array $newValues, array $oldValues, array $actions): void
     {
         $this->sql->inTransaction(function () use ($instanceId, $newValues, $oldValues, $actions): void {
-            $touched = [];
-            foreach ($actions as $action) {
-                $fid = $action['field_id'];
-                if ($fid === '') {
-                    continue;
-                }
-                Identifiers::assertFieldId($fid);
-                $touched[$fid] = true;
-            }
-            foreach (array_keys($touched) as $fieldId) {
-                $value = $newValues[$fieldId] ?? '';
-                $old = $oldValues[$fieldId] ?? null;
-                if ($value === '') {
-                    $this->sql->sqlStatementThrowException(
-                        "DELETE FROM lbf_data WHERE form_id = ? AND field_id = ?",
-                        [$instanceId, $fieldId]
-                    );
-                    continue;
-                }
-                if ($old === null) {
-                    $this->sql->sqlStatementThrowException(
-                        "INSERT INTO lbf_data (form_id, field_id, field_value) VALUES (?,?,?)",
-                        [$instanceId, $fieldId, $value]
-                    );
-                    continue;
-                }
-                $this->sql->sqlStatementThrowException(
-                    "REPLACE INTO lbf_data SET field_value = ?, form_id = ?, field_id = ?",
-                    [$value, $instanceId, $fieldId]
-                );
-            }
+            $this->apply($instanceId, $newValues, $oldValues, $actions);
         });
+    }
+
+    /**
+     * Write the listed fields. The caller owns the transaction.
+     *
+     * @param array<string, string> $newValues
+     * @param array<string, string> $oldValues
+     * @param list<array{field_id:string}> $actions
+     */
+    public function apply(int $instanceId, array $newValues, array $oldValues, array $actions): void
+    {
+        $touched = [];
+        foreach ($actions as $action) {
+            $fid = $action['field_id'];
+            if ($fid === '') {
+                continue;
+            }
+            Identifiers::assertFieldId($fid);
+            $touched[$fid] = true;
+        }
+        foreach (array_keys($touched) as $fieldId) {
+            $value = $newValues[$fieldId] ?? '';
+            $old = $oldValues[$fieldId] ?? null;
+            if ($value === '') {
+                $this->sql->sqlStatementThrowException(
+                    "DELETE FROM lbf_data WHERE form_id = ? AND field_id = ?",
+                    [$instanceId, $fieldId]
+                );
+                continue;
+            }
+            if ($old === null) {
+                $this->sql->sqlStatementThrowException(
+                    "INSERT INTO lbf_data (form_id, field_id, field_value) VALUES (?,?,?)",
+                    [$instanceId, $fieldId, $value]
+                );
+                continue;
+            }
+            $this->sql->sqlStatementThrowException(
+                "REPLACE INTO lbf_data SET field_value = ?, form_id = ?, field_id = ?",
+                [$value, $instanceId, $fieldId]
+            );
+        }
     }
 }

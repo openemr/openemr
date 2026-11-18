@@ -61,6 +61,23 @@
         const isBand = op === 'band';
         const isRatio = op === 'ratio_lt' || op === 'ratio_gt';
         const isToken = op === 'parse_severity';
+        const isRatioLt = op === 'ratio_lt';
+        const minLabelBand = document.getElementById('min-label-band');
+        const minLabelRatio = document.getElementById('min-label-ratio');
+        const minHelpRatio = document.getElementById('min-help-ratio');
+        const minInclusive = document.getElementById('min_inclusive');
+        if (minLabelBand) {
+            minLabelBand.classList.toggle('d-none', isRatioLt);
+        }
+        if (minLabelRatio) {
+            minLabelRatio.classList.toggle('d-none', !isRatioLt);
+        }
+        if (minHelpRatio) {
+            minHelpRatio.classList.toggle('d-none', !isRatioLt);
+        }
+        if (minInclusive) {
+            minInclusive.disabled = isRatioLt;
+        }
         if (band) {
             band.classList.toggle('d-none', !isBand && !isRatio);
         }
@@ -152,6 +169,33 @@
      * @param {{min:number|null,max:number|null,minInc:boolean,maxInc:boolean}} b
      * @returns {boolean}
      */
+    /**
+     * A blank sex matches every patient. Two different sexes do not.
+     * @param {*} left
+     * @param {*} right
+     * @returns {boolean}
+     */
+    function sexesCanMatch(left, right) {
+        const a = String(left || '').trim().toLowerCase();
+        const b = String(right || '').trim().toLowerCase();
+        if (a === '' || b === '') {
+            return true;
+        }
+        return a === b;
+    }
+
+    /**
+     * Round a bound to the four decimal places the column stores.
+     * @param {number|null} value
+     * @returns {number|null}
+     */
+    function storedBound(value) {
+        if (value == null) {
+            return null;
+        }
+        return Math.round(value * 10000) / 10000;
+    }
+
     function rangesOverlap(a, b) {
         const aMin = a.min == null ? Number.NEGATIVE_INFINITY : a.min;
         const aMax = a.max == null ? Number.POSITIVE_INFINITY : a.max;
@@ -182,11 +226,12 @@
             source_field_id: document.getElementById('source_field_id').value,
             source_field_id_2: document.getElementById('source_field_id_2').value,
             op: document.getElementById('op').value,
-            min: numOrNull(document.getElementById('min_value').value),
-            max: numOrNull(document.getElementById('max_value').value),
+            min: storedBound(numOrNull(document.getElementById('min_value').value)),
+            max: storedBound(numOrNull(document.getElementById('max_value').value)),
             minInc: document.getElementById('min_inclusive').checked,
             maxInc: document.getElementById('max_inclusive').checked,
-            enabled: document.getElementById('enabled').checked
+            enabled: document.getElementById('enabled').checked,
+            match_token: (document.getElementById('match_token') || {}).value || ''
         };
     }
 
@@ -214,7 +259,7 @@
             if (other.source_field_id !== draft.source_field_id) {
                 continue;
             }
-            if (String(other.source_field_id_2 || '') !== String(draft.source_field_id_2 || '')) {
+            if (!sexesCanMatch(draft.match_token, other.match_token)) {
                 continue;
             }
             const b = {

@@ -87,6 +87,13 @@ class AdminController
                     } catch (\InvalidArgumentException) {
                         $error = xl('Choose a textarea on this layout.');
                     }
+                } elseif ($action === 'ensure_paragraph' && $formId !== '') {
+                    try {
+                        $catalog->ensureParagraphField($formId);
+                        $message = xl('Paragraph field added.');
+                    } catch (\InvalidArgumentException) {
+                        $error = xl('This layout already has a paragraph field that is not a textarea.');
+                    }
                 } elseif ($action === 'toggle') {
                     $rid = Values::asInt($this->stringParam($request, 'rule_id'));
                     $enabled = Values::asInt($this->stringParam($request, 'enabled')) === 1;
@@ -192,6 +199,7 @@ class AdminController
                 'max_value' => $rule['max_value'] ?? null,
                 'min_inclusive' => Values::rowInt($rule, 'min_inclusive'),
                 'max_inclusive' => Values::rowInt($rule, 'max_inclusive'),
+                'match_token' => Values::rowString($rule, 'match_token'),
                 'enabled' => Values::rowInt($rule, 'enabled'),
             ];
         }

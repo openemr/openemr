@@ -191,6 +191,7 @@
                 <input type="hidden" name="pid" value="{{ pid|attr }}" />
                 <input type="hidden" name="instance_id" value="{{ instance_id|attr }}" />
                 <input type="hidden" name="generate" value="1" />
+                <input type="hidden" name="paragraph_baseline" value="{{ paragraphBaseline|attr }}" />
                 <div class="form-group">
                     <label for="paragraph_text">{% if paragraphTitle %}{{ paragraphTitle|text }}{% else %}{{ "Paragraph"|xlt }}{% endif %}</label>
                     <textarea class="form-control" id="paragraph_text" name="paragraph_text" rows="8">{{ paragraphEditor|text }}</textarea>
