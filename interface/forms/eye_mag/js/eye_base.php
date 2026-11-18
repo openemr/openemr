@@ -120,6 +120,10 @@ function submit_form(action) {
         $("#" + newValue).val($(this).val());
         $("#" + newValue + "_copy_brd").val($(this).val());
     });
+    // Format numeric fields before serializing, so unformatted entries (e.g. "3")
+    // are converted to their full form (e.g. "+3.00") even when save happens
+    // before the field's blur handler runs.
+    $("input[class^='sphere'],input[name$='SPH'],input[class^='presbyopia'],input[name$='ADD'],#ODADD_1,#ODADD_2,#OSADD_1,#OSADD_2,input[name$='PRISM'],input[class^='prism'],input[name$='CYL'],input[name$='AXIS']").trigger('blur');
 formData = $("form#eye_mag").serialize();
     if (formData =='') return;
     $("#menustate").val('0');
@@ -3642,19 +3646,19 @@ $(function () {
                                                                                                               add= "+" + add;
                                                                                                               }
                                                                                                               $(this).val(add);
-                                                                                                              if (this.id=="ODADD_1") $('#OSADD_1').val(add);
-                                                                                                              if (this.id=="ODMIDADD_1") $('#OSMIDADD_1').val(add);
-                                                                                                              if (this.id=="ODADD_2") $('#OSADD_2').val(add);
-                                                                                                              if (this.id=="ODMIDADD_2") $('#OSMIDADD_2').val(add);
-                                                                                                              if (this.id=="ODADD_3") $('#OSADD_3').val(add);
-                                                                                                              if (this.id=="ODMIDADD_3") $('#OSMIDADD_3').val(add);
-                                                                                                              if (this.id=="ODADD_4") $('#OSADD_4').val(add);
-                                                                                                              if (this.id=="ODMIDADD_4") $('#OSMIDADD_4').val(add);
-                                                                                                              if (this.id=="ODADD_5") $('#OSADD_5').val(add);
-                                                                                                              if (this.id=="ODMIDADD_5") $('#OSMIDADD_5').val(add);
-                                                                                                              if (this.id=="MRODADD") $('#MROSADD').val(add);
-                                                                                                              if (this.id=="ARODADD") $('#AROSADD').val(add);
-                                                                                                              if (this.id=="CTLODADD") $('#CTLOSADD').val(add);
+                                                                                                              if (this.id=="ODADD_1") $('#OSADD_1').val(add).trigger('change');
+                                                                                                              if (this.id=="ODMIDADD_1") $('#OSMIDADD_1').val(add).trigger('change');
+                                                                                                              if (this.id=="ODADD_2") $('#OSADD_2').val(add).trigger('change');
+                                                                                                              if (this.id=="ODMIDADD_2") $('#OSMIDADD_2').val(add).trigger('change');
+                                                                                                              if (this.id=="ODADD_3") $('#OSADD_3').val(add).trigger('change');
+                                                                                                              if (this.id=="ODMIDADD_3") $('#OSMIDADD_3').val(add).trigger('change');
+                                                                                                              if (this.id=="ODADD_4") $('#OSADD_4').val(add).trigger('change');
+                                                                                                              if (this.id=="ODMIDADD_4") $('#OSMIDADD_4').val(add).trigger('change');
+                                                                                                              if (this.id=="ODADD_5") $('#OSADD_5').val(add).trigger('change');
+                                                                                                              if (this.id=="ODMIDADD_5") $('#OSMIDADD_5').val(add).trigger('change');
+                                                                                                              if (this.id=="MRODADD") $('#MROSADD').val(add).trigger('change');
+                                                                                                              if (this.id=="ARODADD") $('#AROSADD').val(add).trigger('change');
+                                                                                                              if (this.id=="CTLODADD") $('#CTLOSADD').val(add).trigger('change');
                                                                                                               });
 
                   $("input[class^='axis'],input[name$='AXIS']").on("blur", function() {
