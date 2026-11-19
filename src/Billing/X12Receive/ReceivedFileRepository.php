@@ -42,9 +42,10 @@ final class ReceivedFileRepository implements ReceivedFileLog
             'INSERT INTO `x12_remote_received` (`remote_key`, `x12_partner_id`, `remote_dir`, `remote_name`,'
             . ' `remote_size`, `remote_mtime`, `file_type`, `status`, `stored_name`, `message`, `received_at`,'
             . ' `auto_post_status`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-            // A stored file stays stored: a second run that overlapped the first finds it on the
-            // site and reports a duplicate, which must not take it out of the posting queue.
-            . ' ON DUPLICATE KEY UPDATE `file_type` = VALUES(`file_type`),'
+            // A stored file stays stored, as the kind it was stored as: a second run that overlapped
+            // the first reports it as a duplicate, or fails to download it, and neither must take
+            // it out of the posting queue.
+            . ' ON DUPLICATE KEY UPDATE `file_type` = IF(`status` = ?, `file_type`, VALUES(`file_type`)),'
             . ' `stored_name` = IF(`status` = ?, `stored_name`, VALUES(`stored_name`)),'
             . ' `status` = IF(`status` = ?, `status`, VALUES(`status`)),'
             . ' `message` = VALUES(`message`), `received_at` = VALUES(`received_at`),'
@@ -63,6 +64,7 @@ final class ReceivedFileRepository implements ReceivedFileLog
                 mb_substr($outcome->message, 0, 255),
                 $at->format('Y-m-d H:i:s'),
                 $postUnattended ? AutoPostFileStatus::Pending->value : '',
+                ReceivedStatus::Stored->value,
                 ReceivedStatus::Stored->value,
                 ReceivedStatus::Stored->value,
             ]
