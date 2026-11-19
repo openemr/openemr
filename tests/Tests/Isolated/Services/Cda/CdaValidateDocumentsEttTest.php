@@ -63,16 +63,20 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
 
             $results = $validator->ettValidateCcda(self::DOCUMENT);
 
-            $this->assertSame(1, $results['errorCount']);
-            $this->assertSame([[
-                'type' => 'error',
-                'test' => 'C-CDA MDHT Conformance Error',
-                'description' => 'SHALL contain exactly one [1..1] title',
-                'line' => '12',
-                'path' => '/ClinicalDocument',
-                'context' => 'C-CDA MDHT Conformance Error',
-                'xml' => '',
-            ]], $results['errors']);
+            $this->assertSame([
+                'errorCount' => 1,
+                'warningCount' => 0,
+                'ignoredCount' => 0,
+                'errors' => [[
+                    'type' => 'error',
+                    'test' => 'C-CDA MDHT Conformance Error',
+                    'description' => 'SHALL contain exactly one [1..1] title',
+                    'line' => '12',
+                    'path' => '/ClinicalDocument',
+                    'context' => 'C-CDA MDHT Conformance Error',
+                    'xml' => '',
+                ]],
+            ], $results);
 
             $request = $handler->getLastRequest();
             $this->assertInstanceOf(RequestInterface::class, $request);
@@ -94,8 +98,7 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
 
             $results = $validator->ettValidateCcda(self::DOCUMENT);
 
-            $this->assertSame(1, $results['errorCount']);
-            $this->assertSame([$this->failureFinding(500)], $results['errors']);
+            $this->assertSame($this->failureResults(500), $results);
         }
 
         public function testAnUnreachableValidatorIsReportedAsOneFinding(): void
@@ -106,8 +109,7 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
 
             $results = $validator->ettValidateCcda(self::DOCUMENT);
 
-            $this->assertSame(1, $results['errorCount']);
-            $this->assertSame([$this->failureFinding(0)], $results['errors']);
+            $this->assertSame($this->failureResults(0), $results);
         }
 
         public function testAReplyThatIsNotJsonIsReportedAsOneFinding(): void
@@ -116,8 +118,55 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
 
             $results = $validator->ettValidateCcda(self::DOCUMENT);
 
-            $this->assertSame(1, $results['errorCount']);
-            $this->assertSame([$this->failureFinding(200)], $results['errors']);
+            $this->assertSame($this->failureResults(200), $results);
+        }
+
+        public function testJsonWithoutAFindingsListIsReportedAsOneFinding(): void
+        {
+            $validator = $this->validatorUsing(new MockHandler([
+                new Response(200, [], '{"resultsMetaData": {"resultMetaData": [{"count": 0}]}}'),
+            ]));
+
+            $results = $validator->ettValidateCcda(self::DOCUMENT);
+
+            $this->assertSame($this->failureResults(200), $results);
+        }
+
+        public function testANumericLineNumberIsReportedAsText(): void
+        {
+            $validator = $this->validatorUsing(new MockHandler([new Response(200, [], <<<'JSON'
+                {
+                    "resultsMetaData": {"resultMetaData": [{"count": 1}]},
+                    "ccdaValidationResults": [{"type": "t", "description": "d", "documentLineNumber": 7, "xPath": "/x"}]
+                }
+                JSON)]));
+
+            $results = $validator->ettValidateCcda(self::DOCUMENT);
+
+            $this->assertSame([
+                'errorCount' => 1,
+                'warningCount' => 0,
+                'ignoredCount' => 0,
+                'errors' => [[
+                    'type' => 'error',
+                    'test' => 't',
+                    'description' => 'd',
+                    'line' => '7',
+                    'path' => '/x',
+                    'context' => 't',
+                    'xml' => '',
+                ]],
+            ], $results);
+        }
+
+        public function testAnEmptyDocumentIsNotSent(): void
+        {
+            $handler = new MockHandler([new Response(500)]);
+
+            $results = $this->validatorUsing($handler)->ettValidateCcda('');
+
+            $this->assertSame(['errorCount' => 0, 'warningCount' => 0, 'ignoredCount' => 0], $results);
+            $this->assertCount(1, $handler);
         }
 
         public function testARedirectIsNotFollowed(): void
@@ -129,7 +178,20 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
             $results = $validator->ettValidateCcda(self::DOCUMENT);
 
             $this->assertCount(0, $handler);
-            $this->assertSame([$this->failureFinding(302)], $results['errors']);
+            $this->assertSame($this->failureResults(302), $results);
+        }
+
+        /**
+         * @return array{errorCount: 1, warningCount: 0, ignoredCount: 0, errors: list<array<string, string>>}
+         */
+        private function failureResults(int $status): array
+        {
+            return [
+                'errorCount' => 1,
+                'warningCount' => 0,
+                'ignoredCount' => 0,
+                'errors' => [$this->failureFinding($status)],
+            ];
         }
 
         /**

@@ -102,9 +102,9 @@ class ProductRegistrationService
     /**
      * @throws \GenericProductRegistrationException
      */
-    public function registerProduct($email)
+    public function registerProduct(string $email): ?string
     {
-        if (empty($email)) {
+        if ($email === '') {
             $this->optOutStrategy();
             return null;
         } else {
@@ -112,13 +112,14 @@ class ProductRegistrationService
         }
     }
 
-    private function optInStrategy($email)
+    private function optInStrategy(string $email): string
     {
         // build the information array
         $info = ['email' => $email, 'version' => (string) (new VersionService())->getSoftwareVersion()];
-        if (!empty(getenv('OPENEMR_DOCKER_ENV_TAG', true))) {
+        $distribution = getenv('OPENEMR_DOCKER_ENV_TAG', true);
+        if (is_string($distribution) && $distribution !== '') {
             // this will add standard package information if it exists
-            $info['distribution'] = getenv('OPENEMR_DOCKER_ENV_TAG', true);
+            $info['distribution'] = $distribution;
         }
 
         try {
@@ -143,7 +144,6 @@ class ProductRegistrationService
                     sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`, `last_ask_version`) VALUES (?, 0, ?)", [$email, $currentVersion]);
                 }
                 return $email;
-                break;
             default:
                 throw new \GenericProductRegistrationException(xl("Server error: try again later"));
         }

@@ -24,12 +24,16 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\Schematron\SchemaRegistry;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @phpstan-type EttFinding array{type: string, description: string, documentLineNumber: string, xPath: string}
+ * @phpstan-type EttReply array{count: int, findings: list<EttFinding>}
+ */
 class CdaValidateDocuments
 {
     use SystemLoggerAwareTrait;
 
-    public $externalValidatorUrl;
-    public $externalValidatorEnabled;
+    public ?string $externalValidatorUrl = null;
+    public bool $externalValidatorEnabled = false;
 
     private readonly ClientInterface $httpClient;
 
@@ -39,19 +43,11 @@ class CdaValidateDocuments
     {
         $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
         $this->validatorLogger = $logger ?? ServiceContainer::getLogger();
-        $this->externalValidatorEnabled = OEGlobalsBag::getInstance()->getBoolean('mdht_conformance_server_enable');
-        if (empty(OEGlobalsBag::getInstance()->getString('mdht_conformance_server'))) {
-            $this->externalValidatorEnabled = false;
-        }
-        $this->externalValidatorUrl = null;
+        $server = trim(OEGlobalsBag::getInstance()->getString('mdht_conformance_server'));
+        $this->externalValidatorEnabled = $server !== ''
+            && OEGlobalsBag::getInstance()->getBoolean('mdht_conformance_server_enable');
         if ($this->externalValidatorEnabled) {
-            // should never get to where the url is '' as we disable it if the conformance server is empty
-            $this->externalValidatorUrl = trim(OEGlobalsBag::getInstance()->getString('mdht_conformance_server') ?? null) ?: '';
-            if (!str_ends_with($this->externalValidatorUrl, '/')) {
-                $this->externalValidatorUrl .= '/';
-            }
-
-            $this->externalValidatorUrl .= 'referenceccdaservice/';
+            $this->externalValidatorUrl = rtrim($server, '/') . '/referenceccdaservice/';
         }
     }
 
@@ -78,6 +74,9 @@ class CdaValidateDocuments
         return $totals;
     }
 
+    /**
+     * @return array{}|array{errorCount: int, warningCount: 0, ignoredCount: 0, errors?: non-empty-list<array{type: 'error', test: string, description: string, line: string, path: string, context: string, xml: ''}>}
+     */
     public function ettValidateCcda(string $xml): array
     {
         try {
@@ -88,11 +87,11 @@ class CdaValidateDocuments
         }
         // translate result to our common render array
         $results = [
-            'errorCount' => $result['resultsMetaData']["resultMetaData"][0]["count"],
+            'errorCount' => $result['count'],
             'warningCount' => 0,
             'ignoredCount' => 0,
         ];
-        foreach ($result['ccdaValidationResults'] as $r) {
+        foreach ($result['findings'] as $r) {
             $results['errors'][] = [
                 'type' => 'error',
                 'test' => $r['type'],
@@ -121,16 +120,16 @@ class CdaValidateDocuments
     }
 
     /**
-     * @return mixed[]
+     * @return EttReply
      */
     private function ettValidateDocumentRequest(string $xml): array
     {
         if ($xml === '') {
-            return [];
+            return ['count' => 0, 'findings' => []];
         }
 
         $url = $this->externalValidatorUrl;
-        if (!is_string($url) || $url === '') {
+        if ($url === null || $url === '') {
             return $this->ettFailureReply(0);
         }
 
@@ -168,30 +167,75 @@ class CdaValidateDocuments
             return $this->ettFailureReply($status);
         }
 
-        // A reply that isn't a JSON object (a proxy's HTML error page, say) is a failed
+        // A reply that isn't a validation report (a proxy's HTML error page, say) is a failed
         // validation, not a document with no findings.
         try {
             $decoded = Json::decode($body);
         } catch (\JsonException) {
             $decoded = null;
         }
-        if (!is_array($decoded)) {
-            $this->validatorLogger->error('C-CDA validator reply was not JSON', ['status' => $status]);
+        $reply = is_array($decoded) ? $this->parseEttReply($decoded) : null;
+        if ($reply === null) {
+            $this->validatorLogger->error('C-CDA validator reply was not a validation report', ['status' => $status]);
             return $this->ettFailureReply($status);
         }
-        return $decoded;
+        return $reply;
+    }
+
+    /**
+     * Read the error count and findings from a decoded validator reply.
+     *
+     * @param array<mixed> $decoded
+     * @return ?EttReply null when the reply lacks the count or the findings list
+     */
+    private function parseEttReply(array $decoded): ?array
+    {
+        $metaData = $decoded['resultsMetaData'] ?? null;
+        $counts = is_array($metaData) ? $metaData['resultMetaData'] ?? null : null;
+        $firstCount = is_array($counts) ? $counts[0] ?? null : null;
+        $count = is_array($firstCount) ? $firstCount['count'] ?? null : null;
+        $results = $decoded['ccdaValidationResults'] ?? null;
+        if (!is_int($count) || !is_array($results)) {
+            return null;
+        }
+
+        $findings = [];
+        foreach ($results as $result) {
+            if (!is_array($result)) {
+                return null;
+            }
+            $findings[] = [
+                'type' => self::ettText($result['type'] ?? null),
+                'description' => self::ettText($result['description'] ?? null),
+                'documentLineNumber' => self::ettText($result['documentLineNumber'] ?? null),
+                'xPath' => self::ettText($result['xPath'] ?? null),
+            ];
+        }
+        return ['count' => $count, 'findings' => $findings];
+    }
+
+    /**
+     * A finding's field as text: the validator sends line numbers as strings or numbers.
+     */
+    private static function ettText(mixed $value): string
+    {
+        return match (true) {
+            is_string($value) => $value,
+            is_int($value), is_float($value) => (string) $value,
+            default => '',
+        };
     }
 
     /**
      * Shape a failed validation request like a validator reply reporting one error.
      *
-     * @return array{resultsMetaData: array{resultMetaData: list<array{count: int}>}, ccdaValidationResults: list<array{type: string, description: string, documentLineNumber: string, xPath: string}>}
+     * @return EttReply
      */
     private function ettFailureReply(int $status): array
     {
         return [
-            'resultsMetaData' => ['resultMetaData' => [['count' => 1]]],
-            'ccdaValidationResults' => [[
+            'count' => 1,
+            'findings' => [[
                 'type' => 'error',
                 'description' => xlt('Validation Request failed') . ' ' . xlt('Request Status') . ': ' . $status,
                 'documentLineNumber' => '',
