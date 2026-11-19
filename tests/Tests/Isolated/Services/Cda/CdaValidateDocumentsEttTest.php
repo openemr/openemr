@@ -33,7 +33,9 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
     use GuzzleHttp\HandlerStack;
     use GuzzleHttp\Psr7\Request;
     use GuzzleHttp\Psr7\Response;
+    use OpenEMR\Core\OEGlobalsBag;
     use OpenEMR\Services\Cda\CdaValidateDocuments;
+    use PHPUnit\Framework\Attributes\DataProvider;
     use PHPUnit\Framework\Attributes\Group;
     use PHPUnit\Framework\TestCase;
     use Psr\Http\Message\RequestInterface;
@@ -45,6 +47,62 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
         private const VALIDATOR_URL = 'https://ett.example.test/referenceccdaservice/';
 
         private const DOCUMENT = '<ClinicalDocument xmlns="urn:hl7-org:v3"/>';
+
+        private const SETTINGS = ['mdht_conformance_server', 'mdht_conformance_server_enable'];
+
+        /** @var array<string, mixed> */
+        private array $savedSettings = [];
+
+        protected function setUp(): void
+        {
+            foreach (self::SETTINGS as $key) {
+                $this->savedSettings[$key] = OEGlobalsBag::getInstance()->get($key);
+            }
+        }
+
+        protected function tearDown(): void
+        {
+            foreach ($this->savedSettings as $key => $value) {
+                OEGlobalsBag::getInstance()->set($key, $value);
+            }
+        }
+
+        /**
+         * @return array<string, array{string}>
+         *
+         * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+         */
+        public static function serverSettingProvider(): array
+        {
+            return [
+                'with a trailing slash' => ['https://ett.example.test/'],
+                'without one' => ['https://ett.example.test'],
+                'padded with spaces' => ['  https://ett.example.test/ '],
+            ];
+        }
+
+        #[DataProvider('serverSettingProvider')]
+        public function testTheServerSettingBecomesTheValidatorUrl(string $server): void
+        {
+            OEGlobalsBag::getInstance()->set('mdht_conformance_server', $server);
+            OEGlobalsBag::getInstance()->set('mdht_conformance_server_enable', '1');
+
+            $validator = new CdaValidateDocuments(new Client(), new NullLogger());
+
+            $this->assertTrue($validator->externalValidatorEnabled);
+            $this->assertSame(self::VALIDATOR_URL, $validator->externalValidatorUrl);
+        }
+
+        public function testAWhitespaceServerSettingLeavesTheValidatorOff(): void
+        {
+            OEGlobalsBag::getInstance()->set('mdht_conformance_server', '   ');
+            OEGlobalsBag::getInstance()->set('mdht_conformance_server_enable', '1');
+
+            $validator = new CdaValidateDocuments(new Client(), new NullLogger());
+
+            $this->assertFalse($validator->externalValidatorEnabled);
+            $this->assertNull($validator->externalValidatorUrl);
+        }
 
         public function testSendsTheDocumentAndTranslatesTheFindings(): void
         {
@@ -85,11 +143,53 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
             $this->assertSame('application/json', $request->getHeaderLine('Accept'));
             $this->assertStringStartsWith('multipart/form-data; boundary=', $request->getHeaderLine('Content-Type'));
             $body = (string) $request->getBody();
-            $this->assertStringContainsString('name="validationObjective"', $body);
-            $this->assertStringContainsString('C-CDA_IG_Plus_Vocab', $body);
+            foreach (
+                [
+                    'validationObjective' => 'C-CDA_IG_Plus_Vocab',
+                    'referenceFileName' => 'noscenariofile',
+                    'vocabularyConfig' => 'ccdaReferenceValidatorConfig',
+                    'severityLevel' => 'ERROR',
+                    'curesUpdate' => '1',
+                ] as $field => $value
+            ) {
+                $this->assertMatchesRegularExpression('/name="' . $field . '"\R.*\R\R' . $value . '\R/', $body);
+            }
             $this->assertStringContainsString('name="ccdaFile"; filename="ccda.xml"', $body);
             $this->assertStringContainsString('Content-Type: application/xhtml+xml', $body);
             $this->assertStringContainsString(self::DOCUMENT, $body);
+
+            $options = $handler->getLastOptions();
+            $this->assertFalse($options['allow_redirects']);
+            $this->assertFalse($options['http_errors']);
+            $this->assertSame(10, $options['connect_timeout']);
+            $this->assertSame(120, $options['timeout']);
+            $this->assertTrue($options['verify']);
+        }
+
+        public function testAMalformedServerSettingIsReportedAsOneFinding(): void
+        {
+            $handler = new MockHandler([new Response(200)]);
+            $validator = $this->validatorUsing($handler);
+            $validator->externalValidatorUrl = 'http://:8080/referenceccdaservice/';
+
+            $results = $validator->ettValidateCcda(self::DOCUMENT);
+
+            $this->assertSame($this->failureResults(0), $results);
+            $this->assertCount(1, $handler);
+        }
+
+        public function testAServiceErrorInTheReplyIsReportedAsOneFinding(): void
+        {
+            $validator = $this->validatorUsing(new MockHandler([new Response(200, [], <<<'JSON'
+                {
+                    "resultsMetaData": {"serviceError": true, "serviceErrorMessage": "Vocabulary unavailable", "resultMetaData": [{"count": 0}]},
+                    "ccdaValidationResults": []
+                }
+                JSON)]));
+
+            $results = $validator->ettValidateCcda(self::DOCUMENT);
+
+            $this->assertSame($this->failureResults(200), $results);
         }
 
         public function testAnHttpErrorIsReportedAsOneFinding(): void

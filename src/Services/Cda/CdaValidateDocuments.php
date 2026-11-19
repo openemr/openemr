@@ -18,7 +18,6 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Utils\Json;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\Schematron\SchemaRegistry;
@@ -30,19 +29,17 @@ use Psr\Log\LoggerInterface;
  */
 class CdaValidateDocuments
 {
-    use SystemLoggerAwareTrait;
-
     public ?string $externalValidatorUrl = null;
     public bool $externalValidatorEnabled = false;
 
     private readonly ClientInterface $httpClient;
 
-    private readonly LoggerInterface $validatorLogger;
+    private readonly LoggerInterface $logger;
 
     public function __construct(?ClientInterface $httpClient = null, ?LoggerInterface $logger = null)
     {
         $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
-        $this->validatorLogger = $logger ?? ServiceContainer::getLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $server = trim(OEGlobalsBag::getInstance()->getString('mdht_conformance_server'));
         $this->externalValidatorEnabled = $server !== ''
             && OEGlobalsBag::getInstance()->getBoolean('mdht_conformance_server_enable');
@@ -79,12 +76,9 @@ class CdaValidateDocuments
      */
     public function ettValidateCcda(string $xml): array
     {
-        try {
-            $result = $this->ettValidateDocumentRequest($xml);
-        } catch (\Throwable $e) {
-            $this->getSystemLogger()->error($e->getMessage(), ['exception' => $e]);
-            return [];
-        }
+        // A request that fails comes back as a one-error reply, so a validation that did not run
+        // never reads as a conformant document.
+        $result = $this->ettValidateDocumentRequest($xml);
         // translate result to our common render array
         $results = [
             'errorCount' => $result['count'],
@@ -129,7 +123,8 @@ class CdaValidateDocuments
         }
 
         $url = $this->externalValidatorUrl;
-        if ($url === null || $url === '') {
+        if ($url === null) {
+            $this->logger->error('C-CDA validation requested with no validator server configured');
             return $this->ettFailureReply(0);
         }
 
@@ -156,8 +151,9 @@ class CdaValidateDocuments
                 RequestOptions::TIMEOUT => 120,
                 RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
             ]);
-        } catch (GuzzleException $e) {
-            $this->validatorLogger->error('C-CDA validation request failed', ['exception' => $e]);
+        } catch (GuzzleException | \InvalidArgumentException $e) {
+            // InvalidArgumentException: Guzzle rejects a malformed server setting before sending.
+            $this->logger->error('C-CDA validation request failed', ['exception' => $e]);
             return $this->ettFailureReply(0);
         }
 
@@ -176,7 +172,7 @@ class CdaValidateDocuments
         }
         $reply = is_array($decoded) ? $this->parseEttReply($decoded) : null;
         if ($reply === null) {
-            $this->validatorLogger->error('C-CDA validator reply was not a validation report', ['status' => $status]);
+            $this->logger->error('C-CDA validator reply was not a validation report', ['status' => $status]);
             return $this->ettFailureReply($status);
         }
         return $reply;
@@ -186,11 +182,19 @@ class CdaValidateDocuments
      * Read the error count and findings from a decoded validator reply.
      *
      * @param array<mixed> $decoded
-     * @return ?EttReply null when the reply lacks the count or the findings list
+     * @return ?EttReply null when the reply lacks the count or the findings list, or reports that the
+     *                   validator itself failed
      */
     private function parseEttReply(array $decoded): ?array
     {
         $metaData = $decoded['resultsMetaData'] ?? null;
+        if (is_array($metaData) && ($metaData['serviceError'] ?? null) === true) {
+            // The validator answers 200 with no findings when it fails internally.
+            $this->logger->error('C-CDA validator reported a service error', [
+                'serviceErrorMessage' => $metaData['serviceErrorMessage'] ?? null,
+            ]);
+            return null;
+        }
         $counts = is_array($metaData) ? $metaData['resultMetaData'] ?? null : null;
         $firstCount = is_array($counts) ? $counts[0] ?? null : null;
         $count = is_array($firstCount) ? $firstCount['count'] ?? null : null;
@@ -264,7 +268,7 @@ class CdaValidateDocuments
                 $xsd_log['xsd'][] = $detail;
             }
             libxml_clear_errors();
-            $this->getSystemLogger()->error("CDA XSD Validation Errors", ['errors' => $xsd_log['xsd']]);
+            $this->logger->error("CDA XSD Validation Errors", ['errors' => $xsd_log['xsd']]);
         }
 
         return $xsd_log;
@@ -289,7 +293,7 @@ class CdaValidateDocuments
         try {
             return array_merge($defaults, $this->schematronValidateDocument($xml, $type));
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->error('Schematron validation failed', ['exception' => $e]);
+            $this->logger->error('Schematron validation failed', ['exception' => $e]);
             // Never return a clean bill of health for a validation that did not run.
             // An empty error list is indistinguishable from a conformant document, so
             // report the failure as a finding and flag it for callers that check.
@@ -367,10 +371,7 @@ class CdaValidateDocuments
         // as "no findings" - a silent pass. Substituting U+FFFD keeps the rest readable.
         $content = json_encode($log ?? [], JSON_INVALID_UTF8_SUBSTITUTE);
         if ($content === false) {
-            // ServiceContainer::getLogger(), not the deprecated getSystemLogger(): the
-            // PHPStan baseline pins this file at three deprecated calls, and new code
-            // should use the supported accessor anyway.
-            ServiceContainer::getLogger()->error('Could not encode CDA validation log', [
+            $this->logger->error('Could not encode CDA validation log', [
                 'documentId' => $docId,
                 'jsonError' => json_last_error_msg(),
             ]);
