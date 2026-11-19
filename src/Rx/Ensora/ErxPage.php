@@ -61,7 +61,7 @@ class ErxPage
     }
 
     /**
-     * Set the destination for the page request; empty picks one by user role
+     * Set the destination for the page request; empty has buildXML() pick one by user role
      */
     public function setDestination(string $destination): static
     {
@@ -166,7 +166,9 @@ class ErxPage
         $XMLBuilder = $this->getXMLBuilder();
         $NCScript = $XMLBuilder->getNCScript();
         $authUserId = $this->getAuthUserId();
-        $destination = $this->getDestination();
+        // Keep the page the XML asks for, so updatePatientData() records the same one.
+        $destination = $XMLBuilder->resolveDestination($authUserId, $this->getDestination());
+        $this->setDestination($destination);
 
         $NCScript->appendChild($XMLBuilder->getCredentials());
         $NCScript->appendChild($XMLBuilder->getUserRole($authUserId));
@@ -312,16 +314,16 @@ class ErxPage
             $Store->updatePatientImportStatusByPatientId($patientId, 3);
         }
 
-        foreach ($XMLBuilder->getSentAllergyIds() as $allergyId) {
-            $Store->updateAllergyUploadedByPatientIdAllergyId(1, $patientId, $allergyId);
+        foreach ($XMLBuilder->getSentAllergies() as $allergy) {
+            $Store->markAllergyUploaded($patientId, $allergy);
         }
 
         foreach ($XMLBuilder->getSentPrescriptionIds() as $prescriptionId) {
             $Store->updatePrescriptionsUploadActiveByPatientIdPrescriptionId(1, 0, $patientId, $prescriptionId);
         }
 
-        foreach ($XMLBuilder->getSentMedicationIds() as $medicationId) {
-            $Store->updateErxUploadedByListId($medicationId, 1);
+        foreach ($XMLBuilder->getSentMedications() as $medication) {
+            $Store->markMedicationUploaded($medication);
         }
     }
 

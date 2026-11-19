@@ -553,7 +553,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 18,
+    'count' => 17,
     'path' => __DIR__ . '/../../interface/eRxStore.php',
 ];
 $ignoreErrors[] = [

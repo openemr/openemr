@@ -1522,21 +1522,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxStore.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:updateAllergyUploadedByPatientIdAllergyId\\(\\) has parameter \\$allergyId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:updateAllergyUploadedByPatientIdAllergyId\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:updateAllergyUploadedByPatientIdAllergyId\\(\\) has parameter \\$uploaded with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method eRxStore\\:\\:updatePrescriptionsUploadActiveByPatientIdPrescriptionId\\(\\) has parameter \\$active with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxStore.php',
