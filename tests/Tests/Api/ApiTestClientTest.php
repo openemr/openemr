@@ -643,6 +643,19 @@ class ApiTestClientTest extends TestCase
      */
     public function testApiAuthExampleUseStopsWhenUserDeactivated(): void
     {
+        // Mirror ApiTestClient::setAuthToken() — it reads `OE_USER` with
+        // `admin` as the fallback, so target that same account when flipping
+        // `active` instead of hardcoding `admin`.
+        $testUsername = getenv("OE_USER", true) ?: "admin";
+        // Snapshot the pre-test active value so the restore in `finally`
+        // puts the row back exactly where it was rather than force-setting
+        // it to 1 (a shared user may legitimately have been inactive).
+        $originalActive = QueryUtils::fetchSingleValue(
+            "SELECT `active` FROM `users` WHERE `username` = ?",
+            'active',
+            [$testUsername]
+        );
+
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode());
         $accessToken = $this->client->getAccessToken();
@@ -652,11 +665,12 @@ class ApiTestClientTest extends TestCase
         $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode(), 'Bearer must work while the account is active');
 
         try {
-            // Flip admin to inactive without going through usergroup_admin —
-            // this test is about the use-time gate, not the admin UI's
-            // revoke-on-transition behaviour.
+            // Flip the test user to inactive without going through
+            // usergroup_admin — this test is about the use-time gate, not
+            // the admin UI's revoke-on-transition behaviour.
             QueryUtils::sqlStatementThrowException(
-                "UPDATE `users` SET `active` = 0 WHERE `username` = 'admin'"
+                "UPDATE `users` SET `active` = 0 WHERE `username` = ?",
+                [$testUsername]
             );
 
             $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
@@ -666,10 +680,11 @@ class ApiTestClientTest extends TestCase
                 'Bearer must be rejected once users.active is 0 even though the access-token row is still unrevoked'
             );
         } finally {
-            // Restore admin — any failure above must not leave the shared
-            // admin account inactive for subsequent tests.
+            // Restore the pre-test active value so any failure above does
+            // not leave the shared account in a different state.
             QueryUtils::sqlStatementThrowException(
-                "UPDATE `users` SET `active` = 1 WHERE `username` = 'admin'"
+                "UPDATE `users` SET `active` = ? WHERE `username` = ?",
+                [$originalActive, $testUsername]
             );
         }
 
