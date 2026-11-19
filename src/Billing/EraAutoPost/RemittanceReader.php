@@ -19,12 +19,16 @@ use OpenEMR\Billing\ParseERA;
 
 final class RemittanceReader
 {
+    /** The error for a file with a transaction set that has no payment (BPR) or trace number (TRN) of its own. */
+    public const NO_CHECK_HEADER = 'A transaction set has no BPR or TRN segment';
+
     public function read(string $path): Remittance
     {
         /** @var list<ClaimPayment> $claims the claim payments of the transaction set being read */
         $claims = [];
         /** @var list<RemittanceCheck> $checks */
         $checks = [];
+        $headless = false;
         ob_start();
         try {
             $error = ParseERA::parseERA(
@@ -34,13 +38,20 @@ final class RemittanceReader
                 },
                 // One check per transaction set, whether or not it has claims: a set can
                 // carry only provider-level adjustments.
-                static function (array $out) use (&$claims, &$checks): void {
+                static function (array $out) use (&$claims, &$checks, &$headless): void {
+                    // Without its own BPR and TRN the set would be read as the check before it.
+                    if (($out['st_has_bpr'] ?? false) !== true || ($out['st_has_trn'] ?? false) !== true) {
+                        $headless = true;
+                    }
                     $checks[] = self::check($out, $claims);
                     $claims = [];
                 }
             );
         } finally {
             ob_end_clean();
+        }
+        if ($error === '' && $headless) {
+            $error = self::NO_CHECK_HEADER;
         }
         return new Remittance($checks, $error);
     }
