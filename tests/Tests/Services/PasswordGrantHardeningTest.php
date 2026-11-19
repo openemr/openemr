@@ -1602,6 +1602,109 @@ class PasswordGrantHardeningTest extends TestCase
         );
     }
 
+    public function testRecordFailedAuthChallengeKeysCounterOnRemoteAddrNotXff(): void
+    {
+        // The per-IP throttle must key on REMOTE_ADDR so the counter
+        // accumulates across requests from the same connection. The
+        // X-Forwarded-For header is request-scoped and varies per
+        // request on deployments without a reverse-proxy allowlist;
+        // including it in the counter key would rotate the row per
+        // request and the counter would never accumulate.
+        $ipString = $this->clientIp;
+        $this->snapshotUserLockout('admin');
+        $this->snapshotIpTracking($ipString);
+        // Snapshot the composite forms too so tearDown removes any row
+        // that leaks through on regression.
+        $this->snapshotIpTracking($ipString . ' (1.2.3.4)');
+        $this->snapshotIpTracking($ipString . ' (5.6.7.8)');
+
+        AuthUtils::resetLoginFailedCounter('admin');
+        $ipBefore = $this->readIpCounter($ipString);
+
+        $originalXffWasSet = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER);
+        $originalXff = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
+        try {
+            $_SERVER['HTTP_X_FORWARDED_FOR'] = '1.2.3.4';
+            (new AuthUtils())->recordFailedAuthChallenge('admin');
+            $_SERVER['HTTP_X_FORWARDED_FOR'] = '5.6.7.8';
+            (new AuthUtils())->recordFailedAuthChallenge('admin');
+        } finally {
+            if ($originalXffWasSet) {
+                $_SERVER['HTTP_X_FORWARDED_FOR'] = $originalXff;
+            } else {
+                unset($_SERVER['HTTP_X_FORWARDED_FOR']);
+            }
+        }
+
+        $this->assertSame(
+            $ipBefore + 2,
+            $this->readIpCounter($ipString),
+            'Both failures must land on the same REMOTE_ADDR-keyed row regardless of X-Forwarded-For'
+        );
+        $this->assertSame(
+            0,
+            $this->readIpCounter($ipString . ' (1.2.3.4)'),
+            'No ip_tracking row may be keyed on the REMOTE_ADDR + X-Forwarded-For composite'
+        );
+        $this->assertSame(
+            0,
+            $this->readIpCounter($ipString . ' (5.6.7.8)'),
+            'No ip_tracking row may be keyed on the REMOTE_ADDR + X-Forwarded-For composite'
+        );
+    }
+
+    // ---------- AuthUtils::revokeOAuthTokensForUser (949w helper) ----------
+
+    public function testRevokeOAuthTokensForUserMarksApiTokensRevoked(): void
+    {
+        $userId = $this->requireExistingAdminUserId();
+        $userUuidRow = QueryUtils::querySingleRow(
+            "SELECT `uuid` FROM `users` WHERE `id` = ?",
+            [$userId]
+        );
+        $userUuidBytes = is_array($userUuidRow) ? ($userUuidRow['uuid'] ?? null) : null;
+        $this->assertIsString($userUuidBytes, 'Admin user must have a uuid for this test');
+        $userUuidStr = \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($userUuidBytes);
+
+        $marker = 'test-revoke-oauth-' . Uuid::uuid4()->toString();
+        try {
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO `api_refresh_token` (`user_id`, `client_id`, `token`, `expiry`, `revoked`) "
+                    . "VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR), 0)",
+                [$userUuidStr, $marker, $marker . '-refresh']
+            );
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO `api_token` (`user_id`, `client_id`, `token`, `expiry`, `revoked`) "
+                    . "VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR), 0)",
+                [$userUuidStr, $marker, $marker . '-access']
+            );
+
+            AuthUtils::revokeOAuthTokensForUser($userId);
+
+            $refresh = QueryUtils::querySingleRow(
+                "SELECT `revoked` FROM `api_refresh_token` WHERE `token` = ?",
+                [$marker . '-refresh']
+            );
+            $access = QueryUtils::querySingleRow(
+                "SELECT `revoked` FROM `api_token` WHERE `token` = ?",
+                [$marker . '-access']
+            );
+            $this->assertIsArray($refresh);
+            $this->assertIsArray($access);
+            $this->assertEquals(1, $refresh['revoked'] ?? 0, 'api_refresh_token row must be revoked');
+            $this->assertEquals(1, $access['revoked'] ?? 0, 'api_token row must be revoked');
+        } finally {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM `api_refresh_token` WHERE `client_id` = ?",
+                [$marker]
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM `api_token` WHERE `client_id` = ?",
+                [$marker]
+            );
+        }
+    }
+
     // ---------- helpers ----------
 
     private function portalFixtures(): PortalPatientFixtureManager
