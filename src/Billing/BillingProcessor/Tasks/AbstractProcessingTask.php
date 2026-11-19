@@ -505,8 +505,29 @@ abstract class AbstractProcessingTask
 
         $this->settledVersion = $version;
         $this->settledFileName = $filename;
+        BillingClaimBatch::queuePartnerFile($claim->getPartner(), $filename, '[]');
 
         return $this->markStoredFileBilled($claim);
+    }
+
+    /**
+     * Drop this run's file name only when the batch is not still published.
+     *
+     * True means the name was released. False means the file is still on
+     * disk, so the claims keep the name for the next run.
+     */
+    protected function releaseUnlessPublished(BillingClaimBatch $batch, string $filename, bool $wrote): bool
+    {
+        $dir = $batch->getBatFiledir();
+        if ($dir !== '' && BatchFilePublisher::isPublished($dir, $filename)) {
+            return false;
+        }
+        if ($wrote && $dir !== '' && !BatchFilePublisher::discard($dir, $filename)) {
+            return false;
+        }
+        $this->releaseAwaitingFile($filename);
+
+        return true;
     }
 
     /**

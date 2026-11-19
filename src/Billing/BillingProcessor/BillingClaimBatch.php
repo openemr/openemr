@@ -23,6 +23,8 @@
 namespace OpenEMR\Billing\BillingProcessor;
 
 use OpenEMR\Billing\BatchFilePublisher;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
 
 class BillingClaimBatch
@@ -245,19 +247,60 @@ class BillingClaimBatch
 
                 return false;
             }
-            $unique_x12_partners = $this->extractUniqueX12PartnersFromClaims($this->claims);
-            // Queue the batchfile to send to all x-12 partners
-            foreach ($unique_x12_partners as $x12_partner_id) {
-                X12RemoteTracker::create([
-                    'x12_partner_id' => $x12_partner_id,
-                    'x12_filename' => $this->bat_filename,
-                    'status' => X12RemoteTracker::STATUS_WAITING,
-                    'claims' => json_encode($this->claims)
-                ]);
+            try {
+                $this->queueMissingPartners();
+            } catch (SqlQueryException) {
+                return false;
             }
         }
 
         return $success;
+    }
+
+    /**
+     * Queue each partner that does not already have this file name.
+     *
+     * A second insert would send the same batch again.
+     */
+    public function queueMissingPartners(): void
+    {
+        if (!is_string($this->bat_filename) || $this->bat_filename === '') {
+            return;
+        }
+        $claims = json_encode($this->claims);
+        if (!is_string($claims)) {
+            $claims = '[]';
+        }
+        foreach ($this->extractUniqueX12PartnersFromClaims($this->claims) as $partnerId) {
+            self::queuePartnerFile($partnerId, $this->bat_filename, $claims);
+        }
+    }
+
+    /**
+     * One waiting tracker row for a file that is already on disk.
+     */
+    public static function queuePartnerFile(mixed $partnerId, string $filename, string $claimsJson): void
+    {
+        if (
+            $filename === ''
+            || (!is_int($partnerId) && !is_string($partnerId))
+            || !OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')
+        ) {
+            return;
+        }
+        $existing = QueryUtils::querySingleRow(
+            "SELECT id FROM x12_remote_tracker WHERE x12_partner_id = ? AND x12_filename = ? LIMIT 1",
+            [$partnerId, $filename]
+        );
+        if (is_array($existing)) {
+            return;
+        }
+        X12RemoteTracker::create([
+            'x12_partner_id' => $partnerId,
+            'x12_filename' => $filename,
+            'status' => X12RemoteTracker::STATUS_WAITING,
+            'claims' => $claimsJson,
+        ]);
     }
 
     protected function extractUniqueX12PartnersFromClaims($claims): array

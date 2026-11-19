@@ -24,7 +24,6 @@
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
-use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
@@ -457,18 +456,11 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
                     $this->printToScreen(xl(UnbilledFileDecision::WRITTEN_NOT_BILLED) . ' ' . $unbilledId);
                 }
             } else {
-                // A failed publish did not create this name. Deleting it
-                // would remove the other run's batch. Clear only this run's
-                // assignments. A file this run did publish is removed.
-                if ($success) {
-                    $dir = $this->batch->getBatFiledir();
-                    if ($dir === '' || BatchFilePublisher::discard($dir, $filename)) {
-                        $this->releaseAwaitingFile($filename);
-                    }
-                } else {
-                    $this->releaseAwaitingFile($filename);
+                // A published file stays with its assignments. Releasing
+                // them would let the next run write the claim again.
+                if (!$this->releaseUnlessPublished($this->batch, $filename, $success)) {
+                    $success = false;
                 }
-                $success = false;
             }
         }
         if ($success) {
