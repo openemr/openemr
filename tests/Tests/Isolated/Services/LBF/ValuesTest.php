@@ -101,6 +101,11 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             $this->assertNull(Values::measurementSpan('65-60'));
             $this->assertNull(Values::measurementSpan('-2--10'));
             $this->assertNull(Values::measurementSpan(''));
+            $this->assertSame([0.5, 0.5], Values::measurementSpan('.5'));
+            $this->assertSame([-0.5, -0.5], Values::measurementSpan('-.5'));
+            $this->assertSame([0.5, 0.9], Values::measurementSpan('.5-.9'));
+            $this->assertSame([0.5, 0.5], Values::measurementSpan('.5%'));
+            $this->assertNull(Values::measurementSpan('.9-.1'));
         }
 
         /**
