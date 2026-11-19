@@ -969,6 +969,19 @@ body { margin: 0; padding: 0; }
     /**
      * Paper name safe to put in CSS. Falls back to letter when unset.
      */
+    /**
+     * Source lines that fit one sheet of the selected paper.
+     *
+     * Windowed text is Courier at 6 lines per inch. A shorter sheet, such as
+     * A5, holds fewer lines than the letter layout the stub was written for.
+     */
+    public static function textPageLines(): int
+    {
+        [, $heightIn] = self::pageSizeInches();
+
+        return max(1, (int) floor(($heightIn * 6.0) + 1e-6));
+    }
+
     public static function sheetFormat(): string
     {
         $name = 'LETTER';
