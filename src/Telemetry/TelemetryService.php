@@ -10,6 +10,8 @@
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Telemetry;
 
 use GuzzleHttp\ClientInterface;
@@ -40,14 +42,18 @@ class TelemetryService
 
     private readonly ClientInterface $httpClient;
 
+    private readonly OEGlobalsBag $globals;
+
     public function __construct(
         protected TelemetryRepository $repository = new TelemetryRepository(),
         protected VersionServiceInterface $versionService = new VersionService(),
         ?LoggerInterface $logger = null,
         ?ClientInterface $httpClient = null,
+        ?OEGlobalsBag $globals = null,
     ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
+        $this->globals = $globals ?? OEGlobalsBag::getInstance();
     }
 
     /**
@@ -86,7 +92,8 @@ class TelemetryService
         $eventType = $data['eventType'] ?? '';
         $eventLabel = $data['eventLabel'] ?? '';
         // Sanitize URL by stripping query parameters.
-        $eventUrl = preg_replace('/\?.*$/', '', $data['eventUrl'] ?? '');
+        $rawUrl = $data['eventUrl'] ?? '';
+        $eventUrl = is_string($rawUrl) ? explode('?', $rawUrl, 2)[0] : '';
         // Normalize URL, if $normalizeUrl is true
         if ($normalizeUrl) {
             $eventUrl = $this->normalizeUrl($eventUrl);
@@ -175,7 +182,8 @@ class TelemetryService
         $interval = date("Ym", strtotime("-33 Days"));
 
         $timeZoneResult = $this->querySingleRow("SELECT `gl_value` as zone FROM `globals` WHERE `gl_value` > '' AND `gl_name` = 'gbl_time_zone' LIMIT 1", []);
-        $time_zone = $timeZoneResult['zone'] ?? OEGlobalsBag::getInstance()->get('gbl_time_zone') ?? '';
+        $savedZone = is_array($timeZoneResult) ? $timeZoneResult['zone'] ?? null : null;
+        $time_zone = is_string($savedZone) ? $savedZone : $this->globals->getString('gbl_time_zone');
 
         $usageRecords = $this->repository->fetchUsageRecords();
         $populationData = $this->repository->fetchSitePopulationData();
@@ -183,7 +191,7 @@ class TelemetryService
         $encEnabledForms = $this->repository->fetchEnabledEncounterForms();
 
         $settings = [
-            'portal_enabled' => OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable'),
+            'portal_enabled' => $this->globals->getBoolean('portal_onsite_two_enable'),
         ];
 
         $localeData = [
@@ -221,7 +229,7 @@ class TelemetryService
                 RequestOptions::HEADERS => ['Content-Type' => 'application/json'],
                 RequestOptions::HTTP_ERRORS => false,
                 RequestOptions::ALLOW_REDIRECTS => false,
-                RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
+                RequestOptions::VERIFY => $this->globals->getBoolean('http_verify_ssl', true),
             ]);
         } catch (GuzzleException $e) {
             // No response, as when cURL failed to connect: report status 0.
@@ -254,7 +262,7 @@ class TelemetryService
     /**
      * Sets the API event data.
      *
-     * @param mixed $event_data The event data to set.
+     * @param array<mixed> $event_data The event data to set.
      */
     public function trackApiRequestEvent(array $event_data): void
     {
@@ -268,8 +276,8 @@ class TelemetryService
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
         $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
-        $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
-        $normalized = ($webRoot !== '') ? preg_replace('#^(' . preg_quote($webRoot, '#') . ')?#', '', $path) : $path;
+        $webRoot = $this->globals->getWebRoot();
+        $normalized = ($webRoot !== '' && str_starts_with($path, $webRoot)) ? substr($path, strlen($webRoot)) : $path;
         return ($normalized . $fragment);
     }
 
@@ -282,7 +290,8 @@ class TelemetryService
      */
     protected function getUniqueInstallationUuid(): string
     {
-        return UniqueInstallationUuid::getUniqueInstallationUuid() ?? '';
+        $uuid = UniqueInstallationUuid::getUniqueInstallationUuid();
+        return is_string($uuid) ? $uuid : '';
     }
 
     /**

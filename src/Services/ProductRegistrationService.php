@@ -15,12 +15,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Services;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
@@ -33,13 +36,17 @@ class ProductRegistrationService
 
     private readonly OEEnvBag $env;
 
+    private readonly OEGlobalsBag $globals;
+
     public function __construct(
         ?ClientInterface $httpClient = null,
         private readonly VersionServiceInterface $versionService = new VersionService(),
         ?OEEnvBag $env = null,
+        ?OEGlobalsBag $globals = null,
     ) {
         $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
         $this->env = $env ?? OEEnvBag::getInstance();
+        $this->globals = $globals ?? OEGlobalsBag::getInstance();
     }
 
     private function currentVersion(): string
@@ -93,7 +100,9 @@ class ProductRegistrationService
 
     public function getRegistrationEmail(): string
     {
-        return sqlQuery("SELECT `email` FROM `product_registration`")['email'] ?? '';
+        $row = QueryUtils::querySingleRow('SELECT `email` FROM `product_registration`');
+        $email = is_array($row) ? $row['email'] ?? null : null;
+        return is_string($email) ? $email : '';
     }
 
     public function getRegistrationStatus(): string
@@ -141,7 +150,7 @@ class ProductRegistrationService
                 RequestOptions::FORM_PARAMS => $info,
                 RequestOptions::HTTP_ERRORS => false,
                 RequestOptions::ALLOW_REDIRECTS => false,
-                RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
+                RequestOptions::VERIFY => $this->globals->getBoolean('http_verify_ssl', true),
             ]);
         } catch (GuzzleException $e) {
             throw new \GenericProductRegistrationException(xl('Server error: try again later'), 0, $e);
@@ -177,7 +186,12 @@ class ProductRegistrationService
 
     private function entryExist(): int|false
     {
-        $row = sqlQuery("SELECT * FROM `product_registration`");
-        return $row['id'] ?? false;
+        $row = QueryUtils::querySingleRow('SELECT `id` FROM `product_registration`');
+        $id = is_array($row) ? $row['id'] ?? null : null;
+        return match (true) {
+            is_int($id) => $id,
+            is_string($id) && ctype_digit($id) => intval($id),
+            default => false,
+        };
     }
 }

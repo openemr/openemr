@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Services\Cda;
 
 use DOMDocument;
@@ -20,6 +22,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Utils\Json;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\Schematron\SchemaRegistry;
@@ -38,13 +41,19 @@ class CdaValidateDocuments
 
     private readonly LoggerInterface $logger;
 
-    public function __construct(?ClientInterface $httpClient = null, ?LoggerInterface $logger = null)
-    {
+    private readonly OEGlobalsBag $globals;
+
+    public function __construct(
+        ?ClientInterface $httpClient = null,
+        ?LoggerInterface $logger = null,
+        ?OEGlobalsBag $globals = null,
+    ) {
         $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
         $this->logger = $logger ?? ServiceContainer::getLogger();
-        $server = trim(OEGlobalsBag::getInstance()->getString('mdht_conformance_server'));
+        $this->globals = $globals ?? OEGlobalsBag::getInstance();
+        $server = trim($this->globals->getString('mdht_conformance_server'));
         $this->externalValidatorEnabled = $server !== ''
-            && OEGlobalsBag::getInstance()->getBoolean('mdht_conformance_server_enable');
+            && $this->globals->getBoolean('mdht_conformance_server_enable');
         if ($this->externalValidatorEnabled) {
             $this->externalValidatorUrl = rtrim($server, '/') . '/referenceccdaservice/';
         }
@@ -61,7 +70,7 @@ class CdaValidateDocuments
         $schemaType = is_string($type) ? $type : SchemaRegistry::TYPE_CCDA;
 
         // always validate schema XSD
-        $xsd = $this->validateXmlXsd($document, $type);
+        $xsd = $this->validateXmlXsd($documentXml);
         if ($this->externalValidatorEnabled) {
             $schema_results = $this->ettValidateCcda($documentXml);
         } else {
@@ -151,7 +160,7 @@ class CdaValidateDocuments
                 RequestOptions::CONNECT_TIMEOUT => 10,
                 // Validating a large document takes longer than the shared client's default.
                 RequestOptions::TIMEOUT => 120,
-                RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
+                RequestOptions::VERIFY => $this->globals->getBoolean('http_verify_ssl', true),
             ]);
         } catch (GuzzleException | \InvalidArgumentException $e) {
             // InvalidArgumentException: Guzzle rejects a malformed server setting before sending.
@@ -251,29 +260,27 @@ class CdaValidateDocuments
     }
 
     /**
-     * @param $document
-     * @param $type
-     * @return bool
+     * @return array{xsd: list<string>} one formatted message per schema violation
      */
-    public function validateXmlXsd($document, $type)
+    public function validateXmlXsd(string $document): array
     {
         libxml_use_internal_errors(true);
         $dom = new DomDocument();
         $dom->loadXML($document);
         $xsd = __DIR__ . '/../../../interface/modules/zend_modules/public/xsd/Schema/CDA2/infrastructure/cda/CDA_SDTC.xsd';
 
-        $xsd_log['xsd'] = [];
+        $messages = [];
         if (!$dom->schemaValidate($xsd)) {
             $errors = libxml_get_errors();
             foreach ($errors as $error) {
                 $detail = $this->formatXsdError($error);
-                $xsd_log['xsd'][] = $detail;
+                $messages[] = $detail;
             }
             libxml_clear_errors();
-            $this->logger->error('CDA XSD Validation Errors', ['errors' => $xsd_log['xsd']]);
+            $this->logger->error('CDA XSD Validation Errors', ['errors' => $messages]);
         }
 
-        return $xsd_log;
+        return ['xsd' => $messages];
     }
 
     /**
@@ -319,11 +326,7 @@ class CdaValidateDocuments
         }
     }
 
-    /**
-     * @param $error
-     * @return string
-     */
-    private function formatXsdError($error): string
+    private function formatXsdError(\LibXMLError $error): string
     {
         $error_str = "\n";
         switch ($error->level) {
@@ -337,7 +340,7 @@ class CdaValidateDocuments
                 $error_str .= "Fatal Error $error->code: ";
                 break;
         }
-        $error_str .= trim((string) $error->message);
+        $error_str .= trim($error->message);
         $error_str .= " on line $error->line\n";
 
         return $error_str;
@@ -349,9 +352,9 @@ class CdaValidateDocuments
      */
     public function createSchematronHtml($amid): string
     {
-        $errors = $this->fetchValidationLog($amid);
+        $errors = is_int($amid) || is_string($amid) ? $this->fetchValidationLog($amid) : null;
 
-        if (count($errors ?? [])) {
+        if (is_array($errors) && $errors !== []) {
             $twig = ServiceContainer::getTwig();
             $html = $twig->render("carecoordination/cda/cda-validate-results.html.twig", ['validation' => $errors]);
         } else {
@@ -383,12 +386,20 @@ class CdaValidateDocuments
     }
 
     /**
-     * @param $docId
-     * @return mixed
+     * @return ?array<mixed> the saved validation report, or null when the document has none or it is unreadable
      */
-    public function fetchValidationLog($audit_id)
+    public function fetchValidationLog(int|string $audit_id): ?array
     {
-        $log = sqlQuery("SELECT `document_data` FROM `documents` WHERE `audit_master_id` = ?", [$audit_id])['document_data'];
-        return json_decode($log ?? [], true);
+        $row = QueryUtils::querySingleRow('SELECT `document_data` FROM `documents` WHERE `audit_master_id` = ?', [$audit_id]);
+        $log = is_array($row) ? $row['document_data'] ?? null : null;
+        if (!is_string($log) || $log === '') {
+            return null;
+        }
+        try {
+            $decoded = Json::decode($log);
+        } catch (\JsonException) {
+            return null;
+        }
+        return is_array($decoded) ? $decoded : null;
     }
 }

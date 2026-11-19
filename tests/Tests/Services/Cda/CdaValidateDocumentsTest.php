@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Tests\Services\Cda;
 
 use OpenEMR\Services\Cda\CdaValidateDocuments;
@@ -86,6 +88,7 @@ class CdaValidateDocumentsTest extends TestCase {
         $this->assertEquals(0, $validationResponse['warningCount'], "Expected no validation warnings: they are opt-in.\n" . $context);
         $this->assertEquals(0, $validationResponse['ignoredCount'], "Expected no ignored validation issues for invalid CCDA document.\n" . $context);
         $this->assertNotEmpty($validationResponse['errors'], "Expected validation errors for invalid CCDA document.");
+        $this->assertIsArray($validationResponse['errors']);
         $this->assertCount(4, $validationResponse['errors'], "Expected 4 validation errors for invalid CCDA document.\n" . $context);
     }
 
