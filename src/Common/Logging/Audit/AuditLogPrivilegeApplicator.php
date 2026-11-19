@@ -50,7 +50,7 @@ final class AuditLogPrivilegeApplicator
                         [],
                         true,
                     );
-                } catch (\Throwable) {
+                } catch (SqlQueryException) {
                     // The upgrade already has its result.
                 }
             }
