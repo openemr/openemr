@@ -111,6 +111,25 @@ class RemittanceReaderTest extends TestCase
         $this->assertSame(['12-22'], array_map(static fn($claim): string => $claim->ourClaimId, $remittance->checks[2]->claims));
     }
 
+    public function testATransactionSetWithoutItsOwnPaymentOrTraceNumberIsAnError(): void
+    {
+        $second = Era835::check('CHK2', '70.00', [['12-22', '1', '70.00']], control: '0002');
+        foreach (['BPR', 'TRN'] as $missing) {
+            // Drop the segment and correct the set's segment count, so only the header is wrong.
+            $headless = (string) preg_replace('/^' . $missing . '\*[^~]*~\n/m', '', $second);
+            $headless = (string) preg_replace_callback('/SE\*(\d+)\*/', static fn(array $m): string => 'SE*' . ((int) $m[1] - 1) . '*', $headless);
+            $path = Era835::write($this->directory, "no$missing.edi", Era835::file(
+                Era835::check('CHK1', '70.00', [['10-20', '1', '70.00']]),
+                $headless,
+            ));
+
+            $remittance = (new RemittanceReader())->read($path);
+
+            // Otherwise the second set would be read as check CHK1 again, in balance.
+            $this->assertSame(RemittanceReader::NO_CHECK_HEADER, $remittance->error, $missing);
+        }
+    }
+
     public function testAFileThatEndsEarlyReportsTheParsersError(): void
     {
         $whole = Era835::file(Era835::check('CHK1', '70.00', [['10-20', '1', '70.00']]));

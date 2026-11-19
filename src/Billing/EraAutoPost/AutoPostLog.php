@@ -25,9 +25,10 @@ interface AutoPostLog
     public function pending(): array;
 
     /**
-     * Mark the file as taken by this run. False when another run took it first.
+     * Mark the file as taken by this run. False when another run took it first, or when
+     * its partner no longer has that user, still active, to post as.
      */
-    public function take(int $receivedId): bool;
+    public function take(PendingRemittance $file): bool;
 
     public function finish(int $receivedId, AutoPostFileStatus $status): void;
 

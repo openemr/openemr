@@ -102,7 +102,7 @@ class AutoPostRepositoryTest extends TestCase
         $this->assertSame(['marked.edi'], array_map(static fn(PendingRemittance $file): string => $file->storedName, $pending));
 
         // Recording the file again does not put a file a run has taken back in the queue.
-        $this->assertTrue($log->take($pending[0]->receivedId));
+        $this->assertTrue($log->take($pending[0]));
         $received->record(self::PARTNER_ON, '/remits', $marked, X12FileType::Remittance835, $stored, $at, true);
         $this->assertSame('running', $this->autoPostStatus($pending[0]->receivedId));
     }
@@ -112,16 +112,60 @@ class AutoPostRepositoryTest extends TestCase
         $log = new AutoPostRepository();
         $id = $this->received(self::PARTNER_ON, 'a.edi');
 
-        $this->assertTrue($log->take($id));
-        $this->assertFalse($log->take($id));
+        $file = new PendingRemittance($id, 'a.edi', self::USER);
+        $this->assertTrue($log->take($file));
+        $this->assertFalse($log->take($file));
         $this->assertSame('running', $this->autoPostStatus($id));
         $this->assertSame([], $this->ours($log->pending()));
 
         $log->finish($id, AutoPostFileStatus::Done);
 
         $this->assertSame('done', $this->autoPostStatus($id));
-        $this->assertFalse($log->take($id));
+        $this->assertFalse($log->take($file));
         $this->assertSame([], $this->ours($log->pending()));
+    }
+
+    public function testAFileIsNotTakenOnceItsPartnersUserIsInactiveOrChanged(): void
+    {
+        $log = new AutoPostRepository();
+        $id = $this->received(self::PARTNER_ON, 'a.edi');
+        $file = new PendingRemittance($id, 'a.edi', self::USER);
+
+        // The partner now posts as someone else.
+        $this->assertFalse($log->take(new PendingRemittance($id, 'a.edi', self::INACTIVE_USER)));
+        // The user was made inactive after the run listed the file.
+        QueryUtils::sqlStatementThrowException('UPDATE `users` SET `active` = 0 WHERE `id` = ?', [self::USER]);
+        $this->assertFalse($log->take($file));
+        $this->assertSame('pending', $this->autoPostStatus($id));
+
+        QueryUtils::sqlStatementThrowException('UPDATE `users` SET `active` = 1 WHERE `id` = ?', [self::USER]);
+        $this->assertTrue($log->take($file));
+    }
+
+    public function testAStoredFileStaysStoredAndPendingWhenALaterRunReportsADuplicate(): void
+    {
+        $received = new ReceivedFileRepository();
+        $file = new RemoteFile('overlap.RMT', 10, 1700000000);
+        $at = new \DateTimeImmutable(self::RECEIVED);
+        $received->record(self::PARTNER_ON, '/remits', $file, X12FileType::Remittance835, new StoreOutcome(ReceivedStatus::Stored, 'overlap.edi'), $at, true);
+
+        $received->record(
+            self::PARTNER_ON,
+            '/remits',
+            $file,
+            X12FileType::Remittance835,
+            new StoreOutcome(ReceivedStatus::Duplicate, 'overlap.edi', 'This file is already stored'),
+            $at,
+        );
+
+        $this->assertSame(
+            ['status' => 'stored', 'stored_name' => 'overlap.edi', 'auto_post_status' => 'pending'],
+            $this->strings(QueryUtils::querySingleRow(
+                'SELECT `status`, `stored_name`, `auto_post_status` FROM `x12_remote_received` WHERE `x12_partner_id` = ? AND `remote_name` = ?',
+                [self::PARTNER_ON, 'overlap.RMT']
+            ) ?: [])
+        );
+        $this->assertSame(['overlap.edi'], array_map(static fn(PendingRemittance $f): string => $f->storedName, $this->ours((new AutoPostRepository())->pending())));
     }
 
     public function testAPostedCheckIsStoredWithARowPerClaimPayment(): void

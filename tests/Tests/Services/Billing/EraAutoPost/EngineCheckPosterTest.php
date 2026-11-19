@@ -14,11 +14,15 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\Billing\EraAutoPost;
 
+use OpenEMR\Billing\EraAutoPost\AutoPostFileStatus;
+use OpenEMR\Billing\EraAutoPost\AutoPostLog;
 use OpenEMR\Billing\EraAutoPost\AutoPostRepository;
+use OpenEMR\Billing\EraAutoPost\CheckRecord;
 use OpenEMR\Billing\EraAutoPost\CheckStatus;
 use OpenEMR\Billing\EraAutoPost\ClaimOutcome;
 use OpenEMR\Billing\EraAutoPost\EngineCheckPoster;
 use OpenEMR\Billing\EraAutoPost\EraAutoPoster;
+use OpenEMR\Billing\EraAutoPost\PendingRemittance;
 use OpenEMR\Billing\EraAutoPost\RemittanceCheck;
 use OpenEMR\Billing\EraAutoPost\RemittanceReader;
 use OpenEMR\Billing\EraPosting\Adjustment;
@@ -223,8 +227,40 @@ class EngineCheckPosterTest extends TestCase
                 return new \DateTimeImmutable('2026-11-19 12:00:05');
             }
         };
+        // Only this test's file: whatever else is waiting in the database is left as it is.
+        $log = new class ($receivedId) implements AutoPostLog {
+            private readonly AutoPostRepository $repository;
+
+            public function __construct(private readonly int $receivedId)
+            {
+                $this->repository = new AutoPostRepository();
+            }
+
+            public function pending(): array
+            {
+                return array_values(array_filter(
+                    $this->repository->pending(),
+                    fn(PendingRemittance $file): bool => $file->receivedId === $this->receivedId
+                ));
+            }
+
+            public function take(PendingRemittance $file): bool
+            {
+                return $this->repository->take($file);
+            }
+
+            public function finish(int $receivedId, AutoPostFileStatus $status): void
+            {
+                $this->repository->finish($receivedId, $status);
+            }
+
+            public function record(int $receivedId, int $sequence, CheckRecord $check, \DateTimeImmutable $at): void
+            {
+                $this->repository->record($receivedId, $sequence, $check, $at);
+            }
+        };
         $autoPoster = new EraAutoPoster(
-            new AutoPostRepository(),
+            $log,
             new RemittanceReader(),
             new EngineCheckPoster(false),
             $clock,

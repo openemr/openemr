@@ -43,11 +43,16 @@ final class AutoPostRepository implements AutoPostLog
         return $pending;
     }
 
-    public function take(int $receivedId): bool
+    public function take(PendingRemittance $file): bool
     {
+        // The user is checked again here, in the statement that takes the file: it may have
+        // been taken off the partner or made inactive since the run listed its files.
         QueryUtils::sqlStatementThrowException(
-            'UPDATE `x12_remote_received` SET `auto_post_status` = ? WHERE `id` = ? AND `auto_post_status` = ?',
-            [AutoPostFileStatus::Running->value, $receivedId, AutoPostFileStatus::Pending->value]
+            'UPDATE `x12_remote_received` AS r'
+            . ' JOIN `x12_partners` AS p ON p.`id` = r.`x12_partner_id`'
+            . ' JOIN `users` AS u ON u.`id` = p.`x12_era_auto_post_user` AND u.`active` = 1'
+            . ' SET r.`auto_post_status` = ? WHERE r.`id` = ? AND r.`auto_post_status` = ? AND u.`id` = ?',
+            [AutoPostFileStatus::Running->value, $file->receivedId, AutoPostFileStatus::Pending->value, $file->postUser]
         );
         $taken = QueryUtils::affectedRows();
         return is_numeric($taken) && (int) $taken === 1;

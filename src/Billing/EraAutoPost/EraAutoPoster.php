@@ -51,7 +51,7 @@ final readonly class EraAutoPoster
     {
         $summary = new AutoPostSummary();
         foreach ($this->log->pending() as $file) {
-            if (!$this->log->take($file->receivedId)) {
+            if (!$this->log->take($file)) {
                 continue;
             }
             $summary->files++;

@@ -85,7 +85,9 @@ class ParseERA
     /**
      * @param callable      $cb      called once per claim payment (CLP loop) with the parsed claim
      * @param callable|null $checkCb called once per transaction set, at its SE segment and after its last
-     *                               claim, with the same array; a set that has no claims still gets this call
+     *                               claim, with the same array; a set that has no claims still gets this call.
+     *                               $out['st_has_bpr'] and $out['st_has_trn'] say whether the set had its own
+     *                               BPR and TRN; when one is false the check fields are a previous set's
      */
     public static function parseERA($filename, $cb, ?callable $checkCb = null): string
     {
@@ -151,8 +153,12 @@ class ParseERA
                 $out['st_control_number'] = trim($seg[2]);
                 $out['st_segment_count'] = 0;
                 // Provider-level adjustments of this transaction set, for a caller that balances the check.
+                // And whether it has its own payment (BPR) and trace number (TRN): without them
+                // the check amount, date and number still hold the previous set's.
                 if (is_array($out)) {
                     $out['plb'] = [];
+                    $out['st_has_bpr'] = false;
+                    $out['st_has_trn'] = false;
                 }
             } elseif ($segid == 'BPR') {
                 if ($out['loopid']) {
@@ -161,6 +167,9 @@ class ParseERA
 
                 $out['check_amount'] = trim($seg[2]);
                 $out['check_date'] = trim($seg[16]); // yyyymmdd
+                if (is_array($out)) {
+                    $out['st_has_bpr'] = true;
+                }
                 // TBD: BPR04 is a payment method code.
             } elseif ($segid == 'TRN') {
                 if ($out['loopid']) {
@@ -169,6 +178,9 @@ class ParseERA
 
                 $out['check_number'] = trim($seg[2]);
                 $out['payer_tax_id'] = substr($seg[3], 1); // 9 digits
+                if (is_array($out)) {
+                    $out['st_has_trn'] = true;
+                }
             //    $out['payer_id'] = trim($seg[4]); no payer id in TRN04 for 5010
                 // Note: TRN04 further qualifies the paying entity within the
                 // organization identified by TRN03.

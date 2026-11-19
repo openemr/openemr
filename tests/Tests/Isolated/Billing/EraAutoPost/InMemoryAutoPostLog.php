@@ -40,12 +40,12 @@ final class InMemoryAutoPostLog implements AutoPostLog
         return $this->pending;
     }
 
-    public function take(int $receivedId): bool
+    public function take(PendingRemittance $file): bool
     {
-        if (isset($this->taken[$receivedId])) {
+        if (isset($this->taken[$file->receivedId])) {
             return false;
         }
-        $this->taken[$receivedId] = true;
+        $this->taken[$file->receivedId] = true;
         return true;
     }
 
