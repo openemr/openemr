@@ -20,6 +20,15 @@ use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 /**
  * Function to collect ip address(es)
  *
+ * `ip_string` is the display identifier recorded in the audit log and
+ * surfaced to admins — it combines REMOTE_ADDR with the X-Forwarded-For
+ * suffix when a forwarded header was sent. `ip` is REMOTE_ADDR alone
+ * and is the stable key for anything that must identify the connection
+ * authoritatively (ip_tracking failed-login counters, manual IP blocks,
+ * MFA/timing throttles). X-Forwarded-For is client-supplied on any
+ * deployment without a trusted-proxy allowlist, so it is not stable
+ * enough to use as a counter key.
+ *
  * @return array{
  *   ip_string: string,
  *   ip: string,

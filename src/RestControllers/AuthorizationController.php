@@ -1186,7 +1186,7 @@ class AuthorizationController implements LoggerAwareInterface
                 $ip = collectIpAddresses();
                 AuthUtils::resetMfaChallengeCounters(
                     is_string($mfaUsername) ? $mfaUsername : null,
-                    $ip['ip_string']
+                    $ip['ip']
                 );
             }
         } catch (Throwable $error) {
@@ -1197,6 +1197,13 @@ class AuthorizationController implements LoggerAwareInterface
             return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
         }
 
+        // Password and (if enrolled) MFA are both validated at this point.
+        // Bind the OAuth session to the authenticated user now — deferred
+        // from verifyLogin() so the identity is only established once the
+        // full authentication sequence has completed.
+        if ($request->request->get('user_role') === 'api' && $this->userId !== null) {
+            $session->set('user_id', $this->getUserUuid($this->userId, 'users'));
+        }
         $request->request->remove('username');
         $request->request->remove('password');
         $request->overrideGlobals(); // override the globals with the cleared out request so we don't have the username/password in the request sequence
@@ -1476,13 +1483,18 @@ class AuthorizationController implements LoggerAwareInterface
         } else {
             $this->logger->debug("AuthorizationController->verifyLogin() login attempt passed", ['username' => $username, 'email' => $email, 'type' => $type]);
         }
-        // TODO: should user_id be set to be a uuid here?
         $userId = $auth->getUserId();
         $this->logger->debug("AuthorizationController->verifyLogin() getUserId", ['username' => $username, 'userId' => $userId, 'email' => $email, 'type' => $type]);
         if (isset($userId) && $this->userId = $userId) {
-            $this->session->set('user_id', $this->getUserUuid($this->userId, 'users'));
-            $this->logger->debug("AuthorizationController->verifyLogin() user login", ['user_id' => $session->get('user_id'),
-                'username' => $username, 'email' => $email, 'type' => $type]);
+            // Hold the identity in the controller only. The OAuth session's
+            // user_id is set later in userLogin(), after any required MFA
+            // step has completed, so that an intermediate return (MFA form
+            // render, wrong MFA code, MFA exception) does not leave an
+            // authenticated identity on the session.
+            $this->logger->debug("AuthorizationController->verifyLogin() user login", [
+                'user_id_pending' => $this->userId,
+                'username' => $username, 'email' => $email, 'type' => $type,
+            ]);
             return true;
         }
         if ($id = $auth->getPatientId()) {

@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 
@@ -76,6 +77,23 @@ class TrustedUserService
 
     public function deleteTrustedUserById($id)
     {
+        // Record the user_id before deleting. The admin "Revoke User"
+        // action is the user-facing offboarding of a specific OAuth
+        // app's hold on a user; it should close the API side of that
+        // relationship too. Deleting only the trusted-user row leaves
+        // outstanding api_refresh_token / api_token rows in place,
+        // which become usable again as soon as the user re-authorizes
+        // the same client (a fresh oauth_trusted_user row re-admits
+        // the old refresh token). Mark them revoked alongside the
+        // delete so revoke means revoke.
+        $row = QueryUtils::querySingleRow(
+            "SELECT `user_id` FROM `oauth_trusted_user` WHERE `id` = ?",
+            [$id],
+            log: false
+        );
         QueryUtils::sqlStatementThrowException("DELETE FROM `oauth_trusted_user` WHERE `oauth_trusted_user`.`id` = ?", [$id], noLog: true);
+        if (is_array($row) && isset($row['user_id']) && is_string($row['user_id'])) {
+            AuthUtils::revokeOAuthTokensForUserUuid($row['user_id']);
+        }
     }
 }

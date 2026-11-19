@@ -256,6 +256,18 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         sqlStatement("UPDATE users SET authorized = ?, active = ?, " .
         "calendar = ?, portal_user = ?, see_auth = ? WHERE " .
         "id = ? ", [$tqvar, $actvar, $calvar, $portalvar, $_POST['see_auth'], $_POST["id"]]);
+        // Deactivation terminates the browser session (authCheckSession
+        // requires users.active = 1) but the OAuth refresh-token path
+        // does not consult users.active, so a refresh token issued
+        // before this moment would keep minting access tokens until its
+        // own expiry (up to three months). Mirror the password-change
+        // revocation block: on an active→inactive transition, mark every
+        // outstanding api_refresh_token / api_token for this user as
+        // revoked so the API side of the account is closed at the same
+        // moment the browser side is.
+        if ((int)($_POST['pre_active'] ?? 0) === 1 && $actvar === 0) {
+            AuthUtils::revokeOAuthTokensForUser((int)$_POST["id"]);
+        }
         //Display message when Emergency Login user was activated
         if (is_countable($_POST['access_group'])) {
             $bg_count = count($_POST['access_group']);
