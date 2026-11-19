@@ -49,13 +49,14 @@ class EncounterListOptionType implements IOptionFormType
     }
     public function buildDisplayView($frow, $currvalue): string
     {
-        return $this->buildPlaintextView($frow, $currvalue);
+        return $this->buildPlaintextView($frow, $currvalue) ?? '';
     }
 
     public function buildFormView($frow, $currvalue): string
     {
         $field_id = $frow['field_id'];
         $edit_options = $frow['edit_options'] ?? null;
+        $edit_options = is_string($edit_options) ? $edit_options : null;
         $title = $frow['title'] ?? null;
 
         // 'smallform' can be 'true' if we want a smaller form field, otherwise

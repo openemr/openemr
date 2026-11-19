@@ -6112,11 +6112,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Forms/Types/LocalProviderListType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',

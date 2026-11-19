@@ -172,11 +172,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between non\\-empty\\-array and \'null\' will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between int\\|null and \'NULL\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',

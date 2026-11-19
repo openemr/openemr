@@ -11424,16 +11424,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
 ];
 $ignoreErrors[] = [

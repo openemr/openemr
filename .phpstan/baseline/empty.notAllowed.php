@@ -3403,11 +3403,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
 ];
@@ -3450,11 +3445,6 @@ $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Http/oeOAuth.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',

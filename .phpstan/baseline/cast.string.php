@@ -2553,11 +2553,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
 ];
@@ -2585,11 +2580,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast non\\-empty\\-array to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',

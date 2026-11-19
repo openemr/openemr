@@ -3542,11 +3542,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function isOption\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getAllinsurances\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
@@ -4970,11 +4965,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:\\$options type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Layouts\\\\LayoutsUtils\\:\\:isOption\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:auditSQLEvent\\(\\) has parameter \\$binds with no value type specified in iterable type array\\.$#',
