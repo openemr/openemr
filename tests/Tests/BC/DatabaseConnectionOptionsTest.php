@@ -22,6 +22,7 @@ use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use SensitiveParameter;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[Small]
 class DatabaseConnectionOptionsTest extends TestCase
@@ -510,9 +511,9 @@ PHP
     {
         $siteDir = $this->createTempSiteDir();
         $certDir = $siteDir . '/documents/certificates';
-        mkdir($certDir, 0755, true);
-        file_put_contents($certDir . '/README.md', 'readme');
-        file_put_contents($certDir . '/oaprivate.key', 'unrelated');
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile($certDir . '/README.md', 'readme');
+        $filesystem->dumpFile($certDir . '/oaprivate.key', 'unrelated');
 
         self::assertSame([], DatabaseConnectionOptions::inferSslPaths($siteDir));
     }
@@ -521,8 +522,7 @@ PHP
     {
         $siteDir = $this->createTempSiteDir();
         $certDir = $siteDir . '/documents/certificates';
-        mkdir($certDir, 0755, true);
-        symlink($certDir . '/no-such-ca', $certDir . '/mysql-ca');
+        (new Filesystem())->symlink($certDir . '/no-such-ca', $certDir . '/mysql-ca');
 
         self::assertSame([], DatabaseConnectionOptions::inferSslPaths($siteDir));
     }
@@ -531,14 +531,14 @@ PHP
     {
         $siteDir = $this->createTempSiteDir();
         $certDir = $siteDir . '/documents/certificates';
-        mkdir($certDir, 0755, true);
-        file_put_contents($certDir . '/mysql-ca', 'ca-content');
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile($certDir . '/mysql-ca', 'ca-content');
         // Search permission without read permission: files resolve, listing fails.
-        chmod($certDir, 0311);
+        $filesystem->chmod($certDir, 0311);
         if (is_readable($certDir)) {
             // @codeCoverageIgnoreStart
             // Defensive — root ignores directory permissions; CI does not run tests as root.
-            chmod($certDir, 0755);
+            $filesystem->chmod($certDir, 0755);
             self::markTestSkipped('Directory permissions are not enforced for this user');
             // @codeCoverageIgnoreEnd
         }
@@ -546,7 +546,7 @@ PHP
         try {
             $ssl = DatabaseConnectionOptions::inferSslPaths($siteDir);
         } finally {
-            chmod($certDir, 0755);
+            $filesystem->chmod($certDir, 0755);
         }
 
         self::assertSame(['ca' => $certDir . '/mysql-ca'], $ssl);
@@ -554,22 +554,8 @@ PHP
 
     private function cleanupTempDir(string $dir): void
     {
-        if (!is_dir($dir)) {
-            return;
-        }
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST,
-        );
-        foreach ($files as $file) {
-            /** @var \SplFileInfo $file */
-            // getPathname(), not getRealPath(): a dangling symlink has no real path.
-            if ($file->isDir()) {
-                rmdir($file->getPathname());
-            } else {
-                unlink($file->getPathname());
-            }
-        }
-        rmdir($dir);
+        // Filesystem::remove() deletes symlinks without following them, so a
+        // dangling one doesn't stop the cleanup.
+        (new Filesystem())->remove($dir);
     }
 }

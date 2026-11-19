@@ -147,7 +147,7 @@ final readonly class DatabaseConnectionOptions
      * Detects MySQL SSL certificate files in site directory.
      *
      * On network storage (NFS, EFS, gcsfuse) each lookup of a missing file
-     * is a round trip, so the directory is read once instead of checking
+     * is a round trip, so this reads the directory once instead of checking
      * each certificate path.
      *
      * @return SslConfig
