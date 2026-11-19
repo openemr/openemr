@@ -1,14 +1,26 @@
 <?php
 
+/**
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Common\Http;
 
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
 use OpenEMR\Common\Session\SessionConfiguration;
 use OpenEMR\Common\Session\SessionConfigurationBuilder;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\Storage\Handler\StoreFailureStrictSessionHandler;
 use OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage;
 use OpenEMR\Common\Session\WriteThroughSession;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -16,8 +28,6 @@ use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 class HttpSessionFactory implements SessionFactoryInterface
 {
-    use SystemLoggerAwareTrait;
-
     public const SESSION_TYPE_OAUTH = 'oauth';
     public const SESSION_TYPE_API = 'api';
 
@@ -28,12 +38,20 @@ class HttpSessionFactory implements SessionFactoryInterface
     /**
      * @var string The type of session to create.
      */
-    private string $sessionType;
+    private readonly string $sessionType;
 
     private ?SessionStorageInterface $lastCreatedStorage = null;
 
-    public function __construct(private HttpRestRequest $request, private string $web_root = "", $sessionType = self::DEFAULT_SESSION_TYPE, private bool $readOnly = false)
-    {
+    private readonly LoggerInterface $logger;
+
+    public function __construct(
+        private readonly HttpRestRequest $request,
+        private readonly string $web_root = "",
+        string $sessionType = self::DEFAULT_SESSION_TYPE,
+        private readonly bool $readOnly = false,
+        ?LoggerInterface $logger = null,
+    ) {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         if (!in_array($sessionType, [self::SESSION_TYPE_OAUTH, self::SESSION_TYPE_API, self::SESSION_TYPE_CORE, self::SESSION_TYPE_PORTAL])) {
             throw new \InvalidArgumentException("Invalid session type: $sessionType");
         }
@@ -70,7 +88,6 @@ class HttpSessionFactory implements SessionFactoryInterface
             self::SESSION_TYPE_API => SessionConfigurationBuilder::forApi($this->web_root),
             self::SESSION_TYPE_CORE => SessionConfigurationBuilder::forCore($this->web_root, $this->readOnly),
             self::SESSION_TYPE_PORTAL => SessionConfigurationBuilder::forPortal($this->web_root, $this->readOnly),
-            default => throw new \InvalidArgumentException("Unknown session type: {$this->sessionType}"),
         };
     }
 
@@ -84,22 +101,19 @@ class HttpSessionFactory implements SessionFactoryInterface
         };
     }
 
-    private function getSessionHandlerInterface(SessionConfiguration $settings): ?\SessionHandlerInterface
+    private function getSessionHandlerInterface(SessionConfiguration $settings): \SessionHandlerInterface
     {
-        $sessionHandler = null;
-        if (!empty(getenv('SESSION_STORAGE_MODE', true))  && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
-            $this->getSystemLogger()->debug("SessionUtil: using predis sentinel session storage mode");
-            try {
-                $sessionHandler = (new SentinelUtil())->configure($settings->gcMaxLifetime);
-            } catch (\Throwable $e) {
-                // we want to log the error and throw a runtime exception, since we don't want to fail silently when sessions are not working
-                $this->getSystemLogger()->error(
-                    "SessionUtil: failed to configure predis sentinel session storage: " . $e->getMessage(),
-                    ['trace' => $e->getTraceAsString()]
-                );
-                throw new \RuntimeException("Failed to configure predis sentinel session storage: " . $e->getMessage());
-            }
+        if (getenv('SESSION_STORAGE_MODE', true) !== 'predis-sentinel') {
+            return new StoreFailureStrictSessionHandler(new \SessionHandler());
         }
-        return $sessionHandler;
+
+        $this->logger->debug('SessionUtil: using predis sentinel session storage mode');
+        try {
+            return (new SentinelUtil())->configure($settings->gcMaxLifetime);
+        } catch (\Throwable $e) {
+            // Log and rethrow: sessions must not fail silently
+            $this->logger->error('SessionUtil: failed to configure predis sentinel session storage', ['exception' => $e]);
+            throw new \RuntimeException('Failed to configure predis sentinel session storage', previous: $e);
+        }
     }
 }
