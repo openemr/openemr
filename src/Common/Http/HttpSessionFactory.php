@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Common\Http;
 
 use OpenEMR\BC\ServiceContainer;
@@ -20,6 +22,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\Storage\Handler\StoreFailureStrictSessionHandler;
 use OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage;
 use OpenEMR\Common\Session\WriteThroughSession;
+use OpenEMR\Common\System\EnvironmentVariable;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
@@ -46,7 +49,7 @@ class HttpSessionFactory implements SessionFactoryInterface
 
     public function __construct(
         private readonly HttpRestRequest $request,
-        private readonly string $web_root = "",
+        private readonly string $web_root = '',
         string $sessionType = self::DEFAULT_SESSION_TYPE,
         private readonly bool $readOnly = false,
         ?LoggerInterface $logger = null,
@@ -103,7 +106,7 @@ class HttpSessionFactory implements SessionFactoryInterface
 
     private function getSessionHandlerInterface(SessionConfiguration $settings): \SessionHandlerInterface
     {
-        if (getenv('SESSION_STORAGE_MODE', true) !== 'predis-sentinel') {
+        if (EnvironmentVariable::get('SESSION_STORAGE_MODE') !== 'predis-sentinel') {
             return new StoreFailureStrictSessionHandler(new \SessionHandler());
         }
 
