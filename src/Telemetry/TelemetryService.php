@@ -130,13 +130,13 @@ class TelemetryService
      */
     public function reportUsageData(): int|bool
     {
-        if (empty($this->isTelemetryEnabled())) {
+        if ($this->isTelemetryEnabled() === 0) {
             $this->logger->debug("Telemetry is not enabled, so do not send a usage report.");
             return false;
         }
 
         $site_uuid = $this->getUniqueInstallationUuid();
-        if (empty($site_uuid)) {
+        if ($site_uuid === '') {
             $this->logger->warning("Site UUID not found.");
         }
 
@@ -205,7 +205,13 @@ class TelemetryService
             'localeData' => $localeData,
         ];
 
-        $payload = Json::encode($payload_data);
+        try {
+            $payload = Json::encode($payload_data);
+        } catch (\JsonException $e) {
+            // Usage data with bytes that are not UTF-8 cannot be sent; report it like a failed request.
+            $this->logger->error('Telemetry usage report could not be encoded', ['exception' => $e]);
+            return 0;
+        }
 
         try {
             $reply = $this->httpClient->request('POST', $endpoint, [
@@ -233,13 +239,13 @@ class TelemetryService
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report //TODO: REMOVE comment RELEASE
             } else {
-                $this->logger->error("Error in response: {response}", ['response' => json_encode($responseData)]);
+                $this->logger->error("Error in response: {response}", ['response' => $responseData]);
             }
         } else {
             $this->logger->error("HTTP error: {httpStatus}", ['httpStatus' => $httpStatus]);
         }
 
-        $this->logger->debug("Telemetry sent: {httpStatus}: {geoData}", ['httpStatus' => $httpStatus, 'geoData' => json_encode($serverGeoData)]);
+        $this->logger->debug("Telemetry sent: {httpStatus}: {geoData}", ['httpStatus' => $httpStatus, 'geoData' => $serverGeoData]);
         return $httpStatus;
     }
 

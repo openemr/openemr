@@ -17,11 +17,13 @@ namespace OpenEMR\Common\Utils;
 final class Json
 {
     /**
+     * JSON_PARTIAL_OUTPUT_ON_ERROR is ignored, since it would turn a failure into partial output.
+     *
      * @throws \JsonException when the value cannot be encoded
      */
     public static function encode(mixed $value, int $flags = 0): string
     {
-        return json_encode($value, JSON_THROW_ON_ERROR | $flags);
+        return json_encode($value, JSON_THROW_ON_ERROR | ($flags & ~JSON_PARTIAL_OUTPUT_ON_ERROR));
     }
 
     /**

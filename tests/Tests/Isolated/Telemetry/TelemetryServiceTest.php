@@ -447,6 +447,39 @@ class TelemetryServiceTest extends TestCase
         $this->assertIsArray($payload);
         $this->assertArrayHasKey('usageRecords', $payload);
         $this->assertArrayHasKey('localeData', $payload);
+        $options = $handler->getLastOptions();
+        $this->assertFalse($options['allow_redirects']);
+        $this->assertTrue($options['verify']);
+    }
+
+    public function testReportUsageDataThatCannotBeEncodedIsNotSent(): void
+    {
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+        $mockVersionService = $this->createMock(VersionServiceInterface::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
+        $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
+        $handler = new MockHandler([new Response(200, [], '{"status": "success"}')]);
+
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([$mockRepository, $mockVersionService, $mockLogger, $this->clientUsing($handler)])
+            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow'])
+            ->getMock();
+        $telemetryService->method('isTelemetryEnabled')->willReturn(1);
+        $telemetryService->method('getUniqueInstallationUuid')->willReturn('test-uuid-123');
+        $telemetryService->method('createGeoTelemetry')->willReturn($mockGeoTelemetry);
+        $telemetryService->method('querySingleRow')->willReturn(['zone' => 'America/New_York']);
+        $mockGeoTelemetry->method('getServerGeoData')->willReturn([]);
+        $mockVersionService->method('getSoftwareVersion')->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
+        $mockRepository->method('fetchUsageRecords')
+            ->willReturn([['event_type' => 'click', 'event_label' => 'not UTF-8: ' . chr(0xB1), 'count' => 1]]);
+
+        $mockRepository->expects($this->never())->method('clearTelemetryData');
+        $mockLogger->expects($this->once())
+            ->method('error')
+            ->with('Telemetry usage report could not be encoded', $this->arrayHasKey('exception'));
+
+        $this->assertSame(0, $telemetryService->reportUsageData());
+        $this->assertCount(1, $handler);
     }
 
     public function testReportUsageDataHandlesGeoTelemetryError(): void

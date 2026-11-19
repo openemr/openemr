@@ -36,6 +36,12 @@ class JsonTest extends TestCase
         Json::encode(chr(0xB1) . '1');
     }
 
+    public function testEncodeThrowsEvenWhenAskedForPartialOutput(): void
+    {
+        $this->expectException(JsonException::class);
+        Json::encode(['a' => chr(0xB1) . '1'], JSON_PARTIAL_OUTPUT_ON_ERROR);
+    }
+
     public function testDecodeReturnsObjectsAsArrays(): void
     {
         $this->assertSame(['a' => 1, 'b' => [true, null]], Json::decode('{"a":1,"b":[true,null]}'));
