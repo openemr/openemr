@@ -684,11 +684,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/Services/LaboratoryTestService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/Services/ProcedureService.php',
 ];
 $ignoreErrors[] = [
