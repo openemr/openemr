@@ -14,7 +14,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\Cda;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -163,5 +165,86 @@ class CdaValidateDocumentsTest extends TestCase {
         return (string)json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 
+    private const FIRST_DOCUMENT_ID = 990715001;
 
+    /** @var list<int> */
+    private array $documentIds = [];
+
+    protected function tearDown(): void
+    {
+        foreach ($this->documentIds as $id) {
+            QueryUtils::sqlStatementThrowException('DELETE FROM `documents` WHERE `id` = ?', [$id]);
+        }
+        $this->documentIds = [];
+    }
+
+    /**
+     * @return array<string, array{?string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function noSavedReportProvider(): array
+    {
+        return [
+            'no report saved' => [null],
+            'an empty column' => [''],
+            'an empty report' => ['[]'],
+        ];
+    }
+
+    #[DataProvider('noSavedReportProvider')]
+    public function testADocumentWithoutAReportShowsTheNoErrorsMessage(?string $documentData): void
+    {
+        [, $auditId] = $this->documentWithValidationLog($documentData);
+        $validator = new CdaValidateDocuments(logger: $this->createStub(LoggerInterface::class));
+
+        $this->assertStringStartsWith('No Errors', $validator->createSchematronHtml($auditId));
+    }
+
+    public function testASavedReportReadsBackAndShowsItsOneSchemaError(): void
+    {
+        [$documentId, $auditId] = $this->documentWithValidationLog(null);
+        $validator = new CdaValidateDocuments(logger: $this->createStub(LoggerInterface::class));
+        $report = [
+            'xsd' => ['Error 1845: No matching global declaration on line 1'],
+            'errorCount' => 0,
+            'warningCount' => 0,
+            'ignoredCount' => 0,
+            'errors' => [],
+            'warnings' => [],
+            'ignored' => [],
+        ];
+
+        $validator->saveValidationLog($documentId, $report);
+
+        $this->assertSame($report, $validator->fetchValidationLog($auditId));
+        $html = $validator->createSchematronHtml($auditId);
+        $this->assertStringContainsString('No matching global declaration', $html);
+        $this->assertStringNotContainsString('Passed XSD testing.', $html);
+    }
+
+    public function testAnUnreadableSavedReportIsAnError(): void
+    {
+        [, $auditId] = $this->documentWithValidationLog('{"errorCount": ');
+        $validator = new CdaValidateDocuments(logger: $this->createStub(LoggerInterface::class));
+
+        $this->expectException(\JsonException::class);
+        $validator->fetchValidationLog($auditId);
+    }
+
+    /**
+     * Insert a document row with a validation log, using the same number for its id and audit id.
+     *
+     * @return array{int, int} the document id and its audit id
+     */
+    private function documentWithValidationLog(?string $documentData): array
+    {
+        $id = self::FIRST_DOCUMENT_ID + count($this->documentIds);
+        $insert = <<<'SQL'
+            INSERT INTO `documents` (`id`, `revision`, `audit_master_id`, `document_data`) VALUES (?, NOW(), ?, ?)
+            SQL;
+        QueryUtils::sqlStatementThrowException($insert, [$id, $id, $documentData]);
+        $this->documentIds[] = $id;
+        return [$id, $id];
+    }
 }
