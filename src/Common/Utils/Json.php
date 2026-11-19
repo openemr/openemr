@@ -17,7 +17,7 @@ namespace OpenEMR\Common\Utils;
 final class Json
 {
     /**
-     * JSON_PARTIAL_OUTPUT_ON_ERROR is ignored, since it would turn a failure into partial output.
+     * Drops JSON_PARTIAL_OUTPUT_ON_ERROR, since it would turn a failure into partial output.
      *
      * @throws \JsonException when the value cannot be encoded
      */

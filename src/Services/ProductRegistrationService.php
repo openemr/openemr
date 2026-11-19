@@ -8,8 +8,10 @@
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,6 +21,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 
@@ -28,20 +31,20 @@ class ProductRegistrationService
 {
     private readonly ClientInterface $httpClient;
 
+    private readonly OEEnvBag $env;
+
     public function __construct(
         ?ClientInterface $httpClient = null,
-        private ?VersionServiceInterface $versionService = null,
+        private readonly VersionServiceInterface $versionService = new VersionService(),
+        ?OEEnvBag $env = null,
     ) {
         $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
+        $this->env = $env ?? OEEnvBag::getInstance();
     }
 
-    /**
-     * Built on first use, since constructing VersionService queries the database.
-     */
     private function currentVersion(): string
     {
-        $this->versionService ??= new VersionService();
-        return (string) $this->versionService->getSoftwareVersion();
+        return $this->versionService->getSoftwareVersion()->__toString();
     }
 
     public function getProductDialogStatus(): array
@@ -127,8 +130,8 @@ class ProductRegistrationService
     {
         // build the information array
         $info = ['email' => $email, 'version' => $this->currentVersion()];
-        $distribution = getenv('OPENEMR_DOCKER_ENV_TAG', true);
-        if (is_string($distribution) && $distribution !== '') {
+        $distribution = $this->env->getString('OPENEMR_DOCKER_ENV_TAG');
+        if ($distribution !== '') {
             // this will add standard package information if it exists
             $info['distribution'] = $distribution;
         }

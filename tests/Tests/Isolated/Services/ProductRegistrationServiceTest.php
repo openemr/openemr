@@ -23,6 +23,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\SoftwareVersion;
@@ -52,14 +53,18 @@ final class ProductRegistrationServiceTest extends TestCase
     public function testOptInPostsTheEmailAndVersionAndRejectsAFailedReply(): void
     {
         $handler = new MockHandler([new Response(500)]);
+        $service = $this->serviceUsing($handler);
 
+        $error = null;
         try {
-            $this->serviceUsing($handler)->registerProduct('admin@example.test');
-            $this->fail('A reply other than 201 should be an error.');
+            $service->registerProduct('admin@example.test');
         } catch (\GenericProductRegistrationException $e) {
-            $this->assertSame('Server error: try again later', $e->getMessage());
+            $error = $e;
         }
 
+        // A reply other than 201 is an error.
+        $this->assertInstanceOf(\GenericProductRegistrationException::class, $error);
+        $this->assertSame('Server error: try again later', $error->getMessage());
         $request = $handler->getLastRequest();
         $this->assertInstanceOf(RequestInterface::class, $request);
         $this->assertSame('POST', $request->getMethod());
@@ -68,6 +73,7 @@ final class ProductRegistrationServiceTest extends TestCase
         parse_str((string) $request->getBody(), $form);
         $this->assertSame('admin@example.test', $form['email'] ?? null);
         $this->assertSame('8.1.0', $form['version'] ?? null);
+        $this->assertArrayNotHasKey('distribution', $form);
         $options = $handler->getLastOptions();
         $this->assertFalse($options['allow_redirects']);
         $this->assertTrue($options['verify']);
@@ -76,13 +82,33 @@ final class ProductRegistrationServiceTest extends TestCase
     public function testAnUnreachableServerIsAnErrorThatKeepsTheCause(): void
     {
         $handler = new MockHandler([new ConnectException('Connection refused', new Request('POST', self::REGISTRATION_URL))]);
+        $service = $this->serviceUsing($handler);
 
+        $error = null;
         try {
-            $this->serviceUsing($handler)->registerProduct('admin@example.test');
-            $this->fail('An unreachable server should be an error.');
+            $service->registerProduct('admin@example.test');
         } catch (\GenericProductRegistrationException $e) {
-            $this->assertSame('Server error: try again later', $e->getMessage());
-            $this->assertInstanceOf(ConnectException::class, $e->getPrevious());
+            $error = $e;
+        }
+
+        $this->assertInstanceOf(\GenericProductRegistrationException::class, $error);
+        $this->assertSame('Server error: try again later', $error->getMessage());
+        $this->assertInstanceOf(ConnectException::class, $error->getPrevious());
+    }
+
+    public function testOptInNamesTheDockerDistribution(): void
+    {
+        $handler = new MockHandler([new Response(500)]);
+        $service = $this->serviceUsing($handler, new OEEnvBag(['OPENEMR_DOCKER_ENV_TAG' => 'flex-3.22']));
+
+        $this->expectException(\GenericProductRegistrationException::class);
+        try {
+            $service->registerProduct('admin@example.test');
+        } finally {
+            $request = $handler->getLastRequest();
+            $this->assertInstanceOf(RequestInterface::class, $request);
+            parse_str((string) $request->getBody(), $form);
+            $this->assertSame('flex-3.22', $form['distribution'] ?? null);
         }
     }
 
@@ -101,11 +127,11 @@ final class ProductRegistrationServiceTest extends TestCase
         }
     }
 
-    private function serviceUsing(MockHandler $handler): ProductRegistrationService
+    private function serviceUsing(MockHandler $handler, OEEnvBag $env = new OEEnvBag()): ProductRegistrationService
     {
         $versionService = $this->createStub(VersionServiceInterface::class);
         $versionService->method('getSoftwareVersion')->willReturn(new SoftwareVersion(8, 1, 0, '', 0, 0, 0));
         $client = new Client(['handler' => HandlerStack::create($handler), 'http_errors' => false]);
-        return new ProductRegistrationService($client, $versionService);
+        return new ProductRegistrationService($client, $versionService, $env);
     }
 }

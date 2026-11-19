@@ -4,7 +4,9 @@
  * @package        OpenEMR
  * @link           https://www.open-emr.org
  * @author         Jerry Padgett <sjpadgett@gmail.com>
+ * @author         Michael A. Smith <michael@opencoreemr.com>
  * @copyright      Copyright (c) 2025 - 2026 <sjpadgett@gmail.com>
+ * @copyright      Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -208,7 +210,7 @@ class TelemetryService
         try {
             $payload = Json::encode($payload_data);
         } catch (\JsonException $e) {
-            // Usage data with bytes that are not UTF-8 cannot be sent; report it like a failed request.
+            // JSON cannot carry bytes that are not UTF-8, so report the usage data like a failed request.
             $this->logger->error('Telemetry usage report could not be encoded', ['exception' => $e]);
             return 0;
         }

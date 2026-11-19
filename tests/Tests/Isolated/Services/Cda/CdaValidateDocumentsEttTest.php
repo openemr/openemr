@@ -15,9 +15,9 @@ declare(strict_types=1);
 namespace OpenEMR\Services\Cda {
 
     // A failed request's description goes through the unqualified xlt(), which needs the database. Stub it in
-    // the class's namespace, so PHP finds it before the global function; guarded so the isolated suite can share
-    // a process.
-    if (!function_exists('OpenEMR\\Services\\Cda\\xlt')) {
+    // the class's namespace, where PHP looks before the global function, and guard the stub so the isolated
+    // suite can share a process.
+    if (!function_exists(__NAMESPACE__ . '\xlt')) {
         function xlt(string $s): string
         {
             return $s;
