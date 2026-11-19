@@ -43,6 +43,7 @@ use Doctrine\ORM\{
 };
 use Firehed\Container\TypedContainerInterface as TC;
 use OpenEMR\BC\DatabaseConnectionOptions;
+use OpenEMR\BC\SiteInstallState;
 use OpenEMR\Common\Database\ConnectionManager;
 use OpenEMR\Common\Database\ConnectionType;
 use Psr\Log\LoggerInterface;
@@ -105,6 +106,24 @@ return [
             port: $port,
             unixSocket: $socket,
         );
+    },
+    SiteInstallState::class => function (TC $c): SiteInstallState {
+        if ($c->get('OPENEMR_DB_NAME') !== null) {
+            return new SiteInstallState(true);
+        }
+        $sqlconfPath = sprintf(
+            '%s/sites/%s/sqlconf.php',
+            $c->getString('installRoot'),
+            $c->getString('OPENEMR_SITE'),
+        );
+        if (!file_exists($sqlconfPath)) {
+            return new SiteInstallState(false);
+        }
+        $config = (static function (string $path): mixed {
+            require $path;
+            return $config ?? null;
+        })($sqlconfPath);
+        return new SiteInstallState($config === 1);
     },
 
     // Doctrine Migrations
