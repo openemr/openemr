@@ -16,10 +16,12 @@ namespace OpenEMR\Billing\EraAutoPost;
 
 /**
  * Backed because the value is stored in x12_remote_received.auto_post_status. A file
- * no run has taken has an empty status there and no case here.
+ * that is not for unattended posting has an empty status there and no case here.
  */
 enum AutoPostFileStatus: string
 {
+    /** Stored while its partner had a user to post as; waiting for a run to take it. */
+    case Pending = 'pending';
     /** A run took the file and has not finished it. A file left like this is not taken again. */
     case Running = 'running';
     /** Every check in the file was posted or held, and recorded. */

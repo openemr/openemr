@@ -52,7 +52,7 @@ class EraAutoPosterTest extends TestCase
         $log = $this->log([new PendingRemittance(5, 'a.edi', 9)]);
         $poster = $this->poster();
 
-        $summary = $this->autoPoster($log, $poster)->run(new \DateTimeImmutable('2026-11-19 10:00:00'));
+        $summary = $this->autoPoster($log, $poster)->run();
 
         $this->assertSame([['CHK1', '77', 9]], $poster->posted);
         $this->assertSame([5 => AutoPostFileStatus::Done], $log->finished);
@@ -85,7 +85,7 @@ class EraAutoPosterTest extends TestCase
         $log = $this->log([new PendingRemittance(5, 'a.edi', 9)]);
         $poster = $this->poster();
 
-        $summary = $this->autoPoster($log, $poster)->run(new \DateTimeImmutable('2026-11-19 10:00:00'));
+        $summary = $this->autoPoster($log, $poster)->run();
 
         $this->assertSame([['GOOD', '77', 9]], $poster->posted);
         $held = $log->records[0][2];
@@ -113,7 +113,7 @@ class EraAutoPosterTest extends TestCase
         $log = $this->log([new PendingRemittance(5, 'a.edi', 9)]);
         $poster = $this->poster();
 
-        $this->autoPoster($log, $poster)->run(new \DateTimeImmutable('2026-11-19 10:00:00'));
+        $this->autoPoster($log, $poster)->run();
 
         $record = $log->records[0][2];
         $this->assertSame(CheckStatus::Posted, $record->status);
@@ -127,7 +127,7 @@ class EraAutoPosterTest extends TestCase
         $log = $this->log([new PendingRemittance(5, 'a.edi', 9)]);
         $poster = $this->poster(payer: '');
 
-        $this->autoPoster($log, $poster)->run(new \DateTimeImmutable('2026-11-19 10:00:00'));
+        $this->autoPoster($log, $poster)->run();
 
         $this->assertSame([], $poster->posted);
         $this->assertSame(HoldReason::NoPayer, $log->records[0][2]->holdReason);
@@ -140,7 +140,7 @@ class EraAutoPosterTest extends TestCase
         $log = $this->log([new PendingRemittance(5, 'a.edi', 9)]);
         $poster = $this->poster(postedElsewhere: true);
 
-        $this->autoPoster($log, $poster)->run(new \DateTimeImmutable('2026-11-19 10:00:00'));
+        $this->autoPoster($log, $poster)->run();
 
         $this->assertSame([], $poster->posted);
         $record = $log->records[0][2];
@@ -155,7 +155,7 @@ class EraAutoPosterTest extends TestCase
         $log = $this->log([new PendingRemittance(5, 'cut.edi', 9), new PendingRemittance(6, 'gone.edi', 9)]);
         $poster = $this->poster();
 
-        $summary = $this->autoPoster($log, $poster)->run(new \DateTimeImmutable('2026-11-19 10:00:00'));
+        $summary = $this->autoPoster($log, $poster)->run();
 
         $this->assertSame([], $poster->posted);
         $this->assertSame([], $log->records);
@@ -170,7 +170,7 @@ class EraAutoPosterTest extends TestCase
         $log->taken[5] = true;
         $poster = $this->poster();
 
-        $summary = $this->autoPoster($log, $poster)->run(new \DateTimeImmutable('2026-11-19 10:00:00'));
+        $summary = $this->autoPoster($log, $poster)->run();
 
         $this->assertSame([], $poster->posted);
         $this->assertSame([], $log->finished);
@@ -184,7 +184,7 @@ class EraAutoPosterTest extends TestCase
         $log = $this->log([new PendingRemittance(5, 'a.edi', 9), new PendingRemittance(6, 'b.edi', 9)]);
         $poster = $this->poster(failOn: 'BOOM');
 
-        $summary = $this->autoPoster($log, $poster)->run(new \DateTimeImmutable('2026-11-19 10:00:00'));
+        $summary = $this->autoPoster($log, $poster)->run();
 
         $this->assertSame([5 => AutoPostFileStatus::Interrupted, 6 => AutoPostFileStatus::Done], $log->finished);
         $this->assertSame([['CHK2', '77', 9]], $poster->posted);
@@ -192,13 +192,25 @@ class EraAutoPosterTest extends TestCase
         $this->assertSame(2, $summary->files);
     }
 
-    public function testOnlyFilesReceivedSinceTheGivenTimeAreAskedFor(): void
+    public function testACheckWithOnlyProviderLevelAdjustmentsIsRecordedAndHeld(): void
     {
-        $log = $this->log([]);
+        // The payer paid 10.00 of interest and no claims.
+        Era835::write($this->directory, 'a.edi', Era835::file(Era835::check('PLBONLY', '10.00', [], ['L6*-10.00'])));
+        $log = $this->log([new PendingRemittance(5, 'a.edi', 9)]);
+        $poster = $this->poster(payer: '');
 
-        $this->autoPoster($log, $this->poster())->run(new \DateTimeImmutable('2026-11-19 10:00:00'));
+        $summary = $this->autoPoster($log, $poster)->run();
 
-        $this->assertSame('2026-11-19 10:00:00', $log->since?->format('Y-m-d H:i:s'));
+        $this->assertSame([], $poster->posted);
+        $this->assertCount(1, $log->records);
+        $record = $log->records[0][2];
+        $this->assertSame('PLBONLY', $record->check->checkNumber);
+        $this->assertSame(-10.0, $record->check->plbTotal);
+        $this->assertSame(CheckStatus::Held, $record->status);
+        $this->assertSame(HoldReason::NoPayer, $record->holdReason);
+        $this->assertSame([], $record->claims);
+        $this->assertSame(1, $summary->checksHeld);
+        $this->assertSame([5 => AutoPostFileStatus::Done], $log->finished);
     }
 
     private function autoPoster(AutoPostLog $log, CheckPoster $poster): EraAutoPoster

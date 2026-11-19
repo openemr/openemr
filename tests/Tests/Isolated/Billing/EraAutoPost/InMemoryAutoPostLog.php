@@ -21,7 +21,6 @@ use OpenEMR\Billing\EraAutoPost\PendingRemittance;
 
 final class InMemoryAutoPostLog implements AutoPostLog
 {
-    public ?\DateTimeImmutable $since = null;
     /** @var array<int, true> */
     public array $taken = [];
     /** @var array<int, AutoPostFileStatus> */
@@ -36,9 +35,8 @@ final class InMemoryAutoPostLog implements AutoPostLog
     {
     }
 
-    public function pending(\DateTimeImmutable $since): array
+    public function pending(): array
     {
-        $this->since = $since;
         return $this->pending;
     }
 

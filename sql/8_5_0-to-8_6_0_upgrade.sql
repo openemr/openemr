@@ -530,7 +530,7 @@ ALTER TABLE `x12_partners` ADD `x12_era_auto_post_user` bigint(20) DEFAULT NULL 
 #EndIf
 
 #IfMissingColumn x12_remote_received auto_post_status
-ALTER TABLE `x12_remote_received` ADD `auto_post_status` varchar(31) NOT NULL DEFAULT '' COMMENT 'AutoPostFileStatus: empty until an unattended posting run takes the file, then running, done, unreadable or interrupted';
+ALTER TABLE `x12_remote_received` ADD `auto_post_status` varchar(31) NOT NULL DEFAULT '' COMMENT 'AutoPostFileStatus: empty when the file is not for unattended posting; else pending, running, done, unreadable or interrupted';
 #EndIf
 
 #IfNotTable era_auto_post_check

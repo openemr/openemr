@@ -213,7 +213,8 @@ class EngineCheckPosterTest extends TestCase
         );
         $receivedId = QueryUtils::sqlInsert(
             'INSERT INTO `x12_remote_received` (`remote_key`, `x12_partner_id`, `remote_dir`, `remote_name`, `remote_size`,'
-            . " `file_type`, `status`, `stored_name`, `received_at`) VALUES (?, ?, '/remits', 'run.edi', 1, 'f835', 'stored', 'run.edi', ?)",
+            . " `file_type`, `status`, `stored_name`, `received_at`, `auto_post_status`)"
+            . " VALUES (?, ?, '/remits', 'run.edi', 1, 'f835', 'stored', 'run.edi', ?, 'pending')",
             [hash('sha256', 'auto post run test'), self::PARTNER, '2026-11-19 12:00:00']
         );
         $clock = new class implements ClockInterface {
@@ -232,8 +233,8 @@ class EngineCheckPosterTest extends TestCase
         );
 
         try {
-            $first = $autoPoster->run(new \DateTimeImmutable('2026-11-19 12:00:00'));
-            $second = $autoPoster->run(new \DateTimeImmutable('2026-11-19 12:00:00'));
+            $first = $autoPoster->run();
+            $second = $autoPoster->run();
         } finally {
             unlink($directory . '/run.edi');
             rmdir($directory);

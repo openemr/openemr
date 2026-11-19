@@ -24,7 +24,12 @@ use OpenEMR\Billing\EraAutoPost\HoldReason;
 use OpenEMR\Billing\EraAutoPost\PendingRemittance;
 use OpenEMR\Billing\EraAutoPost\RemittanceCheck;
 use OpenEMR\Billing\EraPosting\ClaimPayment;
+use OpenEMR\Billing\X12Receive\ReceivedFileRepository;
+use OpenEMR\Billing\X12Receive\ReceivedStatus;
 use OpenEMR\Billing\X12Receive\ReceivePartnerRepository;
+use OpenEMR\Billing\X12Receive\RemoteFile;
+use OpenEMR\Billing\X12Receive\StoreOutcome;
+use OpenEMR\Billing\X12Receive\X12FileType;
 use OpenEMR\Common\Database\QueryUtils;
 use PHPUnit\Framework\TestCase;
 
@@ -36,7 +41,7 @@ class AutoPostRepositoryTest extends TestCase
     private const PARTNER_INACTIVE_USER = 99990063;
     private const USER = 99990461;
     private const INACTIVE_USER = 99990462;
-    private const SINCE = '2026-11-19 10:00:00';
+    private const RECEIVED = '2026-11-19 10:00:00';
 
     protected function setUp(): void
     {
@@ -61,22 +66,45 @@ class AutoPostRepositoryTest extends TestCase
         $this->cleanUp();
     }
 
-    public function testOnlyNewStored835sOfAPartnerWithAnActiveUserArePending(): void
+    public function testOnlyMarked835sOfAPartnerWithAnActiveUserArePending(): void
     {
         $wanted = $this->received(self::PARTNER_ON, 'wanted.edi');
-        $this->received(self::PARTNER_ON, 'older.edi', receivedAt: '2026-11-19 09:59:59');
+        // Received before the partner had a user to post as.
+        $this->received(self::PARTNER_ON, 'older.edi', autoPostStatus: '');
         $this->received(self::PARTNER_ON, 'status.277', type: 'f277');
         $this->received(self::PARTNER_ON, 'dup.edi', status: 'duplicate');
         $this->received(self::PARTNER_ON, 'taken.edi', autoPostStatus: 'done');
+        // Marked when received, but the partner's user has since been taken off or made inactive.
         $this->received(self::PARTNER_OFF, 'off.edi');
         $this->received(self::PARTNER_INACTIVE_USER, 'inactive.edi');
 
-        $pending = $this->ours((new AutoPostRepository())->pending(new \DateTimeImmutable(self::SINCE)));
+        $pending = $this->ours((new AutoPostRepository())->pending());
 
         $this->assertCount(1, $pending);
         $this->assertSame($wanted, $pending[0]->receivedId);
         $this->assertSame('wanted.edi', $pending[0]->storedName);
         $this->assertSame(self::USER, $pending[0]->postUser);
+    }
+
+    public function testAFileIsMarkedForUnattendedPostingWhenItIsRecorded(): void
+    {
+        $received = new ReceivedFileRepository();
+        $stored = new StoreOutcome(ReceivedStatus::Stored, 'marked.edi');
+        $marked = new RemoteFile('marked.RMT', 10, 1700000000);
+        $plain = new RemoteFile('plain.RMT', 10, 1700000000);
+        $at = new \DateTimeImmutable(self::RECEIVED);
+
+        $received->record(self::PARTNER_ON, '/remits', $marked, X12FileType::Remittance835, $stored, $at, true);
+        $received->record(self::PARTNER_ON, '/remits', $plain, X12FileType::Remittance835, new StoreOutcome(ReceivedStatus::Stored, 'plain.edi'), $at);
+
+        $log = new AutoPostRepository();
+        $pending = $this->ours($log->pending());
+        $this->assertSame(['marked.edi'], array_map(static fn(PendingRemittance $file): string => $file->storedName, $pending));
+
+        // Recording the file again does not put a file a run has taken back in the queue.
+        $this->assertTrue($log->take($pending[0]->receivedId));
+        $received->record(self::PARTNER_ON, '/remits', $marked, X12FileType::Remittance835, $stored, $at, true);
+        $this->assertSame('running', $this->autoPostStatus($pending[0]->receivedId));
     }
 
     public function testAFileIsTakenOnceAndNotPendingAgain(): void
@@ -87,13 +115,13 @@ class AutoPostRepositoryTest extends TestCase
         $this->assertTrue($log->take($id));
         $this->assertFalse($log->take($id));
         $this->assertSame('running', $this->autoPostStatus($id));
-        $this->assertSame([], $this->ours($log->pending(new \DateTimeImmutable(self::SINCE))));
+        $this->assertSame([], $this->ours($log->pending()));
 
         $log->finish($id, AutoPostFileStatus::Done);
 
         $this->assertSame('done', $this->autoPostStatus($id));
         $this->assertFalse($log->take($id));
-        $this->assertSame([], $this->ours($log->pending(new \DateTimeImmutable(self::SINCE))));
+        $this->assertSame([], $this->ours($log->pending()));
     }
 
     public function testAPostedCheckIsStoredWithARowPerClaimPayment(): void
@@ -215,13 +243,12 @@ class AutoPostRepositoryTest extends TestCase
         string $name,
         string $type = 'f835',
         string $status = 'stored',
-        string $receivedAt = self::SINCE,
-        string $autoPostStatus = '',
+        string $autoPostStatus = 'pending',
     ): int {
         return QueryUtils::sqlInsert(
             'INSERT INTO `x12_remote_received` (`remote_key`, `x12_partner_id`, `remote_dir`, `remote_name`, `remote_size`,'
             . ' `file_type`, `status`, `stored_name`, `received_at`, `auto_post_status`) VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?)',
-            [hash('sha256', $partnerId . $name), $partnerId, '/remits', $name, $type, $status, $name, $receivedAt, $autoPostStatus]
+            [hash('sha256', $partnerId . $name), $partnerId, '/remits', $name, $type, $status, $name, self::RECEIVED, $autoPostStatus]
         );
     }
 

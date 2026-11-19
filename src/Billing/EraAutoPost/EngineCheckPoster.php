@@ -85,6 +85,40 @@ final readonly class EngineCheckPoster implements CheckPoster
     public function post(RemittanceCheck $check, string $payerId, int $postUser, \DateTimeImmutable $today): CheckRecord
     {
         $run = new EraCheckPosting($payerId);
+        // Looking for the check's session and creating it must not interleave with another
+        // run doing the same, or the check would end up with two sessions.
+        $lock = 'era_check_' . sha1($payerId . "\0" . $check->checkNumber . "\0" . $check->checkDate);
+        $locked = QueryUtils::fetchSingleValue('SELECT GET_LOCK(?, 30) AS locked', 'locked', [$lock]);
+        if (!is_numeric($locked) || (int) $locked !== 1) {
+            throw new \RuntimeException('Another run is posting this check');
+        }
+        try {
+            $sessionId = $this->session($run, $check, $payerId, $postUser, $today);
+        } finally {
+            QueryUtils::fetchSingleValue('SELECT RELEASE_LOCK(?) AS released', 'released', [$lock]);
+        }
+        $posting = new ClaimPosting(
+            checkPosting: $run,
+            reversal: new EraReversal($payerId),
+            recorder: new Recorder(),
+            postUser: $postUser,
+            payerId: $payerId,
+            withoutUpdate: false,
+            payDate: '',
+            addUnmatchedCodes: $this->addUnmatchedCodes,
+        );
+        $claims = [];
+        foreach ($check->claims as $claim) {
+            $claims[] = ClaimRecord::fromResult($claim, $posting->post($claim, $sessionId));
+        }
+        return new CheckRecord($check, CheckStatus::Posted, null, $payerId, $sessionId, $claims);
+    }
+
+    /**
+     * The payment session an earlier posting of the check created, or else a new one.
+     */
+    private function session(EraCheckPosting $run, RemittanceCheck $check, string $payerId, int $postUser, \DateTimeImmutable $today): int
+    {
         $sessionId = $run->existingSession($check->checkNumber, $check->checkDate);
         if ($sessionId === 0) {
             // As SLEOB::arPostSession() creates it for the posting screen, with today as the
@@ -104,20 +138,6 @@ final readonly class EngineCheckPoster implements CheckPoster
                 ]
             );
         }
-        $posting = new ClaimPosting(
-            checkPosting: $run,
-            reversal: new EraReversal($payerId),
-            recorder: new Recorder(),
-            postUser: $postUser,
-            payerId: $payerId,
-            withoutUpdate: false,
-            payDate: '',
-            addUnmatchedCodes: $this->addUnmatchedCodes,
-        );
-        $claims = [];
-        foreach ($check->claims as $claim) {
-            $claims[] = ClaimRecord::fromResult($claim, $posting->post($claim, $sessionId));
-        }
-        return new CheckRecord($check, CheckStatus::Posted, null, $payerId, $sessionId, $claims);
+        return $sessionId;
     }
 }

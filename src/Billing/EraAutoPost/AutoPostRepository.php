@@ -20,16 +20,16 @@ use OpenEMR\Common\Database\QueryUtils;
 
 final class AutoPostRepository implements AutoPostLog
 {
-    public function pending(\DateTimeImmutable $since): array
+    public function pending(): array
     {
         $rows = QueryUtils::fetchRecords(
             'SELECT r.`id`, r.`stored_name`, p.`x12_era_auto_post_user` AS post_user'
             . ' FROM `x12_remote_received` AS r'
             . ' JOIN `x12_partners` AS p ON p.`id` = r.`x12_partner_id`'
             . ' JOIN `users` AS u ON u.`id` = p.`x12_era_auto_post_user` AND u.`active` = 1'
-            . " WHERE r.`status` = ? AND r.`file_type` = ? AND r.`auto_post_status` = '' AND r.`stored_name` != ''"
-            . ' AND r.`received_at` >= ? ORDER BY r.`id`',
-            [ReceivedStatus::Stored->value, X12FileType::Remittance835->value, $since->format('Y-m-d H:i:s')]
+            . " WHERE r.`status` = ? AND r.`file_type` = ? AND r.`auto_post_status` = ? AND r.`stored_name` != ''"
+            . ' ORDER BY r.`id`',
+            [ReceivedStatus::Stored->value, X12FileType::Remittance835->value, AutoPostFileStatus::Pending->value]
         );
         $pending = [];
         foreach ($rows as $row) {
@@ -46,8 +46,8 @@ final class AutoPostRepository implements AutoPostLog
     public function take(int $receivedId): bool
     {
         QueryUtils::sqlStatementThrowException(
-            "UPDATE `x12_remote_received` SET `auto_post_status` = ? WHERE `id` = ? AND `auto_post_status` = ''",
-            [AutoPostFileStatus::Running->value, $receivedId]
+            'UPDATE `x12_remote_received` SET `auto_post_status` = ? WHERE `id` = ? AND `auto_post_status` = ?',
+            [AutoPostFileStatus::Running->value, $receivedId, AutoPostFileStatus::Pending->value]
         );
         $taken = QueryUtils::affectedRows();
         return is_numeric($taken) && (int) $taken === 1;

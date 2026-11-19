@@ -21,51 +21,60 @@ final class RemittanceReader
 {
     public function read(string $path): Remittance
     {
-        /** @var array<string, array{out: array<mixed>, claims: list<ClaimPayment>}> $found */
-        $found = [];
+        /** @var list<ClaimPayment> $claims the claim payments of the transaction set being read */
+        $claims = [];
+        /** @var list<RemittanceCheck> $checks */
+        $checks = [];
         ob_start();
         try {
-            $error = ParseERA::parseERA($path, static function (array $out) use (&$found): void {
-                // One check per transaction set; the group number keeps sets of two groups apart.
-                $key = self::text($out, 'gs_control_number') . '/' . self::text($out, 'st_control_number');
-                $claims = $found[$key]['claims'] ?? [];
-                $claims[] = ClaimPayment::fromParsedEra($out);
-                // The last claim's copy is kept: provider-level adjustments follow the claims.
-                $found[$key] = ['out' => $out, 'claims' => $claims];
-            });
+            $error = ParseERA::parseERA(
+                $path,
+                static function (array $out) use (&$claims): void {
+                    $claims[] = ClaimPayment::fromParsedEra($out);
+                },
+                // One check per transaction set, whether or not it has claims: a set can
+                // carry only provider-level adjustments.
+                static function (array $out) use (&$claims, &$checks): void {
+                    $checks[] = self::check($out, $claims);
+                    $claims = [];
+                }
+            );
         } finally {
             ob_end_clean();
         }
-
-        $checks = [];
-        foreach ($found as $check) {
-            $out = $check['out'];
-            $plbTotal = 0.0;
-            $plbReasons = [];
-            $plbs = $out['plb'] ?? [];
-            foreach (is_array($plbs) ? $plbs : [] as $plb) {
-                if (!is_array($plb)) {
-                    continue;
-                }
-                $amount = $plb['amount'] ?? 0.0;
-                $plbTotal += is_numeric($amount) ? (float) $amount : 0.0;
-                $reason = self::text($plb, 'reason');
-                if ($reason !== '' && !in_array($reason, $plbReasons, true)) {
-                    $plbReasons[] = $reason;
-                }
-            }
-            $amount = $out['check_amount'] ?? 0.0;
-            $checks[] = new RemittanceCheck(
-                checkNumber: self::text($out, 'check_number'),
-                checkDate: self::text($out, 'check_date'),
-                amount: is_numeric($amount) ? (float) $amount : 0.0,
-                payerName: self::text($out, 'payer_name'),
-                claims: $check['claims'],
-                plbTotal: round($plbTotal, 2),
-                plbReasons: $plbReasons,
-            );
-        }
         return new Remittance($checks, $error);
+    }
+
+    /**
+     * @param array<mixed>       $out    the parser's array at the end of the transaction set
+     * @param list<ClaimPayment> $claims
+     */
+    private static function check(array $out, array $claims): RemittanceCheck
+    {
+        $plbTotal = 0.0;
+        $plbReasons = [];
+        $plbs = $out['plb'] ?? [];
+        foreach (is_array($plbs) ? $plbs : [] as $plb) {
+            if (!is_array($plb)) {
+                continue;
+            }
+            $amount = $plb['amount'] ?? 0.0;
+            $plbTotal += is_numeric($amount) ? (float) $amount : 0.0;
+            $reason = self::text($plb, 'reason');
+            if ($reason !== '' && !in_array($reason, $plbReasons, true)) {
+                $plbReasons[] = $reason;
+            }
+        }
+        $amount = $out['check_amount'] ?? 0.0;
+        return new RemittanceCheck(
+            checkNumber: self::text($out, 'check_number'),
+            checkDate: self::text($out, 'check_date'),
+            amount: is_numeric($amount) ? (float) $amount : 0.0,
+            payerName: self::text($out, 'payer_name'),
+            claims: $claims,
+            plbTotal: round($plbTotal, 2),
+            plbReasons: $plbReasons,
+        );
     }
 
     /**
