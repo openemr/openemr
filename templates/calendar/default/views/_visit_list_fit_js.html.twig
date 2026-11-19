@@ -1,0 +1,46 @@
+{# Fits a Visit List's patients into its block, for the views that draw the block at its
+   time range's height (day, week and day print). When the rows don't all fit, the last
+   ones are hidden (class visit-list-overflow) and a marker row is added in their place,
+   so the block keeps the height that shows its time. When not even one row fits beside
+   the marker, the marker's content moves into the header, before the + button. The
+   marker is the caller's: a "+N more" button on screen, a "continued below" note in
+   print; its content is the element with class visit-list-more-label or one holding it.
+   A fitted block gets class visit-list-fitted.
+
+   pcFitVisitList(block, marker, label) returns how many rows it hid. label(hidden) gives
+   the marker's text, set before each check so it is measured at its final size.
+   A block whose rows fit is left as it is.
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @author    David Eschelbacher <psoas@tampabay.rr.com>
+   @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<script>
+    function pcFitVisitList(block, marker, label) {
+        var list = block.querySelector('.visit-list-entries');
+        if (list === null || block.scrollHeight <= block.clientHeight) {
+            return 0;
+        }
+        var rows = list.querySelectorAll('.visit-list-entry');
+        var labelElement = marker.querySelector('.visit-list-more-label');
+        var hidden = 0;
+        list.appendChild(marker);
+        labelElement.textContent = label(hidden);
+        for (var i = rows.length - 1; i >= 0 && block.scrollHeight > block.clientHeight; i--) {
+            rows[i].classList.add('visit-list-overflow');
+            hidden++;
+            labelElement.textContent = label(hidden);
+        }
+        var header = block.querySelector('.visit-list-header');
+        if (block.scrollHeight > block.clientHeight && header !== null) {
+            var content = marker.firstElementChild;
+            content.classList.add('visit-list-more-in-header');
+            header.insertBefore(content, header.querySelector('.visit-list-add'));
+            marker.remove();
+        }
+        block.classList.add('visit-list-fitted');
+        return hidden;
+    }
+</script>

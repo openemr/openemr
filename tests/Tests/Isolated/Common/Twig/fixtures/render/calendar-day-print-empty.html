@@ -72,7 +72,12 @@
 .visit-list-entry { white-space: nowrap; }
 .visit-list-sequence { display: inline-block; font-weight: bold; min-width: 1.75em; }
 .visit-list-category { font-style: italic; }
-        .event_visit_list  { position: absolute; width: 100%; z-index: 1; }
+        #bigCal .event_visit_list:not(.visit-list-full) { position: absolute; width: 100%; overflow: hidden; z-index: 1; }
+        .visit-list-overflow { display: none; }
+        .visit-list-more { font-style: italic; }
+        .visit-list-continued { font-family: Arial, Helvetica, sans-serif; }
+        .visit-list-full { break-inside: avoid; margin-top: 0.5em; }
+        .visit-list-provider { font-weight: bold; padding: 0 2px; }
         .event_reserved    { position: absolute; background-color: pink;  overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
     </style>
     <!-- setupHeader stub -->
@@ -145,7 +150,64 @@
 </table>
 <p>
 
+<div class="visit-list-continued">
+                </div>
+
 </div>
+
+<script>
+    function pcFitVisitList(block, marker, label) {
+        var list = block.querySelector('.visit-list-entries');
+        if (list === null || block.scrollHeight <= block.clientHeight) {
+            return 0;
+        }
+        var rows = list.querySelectorAll('.visit-list-entry');
+        var labelElement = marker.querySelector('.visit-list-more-label');
+        var hidden = 0;
+        list.appendChild(marker);
+        labelElement.textContent = label(hidden);
+        for (var i = rows.length - 1; i >= 0 && block.scrollHeight > block.clientHeight; i--) {
+            rows[i].classList.add('visit-list-overflow');
+            hidden++;
+            labelElement.textContent = label(hidden);
+        }
+        var header = block.querySelector('.visit-list-header');
+        if (block.scrollHeight > block.clientHeight && header !== null) {
+            var content = marker.firstElementChild;
+            content.classList.add('visit-list-more-in-header');
+            header.insertBefore(content, header.querySelector('.visit-list-add'));
+            marker.remove();
+        }
+        block.classList.add('visit-list-fitted');
+        return hidden;
+    }
+</script>
+<script>
+    (function () {
+        var continuedText = "Continued below the schedule";
+        var shown = 0;
+        document.querySelectorAll('#bigCal .event_visit_list:not(.visit-list-full)').forEach(function (block) {
+            var marker = document.createElement('li');
+            marker.className = 'visit-list-more';
+            marker.innerHTML = '<span class="visit-list-more-label"></span>';
+            var hidden = pcFitVisitList(block, marker, function (count) {
+                return '+' + count + ' · ' + continuedText;
+            });
+            var full = document.querySelector('.visit-list-full[data-eid="' + block.dataset.eid + '"]');
+            if (full === null) {
+                return;
+            }
+            if (hidden === 0) {
+                full.remove();
+            } else {
+                shown++;
+            }
+        });
+        if (shown === 0) {
+            document.querySelector('.visit-list-continued').remove();
+        }
+    })();
+</script>
 
 <script>
     $(function () {

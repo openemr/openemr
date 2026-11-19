@@ -98,7 +98,12 @@
         .event_appointment { position: absolute; background-color: white; overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
         .event_noshow      { position: absolute; background-color: pink;  overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
         {% include 'calendar/default/views/_visit_list_print_styles.html.twig' %}
-        .event_visit_list  { position: absolute; width: 100%; z-index: 1; }
+        #bigCal .event_visit_list:not(.visit-list-full) { position: absolute; width: 100%; overflow: hidden; z-index: 1; }
+        .visit-list-overflow { display: none; }
+        .visit-list-more { font-style: italic; }
+        .visit-list-continued { font-family: Arial, Helvetica, sans-serif; }
+        .visit-list-full { break-inside: avoid; margin-top: 0.5em; }
+        .visit-list-provider { font-weight: bold; padding: 0 2px; }
         .event_reserved    { position: absolute; background-color: pink;  overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
     </style>
     {{ setupHeader(['no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_dialog']) }}
@@ -168,10 +173,11 @@
                             </div>
                         {% endif %}
                         {% if event.visitList is defined %}
-                            {# Visit List block: at least its time span tall, and taller when its
-                               list needs more room, so no patient is cut off the page. #}
+                            {# Visit List block: its time span tall, so it never covers what comes
+                               after it. The script below shows the rows that fit and notes that the
+                               list continues below the schedule, where it is printed in full. #}
                             <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
-                                 style="top:{{ event.evtTop }}; min-height:{{ event.evtHeight }}; {{ event.divWidth }}; {{ event.divLeft }}"
+                                 style="top:{{ event.evtTop }}; height:{{ event.evtHeight }}; {{ event.divWidth }}; {{ event.divLeft }}"
                                  id="{{ event.eventDate|attr }}-{{ event.eid|attr }}">
                                 {% include 'calendar/default/views/_visit_list_print.html.twig' with {visitList: event.visitList} only %}
                             </div>
@@ -192,7 +198,52 @@
 </table>
 <p>
 
+{# Each Visit List in full, for a block too short for all its patients. It sits inside
+   #bigCal, whose fixed height the grid overflows, so it follows the grid instead of lying
+   under it. All are printed here; the script below keeps only those whose block ran out
+   of room (all of them, if the script doesn't run, so no patient is left off the page). #}
+<div class="visit-list-continued">
+    {% for provider in providers %}
+        {% for event in provider.events %}
+            {% if event.visitList is defined %}
+                <div class="visit-list-full event_visit_list" data-eid="{{ event.eid|attr }}">
+                    <div class="visit-list-provider">{{ provider.fname|text }} {{ provider.lname|text }}</div>
+                    {% include 'calendar/default/views/_visit_list_print.html.twig' with {visitList: event.visitList} only %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
 </div>
+
+</div>
+
+{% include 'calendar/default/views/_visit_list_fit_js.html.twig' %}
+<script>
+    (function () {
+        var continuedText = {{ 'Continued below the schedule'|xlj }};
+        var shown = 0;
+        document.querySelectorAll('#bigCal .event_visit_list:not(.visit-list-full)').forEach(function (block) {
+            var marker = document.createElement('li');
+            marker.className = 'visit-list-more';
+            marker.innerHTML = '<span class="visit-list-more-label"></span>';
+            var hidden = pcFitVisitList(block, marker, function (count) {
+                return '+' + count + ' · ' + continuedText;
+            });
+            var full = document.querySelector('.visit-list-full[data-eid="' + block.dataset.eid + '"]');
+            if (full === null) {
+                return;
+            }
+            if (hidden === 0) {
+                full.remove();
+            } else {
+                shown++;
+            }
+        });
+        if (shown === 0) {
+            document.querySelector('.visit-list-continued').remove();
+        }
+    })();
+</script>
 
 {# Trigger the browser print dialog on page load via the framework's
    printLogPrint helper (defined in library/restoreSession.php). The

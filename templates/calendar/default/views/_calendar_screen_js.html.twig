@@ -99,6 +99,7 @@
      document.getElementById('popup').style.display = "none";
  }
 </script>
+{% include 'calendar/default/views/_visit_list_fit_js.html.twig' %}
 <script>
     {# Server-supplied values are extracted to JS vars here so each is
        single-escaped for the JS-string context via |js_escape (text)
@@ -168,6 +169,7 @@
             e.stopPropagation();
             goPid($(this).data("pid"));
         }).on("dblclick", function(e) { e.stopPropagation(); });
+        fitVisitListBlocks();
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
         $(".tdMonthName-small").click(function() {
@@ -179,6 +181,71 @@
 
         $('.providerXbtn').on('click', providerXclick);
     });
+
+    /* A Visit List block keeps the height of its time range. When its patients don't
+       fit, the rows that fit are shown and the last becomes "+N more", which opens the
+       whole list over the grid until a click elsewhere, Escape, or "Show fewer". */
+    var pcVisitListMoreText = {{ 'more'|xlj }};
+    var pcVisitListFewerText = {{ 'Show fewer'|xlj }};
+
+    function collapseVisitList(block) {
+        var $block = $(block);
+        if (!$block.hasClass("visit-list-expanded")) {
+            return;
+        }
+        $block.removeClass("visit-list-expanded").css("height", $block.data("fittedHeight"));
+        $block.find(".visit-list-more-button").attr("aria-expanded", "false")
+            .find(".visit-list-more-label").text($block.data("moreLabel"));
+    }
+
+    function expandVisitList(block) {
+        var $block = $(block);
+        $(".visit-list-expanded").each(function () { collapseVisitList(this); });
+        $block.data("fittedHeight", block.style.height).addClass("visit-list-expanded").css("height", "auto");
+        $block.find(".visit-list-more-button").attr("aria-expanded", "true")
+            .find(".visit-list-more-label").text(pcVisitListFewerText);
+    }
+
+    function fitVisitListBlocks() {
+        $(".event_visit_list").each(function () {
+            var block = this;
+            var marker = $('<li class="visit-list-more"><button type="button" class="visit-list-more-button" aria-expanded="false">' +
+                '<span class="visit-list-more-label"></span></button></li>').get(0);
+            var hidden = pcFitVisitList(block, marker, function (count) {
+                return "+" + count + " " + pcVisitListMoreText;
+            });
+            if (hidden === 0) {
+                return;
+            }
+            $(block).data("moreLabel", $(block).find(".visit-list-more-label").text());
+            $(block).find(".visit-list-more-button").on("click", function (e) {
+                e.stopPropagation();
+                if ($(block).hasClass("visit-list-expanded")) {
+                    collapseVisitList(block);
+                } else {
+                    expandVisitList(block);
+                }
+            }).on("dblclick", function (e) { e.stopPropagation(); });
+        });
+        $(document).on("click", function (e) {
+            $(".visit-list-expanded").each(function () {
+                if (!this.contains(e.target)) {
+                    collapseVisitList(this);
+                }
+            });
+        }).on("keydown", function (e) {
+            if (e.key !== "Escape") {
+                return;
+            }
+            $(".visit-list-expanded").each(function () {
+                var hadFocus = this.contains(document.activeElement);
+                collapseVisitList(this);
+                if (hadFocus) {
+                    $(this).find(".visit-list-more-button").trigger("focus");
+                }
+            });
+        });
+    }
 
     /* edit an existing event */
     var EditEvent = function(eObj) {
