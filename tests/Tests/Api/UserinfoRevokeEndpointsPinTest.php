@@ -70,17 +70,20 @@ class UserinfoRevokeEndpointsPinTest extends TestCase
             $advertised,
             'Discovery metadata must advertise userinfo_endpoint'
         );
-        // Host+port varies per worktree/CI runner; pin the path only
-        // so a cross-worktree test run does not fail on a URL-base
-        // mismatch. The path is the stable part of the OIDC Core
-        // §3.1.2.5 contract. Compare parsed path rather than
-        // string-ends-with so a stray query-string suffix cannot
-        // smuggle the matching bytes into a non-path position.
+        // Pin the path-ends-with shape on the parsed URL. Two
+        // independent variances this assertion tolerates:
+        //   - host+port (worktree + CI runner differ)
+        //   - installation webroot prefix (/openemr, /emr, ...)
+        // parse_url extracts the path component so a stray
+        // query-string suffix cannot smuggle the matching bytes
+        // into a non-path position - that was the issue with the
+        // string-ends-with-full-URL shape this test shipped with.
         $path = parse_url($advertised, PHP_URL_PATH);
-        $this->assertSame(
+        $this->assertIsString($path, 'userinfo_endpoint URL must have a parseable path');
+        $this->assertStringEndsWith(
             self::USERINFO_PATH,
             $path,
-            'userinfo_endpoint path must be /oauth2/default/userinfo'
+            'userinfo_endpoint path must end with /oauth2/default/userinfo'
         );
     }
 
