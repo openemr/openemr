@@ -19,6 +19,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Utils\Json;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\Schematron\SchemaRegistry;
 use Psr\Log\LoggerInterface;
@@ -169,7 +170,11 @@ class CdaValidateDocuments
 
         // A reply that isn't a JSON object (a proxy's HTML error page, say) is a failed
         // validation, not a document with no findings.
-        $decoded = json_decode($body, true);
+        try {
+            $decoded = Json::decode($body);
+        } catch (\JsonException) {
+            $decoded = null;
+        }
         if (!is_array($decoded)) {
             $this->validatorLogger->error('C-CDA validator reply was not JSON', ['status' => $status]);
             return $this->ettFailureReply($status);

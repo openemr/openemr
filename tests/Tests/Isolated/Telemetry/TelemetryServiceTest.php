@@ -21,6 +21,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use OpenEMR\Common\Utils\Json;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Services\SoftwareVersion;
 use OpenEMR\Services\VersionServiceInterface;
@@ -442,7 +443,7 @@ class TelemetryServiceTest extends TestCase
         $this->assertSame('POST', $request->getMethod());
         $this->assertSame('https://reg.open-emr.org/api/usage?SiteID=test-uuid-123', (string) $request->getUri());
         $this->assertSame('application/json', $request->getHeaderLine('Content-Type'));
-        $payload = json_decode((string) $request->getBody(), true);
+        $payload = Json::decode((string) $request->getBody());
         $this->assertIsArray($payload);
         $this->assertArrayHasKey('usageRecords', $payload);
         $this->assertArrayHasKey('localeData', $payload);

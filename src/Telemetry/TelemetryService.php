@@ -15,6 +15,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\DatabaseQueryTrait;
+use OpenEMR\Common\Utils\Json;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
@@ -204,7 +205,7 @@ class TelemetryService
             'localeData' => $localeData,
         ];
 
-        $payload = json_encode($payload_data, JSON_THROW_ON_ERROR);
+        $payload = Json::encode($payload_data);
 
         try {
             $reply = $this->httpClient->request('POST', $endpoint, [
@@ -223,7 +224,12 @@ class TelemetryService
         $response = (string) $reply->getBody();
 
         if (in_array($httpStatus, [200, 201, 204])) {
-            $responseData = json_decode($response, true);
+            try {
+                $responseData = Json::decode($response);
+            } catch (\JsonException) {
+                // An unreadable reply counts as an error response, like an empty one.
+                $responseData = null;
+            }
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report //TODO: REMOVE comment RELEASE
             } else {
