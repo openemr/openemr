@@ -391,7 +391,11 @@ class StatementEngine
             return true;
         }
         $quoted = preg_quote($token, '/');
-        return preg_match('/(?:^|[^A-Za-z0-9_])' . $quoted . '(?:[^A-Za-z0-9_]|$)/i', $raw) === 1;
+        // Letters, marks, and numbers stay inside a word. An accented
+        // character is not a separator, so "mild" does not match "prémild".
+        $edge = '[^\p{L}\p{M}\p{N}_]';
+
+        return preg_match('/(?:^|' . $edge . ')' . $quoted . '(?:' . $edge . '|$)/iu', $raw) === 1;
     }
 
     /**
@@ -448,16 +452,19 @@ class StatementEngine
         }
         $source = Values::asString($rule['source_field_id'] ?? '');
         $source2 = Values::asString($rule['source_field_id_2'] ?? '');
-        $out = strtr($template, [
+        $map = [
             '{source}' => $values[$source] ?? '',
             '{source_2}' => $values[$source2] ?? '',
             '{value}' => $values[$source] ?? '',
-        ]);
-        $replaced = preg_replace_callback(
-            '/\{([A-Za-z0-9_-]+)\}/',
-            static fn (array $m): string => $values[$m[1]] ?? $m[0],
-            $out
-        );
-        return is_string($replaced) ? $replaced : $out;
+        ];
+        foreach ($values as $fieldId => $fieldValue) {
+            if (!is_string($fieldId) || $fieldId === '') {
+                continue;
+            }
+            $map['{' . $fieldId . '}'] = $fieldValue;
+        }
+
+        // One pass. A value inserted for {source} is not scanned again.
+        return strtr($template, $map);
     }
 }

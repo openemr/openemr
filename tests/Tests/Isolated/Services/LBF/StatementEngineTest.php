@@ -208,6 +208,18 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
                 'enabled' => 1,
             ]];
             $this->assertSame('Measured 4 cm.', $this->paragraph('LBFstmt_demo', ['num' => '4'], $rules));
+            $nested = [[
+                'form_id' => 'LBFstmt_demo',
+                'source_field_id' => 'num',
+                'op' => 'parse_severity',
+                'match_token' => 'mild {grade}',
+                'statement_text' => 'Seen {source} and {grade}',
+                'enabled' => 1,
+            ]];
+            $this->assertSame(
+                'Seen mild {grade} and severe.',
+                $this->paragraph('LBFstmt_demo', ['num' => 'mild {grade}', 'grade' => 'severe'], $nested)
+            );
         }
 
         /**
@@ -273,6 +285,16 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
                 'Mildly dilated.',
                 $this->paragraph('LBFdemo', ['find' => 'mild + dilated'], $rules)
             );
+            $accent = [[
+                'form_id' => 'LBFdemo',
+                'source_field_id' => 'grade',
+                'op' => 'parse_severity',
+                'match_token' => 'mild',
+                'statement_text' => 'Mild.',
+                'enabled' => 1,
+            ]];
+            $this->assertSame('', $this->paragraph('LBFdemo', ['grade' => 'prémild'], $accent));
+            $this->assertSame('Mild.', $this->paragraph('LBFdemo', ['grade' => 'pré mild'], $accent));
         }
 
         /**
