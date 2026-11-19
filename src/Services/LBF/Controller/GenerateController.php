@@ -252,8 +252,10 @@ class GenerateController
                     $error = xl('This form is locked.');
                 } elseif ($this->stringParam($request, 'paragraph_field') !== $paragraphField) {
                     $error = xl('The paragraph field changed after this page was opened. Reload it and try again.');
+                } elseif (!is_string($request->request->get('paragraph_text'))) {
+                    $error = xl('The paragraph was not submitted. Reload the page and try again.');
                 } else {
-                    $edited = $this->stringParam($request, 'paragraph_text');
+                    $edited = $request->request->getString('paragraph_text');
                     $baseline = $this->stringParam($request, 'paragraph_baseline');
                     $newValues = $applier->apply($values, $actions, 'overwrite', $paragraphField, $edited);
                     $actionsToWrite = $applier->writeActions($paragraphField);
@@ -300,6 +302,7 @@ class GenerateController
                         $error = xl('The paragraph changed after this page was opened. Reload it and try again.');
                         $values = $reader->readValues($instanceId);
                         $paragraphCurrent = $values[$paragraphField] ?? '';
+                        $actions = $engine->evaluate($formId, $values, $rules, $reader->patientSex($pid));
                     }
                 }
             }

@@ -57,10 +57,7 @@ class StatementApplier
      */
     private function appendText(string $existing, string $add): string
     {
-        if ($existing === '') {
-            return $add;
-        }
-        $have = $this->sentenceTokens($existing);
+        $have = $existing === '' ? [] : $this->sentenceTokens($existing);
         $missing = [];
         foreach ($this->sentenceParts($add) as $part) {
             $norm = $this->normalizeSentence($part);
@@ -73,7 +70,12 @@ class StatementApplier
         if ($missing === []) {
             return $existing;
         }
-        return rtrim($existing) . ' ' . implode(' ', $missing);
+        if ($existing === '') {
+            return implode(' ', $missing);
+        }
+        $separator = preg_match('/[.!?]["\']?\s*$/u', $existing) === 1 ? ' ' : '. ';
+
+        return rtrim($existing) . $separator . implode(' ', $missing);
     }
 
     /**
@@ -81,15 +83,78 @@ class StatementApplier
      */
     private function sentenceParts(string $text): array
     {
-        $parts = preg_split('/(?<=[.!?])\s+/u', trim($text)) ?: [];
+        $text = trim($text);
+        if ($text === '') {
+            return [];
+        }
         $out = [];
-        foreach ($parts as $part) {
-            $part = trim($part);
+        $start = 0;
+        $length = mb_strlen($text, 'UTF-8');
+        for ($i = 0; $i < $length; $i++) {
+            $ch = mb_substr($text, $i, 1, 'UTF-8');
+            if ($ch !== '.' && $ch !== '!' && $ch !== '?') {
+                continue;
+            }
+            $next = $i + 1 < $length ? mb_substr($text, $i + 1, 1, 'UTF-8') : '';
+            if ($next !== '' && preg_match('/\s/u', $next) !== 1) {
+                continue;
+            }
+            if ($ch === '.' && $this->periodIsAbbreviation($text, $i)) {
+                continue;
+            }
+            $part = trim(mb_substr($text, $start, $i - $start + 1, 'UTF-8'));
             if ($part !== '') {
                 $out[] = $part;
             }
+            $start = $i + 1;
+            while ($start < $length && preg_match('/\s/u', mb_substr($text, $start, 1, 'UTF-8')) === 1) {
+                $start++;
+            }
+            $i = $start - 1;
         }
+        $tail = trim(mb_substr($text, $start, null, 'UTF-8'));
+        if ($tail !== '') {
+            $out[] = $tail;
+        }
+
         return $out;
+    }
+
+    /**
+     * A period after an abbreviation stays inside the sentence. A single
+     * letter is an initial, so "A. B." still splits.
+     */
+    private function periodIsAbbreviation(string $text, int $periodIndex): bool
+    {
+        $before = mb_substr($text, 0, $periodIndex, 'UTF-8');
+        if (preg_match('/(\p{L}+)$/u', $before, $match) !== 1) {
+            return false;
+        }
+        $word = mb_strtolower($match[1], 'UTF-8');
+        if (mb_strlen($word, 'UTF-8') < 2) {
+            return false;
+        }
+
+        return isset([
+            'approx' => true,
+            'cm' => true,
+            'dr' => true,
+            'eq' => true,
+            'etc' => true,
+            'fig' => true,
+            'kg' => true,
+            'mcg' => true,
+            'mg' => true,
+            'ml' => true,
+            'mm' => true,
+            'mr' => true,
+            'mrs' => true,
+            'ms' => true,
+            'sig' => true,
+            'st' => true,
+            'vs' => true,
+            'vol' => true,
+        ][$word]);
     }
 
     /**

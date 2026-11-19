@@ -120,6 +120,84 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         }
 
         /**
+         * A fallback id does not put two readings of the same field in
+         * different groups, and a sex token differs only by case.
+         */
+        public function testBandsThatReadTheSameFieldAreCompared(): void
+        {
+            $low = [
+                'form_id' => 'LBFdemo',
+                'source_field_id' => 'num',
+                'source_field_id_2' => 'other',
+                'op' => 'band',
+                'min_value' => 10,
+                'max_value' => 20,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'statement_text' => 'Low.',
+                'enabled' => 1,
+            ];
+            $high = $low;
+            $high['source_field_id_2'] = '';
+            $high['min_value'] = 21;
+            $high['max_value'] = 30;
+            $high['statement_text'] = 'High.';
+            $this->assertSame('Low.', $this->paragraph('LBFdemo', ['num' => '18-22'], [$low, $high]));
+            $male = $low;
+            $male['source_field_id_2'] = '';
+            $male['match_token'] = 'Male';
+            $maleCase = $high;
+            $maleCase['match_token'] = 'male';
+            $this->assertSame('Low.', $this->paragraph('LBFdemo', ['num' => '18-22'], [$male, $maleCase], 'Male'));
+        }
+
+        /**
+         * A band that only touches the endpoint loses to one that covers
+         * the rest of the range.
+         */
+        public function testAStretchBeatsAPointOnTheBoundary(): void
+        {
+            $point = [
+                'form_id' => 'LBFdemo',
+                'source_field_id' => 'num',
+                'op' => 'band',
+                'min_value' => null,
+                'max_value' => 10,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'statement_text' => 'Point.',
+                'enabled' => 1,
+            ];
+            $stretch = $point;
+            $stretch['min_value'] = 10;
+            $stretch['max_value'] = null;
+            $stretch['min_inclusive'] = 0;
+            $stretch['statement_text'] = 'Stretch.';
+            $this->assertSame(
+                'Stretch.',
+                $this->paragraph('LBFdemo', ['num' => '10-10.00000005'], [$point, $stretch])
+            );
+        }
+
+        /**
+         * An option id is text. 01 is not 1. A whole word still matches.
+         */
+        public function testOptionIdsDoNotMatchByNumericValue(): void
+        {
+            $rules = [[
+                'form_id' => 'LBFdemo',
+                'source_field_id' => 'grade',
+                'op' => 'parse_severity',
+                'match_token' => '1',
+                'statement_text' => 'Grade one.',
+                'enabled' => 1,
+            ]];
+            $this->assertSame('', $this->paragraph('LBFdemo', ['grade' => '01'], $rules));
+            $this->assertSame('Grade one.', $this->paragraph('LBFdemo', ['grade' => '1'], $rules));
+            $this->assertSame('Grade one.', $this->paragraph('LBFdemo', ['grade' => 'grade 1 noted'], $rules));
+        }
+
+        /**
          * A blank source reads the second field, and only for the matching sex.
          */
         public function testBlankSourceReadsTheSecondFieldForThatSex(): void
@@ -316,7 +394,19 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             $over = $this->applier->apply(['sum' => 'old'], $actions, 'overwrite', 'sum');
             $this->assertSame('In range.', $over['sum']);
             $app = $this->applier->apply(['sum' => 'old'], $actions, 'append', 'sum');
-            $this->assertSame('old In range.', $app['sum']);
+            $this->assertSame('old. In range.', $app['sum']);
+            $again = $this->applier->apply(['sum' => $app['sum']], $actions, 'append', 'sum');
+            $this->assertSame('old. In range.', $again['sum']);
+            $repeated = $this->applier->apply(['sum' => ''], [], 'append', 'sum', 'Normal. Normal.');
+            $this->assertSame('Normal.', $repeated['sum']);
+            $abbrev = $this->applier->apply(
+                ['sum' => 'No sig. regurgitation.'],
+                [],
+                'append',
+                'sum',
+                'No sig. stenosis.'
+            );
+            $this->assertSame('No sig. regurgitation. No sig. stenosis.', $abbrev['sum']);
             $dup = $this->applier->apply(['sum' => 'In range. Extra note.'], $actions, 'append', 'sum');
             $this->assertSame('In range. Extra note.', $dup['sum']);
             $partial = $this->applier->apply(['sum' => 'Something in range today.'], $actions, 'append', 'sum');
