@@ -594,8 +594,14 @@ class CarecoordinationController extends AbstractActionController
 
         switch ($component) {
             case 'schematron':
+                // Reject a missing or malformed audit id instead of reporting it as error-free
+                if (!is_string($amid) || !ctype_digit($amid)) {
+                    http_response_code(400);
+                    echo xlt('Missing or invalid validation report id.');
+                    exit;
+                }
                 $validate = new CdaValidateDocuments();
-                $temp .= $validate->createSchematronHtml(is_string($amid) ? $amid : null);
+                $temp .= $validate->createSchematronHtml(intval($amid));
                 break;
             case 'allergies':
                 $allergies_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists2');

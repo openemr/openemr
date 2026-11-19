@@ -301,8 +301,8 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
             $expected = $validator->validateXmlXsd($document);
             // Leave an earlier parse error in the buffer, with internal errors still on
             $previous = libxml_use_internal_errors(true);
-            (new \DOMDocument())->loadXML('<unclosed>');
             try {
+                (new \DOMDocument())->loadXML('<unclosed>');
                 $report = $validator->validateXmlXsd($document);
             } finally {
                 libxml_clear_errors();
@@ -331,9 +331,8 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
         public function testAnEmptyDocumentStillRestoresTheLibxmlErrorSetting(): void
         {
             $validator = $this->validatorUsing(new MockHandler());
-            $previous = libxml_use_internal_errors(false);
-
             $this->expectException(\ValueError::class);
+            $previous = libxml_use_internal_errors(false);
             try {
                 $validator->validateXmlXsd('');
             } finally {
@@ -341,15 +340,6 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
                 libxml_use_internal_errors($previous);
                 $this->assertFalse($after);
             }
-        }
-
-        public function testAReportRequestWithoutAnAuditIdShowsTheNoErrorsMessage(): void
-        {
-            $validator = $this->validatorUsing(new MockHandler());
-
-            $html = $validator->createSchematronHtml(null);
-
-            $this->assertStringStartsWith('No Errors', $html);
         }
 
         /**

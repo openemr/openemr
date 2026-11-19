@@ -265,11 +265,11 @@ class CdaValidateDocuments
     public function validateXmlXsd(string $document): array
     {
         $xsd = __DIR__ . '/../../../interface/modules/zend_modules/public/xsd/Schema/CDA2/infrastructure/cda/CDA_SDTC.xsd';
+        $dom = new DOMDocument();
         $previousInternalErrors = libxml_use_internal_errors(true);
         try {
             // Start from an empty buffer, so the report holds only this document's errors.
             libxml_clear_errors();
-            $dom = new DomDocument();
             $dom->loadXML($document);
             $valid = $dom->schemaValidate($xsd);
             $errors = $valid ? [] : libxml_get_errors();
@@ -356,9 +356,9 @@ class CdaValidateDocuments
     /**
      * @throws \JsonException|\UnexpectedValueException when the saved report is unreadable
      */
-    public function createSchematronHtml(int|string|null $amid): string
+    public function createSchematronHtml(int $amid): string
     {
-        $errors = $amid === null ? null : $this->fetchValidationLog($amid);
+        $errors = $this->fetchValidationLog($amid);
 
         if (is_array($errors) && $errors !== []) {
             $twig = ServiceContainer::getTwig();
