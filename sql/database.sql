@@ -14362,7 +14362,7 @@ CREATE TABLE `x12_remote_received` (
   `stored_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'file name it was stored under on the site',
   `message` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it was not stored',
   `received_at` datetime NOT NULL,
-  `auto_post_status` varchar(31) NOT NULL DEFAULT '' COMMENT 'AutoPostFileStatus: empty until an unattended posting run takes the file, then running, done, unreadable or interrupted',
+  `auto_post_status` varchar(31) NOT NULL DEFAULT '' COMMENT 'AutoPostFileStatus: empty when the file is not for unattended posting; else pending, running, done, unreadable or interrupted',
   PRIMARY KEY (`id`),
   UNIQUE KEY `remote_key` (`remote_key`),
   KEY `partner_status` (`x12_partner_id`, `status`)

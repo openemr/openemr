@@ -17,12 +17,12 @@ namespace OpenEMR\Billing\EraAutoPost;
 interface AutoPostLog
 {
     /**
-     * Stored 835s no run has taken, received at or after $since from a partner that has
-     * an active user to post as.
+     * The 835s marked for unattended posting when they were received that no run has
+     * taken, whose partner still has an active user to post as.
      *
      * @return list<PendingRemittance>
      */
-    public function pending(\DateTimeImmutable $since): array;
+    public function pending(): array;
 
     /**
      * Mark the file as taken by this run. False when another run took it first.

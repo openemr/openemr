@@ -90,6 +90,27 @@ class RemittanceReaderTest extends TestCase
         $this->assertTrue($second->isBalanced());
     }
 
+    public function testATransactionSetWithNoClaimsIsStillACheck(): void
+    {
+        $path = Era835::write($this->directory, 'plbonly.edi', Era835::file(
+            Era835::check('CHK1', '70.00', [['10-20', '1', '70.00']]),
+            Era835::check('PLBONLY', '10.00', [], ['L6*-10.00'], '0002'),
+            Era835::check('CHK3', '25.00', [['12-22', '1', '25.00']], control: '0003'),
+        ));
+
+        $remittance = (new RemittanceReader())->read($path);
+
+        $this->assertSame('', $remittance->error);
+        $this->assertSame(['CHK1', 'PLBONLY', 'CHK3'], array_map(static fn($check): string => $check->checkNumber, $remittance->checks));
+        $only = $remittance->checks[1];
+        $this->assertSame([], $only->claims);
+        $this->assertSame(10.0, $only->amount);
+        $this->assertSame(-10.0, $only->plbTotal);
+        $this->assertTrue($only->isBalanced());
+        // The claims before it are not carried into the check after it.
+        $this->assertSame(['12-22'], array_map(static fn($claim): string => $claim->ourClaimId, $remittance->checks[2]->claims));
+    }
+
     public function testAFileThatEndsEarlyReportsTheParsersError(): void
     {
         $whole = Era835::file(Era835::check('CHK1', '70.00', [['10-20', '1', '70.00']]));

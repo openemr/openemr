@@ -26,8 +26,8 @@ final class X12ReceiveService
     /**
      * The X12_SFTP_Receive background_services row names this method. The
      * runner calls it with no arguments. It does nothing, and connects to
-     * nothing, unless a partner has a receive folder set. The 835s this run
-     * stored for a partner that has a user to post as are then posted.
+     * nothing, unless a partner has a receive folder set. The 835s stored
+     * for a partner that had a user to post as are then posted.
      */
     public static function runBackgroundService(): void
     {
@@ -38,7 +38,6 @@ final class X12ReceiveService
         $globals = OEGlobalsBag::getInstance();
         $logger = ServiceContainer::getLogger();
         $clock = ServiceContainer::getClock();
-        $started = $clock->now();
         $summary = (new X12RemoteReceiver(
             opener: new SftpRemoteDirectoryOpener(ServiceContainer::getCrypto(), $logger),
             log: new ReceivedFileRepository(),
@@ -49,10 +48,7 @@ final class X12ReceiveService
         ))->receive($partners);
         $logger->info('X12 receive: run finished', $summary->toArray());
 
-        $posting = array_filter($partners, static fn(ReceivePartner $partner): bool => $partner->autoPostUser > 0);
-        if ($posting === []) {
-            return;
-        }
+        // Files this run, or one that was cut short, marked for unattended posting as it stored them.
         $posted = (new EraAutoPoster(
             log: new AutoPostRepository(),
             reader: new RemittanceReader(),
@@ -60,7 +56,7 @@ final class X12ReceiveService
             clock: $clock,
             logger: $logger,
             eraDirectory: $globals->getString('OE_SITE_DIR') . '/documents/era',
-        ))->run($started);
+        ))->run();
         $logger->info('ERA auto-post: run finished', $posted->toArray());
     }
 }

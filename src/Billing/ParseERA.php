@@ -82,7 +82,12 @@ class ParseERA
         }
     }
 
-    public static function parseERA($filename, $cb): string
+    /**
+     * @param callable      $cb      called once per claim payment (CLP loop) with the parsed claim
+     * @param callable|null $checkCb called once per transaction set, at its SE segment and after its last
+     *                               claim, with the same array; a set that has no claims still gets this call
+     */
+    public static function parseERA($filename, $cb, ?callable $checkCb = null): string
     {
         $delimiter1 = '~';
         $delimiter2 = '|';
@@ -446,6 +451,8 @@ class ParseERA
                         break;
                     }
 
+                    // A transaction set with no claim payment has no warnings to add to yet.
+                    $out['warnings'] ??= '';
                     $out['warnings'] .= 'PROVIDER LEVEL ADJUSTMENT (not claim-specific): $' .
                         sprintf('%.2f', $seg[$k + 1]) . " with reason code " . $seg[$k] . "\n";
                     // PLB03 and its repeats are composites: the reason code, then a reference.
@@ -460,6 +467,9 @@ class ParseERA
                 }
             } elseif ($segid == 'SE') {
                 self::parseERA2100($out, $cb);
+                if ($checkCb !== null) {
+                    $checkCb($out);
+                }
                 $out['loopid'] = '';
                 if ($out['st_control_number'] != trim($seg[2])) {
                     return 'Ending transaction set control number mismatch';

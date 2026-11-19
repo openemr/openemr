@@ -32,8 +32,10 @@ final class Era835
             'N1*PR*TEST PAYER',
             'REF*2U*60054',
             'N1*PE*TEST PROVIDER*XX*1234567890',
-            'LX*1',
         ];
+        if ($claims !== []) {
+            $segments[] = 'LX*1';
+        }
         foreach ($claims as [$claimId, $status, $paid]) {
             $segments[] = "CLP*$claimId*$status*100.00*$paid*0*MC*ICN$claimId";
             $segments[] = 'NM1*QC*1*POSTING*ANNE****MI*123456789';

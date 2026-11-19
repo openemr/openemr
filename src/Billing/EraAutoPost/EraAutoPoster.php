@@ -27,6 +27,9 @@ use Psr\Log\LoggerInterface;
  * - none of its claims leads to an insurance company to post it for;
  * - the check was already posted for a different insurance company.
  *
+ * A file is only waiting when its partner had a user to post as at the moment it was
+ * received, so turning the setting on does not post a partner's older files.
+ *
  * One row is recorded per check and per claim payment. A file is never taken a
  * second time, so running again changes nothing; a file an error stopped part way
  * is left marked as interrupted for a person to look at, since its checks may be
@@ -44,14 +47,10 @@ final readonly class EraAutoPoster
     ) {
     }
 
-    /**
-     * @param \DateTimeImmutable $since only files received from then on are posted, so turning
-     *                                  the setting on does not post a partner's older files
-     */
-    public function run(\DateTimeImmutable $since): AutoPostSummary
+    public function run(): AutoPostSummary
     {
         $summary = new AutoPostSummary();
-        foreach ($this->log->pending($since) as $file) {
+        foreach ($this->log->pending() as $file) {
             if (!$this->log->take($file->receivedId)) {
                 continue;
             }
@@ -69,7 +68,7 @@ final readonly class EraAutoPoster
             match ($status) {
                 AutoPostFileStatus::Unreadable => $summary->filesUnreadable++,
                 AutoPostFileStatus::Interrupted => $summary->filesInterrupted++,
-                AutoPostFileStatus::Running, AutoPostFileStatus::Done => null,
+                AutoPostFileStatus::Pending, AutoPostFileStatus::Running, AutoPostFileStatus::Done => null,
             };
             $this->log->finish($file->receivedId, $status);
         }

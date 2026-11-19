@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Billing\X12Receive;
 
+use OpenEMR\Billing\EraAutoPost\AutoPostFileStatus;
 use OpenEMR\Common\Database\QueryUtils;
 
 final class ReceivedFileRepository implements ReceivedFileLog
@@ -35,14 +36,17 @@ final class ReceivedFileRepository implements ReceivedFileLog
         ?X12FileType $type,
         StoreOutcome $outcome,
         \DateTimeImmutable $at,
+        bool $postUnattended = false,
     ): void {
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO `x12_remote_received` (`remote_key`, `x12_partner_id`, `remote_dir`, `remote_name`,'
-            . ' `remote_size`, `remote_mtime`, `file_type`, `status`, `stored_name`, `message`, `received_at`)'
-            . ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            . ' `remote_size`, `remote_mtime`, `file_type`, `status`, `stored_name`, `message`, `received_at`,'
+            . ' `auto_post_status`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             . ' ON DUPLICATE KEY UPDATE `file_type` = VALUES(`file_type`), `status` = VALUES(`status`),'
             . ' `stored_name` = VALUES(`stored_name`),'
-            . ' `message` = VALUES(`message`), `received_at` = VALUES(`received_at`)',
+            . ' `message` = VALUES(`message`), `received_at` = VALUES(`received_at`),'
+            // Only a file no posting run has touched: a retried download may now be stored.
+            . " `auto_post_status` = IF(`auto_post_status` = '', VALUES(`auto_post_status`), `auto_post_status`)",
             [
                 self::remoteKey($partnerId, $folder, $file),
                 $partnerId,
@@ -55,6 +59,7 @@ final class ReceivedFileRepository implements ReceivedFileLog
                 mb_substr($outcome->storedName, 0, 255),
                 mb_substr($outcome->message, 0, 255),
                 $at->format('Y-m-d H:i:s'),
+                $postUnattended ? AutoPostFileStatus::Pending->value : '',
             ]
         );
     }
