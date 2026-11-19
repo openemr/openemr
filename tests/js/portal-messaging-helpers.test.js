@@ -304,3 +304,77 @@ describe('messages.js groupChain', () => {
         expect(groupChain(items, NaN)).not.toBe(items);
     });
 });
+
+// ---------------------------------------------------------------------------
+// messages.js: lockReplyRecipient — a reply goes to the sender of the message.
+// For staff the "To" dropdown lists every portal patient, so leaving it
+// editable in a reply lets PHI go to the wrong patient with one stray click.
+// ---------------------------------------------------------------------------
+describe('messages.js lockReplyRecipient', () => {
+    const { lockReplyRecipient } = messagesHelpers;
+
+    function buildSelect(recips) {
+        const select = document.createElement('select');
+        recips.forEach(([value, text]) => {
+            const opt = document.createElement('option');
+            opt.value = value;
+            opt.textContent = text;
+            select.appendChild(opt);
+        });
+        return select;
+    }
+
+    test('selects the sender and disables the dropdown', () => {
+        const select = buildSelect([['admin', 'Admin User'], ['pat1', 'Patient One'], ['pat2', 'Patient Two']]);
+
+        lockReplyRecipient(select, 'pat2', 'Patient Two');
+
+        expect(select.value).toBe('pat2');
+        expect(select.disabled).toBe(true);
+        expect(select.options).toHaveLength(3);
+    });
+
+    test('adds a sender missing from the list so the dropdown still shows them', () => {
+        const select = buildSelect([['admin', 'Admin User'], ['pat1', 'Patient One']]);
+
+        lockReplyRecipient(select, 'gone', 'Former Portal User');
+
+        expect(select.value).toBe('gone');
+        expect(select.selectedOptions[0].textContent).toBe('Former Portal User');
+        expect(select.disabled).toBe(true);
+        expect(select.options).toHaveLength(3);
+    });
+
+    test('falls back to the id when the sender has no name', () => {
+        const select = buildSelect([['admin', 'Admin User']]);
+
+        lockReplyRecipient(select, 'gone', '');
+
+        expect(select.selectedOptions[0].textContent).toBe('gone');
+    });
+
+    test('clears and disables the dropdown when there is no sender id', () => {
+        // The browser preselects the first entry; a reply with no sender must
+        // not fall through to that unrelated recipient.
+        const select = buildSelect([['admin', 'Admin User'], ['pat1', 'Patient One']]);
+        expect(select.value).toBe('admin');
+
+        const locked = lockReplyRecipient(select, '', 'Nobody');
+
+        expect(locked).toBe(false);
+        expect(select.value).toBe('');
+        expect(select.selectedOptions).toHaveLength(0);
+        expect(select.disabled).toBe(true);
+        expect(select.options).toHaveLength(2);
+    });
+
+    test('reports whether the reply has a recipient', () => {
+        const select = buildSelect([['admin', 'Admin User'], ['pat1', 'Patient One']]);
+
+        expect(lockReplyRecipient(select, 'pat1', 'Patient One')).toBe(true);
+    });
+
+    test('tolerates a missing dropdown', () => {
+        expect(lockReplyRecipient(null, 'pat1', 'Patient One')).toBe(false);
+    });
+});
