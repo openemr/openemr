@@ -426,4 +426,56 @@ class ParseERATest extends TestCase
         $out = $this->parseFixture($this->getTwoServiceLineFixture(['REF*LU*11~'], ['REF*LU*11~', 'REF*6R*502~']));
         $this->assertSame([null, '502'], $this->lineControlNumbers($out));
     }
+
+    /**
+     * @return list<array<mixed>> the provider-level adjustments seen by the last claim of each check
+     */
+    private function plbByCheck(string $content): array
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'era_plb_');
+        $this->assertNotFalse($tmp);
+        file_put_contents($tmp, $content);
+        $byCheck = [];
+        try {
+            $error = ParseERA::parseERA($tmp, static function (array $out) use (&$byCheck): void {
+                $check = is_string($out['check_number'] ?? null) ? $out['check_number'] : '';
+                $byCheck[$check] = is_array($out['plb'] ?? null) ? $out['plb'] : [];
+            });
+        } finally {
+            unlink($tmp);
+        }
+        $this->assertSame('', $error);
+        return array_values($byCheck);
+    }
+
+    private function getTwoCheckFixture(string $firstPlb): string
+    {
+        return "ISA*00*          *00*          *ZZ*PAYER          *ZZ*RECEIVER       *261020*1200*^*00501*000000042*0*P*:~"
+            . "GS*HP*PAYER*RECEIVER*20261020*1200*1*X*005010X221A1~"
+            . "ST*835*0001~BPR*I*60.00*C*ACH************20261020~TRN*1*CHK1*1234567890~N1*PR*TEST PAYER~"
+            . "N1*PE*TEST PROVIDER*XX*1234567890~LX*1~CLP*10-20*1*100.00*70.00*0*MC*ICN1~NM1*QC*1*DOE*JOHN~"
+            . "SVC*HC:99213*100.00*70.00~" . $firstPlb . "SE*" . ($firstPlb === '' ? 10 : 11) . "*0001~"
+            . "ST*835*0002~BPR*I*25.00*C*ACH************20261020~TRN*1*CHK2*1234567890~N1*PR*TEST PAYER~"
+            . "N1*PE*TEST PROVIDER*XX*1234567890~LX*1~CLP*11-21*1*100.00*25.00*0*MC*ICN2~NM1*QC*1*DOE*JANE~"
+            . "SVC*HC:99213*100.00*25.00~SE*10*0002~"
+            . "GE*2*1~IEA*1*000000042~";
+    }
+
+    /**
+     * Each PLB adjustment is kept with its reason code (without the reference
+     * that follows it in the composite) and amount, for the check it is in only.
+     */
+    public function testProviderLevelAdjustmentsAreKeptForTheirCheck(): void
+    {
+        $plb = $this->plbByCheck($this->getTwoCheckFixture('PLB*1234567890*20261231*WO:ICN9*12.50*L6*-2.50~'));
+        $this->assertSame(
+            [[['reason' => 'WO', 'amount' => 12.5], ['reason' => 'L6', 'amount' => -2.5]], []],
+            $plb
+        );
+    }
+
+    public function testACheckWithoutProviderLevelAdjustmentsHasNone(): void
+    {
+        $this->assertSame([[], []], $this->plbByCheck($this->getTwoCheckFixture('')));
+    }
 }
