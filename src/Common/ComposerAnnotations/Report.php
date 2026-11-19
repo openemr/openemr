@@ -19,7 +19,7 @@ final readonly class Report
     /**
      * @param string $log text for the job log, readable without annotations
      * @param non-empty-list<Annotation> $annotations
-     * @param string $summary Markdown for the job summary, empty when there is nothing to add to it
+     * @param string $summary Markdown for the job summary
      */
     public function __construct(
         public string $log,

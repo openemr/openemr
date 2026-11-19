@@ -16,23 +16,41 @@ namespace OpenEMR\Common\ComposerAnnotations;
 
 final readonly class Annotation
 {
+    /**
+     * @param ?positive-int $line the line in the file, or null to annotate the file as a whole
+     */
     public function __construct(
         public string $file,
         public string $title,
         public string $message,
+        public ?int $line = null,
     ) {
     }
 
     /**
-     * The `::error` workflow command, with the message escaped as the Actions toolkit does.
+     * The `::error` workflow command, with each value escaped as the Actions toolkit does.
      */
     public function toWorkflowCommand(): string
     {
-        $message = strtr($this->message, [
-            '%' => '%25',
-            chr(13) => '%0D',
-            chr(10) => '%0A',
-        ]);
-        return sprintf('::error file=%s,title=%s::%s', $this->file, $this->title, $message);
+        return sprintf(
+            '::error file=%s%s,title=%s::%s',
+            self::escapeProperty($this->file),
+            $this->line === null ? '' : ',line=' . $this->line,
+            self::escapeProperty($this->title),
+            self::escapeData($this->message),
+        );
+    }
+
+    private static function escapeData(string $value): string
+    {
+        return strtr($value, ['%' => '%25', chr(13) => '%0D', chr(10) => '%0A']);
+    }
+
+    /**
+     * Properties also escape the characters that separate them.
+     */
+    private static function escapeProperty(string $value): string
+    {
+        return strtr(self::escapeData($value), [':' => '%3A', ',' => '%2C']);
     }
 }

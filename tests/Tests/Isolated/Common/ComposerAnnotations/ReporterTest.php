@@ -18,6 +18,7 @@ use OpenEMR\Common\ComposerAnnotations\Annotation;
 use OpenEMR\Common\ComposerAnnotations\ComposerCheck;
 use OpenEMR\Common\ComposerAnnotations\Report;
 use OpenEMR\Common\ComposerAnnotations\Reporter;
+use OpenEMR\Common\Utils\Json;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -118,7 +119,54 @@ final class ReporterTest extends TestCase
             [new Annotation('composer.json', 'Composer Require Checker', 'Composer Require Checker did not produce a report; see the job log.')],
             $report->annotations,
         );
-        self::assertSame('', $report->summary);
+        self::assertSame(
+            implode(PHP_EOL, [
+                '## Composer Require Checker failed',
+                '',
+                'It did not produce a report of unknown symbols; see the job log.',
+                '',
+                '```text',
+                rtrim($output, PHP_EOL),
+                '```',
+                '',
+            ]),
+            $report->summary,
+        );
+    }
+
+    public function testRequireCheckerWithNoOutputSummarizesWithoutAnEmptyBlock(): void
+    {
+        $report = $this->report(ComposerCheck::RequireChecker, '');
+
+        self::assertSame(
+            implode(PHP_EOL, ['## Composer Require Checker failed', '', 'It did not produce a report of unknown symbols; see the job log.', '']),
+            $report->summary,
+        );
+    }
+
+    public function testRequireCheckerIgnoresGuessesThatAreNotAList(): void
+    {
+        $report = $this->report(ComposerCheck::RequireChecker, '{"unknown-symbols": {"Foo": "ext-foo"}}');
+
+        self::assertSame('Foo is used but no package or extension in composer.json provides it.', $report->annotations[0]->message);
+    }
+
+    public function testAnnotationsPastGitHubsLimitFoldIntoOne(): void
+    {
+        $symbols = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $symbols['Symbol' . $i] = [];
+        }
+
+        $report = $this->report(ComposerCheck::RequireChecker, Json::encode(['unknown-symbols' => $symbols]));
+
+        self::assertCount(10, $report->annotations);
+        self::assertSame('Symbol9 is used but no package or extension in composer.json provides it.', $report->annotations[8]->message);
+        self::assertEquals(
+            new Annotation('composer.json', 'Unknown symbol', '3 more findings are in the job summary.'),
+            $report->annotations[9],
+        );
+        self::assertStringContainsString('| `Symbol12` | none |', $report->summary);
     }
 
     public function testValidateAnnotatesEachFindingAndPutsLockFileFindingsOnComposerLock(): void
@@ -185,21 +233,34 @@ final class ReporterTest extends TestCase
         self::assertSame('finding from a CRLF line' . chr(13), $report->annotations[0]->message);
     }
 
-    public function testNormalizeReportsOneAnnotationAndTheDiff(): void
+    public function testNormalizeAnnotatesWhereTheChangeStartsAndSummarizesOnlyTheDiff(): void
     {
-        $diff = <<<'DIFF'
+        $output = <<<'TEXT'
+            Running ergebnis/composer-normalize 2.56.0 by Andreas Möller and contributors.
+
+            ./composer.json is not normalized.
+
+            ---------- begin diff ----------
             --- original
             +++ normalized
-            -  "b": 1,
-            +  "a": 2,
+            @@ -1,5 +1,5 @@
+             {
+            -    "b": 1,
+            -    "a": 2
+            +    "a": 2,
+            +    "b": 1
+             }
 
-            DIFF;
+            ----------- end diff -----------
 
-        $report = $this->report(ComposerCheck::Normalize, $diff);
 
-        self::assertSame($diff, $report->log);
+            TEXT;
+
+        $report = $this->report(ComposerCheck::Normalize, $output);
+
+        self::assertSame($output, $report->log);
         self::assertEquals(
-            [new Annotation('composer.json', 'composer normalize', 'composer.json is not normalized. Run `composer normalize` and commit the result.')],
+            [new Annotation('composer.json', 'composer normalize', 'composer.json is not normalized. Run `composer normalize` and commit the result.', 2)],
             $report->annotations,
         );
         self::assertSame(<<<'MARKDOWN'
@@ -210,17 +271,70 @@ final class ReporterTest extends TestCase
             ```diff
             --- original
             +++ normalized
-            -  "b": 1,
-            +  "a": 2,
+            @@ -1,5 +1,5 @@
+             {
+            -    "b": 1,
+            -    "a": 2
+            +    "a": 2,
+            +    "b": 1
+             }
             ```
 
             MARKDOWN, $report->summary);
     }
 
-    public function testNormalizeOutputThatIsNotADiffIsReportedAsAFailedRun(): void
+    public function testNormalizeAnnotatesEachRunOfChangesOnItsOriginalLine(): void
     {
-        $output = 'Command "normalize" is not defined.' . PHP_EOL;
+        $report = $this->report(ComposerCheck::Normalize, <<<'DIFF'
+            --- original
+            +++ normalized
+            @@ -10,7 +10,7 @@
+                 "a": 1,
+            -    "c": 3,
+                 "b": 2,
+            +    "c": 3,
+                 "d": 4,
+            @@ -357 +357,2 @@
+                 "z": 26
+            +    ,"added": true
+            \ No newline at end of file
 
+            DIFF);
+
+        self::assertSame([11, 13, 358], array_map(static fn(Annotation $annotation): ?int => $annotation->line, $report->annotations));
+    }
+
+    public function testNormalizeDiffWithoutHunkHeadersGetsOneFileAnnotation(): void
+    {
+        $report = $this->report(ComposerCheck::Normalize, '--- original' . PHP_EOL . '+++ normalized' . PHP_EOL . '-x' . PHP_EOL . '+y' . PHP_EOL);
+
+        self::assertEquals(
+            [new Annotation('composer.json', 'composer normalize', 'composer.json is not normalized. Run `composer normalize` and commit the result.')],
+            $report->annotations,
+        );
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function normalizeFailureProvider(): array
+    {
+        return [
+            'missing plugin' => ['Command "normalize" is not defined.' . PHP_EOL],
+            'outdated lock file' => [<<<'TEXT'
+                Running ergebnis/composer-normalize 2.56.0 by Andreas Möller and contributors.
+
+                The lock file is not up to date with the latest changes in composer.json, it is recommended that you run `composer update --lock`.
+
+                TEXT],
+        ];
+    }
+
+    #[DataProvider('normalizeFailureProvider')]
+    public function testNormalizeOutputThatIsNotADiffIsReportedAsAFailedRun(string $output): void
+    {
         $report = $this->report(ComposerCheck::Normalize, $output);
 
         self::assertSame($output, $report->log);
@@ -228,14 +342,10 @@ final class ReporterTest extends TestCase
             [new Annotation('composer.json', 'composer normalize', 'composer normalize failed without a diff; see the job log.')],
             $report->annotations,
         );
-        self::assertSame(<<<'MARKDOWN'
-            ## composer normalize failed
-
-            ```text
-            Command "normalize" is not defined.
-            ```
-
-            MARKDOWN, $report->summary);
+        self::assertSame(
+            implode(PHP_EOL, ['## composer normalize failed', '', '```text', rtrim($output, PHP_EOL), '```', '']),
+            $report->summary,
+        );
     }
 
     public function testTheSummaryFenceOutgrowsBackticksInTheContent(): void

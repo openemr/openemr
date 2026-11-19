@@ -45,4 +45,18 @@ final class AnnotationTest extends TestCase
 
         self::assertSame('::error file=composer.lock,title=composer validate::' . $escaped, $annotation->toWorkflowCommand());
     }
+
+    public function testALineGoesBeforeTheTitle(): void
+    {
+        $annotation = new Annotation('composer.json', 'composer normalize', 'not normalized', 42);
+
+        self::assertSame('::error file=composer.json,line=42,title=composer normalize::not normalized', $annotation->toWorkflowCommand());
+    }
+
+    public function testPropertiesAlsoEscapeTheirSeparators(): void
+    {
+        $annotation = new Annotation('a,b.json', 'Check: 100%', 'Keep: a, b');
+
+        self::assertSame('::error file=a%2Cb.json,title=Check%3A 100%25::Keep: a, b', $annotation->toWorkflowCommand());
+    }
 }

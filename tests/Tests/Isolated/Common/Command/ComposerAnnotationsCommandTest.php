@@ -91,14 +91,15 @@ final class ComposerAnnotationsCommandTest extends TestCase
         self::assertStringStartsWith('## Earlier step' . PHP_EOL . '## composer validate --strict failed' . PHP_EOL, $this->filesystem->readFile($summary));
     }
 
-    public function testNothingIsAppendedWhenTheReportHasNoSummary(): void
+    public function testAnEmptySummaryPathIsIgnored(): void
     {
-        $summary = Path::join($this->scratch, 'summary.md');
+        // Outside Actions, GITHUB_STEP_SUMMARY is unset and the workflow's --summary= expands to nothing.
         $tester = new CommandTester(new ComposerAnnotationsCommand());
 
-        $tester->execute(['check' => 'require-checker', 'output-file' => $this->write('crc.json', 'not JSON'), '--summary' => $summary]);
+        $exit = $tester->execute(['check' => 'validate', 'output-file' => $this->write('validate.txt', self::VALIDATE_OUTPUT), '--summary' => '']);
 
-        self::assertFileDoesNotExist($summary);
+        self::assertSame(Command::SUCCESS, $exit);
+        self::assertSame(self::VALIDATE_OUTPUT, $tester->getDisplay());
     }
 
     public function testAnUnknownCheckIsAUsageError(): void
@@ -110,13 +111,23 @@ final class ComposerAnnotationsCommandTest extends TestCase
         $tester->execute(['check' => 'unknown', 'output-file' => $this->write('present.txt', '')]);
     }
 
-    public function testAMissingOutputFileIsAUsageError(): void
+    public function testAnEmptyCheckIsAUsageError(): void
     {
         $tester = new CommandTester(new ComposerAnnotationsCommand());
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot read the output file.');
-        $tester->execute(['check' => 'validate', 'output-file' => Path::join($this->scratch, 'missing.txt')]);
+        $this->expectExceptionMessage('check needs a value.');
+        $tester->execute(['check' => '', 'output-file' => $this->write('present.txt', '')]);
+    }
+
+    public function testAMissingOutputFileIsAUsageError(): void
+    {
+        $tester = new CommandTester(new ComposerAnnotationsCommand());
+        $missing = Path::join($this->scratch, 'missing.txt');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot read ' . $missing . '.');
+        $tester->execute(['check' => 'validate', 'output-file' => $missing]);
     }
 
     public function testAMissingArgumentIsAUsageError(): void

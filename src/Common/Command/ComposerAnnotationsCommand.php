@@ -67,7 +67,7 @@ final class ComposerAnnotationsCommand extends Command
         }
         $outputFile = $this->stringArgument($input, 'output-file');
         if (!is_file($outputFile) || !is_readable($outputFile)) {
-            throw new \InvalidArgumentException('Cannot read the output file.');
+            throw new \InvalidArgumentException(sprintf('Cannot read %s.', $outputFile));
         }
         $filesystem = new Filesystem();
         $report = (new Reporter())->report($check, $filesystem->readFile($outputFile));
@@ -83,7 +83,7 @@ final class ComposerAnnotationsCommand extends Command
             }
         }
         $summary = $input->getOption('summary');
-        if (is_string($summary) && $summary !== '' && $report->summary !== '') {
+        if (is_string($summary) && $summary !== '') {
             $filesystem->appendToFile($summary, $report->summary);
         }
         return Command::SUCCESS;

@@ -21,13 +21,41 @@ final class Reporter
     private const COMPOSER_JSON = 'composer.json';
     private const COMPOSER_LOCK = 'composer.lock';
 
+    /**
+     * GitHub shows at most this many error annotations from one step and drops the rest.
+     *
+     * @see https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-error-message
+     */
+    private const MAX_ANNOTATIONS = 10;
+
     public function report(ComposerCheck $check, string $output): Report
     {
-        return match ($check) {
+        $report = match ($check) {
             ComposerCheck::RequireChecker => $this->requireChecker($output),
             ComposerCheck::Validate => $this->validate($output),
             ComposerCheck::Normalize => $this->normalize($output),
         };
+        return new Report($report->log, self::capped($report->annotations), $report->summary);
+    }
+
+    /**
+     * Fold the annotations GitHub would drop into one that says how many more the job summary holds.
+     *
+     * @param non-empty-list<Annotation> $annotations
+     * @return non-empty-list<Annotation>
+     */
+    private static function capped(array $annotations): array
+    {
+        if (count($annotations) <= self::MAX_ANNOTATIONS) {
+            return $annotations;
+        }
+        $shown = array_slice($annotations, 0, self::MAX_ANNOTATIONS - 1);
+        $shown[] = new Annotation(
+            $annotations[0]->file,
+            $annotations[0]->title,
+            sprintf('%d more findings are in the job summary.', count($annotations) - count($shown)),
+        );
+        return $shown;
     }
 
     /**
@@ -38,10 +66,14 @@ final class Reporter
         $symbols = $this->unknownSymbols($output);
         if ($symbols === []) {
             // No symbols to report: the tool itself failed. Show what it printed.
+            $summary = ['## Composer Require Checker failed', '', 'It did not produce a report of unknown symbols; see the job log.'];
+            if (trim($output) !== '') {
+                array_push($summary, '', self::fenced('text', $output));
+            }
             return new Report(
                 $output,
                 [new Annotation(self::COMPOSER_JSON, 'Composer Require Checker', 'Composer Require Checker did not produce a report; see the job log.')],
-                '',
+                self::lines($summary),
             );
         }
 
@@ -119,36 +151,103 @@ final class Reporter
     }
 
     /**
-     * The diff goes in the summary under one error on composer.json. Output that is not a diff means
-     * normalize itself failed, from a missing plugin or a parse error.
+     * Each run of changed lines in the diff becomes an error on the composer.json line where it starts, and
+     * the diff goes in the summary. Output that is not a diff means normalize itself failed, for example
+     * from a missing plugin or an outdated lock file.
      */
     private function normalize(string $output): Report
     {
-        $isDiff = false;
-        foreach (explode(chr(10), $output) as $line) {
-            if (str_starts_with($line, '--- ') || str_starts_with($line, '+++ ')) {
-                $isDiff = true;
-                break;
-            }
-        }
-        if (!$isDiff) {
+        $diff = self::diffIn($output);
+        if ($diff === '') {
             return new Report(
                 $output,
                 [new Annotation(self::COMPOSER_JSON, 'composer normalize', 'composer normalize failed without a diff; see the job log.')],
                 self::lines(['## composer normalize failed', '', self::fenced('text', $output)]),
             );
         }
+        $message = 'composer.json is not normalized. Run `composer normalize` and commit the result.';
+        $annotations = array_map(
+            static fn(int $line): Annotation => new Annotation(self::COMPOSER_JSON, 'composer normalize', $message, $line),
+            self::changedLines($diff),
+        );
         return new Report(
             $output,
-            [new Annotation(self::COMPOSER_JSON, 'composer normalize', 'composer.json is not normalized. Run `composer normalize` and commit the result.')],
+            $annotations === [] ? [new Annotation(self::COMPOSER_JSON, 'composer normalize', $message)] : $annotations,
             self::lines([
                 '## composer.json is not normalized',
                 '',
                 'Run `composer normalize` and commit the result. The changes it would make:',
                 '',
-                self::fenced('diff', $output),
+                self::fenced('diff', $diff),
             ]),
         );
+    }
+
+    /**
+     * The diff normalize prints, from its first file header to the marker it prints after the diff.
+     *
+     * @return string empty when the output holds no diff
+     */
+    private static function diffIn(string $output): string
+    {
+        $diff = [];
+        foreach (explode(chr(10), $output) as $line) {
+            if ($diff === [] && !str_starts_with($line, '--- ') && !str_starts_with($line, '+++ ')) {
+                continue;
+            }
+            if (str_starts_with($line, '----------- end diff')) {
+                break;
+            }
+            $diff[] = $line;
+        }
+        return implode(chr(10), $diff);
+    }
+
+    /**
+     * The line in the original file where each run of changed lines in a unified diff starts.
+     *
+     * @return list<positive-int>
+     */
+    private static function changedLines(string $diff): array
+    {
+        $starts = [];
+        $line = null;
+        $inChange = false;
+        foreach (explode(chr(10), $diff) as $text) {
+            if (str_starts_with($text, '@@ -')) {
+                $line = self::hunkStart($text);
+                $inChange = false;
+                continue;
+            }
+            if ($line === null || str_starts_with($text, chr(92))) {
+                // Before the first hunk (the file headers), or a "\ No newline at end of file" marker.
+                continue;
+            }
+            $removed = str_starts_with($text, '-');
+            if (!$removed && !str_starts_with($text, '+')) {
+                $inChange = false;
+                $line++;
+                continue;
+            }
+            if (!$inChange) {
+                $starts[] = max(1, $line);
+                $inChange = true;
+            }
+            if ($removed) {
+                $line++;
+            }
+        }
+        return $starts;
+    }
+
+    /**
+     * The original file's first line from a hunk header such as `@@ -357,6 +358,5 @@`.
+     */
+    private static function hunkStart(string $header): ?int
+    {
+        $range = explode(' ', substr($header, strlen('@@ -')), 2)[0];
+        $start = filter_var(explode(',', $range, 2)[0], FILTER_VALIDATE_INT);
+        return is_int($start) ? $start : null;
     }
 
     /**
