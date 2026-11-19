@@ -161,7 +161,7 @@ class ProductRegistrationService
         switch ($responseCode) {
             case 201:
                 $entry = $this->entryExist();
-                if ($entry) {
+                if ($entry !== null) {
                     sqlStatement("UPDATE `product_registration` SET `email` = ?, `opt_out` = 0, `last_ask_version` = ? WHERE `id` = ?", [$email, $currentVersion, $entry]);
                 } else {
                     sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`, `last_ask_version`) VALUES (?, 0, ?)", [$email, $currentVersion]);
@@ -177,21 +177,21 @@ class ProductRegistrationService
     {
         $currentVersion = $this->currentVersion();
         $entry = $this->entryExist();
-        if ($this->entryExist()) {
+        if ($entry !== null) {
             sqlStatement("UPDATE `product_registration` SET `email` = null, `opt_out` = 1, `last_ask_version` = ? WHERE `id` = ?", [$currentVersion, $entry]);
         } else {
             sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`, `last_ask_version`) VALUES (null, 1, ?)", [$currentVersion]);
         }
     }
 
-    private function entryExist(): int|false
+    private function entryExist(): ?int
     {
         $row = QueryUtils::querySingleRow('SELECT `id` FROM `product_registration`');
         $id = is_array($row) ? $row['id'] ?? null : null;
         return match (true) {
             is_int($id) => $id,
             is_string($id) && ctype_digit($id) => intval($id),
-            default => false,
+            default => null,
         };
     }
 }

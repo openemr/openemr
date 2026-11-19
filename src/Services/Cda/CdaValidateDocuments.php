@@ -350,12 +350,11 @@ class CdaValidateDocuments
     }
 
     /**
-     * @param $amid
-     * @return string
+     * @throws \JsonException|\UnexpectedValueException when the saved report is unreadable
      */
-    public function createSchematronHtml($amid): string
+    public function createSchematronHtml(int|string|null $amid): string
     {
-        $errors = is_int($amid) || is_string($amid) ? $this->fetchValidationLog($amid) : null;
+        $errors = $amid === null ? null : $this->fetchValidationLog($amid);
 
         if (is_array($errors) && $errors !== []) {
             $twig = ServiceContainer::getTwig();
@@ -391,6 +390,7 @@ class CdaValidateDocuments
     /**
      * @return ?array<mixed> the saved validation report, or null when the document has none
      * @throws \JsonException when the saved report is not valid JSON
+     * @throws \UnexpectedValueException when the saved report is JSON but not a report
      */
     public function fetchValidationLog(int|string $audit_id): ?array
     {
@@ -403,6 +403,9 @@ class CdaValidateDocuments
             return null;
         }
         $decoded = Json::decode($log);
-        return is_array($decoded) ? $decoded : null;
+        if (!is_array($decoded)) {
+            throw new \UnexpectedValueException('The saved CDA validation report is not a JSON object or array');
+        }
+        return $decoded;
     }
 }

@@ -6,7 +6,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,6 +24,11 @@ use Psr\Log\LoggerInterface;
 
 class CdaValidateDocumentsTest extends TestCase {
     const EXAMPLE_DIR = __DIR__ . "/../../data/Services/Modules/CareCoordination/Model/CcdaServiceDocumentRequestor/";
+
+    private const FIRST_DOCUMENT_ID = 990715001;
+
+    /** @var list<int> */
+    private array $documentIds = [];
 
     /**
      * The generator output for this sparse sample now meets every SHALL rule in
@@ -165,11 +172,6 @@ class CdaValidateDocumentsTest extends TestCase {
         return (string)json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 
-    private const FIRST_DOCUMENT_ID = 990715001;
-
-    /** @var list<int> */
-    private array $documentIds = [];
-
     protected function tearDown(): void
     {
         foreach ($this->documentIds as $id) {
@@ -230,6 +232,15 @@ class CdaValidateDocumentsTest extends TestCase {
 
         $this->expectException(\JsonException::class);
         $validator->fetchValidationLog($auditId);
+    }
+
+    public function testASavedReportThatIsNotAnObjectIsAnError(): void
+    {
+        [, $auditId] = $this->documentWithValidationLog('5');
+        $validator = new CdaValidateDocuments(logger: $this->createStub(LoggerInterface::class));
+
+        $this->expectException(\UnexpectedValueException::class);
+        $validator->createSchematronHtml($auditId);
     }
 
     /**

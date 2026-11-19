@@ -436,7 +436,7 @@ class TelemetryServiceTest extends TestCase
         $this->assertSame('POST', $request->getMethod());
         $this->assertSame('https://reg.open-emr.org/api/usage?SiteID=test-uuid-123', (string) $request->getUri());
         $this->assertSame('application/json', $request->getHeaderLine('Content-Type'));
-        $payload = Json::decode((string) $request->getBody());
+        $payload = Json::decode($request->getBody()->__toString());
         $this->assertIsArray($payload);
         $this->assertArrayHasKey('usageRecords', $payload);
         $this->assertArrayHasKey('localeData', $payload);
@@ -477,7 +477,7 @@ class TelemetryServiceTest extends TestCase
 
         $request = $handler->getLastRequest();
         $this->assertInstanceOf(RequestInterface::class, $request);
-        $payload = Json::decode((string) $request->getBody());
+        $payload = Json::decode($request->getBody()->__toString());
         $this->assertIsArray($payload);
         $this->assertIsArray($payload['localeData'] ?? null);
         $this->assertSame('Europe/Paris', $payload['localeData']['time_zone'] ?? null);

@@ -82,7 +82,7 @@ final class ProductRegistrationServiceTest extends TestCase
         $rows = QueryUtils::fetchRecords('SELECT `email`, `opt_out` FROM `product_registration`');
         $this->assertCount(1, $rows);
         $this->assertNull($rows[0]['email'] ?? null);
-        $this->assertEquals(1, $rows[0]['opt_out'] ?? null);
+        $this->assertSame('1', $rows[0]['opt_out'] ?? null);
         $this->assertSame('', $service->getRegistrationEmail());
     }
 

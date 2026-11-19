@@ -30,12 +30,13 @@ final class UniqueInstallationUuidTest extends TestCase
         SQL;
 
     private string $loadedBefore = '';
-    private mixed $storedBefore;
+    private ?string $storedBefore = null;
 
     protected function setUp(): void
     {
         $this->loadedBefore = OEGlobalsBag::getInstance()->getString('unique_installation_id');
-        $this->storedBefore = QueryUtils::fetchSingleValue(self::SELECT, 'gl_value');
+        $stored = QueryUtils::fetchSingleValue(self::SELECT, 'gl_value');
+        $this->storedBefore = is_string($stored) ? $stored : null;
     }
 
     protected function tearDown(): void

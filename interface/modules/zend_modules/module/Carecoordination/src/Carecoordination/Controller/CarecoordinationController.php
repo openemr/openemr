@@ -595,7 +595,7 @@ class CarecoordinationController extends AbstractActionController
         switch ($component) {
             case 'schematron':
                 $validate = new CdaValidateDocuments();
-                $temp .= $validate->createSchematronHtml($amid);
+                $temp .= $validate->createSchematronHtml(is_string($amid) ? $amid : null);
                 break;
             case 'allergies':
                 $allergies_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists2');

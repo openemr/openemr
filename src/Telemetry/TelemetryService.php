@@ -86,6 +86,8 @@ class TelemetryService
      *    'eventUrl' => $eventUrl,
      *    'eventTarget' => $eventTarget,
      * ]
+     *
+     * @param array<string, mixed> $data
      */
     public function reportClickEvent(array $data, bool $normalizeUrl = false): false|string
     {
