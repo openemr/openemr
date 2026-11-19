@@ -12,82 +12,32 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
+use OpenEMR\Rx\Weno\WenoPrescriptionLog;
+
 class LogDataInsert
 {
-    public function __construct()
-    {
-    }
-    public function insertPrescriptions($insertdata)
-    {
-        $sql = "INSERT INTO prescriptions SET ";
-        $sql .= "active = ?, ";
-        $sql .= "date_added = ?, ";
-        $sql .= "datetime = NOW(), ";
-        $sql .= "patient_id = ?, ";
-        $sql .= "provider_id = ?, ";
-        $sql .= "drug = ?, ";
-        $sql .= "quantity = ?, ";
-        $sql .= "refills = ?, ";
-        $sql .= "substitute = ?,";
-        $sql .= "note = ?, ";
-        $sql .= "rxnorm_drugcode = ?, ";
-        $sql .= "external_id = ?, ";
-        $sql .= "indication = ? ";
+    private readonly WenoPrescriptionLog $prescriptionLog;
 
-        try {
-            sqlInsert($sql, [
-                $insertdata['active'],
-                $insertdata['date_added'],
-                $insertdata['patient_id'],
-                $insertdata['user_id'],
-                $insertdata['drug'],
-                $insertdata['quantity'],
-                $insertdata['refills'],
-                $insertdata['substitute'],
-                $insertdata['note'],
-                $insertdata['rxnorm_drugcode'],
-                $insertdata['provider_id'],
-                $insertdata['prescriptionguid']
-            ]);
-        } catch (\Throwable $e) {
-            return $e->getMessage();
-        }
+    public function __construct(?WenoPrescriptionLog $prescriptionLog = null)
+    {
+        $this->prescriptionLog = $prescriptionLog ?? new WenoPrescriptionLog();
     }
 
-    public function updatePrescriptions($updatedata)
+    /**
+     * @param array<string, mixed> $insertdata
+     * @return true|string true when the row was written, otherwise the database error
+     */
+    public function insertPrescriptions(array $insertdata): bool|string
     {
-        $sql = "UPDATE prescriptions SET ";
-        $sql .= "active = ?, ";
-        $sql .= "date_added = ?, ";
-        $sql .= "datetime = NOW(), ";
-        $sql .= "patient_id = ?, ";
-        $sql .= "provider_id = ?, ";
-        $sql .= "drug = ?, ";
-        $sql .= "quantity = ?, ";
-        $sql .= "refills = ?, ";
-        $sql .= "substitute = ?, ";
-        $sql .= "note = ?, ";
-        $sql .= "rxnorm_drugcode = ?, ";
-        $sql .= "external_id = ? ";
-        $sql .= "WHERE indication = ?";
+        return $this->prescriptionLog->insert($insertdata);
+    }
 
-        try {
-            sqlQuery($sql, [
-                $updatedata['active'],
-                $updatedata['date_added'],
-                $updatedata['patient_id'],
-                $updatedata['user_id'],
-                $updatedata['drug'],
-                $updatedata['quantity'],
-                $updatedata['refills'],
-                $updatedata['substitute'],
-                $updatedata['note'],
-                $updatedata['rxnorm_drugcode'],
-                $updatedata['provider_id'],
-                $updatedata['prescriptionguid']
-            ]);
-        } catch (\Throwable $e) {
-            return $e->getMessage();
-        }
+    /**
+     * @param array<string, mixed> $updatedata
+     * @return true|string true when the statement ran, otherwise the database error
+     */
+    public function updatePrescriptions(array $updatedata): bool|string
+    {
+        return $this->prescriptionLog->update($updatedata);
     }
 }
