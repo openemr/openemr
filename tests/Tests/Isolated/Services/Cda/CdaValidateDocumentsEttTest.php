@@ -328,6 +328,21 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
             $this->assertFalse($after);
         }
 
+        public function testAnEmptyDocumentStillRestoresTheLibxmlErrorSetting(): void
+        {
+            $validator = $this->validatorUsing(new MockHandler());
+            $previous = libxml_use_internal_errors(false);
+
+            $this->expectException(\ValueError::class);
+            try {
+                $validator->validateXmlXsd('');
+            } finally {
+                $after = libxml_use_internal_errors();
+                libxml_use_internal_errors($previous);
+                $this->assertFalse($after);
+            }
+        }
+
         public function testAReportRequestWithoutAnAuditIdShowsTheNoErrorsMessage(): void
         {
             $validator = $this->validatorUsing(new MockHandler());

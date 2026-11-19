@@ -264,24 +264,28 @@ class CdaValidateDocuments
      */
     public function validateXmlXsd(string $document): array
     {
-        $previousInternalErrors = libxml_use_internal_errors(true);
-        // Start from an empty buffer, so the report holds only this document's errors.
-        libxml_clear_errors();
-        $dom = new DomDocument();
-        $dom->loadXML($document);
         $xsd = __DIR__ . '/../../../interface/modules/zend_modules/public/xsd/Schema/CDA2/infrastructure/cda/CDA_SDTC.xsd';
+        $previousInternalErrors = libxml_use_internal_errors(true);
+        try {
+            // Start from an empty buffer, so the report holds only this document's errors.
+            libxml_clear_errors();
+            $dom = new DomDocument();
+            $dom->loadXML($document);
+            $valid = $dom->schemaValidate($xsd);
+            $errors = $valid ? [] : libxml_get_errors();
+        } finally {
+            // Restore libxml's state even when loadXML() throws, as it does for an empty document.
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousInternalErrors);
+        }
 
         $messages = [];
-        if (!$dom->schemaValidate($xsd)) {
-            $errors = libxml_get_errors();
-            foreach ($errors as $error) {
-                $detail = $this->formatXsdError($error);
-                $messages[] = $detail;
-            }
+        foreach ($errors as $error) {
+            $messages[] = $this->formatXsdError($error);
+        }
+        if (!$valid) {
             $this->logger->error('CDA XSD Validation Errors', ['errors' => $messages]);
         }
-        libxml_clear_errors();
-        libxml_use_internal_errors($previousInternalErrors);
 
         return ['xsd' => $messages];
     }
