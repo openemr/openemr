@@ -20,7 +20,6 @@
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
-use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
@@ -219,6 +218,14 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         if (!$this->billWhenTheFileLands) {
             if (!$this->claimGenerationIsFree($claim)) {
                 $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+                $partnerId = $claim->getPartner();
+                $partnerBatch = null;
+                if (is_int($partnerId) || is_string($partnerId)) {
+                    $partnerBatch = $this->x12_partner_batches[$partnerId] ?? null;
+                }
+                if ($partnerBatch instanceof BillingClaimBatch) {
+                    $this->closeRecoveredPartner($claim, $partnerBatch);
+                }
                 $this->insideGenerate = false;
 
                 return;
@@ -624,16 +631,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                                 $this->printToScreen(xl(UnbilledFileDecision::WRITTEN_NOT_BILLED) . ' ' . $unbilledId);
                             }
                         } else {
-                            // A failed publish did not create this name.
-                            // Deleting it would remove the other run's batch.
-                            if ($wrote) {
-                                $dir = $created_batch->getBatFiledir();
-                                if ($dir === '' || BatchFilePublisher::discard($dir, $filename)) {
-                                    $this->releaseAwaitingFile($filename);
-                                }
-                            } else {
-                                $this->releaseAwaitingFile($filename);
-                            }
+                            $this->releaseUnlessPublished($created_batch, $filename, $wrote);
                         }
                     }
                     if (!$landed) {

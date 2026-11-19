@@ -2031,7 +2031,7 @@ class BillingUtilities
         } finally {
             try {
                 QueryUtils::fetchSingleValue('SELECT RELEASE_LOCK(?) AS released', 'released', [$lockName]);
-            } catch (\Throwable $exception) {
+            } catch (SqlQueryException $exception) {
                 ServiceContainer::getLogger()->error('Held claim file lock was not released', [
                     'exception' => $exception,
                 ]);
