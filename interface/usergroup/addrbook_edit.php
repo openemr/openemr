@@ -429,8 +429,10 @@ if (!empty($_POST['form_save'])) {
  // Collect the form_abook_type option value
  //  (ie. patient vs company centric)
     $posted = CurrentRequest::get()->request;
+    // Activity is not part of the type. An inactive lab or vendor
+    // still has to skip the referring-provider checks.
     $type_sql_row = QueryUtils::querySingleRow(
-        "SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ? AND activity = 1",
+        "SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ?",
         [AddressBookReferrerFields::asString($posted->get('form_abook_type'))]
     ) ?: [];
     $option_abook_type = $type_sql_row['option_value'] ?? '';
