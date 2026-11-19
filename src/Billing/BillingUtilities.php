@@ -2029,7 +2029,13 @@ class BillingUtilities
 
             return $assigned === true;
         } finally {
-            QueryUtils::fetchSingleValue('SELECT RELEASE_LOCK(?) AS released', 'released', [$lockName]);
+            try {
+                QueryUtils::fetchSingleValue('SELECT RELEASE_LOCK(?) AS released', 'released', [$lockName]);
+            } catch (\Throwable $exception) {
+                ServiceContainer::getLogger()->error('Held claim file lock was not released', [
+                    'exception' => $exception,
+                ]);
+            }
         }
     }
 

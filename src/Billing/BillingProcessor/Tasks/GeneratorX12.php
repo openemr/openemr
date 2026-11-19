@@ -73,9 +73,6 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     {
         $this->claimHeld = false;
         $hold = $this->holdClaimsThatWillDeny();
-        if ($hold && $billIfAccepted) {
-            $this->bindSelectedPayer($claim);
-        }
         [$log, $segs, $denial] = $this->renderedClaim($claim);
         $this->appendToLog($log);
         if ($hold && $billIfAccepted && !$denial->willDeny() && $this->billWhenTheFileLands) {
@@ -108,9 +105,24 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         // A denial stores no version. The next run stores one only if the ZIP is accepted.
         $insertLanded = true;
         if ($hold && $billIfAccepted && !$denial->willDeny()) {
+            // The 837 already used the selected payer. Store that payer only
+            // after the ZIP is accepted, not before the generation fence.
+            $this->bindSelectedPayer($claim);
             $insertLanded = $this->rememberPayer($claim);
         }
         $billedWriteLanded = true;
+        if (
+            $insertLanded
+            && $billIfAccepted
+            && !$denial->willDeny()
+            && !$this->billWhenTheFileLands
+            && $this->fileAssignmentIsActive($claim)
+        ) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+            $this->claimHeld = true;
+
+            return;
+        }
         if ($insertLanded && $billIfAccepted && !$denial->willDeny()) {
             // The file name is stored while the row stays unbilled. The billed
             // update runs after that file is written.
@@ -333,6 +345,11 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         $this->insertedClaimVersion = null;
         $this->billWhenTheFileLands = $this->holdClaimsThatWillDeny();
         if (!$this->billWhenTheFileLands) {
+            if (!$this->claimGenerationIsFree($claim)) {
+                $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+
+                return;
+            }
             $settled = $this->recoverPublishedFile($claim, $this->batch);
             if ($settled !== null) {
                 $this->printToScreen(xl($settled
@@ -440,8 +457,15 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
                     $this->printToScreen(xl(UnbilledFileDecision::WRITTEN_NOT_BILLED) . ' ' . $unbilledId);
                 }
             } else {
-                $dir = $this->batch->getBatFiledir();
-                if ($dir === '' || BatchFilePublisher::discard($dir, $filename)) {
+                // A failed publish did not create this name. Deleting it
+                // would remove the other run's batch. Clear only this run's
+                // assignments. A file this run did publish is removed.
+                if ($success) {
+                    $dir = $this->batch->getBatFiledir();
+                    if ($dir === '' || BatchFilePublisher::discard($dir, $filename)) {
+                        $this->releaseAwaitingFile($filename);
+                    }
+                } else {
                     $this->releaseAwaitingFile($filename);
                 }
                 $success = false;

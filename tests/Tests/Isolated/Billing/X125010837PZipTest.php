@@ -90,7 +90,7 @@ class X125010837PZipTest extends TestCase
             $checked->probe->validateAndClear($checked->claim);
             $screen = implode("\n", $checked->probe->screen);
 
-            $this->assertSame(['bind'], $checked->probe->calls);
+            $this->assertSame([], $checked->probe->calls);
             $this->assertSame([], $checked->batch->getClaims());
             $this->assertStringContainsString(X125010837P::SERVICE_ZIP_LOG, $screen);
             $this->assertStringNotContainsString('Successfully', $screen);
@@ -102,7 +102,7 @@ class X125010837PZipTest extends TestCase
 
             $generated = $this->generator(X125010837P::BILLING_ZIP_LOG);
             $generated->probe->generate($generated->claim);
-            $this->assertSame(['bind'], $generated->probe->calls);
+            $this->assertSame([], $generated->probe->calls);
             $generated->probe->completeToScreen([]);
             $generated->probe->completeToFile([]);
             $this->assertSame([], $generated->batch->getClaims());
@@ -371,7 +371,7 @@ class X125010837PZipTest extends TestCase
             $gen->probe->generate($gen->claim);
             $gen->probe->generate($gen->claim);
 
-            $this->assertSame(['bind', 'bind'], $gen->probe->calls);
+            $this->assertSame([], $gen->probe->calls);
             $this->assertSame([], $gen->batch->getClaims());
         });
     }
@@ -565,6 +565,25 @@ class X125010837PZipTest extends TestCase
     }
 
     /**
+     * With the hold off, a file another run still owns is not generated again.
+     */
+    public function testHoldOffLeavesABusyAssignmentAlone(): void
+    {
+        $this->withGlobals(false, function (): void {
+            $probe = $this->versionProbe();
+            $probe->openUnbilled = 4;
+            $probe->storedFile = 'missing-batch.txt';
+            $probe->fileOnDisk = false;
+            $probe->generationAllowed = false;
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([], $probe->writes);
+            $this->assertSame([], $probe->cleared);
+            $this->assertContains(UnbilledFileDecision::STILL_BEING_WRITTEN, $probe->screen);
+        });
+    }
+
+    /**
      * A published file that cannot be billed stays out of a second batch.
      */
     public function testHoldOffLeavesAPublishedFileOutWhenSettlementFails(): void
@@ -714,9 +733,14 @@ class X125010837PZipTest extends TestCase
             $this->assertSame('PART', file_get_contents($directory . '/stopped.txt.interrupted'));
             $blocked = $directory . '/blocked.txt.complete';
             mkdir($blocked);
-            $this->assertFalse(BatchFilePublisher::publish($directory, 'blocked.txt', 'GS~'));
-            $this->assertFileDoesNotExist($directory . '/blocked.txt');
-            rmdir($blocked);
+            try {
+                $this->assertFalse(BatchFilePublisher::publish($directory, 'blocked.txt', 'GS~'));
+                $this->assertFileDoesNotExist($directory . '/blocked.txt');
+            } finally {
+                if (is_dir($blocked)) {
+                    rmdir($blocked);
+                }
+            }
         } finally {
             foreach (glob($directory . '/*') ?: [] as $file) {
                 unlink($file);
