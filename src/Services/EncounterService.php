@@ -522,6 +522,17 @@ class EncounterService extends BaseService
         $data['facility'] = $facility;
         if (is_array($data) && array_key_exists('provider_taxonomy', $data)) {
             $data['provider_taxonomy'] = $this->resolveEncounterTaxonomy($data['provider_id'] ?? null, $data['provider_taxonomy'], $encounter, $pid);
+        } elseif (is_array($data) && isset($data['provider_id'])) {
+            // The provider changed and no taxonomy was submitted: the stored code was chosen for the previous
+            // provider, so clear it (empty means the new provider's primary applies).
+            $storedProvider = QueryUtils::fetchSingleValue(
+                'SELECT `provider_id` FROM `form_encounter` WHERE `encounter` = ? AND `pid` = ?',
+                'provider_id',
+                [$encounter, $pid]
+            );
+            if ((int) $storedProvider !== (int) $data['provider_id']) {
+                $data['provider_taxonomy'] = '';
+            }
         }
         $data = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $data);
 
