@@ -169,6 +169,7 @@ class FacilityService extends BaseService
         $validator->optional('accepts_assignment')->numeric();
         $validator->optional('pos_code')->numeric();
         $validator->optional('domain_identifier')->lengthBetween(2, 60);
+        $validator->optional('mammography_cert_number')->lengthBetween(2, 30);
         $validator->optional('attn')->lengthBetween(2, 65);
         $validator->optional('tax_id_type')->lengthBetween(2, 31);
         $validator->optional('primary_business_entity')->numeric();
@@ -478,6 +479,7 @@ class FacilityService extends BaseService
             $sql .= "        FAC.x12_sender_id,";
             $sql .= "        FAC.attn,";
             $sql .= "        FAC.domain_identifier,";
+            $sql .= "        FAC.mammography_cert_number,";
             $sql .= "        FAC.facility_npi,";
             $sql .= "        FAC.facility_taxonomy,";
             $sql .= "        FAC.tax_id_type,";
