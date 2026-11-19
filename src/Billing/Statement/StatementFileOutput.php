@@ -125,7 +125,8 @@ final readonly class StatementFileOutput implements StatementOutput
             }
             $plain = str_replace("\014", '', $line);
             $plain = rtrim($plain, "\r\n");
-            if ($columns > 0 && strlen($plain) > $columns) {
+            $keepsAmount = preg_match('/\d+\.\d{2}$/', $plain) === 1;
+            if ($columns > 0 && strlen($plain) > $columns && !$keepsAmount) {
                 $plain = substr($plain, 0, $columns);
             }
             $bold = stristr($plain, 'REMIT TO') !== false
