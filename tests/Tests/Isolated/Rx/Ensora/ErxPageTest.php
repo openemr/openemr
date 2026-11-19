@@ -160,6 +160,55 @@ class ErxPageTest extends TestCase
         $this->assertSame([], $this->page($this->builderReturning('<html>ok</html>'))->checkError('<NCScript/>'));
     }
 
+    /**
+     * Large pages that exhaust the PCRE backtrack limit of a greedy pattern;
+     * the search must still finish and find any errors.
+     *
+     * @return array<string, array{string, list<string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function largePageProvider(): array
+    {
+        $markup = str_repeat('<div class="row"><span>Original</span></div>' . PHP_EOL, 20000);
+
+        return [
+            'no marker' => ['<html><textarea rows="4">' . $markup . '</textarea></html>', []],
+            'marker before the textarea' => ['<html>Original XML: <textarea>' . $markup . '</textarea></html>', []],
+            'errors after a large page' => [$markup . '<textarea rows="4">Error: no NPI Original XML: ' . $markup, [': no NPI ']],
+        ];
+    }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[DataProvider('largePageProvider')]
+    public function testCheckErrorSearchesALargePage(string $page, array $expected): void
+    {
+        $this->assertSame($expected, $this->page($this->builderReturning($page))->checkError('<NCScript/>'));
+    }
+
+    public function testCheckErrorKeepsAnErrorThatQuotesATextareaTag(): void
+    {
+        $page = '<textarea name="note">n</textarea><textarea rows="4">Error: no NPI Error: bad <textarea> value Original XML: <NCScript/></textarea>';
+
+        $this->assertSame([': no NPI ', ': bad <textarea> value '], $this->page($this->builderReturning($page))->checkError('<NCScript/>'));
+    }
+
+    public function testCheckErrorReadsOnlyWholeTextareaTagNames(): void
+    {
+        $page = '<textareas>x</textareas><textarea rows="4">Error: no NPI Error: see </textareas Original XML: <NCScript/></textarea>';
+
+        $this->assertSame([': no NPI ', ': see </textareas '], $this->page($this->builderReturning($page))->checkError('<NCScript/>'));
+    }
+
+    public function testCheckErrorKeepsAnErrorThatHoldsAnAngleBracket(): void
+    {
+        $page = '<html><TEXTAREA rows="4">Error: quantity > 0 required original xml: <NCScript/></TEXTAREA>';
+
+        $this->assertSame([': quantity > 0 required '], $this->page($this->builderReturning($page))->checkError('<NCScript/>'));
+    }
+
     public function testAnErrorLogThatCannotBeWrittenStillReturnsTheErrors(): void
     {
         $page = '<form action="RxEntry.aspx"><textarea>Error: no NPI Original XML:';
