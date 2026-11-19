@@ -46,10 +46,8 @@ class StatementEngine
                 continue;
             }
             if (Values::asString($rule['op'] ?? '') === 'band') {
-                $key = Values::asString($rule['source_field_id'] ?? '')
-                    . "\0" . Values::asString($rule['source_field_id_2'] ?? '')
-                    . "\0" . trim(Values::asString($rule['match_token'] ?? ''));
-                $bandGroups[$key][$index] = $rule;
+                [$measuredField] = $this->measuredBand($rule, $values);
+                $bandGroups[$measuredField][$index] = $rule;
                 continue;
             }
             if ($this->ruleMatches($rule, $values)) {
@@ -180,10 +178,12 @@ class StatementEngine
             if ($length < 0) {
                 continue;
             }
-            if ($length > $best + 0.0000001) {
+            $stretchBeatsPoint = $length > 0 && $best <= 0;
+            $pointLoses = $length <= 0 && $best > 0;
+            if ($best < 0 || $stretchBeatsPoint || $length > $best + 0.0000001) {
                 $best = $length;
                 $winners = [$index => $rule];
-            } elseif (abs($length - $best) <= 0.0000001) {
+            } elseif (!$pointLoses && abs($length - $best) <= 0.0000001) {
                 $winners[$index] = $rule;
             }
         }
@@ -368,7 +368,8 @@ class StatementEngine
 
     /**
      * Exact option_id (ids may contain spaces or '+'), pipe membership
-     * for checkbox fields, then a word-boundary match.
+     * for checkbox fields, then a word-boundary match. Option ids are
+     * text, so "01" does not match "1".
      */
     private function sourceMatchesToken(string $raw, string $token): bool
     {
@@ -384,11 +385,6 @@ class StatementEngine
             if ($part !== '' && strcasecmp($part, $token) === 0) {
                 return true;
             }
-        }
-        $rawNum = Values::asFloatOrNull($raw);
-        $tokenNum = Values::asFloatOrNull($token);
-        if ($rawNum !== null && $tokenNum !== null && abs($rawNum - $tokenNum) < 0.0000001) {
-            return true;
         }
         $quoted = preg_quote($token, '/');
         // Letters, marks, and numbers stay inside a word. An accented
