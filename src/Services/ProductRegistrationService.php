@@ -28,9 +28,20 @@ class ProductRegistrationService
 {
     private readonly ClientInterface $httpClient;
 
-    public function __construct(?ClientInterface $httpClient = null)
-    {
+    public function __construct(
+        ?ClientInterface $httpClient = null,
+        private ?VersionServiceInterface $versionService = null,
+    ) {
         $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
+    }
+
+    /**
+     * Built on first use, since constructing VersionService queries the database.
+     */
+    private function currentVersion(): string
+    {
+        $this->versionService ??= new VersionService();
+        return (string) $this->versionService->getSoftwareVersion();
     }
 
     public function getProductDialogStatus(): array
@@ -47,7 +58,7 @@ class ProductRegistrationService
         $row['allowEmail'] = 0; // if show email dialog
         $row['allowTelemetry'] = 0; // if show telemetry dialog
         $row['allowRegisterDialog'] = 0; // if show registration dialog
-        $currentVersion = (string) (new VersionService())->getSoftwareVersion();
+        $currentVersion = $this->currentVersion();
         if ($currentVersion != $lastAskVersion) {
             // Change in version (or empty entry), so ignore opt outs and show the dialog if empty email or telemetry not enabled
             //  (if do show the dialog, then return if show email and/or telemetry dialog)
@@ -115,7 +126,7 @@ class ProductRegistrationService
     private function optInStrategy(string $email): string
     {
         // build the information array
-        $info = ['email' => $email, 'version' => (string) (new VersionService())->getSoftwareVersion()];
+        $info = ['email' => $email, 'version' => $this->currentVersion()];
         $distribution = getenv('OPENEMR_DOCKER_ENV_TAG', true);
         if (is_string($distribution) && $distribution !== '') {
             // this will add standard package information if it exists
@@ -134,7 +145,7 @@ class ProductRegistrationService
         }
         $responseCode = $reply->getStatusCode();
 
-        $currentVersion = (string) (new VersionService())->getSoftwareVersion();
+        $currentVersion = $this->currentVersion();
         switch ($responseCode) {
             case 201:
                 $entry = $this->entryExist();
@@ -145,14 +156,14 @@ class ProductRegistrationService
                 }
                 return $email;
             default:
-                throw new \GenericProductRegistrationException(xl("Server error: try again later"));
+                throw new \GenericProductRegistrationException(xl('Server error: try again later'));
         }
     }
 
     // void... don't bother checking for success/failure.
     private function optOutStrategy()
     {
-        $currentVersion = (string) (new VersionService())->getSoftwareVersion();
+        $currentVersion = $this->currentVersion();
         $entry = $this->entryExist();
         if ($this->entryExist()) {
             sqlStatement("UPDATE `product_registration` SET `email` = null, `opt_out` = 1, `last_ask_version` = ? WHERE `id` = ?", [$currentVersion, $entry]);
