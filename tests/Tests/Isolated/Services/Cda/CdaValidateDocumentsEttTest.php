@@ -294,6 +294,40 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
             $this->assertSame(['xsd' => []], $validator->validateXmlXsd($document));
         }
 
+        public function testTheXsdReportOmitsErrorsLeftByEarlierXmlParsing(): void
+        {
+            $validator = $this->validatorUsing(new MockHandler());
+            $document = '<ClinicalDocument xmlns="urn:hl7-org:v3"><unknownElement/></ClinicalDocument>';
+            $expected = $validator->validateXmlXsd($document);
+            // Leave an earlier parse error in the buffer, with internal errors still on
+            $previous = libxml_use_internal_errors(true);
+            (new \DOMDocument())->loadXML('<unclosed>');
+            try {
+                $report = $validator->validateXmlXsd($document);
+            } finally {
+                libxml_clear_errors();
+                libxml_use_internal_errors($previous);
+            }
+
+            $this->assertNotSame([], $expected['xsd']);
+            $this->assertSame($expected, $report);
+        }
+
+        public function testTheXsdCheckRestoresTheLibxmlErrorSetting(): void
+        {
+            $validator = $this->validatorUsing(new MockHandler());
+            $document = (new Filesystem())->readFile(self::CONFORMANT_DOCUMENT);
+            $previous = libxml_use_internal_errors(false);
+            try {
+                $validator->validateXmlXsd($document);
+                $after = libxml_use_internal_errors();
+            } finally {
+                libxml_use_internal_errors($previous);
+            }
+
+            $this->assertFalse($after);
+        }
+
         public function testAReportRequestWithoutAnAuditIdShowsTheNoErrorsMessage(): void
         {
             $validator = $this->validatorUsing(new MockHandler());

@@ -264,7 +264,9 @@ class CdaValidateDocuments
      */
     public function validateXmlXsd(string $document): array
     {
-        libxml_use_internal_errors(true);
+        $previousInternalErrors = libxml_use_internal_errors(true);
+        // Start from an empty buffer, so the report holds only this document's errors.
+        libxml_clear_errors();
         $dom = new DomDocument();
         $dom->loadXML($document);
         $xsd = __DIR__ . '/../../../interface/modules/zend_modules/public/xsd/Schema/CDA2/infrastructure/cda/CDA_SDTC.xsd';
@@ -276,9 +278,10 @@ class CdaValidateDocuments
                 $detail = $this->formatXsdError($error);
                 $messages[] = $detail;
             }
-            libxml_clear_errors();
             $this->logger->error('CDA XSD Validation Errors', ['errors' => $messages]);
         }
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousInternalErrors);
 
         return ['xsd' => $messages];
     }
