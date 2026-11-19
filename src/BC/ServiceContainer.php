@@ -222,6 +222,10 @@ class ServiceContainer
         return self::resolveOrCreate(
             SiteInstallState::class,
             static function (): SiteInstallState {
+                // Mirrors the container's env lookup; see config/env.php.
+                if (array_key_exists('OPENEMR_DB_NAME', $_ENV) || getenv('OPENEMR_DB_NAME') !== false) {
+                    return new SiteInstallState(true);
+                }
                 $siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
                 if ($siteDir === '') {
                     throw new LogicException('OE_SITE_DIR not set');
