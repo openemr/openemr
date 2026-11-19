@@ -252,7 +252,7 @@ class C_Document extends Controller
                         $handler = $za->open($_FILES['file']['tmp_name'][$key]);
                         if ($handler) {
                             // Folders and macOS metadata do not count; one non DICOM file makes the zip invalid.
-                            $mimetype = DicomZip::normalize($za) ? "application/dicom+zip" : "application/zip";
+                            $mimetype = DicomZip::normalizeIfDicom($za) ? "application/dicom+zip" : "application/zip";
                             $za->close();
                             if ($mimetype == "application/dicom+zip") {
                                 sleep(1); // Timing insurance in case of re-compression. Only acted on index so...!

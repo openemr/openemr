@@ -78,7 +78,7 @@ class DicomZipTest extends TestCase
     public function testPlainDicomZipIsAccepted(): void
     {
         $zip = $this->zip(['1.dcm' => self::dicom(), '2.dcm' => self::dicom()]);
-        $this->assertTrue(DicomZip::normalize($zip));
+        $this->assertTrue(DicomZip::normalizeIfDicom($zip));
     }
 
     public function testFolderAndMacOsMetadataDoNotMakeTheZipInvalid(): void
@@ -89,25 +89,25 @@ class DicomZipTest extends TestCase
             '__MACOSX/study/._1.dcm' => 'AppleDouble',
             'study/.DS_Store' => 'x',
         ]);
-        $this->assertTrue(DicomZip::normalize($zip));
+        $this->assertTrue(DicomZip::normalizeIfDicom($zip));
     }
 
     public function testOneNonDicomFileMakesTheZipInvalid(): void
     {
         $zip = $this->zip(['1.dcm' => self::dicom(), 'readme.txt' => 'not dicom']);
-        $this->assertFalse(DicomZip::normalize($zip));
+        $this->assertFalse(DicomZip::normalizeIfDicom($zip));
     }
 
     public function testZipWithoutImagesIsNotDicom(): void
     {
         $zip = $this->zip(['study/' => '', '.DS_Store' => 'x']);
-        $this->assertFalse(DicomZip::normalize($zip));
+        $this->assertFalse(DicomZip::normalizeIfDicom($zip));
     }
 
     public function testDicomFilesWithoutExtensionAreRenamedKeepingTheirFolder(): void
     {
         $zip = $this->zip(['a/IM0001' => self::dicom(), 'b/IM0001' => self::dicom()]);
-        $this->assertTrue(DicomZip::normalize($zip));
+        $this->assertTrue(DicomZip::normalizeIfDicom($zip));
         $zip->close();
         $check = new ZipArchive();
         $check->open($this->path);
@@ -117,7 +117,7 @@ class DicomZipTest extends TestCase
     public function testUppercaseDcmExtensionIsNormalizedToLowercaseForTheViewer(): void
     {
         $zip = $this->zip(['a/IM0001.DCM' => self::dicom(), 'b/IM0002.dcm' => self::dicom()]);
-        $this->assertTrue(DicomZip::normalize($zip));
+        $this->assertTrue(DicomZip::normalizeIfDicom($zip));
         $zip->close();
         $check = new ZipArchive();
         $check->open($this->path);
@@ -127,6 +127,6 @@ class DicomZipTest extends TestCase
     public function testDicomFileWithADotNameDoesNotCrash(): void
     {
         $zip = $this->zip(['1.dcm' => self::dicom(), '.hidden' => self::dicom()]);
-        $this->assertTrue(DicomZip::normalize($zip));
+        $this->assertTrue(DicomZip::normalizeIfDicom($zip));
     }
 }

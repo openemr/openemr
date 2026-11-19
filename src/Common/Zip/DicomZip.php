@@ -36,7 +36,7 @@ final class DicomZip
      * and there is at least one. Entries whose extension is not exactly lowercase .dcm (none, or e.g. .DCM) are renamed, keeping their folder, so
      * the viewer accepts them.
      */
-    public static function normalize(ZipArchive $zip): bool
+    public static function normalizeIfDicom(ZipArchive $zip): bool
     {
         $images = 0;
         $renames = [];
