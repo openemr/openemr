@@ -214,6 +214,17 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         /**
          * Another textarea is not a statement target.
          */
+        public function testParagraphFieldRejectsAHistoryTextarea(): void
+        {
+            $catalog = new LayoutCatalog($this->sql);
+            $this->sql->queue[] = ['paragraph_field_id' => 'notes'];
+            $this->sql->queue[] = [
+                ['field_id' => 'notes', 'data_type' => 3, 'title' => 'Notes', 'list_id' => '', 'seq' => 1, 'group_id' => '1', 'edit_options' => 'H'],
+                ['field_id' => 'summary_comments', 'data_type' => 3, 'title' => 'Sum', 'list_id' => '', 'seq' => 2, 'group_id' => '1'],
+            ];
+            $this->assertSame('', $catalog->paragraphField('LBFecho'));
+        }
+
         public function testParagraphFieldDoesNotUseAnotherTextarea(): void
         {
             $catalog = new LayoutCatalog($this->sql);

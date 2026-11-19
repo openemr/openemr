@@ -340,10 +340,13 @@ class LbfReader
     public function lockFormRow(int $instanceId, string $formDir): void
     {
         Identifiers::assertFieldId($formDir);
-        $this->sql->querySingleRow(
+        $row = Values::assocRow($this->sql->querySingleRow(
             "SELECT id FROM forms WHERE form_id = ? AND formdir = ? AND deleted = 0 FOR UPDATE",
             [$instanceId, $formDir]
-        );
+        ));
+        if ($row === null) {
+            throw new MissingFormException('The form instance is no longer on file.');
+        }
     }
 
     /**

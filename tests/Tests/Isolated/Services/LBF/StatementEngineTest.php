@@ -300,6 +300,25 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             );
         }
 
+        public function testAFieldNamedValueDoesNotReplaceTheAlias(): void
+        {
+            $rules = [[
+                'form_id' => 'LBFstmt_demo',
+                'source_field_id' => 'ef',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 100,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'statement_text' => 'EF {value}',
+                'enabled' => 1,
+            ]];
+            $this->assertSame(
+                'EF 55.',
+                $this->paragraph('LBFstmt_demo', ['ef' => '55', 'value' => '99'], $rules)
+            );
+        }
+
         /**
          * Fire ratio_lt when the first field is below the second.
          */

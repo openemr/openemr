@@ -454,7 +454,7 @@ class StatementEngine
             '{value}' => $values[$source] ?? '',
         ];
         foreach ($values as $fieldId => $fieldValue) {
-            if (!is_string($fieldId) || $fieldId === '') {
+            if (!is_string($fieldId) || $fieldId === '' || $fieldId === 'value' || $fieldId === 'source' || $fieldId === 'source_2') {
                 continue;
             }
             $map['{' . $fieldId . '}'] = $fieldValue;

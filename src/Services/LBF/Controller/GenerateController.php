@@ -17,13 +17,16 @@ namespace OpenEMR\Services\LBF\Controller;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\ESign\SignatureWriteLock;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\LBF\Bootstrap;
+use OpenEMR\Services\LBF\FormLockedException;
 use OpenEMR\Services\LBF\Identifiers;
 use OpenEMR\Services\LBF\LayoutCatalog;
 use OpenEMR\Services\LBF\LbfReader;
 use OpenEMR\Services\LBF\LbfWriter;
+use OpenEMR\Services\LBF\MissingFormException;
 use OpenEMR\Services\LBF\Queries;
 use OpenEMR\Services\LBF\StaleParagraphException;
 use OpenEMR\Services\LBF\StatementApplier;
@@ -259,9 +262,19 @@ class GenerateController
                     $baseline = $this->stringParam($request, 'paragraph_baseline');
                     $newValues = $applier->apply($values, $actions, 'overwrite', $paragraphField, $edited);
                     $actionsToWrite = $applier->writeActions($paragraphField);
-                    try {
-                        $sql = new Queries();
-                        $sql->inTransaction(function () use (
+                    $formsId = Values::rowInt($row, 'id');
+                    $encounterId = Values::rowInt($row, 'encounter');
+                    $lockedForm = SignatureWriteLock::acquire('forms', $formsId);
+                    $lockedEncounter = $lockedForm && SignatureWriteLock::acquire('form_encounter', $encounterId);
+                    if (!$lockedEncounter) {
+                        if ($lockedForm) {
+                            SignatureWriteLock::release('forms', $formsId);
+                        }
+                        $error = xl('The form could not be saved. Try again.');
+                    } else {
+                        try {
+                            $sql = new Queries();
+                            $sql->inTransaction(function () use (
                             $reader,
                             $writer,
                             $repo,
@@ -273,36 +286,49 @@ class GenerateController
                             $actionsToWrite,
                             $formId,
                             $pid,
-                            $authUser
+                            $authUser,
+                            $formsId,
+                            $encounterId
                         ): void {
-                            $reader->lockFormRow($instanceId, $formId);
-                            $storedNow = $reader->paragraphValueForUpdate($instanceId, $paragraphField);
-                            if (!self::paragraphIsCurrent($baseline, $instanceId, $paragraphField, $storedNow)) {
-                                throw new StaleParagraphException('The paragraph changed after this page was opened.');
+                                $reader->lockFormRow($instanceId, $formId);
+                                if ($this->writeIsLocked($reader, $formsId, $encounterId)) {
+                                    throw new FormLockedException('This form is locked.');
+                                }
+                                $storedNow = $reader->paragraphValueForUpdate($instanceId, $paragraphField);
+                                if (!self::paragraphIsCurrent($baseline, $instanceId, $paragraphField, $storedNow)) {
+                                    throw new StaleParagraphException('The paragraph changed after this page was opened.');
+                                }
+                                $oldValues = $values;
+                                $oldValues[$paragraphField] = $storedNow;
+                                $writer->apply($instanceId, $newValues, $oldValues, $actionsToWrite);
+                                $repo->logRun($formId, $pid, $instanceId, $authUser, 'overwrite');
+                            });
+                            $values = $reader->readValues($instanceId);
+                            $paragraphCurrent = $values[$paragraphField] ?? '';
+                            $instances = $this->visibleInstances(
+                                $reader->instancesForPatient($formId, $pid),
+                                $notesAny,
+                                $notesOwn,
+                                $authUser
+                            );
+                            $message = xl('Saved.');
+                            $after = $this->stringParam($request, 'after');
+                            if ($after === 'print' || $after === 'form') {
+                                $this->redirectAfterSave($formId, $pid, $instanceId, $after);
                             }
-                            $oldValues = $values;
-                            $oldValues[$paragraphField] = $storedNow;
-                            $writer->apply($instanceId, $newValues, $oldValues, $actionsToWrite);
-                            $repo->logRun($formId, $pid, $instanceId, $authUser, 'overwrite');
-                        });
-                        $values = $reader->readValues($instanceId);
-                        $paragraphCurrent = $values[$paragraphField] ?? '';
-                        $instances = $this->visibleInstances(
-                            $reader->instancesForPatient($formId, $pid),
-                            $notesAny,
-                            $notesOwn,
-                            $authUser
-                        );
-                        $message = xl('Saved.');
-                        $after = $this->stringParam($request, 'after');
-                        if ($after === 'print' || $after === 'form') {
-                            $this->redirectAfterSave($formId, $pid, $instanceId, $after);
+                        } catch (FormLockedException) {
+                            $error = xl('This form is locked.');
+                        } catch (MissingFormException) {
+                            $error = xl('That form is no longer on file.');
+                        } catch (StaleParagraphException) {
+                            $error = xl('The paragraph changed after this page was opened. Reload it and try again.');
+                            $values = $reader->readValues($instanceId);
+                            $paragraphCurrent = $values[$paragraphField] ?? '';
+                            $actions = $engine->evaluate($formId, $values, $rules, $reader->patientSex($pid));
+                        } finally {
+                            SignatureWriteLock::release('form_encounter', $encounterId);
+                            SignatureWriteLock::release('forms', $formsId);
                         }
-                    } catch (StaleParagraphException) {
-                        $error = xl('The paragraph changed after this page was opened. Reload it and try again.');
-                        $values = $reader->readValues($instanceId);
-                        $paragraphCurrent = $values[$paragraphField] ?? '';
-                        $actions = $engine->evaluate($formId, $values, $rules, $reader->patientSex($pid));
                     }
                 }
             }

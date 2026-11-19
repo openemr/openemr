@@ -15,6 +15,7 @@
 
 namespace ESign;
 
+use OpenEMR\Common\ESign\SignatureWriteLock;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignableIF.php';
@@ -129,7 +130,18 @@ abstract class DbRow_Signable implements SignableIF
 
         // Append the hash of the signature data to the insert array before we insert
         $signature[] = $signatureHash;
-        $id = sqlInsert($statement, $signature);
+        $table = is_string($this->_tableName) ? $this->_tableName : '';
+        $tid = is_numeric($this->_tableId) ? (int) $this->_tableId : 0;
+        if ($lock && !SignatureWriteLock::acquire($table, $tid)) {
+            throw new \Exception("Error occurred while attempting to insert a signature into the database.");
+        }
+        try {
+            $id = sqlInsert($statement, $signature);
+        } finally {
+            if ($lock) {
+                SignatureWriteLock::release($table, $tid);
+            }
+        }
 
         if ($id === false) {
             throw new \Exception("Error occurred while attempting to insert a signature into the database.");
