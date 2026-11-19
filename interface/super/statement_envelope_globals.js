@@ -37,7 +37,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (fieldRow) { hideRows.push(fieldRow); }
     texts.push(inp);
     inp.classList.add('form-control-sm');
+    if (!inp.id) { inp.id = pair[0]; }
     slot.appendChild(inp);
+    var measureLabel = slot.previousElementSibling;
+    if (measureLabel && measureLabel.tagName === 'LABEL') {
+      measureLabel.htmlFor = inp.id;
+    }
   });
   var unitsSel = fieldByKey('statement_env_units');
   if (unitsSel) {
@@ -46,6 +51,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   function parseMeasure(s) {
     s = String(s).trim();
+    s = s.replace(/centimeters|centimetres|centimeter|centimetre|inches|inch|"/gi, '');
+    s = s.replace(/\b(in|cm)\.?\b/gi, '');
+    s = s.replace(/\s+/g, ' ').trim();
     var m = s.match(/^(\d+)\s*-\s*(\d+)\s*\/\s*(\d+)$/);
     if (m) {
       var mixedDen = +m[3];

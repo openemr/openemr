@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Billing\Statement;
 
 use Mpdf\Mpdf;
+use OpenEMR\Billing\StatementEnvelope;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessException;
 use Symfony\Component\Process\Process;
@@ -100,7 +101,10 @@ final readonly class StatementFileOutput implements StatementOutput
      */
     private static function textPdf(string $batch): string
     {
-        $pdf = new \Cezpdf('LETTER');
+        $paper = StatementEnvelopeDocuments::textMarginsAreZero()
+            ? StatementEnvelope::sheetFormat()
+            : 'LETTER';
+        $pdf = new \Cezpdf($paper);
         if (StatementEnvelopeDocuments::textMarginsAreZero()) {
             $pdf->ezSetMargins(0, 0, 0, 0);
         } else {
