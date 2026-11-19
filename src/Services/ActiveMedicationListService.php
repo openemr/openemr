@@ -320,19 +320,20 @@ class ActiveMedicationListService extends BaseService
      *
      * A zero id is unset. Comparing it as a number would match every
      * non-numeric option id, so the join keeps only a positive id and
-     * compares that id as text.
+     * compares that id as text. An inactive option still names the value
+     * stored on the prescription.
      */
     private static function prescriptionFromSql(): string
     {
         return "FROM prescriptions p "
             . "LEFT JOIN list_options AS form_opt "
-            . "ON form_opt.list_id = 'drug_form' AND form_opt.activity = 1 "
+            . "ON form_opt.list_id = 'drug_form' "
             . "AND p.form > 0 AND form_opt.option_id = CAST(p.form AS CHAR) "
             . "LEFT JOIN list_options AS interval_opt "
-            . "ON interval_opt.list_id = 'drug_interval' AND interval_opt.activity = 1 "
+            . "ON interval_opt.list_id = 'drug_interval' "
             . "AND p.interval > 0 AND interval_opt.option_id = CAST(p.interval AS CHAR) "
             . "LEFT JOIN list_options AS unit_opt "
-            . "ON unit_opt.list_id = 'drug_units' AND unit_opt.activity = 1 "
+            . "ON unit_opt.list_id = 'drug_units' "
             . "AND p.unit > 0 AND unit_opt.option_id = CAST(p.unit AS CHAR) ";
     }
 
