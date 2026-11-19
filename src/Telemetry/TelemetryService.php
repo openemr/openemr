@@ -239,13 +239,13 @@ class TelemetryService
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report //TODO: REMOVE comment RELEASE
             } else {
-                $this->logger->error("Error in response: {response}", ['response' => $responseData]);
+                $this->logger->error('Error in response: {response}', ['response' => $responseData]);
             }
         } else {
             $this->logger->error("HTTP error: {httpStatus}", ['httpStatus' => $httpStatus]);
         }
 
-        $this->logger->debug("Telemetry sent: {httpStatus}: {geoData}", ['httpStatus' => $httpStatus, 'geoData' => $serverGeoData]);
+        $this->logger->debug('Telemetry sent: {httpStatus}: {geoData}', ['httpStatus' => $httpStatus, 'geoData' => $serverGeoData]);
         return $httpStatus;
     }
 

@@ -268,7 +268,7 @@ class CdaValidateDocuments
                 $xsd_log['xsd'][] = $detail;
             }
             libxml_clear_errors();
-            $this->logger->error("CDA XSD Validation Errors", ['errors' => $xsd_log['xsd']]);
+            $this->logger->error('CDA XSD Validation Errors', ['errors' => $xsd_log['xsd']]);
         }
 
         return $xsd_log;
