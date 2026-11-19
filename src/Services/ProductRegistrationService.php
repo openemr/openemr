@@ -129,7 +129,7 @@ class ProductRegistrationService
                 RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
             ]);
         } catch (GuzzleException $e) {
-            throw new \GenericProductRegistrationException(xl("Server error: try again later"), 0, $e);
+            throw new \GenericProductRegistrationException(xl('Server error: try again later'), 0, $e);
         }
         $responseCode = $reply->getStatusCode();
 

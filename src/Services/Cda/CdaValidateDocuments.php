@@ -21,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\Schematron\SchemaRegistry;
+use Psr\Log\LoggerInterface;
 
 class CdaValidateDocuments
 {
@@ -31,9 +32,12 @@ class CdaValidateDocuments
 
     private readonly ClientInterface $httpClient;
 
-    public function __construct(?ClientInterface $httpClient = null)
+    private readonly LoggerInterface $validatorLogger;
+
+    public function __construct(?ClientInterface $httpClient = null, ?LoggerInterface $logger = null)
     {
         $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
+        $this->validatorLogger = $logger ?? ServiceContainer::getLogger();
         $this->externalValidatorEnabled = OEGlobalsBag::getInstance()->getBoolean('mdht_conformance_server_enable');
         if (empty(OEGlobalsBag::getInstance()->getString('mdht_conformance_server'))) {
             $this->externalValidatorEnabled = false;
@@ -73,10 +77,7 @@ class CdaValidateDocuments
         return $totals;
     }
 
-    /**
-     * @param $xml
-     */
-    public function ettValidateCcda($xml): array
+    public function ettValidateCcda(string $xml): array
     {
         try {
             $result = $this->ettValidateDocumentRequest($xml);
@@ -119,14 +120,12 @@ class CdaValidateDocuments
     }
 
     /**
-     * @param $xml
      * @return mixed[]
      */
-    private function ettValidateDocumentRequest($xml): array
+    private function ettValidateDocumentRequest(string $xml): array
     {
-        $reply = [];
-        if (empty($xml)) {
-            return $reply;
+        if ($xml === '') {
+            return [];
         }
 
         $url = $this->externalValidatorUrl;
@@ -158,7 +157,7 @@ class CdaValidateDocuments
                 RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
             ]);
         } catch (GuzzleException $e) {
-            ServiceContainer::getLogger()->error('C-CDA validation request failed', ['exception' => $e]);
+            $this->validatorLogger->error('C-CDA validation request failed', ['exception' => $e]);
             return $this->ettFailureReply(0);
         }
 
@@ -172,7 +171,7 @@ class CdaValidateDocuments
         // validation, not a document with no findings.
         $decoded = json_decode($body, true);
         if (!is_array($decoded)) {
-            ServiceContainer::getLogger()->error('C-CDA validator reply was not JSON', ['status' => $status]);
+            $this->validatorLogger->error('C-CDA validator reply was not JSON', ['status' => $status]);
             return $this->ettFailureReply($status);
         }
         return $decoded;

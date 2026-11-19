@@ -31,13 +31,13 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
     use GuzzleHttp\Exception\ConnectException;
     use GuzzleHttp\Handler\MockHandler;
     use GuzzleHttp\HandlerStack;
-    use GuzzleHttp\Middleware;
     use GuzzleHttp\Psr7\Request;
     use GuzzleHttp\Psr7\Response;
     use OpenEMR\Services\Cda\CdaValidateDocuments;
     use PHPUnit\Framework\Attributes\Group;
     use PHPUnit\Framework\TestCase;
     use Psr\Http\Message\RequestInterface;
+    use Psr\Log\NullLogger;
 
     #[Group('isolated')]
     class CdaValidateDocumentsEttTest extends TestCase
@@ -48,16 +48,18 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
 
         public function testSendsTheDocumentAndTranslatesTheFindings(): void
         {
-            $requests = [];
-            $validator = $this->validatorReplying(new Response(200, [], (string) json_encode([
-                'resultsMetaData' => ['resultMetaData' => [['count' => 1]]],
-                'ccdaValidationResults' => [[
-                    'type' => 'C-CDA MDHT Conformance Error',
-                    'description' => 'SHALL contain exactly one [1..1] title',
-                    'documentLineNumber' => '12',
-                    'xPath' => '/ClinicalDocument',
-                ]],
-            ])), $requests);
+            $handler = new MockHandler([new Response(200, [], <<<'JSON'
+                {
+                    "resultsMetaData": {"resultMetaData": [{"count": 1}]},
+                    "ccdaValidationResults": [{
+                        "type": "C-CDA MDHT Conformance Error",
+                        "description": "SHALL contain exactly one [1..1] title",
+                        "documentLineNumber": "12",
+                        "xPath": "/ClinicalDocument"
+                    }]
+                }
+                JSON)]);
+            $validator = $this->validatorUsing($handler);
 
             $results = $validator->ettValidateCcda(self::DOCUMENT);
 
@@ -72,8 +74,8 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
                 'xml' => '',
             ]], $results['errors']);
 
-            $this->assertCount(1, $requests);
-            $request = $requests[0];
+            $request = $handler->getLastRequest();
+            $this->assertInstanceOf(RequestInterface::class, $request);
             $this->assertSame('POST', $request->getMethod());
             $this->assertSame(self::VALIDATOR_URL, (string) $request->getUri());
             $this->assertSame('application/json', $request->getHeaderLine('Accept'));
@@ -88,7 +90,7 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
 
         public function testAnHttpErrorIsReportedAsOneFinding(): void
         {
-            $validator = $this->validatorReplying(new Response(500, [], 'Internal Server Error'));
+            $validator = $this->validatorUsing(new MockHandler([new Response(500, [], 'Internal Server Error')]));
 
             $results = $validator->ettValidateCcda(self::DOCUMENT);
 
@@ -98,9 +100,9 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
 
         public function testAnUnreachableValidatorIsReportedAsOneFinding(): void
         {
-            $validator = $this->validatorReplying(
-                new ConnectException('Connection refused', new Request('POST', self::VALIDATOR_URL))
-            );
+            $validator = $this->validatorUsing(new MockHandler([
+                new ConnectException('Connection refused', new Request('POST', self::VALIDATOR_URL)),
+            ]));
 
             $results = $validator->ettValidateCcda(self::DOCUMENT);
 
@@ -110,7 +112,7 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
 
         public function testAReplyThatIsNotJsonIsReportedAsOneFinding(): void
         {
-            $validator = $this->validatorReplying(new Response(200, [], '<html>Gateway error</html>'));
+            $validator = $this->validatorUsing(new MockHandler([new Response(200, [], '<html>Gateway error</html>')]));
 
             $results = $validator->ettValidateCcda(self::DOCUMENT);
 
@@ -120,15 +122,13 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
 
         public function testARedirectIsNotFollowed(): void
         {
-            $requests = [];
-            $validator = $this->validatorReplying(
-                new Response(302, ['Location' => 'https://elsewhere.example.test/']),
-                $requests
-            );
+            // The handler holds one reply, so following the redirect would fail on a second request.
+            $handler = new MockHandler([new Response(302, ['Location' => 'https://elsewhere.example.test/'])]);
+            $validator = $this->validatorUsing($handler);
 
             $results = $validator->ettValidateCcda(self::DOCUMENT);
 
-            $this->assertCount(1, $requests);
+            $this->assertCount(0, $handler);
             $this->assertSame([$this->failureFinding(302)], $results['errors']);
         }
 
@@ -148,17 +148,10 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
             ];
         }
 
-        /**
-         * @param list<RequestInterface> $requests
-         */
-        private function validatorReplying(Response|ConnectException $reply, array &$requests = []): CdaValidateDocuments
+        private function validatorUsing(MockHandler $handler): CdaValidateDocuments
         {
-            $stack = HandlerStack::create(new MockHandler([$reply]));
-            $stack->push(Middleware::mapRequest(function (RequestInterface $request) use (&$requests): RequestInterface {
-                $requests[] = $request;
-                return $request;
-            }));
-            $validator = new CdaValidateDocuments(new Client(['handler' => $stack, 'http_errors' => false]));
+            $stack = HandlerStack::create($handler);
+            $validator = new CdaValidateDocuments(new Client(['handler' => $stack, 'http_errors' => false]), new NullLogger());
             $validator->externalValidatorUrl = self::VALIDATOR_URL;
             return $validator;
         }

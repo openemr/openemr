@@ -19,7 +19,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use OpenEMR\Core\Kernel;
@@ -52,19 +51,15 @@ class TelemetryServiceTest extends TestCase
         }
     }
 
-    /**
-     * An HTTP client that answers the next request with $reply and records it.
-     *
-     * @param list<RequestInterface> $requests
-     */
-    private function clientReplying(Response|ConnectException $reply, array &$requests = []): Client
+    /** An HTTP client that answers the next request with $reply. */
+    private function clientReplying(Response|ConnectException $reply): Client
     {
-        $stack = HandlerStack::create(new MockHandler([$reply]));
-        $stack->push(Middleware::mapRequest(function (RequestInterface $request) use (&$requests): RequestInterface {
-            $requests[] = $request;
-            return $request;
-        }));
-        return new Client(['handler' => $stack, 'http_errors' => false]);
+        return $this->clientUsing(new MockHandler([$reply]));
+    }
+
+    private function clientUsing(MockHandler $handler): Client
+    {
+        return new Client(['handler' => HandlerStack::create($handler), 'http_errors' => false]);
     }
 
     public function testIsTelemetryEnabledReturnsTrueWhenTelemetryDisabledIsZero(): void
@@ -385,8 +380,8 @@ class TelemetryServiceTest extends TestCase
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
         $mockLogger = $this->createMock(LoggerInterface::class);
         $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
-        $requests = [];
-        $httpClient = $this->clientReplying(new Response(200, [], '{"status": "success"}'), $requests);
+        $handler = new MockHandler([new Response(200, [], '{"status": "success"}')]);
+        $httpClient = $this->clientUsing($handler);
 
         // Create a partial mock to mock the dependencies we can control
         $telemetryService = $this->getMockBuilder(TelemetryService::class)
@@ -442,8 +437,8 @@ class TelemetryServiceTest extends TestCase
         $result = $telemetryService->reportUsageData();
 
         $this->assertEquals(200, $result);
-        $this->assertCount(1, $requests);
-        $request = $requests[0];
+        $request = $handler->getLastRequest();
+        $this->assertInstanceOf(RequestInterface::class, $request);
         $this->assertSame('POST', $request->getMethod());
         $this->assertSame('https://reg.open-emr.org/api/usage?SiteID=test-uuid-123', (string) $request->getUri());
         $this->assertSame('application/json', $request->getHeaderLine('Content-Type'));
