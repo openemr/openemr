@@ -77,6 +77,7 @@ $columns = [
     "accepts_assignment" => true,
     "pos_code" => true,
     "domain_identifier" => true,
+    "mammography_cert_number" => true,
     "attn" => true,
     "tax_id_type" => true,
     "primary_business_entity" => true,

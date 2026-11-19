@@ -625,3 +625,9 @@ CREATE TABLE `era_auto_post_claim` (
   KEY `patient_encounter` (`pid`, `encounter`)
 ) ENGINE=InnoDB;
 #EndIf
+
+-- v_database 583: the service facility's FDA (MQSA) mammography certification number, sent on a
+-- professional claim for a mammogram (837P loop 2300 REF*EW).
+#IfMissingColumn facility mammography_cert_number
+ALTER TABLE `facility` ADD `mammography_cert_number` varchar(30) DEFAULT NULL COMMENT 'FDA (MQSA) mammography certification number, sent as REF*EW on the 837P';
+#EndIf
