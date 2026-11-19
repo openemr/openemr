@@ -499,3 +499,37 @@ CREATE TABLE `users_taxonomy` (
   UNIQUE KEY `user_taxonomy` (`user_id`, `taxonomy`)
 ) ENGINE=InnoDB COMMENT='additional taxonomy codes of a provider (users.taxonomy is the primary)';
 #EndIf
+
+-- The Squad demographics field is no longer wired to any application code. Convert
+-- its layout_options row from the removed ACL-selector (data_type 13) to a plain
+-- textbox (data_type 2) so existing deployments that had the field visible see the
+-- stored value as text instead of a broken selector. The patient_data.squad column
+-- is preserved to keep any historical values; it is unused by the application and
+-- may be dropped in a future release.
+UPDATE `layout_options`
+    SET `data_type` = 2, `fld_length` = 15, `max_length` = 32
+    WHERE `form_id` = 'DEM' AND `field_id` = 'squad' AND `data_type` = 13;
+
+-- Visit List: a provider block holding an untimed, ordered list of patients for the day. A patient
+-- appointment belongs to a Visit List when its provider, date and time window match the block's;
+-- pc_visit_seq is its order on the list and pc_visit_stop an optional stop number (home visits).
+#IfMissingColumn openemr_postcalendar_events pc_visit_list
+ALTER TABLE `openemr_postcalendar_events` ADD `pc_visit_list` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = untimed patient on a Visit List block with the same provider, date and time window';
+#EndIf
+
+#IfMissingColumn openemr_postcalendar_events pc_visit_seq
+ALTER TABLE `openemr_postcalendar_events` ADD `pc_visit_seq` int(11) DEFAULT NULL COMMENT 'Order of the patient on the Visit List';
+#EndIf
+
+#IfMissingColumn openemr_postcalendar_events pc_visit_stop
+ALTER TABLE `openemr_postcalendar_events` ADD `pc_visit_stop` int(11) DEFAULT NULL COMMENT 'Optional stop number; patients at one address share it';
+#EndIf
+
+#IfNotIndex openemr_postcalendar_events pc_visit_list
+CREATE INDEX `pc_visit_list` ON `openemr_postcalendar_events` (`pc_aid`, `pc_eventDate`, `pc_visit_list`);
+#EndIf
+
+#IfNotRow openemr_postcalendar_categories pc_constant_id visit_list
+INSERT INTO `openemr_postcalendar_categories` (`pc_constant_id`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`, `aco_spec`)
+SELECT 'visit_list', 'Visit List', '#9ec5fe', 'Provider block holding an untimed, ordered list of patients for the day.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 28800, 1, 3, 2, 0, 0, 1, 1, COALESCE(MAX(`pc_seq`), 0) + 1, 'encounters|notes' FROM `openemr_postcalendar_categories`;
+#EndIf

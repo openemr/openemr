@@ -1082,12 +1082,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none' onclick='top.restoreSession()'></a>
         <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($session->get('authUserID')); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
-        if ($thisauth) {
-            if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
-                $thisauth = 0;
-            }
-        }
-
         if ($thisauth) :
             OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
             require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");

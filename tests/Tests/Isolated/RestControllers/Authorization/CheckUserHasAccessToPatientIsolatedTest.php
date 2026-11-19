@@ -5,8 +5,7 @@
  *
  * Coverage for the SMART launch-context patient binding. The check must return
  * false on any missing / malformed input and honour OpenEMR's core UI
- * enforcement model (base `patients/demo` ACL plus optional per-patient
- * `squad` ACL).
+ * enforcement model (`patients/demo` ACL).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -46,8 +45,8 @@ class CheckUserHasAccessToPatientIsolatedTest extends TestCase
      * @param array<string,mixed>|null $userRecord     Row returned from UserService::getUserByUUID (null = "not found").
      * @param array<string,mixed>|null $patientRecord  Row returned by findPatientByUuid (null = "not found").
      * @param bool                     $aclVerdict     What aclCheckUserPatientAccess should return.
-     * @param array{username: string, squad: string}|null &$aclCallCapture   Populated with the ACL call arguments if reached.
-     * @param-out array{username: string, squad: string}|null $aclCallCapture
+     * @param array{username: string}|null &$aclCallCapture   Populated with the ACL call arguments if reached.
+     * @param-out array{username: string}|null $aclCallCapture
      */
     private function makeStrategy(
         ?array $userRecord,
@@ -70,7 +69,7 @@ class CheckUserHasAccessToPatientIsolatedTest extends TestCase
         $strategy = new class ($auditLogger, $patientRecord, $aclVerdict, $aclCallCapture) extends BearerTokenAuthorizationStrategy {
             /**
              * @param array<string,mixed>|null $patientRecord
-             * @param array{username: string, squad: string}|null &$aclCallCaptureRef
+             * @param array{username: string}|null &$aclCallCaptureRef
              */
             public function __construct(
                 EventAuditLogger $auditLogger,
@@ -91,9 +90,9 @@ class CheckUserHasAccessToPatientIsolatedTest extends TestCase
                 return $this->patientRecord;
             }
 
-            protected function aclCheckUserPatientAccess(string $username, string $squad): bool
+            protected function aclCheckUserPatientAccess(string $username): bool
             {
-                $this->aclCallCaptureRef = ['username' => $username, 'squad' => $squad];
+                $this->aclCallCaptureRef = ['username' => $username];
                 return $this->aclVerdict;
             }
         };
@@ -122,60 +121,34 @@ class CheckUserHasAccessToPatientIsolatedTest extends TestCase
     // Positive paths
     // -------------------------------------------------------------------------
 
-    public function testAllowsUserWithBasePatientAclAndNoSquad(): void
+    public function testAllowsUserWithBasePatientAcl(): void
     {
         $strategy = $this->makeStrategy(
             userRecord: ['id' => 1, 'username' => 'clinician1'],
-            patientRecord: ['pid' => 42, 'squad' => ''],
+            patientRecord: ['pid' => 42],
             aclVerdict: true,
             aclCallCapture: $aclCall
         );
 
         $this->assertTrue($this->invokeCheck($strategy, self::VALID_USER_UUID, self::VALID_PATIENT_UUID));
-        $this->assertSame(['username' => 'clinician1', 'squad' => ''], $aclCall);
-    }
-
-    public function testAllowsUserWithBasePatientAclAndMatchingSquadAcl(): void
-    {
-        $strategy = $this->makeStrategy(
-            userRecord: ['id' => 7, 'username' => 'squad_member'],
-            patientRecord: ['pid' => 99, 'squad' => 'blue'],
-            aclVerdict: true,
-            aclCallCapture: $aclCall
-        );
-
-        $this->assertTrue($this->invokeCheck($strategy, self::VALID_USER_UUID, self::VALID_PATIENT_UUID));
-        $this->assertSame(['username' => 'squad_member', 'squad' => 'blue'], $aclCall);
+        $this->assertSame(['username' => 'clinician1'], $aclCall);
     }
 
     // -------------------------------------------------------------------------
-    // ACL denials (base + squad)
+    // ACL denial
     // -------------------------------------------------------------------------
 
     public function testDeniesUserWithoutBasePatientsDemoAcl(): void
     {
         $strategy = $this->makeStrategy(
             userRecord: ['id' => 2, 'username' => 'nobody'],
-            patientRecord: ['pid' => 42, 'squad' => ''],
+            patientRecord: ['pid' => 42],
             aclVerdict: false, // AclMain::aclCheckCore returns false
             aclCallCapture: $aclCall
         );
 
         $this->assertFalse($this->invokeCheck($strategy, self::VALID_USER_UUID, self::VALID_PATIENT_UUID));
-        $this->assertSame(['username' => 'nobody', 'squad' => ''], $aclCall);
-    }
-
-    public function testDeniesUserWithoutMatchingSquadAcl(): void
-    {
-        $strategy = $this->makeStrategy(
-            userRecord: ['id' => 3, 'username' => 'wrong_squad'],
-            patientRecord: ['pid' => 42, 'squad' => 'red'],
-            aclVerdict: false, // squad ACL fails
-            aclCallCapture: $aclCall
-        );
-
-        $this->assertFalse($this->invokeCheck($strategy, self::VALID_USER_UUID, self::VALID_PATIENT_UUID));
-        $this->assertSame(['username' => 'wrong_squad', 'squad' => 'red'], $aclCall);
+        $this->assertSame(['username' => 'nobody'], $aclCall);
     }
 
     // -------------------------------------------------------------------------
@@ -200,7 +173,7 @@ class CheckUserHasAccessToPatientIsolatedTest extends TestCase
     {
         $strategy = $this->makeStrategy(
             userRecord: ['id' => 5, 'username' => 'clinician3'],
-            patientRecord: ['pid' => 0, 'squad' => ''],
+            patientRecord: ['pid' => 0],
             aclVerdict: true,
             aclCallCapture: $aclCall
         );
@@ -213,7 +186,7 @@ class CheckUserHasAccessToPatientIsolatedTest extends TestCase
     {
         $strategy = $this->makeStrategy(
             userRecord: null, // getUserByUUID returned false
-            patientRecord: ['pid' => 42, 'squad' => ''],
+            patientRecord: ['pid' => 42],
             aclVerdict: true,
             aclCallCapture: $aclCall
         );
@@ -226,7 +199,7 @@ class CheckUserHasAccessToPatientIsolatedTest extends TestCase
     {
         $strategy = $this->makeStrategy(
             userRecord: ['id' => 6], // no username key
-            patientRecord: ['pid' => 42, 'squad' => ''],
+            patientRecord: ['pid' => 42],
             aclVerdict: true,
             aclCallCapture: $aclCall
         );
@@ -260,7 +233,7 @@ class CheckUserHasAccessToPatientIsolatedTest extends TestCase
     {
         $strategy = $this->makeStrategy(
             userRecord: ['id' => 1, 'username' => 'clinician1'],
-            patientRecord: ['pid' => 42, 'squad' => ''],
+            patientRecord: ['pid' => 42],
             aclVerdict: true,
             aclCallCapture: $aclCall
         );
@@ -290,7 +263,7 @@ class CheckUserHasAccessToPatientIsolatedTest extends TestCase
     {
         $strategy = $this->makeStrategy(
             userRecord: ['id' => 1, 'username' => 'clinician1'],
-            patientRecord: ['pid' => 42, 'squad' => ''],
+            patientRecord: ['pid' => 42],
             aclVerdict: true,
             aclCallCapture: $aclCall
         );
@@ -315,7 +288,7 @@ class CheckUserHasAccessToPatientIsolatedTest extends TestCase
     {
         $strategy = $this->makeStrategy(
             userRecord: ['id' => 100, 'username' => 'lowpriv_caller'],
-            patientRecord: ['pid' => 5001, 'squad' => ''],
+            patientRecord: ['pid' => 5001],
             aclVerdict: false, // caller lacks `patients/demo`
             aclCallCapture: $aclCall
         );
@@ -324,29 +297,6 @@ class CheckUserHasAccessToPatientIsolatedTest extends TestCase
             $this->invokeCheck($strategy, self::VALID_USER_UUID, self::OTHER_PATIENT_UUID),
             'user without patients/demo must not be granted patient context'
         );
-        $this->assertSame(['username' => 'lowpriv_caller', 'squad' => ''], $aclCall);
-    }
-
-    /**
-     * A caller walks the SMART patient-picker to a patient UUID they should
-     * not be allowed to bind and relies on the stub accepting the picked
-     * UUID at launch-context time. A picked patient carrying a squad the
-     * caller is not a member of is rejected at launch-context binding,
-     * regardless of picker output.
-     */
-    public function testDeniesPickedPatientWhenSquadAclFails(): void
-    {
-        $strategy = $this->makeStrategy(
-            userRecord: ['id' => 101, 'username' => 'clinician_no_red_squad'],
-            patientRecord: ['pid' => 5002, 'squad' => 'red'],
-            aclVerdict: false, // squad-ACL denies
-            aclCallCapture: $aclCall
-        );
-
-        $this->assertFalse(
-            $this->invokeCheck($strategy, self::VALID_USER_UUID, self::OTHER_PATIENT_UUID),
-            'a picked patient carrying a squad the caller lacks must not bind'
-        );
-        $this->assertSame(['username' => 'clinician_no_red_squad', 'squad' => 'red'], $aclCall);
+        $this->assertSame(['username' => 'lowpriv_caller'], $aclCall);
     }
 }

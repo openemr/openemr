@@ -128,7 +128,7 @@ if ($_POST['form_create']) {
         "", // phone_cell
         "", // hipaa_mail
         "", // hipaa_voice
-        0,  // squad
+        "", // squad
         0,  // $pharmacy_id = 0,
         "", // $drivers_license = "",
         "", // $hipaa_notice = "",

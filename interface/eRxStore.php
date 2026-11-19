@@ -93,6 +93,17 @@ class eRxStore implements ErxStoreInterface
     }
 
     /**
+     * @return list<array<mixed>>
+     */
+    public function getListOptions(string $listId): array
+    {
+        return QueryUtils::fetchRecords(
+            'SELECT option_id, title FROM list_options WHERE list_id = ? AND activity = 1',
+            [$listId]
+        );
+    }
+
+    /**
      * Return patient information using patient Id
      * @param int $patientId Id of patient
      * @return array              Specified patient information: index [pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, phone_cell, date_of_birth, sex]

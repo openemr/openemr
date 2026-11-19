@@ -36,9 +36,9 @@ class PrescriptionRestController
     /**
      * Per-patient chart-access gate for the staff REST path. Mirrors the
      * UI's `interface/patient_file/summary/demographics.php` guard: caller
-     * must hold `patients / demo`, plus (when the patient carries a squad
-     * tag) `squads / <squad>`. Returns null when the caller is authorized;
-     * returns a 400 validation-error ProcessingResult response otherwise.
+     * must hold `patients / demo`. Returns null when the caller is
+     * authorized; returns a 400 validation-error ProcessingResult response
+     * otherwise.
      *
      * The tenant-wide route-level `patients/rx *` ACL is a coarse gate; a
      * caller with that grant can otherwise select any patient's UUID.
@@ -48,7 +48,7 @@ class PrescriptionRestController
      * authorization runs earlier in
      * BearerTokenAuthorizationStrategy::checkUserHasAccessToPatient.
      *
-     * @param array<string,mixed>|null $patient The resolved patient row (pid, squad, uuid) or null.
+     * @param array<string,mixed>|null $patient The resolved patient row (pid, uuid) or null.
      */
     private function denyIfNoChartAccess(HttpRestRequest $request, ?array $patient): ?ResponseInterface
     {
@@ -60,15 +60,7 @@ class PrescriptionRestController
                 ['patient.uuid' => 'Patient does not exist.']
             );
         }
-        $squadRaw = $patient['squad'] ?? '';
-        $squad = is_string($squadRaw) ? $squadRaw : '';
         if (!AclMain::aclCheckCore('patients', 'demo')) {
-            return $this->validationErrorResponse(
-                $request,
-                ['patient.uuid' => 'User does not have access to this patient.']
-            );
-        }
-        if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
             return $this->validationErrorResponse(
                 $request,
                 ['patient.uuid' => 'User does not have access to this patient.']

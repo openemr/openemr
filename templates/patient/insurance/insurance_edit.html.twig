@@ -25,6 +25,11 @@ files for editing and adding new insurance policies for a patient.
             line-height: 1.2;
         }
 
+        /* Secondary Medicare Type (837 SBR05) is sent only when Medicare is not the primary payer. */
+        #insurance-info-type-primary [data-insurance-field="policy_type"] {
+            display: none;
+        }
+
         {% if rightJustifyLabels and languageDirection == 'ltr' %}
             div.label_custom {
               text-align: right !important;
