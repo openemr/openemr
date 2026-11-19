@@ -32,6 +32,7 @@ on:
     - Acceptance test (docker)
     - Acceptance test (package)
     - Integration tests
+    - Isolated Tests
     - Legacy Directories
   workflow_dispatch:
     inputs:
