@@ -145,6 +145,10 @@ class ParseERA
                 $out['loopid'] = '';
                 $out['st_control_number'] = trim($seg[2]);
                 $out['st_segment_count'] = 0;
+                // Provider-level adjustments of this transaction set, for a caller that balances the check.
+                if (is_array($out)) {
+                    $out['plb'] = [];
+                }
             } elseif ($segid == 'BPR') {
                 if ($out['loopid']) {
                     return 'Unexpected BPR segment';
@@ -444,6 +448,14 @@ class ParseERA
 
                     $out['warnings'] .= 'PROVIDER LEVEL ADJUSTMENT (not claim-specific): $' .
                         sprintf('%.2f', $seg[$k + 1]) . " with reason code " . $seg[$k] . "\n";
+                    // PLB03 and its repeats are composites: the reason code, then a reference.
+                    $plbAmount = $seg[$k + 1] ?? 0;
+                    if (is_array($out) && is_array($out['plb'] ?? null)) {
+                        $out['plb'][] = [
+                            'reason' => explode($delimiter3, $seg[$k])[0],
+                            'amount' => is_numeric($plbAmount) ? (float) $plbAmount : 0.0,
+                        ];
+                    }
                     // Note: For PLB adjustment reason codes see IG pages 165-170.
                 }
             } elseif ($segid == 'SE') {

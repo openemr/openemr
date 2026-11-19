@@ -199,6 +199,17 @@
             <input type="text" maxlength="255" id="x12_sftp_receive_worked_dir" name="x12_sftp_receive_worked_dir" class="form-control" value="{$partner->get_x12_sftp_receive_worked_dir()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_era_auto_post_user" class="col-form-label col-sm-2">{xlt t='Post Received 835 Remittances Unattended As'}</label>
+        <div class="col-sm-8">
+            <select id="x12_era_auto_post_user" name="x12_era_auto_post_user" class="form-control">
+                <option value="">{xlt t='Off: a person posts them'}</option>
+                {foreach from=$auto_post_users key=user_id item=user_name}
+                <option value="{$user_id|attr}"{if $partner->get_x12_era_auto_post_user() == $user_id} selected{/if}>{$user_name|text}</option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
 
     <div class="form-row my-sm-2">
         <label for="x12_client_id" class="col-form-label col-sm-2">{xlt t='Client ID'}</label>

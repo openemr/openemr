@@ -118,11 +118,7 @@ final class ClaimPosting
 
         // The level the payer processed the claim at.
         $csc = $claim->claimStatusCode;
-        $level = match ($csc) {
-            '2', '20' => 2,
-            '3', '21' => 3,
-            default => 1,
-        };
+        $level = self::levelFor($csc);
         $inslabel = 'Ins' . $level;
         $payerType = (string) $level;
         $primary = $level === 1;
@@ -501,6 +497,19 @@ final class ClaimPosting
             secondaryQueued: $secondaryQueued,
             lines: $this->lines,
         );
+    }
+
+    /**
+     * The insurance level (1-3) a claim status code (CLP02) says the payer processed
+     * the claim at; a status that names none counts as primary.
+     */
+    public static function levelFor(string $claimStatusCode): int
+    {
+        return match ($claimStatusCode) {
+            '2', '20' => 2,
+            '3', '21' => 3,
+            default => 1,
+        };
     }
 
     /**
