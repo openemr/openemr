@@ -22,6 +22,9 @@ final class RemittanceReader
     /** The error for a file with a transaction set that has no payment (BPR) or trace number (TRN) of its own. */
     public const NO_CHECK_HEADER = 'A transaction set has no BPR or TRN segment';
 
+    /** The error for a file with a transaction set that has no SE segment before the next set begins. */
+    public const SET_NOT_CLOSED = 'A transaction set does not end with its SE segment';
+
     public function read(string $path): Remittance
     {
         /** @var list<ClaimPayment> $claims the claim payments of the transaction set being read */
@@ -29,16 +32,25 @@ final class RemittanceReader
         /** @var list<RemittanceCheck> $checks */
         $checks = [];
         $headless = false;
+        /** @var list<string> $sets the transaction set each of those claim payments was read in */
+        $sets = [];
+        $unclosed = false;
         ob_start();
         try {
             $error = ParseERA::parseERA(
                 $path,
-                static function (array $out) use (&$claims): void {
+                static function (array $out) use (&$claims, &$sets): void {
                     $claims[] = ClaimPayment::fromParsedEra($out);
+                    $sets[] = self::text($out, 'st_control_number');
                 },
                 // One check per transaction set, whether or not it has claims: a set can
                 // carry only provider-level adjustments.
-                static function (array $out) use (&$claims, &$checks, &$headless): void {
+                static function (array $out) use (&$claims, &$sets, &$checks, &$headless, &$unclosed): void {
+                    // A set that never got its SE leaves its claims to be counted in the next one.
+                    if (array_diff($sets, [self::text($out, 'st_control_number')]) !== []) {
+                        $unclosed = true;
+                    }
+                    $sets = [];
                     // Without its own BPR and TRN the set would be read as the check before it.
                     if (($out['st_has_bpr'] ?? false) !== true || ($out['st_has_trn'] ?? false) !== true) {
                         $headless = true;
@@ -52,6 +64,9 @@ final class RemittanceReader
         }
         if ($error === '' && $headless) {
             $error = self::NO_CHECK_HEADER;
+        }
+        if ($error === '' && ($unclosed || $claims !== [])) {
+            $error = self::SET_NOT_CLOSED;
         }
         return new Remittance($checks, $error);
     }

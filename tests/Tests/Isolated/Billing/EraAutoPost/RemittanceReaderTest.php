@@ -130,6 +130,20 @@ class RemittanceReaderTest extends TestCase
         }
     }
 
+    public function testATransactionSetWithoutItsEndIsAnError(): void
+    {
+        // CHK1 loses its SE: its 70.00 claim would be counted in CHK2, which then balances at 95.00.
+        $first = (string) preg_replace('/^SE\*[^~]*~\n/m', '', Era835::check('CHK1', '70.00', [['10-20', '1', '70.00']]));
+        $path = Era835::write($this->directory, 'open.edi', Era835::file(
+            $first,
+            Era835::check('CHK2', '95.00', [['12-22', '1', '25.00']], control: '0002'),
+        ));
+
+        $remittance = (new RemittanceReader())->read($path);
+
+        $this->assertSame(RemittanceReader::SET_NOT_CLOSED, $remittance->error);
+    }
+
     public function testAFileThatEndsEarlyReportsTheParsersError(): void
     {
         $whole = Era835::file(Era835::check('CHK1', '70.00', [['10-20', '1', '70.00']]));

@@ -142,7 +142,7 @@ class AutoPostRepositoryTest extends TestCase
         $this->assertTrue($log->take($file));
     }
 
-    public function testAStoredFileStaysStoredAndPendingWhenALaterRunReportsADuplicate(): void
+    public function testAStoredFileStaysStoredAndPendingWhenALaterRunReportsADuplicateOrAFailure(): void
     {
         $received = new ReceivedFileRepository();
         $file = new RemoteFile('overlap.RMT', 10, 1700000000);
@@ -158,10 +158,13 @@ class AutoPostRepositoryTest extends TestCase
             $at,
         );
 
+        // Or its download fails, which reports no kind of file at all.
+        $received->record(self::PARTNER_ON, '/remits', $file, null, new StoreOutcome(ReceivedStatus::Failed, message: 'The download did not complete'), $at);
+
         $this->assertSame(
-            ['status' => 'stored', 'stored_name' => 'overlap.edi', 'auto_post_status' => 'pending'],
+            ['status' => 'stored', 'file_type' => 'f835', 'stored_name' => 'overlap.edi', 'auto_post_status' => 'pending'],
             $this->strings(QueryUtils::querySingleRow(
-                'SELECT `status`, `stored_name`, `auto_post_status` FROM `x12_remote_received` WHERE `x12_partner_id` = ? AND `remote_name` = ?',
+                'SELECT `status`, `file_type`, `stored_name`, `auto_post_status` FROM `x12_remote_received` WHERE `x12_partner_id` = ? AND `remote_name` = ?',
                 [self::PARTNER_ON, 'overlap.RMT']
             ) ?: [])
         );
