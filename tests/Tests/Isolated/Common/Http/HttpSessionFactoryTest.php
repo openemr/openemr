@@ -21,6 +21,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy;
 
 class HttpSessionFactoryTest extends TestCase
 {
+    private string|false $sessionStorageMode = false;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -28,6 +30,21 @@ class HttpSessionFactoryTest extends TestCase
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_write_close();
         }
+
+        // Select native sessions regardless of the invoking environment
+        $this->sessionStorageMode = getenv('SESSION_STORAGE_MODE', true);
+        putenv('SESSION_STORAGE_MODE');
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->sessionStorageMode === false) {
+            putenv('SESSION_STORAGE_MODE');
+        } else {
+            putenv('SESSION_STORAGE_MODE=' . $this->sessionStorageMode);
+        }
+
+        parent::tearDown();
     }
 
     public function testNativeSessionsReportStoreFailures(): void
