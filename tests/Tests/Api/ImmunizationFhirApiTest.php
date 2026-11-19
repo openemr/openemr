@@ -204,10 +204,8 @@ class ImmunizationFhirApiTest extends TestCase
     /**
      * An _id search returns only the seeded immunization.
      *
-     * This checks that every entry is the seeded immunization, not how many entries there are.
-     * ImmunizationService joins the codes table on the code number alone, without a code_type,
-     * so when another code system also has the number 197 the same immunization comes back more
-     * than once. That is a separate defect from the _id filter this test is about.
+     * The fixture's site code is LA, which is also an option_id in the state and
+     * nationality_with_country lists. A site join without a list_id repeated the row once per match.
      */
     public function testSearchByIdReturnsOnlySeededImmunization(): void
     {
@@ -216,13 +214,12 @@ class ImmunizationFhirApiTest extends TestCase
         );
         $entries = $bundle['entry'] ?? null;
         $this->assertIsArray($entries);
-        $this->assertNotEmpty($entries);
-        foreach ($entries as $entry) {
-            $this->assertIsArray($entry);
-            $resource = $entry['resource'] ?? null;
-            $this->assertIsArray($resource);
-            $this->assertSeededImmunization($resource);
-        }
+        $this->assertCount(1, $entries);
+        $entry = $entries[0];
+        $this->assertIsArray($entry);
+        $resource = $entry['resource'] ?? null;
+        $this->assertIsArray($resource);
+        $this->assertSeededImmunization($resource);
     }
 
     /**
