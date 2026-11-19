@@ -40,7 +40,7 @@ jobs:
           cat "${out}"
           exit 0
         fi
-        .github/scripts/composer-annotations.sh validate "${out}"
+        php bin/console --skip-globals openemr:composer-annotations validate "${out}" --annotate --summary="${GITHUB_STEP_SUMMARY}"
         exit 1
 
     - name: "Check Composer Normalized"
@@ -51,5 +51,5 @@ jobs:
           cat "${out}"
           exit 0
         fi
-        .github/scripts/composer-annotations.sh normalize "${out}"
+        php bin/console --skip-globals openemr:composer-annotations normalize "${out}" --annotate --summary="${GITHUB_STEP_SUMMARY}"
         exit 1

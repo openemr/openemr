@@ -17,7 +17,6 @@ from testing or reuse.
 | [`upgrade-parity.sh`](upgrade-parity.sh) (+ [`upgrade-parity-run.php`](upgrade-parity-run.php)) | [`.github/workflows/upgrade-parity.yml`](../workflows/upgrade-parity.yml) | Runs on itself whenever the workflow, these scripts or [`lib/derive-from-version.sh`](lib/derive-from-version.sh) change; no BATS (needs MySQL and OpenEMR's upgrade service). Exit codes are in the script's header. |
 | [`legacy-new-files.sh`](legacy-new-files.sh) | [`.github/workflows/legacy-directories.yml`](../workflows/legacy-directories.yml) | [`tests/bats/ci-scripts/legacy-new-files/`](../../tests/bats/ci-scripts/legacy-new-files/) (BATS, synthetic git repo) |
 | [`admin-approval.sh`](admin-approval.sh) | [`.github/actions/admin-approval/`](../actions/admin-approval/action.yml) | [`tests/bats/ci-scripts/admin-approval/`](../../tests/bats/ci-scripts/admin-approval/) (BATS, gh mocked via PATH shim) |
-| [`composer-annotations.sh`](composer-annotations.sh) | [`.github/workflows/composer.yml`](../workflows/composer.yml), [`.github/workflows/composer-require-checker.yml`](../workflows/composer-require-checker.yml) | [`tests/bats/ci-scripts/composer-annotations/`](../../tests/bats/ci-scripts/composer-annotations/) (BATS, captured tool output fixtures) |
 
 ## Running the tests locally
 
