@@ -5902,13 +5902,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \', \' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
 $ignoreErrors[] = [
@@ -5917,13 +5912,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \',\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 7,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
 $ignoreErrors[] = [
