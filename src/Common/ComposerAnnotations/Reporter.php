@@ -24,7 +24,7 @@ final class Reporter
     /**
      * GitHub shows at most this many error annotations from one step and drops the rest.
      *
-     * @see https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-error-message
+     * @see https://github.com/actions/toolkit/blob/main/docs/problem-matchers.md#limitations
      */
     private const MAX_ANNOTATIONS = 10;
 
@@ -65,13 +65,13 @@ final class Reporter
     {
         $symbols = $this->unknownSymbols($output);
         if ($symbols === []) {
-            // No symbols to report: the tool itself failed. Show what it printed.
+            // No symbols to report: the tool itself failed. Summarize what it printed.
             $summary = ['## Composer Require Checker failed', '', 'It did not produce a report of unknown symbols; see the job log.'];
             if (trim($output) !== '') {
                 array_push($summary, '', self::fenced('text', $output));
             }
             return new Report(
-                $output,
+                '',
                 [new Annotation(self::COMPOSER_JSON, 'Composer Require Checker', 'Composer Require Checker did not produce a report; see the job log.')],
                 self::lines($summary),
             );
@@ -144,34 +144,34 @@ final class Reporter
             $annotations[] = new Annotation(self::COMPOSER_JSON, 'composer validate', 'composer.json failed strict validation; see the job log.');
         }
         return new Report(
-            $output,
+            '',
             $annotations,
             self::lines(['## composer validate --strict failed', '', self::fenced('text', $output)]),
         );
     }
 
     /**
-     * Each run of changed lines in the diff becomes an error on the composer.json line where it starts, and
-     * the diff goes in the summary. Output that is not a diff means normalize itself failed, for example
-     * from a missing plugin or an outdated lock file.
+     * Each hunk of the diff becomes an error on the composer.json lines it changes, and the diff goes in the
+     * summary. Output that is not a diff means normalize itself failed, for example from a missing plugin or
+     * an outdated lock file.
      */
     private function normalize(string $output): Report
     {
         $diff = self::diffIn($output);
         if ($diff === '') {
             return new Report(
-                $output,
+                '',
                 [new Annotation(self::COMPOSER_JSON, 'composer normalize', 'composer normalize failed without a diff; see the job log.')],
                 self::lines(['## composer normalize failed', '', self::fenced('text', $output)]),
             );
         }
         $message = 'composer.json is not normalized. Run `composer normalize` and commit the result.';
         $annotations = array_map(
-            static fn(int $line): Annotation => new Annotation(self::COMPOSER_JSON, 'composer normalize', $message, $line),
-            self::changedLines($diff),
+            static fn(array $range): Annotation => new Annotation(self::COMPOSER_JSON, 'composer normalize', $message, ...$range),
+            self::changedRanges($diff),
         );
         return new Report(
-            $output,
+            '',
             $annotations === [] ? [new Annotation(self::COMPOSER_JSON, 'composer normalize', $message)] : $annotations,
             self::lines([
                 '## composer.json is not normalized',
@@ -204,40 +204,47 @@ final class Reporter
     }
 
     /**
-     * The line in the original file where each run of changed lines in a unified diff starts.
+     * The original-file lines each hunk of a unified diff changes: from its first removed line (or, for a
+     * hunk that only adds, the line the addition follows) to its last.
      *
-     * @return list<positive-int>
+     * @return list<array{positive-int, positive-int}>
      */
-    private static function changedLines(string $diff): array
+    private static function changedRanges(string $diff): array
     {
-        $starts = [];
+        $ranges = [];
         $line = null;
-        $inChange = false;
+        $first = null;
+        $last = 1;
         foreach (explode(chr(10), $diff) as $text) {
             if (str_starts_with($text, '@@ -')) {
+                if ($first !== null) {
+                    $ranges[] = [$first, $last];
+                }
                 $line = self::hunkStart($text);
-                $inChange = false;
+                $first = null;
                 continue;
             }
             if ($line === null || str_starts_with($text, chr(92))) {
                 // Before the first hunk (the file headers), or a "\ No newline at end of file" marker.
                 continue;
             }
-            $removed = str_starts_with($text, '-');
-            if (!$removed && !str_starts_with($text, '+')) {
-                $inChange = false;
+            if (str_starts_with($text, '-')) {
+                $at = max(1, $line);
+                $line++;
+            } elseif (str_starts_with($text, '+')) {
+                // An added line sits after the original line before it.
+                $at = max(1, $line - 1);
+            } else {
                 $line++;
                 continue;
             }
-            if (!$inChange) {
-                $starts[] = max(1, $line);
-                $inChange = true;
-            }
-            if ($removed) {
-                $line++;
-            }
+            $first ??= $at;
+            $last = max($first, $at);
         }
-        return $starts;
+        if ($first !== null) {
+            $ranges[] = [$first, $last];
+        }
+        return $ranges;
     }
 
     /**
@@ -246,8 +253,8 @@ final class Reporter
     private static function hunkStart(string $header): ?int
     {
         $range = explode(' ', substr($header, strlen('@@ -')), 2)[0];
-        $start = filter_var(explode(',', $range, 2)[0], FILTER_VALIDATE_INT);
-        return is_int($start) ? $start : null;
+        $start = explode(',', $range, 2)[0];
+        return ctype_digit($start) ? intval($start) : null;
     }
 
     /**

@@ -17,7 +17,7 @@ namespace OpenEMR\Common\ComposerAnnotations;
 final readonly class Report
 {
     /**
-     * @param string $log text for the job log, readable without annotations
+     * @param string $log text the report adds to the job log, beside the output the caller already printed
      * @param non-empty-list<Annotation> $annotations
      * @param string $summary Markdown for the job summary
      */

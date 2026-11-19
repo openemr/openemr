@@ -46,8 +46,9 @@ jobs:
     - name: Run Composer Require Checker
       shell: bash
       run: |
+        set -o pipefail
         out="${RUNNER_TEMP}/composer-require-checker.json"
-        if composer require-checker -- --output=json > "${out}"; then
+        if composer require-checker -- --output=json | tee "${out}"; then
           echo 'Composer Require Checker found no unknown symbols.'
           exit 0
         fi

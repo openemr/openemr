@@ -53,6 +53,20 @@ final class AnnotationTest extends TestCase
         self::assertSame('::error file=composer.json,line=42,title=composer normalize::not normalized', $annotation->toWorkflowCommand());
     }
 
+    public function testARangeEndsWithItsLastLine(): void
+    {
+        $annotation = new Annotation('composer.json', 'composer normalize', 'not normalized', 7, 16);
+
+        self::assertSame('::error file=composer.json,line=7,endLine=16,title=composer normalize::not normalized', $annotation->toWorkflowCommand());
+    }
+
+    public function testARangeOfOneLineNamesOnlyThatLine(): void
+    {
+        $annotation = new Annotation('composer.json', 'composer normalize', 'not normalized', 41, 41);
+
+        self::assertSame('::error file=composer.json,line=41,title=composer normalize::not normalized', $annotation->toWorkflowCommand());
+    }
+
     public function testPropertiesAlsoEscapeTheirSeparators(): void
     {
         $annotation = new Annotation('a,b.json', 'Check: 100%', 'Keep: a, b');

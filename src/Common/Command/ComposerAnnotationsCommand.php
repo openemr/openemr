@@ -43,10 +43,11 @@ final class ComposerAnnotationsCommand extends Command
             ->addOption('annotate', null, InputOption::VALUE_NONE, 'Print an ::error workflow command for each finding')
             ->addOption('summary', null, InputOption::VALUE_REQUIRED, 'Append a Markdown summary to this file')
             ->setHelp(<<<'HELP'
-                Reads what a failed Composer check printed and reports it in the job log.
-                With --annotate, each finding also becomes an error annotation on
-                composer.json, or on composer.lock for lock-file findings. With --summary,
-                a Markdown report is appended to the given file.
+                Reads what a failed Composer check printed, which the caller has already
+                shown in the log, and reports its findings. With --annotate, each finding
+                becomes an error annotation on composer.json, or on composer.lock for
+                lock-file findings. With --summary, a Markdown report is appended to the
+                given file.
 
                   require-checker  output of `composer require-checker -- --output=json`
                   validate         output of `composer validate --strict`, stdout and stderr
@@ -70,13 +71,15 @@ final class ComposerAnnotationsCommand extends Command
             throw new \InvalidArgumentException(sprintf('Cannot read %s.', $outputFile));
         }
         $filesystem = new Filesystem();
-        $report = (new Reporter())->report($check, $filesystem->readFile($outputFile));
+        $checkOutput = $filesystem->readFile($outputFile);
+        $report = (new Reporter())->report($check, $checkOutput);
 
-        $output->write($report->log, false, OutputInterface::OUTPUT_RAW);
-        if ($report->log !== '' && !str_ends_with($report->log, chr(10))) {
-            // Start the workflow commands on a line of their own, or the runner will not see them.
+        if ($checkOutput !== '' && !str_ends_with($checkOutput, chr(10))) {
+            // The workflow has already printed the check's output. Start the workflow commands on a line
+            // of their own, or the runner will not see them.
             $output->writeln('');
         }
+        $output->write($report->log, false, OutputInterface::OUTPUT_RAW);
         if ($input->getOption('annotate') === true) {
             foreach ($report->annotations as $annotation) {
                 $output->writeln($annotation->toWorkflowCommand(), OutputInterface::OUTPUT_RAW);

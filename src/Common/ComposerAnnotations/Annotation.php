@@ -17,13 +17,15 @@ namespace OpenEMR\Common\ComposerAnnotations;
 final readonly class Annotation
 {
     /**
-     * @param ?positive-int $line the line in the file, or null to annotate the file as a whole
+     * @param ?positive-int $line the first line the finding covers, or null to name no line
+     * @param ?positive-int $endLine the last line it covers, when it covers more than one
      */
     public function __construct(
         public string $file,
         public string $title,
         public string $message,
         public ?int $line = null,
+        public ?int $endLine = null,
     ) {
     }
 
@@ -32,10 +34,17 @@ final readonly class Annotation
      */
     public function toWorkflowCommand(): string
     {
+        $lines = '';
+        if ($this->line !== null) {
+            $lines = ',line=' . $this->line;
+            if ($this->endLine !== null && $this->endLine > $this->line) {
+                $lines .= ',endLine=' . $this->endLine;
+            }
+        }
         return sprintf(
             '::error file=%s%s,title=%s::%s',
             self::escapeProperty($this->file),
-            $this->line === null ? '' : ',line=' . $this->line,
+            $lines,
             self::escapeProperty($this->title),
             self::escapeData($this->message),
         );

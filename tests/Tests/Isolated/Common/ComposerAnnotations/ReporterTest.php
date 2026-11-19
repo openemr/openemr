@@ -114,7 +114,7 @@ final class ReporterTest extends TestCase
     {
         $report = $this->report(ComposerCheck::RequireChecker, $output);
 
-        self::assertSame($output, $report->log);
+        self::assertSame('', $report->log);
         self::assertEquals(
             [new Annotation('composer.json', 'Composer Require Checker', 'Composer Require Checker did not produce a report; see the job log.')],
             $report->annotations,
@@ -173,7 +173,7 @@ final class ReporterTest extends TestCase
     {
         $report = $this->report(ComposerCheck::Validate, self::VALIDATE_OUTPUT);
 
-        self::assertSame(self::VALIDATE_OUTPUT, $report->log);
+        self::assertSame('', $report->log);
         self::assertEquals([
             new Annotation('composer.json', 'composer validate', 'require.foo/bar : unbound version constraints (*) should be avoided'),
             new Annotation('composer.lock', 'composer validate', 'Required package "foo/bar" is not present in the lock file.'),
@@ -233,36 +233,71 @@ final class ReporterTest extends TestCase
         self::assertSame('finding from a CRLF line' . chr(13), $report->annotations[0]->message);
     }
 
-    public function testNormalizeAnnotatesWhereTheChangeStartsAndSummarizesOnlyTheDiff(): void
+    /**
+     * Captured from ergebnis/composer-normalize on a composer.json whose require, require-dev and config
+     * keys are out of order. Its original lines 7 to 16 and 24 to 27 change.
+     */
+    private const NORMALIZE_OUTPUT = <<<'TEXT'
+        Running ergebnis/composer-normalize 2.56.0 by Andreas Möller and contributors.
+
+        ./composer.json is not normalized.
+
+        ---------- begin diff ----------
+        --- original
+        +++ normalized
+        @@ -5,15 +5,15 @@
+             "type": "project",
+             "require": {
+                 "php": ">=8.3",
+        +        "monolog/monolog": "^3.0",
+                 "psr/log": "^3.0",
+        -        "monolog/monolog": "^3.0",
+                 "symfony/console": "^7.0",
+                 "symfony/filesystem": "^7.0",
+                 "twig/twig": "^3.0"
+             },
+             "require-dev": {
+        -        "phpunit/phpunit": "^11.0",
+        -        "phpstan/phpstan": "^2.0"
+        +        "phpstan/phpstan": "^2.0",
+        +        "phpunit/phpunit": "^11.0"
+             },
+             "autoload": {
+                 "psr-4": {
+        @@ -21,10 +21,10 @@
+                 }
+             },
+             "config": {
+        -        "optimize-autoloader": true,
+                 "allow-plugins": {
+                     "ergebnis/composer-normalize": true
+                 },
+        +        "optimize-autoloader": true,
+                 "platform": {
+                     "php": "8.3.0"
+                 },
+
+        ----------- end diff -----------
+
+
+        TEXT;
+
+    public function testNormalizeAnnotatesTheLinesEachHunkChanges(): void
     {
-        $output = <<<'TEXT'
-            Running ergebnis/composer-normalize 2.56.0 by Andreas Möller and contributors.
+        $report = $this->report(ComposerCheck::Normalize, self::NORMALIZE_OUTPUT);
 
-            ./composer.json is not normalized.
+        $message = 'composer.json is not normalized. Run `composer normalize` and commit the result.';
+        self::assertEquals([
+            new Annotation('composer.json', 'composer normalize', $message, 7, 16),
+            new Annotation('composer.json', 'composer normalize', $message, 24, 27),
+        ], $report->annotations);
+        self::assertSame('', $report->log);
+    }
 
-            ---------- begin diff ----------
-            --- original
-            +++ normalized
-            @@ -1,5 +1,5 @@
-             {
-            -    "b": 1,
-            -    "a": 2
-            +    "a": 2,
-            +    "b": 1
-             }
+    public function testNormalizeSummarizesOnlyTheDiff(): void
+    {
+        $report = $this->report(ComposerCheck::Normalize, self::NORMALIZE_OUTPUT);
 
-            ----------- end diff -----------
-
-
-            TEXT;
-
-        $report = $this->report(ComposerCheck::Normalize, $output);
-
-        self::assertSame($output, $report->log);
-        self::assertEquals(
-            [new Annotation('composer.json', 'composer normalize', 'composer.json is not normalized. Run `composer normalize` and commit the result.', 2)],
-            $report->annotations,
-        );
         self::assertSame(<<<'MARKDOWN'
             ## composer.json is not normalized
 
@@ -271,37 +306,62 @@ final class ReporterTest extends TestCase
             ```diff
             --- original
             +++ normalized
-            @@ -1,5 +1,5 @@
-             {
-            -    "b": 1,
-            -    "a": 2
-            +    "a": 2,
-            +    "b": 1
-             }
+            @@ -5,15 +5,15 @@
+                 "type": "project",
+                 "require": {
+                     "php": ">=8.3",
+            +        "monolog/monolog": "^3.0",
+                     "psr/log": "^3.0",
+            -        "monolog/monolog": "^3.0",
+                     "symfony/console": "^7.0",
+                     "symfony/filesystem": "^7.0",
+                     "twig/twig": "^3.0"
+                 },
+                 "require-dev": {
+            -        "phpunit/phpunit": "^11.0",
+            -        "phpstan/phpstan": "^2.0"
+            +        "phpstan/phpstan": "^2.0",
+            +        "phpunit/phpunit": "^11.0"
+                 },
+                 "autoload": {
+                     "psr-4": {
+            @@ -21,10 +21,10 @@
+                     }
+                 },
+                 "config": {
+            -        "optimize-autoloader": true,
+                     "allow-plugins": {
+                         "ergebnis/composer-normalize": true
+                     },
+            +        "optimize-autoloader": true,
+                     "platform": {
+                         "php": "8.3.0"
+                     },
             ```
 
             MARKDOWN, $report->summary);
     }
 
-    public function testNormalizeAnnotatesEachRunOfChangesOnItsOriginalLine(): void
+    public function testNormalizeHandlesAnAdditionAtTheTopAndAMissingFinalNewline(): void
     {
+        // Not plugin output: a hand-built diff for the edges of the line arithmetic.
         $report = $this->report(ComposerCheck::Normalize, <<<'DIFF'
             --- original
             +++ normalized
-            @@ -10,7 +10,7 @@
-                 "a": 1,
-            -    "c": 3,
-                 "b": 2,
-            +    "c": 3,
-                 "d": 4,
-            @@ -357 +357,2 @@
+            @@ -0,0 +1 @@
+            +{
+            @@ -40,2 +41,2 @@
                  "z": 26
-            +    ,"added": true
+            -}
             \ No newline at end of file
+            +}
 
             DIFF);
 
-        self::assertSame([11, 13, 358], array_map(static fn(Annotation $annotation): ?int => $annotation->line, $report->annotations));
+        self::assertSame(
+            [[1, 1], [41, 41]],
+            array_map(static fn(Annotation $annotation): array => [$annotation->line, $annotation->endLine], $report->annotations),
+        );
     }
 
     public function testNormalizeDiffWithoutHunkHeadersGetsOneFileAnnotation(): void
@@ -337,7 +397,7 @@ final class ReporterTest extends TestCase
     {
         $report = $this->report(ComposerCheck::Normalize, $output);
 
-        self::assertSame($output, $report->log);
+        self::assertSame('', $report->log);
         self::assertEquals(
             [new Annotation('composer.json', 'composer normalize', 'composer normalize failed without a diff; see the job log.')],
             $report->annotations,

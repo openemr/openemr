@@ -47,24 +47,38 @@ final class ComposerAnnotationsCommandTest extends TestCase
         $this->filesystem->remove($this->scratch);
     }
 
-    public function testPrintsAPlainReportWithoutAnnotationsByDefault(): void
+    public function testPrintsNothingForARawCheckWithoutAnnotate(): void
     {
+        // The workflow has already printed the check's output.
         $tester = new CommandTester(new ComposerAnnotationsCommand());
 
         $exit = $tester->execute(['check' => 'validate', 'output-file' => $this->write('validate.txt', self::VALIDATE_OUTPUT)]);
 
         self::assertSame(Command::SUCCESS, $exit);
-        self::assertSame(self::VALIDATE_OUTPUT, $tester->getDisplay());
+        self::assertSame('', $tester->getDisplay());
     }
 
-    public function testAnnotatePrintsAWorkflowCommandAfterTheLog(): void
+    public function testListsUnknownSymbolsFromTheJsonReport(): void
+    {
+        $tester = new CommandTester(new ComposerAnnotationsCommand());
+
+        // Like the tool's own report, the JSON has no final newline, so the list starts on a new line.
+        $tester->execute(['check' => 'require-checker', 'output-file' => $this->write('crc.json', '{"unknown-symbols": {"gmp_add": ["ext-gmp"]}}')]);
+
+        self::assertSame(
+            PHP_EOL . 'Symbols used in the code that no declared dependency provides:' . PHP_EOL . PHP_EOL . '  gmp_add (guessed: ext-gmp)' . PHP_EOL,
+            $tester->getDisplay(),
+        );
+    }
+
+    public function testAnnotatePrintsAWorkflowCommandForEachFinding(): void
     {
         $tester = new CommandTester(new ComposerAnnotationsCommand());
 
         $tester->execute(['check' => 'validate', 'output-file' => $this->write('validate.txt', self::VALIDATE_OUTPUT), '--annotate' => true]);
 
         self::assertSame(
-            self::VALIDATE_OUTPUT . '::error file=composer.json,title=composer validate::require.foo/bar : unbound version constraints (*) should be avoided' . PHP_EOL,
+            '::error file=composer.json,title=composer validate::require.foo/bar : unbound version constraints (*) should be avoided' . PHP_EOL,
             $tester->getDisplay(),
         );
     }
@@ -76,7 +90,7 @@ final class ComposerAnnotationsCommandTest extends TestCase
         $tester->execute(['check' => 'validate', 'output-file' => $this->write('validate.txt', '- no final newline'), '--annotate' => true]);
 
         self::assertSame(
-            '- no final newline' . PHP_EOL . '::error file=composer.json,title=composer validate::no final newline' . PHP_EOL,
+            PHP_EOL . '::error file=composer.json,title=composer validate::no final newline' . PHP_EOL,
             $tester->getDisplay(),
         );
     }
@@ -99,7 +113,7 @@ final class ComposerAnnotationsCommandTest extends TestCase
         $exit = $tester->execute(['check' => 'validate', 'output-file' => $this->write('validate.txt', self::VALIDATE_OUTPUT), '--summary' => '']);
 
         self::assertSame(Command::SUCCESS, $exit);
-        self::assertSame(self::VALIDATE_OUTPUT, $tester->getDisplay());
+        self::assertSame('', $tester->getDisplay());
     }
 
     public function testAnUnknownCheckIsAUsageError(): void

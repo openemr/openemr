@@ -35,9 +35,9 @@ jobs:
     - name: "Validate Composer"
       shell: bash
       run: |
+        set -o pipefail
         out="${RUNNER_TEMP}/composer-validate.txt"
-        if composer validate --strict > "${out}" 2>&1; then
-          cat "${out}"
+        if composer validate --strict 2>&1 | tee "${out}"; then
           exit 0
         fi
         php bin/console --skip-globals openemr:composer-annotations validate "${out}" --annotate --summary="${GITHUB_STEP_SUMMARY}"
@@ -46,9 +46,9 @@ jobs:
     - name: "Check Composer Normalized"
       shell: bash
       run: |
+        set -o pipefail
         out="${RUNNER_TEMP}/composer-normalize.txt"
-        if composer normalize --dry-run > "${out}" 2>&1; then
-          cat "${out}"
+        if composer normalize --dry-run 2>&1 | tee "${out}"; then
           exit 0
         fi
         php bin/console --skip-globals openemr:composer-annotations normalize "${out}" --annotate --summary="${GITHUB_STEP_SUMMARY}"
