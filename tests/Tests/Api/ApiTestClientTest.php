@@ -530,8 +530,13 @@ class ApiTestClientTest extends TestCase
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals("You are currently not signed in.", $responseBody['message']);
 
+        // OIDC logout deletes the trusted-user row, which also marks the
+        // backing api_token / api_refresh_token rows as revoked. A
+        // follow-up bearer call therefore surfaces the token as revoked
+        // (401) at the access-token check rather than reaching the
+        // trusted-user missing branch that used to yield a 400.
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
-        $this->assertEquals(400, $actualResponse->getStatusCode());
+        $this->assertEquals(401, $actualResponse->getStatusCode());
 
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getHeaders();
