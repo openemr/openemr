@@ -1,11 +1,9 @@
 <?php
 
 /**
- * Reports a failed Composer check as GitHub annotations and a job summary
- *
- * The workflow runs the check and calls this only when it failed, so the
- * problem shows on the pull request instead of only in the log. The command
- * reports and succeeds; failing the step is left to the workflow.
+ * The workflow runs a Composer check and calls this command only when the
+ * check failed, so the problem shows on the pull request instead of only in
+ * the log. The command reports and succeeds; the workflow fails the step.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -34,6 +32,13 @@ use Symfony\Component\Filesystem\Filesystem;
 )]
 final class ComposerAnnotationsCommand extends Command
 {
+    public function __construct(
+        private readonly Reporter $reporter = new Reporter(),
+        private readonly Filesystem $filesystem = new Filesystem(),
+    ) {
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
         $checks = array_map(static fn(ComposerCheck $check): string => $check->value, ComposerCheck::cases());
@@ -70,9 +75,8 @@ final class ComposerAnnotationsCommand extends Command
         if (!is_file($outputFile) || !is_readable($outputFile)) {
             throw new \InvalidArgumentException(sprintf('Cannot read %s.', $outputFile));
         }
-        $filesystem = new Filesystem();
-        $checkOutput = $filesystem->readFile($outputFile);
-        $report = (new Reporter())->report($check, $checkOutput);
+        $checkOutput = $this->filesystem->readFile($outputFile);
+        $report = $this->reporter->report($check, $checkOutput);
 
         if ($checkOutput !== '' && !str_ends_with($checkOutput, chr(10))) {
             // The workflow has already printed the check's output. Start the workflow commands on a line
@@ -87,7 +91,7 @@ final class ComposerAnnotationsCommand extends Command
         }
         $summary = $input->getOption('summary');
         if (is_string($summary) && $summary !== '') {
-            $filesystem->appendToFile($summary, $report->summary);
+            $this->filesystem->appendToFile($summary, $report->summary);
         }
         return Command::SUCCESS;
     }

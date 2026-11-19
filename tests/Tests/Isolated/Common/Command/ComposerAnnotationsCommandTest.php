@@ -66,7 +66,13 @@ final class ComposerAnnotationsCommandTest extends TestCase
         $tester->execute(['check' => 'require-checker', 'output-file' => $this->write('crc.json', '{"unknown-symbols": {"gmp_add": ["ext-gmp"]}}')]);
 
         self::assertSame(
-            PHP_EOL . 'Symbols used in the code that no declared dependency provides:' . PHP_EOL . PHP_EOL . '  gmp_add (guessed: ext-gmp)' . PHP_EOL,
+            <<<'TEXT'
+
+                Symbols used in the code that no declared dependency provides:
+
+                  gmp_add (guessed: ext-gmp)
+
+                TEXT,
             $tester->getDisplay(),
         );
     }
@@ -90,7 +96,11 @@ final class ComposerAnnotationsCommandTest extends TestCase
         $tester->execute(['check' => 'validate', 'output-file' => $this->write('validate.txt', '- no final newline'), '--annotate' => true]);
 
         self::assertSame(
-            PHP_EOL . '::error file=composer.json,title=composer validate::no final newline' . PHP_EOL,
+            <<<'TEXT'
+
+                ::error file=composer.json,title=composer validate::no final newline
+
+                TEXT,
             $tester->getDisplay(),
         );
     }
@@ -102,7 +112,14 @@ final class ComposerAnnotationsCommandTest extends TestCase
 
         $tester->execute(['check' => 'validate', 'output-file' => $this->write('validate.txt', self::VALIDATE_OUTPUT), '--summary' => $summary]);
 
-        self::assertStringStartsWith('## Earlier step' . PHP_EOL . '## composer validate --strict failed' . PHP_EOL, $this->filesystem->readFile($summary));
+        self::assertStringStartsWith(
+            <<<'MARKDOWN'
+                ## Earlier step
+                ## composer validate --strict failed
+
+                MARKDOWN,
+            $this->filesystem->readFile($summary),
+        );
     }
 
     public function testAnEmptySummaryPathIsIgnored(): void

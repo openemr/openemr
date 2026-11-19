@@ -106,6 +106,7 @@ final class ReporterTest extends TestCase
             'no unknown symbols' => ['{"unknown-symbols": {}}' . PHP_EOL],
             'no unknown-symbols key' => ['{"_meta": {}}' . PHP_EOL],
             'a JSON list' => ['[1, 2]' . PHP_EOL],
+            'only an integer symbol name' => ['{"unknown-symbols": {"0": []}}' . PHP_EOL],
         ];
     }
 
@@ -366,7 +367,13 @@ final class ReporterTest extends TestCase
 
     public function testNormalizeDiffWithoutHunkHeadersGetsOneFileAnnotation(): void
     {
-        $report = $this->report(ComposerCheck::Normalize, '--- original' . PHP_EOL . '+++ normalized' . PHP_EOL . '-x' . PHP_EOL . '+y' . PHP_EOL);
+        $report = $this->report(ComposerCheck::Normalize, <<<'DIFF'
+            --- original
+            +++ normalized
+            -x
+            +y
+
+            DIFF);
 
         self::assertEquals(
             [new Annotation('composer.json', 'composer normalize', 'composer.json is not normalized. Run `composer normalize` and commit the result.')],

@@ -36,20 +36,26 @@ jobs:
       shell: bash
       run: |
         set -o pipefail
-        out="${RUNNER_TEMP}/composer-validate.txt"
-        if composer validate --strict 2>&1 | tee "${out}"; then
-          exit 0
-        fi
-        php bin/console --skip-globals openemr:composer-annotations validate "${out}" --annotate --summary="${GITHUB_STEP_SUMMARY}"
-        exit 1
+        validate() {
+          local out="${RUNNER_TEMP}/composer-validate.txt"
+          if composer validate --strict 2>&1 | tee "${out}"; then
+            return 0
+          fi
+          php bin/console --skip-globals openemr:composer-annotations validate "${out}" --annotate --summary="${GITHUB_STEP_SUMMARY}"
+          return 1
+        }
+        validate
 
     - name: "Check Composer Normalized"
       shell: bash
       run: |
         set -o pipefail
-        out="${RUNNER_TEMP}/composer-normalize.txt"
-        if composer normalize --dry-run 2>&1 | tee "${out}"; then
-          exit 0
-        fi
-        php bin/console --skip-globals openemr:composer-annotations normalize "${out}" --annotate --summary="${GITHUB_STEP_SUMMARY}"
-        exit 1
+        check_normalized() {
+          local out="${RUNNER_TEMP}/composer-normalize.txt"
+          if composer normalize --dry-run 2>&1 | tee "${out}"; then
+            return 0
+          fi
+          php bin/console --skip-globals openemr:composer-annotations normalize "${out}" --annotate --summary="${GITHUB_STEP_SUMMARY}"
+          return 1
+        }
+        check_normalized

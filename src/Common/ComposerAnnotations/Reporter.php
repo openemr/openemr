@@ -118,8 +118,12 @@ final class Reporter
         }
         $symbols = [];
         foreach ($report['unknown-symbols'] as $symbol => $guesses) {
+            if (!is_string($symbol)) {
+                // A PHP symbol name never decodes to an integer key.
+                continue;
+            }
             $guesses = is_array($guesses) ? array_filter($guesses, is_string(...)) : [];
-            $symbols[strval($symbol)] = implode(', ', $guesses);
+            $symbols[$symbol] = implode(', ', $guesses);
         }
         return $symbols;
     }

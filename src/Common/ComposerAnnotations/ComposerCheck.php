@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Common\ComposerAnnotations;
 
 /**
- * Backed by the name the workflows pass on the command line.
+ * Each case's value is the name the workflows pass on the command line.
  */
 enum ComposerCheck: string
 {

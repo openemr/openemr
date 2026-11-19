@@ -47,10 +47,13 @@ jobs:
       shell: bash
       run: |
         set -o pipefail
-        out="${RUNNER_TEMP}/composer-require-checker.json"
-        if composer require-checker -- --output=json | tee "${out}"; then
-          echo 'Composer Require Checker found no unknown symbols.'
-          exit 0
-        fi
-        php bin/console --skip-globals openemr:composer-annotations require-checker "${out}" --annotate --summary="${GITHUB_STEP_SUMMARY}"
-        exit 1
+        require_checker() {
+          local out="${RUNNER_TEMP}/composer-require-checker.json"
+          if composer require-checker -- --output=json | tee "${out}"; then
+            echo 'Composer Require Checker found no unknown symbols.'
+            return 0
+          fi
+          php bin/console --skip-globals openemr:composer-annotations require-checker "${out}" --annotate --summary="${GITHUB_STEP_SUMMARY}"
+          return 1
+        }
+        require_checker
