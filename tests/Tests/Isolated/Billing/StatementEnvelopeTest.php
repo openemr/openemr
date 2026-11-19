@@ -586,6 +586,20 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertSame($had, array_key_exists('pdf_size', $GLOBALS));
     }
 
+    public function testTextPageLinesFollowThePaperHeight(): void
+    {
+        $had = array_key_exists('pdf_size', $GLOBALS);
+        $previous = $had ? $GLOBALS['pdf_size'] : null;
+        try {
+            OEGlobalsBag::getInstance()->set('pdf_size', 'LETTER');
+            $this->assertSame(66, StatementEnvelope::textPageLines());
+            OEGlobalsBag::getInstance()->set('pdf_size', 'A5');
+            $this->assertSame(49, StatementEnvelope::textPageLines());
+        } finally {
+            self::restorePdfSize($had, $previous);
+        }
+    }
+
     /**
      * Put pdf_size back, including the global array when the key was absent.
      */

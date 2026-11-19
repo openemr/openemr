@@ -833,6 +833,31 @@ function create_statement($stmt): string
 
     $todays_time = strtotime(date('Y-m-d'));
 
+    // Letter stubs pad to line 42. A shorter sheet keeps the footer on page one.
+    $padTo = 42;
+    if ($windowed) {
+        $reserve = 9;
+        if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
+            ++$reserve;
+        }
+        if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
+            ++$reserve;
+        }
+        if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
+            $reserve += 2;
+        }
+        if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
+            $reserve += 4;
+        }
+        $appointments = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
+        if ($appointments !== 0) {
+            $reserve += 2 + $appointments;
+        }
+        $padTo = min(42, StatementEnvelope::textPageLines() - $reserve);
+        if ($padTo < 1) {
+            $padTo = 1;
+        }
+    }
     // This generates the detail lines.  Again, note that the values must
     // be specified in the order used.
     //
@@ -883,16 +908,18 @@ function create_statement($stmt): string
                 $desc = $description;
             }
 
+            if ($windowed && $padTo < 42 && $count >= $padTo) {
+                continue;
+            }
             $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
             $dos = '';
             ++$count;
         }
     }
 
-    // This generates blank lines until we are at line 42.
-    //
-    while ($count++ < 42) {
+    while ($count < $padTo) {
         $out .= "\n";
+        ++$count;
     }
 
     # Generate the string of aging text.  This will look like:

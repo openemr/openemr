@@ -49,6 +49,12 @@ document.addEventListener('DOMContentLoaded', function () {
     var unitsRow = unitsSel.closest('.row.form-group') || unitsSel.closest('.form-group');
     if (unitsRow) { hideRows.push(unitsRow); }
   }
+  function explicitUnit(raw) {
+    var s = String(raw).toLowerCase();
+    if (/centimet(?:er|re)s?|\bcm\b/.test(s)) { return 'cm'; }
+    if (/inches|inch|"|\bin\b/.test(s)) { return 'in'; }
+    return null;
+  }
   function parseMeasure(s) {
     s = String(s).trim();
     s = s.replace(/centimeters|centimetres|centimeter|centimetre|inches|inch|"/gi, '');
@@ -75,10 +81,10 @@ document.addEventListener('DOMContentLoaded', function () {
   function toCm(inches) { return +(inches * 127 / 50).toFixed(4); }
   function toIn(cm) { return +(cm * 50 / 127).toFixed(6); }
   function convertFields(from, to) {
-    if (from === to) { return; }
     texts.forEach(function (inp) {
+      var source = explicitUnit(inp.value) || from;
       var n = parseMeasure(inp.value);
-      if (n === null) { return; }
+      if (n === null || source === to) { return; }
       inp.value = (to === 'cm') ? String(toCm(n)) : String(toIn(n));
     });
   }
