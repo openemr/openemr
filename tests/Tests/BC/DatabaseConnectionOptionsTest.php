@@ -5,6 +5,7 @@
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -505,6 +506,52 @@ PHP
         self::assertSame($certDir . '/mysql-ca', $first->sslCaPath);
     }
 
+    public function testInferSslPathsIgnoresUnrelatedCertificates(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        file_put_contents($certDir . '/README.md', 'readme');
+        file_put_contents($certDir . '/oaprivate.key', 'unrelated');
+
+        self::assertSame([], DatabaseConnectionOptions::inferSslPaths($siteDir));
+    }
+
+    public function testInferSslPathsIgnoresDanglingSymlinks(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        symlink($certDir . '/no-such-ca', $certDir . '/mysql-ca');
+
+        self::assertSame([], DatabaseConnectionOptions::inferSslPaths($siteDir));
+    }
+
+    public function testInferSslPathsChecksFixedPathsWhenDirectoryIsUnreadable(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        file_put_contents($certDir . '/mysql-ca', 'ca-content');
+        // Search permission without read permission: files resolve, listing fails.
+        chmod($certDir, 0311);
+        if (is_readable($certDir)) {
+            // @codeCoverageIgnoreStart
+            // Defensive — root ignores directory permissions; CI does not run tests as root.
+            chmod($certDir, 0755);
+            self::markTestSkipped('Directory permissions are not enforced for this user');
+            // @codeCoverageIgnoreEnd
+        }
+
+        try {
+            $ssl = DatabaseConnectionOptions::inferSslPaths($siteDir);
+        } finally {
+            chmod($certDir, 0755);
+        }
+
+        self::assertSame(['ca' => $certDir . '/mysql-ca'], $ssl);
+    }
+
     private function cleanupTempDir(string $dir): void
     {
         if (!is_dir($dir)) {
@@ -516,10 +563,11 @@ PHP
         );
         foreach ($files as $file) {
             /** @var \SplFileInfo $file */
+            // getPathname(), not getRealPath(): a dangling symlink has no real path.
             if ($file->isDir()) {
-                rmdir($file->getRealPath());
+                rmdir($file->getPathname());
             } else {
-                unlink($file->getRealPath());
+                unlink($file->getPathname());
             }
         }
         rmdir($dir);

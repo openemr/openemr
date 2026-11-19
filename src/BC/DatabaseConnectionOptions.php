@@ -5,6 +5,7 @@
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,11 +16,14 @@ declare(strict_types=1);
 namespace OpenEMR\BC;
 
 use Doctrine\DBAL\DriverManager;
+use FilesystemIterator;
 use InvalidArgumentException;
 use LogicException;
 use PDO;
 use RuntimeException;
 use SensitiveParameter;
+use SplFileInfo;
+use UnexpectedValueException;
 
 /**
  * This class provides a type-safe way to configure database connections while
@@ -97,8 +101,9 @@ final readonly class DatabaseConnectionOptions
      *
      * The result is kept for the rest of the request. A request
      * asks for it from several places (sql.inc.php, Database, the audit
-     * logger, Gacl), and each read is a sqlconf.php load plus four cert file
-     * checks, which on a network filesystem are round trips to the server.
+     * logger, Gacl), and each read is a sqlconf.php load plus a read of the
+     * certificates directory, which on a network filesystem are round trips
+     * to the server.
      *
      * @param string $siteDir Site directory path (e.g., OE_SITE_DIR)
      */
@@ -141,6 +146,10 @@ final readonly class DatabaseConnectionOptions
     /**
      * Detects MySQL SSL certificate files in site directory.
      *
+     * On network storage (NFS, EFS, gcsfuse) each lookup of a missing file
+     * is a round trip, so the directory is read once instead of checking
+     * each certificate path.
+     *
      * @return SslConfig
      */
     public static function inferSslPaths(string $siteDir): array
@@ -148,26 +157,52 @@ final readonly class DatabaseConnectionOptions
         $config = [];
 
         $certDir = sprintf('%s/documents/certificates', $siteDir);
-        $caFile = sprintf('%s/mysql-ca', $certDir);
-        $cert = sprintf('%s/mysql-cert', $certDir);
-        $key = sprintf('%s/mysql-key', $certDir);
+        $listed = self::listEntryNames($certDir);
+        // Check only listed names, so a missing file costs no lookup, and
+        // still check each one, so a dangling symlink doesn't count.
+        $exists = static fn (string $name): bool =>
+            ($listed === null || isset($listed[$name]))
+            && file_exists(sprintf('%s/%s', $certDir, $name));
 
-        if (file_exists($caFile)) {
-            $config['ca'] = $caFile;
+        if ($exists('mysql-ca')) {
+            $config['ca'] = sprintf('%s/mysql-ca', $certDir);
         }
-        if (file_exists($cert) || file_exists($key)) {
-            if (!file_exists($cert) || !file_exists($key)) {
-                throw new LogicException(
-                    'MySQL cert or key file missing. You need both or neither.'
-                );
-            }
+        $hasCert = $exists('mysql-cert');
+        $hasKey = $exists('mysql-key');
+        if ($hasCert !== $hasKey) {
+            throw new LogicException(
+                'MySQL cert or key file missing. You need both or neither.'
+            );
+        }
+        if ($hasCert) {
             $config['clientCert'] = [
-                'cert' => $cert,
-                'key' => $key,
+                'cert' => sprintf('%s/mysql-cert', $certDir),
+                'key' => sprintf('%s/mysql-key', $certDir),
             ];
         }
 
         return $config;
+    }
+
+    /**
+     * @return ?array<string, true> keyed by entry name; empty when the directory is missing,
+     *     null when it exists but can't be listed
+     */
+    private static function listEntryNames(string $dir): ?array
+    {
+        try {
+            $entries = new FilesystemIterator($dir, FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS);
+        } catch (UnexpectedValueException) {
+            return is_dir($dir) ? null : [];
+        }
+
+        $names = [];
+        foreach ($entries as $entry) {
+            if ($entry instanceof SplFileInfo) {
+                $names[$entry->getFilename()] = true;
+            }
+        }
+        return $names;
     }
 
     /**
