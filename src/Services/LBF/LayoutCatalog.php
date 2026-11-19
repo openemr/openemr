@@ -85,13 +85,13 @@ class LayoutCatalog
     /**
      * Visible fields on one layout, keyed by field_id.
      *
-     * @return array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string,source:string}>
+     * @return array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string,source:string,edit_options:string}>
      */
     public function fieldMeta(string $formId): array
     {
         Identifiers::assertFieldId($formId);
         $rows = $this->sql->fetchRecords(
-            "SELECT field_id, data_type, title, list_id, seq, group_id, source FROM layout_options " .
+            "SELECT field_id, data_type, title, list_id, seq, group_id, source, edit_options FROM layout_options " .
             "WHERE form_id = ? AND field_id != '' AND uor > 0 ORDER BY group_id, seq",
             [$formId]
         );
@@ -112,6 +112,7 @@ class LayoutCatalog
                 'seq' => Values::rowInt($row, 'seq'),
                 'group_id' => Values::rowString($row, 'group_id'),
                 'source' => Values::rowString($row, 'source'),
+                'edit_options' => Values::rowString($row, 'edit_options'),
             ];
         }
         return $out;
@@ -166,7 +167,7 @@ class LayoutCatalog
     }
 
     /**
-     * @param array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string,source:string}> $meta
+     * @param array<string, array{data_type:int,title:string,list_id:string,seq:int,group_id:string,source:string,edit_options:string}> $meta
      */
     private static function textareaId(array $meta, string $fieldId): string
     {
@@ -174,7 +175,7 @@ class LayoutCatalog
             return '';
         }
         $field = $meta[$fieldId];
-        if ($field['data_type'] !== 3 || !self::storesInLayout($field['source'])) {
+        if ($field['data_type'] !== 3 || !self::storesInLayout($field['source']) || self::showsHistory($field['edit_options'])) {
             return '';
         }
 
@@ -190,6 +191,14 @@ class LayoutCatalog
     }
 
     /**
+     * Edit option H fills the box from history, so a generated paragraph would not show there.
+     */
+    private static function showsHistory(string $editOptions): bool
+    {
+        return str_contains($editOptions, 'H');
+    }
+
+    /**
      * Store which textarea on this layout receives generated statements.
      */
     public function saveParagraphField(string $formId, string $fieldId): void
@@ -197,7 +206,13 @@ class LayoutCatalog
         $this->assertActiveLbfForm($formId);
         Identifiers::assertFieldId($fieldId);
         $meta = $this->fieldMeta($formId);
-        if (!isset($meta[$fieldId]) || $meta[$fieldId]['data_type'] !== 3 || !self::storesInLayout($meta[$fieldId]['source'])) {
+        $chosen = $meta[$fieldId] ?? null;
+        if (
+            $chosen === null
+            || $chosen['data_type'] !== 3
+            || !self::storesInLayout($chosen['source'])
+            || self::showsHistory($chosen['edit_options'])
+        ) {
             throw new \InvalidArgumentException('Paragraph field must be a textarea on this layout.');
         }
         $this->sql->sqlStatementThrowException(
