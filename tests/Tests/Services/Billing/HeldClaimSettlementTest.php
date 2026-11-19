@@ -293,7 +293,10 @@ class HeldClaimSettlementTest extends TestCase
     private function storedFile(string $sql, array $params): string
     {
         $row = QueryUtils::querySingleRow($sql, $params);
-        $file = is_array($row) ? ($row['process_file'] ?? null) : null;
+        if (!is_array($row) || !array_key_exists('process_file', $row)) {
+            $this->fail('Expected billing row was missing');
+        }
+        $file = $row['process_file'];
         if ($file === null) {
             return '';
         }

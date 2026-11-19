@@ -361,10 +361,13 @@ final class BatchFilePublisher
     private static function writeCompletion(string $final, int $size): bool
     {
         $note = $final . '.complete';
-        if (is_dir($note)) {
+        $stage = $final . '.complete.partial';
+        if (is_dir($note) || is_link($note) || is_dir($stage) || is_link($stage)) {
             return false;
         }
-        $handle = fopen($note, 'wb');
+        // The note is synced under a staging name. Readers reconcile only
+        // the final name, after this rename.
+        $handle = fopen($stage, 'wb');
         if ($handle === false) {
             return false;
         }
@@ -377,7 +380,12 @@ final class BatchFilePublisher
         }
         fclose($handle);
         if ($written !== strlen($text) || $synced !== true) {
-            self::remove($note);
+            self::remove($stage);
+
+            return false;
+        }
+        if (!rename($stage, $note)) {
+            self::remove($stage);
 
             return false;
         }
@@ -387,12 +395,18 @@ final class BatchFilePublisher
 
     /**
      * Remove one regular file when this run can write its directory.
+     *
+     * A second caller can remove the file between the existence check and
+     * unlink(). That race is not a failure: the file is already gone.
      */
     private static function remove(string $path): void
     {
         $directory = dirname($path);
-        if (is_file($path) && $directory !== "" && is_writable($directory)) {
-            unlink($path);
+        if (!is_file($path) || is_link($path) || $directory === '' || !is_writable($directory)) {
+            return;
+        }
+        if (@unlink($path) || !is_file($path)) {
+            return;
         }
     }
 }

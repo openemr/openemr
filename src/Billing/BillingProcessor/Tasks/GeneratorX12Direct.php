@@ -217,6 +217,12 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         $this->insideGenerate = true;
         $this->billWhenTheFileLands = $this->holdClaimsThatWillDeny();
         if (!$this->billWhenTheFileLands) {
+            if (!$this->claimGenerationIsFree($claim)) {
+                $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+                $this->insideGenerate = false;
+
+                return;
+            }
             $partnerId = $claim->getPartner();
             $partnerBatch = null;
             if (is_int($partnerId) || is_string($partnerId)) {
@@ -228,6 +234,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                     $this->printToScreen(xl($settled
                         ? UnbilledFileDecision::ALREADY_WRITTEN
                         : FacilityZipDenial::LEFT_OUT_NOT_BILLED));
+                    $this->closeRecoveredPartner($claim, $partnerBatch);
                     $this->insideGenerate = false;
 
                     return;
@@ -285,9 +292,6 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // Off: add the claim before the 837 is built, which is the master order.
         // On: add it only after the ZIP is accepted, so a held claim is not in the batch.
         $hold = $this->holdClaimsThatWillDeny();
-        if ($hold && $billIfAccepted) {
-            $this->bindSelectedPayer($claim);
-        }
         if (!$hold) {
             $batch->addClaim($claim);
         }
@@ -361,7 +365,31 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // A denial stores no version. The next run stores one only if the ZIP is accepted.
         $insertLanded = true;
         if ($hold && $billIfAccepted && !$denial->willDeny()) {
+            // The 837 already used the selected payer. Store that payer only
+            // after the ZIP is accepted, not before the generation fence.
+            $this->bindSelectedPayer($claim);
             $insertLanded = $this->rememberPayer($claim);
+        }
+        if (
+            $insertLanded
+            && $hold
+            && $billIfAccepted
+            && !$denial->willDeny()
+            && !$this->billWhenTheFileLands
+            && $this->fileAssignmentIsActive($claim)
+            && $batch instanceof BillingClaimBatch
+        ) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+            $this->restorePartnerCounts(
+                $claim,
+                $batch,
+                $edicountBefore,
+                $patSegmentCountBefore,
+                $is_last_claim === true,
+                $log
+            );
+
+            return null;
         }
         $billedWriteLanded = true;
         if ($insertLanded && $hold && $billIfAccepted && !$denial->willDeny() && $batch instanceof BillingClaimBatch) {
@@ -404,6 +432,26 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         $batch->append_claim($segs);
 
         return $batch;
+    }
+
+    /**
+     * A recovered last claim skips rendering, so close a transaction that
+     * earlier claims in this run already opened.
+     */
+    protected function closeRecoveredPartner(BillingClaim $claim, BillingClaimBatch $batch): void
+    {
+        if ($claim->getIsLast() !== true) {
+            return;
+        }
+        $partner = $claim->getPartner();
+        if (!is_int($partner) && !is_string($partner)) {
+            return;
+        }
+        $count = $this->edi_counts[$partner] ?? null;
+        if (!is_int($count)) {
+            return;
+        }
+        $this->edi_counts[$partner] = $this->appendSeForHeldLastClaim($batch, $count);
     }
 
     /**
@@ -576,8 +624,14 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                                 $this->printToScreen(xl(UnbilledFileDecision::WRITTEN_NOT_BILLED) . ' ' . $unbilledId);
                             }
                         } else {
-                            $dir = $created_batch->getBatFiledir();
-                            if ($dir === '' || BatchFilePublisher::discard($dir, $filename)) {
+                            // A failed publish did not create this name.
+                            // Deleting it would remove the other run's batch.
+                            if ($wrote) {
+                                $dir = $created_batch->getBatFiledir();
+                                if ($dir === '' || BatchFilePublisher::discard($dir, $filename)) {
+                                    $this->releaseAwaitingFile($filename);
+                                }
+                            } else {
                                 $this->releaseAwaitingFile($filename);
                             }
                         }

@@ -438,6 +438,34 @@ abstract class AbstractProcessingTask
     }
 
     /**
+     * An unbilled row already names a file, so another run may still be writing it.
+     */
+    protected function fileAssignmentIsActive(BillingClaim $claim): bool
+    {
+        $assignment = $this->openUnbilledAssignment($claim);
+        if ($assignment === null) {
+            return false;
+        }
+
+        return $assignment['process_file'] !== '';
+    }
+
+    /**
+     * Take this claim's fence when the lock name is safe.
+     *
+     * False means another run holds the fence. A claim with no safe lock
+     * name is not blocked here.
+     */
+    protected function claimGenerationIsFree(BillingClaim $claim): bool
+    {
+        if ($this->generationFenceName($claim) === null) {
+            return true;
+        }
+
+        return $this->holdGeneration($claim);
+    }
+
+    /**
      * Bill a published file when the hold is off.
      *
      * True means the file was billed. False means it is on disk and the
@@ -452,7 +480,26 @@ abstract class AbstractProcessingTask
 
         $version = $assignment['version'];
         $filename = $assignment['process_file'];
-        if ($version <= 0 || $filename === '' || !$this->claimFileLanded($batch, $filename)) {
+        if ($version <= 0 || $filename === '') {
+            return null;
+        }
+        if (!$this->claimFileLanded($batch, $filename)) {
+            // The name is stored and the file is not ready. Another run may
+            // still be writing it unless this run holds the fence.
+            if (!$this->generationFenceHeld($claim)) {
+                return false;
+            }
+            $dir = $batch->getBatFiledir();
+            if ($dir !== '' && BatchFilePublisher::hasPublishingMarker($dir, $filename)) {
+                if (
+                    BatchFilePublisher::isPublished($dir, $filename)
+                    || !BatchFilePublisher::quarantineInterrupted($dir, $filename)
+                ) {
+                    return false;
+                }
+            }
+            $this->clearClaimFile($claim, $version, $filename);
+
             return null;
         }
 
