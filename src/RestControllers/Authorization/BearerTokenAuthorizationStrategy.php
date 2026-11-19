@@ -269,6 +269,28 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             throw new HttpException(400);
         }
 
+        // Staff accounts (USER_ROLE_USERS / USER_ROLE_SYSTEM) carry an
+        // `active` flag that the admin can toggle at any time through the
+        // user-admin UI. A token issued while the account was active must
+        // stop working as soon as the admin flips it off — otherwise an
+        // outstanding access token keeps minting responses until its
+        // natural expiry, and a refresh request that raced the admin's
+        // revoke can still persist successor tokens. Gate the request
+        // directly on `users.active` so this holds regardless of when the
+        // token was issued or whether any revoke UPDATE caught it.
+        $activeValue = is_array($user) ? ($user['active'] ?? null) : null;
+        $isActiveStaff = is_numeric($activeValue) && (int) $activeValue === 1;
+        if (
+            in_array($userRole, [UuidUserAccount::USER_ROLE_USERS, UuidUserAccount::USER_ROLE_SYSTEM], true)
+            && !$isActiveStaff
+        ) {
+            $logger->error(
+                "BearerTokenAuthorizationStrategy->authorizeRequest() access denied: staff user is not active",
+                ['tokenId' => $tokenId, 'clientId' => $clientId, 'userId' => $userId]
+            );
+            throw OAuthServerException::accessDenied('Access token belongs to an account that is no longer active');
+        }
+
         if (!$this->isValidRequestForUserRole($request, $attributes['oauth_scopes'], $userRole)) {
             throw new HttpException(403, "User role does not have permission to access this resource.");
         }
