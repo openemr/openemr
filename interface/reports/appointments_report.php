@@ -42,7 +42,10 @@ use OpenEMR\Common\{
     Session\SessionUtil,
     Session\SessionWrapperFactory,
 };
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Reports\Appointments\AppointmentsReportFormatter;
 use OpenEMR\Services\SpreadSheetService;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\BC\ServiceContainer;
@@ -104,6 +107,8 @@ $chk_show_address = false;
 if (!empty($_POST['show_address'])) {
     $chk_show_address = true;
 }
+
+$chk_show_dob = CurrentRequest::get()->request->getBoolean('show_dob');
 
 $provider  = $_POST['form_provider'] ?? null;
 //RM if 'all' selected set to null
@@ -374,6 +379,13 @@ if (empty($_POST['form_csvexport'])) {
                         </label>
                     </div>
                 </td>
+                <td></td>
+                <td>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="show_dob" id="show_dob" <?php echo $chk_show_dob ? "checked" : ""; ?>>&nbsp;<?php echo xlt('Show Patient DOB'); ?>
+                        </label>
+                    </div>
+                </td>
             </tr>
 
         </table>
@@ -448,6 +460,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         <?php echo ($form_orderby == "patient") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
         </th>
 
+        <?php if ($chk_show_dob) { ?>
+        <th><?php echo xlt('DOB'); ?></th>
+        <?php } ?>
         <?php if ($chk_show_address) {
               echo "<th>";  echo xlt('Address') . "</a>
         </th>";
@@ -506,25 +521,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     if (!empty($_POST['form_csvexport'])) {
         // include provider as well
         // RM generate csv file with same column headers row as used in the report itself
-        $fields = ['Provider','Date', 'Time', 'Patient', 'Address','DOB', 'Type', 'Status'];
-        $csvfields = [];
-        $iMax = count($appointments);
-        for ($i = 0; $i < $iMax; ++$i) {
-              $appointments[$i]["Provider"] = $appointments[$i]["ulname"] . ',' . $appointments[$i]["ufname"] . ' ' .  $appointments[$i]["umname"] ;
-              $csvfields[$i]["Provider"] = $appointments[$i]["Provider"] ;
-              $csvfields[$i]["Date"] = $appointments[$i]["pc_eventDate"] ;
-              $csvfields[$i]["Time"] = $appointments[$i]["pc_startTime"] ;
-              $csvfields[$i]["Patient"] = $appointments[$i]["fname"] . " " .  $appointments[$i]["lname"] ;
-            if ($chk_show_address) {
-                  $csvfields[$i]["Address"] = $appointments[$i]["address1"];
-                if ($appointments[$i]["address2"]) {
-                    $csvfields[$i]["Address"]  .=  ", "  .  $appointments[$i]["address2"]  ;
-                }
-            }
-            $csvfields[$i]["DOB"] = $appointments[$i]["DOB"] ;
-            $csvfields[$i]["Type"] = xl_appt_category($appointments[$i]['pc_catname']);
-            $csvfields[$i]["Status"] = getListItemTitle('apptstat', $appointments[$i]['pc_apptstatus']);
-        }
+        $csvFormatter = new AppointmentsReportFormatter(
+            $chk_show_address,
+            xl_appt_category(...),
+            static fn(string $status): string => LayoutsUtils::getListItemTitle('apptstat', $status) ?? '',
+        );
+        $csvfields = $csvFormatter->csvRows($appointments);
+        $fields = AppointmentsReportFormatter::CSV_FIELDS;
         try {
             $spreadsheet = new SpreadSheetService($csvfields, $fields, 'appts');
             if (!empty($spreadsheet->buildSpreadsheet())) {
@@ -586,14 +589,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             <td class="detail">&nbsp;<?php echo text($appointment['fname'] . " " . $appointment['lname']) ?>
             </td>
 
-                  <?php if ($chk_show_address) {
-                        echo " <td class='detail'>&nbsp;" ;
-                        echo text($appointment['address1']);
-                        if ($appointment['address2']) {
-                            echo text(", " . $appointment['address2']) ;
-                        }
-                        echo "</td>" ;
-                  } ?>
+            <?php if ($chk_show_dob) { ?>
+            <td class="detail">&nbsp;<?php echo text(AppointmentsReportFormatter::displayDob($appointment)) ?></td>
+            <?php } ?>
+            <?php if ($chk_show_address) { ?>
+            <td class="detail">&nbsp;<?php echo text(AppointmentsReportFormatter::address($appointment)) ?></td>
+            <?php } ?>
 
             <td class="detail">&nbsp;<?php echo text($appointment['pubpid']) ?></td>
 
@@ -624,7 +625,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 if ($patient_id && (!empty($rems) || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?>
         <tr valign='top' id='p2.<?php echo attr($patient_id) ?>' >
             <td colspan='<?php echo $showDate ? '"3"' : '"2"' ?>' class="detail"></td>
-        <td colspan='<?php echo ($incl_reminders ? "3" : "6") ?>' class="detail" align='left'>
+        <td colspan='<?php echo attr((string) (($incl_reminders ? 3 : 6) + ($chk_show_dob ? 1 : 0))) ?>' class="detail" align='left'>
                     <?php
                     if (trim((string) $appointment['pc_hometext'])) {
                         echo '<strong>' . xlt('Comments') . '</strong>: ' . text($appointment['pc_hometext']);
