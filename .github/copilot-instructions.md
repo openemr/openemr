@@ -1,13 +1,10 @@
 ## Commit Trailers for AI Assistance
 
-For every commit where an AI assistant helped write the code, add an `Assisted-by`
-trailer to the commit message:
+Add a trailer naming the tool to every commit an AI assistant helped make,
+including docs and deletions: `Generated-By` if the AI made all of the changes,
+`Assisted-By` if a person made some. Put it on its own line at the end of the
+commit message.
 
 ```bash
-git commit --trailer "Assisted-by: GitHub Copilot" -m "fix(calendar): correct date parsing"
+git commit --trailer "Assisted-By: GitHub Copilot" -m "fix(calendar): correct date parsing"
 ```
-
-Use the name of the specific tool as the trailer value (e.g. `GitHub Copilot`,
-`Claude Code`, `ChatGPT`). When the AI agent creates commits automatically, this
-trailer is typically added for you. The trailer must appear as a separate line at
-the end of the commit message body, in the form `Assisted-by: <Tool Name>`.

@@ -660,16 +660,13 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### AI Assistance Trailer
 
-If an AI assistant helped write a commit, add an `Assisted-by` trailer to that
-commit:
+Add a trailer naming the tool to every commit AI helped make, including docs
+and deletions: `Generated-By` if the AI made all of the changes, `Assisted-By`
+if a person made some.
 
 ```bash
-git commit --trailer "Assisted-by: Claude Code" -m "fix(calendar): correct date parsing"
+git commit --trailer "Generated-By: Claude Code" -m "fix(calendar): correct date parsing"
 ```
-
-Use the name of the tool as the trailer value (e.g. `Claude Code`,
-`GitHub Copilot`, `ChatGPT`). When the AI agent creates commits automatically,
-this trailer is typically added for you.
 
 ## Service Layer Pattern
 

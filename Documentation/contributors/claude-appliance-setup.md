@@ -413,7 +413,7 @@ The greeting naming the **repo** (not your username) confirms the key is repo-sc
 
 If host-side amending is more friction than you want, you can let the agent sign inside the container. Two trade-offs to weigh first:
 
-- **Attestation blurs.** Agent commits will show as "verified" on GitHub under your name. The `Assisted-by: Claude Code` trailer still records AI involvement, but reviewers can no longer infer "human attested" from the signature alone.
+- **Attestation blurs.** Agent commits will show as "verified" on GitHub under your name. The `Generated-By: Claude Code` trailer still records AI involvement, but reviewers can no longer infer "human attested" from the signature alone.
 - **Use a separate key.** Generate a fresh signing key for this purpose only — not your main identity's signing key. If the appliance is ever exposed, revocation is targeted to the container key and your main signing identity stays untouched.
 
 If you accept those, generate the key in batch (loopback) mode:
