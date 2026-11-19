@@ -73,11 +73,14 @@ class UserinfoRevokeEndpointsPinTest extends TestCase
         // Host+port varies per worktree/CI runner; pin the path only
         // so a cross-worktree test run does not fail on a URL-base
         // mismatch. The path is the stable part of the OIDC Core
-        // §3.1.2.5 contract.
-        $this->assertStringEndsWith(
+        // §3.1.2.5 contract. Compare parsed path rather than
+        // string-ends-with so a stray query-string suffix cannot
+        // smuggle the matching bytes into a non-path position.
+        $path = parse_url($advertised, PHP_URL_PATH);
+        $this->assertSame(
             self::USERINFO_PATH,
-            $advertised,
-            'userinfo_endpoint must end with /oauth2/default/userinfo'
+            $path,
+            'userinfo_endpoint path must be /oauth2/default/userinfo'
         );
     }
 
