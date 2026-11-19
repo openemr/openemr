@@ -82,4 +82,27 @@ class ServiceContainerSiteInstallStateTest extends TestCase
         $this->expectException(LogicException::class);
         ServiceContainer::getSiteInstallState();
     }
+
+    #[DataProvider('sqlconfProvider')]
+    public function testEnvDatabaseConfigIsAlwaysInstalled(string $sqlconf): void
+    {
+        file_put_contents($this->siteDir . '/sqlconf.php', $sqlconf);
+        $_ENV['OPENEMR_DB_NAME'] = '';
+
+        self::assertTrue(
+            ServiceContainer::getSiteInstallState()->isInstalled,
+            'setting OPENEMR_DB_NAME, even to empty, overrides sqlconf.php',
+        );
+    }
+
+    public function testEnvDatabaseConfigDoesNotNeedSiteDir(): void
+    {
+        OEGlobalsBag::getInstance()->set('OE_SITE_DIR', '');
+        $_ENV['OPENEMR_DB_NAME'] = 'openemr';
+
+        self::assertTrue(
+            ServiceContainer::getSiteInstallState()->isInstalled,
+            'env database config does not consult sqlconf.php',
+        );
+    }
 }
