@@ -59,17 +59,13 @@ class ActiveMedicationListService extends BaseService
             if ($title === '') {
                 continue;
             }
-            $doseParts = [
-                self::cell($row['dosage'] ?? null),
-                self::cell($row['drug_dosage_instructions'] ?? null),
-            ];
             self::keepCurrent($out, $seen, [
                 'source' => 'prescription',
                 'title' => $title,
-                'dose' => trim(implode(' ', array_filter($doseParts, static fn(string $p): bool => $p !== ''))),
+                'dose' => self::prescriptionDose($row),
                 'start' => self::optionalDate($row['start_date'] ?? null),
                 'end' => self::optionalDate($row['end_date'] ?? null),
-                'comments' => '',
+                'comments' => self::cell($row['note'] ?? null),
             ]);
         }
         return $out;
@@ -158,7 +154,7 @@ class ActiveMedicationListService extends BaseService
     {
         $hideErx = $this->hideUploadedErx();
         $erx = self::erxExcludeSql('l.', $hideErx);
-        $rxErx = self::erxExcludeSql('', $hideErx);
+        $rxErx = self::erxExcludeSql('p.', $hideErx);
         /** @var list<array<string, mixed>> $issues */
         $issues = QueryUtils::fetchRecords(
             "SELECT l.title, l.begdate, l.enddate, l.comments, m.drug_dosage_instructions "
@@ -174,17 +170,19 @@ class ActiveMedicationListService extends BaseService
         ) ?: [];
         /** @var list<array<string, mixed>> $prescriptions */
         $prescriptions = QueryUtils::fetchRecords(
-            "SELECT drug, dosage, drug_dosage_instructions, start_date, end_date "
-            . "FROM prescriptions "
-            . "WHERE patient_id = ? AND active = '1' "
+            self::prescriptionSelectSql()
+            . self::prescriptionFromSql()
+            . "WHERE p.patient_id = ? AND p.active = '1' "
             . $rxErx
-            . "AND (end_date IS NULL OR end_date = '0000-00-00' "
-            . "OR end_date = '0000-00-00 00:00:00' OR end_date >= CURDATE()) "
-            . "ORDER BY start_date, id",
+            . "AND (p.end_date IS NULL OR p.end_date = '0000-00-00' "
+            . "OR p.end_date = '0000-00-00 00:00:00' OR p.end_date >= CURDATE()) "
+            . "ORDER BY p.start_date, p.id",
             [$pid]
         ) ?: [];
         if (!$includePrescriptions) {
             $prescriptions = [];
+        } else {
+            $prescriptions = self::translateListTitles($prescriptions);
         }
 
         return self::merge($issues, $prescriptions);
@@ -203,7 +201,7 @@ class ActiveMedicationListService extends BaseService
     {
         $hideErx = $this->hideUploadedErx();
         $erx = self::erxExcludeSql('l.', $hideErx);
-        $rxErx = self::erxExcludeSql('', $hideErx);
+        $rxErx = self::erxExcludeSql('p.', $hideErx);
         /** @var list<array<string, mixed>> $issues */
         $issues = QueryUtils::fetchRecords(
             "SELECT l.title, l.begdate, l.enddate, l.comments, m.drug_dosage_instructions "
@@ -220,18 +218,20 @@ class ActiveMedicationListService extends BaseService
         ) ?: [];
         /** @var list<array<string, mixed>> $prescriptions */
         $prescriptions = QueryUtils::fetchRecords(
-            "SELECT drug, dosage, drug_dosage_instructions, start_date, end_date "
-            . "FROM prescriptions "
-            . "WHERE patient_id = ? "
+            self::prescriptionSelectSql()
+            . self::prescriptionFromSql()
+            . "WHERE p.patient_id = ? "
             . $rxErx
-            . "AND (active != '1' "
-            . "OR (end_date IS NOT NULL AND end_date != '0000-00-00' "
-            . "AND end_date != '0000-00-00 00:00:00' AND end_date < CURDATE())) "
-            . "ORDER BY start_date, id",
+            . "AND (p.active != '1' "
+            . "OR (p.end_date IS NOT NULL AND p.end_date != '0000-00-00' "
+            . "AND p.end_date != '0000-00-00 00:00:00' AND p.end_date < CURDATE())) "
+            . "ORDER BY p.start_date, p.id",
             [$pid]
         ) ?: [];
         if (!$includePrescriptions) {
             $prescriptions = [];
+        } else {
+            $prescriptions = self::translateListTitles($prescriptions);
         }
         $merged = self::merge($issues, $prescriptions);
 
@@ -244,6 +244,115 @@ class ActiveMedicationListService extends BaseService
     private static function cell(mixed $value): string
     {
         return is_string($value) ? trim($value) : '';
+    }
+
+    /**
+     * Dose line for one prescription.
+     *
+     * Free-text instructions stay as written. Otherwise the line uses the
+     * dosage, the form, the interval, and the strength.
+     *
+     * @param array<string, mixed> $row
+     */
+    private static function prescriptionDose(array $row): string
+    {
+        $dosage = self::cell($row['dosage'] ?? null);
+        $instructions = self::cell($row['drug_dosage_instructions'] ?? null);
+        if ($instructions !== '') {
+            return self::joinParts([$dosage, $instructions]);
+        }
+
+        return self::joinParts([
+            $dosage,
+            self::cell($row['form_title'] ?? null),
+            self::cell($row['interval_title'] ?? null),
+            self::strength($row),
+        ]);
+    }
+
+    /**
+     * Strength is the size plus the unit title.
+     *
+     * @param array<string, mixed> $row
+     */
+    private static function strength(array $row): string
+    {
+        $size = $row['size'] ?? null;
+        if (is_int($size) || is_float($size)) {
+            $size = (string) $size;
+        }
+
+        return self::joinParts([
+            self::cell($size),
+            self::cell($row['unit_title'] ?? null),
+        ]);
+    }
+
+    /**
+     * Join the non-empty parts of a dose with single spaces.
+     *
+     * @param list<string> $parts
+     */
+    private static function joinParts(array $parts): string
+    {
+        $kept = [];
+        foreach ($parts as $part) {
+            if ($part !== '') {
+                $kept[] = $part;
+            }
+        }
+
+        return implode(' ', $kept);
+    }
+
+    /**
+     * Columns shared by the active and inactive prescription queries.
+     */
+    private static function prescriptionSelectSql(): string
+    {
+        return "SELECT p.drug, p.dosage, p.drug_dosage_instructions, p.start_date, p.end_date, "
+            . "p.note, p.size, form_opt.title AS form_title, "
+            . "interval_opt.title AS interval_title, unit_opt.title AS unit_title ";
+    }
+
+    /**
+     * Prescription rows with the list titles for form, interval, and unit.
+     *
+     * A zero id is unset. Comparing it as a number would match every
+     * non-numeric option id, so the join keeps only a positive id and
+     * compares that id as text.
+     */
+    private static function prescriptionFromSql(): string
+    {
+        return "FROM prescriptions p "
+            . "LEFT JOIN list_options AS form_opt "
+            . "ON form_opt.list_id = 'drug_form' AND form_opt.activity = 1 "
+            . "AND p.form > 0 AND form_opt.option_id = CAST(p.form AS CHAR) "
+            . "LEFT JOIN list_options AS interval_opt "
+            . "ON interval_opt.list_id = 'drug_interval' AND interval_opt.activity = 1 "
+            . "AND p.interval > 0 AND interval_opt.option_id = CAST(p.interval AS CHAR) "
+            . "LEFT JOIN list_options AS unit_opt "
+            . "ON unit_opt.list_id = 'drug_units' AND unit_opt.activity = 1 "
+            . "AND p.unit > 0 AND unit_opt.option_id = CAST(p.unit AS CHAR) ";
+    }
+
+    /**
+     * Translate the list titles the dose line prints.
+     *
+     * @param list<array<string, mixed>> $rows
+     * @return list<array<string, mixed>>
+     */
+    private static function translateListTitles(array $rows): array
+    {
+        foreach ($rows as $index => $row) {
+            foreach (['form_title', 'interval_title', 'unit_title'] as $column) {
+                $title = self::cell($row[$column] ?? null);
+                $row[$column] = $title === '' ? '' : xl_list_label($title);
+            }
+            $rows[$index] = $row;
+        }
+
+        return $rows;
     }
 
     /**
