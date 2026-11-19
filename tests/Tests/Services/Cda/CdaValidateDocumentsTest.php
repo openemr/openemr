@@ -39,8 +39,7 @@ class CdaValidateDocumentsTest extends TestCase {
     public function testValidateDocumentWithCcdaTypeWithInvalidDocument(): void
     {
         $ccda = $this->withoutHeaderTelecoms(self::EXAMPLE_DIR . "ccda-example-response1.xml");
-        $cdaDocumentValidator = new CdaValidateDocuments();
-        $cdaDocumentValidator->setSystemLogger($this->createMock(LoggerInterface::class));
+        $cdaDocumentValidator = new CdaValidateDocuments(logger: $this->createMock(LoggerInterface::class));
         $validationResponse = $cdaDocumentValidator->validateDocument($ccda, 'ccda');
 
         $this->assertNotEmpty($validationResponse);

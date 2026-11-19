@@ -6,42 +6,47 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\Cda;
 
-use CURLFile;
 use DOMDocument;
 use Exception;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Utils\Json;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\Schematron\SchemaRegistry;
+use Psr\Log\LoggerInterface;
 
+/**
+ * @phpstan-type EttFinding array{type: string, description: string, documentLineNumber: string, xPath: string}
+ * @phpstan-type EttReply array{count: int, findings: list<EttFinding>}
+ */
 class CdaValidateDocuments
 {
-    use SystemLoggerAwareTrait;
+    public ?string $externalValidatorUrl = null;
+    public bool $externalValidatorEnabled = false;
 
-    public $externalValidatorUrl;
-    public $externalValidatorEnabled;
+    private readonly ClientInterface $httpClient;
 
-    public function __construct()
+    private readonly LoggerInterface $logger;
+
+    public function __construct(?ClientInterface $httpClient = null, ?LoggerInterface $logger = null)
     {
-        $this->externalValidatorEnabled = OEGlobalsBag::getInstance()->getBoolean('mdht_conformance_server_enable');
-        if (empty(OEGlobalsBag::getInstance()->getString('mdht_conformance_server'))) {
-            $this->externalValidatorEnabled = false;
-        }
-        $this->externalValidatorUrl = null;
+        $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
+        $server = trim(OEGlobalsBag::getInstance()->getString('mdht_conformance_server'));
+        $this->externalValidatorEnabled = $server !== ''
+            && OEGlobalsBag::getInstance()->getBoolean('mdht_conformance_server_enable');
         if ($this->externalValidatorEnabled) {
-            // should never get to where the url is '' as we disable it if the conformance server is empty
-            $this->externalValidatorUrl = trim(OEGlobalsBag::getInstance()->getString('mdht_conformance_server') ?? null) ?: '';
-            if (!str_ends_with($this->externalValidatorUrl, '/')) {
-                $this->externalValidatorUrl .= '/';
-            }
-
-            $this->externalValidatorUrl .= 'referenceccdaservice/';
+            $this->externalValidatorUrl = rtrim($server, '/') . '/referenceccdaservice/';
         }
     }
 
@@ -69,23 +74,20 @@ class CdaValidateDocuments
     }
 
     /**
-     * @param $xml
+     * @return array{}|array{errorCount: int, warningCount: 0, ignoredCount: 0, errors?: non-empty-list<array{type: 'error', test: string, description: string, line: string, path: string, context: string, xml: ''}>}
      */
-    public function ettValidateCcda($xml): array
+    public function ettValidateCcda(string $xml): array
     {
-        try {
-            $result = $this->ettValidateDocumentRequest($xml);
-        } catch (\Throwable $e) {
-            $this->getSystemLogger()->error($e->getMessage(), ['exception' => $e]);
-            return [];
-        }
+        // A request that fails comes back as a one-error reply, so a validation that did not run
+        // never reads as a conformant document.
+        $result = $this->ettValidateDocumentRequest($xml);
         // translate result to our common render array
         $results = [
-            'errorCount' => $result['resultsMetaData']["resultMetaData"][0]["count"],
+            'errorCount' => $result['count'],
             'warningCount' => 0,
             'ignoredCount' => 0,
         ];
-        foreach ($result['ccdaValidationResults'] as $r) {
+        foreach ($result['findings'] as $r) {
             $results['errors'][] = [
                 'type' => 'error',
                 'test' => $r['type'],
@@ -114,62 +116,138 @@ class CdaValidateDocuments
     }
 
     /**
-     * @param $xml
-     * @return array|mixed
+     * @return EttReply
      */
-    private function ettValidateDocumentRequest($xml)
+    private function ettValidateDocumentRequest(string $xml): array
     {
-        $reply = [];
-        if (empty($xml)) {
-            return $reply;
+        if ($xml === '') {
+            return ['count' => 0, 'findings' => []];
         }
 
-        $headers = [
-            "Content-Type: multipart/form-data",
-            "Accept: application/json",
-        ];
-        $post_url = $this->externalValidatorUrl;
-        // I know there's a better way to do this but, not seeing it just now.
-        $post_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/ccda.xml';
-        file_put_contents($post_file, $xml);
-        $file = new CURLFile($post_file, 'application/xhtml+xml', 'ccda.xml');
+        $url = $this->externalValidatorUrl;
+        if ($url === null) {
+            $this->logger->error('C-CDA validation requested with no validator server configured');
+            return $this->ettFailureReply(0);
+        }
 
-        $post_this = [
-            'validationObjective' => 'C-CDA_IG_Plus_Vocab',
-            'referenceFileName' => 'noscenariofile',
-            'vocabularyConfig' => 'ccdaReferenceValidatorConfig',
-            'severityLevel' => 'ERROR',
-            'curesUpdate' => true,
-            'ccdaFile' => $file
-        ];
-        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $post_url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_this);
+        try {
+            $response = $this->httpClient->request('POST', $url, [
+                RequestOptions::HEADERS => ['Accept' => 'application/json'],
+                RequestOptions::MULTIPART => [
+                    ['name' => 'validationObjective', 'contents' => 'C-CDA_IG_Plus_Vocab'],
+                    ['name' => 'referenceFileName', 'contents' => 'noscenariofile'],
+                    ['name' => 'vocabularyConfig', 'contents' => 'ccdaReferenceValidatorConfig'],
+                    ['name' => 'severityLevel', 'contents' => 'ERROR'],
+                    ['name' => 'curesUpdate', 'contents' => '1'],
+                    [
+                        'name' => 'ccdaFile',
+                        'contents' => $xml,
+                        'filename' => 'ccda.xml',
+                        'headers' => ['Content-Type' => 'application/xhtml+xml'],
+                    ],
+                ],
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::ALLOW_REDIRECTS => false,
+                RequestOptions::CONNECT_TIMEOUT => 10,
+                // Validating a large document takes longer than the shared client's default.
+                RequestOptions::TIMEOUT => 120,
+                RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
+            ]);
+        } catch (GuzzleException | \InvalidArgumentException $e) {
+            // InvalidArgumentException: Guzzle rejects a malformed server setting before sending.
+            $this->logger->error('C-CDA validation request failed', ['exception' => $e]);
+            return $this->ettFailureReply(0);
+        }
 
-        $response = curl_exec($ch);
-        $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        if (empty($response) || $status !== '200') {
-            $reply['resultsMetaData']["resultMetaData"][0]["count"] = 1;
-            $reply['ccdaValidationResults'][] = [
-                'description' => xlt('Validation Request failed') .
-                    ': Error ' . (curl_error($ch) ?: xlt('Unknown')) . ' ' .
-                    xlt('Request Status') . ':' . $status
+        $status = $response->getStatusCode();
+        $body = (string) $response->getBody();
+        if ($status !== 200 || $body === '') {
+            return $this->ettFailureReply($status);
+        }
+
+        // A reply that isn't a validation report (a proxy's HTML error page, say) is a failed
+        // validation, not a document with no findings.
+        try {
+            $decoded = Json::decode($body);
+        } catch (\JsonException) {
+            $decoded = null;
+        }
+        $reply = is_array($decoded) ? $this->parseEttReply($decoded) : null;
+        if ($reply === null) {
+            $this->logger->error('C-CDA validator reply was not a validation report', ['status' => $status]);
+            return $this->ettFailureReply($status);
+        }
+        return $reply;
+    }
+
+    /**
+     * Read the error count and findings from a decoded validator reply.
+     *
+     * @param array<mixed> $decoded
+     * @return ?EttReply null when the reply lacks the count or the findings list, or reports that the
+     *                   validator itself failed
+     */
+    private function parseEttReply(array $decoded): ?array
+    {
+        $metaData = $decoded['resultsMetaData'] ?? null;
+        if (is_array($metaData) && ($metaData['serviceError'] ?? null) === true) {
+            // The validator answers 200 with no findings when it fails internally.
+            $this->logger->error('C-CDA validator reported a service error', [
+                'serviceErrorMessage' => $metaData['serviceErrorMessage'] ?? null,
+            ]);
+            return null;
+        }
+        $counts = is_array($metaData) ? $metaData['resultMetaData'] ?? null : null;
+        $firstCount = is_array($counts) ? $counts[0] ?? null : null;
+        $count = is_array($firstCount) ? $firstCount['count'] ?? null : null;
+        $results = $decoded['ccdaValidationResults'] ?? null;
+        if (!is_int($count) || !is_array($results)) {
+            return null;
+        }
+
+        $findings = [];
+        foreach ($results as $result) {
+            if (!is_array($result)) {
+                return null;
+            }
+            $findings[] = [
+                'type' => self::ettText($result['type'] ?? null),
+                'description' => self::ettText($result['description'] ?? null),
+                'documentLineNumber' => self::ettText($result['documentLineNumber'] ?? null),
+                'xPath' => self::ettText($result['xPath'] ?? null),
             ];
         }
-        if ($status == '200') {
-            $reply = json_decode($response, true);
-        }
+        return ['count' => $count, 'findings' => $findings];
+    }
 
-        return $reply;
+    /**
+     * A finding's field as text: the validator sends line numbers as strings or numbers.
+     */
+    private static function ettText(mixed $value): string
+    {
+        return match (true) {
+            is_string($value) => $value,
+            is_int($value), is_float($value) => (string) $value,
+            default => '',
+        };
+    }
+
+    /**
+     * Shape a failed validation request like a validator reply reporting one error.
+     *
+     * @return EttReply
+     */
+    private function ettFailureReply(int $status): array
+    {
+        return [
+            'count' => 1,
+            'findings' => [[
+                'type' => 'error',
+                'description' => xlt('Validation Request failed') . ' ' . xlt('Request Status') . ': ' . $status,
+                'documentLineNumber' => '',
+                'xPath' => '',
+            ]],
+        ];
     }
 
     /**
@@ -192,7 +270,7 @@ class CdaValidateDocuments
                 $xsd_log['xsd'][] = $detail;
             }
             libxml_clear_errors();
-            $this->getSystemLogger()->error("CDA XSD Validation Errors", ['errors' => $xsd_log['xsd']]);
+            $this->logger->error('CDA XSD Validation Errors', ['errors' => $xsd_log['xsd']]);
         }
 
         return $xsd_log;
@@ -217,7 +295,7 @@ class CdaValidateDocuments
         try {
             return array_merge($defaults, $this->schematronValidateDocument($xml, $type));
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->error('Schematron validation failed', ['exception' => $e]);
+            $this->logger->error('Schematron validation failed', ['exception' => $e]);
             // Never return a clean bill of health for a validation that did not run.
             // An empty error list is indistinguishable from a conformant document, so
             // report the failure as a finding and flag it for callers that check.
@@ -295,10 +373,7 @@ class CdaValidateDocuments
         // as "no findings" - a silent pass. Substituting U+FFFD keeps the rest readable.
         $content = json_encode($log ?? [], JSON_INVALID_UTF8_SUBSTITUTE);
         if ($content === false) {
-            // ServiceContainer::getLogger(), not the deprecated getSystemLogger(): the
-            // PHPStan baseline pins this file at three deprecated calls, and new code
-            // should use the supported accessor anyway.
-            ServiceContainer::getLogger()->error('Could not encode CDA validation log', [
+            $this->logger->error('Could not encode CDA validation log', [
                 'documentId' => $docId,
                 'jsonError' => json_last_error_msg(),
             ]);

@@ -4,14 +4,20 @@
  * @package        OpenEMR
  * @link           https://www.open-emr.org
  * @author         Jerry Padgett <sjpadgett@gmail.com>
+ * @author         Michael A. Smith <michael@opencoreemr.com>
  * @copyright      Copyright (c) 2025 - 2026 <sjpadgett@gmail.com>
+ * @copyright      Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Telemetry;
 
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\DatabaseQueryTrait;
+use OpenEMR\Common\Utils\Json;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
@@ -32,19 +38,16 @@ class TelemetryService
 
     protected LoggerInterface $logger;
 
-    /**
-     * TelemetryService constructor.
-     *
-     * @param TelemetryRepository     $repository
-     * @param VersionServiceInterface $versionService
-     * @param ?LoggerInterface         $logger
-     */
+    private readonly ClientInterface $httpClient;
+
     public function __construct(
         protected TelemetryRepository $repository = new TelemetryRepository(),
         protected VersionServiceInterface $versionService = new VersionService(),
         ?LoggerInterface $logger = null,
+        ?ClientInterface $httpClient = null,
     ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
+        $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
     }
 
     /**
@@ -129,13 +132,13 @@ class TelemetryService
      */
     public function reportUsageData(): int|bool
     {
-        if (empty($this->isTelemetryEnabled())) {
+        if ($this->isTelemetryEnabled() === 0) {
             $this->logger->debug("Telemetry is not enabled, so do not send a usage report.");
             return false;
         }
 
         $site_uuid = $this->getUniqueInstallationUuid();
-        if (empty($site_uuid)) {
+        if ($site_uuid === '') {
             $this->logger->warning("Site UUID not found.");
         }
 
@@ -204,27 +207,47 @@ class TelemetryService
             'localeData' => $localeData,
         ];
 
-        $payload = json_encode($payload_data);
-
-        $curlResult = $this->executeCurlRequest($endpoint, $payload);
-        $response = $curlResult['response'];
-        $httpStatus = $curlResult['httpStatus'];
-        if (!empty($curlResult['error'])) {
-            $this->logger->error("cURL error: {error}", ['error' => $curlResult['error']]);
+        try {
+            $payload = Json::encode($payload_data);
+        } catch (\JsonException $e) {
+            // JSON cannot carry bytes that are not UTF-8, so report the usage data like a failed request.
+            $this->logger->error('Telemetry usage report could not be encoded', ['exception' => $e]);
+            return 0;
         }
 
+        try {
+            $reply = $this->httpClient->request('POST', $endpoint, [
+                RequestOptions::BODY => $payload,
+                RequestOptions::HEADERS => ['Content-Type' => 'application/json'],
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::ALLOW_REDIRECTS => false,
+                RequestOptions::VERIFY => OEGlobalsBag::getInstance()->getBoolean('http_verify_ssl', true),
+            ]);
+        } catch (GuzzleException $e) {
+            // No response, as when cURL failed to connect: report status 0.
+            $this->logger->error('Telemetry usage report request failed', ['exception' => $e]);
+            return 0;
+        }
+        $httpStatus = $reply->getStatusCode();
+        $response = (string) $reply->getBody();
+
         if (in_array($httpStatus, [200, 201, 204])) {
-            $responseData = json_decode((string)$response, true);
+            try {
+                $responseData = Json::decode($response);
+            } catch (\JsonException) {
+                // An unreadable reply counts as an error response, like an empty one.
+                $responseData = null;
+            }
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report //TODO: REMOVE comment RELEASE
             } else {
-                $this->logger->error("Error in response: {response}", ['response' => json_encode($responseData)]);
+                $this->logger->error('Error in response: {response}', ['response' => $responseData]);
             }
         } else {
             $this->logger->error("HTTP error: {httpStatus}", ['httpStatus' => $httpStatus]);
         }
 
-        $this->logger->debug("Telemetry sent: {httpStatus}: {geoData}", ['httpStatus' => $httpStatus, 'geoData' => json_encode($serverGeoData)]);
+        $this->logger->debug('Telemetry sent: {httpStatus}: {geoData}', ['httpStatus' => $httpStatus, 'geoData' => $serverGeoData]);
         return $httpStatus;
     }
 
@@ -272,40 +295,5 @@ class TelemetryService
     protected function createGeoTelemetry(): GeoTelemetryInterface
     {
         return new GeoTelemetry();
-    }
-
-    /**
-     * A stubbable wrapper around cURL operations.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param string $endpoint
-     * @param string $payload
-     * @return array
-     */
-    protected function executeCurlRequest(string $endpoint, string $payload): array
-    {
-        $httpVerifySsl = (bool)(OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
-        $ch = curl_init($endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/json",
-            "Content-Length: " . strlen($payload)
-        ]);
-
-        $response = curl_exec($ch);
-        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_errno($ch) ? curl_error($ch) : null;
-        curl_close($ch);
-
-        return [
-            'response' => $response,
-            'httpStatus' => $httpStatus,
-            'error' => $error
-        ];
     }
 }
