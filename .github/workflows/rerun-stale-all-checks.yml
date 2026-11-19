@@ -6,11 +6,10 @@
 # re-trigger it. On PRs the aggregate is the only required check, so the
 # stale red blocks the merge until someone reruns it by hand.
 #
-# This workflow closes that gap. It fires when one of the heavy workflows
-# completes (which is what a "re-run failed jobs" click produces), and reruns
-# any failed "All Checks Passed" run for the same commit once every other
-# check run on that commit is green. It only ever acts on that exact state,
-# so a legitimately red commit stays red.
+# This workflow closes that gap. Each completion of a workflow listed under
+# workflow_run, including one a "re-run failed jobs" click produces, reruns
+# any failed aggregate run for that commit once every other check run there
+# is green, so a legitimately red commit stays red.
 #
 # The legacy-directory gates heal the same way: an admin's approval re-runs
 # Legacy Directories on pull_request_review, which adds a passing check run
