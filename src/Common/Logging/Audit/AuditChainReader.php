@@ -75,7 +75,7 @@ final class AuditChainReader
         if ($minId !== '' && $maxId !== '') {
             $earlier = QueryUtils::querySingleRow(
                 'SELECT c.chain FROM log_comment_encrypt c'
-                . ' WHERE c.version >= 5 AND c.chain IS NOT NULL AND c.chain != \'\''
+                . ' WHERE c.chain IS NOT NULL AND c.chain != \'\''
                 . ' AND c.log_id < ?'
                 . ' ORDER BY c.log_id DESC LIMIT 1',
                 [$minId],
@@ -89,20 +89,23 @@ final class AuditChainReader
             $rows = QueryUtils::fetchRecordsNoLog(
                 'SELECT c.log_id, c.checksum, c.checksum_api, c.chain'
                 . ' FROM log_comment_encrypt c'
-                . ' WHERE c.version >= 5 AND c.log_id >= ? AND c.log_id <= ?'
+                . ' WHERE c.chain IS NOT NULL AND c.chain != \'\''
+                . ' AND c.log_id >= ? AND c.log_id <= ?'
                 . ' ORDER BY c.log_id ASC',
                 [$minId, $maxId],
             );
             foreach ($rows as $row) {
-                $checksum = $row['checksum'] ?? null;
-                $chain = $row['chain'] ?? null;
-                $checksumApi = $row['checksum_api'] ?? null;
-                $checker->add(
-                    self::scalar($row['log_id'] ?? null),
-                    is_string($checksum) ? $checksum : '',
-                    is_string($chain) ? $chain : null,
-                    is_string($checksumApi) ? $checksumApi : '',
-                );
+                self::addRow($checker, $row);
+            }
+            $next = QueryUtils::querySingleRow(
+                'SELECT c.log_id, c.checksum, c.checksum_api, c.chain FROM log_comment_encrypt c'
+                . " WHERE c.chain IS NOT NULL AND c.chain != '' AND c.log_id > ?"
+                . ' ORDER BY c.log_id ASC LIMIT 1',
+                [$maxId],
+                false,
+            );
+            if (is_array($next)) {
+                self::addRow($checker, $next);
             }
         }
 
@@ -137,6 +140,22 @@ final class AuditChainReader
         }
 
         return $failures;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private static function addRow(AuditChainChecker $checker, array $row): void
+    {
+        $checksum = $row['checksum'] ?? null;
+        $chain = $row['chain'] ?? null;
+        $checksumApi = $row['checksum_api'] ?? null;
+        $checker->add(
+            self::scalar($row['log_id'] ?? null),
+            is_string($checksum) ? $checksum : '',
+            is_string($chain) ? $chain : null,
+            is_string($checksumApi) ? $checksumApi : '',
+        );
     }
 
     private static function scalar(mixed $value): string

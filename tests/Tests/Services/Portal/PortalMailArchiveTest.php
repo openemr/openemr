@@ -223,7 +223,18 @@ class PortalMailArchiveTest extends TestCase
             [self::AUDIT_USER, 'delete', 'Portal'],
         );
 
-        return is_array($row) ? (int) ($row['id'] ?? 0) : 0;
+        if (!is_array($row)) {
+            return 0;
+        }
+        $id = $row['id'] ?? 0;
+        if (is_int($id)) {
+            return $id;
+        }
+        if (is_string($id) && ctype_digit($id)) {
+            return (int) $id;
+        }
+
+        return 0;
     }
 
     private function getLatestAuditComment(int $afterId): string
