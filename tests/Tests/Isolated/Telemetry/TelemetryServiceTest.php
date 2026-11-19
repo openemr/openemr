@@ -504,8 +504,7 @@ class TelemetryServiceTest extends TestCase
             ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow'])
             ->getMock();
         $telemetryService->method('isTelemetryEnabled')->willReturn(1);
-        // UniqueInstallationUuid has no return type; anything but a string counts as missing.
-        $telemetryService->method('getUniqueInstallationUuid')->willReturn(null);
+        $telemetryService->method('getUniqueInstallationUuid')->willReturn('');
         $telemetryService->method('createGeoTelemetry')->willReturn($this->createStub(GeoTelemetryInterface::class));
         $telemetryService->method('querySingleRow')->willReturn(false);
 

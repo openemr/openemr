@@ -144,8 +144,7 @@ class TelemetryService
             return false;
         }
 
-        $uuid = $this->getUniqueInstallationUuid();
-        $site_uuid = is_string($uuid) ? $uuid : '';
+        $site_uuid = $this->getUniqueInstallationUuid();
         if ($site_uuid === '') {
             $this->logger->warning("Site UUID not found.");
         }
@@ -287,7 +286,7 @@ class TelemetryService
      *
      * @codeCoverageIgnore
      */
-    protected function getUniqueInstallationUuid(): mixed
+    protected function getUniqueInstallationUuid(): string
     {
         return UniqueInstallationUuid::getUniqueInstallationUuid();
     }
