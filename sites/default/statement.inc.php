@@ -835,9 +835,11 @@ function create_statement($stmt): string
 
     // Letter stubs pad to line 42. A shorter sheet keeps the footer on page one.
     $padTo = 42;
+    $pageLines = 0;
     if ($windowed) {
+        $pageLines = StatementEnvelope::textPageLines();
         $reserve = 9;
-        if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
+        if (StatementEnvelope::stmtString($stmt, 'bill_note') !== '' && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
             ++$reserve;
         }
         if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
@@ -853,7 +855,7 @@ function create_statement($stmt): string
         if ($appointments !== 0) {
             $reserve += 2 + $appointments;
         }
-        $padTo = min(42, StatementEnvelope::textPageLines() - $reserve);
+        $padTo = min(42, $pageLines - $reserve);
         if ($padTo < 1) {
             $padTo = 1;
         }
@@ -908,13 +910,27 @@ function create_statement($stmt): string
                 $desc = $description;
             }
 
-            if ($windowed && $padTo < 42 && $count >= $padTo) {
-                continue;
+            if ($windowed && $pageLines > 0 && $count >= $pageLines) {
+                $out .= "\014";
+                $count = 0;
             }
-            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
+            $descWidth = 45;
+            if ($windowed) {
+                $descWidth = max(1, StatementEnvelope::textPageColumns() - 20);
+                if (strlen($desc) > $descWidth) {
+                    $desc = substr($desc, 0, $descWidth);
+                }
+            }
+            $out .= sprintf("%-10s  %-" . $descWidth . "s%8s\n", oeFormatShortDate($dos), $desc, $amount);
             $dos = '';
             ++$count;
         }
+    }
+
+    if ($windowed && $pageLines > 0 && $count > $padTo) {
+        $out .= "\014";
+        $count = 0;
+        $padTo = 0;
     }
 
     while ($count < $padTo) {

@@ -982,6 +982,16 @@ body { margin: 0; padding: 0; }
         return max(1, (int) floor(($heightIn * 6.0) + 1e-6));
     }
 
+    /**
+     * Courier columns on one sheet. Twelve-point Courier is ten characters an inch.
+     */
+    public static function textPageColumns(): int
+    {
+        [$widthIn] = self::pageSizeInches();
+
+        return max(1, (int) floor(($widthIn * 10.0) + 1e-6));
+    }
+
     public static function sheetFormat(): string
     {
         $name = 'LETTER';

@@ -593,8 +593,10 @@ final class StatementEnvelopeTest extends TestCase
         try {
             OEGlobalsBag::getInstance()->set('pdf_size', 'LETTER');
             $this->assertSame(66, StatementEnvelope::textPageLines());
+            $this->assertSame(85, StatementEnvelope::textPageColumns());
             OEGlobalsBag::getInstance()->set('pdf_size', 'A5');
             $this->assertSame(49, StatementEnvelope::textPageLines());
+            $this->assertSame(58, StatementEnvelope::textPageColumns());
         } finally {
             self::restorePdfSize($had, $previous);
         }
