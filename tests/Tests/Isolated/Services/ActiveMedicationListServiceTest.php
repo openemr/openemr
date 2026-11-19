@@ -319,6 +319,55 @@ final class ActiveMedicationListServiceTest extends TestCase
             ]
         );
         $this->assertSame('500 mg', $rows[0]['dose']);
+        $this->assertSame('', $rows[0]['comments']);
+    }
+
+    /**
+     * An empty instruction keeps the form, the interval, and the strength.
+     */
+    public function testMergeBuildsADoseWhenInstructionsAreEmpty(): void
+    {
+        $rows = ActiveMedicationListService::merge(
+            [],
+            [
+                [
+                    'drug' => 'Metoprolol',
+                    'dosage' => '1',
+                    'drug_dosage_instructions' => '',
+                    'form_title' => 'tablet',
+                    'interval_title' => 'BID',
+                    'size' => 10,
+                    'unit_title' => 'mg',
+                    'note' => 'with food',
+                    'start_date' => '2026-02-02',
+                ],
+            ]
+        );
+        $this->assertSame('1 tablet BID 10 mg', $rows[0]['dose']);
+        $this->assertSame('with food', $rows[0]['comments']);
+        $this->assertSame('2026-02-02', $rows[0]['start']);
+    }
+
+    /**
+     * Free-text instructions stay as written, and a missing note stays blank.
+     */
+    public function testMergeKeepsFreeTextInstructions(): void
+    {
+        $rows = ActiveMedicationListService::merge(
+            [],
+            [
+                [
+                    'drug' => 'Metoprolol',
+                    'dosage' => '1',
+                    'drug_dosage_instructions' => 'take with food',
+                    'form_title' => 'tablet',
+                    'size' => 10,
+                    'unit_title' => 'mg',
+                ],
+            ]
+        );
+        $this->assertSame('1 take with food', $rows[0]['dose']);
+        $this->assertSame('', $rows[0]['comments']);
     }
 
     /**

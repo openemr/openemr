@@ -49,6 +49,7 @@ final class ActiveMedicationPrintPage
         if (!AclMain::aclCheckCore('patients', 'med')) {
             AccessDeniedHelper::deny('Unauthorized access to medication list');
         }
+        self::denyUnlessSquadAllowed($pid);
 
         $patient = self::patientRow($pid);
         $includePrescriptions = !OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions')
@@ -90,6 +91,27 @@ final class ActiveMedicationPrintPage
             ]
         );
         exit;
+    }
+
+    /**
+     * Stop when this patient belongs to a squad the user cannot open.
+     *
+     * The medications section of the patient report uses the same check.
+     * It runs before the page reads the chart or the medication lists.
+     */
+    private static function denyUnlessSquadAllowed(int $pid): void
+    {
+        $loaded = getPatientData($pid, 'squad');
+        $squad = '';
+        if (is_array($loaded)) {
+            $value = $loaded['squad'] ?? null;
+            if (is_string($value)) {
+                $squad = $value;
+            }
+        }
+        if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
+            AccessDeniedHelper::deny('Not authorized for squad: ' . $squad);
+        }
     }
 
     /**
