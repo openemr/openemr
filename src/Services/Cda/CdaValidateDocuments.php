@@ -386,20 +386,20 @@ class CdaValidateDocuments
     }
 
     /**
-     * @return ?array<mixed> the saved validation report, or null when the document has none or it is unreadable
+     * @return ?array<mixed> the saved validation report, or null when the document has none
+     * @throws \JsonException when the saved report is not valid JSON
      */
     public function fetchValidationLog(int|string $audit_id): ?array
     {
-        $row = QueryUtils::querySingleRow('SELECT `document_data` FROM `documents` WHERE `audit_master_id` = ?', [$audit_id]);
+        $sql = <<<'SQL'
+            SELECT `document_data` FROM `documents` WHERE `audit_master_id` = ?
+            SQL;
+        $row = QueryUtils::querySingleRow($sql, [$audit_id]);
         $log = is_array($row) ? $row['document_data'] ?? null : null;
         if (!is_string($log) || $log === '') {
             return null;
         }
-        try {
-            $decoded = Json::decode($log);
-        } catch (\JsonException) {
-            return null;
-        }
+        $decoded = Json::decode($log);
         return is_array($decoded) ? $decoded : null;
     }
 }

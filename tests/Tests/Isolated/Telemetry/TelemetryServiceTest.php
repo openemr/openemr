@@ -458,7 +458,13 @@ class TelemetryServiceTest extends TestCase
         ]);
 
         $telemetryService = $this->getMockBuilder(TelemetryService::class)
-            ->setConstructorArgs([$mockRepository, $versionService, $this->createStub(LoggerInterface::class), $this->clientUsing($handler), $globals])
+            ->setConstructorArgs([
+                $mockRepository,
+                $versionService,
+                $this->createStub(LoggerInterface::class),
+                $this->clientUsing($handler),
+                $globals,
+            ])
             ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow'])
             ->getMock();
         $telemetryService->method('isTelemetryEnabled')->willReturn(1);
@@ -477,6 +483,37 @@ class TelemetryServiceTest extends TestCase
         $this->assertSame('Europe/Paris', $payload['localeData']['time_zone'] ?? null);
         $this->assertSame('{"portal_enabled":true}', $payload['localeData']['settings'] ?? null);
         $this->assertFalse($handler->getLastOptions()['verify']);
+    }
+
+    public function testReportUsageDataWithoutASiteUuidWarnsAndSendsAnEmptyId(): void
+    {
+        $versionService = $this->createStub(VersionServiceInterface::class);
+        $versionService->method('getSoftwareVersion')->willReturn(new SoftwareVersion(8, 1, 0, '', 0, 0, 0));
+        $handler = new MockHandler([new Response(200, [], '{"status": "success"}')]);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning')->with('Site UUID not found.');
+
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([
+                $this->createStub(TelemetryRepository::class),
+                $versionService,
+                $logger,
+                $this->clientUsing($handler),
+                new OEGlobalsBag(),
+            ])
+            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow'])
+            ->getMock();
+        $telemetryService->method('isTelemetryEnabled')->willReturn(1);
+        // UniqueInstallationUuid has no return type; anything but a string counts as missing.
+        $telemetryService->method('getUniqueInstallationUuid')->willReturn(null);
+        $telemetryService->method('createGeoTelemetry')->willReturn($this->createStub(GeoTelemetryInterface::class));
+        $telemetryService->method('querySingleRow')->willReturn(false);
+
+        $telemetryService->reportUsageData();
+
+        $request = $handler->getLastRequest();
+        $this->assertInstanceOf(RequestInterface::class, $request);
+        $this->assertSame('SiteID=', $request->getUri()->getQuery());
     }
 
     public function testReportUsageDataThatCannotBeEncodedIsNotSent(): void

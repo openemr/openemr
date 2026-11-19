@@ -289,7 +289,9 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
         {
             $validator = $this->validatorUsing(new MockHandler());
 
-            $this->assertSame(['xsd' => []], $validator->validateXmlXsd((new Filesystem())->readFile(self::CONFORMANT_DOCUMENT)));
+            $document = (new Filesystem())->readFile(self::CONFORMANT_DOCUMENT);
+
+            $this->assertSame(['xsd' => []], $validator->validateXmlXsd($document));
         }
 
         public function testAReportRequestWithoutAnAuditIdShowsTheNoErrorsMessage(): void
@@ -333,7 +335,11 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
         private function validatorUsing(MockHandler $handler, ?OEGlobalsBag $globals = null): CdaValidateDocuments
         {
             $client = new Client(['handler' => HandlerStack::create($handler), 'http_errors' => false]);
-            return new CdaValidateDocuments($client, new NullLogger(), $globals ?? self::settings('https://ett.example.test'));
+            return new CdaValidateDocuments(
+                $client,
+                new NullLogger(),
+                $globals ?? self::settings('https://ett.example.test'),
+            );
         }
 
         /**

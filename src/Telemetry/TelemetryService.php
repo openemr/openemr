@@ -144,7 +144,8 @@ class TelemetryService
             return false;
         }
 
-        $site_uuid = $this->getUniqueInstallationUuid();
+        $uuid = $this->getUniqueInstallationUuid();
+        $site_uuid = is_string($uuid) ? $uuid : '';
         if ($site_uuid === '') {
             $this->logger->warning("Site UUID not found.");
         }
@@ -262,7 +263,7 @@ class TelemetryService
     /**
      * Sets the API event data.
      *
-     * @param array<mixed> $event_data The event data to set.
+     * @param array<string, mixed> $event_data
      */
     public function trackApiRequestEvent(array $event_data): void
     {
@@ -285,13 +286,10 @@ class TelemetryService
      * A stubbable wrapper around a static method.
      *
      * @codeCoverageIgnore
-     *
-     * @return string
      */
-    protected function getUniqueInstallationUuid(): string
+    protected function getUniqueInstallationUuid(): mixed
     {
-        $uuid = UniqueInstallationUuid::getUniqueInstallationUuid();
-        return is_string($uuid) ? $uuid : '';
+        return UniqueInstallationUuid::getUniqueInstallationUuid();
     }
 
     /**
