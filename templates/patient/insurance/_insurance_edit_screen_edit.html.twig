@@ -153,7 +153,8 @@ Partial twig file that represents the insurance edit screen for a patient
             <div class="col-md-9">
                 <select class='form-control form-control-sm mb-1 sel2' name='form_policy_type'>
                     {% for key,value in policy_types %}
-                        <option value="{{ key|attr }}">{{ value|text }}</option>
+                        {# labels arrive already escaped by InsurancePolicyTypes::getTranslatedPolicyTypes() #}
+                        <option value="{{ key|attr }}">{{ value }}</option>
                     {% endfor %}
                 </select>
             </div>

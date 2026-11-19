@@ -25,6 +25,7 @@ use OpenEMR\PostCalendar\LegacyInputNarrowing;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
 use OpenEMR\PostCalendar\ViewModel\ViewType;
+use OpenEMR\PostCalendar\ViewModel\VisitListDayLoader;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 
@@ -671,6 +672,7 @@ function postcalendar_userapi_buildView($args): string
                 30
             );
             $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
+            $visitListDay = new VisitListDayLoader();
 
             $renderData = $builder->buildDayScreenRenderData(
                 $aEvents,
@@ -692,7 +694,9 @@ function postcalendar_userapi_buildView($args): string
                 LegacyInputNarrowing::stringValue($monthSelectorHtml),
                 !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
                 $dayHeaderLabel,
-                $isTwelveHourFormat
+                $isTwelveHourFormat,
+                $visitListDay->schedule($dateStr, $providersList),
+                $visitListDay->statuses()
             );
         } elseif ($vmType === ViewType::Week) {
             // Week-screen: like day-screen but 7 day-columns per provider.

@@ -92,7 +92,8 @@ function set_category() {
     if (s.selectedIndex >= 0) {
         var catid = s.options[s.selectedIndex].value;
         f.form_title.value = s.options[s.selectedIndex].text;
-        var minutes = addEditEventConfig.durations[catid];
+        // A Visit List patient has no duration, whatever the category's.
+        var minutes = addEditEventConfig.visitList ? 0 : addEditEventConfig.durations[catid];
         f.form_duration.value = minutes;
         var allDay = String(minutes) === '1440';
         var allDayRadio = document.getElementById('rballday1');

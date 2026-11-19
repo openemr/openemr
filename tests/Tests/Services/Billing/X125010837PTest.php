@@ -109,6 +109,43 @@ class X125010837PTest extends TestCase
         $this->assertSame(['HI', 'ABK:I10'], $this->elements($segments, 'HI')[0]);
     }
 
+    public function testTheServiceLineCarriesItsBillingIdAsTheLineItemControlNumber(): void
+    {
+        $billingId = QueryUtils::fetchSingleValue(
+            "SELECT id FROM billing WHERE pid = ? AND encounter = ? AND code = '99213'",
+            'id',
+            [self::PID, self::ENC]
+        );
+        $this->assertIsNumeric($billingId);
+
+        [$segments, $edicount] = $this->generate();
+
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        // Loop 2400: the REF follows the service date.
+        $this->assertSame(
+            ['DTP*472*D8*20260901', 'REF*6R*' . $billingId],
+            $this->loopAfter($segments, 'DTP*472*', 2)
+        );
+        $this->assertCount(1, $this->elements($segments, 'REF*6R'), 'one control number for the one service line');
+    }
+
+    public function testTheLineItemControlNumberComesBeforeTheLineNote(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE billing SET notecodes = 'LINE NOTE' WHERE pid = ? AND encounter = ? AND code = '99213'",
+            [self::PID, self::ENC]
+        );
+
+        [$segments, $edicount] = $this->generate();
+
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        $this->assertSame(
+            $this->position($segments, 'REF*6R*') + 1,
+            $this->position($segments, 'NTE*ADD*'),
+            'loop 2400 lists its REF segments before its NTE'
+        );
+    }
+
     public function testAPrimaryClaimNamesThePayerIn2010BBAndTheSecondaryIn2330B(): void
     {
         [$segments] = $this->generate();

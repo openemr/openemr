@@ -26,7 +26,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:712121579da5cfdb8c688378b72437b13cbea39c70ac17c5debf00365cf006dc
+    image: openemr/openemr:flex@sha256:416174296da0f87d148f72355a90d39ccba693058cc13ddb2652df5a139f3a94
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"

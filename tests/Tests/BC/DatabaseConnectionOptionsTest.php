@@ -4,7 +4,9 @@
  * @package   openemr
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -472,6 +474,35 @@ PHP
 
         self::assertNull($options->sslCaPath);
         self::assertNull($options->sslClientCert);
+    }
+
+    public function testForSiteReadsTheSiteFilesOncePerRequest(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
+<?php
+$sqlconf = [
+    'dbase' => 'testdb',
+    'login' => 'testuser',
+    'pass' => 'testpass',
+    'host' => '127.0.0.1',
+    'port' => '3306',
+];
+PHP
+        );
+        file_put_contents($certDir . '/mysql-ca', 'ca-content');
+
+        $first = DatabaseConnectionOptions::forSite($siteDir);
+
+        // Neither file is read again: the second call would throw without
+        // sqlconf.php, and would find no CA without mysql-ca.
+        unlink($siteDir . '/sqlconf.php');
+        unlink($certDir . '/mysql-ca');
+
+        self::assertSame($first, DatabaseConnectionOptions::forSite($siteDir));
+        self::assertSame($certDir . '/mysql-ca', $first->sslCaPath);
     }
 
     private function cleanupTempDir(string $dir): void

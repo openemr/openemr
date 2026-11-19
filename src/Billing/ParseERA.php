@@ -415,7 +415,15 @@ class ParseERA
                     // the number of units of service.  We're ignoring that for now.
                 }
             } elseif ($segid == 'REF' && $out['loopid'] == '2110') {
-                // ignore
+                // REF*6R is the line item control number sent in the 837's loop 2400: billing.id.
+                // Other service-level identifiers are ignored.
+                $lineCtrl = trim($seg[1]) === '6R' ? trim($seg[2] ?? '') : '';
+                if ($lineCtrl !== '' && is_array($out) && is_array($out['svc'] ?? null)) {
+                    $i = array_key_last($out['svc']);
+                    if ($i !== null && is_array($out['svc'][$i])) {
+                        $out['svc'][$i]['line_ctrl'] = $lineCtrl;
+                    }
+                }
             } elseif ($segid == 'AMT' && $seg[1] == 'B6' && $out['loopid'] == '2110') {
                 $i = count($out['svc']) - 1;
                 $out['svc'][$i]['allowed'] = (float)$seg[2]; // report this amount as a note

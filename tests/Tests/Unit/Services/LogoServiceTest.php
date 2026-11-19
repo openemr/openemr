@@ -1,7 +1,18 @@
 <?php
 
+/**
+ * LogoService: logo lookup, the filter event, and searching once per request.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Tests\Unit\Services;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\LogoFilterEvent;
 use OpenEMR\Services\LogoService;
 use PHPUnit\Framework\TestCase;
@@ -32,5 +43,35 @@ class LogoServiceTest extends TestCase
         $logoService = new LogoService($eventDispatcher);
         $logoPath = $logoService->getLogo($logoType);
         $this->assertEquals($logoPathUpdated, $logoPath, "Logo path was not updated by event listener");
+    }
+
+    public function testLogoDirectoriesAreSearchedOncePerRequest(): void
+    {
+        $bag = OEGlobalsBag::getInstance();
+        $siteDir = $bag->getString('OE_SITE_DIR');
+        $tempSite = sys_get_temp_dir() . '/logo-site-' . uniqid();
+        $logoDir = $tempSite . '/images/logos/test/once';
+        mkdir($logoDir, 0755, true);
+        touch($logoDir . '/logo.png');
+        $bag->set('OE_SITE_DIR', $tempSite);
+        try {
+            $logoService = new LogoService(new EventDispatcher());
+            $first = $logoService->getLogo('test/once');
+            $this->assertStringContainsString('/images/logos/test/once/logo.png?t=', $first);
+
+            // Not searched again: with the file gone a new search finds nothing.
+            unlink($logoDir . '/logo.png');
+            $this->assertSame($first, (new LogoService(new EventDispatcher()))->getLogo('test/once'));
+        } finally {
+            $bag->set('OE_SITE_DIR', $siteDir);
+            if (is_file($logoDir . '/logo.png')) {
+                unlink($logoDir . '/logo.png');
+            }
+            rmdir($logoDir);
+            rmdir($tempSite . '/images/logos/test');
+            rmdir($tempSite . '/images/logos');
+            rmdir($tempSite . '/images');
+            rmdir($tempSite);
+        }
     }
 }

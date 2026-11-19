@@ -25607,32 +25607,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'area_code\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'fax_id\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'fax_number\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'number\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'prefix\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/InsuranceCompany.class.php',
 ];
@@ -25817,32 +25797,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/PQRIXml.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'area_code\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'number\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'numberof\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'prefix\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'state\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
 ];
@@ -40032,7 +39992,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'resourceType\' on mixed\\.$#',
+    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];
