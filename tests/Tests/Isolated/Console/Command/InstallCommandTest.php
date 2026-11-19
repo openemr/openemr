@@ -49,8 +49,6 @@ class InstallCommandTest extends TestCase
             '--db-user' => 'myuser',
             '--db-password' => 'mypass',
             '--db-name' => 'mydb',
-            '--db-root-user' => 'myroot',
-            '--db-root-password' => 'myrootpass',
             '--oe-admin-name' => 'Test Admin',
             '--oe-admin-username' => 'testadmin',
             '--oe-admin-password' => 'adminpass',
@@ -65,15 +63,29 @@ class InstallCommandTest extends TestCase
         self::assertSame('myuser', $capturedParams['login']);
         self::assertSame('mypass', $capturedParams['pass']);
         self::assertSame('mydb', $capturedParams['dbname']);
-        self::assertSame('myroot', $capturedParams['root']);
-        self::assertSame('myrootpass', $capturedParams['rootpass']);
         self::assertSame('Test Admin', $capturedParams['iuname']);
         self::assertSame('testadmin', $capturedParams['iuser']);
         self::assertSame('adminpass', $capturedParams['iuserpass']);
 
         // Verify hardcoded values
-        self::assertSame('%', $capturedParams['loginhost']);
+        self::assertSame('1', $capturedParams['no_root_db_access'], 'installer must not try to provision the database');
         self::assertSame('default', $capturedParams['site']);
+        self::assertArrayNotHasKey('root', $capturedParams, 'no root credentials should be passed');
+        self::assertArrayNotHasKey('rootpass', $capturedParams, 'no root credentials should be passed');
+    }
+
+    public function testRootDatabaseUserIsRejected(): void
+    {
+        $installer = $this->createMock(InstallerInterface::class);
+        $installer->expects($this->never())->method('install');
+
+        $command = new InstallCommand($installer);
+        $tester = $this->createTester($command);
+
+        $tester->execute(['--db-user' => 'root'], ['interactive' => false]);
+
+        self::assertSame(Command::FAILURE, $tester->getStatusCode(), 'installing as root should fail');
+        self::assertStringContainsString('root', $tester->getDisplay(), 'error should explain the root rejection');
     }
 
     public function testInstallFailureReturnsError(): void

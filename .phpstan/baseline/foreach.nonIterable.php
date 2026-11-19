@@ -809,11 +809,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/addr_appt_label.php',
 ];
 $ignoreErrors[] = [
@@ -1385,11 +1380,6 @@ $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 14,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type array\\<mixed, mixed\\>\\|string supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',

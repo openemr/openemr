@@ -45,12 +45,7 @@ foreach ($ISSUE_TYPES as $type => $dummy) {
     }
 }
 
-if ($auth) {
-    $tmp = getPatientData($pid, "squad");
-    if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
-    }
-} else {
+if (!$auth) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for issue types: Patient Issues", xl("Patient Issues"));
 }
 

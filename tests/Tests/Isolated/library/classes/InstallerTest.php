@@ -2837,7 +2837,6 @@ class InstallerTest extends TestCase
             ['Encounters', 'encounters'],
             ['Lists', 'lists'],
             ['Patients', 'patients'],
-            ['Squads', 'squads'],
             ['Sensitivities', 'sensitivities'],
             ['Placeholder', 'placeholder'],
             ['Nation Notes', 'nationnotes'],

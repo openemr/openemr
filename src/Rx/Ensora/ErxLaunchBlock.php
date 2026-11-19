@@ -18,4 +18,5 @@ enum ErxLaunchBlock
 {
     case UnauthorizedRole;
     case MissingTaxId;
+    case InvalidId;
 }

@@ -16,7 +16,10 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
+use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
+use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,6 +45,7 @@ class EncounterFhirApiTest extends TestCase
 {
     private ApiTestClient $testClient;
     private EncounterFixtureManager $fixtureManager;
+    private FixtureManager $patientFixtureManager;
 
     /** FHIR uuid of the seeded encounter. */
     private string $encounterUuid;
@@ -49,13 +53,34 @@ class EncounterFhirApiTest extends TestCase
     /** FHIR uuid of the patient that owns the seeded encounter. */
     private string $patientUuid;
 
+    /**
+     * Encounter uuids seeded by per-test helpers (e.g. the cross-patient-
+     * exclusion test). EncounterFixtureManager's `reason LIKE 'test-fixture-%'`
+     * sweep catches rows whose `reason` matches the hyphen prefix used in
+     * encounters.php, but FhirEncounterService::insert() maps the FHIR
+     * `reasonCode[0].text` straight into `form_encounter.reason`, and the
+     * shared encounter.json fixture uses "test-fixture encounter annual
+     * checkup" (space, no hyphen). tearDown deletes each tracked uuid
+     * explicitly, along with the companion `forms` row that
+     * EncounterService::insertEncounter addForm()s and the uuid_registry
+     * entry for the encounter uuid.
+     *
+     * @var list<string>
+     */
+    private array $extraEncounterUuids = [];
+
     protected function setUp(): void
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $this->testClient = new ApiTestClient($baseUrl, false);
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
-        $this->fixtureManager = new EncounterFixtureManager();
+        // EncounterFixtureManager internally installs the patient fixtures
+        // through a FixtureManager it owns, but does not expose it. Keep
+        // our own reference so the cross-patient-exclusion test can look
+        // up a second patient's uuid.
+        $this->patientFixtureManager = new FixtureManager();
+        $this->fixtureManager = new EncounterFixtureManager(null, $this->patientFixtureManager);
         $this->fixtureManager->installFixtures();
 
         // The fixture seeds one encounter whose reason is prefixed 'test-fixture-'
@@ -78,9 +103,29 @@ class EncounterFhirApiTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removeFixtures();
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+        try {
+            // Explicit cleanup for the per-test second-patient encounter
+            // (and its companion forms + uuid_registry rows). The
+            // EncounterFixtureManager sweep that follows only matches
+            // `reason LIKE 'test-fixture-%'`; the FHIR encounter.json
+            // reasonCode text does not satisfy the hyphen-after-prefix
+            // pattern, so the sweep would leave the per-test row behind.
+            foreach ($this->extraEncounterUuids as $extraUuid) {
+                $this->deleteEncounterAndCompanions($extraUuid);
+            }
+            $this->extraEncounterUuids = [];
+            if (isset($this->fixtureManager)) {
+                $this->fixtureManager->removeFixtures();
+            }
+        } finally {
+            if (isset($this->testClient)) {
+                try {
+                    $this->testClient->cleanupRevokeAuth();
+                } finally {
+                    $this->testClient->cleanupClient();
+                }
+            }
+        }
     }
 
     // ---------------------------------------------------------------------
@@ -120,6 +165,58 @@ class EncounterFhirApiTest extends TestCase
             }
         }
         $this->assertTrue($found, "Search by patient should include the seeded encounter");
+    }
+
+    /**
+     * Searching by patient A must not return an encounter owned by patient B.
+     *
+     * The other search tests above only seed an encounter for one
+     * patient, so a server that silently ignored `?patient=` would
+     * still match — the seeded encounter would be the only row either
+     * way. This test seeds an encounter for patient A AND for a
+     * different patient B, then asserts patient A's `?patient=` search
+     * returns A's encounter but not B's.
+     */
+    public function testSearchByPatientExcludesOtherPatientsEncounter(): void
+    {
+        $patientBUuid = $this->resolveSecondPatientUuid();
+        $encounterBUuid = $this->seedEncounterForPatient($patientBUuid);
+        $this->assertNotSame(
+            $this->encounterUuid,
+            $encounterBUuid,
+            'The two seeded encounters must have distinct uuids'
+        );
+
+        $result = $this->testClient->get(
+            '/apis/default/fhir/Encounter',
+            ['patient' => $this->patientUuid]
+        );
+        $this->assertEquals(Response::HTTP_OK, $result->getStatusCode());
+
+        $bundle = json_decode((string) $result->getBody()->getContents(), true);
+        $this->assertIsArray($bundle);
+        $this->assertArrayHasKey('entry', $bundle);
+        $this->assertIsArray($bundle['entry']);
+
+        $ids = [];
+        foreach ($bundle['entry'] as $entry) {
+            $this->assertIsArray($entry);
+            $resource = $entry['resource'] ?? null;
+            $this->assertIsArray($resource);
+            $id = $resource['id'] ?? null;
+            $this->assertIsString($id);
+            $ids[] = $id;
+        }
+        $this->assertContains(
+            $this->encounterUuid,
+            $ids,
+            'Patient A ?patient= search must include patient A encounter'
+        );
+        $this->assertNotContains(
+            $encounterBUuid,
+            $ids,
+            'Patient A ?patient= search must NOT include patient B encounter'
+        );
     }
 
     /**
@@ -277,6 +374,91 @@ class EncounterFhirApiTest extends TestCase
             '401 should be an OAuth authorization denial, not a routing or server error'
         );
         $this->assertArrayNotHasKey('resourceType', $body, '401 body should not be a FHIR resource');
+    }
+
+    /**
+     * Resolve a second fixture patient's FHIR uuid. installFixtures() in
+     * setUp registered every patient listed in patients.php via the
+     * shared FixtureManager; the second entry gives us a distinct
+     * patient to seed an encounter against for the cross-patient-
+     * exclusion test.
+     */
+    private function resolveSecondPatientUuid(): string
+    {
+        $patients = $this->patientFixtureManager->getPatientFixtures();
+        $this->assertGreaterThan(
+            1,
+            count($patients),
+            'patients.php must seed at least two patients for the cross-patient test'
+        );
+        $secondPatient = $patients[1];
+        $this->assertIsArray($secondPatient);
+        $pubpid = $secondPatient['pubpid'] ?? null;
+        $this->assertIsString($pubpid, 'Second patient fixture must carry a pubpid');
+
+        $record = QueryUtils::querySingleRow(
+            'SELECT uuid FROM patient_data WHERE pubpid = ?',
+            [$pubpid]
+        );
+        $this->assertIsArray($record);
+        return UuidRegistry::uuidToString($record['uuid']);
+    }
+
+    /**
+     * Insert a form_encounter row bound to the given patient via
+     * FhirEncounterService (same path ObservationFhirApiTest uses for
+     * its encounter seeding). The reason prefix `test-fixture-` matches
+     * EncounterFixtureManager's sweep in removeInstalledFixtures(), so
+     * tearDown cleans this up without additional bookkeeping.
+     */
+    private function seedEncounterForPatient(string $patientUuid): string
+    {
+        $encounterFixtures = json_decode(
+            (string) file_get_contents(__DIR__ . '/../Fixtures/FHIR/encounter.json'),
+            true
+        );
+        $this->assertIsArray($encounterFixtures);
+        $encounterPayload = $encounterFixtures[0];
+        $this->assertIsArray($encounterPayload);
+        $encounterPayload['subject'] = ['reference' => 'Patient/' . $patientUuid];
+        $encounterInsert = (new FhirEncounterService())->insert(new FHIREncounter($encounterPayload));
+        $this->assertTrue(
+            $encounterInsert->isValid(),
+            'Encounter insert (second patient) failed: ' . json_encode($encounterInsert->getValidationMessages())
+        );
+        $encounterData = $encounterInsert->getData();
+        $this->assertIsArray($encounterData);
+        $encounter = $encounterData[0];
+        $this->assertIsArray($encounter);
+        $encounterUuid = $encounter['euuid'] ?? null;
+        $this->assertIsString($encounterUuid);
+        $this->extraEncounterUuids[] = $encounterUuid;
+        return $encounterUuid;
+    }
+
+    /**
+     * Remove an encounter row + its forms row + its uuid_registry entry,
+     * in the order that keeps the registry consistent: the registry
+     * row first (while the uuid is still readable from form_encounter),
+     * then the forms row on the same encounter number, then the
+     * form_encounter row itself.
+     */
+    private function deleteEncounterAndCompanions(string $uuid): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM uuid_registry WHERE table_name = 'form_encounter' AND uuid = ?",
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE f FROM forms f"
+                . " JOIN form_encounter fe ON fe.encounter = f.encounter"
+                . " WHERE fe.uuid = ? AND f.formdir = 'newpatient'",
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM form_encounter WHERE uuid = ?',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
     }
 
     /**
