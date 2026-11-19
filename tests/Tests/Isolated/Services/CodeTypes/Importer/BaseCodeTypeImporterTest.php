@@ -146,6 +146,32 @@ class BaseCodeTypeImporterTest extends TestCase
         $importer->import($missing, true);
     }
 
+    public function testImportFailsWhenAnotherImportHoldsTheCodeTypeLock(): void
+    {
+        $importer = new TestImporterWithStubbedCodeType();
+        $importer->lockAvailable = false;
+        $path = $this->writeTempFile("A01,First,Short\n");
+
+        $this->expectException(CodeImportException::class);
+        $this->expectExceptionMessage('Another import for code type TEST-STUBBED is already in progress.');
+        $importer->import($path, false);
+    }
+
+    public function testImportReleasesCodeTypeLockAfterFileValidationFails(): void
+    {
+        $importer = new TestImporterWithStubbedCodeType();
+        $missing = sys_get_temp_dir() . '/does-not-exist-' . uniqid() . '.csv';
+
+        try {
+            $importer->import($missing, true);
+            self::fail('Expected the invalid file to abort the import.');
+        } catch (CodeImportException $exception) {
+            self::assertStringContainsString('File does not exist or is not readable', $exception->getMessage());
+        }
+
+        self::assertTrue($importer->lockReleased);
+    }
+
     public function testImportNormalizesUnexpectedFailuresIntoCodeImportException(): void
     {
         // resolveCodeTypeId() reaches for a database that an isolated test does not have. Whatever
@@ -192,6 +218,9 @@ class TestCommaImporter extends BaseCodeTypeImporter
  */
 class TestImporterWithStubbedCodeType extends BaseCodeTypeImporter
 {
+    public bool $lockAvailable = true;
+    public bool $lockReleased = false;
+
     public function getCodeType(): string
     {
         return 'TEST-STUBBED';
@@ -200,6 +229,16 @@ class TestImporterWithStubbedCodeType extends BaseCodeTypeImporter
     protected function resolveCodeTypeId(string $codeTypeKey): int
     {
         return 1;
+    }
+
+    protected function acquireImportLock(int $codeTypeId): bool
+    {
+        return $this->lockAvailable;
+    }
+
+    protected function releaseImportLock(int $codeTypeId): void
+    {
+        $this->lockReleased = true;
     }
 }
 
