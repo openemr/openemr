@@ -193,7 +193,9 @@ final class CalendarRenderDataBuilderVisitListTest extends TestCase
     {
         foreach (self::arrayAt($events) as $event) {
             $event = self::arrayAt($event);
-            if ((string) ($event['eid'] ?? '') === $eid) {
+            $eventEid = $event['eid'] ?? null;
+            self::assertTrue(is_string($eventEid) || is_int($eventEid));
+            if ((string) $eventEid === $eid) {
                 return $event;
             }
         }
