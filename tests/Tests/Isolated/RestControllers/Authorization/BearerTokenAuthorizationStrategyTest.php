@@ -223,7 +223,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
     {
         $userUuid = '123e4567-e89b-12d3-a456-426614174000';
         $tokenId = 'clock-skew-token-id';
-        $user = ['id' => 1, 'username' => 'testuser', 'role' => 'users'];
+        $user = ['id' => 1, 'username' => 'testuser', 'active' => 1, 'role' => 'users'];
 
         $jwt = $this->mintTokenIssuedAt($issuedAt, $tokenId, $userUuid, self::TEST_CLIENT_ID, $scopes);
         $request = $this->requestForRawToken($jwt, '/apis/default/api/patient');
@@ -406,7 +406,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
     ): bool {
         $userUuid = '123e4567-e89b-12d3-a456-426614174000';
         $tokenId = 'claim-boundary-token-id';
-        $user = ['id' => 1, 'username' => 'testuser', 'role' => 'users'];
+        $user = ['id' => 1, 'username' => 'testuser', 'active' => 1, 'role' => 'users'];
 
         $jwt = $this->mintTokenWithClaimTimes($iat, $nbf, $exp, $tokenId, $userUuid, self::TEST_CLIENT_ID, $scopes);
         $request = $this->requestForRawToken($jwt, '/apis/default/api/patient');
@@ -461,6 +461,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $user = [
             'id' => 1,
             'username' => 'testuser',
+            'active' => 1,
             'role' => 'users',
         ];
         $userUuid = '123e4567-e89b-12d3-a456-426614174000';
@@ -503,6 +504,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $user = [
             'id' => 1,
             'username' => 'testuser',
+            'active' => 1,
             'uuid' => '123e4567-e89b-12d3-a456-426614174000',
             'role' => 'users',
         ];
