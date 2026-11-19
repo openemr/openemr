@@ -12,6 +12,8 @@
    - timeRows : list of {hour, minute, isOnTheHour, displayLabel}
        displayLabel is the consumer's already-formatted "h:mm" string
    - timeslotCss : e.g. "20px" — height of one timeslot row
+   - hasVisitList : true when a provider's day has a Visit List; only then are the
+       full lists and their script printed
    - decorated event fields:
        eid, catid (the only catid value the template inspects — for the
        IN-event two-DIV pattern), evtClass, catcolor, eventdate,
@@ -198,6 +200,7 @@
 </table>
 <p>
 
+{% if hasVisitList|default(false) %}
 {# Each Visit List in full, for a block too short for all its patients. It sits inside
    #bigCal, whose fixed height the grid overflows, so it follows the grid instead of lying
    under it. All are printed here; the script below keeps only those whose block ran out
@@ -214,36 +217,16 @@
         {% endfor %}
     {% endfor %}
 </div>
+{% endif %}
 
 </div>
 
-{% include 'calendar/default/views/_visit_list_fit_js.html.twig' %}
+{% if hasVisitList|default(false) %}
+<script src="{{ webroot }}/library/js/calendarVisitList.js?v={{ assetVersion|attr_url }}"></script>
 <script>
-    (function () {
-        var continuedText = {{ 'Continued below the schedule'|xlj }};
-        var shown = 0;
-        document.querySelectorAll('#bigCal .event_visit_list:not(.visit-list-full)').forEach(function (block) {
-            var marker = document.createElement('li');
-            marker.className = 'visit-list-more';
-            marker.innerHTML = '<span class="visit-list-more-label"></span>';
-            var hidden = pcFitVisitList(block, marker, function (count) {
-                return '+' + count + ' · ' + continuedText;
-            });
-            var full = document.querySelector('.visit-list-full[data-eid="' + block.dataset.eid + '"]');
-            if (full === null) {
-                return;
-            }
-            if (hidden === 0) {
-                full.remove();
-            } else {
-                shown++;
-            }
-        });
-        if (shown === 0) {
-            document.querySelector('.visit-list-continued').remove();
-        }
-    })();
+    pcSetUpVisitListsForPrint(document, {{ '+%s · Continued below the schedule'|xlj }});
 </script>
+{% endif %}
 
 {# Trigger the browser print dialog on page load via the framework's
    printLogPrint helper (defined in library/restoreSession.php). The

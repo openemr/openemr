@@ -299,6 +299,24 @@ final class CalendarRenderDataBuilderVisitListTest extends TestCase
         $block = self::eventWith($events, '40');
         $this->assertSame(['#1 Kerr, Lee', '#2 Stop 1 Hollis, Margaret'], self::rows($block));
         $this->assertSame('120px', $block['evtHeight'] ?? null, 'the block keeps its time span');
+        $this->assertTrue($result['hasVisitList'] ?? null, 'the full lists are printed below the grid');
+    }
+
+    public function testDayPrintWithoutVisitListsPrintsNoFullLists(): void
+    {
+        $result = self::builder(ViewType::DayPrint)->buildDayPrintRenderData(
+            [self::DATE => self::dayEvents()],
+            self::providers(),
+            self::times(),
+            30,
+            '20260309',
+            self::dayNames(),
+            0,
+            '/img',
+            true
+        );
+
+        $this->assertFalse($result['hasVisitList'] ?? null);
     }
 
     public function testMonthScreenShowsTheListAndMarksHolidays(): void

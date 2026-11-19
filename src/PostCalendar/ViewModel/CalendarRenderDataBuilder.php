@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\PostCalendar\ViewModel;
 
 use OpenEMR\Appointment\VisitList\VisitListSchedule;
+use OpenEMR\PostCalendar\LegacyInputNarrowing;
 
 /**
  * Orchestration layer that turns the legacy consumer's raw inputs
@@ -248,8 +249,7 @@ final readonly class CalendarRenderDataBuilder
         // breaks at iter 4).
         $providersGrid = [];
         foreach ($providers as $provider) {
-            $providerIdRaw = $provider['id'] ?? null;
-            $providerId = is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
+            $providerId = self::providerId($provider);
 
             $dayPairs = [];
             $loopcount = 0;
@@ -405,9 +405,9 @@ final readonly class CalendarRenderDataBuilder
         // Per-provider decoration. Each provider gets a list of decorated
         // events with geometry, overlap-positions, and bodyContent.
         $providersGrid = [];
+        $hasVisitList = false;
         foreach ($providers as $provider) {
-            $providerIdRaw = $provider['id'] ?? null;
-            $providerId = is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
+            $providerId = self::providerId($provider);
 
             // Patients shown on a Visit List leave the timed grid; their blocks show the list.
             $visitListColumn = VisitListDayColumn::build(
@@ -456,10 +456,12 @@ final readonly class CalendarRenderDataBuilder
                 'classForWeekend' => 'work-day', // print views don't legacy-distinguish; preserved as work-day
                 'events'   => self::attachVisitLists($decoratedEvents, $visitListColumn->lists),
             ];
+            $hasVisitList = $hasVisitList || $visitListColumn->lists !== [];
         }
 
         return [
             'providers'         => $providersGrid,
+            'hasVisitList'      => $hasVisitList,
             'dowList'           => $this->viewModel->dayOfWeekList(),
             'A_SHORT_DAY_NAMES' => $shortDayNames,
             'dateHeader'        => $dateHeader,
@@ -674,8 +676,7 @@ final readonly class CalendarRenderDataBuilder
         $dowList = $this->viewModel->dayOfWeekList();
         $providersGrid = [];
         foreach ($providers as $provider) {
-            $providerIdRaw = $provider['id'] ?? null;
-            $providerId = is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
+            $providerId = self::providerId($provider);
 
             $days = [];
             foreach ($aEvents as $date => $dateEvents) {
@@ -941,9 +942,9 @@ final readonly class CalendarRenderDataBuilder
         $isHolidayDay = $this->dayHasHolidayOrClosed($aEvents[$eventDate] ?? []);
 
         $providersGrid = [];
+        $hasVisitList = false;
         foreach ($providers as $provider) {
-            $providerIdRaw = $provider['id'] ?? null;
-            $providerId = is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
+            $providerId = self::providerId($provider);
 
             // Patients shown on a Visit List leave the timed grid; their blocks show the list.
             $visitListColumn = VisitListDayColumn::build(
@@ -1115,8 +1116,7 @@ final readonly class CalendarRenderDataBuilder
 
         $providersGrid = [];
         foreach ($providers as $provider) {
-            $providerIdRaw = $provider['id'] ?? null;
-            $providerId = is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
+            $providerId = self::providerId($provider);
 
             $dayColumns = [];
             foreach ($aEvents as $columnDate => $dateEvents) {
@@ -1932,11 +1932,12 @@ final readonly class CalendarRenderDataBuilder
     }
 
     /**
+     * A provider row's id; 0 when it has none.
+     *
      * @param array<string, mixed> $provider
      */
     private static function providerId(array $provider): int
     {
-        $providerIdRaw = $provider['id'] ?? null;
-        return is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
+        return LegacyInputNarrowing::intValue($provider['id'] ?? null);
     }
 }

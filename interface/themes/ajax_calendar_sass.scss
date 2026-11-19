@@ -502,9 +502,10 @@ $side-calendar-date-padding: 0.3rem !default;
     }
 
     // A Visit List block. It keeps its time span, like any appointment, so it never
-    // covers what comes after it. When its patients don't fit, the calendar's script
-    // shows the rows that do and "+N more" (the scroll is only for when the script
-    // hasn't run); "+N more" opens the whole list over the grid, above everything.
+    // covers what comes after it. When its patients don't fit, calendarVisitList.js
+    // shows the rows that do and "+N more" (the scroll is for when the script hasn't
+    // run, or the block is too short even for its header); "+N more" opens the whole
+    // list over the grid, above everything, scrolling inside if taller than the grid.
     // Layered like a timed appointment, so its header and rows, not what lies under
     // them, get the pointer.
     &_visit_list {
@@ -521,7 +522,7 @@ $side-calendar-date-padding: 0.3rem !default;
 
       &.visit-list-expanded {
         box-shadow: 0 0.25rem 0.75rem rgba($black, 0.25);
-        overflow: visible;
+        overflow-y: auto;
         z-index: 10;
       }
     }

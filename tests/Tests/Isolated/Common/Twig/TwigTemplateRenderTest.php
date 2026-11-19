@@ -709,6 +709,8 @@ class TwigTemplateRenderTest extends TestCase
             'calendar/default/views/day_print/outlook_ajax_template.html.twig',
             [
                 'providers'         => [['id' => 1, 'fname' => 'Alice', 'lname' => 'Smith', 'events' => [$visitListPrintEvent]]],
+                'hasVisitList'      => true,
+                'webroot'           => '',
                 'dowList'           => $defaultDowList,
                 'A_SHORT_DAY_NAMES' => $defaultDayNames,
                 'dateHeader'        => ['dateLabel' => '09 March 2026', 'weekdayLabel' => 'Monday'],
