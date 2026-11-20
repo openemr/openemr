@@ -435,7 +435,7 @@ function display_VisualAcuitiesModern(mixed $pid = 0, array $priors = [], string
                 <div class="vahx-chart-wrap"><canvas id="canvas_VA"></canvas></div>
                 <?php if ($chartDatasets !== []) { ?>
                     <div class="vahx-series-title"><?php echo xlt('Series — select additional measurements to compare'); ?></div>
-                    <div class="vahx-series-controls" id="VAHX_series_controls"></div>
+                    <div class="vahx-series-controls" id="VAHX_series_controls" style="display:flex;flex-wrap:wrap;gap:0.35rem;justify-content:center;margin:0 auto;text-align:center;width:100%;"></div>
                 <?php } else { ?>
                     <div class="text-muted mt-2"><?php echo xlt('No numeric Snellen acuities are available to chart.'); ?></div>
                 <?php } ?>
