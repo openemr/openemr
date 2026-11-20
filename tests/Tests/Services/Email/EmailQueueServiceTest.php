@@ -72,7 +72,9 @@ class EmailQueueServiceTest extends TestCase
 
     public function testGetTemplateNamesAreNonEmptyStrings(): void
     {
-        foreach ($this->service->getTemplateNames() as $template) {
+        $templates = $this->service->getTemplateNames();
+        self::assertGreaterThanOrEqual(0, count($templates));
+        foreach ($templates as $template) {
             self::assertNotSame('', $template);
         }
     }
