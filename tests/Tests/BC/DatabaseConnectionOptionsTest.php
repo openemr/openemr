@@ -23,6 +23,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use ReflectionProperty;
 use RuntimeException;
 use SensitiveParameter;
 use Symfony\Component\Filesystem\Filesystem;
@@ -303,10 +304,7 @@ class DatabaseConnectionOptionsTest extends TestCase
             $this->cleanupTempDir($dir);
         }
         $this->tempDirs = [];
-        foreach (array_keys(self::ENV_TCP) as $key) {
-            OEEnvBag::getInstance()->remove($key);
-        }
-        OEEnvBag::getInstance()->remove('OPENEMR_DB_SOCKET');
+        (new ReflectionProperty(OEEnvBag::class, 'instances'))->setValue(null, []);
     }
 
     /**

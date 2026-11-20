@@ -19,6 +19,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 
 #[BackupGlobals(true)]
 class ServiceContainerSiteInstallStateTest extends TestCase
@@ -36,7 +37,7 @@ class ServiceContainerSiteInstallStateTest extends TestCase
     protected function tearDown(): void
     {
         ServiceContainer::reset();
-        OEEnvBag::getInstance()->remove('OPENEMR_DB_NAME');
+        (new ReflectionProperty(OEEnvBag::class, 'instances'))->setValue(null, []);
         if (file_exists($this->siteDir . '/sqlconf.php')) {
             unlink($this->siteDir . '/sqlconf.php');
         }
