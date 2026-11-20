@@ -19,9 +19,19 @@ class EnvironmentVariableTest extends TestCase
 {
     private const NAME = 'OPENEMR_ENVIRONMENT_VARIABLE_TEST';
 
+    private ?string $original = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->original = EnvironmentVariable::get(self::NAME);
+    }
+
     protected function tearDown(): void
     {
-        self::assertTrue(putenv(self::NAME));
+        $original = $this->original;
+        self::assertTrue(putenv($original === null ? self::NAME : self::NAME . '=' . $original));
 
         parent::tearDown();
     }
