@@ -124,6 +124,10 @@ function submit_form(action) {
     // are converted to their full form (e.g. "+3.00") even when save happens
     // before the field's blur handler runs.
     $("input[class^='sphere'],input[name$='SPH'],input[class^='presbyopia'],input[name$='ADD'],#ODADD_1,#ODADD_2,#OSADD_1,#OSADD_2,input[name$='PRISM'],input[class^='prism'],input[name$='CYL'],input[name$='AXIS']").trigger('blur');
+    // Format numeric fields before serializing, so unformatted entries (e.g. "3")
+    // are converted to their full form (e.g. "+3.00") even when save happens
+    // before the field's blur handler runs.
+    $("input[class^='sphere'],input[name$='SPH'],input[class^='presbyopia'],input[name$='ADD'],#ODADD_1,#ODADD_2,#OSADD_1,#OSADD_2,input[name$='PRISM'],input[class^='prism'],input[name$='CYL'],input[name$='AXIS']").trigger('blur');
 formData = $("form#eye_mag").serialize();
     if (formData =='') return;
     $("#menustate").val('0');
@@ -3576,7 +3580,7 @@ $(function () {
                                                                        $(this).val(str);
                                                                        });
                   $('input[class^="sphere"],input[name$="SPH"]').on("blur", function() {
-                                                                      var mid = $(this).val();
+                                                                      var mid = $(this).val() || '';
                                                                       if (mid.match(/PLANO/i)) {
                                                                       $(this).val('PLANO');
                                                                       return;
@@ -3614,7 +3618,7 @@ $(function () {
                                                                       });
 
                   $("input[class^='presbyopia'],input[name$='ADD'],#ODADD_1,#ODADD_2,#OSADD_1,#OSADD_2").on("blur", function() {
-                                                                                                              var add = $(this).val();
+                                                                                                              var add = $(this).val() || '';
                                                                                                               add = add.replace(/=/g,"+");
                                                                                                               //if add is one digit, eg. 2, make it +2.00
                                                                                                               if (add.match(/^\d{1}$/)) {
@@ -3668,8 +3672,8 @@ $(function () {
                                                                      // assume the end user KNOWS there are only numbers presented and
                                                                      // more than 3 digits is a mistake...
                                                                      // (although this may change with topography)
-                                                                     var axis = $(this).val();
-                                                                     if (this.name.match(/K2AXIS/)) {
+                                                                     var axis = $(this).val() || '';
+                                                                     if (this.name && this.name.match(/K2AXIS/)) {
                                                                          var group = this.name.replace("AXIS", "");
                                                                      } else {
                                                                          var group = this.name.replace("AXIS", "CYL");
@@ -3695,9 +3699,9 @@ $(function () {
                                                                      $(this).val(axis);
                                                                      });
                   $("input[class^='cylinder'],input[name$='CYL']").on("blur", function() {
-                                                                        var mid = $(this).val();
-                                                                        var group = this.name.replace("CYL", "SPH");;
-                                                                        var sphere = $("#"+group).val();
+                                                                        var mid = $(this).val() || '';
+                                                                        var group = this.name ? this.name.replace("CYL", "SPH") : '';
+                                                                        var sphere = group ? ($("#"+group).val() || '') : '';
                                                                         if (((mid.length == 0) && (sphere.length >  0))||(mid.match(/sph/i))) {
                                                                         $(this).val('SPH');
                                                                         if (sphere.match(/plano/i)) $(this).val('');
