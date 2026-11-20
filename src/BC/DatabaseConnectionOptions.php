@@ -101,6 +101,19 @@ final readonly class DatabaseConnectionOptions
      * Creates options for a site from the OPENEMR_DB_* environment variables
      * if OPENEMR_DB_NAME is set, otherwise by loading its sqlconf.php file.
      *
+     * @param string $siteDir Site directory path (e.g., OE_SITE_DIR)
+     */
+    public static function forSite(
+        string $siteDir,
+    ): self {
+        return self::fromEnvironment(OEEnvBag::getInstance())
+            ?? self::fromSiteSqlconf($siteDir);
+    }
+
+    /**
+     * Creates options for a site by loading its sqlconf.php file, ignoring
+     * the environment.
+     *
      * The result is kept for the rest of the request. A request
      * asks for it from several places (sql.inc.php, Database, the audit
      * logger, Gacl), and each read is a sqlconf.php load plus a read of the
@@ -109,17 +122,16 @@ final readonly class DatabaseConnectionOptions
      *
      * @param string $siteDir Site directory path (e.g., OE_SITE_DIR)
      */
-    public static function forSite(
+    public static function fromSiteSqlconf(
         string $siteDir,
     ): self {
         /** @var array<string, self> $bySite */
         static $bySite = [];
 
-        return $bySite[$siteDir] ??= self::fromEnvironment(OEEnvBag::getInstance())
-            ?? self::fromSqlconf(
-                self::loadSqlconf($siteDir),
-                self::inferSslPaths($siteDir),
-            );
+        return $bySite[$siteDir] ??= self::fromSqlconf(
+            self::loadSqlconf($siteDir),
+            self::inferSslPaths($siteDir),
+        );
     }
 
     /**
