@@ -19,7 +19,6 @@ use Mpdf\Mpdf;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
-use OpenEMR\Common\Forms\ReportPdfAppendQueue;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -805,7 +804,6 @@ if ($PDF_OUTPUT) {
 
     try {
         $pdf->writeHTML($content); // convert html
-        ReportPdfAppendQueue::append($pdf);
     } catch (\Throwable $exception) {
         die(text($exception));
     }

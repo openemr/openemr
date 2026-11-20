@@ -648,3 +648,15 @@ INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, act
 #IfNotRow2D list_options list_id Eye_Motility_Display option_id H
 INSERT INTO list_options (list_id, option_id, title, seq, notes, is_default, activity) VALUES ('Eye_Motility_Display', 'H', 'H', 20, 'Six cardinal positions', 0, 1);
 #EndIf
+
+-- Eye Form: retinal photos (Fundus, Optic Disc) were incorrectly categorized
+-- under POSTSEG instead of RETINA, causing them to appear in the wrong section.
+UPDATE `categories` SET `value` = 'RETINA' WHERE `name` IN ('Fundus - Eye', 'Optic Disc - Eye') AND `value` = 'POSTSEG';
+
+-- Eye Form: add a "Glasses Rx" document category for dispensed prescriptions.
+-- Move from Imaging - Eye to Encounters - Eye if it was previously created there.
+UPDATE `categories` SET `parent` = 16, `value` = 'RX' WHERE `name` = 'Glasses Rx - Eye' AND `parent` = 17;
+-- If it doesn't exist yet, insert it under Encounters - Eye.
+INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec`)
+  SELECT 37, 'Glasses Rx - Eye', 'RX', 16, 29, 30, 'patients|docs'
+  WHERE NOT EXISTS (SELECT 1 FROM `categories` WHERE `name` = 'Glasses Rx - Eye');

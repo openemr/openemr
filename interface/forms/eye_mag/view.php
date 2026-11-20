@@ -360,7 +360,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
 
       <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'chart' ]); ?>
-      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;vfutp=1&amp;overaction=6&amp;impplan=2&amp;vitals=1&amp;drawing-dialog=1&amp;fullscreen=4&amp;panel-layout=1&amp;pencil-body=1&amp;fullwidth=1&amp;share=3&amp;canvas-header=2" type="text/css">
+      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>&amp;vfutp=1&amp;overaction=6&amp;impplan=2&amp;vitals=1&amp;drawing-dialog=1&amp;fullscreen=4&amp;panel-layout=1&amp;pencil-body=1&amp;fullwidth=1&amp;share=3&amp;canvas-header=3&amp;va-center=3&amp;cb=<?php echo time(); ?>" type="text/css">
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/dotphrases.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/css">
       <script>window.eyeMagDpCssV = "<?php echo attr(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>";</script>
 

@@ -4240,6 +4240,7 @@ View.php
   box-shadow: 0 0.125rem 0.35rem rgba(0, 0, 0, 0.08);
   min-width: 0;
   padding: 0.75rem;
+  text-align: center;
 }
 
 #LayerVision_VAHx .vahx-table-scroll {
@@ -4284,12 +4285,26 @@ View.php
   font-size: 0.78rem;
   font-weight: 600;
   margin: 0.65rem 0 0.35rem;
+  text-align: center;
 }
 
 #LayerVision_VAHx .vahx-series-controls {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+  justify-content: center;
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+}
+
+#LayerVision_VAHx .vahx-series-controls .vahx-series-toggle {
+  display: inline-block;
+}
+
+#LayerVision_VAHx .vahx-series-controls .vahx-series-toggle {
+  display: inline-block;
 }
 
 #LayerVision_VAHx .vahx-series-toggle {

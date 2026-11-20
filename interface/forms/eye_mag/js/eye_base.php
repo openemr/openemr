@@ -110,9 +110,12 @@ function fill_QP_field(PEZONE, ODOSOU, LOCATION_text, selection, fill_action, Co
  * It ensures ownership of the form or provides background updates to READ-ONLY instances of the form.
  * It doesn't unlock a form to change ownership/provide write privileges.  This is done via the unlock() function.
  */
+var _submitting = false;
 function submit_form(action) {
+    if (_submitting) return;
+    _submitting = true;
     var url = "../../forms/eye_mag/save.php?sub=1&mode=update&id=" + $("#form_id").val();
-    if ($("#COPY_SECTION").value == "READONLY") return;
+    if ($("#COPY_SECTION").value == "READONLY") { _submitting = false; return; }
         // Sync _copy edits into their base fields before serializing, so values persist
     // even when blur never fired (e.g. Enter-key or programmatic save).
     $("input[name$='_copy']", "#eye_mag").each(function() {
@@ -122,10 +125,15 @@ function submit_form(action) {
     });
     // Format numeric fields before serializing, so unformatted entries (e.g. "3")
     // are converted to their full form (e.g. "+3.00") even when save happens
-    // before the field's blur handler runs.
+    // before the field's blur handler runs. Temporarily disable submit_form
+    // during the blur pass to prevent recursive calls (some blur handlers
+    // call submit_form themselves).
+    var _origSubmit = submit_form;
+    submit_form = function() { return; };
     $("input[class^='sphere'],input[name$='SPH'],input[class^='presbyopia'],input[name$='ADD'],#ODADD_1,#ODADD_2,#OSADD_1,#OSADD_2,input[name$='PRISM'],input[class^='prism'],input[name$='CYL'],input[name$='AXIS']").trigger('blur');
+    submit_form = _origSubmit;
 formData = $("form#eye_mag").serialize();
-    if (formData =='') return;
+    if (formData =='') { _submitting = false; return; }
     $("#menustate").val('0');
     top.restoreSession();
     return $.ajax({
@@ -141,6 +149,7 @@ formData = $("form#eye_mag").serialize();
                        //List these findings in the IMP_PLAN Builder
                        if (action !='1') {populate_form(result);}
                    }
+                   _submitting = false;
                    });
 };
 
@@ -173,6 +182,7 @@ function code_400() {
  */
 function parseDate(input) {
     var parts = input.match(/(\d+)/g);
+    if (!parts || parts.length < 3) return new Date();
         // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
     return new Date(parts[0], parts[1]-1, parts[2]); // months are 0-based
 }
@@ -2187,8 +2197,10 @@ function update_READONLY() {
                  $("#"+keyhere+"_copy").val(valhere).css("background-color","#F0F8FF");;
                  $("#"+keyhere+"_copy_brd").val(valhere).css("background-color","#F0F8FF");;
                  } else if (keyhere.match(/^O.VA_/)) {
-                 var side=keyhere.match(/(O.)VA_(.)/)[1];
-                 var rx_number=keyhere.match(/(O.)VA_(.)/)[2];
+                 var m = keyhere.match(/(O.)VA_(.)/);
+                 if (!m) return;
+                 var side=m[1];
+                 var rx_number=m[2];
                  if (rx_number == '1') { //update VA_1_copy and VA_1_copy_brd (first wearing RX only)
                  $('#'+side+'VA_1_copy').val(valhere).css("background-color","#F0F8FF");;
                  $('#'+side+'VA_1_copy_brd').val(valhere).css("background-color","#F0F8FF");;
@@ -3576,7 +3588,8 @@ $(function () {
                                                                        $(this).val(str);
                                                                        });
                   $('input[class^="sphere"],input[name$="SPH"]').on("blur", function() {
-                                                                      var mid = $(this).val();
+                                                                      var mid = $(this).val() || '';
+                                                                      mid = mid.replace(/=/g,"+");
                                                                       if (mid.match(/PLANO/i)) {
                                                                       $(this).val('PLANO');
                                                                       return;
@@ -3595,26 +3608,32 @@ $(function () {
                                                                       mid= mid + '00';
                                                                       }
                                                                       if ((!mid.match(/\./))&&(mid.match(00|25|50|75))) {
-                                                                      var front = mid.match(/(\d{0,2})(00|25|50|75)/)[1];
-                                                                      var back = mid.match(/(\d{0,2})(00|25|50|75)/)[2];
+                                                                      var m = mid.match(/(\d{0,2})(00|25|50|75)/);
+                                                                      if (m) {
+                                                                      var front = m[1];
+                                                                      var back = m[2];
                                                                       if (front =='') front ='0';
                                                                       mid = front + "." + back;
                                                                       }
+                                                                      }
                                                                       if (!mid.match(/\./)) {
-                                                                      var front = mid.match(/([\+\-]?\d{0,2})(\d{2})/)[1];
-                                                                      var back  = mid.match(/(\d{0,2})(\d{2})/)[2];
+                                                                      var m = mid.match(/([\+\-]?\d{0,2})(\d{2})/);
+                                                                      if (m) {
+                                                                      var front = m[1];
+                                                                      var back  = m[2];
                                                                       if (front =='') front ='0';
                                                                       if (front =='-') front ='-0';
                                                                       mid = front + "." + back;
                                                                       }
-                                                                      if (!mid.match(/^(\+|\-){1}/)) {
+                                                                      }
+                                                                      if (mid !== '' && !mid.match(/^(\+|\-){1}/)) {
                                                                       mid = "+" + mid;
                                                                       }
                                                                       $(this).val(mid);
                                                                       });
 
                   $("input[class^='presbyopia'],input[name$='ADD'],#ODADD_1,#ODADD_2,#OSADD_1,#OSADD_2").on("blur", function() {
-                                                                                                              var add = $(this).val();
+                                                                                                              var add = $(this).val() || '';
                                                                                                               add = add.replace(/=/g,"+");
                                                                                                               //if add is one digit, eg. 2, make it +2.00
                                                                                                               if (add.match(/^\d{1}$/)) {
@@ -3637,10 +3656,13 @@ $(function () {
                                                                                                               add = add + '00';
                                                                                                               }
                                                                                                               if ((!add.match(/\./))&&(add.match(/(0|25|50|75)$/))) {
-                                                                                                              var front = add.match(/([\+]?\d{0,1})(00|25|50|75)/)[1];
-                                                                                                              var back  = add.match(/([\+]?\d{0,1})(00|25|50|75)/)[2];
+                                                                                                              var m = add.match(/([\+]?\d{0,1})(00|25|50|75)/);
+                                                                                                              if (m) {
+                                                                                                              var front = m[1];
+                                                                                                              var back  = m[2];
                                                                                                               if (front =='') front ='0';
                                                                                                               add = front + "." + back;
+                                                                                                              }
                                                                                                               }
                                                                                                               if (!add.match(/^(\+)/) && (add.length >  0)) {
                                                                                                               add= "+" + add;
@@ -3668,8 +3690,8 @@ $(function () {
                                                                      // assume the end user KNOWS there are only numbers presented and
                                                                      // more than 3 digits is a mistake...
                                                                      // (although this may change with topography)
-                                                                     var axis = $(this).val();
-                                                                     if (this.name.match(/K2AXIS/)) {
+                                                                     var axis = $(this).val() || '';
+                                                                     if (this.name && this.name.match(/K2AXIS/)) {
                                                                          var group = this.name.replace("AXIS", "");
                                                                      } else {
                                                                          var group = this.name.replace("AXIS", "CYL");
@@ -3695,9 +3717,9 @@ $(function () {
                                                                      $(this).val(axis);
                                                                      });
                   $("input[class^='cylinder'],input[name$='CYL']").on("blur", function() {
-                                                                        var mid = $(this).val();
-                                                                        var group = this.name.replace("CYL", "SPH");;
-                                                                        var sphere = $("#"+group).val();
+                                                                        var mid = $(this).val() || '';
+                                                                        var group = this.name ? this.name.replace("CYL", "SPH") : '';
+                                                                        var sphere = group ? ($("#"+group).val() || '') : '';
                                                                         if (((mid.length == 0) && (sphere.length >  0))||(mid.match(/sph/i))) {
                                                                         $(this).val('SPH');
                                                                         if (sphere.match(/plano/i)) $(this).val('');
@@ -3725,9 +3747,10 @@ $(function () {
                                                                         if (mid.match(/\.$/)) {
                                                                         mid = mid + '00';
                                                                         }
-                                                                        if (mid.match(/([\+\-]?\d{0,2})\.?(00|25|50|75)/)) {
-                                                                        var front = mid.match(/([\+\-]?\d{0,2})\.?(00|25|50|75)/)[1];
-                                                                        var back  = mid.match(/([\+\-]?\d{0,2})\.?(00|25|50|75)/)[2];
+                                                                        var m2 = mid.match(/([\+\-]?\d{0,2})\.?(00|25|50|75)/);
+                                                                        if (m2) {
+                                                                        var front = m2[1];
+                                                                        var back  = m2[2];
                                                                         if (front =='') front ='0';
                                                                         mid = front + "." + back;
                                                                         }

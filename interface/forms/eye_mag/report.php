@@ -773,7 +773,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                 <td><?php echo text($SCOSVA); ?></td>
                             </tr>
                         <?php }
-                        if ($ODVA_1 || $OSVA_1) { ?>
+                        if (trim((string)$ODVA_1) !== '' || trim((string)$OSVA_1) !== '') { ?>
                                 <tr>
                                     <td><?php echo xlt('cc{{with correction}}'); ?></td>
                                     <td><?php echo text($ODVA_1); ?></td>
@@ -1290,7 +1290,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                 }
 
                 if ($hasReportRefraction('Auto Refraction')) { ?>
-                    <tr style="border-bottom:1pt solid black;">
+                    <tr>
                         <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Auto Refraction'); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text($ARODSPH) ?: "-"); ?></td>
@@ -2078,6 +2078,19 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                                         width: 200px;">
                                                 <b><?php echo xlt('Dilation Time'); ?>
                                                     :</b> <?php echo text($DIL_MEDS); ?>
+                                                <?php
+                                                $dilMedsUsed = [];
+                                                foreach (eye_mag_dilation_med_options() as $dilOption) {
+                                                    $dilField = $dilOption['field'];
+                                                    $dilCurrent = trim(EyeFormData::text(${$dilField} ?? ''));
+                                                    if (!in_array($dilCurrent, ['', '0', 'off'], true)) {
+                                                        $dilMedsUsed[] = $dilOption['title'];
+                                                    }
+                                                }
+                                                if ($dilMedsUsed !== []) {
+                                                    echo ' (' . text(implode(', ', $dilMedsUsed)) . ')';
+                                                }
+                                                ?>
                                             </td>
 
                                         </tr>
@@ -2421,6 +2434,30 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                     echo '</div>';
                 }
             }
+            // Display any dispensed glasses Rx documents saved for this encounter.
+            $rxDocuments = QueryUtils::fetchRecords(
+                "SELECT d.id, d.name, d.url, d.encounter_id
+                   FROM documents d
+                   JOIN categories_to_documents ctd ON ctd.document_id = d.id
+                   JOIN categories c ON c.id = ctd.category_id
+                  WHERE d.foreign_id = ? AND d.encounter_id = ? AND d.deleted = 0 AND c.value = 'RX'
+                  ORDER BY d.id DESC",
+                [$patientId, $encounter]
+            );
+            if ($rxDocuments !== []) {
+                echo '<div class="report_exam_group" style="margin-top:12px;">';
+                echo '<b>' . xlt('Dispensed Glasses Rx') . '</b>';
+                foreach ($rxDocuments as $rxDoc) {
+                    $rxDocId = EyeFormData::integer($rxDoc['id'] ?? 0);
+                    if ($rxDocId <= 0) continue;
+                    $rxUrl = OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id='
+                        . urlencode((string) $patientId) . '&doc_id=' . urlencode((string) $rxDocId);
+                    echo '<div style="margin:4px 0;"><a href="' . attr($rxUrl) . '" target="_blank">'
+                        . text($rxDoc['name'] ?? '') . '</a></div>';
+                }
+                echo '</div>';
+            }
+
             ReportRenderer::materialsText($patientId, $eyeFormId, $reportPdf, (bool) $PDF_OUTPUT, eye_mag_materials_for_report(...), eye_mag_embed_materials(...), CurrentRequest::get()->query->getBoolean('printable'));
             if (!$PDF_OUTPUT && !CurrentRequest::get()->query->getBoolean('printable')) {
                 foreach ($materials->documents as $document) {

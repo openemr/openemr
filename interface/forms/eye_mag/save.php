@@ -1830,11 +1830,10 @@ if ($_REQUEST['canvas'] ?? '') {
     $sql = "SELECT * from documents where documents.name = ? AND foreign_id = ? AND encounter_id = ? AND deleted = 0 ORDER BY id DESC";
     $ans1 = sqlQuery($sql, [$filename, EyeFormData::integer($pid), EyeFormData::integer($encounter)]);
     $category_id = null;
-    if ($ans1['id'] ?? '') {
-        $query = "select id from categories where name like 'Drawings%'";
-        $result = sqlStatement($query);
-        $ID = sqlFetchArray($result);
-        $category_id = $ID['id'];
+    $catRes = sqlStatement("SELECT id FROM categories WHERE name = 'Drawings - Eye' OR name LIKE 'Drawings%' ORDER BY (name = 'Drawings - Eye') DESC LIMIT 1");
+    $catRow = sqlFetchArray($catRes);
+    if (!empty($catRow['id'])) {
+        $category_id = (int) $catRow['id'];
     }
 
     $type = "image/jpeg"; // all our canvases are this type

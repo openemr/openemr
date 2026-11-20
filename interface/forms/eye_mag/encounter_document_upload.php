@@ -46,7 +46,7 @@ $visit = QueryUtils::querySingleRow(
     [$pid, $encounter]
 );
 $category = QueryUtils::querySingleRow(
-    "SELECT name,aco_spec FROM categories WHERE id=? AND value IN ('EXT','ANTSEG','POSTSEG','RETINA','NEURO')",
+    "SELECT name,aco_spec FROM categories WHERE id=? AND value IN ('EXT','ANTSEG','POSTSEG','RETINA','NEURO','RX')",
     [$categoryId]
 );
 if (!$visit || !$category || !AclMain::aclCheckAcoSpec($category['aco_spec'] ?? '')) {

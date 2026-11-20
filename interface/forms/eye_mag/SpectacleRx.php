@@ -30,7 +30,9 @@ use OpenEMR\Forms\EyeMag\EyeFormData;
 use OpenEMR\Forms\EyeMag\ProviderSignature;
 use OpenEMR\Forms\EyeMag\RefType;
 use OpenEMR\Forms\EyeMag\RxType;
+use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
+use Mpdf\Mpdf;
 use Symfony\Component\HttpFoundation\Response;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
@@ -727,13 +729,13 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
                                                             style="min-width:100px;">
                                                             <?php echo xlt('Rx Type'); ?><br/><br/>
                                                             <?php echo xlt('Single'); ?>
-                                                            <input type="radio" disabled <?php echo text($Single); ?>><br/>
+                                                            <input type="radio" name="RXTYPE" value="Single" <?php echo text($Single); ?> onchange="$('#RXTYPE').val(this.value); submit_form();"><br/>
                                                             <?php echo xlt('Bifocal'); ?>
-                                                            <input type="radio" disabled <?php echo text($Bifocal); ?>><br/>
+                                                            <input type="radio" name="RXTYPE" value="Bifocal" <?php echo text($Bifocal); ?> onchange="$('#RXTYPE').val(this.value); submit_form();"><br/>
                                                             <?php echo xlt('Trifocal'); ?>
-                                                            <input type="radio" disabled <?php echo text($Trifocal); ?>><br/>
+                                                            <input type="radio" name="RXTYPE" value="Trifocal" <?php echo text($Trifocal); ?> onchange="$('#RXTYPE').val(this.value); submit_form();"><br/>
                                                             <?php echo xlt('Prog.{{Progressive lenses}}'); ?>
-                                                            <input type="radio" disabled <?php echo text($Progressive); ?>><br/>
+                                                            <input type="radio" name="RXTYPE" value="Progressive" <?php echo text($Progressive); ?> onchange="$('#RXTYPE').val(this.value); submit_form();"><br/>
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -1200,8 +1202,40 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
                     event.stopImmediatePropagation();
                     alert(<?php echo xlj('Binocular PD is required before printing this prescription.'); ?>);
                     pd.focus();
+                    return;
                 }
+                // Auto-save as PDF before printing
+                if (typeof top.restoreSession === 'function') top.restoreSession();
+                var formData = new FormData(document.getElementById('Spectacle'));
+                formData.append('save_pdf', '1');
+                formData.append('pid', <?php echo js_escape(EyeFormData::text($pid)); ?>);
+                formData.append('encounter', <?php echo js_escape(EyeFormData::text($encounter)); ?>);
+                fetch(window.location.href, {method: 'POST', body: formData})
+                    .then(function (response) { return response.json(); })
+                    .then(function (result) {
+                        if (!result.success) console.warn(result.error || 'PDF save failed');
+                    })
+                    .catch(function (error) { console.warn(error.message || 'PDF save failed'); });
             }, true);
+
+            var savePdfButton = document.getElementById('savePdfButton');
+            if (savePdfButton) {
+                savePdfButton.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    if (typeof top.restoreSession === 'function') top.restoreSession();
+                    var formData = new FormData(document.getElementById('Spectacle'));
+                    formData.append('save_pdf', '1');
+                    formData.append('pid', <?php echo js_escape(EyeFormData::text($pid)); ?>);
+                    formData.append('encounter', <?php echo js_escape(EyeFormData::text($encounter)); ?>);
+                    fetch(window.location.href, {method: 'POST', body: formData})
+                        .then(function (response) { return response.json(); })
+                        .then(function (result) {
+                            if (!result.success) throw new Error(result.error || <?php echo xlj('Save failed.'); ?>);
+                            alert(result.message || <?php echo xlj('Saved.'); ?>);
+                        })
+                        .catch(function (error) { alert(error.message || <?php echo xlj('Save failed.'); ?>); });
+                });
+            }
             // Dispense field-state tracking: mark fields the user edits so the
             // "changed" (light blue) style applies. Matches the eye form's
             // focus/change color pattern.
@@ -1647,6 +1681,9 @@ if ($refType?->isContactLens()) {
                             <a href='#' class='btn btn-secondary btn-print mt-3' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                             </a>
+                            <a href='#' class='btn btn-primary btn-print mt-3' id='savePdfButton'>
+                                <?php echo xlt('Save as PDF'); ?>
+                            </a>
                         </div>
                     </div>
                 </td>
@@ -1848,6 +1885,41 @@ if ($refType?->isContactLens()) {
 
 <?php
     $content = ob_get_clean();
+
+    $savePdf = CurrentRequest::get()->request->get('save_pdf', CurrentRequest::get()->query->get('save_pdf')) ?? '';
+    if ($savePdf === '1' || $savePdf === 1 || $savePdf === true) {
+        header('Content-Type: application/json');
+        try {
+            $config_mpdf = Config_Mpdf::getConfigMpdf();
+            $pdf = new Mpdf($config_mpdf);
+            if ($session->get('language_direction') === 'rtl') {
+                $pdf->SetDirectionality('rtl');
+            }
+            $pdf->WriteHTML($content);
+            $pdfBytes = $pdf->Output('', 'S');
+
+            $pid = EyeFormData::integer(CurrentRequest::get()->request->get('pid', CurrentRequest::get()->query->get('pid')) ?? $pid);
+            $encounter = EyeFormData::integer(CurrentRequest::get()->request->get('encounter', CurrentRequest::get()->query->get('encounter')) ?? $encounter);
+            $categoryId = 37; // Glasses Rx - Eye
+            $name = 'Glasses_Rx_' . date('Y-m-d_His') . '.pdf';
+
+            $document = new Document();
+            $result = $document->createDocument(
+                (string) $pid, $categoryId, $name, 'application/pdf', $pdfBytes,
+                '', 1, 0, null, null, null, null, (string) $encounter
+            );
+            if ($result !== '') {
+                echo json_encode(['success' => false, 'error' => xlt('The PDF could not be saved.')]);
+            } else {
+                echo json_encode(['success' => true, 'message' => xlt('Glasses Rx saved as PDF.')]);
+            }
+        } catch (Throwable $e) {
+            error_log('SpectacleRx PDF save failed: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => xlt('The PDF could not be generated.')]);
+        }
+        exit;
+    }
+
     echo $content;
     exit;
 ?>

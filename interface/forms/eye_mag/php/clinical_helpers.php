@@ -219,7 +219,7 @@ function display_VisualAcuitiesModern(mixed $pid = 0, array $priors = [], string
         'CR' => ['label' => xlt('CR{{Cycloplegic Refraction acuity}}'), 'od' => 'CRODVA', 'os' => 'CROSVA'],
         'CTL' => ['label' => xlt('CTL{{Contact Lens acuity}}'), 'od' => 'CTLODVA', 'os' => 'CTLOSVA'],
     ];
-    $correctedTypes = ['CC', 'AR', 'MR', 'CR', 'CTL'];
+    $correctedTypes = ['SC', 'CC', 'AR', 'MR', 'CR', 'CTL'];
 
     /** Convert documented acuity to a logMAR estimate, retaining unknown values as gaps. */
     $toLogMar = static function (mixed $raw): ?float {
@@ -504,6 +504,11 @@ function display_VisualAcuitiesModern(mixed $pid = 0, array $priors = [], string
                     });
 
                     var controls = document.getElementById('VAHX_series_controls');
+                    controls.style.display = 'flex';
+                    controls.style.flexWrap = 'wrap';
+                    controls.style.gap = '0.35rem';
+                    controls.style.justifyContent = 'center';
+                    controls.style.width = '100%';
                     datasets.forEach(function (dataset, index) {
                         var button = document.createElement('button');
                         button.type = 'button';
