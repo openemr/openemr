@@ -661,8 +661,8 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 ### AI Assistance Trailer
 
 Add a trailer naming the tool to every commit AI helped make, including docs
-and deletions: `Generated-By` if the AI made all of the changes, `Assisted-By`
-if a person made some.
+and deletions: `Generated-By` if the AI produced the change directly,
+`Assisted-By` if it helped with tweaks, refactors, or fixes to a person's work.
 
 ```bash
 git commit --trailer "Generated-By: Claude Code" -m "fix(calendar): correct date parsing"
