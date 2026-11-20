@@ -88,11 +88,38 @@ class C_Document extends Controller
         $this->templateService = new DocumentTemplateService();
     }
 
+    /** @var array<int, true> ids of the folders the classic tree shows open (the upload target and its parents) */
+    private array $openCategoryIds = [];
+
+    /**
+     * Ids of a folder and all of its parents, from the folder up to (not including) the root entry.
+     *
+     * @return array<int, true>
+     */
+    private function categoryPathIds(int $categoryId): array
+    {
+        $ids = [];
+        $tree = $this->tree;
+        $names = $tree instanceof CategoryTree ? $tree->_id_name : null;
+        if (!is_array($names)) {
+            return $ids;
+        }
+        $guard = 0;
+        while ($categoryId > 0 && !isset($ids[$categoryId]) && $guard++ < 32) {
+            $ids[$categoryId] = true;
+            $entry = $names[$categoryId] ?? null;
+            $categoryId = is_array($entry) ? self::listDataInt($entry['parent'] ?? null) : 0;
+        }
+        return $ids;
+    }
+
     public function upload_action($patient_id, $category_id): string
     {
         $category_name = $this->tree->get_node_name($category_id);
         $this->assign("category_id", $category_id);
         $this->assign("category_name", $category_name);
+        // The tree opens on the folder the upload goes to, so a new file is visible there.
+        $this->openCategoryIds = $this->categoryPathIds(self::listDataInt($category_id));
         $this->assign("hide_encryption", OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption'));
         $this->assign("patient_id", $patient_id);
 
@@ -245,6 +272,8 @@ class C_Document extends Controller
                 } elseif (OEGlobalsBag::getInstance()->getBoolean('secure_upload') && !isWhiteFile($_FILES['file']['tmp_name'][$key])) {
                     $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
                 } else {
+                    // The mime type is worked out for each file on its own.
+                    $mimetype = '';
                     // Test for a zip of DICOM images
                     if (stripos((string) $_FILES['file']['type'][$key], 'zip') !== false) {
                         $za = new ZipArchive();
@@ -1282,8 +1311,13 @@ class C_Document extends Controller
         $categories_list = $this->tree->_get_categories_array($patient_id);
         //print_r($categories_list);
 
+        $hiddenWhenEmpty = self::hiddenEmptyCategoryNames();
+        $treeData = $this->tree->tree;
+        if ($hiddenWhenEmpty !== []) {
+            $treeData = $this->pruneEmptyHiddenCategories($treeData, is_array($categories_list) ? $categories_list : [], $hiddenWhenEmpty);
+        }
         $menu  = new HTML_TreeMenu();
-        $rnode = $this->array_recurse($this->tree->tree, $patient_id, $categories_list);
+        $rnode = $this->array_recurse($treeData, $patient_id, $categories_list);
         $menu->addItem($rnode);
         $treeMenu = new HTML_TreeMenu_DHTML($menu, ['images' => 'public/images', 'defaultClass' => 'treeMenuDefault']);
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, ['linkTarget' => '_self']);
@@ -1323,8 +1357,220 @@ class C_Document extends Controller
         $this->assign('demo_pid', $session->get('pid'));
         $this->assign('is_new_referer', $is_new_referer);
         $this->assign('new_title', xlt("New Documents"));
+        $this->assign('documents_default_view', OEGlobalsBag::getInstance()->getString('documents_default_view', 'tree'));
+        $this->assign('documents_hide_empty', implode(',', $hiddenWhenEmpty));
+        // The same checks the stock view page makes before it offers Move and Delete.
+        $this->assign('documents_can_move', AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly']));
+        $this->assign('documents_can_delete', AclMain::aclCheckCore('patients', 'docs_rm'));
+        $this->assign('documents_view_key', 'oeDocumentsView:' . self::listDataString($session->get('site_id')) . ':' . self::listDataString($session->get('authUserID')));
+        $this->assign('hide_encryption', OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption'));
 
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "documents/" . $this->template_mod . "_list.html");
+    }
+
+    /**
+     * JSON data for the "Folders" view of the Documents page.
+     *
+     * Returns the document categories and the documents of one patient that the current user may
+     * open. It applies the same per-category access check and view filter event as the tree.
+     *
+     * @param string|null $patient_id pid of the patient, "00" for documents that belong to no patient
+     */
+    public function list_data_action(?string $patient_id = ""): string
+    {
+        if (!AclMain::aclCheckCore('patients', 'docs')) {
+            $this->throwAccessDenied("ACL check failed for patients/docs: Documents list data", xl("Documents"));
+        }
+        $globals = OEGlobalsBag::getInstance();
+        $webroot = $globals->getString('webroot');
+        $patientId = (string) $patient_id;
+        $separator = " \u{203A} ";
+
+        $categoryRows = [];
+        foreach (QueryUtils::fetchRecords("SELECT `id`, `name`, `parent`, `aco_spec` FROM `categories` ORDER BY `lft`") as $row) {
+            $categoryRows[self::listDataInt($row['id'] ?? null)] = $row;
+        }
+        $pathOf = static function (int $id) use ($categoryRows, $separator): string {
+            $names = [];
+            $guard = 0;
+            while (isset($categoryRows[$id]) && self::listDataInt($categoryRows[$id]['parent'] ?? null) !== 0 && $guard++ < 32) {
+                array_unshift($names, xl_document_category(self::listDataString($categoryRows[$id]['name'] ?? null)));
+                $id = self::listDataInt($categoryRows[$id]['parent'] ?? null);
+            }
+            return implode($separator, $names);
+        };
+
+        // The root category is only the tree's anchor, so it is not listed.
+        $categories = [];
+        $accessible = [];
+        foreach ($categoryRows as $id => $row) {
+            if (self::listDataInt($row['parent'] ?? null) === 0 || !AclMain::aclCheckAcoSpec(self::listDataString($row['aco_spec'] ?? null))) {
+                continue;
+            }
+            $accessible[$id] = true;
+            $categories[] = [
+                'id' => $id,
+                'name' => xl_document_category(self::listDataString($row['name'] ?? null)),
+                'parent' => self::listDataInt($row['parent'] ?? null),
+                'path' => $pathOf($id),
+            ];
+        }
+
+        $tree = $this->tree;
+        if (!$tree instanceof CategoryTree) {
+            throw new \LogicException('The document category tree is not available.');
+        }
+        $documents = [];
+        if (is_numeric($patientId)) {
+            $sql = "SELECT d.`id`, d.`name`, d.`docdate`, d.`date`, d.`size`, d.`mimetype`, c2d.`category_id`"
+                . " FROM `documents` AS d"
+                . " INNER JOIN `categories_to_documents` AS c2d ON c2d.`document_id` = d.`id`"
+                . " WHERE d.`deleted` = 0 AND ";
+            $binds = [];
+            if ((int) $patientId === 0) {
+                $sql .= "(d.`foreign_id` = 0 OR d.`foreign_id` IS NULL)";
+            } else {
+                $sql .= "d.`foreign_id` = ?";
+                $binds[] = (int) $patientId;
+            }
+            $sql .= " ORDER BY d.`docdate` DESC, d.`id` DESC";
+
+            $base = $webroot . '/controller.php?document';
+            $pidParam = '&patient_id=' . urlencode($patientId);
+            foreach (QueryUtils::fetchRecords($sql, $binds) as $row) {
+                $categoryId = self::listDataInt($row['category_id'] ?? null);
+                if (!isset($accessible[$categoryId])) {
+                    continue;
+                }
+                $documentId = self::listDataInt($row['id'] ?? null);
+                $documentName = self::listDataString($row['name'] ?? null);
+                $viewUrl = $base . '&view' . $pidParam . '&doc_id=' . $documentId;
+
+                // Let listeners change the document link, as they can in the tree.
+                $htmlNode = new HTML_TreeNode([
+                    'text' => $documentName,
+                    'link' => $viewUrl,
+                    'icon' => 'file3.png',
+                    'expandedIcon' => 'folder-expanded.gif',
+                ]);
+                $filterEvent = new PatientDocumentTreeViewFilterEvent();
+                $filterEvent->setCategoryTreeNode($tree);
+                $filterEvent->setDocumentId($documentId);
+                $filterEvent->setDocumentName($documentName);
+                $filterEvent->setCategoryId($categoryId);
+                $categoryInfo = $tree->get_node_info($categoryId);
+                $filterEvent->setCategoryInfo(is_array($categoryInfo) ? $categoryInfo : []);
+                $filterEvent->setPid($patientId);
+                $filterEvent->setHtmlTreeNode($htmlNode);
+                $filteredEvent = $globals->getKernel()->getEventDispatcher()->dispatch($filterEvent, PatientDocumentTreeViewFilterEvent::EVENT_NAME);
+                $filteredLink = $filteredEvent->getHtmlTreeNode()->link;
+                if ($filteredLink !== '') {
+                    $viewUrl = $filteredLink;
+                }
+
+                $docDate = self::listDataString($row['docdate'] ?? null);
+                if ($docDate === '' || str_starts_with($docDate, '0000')) {
+                    $docDate = substr(self::listDataString($row['date'] ?? null), 0, 10);
+                }
+                $retrieveUrl = $base . '&retrieve' . $pidParam . '&document_id=' . $documentId;
+                $documents[] = [
+                    'id' => $documentId,
+                    'name' => $documentName,
+                    'category_id' => $categoryId,
+                    'path' => $pathOf($categoryId),
+                    'date' => $docDate,
+                    'size' => self::listDataInt($row['size'] ?? null),
+                    'mimetype' => self::listDataString($row['mimetype'] ?? null),
+                    'view_url' => $viewUrl,
+                    'retrieve_url' => $retrieveUrl . '&as_file=false',
+                    'download_url' => $retrieveUrl . '&as_file=true',
+                ];
+            }
+        }
+
+        header('Content-Type: application/json; charset=utf-8');
+        header('X-Content-Type-Options: nosniff');
+        return json_encode(
+            ['categories' => $categories, 'documents' => $documents],
+            JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE
+        );
+    }
+
+    /**
+     * Lower-case folder names from the documents_hide_empty_categories setting.
+     *
+     * @return list<string>
+     */
+    private static function hiddenEmptyCategoryNames(): array
+    {
+        $setting = OEGlobalsBag::getInstance()->getString('documents_hide_empty_categories', '');
+        $names = [];
+        foreach (explode(',', $setting) as $name) {
+            $name = mb_strtolower(trim($name));
+            if ($name !== '') {
+                $names[] = $name;
+            }
+        }
+        return $names;
+    }
+
+    /**
+     * True when a folder or any folder below it holds a document.
+     *
+     * @param array<int|string, mixed> $categories documents by category id, as the tree is built from
+     */
+    private static function subtreeHasDocuments(int|string $id, mixed $branch, array $categories): bool
+    {
+        if (isset($categories[$id]) && is_array($categories[$id]) && $categories[$id] !== []) {
+            return true;
+        }
+        if (!is_array($branch)) {
+            return false;
+        }
+        foreach ($branch as $childId => $childBranch) {
+            if (self::subtreeHasDocuments($childId, $childBranch, $categories)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes the folders named in the setting from the tree while nothing is filed in them.
+     *
+     * @param array<int|string, mixed> $categories documents by category id
+     * @param list<string> $hiddenNames lower-case folder names
+     */
+    private function pruneEmptyHiddenCategories(mixed $branch, array $categories, array $hiddenNames): mixed
+    {
+        if (!is_array($branch)) {
+            return $branch;
+        }
+        $tree = $this->tree;
+        if (!$tree instanceof CategoryTree) {
+            return $branch;
+        }
+        $kept = [];
+        foreach ($branch as $id => $child) {
+            if ($id !== 0 && $id !== '') {
+                $name = $tree->get_node_name($id);
+                if (is_string($name) && in_array(mb_strtolower($name), $hiddenNames, true) && !self::subtreeHasDocuments($id, $child, $categories)) {
+                    continue;
+                }
+            }
+            $kept[$id] = $this->pruneEmptyHiddenCategories($child, $categories, $hiddenNames);
+        }
+        return $kept;
+    }
+
+    private static function listDataString(mixed $value): string
+    {
+        return is_scalar($value) ? (string) $value : '';
+    }
+
+    private static function listDataInt(mixed $value): int
+    {
+        return is_numeric($value) ? (int) $value : 0;
     }
 
     public function &array_recurse($array, $patient_id, $categories = [])
@@ -1346,7 +1592,7 @@ class C_Document extends Controller
                     $current_node = &$rnode;
                 } else {
                     //echo "p:" . $this->tree->get_node_name($id) . "<br />";
-                    $this->_last_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon]));
+                    $this->_last_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => isset($this->openCategoryIds[self::listDataInt($id)])]));
                     $current_node = &$this->_last_node;
                 }
 
@@ -1361,7 +1607,7 @@ class C_Document extends Controller
                     //this conditional tree could be more efficient but working with recursive trees makes my head hurt, TODO
                     if ($id !== 0 && is_object($node)) {
                       //echo "n:" . $this->tree->get_node_name($id) . "<br />";
-                        $current_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon]));
+                        $current_node = &$node->addItem(new HTML_TreeNode(["id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => isset($this->openCategoryIds[self::listDataInt($id)])]));
                     }
                 }
             }
