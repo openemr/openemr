@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 579
+-- v_database: 580
 --
 
 --
@@ -10211,6 +10211,7 @@ CREATE TABLE `x12_partners` (
   `x12_sftp_receive_dir_277` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 277 claim status files from',
   `x12_sftp_receive_dir_999` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 999 acknowledgments from',
   `x12_sftp_receive_worked_dir` varchar(255) DEFAULT NULL COMMENT 'remote folder a fetched file is moved to; empty leaves it in place',
+  `x12_era_auto_post_user` bigint(20) DEFAULT NULL COMMENT 'users.id that received 835s are posted as, unattended; empty leaves them for a person to post',
   `x12_token_endpoint` tinytext,
   `x12_eligibility_endpoint` tinytext,
   `x12_claim_status_endpoint` tinytext,
@@ -14347,9 +14348,58 @@ CREATE TABLE `x12_remote_received` (
   `stored_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'file name it was stored under on the site',
   `message` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it was not stored',
   `received_at` datetime NOT NULL,
+  `auto_post_status` varchar(31) NOT NULL DEFAULT '' COMMENT 'AutoPostFileStatus: empty when the file is not for unattended posting; else pending, running, done, unreadable or interrupted',
   PRIMARY KEY (`id`),
   UNIQUE KEY `remote_key` (`remote_key`),
   KEY `partner_status` (`x12_partner_id`, `status`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `era_auto_post_check`;
+CREATE TABLE `era_auto_post_check` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `received_id` bigint(20) NOT NULL COMMENT 'x12_remote_received.id of the 835',
+  `sequence` int(11) NOT NULL COMMENT 'position of the check in the file, from 1',
+  `check_number` varchar(255) NOT NULL DEFAULT '' COMMENT 'TRN02',
+  `check_date` varchar(8) NOT NULL DEFAULT '' COMMENT 'BPR16, yyyymmdd',
+  `payer_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'N1*PR',
+  `payer_id` int(11) NOT NULL DEFAULT 0 COMMENT 'insurance_companies.id the check was posted for; 0 when none was found',
+  `check_amount` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'BPR02',
+  `claim_total` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'sum of the claim payments (CLP04)',
+  `plb_total` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'sum of the provider-level adjustments (PLB), which the payer takes off the claim payments',
+  `plb_reasons` varchar(255) NOT NULL DEFAULT '' COMMENT 'PLB adjustment reason codes, comma separated',
+  `status` varchar(31) NOT NULL COMMENT 'CheckStatus: posted or held',
+  `hold_reason` varchar(31) NOT NULL DEFAULT '' COMMENT 'HoldReason; empty when the check was posted',
+  `session_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'ar_session.session_id posted to; 0 when held',
+  `processed_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `received_sequence` (`received_id`, `sequence`),
+  KEY `check_number` (`check_number`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `era_auto_post_claim`;
+CREATE TABLE `era_auto_post_claim` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `check_id` bigint(20) NOT NULL COMMENT 'era_auto_post_check.id',
+  `sequence` int(11) NOT NULL COMMENT 'position of the claim payment in the check, from 1',
+  `our_claim_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'CLP01',
+  `payer_claim_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'CLP07',
+  `patient_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'NM1*QC, as the payer sent it',
+  `pid` bigint(20) NOT NULL DEFAULT 0 COMMENT '0 when the claim was not found',
+  `encounter` bigint(20) NOT NULL DEFAULT 0 COMMENT '0 when the claim was not found',
+  `payer_level` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'insurance level the payer processed the claim at, 1 to 3',
+  `claim_status_code` varchar(8) NOT NULL DEFAULT '' COMMENT 'CLP02',
+  `outcome` varchar(31) NOT NULL COMMENT 'ClaimOutcome: posted, review or skipped',
+  `reasons` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it needs review or was skipped, comma separated; empty when posted',
+  `claim_payment` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'CLP04',
+  `payments_posted` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `adjustments_posted` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `charges_added` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `level_closed` tinyint(1) NOT NULL DEFAULT 0,
+  `secondary_queued` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `check_sequence` (`check_id`, `sequence`),
+  KEY `outcome` (`outcome`),
+  KEY `patient_encounter` (`pid`, `encounter`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `export_job`;

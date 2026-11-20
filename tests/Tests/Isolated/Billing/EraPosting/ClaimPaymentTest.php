@@ -34,6 +34,7 @@ class ClaimPaymentTest extends TestCase
             'our_claim_id' => '42-7',
             'claim_status_code' => '1',
             'payer_claim_id' => 'ICN123',
+            'amount_approved' => '65.00',
             'dos' => '20261001',
             'claim_date' => '20260930',
             'patient_fname' => 'ANNE',
@@ -58,6 +59,7 @@ class ClaimPaymentTest extends TestCase
         ]);
 
         $this->assertSame('CHK 100', $claim->checkNumber);
+        $this->assertSame(65.0, $claim->paymentAmount);
         $this->assertSame('20261020', $claim->checkDate);
         $this->assertSame('20261019', $claim->productionDate);
         $this->assertSame('42-7', $claim->ourClaimId);
