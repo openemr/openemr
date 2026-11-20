@@ -17,16 +17,27 @@ namespace OpenEMR\Tests\BC;
 
 use InvalidArgumentException;
 use OpenEMR\BC\DatabaseConnectionOptions;
+use OpenEMR\Core\OEEnvBag;
 use PDO;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use RuntimeException;
 use SensitiveParameter;
 use Symfony\Component\Filesystem\Filesystem;
 
 #[Small]
 class DatabaseConnectionOptionsTest extends TestCase
 {
+    private const ENV_TCP = [
+        'OPENEMR_DB_NAME' => 'envdb',
+        'OPENEMR_DB_USER' => 'envuser',
+        'OPENEMR_DB_PASSWORD' => 'envpass',
+        'OPENEMR_DB_HOST' => 'db.example.com',
+        'OPENEMR_DB_PORT' => '3307',
+    ];
+
     public function testToDbalParamsWithHostAndPort(): void
     {
         $options = new DatabaseConnectionOptions(
@@ -292,6 +303,91 @@ class DatabaseConnectionOptionsTest extends TestCase
             $this->cleanupTempDir($dir);
         }
         $this->tempDirs = [];
+        foreach (array_keys(self::ENV_TCP) as $key) {
+            OEEnvBag::getInstance()->remove($key);
+        }
+        OEEnvBag::getInstance()->remove('OPENEMR_DB_SOCKET');
+    }
+
+    /**
+     * @param array<string, string> $values
+     */
+    private static function setEnv(array $values): void
+    {
+        $env = OEEnvBag::getInstance();
+        foreach ($values as $key => $value) {
+            $env->set($key, $value);
+        }
+    }
+
+    public function testForSiteEnvOverridesSqlconf(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        mkdir($siteDir, 0755, true);
+        file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
+<?php
+$sqlconf = [
+    'dbase' => 'filedb',
+    'login' => 'fileuser',
+    'pass' => 'filepass',
+    'host' => '127.0.0.1',
+    'port' => '3306',
+];
+PHP
+        );
+        self::setEnv(self::ENV_TCP);
+
+        $options = DatabaseConnectionOptions::forSite($siteDir);
+
+        self::assertSame('envdb', $options->dbname, 'env should win over sqlconf.php');
+        self::assertSame('envuser', $options->user);
+        self::assertSame('envpass', $options->password);
+        self::assertSame('db.example.com', $options->host);
+        self::assertSame(3307, $options->port);
+        self::assertNull($options->unixSocket);
+    }
+
+    public function testForSiteEnvDoesNotNeedSqlconf(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        self::setEnv([
+            'OPENEMR_DB_NAME' => 'envdb',
+            'OPENEMR_DB_USER' => 'envuser',
+            'OPENEMR_DB_PASSWORD' => 'envpass',
+            'OPENEMR_DB_SOCKET' => '/var/run/mysqld/mysqld.sock',
+        ]);
+
+        $options = DatabaseConnectionOptions::forSite($siteDir);
+
+        self::assertSame('/var/run/mysqld/mysqld.sock', $options->unixSocket);
+        self::assertNull($options->host);
+        self::assertNull($options->port);
+    }
+
+    #[DataProvider('requiredEnvProvider')]
+    public function testForSiteEnvRequiresCredentials(string $missing): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $values = self::ENV_TCP;
+        unset($values[$missing]);
+        self::setEnv($values);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage($missing);
+        DatabaseConnectionOptions::forSite($siteDir);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function requiredEnvProvider(): array
+    {
+        return [
+            'user' => ['OPENEMR_DB_USER'],
+            'password' => ['OPENEMR_DB_PASSWORD'],
+        ];
     }
 
     public function testForSiteLoadsConfigFile(): void
