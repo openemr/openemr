@@ -47,3 +47,16 @@ function otherVariable(): bool
     $allowWrite = true;
     return $allowWrite;
 }
+
+function optInIfUnset(): bool
+{
+    $sessionAllowWrite ??= true;
+    return $sessionAllowWrite;
+}
+
+function stayReadOnlyIfUnset(): bool
+{
+    // ??= with a falsy value still leaves the session read-only.
+    $sessionAllowWrite ??= false;
+    return $sessionAllowWrite;
+}

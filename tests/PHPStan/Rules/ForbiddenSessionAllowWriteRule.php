@@ -21,14 +21,16 @@ declare(strict_types=1);
 namespace OpenEMR\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\AssignOp\Coalesce;
 use PhpParser\Node\Expr\Variable;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
 /**
- * @implements Rule<Assign>
+ * @implements Rule<Expr>
  */
 final readonly class ForbiddenSessionAllowWriteRule implements Rule
 {
@@ -52,22 +54,28 @@ final readonly class ForbiddenSessionAllowWriteRule implements Rule
 
     public function getNodeType(): string
     {
-        return Assign::class;
+        // Assign and AssignOp\Coalesce (??=) share no narrower parent.
+        return Expr::class;
     }
 
     /**
-     * @param Assign $node
+     * @param Expr $node
      * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        if (!$node instanceof Assign && !$node instanceof Coalesce) {
+            return [];
+        }
+
         if (!$node->var instanceof Variable || $node->var->name !== 'sessionAllowWrite') {
             return [];
         }
 
         // globals.php reads the flag with empty(), so a value that is always
-        // falsy keeps the session read-only.
-        if ($scope->getType($node->expr)->toBoolean()->isFalse()->yes()) {
+        // falsy keeps the session read-only. The type of the whole expression
+        // is the value the variable ends up holding, for = and ??= alike.
+        if ($scope->getType($node)->toBoolean()->isFalse()->yes()) {
             return [];
         }
 

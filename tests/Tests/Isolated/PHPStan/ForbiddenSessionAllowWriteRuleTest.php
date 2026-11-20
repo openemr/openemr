@@ -48,6 +48,7 @@ final class ForbiddenSessionAllowWriteRuleTest extends RuleTestCase
                 [self::EXPECTED_MESSAGE, 19, self::EXPECTED_TIP],
                 [self::EXPECTED_MESSAGE, 25, self::EXPECTED_TIP],
                 [self::EXPECTED_MESSAGE, 31, self::EXPECTED_TIP],
+                [self::EXPECTED_MESSAGE, 53, self::EXPECTED_TIP],
             ],
         );
     }
