@@ -143,19 +143,33 @@ final class AuditChainReader
     }
 
     /**
-     * @param array<string, mixed> $row
+     * @param array<mixed> $row
      */
     private static function addRow(AuditChainChecker $checker, array $row): void
     {
-        $checksum = $row['checksum'] ?? null;
-        $chain = $row['chain'] ?? null;
-        $checksumApi = $row['checksum_api'] ?? null;
+        $checksum = self::column($row, 'checksum');
+        $chain = self::column($row, 'chain');
+        $checksumApi = self::column($row, 'checksum_api');
         $checker->add(
-            self::scalar($row['log_id'] ?? null),
+            self::scalar(self::column($row, 'log_id')),
             is_string($checksum) ? $checksum : '',
             is_string($chain) ? $chain : null,
             is_string($checksumApi) ? $checksumApi : '',
         );
+    }
+
+    /**
+     * @param array<mixed> $row
+     */
+    private static function column(array $row, string $name): mixed
+    {
+        foreach ($row as $key => $value) {
+            if ($key === $name) {
+                return $value;
+            }
+        }
+
+        return null;
     }
 
     private static function scalar(mixed $value): string
