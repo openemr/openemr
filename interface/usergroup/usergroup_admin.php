@@ -261,11 +261,20 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         // does not consult users.active, so a refresh token issued
         // before this moment would keep minting access tokens until its
         // own expiry (up to three months). Mirror the password-change
-        // revocation block: on an active→inactive transition, mark every
-        // outstanding api_refresh_token / api_token for this user as
-        // revoked so the API side of the account is closed at the same
-        // moment the browser side is.
-        if ((int)($_POST['pre_active'] ?? 0) === 1 && $actvar === 0) {
+        // revocation block: whenever the saved state is inactive, mark
+        // every outstanding api_refresh_token / api_token for this user
+        // as revoked so the API side of the account is closed at the
+        // same moment the browser side is.
+        //
+        // Keyed on the saved state alone rather than the pre_active→
+        // active delta so two concurrent admin sessions can't race the
+        // revoke: if admin A opens the form while the user is inactive
+        // (pre_active=0), admin B activates and saves (users.active=1,
+        // tokens issued), then admin A saves with the stale pre_active=0
+        // and active=0, a delta check would skip the revoke and leave
+        // B's newly-issued tokens live. The UPDATEs are idempotent
+        // (`WHERE revoked = 0`) so repeated saves are cheap.
+        if ($actvar === 0) {
             AuthUtils::revokeOAuthTokensForUser((int)$_POST["id"]);
         }
         //Display message when Emergency Login user was activated

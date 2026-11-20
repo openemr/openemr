@@ -2126,4 +2126,30 @@ class AuthUtils
             [$userUuidStr]
         );
     }
+
+    /**
+     * Revoke every active OAuth2 refresh token and access token for the
+     * given (user, client) pair. Used when offboarding a single OAuth
+     * app's hold on a user — the account itself is still active and its
+     * tokens for other authorized apps must survive the operation. The
+     * account-lifecycle paths (admin deactivation, password change)
+     * still use {@see self::revokeOAuthTokensForUser()} because those
+     * events invalidate the user's identity across every app.
+     */
+    public static function revokeOAuthTokensForUserUuidAndClient(string $userUuidStr, string $clientId): void
+    {
+        if ($userUuidStr === '' || $clientId === '') {
+            return;
+        }
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `api_refresh_token` SET `revoked` = 1 "
+                . "WHERE `user_id` = ? AND `client_id` = ? AND `revoked` = 0",
+            [$userUuidStr, $clientId]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `api_token` SET `revoked` = 1 "
+                . "WHERE `user_id` = ? AND `client_id` = ? AND `revoked` = 0",
+            [$userUuidStr, $clientId]
+        );
+    }
 }

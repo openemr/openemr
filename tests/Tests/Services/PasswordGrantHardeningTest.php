@@ -1619,6 +1619,16 @@ class PasswordGrantHardeningTest extends TestCase
         $this->snapshotIpTracking($ipString . ' (5.6.7.8)');
 
         AuthUtils::resetLoginFailedCounter('admin');
+        // Seed all three keys with deterministic state (counter = 0,
+        // last-fail = now) so the delta assertions are not off-by-one
+        // when an existing REMOTE_ADDR row's reset-window has expired
+        // (the first bump would then reset to 1, not add to the
+        // snapshot) and so any stray composite-keyed rows that a prior
+        // run left behind are zeroed out before we assert they stayed
+        // at zero.
+        $this->seedIpCounter($ipString, 0);
+        $this->seedIpCounter($ipString . ' (1.2.3.4)', 0);
+        $this->seedIpCounter($ipString . ' (5.6.7.8)', 0);
         $ipBefore = $this->readIpCounter($ipString);
 
         $originalXffWasSet = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER);
@@ -1657,29 +1667,26 @@ class PasswordGrantHardeningTest extends TestCase
 
     public function testRevokeOAuthTokensForUserMarksApiTokensRevoked(): void
     {
-        $userId = $this->requireExistingAdminUserId();
-        $userUuidRow = QueryUtils::querySingleRow(
-            "SELECT `uuid` FROM `users` WHERE `id` = ?",
-            [$userId]
-        );
-        $userUuidBytes = is_array($userUuidRow) ? ($userUuidRow['uuid'] ?? null) : null;
-        $this->assertIsString($userUuidBytes, 'Admin user must have a uuid for this test');
-        $userUuidStr = \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($userUuidBytes);
+        // Use a dedicated users row, not the shared admin account. The
+        // user-wide revoke helper would otherwise flip every real admin
+        // api_token / api_refresh_token row to revoked, and the test's
+        // teardown only restores the rows it inserted.
+        [$fixtureUserId, $fixtureUserUuidStr] = $this->createDedicatedUserFixture();
 
         $marker = 'test-revoke-oauth-' . Uuid::uuid4()->toString();
         try {
             QueryUtils::sqlStatementThrowException(
                 "INSERT INTO `api_refresh_token` (`user_id`, `client_id`, `token`, `expiry`, `revoked`) "
                     . "VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR), 0)",
-                [$userUuidStr, $marker, $marker . '-refresh']
+                [$fixtureUserUuidStr, $marker, $marker . '-refresh']
             );
             QueryUtils::sqlStatementThrowException(
                 "INSERT INTO `api_token` (`user_id`, `client_id`, `token`, `expiry`, `revoked`) "
                     . "VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR), 0)",
-                [$userUuidStr, $marker, $marker . '-access']
+                [$fixtureUserUuidStr, $marker, $marker . '-access']
             );
 
-            AuthUtils::revokeOAuthTokensForUser($userId);
+            AuthUtils::revokeOAuthTokensForUser($fixtureUserId);
 
             $refresh = QueryUtils::querySingleRow(
                 "SELECT `revoked` FROM `api_refresh_token` WHERE `token` = ?",
@@ -1702,6 +1709,7 @@ class PasswordGrantHardeningTest extends TestCase
                 "DELETE FROM `api_token` WHERE `client_id` = ?",
                 [$marker]
             );
+            $this->removeDedicatedUserFixture($fixtureUserUuidStr);
         }
     }
 
@@ -1917,6 +1925,61 @@ class PasswordGrantHardeningTest extends TestCase
         );
         $value = $row['ip_login_fail_counter'] ?? 0;
         return is_numeric($value) ? (int) $value : 0;
+    }
+
+    /**
+     * Seed the ip_tracking row for an ip_string to a known counter
+     * value with `last_login_fail = NOW()`. The timestamp refresh keeps
+     * the row inside its reset window, so the next bump adds to the
+     * seed rather than resetting it to 1. Combined with the matching
+     * {@see self::snapshotIpTracking()} call, lets a test start from
+     * deterministic ip_tracking state without a tearDown round-trip.
+     */
+    private function seedIpCounter(string $ipString, int $counter): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `ip_tracking` (`ip_string`, `ip_login_fail_counter`, `ip_last_login_fail`) "
+                . "VALUES (?, ?, NOW()) "
+                . "ON DUPLICATE KEY UPDATE "
+                . "`ip_login_fail_counter` = VALUES(`ip_login_fail_counter`), "
+                . "`ip_last_login_fail` = VALUES(`ip_last_login_fail`)",
+            [$ipString, $counter]
+        );
+    }
+
+    /**
+     * Insert a dedicated users row for revocation tests so the helpers
+     * under test cannot touch rows that belong to the real admin /
+     * system user. Returns [id, uuidString]. Pair with
+     * {@see self::removeDedicatedUserFixture()} in `finally`.
+     *
+     * @return array{0: int, 1: string}
+     */
+    private function createDedicatedUserFixture(): array
+    {
+        $uuidStr = Uuid::uuid4()->toString();
+        $uuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($uuidStr);
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `users` (`uuid`, `username`, `fname`, `lname`, `active`, `authorized`) "
+                . "VALUES (?, ?, 'PasswordGrantHardeningTest', 'Fixture', 1, 0)",
+            [$uuidBytes, 'pw-grant-fixture-' . $uuidStr]
+        );
+        $row = QueryUtils::querySingleRow("SELECT `id` FROM `users` WHERE `uuid` = ?", [$uuidBytes]);
+        $id = is_array($row) && isset($row['id']) && is_numeric($row['id']) ? (int) $row['id'] : 0;
+        if ($id === 0) {
+            $this->fail('Dedicated users row was not inserted');
+        }
+        return [$id, $uuidStr];
+    }
+
+    private function removeDedicatedUserFixture(string $uuidStr): void
+    {
+        $uuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($uuidStr);
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM `users` WHERE `uuid` = ?",
+            [$uuidBytes],
+            noLog: true
+        );
     }
 
     private function readMfaUserCounter(string $username): int

@@ -12,6 +12,7 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
@@ -21,6 +22,9 @@ class TrustedUserServiceTest extends TestCase
 {
     private $clientId;
     const TRUSTED_CLIENT_TAG = '-trusted-user-test';
+
+    /** @var list<string> uuid strings of users this test created */
+    private array $createdUserUuids = [];
 
     public function setUp(): void
     {
@@ -41,6 +45,15 @@ class TrustedUserServiceTest extends TestCase
             ['%' . self::TRUSTED_CLIENT_TAG . '%'],
             noLog: true
         );
+        foreach ($this->createdUserUuids as $uuid) {
+            $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM `users` WHERE `uuid` = ?",
+                [$uuidBytes],
+                noLog: true
+            );
+        }
+        $this->createdUserUuids = [];
     }
 
     /**
@@ -89,65 +102,121 @@ class TrustedUserServiceTest extends TestCase
         );
     }
 
-    public function testDeleteTrustedUserByIdRevokesApiTokens(): void
+    /**
+     * Deleting a trusted-user row is a per-OAuth-app offboarding. It must
+     * close that one app's hold on the user: the matching
+     * api_refresh_token / api_token rows get revoked alongside the row
+     * delete so the offboarded app cannot keep minting access tokens
+     * against a token it already held. A user who authorized several
+     * apps keeps their tokens for the apps that were not offboarded.
+     */
+    public function testDeleteTrustedUserByIdRevokesApiTokensForThatClientOnly(): void
     {
-        // The trusted-user row is the admin-facing handle on a specific
-        // OAuth app's hold on a user. Deleting it must also close the
-        // api_refresh_token / api_token rows the trusted-user record
-        // backs; otherwise an outstanding refresh token keeps minting
-        // access tokens after the admin has revoked the app.
-        $systemUser = (new UserService())->getSystemUser();
-        $this->assertIsArray($systemUser);
-        $userUuid = $systemUser['uuid'];
-        $this->assertIsString($userUuid);
-        $clientId = Uuid::uuid4()->toString() . self::TRUSTED_CLIENT_TAG;
-        $code = $clientId;
+        // Use a dedicated test user, not the shared system user: the
+        // revoke helpers would otherwise touch rows this test did not
+        // create, and tearDown would not know to restore them.
+        $userUuid = $this->createDedicatedTestUser();
+
         $service = new TrustedUserService();
-        $id = $service->saveTrustedUser(
-            $clientId,
+
+        $firstClient = Uuid::uuid4()->toString() . self::TRUSTED_CLIENT_TAG;
+        $secondClient = Uuid::uuid4()->toString() . self::TRUSTED_CLIENT_TAG;
+        $idA = $service->saveTrustedUser(
+            $firstClient,
             $userUuid,
             'openid',
             0,
-            $code,
+            $firstClient,
+            '{"sessionId"=>"value"}',
+            'authorization_code'
+        );
+        $service->saveTrustedUser(
+            $secondClient,
+            $userUuid,
+            'openid',
+            0,
+            $secondClient,
             '{"sessionId"=>"value"}',
             'authorization_code'
         );
 
+        $this->insertActiveTokensFor($userUuid, $firstClient);
+        $this->insertActiveTokensFor($userUuid, $secondClient);
+
+        $service->deleteTrustedUserById($idA);
+
+        $this->assertEmpty(
+            $service->getTrustedUserByCode($firstClient),
+            'Deleted trusted-user row must be gone'
+        );
+        $this->assertNotEmpty(
+            $service->getTrustedUserByCode($secondClient),
+            'The other client\'s trusted-user row must be untouched'
+        );
+
+        $this->assertSame(
+            1,
+            $this->readTokenRevoked('api_refresh_token', $firstClient . '-refresh'),
+            'api_refresh_token row for the deleted client must be revoked'
+        );
+        $this->assertSame(
+            1,
+            $this->readTokenRevoked('api_token', $firstClient . '-access'),
+            'api_token row for the deleted client must be revoked'
+        );
+        $this->assertSame(
+            0,
+            $this->readTokenRevoked('api_refresh_token', $secondClient . '-refresh'),
+            'The other client\'s api_refresh_token must stay active'
+        );
+        $this->assertSame(
+            0,
+            $this->readTokenRevoked('api_token', $secondClient . '-access'),
+            'The other client\'s api_token must stay active'
+        );
+    }
+
+    /**
+     * Create a dedicated users row for this test so revocation helpers
+     * cannot touch tokens that belong to the real admin / system user.
+     * Registered for cleanup in tearDown.
+     */
+    private function createDedicatedTestUser(): string
+    {
+        $uuidStr = Uuid::uuid4()->toString();
+        $uuidBytes = UuidRegistry::uuidToBytes($uuidStr);
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `users` (`uuid`, `username`, `fname`, `lname`, `active`, `authorized`) "
+                . "VALUES (?, ?, 'TrustedUserServiceTest', 'Fixture', 1, 0)",
+            [$uuidBytes, 'trusted-user-test-' . $uuidStr]
+        );
+        $this->createdUserUuids[] = $uuidStr;
+        return $uuidStr;
+    }
+
+    private function insertActiveTokensFor(string $userUuidStr, string $clientId): void
+    {
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO `api_refresh_token` (`user_id`, `client_id`, `token`, `expiry`, `revoked`) "
                 . "VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR), 0)",
-            [$userUuid, $clientId, $clientId . '-refresh']
+            [$userUuidStr, $clientId, $clientId . '-refresh']
         );
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO `api_token` (`user_id`, `client_id`, `token`, `expiry`, `revoked`) "
                 . "VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR), 0)",
-            [$userUuid, $clientId, $clientId . '-access']
+            [$userUuidStr, $clientId, $clientId . '-access']
         );
+    }
 
-        $service->deleteTrustedUserById($id);
-
-        $trustedUser = $service->getTrustedUserByCode($code);
-        $this->assertEmpty($trustedUser, 'Trusted user row must be deleted');
-
-        $refresh = QueryUtils::querySingleRow(
-            "SELECT `revoked` FROM `api_refresh_token` WHERE `token` = ?",
-            [$clientId . '-refresh']
+    private function readTokenRevoked(string $table, string $token): int
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT `revoked` FROM `" . $table . "` WHERE `token` = ?",
+            [$token]
         );
-        $access = QueryUtils::querySingleRow(
-            "SELECT `revoked` FROM `api_token` WHERE `token` = ?",
-            [$clientId . '-access']
-        );
-        $this->assertIsArray($refresh);
-        $this->assertIsArray($access);
-        $this->assertEquals(
-            1,
-            $refresh['revoked'] ?? 0,
-            'api_refresh_token row must be revoked when the trusted-user row is deleted'
-        );
-        $this->assertEquals(
-            1,
-            $access['revoked'] ?? 0,
-            'api_token row must be revoked when the trusted-user row is deleted'
-        );
+        if (!is_array($row) || !isset($row['revoked']) || !is_numeric($row['revoked'])) {
+            return -1;
+        }
+        return (int) $row['revoked'];
     }
 }
