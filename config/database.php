@@ -107,10 +107,16 @@ return [
             unixSocket: $socket,
         );
     },
+
     SiteInstallState::class => function (TC $c): SiteInstallState {
+        // If using env-based DB config, always treats the application as
+        // installed. This assumes an operator a) set the envvars and b) ran
+        // the CLI installer.
         if ($c->get('OPENEMR_DB_NAME') !== null) {
             return new SiteInstallState(true);
         }
+
+        // Otherwise, fall back to standard sqlconf config value.
         $sqlconfPath = sprintf(
             '%s/sites/%s/sqlconf.php',
             $c->getString('installRoot'),
