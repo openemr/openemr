@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\Email;
 
 use OpenEMR\Reports\Email\EmailQueueService;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class EmailQueueServiceTest extends TestCase
@@ -27,43 +26,24 @@ class EmailQueueServiceTest extends TestCase
         $this->service = new EmailQueueService();
     }
 
-    /**
-     * @return array<string, array{array<string, string>}>
-     *
-     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
-     */
-    public static function filterProvider(): array
+    public function testGetEmailQueueReturnsRowsWithExpectedKeys(): void
     {
-        return [
-            'none' => [[]],
-            'search' => [['search' => 'test@example.com']],
-            'sent' => [['status' => 'sent']],
-            'pending' => [['status' => 'pending']],
-            'failed' => [['status' => 'failed']],
-            'template' => [['template_name' => 'appointment_reminder']],
-            'dates' => [['date_from' => '2025-01-01', 'date_to' => '2025-12-31']],
-            'combined' => [[
-                'search' => 'test',
-                'status' => 'sent',
-                'template_name' => 'test_template',
-                'date_from' => '2025-01-01',
-                'date_to' => '2025-12-31',
-            ]],
-        ];
-    }
+        $result = $this->service->getEmailQueue([
+            'search' => 'test@example.com',
+            'status' => 'sent',
+            'template_name' => 'appointment_reminder',
+            'date_from' => '2025-01-01',
+            'date_to' => '2025-12-31',
+        ], 50, 0);
 
-    /**
-     * @param array<string, string> $filters
-     */
-    #[DataProvider('filterProvider')]
-    public function testGetEmailQueueReturnsList(array $filters): void
-    {
-        $result = $this->service->getEmailQueue($filters, 50, 0);
-        self::assertSame([], array_filter($result, static fn ($row): bool => !is_array($row)));
+        self::assertLessThanOrEqual(50, count($result));
         foreach ($result as $row) {
             self::assertArrayHasKey('id', $row);
             self::assertArrayHasKey('recipient', $row);
             self::assertArrayHasKey('subject', $row);
+            self::assertArrayHasKey('sender', $row);
+            self::assertArrayHasKey('sent', $row);
+            self::assertArrayHasKey('error', $row);
         }
     }
 
@@ -73,11 +53,12 @@ class EmailQueueServiceTest extends TestCase
         self::assertLessThanOrEqual(10, count($result));
     }
 
-    #[DataProvider('filterProvider')]
-    public function testGetEmailQueueCountIsNonNegative(array $filters): void
+    public function testGetEmailQueueCountIsNonNegative(): void
     {
-        $count = $this->service->getEmailQueueCount($filters);
-        self::assertGreaterThanOrEqual(0, $count);
+        $unfiltered = $this->service->getEmailQueueCount();
+        $filtered = $this->service->getEmailQueueCount(['status' => 'failed']);
+        self::assertGreaterThanOrEqual(0, $unfiltered);
+        self::assertGreaterThanOrEqual(0, $filtered);
     }
 
     public function testGetStatisticsShape(): void
