@@ -30,6 +30,8 @@ final readonly class SyntheaPatient
      *        null when Synthea gave none or "NO_INSURANCE".
      * @param ?PostalAddress $address home address from the FHIR file; its
      *        state is a two-letter code
+     * @param ?string $middleName the official name's other given names; the
+     *        CCDA import puts them into fname
      */
     public function __construct(
         public string $syntheaId,
@@ -42,6 +44,7 @@ final readonly class SyntheaPatient
         public ?string $maritalStatus,
         public ?string $payer,
         public ?PostalAddress $address = null,
+        public ?string $middleName = null,
     ) {
     }
 
@@ -60,7 +63,7 @@ final readonly class SyntheaPatient
     }
 
     /**
-     * @return array{synthea_id: string, ccda_file: string, fhir_file: string, first_name: string, last_name: string, birth_date: string, sex: string, marital_status: ?string, payer: ?string, address: ?array{street: string, city: string, state: string, postal_code: string}}
+     * @return array{synthea_id: string, ccda_file: string, fhir_file: string, first_name: string, middle_name: ?string, last_name: string, birth_date: string, sex: string, marital_status: ?string, payer: ?string, address: ?array{street: string, city: string, state: string, postal_code: string}}
      */
     public function toArray(): array
     {
@@ -69,6 +72,7 @@ final readonly class SyntheaPatient
             'ccda_file' => $this->ccdaFile,
             'fhir_file' => $this->fhirFile,
             'first_name' => $this->firstName,
+            'middle_name' => $this->middleName,
             'last_name' => $this->lastName,
             'birth_date' => $this->birthDate->format('Y-m-d'),
             'sex' => $this->sex,
@@ -126,6 +130,7 @@ final readonly class SyntheaPatient
             $optional('marital_status'),
             $optional('payer'),
             $address,
+            $optional('middle_name'),
         );
     }
 }

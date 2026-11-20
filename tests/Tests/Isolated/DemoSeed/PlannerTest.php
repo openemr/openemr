@@ -20,6 +20,7 @@ use OpenEMR\DemoSeed\Plan\PatientUpdate;
 use OpenEMR\DemoSeed\Plan\Plan;
 use OpenEMR\DemoSeed\Plan\PlanException;
 use OpenEMR\DemoSeed\Plan\PlannedPerson;
+use OpenEMR\DemoSeed\Plan\PlannedPolicy;
 use OpenEMR\DemoSeed\Plan\PlannedTelecom;
 use OpenEMR\DemoSeed\Plan\Planner;
 use OpenEMR\DemoSeed\PostalAddress;
@@ -51,6 +52,11 @@ final class PlannerTest extends TestCase
         providers:
           - {key: lee, username: dlee, first_name: Dana, last_name: Lee, npi: "1356789010", facility: main}
           - {key: ortiz, username: rortiz, first_name: Rafael, last_name: Ortiz, npi: "1467890129", facility: main}
+        insurance_companies:
+          - {key: medicare, name: Medicare, type: 2, cms_id: MA001}
+          - {key: medigap, name: Medigap, type: 17, cms_id: AA001}
+          - {key: medicaid, name: MassHealth, type: 3, cms_id: MA002}
+          - {key: bcbs, name: Blue Cross, type: 6, cms_id: BC001}
         rules:
           care_team:
             providers: [lee, ortiz]
@@ -70,6 +76,19 @@ final class PlannerTest extends TestCase
           addresses:
             - percent: 100
               add: {type: postal, use: home, po_box: true}
+          insurance:
+            plans:
+              - when: {age: 65+}
+                primary: {from: [medicare], subscriber: self, copay: 0}
+                secondary: {from: [medigap], subscriber: self}
+              - when: {age: 18-64}
+                choose:
+                  - {primary: {from: [bcbs], subscriber: spouse}}
+              - when: {age: 18-64, synthea_payer: [Medicaid]}
+                primary: {from: [medicaid], subscriber: self}
+            ended: {percent: 100, ended_days_ago: 60-90}
+            policy_numbers: {format: "{CMS}{8 digits}"}
+            group_numbers: {percent: 100, format: "GRP{5 digits}"}
         cases:
           - key: couple
             patients:
@@ -77,8 +96,14 @@ final class PlannerTest extends TestCase
               - {key: husband, pick: {sex: Male, age: 30-50}, last_name: {same_as: wife}, address: {same_as: wife}}
             links:
               - {from: wife, to: husband, relationship: SPS, role: NOK}
+              - {from: husband, to: wife, relationship: SPS, role: NOK}
             telecom:
               wife: [{system: phone, use: mobile, value: (413) 555-0110}]
+            insurance:
+              wife:
+                primary: {company: bcbs, policy: BC0019900001, group: GRP10001, subscriber: self, copay: 25}
+                ended: [{type: primary, company: medicaid, ended_days_ago: 400}]
+              husband: {primary: {company: bcbs, policy: BC0019900001, group: GRP10001, subscriber: {patient: wife}, copay: 25}}
         YAML;
 
     private const NOW = '2026-11-20 14:30:00';
@@ -225,6 +250,75 @@ final class PlannerTest extends TestCase
         $this->plan(str_replace('sex: Male, age: 30-50', 'sex: Male, age: 90+', self::SEED_FILE));
     }
 
+    public function testCasePolicyNamesAnotherPatientAsSubscriber(): void
+    {
+        $policies = $this->policiesOf($this->plan(self::SEED_FILE), 3);
+
+        $this->assertCount(1, $policies);
+        $policy = $policies[0];
+        $this->assertSame('bcbs', $policy->companyKey);
+        $this->assertSame('BC0019900001', $policy->policyNumber);
+        $this->assertSame('GRP10001', $policy->groupNumber);
+        $this->assertSame('25.00', $policy->copay);
+        $this->assertNull($policy->end);
+        $this->assertSame('spouse', $policy->subscriber->relationship);
+        $this->assertSame(['Bea', 'Ann', 'Zed'], [$policy->subscriber->firstName, $policy->subscriber->middleName, $policy->subscriber->lastName]);
+        $this->assertSame('2 Oak Street', $policy->subscriber->address->street);
+        $this->assertSame('(413) 555-0110', $policy->subscriber->phone);
+    }
+
+    public function testEndedPolicyEndsTheDayBeforeTheCurrentOne(): void
+    {
+        [$ended, $current] = $this->policiesOf($this->plan(self::SEED_FILE), 2);
+
+        $this->assertSame('medicaid', $ended->companyKey);
+        $this->assertMatchesRegularExpression('/^MA002\d{8}$/', $ended->policyNumber);
+        $this->assertSame('2025-10-16', $ended->end?->format('Y-m-d'));
+        $this->assertLessThan($ended->end, $ended->start);
+        $this->assertSame('2025-10-17', $current->start->format('Y-m-d'));
+        $this->assertSame('self', $current->subscriber->relationship);
+    }
+
+    public function testRulesGivePrimaryWithEndedPolicyAndSecondary(): void
+    {
+        $policies = $this->policiesOf($this->plan(self::SEED_FILE), 1);
+
+        $this->assertSame(
+            ['primary|medicare|ended', 'primary|medicare|current', 'secondary|medigap|current'],
+            array_map(
+                static fn (PlannedPolicy $p): string => $p->type->value . '|' . $p->companyKey . '|' . ($p->end === null ? 'current' : 'ended'),
+                $policies,
+            ),
+        );
+        $this->assertSame($policies[0]->end?->modify('+1 day')->format('Y-m-d'), $policies[1]->start->format('Y-m-d'));
+        $this->assertMatchesRegularExpression('/^MA001\d{8}$/', $policies[1]->policyNumber);
+        $this->assertMatchesRegularExpression('/^GRP\d{5}$/', $policies[1]->groupNumber ?? '');
+        $this->assertSame('0.00', $policies[1]->copay);
+        $this->assertNull($policies[2]->copay);
+        $this->assertSame(['self', 'Al', 'Able', 'Male'], [
+            $policies[1]->subscriber->relationship,
+            $policies[1]->subscriber->firstName,
+            $policies[1]->subscriber->lastName,
+            $policies[1]->subscriber->sex,
+        ]);
+    }
+
+    public function testSkipsAChoiceNeedingASpouseAndMatchesThePayer(): void
+    {
+        $policies = $this->policiesOf($this->plan(self::SEED_FILE), 4);
+
+        $this->assertSame(['medicaid', 'medicaid'], array_map(static fn (PlannedPolicy $p): string => $p->companyKey, $policies));
+        $this->assertSame('Dee', $policies[1]->subscriber->firstName);
+    }
+
+    public function testMiddleNameMovesOutOfFirstName(): void
+    {
+        $plan = $this->plan(self::SEED_FILE);
+
+        $this->assertSame(['Bea', 'Ann'], [$this->update($plan, 2)->fields['fname'], $this->update($plan, 2)->fields['mname']]);
+        $this->assertArrayNotHasKey('fname', $this->update($plan, 1)->fields);
+    }
+
     private function plan(string $yaml): Plan
     {
         $seedFile = (new SeedFileParser())->parse($yaml);
@@ -238,9 +332,9 @@ final class PlannerTest extends TestCase
     {
         return [
             $this->patient(1, 'Al', 'Able', '1960-01-10', 'male', 'M', new PostalAddress('1 Elm Street', 'Northampton', 'MA', '01060')),
-            $this->patient(2, 'Bea', 'Zed', '1985-05-05', 'female', 'M', new PostalAddress('2 Oak Street', 'Amherst', 'MA', '01002')),
+            $this->patient(2, 'Bea', 'Zed', '1985-05-05', 'female', 'M', new PostalAddress('2 Oak Street', 'Amherst', 'MA', '01002'), middleName: 'Ann'),
             $this->patient(3, 'Cal', 'Young', '1983-03-03', 'male', 'M', new PostalAddress('3 Ash Street', 'Boston', 'MA', '02116')),
-            $this->patient(4, 'Dee', 'Fox', '2001-07-07', 'female', null, new PostalAddress('4 Fir Street', 'Quincy', 'MA', '02169')),
+            $this->patient(4, 'Dee', 'Fox', '2001-07-07', 'female', null, new PostalAddress('4 Fir Street', 'Quincy', 'MA', '02169'), payer: 'Medicaid'),
         ];
     }
 
@@ -252,6 +346,8 @@ final class PlannerTest extends TestCase
         string $sex,
         ?string $marital,
         PostalAddress $address,
+        ?string $payer = null,
+        ?string $middleName = null,
     ): ImportedPatient {
         $birth = \DateTimeImmutable::createFromFormat('!Y-m-d', $birthDate, new \DateTimeZone('UTC'));
         $this->assertNotFalse($birth);
@@ -264,8 +360,9 @@ final class PlannerTest extends TestCase
             $birth,
             $sex,
             $marital,
-            null,
+            $payer,
             $address,
+            $middleName,
         ));
     }
 
@@ -287,6 +384,14 @@ final class PlannerTest extends TestCase
             }
         }
         $this->fail('No person ' . $ref);
+    }
+
+    /**
+     * @return list<PlannedPolicy>
+     */
+    private function policiesOf(Plan $plan, int $pid): array
+    {
+        return array_values(array_filter($plan->policies, static fn (PlannedPolicy $p): bool => $p->pid === $pid));
     }
 
     /**

@@ -29,17 +29,15 @@ final readonly class Rules
         public int $relatedPersonEmailPercent,
         public array $telecom,
         public array $addresses,
+        public InsuranceRules $insurance,
     ) {
     }
 
     public static function none(): self
     {
-        return new self([], [], 0, 0, [], []);
+        return new self([], [], 0, 0, [], [], InsuranceRules::none());
     }
 
-    /**
-     * `insurance` is accepted but not read yet (step 5).
-     */
     public static function parse(MapReader $map, ListReferenceCollector $lists): self
     {
         $map->rejectUnknownKeys(['care_team', 'related_people', 'telecom', 'addresses', 'insurance']);
@@ -68,6 +66,7 @@ final readonly class Rules
                 static fn (MapReader $rule): AddressRule => AddressRule::parse($rule, $lists),
                 $map->optionalMapList('addresses'),
             ),
+            $map->has('insurance') ? InsuranceRules::parse($map->map('insurance')) : InsuranceRules::none(),
         );
     }
 }

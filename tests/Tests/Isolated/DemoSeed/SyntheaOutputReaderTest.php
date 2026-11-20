@@ -41,6 +41,7 @@ final class SyntheaOutputReaderTest extends TestCase
 
         $this->assertSame('11111111-1111-1111-1111-111111111111', $ann->syntheaId);
         $this->assertSame('Ann', $ann->firstName);
+        $this->assertSame('Marie', $ann->middleName);
         $this->assertSame('Zed', $ann->lastName);
         $this->assertSame('1960-03-15', $ann->birthDate->format('Y-m-d'));
         $this->assertSame('female', $ann->sex);
@@ -50,6 +51,7 @@ final class SyntheaOutputReaderTest extends TestCase
 
         $this->assertSame('22222222-2222-2222-2222-222222222222', $bob->syntheaId);
         $this->assertSame('Bob', $bob->firstName, 'a name with no use counts as official');
+        $this->assertNull($bob->middleName);
         $this->assertNull($bob->maritalStatus);
     }
 

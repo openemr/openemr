@@ -65,4 +65,21 @@ final readonly class Dice
     {
         return $items[$this->randomizer->getInt(0, count($items) - 1)];
     }
+
+    /**
+     * Index of the item picked, each with the chance its weight gives.
+     *
+     * @param non-empty-list<positive-int> $weights
+     */
+    public function weighted(array $weights): int
+    {
+        $roll = $this->randomizer->getInt(1, array_sum($weights));
+        foreach ($weights as $index => $weight) {
+            $roll -= $weight;
+            if ($roll <= 0) {
+                return $index;
+            }
+        }
+        return count($weights) - 1;
+    }
 }

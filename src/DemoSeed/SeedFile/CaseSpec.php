@@ -23,6 +23,7 @@ final readonly class CaseSpec
      * @param array<string, list<TelecomEntry>> $telecom by patient key
      * @param array<string, list<AddressEntry>> $addresses by patient key
      * @param array<string, list<RelatedPersonEntry>> $relatedPeople by patient key
+     * @param array<string, CaseInsurance> $insurance by patient key
      */
     public function __construct(
         public string $key,
@@ -32,12 +33,10 @@ final readonly class CaseSpec
         public array $telecom,
         public array $addresses,
         public array $relatedPeople,
+        public array $insurance,
     ) {
     }
 
-    /**
-     * `insurance` is accepted but not read yet (step 5).
-     */
     public static function parse(MapReader $map, ListReferenceCollector $lists): self
     {
         $map->rejectUnknownKeys(['key', 'note', 'patients', 'links', 'telecom', 'addresses', 'related_people', 'insurance']);
@@ -95,7 +94,40 @@ final readonly class CaseSpec
                     $owner->mapList($key),
                 ),
             ),
+            self::insuranceByPatient($map->optionalMap('insurance'), $known),
         );
+    }
+
+    /**
+     * @param list<string> $known
+     * @return array<string, CaseInsurance>
+     */
+    private static function insuranceByPatient(?MapReader $map, array $known): array
+    {
+        if ($map === null) {
+            return [];
+        }
+        $result = [];
+        foreach ($map->keys() as $patientKey) {
+            self::requireKnown($known, $patientKey, $map->pathOf($patientKey));
+            $result[$patientKey] = CaseInsurance::parse($map->map($patientKey));
+        }
+        return $result;
+    }
+
+    /**
+     * The patient key whose related people include the one with this key.
+     */
+    public function relatedPersonOwner(string $personKey): ?string
+    {
+        foreach ($this->relatedPeople as $patientKey => $people) {
+            foreach ($people as $person) {
+                if ($person->key === $personKey) {
+                    return $patientKey;
+                }
+            }
+        }
+        return null;
     }
 
     /**

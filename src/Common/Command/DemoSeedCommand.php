@@ -6,7 +6,7 @@
  * Runs Synthea for the patients and their history, imports them through
  * the CCDA new-patient import, and writes a manifest of pid ↔ Synthea id.
  * Then adds what Synthea doesn't make: facilities, providers, related
- * people, extra phones and addresses (insurance and appointments come
+ * people, extra phones and addresses, insurance (appointments come
  * later). Development only: needs OPENEMR_ENABLE_DEMO_SEED=1 unless
  * --validate-only.
  *
@@ -42,6 +42,8 @@ use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\IGlobalsAware;
+use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\PersonPatientLinkService;
 use OpenEMR\Services\PractitionerService;
@@ -85,6 +87,7 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             $seedFile = $this->loadSeedFile($input);
             (new ListValidator(new DatabaseListOptions()))->validate($seedFile->listReferences);
             $this->assertUsernamesFree($seedFile);
+            $this->assertInsuranceTypesExist($seedFile);
         } catch (SeedFileException $e) {
             $io->error($e->getMessage());
             return Command::INVALID;
@@ -106,7 +109,9 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
         $filesystem = new Filesystem();
 
         if ($input->getOption('reuse-import') === true) {
-            $imported = (new PatientManifest($filesystem))->read($manifestPath);
+            $manifest = new PatientManifest($filesystem);
+            $imported = $this->rereadSynthea($manifest->read($manifestPath));
+            $manifest->write($manifestPath, $imported);
             $io->writeln(sprintf('Reusing the %d imported patients in %s.', count($imported), $manifestPath));
         } else {
             $imported = $this->generateAndImport($input, $io, $output, $seedFile, $workDirectory, $filesystem);
@@ -117,7 +122,7 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             $io->writeln('Manifest: ' . $manifestPath);
         }
 
-        $io->section('Adding facilities, providers, related people, phones and addresses');
+        $io->section('Adding facilities, providers, related people, phones, addresses and insurance');
         try {
             $plan = (new Planner($seedFile, ServiceContainer::getClock()->now()))->plan($imported);
         } catch (PlanException $e) {
@@ -131,6 +136,8 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             new ContactService(),
             new ContactRelationService(),
             new PersonPatientLinkService(),
+            new InsuranceCompanyService(),
+            new InsuranceService(),
         );
         $writer->write($plan, static function (string $line) use ($io): void {
             $io->writeln('  ' . $line);
@@ -141,6 +148,27 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
 
         $io->success(sprintf('Loaded %d patients.', count($imported)));
         return Command::SUCCESS;
+    }
+
+    /**
+     * Reads each patient's Synthea FHIR file again where it is still there,
+     * so a manifest from an older loader gets what this one reads.
+     *
+     * @param list<ImportedPatient> $imported
+     * @return list<ImportedPatient>
+     */
+    private function rereadSynthea(array $imported): array
+    {
+        $reader = new SyntheaOutputReader();
+        return array_map(
+            static fn (ImportedPatient $patient): ImportedPatient => is_readable($patient->synthea->fhirFile)
+                ? new ImportedPatient(
+                    $patient->pid,
+                    $reader->readFhir($patient->synthea->syntheaId, $patient->synthea->ccdaFile, $patient->synthea->fhirFile),
+                )
+                : $patient,
+            $imported,
+        );
     }
 
     /**
@@ -226,6 +254,23 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
         }
         if ($taken !== []) {
             throw new SeedFileException('providers: username(s) already in use: ' . implode(', ', $taken));
+        }
+    }
+
+    /**
+     * @throws SeedFileException
+     */
+    private function assertInsuranceTypesExist(SeedFile $seedFile): void
+    {
+        foreach ($seedFile->insuranceCompanies as $index => $company) {
+            $count = QueryUtils::fetchSingleValue(
+                'SELECT COUNT(*) AS `n` FROM `insurance_type_codes` WHERE `id` = ?',
+                'n',
+                [$company->typeCode],
+            );
+            if (!is_numeric($count) || (int) $count === 0) {
+                throw SeedFileException::at('insurance_companies[' . $index . '].type', 'no insurance_type_codes row has id ' . $company->typeCode);
+            }
         }
     }
 

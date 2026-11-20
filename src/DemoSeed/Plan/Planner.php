@@ -2,7 +2,8 @@
 
 /**
  * Works out everything the seed file adds to the imported patients: claims
- * patients for cases, then applies the rules to the rest. Writes nothing;
+ * patients for cases, then applies the rules to the rest, insurance last
+ * (its subscribers can be the people made before). Writes nothing;
  * the same seed file and patients always give the same plan.
  *
  * @package   OpenEMR
@@ -21,10 +22,15 @@ use OpenEMR\DemoSeed\PostalAddress;
 use OpenEMR\DemoSeed\SeedFile\AddressEntry;
 use OpenEMR\DemoSeed\SeedFile\CaseSpec;
 use OpenEMR\DemoSeed\SeedFile\Gender;
+use OpenEMR\DemoSeed\SeedFile\InsuranceCompanySpec;
+use OpenEMR\DemoSeed\SeedFile\InsuranceOption;
 use OpenEMR\DemoSeed\SeedFile\NamePools;
+use OpenEMR\DemoSeed\SeedFile\PolicyType;
 use OpenEMR\DemoSeed\SeedFile\RelatedPersonEntry;
 use OpenEMR\DemoSeed\SeedFile\RelationFlags;
 use OpenEMR\DemoSeed\SeedFile\SeedFile;
+use OpenEMR\DemoSeed\SeedFile\Subscriber;
+use OpenEMR\DemoSeed\SeedFile\SubscriberKind;
 use OpenEMR\DemoSeed\SeedFile\TelecomEntry;
 
 final class Planner
@@ -75,6 +81,8 @@ final class Planner
     private array $ranks = [];
     /** @var array<int, int> */
     private array $priorities = [];
+    /** @var list<PlannedPolicy> */
+    private array $policies = [];
     private ?PhoneNumberPool $phones = null;
     private ?EmailPool $emails = null;
 
@@ -118,6 +126,14 @@ final class Planner
         }
         $this->choosePrimaryTelecoms();
         $this->copyTelecomsToPatientColumns();
+        foreach ($this->seedFile->cases as $case) {
+            $this->applyCaseInsurance($case);
+        }
+        foreach ($imported as $patient) {
+            if (!isset($claimed[$patient->pid])) {
+                $this->applyInsuranceRules($patient);
+            }
+        }
 
         $updates = [];
         foreach ($imported as $patient) {
@@ -136,6 +152,8 @@ final class Planner
             $this->telecoms,
             $this->addresses,
             $this->casePatients,
+            $this->seedFile->insuranceCompanies,
+            $this->policies,
         );
     }
 
@@ -145,6 +163,11 @@ final class Planner
         $this->patients[$pid] = $patient;
         $this->lastNames[$pid] = $patient->synthea->lastName;
         $this->fields[$pid] = [];
+        if ($patient->synthea->middleName !== null) {
+            // the CCDA import puts the middle name into fname
+            $this->fields[$pid]['fname'] = $patient->synthea->firstName;
+            $this->fields[$pid]['mname'] = $patient->synthea->middleName;
+        }
         $marital = self::MARITAL[$patient->synthea->maritalStatus ?? ''] ?? null;
         if ($marital !== null) {
             $this->fields[$pid][self::MARITAL_COLUMN] = $marital;
@@ -436,6 +459,280 @@ final class Planner
                 $rule->note,
             );
         }
+    }
+
+    private function applyCaseInsurance(CaseSpec $case): void
+    {
+        foreach ($case->insurance as $patientKey => $insurance) {
+            $pid = $this->casePid($patientKey);
+            $dice = Dice::for($this->seedFile->seed, 'insurance', $case->key, $patientKey);
+            $subscribers = [];
+            foreach ($insurance->policies as $policy) {
+                $subscribers[$policy->type->value] = $this->caseSubscriber($case, $pid, $policy->subscriber);
+            }
+            $lastEnd = [];
+            foreach ($insurance->ended as $ended) {
+                $end = $this->daysAgo($dice->inRange($ended->endedDaysAgo));
+                $start = $this->notBeforeBirth($pid, $end->modify('-' . $dice->between(365, 1500) . ' days'));
+                if ($start >= $end) {
+                    throw new PlanException(sprintf('cases.%s: %s\'s ended %s policy would end before they were born', $case->key, $patientKey, $ended->type->value));
+                }
+                $company = $this->seedFile->insuranceCompany($ended->companyKey);
+                $this->policies[] = new PlannedPolicy(
+                    $pid,
+                    $ended->type,
+                    $company->key,
+                    $ended->policyNumber ?? $this->policyNumber($company, $dice),
+                    null,
+                    $subscribers[$ended->type->value] ?? $this->patientSubscriber($pid, 'self'),
+                    null,
+                    $start,
+                    $end,
+                );
+                $previous = $lastEnd[$ended->type->value] ?? null;
+                $lastEnd[$ended->type->value] = $previous === null ? $end : max($previous, $end);
+            }
+            foreach ($insurance->policies as $policy) {
+                $company = $this->seedFile->insuranceCompany($policy->companyKey);
+                $previousEnd = $lastEnd[$policy->type->value] ?? null;
+                $this->policies[] = new PlannedPolicy(
+                    $pid,
+                    $policy->type,
+                    $company->key,
+                    $policy->policyNumber ?? $this->policyNumber($company, $dice),
+                    $policy->groupNumber,
+                    $this->caseSubscriber($case, $pid, $policy->subscriber),
+                    self::copay($policy->copay),
+                    $previousEnd?->modify('+1 day') ?? $this->notBeforeBirth($pid, $this->daysAgo($dice->between(30, 1800))),
+                    null,
+                );
+            }
+        }
+    }
+
+    private function caseSubscriber(CaseSpec $case, int $pid, Subscriber $subscriber): PlannedSubscriber
+    {
+        $key = $subscriber->key ?? '';
+        return match ($subscriber->kind) {
+            SubscriberKind::Self => $this->patientSubscriber($pid, 'self'),
+            SubscriberKind::Patient => $this->patientSubscriber(
+                $this->casePid($key),
+                $this->subscriberRelationship($pid, 'patient:' . $this->casePid($key)),
+            ),
+            SubscriberKind::Related => $this->personSubscriber(
+                $pid,
+                'case:' . $case->key . ':'
+                    . ($case->relatedPersonOwner($key) ?? throw new PlanException('cases.' . $case->key . ': no related person has key "' . $key . '"'))
+                    . ':' . $key,
+            ),
+            SubscriberKind::Spouse, SubscriberKind::Guardian => throw new PlanException(
+                'cases.' . $case->key . ': name the subscriber with {patient: key} or {related: key}',
+            ),
+        };
+    }
+
+    /**
+     * The first plan set that fits the patient, and has a choice whose
+     * spouse or guardian the patient has, decides; none = self pay.
+     */
+    private function applyInsuranceRules(ImportedPatient $patient): void
+    {
+        $pid = $patient->pid;
+        $available = [
+            SubscriberKind::Spouse->name => $this->relatedRef(
+                $pid,
+                static fn (PlannedRelation $relation): bool => RelationshipKind::of($relation->relationship) === RelationshipKind::Spouse,
+            ),
+            SubscriberKind::Guardian->name => $this->relatedRef($pid, static fn (PlannedRelation $relation): bool => $relation->role === 'GUARD')
+                ?? $this->relatedRef(
+                    $pid,
+                    static fn (PlannedRelation $relation): bool => RelationshipKind::of($relation->relationship) === RelationshipKind::Parent,
+                ),
+        ];
+        $dice = Dice::for($this->seedFile->seed, $patient->synthea->syntheaId, 'insurance');
+        foreach ($this->seedFile->rules->insurance->plans as $plan) {
+            if (!$plan->when->matches($patient->synthea, $this->referenceDate)) {
+                continue;
+            }
+            $options = array_values(array_filter(
+                $plan->options,
+                static function (InsuranceOption $option) use ($available): bool {
+                    foreach ($option->needs as $kind) {
+                        if (($available[$kind->name] ?? null) === null) {
+                            return false;
+                        }
+                    }
+                    return true;
+                },
+            ));
+            if ($options === []) {
+                continue;
+            }
+            $option = $options[$dice->weighted(array_map(static fn (InsuranceOption $option): int => max(1, $option->weight), $options))];
+            if (!$option->selfPay) {
+                $this->addRulePolicies($pid, $option, $available, $dice);
+            }
+            return;
+        }
+    }
+
+    /**
+     * @param array<string, ?string> $available person refs by SubscriberKind name
+     */
+    private function addRulePolicies(int $pid, InsuranceOption $option, array $available, Dice $dice): void
+    {
+        $rules = $this->seedFile->rules->insurance;
+        foreach ($option->policies as $typeValue => $rule) {
+            $type = PolicyType::from($typeValue);
+            if (!$dice->percent($rule->percent)) {
+                if ($type === PolicyType::Primary) {
+                    return;
+                }
+                continue;
+            }
+            $company = $this->seedFile->insuranceCompany($dice->pick($rule->companyKeys));
+            $kind = $rule->subscriber->kind;
+            $subscriber = $kind === SubscriberKind::Self
+                ? $this->patientSubscriber($pid, 'self')
+                : $this->personSubscriber($pid, $available[$kind->name] ?? throw new PlanException('No ' . strtolower($kind->name) . ' for patient ' . $pid));
+            $groupNumber = $rules->groupNumbers !== null && $dice->percent($rules->groupPercent)
+                ? $rules->groupNumbers->render($company->numberPrefix(), $dice->between(...))
+                : null;
+            $start = $this->notBeforeBirth($pid, $this->daysAgo($dice->between(30, 1800)));
+            if ($type === PolicyType::Primary && $dice->percent($rules->endedPercent)) {
+                $end = $this->daysAgo($dice->inRange($rules->endedDaysAgo));
+                $endedStart = $this->notBeforeBirth($pid, $end->modify('-' . $dice->between(365, 1500) . ' days'));
+                if ($endedStart < $end) {
+                    $others = array_values(array_diff($rule->companyKeys, [$company->key]));
+                    $endedCompany = $others === [] ? $company : $this->seedFile->insuranceCompany($dice->pick($others));
+                    $this->policies[] = new PlannedPolicy(
+                        $pid,
+                        $type,
+                        $endedCompany->key,
+                        $this->policyNumber($endedCompany, $dice),
+                        null,
+                        $subscriber,
+                        self::copay($rule->copay),
+                        $endedStart,
+                        $end,
+                    );
+                    $start = $end->modify('+1 day');
+                }
+            }
+            $this->policies[] = new PlannedPolicy(
+                $pid,
+                $type,
+                $company->key,
+                $this->policyNumber($company, $dice),
+                $groupNumber,
+                $subscriber,
+                self::copay($rule->copay),
+                $start,
+                null,
+            );
+        }
+    }
+
+    /**
+     * @param callable(PlannedRelation): bool $test
+     */
+    private function relatedRef(int $pid, callable $test): ?string
+    {
+        foreach ($this->relations as $relation) {
+            if ($relation->ownerPid === $pid && $test($relation)) {
+                return $relation->personRef;
+            }
+        }
+        return null;
+    }
+
+    private function patientSubscriber(int $subscriberPid, string $relationship): PlannedSubscriber
+    {
+        $synthea = $this->patients[$subscriberPid]->synthea;
+        $fields = $this->fields[$subscriberPid] ?? [];
+        return new PlannedSubscriber(
+            $relationship,
+            $synthea->firstName,
+            $synthea->middleName,
+            $this->lastNames[$subscriberPid],
+            $synthea->birthDate,
+            self::sexOption($synthea->gender())
+                ?? throw new PlanException('Patient ' . $subscriberPid . ' has no sex to put on their insurance'),
+            $this->homes[$subscriberPid]
+                ?? throw new PlanException('Patient ' . $subscriberPid . ' has no address to put on their insurance'),
+            $fields['phone_home'] ?? $fields['phone_cell'] ?? null,
+        );
+    }
+
+    /**
+     * A related person as subscriber. A person who is a patient takes the
+     * patient's details; anyone else without an address of their own has
+     * the patient's.
+     */
+    private function personSubscriber(int $pid, string $ref): PlannedSubscriber
+    {
+        $person = $this->people[$ref] ?? throw new PlanException('Unknown person ' . $ref);
+        $relationship = $this->subscriberRelationship($pid, $ref);
+        if ($person->linkedPid !== null) {
+            return $this->patientSubscriber($person->linkedPid, $relationship);
+        }
+        $address = null;
+        $phone = null;
+        foreach ($this->addresses as $planned) {
+            if ($planned->owner->personRef === $ref && $planned->primary && $planned->active) {
+                $address = $planned->address;
+                break;
+            }
+        }
+        foreach ($this->telecoms as $telecom) {
+            if ($telecom->owner->personRef === $ref && $telecom->system === 'phone' && $telecom->primary && $telecom->active) {
+                $phone = $telecom->value;
+                break;
+            }
+        }
+        $what = sprintf('%s %s, subscriber for patient %d,', $person->firstName, $person->lastName, $pid);
+        return new PlannedSubscriber(
+            $relationship,
+            $person->firstName,
+            null,
+            $person->lastName,
+            $person->birthDate ?? throw new PlanException($what . ' has no birth date; give a relationship that implies one'),
+            $person->sex ?? throw new PlanException($what . ' has no sex; give a first name from the name pools'),
+            $address ?? $this->homes[$pid] ?? throw new PlanException($what . ' has no address'),
+            $phone,
+        );
+    }
+
+    /**
+     * The patient's relation to the subscriber, as list `sub_relation` has it.
+     */
+    private function subscriberRelationship(int $pid, string $personRef): string
+    {
+        foreach ($this->relations as $relation) {
+            if ($relation->ownerPid === $pid && $relation->personRef === $personRef) {
+                return match (RelationshipKind::of($relation->relationship)) {
+                    RelationshipKind::Spouse => 'spouse',
+                    RelationshipKind::Parent => 'child',
+                    RelationshipKind::Child, RelationshipKind::Sibling, RelationshipKind::OtherFamily, RelationshipKind::NotFamily => 'other',
+                };
+            }
+        }
+        return 'other';
+    }
+
+    private function policyNumber(InsuranceCompanySpec $company, Dice $dice): string
+    {
+        return $this->seedFile->rules->insurance->policyNumbers->render($company->numberPrefix(), $dice->between(...));
+    }
+
+    private function notBeforeBirth(int $pid, \DateTimeImmutable $date): \DateTimeImmutable
+    {
+        return max($date, $this->patients[$pid]->synthea->birthDate);
+    }
+
+    private static function copay(?int $dollars): ?string
+    {
+        return $dollars === null ? null : $dollars . '.00';
     }
 
     private function addRelation(int $ownerPid, string $personRef, string $relationship, string $role, RelationFlags $flags): void

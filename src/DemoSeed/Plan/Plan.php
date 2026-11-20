@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace OpenEMR\DemoSeed\Plan;
 
 use OpenEMR\DemoSeed\SeedFile\FacilitySpec;
+use OpenEMR\DemoSeed\SeedFile\InsuranceCompanySpec;
 use OpenEMR\DemoSeed\SeedFile\ProviderSpec;
 
 final readonly class Plan
@@ -29,6 +30,9 @@ final readonly class Plan
      * @param list<PlannedTelecom> $telecoms
      * @param list<PlannedAddress> $addresses
      * @param array<string, int> $casePatients pid by case patient key
+     * @param list<InsuranceCompanySpec> $insuranceCompanies
+     * @param list<PlannedPolicy> $policies ended ones before the current
+     *        policy of the same type
      */
     public function __construct(
         public array $facilities,
@@ -39,6 +43,8 @@ final readonly class Plan
         public array $telecoms,
         public array $addresses,
         public array $casePatients,
+        public array $insuranceCompanies,
+        public array $policies,
     ) {
     }
 }

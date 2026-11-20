@@ -40,6 +40,21 @@ final class SeedFileParserTest extends TestCase
           - {key: main, name: Main, street: 1 Main St, city: Northampton, state: MA, postal_code: "01060"}
         YAML;
 
+    private const INSURANCE_COMPANIES = <<<'YAML'
+
+        insurance_companies:
+          - {key: bcbs, name: Blue Cross, type: 6, cms_id: BC001}
+        YAML;
+
+    private const INSURANCE = self::INSURANCE_COMPANIES . <<<'YAML'
+
+        rules:
+          insurance:
+            plans:
+              - when: {age: 18+}
+
+        YAML;
+
     public function testParsesMinimalFile(): void
     {
         $seedFile = (new SeedFileParser())->parse(self::MINIMAL);
@@ -132,6 +147,34 @@ final class SeedFileParserTest extends TestCase
             'address rules without names' => [
                 self::MINIMAL . "\nrules:\n  addresses:\n    - {percent: 10, add: {type: postal, use: home, po_box: true}}\n",
                 'names: required when rules.addresses makes up streets',
+            ],
+            'policy with unknown company' => [
+                self::MINIMAL . self::INSURANCE . "        primary: {from: [bcbs, aetna], subscriber: self}\n",
+                'rules.insurance: no insurance company has key "aetna"',
+            ],
+            'secondary without primary' => [
+                self::MINIMAL . self::INSURANCE . "        secondary: {from: [bcbs]}\n",
+                'rules.insurance.plans[0]: a secondary or tertiary policy needs a primary',
+            ],
+            'self pay and a policy' => [
+                self::MINIMAL . self::INSURANCE . "        self_pay: true\n        primary: {from: [bcbs]}\n",
+                'give self_pay: true or a primary policy, not both',
+            ],
+            'unknown rule subscriber' => [
+                self::MINIMAL . self::INSURANCE . "        primary: {from: [bcbs], subscriber: cousin}\n",
+                'rules.insurance.plans[0].primary.subscriber: must be self, spouse or guardian',
+            ],
+            'bad policy number format' => [
+                self::MINIMAL . self::INSURANCE . "        primary: {from: [bcbs]}\n    policy_numbers: {format: \"{CMS}-{X}\"}\n",
+                'rules.insurance.policy_numbers.format: unknown part {X}',
+            ],
+            'case subscriber not a case patient' => [
+                self::MINIMAL . self::INSURANCE_COMPANIES . "\ncases:\n  - key: c\n    patients:\n      - {key: a, pick: {age: 18+}}\n    insurance:\n      a: {primary: {company: bcbs, subscriber: {patient: b}}}\n",
+                'cases[0].insurance.a.primary.subscriber: no case patient has key "b"',
+            ],
+            'case subscriber not a related person' => [
+                self::MINIMAL . self::INSURANCE_COMPANIES . "\ncases:\n  - key: c\n    patients:\n      - {key: a, pick: {age: 18+}}\n    insurance:\n      a: {primary: {company: bcbs, subscriber: {related: dad}}}\n",
+                'no related person in this case has key "dad"',
             ],
             'same_as a later patient' => [
                 self::MINIMAL . "\ncases:\n  - key: c\n    patients:\n      - {key: a, pick: {age: 18+}, last_name: {same_as: b}}\n      - {key: b, pick: {age: 18+}}\n",

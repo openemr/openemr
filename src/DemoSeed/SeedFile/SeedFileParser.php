@@ -6,7 +6,7 @@
  * Everything that can be checked without the database is checked here,
  * before the loader writes anything: unknown keys, wrong types, values out
  * of range, and keys that don't resolve (a provider's facility, a case's
- * provider). List values are collected in SeedFile::$listReferences for
+ * provider, a policy's company or subscriber). List values are collected in SeedFile::$listReferences for
  * ListValidator to check against the database. Sections that a later
  * version of the loader will load are accepted and listed in
  * SeedFile::$sectionsNotLoaded.
@@ -31,11 +31,12 @@ final class SeedFileParser
 
     /** Sections this loader version reads. */
     private const LOADED_SECTIONS = [
-        'version', 'seed', 'synthea', 'contact_data', 'names', 'facilities', 'providers', 'rules', 'cases',
+        'version', 'seed', 'synthea', 'contact_data', 'names', 'facilities', 'providers', 'insurance_companies',
+        'rules', 'cases',
     ];
 
     /** Sections recognized but not loaded yet. */
-    private const PENDING_SECTIONS = ['insurance_companies', 'appointments'];
+    private const PENDING_SECTIONS = ['appointments'];
 
     private const SYNTHEA_KEYS = [
         'count', 'seed', 'clinician_seed', 'reference_date', 'years_of_history', 'plain_names',
@@ -69,24 +70,20 @@ final class SeedFileParser
         }
 
         $lists = new ListReferenceCollector();
-        $pending = array_values(array_filter(
-            self::PENDING_SECTIONS,
-            $root->has(...),
-        ));
+        $pending = [];
+        foreach (self::PENDING_SECTIONS as $section) {
+            if ($root->has($section)) {
+                $pending[] = $section;
+            }
+        }
 
         $rulesMap = $root->optionalMap('rules');
-        if ($rulesMap?->has('insurance') === true) {
-            $pending[] = 'rules.insurance';
-        }
         $rules = $rulesMap === null ? Rules::none() : Rules::parse($rulesMap, $lists);
 
         $caseMaps = $root->optionalMapList('cases');
         $cases = [];
         foreach ($caseMaps as $caseMap) {
             $cases[] = CaseSpec::parse($caseMap, $lists);
-            if ($caseMap->has('insurance') && !in_array('cases[].insurance', $pending, true)) {
-                $pending[] = 'cases[].insurance';
-            }
         }
 
         $contactData = $root->optionalMap('contact_data');
@@ -104,6 +101,10 @@ final class SeedFileParser
             providers: array_map(
                 ProviderSpec::parse(...),
                 $root->optionalMapList('providers'),
+            ),
+            insuranceCompanies: array_map(
+                InsuranceCompanySpec::parse(...),
+                $root->optionalMapList('insurance_companies'),
             ),
             rules: $rules,
             cases: $cases,
@@ -201,6 +202,7 @@ final class SeedFileParser
         }
         $this->uniqueKeys($patientKeys, 'cases (patient keys)');
         $this->uniqueKeys([...$patientKeys, ...$personKeys], 'cases (patient and related person keys)');
+        $this->checkInsuranceReferences($seedFile, $patientKeys);
 
         if ($seedFile->rules->relatedPeople !== [] && $seedFile->names === null) {
             throw SeedFileException::at('names', 'required when rules.related_people adds people');
@@ -213,6 +215,49 @@ final class SeedFileParser
             || $seedFile->rules->relatedPersonEmailPercent > 0;
         if ($needsContactData && $seedFile->contactData === null) {
             throw SeedFileException::at('contact_data', 'required when rules make up phone numbers or emails');
+        }
+    }
+
+    /**
+     * @param list<string> $patientKeys every case patient key
+     */
+    private function checkInsuranceReferences(SeedFile $seedFile, array $patientKeys): void
+    {
+        $companyKeys = $this->uniqueKeys(
+            array_map(static fn (InsuranceCompanySpec $company): string => $company->key, $seedFile->insuranceCompanies),
+            'insurance_companies',
+        );
+        $requireCompany = static function (string $key, string $path) use ($companyKeys): void {
+            if (!in_array($key, $companyKeys, true)) {
+                throw SeedFileException::at($path, 'no insurance company has key "' . $key . '"');
+            }
+        };
+        foreach ($seedFile->rules->insurance->companyKeys() as $key) {
+            $requireCompany($key, 'rules.insurance');
+        }
+        foreach ($seedFile->cases as $caseIndex => $case) {
+            foreach ($case->insurance as $patientKey => $insurance) {
+                $path = 'cases[' . $caseIndex . '].insurance.' . $patientKey;
+                foreach ($insurance->policies as $policy) {
+                    $policyPath = $path . '.' . $policy->type->value;
+                    $requireCompany($policy->companyKey, $policyPath . '.company');
+                    $subscriber = $policy->subscriber;
+                    if ($subscriber->kind === SubscriberKind::Patient) {
+                        if (!in_array($subscriber->key, $patientKeys, true)) {
+                            throw SeedFileException::at($policyPath . '.subscriber', 'no case patient has key "' . $subscriber->key . '"');
+                        }
+                        if ($subscriber->key === $patientKey) {
+                            throw SeedFileException::at($policyPath . '.subscriber', 'use self for the patient themselves');
+                        }
+                    }
+                    if ($subscriber->kind === SubscriberKind::Related && $case->relatedPersonOwner($subscriber->key ?? '') === null) {
+                        throw SeedFileException::at($policyPath . '.subscriber', 'no related person in this case has key "' . $subscriber->key . '"');
+                    }
+                }
+                foreach ($insurance->ended as $index => $ended) {
+                    $requireCompany($ended->companyKey, $path . '.ended[' . $index . '].company');
+                }
+            }
         }
     }
 

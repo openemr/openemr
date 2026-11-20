@@ -19,6 +19,7 @@ final readonly class SeedFile
     /**
      * @param list<FacilitySpec> $facilities
      * @param list<ProviderSpec> $providers
+     * @param list<InsuranceCompanySpec> $insuranceCompanies
      * @param list<CaseSpec> $cases
      * @param list<ListReference> $listReferences every list value the file uses
      * @param list<string> $sectionsNotLoaded parts of the file this version of
@@ -31,6 +32,7 @@ final readonly class SeedFile
         public ?NamePools $names,
         public array $facilities,
         public array $providers,
+        public array $insuranceCompanies,
         public Rules $rules,
         public array $cases,
         public array $listReferences,
@@ -47,6 +49,7 @@ final readonly class SeedFile
             $this->names,
             $this->facilities,
             $this->providers,
+            $this->insuranceCompanies,
             $this->rules,
             $this->cases,
             $this->listReferences,
@@ -72,5 +75,15 @@ final readonly class SeedFile
             }
         }
         throw new \OutOfBoundsException('Unknown facility key ' . $key);
+    }
+
+    public function insuranceCompany(string $key): InsuranceCompanySpec
+    {
+        foreach ($this->insuranceCompanies as $company) {
+            if ($company->key === $key) {
+                return $company;
+            }
+        }
+        throw new \OutOfBoundsException('Unknown insurance company key ' . $key);
     }
 }

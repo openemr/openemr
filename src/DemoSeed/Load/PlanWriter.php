@@ -24,13 +24,17 @@ use OpenEMR\DemoSeed\Plan\PatientUpdate;
 use OpenEMR\DemoSeed\Plan\Plan;
 use OpenEMR\DemoSeed\Plan\PlannedAddress;
 use OpenEMR\DemoSeed\Plan\PlannedPerson;
+use OpenEMR\DemoSeed\Plan\PlannedPolicy;
 use OpenEMR\DemoSeed\Plan\PlannedRelation;
 use OpenEMR\DemoSeed\Plan\PlannedTelecom;
 use OpenEMR\DemoSeed\SeedFile\FacilitySpec;
+use OpenEMR\DemoSeed\SeedFile\InsuranceCompanySpec;
 use OpenEMR\DemoSeed\SeedFile\ProviderSpec;
 use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\PersonPatientLinkService;
 use OpenEMR\Services\PractitionerService;
@@ -49,6 +53,8 @@ final class PlanWriter
     private array $personIds = [];
     /** @var array<string, int> contact.id by ContactOwner::key() */
     private array $contactIds = [];
+    /** @var array<string, int> insurance_companies.id by seed-file key */
+    private array $insuranceCompanyIds = [];
 
     public function __construct(
         private readonly FacilityService $facilityService,
@@ -57,6 +63,8 @@ final class PlanWriter
         private readonly ContactService $contactService,
         private readonly ContactRelationService $relationService,
         private readonly PersonPatientLinkService $linkService,
+        private readonly InsuranceCompanyService $insuranceCompanyService,
+        private readonly InsuranceService $insuranceService,
     ) {
     }
 
@@ -96,6 +104,21 @@ final class PlanWriter
             $this->writeAddress($address);
         }
         $progress(sprintf('%d phones and emails, %d addresses', count($plan->telecoms), count($plan->addresses)));
+
+        foreach ($plan->insuranceCompanies as $company) {
+            $this->insuranceCompanyIds[$company->key] = $this->writeInsuranceCompany($company);
+        }
+        foreach ($plan->policies as $policy) {
+            $this->writePolicy($policy);
+        }
+        $insured = count(array_unique(array_map(static fn (PlannedPolicy $policy): int => $policy->pid, $plan->policies)));
+        $progress(sprintf(
+            '%d insurance companies, %d policies (%d ended) for %d patients',
+            count($plan->insuranceCompanies),
+            count($plan->policies),
+            count(array_filter($plan->policies, static fn (PlannedPolicy $policy): bool => $policy->end !== null)),
+            $insured,
+        ));
     }
 
     private function writeFacility(FacilitySpec $facility): int
@@ -276,6 +299,58 @@ final class PlanWriter
         $address->set_country('USA');
         $address->set_foreign_id(null);
         $contactAddress->persist();
+    }
+
+    private function writeInsuranceCompany(InsuranceCompanySpec $company): int
+    {
+        $id = $this->insuranceCompanyService->insert([
+            'name' => $company->name,
+            'attn' => '',
+            'cms_id' => $company->cmsId ?? '',
+            'ins_type_code' => $company->typeCode,
+            'x12_receiver_id' => '',
+            'x12_default_partner_id' => null,
+            'alt_cms_id' => '',
+            'inactive' => 0,
+        ]);
+        if (!is_numeric($id)) {
+            throw new LoadException('Could not add insurance company ' . $company->key);
+        }
+        return (int) $id;
+    }
+
+    private function writePolicy(PlannedPolicy $policy): void
+    {
+        $subscriber = $policy->subscriber;
+        $result = $this->insuranceService->insert([
+            'pid' => $policy->pid,
+            'type' => $policy->type->value,
+            'provider' => $this->insuranceCompanyIds[$policy->companyKey]
+                ?? throw new LoadException('Unknown insurance company key ' . $policy->companyKey),
+            'policy_number' => $policy->policyNumber,
+            'group_number' => $policy->groupNumber,
+            'subscriber_relationship' => $subscriber->relationship,
+            'subscriber_fname' => $subscriber->firstName,
+            'subscriber_mname' => $subscriber->middleName,
+            'subscriber_lname' => $subscriber->lastName,
+            'subscriber_DOB' => $subscriber->birthDate->format('Y-m-d'),
+            'subscriber_sex' => $subscriber->sex,
+            'subscriber_street' => $subscriber->address->street,
+            'subscriber_city' => $subscriber->address->city,
+            'subscriber_state' => $subscriber->address->state,
+            'subscriber_postal_code' => $subscriber->address->postalCode,
+            'subscriber_country' => 'USA',
+            'subscriber_phone' => $subscriber->phone,
+            'copay' => $policy->copay,
+            'date' => $policy->start->format('Y-m-d'),
+            'date_end' => $policy->end?->format('Y-m-d'),
+            'accept_assignment' => 'TRUE',
+            'policy_type' => '',
+        ]);
+        if (!$result->isValid()) {
+            throw new LoadException(sprintf('Could not add the %s policy of patient %d: ', $policy->type->value, $policy->pid)
+                . json_encode([$result->getValidationMessages(), $result->getInternalErrors()]));
+        }
     }
 
     private function contactId(ContactOwner $owner): int

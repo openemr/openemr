@@ -113,7 +113,7 @@ final class SyntheaOutputReader
             throw new SyntheaException('FHIR file has no Patient: ' . $fhirFile);
         }
 
-        [$firstName, $lastName] = $this->officialName($patient, $fhirFile);
+        [$firstName, $middleName, $lastName] = $this->officialName($patient, $fhirFile);
         $birthDate = $patient['birthDate'] ?? null;
         $parsedBirthDate = is_string($birthDate)
             ? \DateTimeImmutable::createFromFormat('!Y-m-d', $birthDate, new \DateTimeZone('UTC'))
@@ -134,6 +134,7 @@ final class SyntheaOutputReader
             maritalStatus: $this->maritalStatus($patient),
             payer: $payer === 'NO_INSURANCE' ? null : $payer,
             address: $this->homeAddress($patient),
+            middleName: $middleName,
         );
     }
 
@@ -160,7 +161,7 @@ final class SyntheaOutputReader
 
     /**
      * @param array<mixed> $patient
-     * @return array{string, string}
+     * @return array{string, ?string, string} first, middle (other given names) and family name
      */
     private function officialName(array $patient, string $fhirFile): array
     {
@@ -174,7 +175,8 @@ final class SyntheaOutputReader
                 $first = is_array($given) ? ($given[0] ?? null) : null;
                 $family = $name['family'] ?? null;
                 if (is_string($first) && is_string($family)) {
-                    return [$first, $family];
+                    $others = array_filter(array_slice($given, 1), static fn (mixed $part): bool => is_string($part) && $part !== '');
+                    return [$first, $others === [] ? null : implode(' ', $others), $family];
                 }
             }
         }

@@ -19,13 +19,18 @@ use OpenEMR\DemoSeed\Synthea\SyntheaPatient;
 
 final readonly class PatientCondition
 {
+    private const NO_PAYER = 'none';
+
     /**
      * @param list<string> $syntheaMarital FHIR marital codes from Synthea (M, S, D, W, ...)
+     * @param list<string> $syntheaPayer payer names on Synthea's latest claim
+     *        (Medicare, Medicaid, Dual Eligible, ...); "none" matches no payer
      */
     public function __construct(
         public ?AgeRange $age = null,
         public ?Gender $sex = null,
         public array $syntheaMarital = [],
+        public array $syntheaPayer = [],
     ) {
     }
 
@@ -39,7 +44,7 @@ final readonly class PatientCondition
         if ($map === null) {
             return self::any();
         }
-        $map->rejectUnknownKeys(['age', 'sex', 'synthea_marital']);
+        $map->rejectUnknownKeys(['age', 'sex', 'synthea_marital', 'synthea_payer']);
         $age = $map->optionalString('age');
         $sex = $map->optionalString('sex');
         $gender = null;
@@ -54,6 +59,7 @@ final readonly class PatientCondition
             $age === null ? null : AgeRange::fromString($age, $map->pathOf('age')),
             $gender,
             $map->stringList('synthea_marital'),
+            $map->stringList('synthea_payer'),
         );
     }
 
@@ -66,6 +72,9 @@ final readonly class PatientCondition
             return false;
         }
         if ($this->syntheaMarital !== [] && !in_array($patient->maritalStatus, $this->syntheaMarital, true)) {
+            return false;
+        }
+        if ($this->syntheaPayer !== [] && !in_array($patient->payer ?? self::NO_PAYER, $this->syntheaPayer, true)) {
             return false;
         }
         return true;
