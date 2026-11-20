@@ -98,6 +98,22 @@ final readonly class DatabaseConnectionOptions
     }
 
     /**
+     * @return ClientCert|null
+     */
+    public static function clientCert(?string $cert, ?string $key): ?array
+    {
+        if ($cert === null && $key === null) {
+            return null;
+        }
+        if ($cert === null || $key === null) {
+            throw new InvalidArgumentException(
+                'SSL client cert and key must both be provided together'
+            );
+        }
+        return ['cert' => $cert, 'key' => $key];
+    }
+
+    /**
      * Creates options for a site from the OPENEMR_DB_* environment variables
      * if OPENEMR_DB_NAME is set, otherwise by loading its sqlconf.php file.
      *
@@ -237,6 +253,11 @@ final readonly class DatabaseConnectionOptions
             host: $optional('OPENEMR_DB_HOST'),
             port: $port === null ? null : (int) $port,
             unixSocket: $optional('OPENEMR_DB_SOCKET'),
+            sslCaPath: $optional('OPENEMR_DB_SSL_CA'),
+            sslClientCert: self::clientCert(
+                $optional('OPENEMR_DB_SSL_CERT'),
+                $optional('OPENEMR_DB_SSL_KEY'),
+            ),
         );
     }
 
