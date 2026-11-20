@@ -22,6 +22,7 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/En
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Log.php';
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Acl\EncounterSignAccess;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -156,31 +157,32 @@ class Encounter_Controller extends Abstract_Controller
      */
     private function canSignEncounter(mixed $encounterId): bool
     {
-        if (AclMain::aclCheckCore('encounters', 'auth_a')) {
-            return true;
-        }
-        if (!AclMain::aclCheckCore('encounters', 'auth')) {
-            return false;
-        }
+        $hasAuthAny = AclMain::aclCheckCore('encounters', 'auth_a');
+        $hasAuthOwn = !$hasAuthAny && AclMain::aclCheckCore('encounters', 'auth');
+        $creator = null;
+        $provider = null;
         $id = filter_var($encounterId, FILTER_VALIDATE_INT);
-        if ($id === false) {
-            return false;
+        if ($hasAuthOwn && $id !== false) {
+            $creator = QueryUtils::fetchSingleValue(
+                "SELECT `user` FROM `forms` WHERE `encounter` = ? AND `formdir` = 'newpatient' LIMIT 1",
+                'user',
+                [$id]
+            );
+            $provider = QueryUtils::fetchSingleValue(
+                'SELECT `provider_id` FROM `form_encounter` WHERE `encounter` = ? LIMIT 1',
+                'provider_id',
+                [$id]
+            );
         }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $creator = QueryUtils::fetchSingleValue(
-            "SELECT `user` FROM `forms` WHERE `encounter` = ? AND `formdir` = 'newpatient' LIMIT 1",
-            'user',
-            [$id]
+        return EncounterSignAccess::allows(
+            $hasAuthAny,
+            $hasAuthOwn,
+            $encounterId,
+            $creator,
+            $provider,
+            $session->get('authUser'),
+            $session->get('authUserID')
         );
-        $provider = QueryUtils::fetchSingleValue(
-            'SELECT `provider_id` FROM `form_encounter` WHERE `encounter` = ? LIMIT 1',
-            'provider_id',
-            [$id]
-        );
-        if (is_string($creator) && $creator !== '' && $creator === $session->get('authUser')) {
-            return true;
-        }
-        $providerId = filter_var($provider, FILTER_VALIDATE_INT);
-        return $providerId !== false && $providerId > 0 && $providerId === filter_var($session->get('authUserID'), FILTER_VALIDATE_INT);
     }
 }
