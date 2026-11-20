@@ -782,7 +782,7 @@ class TokenGrantRateLimitSymmetryApiTest extends TestCase
                 'scope' => 'openid api:oemr offline_access',
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR for password grant client should succeed');
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR for password grant client should succeed');
         $data = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);
@@ -828,7 +828,7 @@ class TokenGrantRateLimitSymmetryApiTest extends TestCase
                 'jwks' => $jwks,
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR for client_credentials client should succeed. Body: ' . (string) $reg->getBody());
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR for client_credentials client should succeed. Body: ' . (string) $reg->getBody());
         $data = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);

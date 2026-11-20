@@ -270,7 +270,7 @@ class AuthorizationLogoutTest extends TestCase
                 $dcrClientId = $clientData['client_id'];
             }
 
-            $this->assertSame(200, $reg->getStatusCode(), 'DCR registration should succeed');
+            $this->assertSame(201, $reg->getStatusCode(), 'DCR registration should succeed');
             $this->assertIsArray($clientData);
             $this->assertArrayHasKey('client_id', $clientData);
             $this->assertIsString($clientData['client_id']);

@@ -281,7 +281,7 @@ class AuthorizationGrantPublicClientPkceTest extends TestCase
                 'scope' => 'openid fhirUser',
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed for public client');
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR should succeed for public client');
         $data = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);
@@ -360,7 +360,7 @@ class AuthorizationGrantPublicClientPkceTest extends TestCase
                 'scope' => 'openid fhirUser',
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed for public client');
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR should succeed for public client');
         $clientData = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($clientData);
         $this->assertIsString($clientData['client_id']);
