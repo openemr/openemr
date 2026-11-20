@@ -39,6 +39,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
         new OA\Property(property: 'pos_code', description: 'The pos_code of encounter.', type: 'string'),
         new OA\Property(property: 'external_id', description: 'The external id of encounter.', type: 'string'),
         new OA\Property(property: 'provider_id', description: 'The provider id of encounter.', type: 'string'),
+        new OA\Property(property: 'provider_taxonomy', description: 'The taxonomy code the visit was done under, one of the provider codes; empty means the primary.', type: 'string'),
         new OA\Property(property: 'class_code', description: 'The class_code of encounter.', type: 'string'),
     ],
     example: [

@@ -10886,6 +10886,9 @@ components:
         provider_id:
           description: 'The provider id of encounter.'
           type: string
+        provider_taxonomy:
+          description: 'The taxonomy code the visit was done under, one of the provider codes; empty means the primary.'
+          type: string
         class_code:
           description: 'The class_code of encounter.'
           type: string
