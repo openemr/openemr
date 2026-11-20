@@ -58,9 +58,6 @@ $ADODB_LASTDB = 'mysqli_log';
 // The OPENEMR_STATIC_ANALYSIS constant can be defined in static analysis tool bootstrap files
 if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
     // Note: too early to use OEGlobalsBag reliably here.
-    // Do not name this $config: sqlconf.php owns that global as the int install
-    // flag, and consumers (index.php, setup.php, admin.php, Installer.class.php,
-    // the /meta/health/readyz probe) read it after bootstrap.
     $connectionOptions = DatabaseConnectionOptions::forSite($GLOBALS['OE_SITE_DIR']);
     $persistent = DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState();
     $database = DatabaseConnectionFactory::createAdodb($connectionOptions, $persistent);

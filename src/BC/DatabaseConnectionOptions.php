@@ -19,6 +19,7 @@ use Doctrine\DBAL\DriverManager;
 use FilesystemIterator;
 use InvalidArgumentException;
 use LogicException;
+use OpenEMR\Core\OEEnvBag;
 use PDO;
 use RuntimeException;
 use SensitiveParameter;
@@ -97,7 +98,37 @@ final readonly class DatabaseConnectionOptions
     }
 
     /**
-     * Creates options for a site by loading its sqlconf.php file.
+     * @return ClientCert|null
+     */
+    public static function clientCert(?string $cert, ?string $key): ?array
+    {
+        if ($cert === null && $key === null) {
+            return null;
+        }
+        if ($cert === null || $key === null) {
+            throw new InvalidArgumentException(
+                'SSL client cert and key must both be provided together'
+            );
+        }
+        return ['cert' => $cert, 'key' => $key];
+    }
+
+    /**
+     * Creates options for a site from the OPENEMR_DB_* environment variables
+     * if OPENEMR_DB_NAME is set, otherwise by loading its sqlconf.php file.
+     *
+     * @param string $siteDir Site directory path (e.g., OE_SITE_DIR)
+     */
+    public static function forSite(
+        string $siteDir,
+    ): self {
+        return self::fromEnvironment(OEEnvBag::getInstance())
+            ?? self::fromSiteSqlconf($siteDir);
+    }
+
+    /**
+     * Creates options for a site by loading its sqlconf.php file, ignoring
+     * the environment.
      *
      * The result is kept for the rest of the request. A request
      * asks for it from several places (sql.inc.php, Database, the audit
@@ -107,7 +138,7 @@ final readonly class DatabaseConnectionOptions
      *
      * @param string $siteDir Site directory path (e.g., OE_SITE_DIR)
      */
-    public static function forSite(
+    public static function fromSiteSqlconf(
         string $siteDir,
     ): self {
         /** @var array<string, self> $bySite */
@@ -203,6 +234,31 @@ final readonly class DatabaseConnectionOptions
             }
         }
         return $names;
+    }
+
+    private static function fromEnvironment(OEEnvBag $env): ?self
+    {
+        if (!$env->has('OPENEMR_DB_NAME')) {
+            return null;
+        }
+        $optional = static fn (string $key): ?string => $env->has($key) ? $env->getString($key) : null;
+        $required = static fn (string $key): string => $optional($key)
+            ?? throw new RuntimeException(sprintf('%s must be set when OPENEMR_DB_NAME is', $key));
+        $port = $optional('OPENEMR_DB_PORT');
+
+        return new self(
+            dbname: $env->getString('OPENEMR_DB_NAME'),
+            user: $required('OPENEMR_DB_USER'),
+            password: $required('OPENEMR_DB_PASSWORD'),
+            host: $optional('OPENEMR_DB_HOST'),
+            port: $port === null ? null : (int) $port,
+            unixSocket: $optional('OPENEMR_DB_SOCKET'),
+            sslCaPath: $optional('OPENEMR_DB_SSL_CA'),
+            sslClientCert: self::clientCert(
+                $optional('OPENEMR_DB_SSL_CERT'),
+                $optional('OPENEMR_DB_SSL_KEY'),
+            ),
+        );
     }
 
     /**

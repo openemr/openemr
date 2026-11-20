@@ -14,10 +14,12 @@ namespace OpenEMR\Tests\Isolated\BC;
 
 use LogicException;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 
 #[BackupGlobals(true)]
 class ServiceContainerSiteInstallStateTest extends TestCase
@@ -35,6 +37,7 @@ class ServiceContainerSiteInstallStateTest extends TestCase
     protected function tearDown(): void
     {
         ServiceContainer::reset();
+        (new ReflectionProperty(OEEnvBag::class, 'instances'))->setValue(null, []);
         if (file_exists($this->siteDir . '/sqlconf.php')) {
             unlink($this->siteDir . '/sqlconf.php');
         }
@@ -81,5 +84,28 @@ class ServiceContainerSiteInstallStateTest extends TestCase
 
         $this->expectException(LogicException::class);
         ServiceContainer::getSiteInstallState();
+    }
+
+    #[DataProvider('sqlconfProvider')]
+    public function testEnvDatabaseConfigIsAlwaysInstalled(string $sqlconf): void
+    {
+        file_put_contents($this->siteDir . '/sqlconf.php', $sqlconf);
+        OEEnvBag::getInstance()->set('OPENEMR_DB_NAME', '');
+
+        self::assertTrue(
+            ServiceContainer::getSiteInstallState()->isInstalled,
+            'setting OPENEMR_DB_NAME, even to empty, overrides sqlconf.php',
+        );
+    }
+
+    public function testEnvDatabaseConfigDoesNotNeedSiteDir(): void
+    {
+        OEGlobalsBag::getInstance()->set('OE_SITE_DIR', '');
+        OEEnvBag::getInstance()->set('OPENEMR_DB_NAME', 'openemr');
+
+        self::assertTrue(
+            ServiceContainer::getSiteInstallState()->isInstalled,
+            'env database config does not consult sqlconf.php',
+        );
     }
 }
