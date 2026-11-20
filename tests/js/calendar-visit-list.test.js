@@ -109,6 +109,26 @@ describe('fitting a list into its block', () => {
         expect(b.scrollHeight).toBeLessThanOrEqual(b.clientHeight);
     });
 
+    test('keeps a row that reaches only into the bottom padding (plus 1px of rounding)', () => {
+        const b = block({ rows: 5, height: HEADER + 3 * ROW - 3 });
+        b.style.paddingBottom = '2px';
+        grid(400, b);
+        visitList.pcSetUpVisitLists(document, LABELS);
+
+        expect(hiddenRows(b)).toBe(3);
+        expect(moreButton(b).textContent).toBe('+3 more');
+        expect(b.classList.contains('visit-list-fitted')).toBe(true);
+    });
+
+    test('hides a row that runs past the bottom padding and the 1px allowance', () => {
+        const b = block({ rows: 5, height: HEADER + 3 * ROW - 4 });
+        b.style.paddingBottom = '2px';
+        grid(400, b);
+        visitList.pcSetUpVisitLists(document, LABELS);
+
+        expect(hiddenRows(b)).toBe(4);
+    });
+
     test('puts +N more in the header when not even one row fits', () => {
         const b = block({ rows: 5, height: HEADER + ROW - 4 });
         grid(400, b);

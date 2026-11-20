@@ -21,8 +21,12 @@ function pcVisitListLabel(phrase, count) {
     return phrase.replace('%s', String(count));
 }
 
+// Content may reach into the block's bottom padding, and 1px is allowed for rounding
+// (scrollHeight is a whole number), so a row isn't hidden when it would just fit.
 function pcVisitListOverflows(block) {
-    return block.scrollHeight > block.clientHeight;
+    var view = block.ownerDocument.defaultView;
+    var padding = view ? parseFloat(view.getComputedStyle(block).paddingBottom) || 0 : 0;
+    return block.scrollHeight - padding - 1 > block.clientHeight;
 }
 
 /**

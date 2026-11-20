@@ -651,6 +651,15 @@ $side-calendar-date-padding: 0.3rem !default;
     &-more {
       margin-top: 0.125rem;
       padding: 0 0.25rem;
+
+      // In a fitted block it sits at the bottom, below any gap; an opened list keeps it
+      // after the last row.
+      .visit-list-fitted:not(.visit-list-expanded) & {
+        bottom: 0.125rem;
+        left: 0.125rem;
+        position: absolute;
+        right: 0.125rem;
+      }
     }
 
     // In the header when the block is too short for even one row beside it.
