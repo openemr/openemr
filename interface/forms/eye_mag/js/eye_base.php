@@ -184,6 +184,7 @@ function code_400() {
  */
 function parseDate(input) {
     var parts = input.match(/(\d+)/g);
+    if (!parts || parts.length < 3) return new Date();
         // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
     return new Date(parts[0], parts[1]-1, parts[2]); // months are 0-based
 }
@@ -2198,8 +2199,10 @@ function update_READONLY() {
                  $("#"+keyhere+"_copy").val(valhere).css("background-color","#F0F8FF");;
                  $("#"+keyhere+"_copy_brd").val(valhere).css("background-color","#F0F8FF");;
                  } else if (keyhere.match(/^O.VA_/)) {
-                 var side=keyhere.match(/(O.)VA_(.)/)[1];
-                 var rx_number=keyhere.match(/(O.)VA_(.)/)[2];
+                 var m = keyhere.match(/(O.)VA_(.)/);
+                 if (!m) return;
+                 var side=m[1];
+                 var rx_number=m[2];
                  if (rx_number == '1') { //update VA_1_copy and VA_1_copy_brd (first wearing RX only)
                  $('#'+side+'VA_1_copy').val(valhere).css("background-color","#F0F8FF");;
                  $('#'+side+'VA_1_copy_brd').val(valhere).css("background-color","#F0F8FF");;
