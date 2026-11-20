@@ -251,9 +251,9 @@ final class AuthCodeFlow
             $regBody,
         );
         Assert::assertSame(
-            200,
+            201,
             $browser->getResponse()->getStatusCode(),
-            'DCR should return 200 — 404 means the OAuth server is unreachable, 400 means the registration body was rejected',
+            'DCR should return 201 Created per RFC 7591 §3.2.1 — 404 means the OAuth server is unreachable, 400 means the registration body was rejected',
         );
         $client = json_decode($browser->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         Assert::assertIsArray($client);
@@ -305,9 +305,9 @@ final class AuthCodeFlow
             $regBody,
         );
         Assert::assertSame(
-            200,
+            201,
             $browser->getResponse()->getStatusCode(),
-            'DCR (private_key_jwt) should return 200 — 400 usually means the JWKS payload was rejected or token_endpoint_auth_method is not accepted',
+            'DCR (private_key_jwt) should return 201 Created per RFC 7591 §3.2.1 — 400 usually means the JWKS payload was rejected or token_endpoint_auth_method is not accepted',
         );
         $client = json_decode($browser->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         Assert::assertIsArray($client);
