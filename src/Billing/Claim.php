@@ -1612,6 +1612,24 @@ class Claim
      *
      * @return string
      */
+    /**
+     * The service line's billing.id, sent as the line item control number (REF*6R, loop 2400)
+     * so that an 835 can name the line it pays.
+     *
+     * @return string empty when the line has no usable id
+     */
+    public function lineItemControlNumber(int $prockey): string
+    {
+        $procs = $this->procs;
+        $row = is_array($procs) ? ($procs[$prockey] ?? null) : null;
+        $id = is_array($row) ? ($row['id'] ?? null) : null;
+        if (is_int($id) || (is_string($id) && ctype_digit($id))) {
+            return (string) $id;
+        }
+
+        return '';
+    }
+
     public function cptKey($prockey): string
     {
         $tmp = $this->cptModifier($prockey);

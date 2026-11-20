@@ -13,9 +13,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
+use OpenEMR\Common\Database\QueryUtils;
 use PHPUnit\Framework\TestCase;
 
 class HealthEndpointTest extends TestCase
@@ -127,5 +130,60 @@ class HealthEndpointTest extends TestCase
             $body['status'],
             'readyz status should be "ready" on an installed instance (issue #13202)'
         );
+    }
+
+    /**
+     * Regression test for issue #10175
+     *
+     * Every readyz probe bootstraps globals.php, which writes an
+     * http-request audit row unless the caller sets $skipAuditLog. The
+     * login page request is the control: it proves request auditing is on,
+     * so the readyz assertion cannot pass just because logging is disabled.
+     */
+    public function testReadyzDoesNotWriteAuditLog(): void
+    {
+        $logIdBeforeControl = $this->maxLogId();
+        $this->client->get('/interface/login/login.php');
+        $this->assertNotSame(
+            [],
+            $this->httpRequestPathsSince($logIdBeforeControl),
+            'Precondition failed: the login page should write an http-request audit row'
+        );
+
+        $logIdBeforeProbe = $this->maxLogId();
+        $response = $this->client->get('/meta/health/readyz');
+        $this->assertSame(200, $response->getStatusCode(), 'readyz should return 200 OK');
+
+        $healthPaths = array_filter(
+            $this->httpRequestPathsSince($logIdBeforeProbe),
+            static fn (string $path): bool => str_contains($path, '/meta/health/'),
+        );
+        $this->assertSame([], $healthPaths, 'readyz should not write audit rows (issue #10175)');
+    }
+
+    private function maxLogId(): string
+    {
+        $value = QueryUtils::fetchSingleValue('SELECT COALESCE(MAX(id), 0) AS max_id FROM `log`', 'max_id');
+        $this->assertIsString($value);
+        return $value;
+    }
+
+    /**
+     * @return list<string> request paths of http-request audit rows newer than $logId
+     */
+    private function httpRequestPathsSince(string $logId): array
+    {
+        // EventAuditLogger stores comments base64-encoded.
+        $rows = QueryUtils::fetchRecordsNoLog(
+            'SELECT FROM_BASE64(comments) AS path FROM `log` WHERE id > ? AND event LIKE ? ORDER BY id',
+            [$logId, 'http-request-%']
+        );
+        $paths = [];
+        foreach ($rows as $row) {
+            $path = $row['path'] ?? null;
+            $this->assertIsString($path);
+            $paths[] = $path;
+        }
+        return $paths;
     }
 }

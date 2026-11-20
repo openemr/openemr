@@ -242,11 +242,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/messaging/handle_note.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$config in empty\\(\\) always exists and is always falsy\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../setup.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$randomsecret in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../setup.php',

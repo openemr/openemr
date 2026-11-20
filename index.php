@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
@@ -12,6 +18,8 @@
  * This must be done before any database access is attempted.
  * Use an IIFE to ensure no variables leak.
  */
+
+require_once __DIR__ . '/vendor/autoload.php';
 
 (function (): void {
     // Any directory name in sites that contains a sqlconf.php can be a site id.
@@ -34,7 +42,7 @@
                 throw new RuntimeException('Invalid site id');
             };
     }
-    require_once "sites/{$site_id}/sqlconf.php";
-    /** @var int $config Defined in sqlconf.php */
-    header('Location: ' . ($config === 1 ? 'interface/login/login.php' : 'setup.php') . "?site=$site_id");
+    \OpenEMR\Core\OEGlobalsBag::getInstance()->set('OE_SITE_DIR', __DIR__ . "/sites/{$site_id}");
+    $isInstalled = \OpenEMR\BC\ServiceContainer::getSiteInstallState()->isInstalled;
+    header('Location: ' . ($isInstalled ? 'interface/login/login.php' : 'setup.php') . "?site=$site_id");
 })();

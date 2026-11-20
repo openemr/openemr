@@ -453,6 +453,8 @@ class PatientService extends BaseService
                         id AS provider_id
                         ,uuid AS provider_uuid
                     FROM users
+                    WHERE
+                        npi IS NOT NULL AND npi != ''
                 ) provider ON patient_data.providerID = provider.provider_id
                 LEFT JOIN (
                     SELECT
@@ -534,6 +536,9 @@ class PatientService extends BaseService
             $patientUuid = $record['uuid'];
             if (!isset($patientsByUuid[$patientUuid])) {
                 $patient = array_intersect_key($record, $patientFields);
+                // provider_uuid comes from the users join, not from patient_data, and FHIR needs it for Patient.generalPractitioner.
+                // The join only matches providers with an NPI, as in EncounterService, because a FHIR Practitioner needs one.
+                $patient['provider_uuid'] = $record['provider_uuid'] ?? null;
                 $patient['suffix'] = $this->parseSuffixForPatientRecord($patient);
                 $patient['previous_names'] = [];
                 $patientOrderedList[] = $patientUuid;

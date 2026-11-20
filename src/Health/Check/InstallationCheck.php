@@ -12,12 +12,17 @@
 
 namespace OpenEMR\Health\Check;
 
+use OpenEMR\BC\SiteInstallState;
 use OpenEMR\Health\HealthCheckInterface;
 use OpenEMR\Health\HealthCheckResult;
 
 class InstallationCheck implements HealthCheckInterface
 {
     public const NAME = 'installed';
+
+    public function __construct(private readonly SiteInstallState $installState)
+    {
+    }
 
     public function getName(): string
     {
@@ -26,34 +31,14 @@ class InstallationCheck implements HealthCheckInterface
 
     public function check(): HealthCheckResult
     {
-        try {
-            // The $config variable is set in sqlconf.php
-            // $config = 0 means not installed, $config = 1 means installed
-            global $config;
-
-            if (!isset($config)) {
-                return new HealthCheckResult(
-                    $this->getName(),
-                    false,
-                    'Configuration not loaded'
-                );
-            }
-
-            if ($config !== 1) {
-                return new HealthCheckResult(
-                    $this->getName(),
-                    false,
-                    'OpenEMR setup required'
-                );
-            }
-
-            return new HealthCheckResult($this->getName(), true);
-        } catch (\Throwable $e) {
+        if (!$this->installState->isInstalled) {
             return new HealthCheckResult(
                 $this->getName(),
                 false,
-                $e->getMessage()
+                'OpenEMR setup required'
             );
         }
+
+        return new HealthCheckResult($this->getName(), true);
     }
 }

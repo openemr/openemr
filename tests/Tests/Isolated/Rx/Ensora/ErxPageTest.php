@@ -24,6 +24,8 @@ use OpenEMR\Rx\Ensora\ErxGlobalsInterface;
 use OpenEMR\Rx\Ensora\ErxPage;
 use OpenEMR\Rx\Ensora\ErxStoreInterface;
 use OpenEMR\Rx\Ensora\ErxXmlBuilder;
+use OpenEMR\Rx\Ensora\SentAllergy;
+use OpenEMR\Rx\Ensora\SentMedication;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -158,6 +160,55 @@ class ErxPageTest extends TestCase
         $this->assertSame([], $this->page($this->builderReturning('<html>ok</html>'))->checkError('<NCScript/>'));
     }
 
+    /**
+     * Large pages that exhaust the PCRE backtrack limit of a greedy pattern;
+     * the search must still finish and find any errors.
+     *
+     * @return array<string, array{string, list<string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function largePageProvider(): array
+    {
+        $markup = str_repeat('<div class="row"><span>Original</span></div>' . PHP_EOL, 20000);
+
+        return [
+            'no marker' => ['<html><textarea rows="4">' . $markup . '</textarea></html>', []],
+            'marker before the textarea' => ['<html>Original XML: <textarea>' . $markup . '</textarea></html>', []],
+            'errors after a large page' => [$markup . '<textarea rows="4">Error: no NPI Original XML: ' . $markup, [': no NPI ']],
+        ];
+    }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[DataProvider('largePageProvider')]
+    public function testCheckErrorSearchesALargePage(string $page, array $expected): void
+    {
+        $this->assertSame($expected, $this->page($this->builderReturning($page))->checkError('<NCScript/>'));
+    }
+
+    public function testCheckErrorKeepsAnErrorThatQuotesATextareaTag(): void
+    {
+        $page = '<textarea name="note">n</textarea><textarea rows="4">Error: no NPI Error: bad <textarea> value Original XML: <NCScript/></textarea>';
+
+        $this->assertSame([': no NPI ', ': bad <textarea> value '], $this->page($this->builderReturning($page))->checkError('<NCScript/>'));
+    }
+
+    public function testCheckErrorReadsOnlyWholeTextareaTagNames(): void
+    {
+        $page = '<textareas>x</textareas><textarea rows="4">Error: no NPI Error: see </textareas Original XML: <NCScript/></textarea>';
+
+        $this->assertSame([': no NPI ', ': see </textareas '], $this->page($this->builderReturning($page))->checkError('<NCScript/>'));
+    }
+
+    public function testCheckErrorKeepsAnErrorThatHoldsAnAngleBracket(): void
+    {
+        $page = '<html><TEXTAREA rows="4">Error: quantity > 0 required original xml: <NCScript/></TEXTAREA>';
+
+        $this->assertSame([': quantity > 0 required '], $this->page($this->builderReturning($page))->checkError('<NCScript/>'));
+    }
+
     public function testAnErrorLogThatCannotBeWrittenStillReturnsTheErrors(): void
     {
         $page = '<form action="RxEntry.aspx"><textarea>Error: no NPI Original XML:';
@@ -214,6 +265,61 @@ class ErxPageTest extends TestCase
         }
 
         return $log;
+    }
+
+    /**
+     * @return array<string, array{string, string, ?int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function importStatusProvider(): array
+    {
+        return [
+            'doctor with no page goes to compose' => ['erxdoctor', '', 1],
+            'doctor asking for compose' => ['erxdoctor', 'compose', 1],
+            'doctor asking for medentry' => ['erxdoctor', 'medentry', 3],
+            'manager with no page' => ['erxmanager', '', null],
+        ];
+    }
+
+    #[DataProvider('importStatusProvider')]
+    public function testTheImportStatusFollowsThePageTheXmlRequests(string $role, string $page, ?int $status): void
+    {
+        $globals = $this->createStub(ErxGlobalsInterface::class);
+        $globals->method('getAccountPassword')->willReturn(new Plaintext('secret'));
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->method('getUserById')->willReturn(['newcrop_user_role' => $role]);
+        $store->method('getFacilityPrimary')->willReturn(['federal_ein' => '12-3456789']);
+        if ($status === null) {
+            $store->expects($this->never())->method('updatePatientImportStatusByPatientId');
+        } else {
+            $store->expects($this->once())->method('updatePatientImportStatusByPatientId')->with(0, $status);
+        }
+        $builder = new ErxXmlBuilder($globals, $store, new Client(), true);
+
+        // With no patient, the XML needs no patient queries, which reach the database.
+        $erxPage = $this->page($builder)->setAuthUserId(7)->setDestination($page);
+        $erxPage->buildXML();
+        $erxPage->updatePatientData();
+
+        $requested = $builder->getDocument()->getElementsByTagName('requestedPage')->item(0);
+        $this->assertSame($erxPage->getDestination(), $requested?->textContent);
+    }
+
+    public function testUpdatePatientDataMarksTheRowsAsTheyWereSent(): void
+    {
+        $allergy = new SentAllergy(5, 'Penicillin', 3, null);
+        $medication = new SentMedication(3, 'Metformin', '2026-01-02 00:00:00');
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->expects($this->once())->method('markAllergyUploaded')->with(42, $allergy);
+        $store->expects($this->once())->method('markMedicationUploaded')->with($medication);
+        $builder = $this->createMock(ErxXmlBuilder::class);
+        $builder->method('getStore')->willReturn($store);
+        $builder->method('getSentAllergies')->willReturn([$allergy]);
+        $builder->method('getSentMedications')->willReturn([$medication]);
+        $builder->method('getSentPrescriptionIds')->willReturn([]);
+
+        $this->page($builder)->setPatientId(42)->updatePatientData();
     }
 
     private function page(ErxXmlBuilder $builder): ErxPage

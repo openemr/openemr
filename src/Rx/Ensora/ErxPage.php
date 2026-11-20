@@ -19,7 +19,6 @@ namespace OpenEMR\Rx\Ensora;
 use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Encryption\Plaintext;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 use SensitiveParameter;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -61,7 +60,7 @@ class ErxPage
     }
 
     /**
-     * Set the destination for the page request; empty picks one by user role
+     * Set the destination for the page request; empty has buildXML() pick one by user role
      */
     public function setDestination(string $destination): static
     {
@@ -166,7 +165,9 @@ class ErxPage
         $XMLBuilder = $this->getXMLBuilder();
         $NCScript = $XMLBuilder->getNCScript();
         $authUserId = $this->getAuthUserId();
-        $destination = $this->getDestination();
+        // Keep the page the XML asks for, so updatePatientData() records the same one.
+        $destination = $XMLBuilder->resolveDestination($authUserId, $this->getDestination());
+        $this->setDestination($destination);
 
         $NCScript->appendChild($XMLBuilder->getCredentials());
         $NCScript->appendChild($XMLBuilder->getUserRole($authUserId));
@@ -312,29 +313,76 @@ class ErxPage
             $Store->updatePatientImportStatusByPatientId($patientId, 3);
         }
 
-        foreach ($XMLBuilder->getSentAllergyIds() as $allergyId) {
-            $Store->updateAllergyUploadedByPatientIdAllergyId(1, $patientId, $allergyId);
+        foreach ($XMLBuilder->getSentAllergies() as $allergy) {
+            $Store->markAllergyUploaded($patientId, $allergy);
         }
 
         foreach ($XMLBuilder->getSentPrescriptionIds() as $prescriptionId) {
             $Store->updatePrescriptionsUploadActiveByPatientIdPrescriptionId(1, 0, $patientId, $prescriptionId);
         }
 
-        foreach ($XMLBuilder->getSentMedicationIds() as $medicationId) {
-            $Store->updateErxUploadedByListId($medicationId, 1);
+        foreach ($XMLBuilder->getSentMedications() as $medication) {
+            $Store->markMedicationUploaded($medication);
         }
     }
 
     /**
-     * The validation errors the response page lists above the original XML.
+     * The validation errors the response page lists in a textarea, before the
+     * original XML. Plain string splits, not a regex: a greedy pattern ran out
+     * of PCRE backtracking on large response pages.
+     *
+     * @todo Replace with Dom\HTMLDocument once the minimum supported PHP
+     *       version reaches 8.4; a real HTML parser also handles markup inside a
+     *       quoted attribute, such as a ">" or "</textarea>".
      */
     private static function errorText(string $page): ?string
     {
-        $matched = preg_match('/<textarea.*>(.*)Original XML:/is', $page, $match);
-        if ($matched === false) {
-            throw new RuntimeException('Could not search the Ensora eRx response for errors');
+        // strtolower() maps ASCII bytes one to one, so offsets match $page.
+        $beforeXml = explode('original xml:', strtolower($page), 2);
+        if (count($beforeXml) === 1) {
+            return null;
         }
 
-        return $matched === 1 ? $match[1] : null;
+        // The textarea holding the marker opens after the last one closed
+        // before it; a "<textarea" inside a message comes after its opening tag.
+        $head = $beforeXml[0];
+        $closes = self::tagNameEnds($head, '</textarea');
+        $from = $closes === [] ? 0 : $closes[count($closes) - 1];
+        $opens = self::tagNameEnds(substr($head, $from), '<textarea');
+        if ($opens === []) {
+            return null;
+        }
+
+        $tag = explode('>', substr($head, $from + $opens[0]), 2);
+        if (count($tag) === 1) {
+            return null;
+        }
+
+        $length = strlen($tag[1]);
+
+        return substr($page, strlen($head) - $length, $length);
+    }
+
+    /**
+     * Offsets just past each $name in $html that ends a tag name: whitespace,
+     * ">" or "/" follows it, so "<textareas" is not "<textarea".
+     *
+     * @param non-empty-string $name
+     * @return list<int>
+     */
+    private static function tagNameEnds(string $html, string $name): array
+    {
+        $parts = explode($name, $html);
+        $ends = [];
+        $offset = 0;
+        for ($i = 0, $last = count($parts) - 1; $i < $last; $i++) {
+            $offset += strlen($parts[$i]) + strlen($name);
+            $next = $parts[$i + 1];
+            if ($next !== '' && (ctype_space($next[0]) || $next[0] === '>' || $next[0] === '/')) {
+                $ends[] = $offset;
+            }
+        }
+
+        return $ends;
     }
 }
