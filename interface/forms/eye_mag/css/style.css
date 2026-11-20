@@ -4284,12 +4284,14 @@ View.php
   font-size: 0.78rem;
   font-weight: 600;
   margin: 0.65rem 0 0.35rem;
+  text-align: center;
 }
 
 #LayerVision_VAHx .vahx-series-controls {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+  justify-content: center;
 }
 
 #LayerVision_VAHx .vahx-series-toggle {
