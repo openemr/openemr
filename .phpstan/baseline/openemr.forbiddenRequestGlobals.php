@@ -68,7 +68,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_FILES is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 21,
+    'count' => 20,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [

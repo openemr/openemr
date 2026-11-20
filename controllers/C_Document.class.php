@@ -200,6 +200,9 @@ class C_Document extends Controller
             $patient_id = $_POST['patient_id'];
         }
 
+        // errors of every file of this request are collected here
+        $error = '';
+
         // ensure user has access to the category that is being uploaded to
         $skipUpload = false;
         if (!$this->isSkipAclCheck()) {
@@ -232,18 +235,18 @@ class C_Document extends Controller
 
             foreach ($_FILES['file']['name'] as $key => $value) {
                 $fname = $value;
-                $error = "";
+                $nameForError = is_string($fname) ? $fname : '';
                 if ($_FILES['file']['error'][$key] > 0 || empty($fname) || $_FILES['file']['size'][$key] == 0) {
                     $fname = $value;
                     if (empty($fname)) {
                         $fname = htmlentities("<empty>");
                     }
-                    $error = xl("Error number") . ": " . $_FILES['file']['error'][$key] . " " . xl("occurred while uploading file named") . ": " . $fname . "\n";
+                    $error .= xl("Error number") . ": " . $_FILES['file']['error'][$key] . " " . xl("occurred while uploading file named") . ": " . $fname . "\n";
                     if ($_FILES['file']['size'][$key] == 0) {
                         $error .= xl("The system does not permit uploading files of with size 0.") . "\n";
                     }
                 } elseif (OEGlobalsBag::getInstance()->getBoolean('secure_upload') && !isWhiteFile($_FILES['file']['tmp_name'][$key])) {
-                    $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
+                    $error .= xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . " (" . $nameForError . ").\n";
                 } else {
                     // Test for a zip of DICOM images
                     if (stripos((string) $_FILES['file']['type'][$key], 'zip') !== false) {
@@ -311,7 +314,7 @@ class C_Document extends Controller
                     }
                     // if mimetype still empty, then do not upload the file
                     if (empty($mimetype)) {
-                        $error = xl("Unable to discover mimetype, so did not upload " . $_FILES['file']['tmp_name'][$key]) . ".\n";
+                        $error .= xl("Unable to discover mimetype, so did not upload") . " " . $nameForError . ".\n";
                         continue;
                     }
                     $d = new Document();
@@ -344,8 +347,8 @@ class C_Document extends Controller
                 $upload_plugin_pp = 'documentUploadPostProcess';
                 if (function_exists($upload_plugin_pp)) {
                     $tmp = $upload_plugin_pp($value, $d);
-                    if ($tmp) {
-                        $error = $tmp;
+                    if ($tmp && is_string($tmp)) {
+                        $error .= $tmp;
                     }
                 }
             }

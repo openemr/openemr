@@ -13,7 +13,9 @@
 <div class="col-sm-12">
     <form class="form" method="post" enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
         <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
-        <h3>{if !empty($error)}{$error|text|nl2br}{/if}</h3>
+        {if !empty($error)}
+        <div class="alert alert-danger py-2 small" role="alert">{$error|text|nl2br}</div>
+        {/if}
         {if (!($patient_id > 0))}
         <div class="text text-danger">
             {xlt t="IMPORTANT: This upload tool is only for uploading documents on patients that are not yet entered into the system. To upload files for patients whom already have been entered into the system, please use the upload tool linked within the Patient Summary screen."}
@@ -31,11 +33,11 @@
             <div class="form-group">
                 <p>(<small>{xlt t="Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click."}</small>)</p>
                 <span>{xlt t="Source File Path"}:</span>
-                <input type="file" class="form-control-file" name="file[]" id="source-name" multiple="true" />
+                <input type="file" class="form-control-file py-2" name="file[]" id="source-name" multiple="true" />
             </div>
             <div class="form-group">
                 <span>(<small>{xlt t="Click below to Zip a Directory of image slices."}</small>)</span>
-                <input type="file" class="form-control-file" name="dicom_folder[]" id="dicom_folder" multiple directory="" webkitdirectory="" moxdirectory="" />
+                <input type="file" class="form-control-file py-2" name="dicom_folder[]" id="dicom_folder" multiple directory="" webkitdirectory="" moxdirectory="" />
                 <input type="text" class="form-control" name="destination" placeholder='{xla t="Optional Destination or Dicom Study Name"}' title="{xla t='Leave Blank To Keep Original Filename'}" id="destination-name" />
             </div>
             {if !$hide_encryption}
@@ -48,7 +50,7 @@
             </div>
             {/if}
             <div>
-                <input type="submit" class="btn btn-primary" value="{xla t='Upload'}" />
+                <button type="submit" class="btn btn-primary">{xlt t="Upload"}</button>
             </div>
         </div>
         <input type="hidden" name="patient_id" value="{$patient_id|attr}" />
@@ -61,7 +63,6 @@
             </label>
             {foreach from=$file item=onefile}
             <p>
-                {if $error}<i>{$error|text|nl2br}</i><br />{/if}
                 {xlt t='Name'}: {$onefile->get_name()|text}<br /><br />
             </p>
             {/foreach}
