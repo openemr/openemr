@@ -530,7 +530,7 @@ class EncounterService extends BaseService
                 'provider_id',
                 [$encounter, $pid]
             );
-            if ((int) $storedProvider !== (int) $data['provider_id']) {
+            if (filter_var($storedProvider, FILTER_VALIDATE_INT) !== filter_var($data['provider_id'], FILTER_VALIDATE_INT)) {
                 $data['provider_taxonomy'] = '';
             }
         }
