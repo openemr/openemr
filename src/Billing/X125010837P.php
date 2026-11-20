@@ -592,42 +592,33 @@ class X125010837P
         }
         $out .= "~\n";
 
-        ++$edicount;
-        $out .= "N3" .
-            "*";
-        if ($claim->payerStreet()) {
-            $out .= $claim->payerStreet();
-        } else {
-            $log .= "*** Missing payer street.\n";
-        }
-        $out .= "~\n";
+        if ($claim->hasPayerAddress()) {
+            ++$edicount;
+            $out .= "N3" .
+                "*" . $claim->payerStreet() .
+                "~\n";
 
-        ++$edicount;
-        $out .= "N4" .
-            "*";
-        if ($claim->payerCity()) {
-            $out .= $claim->payerCity();
+            ++$edicount;
+            $out .= "N4" .
+                "*" . $claim->payerCity() .
+                "*" . $claim->payerState() .
+                "*" . $claim->x12Zip($claim->payerZip()) .
+                "~\n";
         } else {
-            $log .= "*** Missing payer city.\n";
+            if (!$claim->payerStreet()) {
+                $log .= "*** Missing payer street.\n";
+            }
+            if (!$claim->payerCity()) {
+                $log .= "*** Missing payer city.\n";
+            }
+            if (!$claim->payerState()) {
+                $log .= "*** Missing payer state.\n";
+            }
+            if (!in_array(strlen((string) $claim->payerZip()), [5, 9], true)) {
+                $log .= "*** Payer zip is not 5 or 9 digits.\n";
+            }
+            $log .= "*** Payer address is incomplete (street, city, state and a 5 or 9 digit zip are needed): N3/N4 omitted.\n";
         }
-        $out .= "*";
-        if ($claim->payerState()) {
-            $out .= $claim->payerState();
-        } else {
-            $log .= "*** Missing payer state.\n";
-        }
-        $out .= "*";
-        if (
-            !(
-                (strlen((string) $claim->payerZip()) == 5)
-                || (strlen((string) $claim->payerZip()) == 9)
-            )
-        ) {
-            $log .= "*** Payer zip is not 5 or 9 digits.\n";
-        }
-
-        $out .= $claim->x12Zip($claim->payerZip());
-        $out .= "~\n";
 
         // Segment REF (Payer Secondary Identification) omitted.
         // Segment REF (Billing Provider Secondary Identification) omitted.
@@ -1318,42 +1309,33 @@ class X125010837P
             }
             $out .= "~\n";
 
-            ++$edicount;
-            $out .= "N3" .
-                "*";
-            if ($claim->payerStreet($ins)) {
-                $out .= $claim->payerStreet($ins);
-            } else {
-                $log .= "*** Missing other insco street.\n";
-            }
-            $out .= "~\n";
+            if ($claim->hasPayerAddress($ins)) {
+                ++$edicount;
+                $out .= "N3" .
+                    "*" . $claim->payerStreet($ins) .
+                    "~\n";
 
-            ++$edicount;
-            $out .= "N4" .
-                "*";
-            if ($claim->payerCity($ins)) {
-                $out .= $claim->payerCity($ins);
+                ++$edicount;
+                $out .= "N4" .
+                    "*" . $claim->payerCity($ins) .
+                    "*" . $claim->payerState($ins) .
+                    "*" . $claim->x12Zip($claim->payerZip($ins)) .
+                    "~\n";
             } else {
-                $log .= "*** Missing other insco city.\n";
+                if (!$claim->payerStreet($ins)) {
+                    $log .= "*** Missing other insco street.\n";
+                }
+                if (!$claim->payerCity($ins)) {
+                    $log .= "*** Missing other insco city.\n";
+                }
+                if (!$claim->payerState($ins)) {
+                    $log .= "*** Missing other payer state.\n";
+                }
+                if (!in_array(strlen((string) $claim->payerZip($ins)), [5, 9], true)) {
+                    $log .= "*** Other payer zip is not 5 or 9 digits.\n";
+                }
+                $log .= "*** Other payer address is incomplete (street, city, state and a 5 or 9 digit zip are needed): N3/N4 omitted.\n";
             }
-            $out .= "*";
-            if ($claim->payerState($ins)) {
-                $out .= $claim->payerState($ins);
-            } else {
-                $log .= "*** Missing other payer state.\n";
-            }
-            $out .= "*";
-            if (
-                !(
-                    (strlen((string) $claim->payerZip($ins)) == 5)
-                    || (strlen((string) $claim->payerZip($ins)) == 9)
-                )
-            ) {
-                $log .= "*** Other payer zip is not 5 or 9 digits.\n";
-            }
-
-            $out .= $claim->x12Zip($claim->payerZip($ins));
-            $out .= "~\n";
 
             // Segment DTP*573 (Claim Check or Remittance Date). Used only when this
             // payer's adjudication is not reported by service line in loop 2430,
