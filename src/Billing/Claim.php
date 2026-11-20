@@ -787,10 +787,11 @@ class Claim
     {
         $facility = $this->facility;
         $number = is_array($facility) ? ($facility['mammography_cert_number'] ?? '') : '';
-        if (!is_string($number) || trim($number) === '' || !$this->hasMammography()) {
+        if (!is_string($number) || !$this->hasMammography()) {
             return '';
         }
-        return (string) $this->x12Clean(trim($number));
+        // Trimmed after cleaning: a value of only characters X12 does not allow leaves nothing to send.
+        return trim((string) $this->x12Clean($number));
     }
 
     /**
