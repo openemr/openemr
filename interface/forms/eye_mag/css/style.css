@@ -4291,7 +4291,10 @@ View.php
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  justify-content: center;
+  justify-content: center !important;
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
 }
 
 #LayerVision_VAHx .vahx-series-toggle {
