@@ -127,11 +127,27 @@ final class ProductRegistrationServiceTest extends TestCase
         }
     }
 
-    private function serviceUsing(MockHandler $handler, OEEnvBag $env = new OEEnvBag()): ProductRegistrationService
+    public function testOptInHonorsTheCertificateVerificationSetting(): void
     {
+        $handler = new MockHandler([new Response(500)]);
+        $service = $this->serviceUsing($handler, globals: new OEGlobalsBag(['http_verify_ssl' => false]));
+
+        $this->expectException(\GenericProductRegistrationException::class);
+        try {
+            $service->registerProduct('admin@example.test');
+        } finally {
+            $this->assertFalse($handler->getLastOptions()['verify']);
+        }
+    }
+
+    private function serviceUsing(
+        MockHandler $handler,
+        OEEnvBag $env = new OEEnvBag(),
+        OEGlobalsBag $globals = new OEGlobalsBag(['http_verify_ssl' => true]),
+    ): ProductRegistrationService {
         $versionService = $this->createStub(VersionServiceInterface::class);
         $versionService->method('getSoftwareVersion')->willReturn(new SoftwareVersion(8, 1, 0, '', 0, 0, 0));
         $client = new Client(['handler' => HandlerStack::create($handler), 'http_errors' => false]);
-        return new ProductRegistrationService($client, $versionService, $env);
+        return new ProductRegistrationService($client, $versionService, $env, $globals);
     }
 }
