@@ -384,6 +384,62 @@ PHP
         self::assertNull($options->port);
     }
 
+    public function testForSiteEnvReadsSsl(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        self::setEnv(self::ENV_TCP + [
+            'OPENEMR_DB_SSL_CA' => '/certs/ca.pem',
+            'OPENEMR_DB_SSL_CERT' => '/certs/cert.pem',
+            'OPENEMR_DB_SSL_KEY' => '/certs/key.pem',
+        ]);
+
+        $options = DatabaseConnectionOptions::forSite($siteDir);
+
+        self::assertSame('/certs/ca.pem', $options->sslCaPath);
+        self::assertSame(
+            ['cert' => '/certs/cert.pem', 'key' => '/certs/key.pem'],
+            $options->sslClientCert,
+        );
+    }
+
+    public function testForSiteEnvIgnoresSiteCertificateFiles(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile($siteDir . '/documents/certificates/mysql-ca', 'ca-content');
+        $filesystem->dumpFile($siteDir . '/documents/certificates/mysql-cert', 'cert-content');
+        $filesystem->dumpFile($siteDir . '/documents/certificates/mysql-key', 'key-content');
+        self::setEnv(self::ENV_TCP);
+
+        $options = DatabaseConnectionOptions::forSite($siteDir);
+
+        self::assertNull($options->sslCaPath, 'env mode is configured only from env');
+        self::assertNull($options->sslClientCert, 'env mode is configured only from env');
+    }
+
+    #[DataProvider('unpairedClientCertProvider')]
+    public function testForSiteEnvRejectsUnpairedClientCert(string $key): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        self::setEnv(self::ENV_TCP + [$key => '/certs/file.pem']);
+
+        $this->expectException(InvalidArgumentException::class);
+        DatabaseConnectionOptions::forSite($siteDir);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unpairedClientCertProvider(): array
+    {
+        return [
+            'cert only' => ['OPENEMR_DB_SSL_CERT'],
+            'key only' => ['OPENEMR_DB_SSL_KEY'],
+        ];
+    }
+
     #[DataProvider('requiredEnvProvider')]
     public function testForSiteEnvRequiresCredentials(string $missing): void
     {
