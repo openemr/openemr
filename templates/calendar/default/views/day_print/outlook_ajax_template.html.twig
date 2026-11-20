@@ -13,7 +13,7 @@
        displayLabel is the consumer's already-formatted "h:mm" string
    - timeslotCss : e.g. "20px" — height of one timeslot row
    - hasVisitList : true when a provider's day has a Visit List; only then are the
-       full lists and their script printed
+       full lists below the grid and their script printed
    - decorated event fields:
        eid, catid (the only catid value the template inspects — for the
        IN-event two-DIV pattern), evtClass, catcolor, eventdate,
@@ -103,6 +103,7 @@
         #bigCal .event_visit_list:not(.visit-list-full) { position: absolute; width: 100%; overflow: hidden; z-index: 1; }
         .visit-list-overflow { display: none; }
         .visit-list-more { font-style: italic; }
+        #bigCal .visit-list-header, #bigCal .visit-list-entry { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .visit-list-continued { font-family: Arial, Helvetica, sans-serif; }
         .visit-list-full { break-inside: avoid; margin-top: 0.5em; }
         .visit-list-provider { font-weight: bold; padding: 0 2px; }
@@ -201,10 +202,11 @@
 <p>
 
 {% if hasVisitList|default(false) %}
-{# Each Visit List in full, for a block too short for all its patients. It sits inside
-   #bigCal, whose fixed height the grid overflows, so it follows the grid instead of lying
-   under it. All are printed here; the script below keeps only those whose block ran out
-   of room (all of them, if the script doesn't run, so no patient is left off the page). #}
+{# Each Visit List in full. A block on the grid shows only the patients that fit its time
+   span, cut to its column's width, and the printed page can lay them out differently from
+   the screen they were measured on, so every list is printed whole here: no patient is
+   ever left off the page. It sits inside #bigCal, whose fixed height the grid overflows,
+   so it follows the grid instead of lying under it. #}
 <div class="visit-list-continued">
     {% for provider in providers %}
         {% for event in provider.events %}

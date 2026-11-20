@@ -186,6 +186,19 @@ describe('opening the whole list', () => {
         expect(b.classList.contains('visit-list-expanded')).toBe(false);
     });
 
+    test('a click another control stops still closes an open list', () => {
+        const first = block({ rows: 5, height: HEADER + 2 * ROW, eid: '40' });
+        const second = block({ rows: 5, height: HEADER + 2 * ROW, top: 100, eid: '50' });
+        grid(400, first, second);
+        visitList.pcSetUpVisitLists(document, LABELS);
+        // As the calendar's header and patient controls do.
+        second.querySelector('.visit-list-title').addEventListener('click', (e) => e.stopPropagation());
+
+        moreButton(first).click();
+        second.querySelector('.visit-list-title').click();
+        expect(first.classList.contains('visit-list-expanded')).toBe(false);
+    });
+
     test('opening one list closes another', () => {
         const first = block({ rows: 5, height: HEADER + 2 * ROW, eid: '40' });
         const second = block({ rows: 5, height: HEADER + 2 * ROW, top: 100, eid: '50' });
@@ -236,7 +249,7 @@ describe('day print', () => {
         return el;
     }
 
-    test('notes the list continues and keeps only the full lists that are needed', () => {
+    test('notes where a list continues and keeps every full list', () => {
         const short = block({ rows: 5, height: HEADER + 2 * ROW, eid: '40', print: true });
         const long = block({ rows: 2, height: 200, eid: '50', print: true });
         grid(400, short, long);
@@ -248,19 +261,7 @@ describe('day print', () => {
         visitList.pcSetUpVisitListsForPrint(document, '+%s · Continued below the schedule');
 
         expect(short.querySelector('.visit-list-more-label').textContent).toBe('+4 · Continued below the schedule');
-        expect([...section.querySelectorAll('.visit-list-full')].map((el) => el.dataset.eid)).toEqual(['40']);
-    });
-
-    test('drops the section when every list fits', () => {
-        const b = block({ rows: 2, height: 200, print: true });
-        grid(400, b);
-        const section = document.createElement('div');
-        section.className = 'visit-list-continued';
-        section.append(fullList('40'));
-        document.body.appendChild(section);
-
-        visitList.pcSetUpVisitListsForPrint(document, '+%s · Continued below the schedule');
-
-        expect(document.querySelector('.visit-list-continued')).toBeNull();
+        expect(long.querySelector('.visit-list-more-label')).toBeNull();
+        expect([...section.querySelectorAll('.visit-list-full')].map((el) => el.dataset.eid)).toEqual(['40', '50']);
     });
 });

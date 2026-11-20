@@ -2,7 +2,8 @@
  * Calendar Visit Lists: fit a list's patients into its block. A block keeps the height of
  * its time range (day view, week view, day print). When its patients don't all fit, the
  * last ones are hidden and a marker takes their place: "+N more" on screen, which opens the
- * whole list over the grid, or a note in print that the list continues below the schedule.
+ * whole list over the grid, or a note in print that the list continues below the schedule
+ * (where the day print shows every list in full).
  *
  * Row heights depend on the theme and font, so the fitting is measured in the browser.
  *
@@ -122,7 +123,8 @@ function pcOpenVisitList(block, container, fewerLabel) {
 /**
  * Fits every Visit List block in root (the on-screen views) and wires up "+N more".
  * labels.more is a phrase with %s for the number of hidden patients; labels.fewer closes
- * an opened list. A click elsewhere or Escape also closes it.
+ * an opened list. A click elsewhere or Escape also closes it. The click is caught on its
+ * way down (capture), since the calendar's own controls stop it on its way back up.
  */
 function pcSetUpVisitLists(root, labels) {
     var doc = root.ownerDocument || root;
@@ -159,7 +161,7 @@ function pcSetUpVisitLists(root, labels) {
                 pcCloseVisitList(block);
             }
         });
-    });
+    }, true);
     doc.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape') {
             return;
@@ -175,34 +177,20 @@ function pcSetUpVisitLists(root, labels) {
 }
 
 /**
- * Day print: fits each block on the grid and notes that its list continues below the
- * schedule, where the template printed every list in full. Keeps the full copy only of the
- * lists that ran out of room, and drops the section when none did. continuedLabel is a
- * phrase with %s for the number of patients not shown on the grid.
+ * Day print: fits each block on the grid and, where patients didn't fit, notes that the
+ * list continues below the schedule. The template prints every list in full there either
+ * way, since the printed page can lay rows out differently from the screen they were
+ * measured on. continuedLabel is a phrase with %s for the number of patients not shown on
+ * the grid.
  */
 function pcSetUpVisitListsForPrint(root, continuedLabel) {
     var doc = root.ownerDocument || root;
-    var shown = 0;
     root.querySelectorAll('#bigCal .event_visit_list:not(.visit-list-full)').forEach(function (block) {
         var marker = doc.createElement('li');
         marker.className = 'visit-list-more';
         marker.innerHTML = '<span class="visit-list-more-label"></span>';
-        var hidden = pcFitVisitList(block, marker, function (count) {
+        pcFitVisitList(block, marker, function (count) {
             return pcVisitListLabel(continuedLabel, count);
         });
-        root.querySelectorAll('.visit-list-full').forEach(function (full) {
-            if (full.dataset.eid !== block.dataset.eid) {
-                return;
-            }
-            if (hidden === 0) {
-                full.remove();
-            } else {
-                shown++;
-            }
-        });
     });
-    var section = root.querySelector('.visit-list-continued');
-    if (shown === 0 && section !== null) {
-        section.remove();
-    }
 }
