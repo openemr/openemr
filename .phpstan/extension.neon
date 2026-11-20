@@ -71,6 +71,9 @@ services:
 - class: OpenEMR\PHPStan\Rules\ForbiddenSessionSuperglobalRule
   tags:
   - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenSessionAllowWriteRule
+  tags:
+  - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenShellExecutionRule
   tags:
   - phpstan.rules.rule
