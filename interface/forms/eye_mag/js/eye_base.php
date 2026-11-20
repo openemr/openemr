@@ -3624,7 +3624,7 @@ $(function () {
                                                                       if (front =='-') front ='-0';
                                                                       mid = front + "." + back;
                                                                       }
-                                                                      if (!mid.match(/^(\+|\-){1}/)) {
+                                                                      if (mid !== '' && !mid.match(/^(\+|\-){1}/)) {
                                                                       mid = "+" + mid;
                                                                       }
                                                                       $(this).val(mid);
