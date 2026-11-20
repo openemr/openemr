@@ -19,11 +19,16 @@
 
 namespace OpenEMR\Tests\Isolated\Common\Twig;
 
+use OpenEMR\Common\DirectMessaging\DirectMessageLogRecord;
+use OpenEMR\Common\DirectMessaging\DirectMessageLogStatus;
+use OpenEMR\Common\DirectMessaging\DirectMessageType;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Interface\Reports\DirectMessageLogController;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\PostOutcome;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailabilityController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\PostCalendarTwigExtension;
+use OpenEMR\Services\Globals\CollapsedSections;
 use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
 use OpenEMR\Services\Patient\DuplicatePatientRow;
@@ -748,6 +753,41 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/portal-lockout-tracker-populated.html',
         ];
 
+        yield 'reports/direct_message_log empty' => [
+            DirectMessageLogController::TEMPLATE,
+            [
+                'csrfToken' => 'test-csrf-token',
+                'records' => [],
+                'logstart' => 0,
+            ],
+            $fixtureDir . '/direct-message-log-empty.html',
+        ];
+
+        // One row per type and status label. Unknown, and codes the enums do not know (null),
+        // render blank.
+        yield 'reports/direct_message_log populated' => [
+            DirectMessageLogController::TEMPLATE,
+            [
+                'csrfToken' => 'test-csrf-token',
+                'records' => [
+                    self::directMessageLogRecord(id: 208, type: DirectMessageType::Sent, status: null),
+                    self::directMessageLogRecord(id: 207, type: null, status: DirectMessageLogStatus::Unknown, statusChangedAt: null),
+                    self::directMessageLogRecord(id: 206, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Failed),
+                    self::directMessageLogRecord(
+                        id: 205,
+                        type: DirectMessageType::Received,
+                        status: DirectMessageLogStatus::Received,
+                        sender: '<b>sender</b>@direct.example',
+                    ),
+                    self::directMessageLogRecord(id: 204, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Dispatched),
+                    self::directMessageLogRecord(id: 203, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Sent),
+                    self::directMessageLogRecord(id: 202, type: DirectMessageType::Sent, status: DirectMessageLogStatus::Queued),
+                ],
+                'logstart' => 208,
+            ],
+            $fixtureDir . '/direct-message-log-populated.html',
+        ];
+
         yield 'forms/care_plan report' => [
             '/forms/care_plan/templates/care_plan_report.html.twig',
             [
@@ -838,6 +878,65 @@ class TwigTemplateRenderTest extends TestCase
             self::availabilityView(null, null, new PostOutcome(), new FakeAvailabilityService()),
             $fixtureDir . '/questionnaire-availability-empty.html',
         ];
+
+        $importRuntime = ['stylesheet' => '/q.css', 'script' => '/q.js', 'version' => '8.5.0', 'strings' => '{}'];
+        yield 'super/questionnaire_import administrator in the dashboard tab' => [
+            'super/questionnaire_import.html.twig',
+            [
+                'csrfToken' => 'token',
+                'runtime' => $importRuntime,
+                'categories' => ['survey' => 'Survey', 'sdoh' => 'Social Determinants'],
+                'surfaces' => [
+                    ['value' => 'dashboard', 'label' => 'Patient dashboard', 'checked' => true],
+                    ['value' => 'smart', 'label' => 'SMART launch', 'checked' => false],
+                ],
+                'canAssign' => true,
+                'portalEnabled' => true,
+                'showLoincNote' => true,
+                'templateCategories' => ['' => 'General', 'questionnaire' => 'Questionnaire'],
+                'templateCategory' => 'questionnaire',
+                'isDialog' => false,
+                'source' => '',
+                // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+                'webroot' => '',
+                'sections' => new CollapsedSections(),
+            ],
+            $fixtureDir . '/questionnaire-import-tab.html',
+        ];
+
+        yield 'super/questionnaire_import forms administrator in the portal dialog' => [
+            'super/questionnaire_import.html.twig',
+            [
+                'csrfToken' => 'token',
+                'runtime' => $importRuntime,
+                'categories' => ['survey' => 'Survey'],
+                'surfaces' => [],
+                'canAssign' => false,
+                'portalEnabled' => false,
+                'showLoincNote' => false,
+                'templateCategories' => [],
+                'templateCategory' => '',
+                'isDialog' => true,
+                'source' => 'paste',
+                // A user who folded the review away earlier.
+                // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+                'webroot' => '',
+                'sections' => new CollapsedSections(['questionnaire_import_review_expand']),
+            ],
+            $fixtureDir . '/questionnaire-import-dialog.html',
+        ];
+
+        yield 'super/questionnaire_preview active questionnaire' => [
+            'super/questionnaire_preview.html.twig',
+            ['runtime' => $importRuntime, 'name' => 'PHQ-9', 'questionnaireJson' => '{"resourceType":"Questionnaire"}'],
+            $fixtureDir . '/questionnaire-preview.html',
+        ];
+
+        yield 'super/questionnaire_preview unavailable' => [
+            'super/questionnaire_preview.html.twig',
+            ['runtime' => $importRuntime, 'name' => '', 'questionnaireJson' => ''],
+            $fixtureDir . '/questionnaire-preview-unavailable.html',
+        ];
     }
 
     /**
@@ -859,9 +958,11 @@ class TwigTemplateRenderTest extends TestCase
             new Environment(new ArrayLoader()),
             $session,
             new NullLogger(),
+            new CollapsedSections($selectedId !== null ? ['questionnaire_availability_category_rules_expand'] : []),
         );
 
-        return $controller->buildView($selectedId, $editId, $outcome);
+        // Another test can leave a webroot in the globals; pin it as the calendar cases do.
+        return [...$controller->buildView($selectedId, $editId, $outcome), 'webroot' => ''];
     }
 
     /**
@@ -912,6 +1013,27 @@ class TwigTemplateRenderTest extends TestCase
             'regdate' => '2020-04-01',
             'street' => '12 Elm St',
         ], $overrides);
+    }
+
+    /**
+     * @codeCoverageIgnore Only reached from the data provider, which runs before instrumentation.
+     */
+    private static function directMessageLogRecord(
+        int $id,
+        ?DirectMessageType $type,
+        ?DirectMessageLogStatus $status,
+        string $sender = 'sender@direct.example',
+        ?string $statusChangedAt = '2026-01-05 09:30:00',
+    ): DirectMessageLogRecord {
+        return new DirectMessageLogRecord(
+            id: $id,
+            type: $type,
+            createdAt: '2026-01-05 09:00:00',
+            sender: $sender,
+            recipient: 'recipient@direct.example',
+            status: $status,
+            statusChangedAt: $statusChangedAt,
+        );
     }
 
     /**

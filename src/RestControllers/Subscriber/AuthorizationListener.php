@@ -31,6 +31,7 @@ use OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy;
 use OpenEMR\RestControllers\Authorization\IAuthorizationStrategy;
 use OpenEMR\RestControllers\Authorization\LocalApiAuthorizationController;
 use OpenEMR\RestControllers\Authorization\SkipAuthorizationStrategy;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWritePolicy;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -188,9 +189,14 @@ class AuthorizationListener implements EventSubscriberInterface
         // we check the request type against the user role... this is fairly cumbersome and complicated
         // TODO: @adunsulag can we look at simplifying this role / request type check?
         if ($restRequest->isFhir()) {
-            // we do NOT want logged in patients writing data at this point so we fail
-            // TODO: when we have better auditing and provider merge/verification mechanisms look at opening up patient write access to data.
-            if ($restRequest->isPatientWriteRequest() && $restRequest->getRequestUserRole() == 'patient') {
+            // A patient's write reaches the chart only through staff review. The one way through
+            // this gate is a type the practice opened to patient apps (PatientWritePolicy), whose
+            // route holds the write for review and checks the client on every request.
+            if (
+                $restRequest->isPatientWriteRequest()
+                && $restRequest->getRequestUserRole() == 'patient'
+                && !PatientWritePolicy::fromGlobals($this->getGlobalsBag())->opensResource($event->getResource())
+            ) {
                 // not allowing patient userrole write for fhir
                 throw new AccessDeniedException("patient", "demo", "Patient user role is not allowed to write FHIR resources.");
             }

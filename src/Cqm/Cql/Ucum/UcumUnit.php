@@ -52,6 +52,22 @@ final class UcumUnit
         return new self($code, $value == 0 || is_nan($value) ? 1.0 : $value);
     }
 
+    /**
+     * An exponent, or a dimension, that is still an int. ucum-lhc keeps them as
+     * JavaScript numbers (doubles, which round past 2^53 and reach Infinity);
+     * here a power, sum or difference past PHP's integer range turns into a
+     * float, and such a unit is not supported.
+     *
+     * @throws UcumException when the value is past PHP's integer range
+     */
+    public static function exponent(int|float $value): int
+    {
+        if (!is_int($value)) {
+            throw new UcumException('Unit exponent past the integer range');
+        }
+        return $value;
+    }
+
     public function isDimensionless(): bool
     {
         return $this->dim === [0, 0, 0, 0, 0, 0, 0];
@@ -82,7 +98,8 @@ final class UcumUnit
     }
 
     /**
-     * @throws UcumException when either unit has a conversion function that cannot combine
+     * @throws UcumException when either unit has a conversion function that cannot combine,
+     *     or an exponent of the product is past PHP's integer range
      */
     public function multiplyThese(self $other): self
     {
@@ -102,9 +119,9 @@ final class UcumUnit
         } else {
             $result->magnitude *= $other->magnitude;
         }
-        $result->dim = array_map(static fn (int $a, int $b): int => $a + $b, $result->dim, $other->dim);
-        $result->equivalentExp += $other->equivalentExp;
-        $result->moleExp += $other->moleExp;
+        $result->dim = array_map(static fn (int $a, int $b): int => self::exponent($a + $b), $result->dim, $other->dim);
+        $result->equivalentExp = self::exponent($result->equivalentExp + $other->equivalentExp);
+        $result->moleExp = self::exponent($result->moleExp + $other->moleExp);
         $result->csCode = self::concatCodes($result->csCode, '.', $other->csCode);
         $result->isArbitrary = $result->isArbitrary || $other->isArbitrary;
         $result->isSpecial = $result->isSpecial || $other->isSpecial;
@@ -112,7 +129,8 @@ final class UcumUnit
     }
 
     /**
-     * @throws UcumException when either unit has a conversion function
+     * @throws UcumException when either unit has a conversion function,
+     *     or an exponent of the quotient is past PHP's integer range
      */
     public function divide(self $other): self
     {
@@ -125,9 +143,9 @@ final class UcumUnit
         }
         $result->csCode = self::concatCodes($result->csCode, '/', $other->csCode);
         $result->magnitude = fdiv($result->magnitude, $other->magnitude);
-        $result->dim = array_map(static fn (int $a, int $b): int => $a - $b, $result->dim, $other->dim);
-        $result->moleExp -= $other->moleExp;
-        $result->equivalentExp -= $other->equivalentExp;
+        $result->dim = array_map(static fn (int $a, int $b): int => self::exponent($a - $b), $result->dim, $other->dim);
+        $result->moleExp = self::exponent($result->moleExp - $other->moleExp);
+        $result->equivalentExp = self::exponent($result->equivalentExp - $other->equivalentExp);
         $result->isArbitrary = $result->isArbitrary || $other->isArbitrary;
         return $result;
     }

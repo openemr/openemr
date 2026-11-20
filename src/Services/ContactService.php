@@ -127,7 +127,7 @@ class ContactService extends BaseService
             $dependents = $this->getDependentRecords($contactId);
 
             if ($dependents !== []) {
-                $processingResult->addProcessingError(
+                $processingResult->addInternalError(
                     "Cannot delete contact with dependent records: " .
                     implode(", ", array_keys($dependents))
                 );
@@ -144,7 +144,7 @@ class ContactService extends BaseService
                 'id' => $contactId,
                 'error' => $e->getMessage()
             ]);
-            $processingResult->addProcessingError($e->getMessage());
+            $processingResult->addInternalError($e->getMessage());
         }
 
         return $processingResult;
@@ -159,7 +159,7 @@ class ContactService extends BaseService
 
         if (!$contact instanceof \OpenEMR\Common\ORDataObject\Contact) {
             $processingResult = new ProcessingResult();
-            $processingResult->addProcessingError("No contact found for entity");
+            $processingResult->addInternalError("No contact found for entity");
             return $processingResult;
         }
 
@@ -219,7 +219,7 @@ class ContactService extends BaseService
         try {
             // Check if destination already has a contact
             if ($this->entityHasContact($newForeignTable, $newForeignId)) {
-                $processingResult->addProcessingError(
+                $processingResult->addInternalError(
                     "Destination entity already has a contact. Delete it first or merge the contacts."
                 );
                 return $processingResult;
@@ -228,7 +228,7 @@ class ContactService extends BaseService
             // Get the contact
             $contact = $this->get($contactId);
             if (!$contact instanceof \OpenEMR\Common\ORDataObject\Contact) {
-                $processingResult->addProcessingError("Contact not found");
+                $processingResult->addInternalError("Contact not found");
                 return $processingResult;
             }
 
@@ -245,7 +245,7 @@ class ContactService extends BaseService
             $processingResult->addData($contact->toArray());
         } catch (\Throwable $e) {
             $this->getLogger()->error("Error transferring contact", ['error' => $e->getMessage()]);
-            $processingResult->addProcessingError($e->getMessage());
+            $processingResult->addInternalError($e->getMessage());
         }
 
         return $processingResult;
@@ -263,7 +263,7 @@ class ContactService extends BaseService
 
         try {
             if ($sourceContactId === $targetContactId) {
-                $processingResult->addProcessingError("Cannot merge a contact with itself");
+                $processingResult->addInternalError("Cannot merge a contact with itself");
                 return $processingResult;
             }
 
@@ -295,7 +295,7 @@ class ContactService extends BaseService
             ]);
         } catch (\Throwable $e) {
             $this->getLogger()->error("Error merging contacts", ['error' => $e->getMessage()]);
-            $processingResult->addProcessingError($e->getMessage());
+            $processingResult->addInternalError($e->getMessage());
         }
 
         return $processingResult;
@@ -404,7 +404,7 @@ class ContactService extends BaseService
             }
         } catch (\Throwable $e) {
             $this->getLogger()->error("Error cleaning up orphaned contacts", ['error' => $e->getMessage()]);
-            $processingResult->addProcessingError($e->getMessage());
+            $processingResult->addInternalError($e->getMessage());
         }
 
         return $processingResult;

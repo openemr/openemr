@@ -731,7 +731,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                 <td class="last_detail"></td>
                                 <td class="last_detail">
                                     <input name="form_line[<?php echo attr($code); ?>][pay]"
-                                           onkeyup="updateFields(document.forms[0]['form_line[<?php echo attr($code); ?>][pay]'], document.forms[0]['form_line[<?php echo attr($code); ?>][adj]'], document.forms[0]['form_line[<?php echo attr($code); ?>][bal]'], document.forms[0]['form_line[CO-PAY][bal]'], <?php echo ($firstProcCodeIndex == $encount) ? 1 : 0 ?>)"
+                                           onkeyup="updateFields(document.forms[0][<?php echo attr_js('form_line[' . $code . '][pay]'); ?>], document.forms[0][<?php echo attr_js('form_line[' . $code . '][adj]'); ?>], document.forms[0][<?php echo attr_js('form_line[' . $code . '][bal]'); ?>], document.forms[0]['form_line[CO-PAY][bal]'], <?php echo ($firstProcCodeIndex == $encount) ? 1 : 0 ?>)"
                                            onfocus="this.select()" autofocus size="10" type="text" class="form-control"
                                            value="0.00" />
                                 </td>

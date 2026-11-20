@@ -124,7 +124,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                 $category = $fhirSearchParameters['category'];
 
                 $catServices = $this->getServiceListForCategory(
-                    new TokenSearchField('category', explode(",",$category))
+                    TokenSearchField::fromEscapedFHIRString('category', $category)
                 );
                 foreach ($catServices as $service) {
                     $servicesMap[$service::class] = $service;
@@ -215,7 +215,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         // if the search params already have code or category we need to check and make sure they match
         $category = new TokenSearchField('category', explode(",", $query_vars['category']));
         if (isset($search['category'])) {
-            $searchCategory = new TokenSearchField('category', explode(",", $search['category']));
+            $searchCategory = TokenSearchField::fromEscapedFHIRString('category', $search['category']);
             if (!$searchCategory->containsSearchToken($category)) {
                 // category does not match so return an empty result set
                 $this->getSystemLogger()->error("Search categories did not not match the mapping, this could be a scope restriction, or a bad query"

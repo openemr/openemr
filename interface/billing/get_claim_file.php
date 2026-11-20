@@ -47,9 +47,16 @@ $location = $_GET['location'] ?? '';
 $claim_file_found = false;
 $claim_file_dir = '';
 if ($location === 'tmp') {
-    $claim_file_dir = rtrim(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-    if (file_exists($claim_file_dir . $fname)) {
-        $claim_file_found = true;
+    // The temporary files directory is shared with other features (CCDA export,
+    // statement PDFs, mPDF scratch output, fax scratch output). Only serve
+    // filenames that match the batch-file pattern produced by
+    // BillingClaimBatch::__construct — `YYYY-MM-DD-HHMMSS-batch.{pdf,txt}` —
+    // so a billing user cannot pull unrelated tmp artifacts by basename.
+    if (is_string($fname) && preg_match('/^\d{4}-\d{2}-\d{2}-\d{6}-batch\.(pdf|txt)$/', $fname) === 1) {
+        $claim_file_dir = rtrim(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        if (file_exists($claim_file_dir . $fname)) {
+            $claim_file_found = true;
+        }
     }
 }
 

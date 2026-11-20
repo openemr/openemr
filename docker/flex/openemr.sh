@@ -306,6 +306,22 @@ auto_setup() {
     # Update heartbeat right before long-running PHP command
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
 
+    # Scoped heartbeat around the one opaque PHP call that can exceed
+    # LEADER_TIMEOUT (300s). Bounded to 15 iterations (~15 min) so a
+    # genuinely hung install eventually releases the lease and lets a
+    # follower take over. Step-boundary heartbeat semantics are preserved
+    # everywhere else — this is the single phase we can't subdivide.
+    local auto_config_heartbeat_pid=
+    if [[ "${AUTHORITY}" = "yes" ]]; then
+        (
+            for _ in $(seq 1 15); do
+                sleep 60
+                update_leader_heartbeat
+            done
+        ) &
+        auto_config_heartbeat_pid=$!
+    fi
+
     # Run auto_configure with optimized PHP settings.
     # Drop privileges to apache: auto_configure.php goes through the
     # Installer class, which openemr#12267's RootCliGuard refuses to
@@ -318,8 +334,19 @@ auto_setup() {
     # apache can read it. The file is rm'd at the end of this
     # entrypoint either way.
     chmod 0644 /var/www/localhost/htdocs/auto_configure.php
+    local auto_config_rc=0
     su-exec apache \
-        php /var/www/localhost/htdocs/auto_configure.php -c auto_configure.ini -f "${CONFIGURATION}" || return 1
+        php /var/www/localhost/htdocs/auto_configure.php -c auto_configure.ini -f "${CONFIGURATION}" || auto_config_rc=$?
+
+    # Reap the scoped heartbeat regardless of php exit status.
+    if [[ -n "${auto_config_heartbeat_pid}" ]]; then
+        kill "${auto_config_heartbeat_pid}" 2>/dev/null || true
+        wait "${auto_config_heartbeat_pid}" 2>/dev/null || true
+    fi
+
+    if (( auto_config_rc != 0 )); then
+        return 1
+    fi
 
     # Update heartbeat after PHP execution completes
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
@@ -583,9 +610,12 @@ wait_for_swarm_completion() {
             (( waited += 10 ))
         done
 
-        # Try one more time to become leader (in case leader died just as we timed out)
-        # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
-        if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
+        # Try one more time to become leader (in case leader died just as we
+        # timed out). Guard on AUTHORITY=no: if we already took over inside the
+        # wait loop above (break'd out with AUTHORITY=yes), we hold the leader
+        # file, so calling try_become_leader again would see its own file via
+        # noclobber-fail and demote us back to a follower.
+        if [[ "${AUTHORITY}" = "no" ]] && [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
             try_become_leader
             if [[ "${AUTHORITY}" = "yes" ]]; then
                 echo "Promoted to leader after waiting period"
@@ -829,11 +859,13 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
 
         # install php dependencies
         flex_timing 'composer install start'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         if [[ "${DEVELOPER_TOOLS}" = "yes" ]]; then
             composer_install_with_retry
         else
             composer_install_with_retry --no-dev
         fi
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'composer install done'
         RAN_ANY_BUILD=true
     fi
@@ -853,11 +885,14 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
             chown -R apache:1000 public
         fi
         flex_timing 'npm install (root) start (includes napa postinstall)'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         npm install
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'npm install (root) done'
         # build css
         flex_timing 'npm run build (webpack) start'
         npm run build
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'npm run build (webpack) done'
         RAN_ANY_BUILD=true
     fi
@@ -865,9 +900,11 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
     if [[ "${NEED_NPM_BUILD}" = "true" ]] && [[ -f /var/www/localhost/htdocs/openemr/ccdaservice/package.json ]]; then
         # install ccdaservice
         flex_timing 'npm install (ccdaservice) start'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         cd /var/www/localhost/htdocs/openemr/ccdaservice
         npm install --allow-git=all
         cd /var/www/localhost/htdocs/openemr
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'npm install (ccdaservice) done'
         RAN_ANY_BUILD=true
     fi
@@ -875,6 +912,7 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
     # clean up and optimize (only if we ran any builds)
     if [[ "${RAN_ANY_BUILD}" = "true" ]]; then
         flex_timing 'phing + dump-autoload start'
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         composer global require phing/phing
         /root/.composer/vendor/bin/phing vendor-clean
         /root/.composer/vendor/bin/phing assets-clean
@@ -882,6 +920,7 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
 
         # optimize
         composer dump-autoload --optimize --apcu
+        [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
         flex_timing 'phing + dump-autoload done'
     fi
 

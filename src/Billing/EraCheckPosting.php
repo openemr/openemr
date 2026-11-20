@@ -26,6 +26,9 @@ final class EraCheckPosting
     /** @var array<string, true> claims posted from each check in this run */
     private array $postedClaims = [];
 
+    /** @var array<string, array<string, int>> claim and level => code => service lines still pended in this run */
+    private array $pendedLines = [];
+
     /**
      * @param string $payerId the insurance company the ERA is posted for
      */
@@ -80,6 +83,46 @@ final class EraCheckPosting
     }
 
     /**
+     * Record one claim payment's (CLP's) service lines for the claim at this
+     * insurance level: the codes of the lines it pended (adjustment reason 133)
+     * and of the lines it answered, one entry per line. Each answered line
+     * settles one line of the same code pended by an earlier CLP in this run;
+     * a line answered in the same CLP doesn't settle a line pended there. The
+     * 835 carries no line control number here (claims go out without REF*6R),
+     * so lines with the same code are counted rather than told apart.
+     *
+     * @param list<string> $pendedCodes
+     * @param list<string> $answeredCodes
+     */
+    public function recordClaimPayment(int $pid, int $encounter, int $level, array $pendedCodes, array $answeredCodes): void
+    {
+        $key = self::claimLevel($pid, $encounter, $level);
+        $pended = $this->pendedLines[$key] ?? [];
+        foreach ($answeredCodes as $code) {
+            if (($pended[$code] ?? 0) > 0) {
+                --$pended[$code];
+            }
+        }
+        foreach ($pendedCodes as $code) {
+            $pended[$code] = ($pended[$code] ?? 0) + 1;
+        }
+        $this->pendedLines[$key] = $pended;
+    }
+
+    /**
+     * How many of the claim's service lines are still pended at this level in this run.
+     */
+    public function pendedLineCount(int $pid, int $encounter, int $level): int
+    {
+        return array_sum($this->pendedLines[self::claimLevel($pid, $encounter, $level)] ?? []);
+    }
+
+    private static function claimLevel(int $pid, int $encounter, int $level): string
+    {
+        return $pid . '-' . $encounter . '-' . $level;
+    }
+
+    /**
      * The session reused for this check, once: the next call returns null.
      */
     public function takeReusedSession(string $checkNumber): ?int
@@ -106,6 +149,27 @@ final class EraCheckPosting
         }
         $this->postedClaims[$key] = true;
         return false;
+    }
+
+    /**
+     * Whether the claim's latest version already records this denial: denied
+     * (status 7) by this payer at this level with the same reason codes. A denial
+     * posts nothing to ar_activity, so postedBefore() can't see it, and each
+     * re-post of the ERA would add another denied claim version. A claim rebilled
+     * since the denial has a newer version, so a later denial is recorded.
+     *
+     * @param string $reasons the denial's code_mod_group_reason list, as stored in process_file
+     */
+    public function denialRecorded(int $pid, int $encounter, int $payerType, string $reasons): bool
+    {
+        $count = QueryUtils::fetchSingleValue(
+            "SELECT COUNT(*) AS n FROM claims AS c WHERE c.patient_id = ? AND c.encounter_id = ? "
+            . "AND c.version = (SELECT MAX(l.version) FROM claims AS l WHERE l.patient_id = c.patient_id AND l.encounter_id = c.encounter_id) "
+            . "AND c.status = 7 AND c.payer_id = ? AND c.payer_type = ? AND c.process_file = LEFT(?, 255)",
+            'n',
+            [$pid, $encounter, $this->payerId, $payerType, $reasons]
+        );
+        return is_numeric($count) && (int) $count > 0;
     }
 
     private function claimHasPostings(int $pid, int $encounter, string $checkNumber, string $checkDate): bool

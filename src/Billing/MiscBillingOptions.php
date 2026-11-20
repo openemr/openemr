@@ -97,6 +97,9 @@ class MiscBillingOptions
         return null;
     }
 
+    /**
+     * @return list<array<mixed>>
+     */
     public function getReferringProviders(): array
     {
         $query = "SELECT id, lname, fname,npi FROM users WHERE npi != '' AND npi IS NOT NULL ORDER BY lname, fname";

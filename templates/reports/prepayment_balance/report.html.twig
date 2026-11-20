@@ -41,7 +41,7 @@
         // same trade-off as collections_report.php and encounters_report.php.
         function toPatient(newpid) {
             top.restoreSession();
-            const params = new URLSearchParams({set_pid: newpid});
+            const params = new URLSearchParams({set_pid: newpid, csrf_token_form: top.csrf_token_js});
             top.RTop.location = {{ webroot|js_escape }}
                 + "/interface/patient_file/summary/demographics.php?" + params;
         }

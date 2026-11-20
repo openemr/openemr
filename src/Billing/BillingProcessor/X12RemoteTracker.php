@@ -180,8 +180,9 @@ class X12RemoteTracker extends BaseService
 
     public static function create($fields)
     {
-        $fields['created_at'] = date('Y-m-d H:i:s');
-        $fields['updated_at'] = date('Y-m-d H:i:s');
+        $now = self::formatTimestamp(time());
+        $fields['created_at'] = $now;
+        $fields['updated_at'] = $now;
         $remoteTracker = new X12RemoteTracker();
         return $remoteTracker->insert($fields);
     }
@@ -205,7 +206,7 @@ class X12RemoteTracker extends BaseService
         if (is_array($fields['messages'])) {
             $fields['messages'] = json_encode($fields['messages']);
         }
-        $fields['updated_at'] = date('Y-m-d h:i:s');
+        $fields['updated_at'] = self::formatTimestamp(time());
         $query = $this->buildUpdateColumns($this->onlyRealFields($fields));
         $sql = "UPDATE x12_remote_tracker SET ";
         $sql .= $query['set'];
@@ -213,6 +214,14 @@ class X12RemoteTracker extends BaseService
         array_push($query['bind'], $fields['id']);
         $results = sqlStatement($sql, $query['bind']);
         return $results;
+    }
+
+    /**
+     * Format a Unix timestamp for the created_at and updated_at columns, on a 24-hour clock.
+     */
+    private static function formatTimestamp(int $timestamp): string
+    {
+        return date('Y-m-d H:i:s', $timestamp);
     }
 
     protected function onlyRealFields($passed_in): array

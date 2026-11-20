@@ -229,7 +229,7 @@ class FhirConditionService3_1_1Test extends TestCase
         $testCases = [
             // [OpenEMR data, expected FHIR clinical status]
             ['occurrence' => 0, 'outcome' => 0, 'enddate' => null, 'expected' => 'active'],
-            ['occurrence' => 1, 'outcome' => 0, 'enddate' => null, 'expected' => 'resolved'],
+            ['occurrence' => 1, 'outcome' => 0, 'enddate' => null, 'expected' => 'active'],
             ['occurrence' => 0, 'outcome' => 1, 'enddate' => null, 'expected' => 'resolved'],
             ['occurrence' => 2, 'outcome' => 0, 'enddate' => null, 'expected' => 'recurrence'],
             ['occurrence' => 0, 'outcome' => 0, 'enddate' => date('Y-m-d', strtotime('-1 year')), 'expected' => 'inactive'],

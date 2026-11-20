@@ -99,19 +99,16 @@ class FileUtils
         $f_info = finfo_open(FILEINFO_MIME_TYPE);
         if (!empty($content)) {
             $mimeType = finfo_buffer($f_info, $content);
-            finfo_close($f_info);
             // Check if filePath has an extension, if not add it based on MIME type
             $filePath = self::ensureExtension($filePath, $mimeType);
             return ['type' => $mimeType, 'filePath' => $filePath];
         }
 
         if (!empty($filePath) && !file_exists($filePath)) {
-            finfo_close($f_info);
             return false;
         }
 
         $mimeType = finfo_file($f_info, $filePath);
-        finfo_close($f_info);
         // Check if filePath has an extension, if not add it based on MIME type
         $filePath = self::ensureExtension($filePath, $mimeType);
 

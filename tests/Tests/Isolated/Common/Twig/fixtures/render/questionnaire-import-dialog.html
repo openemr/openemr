@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Import Questionnaires</title>
+    <!-- setupHeader stub -->
+    <link href="/q.css" media="screen" rel="stylesheet" />
+<script src="/q.js" data-openemr-version="8.5.0" data-openemr-strings="{}"></script>
+</head>
+<body class="body_top questionnaire-import">
+<style>
+    @media (min-width: 992px) {
+        html, body.questionnaire-import { height: 100%; overflow: hidden; }
+        body.questionnaire-import { margin: 0; padding-top: 0; padding-bottom: 0; }
+        .questionnaire-import .import-page { display: flex; flex-direction: column; height: 100%; }
+        .questionnaire-import .import-columns { flex: 1 1 auto; min-height: 0; }
+        .questionnaire-import .import-column { height: 100%; overflow-y: auto; }
+    }
+</style>
+<div class="container-fluid import-page">
+    <div class="d-flex justify-content-between align-items-center mt-2">
+        <h2 class="h5 mb-0">Import Questionnaires</h2>
+                    <button type="button" id="close-dialog" class="btn btn-sm btn-secondary">Close</button>
+            </div>
+    <p class="text-muted small mb-2">Add one or more FHIR Questionnaires, review each one, then choose a category and import.</p>
+
+    <div id="page-alert" class="d-none" role="alert"></div>
+
+    <div class="row import-columns">
+        <div class="col-lg-4 import-column" id="steps-column">
+            <div class="card mb-3">
+                <div class="card-header">    <a class="text-reset font-weight-bold" href="#questionnaire_import_add_expand" role="button" data-toggle="collapse" data-target="#questionnaire_import_add_expand" aria-expanded="true" aria-controls="questionnaire_import_add_expand">1. Add questionnaires<i class="ml-1 fa fa-fw fa-compress" aria-hidden="true"></i></a>
+</div>
+                <div id="questionnaire_import_add_expand" class="collapse show" data-persist-collapse>
+                    <div class="card-body">
+                        <ul class="nav nav-pills nav-fill mb-3" role="tablist">
+                            <li class="nav-item"><a class="nav-link active" data-toggle="pill" href="#source-file" role="tab">File</a></li>
+                            <li class="nav-item"><a class="nav-link" id="source-paste-tab" data-toggle="pill" href="#source-paste" role="tab">Paste</a></li>
+                            <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#source-loinc" role="tab">LOINC</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="source-file" role="tabpanel">
+                                <label for="files">FHIR Questionnaire JSON files</label>
+                                <input type="file" id="files" class="form-control-file" accept=".json,application/json,application/fhir+json" multiple />
+                            </div>
+                            <div class="tab-pane fade" id="source-paste" role="tabpanel">
+                                <label for="paste">FHIR Questionnaire JSON</label>
+                                <textarea id="paste" class="form-control" rows="8"></textarea>
+                                <button type="button" id="paste-add" class="btn btn-sm btn-primary mt-2">Add to review</button>
+                            </div>
+                            <div class="tab-pane fade" id="source-loinc" role="tabpanel">
+                                <label for="loinc-terms">Search LOINC forms</label>
+                                <input type="search" id="loinc-terms" class="form-control" autocomplete="off" placeholder="Type a form name or LOINC code" />
+                                <div id="loinc-results" class="list-group mt-2" style="max-height: 16rem; overflow-y: auto;"></div>
+                                <small id="loinc-status" class="form-text text-muted"></small>
+                                                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">    <a class="text-reset font-weight-bold" href="#questionnaire_import_queue_expand" role="button" data-toggle="collapse" data-target="#questionnaire_import_queue_expand" aria-expanded="true" aria-controls="questionnaire_import_queue_expand">To review<i class="ml-1 fa fa-fw fa-compress" aria-hidden="true"></i></a>
+</div>
+                <div id="questionnaire_import_queue_expand" class="collapse show" data-persist-collapse>
+                    <div id="queue" class="list-group list-group-flush"></div>
+                    <div id="queue-empty" class="card-body text-muted small">Nothing added yet.</div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">    <a class="text-reset font-weight-bold" href="#questionnaire_import_destination_expand" role="button" data-toggle="collapse" data-target="#questionnaire_import_destination_expand" aria-expanded="true" aria-controls="questionnaire_import_destination_expand">3. Choose where it goes<i class="ml-1 fa fa-fw fa-compress" aria-hidden="true"></i></a>
+</div>
+                <div id="questionnaire_import_destination_expand" class="collapse show" data-persist-collapse>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="category">Category <span class="text-danger" title="Required">*</span></label>
+                            <select id="category" class="form-control" required>
+                                <option value="">Choose a category</option>
+                                                                    <option value="survey">Survey</option>
+                                                            </select>
+                            <small class="form-text text-muted">Applies to everything in this import.</small>
+                        </div>
+                                                                    </div>
+                </div>
+                                <div class="card-footer">
+                    <button type="button" id="import" class="btn btn-primary btn-block" disabled>Import</button>
+                    <small id="import-hint" class="form-text text-muted"></small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 import-column" id="review-column">
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                        <a class="text-reset font-weight-bold" href="#questionnaire_import_review_expand" role="button" data-toggle="collapse" data-target="#questionnaire_import_review_expand" aria-expanded="false" aria-controls="questionnaire_import_review_expand">2. Review<i class="ml-1 fa fa-fw fa-expand" aria-hidden="true"></i></a>
+
+                    <div class="btn-group btn-group-sm d-none" id="review-actions">
+                        <button type="button" id="view-response" class="btn btn-outline-primary">View Response</button>
+                        <button type="button" id="review-next" class="btn btn-primary">Next</button>
+                    </div>
+                </div>
+                <div id="questionnaire_import_review_expand" class="collapse" data-persist-collapse>
+                    <div class="card-body">
+                        <p id="review-empty" class="text-muted mb-0">Add a questionnaire to see it here exactly as staff will.</p>
+                        <div id="review-panel" class="d-none">
+                            <div class="form-row">
+                                <div class="form-group col-md-7">
+                                    <label for="name">Name</label>
+                                    <input type="text" id="name" class="form-control" maxlength="255" />
+                                </div>
+                                <div class="form-group col-md-5">
+                                    <label for="tags">Tags (optional)</label>
+                                    <input type="text" id="tags" class="form-control" placeholder="Separate with commas" />
+                                </div>
+                            </div>
+                            <div id="conversion-notes" class="alert alert-info d-none">
+                                <div class="font-weight-bold">Check these items. They did not convert fully from LOINC:</div>
+                                <ul class="mb-0" id="conversion-list"></ul>
+                            </div>
+                            <div id="clash" class="alert alert-warning d-none">
+                                <div id="clash-text"></div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="replace" />
+                                    <label class="form-check-label" for="replace">Replace the existing questionnaire</label>
+                                </div>
+                            </div>
+                            <div id="form-container"></div>
+                            <pre id="response" class="d-none border p-2 mt-3 small"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+        const settingsUrl = "\/library\/ajax\/user_settings.php"
+        const csrfToken = "token"
+
+        function save (section, open) {
+            const body = new FormData()
+            body.append('csrf_token_form', csrfToken)
+            body.append('target', section)
+            body.append('mode', open ? '1' : '0')
+            top.restoreSession()
+            fetch(settingsUrl, { method: 'POST', credentials: 'same-origin', body })
+                .catch((error) => console.error('Section state not saved', error))
+        }
+
+        function showIcon (panel, open) {
+            document.querySelectorAll('[data-target="#' + panel.id + '"]').forEach((toggle) => {
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false')
+                const icon = toggle.querySelector('.fa')
+                icon?.classList.toggle('fa-compress', open)
+                icon?.classList.toggle('fa-expand', !open)
+            })
+        }
+
+        $(document).on('shown.bs.collapse hidden.bs.collapse', '[data-persist-collapse]', function (event) {
+            if (event.target !== this) {
+                return
+            }
+            const open = event.type === 'shown'
+            showIcon(this, open)
+            if (this.dataset.keepSaved === '1') {
+                delete this.dataset.keepSaved
+                return
+            }
+            save(this.id, open)
+        })
+
+        // Open a section for the moment, as when a page needs to show it, without saving.
+        window.openSectionForNow = function (panel) {
+            if (panel && !panel.classList.contains('show')) {
+                panel.dataset.keepSaved = '1'
+                $(panel).collapse('show')
+            }
+        }
+
+        if (location.hash.length > 1) {
+            const anchor = document.getElementById(location.hash.slice(1))
+            window.openSectionForNow(anchor?.querySelector('[data-persist-collapse]'))
+        }
+    })()
+</script>
+<script>
+    (function () {
+        const endpoint = 'manage_questionnaire_availability.php?view=import'
+        const csrfToken = "token"
+        const isDialog = true
+        const words = {
+            failed: "Something went wrong. See the error log for details.",
+            unreadable: "This file could not be read.",
+            enterJson: "Paste FHIR Questionnaire JSON first.",
+            newItem: "New",
+            replaces: "Replaces existing",
+            skipped: "Already exists",
+            invalid: "Not importable",
+            imported: "Imported",
+            notReviewed: "Not reviewed",
+            remove: "Remove",
+            importOne: "Import",
+            importMany: "Import {0} questionnaires",
+            needCategory: "Choose a category to continue.",
+            needReview: "Review every questionnaire before importing.",
+            needItems: "Add a questionnaire to import.",
+            clash: "`{0}` (version {1}) is already in the repository. Importing replaces it, and the repository keeps no earlier version.",
+            done: "Imported {0} of {1}.",
+            searching: "Searching...",
+            noResults: "No forms found.",
+            checking: "Checking...",
+            importing: "Importing...",
+            importingProgress: "Importing {0} of {1}...",
+            loading: "Loading...",
+            added: "{0} is ready to review.",
+            notAdded: "{0} could not be added: {1}",
+            notImported: "Not imported: {0}",
+            renamed: "Name checked.",
+            dismiss: "Dismiss"
+        }
+
+        const element = (id) => document.getElementById(id)
+        const items = []
+        let current = null
+        let runtime = null
+        let nextId = 1
+        let importedCount = 0
+        // True while an import is running. Other actions re-render the queue meanwhile, so the
+        // Import button is left to the import until it finishes.
+        let importing = false
+
+        function fill (template, ...values) {
+            return values.reduce((text, value, index) => text.replace('{' + index + '}', value), template)
+        }
+
+        let alertTimer = null
+
+        // One message at the top of the page. Success notes fade on their own; warnings and
+        // errors stay until dismissed or replaced, so they are not missed.
+        function showAlert (message, type) {
+            const alert = element('page-alert')
+            clearTimeout(alertTimer)
+            if (!message) {
+                alert.className = 'd-none'
+                alert.replaceChildren()
+                return
+            }
+            alert.className = 'alert alert-dismissible alert-' + type
+            const close = document.createElement('button')
+            close.type = 'button'
+            close.className = 'close'
+            close.setAttribute('aria-label', words.dismiss)
+            close.textContent = '×'
+            close.addEventListener('click', () => showAlert('', ''))
+            alert.replaceChildren(document.createTextNode(message), close)
+            if (type === 'success' || type === 'info') {
+                alertTimer = setTimeout(() => showAlert('', ''), 6000)
+            }
+        }
+
+        function spinner () {
+            const spin = document.createElement('span')
+            spin.className = 'spinner-border spinner-border-sm mr-1'
+            spin.setAttribute('role', 'status')
+            spin.setAttribute('aria-hidden', 'true')
+            return spin
+        }
+
+        // Disable a button and show a spinner with working text; returns a function that puts
+        // the button back as it was.
+        function busyButton (button, text) {
+            const before = Array.from(button.childNodes)
+            const wasDisabled = button.disabled
+            button.disabled = true
+            button.setAttribute('aria-busy', 'true')
+            button.replaceChildren(spinner(), document.createTextNode(text))
+            return () => {
+                button.replaceChildren(...before)
+                button.disabled = wasDisabled
+                button.removeAttribute('aria-busy')
+            }
+        }
+
+        async function post (fields) {
+            top.restoreSession()
+            const body = new FormData()
+            body.append('csrf_token_form', csrfToken)
+            Object.entries(fields).forEach(([key, value]) => body.append(key, value))
+            const response = await fetch(endpoint, { method: 'POST', body })
+            let payload = null
+            try {
+                payload = await response.json()
+            } catch (error) {
+                throw new Error(words.failed)
+            }
+            if (!response.ok) {
+                throw new Error(payload.error || words.failed)
+            }
+            return payload
+        }
+
+        function applyReview (item, review) {
+            item.json = JSON.stringify(review.questionnaire)
+            item.questionnaire = review.questionnaire
+            item.name = review.name
+            item.existing = review.existing
+            item.replace = false
+            if (item.tags === null) {
+                item.tags = review.tags.join(', ')
+            }
+            const category = element('category')
+            if (category.value === '' && review.suggestedCategory) {
+                category.value = review.suggestedCategory
+            }
+        }
+
+        async function addItem (label, json, notes = []) {
+            const item = { id: nextId++, label, json, notes, name: '', tags: null, existing: null, replace: false, reviewed: false, status: 'pending', error: '', busy: words.checking }
+            items.push(item)
+            // The new item is unreviewed, so Import must stop offering itself until it is.
+            render()
+            try {
+                applyReview(item, await post({ action: 'review', questionnaire: json }))
+                item.label = item.name || label
+                showAlert(fill(words.added, item.label), 'success')
+            } catch (error) {
+                item.status = 'invalid'
+                item.error = error.message
+                showAlert(fill(words.notAdded, label, error.message), 'danger')
+            }
+            item.busy = null
+            if (current === null && item.status === 'pending') {
+                selectItem(item)
+            }
+            render()
+        }
+
+        function isImportable (item) {
+            return item.status === 'pending' && (item.existing === null || item.replace)
+        }
+
+        function badgeFor (item) {
+            if (item.status === 'invalid') {
+                return ['badge-danger', words.invalid]
+            }
+            if (item.status === 'imported') {
+                return ['badge-success', words.imported]
+            }
+            if (item.existing !== null) {
+                return item.replace ? ['badge-warning', words.replaces] : ['badge-secondary', words.skipped]
+            }
+            return item.reviewed ? ['badge-info', words.newItem] : ['badge-light border', words.notReviewed]
+        }
+
+        function renderQueue () {
+            const queue = element('queue')
+            queue.replaceChildren()
+            element('queue-empty').classList.toggle('d-none', items.length > 0)
+            items.forEach((item) => {
+                const row = document.createElement('div')
+                row.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center p-2'
+                    + (current === item ? ' active' : '')
+                row.setAttribute('role', 'button')
+                row.tabIndex = 0
+
+                const text = document.createElement('div')
+                text.className = 'text-truncate mr-2'
+                text.textContent = item.label
+                if (item.error) {
+                    const detail = document.createElement('div')
+                    detail.className = 'small text-danger text-wrap'
+                    detail.textContent = item.error
+                    text.appendChild(detail)
+                }
+
+                const side = document.createElement('div')
+                side.className = 'text-nowrap'
+                const badge = document.createElement('span')
+                if (item.busy) {
+                    badge.className = 'badge badge-light border'
+                    badge.append(spinner(), document.createTextNode(item.busy))
+                } else {
+                    const [badgeClass, badgeText] = badgeFor(item)
+                    badge.className = 'badge ' + badgeClass
+                    badge.textContent = badgeText
+                }
+                side.appendChild(badge)
+
+                const remove = document.createElement('button')
+                remove.type = 'button'
+                remove.className = 'close ml-2 float-none'
+                remove.title = words.remove
+                remove.setAttribute('aria-label', words.remove)
+                remove.textContent = '×'
+                remove.addEventListener('click', (event) => {
+                    event.stopPropagation()
+                    removeItem(item)
+                })
+                side.appendChild(remove)
+
+                row.append(text, side)
+                if (item.status !== 'invalid') {
+                    row.addEventListener('click', () => selectItem(item))
+                    row.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter') {
+                            selectItem(item)
+                        }
+                    })
+                }
+                queue.appendChild(row)
+            })
+        }
+
+        function renderImportButton () {
+            if (importing) {
+                return
+            }
+            const button = element('import')
+            const ready = items.filter(isImportable)
+            let hint = ''
+            if (ready.length === 0) {
+                hint = words.needItems
+            } else if (element('category').value === '') {
+                hint = words.needCategory
+            } else if (ready.some((item) => !item.reviewed)) {
+                hint = words.needReview
+            }
+            button.disabled = hint !== ''
+            button.textContent = ready.length > 1 ? fill(words.importMany, ready.length) : words.importOne
+            element('import-hint').textContent = hint
+        }
+
+        function render () {
+            renderQueue()
+            renderImportButton()
+            element('review-next').classList.toggle('d-none', nextUnreviewed() === null)
+        }
+
+        function nextUnreviewed () {
+            return items.find((item) => item.status === 'pending' && !item.reviewed && item !== current) ?? null
+        }
+
+        function removeItem (item) {
+            items.splice(items.indexOf(item), 1)
+            if (current === item) {
+                current = null
+                const next = items.find((candidate) => candidate.status === 'pending')
+                if (next) {
+                    selectItem(next)
+                } else {
+                    clearReview()
+                }
+            }
+            render()
+        }
+
+        function clearReview () {
+            runtime = null
+            element('form-container').replaceChildren()
+            element('review-panel').classList.add('d-none')
+            element('review-actions').classList.add('d-none')
+            element('review-empty').classList.remove('d-none')
+        }
+
+        function showClash (item) {
+            const hasClash = item.existing !== null
+            element('clash').classList.toggle('d-none', !hasClash)
+            element('replace').checked = item.replace
+            if (hasClash) {
+                element('clash-text').textContent = fill(words.clash, item.existing.name, item.existing.version)
+            }
+        }
+
+        function showNotes (item) {
+            const list = element('conversion-list')
+            list.replaceChildren(...(item.notes ?? []).map((note) => {
+                const entry = document.createElement('li')
+                entry.textContent = note
+                return entry
+            }))
+            element('conversion-notes').classList.toggle('d-none', list.children.length === 0)
+        }
+
+        function selectItem (item) {
+            current = item
+            // Choosing something to review shows it, even with the step folded away.
+            window.openSectionForNow(element('questionnaire_import_review_expand'))
+            element('review-column').scrollTop = 0
+            element('review-empty').classList.add('d-none')
+            element('review-panel').classList.remove('d-none')
+            element('review-actions').classList.remove('d-none')
+            element('response').classList.add('d-none')
+            element('name').value = item.name
+            element('tags').value = item.tags ?? ''
+            showClash(item)
+            showNotes(item)
+
+            const container = element('form-container')
+            container.replaceChildren()
+            try {
+                runtime = OpenEMRQuestionnaire.mount({
+                    questionnaire: item.questionnaire,
+                    container,
+                    options: { questionLayout: 'vertical' }
+                })
+                item.reviewed = true
+            } catch (error) {
+                runtime = null
+                item.status = 'invalid'
+                item.error = error.message
+                clearReview()
+            }
+            render()
+        }
+
+        async function renameCurrent () {
+            const item = current
+            const name = element('name').value.trim()
+            if (!item || name === item.name || name === '') {
+                return
+            }
+            const field = element('name')
+            field.readOnly = true
+            item.busy = words.checking
+            render()
+            try {
+                applyReview(item, await post({ action: 'review', questionnaire: item.json, name }))
+                item.name = name
+                item.label = name
+                if (current === item) {
+                    showClash(item)
+                }
+                showAlert(words.renamed, 'success')
+            } catch (error) {
+                showAlert(error.message, 'danger')
+            }
+            item.busy = null
+            field.readOnly = false
+            render()
+        }
+
+        async function readFiles (files) {
+            for (const file of Array.from(files)) {
+                let text
+                try {
+                    text = await file.text()
+                } catch (error) {
+                    items.push({ id: nextId++, label: file.name, json: '', name: '', tags: '', existing: null, replace: false, reviewed: false, status: 'invalid', error: words.unreadable })
+                    render()
+                    continue
+                }
+                await addItem(file.name, text)
+            }
+        }
+
+        async function importAll () {
+            if (importing) {
+                return
+            }
+            const button = element('import')
+            const ready = items.filter(isImportable)
+            // Check again at the click: an item can arrive between the last render and now.
+            if (ready.length === 0 || element('category').value === '' || ready.some((item) => !item.reviewed)) {
+                renderImportButton()
+                return
+            }
+            // Read where it goes once, and lock those fields until the import ends, so every
+            // questionnaire in this run is filed the same way.
+            const category = element('category').value
+            const templateCategory = element('template-category')?.value ?? ''
+            const surfaces = Array.from(document.querySelectorAll('.import-surface:checked')).map((box) => box.value)
+            const createTemplate = element('create-template')?.checked === true
+            const destination = Array.from(element('questionnaire_import_destination_expand').querySelectorAll('input, select'))
+                .filter((field) => !field.disabled)
+            destination.forEach((field) => { field.disabled = true })
+            showAlert('', '')
+            importing = true
+            let done = 0
+            let restore = busyButton(button, words.importing)
+            try {
+                for (const [index, item] of ready.entries()) {
+                    restore()
+                    restore = busyButton(button, fill(words.importingProgress, index + 1, ready.length))
+                    item.busy = words.importing
+                    renderQueue()
+                    try {
+                        await post({
+                            action: 'import',
+                            questionnaire: item.json,
+                            name: item.name,
+                            category,
+                            tags: item.tags ?? '',
+                            replace_existing: item.replace ? '1' : '0',
+                            surfaces: surfaces.join(','),
+                            create_template: createTemplate ? '1' : '0',
+                            template_category: templateCategory
+                        })
+                        item.status = 'imported'
+                        item.error = ''
+                        done++
+                    } catch (error) {
+                        item.error = error.message
+                    }
+                    item.busy = null
+                    renderQueue()
+                }
+            } finally {
+                restore()
+                destination.forEach((field) => { field.disabled = false })
+                importing = false
+            }
+            importedCount += done
+            const failed = ready.filter((item) => item.status !== 'imported').map((item) => item.label)
+            showAlert(
+                fill(words.done, done, ready.length) + (failed.length > 0 ? ' ' + fill(words.notImported, failed.join(', ')) : ''),
+                done === ready.length ? 'success' : (done === 0 ? 'danger' : 'warning')
+            )
+            if (done > 0 && window.parent !== window) {
+                window.parent.postMessage({ questionnaireImported: true }, window.location.origin)
+            }
+            render()
+        }
+
+        element('files').addEventListener('change', (event) => {
+            event.target.disabled = true
+            readFiles(event.target.files).then(() => {
+                event.target.value = ''
+                event.target.disabled = false
+            })
+        })
+        element('paste-add').addEventListener('click', () => {
+            const text = element('paste').value.trim()
+            if (text === '') {
+                showAlert(words.enterJson, 'danger')
+                return
+            }
+            showAlert('', '')
+            const restore = busyButton(element('paste-add'), words.checking)
+            addItem("Pasted questionnaire", text).then(() => {
+                element('paste').value = ''
+                restore()
+            })
+        })
+        let searchTimer = null
+        let searchNumber = 0
+
+        function renderLoincResults (results) {
+            element('loinc-results').replaceChildren(...results.map((form) => {
+                const row = document.createElement('button')
+                row.type = 'button'
+                row.className = 'list-group-item list-group-item-action p-2'
+                const code = document.createElement('small')
+                code.className = 'text-muted ml-1'
+                code.textContent = form.code
+                row.append(document.createTextNode(form.name), code)
+                row.addEventListener('click', () => addLoincForm(form, row))
+                return row
+            }))
+            element('loinc-status').textContent = results.length === 0 ? words.noResults : ''
+        }
+
+        async function searchLoinc (terms) {
+            const number = ++searchNumber
+            element('loinc-status').replaceChildren(spinner(), document.createTextNode(words.searching))
+            try {
+                const payload = await post({ action: 'loinc_search', terms })
+                if (number === searchNumber) {
+                    renderLoincResults(payload.results)
+                }
+            } catch (error) {
+                if (number === searchNumber) {
+                    element('loinc-results').replaceChildren()
+                    element('loinc-status').replaceChildren()
+                    showAlert(error.message, 'danger')
+                }
+            }
+        }
+
+        async function addLoincForm (form, row) {
+            showAlert('', '')
+            const restore = busyButton(row, words.loading + ' ' + form.name)
+            try {
+                const payload = await post({ action: 'loinc_fetch', loinc_number: form.code })
+                await addItem(form.name, payload.json, payload.notes)
+            } catch (error) {
+                showAlert(error.message, 'danger')
+            }
+            restore()
+        }
+
+        element('loinc-terms').addEventListener('input', (event) => {
+            clearTimeout(searchTimer)
+            const terms = event.target.value.trim()
+            if (terms.length < 2) {
+                searchNumber++
+                element('loinc-results').replaceChildren()
+                element('loinc-status').textContent = ''
+                return
+            }
+            searchTimer = setTimeout(() => searchLoinc(terms), 300)
+        })
+        element('name').addEventListener('change', renameCurrent)
+        element('tags').addEventListener('input', () => {
+            if (current) {
+                current.tags = element('tags').value
+            }
+        })
+        element('replace').addEventListener('change', () => {
+            if (current) {
+                current.replace = element('replace').checked
+                render()
+            }
+        })
+        element('category').addEventListener('change', renderImportButton)
+        element('import').addEventListener('click', importAll)
+        element('review-next').addEventListener('click', () => {
+            const next = nextUnreviewed()
+            if (next) {
+                selectItem(next)
+            }
+        })
+        element('view-response').addEventListener('click', () => {
+            if (runtime) {
+                const output = element('response')
+                output.textContent = JSON.stringify(runtime.getQuestionnaireResponse(), null, 2)
+                output.classList.remove('d-none')
+                output.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+            }
+        })
+        element('create-template')?.addEventListener('change', (event) => {
+            element('template-category-group').classList.toggle('d-none', !event.target.checked)
+        })
+
+        if (isDialog) {
+            element('close-dialog').addEventListener('click', () => {
+                importedCount > 0 ? dlgclose('questionnaireImportDone') : dlgclose()
+            })
+            const source = "paste"
+            if (source === 'paste') {
+                $('#source-paste-tab').tab('show')
+            } else {
+                const picked = opener?.document?.getElementById('fetch_files')?.files
+                if (picked?.length) {
+                    readFiles(picked)
+                }
+            }
+        }
+        render()
+    })()
+</script>
+</body>
+</html>

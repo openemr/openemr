@@ -3,6 +3,7 @@
 /**
  * Covers the patient-scoped template fetch path:
  *   - a row with pid=0 is visible to every caller (shared template)
+ *   - a row with pid=-1 is visible to every caller (Repository template)
  *   - a row with a positive pid is visible only to the matching caller
  *   - a row with a positive pid returns null for other patient-id contexts
  *
@@ -57,6 +58,19 @@ class DocumentTemplateServicePatientScopeTest extends TestCase
             $row = $svc->fetchTemplateForPatient($sharedId, $callerPid);
             self::assertIsArray($row, "caller pid=$callerPid should see shared row");
             self::assertSame('SHARED', $row['template_content']);
+        }
+    }
+
+    public function testRepositoryTemplateIsVisibleToAnyCaller(): void
+    {
+        // pid = -1 is the Repository: templates that reach patients through profiles and groups.
+        $repositoryId = $this->seedTemplate(pid: -1, name: 'repository_template', content: 'REPOSITORY');
+        $svc = new DocumentTemplateService();
+
+        foreach ([1, 7] as $callerPid) {
+            $row = $svc->fetchTemplateForPatient($repositoryId, $callerPid);
+            self::assertIsArray($row, "caller pid=$callerPid should see repository row");
+            self::assertSame('REPOSITORY', $row['template_content']);
         }
     }
 

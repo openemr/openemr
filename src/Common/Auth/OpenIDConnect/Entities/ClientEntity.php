@@ -69,6 +69,11 @@ class ClientEntity implements ClientEntityInterface
      */
     private array $grantTypes = [];
 
+    /**
+     * The address book entry this client acts for (its users.uuid), or null for a client not limited to one.
+     */
+    private ?string $addressBookUuid = null;
+
     const DSI_TYPE_NONE = 0;
 
     const DSI_TYPE_EVIDENCE = 1;
@@ -129,6 +134,22 @@ class ClientEntity implements ClientEntityInterface
     public function getUserId()
     {
         return $this->userId;
+    }
+
+    /**
+     * The address book entry this client is limited to, or null when it has no such limit.
+     */
+    public function getAddressBookUuid(): ?string
+    {
+        return $this->addressBookUuid;
+    }
+
+    /**
+     * Sets the address book entry this client is limited to, or null for no limit.
+     */
+    public function setAddressBookUuid(?string $uuid): void
+    {
+        $this->addressBookUuid = $uuid;
     }
 
     public function setClientRole($role): void

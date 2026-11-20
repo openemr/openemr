@@ -20,6 +20,7 @@
 require_once dirname(__DIR__, 3) . '/vendor/autoload.php';
 
 use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Tabs\TabsWrapper;
@@ -31,7 +32,8 @@ use OpenEMR\Tabs\TabsWrapper;
 // "Session reopened for writing after read_and_close" warning per write.
 // Requests without set_encounter (returning from an encounter form) do not
 // write, so they stay lock-free.
-$sessionAllowWrite = CurrentRequest::get()->query->has('set_encounter');
+$request = CurrentRequest::get();
+$sessionAllowWrite = $request->query->has('set_encounter');
 
 require_once(__DIR__ . '/../../globals.php');
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
@@ -40,21 +42,18 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $encounter = $session->get('encounter', 0);
 $rootdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('rootdir');
 
-if (isset($_GET["set_encounter"])) {
+if ($request->query->has('set_encounter')) {
     // The billing page might also be setting a new pid.
-    if (isset($_GET["set_pid"])) {
-        $set_pid = $_GET["set_pid"];
-    } elseif (isset($_GET["pid"])) {
-        $set_pid = $_GET["pid"];
-    } else {
-        $set_pid = false;
+    $setPid = $request->query->getInt('set_pid') ?: $request->query->getInt('pid');
+    $setEncounter = $request->query->getInt('set_encounter');
+    // Switching to another patient or encounter needs a CSRF token in the link.
+    PatientSessionUtil::requireCsrfForLinkSwitch($request, $setPid ?: PatientSessionUtil::getPid(), $setEncounter);
+
+    if ($setPid > 0 && $setPid !== PatientSessionUtil::getPid()) {
+        setpid($setPid);
     }
 
-    if ($set_pid && $set_pid != $session->get("pid")) {
-        setpid($set_pid);
-    }
-
-    setencounter($_GET["set_encounter"]);
+    setencounter($setEncounter);
 }
 
 $tabset = new TabsWrapper('enctabs');

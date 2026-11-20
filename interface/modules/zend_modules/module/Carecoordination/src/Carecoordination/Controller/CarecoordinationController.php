@@ -386,8 +386,8 @@ class CarecoordinationController extends AbstractActionController
         $storedPid = $this->resolveAuditMasterStoredPid($amidInt);
         // For a bound audit row (storedPid > 0) the write stays on the
         // audit's own patient. For a pre-approval row (storedPid === 0)
-        // the uploader is binding a target pid; isAuditMasterAccessible()
-        // already proved the uploader is patient-authorized for pidInt.
+        // the caller is binding a target pid; isAuditMasterAccessible()
+        // already proved the caller is patient-authorized for pidInt.
         $writePid = $storedPid > 0 ? $storedPid : $pidInt;
 
         if ($setval === 'approve') {

@@ -17,6 +17,7 @@ $pid = $session->get('pid', 0);
 require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Pdf\ShotRecordPdf;
 use OpenEMR\Services\FacilityService;
 
 
@@ -40,7 +41,11 @@ $title = xl('Shot Record as of:') . ' ' . date('m/d/Y h:i:s a');
 if ($_GET['output'] == "html") {
     printHTML($res, $res2, $data_array, $title);
 } else {
-    printPDF($res, $res2, $data_array, $title);
+    ShotRecordPdf::build($res, $res2, $data_array, $title, [
+        'date_of_birth' => xl('Date of Birth'),
+        'none_on_file' => xl('No immunizations on file'),
+        'signature' => xl('Signature'),
+    ])->ezStream();
 }
 
 
@@ -111,26 +116,6 @@ function convertToDataArray($data_array): array
     }
 
     return $data;
-}
-
-function printPDF($res, $res2, $data, $title): void
-{
-
-    $pdf = new Cezpdf("LETTER");
-    $pdf->ezSetMargins(72, 30, 50, 30);
-    $pdf->selectFont('Helvetica');
-
-    $opts = ['justification' => "center"];
-    $pdf->ezText($res['facility_address'], "", $opts);
-
-    $pdf->ezText("\n" . $res2['patient_name'] . "\n" . xl('Date of Birth') . ": " . $res2['patient_DOB'] . "\n" . $res2['patient_address']);
-    $pdf->ezText("\n");
-
-    $opts = ['maxWidth' => 550, 'fontSize' => 8];
-
-    $pdf->ezTable($data, "", $title, $opts);
-    $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________", "", ['justification' => 'right']);
-    $pdf->ezStream();
 }
 
 function printHTML($res, $res2, $data, $title): void

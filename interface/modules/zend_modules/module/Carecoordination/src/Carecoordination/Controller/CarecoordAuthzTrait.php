@@ -62,12 +62,15 @@ trait CarecoordAuthzTrait
 
     /**
      * Return true when the current session is allowed to review, approve,
-     * discard, or delete the given audit_master row. The caller must either
-     * be the user who uploaded the referenced CCDA/CCR (pre-approval phase
-     * where the row's `pid` is still 0) or hold patient-record access to
-     * the stored `pid` the row carries. When $claimedPid is supplied it is
-     * validated against the stored row so an attacker cannot slip a
-     * foreign pid alongside an amid they are legitimately scoped to.
+     * discard, or delete the given audit_master row. For rows already bound
+     * to a patient the caller must hold patient-record access to the stored
+     * `pid`, and a claimed pid that disagrees with the stored pid is
+     * rejected so an attacker cannot slip a foreign pid alongside an amid
+     * they are legitimately scoped to. For pre-approval staging rows the
+     * caller must hold the shared `patients/docs` ACL (on top of the
+     * module-level `send_to_hie` or `admin/super` gate enforced in
+     * Carecoordination\Module.php), and when the caller is binding the row
+     * to a target pid that pid must itself be patient-authorized.
      */
     private function isAuditMasterAccessible(int $auditMasterId, ?int $claimedPid = null): bool
     {
@@ -75,40 +78,38 @@ trait CarecoordAuthzTrait
             return false;
         }
         $row = QueryUtils::fetchRecords(
-            'SELECT pid, user_id FROM audit_master WHERE id = ?',
+            'SELECT pid FROM audit_master WHERE id = ?',
             [$auditMasterId]
         );
         if ($row === []) {
             return false;
         }
         $storedPid = (int) ($row[0]['pid'] ?? 0);
-        $uploaderId = (int) ($row[0]['user_id'] ?? 0);
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $authUserId = (int) ($session->get('authUserID') ?? 0);
         if ($storedPid > 0) {
             // Row is bound to a real patient. The claimed pid, if non-zero,
             // must match the stored pid; a caller otherwise authorized for
             // the stored pid can not slip a different pid into the write
             // path via the request. Gate on patient access to the stored
-            // pid, not on uploader identity — once the row carries a pid,
-            // the usual per-patient boundary applies to everyone.
+            // pid — once the row carries a pid, the usual per-patient
+            // boundary applies to everyone.
             if ($claimedPid !== null && $claimedPid > 0 && $claimedPid !== $storedPid) {
                 return false;
             }
             return $this->isPatientAuthorized($storedPid);
         }
-        // Pre-approval staging row with no bound patient. Only the uploader
-        // sees their own in-progress import. For approve calls that carry
-        // a target pid, the uploader must also hold patient access for
-        // that pid — otherwise an uploader with no care relationship to
-        // any patient could pick an arbitrary victim pid as the binding
-        // target on the row they just uploaded.
-        if ($uploaderId <= 0 || $authUserId !== $uploaderId) {
+        // Pre-approval staging row with no bound patient. The uploader is
+        // not recorded on audit_master — `user_id` is reserved for the
+        // approver/denier per the schema comment and is not written during
+        // import — so there is no row-local identity to gate on. Defer to
+        // the shared patients/docs ACL (any clinic user in the Care
+        // Coordination group can finish a review another user started),
+        // then require patient access to the claimed target pid when the
+        // caller is binding one.
+        if (AclMain::aclCheckCore('patients', 'docs') === false) {
             return false;
         }
         if ($claimedPid === null || $claimedPid <= 0) {
-            // view / discard — the caller is the uploader and has not
-            // asked to bind the row to a specific patient yet.
+            // View / discard — no patient binding being made.
             return true;
         }
         return $this->isPatientAuthorized($claimedPid);

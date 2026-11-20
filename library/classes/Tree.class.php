@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Tree: a modified preorder tree traversal hierarchy stored in a relational table (see the class description below)
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 use OpenEMR\Core\OEGlobalsBag;
 
 define("ROOT_TYPE_ID", 1);
@@ -85,15 +93,26 @@ class Tree
         $result = $this->_db->Execute($sql, [$row['lft'], $row['rght']]);
         $this->_id_name = [];
 
-
+        // Read every descendant first and build the id lookup table for all of them before any chain of
+        // parents is followed. The rows come ordered by parent id and name, which does not guarantee that
+        // a parent row is read before its children (for example a folder moved under a folder that was
+        // added later has a higher parent id than its own children). A lookup filled while reading would
+        // then miss the parent and break the tree.
+        $descendants = [];
         while ($result && !$result->EOF) {
-            $ar = [];
-            $row = $result->fields;
+            $fields = $result->fields;
+            if (is_array($fields)) {
+                /** @var array<string, mixed> $fields */
+                $descendants[] = $fields;
+            }
+            $result->MoveNext();
+        }
 
+        foreach ($descendants as $descendant) {
             //create a lookup table of id to name for every node that will end up in this tree, this is used
             //by the array building code below to find the chain of parents for each node
             $id_name = [];
-            foreach ($row as $key => $value) {
+            foreach ($descendant as $key => $value) {
                 $id_name[$key] = $value;
             }
 
@@ -102,6 +121,28 @@ class Tree
                 $id_name['name'] = $this->get_translated_name($id_name['name']);
             }
             $this->_id_name[$id_name['id']] = $id_name;
+        }
+
+        // Build the nested array level by level: a parent must be merged before its children. The sort is
+        // stable, so the siblings keep the order the database returned (by parent and name).
+        $parentOf = [];
+        foreach ($descendants as $descendant) {
+            $parentOf[self::intValue($descendant['id'])] = self::intValue($descendant['parent']);
+        }
+        $depths = [];
+        foreach ($descendants as $descendant) {
+            $depth = 0;
+            $parent = self::intValue($descendant['parent']);
+            while ($parent !== 0 && isset($parentOf[$parent]) && $depth <= count($parentOf)) {
+                $depth++;
+                $parent = $parentOf[$parent];
+            }
+            $depths[self::intValue($descendant['id'])] = $depth;
+        }
+        usort($descendants, static fn (array $a, array $b): int => $depths[self::intValue($a['id'])] <=> $depths[self::intValue($b['id'])]);
+
+        foreach ($descendants as $row) {
+            $ar = [];
 
             // only check stack if there is one
             if (count($right) > 0) {
@@ -149,10 +190,15 @@ class Tree
 
             // add this node to the stack
             $right[] = $row['rght'];
-            $result->MoveNext();
         }
 
         $this->tree = $tree;
+    }
+
+    /** A database id or parent id as an int (a numeric string or int), 0 for anything else. */
+    private static function intValue(mixed $value): int
+    {
+        return is_numeric($value) ? (int) $value : 0;
     }
 
     /*

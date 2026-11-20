@@ -13,6 +13,7 @@
 namespace OpenEMR\Tests\Isolated\RestControllers\Subscriber;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -21,6 +22,8 @@ use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use OpenEMR\RestControllers\Authorization\IAuthorizationStrategy;
 use OpenEMR\RestControllers\Subscriber\AuthorizationListener;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteMode;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -318,6 +321,73 @@ class AuthorizationListenerTest extends TestCase
         $event->expects($this->once())
             ->method('getScopeType')
             ->willReturn('patient');
+
+        $this->expectException(AccessDeniedException::class);
+        $this->expectExceptionMessage('Patient user role is not allowed to write FHIR resources.');
+
+        $this->authListener->onRestApiSecurityCheck($event);
+    }
+
+    /**
+     * A type the site opened to patient apps passes the patient write gate and goes on to the
+     * usual scope check. Its route then holds the write for staff review.
+     */
+    public function testOnRestApiSecurityCheckLetsAPatientWriteToAnOpenedTypeReachTheScopeCheck(): void
+    {
+        $this->authListener->setGlobals(new OEGlobalsBag([
+            GlobalConnectorsEnum::FHIR_PATIENT_WRITE_MODE->value => PatientWriteMode::ConfidentialAndPublic->value,
+            GlobalConnectorsEnum::FHIR_PATIENT_WRITE_QUESTIONNAIRE_RESPONSE->value => '1',
+        ]));
+        $mockAttributes = $this->createMock(ParameterBag::class);
+        $mockAttributes->method('get')->willReturn(false);
+        $mockRestRequest = $this->createMock(HttpRestRequest::class);
+        $mockRestRequest->method('isPatientRequest')->willReturn(true);
+        $mockRestRequest->method('getPatientUUIDString')->willReturn('9a3c1f2e-5b6d-4e7f-8a9b-0c1d2e3f4a5b');
+        $mockRestRequest->method('isLocalApi')->willReturn(false);
+        $mockRestRequest->method('isFhir')->willReturn(true);
+        $mockRestRequest->method('isPatientWriteRequest')->willReturn(true);
+        $mockRestRequest->method('getRequestUserRole')->willReturn('patient');
+        $mockRestRequest->expects($this->once())
+            ->method('requestHasScopeEntity')
+            ->with($this->callback(static fn (ScopeEntity $scope): bool => $scope->getIdentifier() === 'patient/QuestionnaireResponse.c'))
+            ->willReturn(true);
+        $mockRestRequest->attributes = $mockAttributes;
+
+        $event = $this->createMock(RestApiSecurityCheckEvent::class);
+        $event->method('shouldSkipSecurityCheck')->willReturn(false);
+        $event->method('getRestRequest')->willReturn($mockRestRequest);
+        $event->method('getScopeType')->willReturn('patient');
+        $event->method('getResource')->willReturn('QuestionnaireResponse');
+        $event->method('getPermission')->willReturn('c');
+
+        $this->assertSame($event, $this->authListener->onRestApiSecurityCheck($event));
+    }
+
+    /**
+     * MedicationRequest is never open to patient apps, whatever the site's settings.
+     */
+    public function testOnRestApiSecurityCheckStillDeniesAPatientWriteToATypeNeverOpened(): void
+    {
+        $this->authListener->setGlobals(new OEGlobalsBag([
+            GlobalConnectorsEnum::FHIR_PATIENT_WRITE_MODE->value => PatientWriteMode::ConfidentialAndPublic->value,
+            GlobalConnectorsEnum::FHIR_PATIENT_WRITE_QUESTIONNAIRE_RESPONSE->value => '1',
+        ]));
+        $mockAttributes = $this->createMock(ParameterBag::class);
+        $mockAttributes->method('get')->willReturn(false);
+        $mockRestRequest = $this->createMock(HttpRestRequest::class);
+        $mockRestRequest->method('isPatientRequest')->willReturn(true);
+        $mockRestRequest->method('getPatientUUIDString')->willReturn('9a3c1f2e-5b6d-4e7f-8a9b-0c1d2e3f4a5b');
+        $mockRestRequest->method('isLocalApi')->willReturn(false);
+        $mockRestRequest->method('isFhir')->willReturn(true);
+        $mockRestRequest->method('isPatientWriteRequest')->willReturn(true);
+        $mockRestRequest->method('getRequestUserRole')->willReturn('patient');
+        $mockRestRequest->attributes = $mockAttributes;
+
+        $event = $this->createMock(RestApiSecurityCheckEvent::class);
+        $event->method('shouldSkipSecurityCheck')->willReturn(false);
+        $event->method('getRestRequest')->willReturn($mockRestRequest);
+        $event->method('getScopeType')->willReturn('patient');
+        $event->method('getResource')->willReturn('MedicationRequest');
 
         $this->expectException(AccessDeniedException::class);
         $this->expectExceptionMessage('Patient user role is not allowed to write FHIR resources.');

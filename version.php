@@ -6,6 +6,7 @@
  * @package OpenEMR
  * @link https://www.open-emr.org/wiki
  * @author Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2026 OpenEMR Foundation
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,7 +16,7 @@
 // upgrade file is the starting point for the next upgrade.
 
 $v_major = '8';
-$v_minor = '5';
+$v_minor = '6';
 $v_patch = '0';
 $v_tag   = '-dev'; // minor revision number, should be empty for production releases
 

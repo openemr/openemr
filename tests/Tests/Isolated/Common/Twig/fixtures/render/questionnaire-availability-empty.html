@@ -19,45 +19,47 @@
 
 
     <div class="card mt-4 mb-5" id="category-rules">
-        <div class="card-header"><strong>Category rules</strong></div>
-        <div class="card-body">
-            <p class="text-muted">
-                Offer every questionnaire in a category, including ones imported later, without ticking each one.
-            </p>
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Offered on</th>
-                        <th>Where</th>
-                        <th>Who may see it</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                                            <tr><td colspan="6" class="text-muted">No category rules</td></tr>
-                                        </tbody>
-                </table>
-            </div>
-
-            <h5 class="mt-3">Add a category rule</h5>
-            <form method="post" action="manage_questionnaire_availability.php#category-rules" onsubmit="return top.restoreSession()" data-rule-form>
-                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
-                <input type="hidden" name="action" value="save_rule" />
-                <input type="hidden" name="target" value="category" />
-                <div class="form-row">
-                    <div class="form-group col-md-4">
-                        <label for="category-category">Category</label>
-                        <select class="form-control" id="category-category" name="category" required>
-                            <option value="">Choose a category</option>
-                                                            <option value="assessment" >Assessment</option>
-                                                            <option value="sdoh" >SDOH</option>
-                                                    </select>
-                    </div>
+        <div class="card-header">    <a class="text-reset font-weight-bold" href="#questionnaire_availability_category_rules_expand" role="button" data-toggle="collapse" data-target="#questionnaire_availability_category_rules_expand" aria-expanded="true" aria-controls="questionnaire_availability_category_rules_expand">Category rules<i class="ml-1 fa fa-fw fa-compress" aria-hidden="true"></i></a>
+</div>
+        <div id="questionnaire_availability_category_rules_expand" class="collapse show" data-persist-collapse>
+            <div class="card-body">
+                <p class="text-muted">
+                    Offer every questionnaire in a category, including ones imported later, without ticking each one.
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Offered on</th>
+                            <th>Where</th>
+                            <th>Who may see it</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                                                    <tr><td colspan="6" class="text-muted">No category rules</td></tr>
+                                                </tbody>
+                    </table>
                 </div>
+
+                <h5 class="mt-3">Add a category rule</h5>
+                <form method="post" action="manage_questionnaire_availability.php#category-rules" onsubmit="return top.restoreSession()" data-rule-form>
+                    <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                    <input type="hidden" name="action" value="save_rule" />
+                    <input type="hidden" name="target" value="category" />
                     <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="category-category">Category</label>
+                            <select class="form-control" id="category-category" name="category" required>
+                                <option value="">Choose a category</option>
+                                                                    <option value="assessment" >Assessment</option>
+                                                                    <option value="sdoh" >SDOH</option>
+                                                            </select>
+                        </div>
+                    </div>
+                        <div class="form-row">
         <div class="form-group col-md-4">
             <label for="category-surface">Offered on</label>
             <select class="form-control" id="category-surface" name="surface" data-surface-select>
@@ -130,11 +132,63 @@
         </div>
     </div>
 
-                                    <button type="submit" class="btn btn-primary">Add category rule</button>
-                            </form>
+                                            <button type="submit" class="btn btn-primary">Add category rule</button>
+                                    </form>
+            </div>
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        const settingsUrl = "\/library\/ajax\/user_settings.php"
+        const csrfToken = "5325b047540feea93a709f97faccdf346f8547ef"
+
+        function save (section, open) {
+            const body = new FormData()
+            body.append('csrf_token_form', csrfToken)
+            body.append('target', section)
+            body.append('mode', open ? '1' : '0')
+            top.restoreSession()
+            fetch(settingsUrl, { method: 'POST', credentials: 'same-origin', body })
+                .catch((error) => console.error('Section state not saved', error))
+        }
+
+        function showIcon (panel, open) {
+            document.querySelectorAll('[data-target="#' + panel.id + '"]').forEach((toggle) => {
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false')
+                const icon = toggle.querySelector('.fa')
+                icon?.classList.toggle('fa-compress', open)
+                icon?.classList.toggle('fa-expand', !open)
+            })
+        }
+
+        $(document).on('shown.bs.collapse hidden.bs.collapse', '[data-persist-collapse]', function (event) {
+            if (event.target !== this) {
+                return
+            }
+            const open = event.type === 'shown'
+            showIcon(this, open)
+            if (this.dataset.keepSaved === '1') {
+                delete this.dataset.keepSaved
+                return
+            }
+            save(this.id, open)
+        })
+
+        // Open a section for the moment, as when a page needs to show it, without saving.
+        window.openSectionForNow = function (panel) {
+            if (panel && !panel.classList.contains('show')) {
+                panel.dataset.keepSaved = '1'
+                $(panel).collapse('show')
+            }
+        }
+
+        if (location.hash.length > 1) {
+            const anchor = document.getElementById(location.hash.slice(1))
+            window.openSectionForNow(anchor?.querySelector('[data-persist-collapse]'))
+        }
+    })()
+</script>
 <script>
 (function () {
     'use strict';
@@ -172,6 +226,31 @@
             if (!window.confirm(form.dataset.confirm)) {
                 event.preventDefault();
             }
+        });
+    });
+
+    // While a save is on its way, show it on the button that sent it and stop a second click
+    // posting it again. A submit the confirm above cancelled is left alone.
+    const savingText = "Saving...";
+    document.querySelectorAll('form[method="post"]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (event.defaultPrevented) {
+                return;
+            }
+            const button = event.submitter || form.querySelector('[type="submit"]');
+            if (!button) {
+                return;
+            }
+            const spin = document.createElement('span');
+            spin.className = 'spinner-border spinner-border-sm mr-1';
+            spin.setAttribute('role', 'status');
+            spin.setAttribute('aria-hidden', 'true');
+            button.replaceChildren(spin, document.createTextNode(savingText));
+            // Disabled after the submit is under way, so the button's own name and value
+            // still reach the server.
+            setTimeout(function () {
+                button.disabled = true;
+            }, 0);
         });
     });
 

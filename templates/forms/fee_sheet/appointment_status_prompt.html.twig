@@ -1,0 +1,20 @@
+{#
+ # After Save, asks whether to set the visit's appointment status
+ # (global fee_sheet_save_appt_status); appointment_status_prompt.js does the asking.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Stephen Waite <stephen.waite@cmsvt.com>
+ # @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+<form id="appt-status-prompt" method="post" class="d-none"
+      action="{{ webroot|attr }}/interface/forms/fee_sheet/set_appointment_status.php"
+      data-question="{{ prompt.question()|attr }}"
+      data-calendar-url="{{ webroot|attr }}{{ prompt.calendarPath()|attr }}"
+      data-failed="{{ 'The appointment status could not be set.'|xla }}">
+    {{ csrfToken('default', 'csrf_token_form') }}
+    <input type="hidden" name="eid" value="{{ prompt.eid|attr }}">
+    <input type="hidden" name="encounter" value="{{ encounter|attr }}">
+</form>
+<script src="{{ webroot|attr }}/interface/forms/fee_sheet/appointment_status_prompt.js?v={{ assetVersion|attr_url }}"></script>

@@ -60,4 +60,5 @@ echo $twig->render("dicom/dicom-viewer.html.twig", [
     ,'web_path' => $web_path
     ,'state_url' => $state_url ?? null
     ,'docid' => $docid ?? null
+    ,'csrf' => $csrf ?? null
 ]);

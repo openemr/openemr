@@ -44,6 +44,7 @@ use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\PostOutcome;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\RuleDescriber;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\RuleForm;
 use OpenEMR\Controllers\Interface\Super\QuestionnaireAvailability\SurfaceOption;
+use OpenEMR\Services\Globals\CollapsedSections;
 use OpenEMR\Services\Questionnaire\AssignmentRecord;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityLookups;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
@@ -59,15 +60,27 @@ class QuestionnaireAvailabilityController
 {
     public const TEMPLATE = 'super/questionnaire_availability.html.twig';
 
+    /** Parts of the screen that fold away and stay that way for the user. */
+    public const SECTIONS = [
+        'questionnaire_availability_grid_expand',
+        'questionnaire_availability_category_rules_expand',
+    ];
+
     public function __construct(
         private readonly QuestionnaireAvailabilityService $service,
         private readonly QuestionnaireAvailabilityLookups $lookups,
         private readonly Environment $twig,
         private readonly SessionInterface $session,
         private readonly LoggerInterface $logger,
+        private readonly CollapsedSections $sections = new CollapsedSections(),
     ) {
     }
 
+    /**
+     * Show the availability manager, applying a posted change first.
+     *
+     * Requires admin/super, and a valid CSRF token for any POST.
+     */
     public function dispatchAction(Request $request): Response
     {
         if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -330,6 +343,7 @@ class QuestionnaireAvailabilityController
             'smartApps' => $smartApps,
             'categories' => $categoryTitles,
             'permissionChoices' => $permissionChoices,
+            'sections' => $this->sections,
         ];
     }
 
@@ -577,6 +591,9 @@ class QuestionnaireAvailabilityController
             : sprintf(xl('%s can be limited by %s.'), $label, implode(', ', $names));
     }
 
+    /**
+     * The message shown for an error code from QuestionnaireAvailabilityService.
+     */
     private static function refusalMessage(mixed $code): string
     {
         return match ($code) {

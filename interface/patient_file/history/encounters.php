@@ -10,9 +10,11 @@
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -30,6 +32,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -46,8 +49,12 @@ $therapy_group ??= 0;
 
 $is_group = $attendant_type == 'gid';
 
-if (isset($_GET['pid']) && $_GET['pid'] != $session->get('pid')) {
-    PatientSessionUtil::setPid($_GET['pid']);
+// Switching to another patient needs a CSRF token in the link.
+$request = CurrentRequest::get();
+$requestPid = $request->query->getInt('pid');
+if ($requestPid > 0 && $requestPid !== PatientSessionUtil::getPid()) {
+    PatientSessionUtil::requireCsrfForLinkSwitch($request, $requestPid);
+    PatientSessionUtil::setPid($requestPid);
 }
 // "issue" parameter exists if we are being invoked by clicking an issue title
 // in the left_nav menu.  Currently that is just for athletic teams.  In this
@@ -229,7 +236,8 @@ function toencounter(rawdata) {
 
     top.restoreSession();
     parent.left_nav.setEncounter(datestr, enc, window.name);
-    parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc));
+    const params = new URLSearchParams({set_encounter: enc, csrf_token_form: top.csrf_token_js});
+    parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?' + params);
 }
 
 function todocument(docid) {

@@ -174,6 +174,46 @@ class FhirRouteAclEnforcementIsolatedTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
+    // DiagnosticReport routes gate the non-patient side with patients/med,
+    // the same as the Observation results and ServiceRequest orders it links
+    // -------------------------------------------------------------------------
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function diagnosticReportRouteProvider(): array
+    {
+        return [
+            'list route' => ['GET /fhir/DiagnosticReport'],
+            'single route' => ['GET /fhir/DiagnosticReport/:uuid'],
+        ];
+    }
+
+    #[DataProvider('diagnosticReportRouteProvider')]
+    public function testDiagnosticReportRouteRequiresPatientsMedOnNonPatientBranch(string $routeKey): void
+    {
+        $body = $this->extractRouteBody($routeKey);
+        $this->assertNotSame('', $body, sprintf('%s route must exist', $routeKey));
+        $this->assertStringContainsString(
+            '$request->isPatientRequest()',
+            $body,
+            sprintf('%s must branch on isPatientRequest so patient tokens stay bound to their own compartment', $routeKey)
+        );
+        $this->assertMatchesRegularExpression(
+            '/RestConfig::request_authorization_check\(\s*\$request,\s*["\']patients["\'],\s*["\']med["\']/',
+            $body,
+            sprintf('%s non-patient branch must call RestConfig::request_authorization_check(..., "patients", "med"), like GET /fhir/Observation and GET /fhir/ServiceRequest', $routeKey)
+        );
+        $this->assertDoesNotMatchRegularExpression(
+            '/RestConfig::request_authorization_check\(\s*\$request,\s*["\']admin["\'],\s*["\']super["\']/',
+            $body,
+            sprintf('%s must not require admin/super: a clinical user who can read the Observations must be able to read the report that groups them', $routeKey)
+        );
+    }
+
+    // -------------------------------------------------------------------------
     // DocumentReference $docref non-patient branch must use admin/super
     // -------------------------------------------------------------------------
 
@@ -351,6 +391,8 @@ class FhirRouteAclEnforcementIsolatedTest extends TestCase
             'POST /fhir/DocumentReference/$docref',
             'GET /fhir/QuestionnaireResponse',
             'GET /fhir/QuestionnaireResponse/:uuid',
+            'GET /fhir/DiagnosticReport',
+            'GET /fhir/DiagnosticReport/:uuid',
         ];
         foreach ($gatedRoutes as $route) {
             $body = $this->extractRouteBody($route);

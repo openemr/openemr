@@ -1,0 +1,198 @@
+{
+    "resourceType": "Questionnaire",
+    "title": "Test Questionnaire 2 for OpenEMR FHIR Questionnaire Runtime",
+    "description": "Test Questionnaire 2 for OpenEMR FHIR Questionnaire Runtime",
+    "status": "active",
+    "meta": {
+        "profile": [
+            "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
+        ]
+    },
+    "contained": [
+        {
+            "id": "someIntegers",
+            "resourceType": "ValueSet",
+            "status": "active",
+            "expansion": {
+                "contains": [
+                    {
+                        "display": "One",
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                "valueDecimal": 1
+                            }
+                        ]
+                    },
+                    {
+                        "display": "Two",
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                "valueDecimal": 2
+                            }
+                        ]
+                    },
+                    {
+                        "display": "Three",
+                        "extension": [
+                            {
+                                "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                "valueDecimal": 3
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "item": [
+        {
+            "linkId": "variableGroup",
+            "text": "Group for testing basic functionality of FHIRPath variables",
+            "type": "group",
+            "extension": [
+                {
+                    "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                    "valueExpression": {
+                        "name": "sampleVariable",
+                        "description": "A constant",
+                        "language": "text/fhirpath",
+                        "expression": "5"
+                    }
+                }
+            ],
+            "item": [
+                {
+                    "linkId": "variableGroup_helpText",
+                    "text": "This is some help text.",
+                    "type": "display",
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "help",
+                                        "display": "Help-Button"
+                                    }
+                                ],
+                                "text": "Help-Button"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "valueOfVariable",
+                    "text": "Value of %sampleVariable (should be 5)",
+                    "type": "integer",
+                    "readOnly": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                            "valueExpression": {
+                                "language": "text/fhirpath",
+                                "expression": "%sampleVariable"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "linkId": "ordinalValueGroup",
+            "text": "Group for testing ordinalValue",
+            "type": "group",
+            "extension": [
+                {
+                    "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                    "valueExpression": {
+                        "name": "sampleVariable",
+                        "description": "Variable representing the sum of answers in the group",
+                        "language": "text/fhirpath",
+                        "expression": "%context.item.answer.select(valueCoding).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal.sum()"
+                    }
+                }
+            ],
+            "item": [
+                {
+                    "linkId": "firstInteger",
+                    "text": "First integer",
+                    "type": "choice",
+                    "answerValueSet": "#someIntegers"
+                },
+                {
+                    "linkId": "secondInteger",
+                    "text": "Second integer",
+                    "type": "choice",
+                    "answerValueSet": "#someIntegers"
+                },
+                {
+                    "linkId": "thirdInteger",
+                    "text": "Third integer",
+                    "type": "choice",
+                    "answerOption": [
+                        {
+                            "valueString": "Four",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueString": "Five",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        },
+                        {
+                            "valueString": "Six",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 6
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "linkId": "theSum",
+                    "text": "Sum of chosen integers",
+                    "type": "integer",
+                    "readOnly": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                            "valueExpression": {
+                                "language": "text/fhirpath",
+                                "expression": "%sampleVariable"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "alternateSum",
+                    "text": "Sum of chosen integers (different calculation method)",
+                    "type": "integer",
+                    "readOnly": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                            "valueExpression": {
+                                "language": "text/fhirpath",
+                                "expression": "%resource.item.where(linkId='ordinalValueGroup').item.answer.select(valueCoding).extension.where(url='http://hl7.org/fhir/StructureDefinition/ordinalValue').valueDecimal.aggregate($total + $this, 0)"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

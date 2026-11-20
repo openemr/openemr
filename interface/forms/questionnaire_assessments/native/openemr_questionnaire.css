@@ -2,24 +2,85 @@
 
 .oe-questionnaire-runtime {
   --oe-questionnaire-indent: 1rem;
+
+  /* Anchor for help / legal / copyright popups. */
+  position: relative;
+}
+
+/* Form header: title with copyright button, then description (issue #14736). */
+.oe-questionnaire-runtime .oe-questionnaire-header {
+  margin-bottom: 1rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-title {
+  margin-bottom: 0.25rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-description {
+  border-top: 1px solid rgb(0 0 0 / 12%);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+/* Rendered GitHub Flavored Markdown (copyright, description, help, legal). */
+.oe-questionnaire-runtime .oe-questionnaire-markdown p,
+.oe-questionnaire-runtime .oe-questionnaire-markdown ul,
+.oe-questionnaire-runtime .oe-questionnaire-markdown ol {
+  margin-bottom: 0.5rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown table {
+  margin-bottom: 0.5rem;
+  width: auto;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown h1,
+.oe-questionnaire-runtime .oe-questionnaire-markdown h2,
+.oe-questionnaire-runtime .oe-questionnaire-markdown h3,
+.oe-questionnaire-runtime .oe-questionnaire-markdown h4,
+.oe-questionnaire-runtime .oe-questionnaire-markdown h5,
+.oe-questionnaire-runtime .oe-questionnaire-markdown h6 {
+  font-size: 1.05em;
+  font-weight: 700;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown blockquote {
+  border-left: 0.2rem solid rgb(0 0 0 / 15%);
+  margin-bottom: 0.5rem;
+  padding-left: 0.75rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown pre {
+  margin-bottom: 0.5rem;
+  white-space: pre-wrap;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown .oe-questionnaire-task-item {
+  list-style: none;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-markdown > :last-child {
+  margin-bottom: 0;
 }
 
 .oe-questionnaire-runtime .oe-questionnaire-group {
+  margin-bottom: 0.75rem;
   overflow: visible;
 }
 
 .oe-questionnaire-runtime .oe-questionnaire-group > .card-header {
-  padding: 0.75rem 1rem;
+  padding: 0.45rem 0.75rem;
 }
 
 .oe-questionnaire-runtime .oe-questionnaire-group > .card-body {
-  padding: 1rem;
+  padding: 0.6rem 0.85rem;
 }
 
 .oe-questionnaire-runtime .oe-questionnaire-question {
   border-bottom: 1px solid rgb(0 0 0 / 8%);
   margin-bottom: 0;
-  padding: 0.9rem 0;
+  padding: 0.45rem 0;
 }
 
 .oe-questionnaire-runtime .oe-questionnaire-question:last-child {
@@ -32,11 +93,17 @@
   padding-bottom: 0;
 }
 
+/* Label is inline so help / legal buttons follow its text (issue #14736). */
+.oe-questionnaire-runtime .oe-questionnaire-label-row {
+  margin-bottom: 0.25rem;
+}
+
 .oe-questionnaire-runtime .oe-questionnaire-label {
   line-height: 1.35;
 }
 
 .oe-questionnaire-runtime .oe-questionnaire-control {
+  margin-top: 0.1rem;
   max-width: 100%;
 }
 
@@ -45,23 +112,112 @@
   max-width: 48rem;
 }
 
-.oe-questionnaire-runtime .oe-questionnaire-help-button {
+.oe-questionnaire-runtime .custom-control.mb-1 {
+  margin-bottom: 0.15rem !important;
+}
+
+/* help (?), legal (section sign) and copyright buttons; content opens in a popup. */
+.oe-questionnaire-runtime .oe-questionnaire-popup-button {
   border: 1px solid currentcolor;
   border-radius: 50%;
   font-weight: 700;
   height: 1.6rem;
   line-height: 1.25rem;
+  margin-left: 0.35rem;
   min-width: 1.6rem;
   text-decoration: none;
+  vertical-align: middle;
 }
 
-.oe-questionnaire-runtime .oe-questionnaire-help {
-  margin: 0.75rem 0 0;
+.oe-questionnaire-runtime .oe-questionnaire-popup {
+  font-size: 0.9rem;
+  font-weight: 400;
+  max-width: min(28rem, calc(100% - 1rem));
+  position: absolute;
+  text-align: left;
+  z-index: 1060;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-popup-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0.75rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-popup-body {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 0.6rem 0.75rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-plain-text {
   white-space: pre-wrap;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-flyover {
+  cursor: help;
+  text-decoration: underline dotted;
 }
 
 .oe-questionnaire-runtime .oe-questionnaire-display {
   margin-bottom: 0.75rem;
+}
+
+/* Long choice answers must wrap rather than clip (issue #14736). */
+.oe-questionnaire-runtime .oe-questionnaire-choice-label {
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-choice-select {
+  max-width: 100%;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-prefix {
+  color: var(--dark, #343a40);
+}
+
+/* Repeating group instances (issue #14736). */
+.oe-questionnaire-runtime .oe-questionnaire-group-instance {
+  position: relative;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-group-instance-header {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-group-instance + .oe-questionnaire-group-instance {
+  border-top: 1px dashed rgb(0 0 0 / 15%);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-repeat-add {
+  margin-top: 0.5rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-repeat-row {
+  align-items: center;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-open-label {
+  color: var(--dark, #343a40);
+  font-weight: 600;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-warnings .alert {
+  margin-bottom: 1rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-attachment-info:empty {
+  display: none;
 }
 
 .oe-questionnaire-runtime .oe-questionnaire-invalid {
@@ -74,20 +230,90 @@
 }
 
 .oe-questionnaire-runtime input[readonly],
-.oe-questionnaire-runtime textarea[readonly] {
+.oe-questionnaire-runtime textarea[readonly],
+.oe-questionnaire-runtime input:disabled,
+.oe-questionnaire-runtime textarea:disabled,
+.oe-questionnaire-runtime select:disabled {
   font-weight: 600;
 }
 
 @media (width <= 767.98px) {
   .oe-questionnaire-runtime .oe-questionnaire-group > .card-body {
-    padding: 0.75rem;
+    padding: 0.6rem;
   }
 
   .oe-questionnaire-runtime .oe-questionnaire-question {
-    padding: 0.75rem 0;
+    padding: 0.5rem 0;
   }
 }
 
 .oe-questionnaire-runtime.oe-questionnaire-guides .oe-questionnaire-group > .card-body {
   border-left: 0.2rem solid rgb(0 0 0 / 12%);
+}
+
+/* lower / upper item controls: the bounds' meaning at either end of the answers. */
+.oe-questionnaire-runtime .oe-questionnaire-scale {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-scale > .custom-control {
+  margin-bottom: 0;
+}
+
+/* itemMedia / itemAnswerMedia */
+.oe-questionnaire-runtime .oe-questionnaire-media {
+  display: block;
+  height: auto;
+  margin: 0.25rem 0;
+  max-height: 16rem;
+  max-width: 100%;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-choice-label .oe-questionnaire-media {
+  max-height: 4rem;
+}
+
+/* header and footer item controls keep the group in view */
+.oe-questionnaire-runtime .oe-questionnaire-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-sticky-footer {
+  bottom: 0;
+  position: sticky;
+  z-index: 2;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-columns > .custom-control {
+  break-inside: avoid;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-slider .custom-range {
+  flex: 1 1 auto;
+}
+
+/* table (questions as rows, answers as columns) and gtable (a row per repetition) */
+.oe-questionnaire-runtime .oe-questionnaire-matrix th[scope='col'],
+.oe-questionnaire-runtime .oe-questionnaire-matrix td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-matrix th[scope='row'] {
+  font-weight: normal;
+  text-align: left;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-grid td {
+  vertical-align: top;
+}
+
+/* Wide tables scroll inside their group, not the page, with or without Bootstrap's table-responsive. */
+.oe-questionnaire-runtime .oe-questionnaire-group .table-responsive {
+  overflow-x: auto;
 }

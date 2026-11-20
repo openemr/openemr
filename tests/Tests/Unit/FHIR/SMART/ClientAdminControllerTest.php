@@ -11,8 +11,10 @@
 
 namespace OpenEMR\Tests\Unit\FHIR\SMART;
 
+use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -33,7 +35,7 @@ class ClientAdminControllerTest extends TestCase
 {
     private OEGlobalsBag $globalsBag;
     private ClientAdminController $controller;
-    private MockObject $mockClientRepo;
+    private ClientRepository&MockObject $mockClientRepo;
     private MockObject $mockKernel;
     private SessionInterface $session;
     private string $actionURL = 'admin-client.php';
@@ -396,6 +398,78 @@ class ClientAdminControllerTest extends TestCase
     }
 
 
+    /**
+     * A token only counts if the request brought it: the session always holds the right one.
+     *
+     * @return array<string, array{string, ?string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function refusedTokenProvider(): array
+    {
+        return [
+            'disabling with no token' => ['edit/a-client/disable', null],
+            'disabling with a wrong token' => ['edit/a-client/disable', 'wrong'],
+            'disabling with the general token' => ['edit/a-client/disable', 'general'],
+            'revoking with no token' => ['edit/a-client/' . ClientAdminController::REVOKE_ACCESS_TOKEN . '/1', null],
+            'the token tools with a wrong token' => [ClientAdminController::TOKEN_TOOLS_ACTION, 'wrong'],
+            'listing by name with no token' => ['list', null],
+            'an external CDR screen with no token' => [RouteController::EXTERNAL_CDR_ACTION . '/cdr-info', null],
+            'an external CDR screen with a wrong token' => [RouteController::EXTERNAL_CDR_ACTION . '/cdr-info', 'wrong'],
+            'a lookalike of an external CDR action with the general token' => [RouteController::EXTERNAL_CDR_ACTION . 'x/edit', 'general'],
+        ];
+    }
+
+    #[DataProvider('refusedTokenProvider')]
+    public function testARequestWithoutTheRightTokenIsRefused(string $action, ?string $token): void
+    {
+        $this->expectException(CsrfInvalidException::class);
+
+        $this->controller->checkSecurity($this->requestWith($action, $token), $action);
+    }
+
+    /**
+     * Past the token check, the only thing left to refuse these is that this test has no admin signed in.
+     *
+     * @return array<string, array{string, ?string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function acceptedTokenProvider(): array
+    {
+        return [
+            'disabling with this screen\'s token' => ['edit/a-client/disable', 'screen'],
+            'an external CDR screen with this screen\'s token' => [RouteController::EXTERNAL_CDR_ACTION . '/edit/1', 'screen'],
+            'the SMART launch card\'s info link' => [RouteController::EXTERNAL_CDR_ACTION . '/cdr-info', 'general'],
+            'the SMART launch card\'s edit link' => [RouteController::EXTERNAL_CDR_ACTION . '/edit/1', 'general'],
+            'the default page, from the menu' => ['list/', null],
+        ];
+    }
+
+    #[DataProvider('acceptedTokenProvider')]
+    public function testTheRightTokenGetsPastTheCheck(string $action, ?string $token): void
+    {
+        $this->expectException(AccessDeniedException::class);
+
+        $this->controller->checkSecurity($this->requestWith($action, $token), $action);
+    }
+
+    /**
+     * A request for the action, with the named kind of token or the literal value given.
+     */
+    private function requestWith(string $action, ?string $token): Request
+    {
+        $query = ['action' => $action];
+        if ($token !== null) {
+            $query['csrf_token'] = match ($token) {
+                'screen' => CsrfUtils::collectCsrfToken($this->session, ClientAdminController::CSRF_TOKEN_NAME),
+                'general' => CsrfUtils::collectCsrfToken($this->session),
+                default => $token,
+            };
+        }
+        return new Request($query);
+    }
+
     public function testDispatchWithExternalCDR(): void
     {
         // smoke test, individual routes will be handled elsewhere
@@ -422,7 +496,7 @@ class ClientAdminControllerTest extends TestCase
     private function getAdminController(): ClientAdminController
     {
         return new class ($this->globalsBag, $this->session, $this->mockClientRepo, $this->actionURL) extends ClientAdminController {
-            public function checkSecurity(string $action): void
+            public function checkSecurity(Request $request, string $action): void
             {
                 // Override to skip ACL check for testing
             }

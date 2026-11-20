@@ -602,7 +602,8 @@ function getCodeText($code)
                         $pos = strpos($url, $item);
                         if ($pos === false) {
                             $item = urlencode($item);
-                            $url .= ",$item&default=$item";
+                            // Keep every medication code type inside the codetype query parameter.
+                            $url .= ",$item";
                         }
                     }
                 }

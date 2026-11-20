@@ -316,6 +316,31 @@ describe('enableWhen operators', () => {
     });
 });
 
+describe('enableWhen with answerQuantity', () => {
+    // Quantities compare by value in the same unit; in different units they are neither
+    // equal nor ordered (the runtime does no unit conversion).
+    const kg = (value) => ({ value, unit: 'kg', system: 'http://unitsofmeasure.org', code: 'kg' });
+    test.each([
+        ['=', kg(70), true],
+        ['=', kg(60), false],
+        ['!=', kg(60), true],
+        ['!=', kg(70), false],
+        ['>', kg(60), true],
+        ['<', kg(60), false],
+        ['>=', kg(70), true],
+        ['<=', kg(69), false],
+        ['=', { value: 70000, unit: 'g', system: 'http://unitsofmeasure.org', code: 'g' }, false],
+        ['>', { value: 1, unit: 'g', system: 'http://unitsofmeasure.org', code: 'g' }, false],
+    ])('a 70 kg answer %s %j => enabled %s', (operator, answerQuantity, shouldBeEnabled) => {
+        const { runtime } = mountDependent({
+            controller: { linkId: 'q1', type: 'quantity', text: 'Weight' },
+            dependent: { linkId: 'q2', type: 'string', text: 'Dependent', enableWhen: [{ question: 'q1', operator, answerQuantity }] },
+        });
+        runtime.setAnswers('q1', [{ valueKey: 'valueQuantity', value: kg(70) }]);
+        expect(runtime.isEnabled('q2')).toBe(shouldBeEnabled);
+    });
+});
+
 describe('enableBehavior', () => {
     const controllerA = { linkId: 'a', type: 'boolean', text: 'A' };
     const controllerB = { linkId: 'b', type: 'boolean', text: 'B' };

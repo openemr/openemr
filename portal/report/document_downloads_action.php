@@ -134,7 +134,7 @@ function recursive_remove_directory($directory, $empty = false): bool
     return true;
 }
 
-function Zip($source, $destination)
+function Zip($source, $destination): bool
 {
     if (!extension_loaded('zip') || !file_exists($source)) {
         return false;
