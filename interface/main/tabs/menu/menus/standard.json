@@ -1993,6 +1993,18 @@
                         ]
                     },
                     {
+                        "label": "Email Queue",
+                        "menu_id": "rep0",
+                        "target": "rep",
+                        "url": "/interface/reports/email_queue_report.php",
+                        "children": [],
+                        "requirement": 0,
+                        "acl_req": [
+                            "acct",
+                            "bill"
+                        ]
+                    },
+                    {
                         "label": "IP Tracker",
                         "menu_id": "rep0",
                         "target": "rep",
