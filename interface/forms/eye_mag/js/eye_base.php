@@ -3591,6 +3591,7 @@ $(function () {
                                                                        });
                   $('input[class^="sphere"],input[name$="SPH"]').on("blur", function() {
                                                                       var mid = $(this).val() || '';
+                                                                      mid = mid.replace(/=/g,"+");
                                                                       if (mid.match(/PLANO/i)) {
                                                                       $(this).val('PLANO');
                                                                       return;
