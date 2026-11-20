@@ -47,6 +47,8 @@ class ClaimMammographyCertTest extends TestCase
             'diagnostic mammogram among other lines' => [$certified, ['76641', '77065'], '123456'],
             'tomosynthesis add-on by HCPCS, lower case' => [$certified, ['g0279'], '123456'],
             'number is trimmed and cleaned for X12' => [['mammography_cert_number' => ' ab*123456 '], ['77066'], 'AB123456'],
+            'nothing left after cleaning' => [['mammography_cert_number' => '* *'], ['77067'], ''],
+            'only spaces' => [['mammography_cert_number' => '   '], ['77067'], ''],
             'no mammogram on the claim' => [$certified, ['71046', '76641'], ''],
             'no service lines' => [$certified, [], ''],
             'facility has no number' => [['mammography_cert_number' => ''], ['77067'], ''],
