@@ -1,0 +1,10 @@
+{
+  "resourceType": "Bundle",
+  "entry": [
+    {"resource": {"resourceType": "Patient", "gender": "female", "birthDate": "1960-03-15",
+      "name": [{"use": "maiden", "family": "Young", "given": ["Ann"]}, {"use": "official", "family": "Zed", "given": ["Ann", "Marie"]}],
+      "maritalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus", "code": "M"}]}}},
+    {"resource": {"resourceType": "ExplanationOfBenefit", "created": "2020-05-01T10:00:00-04:00", "insurance": [{"coverage": {"display": "Aetna"}}]}},
+    {"resource": {"resourceType": "ExplanationOfBenefit", "created": "2024-02-01T10:00:00-05:00", "insurance": [{"coverage": {"display": "NO_INSURANCE"}}]}}
+  ]
+}
