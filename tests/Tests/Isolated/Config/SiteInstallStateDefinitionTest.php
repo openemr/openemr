@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Config;
 
-use Closure;
 use Firehed\Container\TypedContainerInterface;
 use OpenEMR\BC\SiteInstallState;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -20,6 +19,8 @@ use PHPUnit\Framework\TestCase;
 
 class SiteInstallStateDefinitionTest extends TestCase
 {
+    use LoadsDefinitionsTrait;
+
     private string $installRoot;
     private string $siteDir;
 
@@ -95,11 +96,7 @@ class SiteInstallStateDefinitionTest extends TestCase
             ['OPENEMR_SITE', 'default'],
         ]);
 
-        $definitions = require __DIR__ . '/../../../../config/database.php';
-        self::assertIsArray($definitions);
-        $factory = $definitions[SiteInstallState::class] ?? null;
-        self::assertInstanceOf(Closure::class, $factory, 'SiteInstallState should have a factory definition');
-        $state = $factory($container);
+        $state = self::definition('database.php', SiteInstallState::class)($container);
         self::assertInstanceOf(SiteInstallState::class, $state);
         return $state;
     }
