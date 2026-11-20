@@ -19,6 +19,7 @@ use Doctrine\DBAL\DriverManager;
 use FilesystemIterator;
 use InvalidArgumentException;
 use LogicException;
+use OpenEMR\Core\OEEnvBag;
 use PDO;
 use RuntimeException;
 use SensitiveParameter;
@@ -97,7 +98,8 @@ final readonly class DatabaseConnectionOptions
     }
 
     /**
-     * Creates options for a site by loading its sqlconf.php file.
+     * Creates options for a site from the OPENEMR_DB_* environment variables
+     * if OPENEMR_DB_NAME is set, otherwise by loading its sqlconf.php file.
      *
      * The result is kept for the rest of the request. A request
      * asks for it from several places (sql.inc.php, Database, the audit
@@ -113,10 +115,11 @@ final readonly class DatabaseConnectionOptions
         /** @var array<string, self> $bySite */
         static $bySite = [];
 
-        return $bySite[$siteDir] ??= self::fromSqlconf(
-            self::loadSqlconf($siteDir),
-            self::inferSslPaths($siteDir),
-        );
+        return $bySite[$siteDir] ??= self::fromEnvironment(OEEnvBag::getInstance())
+            ?? self::fromSqlconf(
+                self::loadSqlconf($siteDir),
+                self::inferSslPaths($siteDir),
+            );
     }
 
     /**
@@ -203,6 +206,26 @@ final readonly class DatabaseConnectionOptions
             }
         }
         return $names;
+    }
+
+    private static function fromEnvironment(OEEnvBag $env): ?self
+    {
+        if (!$env->has('OPENEMR_DB_NAME')) {
+            return null;
+        }
+        $optional = static fn (string $key): ?string => $env->has($key) ? $env->getString($key) : null;
+        $required = static fn (string $key): string => $optional($key)
+            ?? throw new RuntimeException(sprintf('%s must be set when OPENEMR_DB_NAME is', $key));
+        $port = $optional('OPENEMR_DB_PORT');
+
+        return new self(
+            dbname: $env->getString('OPENEMR_DB_NAME'),
+            user: $required('OPENEMR_DB_USER'),
+            password: $required('OPENEMR_DB_PASSWORD'),
+            host: $optional('OPENEMR_DB_HOST'),
+            port: $port === null ? null : (int) $port,
+            unixSocket: $optional('OPENEMR_DB_SOCKET'),
+        );
     }
 
     /**
