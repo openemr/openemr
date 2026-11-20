@@ -345,6 +345,28 @@ PHP
         self::assertNull($options->unixSocket);
     }
 
+    public function testFromSiteSqlconfIgnoresEnv(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        mkdir($siteDir, 0755, true);
+        file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
+<?php
+$sqlconf = [
+    'dbase' => 'filedb',
+    'login' => 'fileuser',
+    'pass' => 'filepass',
+    'host' => '127.0.0.1',
+    'port' => '3306',
+];
+PHP
+        );
+        self::setEnv(self::ENV_TCP);
+
+        $options = DatabaseConnectionOptions::fromSiteSqlconf($siteDir);
+
+        self::assertSame('filedb', $options->dbname, 'the DI container resolves env itself');
+    }
+
     public function testForSiteEnvDoesNotNeedSqlconf(): void
     {
         $siteDir = $this->createTempSiteDir();
