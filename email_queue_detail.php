@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-require_once '../globals.php';
+require_once __DIR__ . '/interface/globals.php';
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\CurrentRequest;

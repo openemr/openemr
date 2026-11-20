@@ -44,7 +44,7 @@ final class EmailQueueDetailControllerTest extends TestCase
         $this->session->set('authUserID', 7);
     }
 
-    private function controller(?callable $authorizationGuard = null): EmailQueueDetailController
+    private function controller(?\Closure $authorizationGuard = null): EmailQueueDetailController
     {
         return new EmailQueueDetailController(
             $this->service,

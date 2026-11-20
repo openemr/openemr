@@ -93,7 +93,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search"></i> Apply Filters
                         </button>
-                        <a href="/openemr/interface/reports/email_queue_report.php" class="btn btn-secondary">
+                        <a href="/openemr/email_queue_report.php" class="btn btn-secondary">
                             <i class="fas fa-redo"></i> Reset
                         </a>
                     </div>
@@ -282,7 +282,7 @@ function viewEmailDetails(emailId) {
     const webroot = "\/openemr";
     const escapeHtml = (value) => $('<div/>').text(value === null || value === undefined ? '' : String(value)).html();
 
-    fetch(webroot + '/interface/reports/email_queue_detail.php?id=' + encodeURIComponent(String(emailId)))
+    fetch(webroot + '/email_queue_detail.php?id=' + encodeURIComponent(String(emailId)))
         .then(response => response.json())
         .then(data => {
             if (data.success) {

@@ -2,10 +2,11 @@
 
 /**
  * EmailQueueServiceTest.php
- * @package openemr
- * @link      http://www.open-emr.org
- * @author    Generated for PoppyBilling
- * @copyright Copyright (c) 2025
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2025-2026 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,170 +15,106 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\Email;
 
 use OpenEMR\Reports\Email\EmailQueueService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * EmailQueueService Tests
- *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Generated for PoppyBilling
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
 class EmailQueueServiceTest extends TestCase
 {
-    /**
-     * @var EmailQueueService
-     */
-    private $service;
+    private EmailQueueService $service;
 
     protected function setUp(): void
     {
         $this->service = new EmailQueueService();
     }
 
-    public function testGetEmailQueueWithNoFilters(): void
+    /**
+     * @return array<string, array{array<string, string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function filterProvider(): array
     {
-        $result = $this->service->getEmailQueue();
-        self::assertIsArray($result);
+        return [
+            'none' => [[]],
+            'search' => [['search' => 'test@example.com']],
+            'sent' => [['status' => 'sent']],
+            'pending' => [['status' => 'pending']],
+            'failed' => [['status' => 'failed']],
+            'template' => [['template_name' => 'appointment_reminder']],
+            'dates' => [['date_from' => '2025-01-01', 'date_to' => '2025-12-31']],
+            'combined' => [[
+                'search' => 'test',
+                'status' => 'sent',
+                'template_name' => 'test_template',
+                'date_from' => '2025-01-01',
+                'date_to' => '2025-12-31',
+            ]],
+        ];
     }
 
-    public function testGetEmailQueueWithSearchFilter(): void
+    /**
+     * @param array<string, string> $filters
+     */
+    #[DataProvider('filterProvider')]
+    public function testGetEmailQueueReturnsList(array $filters): void
     {
-        $filters = ['search' => 'test@example.com'];
         $result = $this->service->getEmailQueue($filters, 50, 0);
-        self::assertIsArray($result);
+        self::assertSame([], array_filter($result, static fn ($row): bool => !is_array($row)));
+        foreach ($result as $row) {
+            self::assertArrayHasKey('id', $row);
+            self::assertArrayHasKey('recipient', $row);
+            self::assertArrayHasKey('subject', $row);
+        }
     }
 
-    public function testGetEmailQueueWithStatusFilterSent(): void
-    {
-        $filters = ['status' => 'sent'];
-        $result = $this->service->getEmailQueue($filters);
-        self::assertIsArray($result);
-    }
-
-    public function testGetEmailQueueWithStatusFilterPending(): void
-    {
-        $filters = ['status' => 'pending'];
-        $result = $this->service->getEmailQueue($filters);
-        self::assertIsArray($result);
-    }
-
-    public function testGetEmailQueueWithStatusFilterFailed(): void
-    {
-        $filters = ['status' => 'failed'];
-        $result = $this->service->getEmailQueue($filters);
-        self::assertIsArray($result);
-    }
-
-    public function testGetEmailQueueWithTemplateFilter(): void
-    {
-        $filters = ['template_name' => 'appointment_reminder'];
-        $result = $this->service->getEmailQueue($filters);
-        self::assertIsArray($result);
-    }
-
-    public function testGetEmailQueueWithDateFilters(): void
-    {
-        $filters = [
-            'date_from' => '2025-01-01',
-            'date_to' => '2025-12-31'
-        ];
-        $result = $this->service->getEmailQueue($filters);
-        self::assertIsArray($result);
-    }
-
-    public function testGetEmailQueueWithMultipleFilters(): void
-    {
-        $filters = [
-            'search' => 'test',
-            'status' => 'sent',
-            'template_name' => 'test_template',
-            'date_from' => '2025-01-01',
-            'date_to' => '2025-12-31'
-        ];
-        $result = $this->service->getEmailQueue($filters);
-        self::assertIsArray($result);
-    }
-
-    public function testGetEmailQueueWithPagination(): void
+    public function testGetEmailQueuePaginationLimit(): void
     {
         $result = $this->service->getEmailQueue([], 10, 5);
-        self::assertIsArray($result);
         self::assertLessThanOrEqual(10, count($result));
     }
 
-    public function testGetEmailQueueCountWithNoFilters(): void
+    #[DataProvider('filterProvider')]
+    public function testGetEmailQueueCountIsNonNegative(array $filters): void
     {
-        $count = $this->service->getEmailQueueCount();
-        self::assertIsInt($count);
-        self::assertGreaterThanOrEqual(0, $count);
-    }
-
-    public function testGetEmailQueueCountWithFilters(): void
-    {
-        $filters = ['status' => 'sent'];
         $count = $this->service->getEmailQueueCount($filters);
-        self::assertIsInt($count);
         self::assertGreaterThanOrEqual(0, $count);
     }
 
-    public function testGetStatistics(): void
+    public function testGetStatisticsShape(): void
     {
         $stats = $this->service->getStatistics();
-        self::assertIsArray($stats);
-        self::assertArrayHasKey('total', $stats);
-        self::assertArrayHasKey('sent', $stats);
-        self::assertArrayHasKey('pending', $stats);
-        self::assertArrayHasKey('failed', $stats);
-
-        self::assertIsInt($stats['total']);
-        self::assertIsInt($stats['sent']);
-        self::assertIsInt($stats['pending']);
-        self::assertIsInt($stats['failed']);
-
-        self::assertGreaterThanOrEqual(0, $stats['total']);
-        self::assertGreaterThanOrEqual(0, $stats['sent']);
-        self::assertGreaterThanOrEqual(0, $stats['pending']);
-        self::assertGreaterThanOrEqual(0, $stats['failed']);
+        foreach (['total', 'sent', 'pending', 'failed'] as $key) {
+            self::assertArrayHasKey($key, $stats);
+            self::assertGreaterThanOrEqual(0, $stats[$key]);
+        }
     }
 
-    public function testGetTemplateNames(): void
+    public function testGetTemplateNamesAreNonEmptyStrings(): void
     {
-        $templates = $this->service->getTemplateNames();
-        self::assertIsArray($templates);
-
-        foreach ($templates as $template) {
-            self::assertIsString($template);
-            self::assertNotEmpty($template);
+        foreach ($this->service->getTemplateNames() as $template) {
+            self::assertNotSame('', $template);
         }
     }
 
     public function testGetEmailByIdNotFound(): void
     {
-        $result = $this->service->getEmailById(999999999);
-        self::assertNull($result);
+        self::assertNull($this->service->getEmailById(999999999));
     }
 
     public function testGetEmailByIdValidId(): void
     {
-        // This test requires a valid ID from the database
-        // We can't hardcode an ID, so we'll get one from the queue first
         $emails = $this->service->getEmailQueue([], 1, 0);
-
-        if ($emails !== []) {
-            $firstEmail = $emails[0];
-            $result = $this->service->getEmailById((int)$firstEmail['id']);
-
-            if ($result !== null) {
-                self::assertIsArray($result);
-                self::assertArrayHasKey('id', $result);
-                self::assertSame($firstEmail['id'], $result['id']);
-            } else {
-                self::markTestSkipped('No valid email found in database');
-            }
-        } else {
+        if ($emails === []) {
             self::markTestSkipped('No emails in queue to test with');
         }
+
+        $firstEmail = $emails[0];
+        $result = $this->service->getEmailById((int) $firstEmail['id']);
+        if ($result === null) {
+            self::markTestSkipped('No valid email found in database');
+        }
+
+        self::assertArrayHasKey('id', $result);
+        self::assertSame($firstEmail['id'], $result['id']);
     }
 }

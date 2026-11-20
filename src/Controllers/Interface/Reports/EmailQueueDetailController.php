@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Controllers\Interface\Reports;
 
+use Closure;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Reports\Email\EmailQueueService;
 use Psr\Log\LoggerInterface;
@@ -26,18 +27,15 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class EmailQueueDetailController
 {
     /**
-     * @param (callable(): void)|null $authorizationGuard
+     * @param Closure|null $authorizationGuard
      *        Optional override used by isolated tests so ACL bootstrap is not required.
      */
     public function __construct(
         private readonly EmailQueueService $service,
         private readonly SessionInterface $session,
         private readonly LoggerInterface $logger,
-        private readonly mixed $authorizationGuard = null, // callable|null; mixed keeps ctor PHPDoc-friendly for PHPStan
+        private readonly ?Closure $authorizationGuard = null,
     ) {
-        if ($this->authorizationGuard !== null && !is_callable($this->authorizationGuard)) {
-            throw new \InvalidArgumentException('authorizationGuard must be callable or null');
-        }
     }
 
     public function dispatchAction(Request $request): Response
@@ -87,7 +85,7 @@ class EmailQueueDetailController
      */
     public function authorize(): void
     {
-        if (is_callable($this->authorizationGuard)) {
+        if ($this->authorizationGuard instanceof Closure) {
             ($this->authorizationGuard)();
             return;
         }
