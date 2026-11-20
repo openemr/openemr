@@ -70,8 +70,8 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
         $this
             ->setName('openemr:seed-demo')
             ->setDescription('Load demo data described by a seed file (Synthea patients plus extras). Development only.')
-            ->addUsage('--site=default tmp/demo-seed.yaml')
-            ->addUsage('--validate-only tmp/demo-seed.yaml')
+            ->addUsage('--site=default contrib/demo-seed/demo-seed.yaml')
+            ->addUsage('--validate-only contrib/demo-seed/demo-seed.yaml')
             ->addArgument('seed-file', InputArgument::REQUIRED, 'Seed file (YAML)')
             ->addOption('site', null, InputOption::VALUE_REQUIRED, 'OpenEMR site id', 'default')
             ->addOption('work-dir', null, InputOption::VALUE_REQUIRED, 'Where Synthea output, the jar and the manifest go', self::DEFAULT_WORK_DIRECTORY)

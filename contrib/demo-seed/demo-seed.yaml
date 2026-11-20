@@ -1,0 +1,448 @@
+# Demo seed file, format version 1.
+#
+# Read by the demo seed loader, bin/console openemr:seed-demo (development
+# only). Synthea makes the patients and their medical history; this file adds
+# everything Synthea doesn't: providers, facilities, related people, extra
+# addresses and phones, insurance, appointments and Visit Lists.
+#
+# Run it on a fresh development stack (Synthea needs Java in the container:
+# `apk add openjdk17-jre` as root):
+#
+#   openemr-cmd e 'su-exec apache env OPENEMR_ENABLE_DEMO_SEED=1 php
+#     /var/www/localhost/htdocs/openemr/bin/console openemr:seed-demo
+#     /var/www/localhost/htdocs/openemr/contrib/demo-seed/demo-seed.yaml'
+#
+# --validate-only checks the file without writing anything; --help lists the
+# other options.
+#
+# Conventions
+# - `key` names a record so other parts of the file can refer to it.
+#   Keys are only for this file; they're never stored.
+# - `percent` is the chance, 0-100, that a rule applies to a patient. The
+#   loader rolls once per patient per rule, using the loader seed, with
+#   patients taken in import order. Same file + same seeds = same data.
+# - Ages (in `when`, `pick`) are on synthea.reference_date, so the same
+#   patients match on any day. Day offsets (`ended_days_ago`, appointment
+#   days) count from the day the loader runs, so a fresh stack always has
+#   recent history and upcoming visits.
+# - Values that go into OpenEMR lists use the list's option ids (written next
+#   to each field), not their titles.
+# - Made-up phones use the fictional 555-0100..0199 range with the area
+#   codes in `contact_data`; made-up emails use its email_domain.
+# - The loader fills each patient's marital status from Synthea (the CCDA
+#   import doesn't carry it).
+# - The loader rejects the file before writing anything if a key, list id or
+#   selector doesn't resolve.
+
+version: 1
+
+# Seed for the loader's own random choices (rules, names, phone numbers).
+seed: 20261119
+
+synthea:
+  count: 50
+  seed: 20261119            # -s
+  clinician_seed: 20261119  # -cs
+  reference_date: 2026-11-19  # -r; Synthea ages and history are relative to this
+  years_of_history: 5       # --exporter.years_of_history (Synthea default 10); less history, faster import
+  plain_names: true         # --generate.append_numbers_to_person_names false
+  # Patients are imported through the CCDA import (decided in step 1), but
+  # the loader has Synthea write FHIR too. Each patient's FHIR file has the
+  # same Synthea id as the CCDA, so rules can
+  # use what the CCDA lacks: `synthea_marital` and `synthea_payer` (the
+  # payer name in Synthea's claims).
+  # Optional filters, all off by default:
+  # state: Massachusetts    # positional state argument
+  # city: Northampton       # positional city argument
+  # ages: 0-90              # -a minAge-maxAge
+  # gender: F               # -g M | F
+
+contact_data:
+  area_codes: [413, 508, 617, 781]
+  email_domain: example.com
+
+# ---------------------------------------------------------------------------
+# Name pools for people the loader makes up (related people). Related people
+# usually take the patient's last name; `last` is for the rest.
+# ---------------------------------------------------------------------------
+names:
+  female: [Ana, Beth, Carmen, Diane, Elena, Fatima, Grace, Hannah, Iris, Joy, Keiko, Linda, Maya, Nora, Olivia, Priya, Rosa, Sara, Tess, Wendy]
+  male: [Adam, Ben, Carlos, David, Eli, Frank, George, Hiro, Ivan, Jamal, Kevin, Luis, Marcus, Nate, Omar, Paul, Raj, Sam, Tom, Victor]
+  last: [Alvarez, Brooks, Chen, Duarte, Ellis, Fischer, Gupta, Hayes, Ibarra, Jensen, Kowalski, Lindqvist, Moreau, Nguyen, Okafor, Park, Quinn, Rossi, Sato, Walsh]
+
+# ---------------------------------------------------------------------------
+# Facilities (facility table)
+# ---------------------------------------------------------------------------
+facilities:
+  - key: main
+    name: Riverside Family Practice
+    street: 100 Main Street
+    city: Northampton
+    state: MA               # list `state`
+    postal_code: "01060"
+    phone: (413) 555-0100
+    fax: (413) 555-0101
+    npi: "1234567893"
+    tax_id: "04-1234567"
+    pos_code: 11            # Office
+    service_location: true
+    billing_location: true
+    color: "#99CCFF"
+  - key: east
+    name: Riverside East Clinic
+    street: 25 Harbor Road
+    city: Quincy
+    state: MA
+    postal_code: "02169"
+    phone: (617) 555-0102
+    npi: "1245319599"
+    pos_code: 11
+    service_location: true
+    billing_location: false
+    color: "#CCFFCC"
+
+# ---------------------------------------------------------------------------
+# Providers (users who can have appointments: authorized, calendar on)
+# ---------------------------------------------------------------------------
+providers:
+  - key: lee
+    username: dlee          # no password: set one in Administration > Users to log in
+    title: Dr.
+    first_name: Dana
+    last_name: Lee
+    credentials: MD
+    specialty: Family Medicine
+    npi: "1356789010"
+    facility: main
+  - key: ortiz
+    username: rortiz
+    title: Dr.
+    first_name: Rafael
+    last_name: Ortiz
+    credentials: DO
+    specialty: Internal Medicine
+    npi: "1467890129"
+    facility: main
+  - key: bell
+    username: kbell
+    first_name: Kim
+    last_name: Bell
+    credentials: NP
+    specialty: Family Nurse Practitioner
+    npi: "1578901237"
+    facility: east
+  - key: home_rn            # does the home visits (Visit Lists below)
+    username: jpark
+    first_name: Jordan
+    last_name: Park
+    credentials: RN
+    specialty: Home Health
+    npi: "1689012346"
+    facility: east
+
+# ---------------------------------------------------------------------------
+# Insurance companies (insurance_companies table)
+# type: insurance_type_codes id, e.g. 2 Medicare Part B, 3 Medicaid,
+#   6 Blue Cross Blue Shield, 8 Self Pay, 11 PPO, 17 Commercial, 19 HMO
+# ---------------------------------------------------------------------------
+insurance_companies:
+  - {key: medicare,  name: Medicare,                       type: 2,  cms_id: "MA001"}
+  - {key: medicaid,  name: MassHealth,                     type: 3,  cms_id: "MA002"}
+  - {key: bcbs,      name: Blue Cross Blue Shield of MA,   type: 6,  cms_id: "BC001"}
+  - {key: harvard,   name: Harvard Pilgrim Health Care,    type: 19, cms_id: "HP001"}
+  - {key: aetna,     name: Aetna PPO,                      type: 11, cms_id: "AE001"}
+  - {key: medigap,   name: AARP Medicare Supplement,       type: 17, cms_id: "AA001"}
+  - {key: tricare,   name: TRICARE East,                   type: 5,  cms_id: "TR001"}
+
+# ---------------------------------------------------------------------------
+# Rules: applied to every Synthea patient not claimed by a case below.
+# Applied in this order, because later rules can use what earlier ones made
+# (insurance can name a related person as subscriber).
+# ---------------------------------------------------------------------------
+rules:
+  care_team:
+    # Primary provider and facility, spread evenly in import order.
+    providers: [lee, ortiz, bell]   # facility comes from the provider
+
+  related_people:
+    # Each entry adds one person + contact_relation to the patient.
+    # relationship: list `related_person_relationship` (SPS spouse, PRN parent,
+    #   MTH, FTH, CHILD, DAUC daughter, SONC son, SIB, FRND friend, NBOR
+    #   neighbor, ...). Note DAU/SON/NPRN mean the *natural* daughter/son/parent.
+    #   A list means one is picked per patient, among those that fit the
+    #   patient's age (no 30-year-old with an adult child).
+    # role: list `related_person_role` (ECON emergency contact, NOK next of
+    #   kin, GUARD guardian, GUAR guarantor, CAREGIVER, HPOWATT healthcare POA, ...)
+    people:
+      - when: {age: 18+, synthea_marital: [M]}    # Synthea's own marital status
+        percent: 90
+        add: {relationship: SPS, role: NOK, emergency_contact: true, primary_contact: true,
+              medical_decisions: true, receive_medical_info: true, same_address: true}
+      - when: {age: 0-17}
+        percent: 100
+        add: {relationship: PRN, role: GUARD, emergency_contact: true, primary_contact: true,
+              medical_decisions: true, receive_medical_info: true, same_address: true}
+      - when: {age: 0-17}
+        percent: 60                               # second parent
+        add: {relationship: PRN, role: GUARD, emergency_contact: true,
+              medical_decisions: true, receive_medical_info: true, same_address: true}
+      - when: {age: 18+}
+        percent: 50                               # someone outside the household
+        add: {relationship: [SIB, CHILD, FRND, NBOR], role: ECON, emergency_contact: true,
+              receive_medical_info: true}
+      - when: {age: 75+}
+        percent: 40
+        add: {relationship: [DAUC, SONC], role: HPOWATT, medical_decisions: true,
+              receive_medical_info: true}
+    # Every related person gets a mobile phone; 30% also get an email.
+    contact: {mobile: 100, email: 30}
+
+  telecom:
+    # contact_telecom rows. system: list `telecom_systems`; use: list `telecom_uses`.
+    # The first one a patient gets is primary. The home phone also fills
+    # patient_data.phone_home, mobile fills phone_cell, so the old screens
+    # show them too.
+    - {system: phone, use: home,   percent: 70}
+    - {system: phone, use: mobile, percent: 85}
+    - {system: phone, use: work,   percent: 20, when: {age: 18-66}}
+    - {system: email, use: home,   percent: 55, when: {age: 13+}}
+    - {system: sms,   use: mobile, percent: 40, requires: mobile}  # same number as mobile
+    - {system: phone, use: old,    percent: 15, inactive: {ended_days_ago: 30-700, reason: Disconnected}}
+
+  addresses:
+    # Synthea's address stays the current home address. These add more.
+    # type: list `address-types` (postal physical both); use: list `address-uses`.
+    - percent: 20                              # moved within the last two years
+      add: {type: both, use: old, ended_days_ago: 30-700, reason: Moved}
+    - percent: 8                               # PO box for mail
+      add: {type: postal, use: home, po_box: true}
+    - percent: 5
+      when: {age: 18-30}
+      add: {type: physical, use: temp, started_days_ago: 10-90, note: Staying with family}
+
+  insurance:
+    # insurance_data rows. The first plan set whose `when` fits the patient,
+    # and has a choice the patient can take, wins; no plan set = self pay.
+    # `when` can also use `synthea_payer`: the payer on Synthea's latest
+    # claim (Medicare, Medicaid, Dual Eligible, Blue Cross Blue Shield,
+    # Aetna, Humana, ...; "none" when Synthea gave none).
+    # `subscriber`: self | spouse | guardian. A spouse or guardian is the one
+    # the related_people rules above made (guardian = role GUARD, else a
+    # parent); a choice needing one the patient doesn't have is skipped.
+    # Companies are picked from `from` with equal weight. `percent` on a
+    # secondary/tertiary policy = the chance the patient has it.
+    plans:
+      - when: {age: 65+, synthea_payer: [Dual Eligible, Medicaid]}
+        primary: {from: [medicare], subscriber: self, copay: 0}
+        secondary: {from: [medicaid], subscriber: self}
+      - when: {age: 65+}
+        primary: {from: [medicare], subscriber: self, copay: 0}
+        secondary: {from: [medigap], subscriber: self, percent: 60}
+      - when: {age: 0-17, synthea_payer: [Medicaid, Dual Eligible]}
+        primary: {from: [medicaid], subscriber: self, copay: 0}
+      - when: {age: 0-17}
+        primary: {from: [bcbs, harvard, aetna], subscriber: guardian, copay: 20}
+      - when: {age: 18-64, synthea_payer: [Medicaid, Dual Eligible]}
+        primary: {from: [medicaid], subscriber: self, copay: 0}
+      - when: {age: 18-64}
+        choose:                                  # one of these per patient, by weight
+          - {weight: 60, primary: {from: [bcbs, harvard, aetna], subscriber: self, copay: 25}}
+          - {weight: 20, primary: {from: [bcbs, harvard, aetna], subscriber: spouse, copay: 25}}
+          - {weight: 5,  primary: {from: [tricare], subscriber: self, copay: 0}}
+          - {weight: 15, self_pay: true}
+    # `ended` adds an earlier primary policy (another company from the same
+    # `from` when there is one), ended and replaced by the current one.
+    ended:
+      percent: 15
+      ended_days_ago: 60-500
+    # {CMS} = the company's cms_id, {N digits} = random digits.
+    policy_numbers: {format: "{CMS}{8 digits}"}  # e.g. BC00112345678
+    group_numbers: {percent: 80, format: "GRP{5 digits}"}
+
+# ---------------------------------------------------------------------------
+# Cases: specific situations, written out in full. The loader claims Synthea
+# patients for cases first (the first unclaimed patient, in import order,
+# that matches `pick`), and rules skip them. If no patient matches, the
+# loader stops and says to raise synthea.count or loosen `pick`.
+# Fields listed under a patient replace what Synthea gave.
+# ---------------------------------------------------------------------------
+cases:
+  - key: family
+    note: Family of four, all patients, one household, one Visit List stop.
+    patients:
+      - {key: dad, pick: {sex: Male, age: 30-50}, marital_status: married, provider: lee}
+      - {key: mom, pick: {sex: Female, age: 30-50}, marital_status: married, provider: lee,
+         last_name: {same_as: dad}, address: {same_as: dad}}
+      - {key: kid1, pick: {age: 5-12}, last_name: {same_as: dad}, address: {same_as: dad}, provider: lee}
+      - {key: kid2, pick: {age: 0-4}, last_name: {same_as: dad}, address: {same_as: dad}, provider: lee}
+    links:
+      # Both ends are patients, so the related person is linked to the
+      # patient with person_patient_link instead of being made up.
+      - {from: dad, to: mom, relationship: SPS, role: NOK, emergency_contact: true, medical_decisions: true}
+      - {from: mom, to: dad, relationship: SPS, role: NOK, emergency_contact: true, medical_decisions: true}
+      - {from: kid1, to: mom, relationship: MTH, role: GUARD, primary_contact: true, medical_decisions: true}
+      - {from: kid1, to: dad, relationship: FTH, role: GUARD, medical_decisions: true}
+      - {from: kid2, to: mom, relationship: MTH, role: GUARD, primary_contact: true, medical_decisions: true}
+      - {from: kid2, to: dad, relationship: FTH, role: GUARD, medical_decisions: true}
+    telecom:
+      dad: [{system: phone, use: mobile, value: (413) 555-0110}, {system: phone, use: home, value: (413) 555-0111}]
+      mom: [{system: phone, use: mobile, value: (413) 555-0112}, {system: phone, use: home, value: (413) 555-0111}]
+    insurance:
+      # dad's employer plan covers everyone. A case policy names its company;
+      # subscriber is self, {patient: key} or {related: key}; policy numbers
+      # left out are made up with rules.insurance.policy_numbers.
+      dad:  {primary: {company: bcbs, policy: BC0019900001, group: GRP10001, subscriber: self, copay: 25}}
+      mom:  {primary: {company: bcbs, policy: BC0019900001, group: GRP10001, subscriber: {patient: dad}, copay: 25}}
+      kid1: {primary: {company: bcbs, policy: BC0019900001, group: GRP10001, subscriber: {patient: dad}, copay: 20}}
+      kid2: {primary: {company: bcbs, policy: BC0019900001, group: GRP10001, subscriber: {patient: dad}, copay: 20}}
+
+  - key: many_phones
+    note: One patient with five phone numbers plus email, in rank order.
+    patients:
+      - {key: busy, pick: {age: 35-60}, provider: ortiz}
+    telecom:
+      busy:
+        - {system: phone, use: mobile, value: (617) 555-0120, primary: true}
+        - {system: phone, use: work,   value: (617) 555-0121, note: "ext. 4402, ask for her by name"}
+        - {system: phone, use: home,   value: (617) 555-0122}
+        - {system: phone, use: temp,   value: (508) 555-0123, started_days_ago: 20, ends_in_days: 40, note: Cape house for the summer}
+        - {system: phone, use: old,    value: (617) 555-0124, inactive: {ended_days_ago: 400, reason: Disconnected}}
+        - {system: email, use: work,   value: busy.patient@example.com}
+        - {system: fax,   use: work,   value: (617) 555-0125}
+
+  - key: moved_twice
+    note: Two old addresses with dates, and a mailing address that isn't home.
+    patients:
+      - {key: mover, pick: {age: 25-45}, provider: bell}
+    addresses:
+      mover:
+        - {type: both, use: old, street: 12 Elm Street, city: Worcester, state: MA, postal_code: "01608",
+           started_days_ago: 1500, ended_days_ago: 700, reason: Moved}
+        - {type: both, use: old, street: 48 Pine Avenue Apt 3, city: Springfield, state: MA, postal_code: "01103",
+           started_days_ago: 700, ended_days_ago: 90, reason: Moved}
+        - {type: postal, use: home, street: PO Box 1187, city: Northampton, state: MA, postal_code: "01061"}
+
+  - key: elder_with_caregiver
+    note: Older patient whose daughter holds healthcare POA and whose paid caregiver gets info but can't decide.
+    patients:
+      - {key: elder, pick: {age: 80+}, provider: home_rn}
+    related_people:
+      elder:
+        - {first_name: Linda, relationship: DAUC, role: HPOWATT, primary_contact: true, emergency_contact: true,
+           medical_decisions: true, receive_medical_info: true,
+           telecom: [{system: phone, use: mobile, value: (413) 555-0130}, {system: email, use: home, value: linda.daughter@example.com}],
+           address: {street: 9 Orchard Lane, city: Amherst, state: MA, postal_code: "01002"}}
+        - {first_name: Rosa, last_name: Ibarra, relationship: FRND, role: CAREGIVER,
+           receive_medical_info: true, medical_decisions: false,
+           telecom: [{system: phone, use: work, value: (413) 555-0131}]}
+    insurance:
+      elder:
+        primary: {company: medicare, subscriber: self, copay: 0}
+        secondary: {company: medigap, subscriber: self}
+        ended: [{type: secondary, company: aetna, ended_days_ago: 400}]
+
+  - key: child_of_divorced_parents
+    note: Minor with two guardians at different addresses; father is the insurance subscriber.
+    patients:
+      - {key: child, pick: {age: 6-14}, provider: bell}
+    related_people:
+      child:
+        - {first_name: Grace, relationship: MTH, role: GUARD, primary_contact: true, medical_decisions: true,
+           receive_medical_info: true, same_address: true,
+           telecom: [{system: phone, use: mobile, value: (617) 555-0140}]}
+        - {key: father, first_name: Marcus, last_name: Okafor, relationship: FTH, role: GUARD,
+           medical_decisions: true, receive_medical_info: true,
+           address: {street: 300 Beacon Street, city: Boston, state: MA, postal_code: "02116"},
+           telecom: [{system: phone, use: mobile, value: (617) 555-0141}]}
+    insurance:
+      child:
+        primary: {company: harvard, subscriber: {related: father}, copay: 20}
+        secondary: {company: medicaid, subscriber: self}
+
+  - key: no_contact_info
+    note: Patient with no phone or email at all, to test empty states.
+    patients:
+      - {key: unreachable, pick: {age: 18+}, provider: ortiz}
+    insurance:
+      unreachable: {self_pay: true}
+
+# ---------------------------------------------------------------------------
+# Appointments, relative to the day the loader runs.
+# category: openemr_postcalendar_categories, found by pc_constant_id; must be
+#   a patient category (pc_cattype 0). An appointment takes the category's
+#   length (pc_duration) in whole 15-minute slots: new_patient takes two.
+# status: list `apptstat` ("-" none, "@" arrived, "<" in exam room,
+#   ">" checked out, "x" canceled, "?" no show, "%" canceled < 24h,
+#   "*" reminder done).
+# A patient has at most one appointment a day. Written-out Visit Lists are
+# planned first, then the Visit List rules, then the clinics; of the patients
+# free that day, those with the fewest appointments so far come first.
+# ---------------------------------------------------------------------------
+appointments:
+  days: -7..21              # one week back, three weeks ahead
+  weekdays: [Mon, Tue, Wed, Thu, Fri]   # default for clinics and Visit List rules
+  # Regular clinic schedules: each 15-minute slot in `hours` is booked with
+  # the `fill` chance. Patients come from the provider's own panel
+  # (care_team) first, then anyone.
+  clinics:
+    - provider: lee
+      facility: main
+      hours: "08:30-12:00, 13:00-17:00"
+      fill: 70
+    - provider: ortiz
+      facility: main
+      weekdays: [Mon, Wed, Thu]
+      hours: "09:00-16:00"
+      fill: 60
+    - provider: bell
+      facility: east
+      weekdays: [Tue, Thu, Fri]
+      hours: "08:00-12:00"
+      fill: 50
+  categories:               # weights for clinic appointments
+    office_visit: 50
+    established_patient: 30
+    new_patient: 10
+    preventive_care_services: 10
+  # past: days before today. today: appointments that have started by the time
+  # the loader runs. future: later today and the days after.
+  status:
+    past:   {">": 80, "?": 8, "x": 7, "%": 5}
+    today:  {">": 55, "<": 15, "@": 15, "?": 5, "-": 10}
+    future: {"-": 70, "*": 20, "x": 10}
+
+  # Visit Lists. A list with `day` is written out for that one day; one
+  # without makes a block on each of its weekdays. Patients have no times of
+  # their own: each gets an Order # (and maybe a Stop #) and the block's start
+  # time. patient_category defaults to office_visit.
+  visit_lists:
+    # A block each day for the home-visit provider, with 5-9 patients drawn
+    # (older ones first) in Order #. Patients at one address share a Stop #.
+    # Skipped on a day that has a written-out list for the same provider.
+    - provider: home_rn
+      facility: east
+      weekdays: [Mon, Wed, Fri]
+      time: "08:00-16:00"
+      patients: 5-9
+      patient_category: office_visit
+      prefer: {age: 65+}
+    # Written-out lists, to test ordering and shared stops.
+    - provider: home_rn
+      facility: east
+      day: 1                # tomorrow (moved to the next of `weekdays` if it isn't one)
+      time: "08:00-12:00"
+      patients:
+        - {patient: elder, order: 1, stop: 1}
+        - {patient: dad, order: 2, stop: 2}
+        - {patient: mom, order: 3, stop: 2}
+        - {patient: kid1, order: 4, stop: 2}
+        - {patient: kid2, order: 5, stop: 2}
+        - {patient: mover, order: 7, stop: 3}       # gap at 6 on purpose
+        - {any: true, order: 8}                     # any free patient, no stop
+    - provider: lee         # overlaps the end of Dr. Lee's timed clinic morning
+      facility: main
+      day: 2
+      time: "11:00-12:30"
+      patients:
+        - {patient: unreachable, order: 1}
+        - {patient: busy, order: 2}
