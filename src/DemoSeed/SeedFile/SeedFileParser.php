@@ -7,9 +7,8 @@
  * before the loader writes anything: unknown keys, wrong types, values out
  * of range, and keys that don't resolve (a provider's facility, a case's
  * provider, a policy's company or subscriber). List values are collected in SeedFile::$listReferences for
- * ListValidator to check against the database. Sections that a later
- * version of the loader will load are accepted and listed in
- * SeedFile::$sectionsNotLoaded.
+ * ListValidator to check against the database; calendar categories and
+ * insurance types are checked by the command.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -29,14 +28,10 @@ final class SeedFileParser
 {
     private const SUPPORTED_VERSION = 1;
 
-    /** Sections this loader version reads. */
-    private const LOADED_SECTIONS = [
+    private const SECTIONS = [
         'version', 'seed', 'synthea', 'contact_data', 'names', 'facilities', 'providers', 'insurance_companies',
-        'rules', 'cases',
+        'rules', 'cases', 'appointments',
     ];
-
-    /** Sections recognized but not loaded yet. */
-    private const PENDING_SECTIONS = ['appointments'];
 
     private const SYNTHEA_KEYS = [
         'count', 'seed', 'clinician_seed', 'reference_date', 'years_of_history', 'plain_names',
@@ -63,19 +58,13 @@ final class SeedFileParser
             throw new SeedFileException('The seed file is not valid YAML', 0, $e);
         }
         $root = MapReader::of($data, '');
-        $root->rejectUnknownKeys([...self::LOADED_SECTIONS, ...self::PENDING_SECTIONS]);
+        $root->rejectUnknownKeys(self::SECTIONS);
 
         if ($root->int('version') !== self::SUPPORTED_VERSION) {
             throw SeedFileException::at('version', 'this loader reads version ' . self::SUPPORTED_VERSION);
         }
 
         $lists = new ListReferenceCollector();
-        $pending = [];
-        foreach (self::PENDING_SECTIONS as $section) {
-            if ($root->has($section)) {
-                $pending[] = $section;
-            }
-        }
 
         $rulesMap = $root->optionalMap('rules');
         $rules = $rulesMap === null ? Rules::none() : Rules::parse($rulesMap, $lists);
@@ -85,6 +74,9 @@ final class SeedFileParser
         foreach ($caseMaps as $caseMap) {
             $cases[] = CaseSpec::parse($caseMap, $lists);
         }
+
+        $appointmentsMap = $root->optionalMap('appointments');
+        $appointments = $appointmentsMap === null ? AppointmentsSpec::none() : AppointmentsSpec::parse($appointmentsMap, $lists);
 
         $contactData = $root->optionalMap('contact_data');
         $names = $root->optionalMap('names');
@@ -108,8 +100,8 @@ final class SeedFileParser
             ),
             rules: $rules,
             cases: $cases,
+            appointments: $appointments,
             listReferences: $lists->all(),
-            sectionsNotLoaded: $pending,
         );
         $this->checkCrossReferences($seedFile);
         return $seedFile;
@@ -203,6 +195,7 @@ final class SeedFileParser
         $this->uniqueKeys($patientKeys, 'cases (patient keys)');
         $this->uniqueKeys([...$patientKeys, ...$personKeys], 'cases (patient and related person keys)');
         $this->checkInsuranceReferences($seedFile, $patientKeys);
+        $this->checkAppointmentReferences($seedFile->appointments, $providerKeys, $facilityKeys, $patientKeys);
 
         if ($seedFile->rules->relatedPeople !== [] && $seedFile->names === null) {
             throw SeedFileException::at('names', 'required when rules.related_people adds people');
@@ -257,6 +250,46 @@ final class SeedFileParser
                 foreach ($insurance->ended as $index => $ended) {
                     $requireCompany($ended->companyKey, $path . '.ended[' . $index . '].company');
                 }
+            }
+        }
+    }
+
+    /**
+     * @param list<string> $providerKeys
+     * @param list<string> $facilityKeys
+     * @param list<string> $patientKeys every case patient key
+     */
+    private function checkAppointmentReferences(AppointmentsSpec $appointments, array $providerKeys, array $facilityKeys, array $patientKeys): void
+    {
+        $requireKeys = static function (string $path, string $providerKey, string $facilityKey) use ($providerKeys, $facilityKeys): void {
+            if (!in_array($providerKey, $providerKeys, true)) {
+                throw SeedFileException::at($path . '.provider', 'no provider has key "' . $providerKey . '"');
+            }
+            if (!in_array($facilityKey, $facilityKeys, true)) {
+                throw SeedFileException::at($path . '.facility', 'no facility has key "' . $facilityKey . '"');
+            }
+        };
+        foreach ($appointments->clinics as $clinic) {
+            $requireKeys($clinic->path, $clinic->providerKey, $clinic->facilityKey);
+        }
+        foreach ($appointments->visitListRules as $rule) {
+            $requireKeys($rule->path, $rule->providerKey, $rule->facilityKey);
+        }
+        foreach ($appointments->fixedVisitLists as $list) {
+            $requireKeys($list->path, $list->providerKey, $list->facilityKey);
+            $listed = [];
+            foreach ($list->patients as $index => $entry) {
+                if ($entry->patientKey === null) {
+                    continue;
+                }
+                $path = $list->path . '.patients[' . $index . '].patient';
+                if (!in_array($entry->patientKey, $patientKeys, true)) {
+                    throw SeedFileException::at($path, 'no case patient has key "' . $entry->patientKey . '"');
+                }
+                if (isset($listed[$entry->patientKey])) {
+                    throw SeedFileException::at($path, '"' . $entry->patientKey . '" is on this list already');
+                }
+                $listed[$entry->patientKey] = true;
             }
         }
     }

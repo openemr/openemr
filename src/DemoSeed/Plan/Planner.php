@@ -2,9 +2,11 @@
 
 /**
  * Works out everything the seed file adds to the imported patients: claims
- * patients for cases, then applies the rules to the rest, insurance last
- * (its subscribers can be the people made before). Writes nothing;
- * the same seed file and patients always give the same plan.
+ * patients for cases, then applies the rules to the rest, insurance
+ * after the people (its subscribers can be the people made before), then
+ * appointments (AppointmentPlanner). Writes nothing. The same seed file,
+ * patients and day give the same plan (only today's appointment statuses
+ * also depend on the time).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -88,9 +90,14 @@ final class Planner
 
     /**
      * @param \DateTimeImmutable $now day offsets count from this day
+     * @param array<string, int> $categoryMinutes appointment length by
+     *        calendar category (pc_constant_id)
      */
-    public function __construct(private readonly SeedFile $seedFile, \DateTimeImmutable $now)
-    {
+    public function __construct(
+        private readonly SeedFile $seedFile,
+        private readonly \DateTimeImmutable $now,
+        private readonly array $categoryMinutes = [],
+    ) {
         $this->today = $now->setTime(0, 0);
         $this->referenceDate = $seedFile->synthea->referenceDate;
         $contactData = $seedFile->contactData;
@@ -135,6 +142,14 @@ final class Planner
             }
         }
 
+        [$appointments, $visitLists] = (new AppointmentPlanner(
+            $this->seedFile->appointments,
+            $this->seedFile->seed,
+            $this->now,
+            $this->referenceDate,
+            $this->categoryMinutes,
+        ))->plan($imported, $this->providerKeys, $this->casePatients, $this->homes);
+
         $updates = [];
         foreach ($imported as $patient) {
             $fields = $this->fields[$patient->pid] ?? [];
@@ -154,6 +169,8 @@ final class Planner
             $this->casePatients,
             $this->seedFile->insuranceCompanies,
             $this->policies,
+            $appointments,
+            $visitLists,
         );
     }
 

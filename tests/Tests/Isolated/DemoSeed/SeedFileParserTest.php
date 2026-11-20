@@ -14,9 +14,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\DemoSeed;
 
+use OpenEMR\DemoSeed\SeedFile\FixedVisitListEntry;
 use OpenEMR\DemoSeed\SeedFile\Gender;
 use OpenEMR\DemoSeed\SeedFile\SeedFileException;
 use OpenEMR\DemoSeed\SeedFile\SeedFileParser;
+use OpenEMR\DemoSeed\SeedFile\TimeWindow;
+use OpenEMR\DemoSeed\SeedFile\Weekday;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -55,6 +58,31 @@ final class SeedFileParserTest extends TestCase
 
         YAML;
 
+    private const APPOINTMENTS = self::MINIMAL . self::FACILITY . <<<'YAML'
+
+        providers:
+          - {key: doc, username: doc1, first_name: Dana, last_name: Lee, npi: "1356789010", facility: main}
+        appointments:
+          days: -7..21
+          clinics:
+            - {provider: doc, facility: main, weekdays: [Mon, Wed], hours: "08:30-12:00, 13:00-17:00", fill: 70}
+          categories: {office_visit: 3, new_patient: 1}
+          status:
+            past: {">": 1, "x": 0}
+            today: {"@": 1}
+            future: {"-": 7, "*": 3}
+          visit_lists:
+            - {provider: doc, facility: main, time: "08:00-16:00", patients: 5-9, prefer: {age: 65+}}
+            - provider: doc
+              facility: main
+              day: 1
+              time: "08:00-12:00"
+              patient_category: home_visit
+              patients:
+                - {any: true, order: 2, stop: 1}
+                - {any: true, order: 1}
+        YAML;
+
     public function testParsesMinimalFile(): void
     {
         $seedFile = (new SeedFileParser())->parse(self::MINIMAL);
@@ -69,7 +97,7 @@ final class SeedFileParserTest extends TestCase
         $this->assertNull($seedFile->synthea->state);
         $this->assertNull($seedFile->synthea->ages);
         $this->assertNull($seedFile->synthea->gender);
-        $this->assertSame([], $seedFile->sectionsNotLoaded);
+        $this->assertTrue($seedFile->appointments->isEmpty());
     }
 
     public function testParsesOptionalSyntheaFilters(): void
@@ -95,13 +123,68 @@ final class SeedFileParserTest extends TestCase
         $this->assertSame('2026-11-19', $synthea->referenceDate->format('Y-m-d'));
     }
 
-    public function testListsSectionsNotLoadedYet(): void
+    public function testParsesAppointments(): void
     {
-        $yaml = self::MINIMAL . "\nproviders: []\nappointments: {days: -7..21}\n";
+        $appointments = (new SeedFileParser())->parse(self::APPOINTMENTS)->appointments;
 
-        $seedFile = (new SeedFileParser())->parse($yaml);
+        $this->assertSame(-7, $appointments->days->from);
+        $this->assertSame(21, $appointments->days->to);
+        $this->assertSame([Weekday::Mon, Weekday::Tue, Weekday::Wed, Weekday::Thu, Weekday::Fri], $appointments->weekdays);
 
-        $this->assertSame(['appointments'], $seedFile->sectionsNotLoaded);
+        $this->assertCount(1, $appointments->clinics);
+        $clinic = $appointments->clinics[0];
+        $this->assertSame('doc', $clinic->providerKey);
+        $this->assertSame([Weekday::Mon, Weekday::Wed], $clinic->weekdays);
+        $this->assertSame([[510, 720], [780, 1020]], array_map(
+            static fn (TimeWindow $window): array => [$window->start, $window->end],
+            $clinic->hours,
+        ));
+        $this->assertSame(70, $clinic->fill);
+        $categories = $appointments->categories;
+        $this->assertNotNull($categories);
+        $this->assertSame(['office_visit', 'new_patient'], $categories->values);
+        $this->assertSame([3, 1], $categories->weights);
+        // a weight of 0 leaves the status out
+        $this->assertSame(['>'], $appointments->status->past->values);
+        $this->assertSame(['-', '*'], $appointments->status->future->values);
+
+        $this->assertCount(1, $appointments->visitListRules);
+        $rule = $appointments->visitListRules[0];
+        $this->assertSame(5, $rule->minPatients);
+        $this->assertSame(9, $rule->maxPatients);
+        $this->assertSame('office_visit', $rule->patientCategory);
+        $this->assertSame(65, $rule->prefer->age?->min);
+        $this->assertNull($rule->weekdays);
+
+        $this->assertCount(1, $appointments->fixedVisitLists);
+        $list = $appointments->fixedVisitLists[0];
+        $this->assertSame(1, $list->day);
+        $this->assertSame('home_visit', $list->patientCategory);
+        $this->assertSame('appointments.visit_lists[1]', $list->path);
+        $this->assertSame([[null, 2, 1], [null, 1, null]], array_map(
+            static fn (FixedVisitListEntry $entry): array => [$entry->patientKey, $entry->order, $entry->stop],
+            $list->patients,
+        ));
+
+        $this->assertSame([
+            'appointments.categories.office_visit' => 'office_visit',
+            'appointments.categories.new_patient' => 'new_patient',
+            'appointments.visit_lists[0].patient_category' => 'office_visit',
+            'appointments.visit_lists[1].patient_category' => 'home_visit',
+        ], $appointments->categoryReferences());
+    }
+
+    public function testCollectsAppointmentStatusesForListValidation(): void
+    {
+        $seedFile = (new SeedFileParser())->parse(self::APPOINTMENTS);
+
+        $statuses = [];
+        foreach ($seedFile->listReferences as $reference) {
+            if ($reference->listId === 'apptstat') {
+                $statuses[] = $reference->value;
+            }
+        }
+        $this->assertSame(['>', '@', '-', '*'], $statuses);
     }
 
     #[DataProvider('invalidFileProvider')]
@@ -175,6 +258,62 @@ final class SeedFileParserTest extends TestCase
             'case subscriber not a related person' => [
                 self::MINIMAL . self::INSURANCE_COMPANIES . "\ncases:\n  - key: c\n    patients:\n      - {key: a, pick: {age: 18+}}\n    insurance:\n      a: {primary: {company: bcbs, subscriber: {related: dad}}}\n",
                 'no related person in this case has key "dad"',
+            ],
+            'appointment days reversed' => [
+                str_replace('days: -7..21', 'days: 21..-7', self::APPOINTMENTS),
+                'appointments.days: expected a day like 3 or a range like "-7..21"',
+            ],
+            'unknown weekday' => [
+                str_replace('weekdays: [Mon, Wed]', 'weekdays: [Mon, Funday]', self::APPOINTMENTS),
+                'appointments.clinics[0].weekdays[1]: expected Mon',
+            ],
+            'overlapping clinic hours' => [
+                str_replace('13:00-17:00', '11:00-17:00', self::APPOINTMENTS),
+                'appointments.clinics[0].hours: time windows must be in order and not overlap',
+            ],
+            'clinic hours backwards' => [
+                str_replace('08:30-12:00, 13:00-17:00', '12:00-08:30', self::APPOINTMENTS),
+                'appointments.clinics[0].hours: expected a time window',
+            ],
+            'clinic fill over 100' => [
+                str_replace('fill: 70', 'fill: 170', self::APPOINTMENTS),
+                'appointments.clinics[0].fill: must be from 0 to 100',
+            ],
+            'clinic with unknown provider' => [
+                str_replace('{provider: doc, facility: main, weekdays', '{provider: nobody, facility: main, weekdays', self::APPOINTMENTS),
+                'appointments.clinics[0].provider: no provider has key "nobody"',
+            ],
+            'clinics without categories' => [
+                str_replace('  categories: {office_visit: 3, new_patient: 1}' . "\n", '', self::APPOINTMENTS),
+                'appointments.categories: required when there are clinics',
+            ],
+            'all category weights zero' => [
+                str_replace('{office_visit: 3, new_patient: 1}', '{office_visit: 0}', self::APPOINTMENTS),
+                'appointments.categories: needs at least one value with a weight above 0',
+            ],
+            'visit list patient count reversed' => [
+                str_replace('patients: 5-9', 'patients: 9-5', self::APPOINTMENTS),
+                'appointments.visit_lists[0].patients: expected a number of patients',
+            ],
+            'visit list at unknown facility' => [
+                str_replace('{provider: doc, facility: main, time', '{provider: doc, facility: west, time', self::APPOINTMENTS),
+                'appointments.visit_lists[0].facility: no facility has key "west"',
+            ],
+            'fixed list entry with patient and any' => [
+                str_replace('{any: true, order: 1}', '{patient: elder, any: true, order: 1}', self::APPOINTMENTS),
+                'appointments.visit_lists[1].patients[1]: give patient: <case patient key> or any: true',
+            ],
+            'fixed list entry not a case patient' => [
+                str_replace('{any: true, order: 1}', '{patient: elder, order: 1}', self::APPOINTMENTS),
+                'appointments.visit_lists[1].patients[1].patient: no case patient has key "elder"',
+            ],
+            'fixed list orders repeated' => [
+                str_replace('order: 2, stop: 1', 'order: 1, stop: 1', self::APPOINTMENTS),
+                'appointments.visit_lists[1].patients: each patient needs its own order',
+            ],
+            'fixed list stop zero' => [
+                str_replace('stop: 1}', 'stop: 0}', self::APPOINTMENTS),
+                'appointments.visit_lists[1].patients[0].stop: must be at least 1',
             ],
             'same_as a later patient' => [
                 self::MINIMAL . "\ncases:\n  - key: c\n    patients:\n      - {key: a, pick: {age: 18+}, last_name: {same_as: b}}\n      - {key: b, pick: {age: 18+}}\n",

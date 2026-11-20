@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\DemoSeed\Load;
 
+use OpenEMR\Appointment\VisitList\VisitListService;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\ORDataObject\ContactTelecom;
@@ -23,13 +24,16 @@ use OpenEMR\DemoSeed\Plan\ContactOwner;
 use OpenEMR\DemoSeed\Plan\PatientUpdate;
 use OpenEMR\DemoSeed\Plan\Plan;
 use OpenEMR\DemoSeed\Plan\PlannedAddress;
+use OpenEMR\DemoSeed\Plan\PlannedAppointment;
 use OpenEMR\DemoSeed\Plan\PlannedPerson;
 use OpenEMR\DemoSeed\Plan\PlannedPolicy;
 use OpenEMR\DemoSeed\Plan\PlannedRelation;
 use OpenEMR\DemoSeed\Plan\PlannedTelecom;
+use OpenEMR\DemoSeed\Plan\PlannedVisitList;
 use OpenEMR\DemoSeed\SeedFile\FacilitySpec;
 use OpenEMR\DemoSeed\SeedFile\InsuranceCompanySpec;
 use OpenEMR\DemoSeed\SeedFile\ProviderSpec;
+use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\FacilityService;
@@ -65,6 +69,10 @@ final class PlanWriter
         private readonly PersonPatientLinkService $linkService,
         private readonly InsuranceCompanyService $insuranceCompanyService,
         private readonly InsuranceService $insuranceService,
+        private readonly AppointmentService $appointmentService,
+        private readonly VisitListService $visitListService,
+        /** @var array<string, CalendarCategory> by pc_constant_id */
+        private readonly array $categories,
     ) {
     }
 
@@ -118,6 +126,21 @@ final class PlanWriter
             count($plan->policies),
             count(array_filter($plan->policies, static fn (PlannedPolicy $policy): bool => $policy->end !== null)),
             $insured,
+        ));
+
+        foreach ($plan->appointments as $appointment) {
+            $this->writeAppointment($appointment);
+        }
+        $listed = 0;
+        foreach ($plan->visitLists as $visitList) {
+            $this->writeVisitList($visitList);
+            $listed += count($visitList->entries);
+        }
+        $progress(sprintf(
+            '%d appointments, %d Visit Lists with %d patients',
+            count($plan->appointments),
+            count($plan->visitLists),
+            $listed,
         ));
     }
 
@@ -351,6 +374,88 @@ final class PlanWriter
             throw new LoadException(sprintf('Could not add the %s policy of patient %d: ', $policy->type->value, $policy->pid)
                 . json_encode([$result->getValidationMessages(), $result->getInternalErrors()]));
         }
+    }
+
+    private function writeAppointment(PlannedAppointment $appointment): void
+    {
+        $this->insertEvent(
+            $appointment->pid,
+            $appointment->providerKey,
+            $appointment->facilityKey,
+            $appointment->category,
+            $appointment->start,
+            $appointment->durationMinutes,
+            $appointment->status,
+        );
+    }
+
+    /**
+     * The block, then each patient at the block's start; VisitListService
+     * marks them as Visit List patients with their Order # and Stop #.
+     */
+    private function writeVisitList(PlannedVisitList $visitList): void
+    {
+        $minutes = intdiv($visitList->end->getTimestamp() - $visitList->start->getTimestamp(), 60);
+        $this->insertEvent(
+            null,
+            $visitList->providerKey,
+            $visitList->facilityKey,
+            VisitListService::CATEGORY_CONSTANT_ID,
+            $visitList->start,
+            $minutes,
+            '-',
+        );
+        foreach ($visitList->entries as $entry) {
+            $eventId = $this->insertEvent(
+                $entry->pid,
+                $visitList->providerKey,
+                $visitList->facilityKey,
+                $entry->category,
+                $visitList->start,
+                0,
+                $entry->status,
+            );
+            $this->visitListService->place($eventId, $entry->sequence, $entry->stop);
+        }
+    }
+
+    /**
+     * @param ?int $pid null for a provider event (a Visit List block)
+     * @return int pc_eid
+     */
+    private function insertEvent(
+        ?int $pid,
+        string $providerKey,
+        string $facilityKey,
+        string $categoryKey,
+        \DateTimeImmutable $start,
+        int $minutes,
+        string $status,
+    ): int {
+        $category = $this->categories[$categoryKey] ?? throw new LoadException('Unknown calendar category ' . $categoryKey);
+        $facilityId = $this->facilityIdFor($facilityKey);
+        $data = [
+            'pc_catid' => $category->id,
+            'pc_title' => $category->name,
+            'pc_duration' => $minutes * 60,
+            'pc_hometext' => '',
+            'pc_apptstatus' => $status,
+            'pc_eventDate' => $start->format('Y-m-d'),
+            'pc_startTime' => $start->format('H:i'),
+            'pc_facility' => $facilityId,
+            'pc_billing_location' => $facilityId,
+            'pc_aid' => $this->providerIds[$providerKey] ?? throw new LoadException('Unknown provider key ' . $providerKey),
+        ];
+        if ($pid !== null) {
+            $data['pid'] = $pid;
+        }
+        // Not AppointmentService::validate(): that is the REST API's check and
+        // wants a comment, which the calendar's own dialog doesn't.
+        $eventId = $this->appointmentService->insert($pid, $data);
+        if (!is_numeric($eventId) || (int) $eventId <= 0) {
+            throw new LoadException(sprintf('Could not add a %s event on %s', $categoryKey, $start->format('Y-m-d H:i')));
+        }
+        return (int) $eventId;
     }
 
     private function contactId(ContactOwner $owner): int

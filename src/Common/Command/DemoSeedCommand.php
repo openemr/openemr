@@ -6,8 +6,8 @@
  * Runs Synthea for the patients and their history, imports them through
  * the CCDA new-patient import, and writes a manifest of pid ↔ Synthea id.
  * Then adds what Synthea doesn't make: facilities, providers, related
- * people, extra phones and addresses, insurance (appointments come
- * later). Development only: needs OPENEMR_ENABLE_DEMO_SEED=1 unless
+ * people, extra phones and addresses, insurance, appointments and Visit
+ * Lists. Development only: needs OPENEMR_ENABLE_DEMO_SEED=1 unless
  * --validate-only.
  *
  * @package   OpenEMR
@@ -22,12 +22,14 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Command;
 
 use GuzzleHttp\Client;
+use OpenEMR\Appointment\VisitList\VisitListService;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\DemoSeed\Import\CcdaPatientImporter;
 use OpenEMR\DemoSeed\Import\ImportDatabase;
 use OpenEMR\DemoSeed\Import\ImportedPatient;
 use OpenEMR\DemoSeed\Import\PatientManifest;
+use OpenEMR\DemoSeed\Load\CalendarCategory;
 use OpenEMR\DemoSeed\Load\PlanWriter;
 use OpenEMR\DemoSeed\Plan\PlanException;
 use OpenEMR\DemoSeed\Plan\Planner;
@@ -38,6 +40,7 @@ use OpenEMR\DemoSeed\Synthea\SyntheaOutputReader;
 use OpenEMR\DemoSeed\Synthea\SyntheaRunner;
 use OpenEMR\DemoSeed\Validation\DatabaseListOptions;
 use OpenEMR\DemoSeed\Validation\ListValidator;
+use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\FacilityService;
@@ -88,6 +91,7 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             (new ListValidator(new DatabaseListOptions()))->validate($seedFile->listReferences);
             $this->assertUsernamesFree($seedFile);
             $this->assertInsuranceTypesExist($seedFile);
+            $categories = $this->calendarCategories($seedFile);
         } catch (SeedFileException $e) {
             $io->error($e->getMessage());
             return Command::INVALID;
@@ -122,9 +126,13 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             $io->writeln('Manifest: ' . $manifestPath);
         }
 
-        $io->section('Adding facilities, providers, related people, phones, addresses and insurance');
+        $io->section('Adding facilities, providers, related people, phones, addresses, insurance and appointments');
         try {
-            $plan = (new Planner($seedFile, ServiceContainer::getClock()->now()))->plan($imported);
+            $plan = (new Planner(
+                $seedFile,
+                ServiceContainer::getClock()->now(),
+                array_map(static fn (CalendarCategory $category): int => $category->minutes, $categories),
+            ))->plan($imported);
         } catch (PlanException $e) {
             $io->error($e->getMessage());
             return Command::FAILURE;
@@ -138,6 +146,9 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             new PersonPatientLinkService(),
             new InsuranceCompanyService(),
             new InsuranceService(),
+            new AppointmentService(),
+            new VisitListService(),
+            $categories,
         );
         $writer->write($plan, static function (string $line) use ($io): void {
             $io->writeln('  ' . $line);
@@ -274,6 +285,32 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
         }
     }
 
+    /**
+     * The active calendar categories, after checking that every category the
+     * appointments section names is one for patient appointments, and that
+     * the Visit List category exists when there are Visit Lists.
+     *
+     * @return array<string, CalendarCategory> by pc_constant_id
+     * @throws SeedFileException
+     */
+    private function calendarCategories(SeedFile $seedFile): array
+    {
+        $categories = CalendarCategory::allActive();
+        foreach ($seedFile->appointments->categoryReferences() as $path => $constantId) {
+            $category = $categories[$constantId] ?? null;
+            if ($category === null) {
+                throw SeedFileException::at($path, 'no active calendar category has pc_constant_id "' . $constantId . '"');
+            }
+            if ($category->type !== CalendarCategory::PATIENT_TYPE) {
+                throw SeedFileException::at($path, '"' . $constantId . '" is not a category for patient appointments');
+            }
+        }
+        if ($seedFile->appointments->hasVisitLists() && !isset($categories[VisitListService::CATEGORY_CONSTANT_ID])) {
+            throw SeedFileException::at('appointments.visit_lists', 'this site has no active Visit List calendar category');
+        }
+        return $categories;
+    }
+
     private function loadSeedFile(InputInterface $input): SeedFile
     {
         $path = $input->getArgument('seed-file');
@@ -303,9 +340,6 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             $synthea->yearsOfHistory,
             $synthea->plainNames ? 'plain' : 'numbered',
         ));
-        if ($seedFile->sectionsNotLoaded !== []) {
-            $io->note('Not loaded by this version of the loader yet: ' . implode(', ', $seedFile->sectionsNotLoaded));
-        }
     }
 
     private function stringOption(InputInterface $input, string $name): ?string

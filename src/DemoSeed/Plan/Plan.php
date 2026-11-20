@@ -33,6 +33,8 @@ final readonly class Plan
      * @param list<InsuranceCompanySpec> $insuranceCompanies
      * @param list<PlannedPolicy> $policies ended ones before the current
      *        policy of the same type
+     * @param list<PlannedAppointment> $appointments
+     * @param list<PlannedVisitList> $visitLists
      */
     public function __construct(
         public array $facilities,
@@ -45,6 +47,8 @@ final readonly class Plan
         public array $casePatients,
         public array $insuranceCompanies,
         public array $policies,
+        public array $appointments,
+        public array $visitLists,
     ) {
     }
 }

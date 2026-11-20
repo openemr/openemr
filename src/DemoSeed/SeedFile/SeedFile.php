@@ -22,8 +22,6 @@ final readonly class SeedFile
      * @param list<InsuranceCompanySpec> $insuranceCompanies
      * @param list<CaseSpec> $cases
      * @param list<ListReference> $listReferences every list value the file uses
-     * @param list<string> $sectionsNotLoaded parts of the file this version of
-     *        the loader recognizes but doesn't load yet
      */
     public function __construct(
         public int $seed,
@@ -35,8 +33,8 @@ final readonly class SeedFile
         public array $insuranceCompanies,
         public Rules $rules,
         public array $cases,
+        public AppointmentsSpec $appointments,
         public array $listReferences,
-        public array $sectionsNotLoaded,
     ) {
     }
 
@@ -52,8 +50,8 @@ final readonly class SeedFile
             $this->insuranceCompanies,
             $this->rules,
             $this->cases,
+            $this->appointments,
             $this->listReferences,
-            $this->sectionsNotLoaded,
         );
     }
 
