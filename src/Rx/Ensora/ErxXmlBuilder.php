@@ -36,10 +36,10 @@ class ErxXmlBuilder
     private ?Plaintext $sentPassword = null;
     private ?AddressCodes $addressCodes = null;
 
-    /** @var list<int> */
-    private array $sentAllergyIds = [];
-    /** @var list<int> */
-    private array $sentMedicationIds = [];
+    /** @var list<SentAllergy> */
+    private array $sentAllergies = [];
+    /** @var list<SentMedication> */
+    private array $sentMedications = [];
     /** @var list<int> */
     private array $sentPrescriptionIds = [];
 
@@ -103,30 +103,30 @@ class ErxXmlBuilder
         return (string) $response->getBody();
     }
 
-    public function addSentAllergyIds(int $allergyId): void
+    public function addSentAllergy(SentAllergy $allergy): void
     {
-        $this->sentAllergyIds[] = $allergyId;
+        $this->sentAllergies[] = $allergy;
     }
 
     /**
-     * @return list<int>
+     * @return list<SentAllergy>
      */
-    public function getSentAllergyIds(): array
+    public function getSentAllergies(): array
     {
-        return $this->sentAllergyIds;
+        return $this->sentAllergies;
     }
 
-    public function addSentMedicationIds(int $medicationId): void
+    public function addSentMedication(SentMedication $medication): void
     {
-        $this->sentMedicationIds[] = $medicationId;
+        $this->sentMedications[] = $medication;
     }
 
     /**
-     * @return list<int>
+     * @return list<SentMedication>
      */
-    public function getSentMedicationIds(): array
+    public function getSentMedications(): array
     {
-        return $this->sentMedicationIds;
+        return $this->sentMedications;
     }
 
     public function addSentPrescriptionId(int $prescriptionId): void
@@ -358,19 +358,27 @@ class ErxXmlBuilder
         return $element;
     }
 
-    public function getDestination(int $authUserId, string $page = ''): DOMElement
+    /**
+     * The page Ensora opens: the requested one, or else one picked by the user's role.
+     */
+    public function resolveDestination(int $authUserId, string $page): string
     {
-        $eRxUserRole = str_replace('erx', '', $this->userRole($authUserId));
-
-        if ($page === '') {
-            $page = match ($eRxUserRole) {
-                'admin', 'manager' => $eRxUserRole,
-                default => 'compose',
-            };
+        if ($page !== '') {
+            return $page;
         }
 
+        $eRxUserRole = str_replace('erx', '', $this->userRole($authUserId));
+
+        return match ($eRxUserRole) {
+            'admin', 'manager' => $eRxUserRole,
+            default => 'compose',
+        };
+    }
+
+    public function getDestination(int $authUserId, string $page = ''): DOMElement
+    {
         $element = $this->getDocument()->createElement('Destination');
-        $element->appendChild($this->createElementText('requestedPage', $page));
+        $element->appendChild($this->createElementText('requestedPage', $this->resolveDestination($authUserId, $page)));
 
         return $element;
     }
@@ -751,7 +759,12 @@ class ErxXmlBuilder
 
             $elements[] = $element;
 
-            $this->addSentAllergyIds($allergyId);
+            $this->addSentAllergy(new SentAllergy(
+                $allergyId,
+                self::nullableField($allergy, 'title1'),
+                self::intField($allergy, 'outcome'),
+                self::nullableField($allergy, 'comments'),
+            ));
         }
 
         return $elements;
@@ -889,7 +902,11 @@ class ErxXmlBuilder
                 'prescriptionType'  => 'reconcile',
             ]);
 
-            $this->addSentMedicationIds($medicationId);
+            $this->addSentMedication(new SentMedication(
+                $medicationId,
+                self::field($medication, 'title'),
+                self::nullableField($medication, 'begdate'),
+            ));
         }
 
         return $elements;
@@ -999,6 +1016,16 @@ class ErxXmlBuilder
     /**
      * @param array<mixed> $row
      */
+    private static function nullableField(array $row, string $key): ?string
+    {
+        $value = $row[$key] ?? null;
+
+        return $value === null ? null : self::scalar($value);
+    }
+
+    /**
+     * @param array<mixed> $row
+     */
     private static function id(array $row): int
     {
         $id = $row['id'] ?? null;
@@ -1010,6 +1037,25 @@ class ErxXmlBuilder
         }
 
         throw new UnexpectedValueException('Ensora eRx rows must have a numeric id');
+    }
+
+    /**
+     * @param array<mixed> $row
+     */
+    private static function intField(array $row, string $key): int
+    {
+        $value = $row[$key] ?? null;
+        if (is_int($value)) {
+            return $value;
+        }
+        if (is_string($value)) {
+            $digits = str_starts_with($value, '-') ? substr($value, 1) : $value;
+            if (ctype_digit($digits)) {
+                return (int) $value;
+            }
+        }
+
+        throw new UnexpectedValueException('Ensora eRx rows must have a numeric ' . $key);
     }
 
     /**

@@ -174,7 +174,7 @@ https\\://github\\.com/sebastianbergmann/phpunit/issues/6052$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method isType\\(\\) of class PHPUnit\\\\Framework\\\\Assert\\:
 https\\://github\\.com/sebastianbergmann/phpunit/issues/6052$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/TelemetryServiceTest.php',
 ];
 

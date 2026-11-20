@@ -87,7 +87,7 @@ initialize_openemr() {
     docker compose exec -T openemr su-exec apache php "${OPENEMR_DIR}/sql_upgrade.php" --from=8.4.1
     # (may need to configure api globals here)
     # Prevent password expiration from blocking OAuth password grant
-    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
+    docker compose exec -T openemr mariadb -u openemr --password=openemr -h mysql openemr \
         -e "UPDATE users_secure SET last_update_password = NOW()"
 
     # Configure coverage after containers are running and OpenEMR is initialized

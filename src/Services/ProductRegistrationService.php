@@ -8,13 +8,23 @@
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Services;
 
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 
@@ -22,11 +32,26 @@ require_once(__DIR__ . '/../../interface/product_registration/exceptions/generic
 
 class ProductRegistrationService
 {
-    /**
-     * Default constructor.
-     */
-    public function __construct()
+    private readonly ClientInterface $httpClient;
+
+    private readonly OEEnvBag $env;
+
+    private readonly OEGlobalsBag $globals;
+
+    public function __construct(
+        ?ClientInterface $httpClient = null,
+        private readonly VersionServiceInterface $versionService = new VersionService(),
+        ?OEEnvBag $env = null,
+        ?OEGlobalsBag $globals = null,
+    ) {
+        $this->httpClient = $httpClient ?? ServiceContainer::getGuzzle();
+        $this->env = $env ?? OEEnvBag::getInstance();
+        $this->globals = $globals ?? OEGlobalsBag::getInstance();
+    }
+
+    private function currentVersion(): string
     {
+        return $this->versionService->getSoftwareVersion()->__toString();
     }
 
     public function getProductDialogStatus(): array
@@ -43,7 +68,7 @@ class ProductRegistrationService
         $row['allowEmail'] = 0; // if show email dialog
         $row['allowTelemetry'] = 0; // if show telemetry dialog
         $row['allowRegisterDialog'] = 0; // if show registration dialog
-        $currentVersion = (string) (new VersionService())->getSoftwareVersion();
+        $currentVersion = $this->currentVersion();
         if ($currentVersion != $lastAskVersion) {
             // Change in version (or empty entry), so ignore opt outs and show the dialog if empty email or telemetry not enabled
             //  (if do show the dialog, then return if show email and/or telemetry dialog)
@@ -75,7 +100,9 @@ class ProductRegistrationService
 
     public function getRegistrationEmail(): string
     {
-        return sqlQuery("SELECT `email` FROM `product_registration`")['email'] ?? '';
+        $row = QueryUtils::querySingleRow('SELECT `email` FROM `product_registration`');
+        $email = is_array($row) ? $row['email'] ?? null : null;
+        return is_string($email) ? $email : '';
     }
 
     public function getRegistrationStatus(): string
@@ -98,9 +125,9 @@ class ProductRegistrationService
     /**
      * @throws \GenericProductRegistrationException
      */
-    public function registerProduct($email)
+    public function registerProduct(string $email): ?string
     {
-        if (empty($email)) {
+        if ($email === '') {
             $this->optOutStrategy();
             return null;
         } else {
@@ -108,57 +135,63 @@ class ProductRegistrationService
         }
     }
 
-    private function optInStrategy($email)
+    private function optInStrategy(string $email): string
     {
         // build the information array
-        $info = ['email' => $email, 'version' => (string) (new VersionService())->getSoftwareVersion()];
-        if (!empty(getenv('OPENEMR_DOCKER_ENV_TAG', true))) {
+        $info = ['email' => $email, 'version' => $this->currentVersion()];
+        $distribution = $this->env->getString('OPENEMR_DOCKER_ENV_TAG');
+        if ($distribution !== '') {
             // this will add standard package information if it exists
-            $info['distribution'] = getenv('OPENEMR_DOCKER_ENV_TAG', true);
+            $info['distribution'] = $distribution;
         }
 
-        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
-        $curl = curl_init('https://reg.open-emr.org/api/registration');
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($info));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
-        $responseBodyRaw = curl_exec($curl);
-        $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
+        try {
+            $reply = $this->httpClient->request('POST', 'https://reg.open-emr.org/api/registration', [
+                RequestOptions::FORM_PARAMS => $info,
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::ALLOW_REDIRECTS => false,
+                RequestOptions::VERIFY => $this->globals->getBoolean('http_verify_ssl', true),
+            ]);
+        } catch (GuzzleException $e) {
+            throw new \GenericProductRegistrationException(xl('Server error: try again later'), 0, $e);
+        }
+        $responseCode = $reply->getStatusCode();
 
-        $currentVersion = (string) (new VersionService())->getSoftwareVersion();
+        $currentVersion = $this->currentVersion();
         switch ($responseCode) {
             case 201:
                 $entry = $this->entryExist();
-                if ($entry) {
+                if ($entry !== null) {
                     sqlStatement("UPDATE `product_registration` SET `email` = ?, `opt_out` = 0, `last_ask_version` = ? WHERE `id` = ?", [$email, $currentVersion, $entry]);
                 } else {
                     sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`, `last_ask_version`) VALUES (?, 0, ?)", [$email, $currentVersion]);
                 }
                 return $email;
-                break;
             default:
-                throw new \GenericProductRegistrationException(xl("Server error: try again later"));
+                throw new \GenericProductRegistrationException(xl('Server error: try again later'));
         }
     }
 
     // void... don't bother checking for success/failure.
     private function optOutStrategy()
     {
-        $currentVersion = (string) (new VersionService())->getSoftwareVersion();
+        $currentVersion = $this->currentVersion();
         $entry = $this->entryExist();
-        if ($this->entryExist()) {
+        if ($entry !== null) {
             sqlStatement("UPDATE `product_registration` SET `email` = null, `opt_out` = 1, `last_ask_version` = ? WHERE `id` = ?", [$currentVersion, $entry]);
         } else {
             sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`, `last_ask_version`) VALUES (null, 1, ?)", [$currentVersion]);
         }
     }
 
-    private function entryExist(): int|false
+    private function entryExist(): ?int
     {
-        $row = sqlQuery("SELECT * FROM `product_registration`");
-        return $row['id'] ?? false;
+        $row = QueryUtils::querySingleRow('SELECT `id` FROM `product_registration`');
+        $id = is_array($row) ? $row['id'] ?? null : null;
+        return match (true) {
+            is_int($id) => $id,
+            is_string($id) && ctype_digit($id) => intval($id),
+            default => null,
+        };
     }
 }
