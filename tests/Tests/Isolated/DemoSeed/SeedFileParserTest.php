@@ -34,6 +34,12 @@ final class SeedFileParserTest extends TestCase
           plain_names: true
         YAML;
 
+    private const FACILITY = <<<'YAML'
+
+        facilities:
+          - {key: main, name: Main, street: 1 Main St, city: Northampton, state: MA, postal_code: "01060"}
+        YAML;
+
     public function testParsesMinimalFile(): void
     {
         $seedFile = (new SeedFileParser())->parse(self::MINIMAL);
@@ -80,7 +86,7 @@ final class SeedFileParserTest extends TestCase
 
         $seedFile = (new SeedFileParser())->parse($yaml);
 
-        $this->assertSame(['providers', 'appointments'], $seedFile->sectionsNotLoaded);
+        $this->assertSame(['appointments'], $seedFile->sectionsNotLoaded);
     }
 
     #[DataProvider('invalidFileProvider')]
@@ -115,6 +121,22 @@ final class SeedFileParserTest extends TestCase
             'bad gender' => [self::MINIMAL . "\n  gender: X\n", 'synthea.gender: must be M or F'],
             'bad ages' => [self::MINIMAL . "\n  ages: old\n", 'synthea.ages: expected an age range'],
             'reversed ages' => [self::MINIMAL . "\n  ages: 90-10\n", 'synthea.ages: the first age must not be larger'],
+            'provider with bad npi' => [
+                self::MINIMAL . self::FACILITY . "\nproviders:\n  - {key: a, username: auser, first_name: A, last_name: Bee, npi: \"1234567890\", facility: main}\n",
+                'providers[0].npi',
+            ],
+            'provider at unknown facility' => [
+                self::MINIMAL . self::FACILITY . "\nproviders:\n  - {key: a, username: auser, first_name: A, last_name: Bee, npi: \"1356789010\", facility: west}\n",
+                'facility',
+            ],
+            'address rules without names' => [
+                self::MINIMAL . "\nrules:\n  addresses:\n    - {percent: 10, add: {type: postal, use: home, po_box: true}}\n",
+                'names: required when rules.addresses makes up streets',
+            ],
+            'same_as a later patient' => [
+                self::MINIMAL . "\ncases:\n  - key: c\n    patients:\n      - {key: a, pick: {age: 18+}, last_name: {same_as: b}}\n      - {key: b, pick: {age: 18+}}\n",
+                'same_as',
+            ],
         ];
     }
 

@@ -5,9 +5,10 @@
  *
  * Runs Synthea for the patients and their history, imports them through
  * the CCDA new-patient import, and writes a manifest of pid ↔ Synthea id.
- * Later versions add what Synthea doesn't make (providers, related people,
- * insurance, appointments). Development only: needs
- * OPENEMR_ENABLE_DEMO_SEED=1 unless --validate-only.
+ * Then adds what Synthea doesn't make: facilities, providers, related
+ * people, extra phones and addresses (insurance and appointments come
+ * later). Development only: needs OPENEMR_ENABLE_DEMO_SEED=1 unless
+ * --validate-only.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -21,16 +22,29 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Command;
 
 use GuzzleHttp\Client;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\DemoSeed\Import\CcdaPatientImporter;
 use OpenEMR\DemoSeed\Import\ImportDatabase;
 use OpenEMR\DemoSeed\Import\ImportedPatient;
 use OpenEMR\DemoSeed\Import\PatientManifest;
+use OpenEMR\DemoSeed\Load\PlanWriter;
+use OpenEMR\DemoSeed\Plan\PlanException;
+use OpenEMR\DemoSeed\Plan\Planner;
 use OpenEMR\DemoSeed\SeedFile\SeedFile;
 use OpenEMR\DemoSeed\SeedFile\SeedFileException;
 use OpenEMR\DemoSeed\SeedFile\SeedFileParser;
 use OpenEMR\DemoSeed\Synthea\SyntheaOutputReader;
 use OpenEMR\DemoSeed\Synthea\SyntheaRunner;
+use OpenEMR\DemoSeed\Validation\DatabaseListOptions;
+use OpenEMR\DemoSeed\Validation\ListValidator;
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Services\ContactService;
+use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\IGlobalsAware;
+use OpenEMR\Services\PatientService;
+use OpenEMR\Services\PersonPatientLinkService;
+use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -59,7 +73,8 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             ->addOption('synthea-jar', null, InputOption::VALUE_REQUIRED, 'Synthea jar (downloaded here if missing); default <work-dir>/synthea-with-dependencies.jar')
             ->addOption('count', null, InputOption::VALUE_REQUIRED, 'Override synthea.count, e.g. for a quick trial run')
             ->addOption('validate-only', null, InputOption::VALUE_NONE, 'Check the seed file and stop; writes nothing')
-            ->addOption('allow-existing-patients', null, InputOption::VALUE_NONE, 'Load even though the database already has patients');
+            ->addOption('allow-existing-patients', null, InputOption::VALUE_NONE, 'Load even though the database already has patients')
+            ->addOption('reuse-import', null, InputOption::VALUE_NONE, 'Skip Synthea and the import; add the extras to the patients in <work-dir>/patients.json');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -68,6 +83,8 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
 
         try {
             $seedFile = $this->loadSeedFile($input);
+            (new ListValidator(new DatabaseListOptions()))->validate($seedFile->listReferences);
+            $this->assertUsernamesFree($seedFile);
         } catch (SeedFileException $e) {
             $io->error($e->getMessage());
             return Command::INVALID;
@@ -84,6 +101,60 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             return Command::INVALID;
         }
 
+        $workDirectory = rtrim($this->stringOption($input, 'work-dir') ?? self::DEFAULT_WORK_DIRECTORY, '/');
+        $manifestPath = $workDirectory . '/patients.json';
+        $filesystem = new Filesystem();
+
+        if ($input->getOption('reuse-import') === true) {
+            $imported = (new PatientManifest($filesystem))->read($manifestPath);
+            $io->writeln(sprintf('Reusing the %d imported patients in %s.', count($imported), $manifestPath));
+        } else {
+            $imported = $this->generateAndImport($input, $io, $output, $seedFile, $workDirectory, $filesystem);
+            if ($imported === null) {
+                return Command::FAILURE;
+            }
+            (new PatientManifest($filesystem))->write($manifestPath, $imported);
+            $io->writeln('Manifest: ' . $manifestPath);
+        }
+
+        $io->section('Adding facilities, providers, related people, phones and addresses');
+        try {
+            $plan = (new Planner($seedFile, ServiceContainer::getClock()->now()))->plan($imported);
+        } catch (PlanException $e) {
+            $io->error($e->getMessage());
+            return Command::FAILURE;
+        }
+        $writer = new PlanWriter(
+            new FacilityService(),
+            new PractitionerService(),
+            new PatientService(),
+            new ContactService(),
+            new ContactRelationService(),
+            new PersonPatientLinkService(),
+        );
+        $writer->write($plan, static function (string $line) use ($io): void {
+            $io->writeln('  ' . $line);
+        });
+        foreach ($plan->casePatients as $key => $pid) {
+            $io->writeln(sprintf('  case patient %-12s pid %d', $key, $pid));
+        }
+
+        $io->success(sprintf('Loaded %d patients.', count($imported)));
+        return Command::SUCCESS;
+    }
+
+    /**
+     * @return ?list<ImportedPatient> null when the database already has
+     *         patients and the user didn't allow it
+     */
+    private function generateAndImport(
+        InputInterface $input,
+        SymfonyStyle $io,
+        OutputInterface $output,
+        SeedFile $seedFile,
+        string $workDirectory,
+        Filesystem $filesystem,
+    ): ?array {
         $database = new ImportDatabase();
         $existing = $database->patientCount();
         if ($existing > 0 && $input->getOption('allow-existing-patients') !== true) {
@@ -91,13 +162,11 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
                 'The database already has %d patient(s). The loader is meant for a fresh install; pass --allow-existing-patients to load anyway.',
                 $existing,
             ));
-            return Command::FAILURE;
+            return null;
         }
 
-        $workDirectory = rtrim($this->stringOption($input, 'work-dir') ?? self::DEFAULT_WORK_DIRECTORY, '/');
         $jarPath = $this->stringOption($input, 'synthea-jar') ?? $workDirectory . '/synthea-with-dependencies.jar';
         $outputDirectory = $workDirectory . '/output';
-        $filesystem = new Filesystem();
 
         $runner = new SyntheaRunner(new Client(), $filesystem);
         $runner->assertJavaInstalled();
@@ -135,17 +204,29 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
                 ));
             },
         );
+        $io->writeln(sprintf('Imported %d patients in %d s.', count($imported), (int) round(microtime(true) - $started)));
+        return $imported;
+    }
 
-        $manifestPath = $workDirectory . '/patients.json';
-        (new PatientManifest($filesystem))->write($manifestPath, $imported);
-
-        $io->success(sprintf(
-            'Imported %d patients in %d s. Manifest: %s',
-            count($imported),
-            (int) round(microtime(true) - $started),
-            $manifestPath,
-        ));
-        return Command::SUCCESS;
+    /**
+     * @throws SeedFileException
+     */
+    private function assertUsernamesFree(SeedFile $seedFile): void
+    {
+        $taken = [];
+        foreach ($seedFile->providers as $provider) {
+            $count = QueryUtils::fetchSingleValue(
+                'SELECT COUNT(*) AS `n` FROM `users` WHERE `username` = ?',
+                'n',
+                [$provider->username],
+            );
+            if (is_numeric($count) && (int) $count > 0) {
+                $taken[] = $provider->username;
+            }
+        }
+        if ($taken !== []) {
+            throw new SeedFileException('providers: username(s) already in use: ' . implode(', ', $taken));
+        }
     }
 
     private function loadSeedFile(InputInterface $input): SeedFile
@@ -190,7 +271,7 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
 
     private function openemrPath(): string
     {
-        $fileRoot = $this->getGlobalsBag()?->getString('fileroot') ?? '';
+        $fileRoot = $this->getGlobalsBag()->getString('fileroot');
         return $fileRoot !== '' ? $fileRoot : dirname(__DIR__, 3);
     }
 }

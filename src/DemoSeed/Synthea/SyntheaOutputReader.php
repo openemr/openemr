@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\DemoSeed\Synthea;
 
+use OpenEMR\DemoSeed\PostalAddress;
+
 final class SyntheaOutputReader
 {
     private const HL7_NAMESPACE = 'urn:hl7-org:v3';
@@ -131,7 +133,29 @@ final class SyntheaOutputReader
             sex: is_string($sex) ? $sex : 'unknown',
             maritalStatus: $this->maritalStatus($patient),
             payer: $payer === 'NO_INSURANCE' ? null : $payer,
+            address: $this->homeAddress($patient),
         );
+    }
+
+    /**
+     * @param array<mixed> $patient
+     */
+    private function homeAddress(array $patient): ?PostalAddress
+    {
+        $addresses = $patient['address'] ?? null;
+        $address = is_array($addresses) ? ($addresses[0] ?? null) : null;
+        if (!is_array($address)) {
+            return null;
+        }
+        $lines = $address['line'] ?? null;
+        $street = is_array($lines) ? implode(' ', array_filter($lines, is_string(...))) : '';
+        $city = $address['city'] ?? null;
+        $state = $address['state'] ?? null;
+        $postalCode = $address['postalCode'] ?? null;
+        if ($street === '' || !is_string($city) || !is_string($state) || !is_string($postalCode)) {
+            return null;
+        }
+        return new PostalAddress($street, $city, $state, $postalCode);
     }
 
     /**

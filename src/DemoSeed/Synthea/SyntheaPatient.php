@@ -2,7 +2,8 @@
 
 /**
  * One patient from a Synthea run: its files and the facts the loader needs
- * that the CCDA import doesn't keep (marital status, payer).
+ * that the CCDA import doesn't keep (marital status, payer, the state as a
+ * list code).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -15,6 +16,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\DemoSeed\Synthea;
 
+use OpenEMR\DemoSeed\PostalAddress;
+use OpenEMR\DemoSeed\SeedFile\Gender;
+
 final readonly class SyntheaPatient
 {
     /**
@@ -24,6 +28,8 @@ final readonly class SyntheaPatient
      * @param ?string $maritalStatus FHIR v3 MaritalStatus code (M, S, D, W, ...).
      * @param ?string $payer Payer on the patient's most recent Synthea claim;
      *        null when Synthea gave none or "NO_INSURANCE".
+     * @param ?PostalAddress $address home address from the FHIR file; its
+     *        state is a two-letter code
      */
     public function __construct(
         public string $syntheaId,
@@ -35,6 +41,7 @@ final readonly class SyntheaPatient
         public string $sex,
         public ?string $maritalStatus,
         public ?string $payer,
+        public ?PostalAddress $address = null,
     ) {
     }
 
@@ -43,8 +50,17 @@ final readonly class SyntheaPatient
         return $this->birthDate->diff($date)->y;
     }
 
+    public function gender(): ?Gender
+    {
+        return match ($this->sex) {
+            'male' => Gender::Male,
+            'female' => Gender::Female,
+            default => null,
+        };
+    }
+
     /**
-     * @return array{synthea_id: string, ccda_file: string, fhir_file: string, first_name: string, last_name: string, birth_date: string, sex: string, marital_status: ?string, payer: ?string}
+     * @return array{synthea_id: string, ccda_file: string, fhir_file: string, first_name: string, last_name: string, birth_date: string, sex: string, marital_status: ?string, payer: ?string, address: ?array{street: string, city: string, state: string, postal_code: string}}
      */
     public function toArray(): array
     {
@@ -58,6 +74,58 @@ final readonly class SyntheaPatient
             'sex' => $this->sex,
             'marital_status' => $this->maritalStatus,
             'payer' => $this->payer,
+            'address' => $this->address === null ? null : [
+                'street' => $this->address->street,
+                'city' => $this->address->city,
+                'state' => $this->address->state,
+                'postal_code' => $this->address->postalCode,
+            ],
         ];
+    }
+
+    /**
+     * Reads a manifest row written by toArray().
+     *
+     * @param array<mixed> $row
+     */
+    public static function fromArray(array $row): self
+    {
+        $string = static function (string $key) use ($row): string {
+            $value = $row[$key] ?? null;
+            if (!is_string($value) || $value === '') {
+                throw new SyntheaException('Manifest row is missing ' . $key);
+            }
+            return $value;
+        };
+        $optional = static function (string $key) use ($row): ?string {
+            $value = $row[$key] ?? null;
+            return is_string($value) && $value !== '' ? $value : null;
+        };
+        $birthDate = \DateTimeImmutable::createFromFormat('!Y-m-d', $string('birth_date'), new \DateTimeZone('UTC'));
+        if ($birthDate === false) {
+            throw new SyntheaException('Manifest row has a bad birth_date');
+        }
+        $address = null;
+        $addressRow = $row['address'] ?? null;
+        if (is_array($addressRow)) {
+            $parts = [];
+            foreach (['street', 'city', 'state', 'postal_code'] as $key) {
+                $value = $addressRow[$key] ?? null;
+                $parts[$key] = is_string($value) ? $value : '';
+            }
+            $address = new PostalAddress($parts['street'], $parts['city'], $parts['state'], $parts['postal_code']);
+        }
+        return new self(
+            $string('synthea_id'),
+            $string('ccda_file'),
+            $string('fhir_file'),
+            $string('first_name'),
+            $string('last_name'),
+            $birthDate,
+            $string('sex'),
+            $optional('marital_status'),
+            $optional('payer'),
+            $address,
+        );
     }
 }
