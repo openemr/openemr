@@ -20,9 +20,8 @@ If this resolves an existing issue, link to one or more issues in the short desc
 #### Was an AI assistant used? Yes / No
 
 <!--
-If yes, add a trailer naming the tool to each such commit: `Generated-By` if the
-AI produced the change directly, `Assisted-By` if it helped with tweaks,
-refactors, or fixes to a person's work.
+If yes, add a trailer naming the tool to each such commit: `Generated-By` only
+if the AI made every change in the commit, `Assisted-By` if a person made any.
 
 ```
 git commit --trailer "Generated-By: Claude Code" -m "fix(calendar): correct date parsing"
