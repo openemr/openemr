@@ -90,9 +90,15 @@ return [
         $host = $c->get('OPENEMR_DB_HOST');
         $port = $c->get('OPENEMR_DB_PORT');
         $socket = $c->get('OPENEMR_DB_SOCKET');
+        $sslCa = $c->get('OPENEMR_DB_SSL_CA');
+        $sslCert = $c->get('OPENEMR_DB_SSL_CERT');
+        $sslKey = $c->get('OPENEMR_DB_SSL_KEY');
         assert(is_string($dbName));
         assert(is_string($host) || $host === null);
         assert(is_string($socket) || $socket === null);
+        assert(is_string($sslCa) || $sslCa === null);
+        assert(is_string($sslCert) || $sslCert === null);
+        assert(is_string($sslKey) || $sslKey === null);
         if (is_string($port)) {
             $port = (int)$port;
         } else {
@@ -105,6 +111,8 @@ return [
             host: $host,
             port: $port,
             unixSocket: $socket,
+            sslCaPath: $sslCa,
+            sslClientCert: DatabaseConnectionOptions::clientCert($sslCert, $sslKey),
         );
     },
 

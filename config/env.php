@@ -29,4 +29,8 @@ return [
     'OPENEMR_DB_HOST' => env('OPENEMR_DB_HOST', null),
     'OPENEMR_DB_PORT' => env('OPENEMR_DB_PORT', null),
     'OPENEMR_DB_SOCKET' => env('OPENEMR_DB_SOCKET', null),
+    // File paths. Cert and key must be set together.
+    'OPENEMR_DB_SSL_CA' => env('OPENEMR_DB_SSL_CA', null),
+    'OPENEMR_DB_SSL_CERT' => env('OPENEMR_DB_SSL_CERT', null),
+    'OPENEMR_DB_SSL_KEY' => env('OPENEMR_DB_SSL_KEY', null),
 ];
