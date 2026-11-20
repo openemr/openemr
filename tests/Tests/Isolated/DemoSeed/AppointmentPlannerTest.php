@@ -189,6 +189,7 @@ final class AppointmentPlannerTest extends TestCase
         $this->assertSame([1, 2, 3], array_map(static fn (PlannedVisitListEntry $entry): int => $entry->sequence, $entries));
         $stops = [];
         foreach ($entries as $entry) {
+            $this->assertNotNull($entry->stop, 'rule lists give every patient a stop');
             $stops[$entry->pid] = $entry->stop;
         }
         $this->assertSame($stops[1], $stops[4], 'patients at one address share a stop');

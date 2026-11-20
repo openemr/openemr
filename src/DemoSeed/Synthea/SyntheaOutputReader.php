@@ -42,6 +42,26 @@ final class SyntheaOutputReader
         return $patients;
     }
 
+    /**
+     * Patients Synthea wrote a FHIR file for but no CCDA: its CCDA exporter
+     * fails for some patients (seen: "Person does not have insurance at
+     * time ..." for a birthday just after the reference date), and those
+     * patients can't be imported.
+     *
+     * @return list<string> FHIR file names without the extension
+     */
+    public function fhirWithoutCcda(string $outputDirectory): array
+    {
+        $directory = rtrim($outputDirectory, '/');
+        $names = static fn (string $pattern): array => array_map(
+            static fn (string $file): string => pathinfo($file, PATHINFO_FILENAME),
+            glob($pattern) ?: [],
+        );
+        $missing = array_values(array_diff($names($directory . '/fhir/*.json'), $names($directory . '/ccda/*.xml')));
+        sort($missing, SORT_STRING);
+        return $missing;
+    }
+
     public function readSyntheaId(string $ccdaFile): string
     {
         $document = new \DOMDocument();

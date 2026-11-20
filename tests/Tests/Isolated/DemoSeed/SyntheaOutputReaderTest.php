@@ -121,6 +121,24 @@ final class SyntheaOutputReaderTest extends TestCase
         (new SyntheaOutputReader())->read($scratch);
     }
 
+    public function testListsFhirFilesWithoutACcda(): void
+    {
+        $scratch = $this->makeScratch();
+        $filesystem = new Filesystem();
+        foreach (['Ann_Zed_11111111-1111-1111-1111-111111111111', 'Bob_Able_22222222-2222-2222-2222-222222222222'] as $name) {
+            $filesystem->copy(self::FIXTURES . '/fhir/' . $name . '.json', $scratch . '/fhir/' . $name . '.json');
+        }
+        $filesystem->copy(
+            self::FIXTURES . '/ccda/Bob_Able_22222222-2222-2222-2222-222222222222.xml',
+            $scratch . '/ccda/Bob_Able_22222222-2222-2222-2222-222222222222.xml',
+        );
+
+        $reader = new SyntheaOutputReader();
+
+        $this->assertSame(['Ann_Zed_11111111-1111-1111-1111-111111111111'], $reader->fhirWithoutCcda($scratch));
+        $this->assertSame([], $reader->fhirWithoutCcda(self::FIXTURES));
+    }
+
     private function makeScratch(): string
     {
         $this->scratch = sys_get_temp_dir() . '/demo-seed-test-' . bin2hex(random_bytes(6));

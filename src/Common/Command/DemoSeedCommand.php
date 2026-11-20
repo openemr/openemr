@@ -220,8 +220,17 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
                 $output->write($buffer);
             }
         });
-        $patients = (new SyntheaOutputReader())->read($outputDirectory);
-        $io->writeln(sprintf('Synthea generated %d patients.', count($patients)));
+        $reader = new SyntheaOutputReader();
+        $patients = $reader->read($outputDirectory);
+        $io->writeln(sprintf('Synthea generated %d patients with a CCDA.', count($patients)));
+        $withoutCcda = $reader->fhirWithoutCcda($outputDirectory);
+        if ($withoutCcda !== []) {
+            $io->warning(sprintf(
+                "Synthea's CCDA export failed for %d patient(s), who are not imported: %s. Raise synthea.count if you need more.",
+                count($withoutCcda),
+                implode(', ', $withoutCcda),
+            ));
+        }
 
         $io->section('Importing the patients (CCDA)');
         $importer = new CcdaPatientImporter(
