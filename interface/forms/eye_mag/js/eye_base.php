@@ -3606,10 +3606,13 @@ $(function () {
                                                                       mid= mid + '00';
                                                                       }
                                                                       if ((!mid.match(/\./))&&(mid.match(00|25|50|75))) {
-                                                                      var front = mid.match(/(\d{0,2})(00|25|50|75)/)[1];
-                                                                      var back = mid.match(/(\d{0,2})(00|25|50|75)/)[2];
+                                                                      var m = mid.match(/(\d{0,2})(00|25|50|75)/);
+                                                                      if (m) {
+                                                                      var front = m[1];
+                                                                      var back = m[2];
                                                                       if (front =='') front ='0';
                                                                       mid = front + "." + back;
+                                                                      }
                                                                       }
                                                                       if (!mid.match(/\./)) {
                                                                       var front = mid.match(/([\+\-]?\d{0,2})(\d{2})/)[1];
@@ -3648,10 +3651,13 @@ $(function () {
                                                                                                               add = add + '00';
                                                                                                               }
                                                                                                               if ((!add.match(/\./))&&(add.match(/(0|25|50|75)$/))) {
-                                                                                                              var front = add.match(/([\+]?\d{0,1})(00|25|50|75)/)[1];
-                                                                                                              var back  = add.match(/([\+]?\d{0,1})(00|25|50|75)/)[2];
+                                                                                                              var m = add.match(/([\+]?\d{0,1})(00|25|50|75)/);
+                                                                                                              if (m) {
+                                                                                                              var front = m[1];
+                                                                                                              var back  = m[2];
                                                                                                               if (front =='') front ='0';
                                                                                                               add = front + "." + back;
+                                                                                                              }
                                                                                                               }
                                                                                                               if (!add.match(/^(\+)/) && (add.length >  0)) {
                                                                                                               add= "+" + add;
@@ -3736,9 +3742,10 @@ $(function () {
                                                                         if (mid.match(/\.$/)) {
                                                                         mid = mid + '00';
                                                                         }
-                                                                        if (mid.match(/([\+\-]?\d{0,2})\.?(00|25|50|75)/)) {
-                                                                        var front = mid.match(/([\+\-]?\d{0,2})\.?(00|25|50|75)/)[1];
-                                                                        var back  = mid.match(/([\+\-]?\d{0,2})\.?(00|25|50|75)/)[2];
+                                                                        var m2 = mid.match(/([\+\-]?\d{0,2})\.?(00|25|50|75)/);
+                                                                        if (m2) {
+                                                                        var front = m2[1];
+                                                                        var back  = m2[2];
                                                                         if (front =='') front ='0';
                                                                         mid = front + "." + back;
                                                                         }
