@@ -1859,12 +1859,12 @@ class BillingUtilities
      * Reading them together keeps a later version from being paired with
      * an older file name.
      *
-     * @return array{version: int, process_file: string}|null
+     * @return array{version: int, process_file: string, x12_partner_id: int}|null
      */
     public static function newestUnbilledClaimAssignment(mixed $patientId, mixed $encounterId, mixed $payerId): ?array
     {
         $row = QueryUtils::querySingleRow(
-            "SELECT version, process_file FROM claims WHERE patient_id = ? AND encounter_id = ? "
+            "SELECT version, process_file, x12_partner_id FROM claims WHERE patient_id = ? AND encounter_id = ? "
             . "AND payer_id = ? AND status = ? ORDER BY version DESC LIMIT 1",
             [$patientId, $encounterId, $payerId, BillingClaim::STATUS_LEAVE_UNBILLED]
         );
@@ -1881,7 +1881,51 @@ class BillingUtilities
         return [
             'version' => $version,
             'process_file' => $file,
+            'x12_partner_id' => self::storedClaimPartner($row),
         ];
+    }
+
+    /**
+     * Partner id stored on the claims row, or 0 when the row has none.
+     */
+    private static function storedClaimPartner(mixed $row): int
+    {
+        if (!is_array($row) || !array_key_exists('x12_partner_id', $row)) {
+            return 0;
+        }
+        $raw = $row['x12_partner_id'];
+        if (is_int($raw)) {
+            return $raw > 0 ? $raw : 0;
+        }
+        if (is_string($raw) && preg_match('/^[1-9][0-9]*$/', $raw) === 1) {
+            return intval($raw, 10);
+        }
+
+        return 0;
+    }
+
+    /**
+     * Partner a recovered claim file may be queued for.
+     *
+     * The claims row stores the partner the file was built for. A later
+     * run that posts a different partner must not upload that file.
+     */
+    public static function partnerForRecoveredFile(int $storedPartner, mixed $postedPartner): ?int
+    {
+        if ($storedPartner <= 0) {
+            return null;
+        }
+        if (is_int($postedPartner)) {
+            return $postedPartner === $storedPartner ? $storedPartner : null;
+        }
+        if (!is_string($postedPartner) || preg_match('/^[1-9][0-9]*$/', $postedPartner) !== 1) {
+            return null;
+        }
+        if (intval($postedPartner, 10) !== $storedPartner) {
+            return null;
+        }
+
+        return $storedPartner;
     }
 
     /**

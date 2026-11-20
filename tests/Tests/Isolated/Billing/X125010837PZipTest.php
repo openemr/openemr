@@ -32,6 +32,28 @@ class X125010837PZipTest extends TestCase
     /**
      * A short ZIP is still sent. The line names the loop and says a payer may reject it.
      */
+    /**
+     * @return array<string, array{int, mixed, int|null}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function recoveredPartnerProvider(): array
+    {
+        return [
+            'same partner' => [4, 4, 4],
+            'same digits' => [4, '4', 4],
+            'different partner' => [4, 9, null],
+            'no stored partner' => [0, 4, null],
+            'blank posted partner' => [4, '', null],
+        ];
+    }
+
+    #[DataProvider('recoveredPartnerProvider')]
+    public function testRecoveredFileKeepsItsPartner(int $stored, mixed $posted, ?int $expected): void
+    {
+        $this->assertSame($expected, BillingUtilities::partnerForRecoveredFile($stored, $posted));
+    }
+
     public function testLogNamesTheLoopForEachShortZip(): void
     {
         $billing = X125010837P::BILLING_ZIP_LOG;
@@ -554,6 +576,7 @@ class X125010837PZipTest extends TestCase
             $probe = $this->versionProbe();
             $probe->openUnbilled = 4;
             $probe->storedFile = 'old-batch.txt';
+            $probe->storedPartner = 3;
             $probe->fileOnDisk = true;
             $probe->generate($this->versionClaim());
 
@@ -561,6 +584,24 @@ class X125010837PZipTest extends TestCase
             $this->assertSame([2], $probe->writeStatus);
             $this->assertSame([], $probe->storedClaims());
             $this->assertContains(UnbilledFileDecision::ALREADY_WRITTEN, $probe->screen);
+        });
+    }
+
+    /**
+     * A published file stays with the partner it was built for.
+     */
+    public function testHoldOffDoesNotSettleAFileForAnotherPartner(): void
+    {
+        $this->withGlobals(false, function (): void {
+            $probe = $this->versionProbe();
+            $probe->openUnbilled = 4;
+            $probe->storedFile = 'old-batch.txt';
+            $probe->storedPartner = 9;
+            $probe->fileOnDisk = true;
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([], $probe->writes);
+            $this->assertSame([], $probe->storedClaims());
         });
     }
 
@@ -592,6 +633,7 @@ class X125010837PZipTest extends TestCase
             $probe = $this->versionProbe();
             $probe->openUnbilled = 4;
             $probe->storedFile = 'old-batch.txt';
+            $probe->storedPartner = 3;
             $probe->fileOnDisk = true;
             $probe->billedUpdateResult = 0;
             $probe->generate($this->versionClaim());
@@ -1275,7 +1317,7 @@ final class HoldZipGenerator extends GeneratorX12
     /**
      * The screen cases do not read an unbilled row.
      *
-     * @return array{version: int, process_file: string}|null
+     * @return array{version: int, process_file: string, x12_partner_id: int}|null
      */
     protected function openUnbilledAssignment(BillingClaim $claim): ?array
     {
@@ -1335,6 +1377,7 @@ final class VersionHoldProbe extends GeneratorX12
     public array $writes = [];
 
     public ?int $openUnbilled = null;
+    public int $storedPartner = 0;
 
     public string $storedFile = '';
 
@@ -1409,7 +1452,7 @@ final class VersionHoldProbe extends GeneratorX12
     /**
      * Version and file name from the same stand-in row.
      *
-     * @return array{version: int, process_file: string}|null
+     * @return array{version: int, process_file: string, x12_partner_id: int}|null
      */
     protected function openUnbilledAssignment(BillingClaim $claim): ?array
     {
@@ -1420,6 +1463,7 @@ final class VersionHoldProbe extends GeneratorX12
         return [
             'version' => $this->openUnbilled,
             'process_file' => $this->storedFile,
+            'x12_partner_id' => $this->storedPartner,
         ];
     }
 
@@ -1583,6 +1627,7 @@ final class DirectVersionProbe extends GeneratorX12Direct
     public array $writes = [];
 
     public ?int $openUnbilled = null;
+    public int $storedPartner = 0;
 
     /** @var list<int> */
     public array $writeStatus = [];

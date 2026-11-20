@@ -426,7 +426,7 @@ abstract class AbstractProcessingTask
     /**
      * Newest unbilled version and its file name, from one row.
      *
-     * @return array{version: int, process_file: string}|null
+     * @return array{version: int, process_file: string, x12_partner_id: int}|null
      */
     protected function openUnbilledAssignment(BillingClaim $claim): ?array
     {
@@ -503,9 +503,17 @@ abstract class AbstractProcessingTask
             return null;
         }
 
+        $queuePartner = BillingUtilities::partnerForRecoveredFile(
+            $assignment['x12_partner_id'],
+            $claim->getPartner()
+        );
+        if ($queuePartner === null) {
+            return false;
+        }
+
         $this->settledVersion = $version;
         $this->settledFileName = $filename;
-        BillingClaimBatch::queuePartnerFile($claim->getPartner(), $filename, '[]');
+        BillingClaimBatch::queuePartnerFile($queuePartner, $filename, '[]');
 
         return $this->markStoredFileBilled($claim);
     }
