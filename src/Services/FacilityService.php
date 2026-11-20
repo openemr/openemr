@@ -51,6 +51,65 @@ class FacilityService extends BaseService
 
 
     /**
+     * The facility columns the facility form saves, each with the name of its form field.
+     * Three fields are named differently from their column.
+     */
+    public const FACILITY_FORM_FIELDS = [
+        'name' => 'facility',
+        'phone' => 'phone',
+        'fax' => 'fax',
+        'street' => 'street',
+        'city' => 'city',
+        'state' => 'state',
+        'postal_code' => 'postal_code',
+        'country_code' => 'country_code',
+        'federal_ein' => 'federal_ein',
+        'website' => 'website',
+        'email' => 'email',
+        'color' => 'ncolor',
+        'service_location' => 'service_location',
+        'billing_location' => 'billing_location',
+        'accepts_assignment' => 'accepts_assignment',
+        'pos_code' => 'pos_code',
+        'domain_identifier' => 'domain_identifier',
+        'mammography_cert_number' => 'mammography_cert_number',
+        'attn' => 'attn',
+        'tax_id_type' => 'tax_id_type',
+        'primary_business_entity' => 'primary_business_entity',
+        'facility_npi' => 'facility_npi',
+        'facility_taxonomy' => 'facility_taxonomy',
+        'facility_code' => 'facility_id',
+        'mail_street' => 'mail_street',
+        'mail_street2' => 'mail_street2',
+        'mail_city' => 'mail_city',
+        'mail_state' => 'mail_state',
+        'mail_zip' => 'mail_zip',
+        'oid' => 'oid',
+        'iban' => 'iban',
+        'info' => 'info',
+        'inactive' => 'inactive',
+        'organization_type' => 'organization_type',
+    ];
+
+    /**
+     * The facility's column values from the facility form's posted fields, trimmed. A field
+     * the form did not send, or one that is not text, is saved as empty.
+     *
+     * @param array<array-key, mixed> $fields the posted form
+     * @return array<string, string> column => value, for insertFacility() or updateFacility()
+     */
+    public static function facilityFormValues(array $fields): array
+    {
+        $values = [];
+        foreach (self::FACILITY_FORM_FIELDS as $column => $field) {
+            $value = $fields[$field] ?? '';
+            $values[$column] = is_string($value) ? trim($value) : '';
+        }
+
+        return $values;
+    }
+
+    /**
      * Save-dialog text for a billing facility. The row is already stored.
      */
     public const FACILITY_SAVED_BILLING_POSTAL = 'This billing facility was saved. The postal code is not 9 digits, '
