@@ -110,9 +110,12 @@ function fill_QP_field(PEZONE, ODOSOU, LOCATION_text, selection, fill_action, Co
  * It ensures ownership of the form or provides background updates to READ-ONLY instances of the form.
  * It doesn't unlock a form to change ownership/provide write privileges.  This is done via the unlock() function.
  */
+var _submitting = false;
 function submit_form(action) {
+    if (_submitting) return;
+    _submitting = true;
     var url = "../../forms/eye_mag/save.php?sub=1&mode=update&id=" + $("#form_id").val();
-    if ($("#COPY_SECTION").value == "READONLY") return;
+    if ($("#COPY_SECTION").value == "READONLY") { _submitting = false; return; }
         // Sync _copy edits into their base fields before serializing, so values persist
     // even when blur never fired (e.g. Enter-key or programmatic save).
     $("input[name$='_copy']", "#eye_mag").each(function() {
@@ -127,9 +130,12 @@ function submit_form(action) {
     // Format numeric fields before serializing, so unformatted entries (e.g. "3")
     // are converted to their full form (e.g. "+3.00") even when save happens
     // before the field's blur handler runs.
+    var _origSubmit = submit_form;
+    submit_form = function() { return; };
     $("input[class^='sphere'],input[name$='SPH'],input[class^='presbyopia'],input[name$='ADD'],#ODADD_1,#ODADD_2,#OSADD_1,#OSADD_2,input[name$='PRISM'],input[class^='prism'],input[name$='CYL'],input[name$='AXIS']").trigger('blur');
+    submit_form = _origSubmit;
 formData = $("form#eye_mag").serialize();
-    if (formData =='') return;
+    if (formData =='') { _submitting = false; return; }
     $("#menustate").val('0');
     top.restoreSession();
     return $.ajax({
@@ -145,6 +151,7 @@ formData = $("form#eye_mag").serialize();
                        //List these findings in the IMP_PLAN Builder
                        if (action !='1') {populate_form(result);}
                    }
+                   _submitting = false;
                    });
 };
 
