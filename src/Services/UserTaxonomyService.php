@@ -136,6 +136,16 @@ final class UserTaxonomyService
     }
 
     /**
+     * Whether a taxonomy stored on an encounter must be cleared because the encounter's provider changed:
+     * the stored code was chosen for the previous provider. Unknown ids on either side count as unchanged
+     * only when both are unknown, so a missing stored provider is treated as a change.
+     */
+    public static function providerChanged(mixed $storedProviderId, mixed $newProviderId): bool
+    {
+        return filter_var($storedProviderId, FILTER_VALIDATE_INT) !== filter_var($newProviderId, FILTER_VALIDATE_INT);
+    }
+
+    /**
      * All of a user's taxonomy codes, the primary (users.taxonomy) first.
      *
      * @return list<string>

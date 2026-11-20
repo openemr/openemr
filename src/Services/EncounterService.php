@@ -530,7 +530,7 @@ class EncounterService extends BaseService
                 'provider_id',
                 [$encounter, $pid]
             );
-            if (filter_var($storedProvider, FILTER_VALIDATE_INT) !== filter_var($data['provider_id'], FILTER_VALIDATE_INT)) {
+            if (UserTaxonomyService::providerChanged($storedProvider, $data['provider_id'])) {
                 $data['provider_taxonomy'] = '';
             }
         }

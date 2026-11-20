@@ -98,4 +98,28 @@ class UserTaxonomyServiceTest extends TestCase
         $this->assertNull(UserTaxonomyService::pickAllowed($allowed, '207RC0000X'));
         $this->assertSame('208D00000X', UserTaxonomyService::pickAllowed($allowed, '208D00000X'));
     }
+
+    /**
+     * @codeCoverageIgnore
+     * @return array<string, array{mixed, mixed, bool}>
+     */
+    public static function providerPairs(): array
+    {
+        return [
+            'same provider' => [5, 5, false],
+            'same provider as text from the form' => ['5', '5', false],
+            'database int against form text' => [5, '5', false],
+            'a different provider' => [5, 6, true],
+            'no stored provider and one chosen' => [null, 6, true],
+            'stored provider and none chosen' => [5, null, true],
+            'both unknown' => [null, null, false],
+            'junk text is not an id' => [5, 'abc', true],
+        ];
+    }
+
+    #[DataProvider('providerPairs')]
+    public function testProviderChanged(mixed $stored, mixed $new, bool $expected): void
+    {
+        $this->assertSame($expected, UserTaxonomyService::providerChanged($stored, $new));
+    }
 }
