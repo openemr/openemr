@@ -85,7 +85,7 @@ return [
         $dbName = $c->get('OPENEMR_DB_NAME');
         if ($dbName === null) {
             $site = $c->getString('OPENEMR_SITE');
-            return DatabaseConnectionOptions::forSite("sites/$site");
+            return DatabaseConnectionOptions::fromSiteSqlconf("sites/$site");
         }
         $host = $c->get('OPENEMR_DB_HOST');
         $port = $c->get('OPENEMR_DB_PORT');
