@@ -250,11 +250,19 @@ final class AuthCodeFlow
             ['CONTENT_TYPE' => 'application/json'],
             $regBody,
         );
-        Assert::assertSame(
+        // Acceptance tests run against a packaged OpenEMR (potentially
+        // older than the current branch), so the DCR status may be
+        // either 200 (pre-15449 behavior) or 201 (RFC 7591 §3.2.1
+        // compliant, 15449+). Tolerate any 2xx here — strict 201 pin
+        // lives in the api-tier test suite that runs against branch
+        // code.
+        $statusCode = $browser->getResponse()->getStatusCode();
+        Assert::assertGreaterThanOrEqual(
             200,
-            $browser->getResponse()->getStatusCode(),
-            'DCR should return 200 — 404 means the OAuth server is unreachable, 400 means the registration body was rejected',
+            $statusCode,
+            'DCR should return 2xx — 404 means the OAuth server is unreachable, 400 means the registration body was rejected',
         );
+        Assert::assertLessThan(300, $statusCode, 'DCR should return 2xx — status was ' . $statusCode);
         $client = json_decode($browser->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         Assert::assertIsArray($client);
         Assert::assertArrayHasKey('client_id', $client, 'DCR response must include client_id');
@@ -304,11 +312,15 @@ final class AuthCodeFlow
             ['CONTENT_TYPE' => 'application/json'],
             $regBody,
         );
-        Assert::assertSame(
+        // 2xx-tolerant per the acceptance-tier packaged-OpenEMR rule
+        // documented above the first DCR assertion in this file.
+        $statusCode = $browser->getResponse()->getStatusCode();
+        Assert::assertGreaterThanOrEqual(
             200,
-            $browser->getResponse()->getStatusCode(),
-            'DCR (private_key_jwt) should return 200 — 400 usually means the JWKS payload was rejected or token_endpoint_auth_method is not accepted',
+            $statusCode,
+            'DCR (private_key_jwt) should return 2xx — 400 usually means the JWKS payload was rejected or token_endpoint_auth_method is not accepted',
         );
+        Assert::assertLessThan(300, $statusCode, 'DCR (private_key_jwt) should return 2xx — status was ' . $statusCode);
         $client = json_decode($browser->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         Assert::assertIsArray($client);
         Assert::assertArrayHasKey('client_id', $client, 'DCR response must include client_id');

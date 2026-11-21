@@ -570,12 +570,15 @@ class AuthorizationController implements LoggerAwareInterface
             if (isset($params['require_auth_time'])) {
                 $params['require_auth_time'] = ($params['require_auth_time'] === 1);
             }
-            // send response
+            // send response — RFC 7591 §3.2.1 names 201 Created as the
+            // success status for client registration. The previous 200
+            // emitted by this handler was off-spec but tolerated by
+            // RFC-conforming clients (which accept any 2xx).
             $jsonBody = json_encode(array_merge($client_json, $params));
             $response = $response->withHeader("Cache-Control", "no-store")
                 ->withHeader("Pragma", "no-cache")
                 ->withHeader('Content-Type', 'application/json')
-                ->withStatus(Response::HTTP_OK)
+                ->withStatus(Response::HTTP_CREATED)
                 ->withBody(Stream::create($jsonBody));
             $this->session->invalidate();
             return $response;

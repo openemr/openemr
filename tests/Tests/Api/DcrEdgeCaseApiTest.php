@@ -152,7 +152,7 @@ class DcrEdgeCaseApiTest extends TestCase
                 'scope' => 'openid',
             ],
         ]);
-        $this->assertSame(200, $response->getStatusCode(), 'Public DCR must succeed. Body: ' . (string) $response->getBody());
+        $this->assertSame(201, $response->getStatusCode(), 'Public DCR must succeed. Body: ' . (string) $response->getBody());
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body);
         $this->assertArrayHasKey('client_id', $body);
@@ -262,7 +262,7 @@ class DcrEdgeCaseApiTest extends TestCase
         );
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body);
-        if ($status === 200) {
+        if ($status === 201) {
             $this->assertArrayHasKey('client_id', $body);
             $this->assertIsString($body['client_id']);
             $this->clientIds[] = $body['client_id'];
@@ -278,7 +278,7 @@ class DcrEdgeCaseApiTest extends TestCase
                 'Accepted IDN redirect_uri must round-trip without alteration'
             );
         } else {
-            $this->assertGreaterThanOrEqual(400, $status, 'Non-success must be 4xx, not 2xx-non-200');
+            $this->assertGreaterThanOrEqual(400, $status, 'Non-success must be 4xx, not 2xx-non-201');
             $this->assertArrayHasKey('error', $body);
             $this->assertSame(
                 'invalid_redirect_uri',
@@ -320,7 +320,7 @@ class DcrEdgeCaseApiTest extends TestCase
         );
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body);
-        if ($status === 200) {
+        if ($status === 201) {
             $this->assertArrayHasKey('client_id', $body);
             $this->assertIsString($body['client_id']);
             $this->clientIds[] = $body['client_id'];
@@ -376,7 +376,7 @@ class DcrEdgeCaseApiTest extends TestCase
         );
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body);
-        if ($status === 200) {
+        if ($status === 201) {
             $this->assertArrayHasKey('client_id', $body);
             $this->assertIsString($body['client_id']);
             $this->clientIds[] = $body['client_id'];
@@ -513,7 +513,7 @@ class DcrEdgeCaseApiTest extends TestCase
             'json' => $payload,
         ]);
         $this->assertSame(
-            200,
+            201,
             $response->getStatusCode(),
             'DCR should succeed. Body: ' . (string) $response->getBody()
         );
