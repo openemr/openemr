@@ -317,10 +317,11 @@ Select only the repos agents will work on (e.g. `openemr/openemr`, `openemr/open
 | Permission | Level |
 |------------|-------|
 | Metadata | Read (always required) |
+| Contents | Read |
 | Pull requests | Read and write |
 | Issues | Read and write |
 
-> `Contents` is **not** needed — agents push branches via `git push` using the existing repo remote, not via the token. The token is only used by `gh` CLI for API operations (opening PRs, reading issues).
+> `Contents: Write` is **not** needed — agents push branches via `git push` using the existing repo remote (SSH deploy key), not via the token. `Contents: Read` *is* needed because the PR-creation API internally resolves the base/head refs; without it, `gh pr create` fails with "not all refs are readable." Read grants `git clone`/`fetch` via the token path, but push paths still fail without `Contents: Write`, so the deploy key stays the only mechanism that can push.
 
 Set a 90-day expiration and rotate periodically. Then authenticate:
 
@@ -330,7 +331,7 @@ gh auth login
 # Select: GitHub.com → HTTPS → Paste token
 ```
 
-> The token alone does **not** grant `git push`. The fine-grained PAT has no `Contents` permission by design — it only authorizes API operations (PR creation, issue access). Pushes to your fork are handled separately by the deploy key set up in Step 10a.
+> The token alone does **not** grant `git push`. The fine-grained PAT has no `Contents: Write` permission by design — it only authorizes API operations (PR creation, issue access) and ref-reading needed to validate those API calls. Pushes to your fork are handled separately by the deploy key set up in Step 10a.
 
 ---
 
