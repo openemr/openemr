@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 579
+-- v_database: 580
 --
 
 --
@@ -3717,6 +3717,9 @@ INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`,
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','sexual_orientation','1','Sexual Orientation',120,46,1,0,100,'sexual_orientation',1,1,'','[\"N\"]','Sexual Orientation',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','pronoun','1','Pronouns',125,1,1,0,50,'pronoun',1,1,'','','Patient Pronouns',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','pubpid','1','External ID',130,2,1,10,255,'',1,1,'','[\"D\",\"N\"]','External identifier',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','active','1','Active',132,21,1,0,0,'',1,1,'1','','Uncheck when the patient is no longer seen here (FHIR Patient.active)',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','inactive_reason','1','Inactive Reason',134,1,1,0,0,'patient_inactive_reason',1,1,'','','Why the patient is no longer active',0,'','F','a:1:{i:0;a:5:{s:2:"id";s:6:"active";s:6:"itemid";s:0:"";s:8:"operator";s:2:"se";s:5:"value";s:0:"";s:5:"andor";s:0:"";}}','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','inactive_date','1','Inactive Date',136,4,1,0,10,'',1,1,'','','Date the patient became inactive',0,'','F','a:1:{i:0;a:5:{s:2:"id";s:6:"active";s:6:"itemid";s:0:"";s:8:"operator";s:2:"se";s:5:"value";s:0:"";s:5:"andor";s:0:"";}}','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','ss','1','S.S.',140,2,1,11,11,'',1,1,'','','Social Security Number',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','drivers_license','1','License/ID',150,2,1,15,63,'',1,1,'','','Drivers License or State ID',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','status','1','Marital Status',160,1,1,0,0,'marital',1,1,'','','Marital Status',0,'','F','','','');
@@ -7444,6 +7447,13 @@ VALUES ('administrative_sex', 'Male', 'Male', 10, 'SNOMED-CT:248153007', ''),
        ('administrative_sex', 'UNK', 'unknown', 40, 'DataAbsentReason:unknown', '');
 
 -- Insert pronoun list
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('lists', 'patient_inactive_reason', 'Patient Inactive Reason', 0, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'moved', 'Moved away', 10, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'transferred', 'Transferred care', 20, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'discharged', 'Discharged from practice', 30, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'deceased', 'Deceased', 40, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'duplicate', 'Duplicate record', 50, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'other', 'Other', 60, 0, 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`) VALUES ('lists', 'pronoun', 'Pronouns', 0, 0, 0, '90778-2 (Personal pronouns - Reported): https://loinc.org/90778-2/', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'he_him', 'he/him/his/his/himself', 10, 0, 'LOINC:LA29518-0', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'she_her', 'she/her/her/hers/herself', 20, 0, 'LOINC:LA29519-8', 1);
@@ -8473,6 +8483,9 @@ CREATE TABLE `patient_data` (
   `allow_patient_portal` varchar(31) NOT NULL DEFAULT '',
   `deceased_date` datetime default NULL,
   `deceased_reason` varchar(255) NOT NULL default '',
+  `active` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = active patient record (FHIR Patient.active)',
+  `inactive_reason` varchar(63) NOT NULL DEFAULT '' COMMENT 'list_options patient_inactive_reason',
+  `inactive_date` date DEFAULT NULL COMMENT 'Date the patient became inactive',
   `soap_import_status` TINYINT(4) DEFAULT NULL COMMENT '1-Prescription Press 2-Prescription Import 3-Allergy Press 4-Allergy Import',
   `cmsportal_login` varchar(60) NOT NULL default '',
   `care_team_provider` TEXT,
@@ -8520,6 +8533,7 @@ CREATE TABLE `patient_data` (
   UNIQUE KEY `uuid` (`uuid`),
   KEY `idx_patient_name` (`lname`, `fname`),
   KEY `idx_patient_dob` (`DOB`),
+  KEY `idx_patient_active` (`active`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 -- --------------------------------------------------------

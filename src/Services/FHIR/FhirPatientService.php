@@ -7,6 +7,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -28,6 +29,7 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\ListService;
+use OpenEMR\Services\Patient\PatientActiveStatus;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
@@ -161,6 +163,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 ['state', 'contact_address_state']
             ),
 
+            'active' => new FhirSearchParameterDefinition('active', SearchFieldType::TOKEN, ['active']),
             'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email','email_direct']),
             'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ['lname']),
             'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ['fname', 'mname']),
@@ -211,7 +214,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
         $patientResource->setMeta($meta);
 
-        $patientResource->setActive(true);
+        // A row from before the active column existed is an active patient.
+        $patientResource->setActive(new FHIRBoolean(!array_key_exists('active', $dataRecord) || PatientActiveStatus::toBool($dataRecord['active'])));
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $patientResource->setId($id);
@@ -769,6 +773,17 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     }
 
     /**
+     * The value of a FHIR boolean element, or null when the element is absent. The
+     * generated getters claim a FHIRBoolean holding a string, but an absent element
+     * is null and a value parsed from JSON is a bool.
+     */
+    private static function fhirBooleanValue(mixed $element): ?bool
+    {
+        $value = $element instanceof FHIRBoolean ? $element->getValue() : $element;
+        return is_bool($value) ? $value : null;
+    }
+
+    /**
      * Parses a FHIR Patient Resource, returning the equivalent OpenEMR patient record.
      *
      * @param array $fhirResource The source FHIR resource
@@ -785,6 +800,11 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         $data = [];
         $data['uuid'] = (string)$fhirResource->getId();
+
+        $active = self::fhirBooleanValue($fhirResource->getActive());
+        if ($active !== null) {
+            $data['active'] = $active ? 1 : 0;
+        }
 
         if (!empty($fhirResource->getName())) {
             $name = new FHIRHumanName();
@@ -976,13 +996,24 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
             // :missing carries true or false, not a gender code
             if ($field->getModifier() !== SearchModifier::MISSING) {
-                $upperCaseCode = function (TokenSearchValue $tokenSearchValue) {
-                    $tokenSearchValue->setCode(ucfirst($tokenSearchValue->getCode()));
-                    return $tokenSearchValue;
-                };
-
                 // need to convert our gender's to a format that are stored in the database.
-                $field->setValues(array_map($upperCaseCode, $field->getValues()));
+                foreach ($field->getValues() as $tokenSearchValue) {
+                    if ($tokenSearchValue instanceof TokenSearchValue) {
+                        $tokenSearchValue->setCode(ucfirst($tokenSearchValue->getCode()));
+                    }
+                }
+            }
+        }
+
+        // active is stored as 1 or 0; FHIR searches it as true or false.
+        if (isset($openEMRSearchParameters['active'])) {
+            $field = $openEMRSearchParameters['active'];
+            if ($field instanceof TokenSearchField && $field->getModifier() !== SearchModifier::MISSING) {
+                foreach ($field->getValues() as $tokenSearchValue) {
+                    if ($tokenSearchValue instanceof TokenSearchValue) {
+                        $tokenSearchValue->setCode(PatientActiveStatus::toBool($tokenSearchValue->getCode()) ? '1' : '0');
+                    }
+                }
             }
         }
 

@@ -42,6 +42,7 @@
         list: {
             key: 'list',
             tableId: 'pt_table',
+            tabButtonId: 'listTab',
             searchRowId: 'advanced_search',
             columns: cfg.columns || [],
             finderList: 'patient',
@@ -53,6 +54,7 @@
         recent: {
             key: 'recent',
             tableId: 'recent_table',
+            tabButtonId: 'recentTab',
             searchRowId: 'recent_advanced_search',
             columns: recent.columns || [],
             finderList: 'recent',
@@ -75,6 +77,38 @@
     function escapeAttr(text) {
         return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Whether the lists include inactive patients (the "Show inactive" option).
+    function showInactive() {
+        return $('#form_show_inactive').is(':checked');
+    }
+
+    // The line under a list, "Showing 1 – 10", in place of DataTables' "Showing 1 to 10
+    // of 12 entries". The patient count goes on the list's tab instead.
+    function countLine(settings, start, end, max, total) {
+        var text = cfg.countText || {};
+        Object.keys(TABS).forEach(function (key) {
+            if (TABS[key].tableId === settings.sTableId) {
+                $('#' + TABS[key].tabButtonId + ' .finder-tab-count')
+                    .text(total.toLocaleString()).removeClass('d-none');
+            }
+        });
+        if (total === 0) {
+            return '';
+        }
+        return '<span class="finder-range">' + escapeAttr(text.showing + ' '
+            + start.toLocaleString() + ' \u2013 ' + end.toLocaleString()) + '</span>';
+    }
+
+    // An inactive patient's row (the server classes it finder-inactive) gets a badge
+    // after the name link.
+    function markInactive(row) {
+        if ($(row).hasClass('finder-inactive')) {
+            $('<span class="badge finder-inactive-badge"></span>')
+                .text(cfg.inactiveLabel || '')
+                .insertAfter($(row).find('td a').first());
+        }
     }
 
     // The button that expands a row to show the Patient Finder Detail layout. CSS draws
@@ -353,6 +387,7 @@
                 aoData.push({"name": "searchType", "value": searchType});
                 aoData.push({"name": "searchMode", "value": search.mode});
                 aoData.push({"name": "finderList", "value": tab.finderList});
+                aoData.push({"name": "showInactive", "value": showInactive()});
                 drawnSearch[tab.key] = {term: search.term, mode: search.mode, exact: searchType};
             },
             // dom invokes ColReorderWithResize. The heading's own search box replaces
@@ -373,6 +408,8 @@
             "search": {"search": search.term},
             "lengthMenu": [10, 25, 50, 100],
             "pageLength": cfg.pageLength || 10,
+            "infoCallback": countLine,
+            "createdRow": markInactive,
             "language": language
         });
         tables[tab.key] = oTable;
@@ -461,6 +498,18 @@
             if (oTable) {
                 oTable.api().draw();
             }
+        });
+        // Both lists include or leave out inactive patients, and the choice is kept.
+        $('#form_show_inactive').on('change', function () {
+            top.restoreSession();
+            $.post(cfg.webroot + '/library/ajax/user_settings.php', {
+                target: cfg.showInactiveSetting,
+                setting: this.checked ? '1' : '0',
+                csrf_token_form: cfg.csrfToken
+            });
+            Object.keys(tables).forEach(function (key) {
+                tables[key].api().draw();
+            });
         });
     });
 })();
