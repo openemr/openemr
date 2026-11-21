@@ -275,7 +275,9 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         // B's newly-issued tokens live. The UPDATEs are idempotent
         // (`WHERE revoked = 0`) so repeated saves are cheap.
         if ($actvar === 0) {
-            AuthUtils::revokeOAuthTokensForUser((int)$_POST["id"]);
+            AuthUtils::revokeOAuthTokensForUser(
+                \OpenEMR\Common\Http\CurrentRequest::get()->request->getInt('id')
+            );
         }
         //Display message when Emergency Login user was activated
         if (is_countable($_POST['access_group'])) {
