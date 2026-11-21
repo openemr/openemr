@@ -1,6 +1,7 @@
 {#
 The right-hand end of the patient tab row, from OemrUI->tabRowControls(). The tab row
-names the section, so the visible page title is left out; the title stays for screen readers.
+names the section, so the page title is left out; OemrUI->screenReaderHeading() supplies it
+for screen readers, outside the collapsible part of the tab row.
 
 @package OpenEMR
 @subpackage OemrUi
@@ -9,7 +10,6 @@ names the section, so the visible page title is left out; the title stays for sc
 @copyright Copyright (c) 2026 David Eschelbacher
 @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
-<h1 class="sr-only">{{ heading|text }}</h1>
 {% if primaryMenu|length > 0 %}
     {% import "nav/partials/navbar-nav.html.twig" as navbar %}
     {{ navbar.navbar_nav(primaryMenu) }}

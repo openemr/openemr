@@ -202,13 +202,16 @@ class PatientMenuRole extends MenuRole
      *                             the bar, e.g. OemrUI::tabRowControls()
      * @param string $activeMenuId menu_id of the tab for the current page, filled with the primary
      *                             color; a dropdown is highlighted when one of its items is
+     * @param string $pageHeading  Trusted, already-escaped HTML placed before the bar, outside its
+     *                             collapsible part, e.g. OemrUI::screenReaderHeading()
      */
-    public function displayHorizNavBarMenu(string $endControls = '', string $activeMenuId = ''): void
+    public function displayHorizNavBarMenu(string $endControls = '', string $activeMenuId = '', string $pageHeading = ''): void
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $sessionPid = $session->get('pid');
         $pid = is_int($sessionPid) || is_string($sessionPid) ? (string) $sessionPid : '';
         $menu_restrictions = $this->getMenu();
+        echo $pageHeading;
         $str_top = <<<EOT
         <!--navbar-light is needed for color override in other themes-->
         <nav class="navbar navbar-expand-md navbar-light bg-light">

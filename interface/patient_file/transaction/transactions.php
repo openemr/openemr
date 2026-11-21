@@ -66,7 +66,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <?php
         // Collect the patient menu then build it
         $menuPatient = new PatientMenuRole();
-        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'transactions');
+        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'transactions', $oemr_ui->screenReaderHeading());
         ?>
         <div class="row mt-3">
             <div class="col-sm-12">

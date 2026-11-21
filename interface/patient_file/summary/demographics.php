@@ -1088,7 +1088,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         // Collect the patient menu then build it
         $menuPatient = new PatientMenuRole();
-        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'dashboard');
+        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'dashboard', $oemr_ui->screenReaderHeading());
         // Get the document ID of the patient ID card if access to it is wanted here.
         $idcard_doc_id = false;
         if (OEGlobalsBag::getInstance()->getString('patient_id_category_name')) {

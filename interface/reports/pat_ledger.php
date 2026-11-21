@@ -449,7 +449,7 @@ if ($_REQUEST['form_csvexport']) {
                     // The patient tab row names the section, so the page title is left out.
                     // Collect the patient menu then build it
                     $menuPatient = new PatientMenuRole();
-                    $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'ledger');
+                    $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'ledger', $oemr_ui->screenReaderHeading());
                 } else {
                     echo  $oemr_ui->pageHeading() . "\r\n";
                 } ?>

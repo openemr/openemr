@@ -102,7 +102,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <?php
     if (AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {
         $menuPatient = new PatientMenuRole();
-        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'history');
+        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'history', $oemr_ui->screenReaderHeading());
         ?>
         <div class="row">
             <div class="col-sm-12">

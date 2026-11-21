@@ -56,7 +56,7 @@ $records2 = [];
             <?php
             // Collect the patient menu then build it
             $menuPatient = new PatientMenuRole();
-            $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'external_data');
+            $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'external_data', $oemr_ui->screenReaderHeading());
             ?>
             <div class="row mt-3">
                 <div class="col-sm-12">

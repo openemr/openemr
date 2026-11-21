@@ -201,7 +201,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <?php
         // Collect the patient menu then build it
         $menuPatient = new PatientMenuRole();
-        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'issues');
+        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'issues', $oemr_ui->screenReaderHeading());
         ?>
 
         <div id='patient_stats'>

@@ -157,7 +157,7 @@ final class AssessmentEntryPoint
         return new AssessmentPageChrome(
             $layout->oeContainer(),
             self::captured($layout->oeBelowContainerDiv(...)),
-            self::captured(static fn() => (new PatientMenuRole())->displayHorizNavBarMenu($layout->tabRowControls(), 'fhir_assessments')),
+            self::captured(static fn() => (new PatientMenuRole())->displayHorizNavBarMenu($layout->tabRowControls(), 'fhir_assessments', $layout->screenReaderHeading())),
         );
     }
 

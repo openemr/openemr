@@ -157,9 +157,23 @@ class OemrUI
     }
 
     /**
+     * Returns the page title as a heading only screen readers announce, for pages whose patient
+     * tab row names the section. It goes before the tab row, outside the collapsible part.
+     *
+     * @return string The Twig-rendered html content, suitable for PatientMenuRole::displayHorizNavBarMenu()
+     */
+    public function screenReaderHeading(): string
+    {
+        return $this->twig->render("oemr_ui/page_heading/partials/sr_heading.html.twig", [
+            "heading" => is_string($this->heading) ? $this->heading : '',
+        ]);
+    }
+
+    /**
      * Returns the heading's controls (title nav content and action icons) without the visible
      * title, for the right-hand end of the patient tab row. Pages that show the patient tab row
-     * use this instead of pageHeading(), since the active tab already names the section.
+     * use this and screenReaderHeading() instead of pageHeading(), since the active tab already
+     * names the section.
      *
      * @return string The Twig-rendered html content, suitable for PatientMenuRole::displayHorizNavBarMenu()
      */
