@@ -104,10 +104,17 @@
     // An inactive patient's row (the server classes it finder-inactive) gets a badge
     // after the name link.
     function markInactive(row) {
-        if ($(row).hasClass('finder-inactive')) {
-            $('<span class="badge finder-inactive-badge"></span>')
-                .text(cfg.inactiveLabel || '')
-                .insertAfter($(row).find('td a').first());
+        if (!$(row).hasClass('finder-inactive')) {
+            return;
+        }
+        var badge = $('<span class="badge finder-inactive-badge"></span>').text(cfg.inactiveLabel || '');
+        var link = $(row).find('td a').first();
+        // A list configured without the Name column has no link; the badge then
+        // goes at the end of the first cell after the expand button.
+        if (link.length) {
+            badge.insertAfter(link);
+        } else {
+            $(row).children('td').not('.finder-detail-control').first().append(badge);
         }
     }
 

@@ -785,7 +785,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     /**
      * A FHIR date or dateTime element as a local "Y-m-d H:i:s" value, or null when it is
-     * absent or not a full date. A dateTime with a time zone is converted to the server's.
+     * absent, not a full date, or not a real calendar date (such as February 30). A
+     * dateTime with a time zone is converted to the server's.
      */
     private static function fhirDateTimeToLocal(mixed $element): ?string
     {
@@ -793,14 +794,16 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         if (!is_string($value)) {
             return null;
         }
-        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) === 1) {
-            return $value . ' 00:00:00';
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $date) === 1) {
+            return checkdate((int) $date[2], (int) $date[3], (int) $date[1]) ? $value . ' 00:00:00' : null;
         }
-        $parsed = \DateTimeImmutable::createFromFormat('Y-m-d\\TH:i:sP', $value);
-        if ($parsed === false) {
-            $parsed = \DateTimeImmutable::createFromFormat('Y-m-d\\TH:i:s.uP', $value);
-        }
-        if ($parsed === false) {
+        // FHIR allows any number of fractional-second digits; PHP reads at most six.
+        $value = preg_replace('/(\.\d{6})\d+/', '$1', $value) ?? $value;
+        $format = str_contains($value, '.') ? 'Y-m-d\\TH:i:s.uP' : 'Y-m-d\\TH:i:sP';
+        $parsed = \DateTimeImmutable::createFromFormat('!' . $format, $value);
+        // createFromFormat() rolls an out-of-range day or time over into the next
+        // month or day and only reports it as a warning.
+        if ($parsed === false || \DateTimeImmutable::getLastErrors() !== false) {
             return null;
         }
         return $parsed->setTimezone(new \DateTimeZone(date_default_timezone_get()))->format('Y-m-d H:i:s');
@@ -832,6 +835,9 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $deceasedDate = self::fhirDateTimeToLocal($fhirResource->getDeceasedDateTime());
         if ($deceasedDate !== null) {
             $data['deceased_date'] = $deceasedDate;
+        } elseif (self::fhirBooleanValue($fhirResource->getDeceasedBoolean()) === false) {
+            // An explicit "not deceased" clears a stored death date; an omitted element leaves it.
+            $data['deceased_date'] = null;
         }
 
         if (!empty($fhirResource->getName())) {

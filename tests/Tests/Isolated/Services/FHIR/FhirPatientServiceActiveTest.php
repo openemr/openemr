@@ -85,6 +85,56 @@ final class FhirPatientServiceActiveTest extends TestCase
         $this->assertSame($expected, $data['deceased_date'] ?? null);
     }
 
+    public function testDeceasedDateTimeWithMoreThanSixFractionalDigitsIsMapped(): void
+    {
+        $data = $this->parse((new FHIRPatient())->setDeceasedDateTime(new FHIRDateTime('2026-11-15T14:30:00.1234567Z')));
+
+        $expected = (new DateTimeImmutable('2026-11-15T14:30:00+00:00'))
+            ->setTimezone(new DateTimeZone(date_default_timezone_get()))
+            ->format('Y-m-d H:i:s');
+        $this->assertSame($expected, $data['deceased_date'] ?? null);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function invalidDeceasedDateProvider(): array
+    {
+        return [
+            'date only, February 30' => ['2026-02-30'],
+            'timestamp, February 30' => ['2026-02-30T14:30:00Z'],
+            'timestamp, hour 25' => ['2026-11-15T25:30:00Z'],
+            'year and month only' => ['2026-11'],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidDeceasedDateProvider')]
+    public function testInvalidDeceasedDateIsNotStored(string $value): void
+    {
+        $data = $this->parse((new FHIRPatient())->setDeceasedDateTime(new FHIRDateTime($value)));
+
+        $this->assertArrayNotHasKey('deceased_date', $data);
+    }
+
+    public function testDeceasedFalseClearsTheStoredDeathDate(): void
+    {
+        $data = $this->parse((new FHIRPatient())->setActive(new FHIRBoolean(true))->setDeceasedBoolean(new FHIRBoolean(false)));
+        $this->assertArrayHasKey('deceased_date', $data);
+        $this->assertNull($data['deceased_date']);
+
+        $status = new PatientActiveStatus(new FrozenClock(new DateTimeImmutable('2026-11-21', new DateTimeZone('UTC'))));
+        $saved = $status->apply($data, [
+            'active' => '0',
+            'deceased_date' => '2026-11-15 00:00:00',
+            'inactive_reason' => PatientActiveStatus::DECEASED_REASON,
+            'inactive_date' => '2026-11-15',
+        ]);
+        $this->assertSame(1, $saved['active']);
+        $this->assertSame('', $saved['inactive_reason']);
+    }
+
     public function testActivePatientWithoutDeceasedDateStaysActive(): void
     {
         $data = $this->parse((new FHIRPatient())->setActive(new FHIRBoolean(true)));
