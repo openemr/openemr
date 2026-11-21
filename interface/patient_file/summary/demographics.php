@@ -15,6 +15,7 @@
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
@@ -24,10 +25,16 @@
  * @copyright Copyright (c) 2021-2022 Robert Down <robertdown@live.com
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
+
+if (\OpenEMR\Common\Http\CurrentRequest::get()->query->getString('print_medications') === '1') {
+    \OpenEMR\Services\ActiveMedicationPrintPage::emit();
+}
+
 
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
@@ -66,6 +73,7 @@ use OpenEMR\Patient\Cards\InsuranceViewCard;
 use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use OpenEMR\Reminder\BirthdayReminder;
+use OpenEMR\Services\ActiveMedicationListService;
 use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\Services\Forms\CarePlanFormService;
 use OpenEMR\Services\FormService;
@@ -1082,10 +1090,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none' onclick='top.restoreSession()'></a>
         <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($session->get('authUserID')); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
-        if ($thisauth) :
-            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
-            require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");
-        endif;
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
+        require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");
 
         $list_id = "dashboard"; // to indicate nav item is active, count and give correct id
         // Collect the patient menu then build it
@@ -1172,7 +1178,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // MEDICATION CARD
                 if ($meds === 1) {
-                    $_rawMedList = $patIssueService->search(['lists.pid' => is_int($pid) ? (string) $pid : $pid, 'lists.type' => 'medication'])->getData();
+                    $medListService = new ActiveMedicationListService();
+                    $includePrescriptions = !OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions')
+                        && AclMain::aclCheckCore('patients', 'rx');
+                    $activeMeds = $medListService->getActiveList($carePlanCardPid, $includePrescriptions);
                     $id = 'medication_ps_expand';
                     $viewArgs = [
                         'title' => xl('Medications'),
@@ -1181,11 +1190,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'forceAlwaysOpen' => false,
                         'initiallyCollapsed' => getUserSetting($id) == 0,
                         'linkMethod' => "javascript",
-                        'list' => filterActiveIssues($_rawMedList),
+                        'list' => $activeMeds,
+                        'inactiveCount' => count($medListService->getInactiveList($carePlanCardPid, $activeMeds, $includePrescriptions)),
                         'listTouched' => !empty(getListTouch($pid, 'medication')),
                         'auth' => true,
                         'btnLabel' => 'Edit',
-                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
+                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication')",
+                        'printPid' => $carePlanCardPid,
                     ];
                     echo "<div class=\"$col\">";
                     echo $t->render('patient/card/medication.html.twig', $viewArgs);
@@ -2084,14 +2095,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ]);
                     }  // end track_anything
 
-                    if ($thisauth) :
-                        echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
-                            'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
-                            'allowPatientDelete' => OEGlobalsBag::getInstance()->getBoolean('allow_pat_delete'),
-                            'csrf' => CsrfUtils::collectCsrfToken(session: $session),
-                            'pid' => $pid
-                        ]);
-                    endif;
+                    echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
+                        'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
+                        'allowPatientDelete' => OEGlobalsBag::getInstance()->getBoolean('allow_pat_delete'),
+                        'csrf' => CsrfUtils::collectCsrfToken(session: $session),
+                        'pid' => $pid
+                    ]);
                     ?>
                 </div> <!-- end right column div -->
             </div> <!-- end div.main > row:first  -->
