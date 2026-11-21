@@ -154,10 +154,10 @@ class AuthUtils
         $ip = collectIpAddresses();
 
         // Check to ensure ip address has not been blocked.
-        $this->setupIpLoginFailedCounter($ip['ip_string']);
-        $returnArray = $this->checkIpLoginFailedCounter($ip['ip_string']);
+        $this->setupIpLoginFailedCounter($ip['ip']);
+        $returnArray = $this->checkIpLoginFailedCounter($ip['ip']);
         if (!$returnArray['pass']) {
-            $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            $this->incrementIpLoginFailedCounter($ip['ip']);
             if ($returnArray['force_block']) {
                 EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". IP address has been manually blocked");
             } else {
@@ -165,7 +165,7 @@ class AuthUtils
             }
             $this->clearFromMemory($password);
             if ($returnArray['email_notification']) {
-                $this->notifyIpBlock($ip['ip_string']);
+                $this->notifyIpBlock($ip['ip']);
             }
             if (!$returnArray['skip_timing_attack']) {
                 $this->preventTimingAttack();
@@ -175,7 +175,7 @@ class AuthUtils
 
         // Check to ensure username and password are not empty
         if (empty($username) || empty($password)) {
-            $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            $this->incrementIpLoginFailedCounter($ip['ip']);
             EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". empty username or password");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -204,7 +204,7 @@ class AuthUtils
         // account, email mismatch, invalid hash, ...) engage the
         // rate limit that the "wrong password" branch already does.
         $rejectPortalAttempt = function (string $reason, mixed $patientPid = null) use ($ip, $event, $username, $beginLog, &$password): bool {
-            $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            $this->incrementIpLoginFailedCounter($ip['ip']);
             $this->incrementPortalAccountFailedCounter($username);
             $normalizedPid = is_numeric($patientPid) ? (int) $patientPid : null;
             EventAuditLogger::getInstance()->newEvent(
@@ -282,7 +282,7 @@ class AuthUtils
         // accumulating against account B from the same IP.
         self::resetPortalAccountFailedCounter(is_string($username) ? $username : '');
         if (self::shouldClearIpCounterOnAuthSuccess()) {
-            $this->resetIpLoginFailedCounter($ip['ip_string']);
+            $this->resetIpLoginFailedCounter($ip['ip']);
         }
         //  Set up class variable that the api will need to collect (log for API is done outside)
         $this->patientId = $patientDataInfo['pid'];
@@ -316,11 +316,11 @@ class AuthUtils
         // Check to ensure ip address has not been blocked
         // check IP login counter if this option is set
         if ($this->loginAuth || $this->apiAuth) {
-            $this->setupIpLoginFailedCounter($ip['ip_string']);
+            $this->setupIpLoginFailedCounter($ip['ip']);
             // Utilize this during logins (and not during standard password checks within openemr such as esign)
-            $returnArray = $this->checkIpLoginFailedCounter($ip['ip_string']);
+            $returnArray = $this->checkIpLoginFailedCounter($ip['ip']);
             if (!$returnArray['pass']) {
-                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                $this->incrementIpLoginFailedCounter($ip['ip']);
                 if ($returnArray['force_block']) {
                     EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". IP address has been manually blocked");
                 } else {
@@ -328,7 +328,7 @@ class AuthUtils
                 }
                 $this->clearFromMemory($password);
                 if ($returnArray['email_notification']) {
-                    $this->notifyIpBlock($ip['ip_string']);
+                    $this->notifyIpBlock($ip['ip']);
                 }
                 if (!$returnArray['skip_timing_attack']) {
                     $this->preventTimingAttack();
@@ -341,7 +341,7 @@ class AuthUtils
         if (empty($username) || empty($password)) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                $this->incrementIpLoginFailedCounter($ip['ip']);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". empty username or password");
             $this->clearFromMemory($password);
@@ -355,7 +355,7 @@ class AuthUtils
         if (empty($userInfo) || empty($userInfo['id'])) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                $this->incrementIpLoginFailedCounter($ip['ip']);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found");
             $this->clearFromMemory($password);
@@ -364,7 +364,7 @@ class AuthUtils
         } elseif ($userInfo['active'] != 1) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                $this->incrementIpLoginFailedCounter($ip['ip']);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not active");
             $this->clearFromMemory($password);
@@ -378,7 +378,7 @@ class AuthUtils
         if (empty($authGroup)) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                $this->incrementIpLoginFailedCounter($ip['ip']);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found in a group");
             $this->clearFromMemory($password);
@@ -390,7 +390,7 @@ class AuthUtils
         if (AclExtended::aclGetGroupTitles($username) == 0) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                $this->incrementIpLoginFailedCounter($ip['ip']);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
             $this->clearFromMemory($password);
@@ -406,7 +406,7 @@ class AuthUtils
         if (empty($userSecure) || empty($userSecure['id']) || empty($userSecure['password'])) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                $this->incrementIpLoginFailedCounter($ip['ip']);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user credentials not found");
             $this->clearFromMemory($password);
@@ -420,7 +420,7 @@ class AuthUtils
             $checkArray = $this->checkLoginFailedCounter($username);
             if (!$checkArray['pass']) {
                 $this->incrementLoginFailedCounter($username);
-                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                $this->incrementIpLoginFailedCounter($ip['ip']);
                 EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
                 $this->clearFromMemory($password);
                 if ($checkArray['email_notification']) {
@@ -438,7 +438,7 @@ class AuthUtils
                 if ($this->loginAuth || $this->apiAuth) {
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
                     $this->incrementLoginFailedCounter($username);
-                    $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                    $this->incrementIpLoginFailedCounter($ip['ip']);
                 }
                 EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user failed ldap authentication");
                 $this->clearFromMemory($password);
@@ -450,7 +450,7 @@ class AuthUtils
             if (!AuthHash::hashValid($userSecure['password'])) {
                 if ($this->loginAuth || $this->apiAuth) {
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                    $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                    $this->incrementIpLoginFailedCounter($ip['ip']);
                 }
                 EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
                 $this->clearFromMemory($password);
@@ -462,7 +462,7 @@ class AuthUtils
                 if ($this->loginAuth || $this->apiAuth) {
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
                     $this->incrementLoginFailedCounter($username);
-                    $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                    $this->incrementIpLoginFailedCounter($ip['ip']);
                 }
                 EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password incorrect");
                 $this->clearFromMemory($password);
@@ -485,7 +485,7 @@ class AuthUtils
         if (!$this->checkPasswordNotExpired($username)) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                $this->incrementIpLoginFailedCounter($ip['ip']);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password is expired");
             error_log($username . ": " . $ip['ip_string'] . ". user password is expired");
@@ -503,7 +503,7 @@ class AuthUtils
             // clear the IP counter that has been accumulating against
             // account B from the same IP.
             if (self::shouldClearIpCounterOnAuthSuccess()) {
-                $this->resetIpLoginFailedCounter($ip['ip_string']);
+                $this->resetIpLoginFailedCounter($ip['ip']);
             }
         }
         if ($this->loginAuth) {
@@ -1530,8 +1530,8 @@ class AuthUtils
         }
         $ip = collectIpAddresses();
         if ($ip['ip_string'] !== '') {
-            $this->setupIpLoginFailedCounter($ip['ip_string']);
-            $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            $this->setupIpLoginFailedCounter($ip['ip']);
+            $this->incrementIpLoginFailedCounter($ip['ip']);
         }
     }
 
@@ -1554,7 +1554,7 @@ class AuthUtils
         }
         $ip = collectIpAddresses();
         if ($ip['ip_string'] !== '') {
-            $this->incrementIpMfaLoginFailCounter($ip['ip_string']);
+            $this->incrementIpMfaLoginFailCounter($ip['ip']);
         }
     }
 
@@ -2080,5 +2080,76 @@ class AuthUtils
         if ($userInfo['see_auth'] > '2') {
             $session->set('userauthorized', '1');
         }
+    }
+
+    /**
+     * Revoke every active OAuth2 refresh token and access token for the
+     * given user. Called from account-lifecycle events — admin
+     * deactivation, admin revoke-trusted-user, and (via the inline block
+     * in `updatePassword`) password change — so that a stale refresh
+     * token cannot continue to mint new access tokens after the event.
+     * Silently no-ops when the user row has no UUID: the token tables
+     * cannot hold rows for such a user, so there is nothing to revoke.
+     */
+    public static function revokeOAuthTokensForUser(int $targetUserId): void
+    {
+        $userUuidRow = QueryUtils::querySingleRow(
+            "SELECT `uuid` FROM `users` WHERE `id` = ?",
+            [$targetUserId]
+        );
+        $userUuidBytes = is_array($userUuidRow) ? ($userUuidRow['uuid'] ?? null) : null;
+        if (!is_string($userUuidBytes) || $userUuidBytes === '') {
+            return;
+        }
+        self::revokeOAuthTokensForUserUuid(UuidRegistry::uuidToString($userUuidBytes));
+    }
+
+    /**
+     * Same as {@see self::revokeOAuthTokensForUser()} but accepts the
+     * user's UUID *string* directly. The `api_refresh_token` and
+     * `api_token` tables store the UUID as its string form in their
+     * `user_id` column, and some call sites (for example a trusted-user
+     * row, which already stores the UUID string) have the string on
+     * hand without needing to re-resolve from `users.id`.
+     */
+    public static function revokeOAuthTokensForUserUuid(string $userUuidStr): void
+    {
+        if ($userUuidStr === '') {
+            return;
+        }
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `api_refresh_token` SET `revoked` = 1 WHERE `user_id` = ? AND `revoked` = 0",
+            [$userUuidStr]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `api_token` SET `revoked` = 1 WHERE `user_id` = ? AND `revoked` = 0",
+            [$userUuidStr]
+        );
+    }
+
+    /**
+     * Revoke every active OAuth2 refresh token and access token for the
+     * given (user, client) pair. Used when offboarding a single OAuth
+     * app's hold on a user — the account itself is still active and its
+     * tokens for other authorized apps must survive the operation. The
+     * account-lifecycle paths (admin deactivation, password change)
+     * still use {@see self::revokeOAuthTokensForUser()} because those
+     * events invalidate the user's identity across every app.
+     */
+    public static function revokeOAuthTokensForUserUuidAndClient(string $userUuidStr, string $clientId): void
+    {
+        if ($userUuidStr === '' || $clientId === '') {
+            return;
+        }
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `api_refresh_token` SET `revoked` = 1 "
+                . "WHERE `user_id` = ? AND `client_id` = ? AND `revoked` = 0",
+            [$userUuidStr, $clientId]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `api_token` SET `revoked` = 1 "
+                . "WHERE `user_id` = ? AND `client_id` = ? AND `revoked` = 0",
+            [$userUuidStr, $clientId]
+        );
     }
 }

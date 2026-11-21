@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\Api;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Tests\Api\ApiTestClient;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -530,8 +531,13 @@ class ApiTestClientTest extends TestCase
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals("You are currently not signed in.", $responseBody['message']);
 
+        // OIDC logout deletes the trusted-user row, which also marks the
+        // backing api_token / api_refresh_token rows as revoked. A
+        // follow-up bearer call therefore surfaces the token as revoked
+        // (401) at the access-token check rather than reaching the
+        // trusted-user missing branch that used to yield a 400.
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
-        $this->assertEquals(400, $actualResponse->getStatusCode());
+        $this->assertEquals(401, $actualResponse->getStatusCode());
 
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getHeaders();
@@ -624,5 +630,70 @@ class ApiTestClientTest extends TestCase
         $this->assertNull($this->client->getRefreshToken(), "Refresh token should be empty for public client");
         $this->assertNotNull($this->client->getAccessToken(), "Access token should be populated");
         $this->assertNotNull($this->client->getIdToken(), "Id token should be populated");
+    }
+
+    /**
+     * An access token issued while the staff account was active must stop
+     * working as soon as the admin flips `users.active` to 0. The bearer
+     * strategy reads `users.active` on every request so the token does not
+     * continue to mint responses until its natural expiry, and successor
+     * tokens that may be issued by a refresh request racing the flip
+     * are equally unusable because the underlying account is gated at
+     * use time.
+     */
+    public function testApiAuthExampleUseStopsWhenUserDeactivated(): void
+    {
+        // Mirror ApiTestClient::setAuthToken() — it reads `OE_USER` with
+        // `admin` as the fallback, so target that same account when flipping
+        // `active` instead of hardcoding `admin`.
+        $testUsername = getenv("OE_USER", true) ?: "admin";
+        // Snapshot the pre-test active value so the restore in `finally`
+        // puts the row back exactly where it was rather than force-setting
+        // it to 1 (a shared user may legitimately have been inactive).
+        $originalActive = QueryUtils::fetchSingleValue(
+            "SELECT `active` FROM `users` WHERE `username` = ?",
+            'active',
+            [$testUsername]
+        );
+
+        $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode());
+        $accessToken = $this->client->getAccessToken();
+        $this->assertGreaterThan(10, strlen((string) $accessToken));
+
+        $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
+        $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode(), 'Bearer must work while the account is active');
+
+        try {
+            // Flip the test user to inactive without going through
+            // usergroup_admin — this test is about the use-time gate, not
+            // the admin UI's revoke-on-transition behaviour.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `users` SET `active` = 0 WHERE `username` = ?",
+                [$testUsername]
+            );
+
+            $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
+            $this->assertEquals(
+                401,
+                $actualResponse->getStatusCode(),
+                'Bearer must be rejected once users.active is 0 even though the access-token row is still unrevoked'
+            );
+        } finally {
+            // Restore the pre-test active value so any failure above does
+            // not leave the shared account in a different state.
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE `users` SET `active` = ? WHERE `username` = ?",
+                [$originalActive, $testUsername]
+            );
+        }
+
+        // Sanity: once active=1 is restored the same token works again.
+        $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
+        $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode(), 'Bearer must work again after the account is re-activated');
+
+        $this->client->removeAuthToken();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 }

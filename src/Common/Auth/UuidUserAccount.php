@@ -48,7 +48,7 @@ class UuidUserAccount
         switch ($this->userRole) {
             case self::USER_ROLE_SYSTEM:
             case self::USER_ROLE_USERS:
-                $account_sql = "SELECT `id`, `username`, `authorized`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone`, `email`, `street`, `city`, `state`, `zip`, CONCAT(fname, ' ', lname) AS fullname FROM `users` WHERE `uuid` = ?";
+                $account_sql = "SELECT `id`, `username`, `authorized`, `active`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone`, `email`, `street`, `city`, `state`, `zip`, CONCAT(fname, ' ', lname) AS fullname FROM `users` WHERE `uuid` = ?";
                 break;
             case self::USER_ROLE_PATIENT:
                 $account_sql = "SELECT `pid`, `uuid`, `lname` AS lastname, `fname` AS firstname, `mname` AS middlename, `phone_contact` AS phone, `sex` AS gender, `email`, `DOB` AS birthdate, `street`, `postal_code` AS zip, `city`, `state`, CONCAT(fname, ' ', lname) AS fullname FROM `patient_data` WHERE `uuid` = ?";
