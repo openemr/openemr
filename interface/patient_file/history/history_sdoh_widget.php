@@ -172,7 +172,7 @@ $totalScore = (string) (($info['instrument_score'] ?? '') !== '' ? (int)$info['i
 </head>
 <body class="body_top">
     <div id="container_div" class="container mt-3">
-        <h4><?php echo xlt("Social Determinants of Health (SDOH)"); ?></h4>
+        <h1 class="sr-only"><?php echo xlt("Social Determinants of Health (SDOH)"); ?></h1>
         <div class="row">
             <div class="col-sm-12">
                 <?php

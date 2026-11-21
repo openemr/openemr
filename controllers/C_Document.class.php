@@ -8,9 +8,11 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,6 +31,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
 use OpenEMR\Events\PatientDocuments\PatientRetrieveOffsiteDocument;
+use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -1320,9 +1323,24 @@ class C_Document extends Controller
         $this->assign('place_hld', $place_hld);
         $this->assign('cur_pid', $cur_pid);
         $this->assign('used_msg', $used_msg);
-        $this->assign('demo_pid', $session->get('pid'));
         $this->assign('is_new_referer', $is_new_referer);
         $this->assign('new_title', xlt("New Documents"));
+
+        // Opened from the patient's Documents tab, rather than as New Documents: show the
+        // patient tab row in place of a page title, like the other patient file sections.
+        $sessionPid = $session->get('pid');
+        $isPatientTab = !$is_new && !$is_new_referer
+            && is_numeric($cur_pid) && is_numeric($sessionPid)
+            && (int) $cur_pid > 0 && (int) $cur_pid === (int) $sessionPid;
+        $patientMenu = '';
+        if ($isPatientTab) {
+            ob_start();
+            (new PatientMenuRole())->displayHorizNavBarMenu();
+            $menuHtml = ob_get_clean();
+            $patientMenu = is_string($menuHtml) ? $menuHtml : '';
+        }
+        $this->assign('is_patient_tab', $isPatientTab);
+        $this->assign('patient_menu', $patientMenu);
 
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "documents/" . $this->template_mod . "_list.html");
     }

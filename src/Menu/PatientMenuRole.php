@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Eyal Wolanowski <eyal.wolanowski@gmail.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Eyal Wolanowski <eyal.wolanowski@gmail.com>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -195,9 +197,11 @@ class PatientMenuRole extends MenuRole
 
     /**
      * displays a bootstrap4 horizontal nav bar
+     *
+     * @param string $endControls Trusted, already-escaped HTML placed at the right-hand end of
+     *                            the bar, e.g. OemrUI::tabRowControls()
      */
-
-    public function displayHorizNavBarMenu()
+    public function displayHorizNavBarMenu(string $endControls = ''): void
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $pid = $session->get('pid');
@@ -235,13 +239,13 @@ class PatientMenuRole extends MenuRole
             echo $list . "\r\n";
             $li_id++;
         }
+        echo "                </ul>\r\n";
+        echo $endControls;
         $str_bot = <<<EOB
-                </ul>
             </div>
         </nav>
         EOB;
         echo $str_bot . "\r\n";
-        return;
     }
 
     /**

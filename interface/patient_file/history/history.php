@@ -101,15 +101,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     </div>
     <?php
     $list_id = "history"; // to indicate nav item is active, count and give correct id
-    if (AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {?>
-        <div class="row">
-            <div class="col-sm-12">
-                <?php require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");?>
-            </div>
-        </div>
-        <?php
+    if (AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {
         $menuPatient = new PatientMenuRole();
-        $menuPatient->displayHorizNavBarMenu();
+        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls());
         ?>
         <div class="row">
             <div class="col-sm-12">

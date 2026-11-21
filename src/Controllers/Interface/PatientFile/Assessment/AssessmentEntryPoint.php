@@ -146,8 +146,9 @@ final class AssessmentEntryPoint
     }
 
     /**
-     * The OemrUI heading, width and expand script, and the patient menu bar, which the legacy
-     * helpers echo rather than return.
+     * The OemrUI width and expand script, and the patient menu bar with the OemrUI heading
+     * controls at its end, which the legacy helpers echo rather than return. The tab row names
+     * the section, so there is no separate page title.
      */
     private static function chrome(OEGlobalsBag $globals): AssessmentPageChrome
     {
@@ -155,9 +156,8 @@ final class AssessmentEntryPoint
 
         return new AssessmentPageChrome(
             $layout->oeContainer(),
-            $layout->pageHeading(),
             self::captured($layout->oeBelowContainerDiv(...)),
-            self::captured((new PatientMenuRole())->displayHorizNavBarMenu(...)),
+            self::captured(static fn() => (new PatientMenuRole())->displayHorizNavBarMenu($layout->tabRowControls())),
         );
     }
 
