@@ -99,6 +99,7 @@
      document.getElementById('popup').style.display = "none";
  }
 </script>
+<script src="{{ webroot }}/library/js/calendarVisitList.js?v={{ assetVersion|attr_url }}"></script>
 <script>
     {# Server-supplied values are extracted to JS vars here so each is
        single-escaped for the JS-string context via |js_escape (text)
@@ -150,7 +151,7 @@
         }).on("dblclick", function(e) { e.stopPropagation(); });
         $(".visit-list-header").on("click", function(e) {
             e.stopPropagation();
-            EditEvent($(this).closest(".event").get(0));
+            EditEvent($(this).closest(".event_visit_list").get(0));
         }).on("dblclick", function(e) { e.stopPropagation(); });
         var editVisitListPatient = function(row) {
             oldEvt(row.data("date"), row.data("eid"), row.data("cattype"));
@@ -168,6 +169,12 @@
             e.stopPropagation();
             goPid($(this).data("pid"));
         }).on("dblclick", function(e) { e.stopPropagation(); });
+        // A Visit List block keeps the height of its time range. When its patients don't
+        // fit, it shows the rows that do and "+N more", which opens the whole list.
+        pcSetUpVisitLists(document, {
+            more: {{ '+%s more'|xlj }},
+            fewer: {{ 'Show fewer'|xlj }}
+        });
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
         $(".tdMonthName-small").click(function() {

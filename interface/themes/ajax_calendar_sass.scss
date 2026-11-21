@@ -502,7 +502,10 @@ $side-calendar-date-padding: 0.3rem !default;
     }
 
     // A Visit List block. It keeps its time span, like any appointment, so it never
-    // covers what comes after it; a list longer than the span scrolls inside it.
+    // covers what comes after it. When its patients don't fit, calendarVisitList.js
+    // shows the rows that do and "+N more" (the scroll is for when the script hasn't
+    // run, or the block is too short even for its header); "+N more" opens the whole
+    // list over the grid, above everything, scrolling inside if taller than the grid.
     // Layered like a timed appointment, so its header and rows, not what lies under
     // them, get the pointer.
     &_visit_list {
@@ -512,6 +515,16 @@ $side-calendar-date-padding: 0.3rem !default;
       overflow-y: auto;
       padding: 0.125rem;
       z-index: 2;
+
+      &.visit-list-fitted {
+        overflow: hidden;
+      }
+
+      &.visit-list-expanded {
+        box-shadow: 0 0.25rem 0.75rem rgba($black, 0.25);
+        overflow-y: auto;
+        z-index: 10;
+      }
     }
   }
 
@@ -624,6 +637,85 @@ $side-calendar-date-padding: 0.3rem !default;
 
     &-status {
       margin-#{$left}: auto;
+    }
+
+    // Rows that don't fit in the block, until "+N more" opens it.
+    &-overflow {
+      display: none;
+
+      .visit-list-expanded & {
+        display: flex;
+      }
+    }
+
+    &-more {
+      margin-top: 0.125rem;
+      padding: 0 0.25rem;
+
+      // In a fitted block it sits at the bottom, below any gap; an opened list keeps it
+      // after the last row.
+      .visit-list-fitted:not(.visit-list-expanded) & {
+        bottom: 0.125rem;
+        left: 0.125rem;
+        position: absolute;
+        right: 0.125rem;
+      }
+    }
+
+    // In the header when the block is too short for even one row beside it.
+    &-more-in-header {
+      flex-shrink: 0;
+    }
+
+    &-more-button {
+      background: none;
+      border: 0;
+      color: $primary;
+      cursor: pointer;
+      font: inherit;
+      padding: 0;
+      white-space: nowrap;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: 1px solid $primary;
+      }
+    }
+
+    // The week and month views have narrow blocks: their rows show only the number and
+    // the name, and the header gives up the title and summary text, not the + button.
+    &-compact {
+      .visit-list-header {
+        gap: 0.25rem;
+        padding: 0 0.125rem 0.125rem;
+      }
+
+      .visit-list-title,
+      .visit-list-summary {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      // The title keeps its room; the time range and count get what is left.
+      .visit-list-summary {
+        flex: 1 1 0;
+      }
+
+      .visit-list-add {
+        flex-shrink: 0;
+      }
+
+      .visit-list-entry {
+        gap: 0.25rem;
+      }
+
+      .visit-list-sequence {
+        min-width: 1.5rem;
+      }
     }
   }
 
