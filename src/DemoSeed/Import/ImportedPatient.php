@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * A Synthea patient after import: its OpenEMR pid.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\DemoSeed\Import;
+
+use OpenEMR\DemoSeed\Synthea\SyntheaPatient;
+
+final readonly class ImportedPatient
+{
+    public function __construct(
+        public int $pid,
+        public SyntheaPatient $synthea,
+    ) {
+        if ($pid <= 0) {
+            throw new \DomainException('Patient pid must be positive');
+        }
+    }
+}

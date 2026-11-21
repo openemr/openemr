@@ -510,6 +510,39 @@ importRandomPatients() {
     echo "Completed run for following number of random patients: ${count}"
 }
 
+# Loads a full demo practice from a seed file with bin/console
+# openemr:seed-demo: Synthea patients imported through CCDA, then providers,
+# facilities, related people, phones, addresses, insurance, appointments and
+# Visit Lists.
+#
+# Parameters:
+#   $1: Seed file, relative to the OpenEMR directory or absolute (optional;
+#       defaults to contrib/demo-seed/demo-seed.yaml). When $1 starts with
+#       "-" it is taken as an option and the default seed file is used.
+#   $@: Any further openemr:seed-demo options, passed through unchanged
+#       (e.g. --count=5, --validate-only, --reuse-import).
+#
+# Needs OPENEMR_ENABLE_DEMO_SEED=1 in the container environment (the
+# development compose files set it); the command refuses to run otherwise.
+# Installs a Java runtime on first use; the command downloads the Synthea
+# jar into its own work directory (/tmp/demo-seed), which apache can read.
+seedDemo() {
+    local openemrDir="/var/www/localhost/htdocs/openemr"
+    local seedFile="contrib/demo-seed/demo-seed.yaml"
+    if [[ $# -gt 0 && "${1}" != -* ]]; then
+        seedFile="${1}"
+        shift
+    fi
+    if ! command -v java >/dev/null 2>&1; then
+        echo "Installing a Java runtime for Synthea"
+        apk add --no-cache openjdk17-jre || { echo "FAIL: could not install Java" >&2; return 1; }
+    fi
+    (
+        cd "${openemrDir}" || exit 1
+        run_php_as_apache php bin/console openemr:seed-demo "$@" "${seedFile}"
+    )
+}
+
 # Creates multiple OpenEMR multisite instances for testing multisite functionality.
 # Each multisite is a separate OpenEMR installation sharing the same codebase
 # but with its own database and site directory.
