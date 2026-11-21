@@ -781,21 +781,19 @@ switch ($userPhpDebug) {
             & ~E_USER_NOTICE
             & ~E_DEPRECATED
             & ~E_USER_DEPRECATED
-            & ~E_STRICT
         );
         ini_set('display_errors', '1');
         break;
     case 3:
         // Display PHP application errors and warnings only.
         // Start with the current server/runtime mask and remove notices,
-        // deprecated, strict, and user-level notice/deprecated noise.
+        // deprecated, and user-level notice/deprecated noise.
         error_reporting(
             error_reporting()
             & ~E_NOTICE
             & ~E_USER_NOTICE
             & ~E_DEPRECATED
             & ~E_USER_DEPRECATED
-            & ~E_STRICT
         );
         ini_set('display_errors', '1');
         break;

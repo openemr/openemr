@@ -126,6 +126,9 @@ exempt:
   - library/classes/TreeMenu.php
   - library/js/CategoryTreeMenu.js
   - library/js/DocumentTreeMenu.js
+- reason: Manuel Lemos SMTP/SASL classes, bundled third-party code.
+  paths:
+  - library/classes/smtp/*
 - reason: Derived from jumbojett/OpenID-Connect-PHP and kept under its Apache 2.0 license.
   paths:
   - src/Common/Auth/OpenIDConnect/JWT/RsaSha384Signer.php

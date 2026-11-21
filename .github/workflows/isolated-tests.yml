@@ -70,7 +70,7 @@ jobs:
       # commit trailer -- checked per-version so `Test-PHP: 8.7` opts into 8.7
       # alone while `Test-Mode: full` opts into every pre-release.
       run: |
-        supported=( '8.3' '8.4' '8.5' '8.6' )
+        supported=( '8.4' '8.5' '8.6' )
         prerelease=( '8.7' )
 
         case "${EVENT_NAME}" in
