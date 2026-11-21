@@ -109,6 +109,13 @@ final class PatientFinderQueryBuilder
             ? $customWhere
             : $customWhere . ' AND ( ' . $searchWhere . ' )';
 
+        // The criteria above the list narrow the results like a search does: they change the
+        // filtered count, not the total.
+        [$criteriaWhere, $criteriaBinds] = $request->criteria->toWhere();
+        if ($criteriaWhere !== '') {
+            $fullWhere .= ' AND ( ' . $criteriaWhere . ' )';
+        }
+
         $limitSql = '';
         $limitBinds = [];
         if ($request->hasPaging()) {
@@ -136,6 +143,7 @@ final class PatientFinderQueryBuilder
             $this->joinBinds($dataJoins),
             $filterBinds,
             $searchBinds,
+            $criteriaBinds,
             $orderBinds,
             $limitBinds
         );
@@ -150,7 +158,7 @@ final class PatientFinderQueryBuilder
         $countExpr = $whereJoinMap === [] ? 'COUNT(id)' : 'COUNT(DISTINCT patient_data.pid)';
         $filteredCountSql = 'SELECT ' . $countExpr . ' AS count FROM patient_data'
             . $this->joinSql(array_keys($whereJoinMap)) . ' WHERE ' . $fullWhere;
-        $filteredCountBinds = array_merge($this->joinBinds($whereJoinMap), $filterBinds, $searchBinds);
+        $filteredCountBinds = array_merge($this->joinBinds($whereJoinMap), $filterBinds, $searchBinds, $criteriaBinds);
 
         return new PatientFinderQueryPlan(
             $dataSql,
