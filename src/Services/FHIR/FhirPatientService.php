@@ -33,6 +33,7 @@ use OpenEMR\Services\Patient\PatientActiveStatus;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\SearchQueryConfig;
@@ -784,14 +785,24 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     }
 
     /**
+     * The raw value of a FHIR date or dateTime element, or null when it is absent. The
+     * generated getters claim an element is always present.
+     */
+    private static function fhirDateTimeValue(mixed $element): ?string
+    {
+        $value = $element instanceof FHIRDateTime ? $element->getValue() : $element;
+        return is_string($value) ? $value : null;
+    }
+
+    /**
      * A FHIR date or dateTime element as a local "Y-m-d H:i:s" value, or null when it is
      * absent, not a full date, or not a real calendar date (such as February 30). A
      * dateTime with a time zone is converted to the server's.
      */
     private static function fhirDateTimeToLocal(mixed $element): ?string
     {
-        $value = $element instanceof FHIRDateTime ? $element->getValue() : $element;
-        if (!is_string($value)) {
+        $value = self::fhirDateTimeValue($element);
+        if ($value === null) {
             return null;
         }
         if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $date) === 1) {
@@ -952,6 +963,46 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         return $data;
     }
 
+    public function insert(FHIRDomainResource $fhirResource): ProcessingResult
+    {
+        return $this->invalidDeceasedDateResult($fhirResource) ?? parent::insert($fhirResource);
+    }
+
+    /**
+     * @param mixed $fhirResourceId The patient's FHIR id, a uuid string
+     */
+    public function update(mixed $fhirResourceId, FHIRDomainResource $fhirResource): ProcessingResult
+    {
+        if (!is_string($fhirResourceId)) {
+            throw new \InvalidArgumentException('The FHIR resource id must be a string');
+        }
+        return $this->invalidDeceasedDateResult($fhirResource) ?? parent::update($fhirResourceId, $fhirResource);
+    }
+
+    /**
+     * A validation error when Patient.deceasedDateTime holds a full date that is not a
+     * real calendar date (such as February 30), so the write is refused rather than
+     * saved without its death date. A date given only to the year or month is valid
+     * FHIR but cannot be stored, and is left out as before.
+     */
+    private function invalidDeceasedDateResult(FHIRDomainResource $fhirResource): ?ProcessingResult
+    {
+        if (!$fhirResource instanceof FHIRPatient) {
+            return null;
+        }
+        $value = self::fhirDateTimeValue($fhirResource->getDeceasedDateTime());
+        if (
+            $value === null
+            || preg_match('/^\d{4}(-\d{2})?$/', $value) === 1
+            || self::fhirDateTimeToLocal($value) !== null
+        ) {
+            return null;
+        }
+        $result = new ProcessingResult();
+        $result->setValidationMessages(['deceasedDateTime' => 'deceasedDateTime is not a valid date']);
+        return $result;
+    }
+
     /**
      * Inserts an OpenEMR record into the system.
      *
@@ -1019,6 +1070,34 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         return $openEmrRecord;
     }
 
+    /**
+     * Turns the true/false codes of an active search into the stored 1/0. Any other
+     * code, or a modifier the token search would read as plain equality (such as
+     * :not), is a search error rather than a broader or opposite search.
+     *
+     * @throws SearchFieldException
+     */
+    private function convertActiveSearchCodes(TokenSearchField $field): void
+    {
+        $modifier = $field->getModifier();
+        if ($modifier === SearchModifier::MISSING) {
+            return;
+        }
+        if (!in_array($modifier, [null, '', SearchModifier::EXACT], true)) {
+            throw new SearchFieldException('active', 'Unsupported modifier for the active search parameter');
+        }
+        foreach ($field->getValues() as $tokenSearchValue) {
+            if (!$tokenSearchValue instanceof TokenSearchValue) {
+                continue;
+            }
+            $tokenSearchValue->setCode(match ($tokenSearchValue->getCode()) {
+                'true' => '1',
+                'false' => '0',
+                default => throw new SearchFieldException('active', 'The active search parameter must be true or false'),
+            });
+        }
+    }
+
     protected function searchForOpenEMRRecordsWithConfig($openEMRSearchParameters, SearchQueryConfig $config): ProcessingResult
     {
         // do any conversions on the data that we need here
@@ -1042,12 +1121,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // active is stored as 1 or 0; FHIR searches it as true or false.
         if (isset($openEMRSearchParameters['active'])) {
             $field = $openEMRSearchParameters['active'];
-            if ($field instanceof TokenSearchField && $field->getModifier() !== SearchModifier::MISSING) {
-                foreach ($field->getValues() as $tokenSearchValue) {
-                    if ($tokenSearchValue instanceof TokenSearchValue) {
-                        $tokenSearchValue->setCode(PatientActiveStatus::toBool($tokenSearchValue->getCode()) ? '1' : '0');
-                    }
-                }
+            if ($field instanceof TokenSearchField) {
+                $this->convertActiveSearchCodes($field);
             }
         }
 

@@ -23,6 +23,10 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\Patient\PatientActiveStatus;
+use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use PHPUnit\Framework\TestCase;
 
 final class FhirPatientServiceActiveTest extends TestCase
@@ -106,7 +110,6 @@ final class FhirPatientServiceActiveTest extends TestCase
             'date only, February 30' => ['2026-02-30'],
             'timestamp, February 30' => ['2026-02-30T14:30:00Z'],
             'timestamp, hour 25' => ['2026-11-15T25:30:00Z'],
-            'year and month only' => ['2026-11'],
         ];
     }
 
@@ -116,6 +119,76 @@ final class FhirPatientServiceActiveTest extends TestCase
         $data = $this->parse((new FHIRPatient())->setDeceasedDateTime(new FHIRDateTime($value)));
 
         $this->assertArrayNotHasKey('deceased_date', $data);
+    }
+
+    public function testYearAndMonthDeceasedDateIsLeftOutWithoutAnError(): void
+    {
+        $patient = (new FHIRPatient())->setDeceasedDateTime(new FHIRDateTime('2026-11'));
+        $service = (new \ReflectionClass(FhirPatientService::class))->newInstanceWithoutConstructor();
+        $check = new \ReflectionMethod($service, 'invalidDeceasedDateResult');
+
+        $this->assertArrayNotHasKey('deceased_date', $this->parse($patient));
+        $this->assertNull($check->invoke($service, $patient));
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidDeceasedDateProvider')]
+    public function testInvalidDeceasedDateIsRefusedWithAValidationError(string $value): void
+    {
+        $service = (new \ReflectionClass(FhirPatientService::class))->newInstanceWithoutConstructor();
+        $patient = (new FHIRPatient())->setDeceasedDateTime(new FHIRDateTime($value));
+
+        $inserted = $service->insert($patient);
+        $updated = $service->update('11111111-2222-3333-4444-555555555555', $patient);
+
+        foreach ([$inserted, $updated] as $result) {
+            $messages = $result->getValidationMessages();
+            $this->assertIsArray($messages);
+            $this->assertArrayHasKey('deceasedDateTime', $messages);
+        }
+    }
+
+    /**
+     * @param list<string> $codes
+     */
+    private function convertActiveSearch(array $codes, ?string $modifier = null): TokenSearchField
+    {
+        $field = new TokenSearchField('active', $codes);
+        $field->setValues(array_map(static fn(string $code): TokenSearchValue => new TokenSearchValue($code), $codes));
+        if ($modifier !== null) {
+            $field->setModifier($modifier);
+        }
+        $service = (new \ReflectionClass(FhirPatientService::class))->newInstanceWithoutConstructor();
+        (new \ReflectionMethod($service, 'convertActiveSearchCodes'))->invoke($service, $field);
+        return $field;
+    }
+
+    public function testActiveSearchCodesBecomeTheStoredValues(): void
+    {
+        $field = $this->convertActiveSearch(['true', 'false']);
+
+        $codes = array_map(static fn(mixed $value): mixed => $value instanceof TokenSearchValue ? $value->getCode() : null, $field->getValues());
+        $this->assertSame(['1', '0'], $codes);
+    }
+
+    public function testActiveSearchRejectsACodeThatIsNotTrueOrFalse(): void
+    {
+        $this->expectException(SearchFieldException::class);
+        $this->convertActiveSearch(['false', 'unknown']);
+    }
+
+    public function testActiveSearchRejectsTheNotModifier(): void
+    {
+        $this->expectException(SearchFieldException::class);
+        $this->convertActiveSearch(['false'], 'not');
+    }
+
+    public function testActiveSearchLeavesMissingAlone(): void
+    {
+        $field = $this->convertActiveSearch(['true'], SearchModifier::MISSING);
+
+        $value = $field->getValues()[0];
+        $this->assertInstanceOf(TokenSearchValue::class, $value);
+        $this->assertSame('true', $value->getCode());
     }
 
     public function testDeceasedFalseClearsTheStoredDeathDate(): void
