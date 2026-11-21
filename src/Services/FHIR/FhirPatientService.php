@@ -784,6 +784,29 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     }
 
     /**
+     * A FHIR date or dateTime element as a local "Y-m-d H:i:s" value, or null when it is
+     * absent or not a full date. A dateTime with a time zone is converted to the server's.
+     */
+    private static function fhirDateTimeToLocal(mixed $element): ?string
+    {
+        $value = $element instanceof FHIRDateTime ? $element->getValue() : $element;
+        if (!is_string($value)) {
+            return null;
+        }
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) === 1) {
+            return $value . ' 00:00:00';
+        }
+        $parsed = \DateTimeImmutable::createFromFormat('Y-m-d\\TH:i:sP', $value);
+        if ($parsed === false) {
+            $parsed = \DateTimeImmutable::createFromFormat('Y-m-d\\TH:i:s.uP', $value);
+        }
+        if ($parsed === false) {
+            return null;
+        }
+        return $parsed->setTimezone(new \DateTimeZone(date_default_timezone_get()))->format('Y-m-d H:i:s');
+    }
+
+    /**
      * Parses a FHIR Patient Resource, returning the equivalent OpenEMR patient record.
      *
      * @param array $fhirResource The source FHIR resource
@@ -804,6 +827,11 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $active = self::fhirBooleanValue($fhirResource->getActive());
         if ($active !== null) {
             $data['active'] = $active ? 1 : 0;
+        }
+        // A death date makes the patient inactive when the record is saved.
+        $deceasedDate = self::fhirDateTimeToLocal($fhirResource->getDeceasedDateTime());
+        if ($deceasedDate !== null) {
+            $data['deceased_date'] = $deceasedDate;
         }
 
         if (!empty($fhirResource->getName())) {

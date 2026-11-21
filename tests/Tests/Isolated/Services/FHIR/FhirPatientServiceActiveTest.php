@@ -14,10 +14,15 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\FHIR;
 
+use DateTimeImmutable;
+use DateTimeZone;
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\FHIR\FhirPatientService;
+use OpenEMR\Services\Patient\PatientActiveStatus;
 use PHPUnit\Framework\TestCase;
 
 final class FhirPatientServiceActiveTest extends TestCase
@@ -52,5 +57,39 @@ final class FhirPatientServiceActiveTest extends TestCase
         $data = $this->parse(new FHIRPatient());
 
         $this->assertArrayNotHasKey('active', $data);
+    }
+
+    public function testDeceasedDateIsMappedAndMakesTheRecordInactive(): void
+    {
+        $patient = (new FHIRPatient())
+            ->setActive(new FHIRBoolean(true))
+            ->setDeceasedDateTime(new FHIRDateTime('2026-11-15'));
+
+        $data = $this->parse($patient);
+        $this->assertSame('2026-11-15 00:00:00', $data['deceased_date'] ?? null);
+
+        $status = new PatientActiveStatus(new FrozenClock(new DateTimeImmutable('2026-11-21', new DateTimeZone('UTC'))));
+        $saved = $status->apply($data, ['active' => '1']);
+        $this->assertSame(0, $saved['active']);
+        $this->assertSame(PatientActiveStatus::DECEASED_REASON, $saved['inactive_reason']);
+        $this->assertSame('2026-11-15', $saved['inactive_date']);
+    }
+
+    public function testDeceasedDateTimeIsConvertedToTheServerTimeZone(): void
+    {
+        $data = $this->parse((new FHIRPatient())->setDeceasedDateTime(new FHIRDateTime('2026-11-15T14:30:00+00:00')));
+
+        $expected = (new DateTimeImmutable('2026-11-15T14:30:00+00:00'))
+            ->setTimezone(new DateTimeZone(date_default_timezone_get()))
+            ->format('Y-m-d H:i:s');
+        $this->assertSame($expected, $data['deceased_date'] ?? null);
+    }
+
+    public function testActivePatientWithoutDeceasedDateStaysActive(): void
+    {
+        $data = $this->parse((new FHIRPatient())->setActive(new FHIRBoolean(true)));
+
+        $this->assertArrayNotHasKey('deceased_date', $data);
+        $this->assertSame(1, $data['active'] ?? null);
     }
 }

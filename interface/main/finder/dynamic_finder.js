@@ -507,8 +507,10 @@
                 setting: this.checked ? '1' : '0',
                 csrf_token_form: cfg.csrfToken
             });
+            // Each table draws with the heading's current search, so a hidden list does
+            // not redraw with a search it last drew and then keep it.
             Object.keys(tables).forEach(function (key) {
-                tables[key].api().draw();
+                tables[key].api().search(search.term).draw();
             });
         });
     });
