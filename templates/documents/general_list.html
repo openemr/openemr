@@ -133,10 +133,7 @@ const inUseMsg = {$used_msg|js_escape};
 const isPatientTab = {$is_patient_tab|js_escape};
 let isNewRefererFlag = {$is_new_referer|js_escape};
 
-if (isPatientTab) {
-    // Highlight the Documents tab in the patient tab row.
-    $("#documents").addClass("active");
-} else {
+if (!isPatientTab) {
     isNewRefererFlag = 1;
     $("#pid").text(curpid + ' ' + curpat);
 }

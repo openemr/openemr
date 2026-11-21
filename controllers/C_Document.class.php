@@ -1335,7 +1335,7 @@ class C_Document extends Controller
         $patientMenu = '';
         if ($isPatientTab) {
             ob_start();
-            (new PatientMenuRole())->displayHorizNavBarMenu();
+            (new PatientMenuRole())->displayHorizNavBarMenu(activeMenuId: 'documents');
             $menuHtml = ob_get_clean();
             $patientMenu = is_string($menuHtml) ? $menuHtml : '';
         }

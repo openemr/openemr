@@ -199,10 +199,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <body class="patient-medical-issues">
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <?php
-        $list_id = "issues"; // to indicate nav item is active, count and give correct id
         // Collect the patient menu then build it
         $menuPatient = new PatientMenuRole();
-        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls());
+        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'issues');
         ?>
 
         <div id='patient_stats'>

@@ -198,15 +198,17 @@ class PatientMenuRole extends MenuRole
     /**
      * displays a bootstrap4 horizontal nav bar
      *
-     * @param string $endControls Trusted, already-escaped HTML placed at the right-hand end of
-     *                            the bar, e.g. OemrUI::tabRowControls()
+     * @param string $endControls  Trusted, already-escaped HTML placed at the right-hand end of
+     *                             the bar, e.g. OemrUI::tabRowControls()
+     * @param string $activeMenuId menu_id of the tab for the current page, filled with the primary
+     *                             color; a dropdown is highlighted when one of its items is
      */
-    public function displayHorizNavBarMenu(string $endControls = ''): void
+    public function displayHorizNavBarMenu(string $endControls = '', string $activeMenuId = ''): void
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $pid = $session->get('pid');
+        $sessionPid = $session->get('pid');
+        $pid = is_int($sessionPid) || is_string($sessionPid) ? (string) $sessionPid : '';
         $menu_restrictions = $this->getMenu();
-        $li_id = 1;
         $str_top = <<<EOT
         <!--navbar-light is needed for color override in other themes-->
         <nav class="navbar navbar-expand-md navbar-light bg-light">
@@ -216,28 +218,28 @@ class PatientMenuRole extends MenuRole
         EOT;
         echo $str_top . "\r\n";
         foreach ($menu_restrictions as $value) {
-            if (!empty($value->children)) {
+            if (!is_object($value)) {
+                continue;
+            }
+            $fields = get_object_vars($value);
+            $children = is_array($fields['children'] ?? null) ? array_filter($fields['children'], is_object(...)) : [];
+            if ($children !== []) {
                 // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
-                $class = $value->class ?? '';
-                $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id ?? $value->label) . '" class="nav-link dropdown-toggle text-body ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
+                $childIds = array_map(static fn(object $child): string => self::menuField($child, 'menu_id'), $children);
+                $isActive = $activeMenuId !== '' && in_array($activeMenuId, $childIds, true);
+                $label = self::menuField($value, 'label');
+                $menuId = self::menuField($value, 'menu_id');
+                $class = trim(self::menuField($value, 'class') . ($isActive ? ' bg-primary text-white rounded' : ' text-body'));
+                $list = '<li class="dropdown' . ($isActive ? ' active' : '') . '"><a href="#"  id="' . attr($menuId !== '' ? $menuId : $label) . '" class="nav-link dropdown-toggle ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($label) . ' <span class="caret"></span></a>';
                 $list .= '<ul class="dropdown-menu">';
-                foreach ($value->children as $children_value) {
-                    $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
-                    $class = $children_value->class ?? '';
-                    $list .= '<li class="nav-item ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
-                    $list .= '<a class="nav-link text-dark"  href="' . attr($link) . '" onclick="' . $children_value->on_click . '"> ' . text($children_value->label) . ' </a>';
-                    $list .= '</li>';
+                foreach ($children as $child) {
+                    $list .= $this->navItem($child, $pid, $activeMenuId);
                 }
                 $list .= '</ul>';
             } else {
-                $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
-                $class = $value->class ?? '';
-                $list = '<li class="nav-item ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
-                $list .= '<a class="nav-link text-dark" href="' . attr($link) . '" onclick="' . $value->on_click . '"> ' . text($value->label) . ' </a>';
-                $list .= '</li>';
+                $list = $this->navItem($value, $pid, $activeMenuId);
             }
             echo $list . "\r\n";
-            $li_id++;
         }
         echo "                </ul>\r\n";
         echo $endControls;
@@ -246,6 +248,36 @@ class PatientMenuRole extends MenuRole
         </nav>
         EOB;
         echo $str_bot . "\r\n";
+    }
+
+    /**
+     * One tab, or one item of a tab's dropdown. The current page's tab is filled with the primary color.
+     */
+    private function navItem(object $item, string $pid, string $activeMenuId): string
+    {
+        $menuId = self::menuField($item, 'menu_id');
+        $url = self::menuField($item, 'url');
+        // A menu item with pid "true" takes the patient id appended to its url.
+        $link = self::menuField($item, 'pid') === 'true' ? $url . attr($pid) : $url;
+        $isActive = $activeMenuId !== '' && $menuId === $activeMenuId;
+        $itemClass = trim(self::menuField($item, 'class') . ($isActive ? ' active' : ''));
+        $linkClass = $isActive ? 'nav-link bg-primary text-white rounded' : 'nav-link text-dark';
+        $current = $isActive ? ' aria-current="page"' : '';
+
+        // on_click comes from the menu definition, which is trusted, and is output as-is.
+        return '<li class="nav-item ' . attr($itemClass) . '" id="' . attr($menuId) . '">'
+            . '<a class="' . $linkClass . '"' . $current . ' href="' . attr($link) . '" onclick="' . self::menuField($item, 'on_click') . '"> ' . text(self::menuField($item, 'label')) . ' </a>'
+            . '</li>';
+    }
+
+    /**
+     * A string field of a menu item decoded from the menu JSON, or '' when it is missing.
+     */
+    private static function menuField(object $item, string $field): string
+    {
+        $value = get_object_vars($item)[$field] ?? '';
+
+        return is_string($value) ? $value : '';
     }
 
     /**

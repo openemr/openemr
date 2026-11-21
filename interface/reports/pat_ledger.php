@@ -447,10 +447,9 @@ if ($_REQUEST['form_csvexport']) {
                 <?php
                 if ($type_form != '0') {
                     // The patient tab row names the section, so the page title is left out.
-                    $list_id = "ledger"; // to indicate nav item is active, count and give correct id
                     // Collect the patient menu then build it
                     $menuPatient = new PatientMenuRole();
-                    $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls());
+                    $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'ledger');
                 } else {
                     echo  $oemr_ui->pageHeading() . "\r\n";
                 } ?>
@@ -890,12 +889,6 @@ if (! $_REQUEST['form_csvexport']) {
         </div>
     </div><!--end of container div-->
     <?php assert(isset($oemr_ui)); $oemr_ui->oeBelowContainerDiv();?>
-    <script>
-        var listId = '#' + <?php echo js_escape($list_id ?? null); ?>;
-        $(function () {
-            $(listId).addClass("active");
-        });
-    </script>
 </body>
 
 </html>

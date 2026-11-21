@@ -176,10 +176,8 @@ $totalScore = (string) (($info['instrument_score'] ?? '') !== '' ? (int)$info['i
         <div class="row">
             <div class="col-sm-12">
                 <?php
-                // highlight nav tab
-                $list_id = "sdoh";
                 $menuPatient = new PatientMenuRole();
-                $menuPatient->displayHorizNavBarMenu();
+                $menuPatient->displayHorizNavBarMenu(activeMenuId: 'sdoc1');
                 ?>
             </div>
         </div>

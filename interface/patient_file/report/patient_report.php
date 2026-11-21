@@ -98,10 +98,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
         <div id="patient_reports"> <!-- large outer DIV -->
             <?php
-            $list_id = "report"; // to indicate nav item is active, count and give correct id
             // Collect the patient menu then build it
             $menuPatient = new PatientMenuRole();
-            $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls());
+            $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'report');
             ?>
 
             <?php
@@ -812,10 +811,6 @@ function issueClick(issue) {
     });
 }
 
-var listId = '#' + <?php echo js_escape($list_id); ?>;
-$(function () {
-    $(listId).addClass("active");
-});
 
 </script>
 </body>
