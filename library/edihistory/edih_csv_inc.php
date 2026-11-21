@@ -873,7 +873,6 @@ function csv_dirfile_list($type)
     }
 
     $search_dir = $params['directory'];
-    $ext_re = $params['regex'];
     $dirfiles = [];
     //
     if (is_dir($search_dir)) {
@@ -883,7 +882,23 @@ function csv_dirfile_list($type)
                     continue;
                 } elseif ($tp == 'f837' && ($file == 'history' || $file == 'README.txt')) {
                     continue;
-                } elseif (is_file($search_dir . DS . $file)) {
+                } elseif (is_file($search_dir . DS . $file) && !is_link($search_dir . DS . $file)) {
+                    // Sidecars are not claim files. An upload keeps the name
+                    // it arrived with, including a name this type's pattern
+                    // would not match.
+                    if (\OpenEMR\Billing\BatchFilePublisher::isPublicationArtifact($file)) {
+                        continue;
+                    }
+                    // A publishing marker without a matching note is an
+                    // unfinished batch. History waits until that attempt ends.
+                    $publishing = $search_dir . DS . $file . '.publishing';
+                    if (
+                        is_file($publishing)
+                        && !is_link($publishing)
+                        && !\OpenEMR\Billing\BatchFilePublisher::isPublished($search_dir, $file)
+                    ) {
+                        continue;
+                    }
                     $dirfiles[] = $file;
                 } else {
                     if ($tp == 'f837' && $file == 'history') {
