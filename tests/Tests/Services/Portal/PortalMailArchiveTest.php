@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\Portal;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use PHPUnit\Framework\Attributes\Test;
@@ -133,12 +134,14 @@ class PortalMailArchiveTest extends TestCase
         $this->insertMessage(self::OWNER, 'Portal Sender', 'Staff Recipient');
         $this->insertMessage(self::OWNER, 'Staff Sender', 'Portal Recipient');
 
+        $afterId = $this->latestAuditId();
         updatePortalMailMessageStatus(self::MAIL_CHAIN, 'Delete', self::OWNER);
+        EventAuditLogger::getInstance()->flushAuditWrites();
 
         $this->assertSame(
             'secure message soft delete by ' . self::AUDIT_USER . ' msg id: ' . self::MAIL_CHAIN .
             ' from Staff Sender to recipient: Portal Recipient',
-            $this->getLatestAuditComment(),
+            $this->getLatestAuditComment($afterId),
         );
     }
 
@@ -148,7 +151,9 @@ class PortalMailArchiveTest extends TestCase
         $GLOBALS['enable_auditlog'] = true;
         $messageId = $this->insertMessage(self::OWNER, '', '');
 
+        $afterId = $this->latestAuditId();
         updatePortalMailMessageStatus($messageId, 'Delete', self::OWNER);
+        EventAuditLogger::getInstance()->flushAuditWrites();
 
         $archivedRow = $this->getMessageState($messageId);
         $this->assertSame('Delete', $archivedRow['message_status']);
@@ -157,7 +162,7 @@ class PortalMailArchiveTest extends TestCase
         $this->assertSame(
             'secure message soft delete by ' . self::AUDIT_USER . ' msg id: ' . $messageId .
             ' from  to recipient: ',
-            $this->getLatestAuditComment(),
+            $this->getLatestAuditComment($afterId),
         );
     }
 
@@ -211,11 +216,32 @@ class PortalMailArchiveTest extends TestCase
         ];
     }
 
-    private function getLatestAuditComment(): string
+    private function latestAuditId(): int
     {
         $row = QueryUtils::querySingleRow(
-            'SELECT comments FROM `log` WHERE user = ? AND event = ? AND groupname = ? ORDER BY id DESC LIMIT 1',
+            'SELECT COALESCE(MAX(id), 0) AS id FROM `log` WHERE user = ? AND event = ? AND groupname = ?',
             [self::AUDIT_USER, 'delete', 'Portal'],
+        );
+
+        if (!is_array($row)) {
+            return 0;
+        }
+        $id = $row['id'] ?? 0;
+        if (is_int($id)) {
+            return $id;
+        }
+        if (is_string($id) && ctype_digit($id)) {
+            return (int) $id;
+        }
+
+        return 0;
+    }
+
+    private function getLatestAuditComment(int $afterId): string
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT comments FROM `log` WHERE user = ? AND event = ? AND groupname = ? AND id > ? ORDER BY id DESC LIMIT 1',
+            [self::AUDIT_USER, 'delete', 'Portal', $afterId],
         );
         if (!is_array($row) || !isset($row['comments']) || !is_string($row['comments'])) {
             throw new \RuntimeException('Portal mail archive audit event was not found');
@@ -234,16 +260,6 @@ class PortalMailArchiveTest extends TestCase
         QueryUtils::sqlStatementThrowException(
             'DELETE FROM onsite_mail WHERE `owner` IN (?, ?)',
             [self::OWNER, self::OTHER_OWNER],
-        );
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM log_comment_encrypt WHERE log_id IN (' .
-            'SELECT id FROM `log` WHERE user = ? AND event = ? AND groupname = ?' .
-            ')',
-            [self::AUDIT_USER, 'delete', 'Portal'],
-        );
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM `log` WHERE user = ? AND event = ? AND groupname = ?',
-            [self::AUDIT_USER, 'delete', 'Portal'],
         );
     }
 }
