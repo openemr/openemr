@@ -175,16 +175,16 @@
                             </td>
                             <td>
                                 {% if email.datetime_queued %}
-                                    <small>{{ email.datetime_queued|date }}</small>
+                                    <small>{{ email.datetime_queued|oeFormatDateTime('global', true)|text }}</small>
                                 {% else %}
                                     <small class="text-muted">—</small>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if email.datetime_sent %}
-                                    <small class="text-success">{{ email.datetime_sent|date }}</small>
+                                    <small class="text-success">{{ email.datetime_sent|oeFormatDateTime('global', true)|text }}</small>
                                 {% elseif email.datetime_error %}
-                                    <small class="text-danger">{{ email.datetime_error|date }}</small>
+                                    <small class="text-danger">{{ email.datetime_error|oeFormatDateTime('global', true)|text }}</small>
                                 {% else %}
                                     <small class="text-muted">—</small>
                                 {% endif %}

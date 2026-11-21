@@ -97,7 +97,8 @@ class TwigTemplateRenderTest extends TestCase
     /**
      * Set the globals rendering needs, remembering what they were the first time round.
      *
-     * fileroot and date_display_format keep any value the surrounding suite already established;
+     * fileroot keeps any value the surrounding suite already established.
+     * date_display_format and time_display_format are pinned so fixtures stay stable.
      * disable_translation is forced so xl() returns the source string and xlt()/xla() apply only
      * escaping, rather than reaching for the translation tables.
      */
@@ -107,7 +108,7 @@ class TwigTemplateRenderTest extends TestCase
 
         if (self::$globalsSnapshot === null) {
             self::$globalsSnapshot = [];
-            foreach (['fileroot', 'date_display_format', 'disable_translation', 'v_js_includes'] as $key) {
+            foreach (['fileroot', 'date_display_format', 'time_display_format', 'disable_translation', 'v_js_includes'] as $key) {
                 self::$globalsSnapshot[$key] = [
                     'present' => $globals->has($key),
                     'value' => $globals->get($key),
@@ -118,9 +119,10 @@ class TwigTemplateRenderTest extends TestCase
         if (!$globals->has('fileroot')) {
             $globals->set('fileroot', self::fileroot());
         }
-        if (!$globals->has('date_display_format')) {
-            $globals->set('date_display_format', 0);
-        }
+        // Pin display formats so render fixtures are stable across developer
+        // machines and CI (site globals otherwise leak m/d/Y vs Y-m-d).
+        $globals->set('date_display_format', 0);
+        $globals->set('time_display_format', 0);
         $globals->set('disable_translation', true);
     }
 
