@@ -114,6 +114,11 @@
 #                                             Second arg is development-mode (default true);
 #                                             third arg is the import format (default ccda).
 #                                             Mode comes BEFORE format, e.g. `10 true fhir`.
+#   seed-demo [seed-file] [options]         - Load a full demo practice from a seed file
+#                                             (default contrib/demo-seed/demo-seed.yaml).
+#                                             Options pass through to openemr:seed-demo,
+#                                             e.g. `--count=5` or `--validate-only`.
+#                                             Needs OPENEMR_ENABLE_DEMO_SEED=1.
 #
 # OAUTH2:
 #   register-oauth2-client [site]      - Register OAuth2 client for default/multisite
@@ -779,6 +784,14 @@ if [ "$1" = "import-random-patients" ] && [ ! -z "$2" ]; then
     fi
     irp_format="${4:-ccda}"
     importRandomPatients "$2" "$irp_isdev" "$irp_format"
+fi
+
+if [ "$1" = "seed-demo" ]; then
+    # Exit here so the shifted arguments can't match a later command, and so
+    # the loader's exit status reaches the caller.
+    shift
+    seedDemo "$@"
+    exit $?
 fi
 
 if [ "$1" = "generate-multisite-bank" ] && [ ! -z "$2" ]; then
