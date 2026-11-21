@@ -122,11 +122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Organization/FhirOrganizationFacilityService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$event_data with type mixed is not subtype of native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$loginLocation with type array\\|null is incompatible with native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',

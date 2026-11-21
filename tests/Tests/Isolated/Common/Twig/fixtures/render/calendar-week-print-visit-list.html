@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        a { text-decoration: none; }
+        td { font-family: Arial, Helvetica, sans-serif; }
+        div.tiny { width: 1px; height: 1px; font-size: 1px; }
+        #bigCalHeader { height: 20%; font-family: Arial, Helvetica, sans-serif; }
+        #bigCalText { float: left; }
+        #provname { font-size: 2em; }
+        #daterange { font-size: 1.8em; font-weight: bold; }
+        #bigCal { height: 80%; }
+        #weekcal { width: 100%; border-collapse: collapse; }
+        #weekcal td { vertical-align: top; border: 1px solid #999; padding: 4px; }
+        #dowheader { background-color: lightblue; padding: 2px 4px; font-weight: bold; }
+        .pagebreak { page-break-after: always; }
+        .event_in       { background-color: white;     font-size: 0.8em; }
+        .event_out      { background-color: lightgray; font-size: 0.8em; }
+        .event_appointment { background-color: white; border: 1px solid blue; font-size: 0.8em; }
+        .event_noshow      { background-color: pink;  border: 1px solid blue; font-size: 0.8em; }
+        .event_reserved    { background-color: pink;  border: 1px solid blue; font-size: 0.8em; }
+        .event_visit_list { background-color: #fff; border: 1px solid #000; font-size: 0.8em; }
+.visit-list-header { border-bottom: 1px solid #999; padding: 0 2px; }
+.visit-list-title { font-weight: bold; }
+.visit-list-entries { list-style: none; margin: 0; padding: 0 2px; }
+.visit-list-entry { white-space: nowrap; }
+.visit-list-sequence { display: inline-block; font-weight: bold; min-width: 1.75em; }
+.visit-list-category { font-style: italic; }
+        #datePicker { float: right; display: inline; padding: 5px; text-align: center; background-color: lightblue; }
+        #datePicker td { font-family: Arial, Helvetica, sans-serif; font-size: 0.7em; }
+        #datePicker table { border-collapse: collapse; }
+        #datePicker .tdDOW-small, #datePicker .tdMonthDay-small, #datePicker .tdOtherMonthDay-small, #datePicker .tdWeekend-small {
+            font-family: Arial, Helvetica, sans-serif; font-size: 10px; vertical-align: top; padding: 2px 3px 2px 3px;
+        }
+        #datePicker .tdDOW-small { background-color: lightblue; text-align: center; border: none; }
+        #datePicker .tdMonthDay-small { background-color: #ffffff; border: none; }
+        #datePicker .tdOtherMonthDay-small { background-color: #ffffff; color: #999; border: none; }
+        #datePicker .tdWeekend-small { background-color: #ddd; color: #999; border: none; }
+        #datePicker .tdMonthName-small { font-size: 12px; text-align: center; }
+        #datePicker .currentDate { border: 1px solid blue; background-color: blue; color: lightblue; }
+    </style>
+    <!-- setupHeader stub -->
+</head>
+<body>
+
+<div id="bigCal">
+
+    <div id="bigCalHeader">
+        <div id="bigCalText">
+            <span id="provname">Alice Smith</span>
+            <br />
+            <span id="daterange">
+                March 09
+                - <br />
+                March 15
+            </span>
+        </div>
+        <div id="datePicker">
+
+<table>
+    <tr>
+        <td colspan="7" class="tdMonthName-small">April 2026 </td>
+    </tr>
+    <tr>
+                    <td class="tdDOW-small">Sun</td>
+                    <td class="tdDOW-small">Mon</td>
+                    <td class="tdDOW-small">Tue</td>
+                    <td class="tdDOW-small">Wed</td>
+                    <td class="tdDOW-small">Thu</td>
+                    <td class="tdDOW-small">Fri</td>
+                    <td class="tdDOW-small">Sat</td>
+            </tr>
+    </table>
+        </div>
+        <div id="datePicker">
+
+<table>
+    <tr>
+        <td colspan="7" class="tdMonthName-small">March 2026 </td>
+    </tr>
+    <tr>
+                    <td class="tdDOW-small">Sun</td>
+                    <td class="tdDOW-small">Mon</td>
+                    <td class="tdDOW-small">Tue</td>
+                    <td class="tdDOW-small">Wed</td>
+                    <td class="tdDOW-small">Thu</td>
+                    <td class="tdDOW-small">Fri</td>
+                    <td class="tdDOW-small">Sat</td>
+            </tr>
+    </table>
+        </div>
+    </div>
+
+    <table id="weekcal">
+                    <tr>
+                <td>
+                    <div id="dowheader">Mon 03/09</div>
+                                                                        <div data-eid="40" class="event_visit_list event"
+                                 id="20260309-40">
+                                <div class="visit-list-header">
+    <span class="visit-list-title">Visit List</span>
+    <span class="visit-list-summary">9:00am–5:00pm · 2 patients</span>
+</div>
+<ol class="visit-list-entries">
+            <li class="visit-list-entry">
+            <span class="visit-list-sequence">#1</span>
+            <span class="visit-list-stop">Stop 1</span>            <span class="visit-list-patient">Hollis, Margaret</span>
+            <span class="visit-list-category">Established Patient</span>
+        </li>
+            <li class="visit-list-entry">
+            <span class="visit-list-sequence">#2</span>
+                        <span class="visit-list-patient">O'Brien, Pat &lt;Jr&gt;</span>
+            <span class="visit-list-category">New Patient</span>
+        </li>
+    </ol>
+                            </div>
+                                                            </td>
+                <td>
+                                    </td>
+            </tr>
+            </table>
+</div>
+
+<script>
+    $(function () {
+        var win = top.printLogPrint ? top : opener.top;
+        win.printLogPrint(window);
+    });
+</script>
+
+</body>
+</html>

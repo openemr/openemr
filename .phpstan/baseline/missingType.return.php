@@ -11697,11 +11697,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Utils/CacheUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Uuid\\\\UniqueInstallationUuid\\:\\:getUniqueInstallationUuid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Uuid/UniqueInstallationUuid.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Uuid\\\\UuidMapping\\:\\:createAllMissingResourceUuids\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidMapping.php',

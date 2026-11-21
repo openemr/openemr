@@ -112,36 +112,36 @@
                                          title="Monday March 9 2026"
                                          id="20260309-40-1">
                                         <div class="visit-list-header">
-                                            <button type="button" class="visit-list-title" title="Click to edit">Visit List</button>
-                                            <span class="visit-list-summary">9:00am–5:00pm · 2 patients</span>
-                                            <button type="button" class="visit-list-add btn btn-sm btn-primary"                                                    data-date="20260309" data-provider="7"
-                                                    data-hour="9" data-minute="00"
-                                                    title="Add a patient to this Visit List" aria-label="Add a patient to this Visit List">
-                                                <i class="fa fa-plus" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
-                                        <ol class="visit-list-entries">
-                                                                                                                                            <li class="visit-list-entry" style="background-color: #FF2414"
-                                                    data-eid="41" data-date="20260309" data-cattype="0"
-                                                    title="Hollis, Margaret
+    <button type="button" class="visit-list-title" title="Click to edit">Visit List</button>
+    <span class="visit-list-summary">9:00am–5:00pm · 2 patients</span>
+    <button type="button" class="visit-list-add btn btn-sm btn-primary"            data-date="20260309" data-provider="7"
+            data-hour="9" data-minute="00"
+            title="Add a patient to this Visit List" aria-label="Add a patient to this Visit List">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+    </button>
+</div>
+<ol class="visit-list-entries">
+                    <li class="visit-list-entry" style="background-color: #FF2414"
+            data-eid="41" data-date="20260309" data-cattype="0"
+            title="Hollis, Margaret
 Established Patient">
-                                                    <button type="button" class="visit-list-sequence" title="Click to edit">#1</button>
-                                                    <a class="visit-list-patient" href="#" data-pid="541" title="Hollis, Margaret
+            <button type="button" class="visit-list-sequence" title="Click to edit">#1</button>
+            <a class="visit-list-patient" href="#" data-pid="541" title="Hollis, Margaret
 (Click to view)">Hollis, Margaret</a>
-                                                    <span class="visit-list-category">Established Patient</span>
-                                                    <span class="visit-list-status">@ Arrived</span>
-                                                </li>
-                                                                                                                                            <li class="visit-list-entry" style="background-color: #a2d9e2"
-                                                    data-eid="42" data-date="20260309" data-cattype="0"
-                                                    title="O&#039;Brien, Pat &lt;Jr&gt;
+                            <span class="visit-list-category">Established Patient</span>
+                <span class="visit-list-status">@ Arrived</span>
+                    </li>
+                    <li class="visit-list-entry" style="background-color: #a2d9e2"
+            data-eid="42" data-date="20260309" data-cattype="0"
+            title="O&#039;Brien, Pat &lt;Jr&gt;
 New Patient">
-                                                    <button type="button" class="visit-list-sequence" title="Click to edit">#2</button>
-                                                    <a class="visit-list-patient" href="#" data-pid="542" title="O&#039;Brien, Pat &lt;Jr&gt;
+            <button type="button" class="visit-list-sequence" title="Click to edit">#2</button>
+            <a class="visit-list-patient" href="#" data-pid="542" title="O&#039;Brien, Pat &lt;Jr&gt;
 (Click to view)">O'Brien, Pat &lt;Jr&gt;</a>
-                                                    <span class="visit-list-category">New Patient</span>
-                                                    <span class="visit-list-status"></span>
-                                                </li>
-                                                                                    </ol>
+                            <span class="visit-list-category">New Patient</span>
+                <span class="visit-list-status"></span>
+                    </li>
+    </ol>
                                     </div>
                                                                                     </div>
                     </td>
@@ -241,6 +241,7 @@ New Patient">
      document.getElementById('popup').style.display = "none";
  }
 </script>
+<script src="/library/js/calendarVisitList.js?v=82"></script>
 <script>
         var tsHeight="20px";
     var tsHeightNum=20;
@@ -286,7 +287,7 @@ New Patient">
         }).on("dblclick", function(e) { e.stopPropagation(); });
         $(".visit-list-header").on("click", function(e) {
             e.stopPropagation();
-            EditEvent($(this).closest(".event").get(0));
+            EditEvent($(this).closest(".event_visit_list").get(0));
         }).on("dblclick", function(e) { e.stopPropagation(); });
         var editVisitListPatient = function(row) {
             oldEvt(row.data("date"), row.data("eid"), row.data("cattype"));
@@ -304,6 +305,12 @@ New Patient">
             e.stopPropagation();
             goPid($(this).data("pid"));
         }).on("dblclick", function(e) { e.stopPropagation(); });
+        // A Visit List block keeps the height of its time range. When its patients don't
+        // fit, it shows the rows that do and "+N more", which opens the whole list.
+        pcSetUpVisitLists(document, {
+            more: "+%s more",
+            fewer: "Show fewer"
+        });
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
         $(".tdMonthName-small").click(function() {

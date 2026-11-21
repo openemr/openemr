@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Isolated VisitListDayLoader Test
+ * Isolated VisitListLoader Test
  *
- * Reading the day view's Visit Lists and appointment statuses without a database.
+ * Reading the calendar views' Visit Lists and appointment statuses without a database.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -17,15 +17,15 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\PostCalendar\ViewModel;
 
 use OpenEMR\Appointment\VisitList\VisitListService;
-use OpenEMR\PostCalendar\ViewModel\VisitListDayLoader;
+use OpenEMR\PostCalendar\ViewModel\VisitListLoader;
 use PHPUnit\Framework\TestCase;
 
-class VisitListDayLoaderTest extends TestCase
+class VisitListLoaderTest extends TestCase
 {
     /** @var list<array{string, string, string, array<mixed>}> Each fetchEvents call. */
     private array $eventCalls = [];
 
-    private function loader(): VisitListDayLoader
+    private function loader(): VisitListLoader
     {
         $service = new VisitListService(
             static fn (string $sql, array $binds): array
@@ -42,7 +42,7 @@ class VisitListDayLoaderTest extends TestCase
                 ]];
             }
         );
-        return new VisitListDayLoader(
+        return new VisitListLoader(
             $service,
             static fn (string $sql): array => str_contains($sql, "'apptstat'") ? [
                 ['option_id' => '@', 'title' => 'Arrived', 'notes' => 'FF6619|10'],
@@ -54,7 +54,7 @@ class VisitListDayLoaderTest extends TestCase
 
     public function testReadsTheDaysListsForTheProvidersShown(): void
     {
-        $schedule = $this->loader()->schedule('20260309', [['id' => '7'], ['id' => 9], ['id' => '0'], ['name' => 'x'], 'junk']);
+        $schedule = $this->loader()->schedule(['2026-03-09'], [['id' => '7'], ['id' => 9], ['id' => '0'], ['name' => 'x'], 'junk']);
 
         $this->assertNotNull($schedule);
         $this->assertCount(1, $schedule->lists);
@@ -65,9 +65,19 @@ class VisitListDayLoaderTest extends TestCase
         $this->assertSame([21, '7', '9'], $binds, 'the category, then the providers; rows without one are left out');
     }
 
-    public function testAnUnreadableDateHasNoLists(): void
+    public function testReadsFromTheFirstToTheLastDateShown(): void
     {
-        $this->assertNull($this->loader()->schedule('not a date', [['id' => '7']]));
+        $this->loader()->schedule(['2026-03-15', 'junk', '2026-02-23', 7, '2026-04-05', '2026-02-30'], [['id' => '7']]);
+
+        [$from, $to] = $this->eventCalls[0];
+        $this->assertSame('2026-02-23', $from);
+        $this->assertSame('2026-04-05', $to, 'dates that cannot be read, or roll over, are left out');
+    }
+
+    public function testNoReadableDateHasNoLists(): void
+    {
+        $this->assertNull($this->loader()->schedule(['not a date', '20260309'], [['id' => '7']]));
+        $this->assertNull($this->loader()->schedule([], [['id' => '7']]));
         $this->assertSame([], $this->eventCalls);
     }
 

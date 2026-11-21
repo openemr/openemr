@@ -212,30 +212,7 @@
                                          style="top:{{ event.evtTopCss }}; height:{{ event.evtHeightCss }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}"
                                          title="{{ event.tooltip|attr }}"
                                          id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
-                                        <div class="visit-list-header">
-                                            <button type="button" class="visit-list-title" title="{{ 'Click to edit'|xla }}">{{ event.visitList.title|text }}</button>
-                                            <span class="visit-list-summary">{{ event.visitList.timeLabel|text }} · {{ event.visitList.count }} {% if event.visitList.count == 1 %}{{ 'patient'|xlt }}{% else %}{{ 'patients'|xlt }}{% endif %}</span>
-                                            <button type="button" class="visit-list-add btn btn-sm btn-primary"{% if isHolidayDay %} disabled{% endif %}
-                                                    data-date="{{ event.visitList.eventDate|attr }}" data-provider="{{ event.visitList.providerId|attr }}"
-                                                    data-hour="{{ event.visitList.startHour|attr }}" data-minute="{{ event.visitList.startMinute|attr }}"
-                                                    title="{{ 'Add a patient to this Visit List'|xla }}" aria-label="{{ 'Add a patient to this Visit List'|xla }}">
-                                                <i class="fa fa-plus" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
-                                        <ol class="visit-list-entries">
-                                            {% for row in event.visitList.rows %}
-                                                {# As on a timed appointment: the number (in place of a time) and a
-                                                   double click edit the appointment; the name opens the chart. #}
-                                                <li class="visit-list-entry" style="background-color: {{ row.bgColor }}"
-                                                    data-eid="{{ row.eid|attr }}" data-date="{{ row.eventDate|attr }}" data-cattype="{{ row.pccattype|attr }}"
-                                                    title="{{ row.tooltip|attr }}">
-                                                    <button type="button" class="visit-list-sequence" title="{{ 'Click to edit'|xla }}">{{ row.sequenceLabel|text }}</button>
-                                                    <a class="visit-list-patient" href="#" data-pid="{{ row.pid|attr }}" title="{{ row.patientTooltip|attr }}">{{ row.patientName|text }}</a>
-                                                    <span class="visit-list-category">{{ row.categoryName|text }}</span>
-                                                    <span class="visit-list-status">{{ row.statusTitle|text }}</span>
-                                                </li>
-                                            {% endfor %}
-                                        </ol>
+                                        {% include 'calendar/default/views/_visit_list.html.twig' with {visitList: event.visitList, compact: false, addDisabled: isHolidayDay} only %}
                                     </div>
                                 {% elseif event.catid != 6 %}
                                     <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"

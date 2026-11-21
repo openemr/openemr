@@ -91,12 +91,6 @@ use getMethod\\(\\) instead$#',
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Http\\\\HttpSessionFactory\\:
-read from the \\-\\>logger property$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpSessionFactory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Controllers\\\\Interface\\\\Forms\\\\Observation\\\\ObservationController\\:
 read from the \\-\\>logger property$#',
     'count' => 6,
